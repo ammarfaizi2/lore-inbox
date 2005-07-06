@@ -1,159 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVGFN5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVGFN5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262238AbVGFN5z (ORCPT <rfc822;willy@w.ods.org>);
+	id S262222AbVGFN5z (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Jul 2005 09:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVGFN5i
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbVGFN5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 09:57:38 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:57822 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262238AbVGFKCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 06:02:49 -0400
-Subject: Re: [PATCH] [19/48] Suspend2 2.1.9.8 for 2.6.12:
-	510-version-specific-mac.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pekka Enberg <penberg@gmail.com>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <84144f02050705225819907f6f@mail.gmail.com>
-References: <11206164393426@foobar.com> <11206164411926@foobar.com>
-	 <84144f02050705225819907f6f@mail.gmail.com>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120644248.4860.59.camel@localhost>
+	Wed, 6 Jul 2005 09:57:42 -0400
+Received: from nproxy.gmail.com ([64.233.182.197]:36633 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262278AbVGFKD3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 06:03:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=b29erHUk/6JXsqPuvAQpGEEAjDxehxb4q/hsZdfWWQsHM3kXu170A9BD8mg2K5CbaS49PTsoVHFGv7w7JMQlPAsmr57NUzRnDPo16FStmzt5hQJ3SIOonBqBQXCIuPtjT+zceJqzElFxXB/EMtpq/ikBcYJXkPfhr4eAx4qEtXM=
+Message-ID: <84144f02050706030316111116@mail.gmail.com>
+Date: Wed, 6 Jul 2005 13:03:28 +0300
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [PATCH] [41/48] Suspend2 2.1.9.8 for 2.6.12: 617-proc.patch
+Cc: linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>
+In-Reply-To: <1120616443979@foobar.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 06 Jul 2005 20:04:09 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <11206164393426@foobar.com> <1120616443979@foobar.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Requested changes applied.
+On 7/6/05, Nigel Cunningham <nigel@suspend2.net> wrote:
+> diff -ruNp 618-core.patch-old/kernel/power/suspend2_core/suspend.c 618-core.patch-new/kernel/power/suspend2_core/suspend.c
+> --- 618-core.patch-old/kernel/power/suspend2_core/suspend.c     1970-01-01
+> +#define SNPRINTF(a...)         len += suspend_snprintf(debug_info_buffer + len, \
+> +               PAGE_SIZE - len - 1, ## a)
 
-Thanks!
+Please don't introduce subsystem specific wrappers for generic string
+manipulation functions. Put them to lib/.
 
-Nigel
-
-On Wed, 2005-07-06 at 15:58, Pekka Enberg wrote:
-> On 7/6/05, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > diff -ruNp 520-version-specific-x86_64.patch-old/include/asm-x86_64/suspend2.h 520-version-specific-x86_64.patch-new/include/asm-x86_64/suspend2.h
-> > --- 520-version-specific-x86_64.patch-old/include/asm-x86_64/suspend2.h 1970-01-01 10:00:00.000000000 +1000
-> > +++ 520-version-specific-x86_64.patch-new/include/asm-x86_64/suspend2.h 2005-07-05 23:56:15.000000000 +1000
-> > @@ -0,0 +1,432 @@
-> > +#undef inline
-> > +#define inline __inline__ __attribute__((always_inline))
-> 
-> Please drop this macro. <linux/compiler.h> takes care of it already.
-> 
-> > +
-> > +/* image of the saved processor states */
-> > +struct suspend2_saved_context {
-> > +       unsigned long eax, ebx, ecx, edx;
-> > +       unsigned long esp, ebp, esi, edi;
-> > +       unsigned long r8, r9, r10, r11;
-> > +       unsigned long r12, r13, r14, r15;
-> > +
-> > +#if 0
-> > +       u16 es, fs, gs, ss;
-> > +       u32 cr0, cr2, cr3, cr4;
-> > +       u16 gdt_pad;
-> > +       u16 gdt_limit;
-> > +       u32 gdt_base;
-> > +       u16 idt_pad;
-> > +       u16 idt_limit;
-> > +       u32 idt_base;
-> > +       u16 ldt;
-> > +       u16 tss;
-> > +       u32 tr;
-> > +       u32 safety;
-> > +       u32 return_address;
-> > +#endif
-> 
-> Please drop the #ifdef
-> 
-> > +       unsigned long eflags;
-> > +} __attribute__((packed));
-> > +
-> > +extern struct suspend2_saved_context suspend2_saved_context;   /* temporary storage */
-> 
-> Please move the comment above the declaration (looks as if you're
-> breaking 80 columns).
-> 
-> > +
-> > +#ifdef CONFIG_MTRR
-> > +/* MTRR functions */
-> > +extern int mtrr_save(void);
-> > +extern int mtrr_restore_one_cpu(void);
-> > +extern void mtrr_restore_finish(void);
-> > +#else
-> > +#define mtrr_save() do { } while(0)
-> > +#define mtrr_restore_one_cpu() do { } while(0)
-> > +#define mtrr_restore_finish() do { } while(0)
-> 
-> Empty static inline functions are preferred.
-> 
-> > +#endif
-> > +
-> > +#ifndef CONFIG_SMP
-> > +#undef cpu_clear
-> > +#define cpu_clear(a, b) do { } while(0)
-> 
-> Same here.
-> 
-> > +#endif
-> > +
-> > +extern struct suspend2_saved_context suspend2_saved_context;   /* temporary storage */
-> 
-> Move comment up.
-> 
-> > +static void fix_processor_context(void)
-> > +{
-> > +       int nr = _smp_processor_id();
-> > +       struct tss_struct * t = &per_cpu(init_tss,nr);
-> > +
-> > +       set_tss_desc(nr,t);     /* This just modifies memory; should not be neccessary. But... This is neccessary, because 386 hardware has concept of busy tsc or some similar stupidity. */
-> 
-> Please move comment before function call and indent it properly.
-> 
-> > +/*
-> > + * END of IRQ affinity code, based on LKCD code.
-> > + * -----------------------------------------------------------------
-> > + */
-> > +#else
-> > +#define save_and_set_irq_affinity() do { } while(0)
-> > +#define reset_irq_affinity() do { } while(0)
-> 
-> Empty static inlines please.
-> 
-> > diff -ruNp 520-version-specific-x86_64.patch-old/include/asm-x86_64/suspend.h 520-version-specific-x86_64.patch-new/include/asm-x86_64/suspend.h
-> > --- 520-version-specific-x86_64.patch-old/include/asm-x86_64/suspend.h  2005-06-20 11:47:28.000000000 +1000
-> > +++ 520-version-specific-x86_64.patch-new/include/asm-x86_64/suspend.h  2005-07-04 23:14:19.000000000 +1000
-> > @@ -43,7 +43,7 @@ extern unsigned long saved_context_eflag
-> >                         : /* no output */ \
-> >                         :"r" ((thread)->debugreg##register))
-> > 
-> > -extern void fix_processor_context(void);
-> > +/* extern void fix_processor_context(void); */
-> 
-> Please drop commented out code.
-> 
-> > 
-> >  #ifdef CONFIG_ACPI_SLEEP
-> >  extern unsigned long saved_eip;
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> 
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
-
+                      Pekka

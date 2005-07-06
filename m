@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVGFTs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVGFTs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbVGFTs2 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262123AbVGFTs2 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Jul 2005 15:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVGFTpk
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbVGFTpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:45:40 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:21514 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S262343AbVGFOnQ
+	Wed, 6 Jul 2005 15:45:32 -0400
+Received: from nproxy.gmail.com ([64.233.182.193]:37057 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262320AbVGFOfN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 10:43:16 -0400
-Message-ID: <42CBEDF9.3030200@stud.feec.vutbr.cz>
-Date: Wed, 06 Jul 2005 16:43:05 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rob Prowel <tempest766@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: please remove reserved word "new" from kernel headers
-References: <20050706092657.95280.qmail@web60012.mail.yahoo.com>
-In-Reply-To: <20050706092657.95280.qmail@web60012.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  tested this incoming email. See other headers to know if the email
-  has beed identified as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
+	Wed, 6 Jul 2005 10:35:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ibd68mTvrv12ACrrXKdMe9Su777ZTn7ZSGgnsMJgCl22dZKVLIBZrPdVgTqIUHghTeBxFdnLYYgkr7KfSyLOmc9qsywn0ZOJ3abq0YnN6X31Msk3gYlbHP60qu/7NQV1C4+EhXJpBfuo47hhbP06kl9bhPfIFCIRDU7logTjuoc=
+Message-ID: <58cb370e05070607351fe5eced@mail.gmail.com>
+Date: Wed, 6 Jul 2005 16:35:11 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Fix crash on boot in kmalloc_node IDE changes
+Cc: linux-ide@vger.kernel.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       christoph@lameter.com
+In-Reply-To: <20050706140933.GH21330@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050706133052.GF21330@wotan.suse.de>
+	 <58cb370e050706070512c93ee1@mail.gmail.com>
+	 <20050706140933.GH21330@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Prowel wrote:
-> [1.] One line summary of the problem:    
+On 7/6/05, Andi Kleen <ak@suse.de> wrote:
+> > drive->hwif check is redundant, please remove it
 > 
-> 2.4 and 2.6 kernel headers use c++ reserved word "new"
-> as identifier in function prototypes.
+> It's not. My first version didn't have it but it still crashed.
+> It's what actually prevents the crash.
+> I also don't know why, but it's true.
 
-Yes, the kernel is written in C, not C++.
+very weird as HWIF(drive) == drive->hwif:
 
-> using the identifier "new" in kernel headers that are
-> visible to applications programs is a bad idea.
+	ide_hwif_t *hwif = HWIF(drive);
 
-Programs are not supposed to include kernel headers.
-This is a FAQ, see the archives.
+...
 
-Michal
+	q = blk_init_queue_node(do_ide_request, &ide_lock,
+				pcibus_to_node(drive->hwif->pci_dev->bus));
+	if (!q)
+		return 1;
+
+...
+
+	if (!hwif->rqsize) {
+
+you should OOPS here
+
+Bartlomiej

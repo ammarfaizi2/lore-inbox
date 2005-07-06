@@ -1,59 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbVGFTsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVGFTsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbVGFTsb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 15:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVGFTpH
+	id S262282AbVGFTsc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 15:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbVGFTpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:45:07 -0400
-Received: from odin2.bull.net ([192.90.70.84]:50077 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S262318AbVGFO0M convert rfc822-to-8bit
+	Wed, 6 Jul 2005 15:45:12 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:63690 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S262138AbVGFOaK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 10:26:12 -0400
-Subject: Re: PREEMPT_RT and mptfusion
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1120653209.6225.96.camel@ibiza.btsn.frna.bull.fr>
-References: <1120633558.6225.64.camel@ibiza.btsn.frna.bull.fr>
-	 <20050706120848.GB16843@elte.hu>
-	 <1120653209.6225.96.camel@ibiza.btsn.frna.bull.fr>
-Content-Type: text/plain; charset=iso-8859-15
-Organization: BTS
-Message-Id: <1120659178.6225.99.camel@ibiza.btsn.frna.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-5.1.100mdk 
-Date: Wed, 06 Jul 2005 16:12:58 +0200
-Content-Transfer-Encoding: 8BIT
+	Wed, 6 Jul 2005 10:30:10 -0400
+Date: Wed, 6 Jul 2005 10:30:09 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
+cc: Stefano Rivoir <s.rivoir@gts.it>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: RE: [linux-usb-devel] Kernel unable to read partition table on US
+ B Memory Key
+In-Reply-To: <40BC5D4C2DD333449FBDE8AE961E0C334F9369@psexc03.nbnz.co.nz>
+Message-ID: <Pine.LNX.4.44L0.0507061021500.5278-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mer 06/07/2005 à 14:33, Serge Noiraud a écrit :
-> Le mer 06/07/2005 à 14:08, Ingo Molnar a écrit :
-> > * Serge Noiraud <serge.noiraud@bull.net> wrote:
-> > 
-> > > The problem I have didn't exist in 48-36 : The last version I can run.
-> > > >From the 50-47, ( I didn't test 40-38 through 50-46 ) I get the
-> > > following problem : I cannot boot :
-> > 
-> > > with a 2.6.12 with RT patch and PREEMPT_RT
-> > > ...
-> > > Fusion MPT base driver 3.01.20
-> > > Copyright (c) 1999-2004 LSI Logic Corporation
-> > > ACPI: PCI Interrupt 0000:04:03.0[A] -> GSI 32 (level, low) -> IRQ 177
-> > > mptbase: Initiating ioc0 bringup
-> > > ioc0: 53C1030: Capabilities={Initiator}
-> > > <== wait ~ 13 secondes
-> > > ioc0: 53C1030: Initiating ioc0 recovery    <== New with the RT patch
-> > 
-> > which -RT kernel was the last you tried, 50-47? Could you send me your 
-> > .config? It seems you have CONFIG_X86_UP_IOAPIC and CONFIG_PCI_MSI 
-> > enabled - could you try -51-02 and both of these options disabled?
-> > 
-> > 	Ingo
-> Yes it was 50-47.
-> CONFIG_X86_UP_IOAPIC is not present in my .config
-> CONFIG_PCI_MSI is set to yes.
+On Wed, 6 Jul 2005, Roberts-Thomson, James wrote:
+
+> Alan,
+>  
+> > Try putting delays at various spots in sd_revalidate_disk: 
+> > the beginning, the middle, and the end.
 > 
-> I'll try with CONFIG_PCI_MSI=n
-It's OK for me. good job.
+> OK, the attached patch works for me when sd_mod was loaded with delay_use=1.
+> 
+> Now I'm quite prepared to be told that this is a really horrible and
+> inapproprate hack (given that I am not a kernel developer, I don't really
+> know the "correct" way to solve this problem); and I'll cheerfully admit
+> that it doesn't really solve the problem cleanly as can be seen below:
+
+It would have been better simply to call msleep, but never mind.
+
+> Jul  6 14:44:52 pc196344 kernel: sd: waiting for device to get ready.
+> Jul  6 14:44:53 pc196344 kernel: sda: Unit Not Ready, sense:
+> Jul  6 14:44:53 pc196344 kernel: : Current: sense key: Unit Attention
+> Jul  6 14:44:53 pc196344 kernel:     Additional sense: Not ready to ready
+> change, medium may have changed
+> Jul  6 14:44:53 pc196344 kernel: sda : READ CAPACITY failed.
+> Jul  6 14:44:53 pc196344 kernel: sda : status=1, message=00, host=0,
+> driver=08
+> Jul  6 14:44:53 pc196344 kernel: sd: Current: sense key: Unit Attention
+> Jul  6 14:44:53 pc196344 kernel:     Additional sense: Not ready to ready
+> change, medium may have changed
+> Jul  6 14:44:53 pc196344 kernel: sda: test WP failed, assume Write Enabled
+> Jul  6 14:44:53 pc196344 kernel: sda: assuming drive cache: write through
+
+> Jul  6 14:44:53 pc196344 kernel: sd: waiting for device to get ready.
+> Jul  6 14:44:54 pc196344 kernel: sda: Unit Not Ready, sense:
+> Jul  6 14:44:54 pc196344 kernel: : Current: sense key: Unit Attention
+> Jul  6 14:44:54 pc196344 kernel:     Additional sense: Not ready to ready
+> change, medium may have changed
+> Jul  6 14:44:54 pc196344 kernel: sda : READ CAPACITY failed.
+> Jul  6 14:44:54 pc196344 kernel: sda : status=1, message=00, host=0,
+> driver=08
+> Jul  6 14:44:54 pc196344 kernel: sd: Current: sense key: Unit Attention
+> Jul  6 14:44:54 pc196344 kernel:     Additional sense: Not ready to ready
+> change, medium may have changed
+> Jul  6 14:44:54 pc196344 kernel: sda: test WP failed, assume Write Enabled
+> Jul  6 14:44:54 pc196344 kernel: sda: assuming drive cache: write through
+
+> Jul  6 14:44:54 pc196344 kernel: sd: waiting for device to get ready.
+> Jul  6 14:44:55 pc196344 kernel: SCSI device sda: 255488 512-byte hdwr
+> sectors (131 MB)
+> Jul  6 14:44:55 pc196344 kernel: sda: Write Protect is off
+> Jul  6 14:44:55 pc196344 kernel: sda: Mode Sense: 03 00 00 00
+> Jul  6 14:44:55 pc196344 kernel: sda: assuming drive cache: write through
+> Jul  6 14:44:55 pc196344 kernel:  /dev/scsi/host5/bus0/target0/lun0: p1
+> Jul  6 14:44:55 pc196344 kernel: Attached scsi removable disk sda at scsi5,
+> channel 0, id 0, lun 0
+> 
+> There are three delays from my patch in the above list,
+
+Yes.  Why are there three instead of just one?  The sd_revalidate_disk 
+routine should only be called once (although a bug in recent kernels 
+causes it to be called twice).
+
+>  and increasing the
+> delay to 3 seconds didn't help, as I got three one-second delays.  
+
+I don't understand.  Why didn't you get three three-second delays?
+
+> However, if someone with the appropriate knowledge could transform my kludge
+> into a proper fix, then I would be very happy.
+
+Can you try adding delays before, after, and inbetween the calls to 
+sd_read_capacity, sd_read_write_protect_flag, and sd_read_cache_type, all 
+near the end of sd_revalidate_disk?
+
+> Alan, thanks very much for your help - I really appreciate the quick
+> responses you have given me.
+> 
+> Note that I now have the output from the USB Snoop tool under Windows if
+> anyone wants it - please ask if needed to help solve the issue "correctly".
+
+Can you make it available on a web or ftp site and post the URL for 
+interested parties?
+
+Alan Stern
 

@@ -1,99 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbVGFSEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVGFSEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbVGFSEF (ORCPT <rfc822;willy@w.ods.org>);
+	id S261835AbVGFSEF (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Jul 2005 14:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVGFSBo
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVGFSBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 14:01:44 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:48312 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S262151AbVGFNYJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 09:24:09 -0400
-Message-ID: <1120656240.42cbdb701817f@imp4-q.free.fr>
-Date: Wed, 06 Jul 2005 15:24:00 +0200
-From: Madam Adele Mbonjo <madamadele.mbonjo103@latinmail.com>
-Reply-To: MadamAdele.Mbonjo2002@latinmail.com
-Subject: Urgent Message
+	Wed, 6 Jul 2005 14:01:10 -0400
+Received: from fsmlabs.com ([168.103.115.128]:62899 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262145AbVGFNXh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 09:23:37 -0400
+Date: Wed, 6 Jul 2005 07:27:37 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+cc: Nigel Cunningham <nigel@suspend2.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [7/48] Suspend2 2.1.9.8 for 2.6.12:
+ 352-disable-pdflush-during-suspend.patch
+In-Reply-To: <1120621388.4860.3.camel@localhost>
+Message-ID: <Pine.LNX.4.61.0507060726030.2149@montezuma.fsmlabs.com>
+References: <11206164401583@foobar.com>  <Pine.LNX.4.61.0507052134290.2149@montezuma.fsmlabs.com>
+ <1120621388.4860.3.camel@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 81.91.227.195
-To: undisclosed-recipients:;
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dearest One,
+On Wed, 6 Jul 2005, Nigel Cunningham wrote:
 
-I am Madam.Adele Mbonjo,the former manager of the
-Central African Republic's former President Ange Felix
-Patassé. I'm presently in house arrest here in Bangui
-the state capital, after the military's putch. I found
-your address in the commercial directory we have in
-our Chamber of Commerce.
+> On Wed, 2005-07-06 at 13:34, Zwane Mwaikambo wrote:
+> > On Wed, 6 Jul 2005, Nigel Cunningham wrote:
+> > 
+> > > diff -ruNp 353-disable-highmem-tlb-flush-for-copyback.patch-old/mm/highmem.c 353-disable-highmem-tlb-flush-for-copyback.patch-new/mm/highmem.c
+> > > --- 353-disable-highmem-tlb-flush-for-copyback.patch-old/mm/highmem.c	2005-06-20 11:47:32.000000000 +1000
+> > > +++ 353-disable-highmem-tlb-flush-for-copyback.patch-new/mm/highmem.c	2005-07-04 23:14:20.000000000 +1000
+> > > @@ -26,6 +26,7 @@
+> > >  #include <linux/init.h>
+> > >  #include <linux/hash.h>
+> > >  #include <linux/highmem.h>
+> > > +#include <linux/suspend.h>
+> > >  #include <asm/tlbflush.h>
+> > >  
+> > >  static mempool_t *page_pool, *isa_page_pool;
+> > > @@ -95,7 +96,10 @@ static void flush_all_zero_pkmaps(void)
+> > >  
+> > >  		set_page_address(page, NULL);
+> > >  	}
+> > > -	flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
+> > > +	if (test_suspend_state(SUSPEND_FREEZE_SMP))
+> > > +		__flush_tlb();
+> > > +	else
+> > > +		flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
+> > >  }
+> > >  
+> > >  static inline unsigned long map_new_virtual(struct page *page)
+> > 
+> > What state are the other processors in when you hit this path?
+> 
+> Looping in arch specific code, waiting for an atomic_t to tell them it's
+> time to restore state and carry on. They're there the whole time CPU0 is
+> restoring the image and highmem.
 
-First of all, I'm very sorry for the way I get in
-touch with you for such a matter. But because of poor
-or un-reliable communication technology and the
-confidentiality of this business, are the reasons that
-prompted me to do so. I would like to have a
-partnership with you, in order to invest a sum of
-thirty five Million USD(35,000,000 USD) in profitable
-sectors in your country, as long as you are interested
-in my offer.
+Oh ok, so they wouldn't have TLB entries for the above.
 
-I got this money from cash donations by foreign
-contractors I've granted many contracts in my
-department. As a close aide to the former President, I
-couldn't use our banking system to transfer such an
-amount without a trace. This could cause me a serious
-problem . Even presently, the new President has
-decided to freeze all the abroad banking accounts of
-all those who were close to Mr. Patassé. We are placed
-under security close watch while my travelling papers
-are seized.
-
-During my tenure in government, I used the government
-decoy system to carry out this money abroad where know
-one know about in packaged box. I will inform you as
-soon as we progress for future claims due to the
-instability in politics here presently. The security
-holding company are not aware of the contents hence I
-coded it as Gold Bar/Personal Effect.
-
-
-So I'm now without any source of Income. The situation
-above has lead me to ask for your co-operation for the
-claiming out of the security holding company for
-further safe-keeping of these funds, for solid and
-reliable projects of investment. I respectfully
-suggest a gift of 20% of this sum for your help and
-your efforts. I mean USD $7,000,000 Million. I rely on
-you as a respectful and honest person to take care of
-this transaction with sincerity, confidence and
-confidentiality.
-
-I've decided to look for a confidential co-operation
-with you in this business, despite the fact that we've
-never met. I hope you will keep this as a great
-confidential business because of the nature of this
-transaction. I will make sure you take possession of
-the funds, by providing a process without
-difficulties.
-
-I would like to hear from you on receipt of this mail,
-by showing me your good will and possibilities, so
-that I can give you more details. This matter requires
-a particular attention and an absolute confidentiality
-from you.
-
-I will be expecting your response to this mail,
-whatever the decision you come up with, let me know
-through this my private email
-
-Yours Sincerely,
-Madam.Adele Mbonjo
-
-
-
+Thanks,
+	Zwane
 

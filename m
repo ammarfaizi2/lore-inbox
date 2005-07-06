@@ -1,58 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVGFRQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVGFRTP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVGFRQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 13:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVGFRQ2
+	id S262415AbVGFRTP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 13:19:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVGFRQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 13:16:28 -0400
-Received: from alpha.polcom.net ([217.79.151.115]:42717 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S261154AbVGFMta (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 08:49:30 -0400
-Date: Wed, 6 Jul 2005 14:49:22 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ast@domdv.de
-Subject: Re: [swsusp] encrypt suspend data for easy wiping
-In-Reply-To: <20050706091104.GB1301@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.63.0507061440470.7125@alpha.polcom.net>
-References: <20050703213519.GA6750@elf.ucw.cz> <20050706020251.2ba175cc.akpm@osdl.org>
- <20050706091104.GB1301@elf.ucw.cz>
+	Wed, 6 Jul 2005 13:16:50 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:60881 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261155AbVGFMv1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 08:51:27 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Date: Wed, 6 Jul 2005 13:51:18 +0100
+User-Agent: KMail/1.8.1
+Cc: Ingo Molnar <mingo@elte.hu>
+References: <200507061257.36738.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200507061257.36738.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507061351.18410.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jul 2005, Pavel Machek wrote:
+On Wednesday 06 Jul 2005 12:57, Alistair John Strachan wrote:
+[snip]
+> Which debugging options are most useful for testing purposes? Is what I've
+> selected enough? Also, I got a few unexpected messages in dmesg on bootup.
 
-> Hi!
+I decided to just enable everything, as I got a lockup within 5 minutes of 
+using the patch. The new options have made the BUG warning a bit more 
+verbose, and I thought I'd share the information in case it's useful.
+
+[snip]
+> Finally, I got this:
 >
->>> To prevent data gathering from swap after resume you can encrypt the
->>> suspend image with a temporary key that is deleted on resume. Note
->>> that the temporary key is stored unencrypted on disk while the system
->>> is suspended... still it means that saved data are wiped from disk
->>> during resume by simply overwritting the key.
->>
->> hm, how useful is that?  swap can still contain sensitive userspace
->> stuff.
+> BUG: soft lockup detected on CPU#0!
+>  [<c013d7e9>] softlockup_tick+0x89/0xb0 (8)
+>  [<c0108590>] timer_interrupt+0x50/0xf0 (20)
+>  [<c013da91>] handle_IRQ_event+0x81/0x100 (16)
+>  [<c013dbfc>] __do_IRQ+0xec/0x190 (48)
+>  [<c0105a28>] do_IRQ+0x48/0x70 (40)
+>  =======================
+>  [<c024df3b>] acpi_processor_idle+0x0/0x258 (8)
+>  [<c0103d03>] common_interrupt+0x1f/0x24 (12)
+>  [<c024df3b>] acpi_processor_idle+0x0/0x258 (4)
+>  [<c024e05e>] acpi_processor_idle+0x123/0x258 (40)
+>  [<c024df3b>] acpi_processor_idle+0x0/0x258 (32)
+>  [<c0101116>] cpu_idle+0x56/0x80 (16)
+>  [<c03a486c>] start_kernel+0x17c/0x1c0 (12)
+>  [<c03a43b0>] unknown_bootoption+0x0/0x1f0 (20)
 >
-> At least userspace has chance to mark *really* sensitive stuff as
-> unswappable. Unfortunately that does not work against swsusp :-(.
->
-> [BTW... I was thinking about just generating random key on swapon, and
-> using it, so that data in swap is garbage after reboot; no userspace
-> changes needed. What do you think?]
 
-I (and many others) are doing it already in userspace. Don't you know 
-about dm-crypt? I think the idea is described in its docs or wiki...
+BUG: soft lockup detected on CPU#0!
+ [<c010421f>] dump_stack+0x1f/0x30 (20)
+ [<c0144a3a>] softlockup_tick+0x8a/0xb0 (24)
+ [<c0108607>] timer_interrupt+0x57/0x100 (20)
+ [<c0144ce5>] handle_IRQ_event+0x85/0x110 (52)
+ [<c0144e4a>] __do_IRQ+0xda/0x170 (44)
+ [<c0105b15>] do_IRQ+0x65/0xa0 (933642172)
+ =======================
+ [<c0103ceb>] common_interrupt+0x1f/0x24 (-942757148)
+------------------------------
+| showing all locks held by: |  (sed/2285 [f7e3c880, 123]):
+------------------------------
 
-I also think that doing this in swapon is risky. Because nobody will 
-guarantee you that random seed was restored before swapon and basing this
-random key only on boot time and (rather deterministic) irqs at boot 
-is risky IMHO.
+Then it continues to boot. I'm getting periodic lockups under high network 
+load, however, though I suspect that might be the ipw2200 driver I compiled 
+against the realtime-preempt kernel. Are there any known issues with external 
+modules versus PREEMPT-RT?
 
-In userspace, init scripts should make sure that random seed is restored 
-before using /dev/random for anything.
+Any way to debug these problems?
 
+-- 
+Cheers,
+Alistair.
 
-Grzegorz Kulewski
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

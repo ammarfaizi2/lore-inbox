@@ -1,108 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVGFQSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVGFQSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbVGFQSH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 12:18:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbVGFQRg
+	id S262204AbVGFQSd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 12:18:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbVGFQSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 12:17:36 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:17599 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262321AbVGFL5t
+	Wed, 6 Jul 2005 12:18:32 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:20611 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262204AbVGFMBo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 07:57:49 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Wed, 6 Jul 2005 12:57:36 +0100
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Jul 2005 08:01:44 -0400
+Date: Wed, 6 Jul 2005 17:40:53 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Chris Mason <mason@suse.com>
+Cc: linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: aio-stress regressions in 2.6.12 narrowed down to AIC7xxx
+Message-ID: <20050706121053.GA4765@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20050701075600.GC4625@in.ibm.com> <200507051000.25591.mason@suse.com> <20050706103729.GA4600@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507061257.36738.s0348365@sms.ed.ac.uk>
+In-Reply-To: <20050706103729.GA4600@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Today I decided to try Ingo's rt-preempt patch on 2.6.12 (V0.7.51-02). I'm 
-most interested in the CONFIG_PREEMPT_RT mode, so I selected this option 
-instead of the others. I enabled a couple of the debugging options, but I 
-wasn't totally clear on which options are most useful, so I just enabled the 
-ones that didn't have a warning about significant overhead, namely..
+OK, I think I have narrowed it down to aic7xxx driver, because when
+I specify CONFIG_SCSI_AIC7XXX_OLD, it does not regress. 
 
-CONFIG_DETECT_SOFTLOCKUP=y
-CONFIG_WAKEUP_TIMING=y
-CONFIG_CRITICAL_TIMING=y
-CONFIG_LATENCY_TIMING=y
+The regression occurs from 2.6.11 to 2.6.12  (from 17MB/s it goes down to
+11MB/s)
 
-Additionally (by mistake) I enabled:
+The regression is still there in 2.6.13-rc1 +  the "speed fix" patch(discussed
+in the recent aic7xxx regression thread on linux-scsi)
 
-CONFIG_CRITICAL_IRQSOFF_TIMING=y
+Recreate by running: aio-stress -O -o3 <1 GB testfile>
 
-Which does mention overhead.
+Config options:
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=32
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_AIC7XXX_DEBUG_ENABLE=y
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
 
-Which debugging options are most useful for testing purposes? Is what I've 
-selected enough? Also, I got a few unexpected messages in dmesg on bootup. 
-Firstly;
 
-spawn_desched_task(00000000)
-desched cpu_callback 3/00000000
-ksoftirqd started up.
-softirq RT prio: 24.
-ksoftirqd started up.
-softirq RT prio: 24.
-[...]
-desched cpu_callback 2/00000000
-desched thread 0 started up.
-softlockup thread 0 started up.
+Comparing dmesg outputs
+On 2.6.11
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+        <Adaptec aic7896/97 Ultra2 SCSI adapter>
+        aic7896/97: Ultra2 Wide Channel B, SCSI Id=7, 32/253 SCBs
 
-Why does it print out the same ksoftirqd message six times? Is this expected 
-behaviour? Next, I got a warning about CONFIG_CRITICAL_IRQSOFF_TIMING;
-should this option be enabled?
+(scsi0:A:0): 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
+  Vendor: IBM-ESXS  Model: ST318305LC    !#  Rev: B245
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
+(scsi0:A:1): 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
+  Vendor: IBM-ESXS  Model: ST318305LC    !#  Rev: B245
+...
 
-Finally, I got this:
+On 2.6.12
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+        <Adaptec aic7896/97 Ultra2 SCSI adapter>
+        aic7896/97: Ultra2 Wide Channel B, SCSI Id=7, 32/253 SCBs
 
-BUG: soft lockup detected on CPU#0!
- [<c013d7e9>] softlockup_tick+0x89/0xb0 (8)
- [<c0108590>] timer_interrupt+0x50/0xf0 (20)
- [<c013da91>] handle_IRQ_event+0x81/0x100 (16)
- [<c013dbfc>] __do_IRQ+0xec/0x190 (48)
- [<c0105a28>] do_IRQ+0x48/0x70 (40)
- =======================
- [<c024df3b>] acpi_processor_idle+0x0/0x258 (8)
- [<c0103d03>] common_interrupt+0x1f/0x24 (12)
- [<c024df3b>] acpi_processor_idle+0x0/0x258 (4)
- [<c024e05e>] acpi_processor_idle+0x123/0x258 (40)
- [<c024df3b>] acpi_processor_idle+0x0/0x258 (32)
- [<c0101116>] cpu_idle+0x56/0x80 (16)
- [<c03a486c>] start_kernel+0x17c/0x1c0 (12)
- [<c03a43b0>] unknown_bootoption+0x0/0x1f0 (20)
+  Vendor: IBM-ESXS  Model: ST318305LC    !#  Rev: B245
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
+ target0:0:0: Beginning Domain Validation
+WIDTH IS 1
+(scsi0:A:0): 6.600MB/s transfers (16bit)
+(scsi0:A:0): 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
+ target0:0:0: Ending Domain Validation
+  Vendor: IBM-ESXS  Model: ST318305LC    !#  Rev: B245
+...
 
-I think it's when my scripts try to set up the IrDA port; the script runs the 
-following (I have a weird broken NC6000 IrDA port which needs messing around 
-with to work)..
 
-/usr/bin/smcinit -v -s 0x3E8 -f 0x130 -i 4 -d 3 >/dev/null
+On 2.6.13-rc1 + "speed fix"
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+        <Adaptec aic7896/97 Ultra2 SCSI adapter>
+        aic7896/97: Ultra2 Wide Channel B, SCSI Id=7, 32/253 SCBs
 
-Of course, the message could've just been coincidental, as it doesn't actually 
-refer to the smcs driver at all.
+ target0:0:0: asynchronous.
+  Vendor: IBM-ESXS  Model: ST318305LC    !#  Rev: B245
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
+ target0:0:0: Beginning Domain Validation
+ target0:0:0: wide asynchronous.
+ target0:0:0: FAST-40 WIDE SCSI 80.0 MB/s ST (25 ns, offset 63)
+ target0:0:0: Ending Domain Validation
+target0:0:1: asynchronous.
+  Vendor: IBM-ESXS  Model: ST318305LC    !#  Rev: B245
+...
 
-I set preempt_max_latency to zero, but the only messages I've got back from 
-the kernel so far are:
+Regards
+Suparna
 
-( softirq-timer/0-3    |#0): new 3 us maximum-latency wakeup.
-( softirq-timer/0-3    |#0): new 1003 us maximum-latency wakeup.
-( softirq-timer/0-3    |#0): new 1001 us maximum-latency wakeup.
 
-Which is presumably a good sign.
+On Wed, Jul 06, 2005 at 04:07:29PM +0530, Suparna Bhattacharya wrote:
+> On Tue, Jul 05, 2005 at 10:00:24AM -0400, Chris Mason wrote:
+> > On Friday 01 July 2005 03:56, Suparna Bhattacharya wrote:
+> > > Has anyone else noticed major throughput regressions for random
+> > > reads/writes with aio-stress in 2.6.12 ?
+> > > Or have there been any other FS/IO regressions lately ?
+> > >
+> > > On one test system I see a degradation from around 17+ MB/s to 11MB/s
+> > > for random O_DIRECT AIO (aio-stress -o3 testext3/rwfile5) from 2.6.11
+> > > to 2.6.12. It doesn't seem filesystem specific. Not good :(
+> > >
+> > > BTW, Chris/Ben, it doesn't look like the changes to aio.c have had an
+> > > impact (I copied those back to my 2.6.11 tree and tried the runs with no
+> > > effect) So it is something else ...
+> > >
+> > > Ideas/thoughts/observations ?
+> > 
+> > Lets try to narrow it down a bit:
+> > 
+> > aio-stress -o 3 -d 1 will set the depth to 1, (io_submit then wait one request 
+> This doesn't regress - the problem really happens when we don't wait one
+> at a time.
+> 
+> > at a time).  This doesn't take the aio subsystem out of the picture, but it 
+> > does make the block layer interaction more or less the same as non-aio 
+> > benchmarks.  If this is slow, I would suspect something in the block layer, 
+> > and iozone -I -i 2 -w -f testext3/rwfile5 should also show the regression.
+> > 
+> > If it doesn't regress, I would suspect something in the aio core.  My first 
+> > attempts at the context switch reduction patches caused this kind of 
+> > regression.  There was too much latency in sending the events up to userland.
+> > 
+> > Other options:
+> > 
+> > Try different elevators
+> 
+> Still regresses (I tried noop instead of as)
+> 
+> > Try O_SYNC aio random writes
+> > Try aio random reads
+> > Try buffers random reads
+> 
+> Again all these end up waiting one at a time with mainline because it
+> forces buffered AIO to be synchronous, so we the regression doesn't
+> show up. But, when I apply my patches to make buffered fsAIO async,
+> so we aren't waiting one at a time -- there is a similar regression.
+> In fact it was this regression that made me go back and check if it
+> was happening with AIO-DIO as well.
+> 
+> Regards
+> Suparna
+> 
+> > 
+> > -chris
+> 
+> -- 
+> Suparna Bhattacharya (suparna@in.ibm.com)
+> Linux Technology Center
+> IBM Software Lab, India
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 
 -- 
-Cheers,
-Alistair.
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.

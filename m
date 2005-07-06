@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262439AbVGGC00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVGGC2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbVGGC00 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 22:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVGFT7a
+	id S262245AbVGGC2x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 22:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVGFT6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:59:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17358 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262191AbVGFQWU (ORCPT
+	Wed, 6 Jul 2005 15:58:45 -0400
+Received: from mail.kroah.org ([69.55.234.183]:17854 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262284AbVGFQQ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 12:22:20 -0400
-Date: Wed, 6 Jul 2005 09:22:05 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg KH <greg@kroah.com>
-cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.13-rc2
-In-Reply-To: <20050706155103.GA13115@kroah.com>
-Message-ID: <Pine.LNX.4.58.0507060917530.3570@g5.osdl.org>
-References: <Pine.LNX.4.58.0507052126190.3570@g5.osdl.org>
- <42CBA650.8080004@eyal.emu.id.au> <Pine.LNX.4.58.0507060837510.3570@g5.osdl.org>
- <20050706155103.GA13115@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Jul 2005 12:16:56 -0400
+Date: Wed, 6 Jul 2005 09:16:13 -0700
+From: Greg KH <greg@kroah.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: James Morris <jmorris@redhat.com>, Tony Jones <tonyj@suse.de>,
+       serge@hallyn.com, serue@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Michael Halcrow <mhalcrow@us.ibm.com>,
+       David Safford <safford@watson.ibm.com>,
+       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [PATCH] securityfs
+Message-ID: <20050706161613.GA13551@kroah.com>
+References: <Xine.LNX.4.44.0507061125530.7680-100000@thoron.boston.redhat.com> <1120666000.21423.35.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120666000.21423.35.camel@moss-spartans.epoch.ncsc.mil>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 6 Jul 2005, Greg KH wrote:
+On Wed, Jul 06, 2005 at 12:06:40PM -0400, Stephen Smalley wrote:
+> > I think it should reduce and simplify the SELinux kernel code, with less
+> > filesystems in the kernel, consolidating several potential projects into
+> > the same security filesystem.
 > 
-> --- gregkh-2.6.orig/sound/pci/bt87x.c	2005-07-06 08:48:29.000000000 -0700
-> +++ gregkh-2.6/sound/pci/bt87x.c	2005-07-06 08:48:54.000000000 -0700
-> @@ -798,6 +798,8 @@
->  	{0x270f, 0xfc00}, /* Chaintech Digitop DST-1000 DVB-S */
->  };
->  
-> +static struct pci_driver driver;
-> +
+> If there are several such projects in the first place...
 
-Hmm.. Shouldn't you at a _minimum_ initialize the name and owner fields?
+Serge has already posted a patch converting the sysfs usage over to it,
+and I know the subdomain people are going to also use this code, for
+when they submit their patches to mainline (they are currently working
+on it, honestly, I've seen them doing it...)
 
-		Linus
+thanks,
+
+greg k-h

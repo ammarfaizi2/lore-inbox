@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262481AbVGGAXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVGGAXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262481AbVGGAXc (ORCPT <rfc822;willy@w.ods.org>);
+	id S262466AbVGGAXc (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Jul 2005 20:23:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVGFUBT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbVGFUC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:01:19 -0400
-Received: from mailsrvr2.bull.com ([192.90.162.8]:48295 "EHLO
-	mailsrvr2.bull.com") by vger.kernel.org with ESMTP id S262371AbVGFRIr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 13:08:47 -0400
-In-Reply-To: <1120608033.10572.72.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-To: Daniel Walker <dwalker@mvista.com>
+	Wed, 6 Jul 2005 16:02:59 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:63167 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262425AbVGFR1e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 13:27:34 -0400
+Date: Wed, 6 Jul 2005 19:27:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Resend:[RFC/Patch] Robust futexes
-MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 6.5.1 January 21, 2004
-Message-ID: <OF9B9E3D47.B339361B-ON07257036.005CA230-07257036.005E257A@us-phx1.az05.bull.com>
-From: Todd.Kneisel@Bull.com
-Date: Wed, 6 Jul 2005 10:08:19 -0700
-X-MIMETrack: Serialize by Router on US-PHX1/US/BULL(Release 6.5.1|January 21, 2004) at
- 07/06/2005 10:08:29 AM,
-	Serialize complete at 07/06/2005 10:08:29 AM
-Content-Type: text/plain; charset="US-ASCII"
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Message-ID: <20050706172716.GA28755@elte.hu>
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507061756.20861.s0348365@sms.ed.ac.uk> <20050706170158.GA27797@elte.hu> <200507061814.23656.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507061814.23656.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've made relatively minor changes to the glibc side since posting
-the patch to the robust mutexes list.
-- added EOWNERDEAD and ENOTRECOVERABLE to the glibc error reporting
-  mechanism, so that strerror() works.
-- added function prototypes to pthread.h for 
-pthread_mutexattr_getrobust_np,
-  pthread_mutexattr_setrobust_np, and pthread_mutex_consistent_np.
-- defined a constant for accessing the pid that's stored in the futex.
-- Changed copyrights from Bull SA (the French division of our company)
-  to Bull HN (The U.S. division).
 
-We expect to receive the FSF contracts for copyright assignment any
-day now. If anyone would like to see the glibc changes, I can provide
-the patch under the Bull HN copyright. The patch applies to glibc-2.3.4.
+* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
 
-Todd.
+> > great! Do the softlockup warnings still occur?
+> 
+> Yes, but in no greater a number.
 
+could you apply the patch below, so that we can see what kind of time 
+gap the softlockup detector encountered?
 
-Daniel Walker <dwalker@mvista.com> wrote on 07/05/2005 05:00:32 PM:
+	Ingo
 
-> 
-> You might want to CC Andrew Morton , and Rusty Russell.
-> 
-> What is the status of the glibc side of this?
-> 
-> Daniel
-> 
-> 
-> On Tue, 2005-07-05 at 16:11 -0700, Todd Kneisel wrote:
-> > This is a resend of my patch to add robust futex support to the 
-existing
-> > sys_futex system call. The patch applies to 2.6.12. Any comments or
-> > discussion will be welcome.
-> > 
-> > Changes since my last posted version:
-> > - Applies to 2.6.12, was 2.6.12-rc6
-> > - Added config option CONFIG_ROBUST_FUTEX, depends on existing 
-CONFIG_FUTEX
-> >    and defaults to no.
-> > - Commented functions, using kernel-doc style comments
-> > - Cleaned up some CodingStyle violations
-> > 
+Index: linux/kernel/softlockup.c
+===================================================================
+--- linux.orig/kernel/softlockup.c
++++ linux/kernel/softlockup.c
+@@ -65,8 +65,8 @@ void softlockup_tick(void)
+ 		per_cpu(print_timestamp, this_cpu) = timestamp;
+ 
+ 		spin_lock(&print_lock);
+-		printk(KERN_ERR "BUG: soft lockup detected on CPU#%d!\n",
+-			this_cpu);
++		printk(KERN_ERR "BUG: soft lockup detected on CPU#%d! %ld-%ld\n",
++			this_cpu, jiffies, timestamp);
+ 		dump_stack();
+ #if defined(__i386__) && defined(CONFIG_SMP)
+ 		nmi_show_all_regs();

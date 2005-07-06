@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbVGFTo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVGFTsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262265AbVGFTo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 15:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVGFTo5
+	id S262440AbVGFTsX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 15:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVGFTpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:44:57 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:49341 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262308AbVGFOYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 10:24:05 -0400
-Message-ID: <42CBE97C.2060208@grupopie.com>
-Date: Wed, 06 Jul 2005 15:23:56 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Slowdown with randomize_va_space in 2.6.12.2
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Jul 2005 15:45:52 -0400
+Received: from nproxy.gmail.com ([64.233.182.199]:56617 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262181AbVGFOwh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 10:52:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kDS+CFjOrMs0n2HZYPpGHvNFVm77+QboScQIAqoEZBDI5rHfh2VoIeJhH0dhJQ+4jOd2ZZK9NnZ38dr+ExBX1x6VBlE/ZHiRBkTa2hQtL1wD8t7aF1V6VzwgbX5BipcC/Obieti3zBXPmPRZ8zw+30V2INHyP5QB82sueL0GbMY=
+Message-ID: <ea6b1902050706075248674f97@mail.gmail.com>
+Date: Wed, 6 Jul 2005 16:52:34 +0200
+From: Alexis Ballier <alexis.ballier@gmail.com>
+Reply-To: Alexis Ballier <alexis.ballier@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.13-rc2 - Inconsistent kallsyms data
+In-Reply-To: <42CBE05F.4090706@grupopie.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.58.0507052126190.3570@g5.osdl.org>
+	 <42CB8088.1090508@ppp0.net>
+	 <ea6b190205070602091b50e204@mail.gmail.com>
+	 <42CBE05F.4090706@grupopie.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yes, that fixed it. However, there was no problem with rc1 with the
+same .config.
 
-Hi, all
 
-I have a bash script that calls a small application several times 
-(around 50 calls) that just send and receives data through an already 
-open tcp socket to a local server through the loopback device. It also 
-launches another small app several times that just reads a small file 
-from disk and does some processing on it in memory.
 
-We noticed a severe performance regression on this application under 
-kernel 2.6.12.2 that we tracked down to the address space randomization 
-patches:
 
-# echo 0 > randomize_va_space
-# time ./script
-real    0m0.671s
-user    0m0.293s
-sys     0m0.325s
 
-# echo 1 > randomize_va_space
-# time ./script
-real    0m3.310s
-user    0m2.712s
-sys     0m0.401s
+2005/7/6, Paulo Marques <pmarques@grupopie.com>:
+> Alexis Ballier wrote:
+> > Hi !
+> >
+> > I have a problem building the rc2 (or rc3, whatever ;) )
+> >
+> > Here is the end of the log :
+> >
+> > [...]
+> > Inconsistent kallsyms data
+> > Try setting CONFIG_KALLSYMS_EXTRA_PASS
+> > make: *** [vmlinux] Erreur 1
+> 
+> Can you try to change this setting in scripts/kallsyms.c:
+> 
+> #define WORKING_SET             1024
+> 
+> to somethig like:
+> 
+> #define WORKING_SET            65536
+> 
+> If this fixes it, then it is a known problem and the fix is already in
+> -mm. The fix is more complex than this, however.
+> 
+> --
+> Paulo Marques - www.grupopie.com
+> 
+> It is a mistake to think you can solve any major problems
+> just with potatoes.
+> Douglas Adams
+> 
 
-Notice that the real time is 5x slower with "randomize_va_space" turned 
-on. This is on a Transmeta Crusoe TM5600 at 533MHz.
-
-What is weird is that most of the extra time is being accounted as 
-user-space time, but the user-space application is exactly the same in 
-both runs, only the "randomize_va_space" parameter changed.
-
-I browsed the randomization patch code and I don't think the random 
-calculations themselves could account for all that time.
-
-Does anybody have a clue as to why this is happening or what I should do 
-to debug this further?
 
 -- 
-Paulo Marques - www.grupopie.com
-
-It is a mistake to think you can solve any major problems
-just with potatoes.
-Douglas Adams
+Alexis Ballier.

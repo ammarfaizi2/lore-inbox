@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262473AbVGFWK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVGFWFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262473AbVGFWK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 18:10:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVGFWKx
+	id S262469AbVGFWFb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 18:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVGFUJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 18:10:53 -0400
-Received: from gate.corvil.net ([213.94.219.177]:59141 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S261932AbVGFWHV (ORCPT
+	Wed, 6 Jul 2005 16:09:41 -0400
+Received: from gate.corvil.net ([213.94.219.177]:44555 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S262170AbVGFSzd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 18:07:21 -0400
-Message-ID: <42CC5615.1030408@draigBrady.com>
-Date: Wed, 06 Jul 2005 23:07:17 +0100
+	Wed, 6 Jul 2005 14:55:33 -0400
+Message-ID: <42CC2923.2030709@draigBrady.com>
+Date: Wed, 06 Jul 2005 19:55:31 +0100
 From: P@draigBrady.com
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: How do you accurately determine a process RAM usage
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: How do you accurately determine a process' RAM usage?
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote a tool to (try to) report how much RAM a
+I wrote a tool to report how much RAM a
 particular program (apache for e.g.) was using:
 http://www.pixelbeat.org/scripts/ps_mem.py
 

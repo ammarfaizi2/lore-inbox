@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVGFERs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVGFEYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbVGFERs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 00:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVGFERs
+	id S262084AbVGFEYT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 00:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVGFEYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 00:17:48 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:11929 "EHLO
+	Wed, 6 Jul 2005 00:24:18 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:12697 "EHLO
 	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262080AbVGFCTi convert rfc822-to-8bit (ORCPT
+	id S262084AbVGFCTj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 22:19:38 -0400
-Subject: [PATCH] [47/48] Suspend2 2.1.9.8 for 2.6.12: 623-generic-block-io.patch
+	Tue, 5 Jul 2005 22:19:39 -0400
+Subject: [PATCH] [41/48] Suspend2 2.1.9.8 for 2.6.12: 617-proc.patch
 In-Reply-To: <11206164393426@foobar.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 6 Jul 2005 12:20:44 +1000
-Message-Id: <1120616444110@foobar.com>
+Date: Wed, 6 Jul 2005 12:20:43 +1000
+Message-Id: <1120616443979@foobar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Nigel Cunningham <nigel@suspend2.net>
@@ -24,1624 +24,1188 @@ From: Nigel Cunningham <nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ruNp 624-filewriter.patch-old/kernel/power/suspend_file.c 624-filewriter.patch-new/kernel/power/suspend_file.c
---- 624-filewriter.patch-old/kernel/power/suspend_file.c	1970-01-01 10:00:00.000000000 +1000
-+++ 624-filewriter.patch-new/kernel/power/suspend_file.c	2005-07-05 23:48:59.000000000 +1000
-@@ -0,0 +1,1616 @@
+diff -ruNp 618-core.patch-old/kernel/power/suspend2_core/suspend.c 618-core.patch-new/kernel/power/suspend2_core/suspend.c
+--- 618-core.patch-old/kernel/power/suspend2_core/suspend.c	1970-01-01 10:00:00.000000000 +1000
++++ 618-core.patch-new/kernel/power/suspend2_core/suspend.c	2005-07-04 23:14:19.000000000 +1000
+@@ -0,0 +1,1180 @@
 +/*
-+ * Filewriter.c
-+ *
-+ * Copyright 2005 Nigel Cunningham <nigel@suspend2.net>
-+ *
-+ * Distributed under GPLv2.
-+ * 
-+ * This file encapsulates functions for usage of a simple file as a
-+ * backing store. It is based upon the swapwriter, and shares the
-+ * same basic working. Here, though, we have nothing to do with
-+ * swapspace, and only one device to worry about.
-+ *
-+ * The user can just
-+ *
-+ * echo Suspend2 > /path/to/my_file
-+ *
-+ * and
-+ *
-+ * echo /path/to/my_file > /proc/software_suspend/filewriter_target
-+ *
-+ * then put what they find in /proc/software_suspend/resume2
-+ * as their resume2= parameter in lilo.conf (and rerun lilo if using it).
-+ *
-+ * Having done this, they're ready to suspend and resume.
-+ *
-+ * TODO:
-+ * - File resizing.
++ * kernel/power/suspend2.c
 + */
++/** \mainpage Software Suspend 2.
++ *
++ * Suspend2 provides support for saving and restoring an image of
++ * system memory to an arbitrary storage device, either on the local computer,
++ * or across some network. The support is entirely OS based, so Suspend2 
++ * works without requiring BIOS, APM or ACPI support. The vast majority of the
++ * code is also architecture independant, so it should be very easy to port
++ * the code to new architectures. Suspend includes support for SMP, 4G HighMem
++ * and preemption. Initramfses and initrds are also supported.
++ *
++ * Suspend2 uses a modular design, in which the method of storing the image is
++ * completely abstracted from the core code, as are transformations on the data
++ * such as compression and/or encryption (multiple 'plugins' can be used to
++ * provide arbitrary combinations of functionality). The user interface is also
++ * modular, so that arbitrarily simple or complex interfaces can be used to
++ * provide anything from debugging information through to eye candy.
++ * 
++ * \section Copyright
++ *
++ * Suspend2 is released under the GPLv2.
++ *
++ * Copyright (C) 1998-2001 Gabor Kuti <seasons@fornax.hu><BR>
++ * Copyright (C) 1998,2001,2002 Pavel Machek <pavel@suse.cz><BR>
++ * Copyright (C) 2002-2003 Florent Chabaud <fchabaud@free.fr><BR>
++ * Copyright (C) 2002-2005 Nigel Cunningham <ncunningham@cyclades.com><BR>
++ *
++ * \section Credits
++ * 
++ * Nigel would like to thank the following people for their work:
++ * 
++ * Pavel Machek <pavel@ucw.cz><BR>
++ * Modifications, defectiveness pointing, being with Gabor at the very beginning,
++ * suspend to swap space, stop all tasks. Port to 2.4.18-ac and 2.5.17.
++ *
++ * Steve Doddi <dirk@loth.demon.co.uk><BR> 
++ * Support the possibility of hardware state restoring.
++ *
++ * Raph <grey.havens@earthling.net><BR>
++ * Support for preserving states of network devices and virtual console
++ * (including X and svgatextmode)
++ *
++ * Kurt Garloff <garloff@suse.de><BR>
++ * Straightened the critical function in order to prevent compilers from
++ * playing tricks with local variables.
++ *
++ * Andreas Mohr <a.mohr@mailto.de>
++ *
++ * Alex Badea <vampire@go.ro><BR>
++ * Fixed runaway init
++ *
++ * Jeff Snyder <je4d@pobox.com><BR>
++ * ACPI patch
++ *
++ * Nathan Friess <natmanz@shaw.ca><BR>
++ * Some patches.
++ *
++ * Michael Frank <mhf@linuxmail.org><BR>
++ * Extensive testing and help with improving stability. Nigel was constantly
++ * amazed by the quality and quantity of Michael's help.
++ *
++ * Bernard Blackham <bernard@blackham.com.au><BR>
++ * Web page & Wiki administration, some coding. Another person without whom
++ * Suspend would not be where it is.
++ *
++ * ..and of course the myriads of Suspend2 users who have helped diagnose
++ * and fix bugs, made suggestions on how to improve the code, proofread
++ * documentation, and donated time and money.
++ *
++ * Thanks also to corporate sponsors:
++ *
++ * <B>Cyclades.com.</B> Nigel's employers from Dec 2004, who allow him to work on
++ * Suspend and PM related issues on company time.
++ * 
++ * <B>LinuxFund.org.</B> Sponsored Nigel's work on Suspend for four months Oct 2003
++ * to Jan 2004.
++ *
++ * <B>LAC Linux.</B> Donated P4 hardware that enabled development and ongoing
++ * maintenance of SMP and Highmem support.
++ *
++ * <B>OSDL.</B> Provided access to various hardware configurations, make occasional
++ * small donations to the project.
++ */
++
++#define SUSPEND_MAIN_C
 +
 +#include <linux/suspend.h>
 +#include <linux/module.h>
-+#include <linux/blkdev.h>
-+#include <linux/file.h>
-+#include <linux/stat.h>
-+#include <linux/mount.h>
-+#include <linux/statfs.h>
++#include <linux/console.h>
++#include <linux/version.h>
++#include <linux/reboot.h>
++#include <linux/mm.h>
++#include <linux/highmem.h>
++#include <asm/uaccess.h>
++#include <asm/param.h>
 +
-+#include "suspend2_core/suspend.h"
-+#include "suspend2_core/suspend2_common.h"
-+#include "suspend2_core/version.h"
-+#include "suspend2_core/proc.h"
-+#include "suspend2_core/plugins.h"
-+#include "suspend2_core/ui.h"
-+#include "suspend2_core/extent.h"
-+#include "suspend2_core/utility.h"
-+#include "suspend2_core/io.h"
++#include "version.h"
++#include "suspend.h"
++#include "driver_model.h"
++#include "plugins.h"
++#include "proc.h"
++#include "pageflags.h"
++#include "prepare_image.h"
++#include "io.h"
++#include "ui.h"
++#include "version.h"
++#include "suspend2_common.h"
++#include "extent.h"
++#include "power_off.h"
++#include "utility.h"
++#include "smp.h"
++#include "atomic_copy.h"
++ 
++#ifdef  CONFIG_X86
++#include <asm/i387.h> /* for kernel_fpu_end */
++#endif
 +
-+#include "block_io.h"
++/* Variables to be preserved over suspend */
++int pageset1_sizelow = 0, pageset2_sizelow = 0, image_size_limit = 0;
++unsigned long suspend2_orig_mem_free = 0;
 +
-+/*
-+ *		General Declarations.
-+ */
++static dyn_pageflags_t pageset1_check_map;
++static dyn_pageflags_t pageset2_check_map;
++static char * debug_info_buffer;
++static char suspend_core_version[] = SUSPEND_CORE_VERSION;
 +
-+static struct suspend_proc_data filewriter_proc_data[];
-+static struct suspend_plugin_ops filewriterops;
-+
-+/*
-+ *		External Declarations
-+ */
-+
-+extern asmlinkage long sys_open(const char __user * filename, int flags, int mode);
-+extern asmlinkage long sys_close(unsigned int fd);
-+
-+/*
-+ *		Forward Declarations
-+ */
-+
-+static int filewriter_invalidate_image(void);
-+static int filewriter_storage_available(void);
-+
-+/*
-+ *		Details of our target.
-+ */
-+
-+char filewriter_target[256];
-+static struct inode * target_inode;
-+static int target_fd = -1;
-+static struct block_device * target_bdev;
-+static int used_devt = 0;
-+static dev_t target_dev_t = 0;
-+static int target_firstblock = 0;
-+static int target_blocksize = PAGE_SIZE;
-+static int target_storage_available = 0;
-+static unsigned int target_blkbits;
-+#define target_blockshift (PAGE_SHIFT - target_blkbits)
-+#define target_blocksperpage (1 << target_blockshift)
-+
-+static int target_type = -1;
-+
-+/*
-+static char * description[7] = {
-+	"Socket",
-+	"Link",
-+	"Regular file",
-+	"Block device",
-+	"Directory",
-+	"Character device",
-+	"Fifo",
-+};
-+*/
-+
-+static char HaveImage[] = "HaveImage\n";
-+static char NoImage[] =   "Suspend2\n";
-+static const int resumed_before_byte = sizeof(HaveImage) + 1;
-+#define sig_size resumed_before_byte
-+
-+/* Header_pages must be big enough for signature */
-+static int header_pages, main_pages;
-+
-+static unsigned long * header_link = NULL;
-+#define BYTES_PER_HEADER_PAGE (PAGE_SIZE - sizeof(sector_t))
-+
-+#define target_is_normal_file() (S_ISREG(target_inode->i_mode))
-+
-+/*
-+ *		Readahead Variables
-+ */
-+
-+// Higher Level
-+static int readahead_index = 0, readahead_submit_index = 0;
-+static int readahead_allocs = 0, readahead_frees = 0;
-+
-+static char * filewriter_buffer = NULL;
-+static int filewriter_buffer_posn = 0;
-+static int filewriter_page_index = 0;
-+
-+/*
-+ * ---------------------------------------------------------------
-+ *
-+ *     Internal Data Structures
-+ *
-+ * ---------------------------------------------------------------
-+ */
-+
-+/* header_data contains data that is needed to reload pagedir1, and
-+ * is therefore saved in the suspend header.
-+ *
-+ * Pagedir2 data gets stored before pagedir1 (save order), and the first
-+ * page for pagedir1 to use is set when pagedir2 is written (when we know how
-+ * much storage it used). Since this first entry is almost certainly not at the
-+ * start of a extent, the firstoffset variable below tells us where to start in
-+ * the extent. All of this means we don't have to worry about getting different
-+ * compression ratios for the kernel and cache (when compressing the image).
-+ * We can simply allocate one pool of storage (size determined using expected
-+ * compression ratio) and use it without worrying whether one pageset
-+ * compresses better and the other worse (this is what happens). As long as the
-+ * user gets the expected compression right, it will work.
-+ */
-+
-+static struct {
-+	/* Location of start of pagedir 1 */
-+	struct extent * pd1start_block_extent;
-+	int pd1start_extent_number;
-+	unsigned long pd1start_block_offset;
-+
-+} filewriter_header_data;
-+
-+/* Extent chain for blocks */
-+static struct extentchain block_chain;
-+
-+/*
-+ * ---------------------------------------------------------------
-+ *
-+ *     Current state.
-+ *
-+ * ---------------------------------------------------------------
-+ */
-+
-+/* Which pagedir are we saving/reloading? Needed so we can know whether to
-+ * remember the last block used at the end of writing pageset2, and
-+ * get that location when saving or reloading pageset1.*/
-+static int current_stream = 0;
-+
-+/* Pointer to current entry being loaded/saved. */
-+static struct extent * currentblockextent = NULL;
-+static unsigned long currentblockoffset = 0;
-+
-+/* Header Page Information */
-+static struct submit_params * first_header_submit_info = NULL,
-+ * last_header_submit_info = NULL, * current_header_submit_info = NULL;
-+
-+/*
-+ *		Helpers.
-+ */
++extern void do_suspend2_lowlevel(int resume);
++extern __nosavedata char resume_commandline[COMMAND_LINE_SIZE];
 +
 +/* 
-+ * Return the type of target we have, an index into the descriptions
-+ * above.
++ *---------------------  Variables ---------------------------
++ * 
++ * The following are used by the arch specific low level routines 
++ * and only needed if suspend2 is compiled in. Other variables,
++ * used by the freezer even if suspend2 is not compiled in, are
++ * found in process.c
 + */
-+static int get_target_type(struct inode * inode)
++
++/*! How long I/O took. */
++int suspend_io_time[2][2];
++
++/* Compression ratio */
++__nosavedata unsigned long bytes_in = 0, bytes_out = 0;
++
++/*! Pageset metadata. */
++struct pagedir pagedir1 = { 0, 0}, pagedir2 = { 0, 0}; 
++
++/* Suspend2 variables used by built-in routines. */
++
++/*! The number of suspends we have started (some may have been cancelled) */
++unsigned int nr_suspends = 0;
++
++/*! The console log level we default to. */
++int suspend_default_console_level = 0;
++
++/* 
++ * For resume2= kernel option. It's pointless to compile
++ * suspend2 without any writers, but compilation shouldn't
++ * fail if you do.
++ */
++
++unsigned long software_suspend_state = ((1 << SUSPEND_DISABLED) | (1 << SUSPEND_BOOT_TIME) |
++		(1 << SUSPEND_RESUME_NOT_DONE) | (1 << SUSPEND_IGNORE_LOGLEVEL));
++
++mm_segment_t	oldfs;
++
++#ifdef CONFIG_SUSPEND2_DEFAULT_RESUME2
++char resume2_file[256] = CONFIG_SUSPEND2_DEFAULT_RESUME2;
++#else
++char resume2_file[256]
++#endif
++
++/* -------------------------------------------------------------------------- */
++
++static atomic_t actions_running;
++
++/*
++ * Basic clean-up routine.
++ */
++void suspend_finish_anything(int finishing_cycle)
 +{
-+	switch (inode->i_mode & S_IFMT) {
-+		case S_IFSOCK:
-+			target_type = 0;
-+			break;
-+		case S_IFLNK:
-+			target_type = 1;
-+			break;
-+		case S_IFREG:
-+			target_type = 2;
-+			break;
-+		case S_IFBLK:
-+			target_type = 3;
-+			break;
-+		case S_IFDIR:
-+			target_type = 4;
-+			break;
-+		case S_IFCHR:
-+			target_type = 5;
-+			break;
-+		case S_IFIFO:
-+			target_type = 6;
-+			break;
-+	}
-+	return target_type;
-+}
-+	
-+#define target_is_usable (!(target_type == 1 || target_type == 4))
-+#define target_num_sectors (target_inode->i_size >> target_blkbits)
-+
-+static int size_ignoring_sparseness(void)
-+{
-+	int mappable = 0, i;
-+	
-+	if (target_is_normal_file()) {
-+		int extent_min = -1, extent_max = -1;
-+
-+		for (i = 0; i <= target_num_sectors; i++) {
-+			sector_t new_sector = bmap(target_inode, i);
-+			if (!new_sector) {
-+				if (i == extent_max + 1)
-+					extent_max++;
-+				else
-+					extent_min = extent_max = i;
-+			} else
-+				mappable++;
-+		}
-+	
-+		return mappable >> (PAGE_SHIFT - target_blkbits);
-+	} else
-+		return filewriter_storage_available();
-+}
-+
-+static void get_main_pool_phys_params(void)
-+{
-+	int i;
-+	
-+	if (block_chain.first)
-+		put_extent_chain(&block_chain);
-+
-+	if (target_is_normal_file()) {
-+		int header_sectors = (header_pages << target_blockshift);
-+		int extent_min = -1, extent_max = -1, real_sector = 0;
-+
-+
-+		for (i = 0; i <= target_num_sectors; i++) {
-+			sector_t new_sector =
-+				bmap(target_inode, header_sectors + i);
-+			
-+			/* 
-+			 * I'd love to be able to fill in holes and resize 
-+			 * files, but not yet...
-+			 */
-+
-+			if (!new_sector)
-+				continue;
-+			
-+			real_sector++;
-+
-+			if (real_sector < header_sectors)
-+				continue;
-+
-+			if (new_sector == extent_max + 1)
-+				extent_max++;
-+			else {
-+				if (extent_min > -1)
-+					append_extent_to_extent_chain(
-+						&block_chain,
-+						extent_min, extent_max);
-+				extent_min = extent_max = new_sector;
-+			}
-+		}
-+		if (extent_min > -1)
-+			append_extent_to_extent_chain(&block_chain,
-+				       extent_min, extent_max);
-+	} else
-+		if (target_storage_available > 0) {
-+			unsigned long new_start =
-+			 last_header_submit_info ?
-+			 last_header_submit_info->block[target_blocksperpage -1]
-+				+ 1: 0;
-+
-+			append_extent_to_extent_chain(&block_chain,
-+			 new_start, new_start +
-+			 (min(main_pages, target_storage_available) << 
-+			  		target_blockshift) - 1);
-+		}
-+}
-+
-+static void get_target_info(void)
-+{
-+	if (target_bdev) {
-+		/* 
-+		 * Don't replace the inode if we got the bdev from opening
-+		 * a file.
-+		 */
-+		if (!target_inode)
-+			target_inode = target_bdev->bd_inode;
-+		target_type = get_target_type(target_inode);
-+		target_blkbits = target_bdev->bd_inode->i_blkbits;
-+		target_storage_available = size_ignoring_sparseness();
-+	} else {
-+		target_type = -1;
-+		target_inode = NULL;
-+		target_blkbits = 0;
-+		target_storage_available = 0;
-+	}	
-+}
-+
-+static int set_target_blocksize(void)
-+{
-+	if ((suspend_bio_ops.get_block_size(target_bdev) 
-+					!= target_blocksize) &&
-+	    (suspend_bio_ops.set_block_size(target_bdev, target_blocksize)
-+	    			 == -EINVAL)) {
-+		printk(KERN_ERR name_suspend "Filewriter: Failed to set the blocksize.\n");
-+		return 1;
++	if (atomic_dec_and_test(&actions_running)) {
++		suspend2_cleanup_plugins(finishing_cycle);
++		suspend2_put_modules();
++		clear_suspend_state(SUSPEND_RUNNING);
 +	}
 +
-+	return 0;
-+		
-+}
-+
-+static int try_to_open_target_device(void)
-+{
-+	if (!target_dev_t)
-+		return 1;
-+
-+	if (!target_bdev) {
-+		target_bdev = open_by_devnum(target_dev_t, FMODE_READ);
-+
-+		if (IS_ERR(target_bdev)) {
-+			target_bdev = NULL;
-+			return 1;
-+		}
-+		used_devt = 1;
-+
-+		if (set_target_blocksize()) {
-+			blkdev_put(target_bdev);
-+			target_bdev = NULL;
-+			return 1;
-+		}
-+	}
-+
-+	get_target_info();
-+
-+	return 0;
-+}
-+
-+static int try_to_parse_target_dev_t(char * commandline)
-+{
-+	struct kstat stat;
-+	int error;
-+
-+	target_dev_t = name_to_dev_t(commandline);
-+
-+	if (!target_dev_t) {
-+		error = vfs_stat(commandline, &stat);
-+		if (!error)
-+			target_dev_t = stat.rdev;
-+	}
-+
-+	if (!target_dev_t) {
-+		if (test_suspend_state(SUSPEND_TRYING_TO_RESUME))
-+			suspend_early_boot_message(1, SUSPEND_CONTINUE_REQ,
-+				"Failed to translate \"%s\" into a device id.\n",
-+				commandline);
-+		else
-+			printk(name_suspend "Can't translate \"%s\" into a device id yet.\n",
-+					commandline);
-+		return 1;
-+	}
-+	
-+	try_to_open_target_device();
-+
-+	if (IS_ERR(target_bdev)) {
-+		printk("Open by devnum returned %p given %x.\n",
-+				target_bdev, target_dev_t);
-+		target_bdev = NULL;
-+		if (test_suspend_state(SUSPEND_BOOT_TIME))
-+			suspend_early_boot_message(1, SUSPEND_CONTINUE_REQ,
-+				"Failed to get access to the device on which"
-+				" Software Suspend's header should be found.");
-+		else
-+			printk("Failed to get access to the device on which "
-+				"Software Suspend's header should be found.\n");
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+static void filewriter_noresume_reset(void)
-+{
-+ 	/* 
-+	 * If we have read part of the image, we might have filled header_data with
-+	 * data that should be zeroed out.
-+	 */
-+
-+	memset((char *) &filewriter_header_data, 0, sizeof(filewriter_header_data));
++	set_fs(oldfs);
 +}
 +
 +/*
-+ *
++ * Basic set-up routine.
++ */
++int suspend_start_anything(int starting_cycle)
++{
++	oldfs = get_fs();
++
++	if (atomic_add_return(1, &actions_running) == 1) {
++       		set_fs(KERNEL_DS);
++
++		set_suspend_state(SUSPEND_RUNNING);
++
++		if (suspend2_get_modules()) {
++			printk("Get modules failed!\n");
++			clear_suspend_state(SUSPEND_RUNNING);
++			set_fs(oldfs);
++			return -EBUSY;
++		}
++
++		if (suspend2_initialise_plugins(starting_cycle)) {
++			printk("Initialise plugins failed!\n");
++			suspend_finish_anything(starting_cycle);
++			return -EBUSY;
++		}
++	}
++
++	return 0;
++}
++
++/* -------------------------------------------------------------------------- */
++
++/*
++ * save_image
++ * Result code (int): Zero on success, non zero on failure.
++ * Functionality    : High level routine which performs the steps necessary
++ *                    to prepare and save the image after preparatory steps
++ *                    have been taken.
++ * Key Assumptions  : Processes frozen, sufficient memory available, drivers
++ *                    suspended.
++ * Called from      : suspend2_suspend_2
 + */
 +
-+int parse_signature(char * header, int restore)
++static int save_image(void)
 +{
-+	int have_image = !memcmp(HaveImage, header, sizeof(HaveImage) - 1);
-+	int non_image_header = !memcmp(NoImage, header, sizeof(NoImage) - 1);
++	int temp_result;
 +
-+	if (!have_image && !non_image_header)
++	if (RAM_TO_SUSPEND > max_mapnr) {
++		suspend2_prepare_status(1, 1,
++			"Couldn't get enough free pages, on %ld pages short",
++			 RAM_TO_SUSPEND - max_mapnr);
++		return -1;
++	}
++	
++	suspend_message(SUSPEND_ANY_SECTION, SUSPEND_LOW, 1,
++		" - Final values: %d and %d.\n",
++		pageset1_size, 
++		pageset2_size);
++
++	check_shift_keys(1, "About to write pagedir2.");
++
++	temp_result = write_pageset(&pagedir2, 2);
++	
++	if (temp_result == -1 || TEST_RESULT_STATE(SUSPEND_ABORTED))
 +		return -1;
 +
-+	if (non_image_header)
-+		return 0;
++	check_shift_keys(1, "About to copy pageset 1.");
++
++	suspend2_prepare_status(1, 0, "Doing atomic copy.");
 +	
-+	clear_suspend_state(SUSPEND_RESUMED_BEFORE);
++	do_suspend2_lowlevel(0);
 +
-+	if (header[resumed_before_byte] & 1)
-+		set_suspend_state(SUSPEND_RESUMED_BEFORE);
-+
-+	/* Invalidate Image */
-+	if (restore)
-+		strcpy(header, NoImage);
-+
-+	return 1;
++	return 0;
 +}
 +
 +/*
-+ * prepare_signature
++ * Save the second part of the image.
 + */
-+
-+static int prepare_signature(struct submit_params * header_page_info,
-+		char * current_header)
++int save_image_part1(void)
 +{
-+	/* 
-+	 * Explicitly put the \0 that clears the 'tried to resume from
-+	 * this image before' flag.
-+	 */
-+	strncpy(current_header, HaveImage, sizeof(HaveImage));
-+	current_header[resumed_before_byte] = 0;
-+	return 0;
-+}
-+
-+static void free_header_data(void)
-+{
-+	if (!first_header_submit_info)
-+		return;
-+
-+	while (first_header_submit_info) {
-+		struct submit_params * next = first_header_submit_info->next;
-+		kfree(first_header_submit_info);
-+		first_header_submit_info = next;
-+	}
++	int temp_result, old_ps1_size = pageset1_size;
++	dyn_pageflags_t temp;
 +	
-+	suspend_message(SUSPEND_WRITER, SUSPEND_LOW, 1,
-+			" Freed swap pages in free_header_data.\n");
-+	first_header_submit_info = last_header_submit_info = NULL;
-+	return;
-+}
++	/* Quick switch: We want to compare the old stats with the new ones. */
++	temp = pageset1_map;
++	pageset1_map = pageset1_check_map;
++	pageset1_check_map = temp;
 +
-+static int filewriter_storage_available(void)
-+{
-+	int result = 0;
++	temp = pageset2_map;
++	pageset2_map = pageset2_check_map;
++	pageset2_check_map = temp;
 +
-+	if (!target_inode)
-+		return 0;
++	suspend2_recalculate_stats();
 +
-+	switch (target_type) {
-+		case 0:
-+		case 5:
-+		case 6: /* Socket, Char, Fifi */
-+			return -1;
-+		case 2: /* Regular file: current size - holes + free space on part */
-+			result = target_storage_available;
-+			break;
-+		case 3: /* Block device */
-+			if (target_bdev->bd_disk) {
-+				if (target_bdev->bd_part)
-+					result = (unsigned long)target_bdev->bd_part->nr_sects >> (PAGE_SHIFT - 9);
-+				else
-+					result = (unsigned long)target_bdev->bd_disk->capacity >> (PAGE_SHIFT - 9);
-+			} else {
-+				printk("bdev->bd_disk null.\n");
-+				return 0;
-+			}
++	if ((pageset1_size - old_ps1_size) > EXTRA_PD1_PAGES_ALLOWANCE) {
++		abort_suspend("Pageset1 has grown by %d pages."
++			" Only %d growth is allowed for!\n",
++			pageset1_size - old_ps1_size,
++			EXTRA_PD1_PAGES_ALLOWANCE);
++		return -1;
 +	}
 +
-+	return result;
-+}
++	suspend2_map_atomic_copy_pages();
 +
-+static int filewriter_storage_allocated(void)
-+{
-+	int result;
++	BUG_ON(!irqs_disabled());
 +
-+	if (!target_inode)
-+		return 0;
-+
-+	if (target_is_normal_file()) {
-+		result = (int) target_storage_available;
-+	} else
-+		result = header_pages + main_pages;
-+
-+	return result;
-+}
-+
-+static int filewriter_initialise(int starting_cycle)
-+{
-+	if (!starting_cycle)
-+		return 0;
-+
-+	target_fd = sys_open(filewriter_target, O_RDWR, 0);
-+
-+	if (target_fd < 0) {
-+		printk("Open file %s returned %d.\n", filewriter_target, target_fd);
-+		return target_fd;
-+	}
-+
-+	target_inode = current->files->fd[target_fd]->f_dentry->d_inode;
-+	BUG_ON(target_bdev);
-+	target_bdev = target_inode->i_bdev ? target_inode->i_bdev : target_inode->i_sb->s_bdev;
-+	set_target_blocksize();
-+	get_target_info();
-+
-+	return 0;
-+}
-+
-+static void filewriter_cleanup(int finishing_cycle)
-+{
-+	if (target_bdev) {
-+		if (used_devt) {
-+			blkdev_put(target_bdev);
-+			used_devt = 0;
-+		}
-+		target_bdev = NULL;
-+		get_target_info();
-+	}
-+
-+	if (!finishing_cycle)
-+		return;
-+
-+	if (target_fd >= 0)
-+		sys_close(target_fd);
-+
-+	target_fd = -1;
-+}
-+
-+static int filewriter_release_storage(void)
-+{
-+	if ((TEST_ACTION_STATE(SUSPEND_KEEP_IMAGE)) && test_suspend_state(SUSPEND_NOW_RESUMING))
-+		return 0;
-+
-+	/* Free metadata */
-+	free_header_data();
-+
-+	put_extent_chain(&block_chain);
-+
-+	header_pages = main_pages = 0;
-+	return 0;
-+}
-+
-+static int filewriter_allocate_header_space(int space_requested)
-+{
-+	int i, j, pages_to_get;
-+	int ret = 0;
-+
-+	/* We only steal pages from the main pool. If it doesn't have any yet... */
-+	
-+	if (!block_chain.first)
-+		return 0;
-+
-+	pages_to_get = space_requested - header_pages;
-+
-+	if (pages_to_get < 1)
-+		return 0;
-+
-+	for (i= header_pages; i < space_requested; i++) {
-+		struct submit_params * new_submit_param;
-+
-+		/* Get a submit structure */
-+		new_submit_param = kmalloc(sizeof(struct submit_params), GFP_ATOMIC);
-+		
-+		if (!new_submit_param) {
-+			printk("Failed to kmalloc a struct submit param.\n");
-+			ret = -ENOMEM;
-+			goto out;
-+		}
-+
-+		memset(new_submit_param, 0, sizeof(struct submit_params));
-+
-+		if (last_header_submit_info) {
-+			last_header_submit_info->next = new_submit_param;
-+			last_header_submit_info = new_submit_param;
-+		} else
-+			last_header_submit_info = first_header_submit_info =
-+				new_submit_param;
-+
-+		for (j = 0; j < target_blocksperpage; j++) {
-+			unsigned long newvalue;
-+
-+			/*
-+			 *  Steal one from main extent chain. If, as a result,
-+			 *  it is too small, more storage will be allocated or
-+			 *  memory eaten.
-+			 */
-+
-+			if (block_chain.first->minimum <
-+					block_chain.first->maximum) {
-+				newvalue = block_chain.first->minimum;
-+				block_chain.first->minimum++;
-+			} else {
-+				struct extent * oldfirst =
-+					block_chain.first;
-+				block_chain.first = oldfirst->next;
-+				block_chain.frees++;
-+				if (block_chain.last == oldfirst)
-+					block_chain.last = NULL;
-+				newvalue = oldfirst->minimum;
-+				put_extent(oldfirst);
-+			}
-+			
-+			block_chain.size--;
-+
-+			new_submit_param->block[j] = newvalue;
-+		}
-+
-+		new_submit_param->dev = target_bdev;
-+		new_submit_param->readahead_index = -1;
-+
-+		header_pages++;
-+
-+		suspend_message(SUSPEND_WRITER, SUSPEND_MEDIUM, 0,
-+			" Got header page %d/%d. Dev is %x. Block is %lu. "
-+			"Target block size is %d.\n",
-+			i, space_requested,
-+			new_submit_param->dev,
-+			new_submit_param->block[0],
-+			new_submit_param->dev->bd_block_size);
-+
-+		if (!block_chain.size)
-+			break;
-+	}
-+out:
-+	return ret;
-+}
-+
-+static int filewriter_allocate_storage(int space_requested)
-+{
-+	int result = 0;
-+	int blocks_to_get = (space_requested << target_blockshift) - block_chain.size;
-+	
-+	/* Only release_storage reduces the size */
-+	if (blocks_to_get < 1)
-+		return 0;
-+
-+	main_pages = space_requested;
-+
-+	get_main_pool_phys_params();
-+
-+	suspend_message(SUSPEND_WRITER, SUSPEND_MEDIUM, 0,
-+		"Finished with block_chain.size == %d.\n",
-+		block_chain.size);
-+
-+	if (block_chain.size < ((header_pages + main_pages) << target_blockshift))
-+		result = -ENOSPC;
-+
-+	return result;
-+}
-+
-+static int filewriter_write_header_chunk(char * buffer, int buffer_size);
-+static int filewriter_write_header_init(void)
-+{
-+	char new_sig[sig_size];
-+	struct extent * extent;
-+	
-+	filewriter_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	header_link =
-+		(unsigned long *) (filewriter_buffer + BYTES_PER_HEADER_PAGE);
-+	filewriter_page_index = 1;
-+	filewriter_buffer_posn = 0;
-+
-+	current_header_submit_info = first_header_submit_info;
-+	
-+	/* We change it once the whole header is written */
-+	strcpy(new_sig, NoImage);
-+	filewriter_write_header_chunk(new_sig, sig_size);
-+
-+	/* Must calculate extent number before writing the header! */
-+	filewriter_header_data.pd1start_extent_number = 1;
-+	extent = block_chain.first;
-+
-+	while (extent != filewriter_header_data.pd1start_block_extent) {
-+		filewriter_header_data.pd1start_extent_number++;
-+		extent = extent->next;
-+	}
-+
-+	/* Info needed to bootstrap goes at the start of the header.
-+	 * First we save the 'header_data' struct, including the number
-+	 * of header pages. Then we save the structs containing data needed
-+	 * for reading the header pages back.
-+	 * Note that even if header pages take more than one page, when we
-+	 * read back the info, we will have restored the location of the
-+	 * next header page by the time we go to use it.
-+	 */
-+	filewriter_write_header_chunk((char *) &filewriter_header_data, 
-+			sizeof(filewriter_header_data));
-+
-+	return 0;
-+}
-+
-+static int filewriter_write_header_chunk(char * buffer, int buffer_size)
-+{
-+	int bytes_left = buffer_size;
-+	
-+	/* 
-+	 * We buffer the writes until a page is full and to use the last
-+	 * sizeof(swp_entry_t) bytes for links between pages. This is 
-+	 * totally transparent to the caller.
-+	 *
-+	 * Note also that buffer_size can be > PAGE_SIZE.
-+	 */
-+
-+	suspend_message(SUSPEND_WRITER, SUSPEND_HIGH, 0,
-+		"\nStart of write_header_chunk loop with %d bytes to store.\n",
-+		buffer_size);
-+
-+	while (bytes_left) {
-+		char * source_start = buffer + buffer_size - bytes_left;
-+		char * dest_start = filewriter_buffer + filewriter_buffer_posn;
-+		int dest_capacity = BYTES_PER_HEADER_PAGE - filewriter_buffer_posn;
-+		sector_t next_header_page;
-+		if (bytes_left <= dest_capacity) {
-+			memcpy(dest_start, source_start, bytes_left);
-+			filewriter_buffer_posn += bytes_left;
-+			return 0;
-+		}
-+	
-+		/* A page is full */
-+		memcpy(dest_start, source_start, dest_capacity);
-+		bytes_left -= dest_capacity;
-+
-+		BUG_ON(!current_header_submit_info);
-+
-+		if (!current_header_submit_info->next) {
-+			*header_link = 0;
-+		} else {
-+			next_header_page =
-+				current_header_submit_info->next->block[0];
-+
-+			*header_link = next_header_page;
-+		}
-+
-+		suspend_message(SUSPEND_WRITER, SUSPEND_HIGH, 0,
-+			"Writing header page %d. "
-+			"Dev is %x. Block is %lu. Blocksperpage is %d. Bd_block_size is %d.\n",
-+			filewriter_page_index,
-+			current_header_submit_info->dev->bd_dev,
-+			current_header_submit_info->block[0],
-+			target_blocksperpage,
-+			current_header_submit_info->dev->bd_block_size);
-+		
-+		current_header_submit_info->page =
-+			virt_to_page(filewriter_buffer);
-+		check_shift_keys(0, NULL);
-+		suspend_bio_ops.submit_io(WRITE, current_header_submit_info, 0);
-+
-+		filewriter_buffer_posn = 0;
-+		filewriter_page_index++;
-+		current_header_submit_info = current_header_submit_info->next;
-+	}
-+
-+	return 0;
-+}
-+
-+static int filewriter_write_header_cleanup(void)
-+{
-+	/* Write any unsaved data */
-+	if (filewriter_buffer_posn) {
-+		*header_link = 0;
-+
-+		suspend_message(SUSPEND_WRITER, SUSPEND_HIGH, 0,
-+			"Writing header page %d. "
-+			"Dev is %x. Block is %lu. Blocksperpage is %d.\n",
-+			filewriter_page_index,
-+			current_header_submit_info->dev->bd_dev,
-+			current_header_submit_info->block[0],
-+			target_blocksperpage);
-+		
-+		current_header_submit_info->page =
-+			virt_to_page(filewriter_buffer);
-+		suspend_bio_ops.submit_io(WRITE, 
-+				current_header_submit_info, 0);
-+	}
-+
-+	suspend_bio_ops.finish_all_io();
-+
-+	/* Adjust image header */
-+	suspend_bio_ops.bdev_page_io(READ, target_bdev, target_firstblock,
-+			virt_to_page(filewriter_buffer));
-+
-+	prepare_signature(first_header_submit_info, filewriter_buffer);
-+		
-+	suspend_bio_ops.bdev_page_io(WRITE, target_bdev, target_firstblock,
-+			virt_to_page(filewriter_buffer));
-+
-+	free_pages((unsigned long) filewriter_buffer, 0);
-+	filewriter_buffer = NULL;
-+	header_link = NULL;
-+	
-+	suspend_bio_ops.finish_all_io();
-+
-+	return 0;
-+}
-+
-+/* ------------------------- HEADER READING ------------------------- */
-+
-+/*
-+ * read_header_init()
-+ * 
-+ * Description:
-+ * 1. Attempt to read the device specified with resume2=.
-+ * 2. Check the contents of the swap header for our signature.
-+ * 3. Warn, ignore, reset and/or continue as appropriate.
-+ * 4. If continuing, read the filewriter configuration section
-+ *    of the header and set up block device info so we can read
-+ *    the rest of the header & image.
-+ *
-+ * Returns:
-+ * May not return if user choose to reboot at a warning.
-+ * -EINVAL if cannot resume at this time. Booting should continue
-+ * normally.
-+ */
-+
-+static int filewriter_read_header_init(void)
-+{
-+	filewriter_page_index = 1;
-+
-+	filewriter_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	filewriter_buffer_posn = sig_size;
-+
-+	/* Read filewriter configuration */
-+	suspend_bio_ops.bdev_page_io(READ, target_bdev, target_firstblock,
-+			virt_to_page((unsigned long) filewriter_buffer));
-+	
-+	suspend_message(SUSPEND_WRITER, SUSPEND_HIGH, 0,
-+		"Retrieving %d bytes from %x:%x to page %d, %p-%p.\n",
-+		target_bdev->bd_dev, target_firstblock,
-+		sizeof(filewriter_header_data),
-+		filewriter_page_index,
-+		filewriter_buffer, filewriter_buffer + sizeof(filewriter_header_data) - 1);
-+	memcpy(&filewriter_header_data,
-+			filewriter_buffer + filewriter_buffer_posn,
-+			sizeof(filewriter_header_data));
-+	
-+	filewriter_buffer_posn += sizeof(filewriter_header_data);
-+
-+	return 0;
-+}
-+
-+static int filewriter_read_header_chunk(char * buffer, int buffer_size)
-+{
-+	int bytes_left = buffer_size, ret = 0;
-+	
-+	/* Read a chunk of the header */
-+	while ((bytes_left) && (!ret)) {
-+		sector_t next =
-+		   *((sector_t *) (filewriter_buffer + BYTES_PER_HEADER_PAGE));
-+		char * dest_start = buffer + buffer_size - bytes_left;
-+		char * source_start =
-+			filewriter_buffer + filewriter_buffer_posn;
-+		int source_capacity =
-+			BYTES_PER_HEADER_PAGE - filewriter_buffer_posn;
-+
-+		if (bytes_left <= source_capacity) {
-+			memcpy(dest_start, source_start, bytes_left);
-+			filewriter_buffer_posn += bytes_left;
-+			return buffer_size;
-+		}
-+
-+		/* Next to read the next page */
-+		memcpy(dest_start, source_start, source_capacity);
-+		bytes_left -= source_capacity;
-+
-+		filewriter_page_index++;
-+
-+		suspend_bio_ops.bdev_page_io(READ, target_bdev,
-+				next, virt_to_page(filewriter_buffer));
-+
-+		filewriter_buffer_posn = 0;
-+	}
-+
-+	return buffer_size - bytes_left;
-+}
-+
-+static int filewriter_read_header_cleanup(void)
-+{
-+	free_pages((unsigned long) filewriter_buffer, 0);
-+	return 0;
-+}
-+
-+static int filewriter_serialise_extents(void)
-+{
-+	serialise_extent_chain(&block_chain);
-+	return 0;
-+}
-+
-+static int filewriter_load_extents(void)
-+{
-+	int i = 1;
-+	struct extent * extent;
-+	
-+	load_extent_chain(&block_chain);
-+
-+	extent = block_chain.first;
-+
-+	while (i < filewriter_header_data.pd1start_extent_number) {
-+		extent = extent->next;
-+		i++;
-+	}
-+
-+	filewriter_header_data.pd1start_block_extent = extent;
-+
-+	return 0;
-+}
-+
-+static int filewriter_write_init(int stream_number)
-+{
-+	if (stream_number == 1) {
-+		currentblockextent = filewriter_header_data.pd1start_block_extent;
-+		currentblockoffset = filewriter_header_data.pd1start_block_offset;
-+	} else {
-+		currentblockextent = block_chain.first;
-+		currentblockoffset = currentblockextent->minimum;
-+	}
-+
-+	BUG_ON(!currentblockextent);
-+
-+	filewriter_page_index = 1;
-+	current_stream = stream_number;
-+
-+	suspend_bio_ops.reset_io_stats();
-+
-+	return 0;
-+}
-+
-+static int filewriter_write_chunk(struct page * buffer_page)
-+{
-+	int i;
-+	struct submit_params submit_params;
-+
-+	BUG_ON(!currentblockextent);
-+	submit_params.readahead_index = -1;
-+	submit_params.page = buffer_page;
-+	submit_params.dev = target_bdev;
-+		
-+	/* Get the blocks */
-+	for (i = 0; i < target_blocksperpage; i++) {
-+		submit_params.block[i] = currentblockoffset;
-+		GET_EXTENT_NEXT(currentblockextent, currentblockoffset);
-+	}
-+
-+	if(!submit_params.block[0])
-+		return -EIO;
-+
-+	if (TEST_ACTION_STATE(SUSPEND_TEST_FILTER_SPEED))
-+		return 0;
-+		
-+	suspend_bio_ops.submit_io(WRITE, &submit_params, 0);
-+
-+	filewriter_page_index++;
-+
-+	return 0;
-+}
-+
-+static int filewriter_write_cleanup(void)
-+{
-+	if (current_stream == 2) {
-+		filewriter_header_data.pd1start_block_extent = currentblockextent;
-+		filewriter_header_data.pd1start_block_offset = currentblockoffset;
-+	}
-+	
-+	suspend_bio_ops.finish_all_io();
-+	
-+	suspend_bio_ops.check_io_stats();
-+
-+	return 0;
-+}
-+
-+static int filewriter_read_init(int stream_number)
-+{
-+	if (stream_number == 1) {
-+		currentblockextent = filewriter_header_data.pd1start_block_extent;
-+		currentblockoffset = filewriter_header_data.pd1start_block_offset;
-+	} else {
-+		currentblockextent = NULL;
-+		currentblockoffset = 0;
-+		currentblockextent =
-+			block_chain.first;
-+		currentblockoffset = currentblockextent->minimum;
-+	}
-+
-+	BUG_ON(!currentblockextent);
-+
-+	filewriter_page_index = 1;
-+
-+	suspend_bio_ops.reset_io_stats();
-+
-+	readahead_index = readahead_submit_index = -1;
-+	readahead_allocs = readahead_frees = 0;
-+
-+	return 0;
-+}
-+
-+static int filewriter_begin_read_chunk(struct page * page, 
-+		int readahead_index, int sync)
-+{
-+	int i;
-+	struct submit_params submit_params;
-+
-+	BUG_ON(!currentblockextent);
-+	
-+	submit_params.readahead_index = readahead_index;
-+	submit_params.page = page;
-+	submit_params.dev = target_bdev;
-+		
-+	/* Get the blocks. There is no chance that they span chains. */
-+	for (i = 0; i < target_blocksperpage; i++) {
-+		submit_params.block[i] = currentblockoffset;
-+		GET_EXTENT_NEXT(currentblockextent, currentblockoffset);
-+	}
-+
-+	if ((i = suspend_bio_ops.submit_io(READ, &submit_params, sync)))
-+		return -EPERM;
-+
-+	filewriter_page_index++;
-+
-+	check_shift_keys(0, NULL);
-+
-+	return 0;
-+}
-+
-+/* Note that we ignore the sync parameter. We are implementing
-+ * read ahead, and will always wait until our readhead buffer has
-+ * been read before returning.
-+ */
-+
-+static int filewriter_read_chunk(struct page * buffer_page, int sync)
-+{
-+	static int last_result;
-+	unsigned long * virt;
-+
-+	if (sync == SUSPEND_ASYNC)
-+		return filewriter_begin_read_chunk(buffer_page, -1, sync);
-+
-+	/* Start new readahead while we wait for our page */
-+	if (readahead_index == -1) {
-+		last_result = 0;
-+		readahead_index = readahead_submit_index = 0;
-+	}
-+
-+	/* Start a new readahead? */
-+	if (last_result) {
-+		/* We failed to submit a read, and have cleaned up
-+		 * all the readahead previously submitted */
-+		if (readahead_submit_index == readahead_index)
-+			return -EPERM;
-+		goto wait;
-+	}
-+	
-+	do {
-+		if (suspend_bio_ops.prepare_readahead(readahead_submit_index))
-+			break;
-+
-+		readahead_allocs++;
-+
-+		last_result = filewriter_begin_read_chunk(
-+			suspend_bio_ops.readahead_pages[readahead_submit_index], 
-+			readahead_submit_index, SUSPEND_ASYNC);
-+		if (last_result) {
-+			printk("Begin read chunk for page %d returned %d.\n",
-+				readahead_submit_index, last_result);
-+			suspend_bio_ops.cleanup_readahead(readahead_submit_index);
-+			break;
-+		}
-+
-+		readahead_submit_index++;
-+
-+		if (readahead_submit_index == MAX_READAHEAD)
-+			readahead_submit_index = 0;
-+
-+	} while((!last_result) && (readahead_submit_index != readahead_index) &&
-+			(!suspend_bio_ops.readahead_ready(readahead_index)));
-+
-+wait:
-+	suspend_bio_ops.wait_on_readahead(readahead_index);
-+
-+	virt = kmap_atomic(buffer_page, KM_USER1);
-+	memcpy(virt, page_address(suspend_bio_ops.readahead_pages[readahead_index]),
-+			PAGE_SIZE);
-+	kunmap_atomic(virt, KM_USER1);
-+
-+	suspend_bio_ops.cleanup_readahead(readahead_index);
-+
-+	readahead_frees++;
-+
-+	readahead_index++;
-+	if (readahead_index == MAX_READAHEAD)
-+		readahead_index = 0;
-+
-+	return 0;
-+}
-+
-+static int filewriter_read_cleanup(void)
-+{
-+	suspend_bio_ops.finish_all_io();
-+	while (readahead_index != readahead_submit_index) {
-+		suspend_bio_ops.cleanup_readahead(readahead_index);
-+		readahead_frees++;
-+		readahead_index++;
-+		if (readahead_index == MAX_READAHEAD)
-+			readahead_index = 0;
-+	}
-+	suspend_bio_ops.check_io_stats();
-+	BUG_ON(readahead_allocs != readahead_frees);
-+	return 0;
-+}
-+
-+/* filewriter_invalidate_image
-+ * 
-+ */
-+static int filewriter_invalidate_image(void)
-+{
-+	char * cur;
-+	int result = 0;
-+	
-+	cur = (char *) get_zeroed_page(GFP_ATOMIC);
-+	if (!cur) {
-+		printk("Unable to allocate a page for restoring the image signature.\n");
-+		return -ENOMEM;
-+	}
++	if (!TEST_ACTION_STATE(SUSPEND_TEST_FILTER_SPEED))
++		suspend2_copy_pageset1();
 +
 +	/*
-+	 * If nr_suspends == 0, we must be booting, so no swap pages
-+	 * will be recorded as used yet.
++	 *  ----   FROM HERE ON, NEED TO REREAD PAGESET2 IF ABORTING!!! -----
++	 *  
 +	 */
-+
-+	if (nr_suspends > 0)
-+		filewriter_release_storage();
++	
++	suspend2_unmap_atomic_copy_pages();
 +
 +	/* 
-+	 * We don't do a sanity check here: we want to restore the swap 
-+	 * whatever version of kernel made the suspend image.
-+	 * 
-+	 * We need to write swap, but swap may not be enabled so
-+	 * we write the device directly
++	 * Other processors have waited for me to make the atomic copy of the 
++	 * kernel
++	 */
++
++	smp_continue();
++	
++#ifdef CONFIG_X86
++	kernel_fpu_end();
++#endif
++
++	preempt_enable_no_resched();
++
++	suspend_drivers_resume(SUSPEND_DRIVERS_IRQS_DISABLED);
++	
++	local_irq_enable();
++
++	suspend_drivers_resume(SUSPEND_DRIVERS_IRQS_ENABLED);
++
++	suspend2_update_status(pageset2_size, pageset1_size + pageset2_size, NULL);
++	
++	if (TEST_RESULT_STATE(SUSPEND_ABORTED))
++		goto abort_reloading_pagedir_two;
++
++	check_shift_keys(1, "About to write pageset1.");
++
++	/*
++	 * End of critical section.
 +	 */
 +	
-+	suspend_bio_ops.bdev_page_io(READ, target_bdev,
-+			target_firstblock, virt_to_page(cur));
++	suspend_message(SUSPEND_ANY_SECTION, SUSPEND_LOW, 1,
++			"-- Writing pageset1\n");
 +
-+	result = parse_signature(cur, 1);
-+		
-+	if (result == -1)
-+		goto out;
++	temp_result = write_pageset(&pagedir1, 1);
 +
-+	strcpy(cur, NoImage);
-+	cur[resumed_before_byte] = 0;
++	/* We didn't overwrite any memory, so no reread needs to be done. */
++	if (TEST_ACTION_STATE(SUSPEND_TEST_FILTER_SPEED))
++		return -1;
 +
-+	suspend_bio_ops.bdev_page_io(WRITE, target_bdev, target_firstblock,
-+			virt_to_page(cur));
++	if (temp_result == -1 || TEST_RESULT_STATE(SUSPEND_ABORTED))
++		goto abort_reloading_pagedir_two;
 +
-+	if (!nr_suspends)
-+		printk(KERN_WARNING name_suspend "Image invalidated.\n");
-+out:
-+	suspend_bio_ops.finish_all_io();
-+	free_pages((unsigned long) cur, 0);
++	check_shift_keys(1, "About to write header.");
++
++	if (TEST_RESULT_STATE(SUSPEND_ABORTED))
++		goto abort_reloading_pagedir_two;
++
++	temp_result = write_image_header();
++
++	if (temp_result || (TEST_RESULT_STATE(SUSPEND_ABORTED)))
++		goto abort_reloading_pagedir_two;
++
++	check_shift_keys(1, "About to power down or reboot.");
++
 +	return 0;
++
++abort_reloading_pagedir_two:
++	temp_result = read_pageset2(1);
++
++	/* If that failed, we're sunk. Panic! */
++	if (temp_result)
++		panic("Attempt to reload pagedir 2 while aborting "
++				"a suspend failed.");
++
++	return -1;		
++
 +}
 +
-+/*
-+ * workspace_size
-+ *
-+ * Description:
-+ * Returns the number of bytes of RAM needed for this
-+ * code to do its work. (Used when calculating whether
-+ * we have enough memory to be able to suspend & resume).
-+ *
-+ */
-+static unsigned long filewriter_memory_needed(void)
++#define SNPRINTF(a...) 	len += suspend_snprintf(debug_info_buffer + len, \
++		PAGE_SIZE - len - 1, ## a)
++
++static inline int io_MB_per_second(int read_write)
 +{
-+	return 0;
++	if (!suspend_io_time[read_write][1])
++		return 0;
++
++	return MB((unsigned long) suspend_io_time[read_write][0]) * HZ /
++		suspend_io_time[read_write][1];
 +}
 +
-+/* Print debug info
-+ *
-+ * Description:
++/* get_debug_info
++ * Functionality:	Store debug info in a buffer.
++ * Called from:		suspend_try_suspend.
 + */
 +
-+static int filewriter_print_debug_stats(char * buffer, int size)
++
++static int get_suspend_debug_info(void)
 +{
 +	int len = 0;
-+	struct sysinfo sysinfo;
-+	
-+	if (active_writer != &filewriterops) {
-+		len = suspend_snprintf(buffer, size, "- Filewriter inactive.\n");
-+		return len;
++	if (!debug_info_buffer) {
++		debug_info_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
++		if (!debug_info_buffer) {
++			printk("Error! Unable to allocate buffer for"
++					"software suspend debug info.\n");
++			return 0;
++		}
 +	}
 +
-+	len = suspend_snprintf(buffer, size, "- Filewriter active.\n");
-+
-+	si_swapinfo(&sysinfo);
-+	
-+	len+= suspend_snprintf(buffer+len, size-len, "  Storage available for image: %ld pages.\n",
-+			sysinfo.freeswap + filewriter_storage_allocated());
++	SNPRINTF("Please include the following information in bug reports:\n");
++	SNPRINTF("- SUSPEND core   : %s\n", SUSPEND_CORE_VERSION);
++	SNPRINTF("- Kernel Version : %s\n", UTS_RELEASE);
++	SNPRINTF("- Compiler vers. : %d.%d\n", __GNUC__, __GNUC_MINOR__);
++	SNPRINTF("- Attempt number : %d\n", nr_suspends);
++	SNPRINTF("- Pageset sizes  : %d (%d low) and %d (%d low).\n",
++			pagedir1.lastpageset_size, 
++			pageset1_sizelow,
++			pagedir2.lastpageset_size, 
++			pageset2_sizelow);
++	SNPRINTF("- Parameters     : %ld %ld %ld %d %d %ld\n",
++			suspend_result,
++			suspend_action,
++			suspend_debug_state,
++			suspend_default_console_level,
++			image_size_limit,
++			suspend2_powerdown_method);
++	SNPRINTF("- Calculations   : Image size: %lu. "
++			"Ram to suspend: %ld.\n",
++			STORAGE_NEEDED(1), RAM_TO_SUSPEND);
++	SNPRINTF("- Limits         : %lu pages RAM. Initial boot: %lu.\n",
++		max_mapnr, suspend2_orig_mem_free);
++	SNPRINTF("- Overall expected compression percentage: %d.\n",
++			100 - expected_compression_ratio());
++	len+= print_plugin_debug_info(debug_info_buffer + len, 
++			PAGE_SIZE - len - 1);
++#ifdef CONFIG_PM_DEBUG
++	SNPRINTF("- Debugging compiled in.\n");
++#endif
++#ifdef CONFIG_PREEMPT
++	SNPRINTF("- Preemptive kernel.\n");
++#endif
++#ifdef CONFIG_SMP
++	SNPRINTF("- SMP kernel.\n");
++#endif
++#ifdef CONFIG_HIGHMEM
++	SNPRINTF("- Highmem Support.\n");
++#endif
++	SNPRINTF("- Max extents used: %d\n",
++			max_extents_used);
++	if (suspend_io_time[0][1]) {
++		if ((io_MB_per_second(0) < 5) || (io_MB_per_second(1) < 5)) {
++			SNPRINTF("- I/O speed: Write %d KB/s",
++			  (KB((unsigned long) suspend_io_time[0][0]) * HZ /
++			  suspend_io_time[0][1]));
++			if (suspend_io_time[1][1])
++				SNPRINTF(", Read %d KB/s",
++				  (KB((unsigned long) suspend_io_time[1][0]) * HZ /
++				  suspend_io_time[1][1]));
++		} else {
++			SNPRINTF("- I/O speed: Write %d MB/s",
++			 (MB((unsigned long) suspend_io_time[0][0]) * HZ /
++			  suspend_io_time[0][1]));
++			if (suspend_io_time[1][1])
++				SNPRINTF(", Read %d MB/s",
++				 (MB((unsigned long) suspend_io_time[1][0]) * HZ /
++				  suspend_io_time[1][1]));
++		}
++		SNPRINTF(".\n");
++	}
++	else
++		SNPRINTF("- No I/O speed stats available.\n");
 +
 +	return len;
++}
++
++/*
++ * debuginfo_read_proc
++ * Functionality   : Displays information that may be helpful in debugging
++ *                   software suspend.
++ */
++int debuginfo_read_proc(char * page, char ** start, off_t off, int count,
++		int *eof, void *data)
++{
++	int info_len, copy_len;
++
++	info_len = get_suspend_debug_info();
++
++	copy_len = min(info_len - (int) off, count);
++	if (copy_len < 0)
++		copy_len = 0;
++
++	if (copy_len) {
++		memcpy(page, debug_info_buffer + off, copy_len);
++		*start = page;
++	} 
++
++	if (copy_len + off == info_len)
++		*eof = 1;
++
++	free_pages((unsigned long) debug_info_buffer, 0);
++	debug_info_buffer = NULL;
++	return copy_len;
++}
++
++static int allocate_bitmaps(void)
++{
++	suspend_message(SUSPEND_MEMORY, SUSPEND_VERBOSE, 1,
++			"Allocating in_use_map\n");
++	if (suspend_allocate_dyn_pageflags(&in_use_map))
++		return 1;
++	
++	if (suspend_allocate_dyn_pageflags(&pageset1_map))
++		return 1;
++
++	if (suspend_allocate_dyn_pageflags(&pageset1_copy_map))
++		return 1;
++
++	if (suspend_allocate_dyn_pageflags(&allocd_pages_map))
++		return 1;
++
++	if (suspend_allocate_dyn_pageflags(&pageset2_map))
++		return 1;
++
++#ifdef CONFIG_DEBUG_PAGEALLOC
++	if (suspend_allocate_dyn_pageflags(&unmap_map))
++		return 1;
++
++#endif	
++	
++	if (suspend_allocate_dyn_pageflags(&pageset1_check_map))
++		return 1;
++	
++	if (suspend_allocate_dyn_pageflags(&pageset2_check_map))
++		return 1;
++
 +	return 0;
 +}
 +
-+/*
-+ * Storage needed
-+ *
-+ * Returns amount of space in the image header required
-+ * for the filewriter's data.
-+ *
-+ * We ensure the space is allocated, but actually save the
-+ * data from write_header_init and therefore don't also define a
-+ * save_config_info routine.
-+ */
-+static unsigned long filewriter_storage_needed(void)
++static void free_metadata(void)
 +{
-+	return strlen(filewriter_target) + 1;
++	free_dyn_pageflags(&pageset1_map);
++
++	free_dyn_pageflags(&pageset1_copy_map);
++
++	free_dyn_pageflags(&allocd_pages_map);
++
++	free_dyn_pageflags(&pageset2_map);
++
++	free_dyn_pageflags(&in_use_map);
++
++	free_dyn_pageflags(&pageset1_check_map);
++	free_dyn_pageflags(&pageset2_check_map);
 +}
 +
-+/*
-+ * Image_exists
-+ *
-+ */
-+
-+static int filewriter_image_exists(void)
++static inline int check_still_keeping_image(void)
 +{
-+	int signature_found;
-+	char * diskpage;
-+	
-+	if (try_to_open_target_device())
-+		return 0;
-+
-+	diskpage = (char *) get_zeroed_page(GFP_ATOMIC);
-+
-+	/* FIXME: Make sure bdev_page_io handles wrong parameters */
-+	suspend_bio_ops.bdev_page_io(READ, target_bdev,
-+			target_firstblock, virt_to_page(diskpage));
-+	suspend_bio_ops.finish_all_io();
-+	signature_found = parse_signature(diskpage, 0);
-+	free_pages((unsigned long) diskpage, 0);
-+
-+	if (!signature_found) {
-+		return 0;	/* non fatal error */
-+	} else if (signature_found == -1) {
-+		printk(KERN_ERR name_suspend
-+			"Unable to find a signature. Could you have moved "
-+			"the file?\n");
-+		return 0;
++	if (TEST_ACTION_STATE(SUSPEND_KEEP_IMAGE)) {
++		printk("Image already stored: powering down immediately.");
++		suspend_power_down();
++		return 1;	/* Just in case we're using S3 */
 +	}
++
++	printk("Invalidating previous image.\n");
++	active_writer->ops.writer.invalidate_image();
++
++	return 0;
++}
++
++static inline int suspend2_init(void)
++{
++	suspend_result = 0;
++
++	printk(name_suspend "Initiating a software suspend cycle.\n");
++
++	max_extents_used = 0;
++	nr_suspends++;
++	clear_suspend_state(SUSPEND_NOW_RESUMING);
++	
++	suspend_io_time[0][0] = suspend_io_time[0][1] = 
++		suspend_io_time[1][0] =
++		suspend_io_time[1][1] = 0;
++
++	suspend2_prepare_console();
++
++	free_metadata();	/* We might have kept it */
++
++	attempt_to_parse_resume_device();
++	
++	if (test_suspend_state(SUSPEND_DISABLED))
++		return 0;
++	
++	if (suspend_drivers_init())
++		return 0;
++
++	if (allocate_bitmaps())
++		return 0;
++	
++	ensure_on_processor_zero();
 +
 +	return 1;
 +}
 +
++void inline suspend2_cleanup(void)
++{
++	int i;
++
++	i = get_suspend_debug_info();
++
++	suspend2_free_pagedir_data();
++	
++	thaw_processes(FREEZER_KERNEL_THREADS);
++
++#ifdef CONFIG_SUSPEND2_KEEP_IMAGE
++	if (TEST_ACTION_STATE(SUSPEND_KEEP_IMAGE) &&
++	    !TEST_RESULT_STATE(SUSPEND_ABORTED)) {
++		suspend_message(SUSPEND_ANY_SECTION, SUSPEND_LOW, 1,
++			name_suspend "Not invalidating the image due "
++			"to Keep Image being enabled.\n");
++		SET_RESULT_STATE(SUSPEND_KEPT_IMAGE);
++	} else
++#endif
++		if (active_writer)
++			active_writer->ops.writer.invalidate_image();
++
++	if (!TEST_ACTION_STATE(SUSPEND_KEEP_METADATA))
++		free_metadata();
++
++#ifdef CONFIG_DEBUG_PAGE_ALLOC
++	free_dyn_pageflags(&unmap_map);
++#endif
++
++	if (debug_info_buffer) {
++		/* Printk can only handle 1023 bytes, including
++		 * its level mangling. */
++		for (i = 0; i < 3; i++)
++			printk("%s", debug_info_buffer + (1023 * i));
++		free_pages((unsigned long) debug_info_buffer, 0);
++		debug_info_buffer = NULL;
++	}
++
++	suspend_drivers_cleanup();
++
++	thaw_processes(FREEZER_ALL_THREADS);
++
++	suspend2_cleanup_console();
++
++	return_to_all_processors();
++}
++
 +/*
-+ * Mark resume attempted.
-+ *
-+ * Record that we tried to resume from this image.
++ * suspend2_main
++ * Functionality   : First level of code for software suspend invocations.
++ *                   Stores and restores load averages (to avoid a spike),
++ *                   allocates bitmaps, freezes processes and eats memory
++ *                   as required before suspending drivers and invoking
++ *                   the 'low level' code to save the state to disk.
++ *                   By the time we return from do_suspend2_lowlevel, we
++ *                   have either failed to save the image or successfully
++ *                   suspended and reloaded the image. The difference can
++ *                   be discerned by checking SUSPEND_ABORTED.
++ * Called From     : 
 + */
 +
-+static void filewriter_mark_resume_attempted(void)
++void suspend2_main(void)
 +{
-+	char * diskpage;
-+	int signature_found;
-+	
-+	if (!target_dev_t) {
-+		printk("Not even trying to record attempt at resuming"
-+				" because target_dev_t is not set.\n");
++	/*
++	 * If kept image and still keeping image and suspending to RAM, we will 
++	 * return 1 after suspending and resuming (provided the power doesn't
++	 * run out.
++	 */
++	if (TEST_RESULT_STATE(SUSPEND_KEPT_IMAGE) && check_still_keeping_image())
 +		return;
++
++	if (suspend2_init() && suspend2_prepare_image() && !TEST_RESULT_STATE(SUSPEND_ABORTED) &&
++		!TEST_ACTION_STATE(SUSPEND_FREEZER_TEST))
++	{
++		if (!TEST_RESULT_STATE(SUSPEND_ABORTED)) {
++			suspend2_prepare_status(1, 0, "Starting to save the image..");
++			save_image();
++		}
 +	}
 +	
-+	diskpage = (char *) get_zeroed_page(GFP_ATOMIC);
++	suspend2_cleanup();
++}
 +
-+	/* FIXME: Make sure bdev_page_io handles wrong parameters */
-+	suspend_bio_ops.bdev_page_io(READ, target_bdev, target_firstblock, virt_to_page(diskpage));
-+	signature_found = parse_signature(diskpage, 0);
-+
-+	switch (signature_found) {
-+		case 1:
-+			diskpage[resumed_before_byte] |= 1;
-+			break;
-+	}
++/* image_exists_read
++ * 
++ * Return 0 or 1, depending on whether an image is found.
++ */
++static int image_exists_read(char * page, char ** start, off_t off, int count,
++		int *eof, void *data)
++{
++	int len = 0;
 +	
-+	suspend_bio_ops.bdev_page_io(WRITE, target_bdev, target_firstblock,
-+			virt_to_page(diskpage));
-+	suspend_bio_ops.finish_all_io();
-+	free_pages((unsigned long) diskpage, 0);
-+	return;
++	attempt_to_parse_resume_device();
++
++	if (!active_writer)
++		len = sprintf(page, "-1\n");
++	else
++		len = sprintf(page, "%d\n", active_writer->ops.writer.image_exists());
++
++	*eof = 1;
++	return len;
++}
++
++/* image_exists_read
++ * 
++ * Return 0 or 1, depending on whether an image is found.
++ */
++static int image_exists_write(struct file *file, const char * buffer,
++		unsigned long count, void * data)
++{
++	if (active_writer && active_writer->ops.writer.image_exists())
++		active_writer->ops.writer.invalidate_image();
++
++	return count;
 +}
 +
 +/*
-+ * Parse Image Location
++ * Core proc entries that aren't built in.
 + *
-+ * Attempt to parse a resume2= parameter.
-+ * Swap Writer accepts:
-+ * resume2=swap:DEVNAME[:FIRSTBLOCK][@BLOCKSIZE]
-+ *
-+ * Where:
-+ * DEVNAME is convertable to a dev_t by name_to_dev_t
-+ * FIRSTBLOCK is the location of the first block in the swap file
-+ * (specifying for a swap partition is nonsensical but not prohibited).
-+ * BLOCKSIZE is the logical blocksize >= 512 & <= PAGE_SIZE, 
-+ * mod 512 == 0 of the device.
-+ * Data is validated by attempting to read a swap header from the
-+ * location given. Failure will result in filewriter refusing to
-+ * save an image, and a reboot with correct parameters will be
-+ * necessary.
++ * This array contains entries that are automatically registered at
++ * boot. Plugins and the console code register their own entries separately.
 + */
++extern int toggle_pid;
++void toggle_thread_nofreeze(void);
 +
-+static int filewriter_parse_image_location(char * commandline, int only_writer)
-+{
-+	char *thischar, *devstart = NULL, *colon = NULL, *at_symbol = NULL;
-+	char * diskpage = NULL;
-+	int signature_found, result = -EINVAL, temp_result;
-+
-+	if (strncmp(commandline, "file:", 5)) {
-+		if (!only_writer)
-+			return 1;
-+	} else
-+		commandline += 5;
-+
-+	devstart = thischar = commandline;
-+	while ((*thischar != ':') && (*thischar != '@') &&
-+		((thischar - commandline) < 250) && (*thischar))
-+		thischar++;
-+
-+	if (*thischar == ':') {
-+		colon = thischar;
-+		*colon = 0;
-+		thischar++;
-+	}
-+
-+	while ((*thischar != '@') && ((thischar - commandline) < 250) && (*thischar))
-+		thischar++;
-+
-+	if (*thischar == '@') {
-+		at_symbol = thischar;
-+		*at_symbol = 0;
-+	}
++static struct suspend_proc_data proc_params[] = {
++	{ .filename			= "debug_info",
++	  .permissions			= PROC_READONLY,
++	  .type				= SUSPEND_PROC_DATA_CUSTOM,
++	  .data = {
++		  .special = {
++			  .read_proc	= debuginfo_read_proc,
++		  }
++	  }
++	},
 +	
-+	if (colon)
-+		target_firstblock = (int) simple_strtoul(colon + 1, NULL, 0);
-+	else
-+		target_firstblock = 0;
-+
-+	if (at_symbol) {
-+		target_blocksize = (int) simple_strtoul(at_symbol + 1, NULL, 0);
-+		if (target_blocksize & 0x1FF)
-+			printk("Filewriter: Blocksizes are usually a multiple of 512. Don't expect this to work!\n");
-+	} else
-+		target_blocksize = 4096;
-+	
-+	temp_result = try_to_parse_target_dev_t(devstart);
-+
-+	if (colon)
-+		*colon = ':';
-+	if (at_symbol)
-+		*at_symbol = '@';
-+
-+	if (temp_result)
-+		goto out;
-+
-+	diskpage = (char *) get_zeroed_page(GFP_ATOMIC);
-+	temp_result = suspend_bio_ops.bdev_page_io(READ, target_bdev, target_firstblock, virt_to_page(diskpage));
-+
-+	suspend_bio_ops.finish_all_io();
-+	
-+	if (temp_result) {
-+		printk(KERN_ERR name_suspend "Filewriter: Failed to submit I/O.\n");
-+		goto out;
-+	}
-+
-+	signature_found = parse_signature(diskpage, 0);
-+
-+	if (signature_found != -1) {
-+		printk(KERN_ERR name_suspend "Filewriter: File signature found.\n");
-+		result = 0;
-+	} else
-+		printk(KERN_ERR name_suspend "Filewriter: Sorry. No signature found at specified location.\n");
-+
-+out:
-+	if (diskpage)
-+		free_page((unsigned long) diskpage);
-+	return result;
-+}
-+
-+static void set_filewriter_target(int test_it)
-+{
-+	char * buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	char * buffer2 = (char *) get_zeroed_page(GFP_ATOMIC);
-+	int offset = 0, fd;
-+	int sector;
-+
-+	if(target_bdev)
-+		filewriter_cleanup(0);
-+
-+	fd = sys_open(filewriter_target, O_RDONLY, 0);
-+
-+	if (fd < 0) {
-+		printk("Filewriter: Unable to open %s.\n", filewriter_target);
-+		goto cleanup1;
-+	}
-+
-+	*resume2_file = 0;
-+	
-+	target_inode = current->files->fd[fd]->f_dentry->d_inode;
-+	target_type = get_target_type(target_inode);
-+	
-+	if (!target_is_usable) {
-+		printk("Filewriter: %s is a link or directory. You can't suspend to them!\n",
-+				filewriter_target);
-+		goto cleanup2;
-+	}
-+
-+	target_bdev = target_inode->i_bdev ? target_inode->i_bdev : target_inode->i_sb->s_bdev;
-+	sector = bmap(target_inode, 0);
-+
-+	if (target_bdev && sector) {
-+
-+		target_blkbits = target_bdev->bd_inode->i_blkbits;
-+
-+		suspend_bio_ops.bdev_page_io(READ, target_bdev, sector,
-+			virt_to_page(buffer));
-+
-+		bdevname(target_bdev, buffer2);
-+		offset += snprintf(buffer + offset, PAGE_SIZE - offset, 
-+				"/dev/%s", buffer2);
-+		
-+		if (sector)
-+			offset += snprintf(buffer + offset, PAGE_SIZE - offset,
-+				":0x%x", sector);
-+
-+		if (target_inode->i_sb->s_blocksize != PAGE_SIZE)
-+			offset += snprintf(buffer + offset, PAGE_SIZE - offset,
-+				"@%lu", target_inode->i_sb->s_blocksize);
-+		
-+	} else
-+		offset += snprintf(buffer + offset, PAGE_SIZE - offset,
-+				"%s is not a valid target.", filewriter_target);
-+			
-+	sprintf(resume2_file, "file:%s", buffer);
-+
-+cleanup2:
-+	if (test_it)
-+		sys_close(fd);
-+
-+cleanup1:
-+	free_pages((unsigned long) buffer, 0);
-+	free_pages((unsigned long) buffer2, 0);
-+}
-+
-+/* filewriter_save_config_info
-+ *
-+ * Description:	Save the target's name, not for resume time, but for all_settings.
-+ * Arguments:	Buffer:		Pointer to a buffer of size PAGE_SIZE.
-+ * Returns:	Number of bytes used for saving our data.
-+ */
-+
-+static int filewriter_save_config_info(char * buffer)
-+{
-+	strcpy(buffer, filewriter_target);
-+	return strlen(filewriter_target) + 1;
-+}
-+
-+/* filewriter_load_config_info
-+ *
-+ * Description:	Reload target's name.
-+ * Arguments:	Buffer:		Pointer to the start of the data.
-+ *		Size:		Number of bytes that were saved.
-+ */
-+
-+static void filewriter_load_config_info(char * buffer, int size)
-+{
-+	strcpy(filewriter_target, buffer);
-+}
-+
-+static void test_filewriter_target(void)
-+{
-+	set_filewriter_target(1);
-+}
-+
-+extern void attempt_to_parse_resume_device(void);
-+
-+static struct suspend_proc_data filewriter_proc_data[] = {
-+
-+	{
-+	 .filename			= "filewriter_target",
-+	 .permissions			= PROC_RW,
-+	 .type				= SUSPEND_PROC_DATA_STRING,
-+	 .data = {
-+		 .string = {
-+			 .variable	= filewriter_target,
-+			 .max_length	= 256,
-+		 }
-+	 },
-+	 .write_proc			= test_filewriter_target,
++	{ .filename			= "image_exists",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_CUSTOM,
++	  .data = {
++		  .special = {
++			  .read_proc	= image_exists_read,
++			  .write_proc	= image_exists_write,
++		  }
++	  }
 +	},
 +
-+	{ .filename			= "disable_filewriter",
++	{ .filename			= "image_size_limit",
 +	  .permissions			= PROC_RW,
 +	  .type				= SUSPEND_PROC_DATA_INTEGER,
 +	  .data = {
-+		.integer = {
-+			.variable	= &filewriterops.disabled,
-+			.minimum	= 0,
-+			.maximum	= 1,
-+		}
++		  .integer = {
++			  .variable	= &image_size_limit,
++			  .minimum	= -2,
++			  .maximum	= 32767,
++		  }
++	  }
++	},
++
++	{ .filename			= "last_result",
++	  .permissions			= PROC_READONLY,
++	  .type				= SUSPEND_PROC_DATA_UL,
++	  .data = {
++		  .ul = {
++			  .variable	=  &suspend_result,
++		  }
++	  }
++	},
++	
++	{ .filename			= "reboot",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_REBOOT,
++		  }
++	  }
++	},
++	  
++	{ .filename			= "resume2",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_STRING,
++	  .data = {
++		  .string = {
++			  .variable	= resume2_file,
++			  .max_length	= 255,
++		  }
 +	  },
 +	  .write_proc			= attempt_to_parse_resume_device,
-+	}
-+};
++	},
 +
-+static struct suspend_plugin_ops filewriterops = {
-+	.type					= WRITER_PLUGIN,
-+	.name					= "File Writer",
-+	.module					= THIS_MODULE,
-+	.memory_needed				= filewriter_memory_needed,
-+	.print_debug_info			= filewriter_print_debug_stats,
-+	.save_config_info			= filewriter_save_config_info,
-+	.load_config_info			= filewriter_load_config_info,
-+	.storage_needed				= filewriter_storage_needed,
-+	.initialise				= filewriter_initialise,
-+	.cleanup				= filewriter_cleanup,
++	{ .filename			= "resume_commandline",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_STRING,
++	  .data = {
++		  .string = {
++			  .variable	= resume_commandline,
++			  .max_length	= COMMAND_LINE_SIZE,
++		  }
++	  },
++	  .write_proc			= attempt_to_parse_resume_device,
++	},
 +
-+	.write_init				= filewriter_write_init,
-+	.write_cleanup				= filewriter_write_cleanup,
-+	.read_init				= filewriter_read_init,
-+	.read_cleanup				= filewriter_read_cleanup,
 +
-+	.ops = {
-+		.writer = {
-+		 .write_chunk		= filewriter_write_chunk,
-+		 .read_chunk		= filewriter_read_chunk,
-+		 .noresume_reset	= filewriter_noresume_reset,
-+		 .storage_available 	= filewriter_storage_available,
-+		 .storage_allocated	= filewriter_storage_allocated,
-+		 .release_storage	= filewriter_release_storage,
-+		 .allocate_header_space	= filewriter_allocate_header_space,
-+		 .allocate_storage	= filewriter_allocate_storage,
-+		 .image_exists		= filewriter_image_exists,
-+		 .mark_resume_attempted	= filewriter_mark_resume_attempted,
-+		 .write_header_init	= filewriter_write_header_init,
-+		 .write_header_chunk	= filewriter_write_header_chunk,
-+		 .write_header_cleanup	= filewriter_write_header_cleanup,
-+		 .read_header_init	= filewriter_read_header_init,
-+		 .read_header_chunk	= filewriter_read_header_chunk,
-+		 .read_header_cleanup	= filewriter_read_header_cleanup,
-+		 .serialise_extents	= filewriter_serialise_extents,
-+		 .load_extents		= filewriter_load_extents,
-+		 .invalidate_image	= filewriter_invalidate_image,
-+		 .parse_image_location	= filewriter_parse_image_location,
-+		}
-+	}
-+};
++	{ .filename			= "toggle_process_nofreeze",
++	  .permissions			= PROC_WRITEONLY,
++	  .type				= SUSPEND_PROC_DATA_INTEGER,
++	  .data = {
++		  .integer = {
++			  .variable	= &toggle_pid,
++			  .minimum	= 2,
++			  .maximum	= 32767,
++		  }
++	  },
++	  .write_proc			= toggle_thread_nofreeze,
++	},
 +
-+/* ---- Registration ---- */
-+static __init int filewriter_load(void)
-+{
-+	int result;
-+	int i, numfiles = sizeof(filewriter_proc_data) / sizeof(struct suspend_proc_data);
++	{ .filename			= "version",
++	  .permissions			= PROC_READONLY,
++	  .type				= SUSPEND_PROC_DATA_STRING,
++	  .data = {
++		  .string = {
++			  .variable	= suspend_core_version,
++		  }
++	  }
++	},
++
++#ifdef CONFIG_PM_DEBUG
++	{ .filename			= "freezer_test",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_FREEZER_TEST,
++		  }
++	  }
++	},
++
++	{ .filename			= "keep_metadata",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_KEEP_METADATA,
++		  }
++	  }
++	},
++
++	{ .filename			= "test_filter_speed",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_TEST_FILTER_SPEED,
++		  }
++	  }
++	},
++
++	{ .filename			= "slow",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_SLOW,
++		  }
++	  }
++	},
 +	
-+	printk("Software Suspend FileWriter loading.\n");
-+
-+	if (!(result = suspend_register_plugin(&filewriterops))) {
-+		for (i=0; i< numfiles; i++)
-+			suspend_register_procfile(&filewriter_proc_data[i]);
-+	} else
-+		printk("Software Suspend FileWriter unable to register!\n");
-+	return result;
-+}
-+
-+#ifdef MODULE
-+static __exit void filewriter_unload(void)
-+{
-+	int i, numfiles = sizeof(filewriter_proc_data) / sizeof(struct suspend_proc_data);
-+
-+	printk("Software Suspend FileWriter unloading.\n");
-+
-+	for (i=0; i< numfiles; i++)
-+		suspend_unregister_procfile(&filewriter_proc_data[i]);
-+	suspend_unregister_plugin(&filewriterops);
-+}
-+
-+module_init(filewriter_load);
-+module_exit(filewriter_unload);
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Nigel Cunningham");
-+MODULE_DESCRIPTION("Suspend2 filewriter");
-+#else
-+late_initcall(filewriter_load);
 +#endif
++	  
++#if defined(CONFIG_ACPI)
++	{ .filename			= "powerdown_method",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_UL,
++	  .data = {
++		  .ul = {
++			  .variable	= &suspend2_powerdown_method,
++			  .minimum	= 3,
++			  .maximum	= 5,
++		  }
++	  }
++	},
++#endif
++
++#ifdef CONFIG_SUSPEND2_KEEP_IMAGE
++	{ .filename			= "keep_image",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_KEEP_IMAGE,
++		  }
++	  }
++	},
++#endif
++};
++
++
++/*
++ * Called from init kernel_thread.
++ * We check if we have an image and if so we try to resume.
++ * We also start ksuspendd if configuration looks right.
++ */
++
++int suspend2_resume(void)
++{
++	int read_image_result = 0;
++
++	if (sizeof(swp_entry_t) != sizeof(long)) {
++		printk(KERN_WARNING name_suspend
++			"The size of swp_entry_t != size of long. "
++			"Please report this!\n");
++		return 1;
++	}
++	
++	if (!resume2_file[0])
++		printk(KERN_WARNING name_suspend
++			"You need to use a resume2= command line parameter to "
++			"tell Software Suspend 2 where to look for an image.\n");
++
++	if (!(test_suspend_state(SUSPEND_RESUME_DEVICE_OK)))
++		attempt_to_parse_resume_device();
++
++	if (!(test_suspend_state(SUSPEND_RESUME_DEVICE_OK))) {
++		/* 
++		 * Without a usable storage device we can do nothing - 
++		 * even if noresume is given
++		 */
++
++		if (!num_writers)
++			printk(KERN_ALERT name_suspend
++				"No writers have been registered.\n");
++		else
++			printk(KERN_ALERT name_suspend
++				"Missing or invalid storage location "
++				"(resume2= parameter). Please correct and "
++				"rerun lilo (or equivalent) before "
++				"suspending.\n");
++		return 1;
++	}
++
++	/* We enable the possibility of machine suspend */
++	suspend2_orig_mem_free = real_nr_free_pages();
++
++	suspend_task = current->pid;
++
++	read_image_result = read_pageset1(); /* non fatal error ignored */
++
++	if (test_suspend_state(SUSPEND_NORESUME_SPECIFIED))
++		printk(KERN_WARNING name_suspend "Resuming disabled as requested.\n");
++
++	if (read_image_result) {
++		suspend_task = 0;
++		return 1;
++	}
++
++	suspend_drivers_init();
++
++	suspend_atomic_restore();
++
++	BUG();
++
++	return 0;
++}
++
++extern void request_abort_suspend(void);
++extern void suspend2_schedule_message(int message_number);
++
++static __init int core_load(void)
++{
++	int i, numfiles = sizeof(proc_params) / sizeof(struct suspend_proc_data);
++
++	printk("Software Suspend Core.\n");
++	
++	suspend_initialise_plugin_lists();
++	
++	for (i=0; i< numfiles; i++)
++		suspend_register_procfile(&proc_params[i]);
++
++	return 0;
++}
++
++/* ------------ Functions for kickstarting a suspend or resume ----------- */
++
++static int can_suspend(void)
++{
++	/* 
++	 * Perhaps something has changed such that we can suspend or
++	 * resume when we couldn't before. Check before complaining.
++	 */
++	
++	if (test_suspend_state(SUSPEND_DISABLED))
++		attempt_to_parse_resume_device();
++
++	if (test_suspend_state(SUSPEND_DISABLED)) {
++		printk(name_suspend "Software suspend is disabled.\n"
++			"This may be because you haven't put something along the "
++			"lines of\n\nresume2=swap:/dev/hda1\n\n"
++			"in lilo.conf or equivalent. (Where /dev/hda1 is your "
++			"swap partition).\n");
++		SET_RESULT_STATE(SUSPEND_ABORTED);
++		return 0;
++	}
++	
++	return 1;
++}
++
++/*
++ * Check if we have an image and if so try to resume.
++ */
++
++void __suspend2_try_resume(void)
++{
++	set_suspend_state(SUSPEND_TRYING_TO_RESUME);
++	
++	clear_suspend_state(SUSPEND_RESUME_NOT_DONE);
++
++	suspend2_resume();
++
++	clear_suspend_state(SUSPEND_IGNORE_LOGLEVEL);
++	clear_suspend_state(SUSPEND_TRYING_TO_RESUME);
++}
++
++/* Wrapper for when called from init/do_mounts.c */
++void suspend2_try_resume(void)
++{
++	if (suspend_start_anything(0))
++		return;
++
++	__suspend2_try_resume();
++
++	/* 
++	 * For initramfs, we have to clear the boot time
++	 * flag after trying to resume
++	 */
++	clear_suspend_state(SUSPEND_BOOT_TIME);
++
++	suspend_finish_anything(0);
++}
++
++/*
++ * suspend_check_mounts
++ *
++ * Functionality:	Check that the user doesn't have any mounts that
++ * 			may be corrupted by resuming. Display them if needsbe.
++ * 			On exit, CONTINUE_REQ is set if we can continue resuming.
++ */
++
++void suspend_check_mounts(void)
++{
++	if (!mounts_are_S4_resume_safe()) {
++		char *buffer = (char *) get_zeroed_page(GFP_ATOMIC);
++		get_S4_resume_unsafe_mounts(buffer, PAGE_SIZE);
++		suspend_early_boot_message(1, 0,
++			"You have filesystems mounted that may make resuming unsafe:\n %s", buffer);
++		free_pages((unsigned long) buffer, 0);
++		return;
++	}
++
++	set_suspend_state(SUSPEND_CONTINUE_REQ);
++	return;
++}
++
++/*
++ * __suspend2_try_suspend
++ * Functionality   : Performs the basic checking as to whether suspend is
++ * 		     enabled before invoking the high level routine.
++ * Called From     : proc.c, suspend2_try_suspend.c
++ */
++void __suspend2_try_suspend(void)
++{
++	if (can_suspend())
++		suspend2_main();
++}
++
++/*
++ * suspend2_try_suspend
++ * Functionality   : Wrapper around __suspend2_try_suspend.
++ * Called From     : drivers/acpi/sleep/main.c
++ *                   kernel/reboot.c
++ */
++
++void suspend2_try_suspend(void)
++{
++	if (suspend_start_anything(0))
++		return;
++
++	__suspend2_try_suspend();
++
++	suspend_finish_anything(0);
++}
++
++/* -------------------  Commandline Parameter Handling -----------------
++ *
++ * Resume setup: obtain the storage device.
++ */
++
++static int __init resume_setup(char *str)
++{
++	if (str == NULL)
++		return 1;
++	
++	strncpy(resume2_file, str, 255);
++	return 0;
++}
++
++/*
++ * Allow the user to set the action parameter from lilo, prior to resuming.
++ */
++static int __init suspend_act_setup(char *str)
++{
++	if(str)
++		suspend_action=simple_strtol(str,NULL,0);
++	set_suspend_state(SUSPEND_ACT_USED);
++	return 0;
++}
++
++/*
++ * Allow the user to set the debug parameter from lilo, prior to resuming.
++ */
++/*
++ * Allow the user to specify that we should ignore any image found and
++ * invalidate the image if necesssary. This is equivalent to running
++ * the task queue and a sync and then turning off the power. The same
++ * precautions should be taken: fsck if you're not journalled.
++ */
++static int __init noresume_setup(char *str)
++{
++	set_suspend_state(SUSPEND_NORESUME_SPECIFIED);
++	/* Message printed later */
++	return 0;
++}
++
++static int __init suspend2_retry_resume_setup(char *str)
++{
++	set_suspend_state(SUSPEND_RETRY_RESUME);
++	return 0;
++}
++
++__setup("resume2=", resume_setup);
++__setup("suspend_act=", suspend_act_setup);
++
++#ifdef CONFIG_PM_DEBUG
++
++static int __init suspend_dbg_setup(char *str)
++{
++	if(str)
++		suspend_debug_state=simple_strtol(str,NULL,0);
++	set_suspend_state(SUSPEND_DBG_USED);
++	return 0;
++}
++
++/*
++ * Allow the user to set the debug level parameter from lilo, prior to
++ * resuming.
++ */
++static int __init suspend_lvl_setup(char *str)
++{
++	if(str)
++		console_loglevel =
++		suspend_default_console_level = 
++			simple_strtol(str,NULL,0);
++	set_suspend_state(SUSPEND_LVL_USED);
++	clear_suspend_state(SUSPEND_IGNORE_LOGLEVEL);
++	return 0;
++}
++
++__setup("suspend_dbg=", suspend_dbg_setup);
++__setup("suspend_lvl=", suspend_lvl_setup);
++#endif
++
++__setup("noresume2", noresume_setup);
++__setup("suspend_retry_resume", suspend2_retry_resume_setup);
++
++late_initcall(core_load);
++EXPORT_SYMBOL(software_suspend_state);
 

@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVGGBOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVGGAXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbVGGBOH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 21:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbVGGBNz
+	id S262306AbVGGAXO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 20:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbVGFUFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 21:13:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45227 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261799AbVGGBNJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 21:13:09 -0400
-Date: Wed, 6 Jul 2005 18:12:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: davem@davemloft.net, pmarques@grupopie.com, linux-kernel@vger.kernel.org
-Subject: Re: Slowdown with randomize_va_space in 2.6.12.2
-Message-Id: <20050706181220.3978d7f6.akpm@osdl.org>
-In-Reply-To: <20050706205315.GC27630@redhat.com>
-References: <42CBE97C.2060208@grupopie.com>
-	<20050706.125719.08321870.davem@davemloft.net>
-	<20050706205315.GC27630@redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 6 Jul 2005 16:05:07 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:54950 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262209AbVGFSHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 14:07:51 -0400
+Message-ID: <42CC1DEE.7030502@namesys.com>
+Date: Wed, 06 Jul 2005 11:07:42 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Masover <ninja@slaphack.com>
+CC: Hubert Chan <hubert@uhoreg.ca>,
+       "Alexander G. M. Smith" <agmsmith@rogers.com>, ross.biro@gmail.com,
+       vonbrand@inf.utfsm.cl, mrmacman_g4@mac.com, Valdis.Kletnieks@vt.edu,
+       ltd@cisco.com, gmaxwell@gmail.com, jgarzik@pobox.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       zam@namesys.com, vs@thebsh.namesys.com, ndiller@namesys.com,
+       vitaly@thebsh.namesys.com
+Subject: Re: reiser4 plugins
+References: <42CB1E12.2090005@namesys.com> <1740726161-BeMail@cr593174-a> <87hdf8zqca.fsf@evinrude.uhoreg.ca> <42CB7DE0.4050200@namesys.com> <42CBD7F6.2050203@slaphack.com>
+In-Reply-To: <42CBD7F6.2050203@slaphack.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
->
-> On Wed, Jul 06, 2005 at 12:57:19PM -0700, David S. Miller wrote:
->  > From: Paulo Marques <pmarques@grupopie.com>
->  > Date: Wed, 06 Jul 2005 15:23:56 +0100
->  > 
->  > > What is weird is that most of the extra time is being accounted as 
->  > > user-space time, but the user-space application is exactly the same in 
->  > > both runs, only the "randomize_va_space" parameter changed.
->  > 
->  > It might be attributable to more cpu cache misses in userspace since
->  > the virtual addresses of everything are changing each and every
->  > invocation.
-> 
-> On Transmeta CPUs that probably triggers a retranslation of
-> x86->native bytecode, if it thinks it hasn't seen code at that
-> address before.
-> 
+David Masover wrote:
 
-ouch.   What do we do?  Default to off?  Default to off on xmeta?
+> And, once we start talking about applications, /meta will be more
+> readily supported (as in, some apps will go through a pathname and
+> stop when they get to a file, and then there's tar).  On apps which
+> don't have direct support for /meta, you'd be navigating to the file
+> in question and then manually typing '...' into the dialog, so I don't
+> see why typing '...' at the end is better than typing '/meta' or
+> '/meta/vfs' at the beginning.
+
+Performance.  If you type it at the end, and you already have done the
+lookup of the filename, then you can go from the file to one of its
+methods, instead of a complete new traversal of another tree under /meta
+
+>
+> That said, I'm still not entirely sure how we get /meta/vfs to work
+> other than adding a '...' sort of delimiter anyway.
+>
+>>> And a question: is it feasible to store, for each inode, its parent(s),
+>>> instead of just the hard link count?
+>>>
+>>>
+>>
+>> Ooh, now that is an interesting old idea I haven't considered in 20
+>> years.... makes fsck more robust too....
+>
+>
+> Doesn't it make directory operations slower, too?
+
+Not sure.  It consumes space though.
+
+>
+> And, will it require a format change?
+>
+Yes, but we have plugins now, so.....
+

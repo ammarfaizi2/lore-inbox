@@ -1,80 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVGFFXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVGFFdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbVGFFXG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 01:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVGFFWL
+	id S262130AbVGFFdG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 01:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVGFFcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 01:22:11 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:59836 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261617AbVGFDnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 23:43:10 -0400
-Subject: Re: [PATCH] [11/48] Suspend2 2.1.9.8 for 2.6.12:
-	401-e820-table-support.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shaohua.li@intel.com
-In-Reply-To: <Pine.LNX.4.61.0507052131140.2149@montezuma.fsmlabs.com>
-References: <11206164403490@foobar.com>
-	 <Pine.LNX.4.61.0507052131140.2149@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120621474.4860.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 06 Jul 2005 13:44:34 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Jul 2005 01:32:05 -0400
+Received: from fsmlabs.com ([168.103.115.128]:5024 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261657AbVGFDso (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 23:48:44 -0400
+Date: Tue, 5 Jul 2005 21:53:12 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Nigel Cunningham <nigel@suspend2.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [19/48] Suspend2 2.1.9.8 for 2.6.12: 510-version-specific-mac.patch
+In-Reply-To: <11206164411926@foobar.com>
+Message-ID: <Pine.LNX.4.61.0507052145470.2149@montezuma.fsmlabs.com>
+References: <11206164411926@foobar.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 6 Jul 2005, Nigel Cunningham wrote:
 
-On Wed, 2005-07-06 at 13:35, Zwane Mwaikambo wrote:
-> On Wed, 6 Jul 2005, Nigel Cunningham wrote:
-> 
-> > diff -ruNp 402-mtrr-remove-sysdev.patch-old/arch/i386/kernel/cpu/mtrr/main.c 402-mtrr-remove-sysdev.patch-new/arch/i386/kernel/cpu/mtrr/main.c
-> > --- 402-mtrr-remove-sysdev.patch-old/arch/i386/kernel/cpu/mtrr/main.c	2005-06-20 11:46:42.000000000 +1000
-> > +++ 402-mtrr-remove-sysdev.patch-new/arch/i386/kernel/cpu/mtrr/main.c	2005-07-04 23:14:19.000000000 +1000
-> > @@ -166,7 +166,6 @@ static void ipi_handler(void *info)
-> >  	atomic_dec(&data->count);
-> >  	local_irq_restore(flags);
-> >  }
-> > -
-> >  #endif
-> >  
-> >  /**
-> > @@ -560,7 +559,7 @@ struct mtrr_value {
-> >  
-> >  static struct mtrr_value * mtrr_state;
-> >  
-> > -static int mtrr_save(struct sys_device * sysdev, u32 state)
-> > +int mtrr_save(void)
-> >  {
-> >  	int i;
-> >  	int size = num_var_ranges * sizeof(struct mtrr_value);
-> > @@ -580,28 +579,27 @@ static int mtrr_save(struct sys_device *
-> >  	return 0;
-> >  }
-> 
-> Isn't this covered by Shaohua Li's patch?
+> +	/*
+> +	 * eflags
+> +	 */
+> +	asm volatile ("pushfl ; popl (%0)" : "=m" (suspend2_saved_context.eflags));
 
-I believe so, but Shaohua Li's patch isn't merged in 2.6.12 (is it yet
-at all). This is the solution I've been using for... can't remember how
-long.
+To be future proof you probably want to do pushfq/popq
 
-Thanks for the feedback.
+> +
+> +	/*
+> +	 * control registers 
+> +	 */
+> +	asm volatile ("movl %%cr0, %0" : "=r" (suspend2_saved_context.cr0));
+> +	asm volatile ("movl %%cr2, %0" : "=r" (suspend2_saved_context.cr2));
+> +	asm volatile ("movl %%cr3, %0" : "=r" (suspend2_saved_context.cr3));
+> +	asm volatile ("movl %%cr4, %0" : "=r" (suspend2_saved_context.cr4));
 
-Regards,
+I guess we don't have to worry about %cr8 for now?
 
-Nigel
+> + * a little clearer, but it needs to be inlined because we won't have a
+> + * stack when we get here (so we can't push a return address).
+> + */
+> +static inline void restore_processor_context(void)
+> +{
+> +	/*
+> +	 * first restore %ds, so we can access our data properly
+> +	 */
+> +	//asm volatile ("movw %0, %%ds" :: "r" ((u16)__KERNEL_DS));
+> +	
+> +	__flush_tlb_global(); /* INLINE? */
+> +
+> +	asm volatile ("movl	$24, %eax");
+> +	asm volatile ("movl	%eax, %ds");
 
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
+Shouldn't that be KERNEL_DS?
 
+> +	asm volatile ("pushl %0 ; popfl" :: "m" (suspend2_saved_context.eflags));
+
+pushq/popfq?
+
+> +	save_and_set_irq_affinity();
+> +	
+> +	c_loops_per_jiffy_ref[_smp_processor_id()] = current_cpu_data.loops_per_jiffy;
+> +#ifndef CONFIG_SMP
+> +	cpu_khz_ref = cpu_khz;
+> +	c_loops_per_jiffy_ref[_smp_processor_id()] = loops_per_jiffy;
+> +#endif
+> +	
+> +	/* We want to run from swsusp_pg_dir, since swsusp_pg_dir is stored in constant
+> +	 * place in memory 
+> +	 */
+> +
+> +        __asm__( "movl %%ecx,%%cr3\n" ::"c"(__pa(swsusp_pg_dir)));
+
+This looks like it depends on the swsusp_pg_dir being in lower 32bit 
+address space, shouldn't it be a movq %%rcx?

@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVGFGDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVGFGDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbVGFGDt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 02:03:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVGFGAa
+	id S262135AbVGFGDs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 02:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVGFGAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 02:00:30 -0400
-Received: from harddata.com ([216.123.194.198]:59558 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id S261716AbVGFEiE (ORCPT
+	Wed, 6 Jul 2005 02:00:47 -0400
+Received: from sputnik.senvnet.fi ([80.83.5.69]:33540 "EHLO sputnik.senvnet.fi")
+	by vger.kernel.org with ESMTP id S262072AbVGFEi5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 00:38:04 -0400
-Date: Tue, 5 Jul 2005 22:37:43 -0600
-From: Michal Jaegermann <michal@harddata.com>
-To: Greg KH <greg@kroah.com>
-Cc: Zan Lynx <zlynx@acm.org>, linux-kernel@vger.kernel.org
-Subject: Re: A "new driver model" and EXPORT_SYMBOL_GPL question
-Message-ID: <20050705223743.A28905@mail.harddata.com>
-References: <20050703171202.A7210@mail.harddata.com> <20050704054441.GA19936@kroah.com> <1120600243.27600.75.camel@localhost> <20050705215739.GA2635@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050705215739.GA2635@kroah.com>; from greg@kroah.com on Tue, Jul 05, 2005 at 02:57:40PM -0700
+	Wed, 6 Jul 2005 00:38:57 -0400
+Date: Wed, 6 Jul 2005 07:38:56 +0300 (EEST)
+From: Jussi Hamalainen <count@theblah.fi>
+X-X-Sender: count@mir.senvnet.fi
+To: Chris Wright <chrisw@osdl.org>
+cc: Thomas Backlund <tmb@mandriva.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, Andy <genanr@emsphone.com>
+Subject: Re: WARNING : kernel 2.6.11.7 (others) kills megaraid 4e/Si dead
+In-Reply-To: <20050705155808.GI9153@shell0.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.62.0507060735570.24203@mir.senvnet.fi>
+References: <20050503151532.GA1316@thumper2> <20050503190005.GS23013@shell0.pdx.osdl.net>
+ <42CA9E93.1050802@mandriva.org> <20050705155808.GI9153@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1397768965-66759280-1120624736=:24203"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 05, 2005 at 02:57:40PM -0700, Greg KH wrote:
-> On Tue, Jul 05, 2005 at 03:50:43PM -0600, Zan Lynx wrote:
-> > Sourced from here:
-> > http://hulllug.principalhosting.net/archive/index.php/t-52440.html
-> 
-> No, that is not the same topic or thread.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Formally you are correct but from my POV this sounds casuistic and
-fit for a patent lawyer.  You were "recently advised not to change
-these symbols" and you stated that you will not. So instead you did
-an end run and you removed an old interface and introduced a
-replacement; but this time with EXPORT_SYMBOL_GPL - which has the
-same effect as what you told you will not do.
+--1397768965-66759280-1120624736=:24203
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-> If you know of any closed source code, using those functions, please put
-> them in contact with me.
+On Tue, 5 Jul 2005, Chris Wright wrote:
 
-Well, I gave an example in my original question.  Yes, I asked them
-to contact you.  If they will do that I have no idea.
+>> Any news on this matter?
+>> I hvr a PE1850 waiting for kernel upgrade, but I'm afraid to do so now...
+>>
+>> I can't break my box with tests since it's in active use...
+>> For now I'm running a 2.6.8.1 based kernel on the box...
+>
+> Last known good one (that Andy tested) was 2.6.10.  His was the only
+> report I've seen, and I haven't found any more details on it.
 
-   Michal
+I have several PE1850s running 2.6.11.10 and above. I have never had 
+a megaraid controller die on me. This might be something related to a 
+particular firmware version or setup. I could check the firmware 
+versions if you want.
+
+-- 
+-=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.fi ]=-
+--1397768965-66759280-1120624736=:24203--

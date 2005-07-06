@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVGFXJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbVGFXOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbVGFXJg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 19:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVGFXJa
+	id S262572AbVGFXOD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 19:14:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVGFXMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 19:09:30 -0400
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:4994 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S262571AbVGFXJD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 19:09:03 -0400
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <200507062315.07536.s0348365@sms.ed.ac.uk>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk>
-	 <200507062200.08924.s0348365@sms.ed.ac.uk> <20050706210249.GA2017@elte.hu>
-	 <200507062315.07536.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1120691329.6766.62.camel@cmn37.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 Jul 2005 16:08:49 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Jul 2005 19:12:23 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:36821 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262563AbVGFXKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 19:10:02 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: OOPS: frequent crashes with bttv in 2.6.X series (inc. 2.6.12)
+To: Jeremy Laine <jeremy.laine@polytechnique.org>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Thu, 07 Jul 2005 01:09:50 +0200
+References: <4njei-1Ps-21@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DqJ1b-0001Li-0t@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-06 at 15:15, Alistair John Strachan wrote:
-> On Wednesday 06 Jul 2005 22:02, Ingo Molnar wrote:
-> > * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > > This is a completely unrelated question, but now we've got everything
-> > > under control.. how do I make "quiet" actually do something on the RT
-> > > patchset?
-> > >
-> > > Currently I flag it on the kernel cmdline, but I still get everything
-> > > spewed to my primary VT.
-> >
-> > do you have CONFIG_PRINTK_IGNORE_LOGLEVEL enabled perhaps?
-> 
-> Good idea, but nope. Find attached the config I'm using, and here's the output 
-> from /proc/cmdline:
-> 
-> [alistair] 23:07 [~] cat /proc/cmdline
-> BOOT_IMAGE=2.6.12rt ro root=301 acpi_sleep=s3_bios lapic quiet
-> 
-> [alistair] 23:07 [~] uname -r
-> 2.6.12-RT-V0.7.51-06
-> 
-> What I see are the kernel messages pre-init not suppressed (like I think they 
-> should be with quiet) and spurious noise from usb, etc. as the system boots 
-> up. sysklogd starts up but the messages are still duplicated on the console.
-> 
-> Maybe my configuration is subtlely broken. Is anybody else experiencing this?
+Jeremy Laine <jeremy.laine@polytechnique.org> wrote:
 
-I see the same thing. "CONFIG_PRINTK_IGNORE_LOGLEVEL is not set" but
-still printk ignores the loglevel (I commented out the #ifdef in
-kernel/printk.c to make the spurious messages go away). 
+> I keep getting OOPS's when using a Bt878 TV card, I am basically unable to
+> watch TV for more than about 20-30mn without my system grinding to a halt. If
+> I do not make use of the bttv module, the system is perfectly stable. I saw
+> the bttv module is marked as "Orphan" in the MAINTAINERS file which is why I
+> am writing straight to the LKML, do not hesitate to correct me if this is
+> wrong!
+> 
+> I have seen suggestions to try without PREEMPT enabled, which I will be doing
+> shortly. Any other suggestions to get to the bottom of this problem are most
+> welcome!
 
--- Fernando
+I've seen similar hehaviour (machine halts) with a BT848 on a VT82C686
+board while displaying the picture on a radeon card under X.org 6.8.1.
+Heavy HDD IO almost certainly caused soon death (recognizable by heavy
+picture distortion), while an idle system lasted one evening. It did not
+happen with kernel 2.4 and a NVidia card on XF86.
 
+These errors were caused by memory corruption, the first four bytes of some
+pages were overwritten with binary data (which affected some files in the
+cache).
 
+Now I've upgraded to X.org 6.8.2 and done a first stress-test (copying
+large files from network to local HDD), and I still can post.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

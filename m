@@ -1,96 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVGFJXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVGFJjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbVGFJXm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 05:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVGFJXl
+	id S262139AbVGFJjB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 05:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262210AbVGFJi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 05:23:41 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:41174 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262185AbVGFHXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 03:23:35 -0400
-Date: Wed, 6 Jul 2005 09:20:59 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Jonathan Briggs <jbriggs@esoft.com>
-Cc: Hans Reiser <reiser@namesys.com>, Ross Biro <ross.biro@gmail.com>,
-       Hubert Chan <hubert@uhoreg.ca>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Kyle Moffett <mrmacman_g4@mac.com>, David Masover <ninja@slaphack.com>,
-       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
-       Gregory Maxwell <gmaxwell@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-Message-ID: <20050706072059.GE15652@admingilde.org>
-Mail-Followup-To: Jonathan Briggs <jbriggs@esoft.com>,
-	Hans Reiser <reiser@namesys.com>, Ross Biro <ross.biro@gmail.com>,
-	Hubert Chan <hubert@uhoreg.ca>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Kyle Moffett <mrmacman_g4@mac.com>,
-	David Masover <ninja@slaphack.com>, Valdis.Kletnieks@vt.edu,
-	Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <hubert@uhoreg.ca> <200506290509.j5T595I6010576@laptop11.inf.utfsm.cl> <87hdfgvqvl.fsf@evinrude.uhoreg.ca> <8783be6605062914341bcff7cb@mail.gmail.com> <42C3615A.9020600@namesys.com> <20050705154624.GC15652@admingilde.org> <1120602720.27600.79.camel@localhost>
+	Wed, 6 Jul 2005 05:38:59 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:1445 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262139AbVGFHfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 03:35:40 -0400
+Subject: Re: [PATCH] [16/48] Suspend2 2.1.9.8 for 2.6.12:
+	406-dynamic-pageflags.patch
+From: Shaohua Li <shaohua.li@intel.com>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <11206164411593@foobar.com>
+References: <11206164411593@foobar.com>
+Content-Type: text/plain
+Date: Wed, 06 Jul 2005 15:46:23 +0800
+Message-Id: <1120635983.6970.4.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TU+u6i6jrDPzmlWF"
-Content-Disposition: inline
-In-Reply-To: <1120602720.27600.79.camel@localhost>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-07-06 at 12:20 +1000, Nigel Cunningham wrote:
+> +
+> +/*
+> + * Save and restore processor state for secondary processors.
+> + * IRQs (and therefore preemption) are already disabled 
+> + * when we enter here (IPI).
+> + */
+> +
+> +static volatile int loop __nosavedata;
+> +
+> +void __smp_suspend_lowlevel(void * data)
+> +{
+> +	__asm__( "movl %%ecx,%%cr3\n" ::"c"(__pa(swsusp_pg_dir)));
+> +
+> +	if (test_suspend_state(SUSPEND_NOW_RESUMING)) {
+> +		BUG_ON(!irqs_disabled());
+> +		kernel_fpu_begin();
+> +		c_loops_per_jiffy_ref[_smp_processor_id()] = current_cpu_data.loops_per_jiffy;
+> +		atomic_inc(&suspend_cpu_counter);
+> +
+> +		/* Only image copied back while we spin in this loop. Our
+> +		 * task info should not be looked at while this is happening
+> +		 * (which smp_processor_id() will do( */
+> +		while (test_suspend_state(SUSPEND_FREEZE_SMP)) { 
+> +			cpu_relax();
+> +			barrier();
+> +		}
+> +
+> +		while (atomic_read(&suspend_cpu_counter) != _smp_processor_id()) {
+> +			cpu_relax();
+> +			barrier();
+> +		}
+> +	       	my_saved_context = (unsigned char *) (suspend2_saved_contexts + _smp_processor_id());
+> +		for (loop = sizeof(struct suspend2_saved_context); loop--; loop)
+> +			*(((unsigned char *) &suspend2_saved_context) + loop - 1) = *(my_saved_context + loop - 1);
+> +		suspend2_restore_processor_context();
+> +		cpu_clear(_smp_processor_id(), per_cpu(cpu_tlbstate, _smp_processor_id()).active_mm->cpu_vm_mask);
+> +		load_cr3(swapper_pg_dir);
+> +		wbinvd();
+> +		__flush_tlb_all();
+> +		current_cpu_data.loops_per_jiffy = c_loops_per_jiffy_ref[_smp_processor_id()];
+> +		mtrr_restore_one_cpu();
+> +		atomic_dec(&suspend_cpu_counter);
+> +	} else {	/* suspending */
+> +		BUG_ON(!irqs_disabled());
+> +		/* 
+> +		 *Save context and go back to idling.
+> +		 * Note that we cannot leave the processor
+> +		 * here. It must be able to receive IPIs if
+> +		 * the LZF compression driver (eg) does a
+> +		 * vfree after compressing the kernel etc
+> +		 */
+> +		while (test_suspend_state(SUSPEND_FREEZE_SMP) &&
+> +			(atomic_read(&suspend_cpu_counter) != (_smp_processor_id() - 1))) {
+> +			cpu_relax();
+> +			barrier();
+> +		}
+> +		suspend2_save_processor_context();
+> +		my_saved_context = (unsigned char *) (suspend2_saved_contexts + _smp_processor_id());
+> +		for (loop = sizeof(struct suspend2_saved_context); loop--; loop)
+> +			*(my_saved_context + loop - 1) = *(((unsigned char *) &suspend2_saved_context) + loop - 1);
+> +		atomic_inc(&suspend_cpu_counter);
+> +		/* Now spin until the atomic copy of the kernel is made. */
+> +		while (test_suspend_state(SUSPEND_FREEZE_SMP)) {
+> +			cpu_relax();
+> +			barrier();
+> +		}
+> +		atomic_dec(&suspend_cpu_counter);
+> +		kernel_fpu_end();
+> +	}
+> +}
+we are using cpu hotplug for S3 & S4 SMP to avoid nasty deadlocks. Could
+this be avoided in suspend2 SMP?
 
---TU+u6i6jrDPzmlWF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks,
+Shaohua
 
-hoi :)
-
-On Tue, Jul 05, 2005 at 04:32:00PM -0600, Jonathan Briggs wrote:
-> You could do filesystems in userspace too and just use the kernel's
-> block layer.
-
-but you can't do that in an library, you have to use a filesystem
-server in order to get access control.
-But you can build a library that handles uniform access to
-files and directories.
-
-Don't get me wrong, I'm all for a uniform interface for files and
-metadata, but I don't think that it has to be in the kernel.
-Gnome and KDE already have their own userspace VFS, something
-like that should be used.
-
-One has to distinguish between the low-level filesystem and
-the storage system which is presented to the user.
-
---=20
-Martin Waitz
-
---TU+u6i6jrDPzmlWF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCy4Zbj/Eaxd/oD7IRAguVAJ4vT8avX+ZkGGUSdVEiARDpP1zhuwCdERaQ
-8Y6bC3l+jpDpyMl0aSo+Ryk=
-=7MXK
------END PGP SIGNATURE-----
-
---TU+u6i6jrDPzmlWF--

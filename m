@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVGFQZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVGFQ0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbVGFQZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 12:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVGFQXp
+	id S262319AbVGFQ0t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 12:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVGFQX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 12:23:45 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:41647 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262180AbVGFMMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 08:12:37 -0400
-Subject: Re: [PATCH] [32/48] Suspend2 2.1.9.8 for 2.6.12:
-	609-driver-model.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pekka Enberg <penberg@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <84144f0205070603102167e721@mail.gmail.com>
-References: <11206164393426@foobar.com> <11206164423660@foobar.com>
-	 <84144f0205070603102167e721@mail.gmail.com>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120652041.4860.253.camel@localhost>
+	Wed, 6 Jul 2005 12:23:27 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:64157 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262223AbVGFMIu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 08:08:50 -0400
+Date: Wed, 6 Jul 2005 14:08:48 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PREEMPT_RT and mptfusion
+Message-ID: <20050706120848.GB16843@elte.hu>
+References: <1120633558.6225.64.camel@ibiza.btsn.frna.bull.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 06 Jul 2005 22:14:01 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120633558.6225.64.camel@ibiza.btsn.frna.bull.fr>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
 
-On Wed, 2005-07-06 at 20:10, Pekka Enberg wrote:
-> On 7/6/05, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > diff -ruNp 610-encryption.patch-old/kernel/power/suspend2_core/encryption.c 610-encryption.patch-new/kernel/power/suspend2_core/encryption.c
-> > --- 610-encryption.patch-old/kernel/power/suspend2_core/encryption.c    1970-01-01 10:00:00.000000000 +1000
-> > +++ 610-encryption.patch-new/kernel/power/suspend2_core/encryption.c    2005-07-05 23:54:31.000000000 +1000
-> > +static inline void free_local_buffer(void)
-> > +{
-> > +       if (page_buffer)
-> > +               free_pages((unsigned long) page_buffer, 0);
-> 
-> Use free_page(), please.
+* Serge Noiraud <serge.noiraud@bull.net> wrote:
 
-Found more grepping the patches - take them as fixed too.
+> The problem I have didn't exist in 48-36 : The last version I can run.
+> >From the 50-47, ( I didn't test 40-38 through 50-46 ) I get the
+> following problem : I cannot boot :
 
-Regards,
+> with a 2.6.12 with RT patch and PREEMPT_RT
+> ...
+> Fusion MPT base driver 3.01.20
+> Copyright (c) 1999-2004 LSI Logic Corporation
+> ACPI: PCI Interrupt 0000:04:03.0[A] -> GSI 32 (level, low) -> IRQ 177
+> mptbase: Initiating ioc0 bringup
+> ioc0: 53C1030: Capabilities={Initiator}
+> <== wait ~ 13 secondes
+> ioc0: 53C1030: Initiating ioc0 recovery    <== New with the RT patch
 
-Nigel
+which -RT kernel was the last you tried, 50-47? Could you send me your 
+.config? It seems you have CONFIG_X86_UP_IOAPIC and CONFIG_PCI_MSI 
+enabled - could you try -51-02 and both of these options disabled?
 
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
-
+	Ingo

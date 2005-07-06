@@ -1,330 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVGFAgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVGFAkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbVGFAgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 20:36:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVGFAgZ
+	id S262027AbVGFAkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 20:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVGFAkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 20:36:25 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:61646 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S262023AbVGFAfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 20:35:33 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Jens Axboe <axboe@suse.de>
-Cc: Ondrej Zary <linux@rainbow-software.org>,
-       =?ISO-8859-1?Q?=20Andr=E9?= Tomt <andre@tomt.net>,
-       Al Boldi <a1426z@gawab.com>,
-       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patches] IDE update
-Date: Wed, 06 Jul 2005 10:35:13 +1000
-Organization: <http://scatter.mine.nu/>
-Message-ID: <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com>
-References: <42C9C56D.7040701@tomt.net> <42CA5A84.1060005@rainbow-software.org> <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de>
-In-Reply-To: <20050705142122.GY1444@suse.de>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Tue, 5 Jul 2005 20:40:25 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:2182 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262027AbVGFAjw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 20:39:52 -0400
+Date: Tue, 5 Jul 2005 17:38:50 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Greg K-H <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] Use device_for_each_child() to unregister devices in scsi_remove_target().
+Message-ID: <20050706003850.GA11542@us.ibm.com>
+References: <11193083662356@kroah.com> <11193083663269@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <11193083663269@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Jul 2005 16:21:26 +0200, Jens Axboe <axboe@suse.de> wrote:
-># gcc -Wall -O2 -o oread oread.c
-># time ./oread /dev/hda
+Hi Greg / Patrick -
 
-Executive Summary
-``````````````````
-Comparing 'oread' with hdparm -tT on latest 2.4 vs 2.6 stable on 
-various x86 boxen.  Performance drops for 2.6, sometimes:
-        2.4.31-hf1  2.6.12.2
-peetoo: 26MB/s   -> 20MB/s,  oread similar    120GB + 80GB
-silly:  22MB/s   -> 8.5MB/s, oread similar    13GB
-tosh:   35MB/s   -> 23MB/s,  oread similar    40GB 2.5"
-pooh:   17MB/s   -> 14MB/s,  oread 30 -> 24   40GB
-menace: 11.5MB/s -> 13MB/s,  oread similar     6GB 2.5"
+I'm getting an oops with current (pulled today) 2.6 git, the
+device_for_each_child() does not seem to be deletion safe.
 
---Grant
+We hold the klist in place via the n_ref, but the kobj (in the struct
+device for the struct scsi_target) containing it is freed when the
+kref->refcount goes to zero.
 
-The details, config, dmesg, etc from linked resources:
+Any fixes or ?
 
-Intel SE440BX-2 with pII 400/100/512/2.0 CPU/FSB/L2/Vccp 
-512MB SDRAM on 440BX + PIIX4
-  http://scatter.mine.nu/test/linux-2.6/peetoo/
+I haven't found any relevant patches or similar oopses.
 
-peetoo:~$ uname -r
-2.4.31-hf1
-peetoo:~$ time /home/share/install/oread /dev/hda
+The only (current) caller of scsi_remove_target() is in
+scsi_transport_fc.c, for scsi you could only hit this running with the
+emulex or qlogic drivers, but it could affect other replacements of
+list_for_each_entry_safe with device_for_each_child.
 
-real    0m20.065s
-user    0m0.010s
-sys     0m0.810s
-peetoo:~$ time /home/share/install/oread /dev/hdc
+The oops:
 
-real    0m18.484s
-user    0m0.000s
-sys     0m0.800s
-peetoo:~$ hdparm -tT /dev/hda
+[linux root]# Oops: Kernel access of bad area, sig: 11 [#1]
+SMP NR_CPUS=128 NUMA PSERIES LPAR 
+Modules linked in: qla2300 qla2xxx scsi_transport_fc scsi_mod<7>kobject_get -> c00000001dfde390 kref c00000001dfde3ac mem: 33
+ tg3 evdev joydev ipv6 ohci_hcd usbcore dm_mod
+NIP: C00000000020C408 XER: 00000000 LR: C000000000394DB8 CTR: C0000000002106D0
+REGS: c00000001414b240 TRAP: 0300   Not tainted  (2.6.13-rc1pm)
+MSR: 8000000000009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11 CR: 24000422
+DAR: 6b6b6b6b6b6b6b7b DSISR: 0000000040000000
+TASK: c000000002754030[12001] 'rmmod' THREAD: c000000014148000 CPU: 0
+GPR00: C000000000394DAC C00000001414B4C0 C0000000005F4618 6B6B6B6B6B6B6B7B 
+GPR04: 8000000000009032 FFFFFFFFFFFFFFFF 0000000000000037 C0000000005111A4 
+GPR08: C000000000511198 C000000000514A60 C0000000006024D0 C0000000006023F0 
+GPR12: 0000000000000010 C0000000004B2000 0000000000000000 0000000010000000 
+GPR16: 0000000000000000 0000000000000000 0000000010000000 0000000000000000 
+GPR20: 0000000000000800 0000000000000002 0000000000000880 00000000FFFA7AF0 
+GPR24: 00000000FFFAA320 0000000010013008 D0000000003D5460 D0000000003D53D8 
+GPR28: 6B6B6B6B6B6B6B63 C00000001414B5C0 C000000000582FB8 6B6B6B6B6B6B6B6B 
+NIP [c00000000020c408] .kref_get+0x0/0x28
+LR [c000000000394db8] .klist_next+0x90/0x104
+Call Trace:
+[c00000001414b4c0] [c000000000394dac] .klist_next+0x84/0x104 (unreliable)
+[c00000001414b550] [c00000000026c8e0] .device_for_each_child+0x7c/0xd0
+[c00000001414b600] [d00000000030ac78] .scsi_remove_target+0xa8/0xe8 [scsi_mod]
+[c00000001414b690] [d0000000002c6898] .fc_rport_tgt_remove+0xb8/0xdc [scsi_transport_fc]
+[c00000001414b720] [d0000000002c6918] .fc_rport_terminate+0x5c/0xf0 [scsi_transport_fc]
+[c00000001414b7b0] [d0000000002c6b7c] .fc_remove_host+0x40/0xb8 [scsi_transport_fc]
+[c00000001414b830] [d0000000003e6a58] .qla2x00_remove_one+0x34/0x7c [qla2xxx]
+[c00000001414b8c0] [d0000000003b7010] .qla2300_remove_one+0x10/0x24 [qla2300]
+[c00000001414b940] [c00000000021bc88] .pci_device_remove+0x80/0x88
+[c00000001414b9c0] [c00000000026efb0] .__device_release_driver+0xd4/0xdc
+[c00000001414ba50] [c00000000026f100] .driver_detach+0x148/0x14c
+[c00000001414baf0] [c00000000026e0d8] .bus_remove_driver+0xa0/0x128
+[c00000001414bb90] [c00000000026f628] .driver_unregister+0x1c/0x40
+[c00000001414bc20] [c00000000021bf58] .pci_unregister_driver+0x24/0xbc
+[c00000001414bcb0] [d0000000003b7068] .qla2300_exit+0x1c/0x34 [qla2300]
+[c00000001414bd30] [c000000000080014] .sys_delete_module+0x220/0x368
+[c00000001414be30] [c00000000000d580] syscall_exit+0x0/0x18
+Instruction dump:
+4bfffd94 e89e8080 e87e80f0 4be4baad 60000000 4bffff60 e89e8080 e87e80c8 
+4bffffec 38000001 90030000 4e800020 <81230000> 2fa90000 7c000026 5400fffe 
 
-/dev/hda:
- Timing cached reads:   444 MB in  2.00 seconds = 222.00 MB/sec
- Timing buffered disk reads:   84 MB in  3.06 seconds =  27.45 MB/sec
-peetoo:~$ hdparm -tT /dev/hda
+-- Patrick Mansfield
 
-/dev/hda:
- Timing cached reads:   456 MB in  2.01 seconds = 226.87 MB/sec
- Timing buffered disk reads:   76 MB in  3.00 seconds =  25.33 MB/sec
-peetoo:~$ hdparm -tT /dev/hdc
-
-/dev/hdc:
- Timing cached reads:   464 MB in  2.01 seconds = 230.85 MB/sec
- Timing buffered disk reads:   76 MB in  3.00 seconds =  25.33 MB/sec
-peetoo:~$ hdparm -tT /dev/hdc
-
-/dev/hdc:
- Timing cached reads:   460 MB in  2.00 seconds = 230.00 MB/sec
- Timing buffered disk reads:   82 MB in  3.00 seconds =  27.33 MB/sec
-- - -
-peetoo:~$ uname -r
-2.6.12.2b
-peetoo:~$ time /home/share/install/oread /dev/hda
-
-real    0m21.428s
-user    0m0.003s
-sys     0m0.436s
-peetoo:~$ time /home/share/install/oread /dev/hdc
-
-real    0m17.588s
-user    0m0.001s
-sys     0m0.455s
-
-peetoo:~$ cat /sys/block/hda/queue/scheduler
-noop [deadline]
-peetoo:~$ cat /sys/block/hdc/queue/scheduler
-noop [deadline]
-peetoo:~$ time /home/share/install/oread /dev/hda
-
-real    0m21.417s
-user    0m0.005s
-sys     0m0.462s
-peetoo:~$ time /home/share/install/oread /dev/hda
-
-real    0m18.626s
-user    0m0.006s
-sys     0m0.440s
-peetoo:~$ time /home/share/install/oread /dev/hdc
-
-real    0m17.555s
-user    0m0.005s
-sys     0m0.422s
-peetoo:~$ df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/hda3              2586348    563000   2023348  22% /
-/dev/hdc3              2586348   1582716   1003632  62% /usr
-/dev/hdc6              2586348   1217568   1368780  48% /usr/src
-/dev/hda9             20562504  10821500   9741004  53% /home/install
-/dev/hdc9             20562504   3634700  16927804  18% /home/public
-/dev/hda10            41446344  39676256   1770088  96% /home/archive
-deltree:/home/share    2064256   1042952   1021304  51% /home/share
-
-peetoo:~$ hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   448 MB in  2.00 seconds = 223.81 MB/sec
- Timing buffered disk reads:   62 MB in  3.07 seconds =  20.17 MB/sec
-peetoo:~$ hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   472 MB in  2.01 seconds = 234.40 MB/sec
- Timing buffered disk reads:   54 MB in  3.01 seconds =  17.97 MB/sec
-peetoo:~$ hdparm -tT /dev/hdc
-
-/dev/hdc:
- Timing cached reads:   456 MB in  2.01 seconds = 226.56 MB/sec
- Timing buffered disk reads:   62 MB in  3.08 seconds =  20.11 MB/sec
-peetoo:~$ hdparm -tT /dev/hdc
-
-o o o
-
-EPoX EP-61LXA-M: Intel 440LX chipset with pentiumII/266 
-on 66MHz FSB (4 x 66) with 128MB SDRAM
-  http://scatter.mine.nu/test/linux-2.6/silly/
-
-root@silly:~# uname -r
-2.4.31-hf1
-root@silly:~# time /home/share/install/oread /dev/hda
-
-real    0m23.657s
-user    0m0.000s
-sys     0m1.300s
-root@silly:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   356 MB in  2.02 seconds = 176.24 MB/sec
- Timing buffered disk reads:   68 MB in  3.04 seconds =  22.37 MB/sec
-root@silly:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   344 MB in  2.00 seconds = 172.00 MB/sec
- Timing buffered disk reads:   68 MB in  3.03 seconds =  22.44 MB/sec
-- - -
-root@silly:~# uname -r
-2.6.12.2a
-root@silly:~# time /home/share/install/oread /dev/hda
-
-real    0m23.569s
-user    0m0.005s
-sys     0m0.563s
-
-root@silly:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   336 MB in  2.00 seconds = 167.77 MB/sec
- Timing buffered disk reads:   50 MB in  3.05 seconds =  16.37 MB/sec
-root@silly:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   340 MB in  2.01 seconds = 169.01 MB/sec
- Timing buffered disk reads:   28 MB in  3.22 seconds =   8.70 MB/sec
-root@silly:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   336 MB in  2.01 seconds = 167.44 MB/sec
- Timing buffered disk reads:   26 MB in  3.05 seconds =   8.52 MB/sec
-root@silly:~# echo deadline > /sys/block/hda/queue/scheduler
-root@silly:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   336 MB in  2.01 seconds = 166.77 MB/sec
- Timing buffered disk reads:   26 MB in  3.19 seconds =   8.14 MB/sec
-root@silly:~#
-
-o o o
-
-Intel Celeron (coppermine pIII) 500MHz with 192MB SDRAM
-on Intel 440BX/ZX + PIIX4E (Toshiba laptop)
-  http://scatter.mine.nu/test/linux-2.6/tosh/
-
-root@tosh:~# uname -r
-2.4.31-hf1
-root@tosh:~# time /home/share/install/oread /dev/hda
-
-real    0m18.079s
-user    0m0.000s
-sys     0m0.680s
-root@tosh:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   516 MB in  2.00 seconds = 258.00 MB/sec
- Timing buffered disk reads:   74 MB in  3.02 seconds =  24.50 MB/sec
-root@tosh:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   520 MB in  2.01 seconds = 258.71 MB/sec
- Timing buffered disk reads:   84 MB in  3.03 seconds =  27.72 MB/sec
-- - -
-root@tosh:~# uname -r
-2.6.12.2a
-root@tosh:~# time /home/share/install/oread /dev/hda
-
-real    0m17.692s
-user    0m0.004s
-sys     0m0.319s
-root@tosh:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   500 MB in  2.00 seconds = 249.54 MB/sec
- Timing buffered disk reads:   70 MB in  3.03 seconds =  23.11 MB/sec
-root@tosh:~# echo deadline > /sys/block/hda/queue/scheduler
-root@tosh:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   520 MB in  2.01 seconds = 258.75 MB/sec
- Timing buffered disk reads:   70 MB in  3.06 seconds =  22.88 MB/sec
-
-o o o
-
-Gigabyte GA-5AA Ali Aladdin V AGPset (1542/1543C) with AMD K6-2/500
-on 100MHz FSB with 192MB SDRAM
-  http://scatter.mine.nu/test/linux-2.6/pooh/
-
-root@pooh:~# uname -r
-2.4.31-hf1
-root@pooh:~# time /home/share/install/oread /dev/hda
-
-real    0m29.786s
-user    0m0.000s
-sys     0m0.910s
-root@pooh:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   248 MB in  2.00 seconds = 124.00 MB/sec
- Timing buffered disk reads:   54 MB in  3.11 seconds =  17.36 MB/sec
-- - -
-root@pooh:~# uname -r
-2.6.12.2a
-root@pooh:~# time /home/share/install/oread /dev/hda
-
-real    0m23.566s
-user    0m0.004s
-sys     0m0.370s
-root@pooh:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   236 MB in  2.02 seconds = 117.02 MB/sec
- Timing buffered disk reads:   44 MB in  3.10 seconds =  14.20 MB/sec
-
-o o o
-
-Gigabyte GA-586TX3: Intel 430TX chipset with AMD K6-2/400
-on 66MHz FSB (6 x 66) with 64MB SDRAM
-  http://scatter.mine.nu/test/boxen/menace/
-
-root@menace:~# uname -r
-2.4.31-hf1
-root@menace:~# time /home/share/install/oread /dev/hda
-
-real    0m39.490s
-user    0m0.010s
-sys     0m1.090s
-root@menace:~# time /home/share/install/oread /dev/hda
-
-real    0m39.329s
-user    0m0.010s
-sys     0m1.090s
-root@menace:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   176 MB in  2.03 seconds =  86.70 MB/sec
- Timing buffered disk reads:   36 MB in  3.14 seconds =  11.46 MB/sec
-root@menace:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   172 MB in  2.02 seconds =  85.15 MB/sec
- Timing buffered disk reads:   36 MB in  3.13 seconds =  11.50 MB/sec
-
-- - -
-root@menace:~# uname -r
-2.6.12.2a
-root@menace:~# time /home/share/install/oread /dev/hda
-
-real    0m38.861s
-user    0m0.004s
-sys     0m0.515s
-root@menace:~# time /home/share/install/oread /dev/hda
-
-real    0m39.391s
-user    0m0.005s
-sys     0m0.522s
-root@menace:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   172 MB in  2.01 seconds =  85.42 MB/sec
- Timing buffered disk reads:   40 MB in  3.03 seconds =  13.20 MB/sec
-root@menace:~# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing cached reads:   168 MB in  2.04 seconds =  82.16 MB/sec
- Timing buffered disk reads:   40 MB in  3.03 seconds =  13.21 MB/sec
-
+On Mon, Jun 20, 2005 at 03:59:26PM -0700, Greg KH wrote:
+> [PATCH] Use device_for_each_child() to unregister devices in scsi_remove_target().
+> 
+> Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> Index: gregkh-2.6/drivers/scsi/scsi_sysfs.c
+> ===================================================================
+> 
+> ---
+> commit 20b1e674230b642be662c5975923a0160ab9cbdc
+> tree 749e1384c57576bfbe3ffd1414df321cc783296f
+> parent 0293a509405dccecc30783a5d729d615b68d6a77
+> author mochel@digitalimplant.org <mochel@digitalimplant.org> Thu, 24 Mar 2005 19:03:59 -0800
+> committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 20 Jun 2005 15:15:19 -0700
+> 
+>  drivers/scsi/scsi_sysfs.c |   14 +++++++++-----
+>  1 files changed, 9 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+> --- a/drivers/scsi/scsi_sysfs.c
+> +++ b/drivers/scsi/scsi_sysfs.c
+> @@ -669,6 +669,13 @@ void __scsi_remove_target(struct scsi_ta
+>  	scsi_target_reap(starget);
+>  }
+>  
+> +static int __remove_child (struct device * dev, void * data)
+> +{
+> +	if (scsi_is_target_device(dev))
+> +		__scsi_remove_target(to_scsi_target(dev));
+> +	return 0;
+> +}
+> +
+>  /**
+>   * scsi_remove_target - try to remove a target and all its devices
+>   * @dev: generic starget or parent of generic stargets to be removed
+> @@ -679,7 +686,7 @@ void __scsi_remove_target(struct scsi_ta
+>   */
+>  void scsi_remove_target(struct device *dev)
+>  {
+> -	struct device *rdev, *idev, *next;
+> +	struct device *rdev;
+>  
+>  	if (scsi_is_target_device(dev)) {
+>  		__scsi_remove_target(to_scsi_target(dev));
+> @@ -687,10 +694,7 @@ void scsi_remove_target(struct device *d
+>  	}
+>  
+>  	rdev = get_device(dev);
+> -	list_for_each_entry_safe(idev, next, &dev->children, node) {
+> -		if (scsi_is_target_device(idev))
+> -			__scsi_remove_target(to_scsi_target(idev));
+> -	}
+> +	device_for_each_child(dev, NULL, __remove_child);
+>  	put_device(rdev);
+>  }
+>  EXPORT_SYMBOL(scsi_remove_target);

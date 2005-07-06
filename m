@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVGFVGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbVGFVB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262542AbVGFVGT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 17:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVGFVCN
+	id S262544AbVGFVB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 17:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbVGFU6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 17:02:13 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:18843 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262566AbVGFVAI
+	Wed, 6 Jul 2005 16:58:34 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:17159 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S262528AbVGFUxf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 17:00:08 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Wed, 6 Jul 2005 22:00:08 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507062047.26855.s0348365@sms.ed.ac.uk> <20050706204429.GA1159@elte.hu>
-In-Reply-To: <20050706204429.GA1159@elte.hu>
+	Wed, 6 Jul 2005 16:53:35 -0400
+Message-ID: <42CC44D9.8000306@slaphack.com>
+Date: Wed, 06 Jul 2005 15:53:45 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jonathan Briggs <jbriggs@esoft.com>
+Cc: Hubert Chan <hubert@uhoreg.ca>,
+       "Alexander G. M. Smith" <agmsmith@rogers.com>, ross.biro@gmail.com,
+       vonbrand@inf.utfsm.cl, mrmacman_g4@mac.com, Valdis.Kletnieks@vt.edu,
+       ltd@cisco.com, gmaxwell@gmail.com, jgarzik@pobox.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       zam@namesys.com, vs@thebsh.namesys.com, ndiller@namesys.com,
+       vitaly@thebsh.namesys.com
+Subject: Re: reiser4 plugins
+References: <42CB1E12.2090005@namesys.com> <1740726161-BeMail@cr593174-a>	 <87hdf8zqca.fsf@evinrude.uhoreg.ca> <42CB7DE0.4050200@namesys.com>	 <1120675943.13341.10.camel@localhost>  <87mzozemqp.fsf@evinrude.uhoreg.ca> <1120681998.13341.23.camel@localhost>
+In-Reply-To: <1120681998.13341.23.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507062200.08924.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 Jul 2005 21:44, Ingo Molnar wrote:
-[snip]
->
-> the ACPI-idle bug's primary effects were the missed wakeups, but they
-> should not cause lockups, because timer interrupts should always occur
-> and should eventually 'fix up' such missed wakeups.
->
-> but there's another side-effect of the ACPI-idle bug: the ACPI code was
-> running with interrupts enabled and maybe the hardware locks up if
-> interrupted in the wrong moment. ACPI sleeps are sensitive things and
-> closely related to other IRQ hardware, which we all program with
-> interrupts disabled. So i'd not be surprised if the lockups were caused
-> by the ACPI-idle bug.
->
-> 	Ingo
+Jonathan Briggs wrote:
+> On Wed, 2005-07-06 at 15:51 -0400, Hubert Chan wrote:
+> 
+>>On Wed, 06 Jul 2005 12:52:23 -0600, Jonathan Briggs <jbriggs@esoft.com> said:
+> 
+> [snip]
+> 
+>>>It still has the performance and locking problem of having to update
+>>>every child file when moving a directory tree to a new parent.  On the
+>>>other hand, maybe the benefit is worth the cost.
+>>
+>>Every node should store the inode number(s) for its parent(s).  Not the
+>>path name.  So you don't need to do any updates, since when you move a
+>>tree, inode numbers don't change.
+> 
+> 
+> You do need the updates if you change what inode is the parent.
+> 
+> /a/b/c, /a/b/d, /a/b/e, /b
+> mv /a/b /b
+> Now you have to change the stored grand-parent inodes for /a/b/c, /a/b/d
+> and /a/b/e so that they reference /b/b instead of /a/b.
 
-Okay, well an hour later and still no lockups, so you're probably right.
+no, c, d, and e all would reference /a/b's *inode*, not *pathname*. 
+Then /a/b would reference /a.  So with the above mv, you just change the 
+reference in /a/b (now /b/b) to point to /b as parent.
 
-This is a completely unrelated question, but now we've got everything under 
-control.. how do I make "quiet" actually do something on the RT patchset?
+Only way you would have to touch c, d, and e is if you did:
 
-Currently I flag it on the kernel cmdline, but I still get everything spewed 
-to my primary VT.
+mkdir /b/b
+mv /a/b/* /b/b/
 
--- 
-Cheers,
-Alistair.
+but, since you're also essentially unlinking them from /a/b and linking 
+them into /b, it's not that much more of a performance hit to update one 
+pointer in the file.
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.

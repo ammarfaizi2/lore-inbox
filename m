@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVGFAua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVGFAwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbVGFAua (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Jul 2005 20:50:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbVGFAua
+	id S262032AbVGFAwr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Jul 2005 20:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVGFAwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Jul 2005 20:50:30 -0400
-Received: from smtp103.rog.mail.re2.yahoo.com ([206.190.36.81]:59057 "HELO
-	smtp103.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262029AbVGFAuP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 20:50:15 -0400
-In-Reply-To: <42CB1E12.2090005@namesys.com>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: reiser4 plugins
-Cc: hubert@uhoreg.ca, ross.biro@gmail.com, vonbrand@inf.utfsm.cl,
-       mrmacman_g4@mac.com, Valdis.Kletnieks@vt.edu, ltd@cisco.com,
-       gmaxwell@gmail.com, jgarzik@pobox.com, hch@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-       zam@namesys.com, vs@thebsh.namesys.com, ndiller@namesys.com,
-       ninja@slaphack.com
-X-Mailer: BeMail - Mail Daemon Replacement 2.3.1 Final
-From: "Alexander G. M. Smith" <agmsmith@rogers.com>
-Date: Tue, 05 Jul 2005 20:50:08 -0400 EDT
-Message-Id: <1740726161-BeMail@cr593174-a>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Jul 2005 20:52:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26332 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262032AbVGFAwZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 20:52:25 -0400
+Date: Tue, 5 Jul 2005 17:51:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Grant Coady <grant_lkml@dodo.com.au>
+cc: Jens Axboe <axboe@suse.de>, Ondrej Zary <linux@rainbow-software.org>,
+       =?ISO-8859-1?Q?Andr=E9_Tomt?= <andre@tomt.net>,
+       Al Boldi <a1426z@gawab.com>,
+       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] IDE update
+In-Reply-To: <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com>
+Message-ID: <Pine.LNX.4.58.0507051748540.3570@g5.osdl.org>
+References: <42C9C56D.7040701@tomt.net> <42CA5A84.1060005@rainbow-software.org>
+ <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org>
+ <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org>
+ <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org>
+ <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org>
+ <20050705142122.GY1444@suse.de> <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote on Tue, 05 Jul 2005 16:56:02 -0700:
-> One can have hardlinks to a directory without cycles provided that one
-> does not have hardlinks from the children of that directory to any file
-> not a child of that directory.  (Mountpoints currently implement that
-> restriction.)
+
+
+On Wed, 6 Jul 2005, Grant Coady wrote:
 > 
-> Question: can one implement that lesser restriction above with elegant
-> code?  Is the greater restriction below easier to code?  (If no to the
-> first and yes to the second is correct, then I can accept the greater
-> restriction described below.)
-> 
-> One can have hardlinks to directories
-> without cycles provided that one does not allow any child of the
-> directory to have a hardlink.
+> Executive Summary
 
-That sounds equivalent to no hard links (other than the usual parent
-directory one).  If there's any directory with two links to it, then
-there will be a cycle somewhere!
+Btw, can you try this same thing (or at least a subset) with a large file
+on a filesystem? Does that show the same pattern, or is it always just the 
+raw device?
 
-The tradeoff is the size of the cycle to the amount of memory and other
-resources needed to clean up the cycle when rename/deletion changes the
-directory graph structure.  Various artificial limits can be imposed,
-such as not creating a link which would result in a cycle of more than
-some number of files/directories (adjust so that cleanup fits in the
-memory size of the machine).  Or just fail the cleanup if it is too
-complex (user deletes individual items in the cycle then tries again).
-
-Perhaps you are thinking about the speed improvement for cycle checking
-that comes from marking directories as known to not contain children
-pointing outside the graph rooted at that directory.  Then that directory
-can be treated as an ordinary directory in the cycle cleanup procedure,
-avoiding the need to trace down the links to all its descendants.  That's
-essentially what your mount point restriction is.
-
-- Alex
+		Linus

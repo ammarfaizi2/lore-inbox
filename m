@@ -1,33 +1,18 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVGFFtT (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 6 Jul 2005 01:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVGFFrF
+	id S262122AbVGFHqn (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 6 Jul 2005 03:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVGFHqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 01:47:05 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:10109 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261488AbVGFEHM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 00:07:12 -0400
-Message-ID: <b386e614050705210736eeb2a7@mail.gmail.com>
-Date: Wed, 6 Jul 2005 09:37:10 +0530
-From: Bhagyashri Bijwe <bhagyashri.bijwe@gmail.com>
-Reply-To: Bhagyashri Bijwe <bhagyashri.bijwe@gmail.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Confirmation for subscribe linux-kernel
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 6 Jul 2005 03:46:42 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:13540 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S262148AbVGFGV3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 02:21:29 -0400
+Date: Tue, 5 Jul 2005 23:21:11 -0700
+From: glkjvfzbq@yahoo.com
+Message-Id: <200507060621.j666LBp7018761@zeus1.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261488AbVGFFtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262122AbVGFHqn@vger.kernel.org>
 
--- 
-***********************************************
-   Ms Bhagyashri Bijwe
-     Project Eng.
-     Networking and Internet Software Group,
-     Centre for Research and Development,
-     Pune,India
-     Ph.25694000 Ext-484/462
-     B.E.( Computer Sci. and Engg. )

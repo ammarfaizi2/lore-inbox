@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVGFT6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVGFT6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbVGFT6O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 15:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVGFTzb
+	id S262087AbVGFT6N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 15:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVGFT4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:55:31 -0400
-Received: from tag.witbe.net ([81.88.96.48]:22146 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S262337AbVGFPGk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 11:06:40 -0400
-Message-Id: <200507061506.j66F6dR25621@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: "Spy'ing" characters sent thru serial port ?
-Date: Wed, 6 Jul 2005 17:06:30 +0200
-Organization: AS2917
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 6 Jul 2005 15:56:21 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:62379 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262158AbVGFPiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 11:38:20 -0400
+Date: Wed, 6 Jul 2005 08:38:14 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Bhagyashri Bijwe <bhagyashri.bijwe@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bios interaction with linux kernel after uncompression.
+Message-Id: <20050706083814.071230ca.rdunlap@xenotime.net>
+In-Reply-To: <b386e6140507052332616b131f@mail.gmail.com>
+References: <b386e6140507052332616b131f@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcWCPEpS7mk3jJ76TJ651zTfN4P+ag==
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 6 Jul 2005 12:02:26 +0530 Bhagyashri Bijwe wrote:
 
-We have a machine connected to a modem using the serial port, and from
-time to time, the modem complains the machine sent him a full 2K buffer
-(in fact, 2047 bytes) which were already sent.
+| Hi,
+|      During bootstrapping,  bios provides services like video ,hard
+| drive services, memory sizing, PCI table to linux kernel.
+|      After uncompression of kernel , Does linux kernel have any
+| interaction with bios?
+|     I know that most of work is done by linux device driver. 
+|     What is dependency of running linux on bios ?
+|   Thanks in advance,
 
-We've been investigating at the application level, using strace to 
-monitor what is sent to the serial port, and at no time such a buffer is
-sent.
+As little as possible after boot/init.
 
-This problem is occuring on a random basis, and attempts to reproduce
-it in a test environment failed to date.
+That means that BIOS is used for APM mode selections
+if APM is being used and for ACPI state-switching.
+Oh, I guess we have to acknowledge that hidden SMI code
+also, but Linux doesn't use it AFAIK, it's just there
+and being executed.
 
-Is it possible to '(log|copy|...)' the chars that are sent on the
-serial port to some other place (without altering too much the performance
-of the machine, we are running the port a 9600bps), at the lowest level ?
+Those are all that I know of before being fully awake.
 
-Or is there a known issue of the serial port (or tty) buffer being 
-resent on the line in some weird conditions ? Any change done on 
-->head and ->tail handling that could fix that ?
-
-This problem is with Linux 2.4.27 (I know 2.4.31 is out, but nothing 
-related to that is present in the Changelog)
-
-Regards,
-Paul
-
-Paul Rolland, rol(at)as2917.net
-ex-AS2917 Network administrator and Peering Coordinator
-
---
-
-Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
-"Some people dream of success... while others wake up and work hard at it" 
-
-"I worry about my child and the Internet all the time, even though she's 
-too young to have logged on yet. Here's what I worry about. I worry that 
-10 or 15 years from now, she will come to me and say 'Daddy, where were 
-you when they took freedom of the press away from the Internet?'"
---Mike Godwin, Electronic Frontier Foundation 
- 
-
+---
+~Randy

@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVGFFXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVGFFXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbVGFFXD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 01:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVGFFWS
+	id S261823AbVGFFXH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 01:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVGFFVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 01:22:18 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:46349 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261543AbVGFDm7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Jul 2005 23:42:59 -0400
-Date: Wed, 06 Jul 2005 12:43:27 +0900 (JST)
-Message-Id: <20050706.124327.72653748.yoshfuji@linux-ipv6.org>
-To: nigel@suspend2.net
-Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH] [17/48] Suspend2 2.1.9.8 for 2.6.12:
- 500-version-specific-i386.patch
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <11206164413380@foobar.com>
-References: <11206164393426@foobar.com>
-	<11206164413380@foobar.com>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Wed, 6 Jul 2005 01:21:02 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:58812 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261644AbVGFDlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Jul 2005 23:41:49 -0400
+Subject: Re: [PATCH] [7/48] Suspend2 2.1.9.8 for 2.6.12:
+	352-disable-pdflush-during-suspend.patch
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Nigel Cunningham <nigel@suspend2.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0507052134290.2149@montezuma.fsmlabs.com>
+References: <11206164401583@foobar.com>
+	 <Pine.LNX.4.61.0507052134290.2149@montezuma.fsmlabs.com>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1120621388.4860.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 06 Jul 2005 13:43:08 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <11206164413380@foobar.com> (at Wed, 6 Jul 2005 12:20:41 +1000), Nigel Cunningham <nigel@suspend2.net> says:
+Hi.
 
->  #define local_flush_tlb() __flush_tlb()
-> +#define local_flush_tlb_all() __flush_tlb_all();
+On Wed, 2005-07-06 at 13:34, Zwane Mwaikambo wrote:
+> On Wed, 6 Jul 2005, Nigel Cunningham wrote:
+> 
+> > diff -ruNp 353-disable-highmem-tlb-flush-for-copyback.patch-old/mm/highmem.c 353-disable-highmem-tlb-flush-for-copyback.patch-new/mm/highmem.c
+> > --- 353-disable-highmem-tlb-flush-for-copyback.patch-old/mm/highmem.c	2005-06-20 11:47:32.000000000 +1000
+> > +++ 353-disable-highmem-tlb-flush-for-copyback.patch-new/mm/highmem.c	2005-07-04 23:14:20.000000000 +1000
+> > @@ -26,6 +26,7 @@
+> >  #include <linux/init.h>
+> >  #include <linux/hash.h>
+> >  #include <linux/highmem.h>
+> > +#include <linux/suspend.h>
+> >  #include <asm/tlbflush.h>
+> >  
+> >  static mempool_t *page_pool, *isa_page_pool;
+> > @@ -95,7 +96,10 @@ static void flush_all_zero_pkmaps(void)
+> >  
+> >  		set_page_address(page, NULL);
+> >  	}
+> > -	flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
+> > +	if (test_suspend_state(SUSPEND_FREEZE_SMP))
+> > +		__flush_tlb();
+> > +	else
+> > +		flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
+> >  }
+> >  
+> >  static inline unsigned long map_new_virtual(struct page *page)
+> 
+> What state are the other processors in when you hit this path?
 
-You should remove ";".
+Looping in arch specific code, waiting for an atomic_t to tell them it's
+time to restore state and carry on. They're there the whole time CPU0 is
+restoring the image and highmem.
 
->  extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
-> +extern void do_flush_tlb_all(void * info);
-> +
-> +#define local_flush_tlb_all() \
-> +	do_flush_tlb_all(NULL);
->  
+Regards,
 
-ditto
+Nigel
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
+Be amazed that people believe it happened. 
 
---yoshfuji

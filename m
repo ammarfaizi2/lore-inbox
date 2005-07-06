@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVGFFyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVGFFyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbVGFFyk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 01:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVGFFxg
+	id S261730AbVGFFyj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 01:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVGFFxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 01:53:36 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:41431 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261464AbVGFEVn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 00:21:43 -0400
-Date: Wed, 6 Jul 2005 10:00:56 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: aio-stress throughput regressions from 2.6.11 to 2.6.12
-Message-ID: <20050706043056.GA4223@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20050701075600.GC4625@in.ibm.com> <20050701142555.GB31989@kvack.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050701142555.GB31989@kvack.org>
-User-Agent: Mutt/1.4i
+	Wed, 6 Jul 2005 01:53:48 -0400
+Received: from [213.184.187.7] ([213.184.187.7]:44292 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S261730AbVGFEZ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 00:25:27 -0400
+Message-Id: <200507060424.HAA27591@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: "'Sonny Rao'" <sonny@burdell.org>
+Cc: "'Jens Axboe'" <axboe@suse.de>, "'David Masover'" <ninja@slaphack.com>,
+       "'Chris Wedgwood'" <cw@f00f.org>, "'Nathan Scott'" <nathans@sgi.com>,
+       <linux-xfs@oss.sgi.com>, <linux-kernel@vger.kernel.org>,
+       <linux-fsdevel@vger.kernel.org>, <reiserfs-list@namesys.com>
+Subject: RE: XFS corruption during power-blackout
+Date: Wed, 6 Jul 2005 07:24:03 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <20050705181057.GA16422@kevlar.burdell.org>
+Thread-Index: AcWBjLAcL2Ef45tFSJOcSXMRBNyXrwAVUTmQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 01, 2005 at 10:25:55AM -0400, Benjamin LaHaise wrote:
-> On Fri, Jul 01, 2005 at 01:26:00PM +0530, Suparna Bhattacharya wrote:
-> > On one test system I see a degradation from around 17+ MB/s to 11MB/s
-> > for random O_DIRECT AIO (aio-stress -o3 testext3/rwfile5) from 2.6.11
-> > to 2.6.12. It doesn't seem filesystem specific. Not good :(
+Sonny Rao wrote: {
+> > > >On Wed, Jun 29, 2005 at 07:53:09AM +0300, Al Boldi wrote:
+> > > >>What I found were 4 things in the dest dir:
+> > > >>1. Missing Dirs,Files. That's OK.
+> > > >>2. Files of size 0. That's acceptable.
+> > > >>3. Corrupted Files. That's unacceptable.
+> > > >>4. Corrupted Files with original fingerprint. That's ABSOLUTELY 
+> > > >>unacceptable.
+> > > >
+> > 2. Moral of the story is: What's ext3 doing the others aren't?
 > 
-> What sort of io subsystem does it have?  Also, does changing the 
-
-aic7xxx.
-> elevator make any difference?  I'm away for the long weekend, but will 
-
-I tried switching to the noop elevator - the regression was still there.
-
-> help look into this next week.
-
-Do you see the regression as well, or is it just me ?
-
-Regards
-Suparna
-
+> Ext3 has stronger guaranties than basic filesystem consistency.
+> I.e. in ordered mode, file data is always written before metadata, so 
+> the worst that could happen is a growing file's new data is written 
+> but the metadata isn't updated before a power failure... so the new 
+> writes wouldn't be seen afterwards.
 > 
-> 		-ben
+I believe in newer 2.6 kernels that Reiser has ordered mode (IIRC, courtesy
+of Chris Mason), but XFS and JFS do not support it.
+}
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+Was ordered mode disabled/removed when XFS was add to the vanilla-kernel?
+
 

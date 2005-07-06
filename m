@@ -1,100 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVGFRsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVGFRvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbVGFRsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 13:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVGFRsQ
+	id S261809AbVGFRvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 13:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbVGFRvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 13:48:16 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:47631 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S261832AbVGFNI6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 09:08:58 -0400
-Message-ID: <42CBD7F6.2050203@slaphack.com>
-Date: Wed, 06 Jul 2005 08:09:10 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-Cc: Hubert Chan <hubert@uhoreg.ca>,
-       "Alexander G. M. Smith" <agmsmith@rogers.com>, ross.biro@gmail.com,
-       vonbrand@inf.utfsm.cl, mrmacman_g4@mac.com, Valdis.Kletnieks@vt.edu,
-       ltd@cisco.com, gmaxwell@gmail.com, jgarzik@pobox.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-       zam@namesys.com, vs@thebsh.namesys.com, ndiller@namesys.com,
-       vitaly@thebsh.namesys.com
-Subject: Re: reiser4 plugins
-References: <42CB1E12.2090005@namesys.com> <1740726161-BeMail@cr593174-a> <87hdf8zqca.fsf@evinrude.uhoreg.ca> <42CB7DE0.4050200@namesys.com>
-In-Reply-To: <42CB7DE0.4050200@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 6 Jul 2005 13:51:15 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:28835 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261835AbVGFNNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 09:13:37 -0400
+Subject: Re: PROBLEM: please remove reserved word "new" from kernel headers
+From: David Woodhouse <dwmw2@infradead.org>
+To: Rob Prowel <tempest766@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050706092657.95280.qmail@web60012.mail.yahoo.com>
+References: <20050706092657.95280.qmail@web60012.mail.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 06 Jul 2005 14:14:24 +0100
+Message-Id: <1120655664.19467.271.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Hubert Chan wrote:
-> 
-> 
->>On Tue, 05 Jul 2005 20:50:08 -0400 EDT, "Alexander G. M. Smith" <agmsmith@rogers.com> said:
->>
->> 
->>
->>
->>>That sounds equivalent to no hard links (other than the usual parent
->>>directory one).  If there's any directory with two links to it, then
->>>there will be a cycle somewhere!
->>>   
->>>
->>
->>What we want is no directed cycles.  That is A is the parent of B is the
->>parent of C is the parent of A.  We don't care about A is the parent of
->>B is the parent of C; A is the parent of B is the parent of C.
->>
->>OK, here's a random idea that just popped into my head, and to which
->>I've given little thought (read: none whatsoever), and may be the
->>stupidest idea ever proposed on LKML, but thought I would just toss it
->>out to see if it could stimulate someone to come up with something
->>better (read: sane):  Conceptually, foo/.... is just a symlink to
->>/meta/[filesystem]/[inode of foo].
->> 
->>
-> 
-> Except that we want the metafiles to go away when the base file goes away.
+On Wed, 2005-07-06 at 02:26 -0700, Rob Prowel wrote:
+> While not an error, per se, it is kind of sloppy and
+> it is amazing that it hasn't shown up before now. 
+> using the identifier "new" in kernel headers that are
+> visible to applications programs is a bad idea.
 
-Only, /meta is a filesystem that already makes stuff go away for us, so 
-all we have left is the issue of whether using /meta costs us 
-performance, or whether breaking POSIX to add a symlink (such as 
-foo/...) really gives us that much more usability.
+It _is_ an error, on mysql's part. The kernel headers are _not_ intended
+to be visible to applications, in the general case. Why is mysql
+including this header? 
 
-I don't know the first thing about whether it costs us performance, 
-although it seems like it could be negligable considering the existance 
-of mount --bind.
+-- 
+dwmw2
 
-I don't think file-as-dir gives us that much more usability, because we 
-can always create a simple program or shell script that 'cd's us into 
-metadata.  It's still easier than having a simple program that 
-manipulates the metadata directly, because this way we can do 'cd' and 
-'ls' and so on inside the metadata directory.
-
-And, once we start talking about applications, /meta will be more 
-readily supported (as in, some apps will go through a pathname and stop 
-when they get to a file, and then there's tar).  On apps which don't 
-have direct support for /meta, you'd be navigating to the file in 
-question and then manually typing '...' into the dialog, so I don't see 
-why typing '...' at the end is better than typing '/meta' or '/meta/vfs' 
-at the beginning.
-
-That said, I'm still not entirely sure how we get /meta/vfs to work 
-other than adding a '...' sort of delimiter anyway.
-
->>And a question: is it feasible to store, for each inode, its parent(s),
->>instead of just the hard link count?
->> 
->>
-> 
-> Ooh, now that is an interesting old idea I haven't considered in 20
-> years.... makes fsck more robust too....
-
-Doesn't it make directory operations slower, too?
-
-And, will it require a format change?

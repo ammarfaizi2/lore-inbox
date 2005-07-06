@@ -1,98 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbVGGAXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262481AbVGGAXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262375AbVGGAXc (ORCPT <rfc822;willy@w.ods.org>);
+	id S262481AbVGGAXc (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Jul 2005 20:23:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVGFUBY
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVGFUBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 16:01:24 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:52426 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262395AbVGFROZ
+	Wed, 6 Jul 2005 16:01:19 -0400
+Received: from mailsrvr2.bull.com ([192.90.162.8]:48295 "EHLO
+	mailsrvr2.bull.com") by vger.kernel.org with ESMTP id S262371AbVGFRIr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 13:14:25 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Wed, 6 Jul 2005 18:14:23 +0100
-User-Agent: KMail/1.8.1
+	Wed, 6 Jul 2005 13:08:47 -0400
+In-Reply-To: <1120608033.10572.72.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+To: Daniel Walker <dwalker@mvista.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507061756.20861.s0348365@sms.ed.ac.uk> <20050706170158.GA27797@elte.hu>
-In-Reply-To: <20050706170158.GA27797@elte.hu>
+Subject: Re: Resend:[RFC/Patch] Robust futexes
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507061814.23656.s0348365@sms.ed.ac.uk>
+X-Mailer: Lotus Notes Release 6.5.1 January 21, 2004
+Message-ID: <OF9B9E3D47.B339361B-ON07257036.005CA230-07257036.005E257A@us-phx1.az05.bull.com>
+From: Todd.Kneisel@Bull.com
+Date: Wed, 6 Jul 2005 10:08:19 -0700
+X-MIMETrack: Serialize by Router on US-PHX1/US/BULL(Release 6.5.1|January 21, 2004) at
+ 07/06/2005 10:08:29 AM,
+	Serialize complete at 07/06/2005 10:08:29 AM
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 Jul 2005 18:01, Ingo Molnar wrote:
-> * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > > I'm beginning to understand the issue, and I see why you think the
-> > > proposed patch fixes it. I'll compile and boot V0.7.51-05 now.
-> >
-> > Indeed, this seems to have fixed it.
-> >
-> > ( softirq-timer/0-3    |#0): new 8 us maximum-latency wakeup.
-> > ( softirq-timer/0-3    |#0): new 9 us maximum-latency wakeup.
-> > ( softirq-timer/0-3    |#0): new 9 us maximum-latency wakeup.
-> > ( softirq-timer/0-3    |#0): new 9 us maximum-latency wakeup.
-> > ( softirq-timer/0-3    |#0): new 10 us maximum-latency wakeup.
-> > ( softirq-timer/0-3    |#0): new 14 us maximum-latency wakeup.
->
-> great! Do the softlockup warnings still occur?
+I've made relatively minor changes to the glibc side since posting
+the patch to the robust mutexes list.
+- added EOWNERDEAD and ENOTRECOVERABLE to the glibc error reporting
+  mechanism, so that strerror() works.
+- added function prototypes to pthread.h for 
+pthread_mutexattr_getrobust_np,
+  pthread_mutexattr_setrobust_np, and pthread_mutex_consistent_np.
+- defined a constant for accessing the pid that's stored in the futex.
+- Changed copyrights from Bull SA (the French division of our company)
+  to Bull HN (The U.S. division).
 
-Yes, but in no greater a number.
+We expect to receive the FSF contracts for copyright assignment any
+day now. If anyone would like to see the glibc changes, I can provide
+the patch under the Bull HN copyright. The patch applies to glibc-2.3.4.
 
-[root] 18:09 [~] uptime
- 18:09:39 up 19 min,  4 users,  load average: 0.36, 0.29, 0.16
+Todd.
 
-[root] 18:09 [~] dmesg | grep BUG: | wc -l
-5
 
-So far, however, there have been no lockups! The previous kernels would die 
-very obviously within a couple of minutes.
+Daniel Walker <dwalker@mvista.com> wrote on 07/05/2005 05:00:32 PM:
 
-I wonder if the ACPI problem was causing lockups (one thought I had was that 
-the "ondemand" cpufreq governor was generating more ACPI events than usual, 
-as the BIOS stepped through the different CPU speeds).
-
->
-> > Find attached another trace (only 33us this time).
->
-> the main latency comes from here:
-> >    <...>-3485  0Dnh2   13us : enqueue_task (__schedule)
-> >    <...>-3485  0Dnh2   14us+: trace_array (__schedule)
-> >    <...>-3485  0Dnh2   18us : trace_array <softirq--3> (69 6e)
-> >    <...>-3485  0Dnh2   18us : trace_array <<...>-3485> (76 78)
-> >    <...>-3485  0Dnh2   20us+: trace_array (__schedule)
-> > softirq--3     0Dnh2   28us+: __switch_to (__schedule)
->
-> trace_array() can be quite expensive (it generates a trace entry of
-> every runnable task, with interrupts and preemption disabled). It is
-> disabled if RT_DEADLOCK_DETECT is disabled. For pure wakeup latency
-> tracing, the most optimal combination of options is:
->
-[snip]
->
-> such a kernel will still be able to generate /proc/latency_trace traces,
-> but has much lower runtime overhead than your current kernel. (But you
-> should probably keep all debugging enabled until all of the current
-> problems have been resolved.)
->
-> 	Ingo
-
-Well, thanks for the info. As you said, when the remaining issues have been 
-resolved, I'll need to step up to a more efficient kernel, because I require 
-extremely low kernel latency for the software I'm writing (this was not an 
-idle patch fest).
-
--- 
-Cheers,
-Alistair.
-
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+> 
+> You might want to CC Andrew Morton , and Rusty Russell.
+> 
+> What is the status of the glibc side of this?
+> 
+> Daniel
+> 
+> 
+> On Tue, 2005-07-05 at 16:11 -0700, Todd Kneisel wrote:
+> > This is a resend of my patch to add robust futex support to the 
+existing
+> > sys_futex system call. The patch applies to 2.6.12. Any comments or
+> > discussion will be welcome.
+> > 
+> > Changes since my last posted version:
+> > - Applies to 2.6.12, was 2.6.12-rc6
+> > - Added config option CONFIG_ROBUST_FUTEX, depends on existing 
+CONFIG_FUTEX
+> >    and defaults to no.
+> > - Commented functions, using kernel-doc style comments
+> > - Cleaned up some CodingStyle violations
+> > 

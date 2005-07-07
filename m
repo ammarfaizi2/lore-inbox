@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVGGVkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVGGV6d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbVGGVkq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 17:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVGGVie
+	id S261374AbVGGV6d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 17:58:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVGGVdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 17:38:34 -0400
-Received: from kludge.physics.uiowa.edu ([128.255.33.129]:44807 "EHLO
-	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S261344AbVGGVh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 17:37:26 -0400
-Date: Thu, 7 Jul 2005 16:34:14 -0500
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: st3@riseup.net, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-Subject: Re: enhanced intel speedstep feature was Re: speedstep-centrino on dothan
-Message-ID: <20050707213414.GF16702@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: st3@riseup.net, Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-References: <20050706112202.33d63d4d@horst.morte.male> <42CC37FD.5040708@tmr.com> <20050706211159.GF27630@redhat.com> <20050706235557.0c122d33@horst.morte.male> <20050707220027.413343d4@horst.morte.male> <20050707200648.GA29142@redhat.com> <20050707222225.5b3113e0@horst.morte.male> <20050707205117.GB10635@digitasaru.net> <20050707210823.GA24774@isilmar.linta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050707210823.GA24774@isilmar.linta.de>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.8i
+	Thu, 7 Jul 2005 17:33:41 -0400
+Received: from coderock.org ([193.77.147.115]:48780 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262331AbVGGVcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 17:32:12 -0400
+Message-Id: <20050707213139.416004000@homer>
+Date: Thu, 07 Jul 2005 23:31:39 +0200
+From: domen@coderock.org
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Victor Fusco <victor@cetuc.puc-rio.br>,
+       domen@coderock.org
+Subject: [patch 2/4] kernel/audit.c: fix sparse warnings (__nocast type)
+Content-Disposition: inline; filename=sparse-kernel_audit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Dominik Brodowski on Thursday, 07 July, 2005:
->On Thu, Jul 07, 2005 at 03:51:17PM -0500, Joseph Pingenot wrote:
->> >Just a latest question: can be p4-clockmod used together with
->> >speedstep-centrino? If not, would it make any sense to patch
->> >speedstep-centrino to use this feature too?
->> I'm a little confused.  How is this different from the ACPI CPU throttling
->>   states (/proc/acpi/processor/CPUn/limit to set, throttling to see all
->>   T-states available)?
->T-states _tend_ to be utilized using chipset logic, while p4-clockmod is
->done in-CPU.
->> On my 1.5-year-old Pentium-M, frequency scaling and T-states are different
->>   beasties, and act entirely differently.  I'm currently in the process of
->>   rewriting my governor's brain to deal with the two more intelligently.
->In your case, I would care about throttling. In very most cases it actually
->increases energy consumption, as the state being entered is technically the
->same to ACPI C2 (IIRC), so it is only "forced" idling and only useful if
->"forced" idling is needed to not need active cooling.
+From: Victor Fusco <victor@cetuc.puc-rio.br>
 
-Why would this cause more energy consumption?
 
--Joseph
+Fix the sparse warning "implicit cast to nocast type"
+ 
+File/Subsystem: kernel/audit.c
 
--- 
-trelane@digitasaru.net--------------------------------------------------
-          Graduate student in physics, Free Software developer.
+Signed-off-by: Victor Fusco <victor@cetuc.puc-rio.br>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+ 
+
+---
+ audit.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: quilt/kernel/audit.c
+===================================================================
+--- quilt.orig/kernel/audit.c
++++ quilt/kernel/audit.c
+@@ -560,7 +560,7 @@ static void audit_buffer_free(struct aud
+ }
+ 
+ static struct audit_buffer * audit_buffer_alloc(struct audit_context *ctx,
+-						int gfp_mask, int type)
++						unsigned int __nocast gfp_mask, int type)
+ {
+ 	unsigned long flags;
+ 	struct audit_buffer *ab = NULL;
+
+--

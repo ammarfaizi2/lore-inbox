@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVGGIeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVGGIjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVGGIeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 04:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVGGIbv
+	id S261250AbVGGIjY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 04:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVGGIjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 04:31:51 -0400
-Received: from cartier.jerryweb.org ([80.68.90.16]:58383 "EHLO
-	cartier.jerryweb.org") by vger.kernel.org with ESMTP
-	id S261259AbVGGIbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 04:31:09 -0400
-Message-ID: <1120725073.42cce85173364@webmail.jerryweb.org>
-Date: Thu, 07 Jul 2005 09:31:13 +0100
-From: Jeremy Laine <jeremy.laine@polytechnique.org>
-To: 7eggert@gmx.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS: frequent crashes with bttv in 2.6.X series (inc. 2.6.12)
-References: <4njei-1Ps-21@gated-at.bofh.it> <E1DqJ1b-0001Li-0t@be1.7eggert.dyndns.org>
-In-Reply-To: <E1DqJ1b-0001Li-0t@be1.7eggert.dyndns.org>
+	Thu, 7 Jul 2005 04:39:24 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:22068 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261250AbVGGIg7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 04:36:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=uBKImZ10HQn0rJpBTQ3Jj81jwtiFkZqWec6GeAHuVujD67Rjl46IVxk33QaEvMgrb0+CwUNIcwp+52CMVB6NGoi9/XFMWj4wFekCwK/+adgNX+jviyNG7s7/UBrMgZ4CkCForvid2fafHoEO8sxtOFLn/07ZMcMp4MCVO4cePgw=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Subject: Re: SATA: Assertion failed! qc->flags & ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=3052
+Date: Thu, 7 Jul 2005 12:43:38 +0400
+User-Agent: KMail/1.8.1
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+References: <1120723473.18056.29.camel@localhost>
+In-Reply-To: <1120723473.18056.29.camel@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.6
-X-Originating-IP: 195.115.41.103
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507071243.39080.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Heavy HDD IO almost certainly caused soon death (recognizable by heavy
-> picture distortion), while an idle system lasted one evening. It did not
-> happen with kernel 2.4 and a NVidia card on XF86.
+On Thursday 07 July 2005 12:04, Soeren Sonnenburg wrote:
+> with hddtemp regularly polling for the temperature state together with
+> libsata from kernel 2.6.12 on a promise tx2. The disk is set to go to
+> sleep mode (hdparm -S 35 /dev/sda). And after a couple of hours the
+> machine oopsed (the disk was sleeping/not mounted at that time - with
+> high probability) :
+> 
+> ata2: command timeout
+> ata2: translated ATA stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+> Assertion failed! qc->flags & ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=3052
+> ata2: translated ATA stat/err 0xb0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+> ata2: status=0xb0 { Busy }
+> Unable to handle kernel NULL pointer dereference at virtual address 00000000
 
-You are very probably onto something there, the latest OOPS I sent (the 2AM one)
-occurred while my daily backup script was running!
+> EIP:    0060:[<c0118eac>]    Tainted: P      VLI
 
-Jul  7 02:10:01 sharky /USR/SBIN/CRON[6656]: (root) CMD
-(/home/save/bin/mount-wrapper bkp-section -c daily)
-Jul  7 02:10:08 sharky kernel: EXT3 FS on dm-2, internal journal
-Jul  7 02:11:36 sharky kernel: Unable to handle kernel paging request at virtual
-address 1400000c
+> I am now trying w/o hddtemp, lets see how long it survives...
 
-Kind regards,
-Jeremy
-
--- 
-http://www.jerryweb.org/             : JerryWeb.org
-http://sailcut.sourceforge.net/      : Sailcut CAD
-http://opensource.polytechnique.org/ : Polytechnique.org Free Software
+With untainted kernel, please. To be sure it's our problem.

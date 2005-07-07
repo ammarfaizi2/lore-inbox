@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVGGRti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVGGRwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVGGRti (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 13:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVGGRrr
+	id S261402AbVGGRwU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 13:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVGGRtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 13:47:47 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:13749 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S261363AbVGGRre (ORCPT
+	Thu, 7 Jul 2005 13:49:49 -0400
+Received: from mail.kroah.org ([69.55.234.183]:49579 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261363AbVGGRtO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 13:47:34 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: reiser4 plugins
-Date: Thu, 7 Jul 2005 17:47:31 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dajprj$e9c$1@news.cistron.nl>
-References: <200506290509.j5T595I6010576@laptop11.inf.utfsm.cl> <20050701155446.GZ16867@khan.acc.umu.se> <20050707082749.GZ11013@nysv.org> <42CD3580.4020008@slaphack.com>
+	Thu, 7 Jul 2005 13:49:14 -0400
+Date: Thu, 7 Jul 2005 10:48:52 -0700
+From: Greg KH <greg@kroah.com>
+To: serge@hallyn.com
+Cc: serue@us.ibm.com, James Morris <jmorris@redhat.com>,
+       Tony Jones <tonyj@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton <akpm@osdl.org>, Michael Halcrow <mhalcrow@us.ibm.com>,
+       David Safford <safford@watson.ibm.com>,
+       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [PATCH] securityfs
+Message-ID: <20050707174852.GA19609@kroah.com>
+References: <20050703182505.GA29491@immunix.com> <Xine.LNX.4.44.0507031450540.30297-100000@thoron.boston.redhat.com> <20050703204423.GA17418@kroah.com> <20050706220835.GA32005@serge.austin.ibm.com> <20050706222237.GB6696@kroah.com> <20050707173035.GA10503@vino.hallyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-X-Trace: ncc1701.cistron.net 1120758451 14636 194.109.0.112 (7 Jul 2005 17:47:31 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050707173035.GA10503@vino.hallyn.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <42CD3580.4020008@slaphack.com>,
-David Masover  <ninja@slaphack.com> wrote:
->Markus Törnqvist wrote:
->> Anyway, I don't really like the metafs thing.
->> 
->> To access the data, you still need to refactor userspace,
->> so that's not a real advantage. Doing lookups from /meta
->> all the time, instead of in the file-as-dir-whatever...
->
->I don't really see the disadvantage.
->
->Also, metafs means much less of a fight to get people to adopt the whole 
->meta concept, because it can be done in a POSIX-compliant way which 
->doesn't break tar.
->
->File-as-dir is nice if you're using meta files, but it causes lots of 
->unexpected weirdness.  I don't think metafs costs us much in 
->performance, and with one or two shell scripts, it wouldn't cost us that 
->much efficiency on the commandline.
+On Thu, Jul 07, 2005 at 12:30:35PM -0500, serge@hallyn.com wrote:
+> Quoting Greg KH (greg@kroah.com):
+> > On Wed, Jul 06, 2005 at 05:08:35PM -0500, serue@us.ibm.com wrote:
+> > > Quoting Greg KH (greg@kroah.com):
+> > > > think it could be made even smaller if you use the default read and
+> > > > write file type functions in libfs (look at the debugfs wrappers of them
+> > > > for u8, u16, etc, for examples of how to use them.)
+> > > 
+> > > The attached patch cleans up the securelevel code for the seclvl file.
+> > > Is this a reasonable way to go about this?
+> > 
+> > No.
+> > 
+> > > Or is there a better way to do this?
+> > 
+> > Look at how debugfs uses the libfs code.  We should not need to add
+> > these handlers to securityfs.
+> 
+> Unfortunately the simple_attr code from libfs really doesn't seem to be
+> usable for int args.
 
-file-as-dir is an innovation. Metafs is an ugly compromise.
+Why not?  You want a negative number?  Just cast the u64 to a signed int
+then.  Will that not work?  If not we can tweak the libfs interface to
+work properly for you.
 
-Mike.
+> However the below patch follows some of the
+> examples in debugfs and comes out cleaner than my original patch.
 
+That is nicer.  But I think you can get it smaller with the libfs stuff
+:)
+
+thanks,
+
+greg k-h

@@ -1,99 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVGGJaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVGGJgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVGGJaW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 05:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVGGJaV
+	id S261257AbVGGJgR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 05:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVGGJgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 05:30:21 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:45462 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261243AbVGGJ3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 05:29:18 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: "Jon Schindler" <jonschindler@hotmail.com>
-Subject: Re: Kernel Oops with dual core athlon 64
-Date: Thu, 7 Jul 2005 11:29:38 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <BAY20-F42FDD187485A266D3988B6C4D80@phx.gbl>
-In-Reply-To: <BAY20-F42FDD187485A266D3988B6C4D80@phx.gbl>
+	Thu, 7 Jul 2005 05:36:17 -0400
+Received: from [148.208.164.2] ([148.208.164.2]:6302 "HELO hotmail.com")
+	by vger.kernel.org with SMTP id S261257AbVGGJgP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 05:36:15 -0400
+Message-ID: <84b601c582d9$14b04e60$e886b5e6@asxrcs>
+From: <asxrcs@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: I can give you 20 paid_sign/ups
+Date: Thu, 07 Jul 2005 09:48:51 -0100
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_CYPzCK9dLnFHETU"
-Message-Id: <200507071129.38714.rjw@sisk.pl>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1158
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_CYPzCK9dLnFHETU
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This week I showed more than 60 people
+how to get over 20 sign/ups each week.
 
-Hi,
+How much would that be worth to you?
 
-On Thursday, 7 of July 2005 07:58, Jon Schindler wrote:
-> The dmesg is below.  After I get this Oops, I am unable to use my (PS/2) 
-> keyboard, and had to ssh to my machine in order to save a copy of dmesg 
-> before rebooting the machine.  I've seen a couple of other users of dual 
-> core machings having this problem.  The suggestion so far has been to remove 
-> the binary nvidia driver and repoducde the bug.  So, I went ahead and 
-> removed the nvidia driver and used the deprecated nv driver that comes with 
-> X11 and I still have this issue.  Does anyone have any ideas what might be 
-> causing this?  Thanks in advance for the help.  I don't know my way around 
-> the kernel, but I do have experience with C and should be able to apply any 
-> SMP patches if you want me to test it
+Let me mentor you. I mentor at no charge.
 
-It seems to be a cpufreq issue.  You can try to apply the attached patch from
-Mark Langsdorf.
+I will show you how to get 100's of paid/for
+sign/ups eas.ily and without spending a cent
+on normal mark.eting campaigns.
 
-Greets,
-Rafael
+I can mentor you personally on a powerful
+"One to One" basis and supply you with
+contact details of thousands of pre-qualified
+people who will join your business (subject 
+to individual terms).
+
+I will make your bus/iness earn up to 500
+times more than it currently is and that's
+a guarantee.
+
+I can help all types of bus/iness.opps,
+m/l.m, net/work mark.eting programs and
+any other type of web site on the 'net
+like mainstream or niche retail or mem.ber
+sites.
+
+If you are interested just ask.
+
+For example:
+
+I will show you how to drive sign/ups to
+your business almost handsfree. The only
+thing you have to do, is start the snowball
+rolling the and rest is fully automated.
+
+I will mentor you, to show you how to
+promote using e.mail mark/eting to get
+huge results while spending almost nothing
+using cheap pre-qualified targeted contact
+lists.
+
+I will show you how to get into the top 10
+search results for 5 keywords on the best
+20 search engines to include Google, MSN,
+Yahoo etc.
+
+I can help anyone with any type of business.
+There is no restriction to the type of
+business you want me to help you build
+providing its legal.
+
+To find out if I can mentor you please send
+me an email to: 
+
+888mentors@isp-q.com with "mentor_me" in the 
+subject and your business name, URL and own
+name in the message.
 
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Asking for more information.
+==============================
+============================================
+I reserve the right to refuse my service to 
+anyone without breaching my code of conduct 
+or advertising standards. In such instances
+I am not obliged to give a reason for
+refusal of my mentoring service. To find out
+if I can mentor you please send me an email
+to: 888mentors@isp-q.com with "mentor_me" in the
+subject and your business name and URL and
+own name in the message.
+============================================
 
---Boundary-00=_CYPzCK9dLnFHETU
-Content-Type: text/x-diff;
-  charset="utf-8";
-  name="jhpn-2.6.12-rc6.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="jhpn-2.6.12-rc6.patch"
+Note;
+If I have upset you in any way by sending 
+you this email please forgive me and send
+an email to: 888mentors@isp-q.com with the
+word "off" in the subject and I will 
+never bother you again.
 
---- linux-2.6.12-rc6/arch/i386/kernel/cpu/cpufreq/powernow-k8.c.old	2005-06-12 17:41:55.123651184 -0500
-+++ linux-2.6.12-rc6/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2005-06-12 17:46:32.780440936 -0500
-@@ -44,7 +44,7 @@
- 
- #define PFX "powernow-k8: "
- #define BFX PFX "BIOS error: "
--#define VERSION "version 1.40.2"
-+#define VERSION "version 1.40.4"
- #include "powernow-k8.h"
- 
- /* serialize freq changes  */
-@@ -978,7 +978,7 @@
- {
- 	struct powernow_k8_data *data;
- 	cpumask_t oldmask = CPU_MASK_ALL;
--	int rc;
-+	int rc, i;
- 
- 	if (!check_supported_cpu(pol->cpu))
- 		return -ENODEV;
-@@ -1064,7 +1064,9 @@
- 	printk("cpu_init done, current fid 0x%x, vid 0x%x\n",
- 	       data->currfid, data->currvid);
- 
--	powernow_data[pol->cpu] = data;
-+	for_each_cpu_mask(i, cpu_core_map[pol->cpu]) {
-+		powernow_data[i] = data;
-+	}
- 
- 	return 0;
- 
-
---Boundary-00=_CYPzCK9dLnFHETU--

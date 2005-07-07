@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVGGGdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVGGGh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVGGGdk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 02:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVGGGdk
+	id S261179AbVGGGh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 02:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVGGGh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 02:33:40 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:21723 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S261174AbVGGGdj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 02:33:39 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Fedora core 3 Version magic error..
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Thu, 7 Jul 2005 12:12:12 +0530
-Message-ID: <4EE0CBA31942E547B99B3D4BFAB34811610712@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Fedora core 3 Version magic error..
-Thread-Index: AcWCu2FJ7PfIhzmiTKW7U16G068McA==
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+	Thu, 7 Jul 2005 02:37:26 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:3511 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261179AbVGGGhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 02:37:24 -0400
+Subject: Re: Slowdown with randomize_va_space in 2.6.12.2
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, davem@davemloft.net, pmarques@grupopie.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050706181220.3978d7f6.akpm@osdl.org>
+References: <42CBE97C.2060208@grupopie.com>
+	 <20050706.125719.08321870.davem@davemloft.net>
+	 <20050706205315.GC27630@redhat.com> <20050706181220.3978d7f6.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 07 Jul 2005 08:37:08 +0200
+Message-Id: <1120718229.3198.8.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
- 
-I have a problem loading the rpm build locally on Fedora core 3, linux kernel 2.6.10.
- 
-After building the rpm file from the available sources on the Linux kernel 2.6.10 which was D/W from kernel.org and build, I am unable to load it.
- 
-It results in the following errors:-
-tifm: version magic '2.6.10 686 REGPARM gcc-3.3' should be '2.6.10 REGPARM gcc-3.4'
- 
-Probably, It's only failing due to gcc version mismatch. 
-When I look at the cc in /bin it points to gcc.3.4.
- 
-Can some one suggest me a solution for this issue?
- 
-Thanks a million for the helps.
- 
-Regards,
-Mukund Jampala
- 
- 
+On Wed, 2005-07-06 at 18:12 -0700, Andrew Morton wrote:
+> Dave Jones <davej@redhat.com> wrote:
+> >
+> > On Wed, Jul 06, 2005 at 12:57:19PM -0700, David S. Miller wrote:
+> >  > From: Paulo Marques <pmarques@grupopie.com>
+> >  > Date: Wed, 06 Jul 2005 15:23:56 +0100
+> >  > 
+> >  > > What is weird is that most of the extra time is being accounted as 
+> >  > > user-space time, but the user-space application is exactly the same in 
+> >  > > both runs, only the "randomize_va_space" parameter changed.
+> >  > 
+> >  > It might be attributable to more cpu cache misses in userspace since
+> >  > the virtual addresses of everything are changing each and every
+> >  > invocation.
+> > 
+> > On Transmeta CPUs that probably triggers a retranslation of
+> > x86->native bytecode, if it thinks it hasn't seen code at that
+> > address before.
+> > 
+> 
+> ouch.   What do we do?  Default to off?  Default to off on xmeta?
+
+off-on-xmeta would be my preference; I'll cook up a patch for that.
 

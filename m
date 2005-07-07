@@ -1,33 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVGGKQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVGGKSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVGGKQq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 06:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVGGKQq
+	id S261288AbVGGKSt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 06:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVGGKSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 06:16:46 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:50657 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261264AbVGGKQI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 06:16:08 -0400
-Date: Thu, 7 Jul 2005 15:46:50 +0530
+	Thu, 7 Jul 2005 06:18:48 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:40157 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261279AbVGGKSC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 06:18:02 -0400
+Date: Thu, 7 Jul 2005 15:48:33 +0530
 From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 To: akpm@osdl.org, Andi Kleen <ak@suse.de>,
        "David S. Miller" <davem@davemloft.net>, systemtap@sources.redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [4/6 PATCH] Kprobes : Prevent possible race conditions ppc64 changes
-Message-ID: <20050707101650.GH12106@in.ibm.com>
+Subject: Re: [5/6 PATCH] Kprobes : Prevent possible race conditions ia64 changes
+Message-ID: <20050707101833.GI12106@in.ibm.com>
 Reply-To: prasanna@in.ibm.com
-References: <20050707101015.GE12106@in.ibm.com> <20050707101119.GF12106@in.ibm.com> <20050707101447.GG12106@in.ibm.com>
+References: <20050707101015.GE12106@in.ibm.com> <20050707101119.GF12106@in.ibm.com> <20050707101447.GG12106@in.ibm.com> <20050707101650.GH12106@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050707101447.GG12106@in.ibm.com>
+In-Reply-To: <20050707101650.GH12106@in.ibm.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch contains the ppc64 architecture specific changes to
+This patch contains the ia64 architecture specific changes to
 prevent the possible race conditions.
 
 Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
@@ -35,60 +35,88 @@ Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 
 ---
 
- linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/kprobes.c     |   29 +++++-----
- linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/misc.S        |    4 -
- linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/traps.c       |    5 +
- linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/vmlinux.lds.S |    1 
- linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/mm/fault.c           |    5 +
- linux-2.6.13-rc1-mm1-prasanna/include/asm-ppc64/processor.h   |   14 ++++
- 6 files changed, 38 insertions(+), 20 deletions(-)
+ linux-2.6.13-rc1-mm1-prasanna/arch/ia64/kernel/kprobes.c     |   57 ++++++-----
+ linux-2.6.13-rc1-mm1-prasanna/arch/ia64/kernel/traps.c       |    5 
+ linux-2.6.13-rc1-mm1-prasanna/arch/ia64/kernel/vmlinux.lds.S |    1 
+ linux-2.6.13-rc1-mm1-prasanna/arch/ia64/lib/flush.S          |    1 
+ linux-2.6.13-rc1-mm1-prasanna/arch/ia64/mm/fault.c           |    3 
+ 5 files changed, 40 insertions(+), 27 deletions(-)
 
-diff -puN arch/ppc64/kernel/kprobes.c~kprobes-exclude-functions-ppc64 arch/ppc64/kernel/kprobes.c
---- linux-2.6.13-rc1-mm1/arch/ppc64/kernel/kprobes.c~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/kprobes.c	2005-07-06 20:07:22.000000000 +0530
-@@ -44,7 +44,7 @@ static struct kprobe *kprobe_prev;
- static unsigned long kprobe_status_prev, kprobe_saved_msr_prev;
- static struct pt_regs jprobe_saved_regs;
- 
--int arch_prepare_kprobe(struct kprobe *p)
-+int __kprobes arch_prepare_kprobe(struct kprobe *p)
+diff -puN arch/ia64/kernel/kprobes.c~kprobes-exclude-functions-ia64 arch/ia64/kernel/kprobes.c
+--- linux-2.6.13-rc1-mm1/arch/ia64/kernel/kprobes.c~kprobes-exclude-functions-ia64	2005-07-07 11:19:05.000000000 +0530
++++ linux-2.6.13-rc1-mm1-prasanna/arch/ia64/kernel/kprobes.c	2005-07-07 11:19:05.000000000 +0530
+@@ -87,8 +87,10 @@ static enum instruction_type bundle_enco
+  * is IP relative instruction and update the kprobe
+  * inst flag accordingly
+  */
+-static void update_kprobe_inst_flag(uint template, uint  slot, uint major_opcode,
+-	unsigned long kprobe_inst, struct kprobe *p)
++static void __kprobes update_kprobe_inst_flag(uint template, uint  slot,
++					      uint major_opcode,
++					      unsigned long kprobe_inst,
++					      struct kprobe *p)
  {
- 	int ret = 0;
- 	kprobe_opcode_t insn = *p->addr;
-@@ -68,27 +68,27 @@ int arch_prepare_kprobe(struct kprobe *p
- 	return ret;
+ 	p->ainsn.inst_flag = 0;
+ 	p->ainsn.target_br_reg = 0;
+@@ -126,8 +128,10 @@ static void update_kprobe_inst_flag(uint
+  * Returns 0 if supported
+  * Returns -EINVAL if unsupported
+  */
+-static int unsupported_inst(uint template, uint  slot, uint major_opcode,
+-	unsigned long kprobe_inst, struct kprobe *p)
++static int __kprobes unsupported_inst(uint template, uint  slot,
++				      uint major_opcode,
++				      unsigned long kprobe_inst,
++				      struct kprobe *p)
+ {
+ 	unsigned long addr = (unsigned long)p->addr;
+ 
+@@ -168,8 +172,9 @@ static int unsupported_inst(uint templat
+  * on which we are inserting kprobe is cmp instruction
+  * with ctype as unc.
+  */
+-static uint is_cmp_ctype_unc_inst(uint template, uint slot, uint major_opcode,
+-unsigned long kprobe_inst)
++static uint __kprobes is_cmp_ctype_unc_inst(uint template, uint slot,
++					    uint major_opcode,
++					    unsigned long kprobe_inst)
+ {
+ 	cmp_inst_t cmp_inst;
+ 	uint ctype_unc = 0;
+@@ -201,8 +206,10 @@ out:
+  * In this function we override the bundle with
+  * the break instruction at the given slot.
+  */
+-static void prepare_break_inst(uint template, uint  slot, uint major_opcode,
+-	unsigned long kprobe_inst, struct kprobe *p)
++static void __kprobes prepare_break_inst(uint template, uint  slot,
++					 uint major_opcode,
++					 unsigned long kprobe_inst,
++					 struct kprobe *p)
+ {
+ 	unsigned long break_inst = BREAK_INST;
+ 	bundle_t *bundle = &p->ainsn.insn.bundle;
+@@ -271,7 +278,8 @@ static inline int in_ivt_functions(unsig
+ 		&& addr < (unsigned long)__end_ivt_text);
  }
  
--void arch_copy_kprobe(struct kprobe *p)
-+void __kprobes arch_copy_kprobe(struct kprobe *p)
+-static int valid_kprobe_addr(int template, int slot, unsigned long addr)
++static int __kprobes valid_kprobe_addr(int template, int slot,
++				       unsigned long addr)
  {
- 	memcpy(p->ainsn.insn, p->addr, MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
- 	p->opcode = *p->addr;
- }
- 
--void arch_arm_kprobe(struct kprobe *p)
-+void __kprobes arch_arm_kprobe(struct kprobe *p)
+ 	if ((slot > 2) || ((bundle_encoding[template][1] == L) && slot > 1)) {
+ 		printk(KERN_WARNING "Attempting to insert unaligned kprobe "
+@@ -323,7 +331,7 @@ static void kretprobe_trampoline(void)
+  *    - cleanup by marking the instance as unused
+  *    - long jump back to the original return address
+  */
+-int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
++int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
  {
- 	*p->addr = BREAKPOINT_INSTRUCTION;
- 	flush_icache_range((unsigned long) p->addr,
- 			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
- }
- 
--void arch_disarm_kprobe(struct kprobe *p)
-+void __kprobes arch_disarm_kprobe(struct kprobe *p)
- {
- 	*p->addr = p->opcode;
- 	flush_icache_range((unsigned long) p->addr,
- 			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
- }
- 
--void arch_remove_kprobe(struct kprobe *p)
-+void __kprobes arch_remove_kprobe(struct kprobe *p)
- {
- 	up(&kprobe_mutex);
- 	free_insn_slot(p->ainsn.insn);
-@@ -122,7 +122,8 @@ static inline void restore_previous_kpro
- 	kprobe_saved_msr = kprobe_saved_msr_prev;
+ 	struct kretprobe_instance *ri = NULL;
+ 	struct hlist_head *head;
+@@ -381,7 +389,8 @@ int trampoline_probe_handler(struct kpro
+         return 1;
  }
  
 -void arch_prepare_kretprobe(struct kretprobe *rp, struct pt_regs *regs)
@@ -97,171 +125,188 @@ diff -puN arch/ppc64/kernel/kprobes.c~kprobes-exclude-functions-ppc64 arch/ppc64
  {
  	struct kretprobe_instance *ri;
  
-@@ -244,7 +245,7 @@ void kretprobe_trampoline_holder(void)
- /*
-  * Called when the probe at kretprobe trampoline is hit
-  */
--int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
-+int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+@@ -399,7 +408,7 @@ void arch_prepare_kretprobe(struct kretp
+ 	}
+ }
+ 
+-int arch_prepare_kprobe(struct kprobe *p)
++int __kprobes arch_prepare_kprobe(struct kprobe *p)
  {
-         struct kretprobe_instance *ri = NULL;
-         struct hlist_head *head;
-@@ -308,7 +309,7 @@ int trampoline_probe_handler(struct kpro
-  * single-stepped a copy of the instruction.  The address of this
-  * copy is p->ainsn.insn.
+ 	unsigned long addr = (unsigned long) p->addr;
+ 	unsigned long *kprobe_addr = (unsigned long *)(addr & ~0xFULL);
+@@ -430,7 +439,7 @@ int arch_prepare_kprobe(struct kprobe *p
+ 	return 0;
+ }
+ 
+-void arch_arm_kprobe(struct kprobe *p)
++void __kprobes arch_arm_kprobe(struct kprobe *p)
+ {
+ 	unsigned long addr = (unsigned long)p->addr;
+ 	unsigned long arm_addr = addr & ~0xFULL;
+@@ -439,7 +448,7 @@ void arch_arm_kprobe(struct kprobe *p)
+ 	flush_icache_range(arm_addr, arm_addr + sizeof(bundle_t));
+ }
+ 
+-void arch_disarm_kprobe(struct kprobe *p)
++void __kprobes arch_disarm_kprobe(struct kprobe *p)
+ {
+ 	unsigned long addr = (unsigned long)p->addr;
+ 	unsigned long arm_addr = addr & ~0xFULL;
+@@ -449,7 +458,7 @@ void arch_disarm_kprobe(struct kprobe *p
+ 	flush_icache_range(arm_addr, arm_addr + sizeof(bundle_t));
+ }
+ 
+-void arch_remove_kprobe(struct kprobe *p)
++void __kprobes arch_remove_kprobe(struct kprobe *p)
+ {
+ }
+ 
+@@ -461,7 +470,7 @@ void arch_remove_kprobe(struct kprobe *p
+  * to original stack address, handle the case where we need to fixup the
+  * relative IP address and/or fixup branch register.
   */
 -static void resume_execution(struct kprobe *p, struct pt_regs *regs)
 +static void __kprobes resume_execution(struct kprobe *p, struct pt_regs *regs)
  {
- 	int ret;
- 	unsigned int insn = *p->ainsn.insn;
-@@ -373,8 +374,8 @@ static inline int kprobe_fault_handler(s
- /*
-  * Wrapper routine to for handling exceptions.
-  */
+   	unsigned long bundle_addr = ((unsigned long) (&p->opcode.bundle)) & ~0xFULL;
+   	unsigned long resume_addr = (unsigned long)p->addr & ~0xFULL;
+@@ -528,7 +537,7 @@ turn_ss_off:
+   	ia64_psr(regs)->ss = 0;
+ }
+ 
+-static void prepare_ss(struct kprobe *p, struct pt_regs *regs)
++static void __kprobes prepare_ss(struct kprobe *p, struct pt_regs *regs)
+ {
+ 	unsigned long bundle_addr = (unsigned long) &p->opcode.bundle;
+ 	unsigned long slot = (unsigned long)p->addr & 0xf;
+@@ -545,7 +554,7 @@ static void prepare_ss(struct kprobe *p,
+ 	ia64_psr(regs)->ss = 1;
+ }
+ 
+-static int pre_kprobes_handler(struct die_args *args)
++static int __kprobes pre_kprobes_handler(struct die_args *args)
+ {
+ 	struct kprobe *p;
+ 	int ret = 0;
+@@ -616,7 +625,7 @@ no_kprobe:
+ 	return ret;
+ }
+ 
+-static int post_kprobes_handler(struct pt_regs *regs)
++static int __kprobes post_kprobes_handler(struct pt_regs *regs)
+ {
+ 	if (!kprobe_running())
+ 		return 0;
+@@ -641,7 +650,7 @@ out:
+ 	return 1;
+ }
+ 
+-static int kprobes_fault_handler(struct pt_regs *regs, int trapnr)
++static int __kprobes kprobes_fault_handler(struct pt_regs *regs, int trapnr)
+ {
+ 	if (!kprobe_running())
+ 		return 0;
+@@ -659,8 +668,8 @@ static int kprobes_fault_handler(struct 
+ 	return 0;
+ }
+ 
 -int kprobe_exceptions_notify(struct notifier_block *self, unsigned long val,
 -			     void *data)
 +int __kprobes kprobe_exceptions_notify(struct notifier_block *self,
 +				       unsigned long val, void *data)
  {
  	struct die_args *args = (struct die_args *)data;
- 	int ret = NOTIFY_DONE;
-@@ -406,7 +407,7 @@ int kprobe_exceptions_notify(struct noti
- 	return ret;
+ 	switch(val) {
+@@ -681,7 +690,7 @@ int kprobe_exceptions_notify(struct noti
+ 	return NOTIFY_DONE;
  }
  
 -int setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
 +int __kprobes setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
  {
  	struct jprobe *jp = container_of(p, struct jprobe, kp);
- 
-@@ -419,16 +420,16 @@ int setjmp_pre_handler(struct kprobe *p,
+ 	unsigned long addr = ((struct fnptr *)(jp->entry))->ip;
+@@ -703,7 +712,7 @@ int setjmp_pre_handler(struct kprobe *p,
  	return 1;
  }
- 
--void jprobe_return(void)
-+void __kprobes jprobe_return(void)
- {
- 	asm volatile("trap" ::: "memory");
- }
- 
--void jprobe_return_end(void)
-+void __kprobes jprobe_return_end(void)
- {
- };
  
 -int longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
 +int __kprobes longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
  {
- 	/*
- 	 * FIXME - we should ideally be validating that we got here 'cos
-diff -puN arch/ppc64/kernel/traps.c~kprobes-exclude-functions-ppc64 arch/ppc64/kernel/traps.c
---- linux-2.6.13-rc1-mm1/arch/ppc64/kernel/traps.c~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/traps.c	2005-07-06 20:07:22.000000000 +0530
-@@ -30,6 +30,7 @@
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/delay.h>
+ 	*regs = jprobe_saved_regs;
+ 	return 1;
+diff -puN arch/ia64/kernel/traps.c~kprobes-exclude-functions-ia64 arch/ia64/kernel/traps.c
+--- linux-2.6.13-rc1-mm1/arch/ia64/kernel/traps.c~kprobes-exclude-functions-ia64	2005-07-07 11:19:05.000000000 +0530
++++ linux-2.6.13-rc1-mm1-prasanna/arch/ia64/kernel/traps.c	2005-07-07 11:19:05.000000000 +0530
+@@ -15,6 +15,7 @@
+ #include <linux/vt_kern.h>		/* For unblank_screen() */
+ #include <linux/module.h>       /* for EXPORT_SYMBOL */
+ #include <linux/hardirq.h>
 +#include <linux/kprobes.h>
- #include <asm/kdebug.h>
  
- #include <asm/pgtable.h>
-@@ -220,7 +221,7 @@ void instruction_breakpoint_exception(st
- 	_exception(SIGTRAP, regs, TRAP_BRKPT, regs->nip);
+ #include <asm/fpswa.h>
+ #include <asm/ia32.h>
+@@ -120,7 +121,7 @@ die_if_kernel (char *str, struct pt_regs
  }
  
--void single_step_exception(struct pt_regs *regs)
-+void __kprobes single_step_exception(struct pt_regs *regs)
+ void
+-ia64_bad_break (unsigned long break_num, struct pt_regs *regs)
++__kprobes ia64_bad_break (unsigned long break_num, struct pt_regs *regs)
  {
- 	regs->msr &= ~MSR_SE;  /* Turn off 'trace' bit */
- 
-@@ -398,7 +399,7 @@ check_bug_trap(struct pt_regs *regs)
- 	return 0;
+ 	siginfo_t siginfo;
+ 	int sig, code;
+@@ -442,7 +443,7 @@ ia64_illegal_op_fault (unsigned long ec,
+ 	return rv;
  }
  
--void program_check_exception(struct pt_regs *regs)
-+void __kprobes program_check_exception(struct pt_regs *regs)
- {
- 	if (debugger_fault_handler(regs))
- 		return;
-diff -puN arch/ppc64/kernel/vmlinux.lds.S~kprobes-exclude-functions-ppc64 arch/ppc64/kernel/vmlinux.lds.S
---- linux-2.6.13-rc1-mm1/arch/ppc64/kernel/vmlinux.lds.S~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/vmlinux.lds.S	2005-07-06 20:07:22.000000000 +0530
-@@ -15,6 +15,7 @@ SECTIONS
- 	*(.text .text.*)
+-void
++void __kprobes
+ ia64_fault (unsigned long vector, unsigned long isr, unsigned long ifa,
+ 	    unsigned long iim, unsigned long itir, long arg5, long arg6,
+ 	    long arg7, struct pt_regs regs)
+diff -puN arch/ia64/kernel/vmlinux.lds.S~kprobes-exclude-functions-ia64 arch/ia64/kernel/vmlinux.lds.S
+--- linux-2.6.13-rc1-mm1/arch/ia64/kernel/vmlinux.lds.S~kprobes-exclude-functions-ia64	2005-07-07 11:19:05.000000000 +0530
++++ linux-2.6.13-rc1-mm1-prasanna/arch/ia64/kernel/vmlinux.lds.S	2005-07-07 11:19:05.000000000 +0530
+@@ -48,6 +48,7 @@ SECTIONS
+ 	*(.text)
  	SCHED_TEXT
  	LOCK_TEXT
 +	KPROBES_TEXT
- 	*(.fixup)
- 	. = ALIGN(4096);
- 	_etext = .;
-diff -puN arch/ppc64/mm/fault.c~kprobes-exclude-functions-ppc64 arch/ppc64/mm/fault.c
---- linux-2.6.13-rc1-mm1/arch/ppc64/mm/fault.c~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/mm/fault.c	2005-07-06 20:07:22.000000000 +0530
-@@ -29,6 +29,7 @@
- #include <linux/interrupt.h>
+ 	*(.gnu.linkonce.t*)
+     }
+   .text2 : AT(ADDR(.text2) - LOAD_OFFSET)
+diff -puN arch/ia64/mm/fault.c~kprobes-exclude-functions-ia64 arch/ia64/mm/fault.c
+--- linux-2.6.13-rc1-mm1/arch/ia64/mm/fault.c~kprobes-exclude-functions-ia64	2005-07-07 11:19:05.000000000 +0530
++++ linux-2.6.13-rc1-mm1-prasanna/arch/ia64/mm/fault.c	2005-07-07 11:19:05.000000000 +0530
+@@ -9,6 +9,7 @@
+ #include <linux/mm.h>
  #include <linux/smp_lock.h>
- #include <linux/module.h>
+ #include <linux/interrupt.h>
 +#include <linux/kprobes.h>
  
- #include <asm/page.h>
  #include <asm/pgtable.h>
-@@ -84,8 +85,8 @@ static int store_updates_sp(struct pt_re
-  * The return value is 0 if the fault was handled, or the signal
-  * number if this is a kernel fault that can't be handled here.
-  */
--int do_page_fault(struct pt_regs *regs, unsigned long address,
--		  unsigned long error_code)
-+int __kprobes do_page_fault(struct pt_regs *regs, unsigned long address,
-+			    unsigned long error_code)
+ #include <asm/processor.h>
+@@ -76,7 +77,7 @@ mapped_kernel_page_is_present (unsigned 
+ 	return pte_present(pte);
+ }
+ 
+-void
++void __kprobes
+ ia64_do_page_fault (unsigned long address, unsigned long isr, struct pt_regs *regs)
  {
- 	struct vm_area_struct * vma;
- 	struct mm_struct *mm = current->mm;
-diff -puN arch/ppc64/kernel/misc.S~kprobes-exclude-functions-ppc64 arch/ppc64/kernel/misc.S
---- linux-2.6.13-rc1-mm1/arch/ppc64/kernel/misc.S~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/misc.S	2005-07-07 10:24:00.000000000 +0530
-@@ -183,7 +183,7 @@ PPC64_CACHES:
-  *   flush all bytes from start through stop-1 inclusive
-  */
- 
--_GLOBAL(__flush_icache_range)
-+_KPROBE(__flush_icache_range)
- 
- /*
-  * Flush the data cache to memory 
-@@ -223,7 +223,7 @@ _GLOBAL(__flush_icache_range)
- 	bdnz	2b
- 	isync
- 	blr
--	
-+	.previous .text
- /*
-  * Like above, but only do the D-cache.
-  *
-diff -puN include/asm-ppc64/processor.h~kprobes-exclude-functions-ppc64 include/asm-ppc64/processor.h
---- linux-2.6.13-rc1-mm1/include/asm-ppc64/processor.h~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/include/asm-ppc64/processor.h	2005-07-07 10:22:29.000000000 +0530
-@@ -309,6 +309,20 @@ name: \
- 	.type GLUE(.,name),@function; \
- GLUE(.,name):
- 
-+#define _KPROBE(name) \
-+	.section ".kprobes.text","a"; \
-+	.align 2 ; \
-+	.globl name; \
-+	.globl GLUE(.,name); \
-+	.section ".opd","aw"; \
-+name: \
-+	.quad GLUE(.,name); \
-+	.quad .TOC.@tocbase; \
-+	.quad 0; \
-+	.previous; \
-+	.type GLUE(.,name),@function; \
-+GLUE(.,name):
-+
- #define _STATIC(name) \
- 	.section ".text"; \
- 	.align 2 ; \
+ 	int signal = SIGSEGV, code = SEGV_MAPERR;
+diff -puN arch/ia64/lib/flush.S~kprobes-exclude-functions-ia64 arch/ia64/lib/flush.S
+--- linux-2.6.13-rc1-mm1/arch/ia64/lib/flush.S~kprobes-exclude-functions-ia64	2005-07-07 11:19:05.000000000 +0530
++++ linux-2.6.13-rc1-mm1-prasanna/arch/ia64/lib/flush.S	2005-07-07 11:20:23.000000000 +0530
+@@ -12,6 +12,7 @@
+ 	 *	Must flush range from start to end-1 but nothing else (need to
+ 	 *	be careful not to touch addresses that may be unmapped).
+ 	 */
++	.section .kprobes.text
+ GLOBAL_ENTRY(flush_icache_range)
+ 	.prologue
+ 	alloc r2=ar.pfs,2,0,0,0
+diff -puN include/asm-ia64/asmmacro.h~kprobes-exclude-functions-ia64 include/asm-ia64/asmmacro.h
 
 _
 -- 

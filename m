@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVGGQKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVGGQPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVGGQKO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 12:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVGGQKO
+	id S261325AbVGGQPK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 12:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVGGQPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 12:10:14 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:42668 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261319AbVGGQKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 12:10:12 -0400
-Date: Thu, 7 Jul 2005 12:10:05 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-45
-In-Reply-To: <Pine.LNX.4.58.0507071139220.12711@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0507071205080.12711@localhost.localdomain>
-References: <200506301952.22022.annabellesgarden@yahoo.de> <20050630205029.GB1824@elte.hu>
- <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu>
- <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <20050703140432.GA19074@elte.hu>
- <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507051155050.13165@echo.lysdexia.org>
- <20050706100451.GA7336@elte.hu> <Pine.LNX.4.58.0507071047540.12711@localhost.localdomain>
- <20050707153103.GA22782@elte.hu> <Pine.LNX.4.58.0507071139220.12711@localhost.localdomain>
+	Thu, 7 Jul 2005 12:15:10 -0400
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:57438 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S261325AbVGGQPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 12:15:07 -0400
+X-IronPort-AV: i="3.93,270,1115017200"; 
+   d="scan'208"; a="293349960:sNHT185170908"
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc2-mm1
+X-Message-Flag: Warning: May contain useful information
+References: <20050707040037.04366e4e.akpm@osdl.org>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Thu, 07 Jul 2005 09:14:58 -0700
+In-Reply-To: <20050707040037.04366e4e.akpm@osdl.org> (Andrew Morton's
+ message of "Thu, 7 Jul 2005 04:00:37 -0700")
+Message-ID: <527jg23859.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 07 Jul 2005 16:15:04.0937 (UTC) FILETIME=[090AAD90:01C5830F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Andrew> - I seem to have quite a bit of material here which is
+    Andrew> appropriate to 2.6.13:
 
-On Thu, 7 Jul 2005, Steven Rostedt wrote:
->
-> Darn subversion! I just started a massive commit, and I can't leave work
-> till it's done. So you still got me here ;-)
+    Andrew>   - infiniband update (the VM changes are awkward, but are localised)
 
-That commit is still going.  I can see why subversion was not used for
-kernel development.
+Glad to hear that you think this is appropriate for 2.6.13.  Let me
+know if there are any code changes or doc updates that would be helpful.
 
-
->
-> On Thu, 7 Jul 2005, Ingo Molnar wrote:
-> >
-> > > Anyway, I also want to let you know that the e100 does not work.  It's
-> > > detected, but it wont bring up DHCP, and when I manually configued it,
-> > > it just froze (the process not the machine). But when I did a sysrq-t,
-> > > the machine froze up after it completed with some RT yeilding bug.
-> > > Here's what was last to spit out:
-> >
-> > is PCI_MSI enabled by any chance? That is known to break level-triggered
-> > IOAPIC irqs and devices.
-> >
->
-> As a matter of fact it is...   I'll turn it off now and try it out.
-> If the commit is still going, I'll get you a response about the result.
->
-
-It did the trick.  I got a network. But I also got a hell of a lot of
-'enqueued dead tasks'. But stupid me forgot to turn on capture in minicom,
-and haven't been able to reproduce the problem. I rebooted the machine
-which blew away all evidence of what occured, and it's now fine. I'll
-reboot a few more times to see if I can get it to break again.
-
--- Steve
-
+Thanks,
+ Roland

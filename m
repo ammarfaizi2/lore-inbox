@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVGGNhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVGGNm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbVGGNhF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 09:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVGGNeq
+	id S261461AbVGGNm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 09:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVGGNkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 09:34:46 -0400
-Received: from nproxy.gmail.com ([64.233.182.205]:36876 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261507AbVGGNcn convert rfc822-to-8bit
+	Thu, 7 Jul 2005 09:40:22 -0400
+Received: from nproxy.gmail.com ([64.233.182.192]:53891 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261495AbVGGNiI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 09:32:43 -0400
+	Thu, 7 Jul 2005 09:38:08 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eoai1aejanoCDV+ANuv9fbK3ldzm7X5u+bhe9r8HDdttuhXiGRw/AJipvSw4RqQW3DBm+5yA8AtKx/hDqaxqPNeZ7+1fELHRf0JX7Us4U0EWqV5npudJOWPX2xUcMQXhhmAq+nqP+/DZxFE47YkBhmmAqcQhuEsypGqxkTqHAo0=
-Message-ID: <84144f0205070706326849b1e@mail.gmail.com>
-Date: Thu, 7 Jul 2005 16:32:40 +0300
+        b=ha/krOXShKa3lqiwFw79j5kR+5xXiXj27W+1oXYyH0mLUnnF93E4QmeFyHypV3VInVT//N24PLoBpdkF2DhiN1fhCzXXpbhmKHaycWTdwdvcSjmTh9SNXOJQlziEKMm/EFqaAs/F6EO8RvUl3+Z0kh7XiOy5pg/WMYEFL73JotE=
+Message-ID: <84144f020507070638393f68d6@mail.gmail.com>
+Date: Thu, 7 Jul 2005 16:38:07 +0300
 From: Pekka Enberg <penberg@gmail.com>
 Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [PATCH] [46/48] Suspend2 2.1.9.8 for 2.6.12: 622-swapwriter.patch
-Cc: linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <11206164442712@foobar.com>
+To: knobi@knobisoft.de
+Subject: Re: Head parking (was: IBM HDAPS things are looking up)
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+In-Reply-To: <20050707131331.12406.qmail@web32602.mail.mud.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <11206164393426@foobar.com> <11206164442712@foobar.com>
+References: <20050707131331.12406.qmail@web32602.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nigel,
+On 7/7/05, Martin Knoblauch <knobi@knobisoft.de> wrote:
+>  Interesting. Same Notebook, same drive. The program say "not parked"
+> :-( This is on FC2 with a pretty much vanilla 2.6.9 kernel.
+> 
+> [root@l15833 tmp]# uname -a
+> Linux l15833 2.6.9-noagp #1 Wed May 4 16:09:14 CEST 2005 i686 i686 i386
+> GNU/Linux
+> [root@l15833 tmp]# hdparm -i /dev/hda
+> 
+> /dev/hda:
+> 
+>  Model=HTS726060M9AT00, FwRev=MH4OA6BA, SerialNo=MRH403M4GS88XB
+>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+>  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+>  BuffType=DualPortCache, BuffSize=7877kB, MaxMultSect=16, MultSect=16
+>  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=117210240
+>  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes:  pio0 pio1 pio2 pio3 pio4
+>  DMA modes:  mdma0 mdma1 mdma2
+>  UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
+>  AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
+>  Drive conforms to: ATA/ATAPI-6 T13 1410D revision 3a:
+> 
+>  * signifies the current active mode
+> 
+> [root@l15833 tmp]# ./park /dev/hda
+> head not parked 4c
+> [root@l15833 tmp]#
 
-> diff -ruNp 623-generic-block-io.patch-old/kernel/power/suspend_block_io.c 623-generic-block-io.patch-new/kernel/power/suspend_block_io.c
-> --- 623-generic-block-io.patch-old/kernel/power/suspend_block_io.c      1970-01-01 10:00:00.000000000 +1000
-> +++ 623-generic-block-io.patch-new/kernel/power/suspend_block_io.c      2005-07-05 23:48:59.000000000 +1000
-> @@ -0,0 +1,817 @@
-> +struct io_info {
-> +       struct bio * sys_struct;
-> +       long block[PAGE_SIZE/512];
+Martin, don't trim the cc!
 
-Aah, but for this you should use block_size(io_info->dev) instead. No
-need to mess with sector sizes. Why is this long by the way?
-PAGE_SIZE/512 is block size in bytes.
+haji ~ # uname -a
+Linux haji 2.6.12 #12 Mon Jun 20 09:39:37 EEST 2005 i686 Intel(R)
+Pentium(R) M processor 2.00GHz GenuineIntel GNU/Linux
 
-> +       struct page * buffer_page;
-> +       struct page * data_page;
-> +       unsigned long flags;
-> +       struct block_device * dev;
-> +       struct list_head list;
-> +       int readahead_index;
-> +       struct work_struct work;
-> +};
+haji ~ # hdparm -i /dev/hda
 
-                                    Pekka
+/dev/hda:
+
+ Model=HTS726060M9AT00, FwRev=MH4OA6DA, SerialNo=MRH453M4H2A6PB
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=7877kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=117210240
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
+ AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-6 T13 1410D revision 3a:
+
+ * signifies the current active mode

@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVGGCfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVGGCfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVGGCfh (ORCPT <rfc822;willy@w.ods.org>);
+	id S262209AbVGGCfh (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Jul 2005 22:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVGFT6c
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVGGCdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:58:32 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:34573 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S262273AbVGFQMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 12:12:48 -0400
-Date: Wed, 6 Jul 2005 09:12:43 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix 2.6.13rc2 compilation without CONFIG_HOTPLUG
-Message-ID: <20050706161243.GB13518@suse.de>
-References: <20050706112354.GE21330@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050706112354.GE21330@wotan.suse.de>
-User-Agent: Mutt/1.5.8i
+	Wed, 6 Jul 2005 22:33:36 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:59145 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S262237AbVGGCcx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 22:32:53 -0400
+Message-ID: <42CC9469.9000001@slaphack.com>
+Date: Wed, 06 Jul 2005 21:33:13 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hubert Chan <hubert@uhoreg.ca>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jonathan Briggs <jbriggs@esoft.com>,
+       "Alexander G. M. Smith" <agmsmith@rogers.com>, ross.biro@gmail.com,
+       mrmacman_g4@mac.com, Valdis.Kletnieks@vt.edu, ltd@cisco.com,
+       gmaxwell@gmail.com, jgarzik@pobox.com, hch@infradead.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       zam@namesys.com, vs@thebsh.namesys.com, ndiller@namesys.com,
+       vitaly@thebsh.namesys.com
+Subject: Re: reiser4 plugins
+References: <hubert@uhoreg.ca>	<200507062033.j66KXNqM008212@laptop11.inf.utfsm.cl> <87ackzei41.fsf@evinrude.uhoreg.ca>
+In-Reply-To: <87ackzei41.fsf@evinrude.uhoreg.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 06, 2005 at 01:23:54PM +0200, Andi Kleen wrote:
+Hubert Chan wrote:
+> On Wed, 06 Jul 2005 16:33:23 -0400, Horst von Brand <vonbrand@inf.utfsm.cl> said:
 > 
-> Otherwise PCI won't compile.
 > 
-> Signed-off-by: Andi Kleen <ak@suse.de>
+>>Hubert Chan <hubert@uhoreg.ca> wrote:
+>>
+>>>If you can store the parents, then finding cycles (relatively)
+>>>quickly is pretty easy: before you try to make A the parent of B,
+>>>walk up the parent pointers starting from A.  If you ever reach B,
+>>>you have a cycle.  If not, you don't have a cycle.  (Hmmm.  Do I need
+>>>a proof of correctness for this?  It's just depth-first-search, which
+>>>everybody learned in their first algorithms course.)
+> 
+> 
+>>Correct. And you need space for potentially a huge lot of up pointers
+>>for each file.
+> 
+> 
+> People (that I know of) don't normally have a huge lot of hardlinks to a
+> single file.
 
-No, I like this patch better, it's cleaner and is what I intended the
-code to be.  I've already sent it to Linus and the list.
+And speaking of which, the only doomsday scenario (running out of RAM) 
+that I can think of with this scheme is if we have a ton of hardlinks to 
+the same file and we try to move one of them.  But this scales linearly 
+with the number of hardlinks, I think.  Maybe not quite, but certainly 
+not exponentially.
 
-thanks,
+The only other doomsday scenario is if we have a ludicrously deep tree.
 
-greg k-h
+To make this work in real usage, not DOS testing, we really need both of 
+those, and even then I'm not sure it can work.  What's the maximum 
+number of hardlinks supported to a single file?  What's the maximum tree 
+depth?  Can these be limited to prevent actual DOS attempts?
 
-
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/pci/pci-driver.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
---- gregkh-2.6.orig/drivers/pci/pci-driver.c	2005-07-06 01:03:26.000000000 -0700
-+++ gregkh-2.6/drivers/pci/pci-driver.c	2005-07-06 09:07:09.000000000 -0700
-@@ -17,13 +17,13 @@
-  * Dynamic device IDs are disabled for !CONFIG_HOTPLUG
-  */
- 
--#ifdef CONFIG_HOTPLUG
--
- struct pci_dynid {
- 	struct list_head node;
- 	struct pci_device_id id;
- };
- 
-+#ifdef CONFIG_HOTPLUG
-+
- /**
-  * store_new_id
-  *
+Now, if we were to ever actually *create* a cycle, then yes, we might 
+end up traversing the whole tree to delete it, possibly running out of 
+RAM.  But we don't ever actually create cycles except if we were to have 
+corruption, which could as easily create cycles in any other FS.

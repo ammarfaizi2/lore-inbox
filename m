@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVGGPDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVGGPDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVGGPDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 11:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVGGO6y
+	id S261469AbVGGPDY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 11:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVGGPBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 10:58:54 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:53275 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261437AbVGGO5C convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 10:57:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=A+vMJ+D9hWzSpdtqBxM+oxLP0wBzaaaDVjGnPxmVBWaX3j62lfjAbbVaZS39gzIyS5wKvs4xBGMMaxFyw87u2mnrik4R8wJJaCqkimj5n/0jmLhrN9hkbtXlTCgvEczro/bhDMczl3nG/hRNCRKbzoD2NGCA49KlFPpNiHrAKZc=
-Message-ID: <a44ae5cd0507070756241dbea1@mail.gmail.com>
-Date: Thu, 7 Jul 2005 07:56:58 -0700
-From: Miles Lane <miles.lane@gmail.com>
-Reply-To: Miles Lane <miles.lane@gmail.com>
-To: Dave Airlie <airlied@gmail.com>
-Subject: Re: OOPS in 2.6.13-rc1-mm1 -- EIP is at sysfs_release+0x49/0xb0
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <21d7e9970507070331107831c6@mail.gmail.com>
+	Thu, 7 Jul 2005 11:01:02 -0400
+Received: from main.gmane.org ([80.91.229.2]:21205 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261369AbVGGPA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 11:00:28 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Dan Christensen <jdc@uwo.ca>
+Subject: Re: Head parking (was: IBM HDAPS things are looking up)
+Date: Thu, 07 Jul 2005 10:45:07 -0400
+Message-ID: <871x6ay8ss.fsf@uwo.ca>
+References: <20050707131331.12406.qmail@web32602.mail.mud.yahoo.com>
+	<84144f020507070638393f68d6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <a44ae5cd05070301417531fac2@mail.gmail.com>
-	 <21d7e9970507070331107831c6@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dyn129-100-6-14.onemeg.uwo.ca
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+Cancel-Lock: sha1:hdVvVjVmitq4IKdeUM8qeP5aHIM=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm, in my Xorg log I find this:
+# ./park /dev/hda
+head not parked 4c
 
-(II) I810(0): [drm] created "i915" driver at busid "pci:0000:00:02.0"
-(WW) I810(0): i830 Kernel module detected, Use the i915 Kernel module
-instead, aborting DRI init.
+# hdparm -i /dev/hda
 
-(II) I810(0): [drm] DRM interface version 1.2
-(II) I810(0): [drm] created "i915" driver at busid "pci:0000:00:02.0"
-(II) I810(0): [drm] added 8192 byte SAREA at 0xf916e000
-(II) I810(0): [drm] mapped SAREA 0xf916e000 to 0xb7d38000
-(II) I810(0): [drm] framebuffer handle = 0xe8020000
-(II) I810(0): [drm] added 1 reserved context for kernel
-(II) I810(0): [drm] removed 1 reserved context for kernel
-(II) I810(0): [drm] unmapping 8192 bytes of SAREA 0xf916e000 at 0xb7d38000
+/dev/hda:
 
+ Model=HTS548040M9AT00, FwRev=MG2OA53A, SerialNo=MRL252L2JU2JYB
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=7877kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=78140160
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4 
+ DMA modes:  mdma0 mdma1 mdma2 
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5 
+ AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-6 T13 1410D revision 3a: 
 
+ * signifies the current active mode
 
+Dan
 
-On 7/7/05, Dave Airlie <airlied@gmail.com> wrote:
-> On 7/3/05, Miles Lane <miles.lane@gmail.com> wrote:
-> > mtrr: base(0xe8020000) is not aligned on a size(0x3c0000) boundary
-> > [drm:drm_unlock] *ERROR* Process 4470 using kernel context 0
-> > mtrr: 0xe8000000,0x8000000 overlaps existing 0xe8000000,0x1000000
-> > Unable to handle kernel paging request at virtual address 5f78735f
-> 
-> That is a bit suspicious.. what distro/X are you using? if you are
-> running a newer X (I think anything after XFree86 4.3) you should be
-> using the i915 DRM not the i830..
-> 
-> Dave.
->

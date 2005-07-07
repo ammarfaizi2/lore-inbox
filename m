@@ -1,187 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVGGOxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVGGNW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVGGOxi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 10:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVGGOxe
+	id S261475AbVGGNW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 09:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVGGNHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 10:53:34 -0400
-Received: from [205.233.219.253] ([205.233.219.253]:36057 "EHLO
-	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
-	id S261487AbVGGOws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 10:52:48 -0400
-Date: Thu, 7 Jul 2005 10:45:13 -0400
-From: Jody McIntyre <scjody@modernduck.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/ieee1394/: schedule unused EXPORT_SYMBOL's for removal (fwd)
-Message-ID: <20050707144513.GG10001@conscoop.ottawa.on.ca>
-References: <20050703232405.GR5346@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050703232405.GR5346@stusta.de>
-User-Agent: Mutt/1.5.9i
+	Thu, 7 Jul 2005 09:07:10 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:30301 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S261478AbVGGNFd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 09:05:33 -0400
+Message-ID: <42CD289B.5080403@tls.msk.ru>
+Date: Thu, 07 Jul 2005 17:05:31 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-os@analogic.com
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sent an invalid ICMP type 11, code 0 error to a broadcast: 0.0.0.0
+ on lo?
+References: <42CBCEDD.2020401@tls.msk.ru> <Pine.LNX.4.61.0507061319440.5241@chaos.analogic.com> <42CD1860.1030804@tls.msk.ru> <Pine.LNX.4.61.0507070801080.9558@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0507070801080.9558@chaos.analogic.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 04, 2005 at 01:24:05AM +0200, Adrian Bunk wrote:
-> This patch I sent on 13 May 2005 is still not in Linus' tree, and now 
-> it's July.
+Richard B. Johnson wrote:
+[]
+> If you ping an IP address on your computer, the traffic will go
+> through lo. However, I think that the IP address shown is
+> the result of an instrumentation error because it is impossible
+> to put, for instance your 192.168.1.1, through a 127.0.0.0 network,
+> the ONLY route through lo. This shows that 'local' traffic bypasses
+> the lo route filtering altogether. You can verify this by
+> deleting the lo route altogether, you can still ping the local
+> addresses.
 
-Sorry, I missed the original thread.  Feel free to CC me in future.
+Hmm.  I can't parse this. ;)
+Well, I can bring loopback down, but in this case I can't even
+ping my local IP addresses anymore, ping reports 'Invalid argument'
+error (there's only one route left after deleting lo on my test
+machine - 192.168.1.0/24).
 
-> What shall I do?
-> - resend this patch with the removal date set to August or
+> Somebody else mentioned that lo was 'perfectly happy' to
+> carry whatever. The fact that something bogus appears on
+> lo can be a sign of a misconfiguration error, just as
+> the reserved 127.0.0.0 network must never appear on ethernet.
 
-That should be fine.  I'll watch for it this time.  August isn't much
-time though; isn't the "standard" 6 months to a year?
+I'm not denying it may be some misconfiguration.  The problem
+is that I don't see what/where it is.  All the stuff looks pretty
+normal.
 
-Cheers,
-Jody
+> In the case of 0.0.0.0 (a possible broadcast), there is
+> no "local" address that could cause a bypass via lo. Instead,
+> any such traffic should have been on the ethernet wire. This
+> shows the possible configuration error that I mentioned.
 
-> - send a patch to remove these symbols
-> 
-> cu
-> Adrian
-> 
-> <--  snip  -->
-> 
-> 
-> This patch schedules unused EXPORT_SYMBOL's for removal.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  Documentation/feature-removal-schedule.txt |   21 ++++++++++++++
->  drivers/ieee1394/ieee1394_core.c           |   31 +++++++++++++++++++++
->  2 files changed, 52 insertions(+)
-> 
-> --- linux-2.6.12-rc4-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-05-13 15:19:54.000000000 +0200
-> +++ linux-2.6.12-rc4-mm1-full/Documentation/feature-removal-schedule.txt	2005-05-13 15:29:24.000000000 +0200
-> @@ -93,0 +94,21 @@
-> +
-> +---------------------------
-> +
-> +What:	remove the following ieee1394 EXPORT_SYMBOL's:
-> +	- hpsb_send_phy_config
-> +	- hpsb_send_packet_and_wait
-> +	- highlevel_add_host
-> +	- highlevel_remove_host
-> +	- nodemgr_for_each_host
-> +	- csr1212_create_csr
-> +	- csr1212_init_local_csr
-> +	- csr1212_new_immediate
-> +	- csr1212_associate_keyval
-> +	- csr1212_new_string_descriptor_leaf
-> +	- csr1212_destroy_csr
-> +	- csr1212_generate_csr_image
-> +	- csr1212_parse_csr
-> +When:	July 2005
-> +Files:	drivers/ieee1394/ieee1394_core.c
-> +Why:	No modular usage in the kernel.
-> +Who:	Adrian Bunk <bunk@stusta.de>
-> --- linux-2.6.12-rc4-mm1-full/drivers/ieee1394/ieee1394_core.c.old	2005-05-13 15:19:34.000000000 +0200
-> +++ linux-2.6.12-rc4-mm1-full/drivers/ieee1394/ieee1394_core.c	2005-05-13 15:28:17.000000000 +0200
-> @@ -1226,7 +1226,13 @@
->  EXPORT_SYMBOL(hpsb_alloc_packet);
->  EXPORT_SYMBOL(hpsb_free_packet);
-> +
-> +/* EXPORT_SYMBOL scheduled for removal */
->  EXPORT_SYMBOL(hpsb_send_phy_config);
-> +
->  EXPORT_SYMBOL(hpsb_send_packet);
-> +
-> +/* EXPORT_SYMBOL scheduled for removal */
->  EXPORT_SYMBOL(hpsb_send_packet_and_wait);
-> +
->  EXPORT_SYMBOL(hpsb_reset_bus);
->  EXPORT_SYMBOL(hpsb_bus_reset);
-> @@ -1265,6 +1271,11 @@
->  EXPORT_SYMBOL(hpsb_get_hostinfo_bykey);
->  EXPORT_SYMBOL(hpsb_set_hostinfo);
-> +
-> +/* EXPORT_SYMBOL scheduled for removal */
->  EXPORT_SYMBOL(highlevel_add_host);
-> +
-> +/* EXPORT_SYMBOL scheduled for removal */
->  EXPORT_SYMBOL(highlevel_remove_host);
-> +
->  EXPORT_SYMBOL(highlevel_host_reset);
->  
-> @@ -1275,4 +1286,6 @@
->  EXPORT_SYMBOL(hpsb_unregister_protocol);
->  EXPORT_SYMBOL(ieee1394_bus_type);
-> +
-> +/* EXPORT_SYMBOL scheduled for removal */
->  EXPORT_SYMBOL(nodemgr_for_each_host);
->  
-> @@ -1312,18 +1325,36 @@
->  
->  /** csr1212.c **/
-> +
-> +/* EXPORT_SYMBOLs scheduled for removal */
->  EXPORT_SYMBOL(csr1212_create_csr);
->  EXPORT_SYMBOL(csr1212_init_local_csr);
->  EXPORT_SYMBOL(csr1212_new_immediate);
-> +
->  EXPORT_SYMBOL(csr1212_new_directory);
-> +
-> +/* EXPORT_SYMBOL scheduled for removal */
->  EXPORT_SYMBOL(csr1212_associate_keyval);
-> +
->  EXPORT_SYMBOL(csr1212_attach_keyval_to_directory);
-> +
-> +/* EXPORT_SYMBOL scheduled for removal */
->  EXPORT_SYMBOL(csr1212_new_string_descriptor_leaf);
-> +
->  EXPORT_SYMBOL(csr1212_detach_keyval_from_directory);
->  EXPORT_SYMBOL(csr1212_release_keyval);
-> +
-> +/* EXPORT_SYMBOL scheduled for removal */
->  EXPORT_SYMBOL(csr1212_destroy_csr);
-> +
->  EXPORT_SYMBOL(csr1212_read);
-> +
-> +/* EXPORT_SYMBOL scheduled for removal */
->  EXPORT_SYMBOL(csr1212_generate_csr_image);
-> +
->  EXPORT_SYMBOL(csr1212_parse_keyval);
-> +
-> +/* EXPORT_SYMBOL scheduled for removal */
->  EXPORT_SYMBOL(csr1212_parse_csr);
-> +
->  EXPORT_SYMBOL(_csr1212_read_keyval);
->  EXPORT_SYMBOL(_csr1212_destroy_keyval);
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> ----- End forwarded message -----
-> 
-> cu
-> Adrian
-> 
-> -- 
-> 
->        "Is there not promise of rain?" Ling Tan asked suddenly out
->         of the darkness. There had been need of rain for many days.
->        "Only a promise," Lao Er said.
->                                        Pearl S. Buck - Dragon Seed
-> 
-> 
-> 
-> -------------------------------------------------------
-> SF.Net email is sponsored by: Discover Easy Linux Migration Strategies
-> from IBM. Find simple to follow Roadmaps, straightforward articles,
-> informative Webcasts and more! Get everything you need to get up to
-> speed, fast. http://ads.osdn.com/?ad_id=7477&alloc_id=16492&op=click
-> _______________________________________________
-> mailing list linux1394-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linux1394-devel
+Again, I don't understand what do you mean.  The message
+in $subj says that something *on this box* sent that bogus
+ICMP packet, with source address on this same box.  It may
+be a reply to bogus packet sent with src=0.0.0.0 somehow,
+or maybe not.  Maybe the host is trying to reply to a packet
+sent to one of its local IPs -- eg, imagine I send packet
+with src=0.0.0.0 to another host to non-listening port
+(rp_filter should be activated in that case I think, but
+IF that packet comes from the interface where the default
+route goes, rp_filter may not trigger) - and kernel is trying
+to send an ICMP reply... back to 0.0.0.0...
 
--- 
+Even that does not explain everything still.  My 'default route'
+interface - the one which goes to my ISP - I doubt it's possible
+from the ISP side to send a packet destined to 192.168.4.2 so
+that the packet will come to us - unless their routing is hosed.
+
+The problem is, I can't see what is causing this misconfiguration
+or whatever.  I wasn't able to capture such a packet so far either --
+it never happened while tcpdump was running.
+
+ Note the local IP address mentioned is different, I've
+seen 3 so far, all 3 are local on this box and are on 3
+different (ethernet) interfaces (but the ICMP always comes
+from lo).
+
+> 
+>> 1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue
+>>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+> 
+>                     ^^^^^^^^^^^^^^^^
+> 
+>>    inet 127.0.0.1/8 scope host lo
+> 
+> 
+> This looks as though there is no netmask set. My configuration
+> shows:
+
+The netmask is perfect - it's 127.255.255.255.  The thing you
+quoted is *ethernet* address, not IP address - and for loopback,
+it's ok to have that as all-zeros.
+
+> lo        Link encap:Local Loopback
+>           inet addr:127.0.0.1  Mask:255.0.0.0
+>           inet6 addr: ::1/128 Scope:Host
+>           UP LOOPBACK RUNNING  MTU:16436  Metric:1
+> 
+> This is a possible configuration error.
+
+Here's how ifconfig shows my interface:
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+
+The above output is from `ip addr'.
+
+/mjt

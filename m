@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVGGSpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVGGSqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVGGSpl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 14:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVGGSpl
+	id S261578AbVGGSqu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 14:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVGGSqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 14:45:41 -0400
-Received: from web32605.mail.mud.yahoo.com ([68.142.207.232]:19108 "HELO
-	web32605.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261552AbVGGSpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 14:45:39 -0400
-Message-ID: <20050707184538.15647.qmail@web32605.mail.mud.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Thu, 7 Jul 2005 11:45:38 -0700 (PDT)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: [Hdaps-devel] RE: Head parking (was: IBM HDAPS things are looking up)
-To: Dave Hansen <dave@sr71.net>
-Cc: abonilla@linuxwireless.org, "'Pekka Enberg'" <penberg@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de,
-       "'Pekka Enberg'" <penberg@cs.helsinki.fi>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>
-In-Reply-To: <1120757693.5829.34.camel@localhost>
+	Thu, 7 Jul 2005 14:46:50 -0400
+Received: from tantale.fifi.org ([64.81.251.130]:6789 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S261578AbVGGSqp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 14:46:45 -0400
+To: Sheo Shanker Prasad <ssp@creativeresearch.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Disturbing wide variation in execution time
+References: <200507062344.53615.ssp@creativeresearch.org>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 07 Jul 2005 11:46:38 -0700
+In-Reply-To: <200507062344.53615.ssp@creativeresearch.org>
+Message-ID: <87oe9eo3n5.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Dave Hansen <dave@sr71.net> wrote:
+Sheo Shanker Prasad <ssp@creativeresearch.org> writes:
 
-> On Thu, 2005-07-07 at 10:14 -0700, Martin Knoblauch wrote:
-> >  Basically I saw that the only difference between me and Pekka was
-> the
-> > FW (discounting the different CPU speed and Kernel version). I
-> googled
-> > around and found the IBM FW page at:
-> > 
-> >
->
-http://www-306.ibm.com/pc/support/site.wss/document.do?sitestyle=ibm&lndocid=MIGR-41008
-> > 
-> >  Download is simple, just don't use the "IBM Download Manager".
-> Main
-> > problem is that one needs a bootable floopy drive and "the other
-> OS" to
-> > create a bootable floppy. It would be great if IBM could provide
-> floppy
-> > images for use with "dd" for the poor Linux users.
+> I will appreciate your help in eliminating a disturbing wide
+> variation (by a factors of 2 to 2.5) in the execution time of a test
+> (execution benchmark) program under identical conditions even when
+> the machine is freshly started (rebooted) and no other user program
+> is running (not even e-mail or Internet browser).
 > 
-> Did you really need to make 18 diskettes?
->
-
- yikes - no !! :-) Somewhere on that page there is a table that tells
-you which of the 18 floppies is for your disk. In my case it was #13.
- 
-> I have the feeling that this will work for many T4[012]p? users:
+> I have a dual Opteron 250 (2.4 GHz) running SuSE 9.3 Pro & Linux
+> version 2.6.11.4-21.7-smp (geeko@buildhost) (gcc version 3.3.5
+> 20050117 (prerelease) (SUSE Linux)) #1 SMP Thu Jun 2 14:23:14 UTC
+> 2005. The motherboard is Tyan Thunder K8W (S2885 ANRF) with AMI BIOS
 > 
->
-http://www-307.ibm.com/pc/support/site.wss/document.do?lndocid=TPAD-HDFIRM
+> The machine has 4GB of PC3200 DDR RAM, two dimms on each CPU.
 > 
+> The original machine bought from a vendor about 6 months ago. At
+> that time it was running SuSE 9.1 Pro and the execution time for the
+> same test program was consistently the same (around 2m 37s +/- a few
+> %). Then the mother board failed and the machine went totally
+> dead. The vendor then replaced the failed motherboard with a new
+> Tyan Thunder K8W and installed the SuSE 9.3. I am not sure whether
+> or not the AMI BIOS was also replaced.
+> 
+> When the repaired machine was started, I began to notice the
+> disturbing wide variation and the frequect significant slow down of
+> the machine as exhibited by the factor of 2 to 2.5 increased
+> execution time of the test program as described above.  Sometimes it
+> would be quite fast (executing at the original 2m 40s) and sometime
+> a factor of 2.5 slow, and sometimes with speed in between.
 
- Yeah, I think that is the "DA" version. You still need "the other OS",
-although you don't need the floppy.
+8< snip >8
 
- If IBM would provide a CD image (bootable ISO) containing FW for all
-supported drives - that would be great. No need for the "other OS" any
-more.
+ 1. Are you running an i386 kernel or an x86_64 kernel?
 
-Cheers
-Martin
+ 2. Which BIOS version?
 
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+ 3. Is node interleaving enabled in the BIOS?
+
+Phil.

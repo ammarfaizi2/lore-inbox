@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVGGQRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVGGQW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVGGQRc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 12:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVGGQRc
+	id S261340AbVGGQW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 12:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVGGQWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 12:17:32 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:35019 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261330AbVGGQR2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 12:17:28 -0400
-Message-ID: <42CD5596.5040907@free.fr>
-Date: Thu, 07 Jul 2005 18:17:26 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: fr-fr, en, en-us
+	Thu, 7 Jul 2005 12:22:24 -0400
+Received: from graphe.net ([209.204.138.32]:44206 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261360AbVGGQWA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 12:22:00 -0400
+Date: Thu, 7 Jul 2005 09:21:55 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andi Kleen <ak@suse.de>
+cc: linux-ide@vger.kernel.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [another PATCH] Fix crash on boot in kmalloc_node IDE changes
+In-Reply-To: <20050706133052.GF21330@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0507070912140.27066@graphe.net>
+References: <20050706133052.GF21330@wotan.suse.de>
 MIME-Version: 1.0
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-CC: Jeremy Laine <jeremy.laine@polytechnique.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: OOPS: frequent crashes with bttv in 2.6.X series (inc. 2.6.12)
-References: <1120644686.42cbae4e16ea3@webmail.jerryweb.org>	<200507061859.40565.adobriyan@gmail.com>	<1120724705.42cce6e1e33c3@webmail.jerryweb.org> <42CD4667.9050205@brturbo.com.br>
-In-Reply-To: <42CD4667.9050205@brturbo.com.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 6 Jul 2005, Andi Kleen wrote:
 
-Mauro Carvalho Chehab wrote:
-> Jeremy,
-> 
-> 	BTTV cards uses massive data transfer via DMA when you are watching TV,
-> transfering one screen every 1/30 s. Maybe you are suffering from a
-> trouble on your motherboard or at board physical connection.
-> 
-I had (have ?) similar problem with a bt878 :
-if I use bttv orverlay and do disk IO (a `grep toto /usr' for example), 
-there quickly RISC corruption message and my log and also ext3 
-corruption (that's why except for recovering epg data, I don't use 
-anymore my card).
-There were a similar report were someone and mozilla corruption when 
-watching tv.
+> Without this patch a dual Xeon EM64T machine would oops on boot
+> because the hwif pointer here was NULL. I also added a check for
+> pci_dev because it's doubtful that all IDE devices have pci_devs.
 
+Here is IMHO the right way to fix this. Test for the hwif != NULL and
+test for pci_dev != NULL before determining the node number of the pci 
+bus that the device is connected to. Maybe we need a hwif_to_node for ide 
+drivers that is also able to determine the locality of other hardware?
 
-When using gradisplay, I don't saw faillure, but I don't try for a long 
-time.
+Signed-off-by: Christoph Lameter <christoph@lameter.com>
 
-Jeremy do you use overlay or gradisplay ?
-
-Matthieu
+Index: linux-2.6.git/drivers/ide/ide-probe.c
+===================================================================
+--- linux-2.6.git.orig/drivers/ide/ide-probe.c	2005-06-23 11:38:02.000000000 -0700
++++ linux-2.6.git/drivers/ide/ide-probe.c	2005-07-07 09:15:04.000000000 -0700
+@@ -979,7 +979,8 @@
+ 	 */
+ 
+ 	q = blk_init_queue_node(do_ide_request, &ide_lock,
+-				pcibus_to_node(drive->hwif->pci_dev->bus));
++				(drive->hwif && drive->hwif->pci_dev) ?
++				pcibus_to_node(drive->hwif->pci_dev->bus): -1);
+ 	if (!q)
+ 		return 1;
+ 
+@@ -1097,7 +1098,8 @@
+ 		spin_unlock_irq(&ide_lock);
+ 	} else {
+ 		hwgroup = kmalloc_node(sizeof(ide_hwgroup_t), GFP_KERNEL,
+-			pcibus_to_node(hwif->drives[0].hwif->pci_dev->bus));
++			(hwif->drives[0].hwif && hwif->drives[0].hwif->pci_dev) ?
++			pcibus_to_node(hwif->drives[0].hwif->pci_dev->bus) : -1);
+ 		if (!hwgroup)
+ 	       		goto out_up;
+ 

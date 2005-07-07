@@ -1,35 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVGGMoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVGGMqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVGGMoT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 08:44:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVGGMmh
+	id S261303AbVGGMqd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 08:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVGGMoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 08:42:37 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:50596 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S261419AbVGGMkF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 08:40:05 -0400
-Message-ID: <ad5c01c582ef$61ac6957$4186547b@hotmail.com>
-From: Uncle Den <UncleDan@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 
-Date: Thu, 07 Jul 2005 12:28:41 +0000
-MIME-Version: 1.0
-Content-Type: text/plain;
-    format=flowed;
-    charset="iso-8859-1";
-    reply-type=original
+	Thu, 7 Jul 2005 08:44:23 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:1958
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261297AbVGGMnW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 08:43:22 -0400
+Subject: Re: Thread_Id
+From: Benedikt Spranger <b.spranger@linutronix.de>
+To: rvk@prodmail.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42CA79DE.9060701@prodmail.net>
+References: <20050723150209.GA15055@krispykreme>
+	 <42CA79DE.9060701@prodmail.net>
+Content-Type: text/plain
+Date: Thu, 07 Jul 2005 14:43:21 +0200
+Message-Id: <1120740201.4988.53.camel@atlas.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express V6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
+> Can anyone suggest me how to get the threadId using 2.6.x kernels. 
+> pthread_self() does not work and returns some -ve integer.
 
-Glad to hear from you!
+Let me guess: You are looking for get_tid() :-)
 
-Bye
+Bene
 

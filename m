@@ -1,47 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVGGHnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVGGICP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbVGGHnO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 03:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVGGHnN
+	id S261213AbVGGICP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 04:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVGGICO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 03:43:13 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:9139 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261234AbVGGHnM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 03:43:12 -0400
-References: <20050707071357.99494.qmail@web81304.mail.yahoo.com>
-In-Reply-To: <20050707071357.99494.qmail@web81304.mail.yahoo.com>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Mark Gross <mgross@linux.intel.com>, Willy Tarreau <willy@w.ods.org>,
-       Pekka Enberg <penberg@gmail.com>,
-       "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "Lorenzini, Mario" <mario.lorenzini@ca.kontron.com>
-Subject: Re: Patch of a new driver for kernel 2.4.x that need review
-Date: Thu, 07 Jul 2005 10:43:11 +0300
+	Thu, 7 Jul 2005 04:02:14 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:13477 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261213AbVGGICM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 04:02:12 -0400
+Date: Thu, 7 Jul 2005 10:03:23 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lenz Grimmer <lenz@grimmer.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Dave Hansen <dave@sr71.net>,
+       hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
+Message-ID: <20050707080323.GF1823@suse.de>
+References: <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de> <42C8C978.4030409@linuxwireless.org> <20050704063741.GC1444@suse.de> <1120461401.3174.10.camel@laptopd505.fenrus.org> <20050704072231.GG1444@suse.de> <1120462037.3174.25.camel@laptopd505.fenrus.org> <20050704073031.GI1444@suse.de> <42C91073.80900@grimmer.com> <20050704110604.GL1444@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.42CCDD0F.0000483E@courier.cs.helsinki.fi>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050704110604.GL1444@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dmitry, 
-
-Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
-> > Fair enough, "static const int" would work here too. Defines should be 
-> > avoided because they allow you to override a value without ever noticing it.
-
-Dmitry Torokhov writes:
-> Would not this cause compiler to allocate memory for the constant?
-> I suppose if GCC is really good it could eliminate allocation since
-> nothing takes its address, but I am not sure. 
+On Mon, Jul 04 2005, Jens Axboe wrote:
+> On Mon, Jul 04 2005, Lenz Grimmer wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > Hi,
+> > 
+> > Jens Axboe wrote:
+> > 
+> > > It isn't too pretty to rely on such unreliable timing anyways. I'm 
+> > > not too crazy about spinning the disk down either, it's useless wear 
+> > > compared to just parking the head.
+> > 
+> > Fully agreed, and that's the approach the IBM Windows driver seems to
+> > take - you just hear the disk park its head when the sensor kicks in
+> > (you can hear it) - the disk does not spin down when this happens.
+> > 
+> > Could this be some reserved ATA command that only works with certain#
+> > drives?
 > 
-> With #define you can be sure that it is just a constant expression.
+> Perhaps the IDLE or IDLEIMMEDIATE commands imply a head parking, that
+> would make sense. As you say, you can hear a drive parking its head.
+> Here's a test case, it doesn't sound like it's parking the hard here.
 
-Constant propagation pass will eliminate the allocation. I checked GCC 3.3.5 
-and does this with -O1. 
+ATA7 defines a park maneuvre, I don't know how well supported it is yet
+though. You can test with this little app, if it says 'head parked' it
+works. If not, it has just idled the drive.
 
-                Pekka 
+
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <linux/hdreg.h>
+
+int main(int argc, char *argv[])
+{
+	unsigned char buf[8];
+	int fd;
+
+	if (argc < 2) {
+		printf("%s <dev>\n", argv[0]);
+		return 1;
+	}
+
+	fd = open(argv[1], O_RDONLY);
+	if (fd == -1) {
+		perror("open");
+		return 1;
+	}
+
+	memset(buf, 0, sizeof(buf));
+	buf[0] = 0xe1;
+	buf[1] = 0x44;
+	buf[3] = 0x4c;
+	buf[4] = 0x4e;
+	buf[5] = 0x55;
+
+	if (ioctl(fd, HDIO_DRIVE_TASK, buf)) {
+		perror("ioctl");
+		return 1;
+	}
+
+	if (buf[3] == 0xc4)
+		printf("head parked\n");
+	else
+		printf("head not parked %x\n", buf[3]);
+
+	close(fd);
+	return 0;
+}
+
+-- 
+Jens Axboe
 

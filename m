@@ -1,122 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVGGVta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbVGGVyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbVGGVta (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 17:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVGGVry
+	id S262166AbVGGVyF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 17:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVGGVwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 17:47:54 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:34607 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261283AbVGGVpY (ORCPT
+	Thu, 7 Jul 2005 17:52:10 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:1989 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261344AbVGGVvf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 17:45:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=VidGkCBIBPdy1ETfDgY2jIMgaFNeK1glTGxNBEuUub9JPy2M2OSJoopg1XcyRnQcxXPB2kXks/3jhH9U3HXW+LiljRRoCOZmKdNS6O8w4+QHaJcdztVBSH9fROCSMKQFpm4Bsw1BGW8F+dupDtsBh/r1XpK0KOvzOOjUQBIJDn4=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Victor <andrew@sanpeople.com>
-Subject: Re: [RFC] Atmel-supplied hardware headers for AT91RM9200 SoC processor
-Date: Fri, 8 Jul 2005 01:52:03 +0400
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
-References: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
-In-Reply-To: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Jul 2005 17:51:35 -0400
+Date: Thu, 7 Jul 2005 23:51:34 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: st3@riseup.net, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+Subject: Re: enhanced intel speedstep feature was Re: speedstep-centrino on dothan
+Message-ID: <20050707215134.GA25660@isilmar.linta.de>
+Mail-Followup-To: st3@riseup.net, Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+References: <20050706112202.33d63d4d@horst.morte.male> <42CC37FD.5040708@tmr.com> <20050706211159.GF27630@redhat.com> <20050706235557.0c122d33@horst.morte.male> <20050707220027.413343d4@horst.morte.male> <20050707200648.GA29142@redhat.com> <20050707222225.5b3113e0@horst.morte.male> <20050707205117.GB10635@digitasaru.net> <20050707210823.GA24774@isilmar.linta.de> <20050707213414.GF16702@digitasaru.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507080152.03976.adobriyan@gmail.com>
+In-Reply-To: <20050707213414.GF16702@digitasaru.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 July 2005 13:58, Andrew Victor wrote:
-> If the AT91RM9200+Linux community had to convert all the headers, bugs
-> may be introduced in the conversion process and we would have to assume
-> any maintenance responsibility.  What we have now may be slightly ugly,
-> but it is atleast known to be correct.
-> I've appended two of their headers as an example - the System
-> peripherals (timer, interrupt controller, etc) and Ethernet.
+On Thu, Jul 07, 2005 at 04:34:14PM -0500, Joseph Pingenot wrote:
+> >From Dominik Brodowski on Thursday, 07 July, 2005:
+> >On Thu, Jul 07, 2005 at 03:51:17PM -0500, Joseph Pingenot wrote:
+> >> >Just a latest question: can be p4-clockmod used together with
+> >> >speedstep-centrino? If not, would it make any sense to patch
+> >> >speedstep-centrino to use this feature too?
+> >> I'm a little confused.  How is this different from the ACPI CPU throttling
+> >>   states (/proc/acpi/processor/CPUn/limit to set, throttling to see all
+> >>   T-states available)?
+> >T-states _tend_ to be utilized using chipset logic, while p4-clockmod is
+> >done in-CPU.
+> >> On my 1.5-year-old Pentium-M, frequency scaling and T-states are different
+> >>   beasties, and act entirely differently.  I'm currently in the process of
+> >>   rewriting my governor's brain to deal with the two more intelligently.
+> >In your case, I would care about throttling. In very most cases it actually
+> >increases energy consumption, as the state being entered is technically the
+> >same to ACPI C2 (IIRC), so it is only "forced" idling and only useful if
+> >"forced" idling is needed to not need active cooling.
+> 
+> Why would this cause more energy consumption?
 
-> Comments?
+Let's say a specific computing task needs 1s to run at 100% CPU load. The
+CPU consumes 22 W at normal operation, and 7.3 W when in ACPI C2 state which
+is technically equivalent to throttling. [note: these are _real_ values from
+a real datasheet for a real CPU you see in common usage]
 
-Care to get rid of cool *_UART_MAP macros?
+If you're at 0% CPU throttling rate, you need 	22 Ws for this computing task,
+if you're at 25%				24 Ws,
+	  at 50%				29 Ws,
+      and at 75%			that is 44 Ws for this computing task.
 
-For those who didn't bother to download the patch, the snippet is:
+So for any sepcific computing task the energy consumption increases largely.
 
-	#define FOO_UART_MAP                { 4, 1, -1, -1, -1 }
-		...
-	int serial[AT91C_NR_UART] = FOO_UART_MAP;
-			[yes, each one is used in exactly one place]
+But what if the system idle otherwise?
+If the CPU is put into an idle state the other time (e.g. there is no
+other computing task for the CPU to do in a four-second span), it depends on
+the idle state being used: if it is C2, these four seconds mean 44Ws of
+energy being used; if it is C3, the CPU only needs 5.1Ws, so at 0% CPU
+throttling you get 37 Ws; if it is C4, the CPU only needs 0.55Ws, so you
+only get 24 Ws which is much less than the 44Ws you have at 75% throttling.
 
-Obviously, AT91C_NR_UART should be AT91C_NR_UARTS, because it is "the number
-of UART_s_". And "serial" can be renamed to uart_map or something.
+Please note that the weak spot in this calculation is the idle state the
+CPU is forced to when doing idling. My investigations lead to the assumption
+that it is the "Stop Grant" state on CPUs manufactored by Intel, which is
+most often described by the ACPI C2 state ("Stop-Grant state"), while C3 is
+"Deep Sleep State" or "Sleep State", and C4 is "Deeper Sleep State".
 
-You also constantly cast ioremap() return values to unsigned long and cast
-them back to "void __iomem *" back on iounmap()
-
-> +static struct resource *_s1dfb_resource[] = {
-> +       /* order *IS* significant */
-> +       {       /* video mem */
-
-Then rewrite it as
-
-	static struct ... = {
-		[0] = {
-			.name = ...
-			...
-		},
-		[1] = {
-			.name = ...
-			...
-		},
-	}
-
-And check for non-NULL data in at91_add_device_usbh() is useless:
-	at91_add_device_usbh(&carmeva_usbh_data);
-	at91_add_device_usbh(&csb337_usbh_data);
-	at91_add_device_usbh(&csb637_usbh_data);
-	at91_add_device_usbh(&dk_usbh_data);
-	at91_add_device_usbh(&ek_usbh_data);
-
-Same for add_device_eth(), _udc(), _cf(). In at91_add_device_mmc() you got it
-right.
-
-> +static struct file_operations spidev_fops = {
-> +       owner:          THIS_MODULE,
-
-Use C99 initializers. Everywhere.
-
-> +static int __init at91_spidev_init(void)
-> +{
-> +#ifdef CONFIG_DEVFS_FS
-
-It will be removed soon.
-
-at91_wdt_ioctl() isn't __user annotated. Let alone it is ioctl.
-
-> +#define BYTE_SWAP4(x) \
-> +  (((x & 0xFF000000) >> 24) | \
-> +   ((x & 0x00FF0000) >> 8) | \
-> +   ((x & 0x0000FF00) << 8)  | \
-> +   ((x & 0x000000FF) << 24))
-
-It's already somewhere in include/linux/byteorder/
-
-> unsigned* dmabuf = host->buffer;
-
-Space before star, please. Also everywhere.
-
-> +       char* command = kmalloc(2, GFP_KERNEL);
-
-Anyone remembers 1 kmallocated byte?
-
-> --- linux-2.6.13-rc2.orig/include/asm-arm/arch-at91rm9200/AT91RM9200_EMAC.h
-> +++ linux-2.6.13-rc2/include/asm-arm/arch-at91rm9200/AT91RM9200_EMAC.h
-
-> +typedef struct _AT91S_EMAC {
-
-> +} AT91S_EMAC, *AT91PS_EMAC;
-
-Potentially even worse than "PAT91S_EMAC", "AT91S_EMACP" combined. Putting P
-_there_...
+	Dominik

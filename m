@@ -1,31 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVGGVnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVGGVkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVGGVnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 17:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVGGVlB
+	id S261951AbVGGVkr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 17:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVGGVd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 17:41:01 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:55747 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S261916AbVGGVib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 17:38:31 -0400
-Message-ID: <42CDA0D1.7050209@snacksy.com>
-Date: Thu, 07 Jul 2005 23:38:25 +0200
-From: jan malstrom <xanon@snacksy.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc2-mm1
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Jul 2005 17:33:56 -0400
+Received: from coderock.org ([193.77.147.115]:43916 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261781AbVGGVby (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 17:31:54 -0400
+Message-Id: <20050707213123.330139000@homer>
+Date: Thu, 07 Jul 2005 23:31:23 +0200
+From: domen@coderock.org
+To: rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org, Alejandro Andres <fuzzy.alej@gmail.com>,
+       domen@coderock.org
+Subject: [patch 1/1] kernel/module.c use __set_current_state() instead of direct assigment
+Content-Disposition: inline; filename=set_current_state-kernel_module.c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ipw2100 doesnt compile:
-
-net/built-in.o(.text+0x921fc): In function `ieee80211_xmit':
-: undefined reference to `is_broadcast_ether_addr'
+From: aLeJ <fuzzy.alej@gmail.com>
 
 
-jan
+Use of __set_current_state() instead of direct assigment of
+current->state.
+
+Signed-off-by: Alejandro Andres <fuzzy.alej@gmail.com>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+
+---
+ module.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: quilt/kernel/module.c
+===================================================================
+--- quilt.orig/kernel/module.c
++++ quilt/kernel/module.c
+@@ -556,7 +556,7 @@ static void wait_for_zero_refcount(struc
+ 			break;
+ 		schedule();
+ 	}
+-	current->state = TASK_RUNNING;
++	__set_current_state(TASK_RUNNING);
+ 	down(&module_mutex);
+ }
+ 
+
+--

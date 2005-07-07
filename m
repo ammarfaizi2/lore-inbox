@@ -1,78 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVGGQex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVGGQkC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVGGQex (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 12:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVGGQer
+	id S261181AbVGGQkC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 12:40:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVGGQkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 12:34:47 -0400
-Received: from bay103-dav12.bay103.hotmail.com ([65.54.174.84]:3928 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261402AbVGGQdB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 12:33:01 -0400
-Message-ID: <BAY103-DAV12514B3290ED7EEF8A2C78C4D80@phx.gbl>
-X-Originating-IP: [65.54.174.200]
-X-Originating-Email: [jonschindler@hotmail.com]
-From: "Jon Schindler" <jonschindler@hotmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: <linux-kernel@vger.kernel.org>
-References: <BAY20-F42FDD187485A266D3988B6C4D80@phx.gbl> <200507071129.38714.rjw@sisk.pl>
-Subject: Re: Kernel Oops with dual core athlon 64
-Date: Thu, 7 Jul 2005 11:34:22 -0500
+	Thu, 7 Jul 2005 12:40:01 -0400
+Received: from web32605.mail.mud.yahoo.com ([68.142.207.232]:15182 "HELO
+	web32605.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S261181AbVGGQjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 12:39:03 -0400
+Message-ID: <20050707163903.83550.qmail@web32605.mail.mud.yahoo.com>
+X-RocketYMMF: knobi.rm
+Date: Thu, 7 Jul 2005 09:39:02 -0700 (PDT)
+From: Martin Knoblauch <knobi@knobisoft.de>
+Reply-To: knobi@knobisoft.de
+Subject: Re: Head parking (was: IBM HDAPS things are looking up)
+To: Pekka Enberg <penberg@gmail.com>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+In-Reply-To: <84144f020507070638393f68d6@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="utf-8";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-OriginalArrivalTime: 07 Jul 2005 16:33:00.0518 (UTC) FILETIME=[8A235060:01C58311]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, I'll recompile tonight and let you know if I still experience any 
-issues.
+--- Pekka Enberg <penberg@gmail.com> wrote:
 
-Jon
------ Original Message ----- 
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: "Jon Schindler" <jonschindler@hotmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, July 07, 2005 4:29 AM
-Subject: Re: Kernel Oops with dual core athlon 64
-
-
-> Hi,
->
-> On Thursday, 7 of July 2005 07:58, Jon Schindler wrote:
->> The dmesg is below.  After I get this Oops, I am unable to use my (PS/2)
->> keyboard, and had to ssh to my machine in order to save a copy of dmesg
->> before rebooting the machine.  I've seen a couple of other users of dual
->> core machings having this problem.  The suggestion so far has been to 
->> remove
->> the binary nvidia driver and repoducde the bug.  So, I went ahead and
->> removed the nvidia driver and used the deprecated nv driver that comes 
->> with
->> X11 and I still have this issue.  Does anyone have any ideas what might 
->> be
->> causing this?  Thanks in advance for the help.  I don't know my way 
->> around
->> the kernel, but I do have experience with C and should be able to apply 
->> any
->> SMP patches if you want me to test it
->
-> It seems to be a cpufreq issue.  You can try to apply the attached patch 
-> from
-> Mark Langsdorf.
->
-> Greets,
-> Rafael
->
->
-> -- 
-> - Would you tell me, please, which way I ought to go from here?
-> - That depends a good deal on where you want to get to.
-> -- Lewis Carroll "Alice's Adventures in Wonderland"
+> On 7/7/05, Martin Knoblauch <knobi@knobisoft.de> wrote:
+> >  Interesting. Same Notebook, same drive. The program say "not
+> parked"
+> > :-( This is on FC2 with a pretty much vanilla 2.6.9 kernel.
+> > 
+> > [root@l15833 tmp]# hdparm -i /dev/hda
+> > 
+> > /dev/hda:
+> > 
+> >  Model=HTS726060M9AT00, FwRev=MH4OA6BA, SerialNo=MRH403M4GS88XB
 > 
+> haji ~ # hdparm -i /dev/hda
+> 
+> /dev/hda:
+> 
+>  Model=HTS726060M9AT00, FwRev=MH4OA6DA, SerialNo=MRH453M4H2A6PB
+
+ OK, different FW levels. After upgrading my disk to MH40A6GA my head
+parks :-) Minimum required level for this disk seems to be A6DA. Hope
+this info is useful. 
+
+[root@l15833 tmp]# hdparm -i /dev/hda
+
+/dev/hda:
+
+ Model=HTS726060M9AT00, FwRev=MH4OA6GA, SerialNo=MRH403M4GS88XB
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=7877kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=117210240
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
+ AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-6 T13 1410D revision 3a:
+
+ * signifies the current active mode
+
+[root@l15833 tmp]# ./park /dev/hda
+head parked
+[root@l15833 tmp]#
+
+
+Cheers
+Martin
+
+------------------------------------------------------
+Martin Knoblauch
+email: k n o b i AT knobisoft DOT de
+www:   http://www.knobisoft.de

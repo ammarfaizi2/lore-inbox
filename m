@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVGGRi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVGGRc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261523AbVGGRi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 13:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVGGRfd
+	id S261466AbVGGRc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 13:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVGGR20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 13:35:33 -0400
-Received: from blackbird.sr71.net ([64.146.134.44]:64386 "EHLO
-	blackbird.sr71.net") by vger.kernel.org with ESMTP id S261538AbVGGRez
+	Thu, 7 Jul 2005 13:28:26 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:53419 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261513AbVGGR2M convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 13:34:55 -0400
-Subject: Re: [Hdaps-devel] RE: Head parking (was: IBM HDAPS things are
-	looking up)
-From: Dave Hansen <dave@sr71.net>
-To: knobi@knobisoft.de
-Cc: abonilla@linuxwireless.org, "'Pekka Enberg'" <penberg@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de,
-       "'Pekka Enberg'" <penberg@cs.helsinki.fi>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>
-In-Reply-To: <20050707171434.90546.qmail@web32604.mail.mud.yahoo.com>
-References: <20050707171434.90546.qmail@web32604.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 07 Jul 2005 10:34:53 -0700
-Message-Id: <1120757693.5829.34.camel@localhost>
+	Thu, 7 Jul 2005 13:28:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=fH3pLYy0SghW5FKYg/xtlwarXcMi9FW+FWG84LUxnta5mOggs8trgwjXzQrwELZZwBm0Ya2jWTZFM3zrGOC7TmA+qrVIx1Iwptedx2jm/GjGgZqrG/kGV6Ij27G6CObzdB1pJFe1C/gyiKBoAUP625114pEO/IBKHi4foRktDQ0=
+Message-ID: <f0655b9a0507071028209af86e@mail.gmail.com>
+Date: Thu, 7 Jul 2005 12:28:09 -0500
+From: Sizhao Yang <zaoyang@gmail.com>
+Reply-To: Sizhao Yang <zaoyang@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ASPLOV miss ratio porting to planet labs kernel
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-07 at 10:14 -0700, Martin Knoblauch wrote:
->  Basically I saw that the only difference between me and Pekka was the
-> FW (discounting the different CPU speed and Kernel version). I googled
-> around and found the IBM FW page at:
-> 
-> http://www-306.ibm.com/pc/support/site.wss/document.do?sitestyle=ibm&lndocid=MIGR-41008
-> 
->  Download is simple, just don't use the "IBM Download Manager". Main
-> problem is that one needs a bootable floopy drive and "the other OS" to
-> create a bootable floppy. It would be great if IBM could provide floppy
-> images for use with "dd" for the poor Linux users.
+Hi all,
 
-Did you really need to make 18 diskettes?
+I was wondering if someone could help me with this.  I'm porting an
+ASPLOV paper miss ratio curve from 2.4.20 2.6.11.6 and eventually to
+Planet Labs kernel.  It's a novel idea for memory management.  In
+porting I at run time I'm consistently hitting kernel bugs at four
+different places bad_page, bad_range, in rmap.c
+BUG(page_mapcount(page)< 0), and failing at apm_do_idle.  All of these
+functions except apm_do_idle seem to be new functions from 2.4.20 to
+2.6.11.6.  I'm pretty sure I'm forgetting to account for certain
+things when modifying the pages, but I'm not sure where.
 
-I have the feeling that this will work for many T4[012]p? users:
+What I'm doing in the port is resetting protection bits so that when
+it page faults.  It will calculate a miss ratio based on the number of
+accessed bits and other information.  After I gather the information I
+will reset the accessed bits.  Then based on previous miss ratios and
+current miss ratio it will give out memory to different processes
+based on that.  That's the general idea.  For more specifics:
 
-http://www-307.ibm.com/pc/support/site.wss/document.do?lndocid=TPAD-HDFIRM
+http://carmen.cs.uiuc.edu/paper/ASPLOS04-Zhou.pdf
 
--- Dave
+I've narrowed it down to primarily when I call the following functions:
+ptep_test_and_clear_young,
+static inline pte_t pte_mknominor(pte_t pte) { (pte).pte_low &=
+~_PAGE_PROTNONE; return pte; }
+static inline pte_t pte_mkminor(pte_t pte) { (pte).pte_low |=
+_PAGE_PROTNONE; return pte; }
+static inline pte_t pte_mkpresent(pte_t pte) { (pte).pte_low |=
+_PAGE_PRESENT; return pte; }
+static inline pte_t pte_mkabsent(pte_t pte) { (pte).pte_low &=
+~_PAGE_PRESENT; return pte; }
 
+When I don't have those functions in my code the kernel doesn't crash,
+but when I do they crash.  So, my question is am I to page accounting
+aspects? I looked at rmap functions for incrementing the _mapcount but
+they seem to be only for when a pte is copied.  Should I be
+incrementing the pagecount at any point?  rmap.c
+BUG(page_mapcount(page)< 0) is invoked when the accessed bits are
+cleared in zap_pte, but I don't know how the page is being corrupted. 
+So, my main issue is if anyone can help point me to the direction
+where a page could be corrupted I would greatly appreciate.
+
+I'd appreciate any general direction anyone can point me at.  Thanks
+in advance.  I look forward to hearing from anyone.
+
+Zao

@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVGFTs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVGGDw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVGFTs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 15:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbVGFTpc
+	id S261831AbVGGDw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 23:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVGGDu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 15:45:32 -0400
-Received: from nproxy.gmail.com ([64.233.182.193]:37057 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262320AbVGFOfN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 10:35:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ibd68mTvrv12ACrrXKdMe9Su777ZTn7ZSGgnsMJgCl22dZKVLIBZrPdVgTqIUHghTeBxFdnLYYgkr7KfSyLOmc9qsywn0ZOJ3abq0YnN6X31Msk3gYlbHP60qu/7NQV1C4+EhXJpBfuo47hhbP06kl9bhPfIFCIRDU7logTjuoc=
-Message-ID: <58cb370e05070607351fe5eced@mail.gmail.com>
-Date: Wed, 6 Jul 2005 16:35:11 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Fix crash on boot in kmalloc_node IDE changes
-Cc: linux-ide@vger.kernel.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       christoph@lameter.com
-In-Reply-To: <20050706140933.GH21330@wotan.suse.de>
+	Wed, 6 Jul 2005 23:50:29 -0400
+Received: from mail21.sea5.speakeasy.net ([69.17.117.23]:64420 "EHLO
+	mail21.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S262208AbVGGDtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 23:49:19 -0400
+Message-Id: <6.2.3.4.0.20050706214134.03ce1d00@no.incoming.mail>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.3.4
+Date: Wed, 06 Jul 2005 21:49:07 -0600
+To: <rol@as2917.net>
+From: Jeff Woods <Kazrak+kernel@cesmail.net>
+Subject: Re: "Spy'ing" characters sent thru serial port ?
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200507061506.j66F6dR25621@tag.witbe.net>
+References: <200507061506.j66F6dR25621@tag.witbe.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050706133052.GF21330@wotan.suse.de>
-	 <58cb370e050706070512c93ee1@mail.gmail.com>
-	 <20050706140933.GH21330@wotan.suse.de>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/6/05, Andi Kleen <ak@suse.de> wrote:
-> > drive->hwif check is redundant, please remove it
-> 
-> It's not. My first version didn't have it but it still crashed.
-> It's what actually prevents the crash.
-> I also don't know why, but it's true.
+Howdy.
 
-very weird as HWIF(drive) == drive->hwif:
+At 7/6/2005 17:06 +0200, Paul Rolland wrote:
+>We have a machine connected to a modem using the serial port, and 
+>from time to time, the modem complains the machine sent him a full 
+>2K buffer (in fact, 2047 bytes) which were already sent.
+>
+>We've been investigating at the application level, using strace to 
+>monitor what is sent to the serial port, and at no time such a buffer is sent.
+>
+>This problem is occurring on a random basis, and attempts to 
+>reproduce it in a test environment failed to date.
+>
+>Is it possible to '(log|copy|...)' the chars that are sent on the 
+>serial port to some other place (without altering too much the 
+>performance of the machine, we are running the port a 9600bps), at 
+>the lowest level ?
 
-	ide_hwif_t *hwif = HWIF(drive);
+I don't have any software answers, but it sounds like the modem is an 
+external type connected by RS232 cable to a serial port.  RS-232 is 
+pretty simple at the hardware level and you should be able to create 
+a "Y" cable that "sniffs" the transmit from the computer to modem 
+line without interrupting the dialogue between the serial port and 
+modem. Just connect the transmit and signal ground lines to the 
+receive and signal ground lines of a serial terminal or another 
+computer with some terminal software (or even "cat </dev/serial1" or 
+similar) listening to the serial port.  Back in Ye Olde Days (1980s) 
+we used to diagnose modem problems like that all the time.
 
-...
+--
+Jeff Woods <kazrak+kernel@cesmail.net> 
 
-	q = blk_init_queue_node(do_ide_request, &ide_lock,
-				pcibus_to_node(drive->hwif->pci_dev->bus));
-	if (!q)
-		return 1;
-
-...
-
-	if (!hwif->rqsize) {
-
-you should OOPS here
-
-Bartlomiej

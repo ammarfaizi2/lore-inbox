@@ -1,74 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVGGJ3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVGGJaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbVGGJ3H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 05:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVGGJ3H
+	id S261243AbVGGJaW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 05:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVGGJaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 05:29:07 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:45705 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261244AbVGGJ3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 05:29:06 -0400
-Subject: Re: [PATCH] [37/48] Suspend2 2.1.9.8 for 2.6.12:
-	613-pageflags.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pekka Enberg <penberg@gmail.com>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <84144f0205070605012517003a@mail.gmail.com>
-References: <11206164393426@foobar.com> <11206164434190@foobar.com>
-	 <84144f0205070605012517003a@mail.gmail.com>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120728625.4860.1113.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 07 Jul 2005 19:30:28 +1000
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Jul 2005 05:30:21 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:45462 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261243AbVGGJ3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 05:29:18 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Jon Schindler" <jonschindler@hotmail.com>
+Subject: Re: Kernel Oops with dual core athlon 64
+Date: Thu, 7 Jul 2005 11:29:38 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <BAY20-F42FDD187485A266D3988B6C4D80@phx.gbl>
+In-Reply-To: <BAY20-F42FDD187485A266D3988B6C4D80@phx.gbl>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_CYPzCK9dLnFHETU"
+Message-Id: <200507071129.38714.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+--Boundary-00=_CYPzCK9dLnFHETU
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Wed, 2005-07-06 at 22:01, Pekka Enberg wrote:
-> On 7/6/05, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > diff -ruNp 614-plugins.patch-old/kernel/power/suspend2_core/plugins.c 614-plugins.patch-new/kernel/power/suspend2_core/plugins.c
-> > --- 614-plugins.patch-old/kernel/power/suspend2_core/plugins.c  1970-01-01 10:00:00.000000000 +1000
-> > +++ 614-plugins.patch-new/kernel/power/suspend2_core/plugins.c  2005-07-04 23:14:19.000000000 +1000
-> > @@ -0,0 +1,341 @@
-> > +#define FILTER_PLUGIN 1
-> > +#define WRITER_PLUGIN 2
-> > +#define MISC_PLUGIN 4 // Block writer, eg.
-> > +#define CHECKSUM_PLUGIN 5
-> > +
-> > +#define SUSPEND_ASYNC 0
-> > +#define SUSPEND_SYNC  1
-> 
-> Enums are preferred.
-> 
-> > +
-> > +#define SUSPEND_COMMON_IO_OPS \
-> > +       /* Writing the image proper */ \
-> > +       int (*write_chunk) (struct page * buffer_page); \
-> > +\
-> > +       /* Reading the image proper */ \
-> > +       int (*read_chunk) (struct page * buffer_page, int sync); \
-> > +\
-> > +       /* Reset plugin if image exists but reading aborted */ \
-> > +       void (*noresume_reset) (void);
-> 
-> Please remove the above macro obfuscation.
+Hi,
 
-Done. Thanks!
+On Thursday, 7 of July 2005 07:58, Jon Schindler wrote:
+> The dmesg is below.  After I get this Oops, I am unable to use my (PS/2) 
+> keyboard, and had to ssh to my machine in order to save a copy of dmesg 
+> before rebooting the machine.  I've seen a couple of other users of dual 
+> core machings having this problem.  The suggestion so far has been to remove 
+> the binary nvidia driver and repoducde the bug.  So, I went ahead and 
+> removed the nvidia driver and used the deprecated nv driver that comes with 
+> X11 and I still have this issue.  Does anyone have any ideas what might be 
+> causing this?  Thanks in advance for the help.  I don't know my way around 
+> the kernel, but I do have experience with C and should be able to apply any 
+> SMP patches if you want me to test it
 
-Nigel
+It seems to be a cpufreq issue.  You can try to apply the attached patch from
+Mark Langsdorf.
+
+Greets,
+Rafael
+
 
 -- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"
 
+--Boundary-00=_CYPzCK9dLnFHETU
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="jhpn-2.6.12-rc6.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="jhpn-2.6.12-rc6.patch"
+
+--- linux-2.6.12-rc6/arch/i386/kernel/cpu/cpufreq/powernow-k8.c.old	2005-06-12 17:41:55.123651184 -0500
++++ linux-2.6.12-rc6/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2005-06-12 17:46:32.780440936 -0500
+@@ -44,7 +44,7 @@
+ 
+ #define PFX "powernow-k8: "
+ #define BFX PFX "BIOS error: "
+-#define VERSION "version 1.40.2"
++#define VERSION "version 1.40.4"
+ #include "powernow-k8.h"
+ 
+ /* serialize freq changes  */
+@@ -978,7 +978,7 @@
+ {
+ 	struct powernow_k8_data *data;
+ 	cpumask_t oldmask = CPU_MASK_ALL;
+-	int rc;
++	int rc, i;
+ 
+ 	if (!check_supported_cpu(pol->cpu))
+ 		return -ENODEV;
+@@ -1064,7 +1064,9 @@
+ 	printk("cpu_init done, current fid 0x%x, vid 0x%x\n",
+ 	       data->currfid, data->currvid);
+ 
+-	powernow_data[pol->cpu] = data;
++	for_each_cpu_mask(i, cpu_core_map[pol->cpu]) {
++		powernow_data[i] = data;
++	}
+ 
+ 	return 0;
+ 
+
+--Boundary-00=_CYPzCK9dLnFHETU--

@@ -1,31 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVGGLY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVGGL1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbVGGLY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 07:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVGGLY5
+	id S261294AbVGGL1V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 07:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVGGL1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 07:24:57 -0400
-Received: from sitemail.everyone.net ([216.200.145.35]:23493 "EHLO
-	omta10.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S261223AbVGGLY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 07:24:56 -0400
-Message-ID: <18324773.1120735491466.JavaMail.root@imta21>
-From: twuliji@varsity.co.nz
+	Thu, 7 Jul 2005 07:27:21 -0400
+Received: from coderock.org ([193.77.147.115]:21898 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261294AbVGGL0p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 07:26:45 -0400
+Message-Id: <20050707112551.331553000@homer>
+Date: Thu, 07 Jul 2005 13:25:51 +0200
+From: domen@coderock.org
 To: linux-kernel@vger.kernel.org
-Subject: Out of office response from Tana Wuliji
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-EON-NOTIFY: 1
-X-AUTORESPONSE: 1
-Date: Thu,  7 Jul 2005 04:24:51 -0700 (PDT)
+Cc: damm@opensource.se
+Subject: [patch 0/5] autoparam v0.2: generating parameter descriptions on compile
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for your message.  I will be away from the 5th - 10th of July in London and will reply to your message as soon as possible.  
+Hi!
 
-Please contact Mr Scott Dalgliesh if your enquiry is urgent on secgen@ipsf.org.  Alternatively you can send me a text message on +31 615634665.
+The purpose of autoparam is to generate boot parameter descriptions
+from sources. It does that by creating a new section called
+__param_strings. (The interesting bits here are from Magnus Damm.)
+It fills a gap about undocumented boot options from modules.
 
-Thank you for your understanding and patience,
+It consists of 5 patches:
 
-Tana Wuliji
+autoparam_1-includes
+  Descriptions get saved in __param_strings. Also added a new
+  __setup_desc().
+
+autoparam_2-makefile
+  On every vmlinux change .kernel-parameters.o gets regenerated, and
+  __param_strings removed from vmlinux. (It's still bigger than
+  non-patched vmlinux, but all sections are of same length, alignment
+  issues?)
+  Also, a new target "make kernelparams" which generates
+  Documentation/kernel-parameters-gen.txt. It should probably not be
+  in $(srctree) though.
+  There should be some more work done here, but I'm out of ideas ATM.
+
+autoparam_3-extract_script
+  Simple perl script to extract descriptions.
+
+autoparam_4-af_unix_workaround
+autoparam_5-ide_workaround
+  Workarounds needed.
+
+
+Comments, improvements?
+
+
+	Domen
+

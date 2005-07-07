@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVGGIlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVGGInc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbVGGIlm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 04:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVGGIll
+	id S261221AbVGGInc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 04:43:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVGGIlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 04:41:41 -0400
-Received: from ws6-4.us4.outblaze.com ([205.158.62.107]:59798 "HELO
-	ws6-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261248AbVGGIlZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 04:41:25 -0400
-Message-ID: <42CCEAA7.1010807@grimmer.com>
-Date: Thu, 07 Jul 2005 10:41:11 +0200
-From: Lenz Grimmer <lenz@grimmer.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Arjan van de Ven <arjan@infradead.org>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Dave Hansen <dave@sr71.net>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-Subject: Re: Head parking (was: IBM HDAPS things are looking up)
-References: <42C8D06C.2020608@grimmer.com> <20050704061713.GA1444@suse.de> <42C8C978.4030409@linuxwireless.org> <20050704063741.GC1444@suse.de> <1120461401.3174.10.camel@laptopd505.fenrus.org> <20050704072231.GG1444@suse.de> <1120462037.3174.25.camel@laptopd505.fenrus.org> <20050704073031.GI1444@suse.de> <42C91073.80900@grimmer.com> <20050704110604.GL1444@suse.de> <20050707080323.GF1823@suse.de>
-In-Reply-To: <20050707080323.GF1823@suse.de>
-X-Enigmail-Version: 0.91.0.0
-OpenPGP: id=B27291F2
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 7 Jul 2005 04:41:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52400 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261243AbVGGIkn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 04:40:43 -0400
+Date: Thu, 7 Jul 2005 01:40:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: P@draigBrady.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How do you accurately determine a process' RAM usage?
+Message-Id: <20050707014005.338ea657.akpm@osdl.org>
+In-Reply-To: <42CCE737.70802@draigBrady.com>
+References: <42CC2923.2030709@draigBrady.com>
+	<20050706181623.3729d208.akpm@osdl.org>
+	<42CCE737.70802@draigBrady.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+P@draigBrady.com wrote:
+>
+> Andrew Morton wrote:
+> > Calculating this stuff accurately is very expensive.  You'll get a better
+> > answer using proc-pid-smaps.patch from -mm, but even that won't tell you
+> > things about sharing levels of the pages.
+> 
+> Great, thanks! I'll play around with this:
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc1/2.6.13-rc1-mm1/broken-out/proc-pid-smaps.patch
 
-Hi,
+OK, please let us know how it goes.
 
-Jens Axboe wrote:
+> Looks like it's been stable for 4 months?
 
-> ATA7 defines a park maneuvre, I don't know how well supported it is 
-> yet though. You can test with this little app, if it says 'head 
-> parked' it works. If not, it has just idled the drive.
+yup, although I don't think it's been used much.
 
-Great! Thanks for digging this up - it works on my T42, using a Fujitsu
-MHT2080AH drive:
+> Given that it's an independent /proc/$pid/smaps file,
+> it only needs to be queried when required and so
+> I wouldn't worry too much about cost. `top` wouldn't use it
+> for e.g., but specialised tools like mine would.
 
-  lenz@metis:~/work/ibm_hdaps> sudo ./headpark /dev/hda
-  head parked
+I agree, but people get upset ;)
 
-Judging from the sound the drive makes, this is the same operation that
-the windows tool performs.
-
-However, the head does not remain parked for a very long time,
-especially if there is a lot of disk activity going on (I tested it by
-running a "find /" in parallel). The head parks, but leaves the park
-position immediately afterwards again. I guess now we need to find a way
-to "nail" the head into the parking position for some time - otherwise
-it may already be on its way back to the platter before the laptop hits
-the ground...
-
-Thanks again - this is another helpful bit in getting all the pieces
-together.
-
-Bye,
-	LenZ
-- --
-- ------------------------------------------------------------------
- Lenz Grimmer <lenz@grimmer.com>                             -o)
- [ICQ: 160767607 | Jabber: LenZGr@jabber.org]                /\\
- http://www.lenzg.org/                                       V_V
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCzOqlSVDhKrJykfIRAlm0AJ9WvadtsxAdLdTCe40N/KDbvSLf5wCdEWWA
-OsiXzwFjziNuKvK5HKSMjb4=
-=qXXH
------END PGP SIGNATURE-----
+Plus some userspace tool developer might see it and start using it without
+knowing the cost on big iron.

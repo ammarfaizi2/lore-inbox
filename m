@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVGGSRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVGGSU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVGGSRN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 14:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVGGSRB
+	id S261522AbVGGSU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 14:20:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVGGSU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 14:17:01 -0400
-Received: from baythorne.infradead.org ([81.187.226.107]:60881 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S261542AbVGGSQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 14:16:47 -0400
-Subject: Re: [PATCH] audit: file system auditing based on location and name
-From: David Woodhouse <dwmw2@infradead.org>
-To: Greg KH <greg@kroah.com>
+	Thu, 7 Jul 2005 14:20:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:62395 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261473AbVGGSU5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 14:20:57 -0400
+Date: Thu, 7 Jul 2005 11:18:59 -0700
+From: Greg KH <greg@kroah.com>
+To: David Woodhouse <dwmw2@infradead.org>
 Cc: "Timothy R. Chavez" <tinytim@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
        linux-audit@redhat.com, linux-fsdevel@vger.kernel.org,
        linux-kernel@vger.kernel.org, Mounir Bsaibes <mbsaibes@us.ibm.com>,
@@ -22,35 +22,31 @@ Cc: "Timothy R. Chavez" <tinytim@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
        Christoph Hellwig <hch@infradead.org>,
        Daniel H Jones <danjones@us.ibm.com>, Amy Griffis <amy.griffis@hp.com>,
        Maneesh Soni <maneesh@in.ibm.com>
-In-Reply-To: <20050707181055.GA21072@kroah.com>
-References: <1120668881.8328.1.camel@localhost>
-	 <200507061523.11468.tinytim@us.ibm.com> <20050706235008.GA9985@kroah.com>
-	 <200507071126.52375.tinytim@us.ibm.com>  <20050707181055.GA21072@kroah.com>
-Content-Type: text/plain
-Date: Thu, 07 Jul 2005 19:16:35 +0100
-Message-Id: <1120760195.8058.223.camel@baythorne.infradead.org>
+Subject: Re: [PATCH] audit: file system auditing based on location and name
+Message-ID: <20050707181859.GA14873@kroah.com>
+References: <1120668881.8328.1.camel@localhost> <200507061523.11468.tinytim@us.ibm.com> <20050706235008.GA9985@kroah.com> <200507071126.52375.tinytim@us.ibm.com> <20050707181055.GA21072@kroah.com> <1120760195.8058.223.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120760195.8058.223.camel@baythorne.infradead.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-07 at 11:10 -0700, Greg KH wrote:
-> Yes, and then I change namespaces to put /etc/shadow at
-> /foo/baz/etc/shadow and then access it that way?  Will the current
-> audit system fail to catch that access?
+On Thu, Jul 07, 2005 at 07:16:35PM +0100, David Woodhouse wrote:
+> On Thu, 2005-07-07 at 11:10 -0700, Greg KH wrote:
+> > Yes, and then I change namespaces to put /etc/shadow at
+> > /foo/baz/etc/shadow and then access it that way?  Will the current
+> > audit system fail to catch that access?
+> 
+> The watch is attached to the inode which you happened to call '/etc' in
+> your namespace, and takes effect in _any_ namespace regardless of the
+> path to it.
+> 
+> In the audit trail, you see the path which was used in the audited
+> process's namespace, and also the filter key which was associated with
+> that watch when you added it.
 
-The watch is attached to the inode which you happened to call '/etc' in
-your namespace, and takes effect in _any_ namespace regardless of the
-path to it.
+Ok, thanks, that makes sense.
 
-In the audit trail, you see the path which was used in the audited
-process's namespace, and also the filter key which was associated with
-that watch when you added it.
-
--- 
-dwmw2
-
-
+greg k-h

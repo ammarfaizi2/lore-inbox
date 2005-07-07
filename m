@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVGGTXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVGGTXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbVGGTXD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 15:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVGGTUn
+	id S262274AbVGGTXB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 15:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVGGTUS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 15:20:43 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:1716 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262074AbVGGTTP (ORCPT
+	Thu, 7 Jul 2005 15:20:18 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26515 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261867AbVGGTUK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 15:19:15 -0400
-Date: Thu, 7 Jul 2005 21:18:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Weston <weston@sysex.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-08
-Message-ID: <20050707191854.GA32384@elte.hu>
-References: <200506301952.22022.annabellesgarden@yahoo.de> <20050630205029.GB1824@elte.hu> <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu> <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <20050703140432.GA19074@elte.hu> <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507051155050.13165@echo.lysdexia.org> <20050706100451.GA7336@elte.hu> <Pine.LNX.4.58.0507070120100.22287@echo.lysdexia.org>
+	Thu, 7 Jul 2005 15:20:10 -0400
+Date: Thu, 7 Jul 2005 21:19:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
+Message-ID: <20050707191958.GC1435@elf.ucw.cz>
+References: <11206164393426@foobar.com> <20050706082230.GF1412@elf.ucw.cz> <1120696047.4860.525.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0507070120100.22287@echo.lysdexia.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <1120696047.4860.525.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* William Weston <weston@sysex.net> wrote:
+> > Is swsusp1 expected to be functional after these are applied? You
+> > removed *some* of its hooks, but not all, so I'm confused.
+> 
+> I've been thinking about this some more and wondering whether I should
+> just replace swsusp. I really don't want to step on your toes though.
+> What would you like to see happen?
 
-> Without the last two chunks of this patch, the UP Athlon box locks up 
-> hard as soon as jackd is started up.
-
-hm, do you have CONFIG_PCI_MSI enabled by any chance?
-
-	Ingo
+When/if suspend2 is merged and working, there's no reason to keep
+swsusp around. So patches for removing swsusp1 are quite okay at the
+end of series. OTOH it is one more patch for you to maintain, so... do
+whatever you want.
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

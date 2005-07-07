@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVGGI3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVGGI3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVGGI3M (ORCPT <rfc822;willy@w.ods.org>);
+	id S261222AbVGGI3M (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 7 Jul 2005 04:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVGGI1S
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVGGI1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 04:27:18 -0400
-Received: from dns.squ.edu.om ([62.231.244.4]:60422 "EHLO squ.edu.om")
-	by vger.kernel.org with ESMTP id S261250AbVGGI0w (ORCPT
+	Thu, 7 Jul 2005 04:27:15 -0400
+Received: from gate.corvil.net ([213.94.219.177]:16140 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S261244AbVGGI0o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 04:26:52 -0400
-From: "Delivery Subsystem" <POSTMASTER@squ.edu.om>
-To: <linux-kernel@vger.kernel.org>
-Subject: Message Delivery Failure
-Date: Thu, 07 Jul 2005 12:26:45 +0400
-Message-ID: <19B4BF7FE9954B2A8C2B575CF24A13.MAI@squ.edu.om>
+	Thu, 7 Jul 2005 04:26:44 -0400
+Message-ID: <42CCE737.70802@draigBrady.com>
+Date: Thu, 07 Jul 2005 09:26:31 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How do you accurately determine a process' RAM usage?
+References: <42CC2923.2030709@draigBrady.com> <20050706181623.3729d208.akpm@osdl.org>
+In-Reply-To: <20050706181623.3729d208.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Calculating this stuff accurately is very expensive.  You'll get a better
+> answer using proc-pid-smaps.patch from -mm, but even that won't tell you
+> things about sharing levels of the pages.
 
-MailEnable: Message could not be delivered to some recipients.
-The following recipient(s) could not be reached:
+Great, thanks! I'll play around with this:
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc1/2.6.13-rc1-mm1/broken-out/proc-pid-smaps.patch
+Looks like it's been stable for 4 months?
 
-	[SMTP:db1012ac@squ.edu.om]: Remote SMTP Server Returned: 550 unknown user <db1012ac@squ.edu.om>
+Given that it's an independent /proc/$pid/smaps file,
+it only needs to be queried when required and so
+I wouldn't worry too much about cost. `top` wouldn't use it
+for e.g., but specialised tools like mine would.
 
-
-Message headers follow:
-
-Received: from squ.edu.om ([172.18.1.27]) by squ.edu.om with MailEnable ESMTP; Thu, 07 Jul 2005 12:26:39 +0400
-From: linux-kernel@vger.kernel.org
-To: db1012ac@squ.edu.om
-Subject: Mail Delivery (failure db1012ac@squ.edu.om)
-Date: Fri, 7 Oct 2005 10:27:59 +0200
-MIME-Version: 1.0
-Content-Type: multipart/related;
-	type="multipart/alternative";
-	boundary="----=_NextPart_000_001B_01C0CA80.6B015D10"
-X-Priority: 3
-X-MSMail-Priority: Normal
-
+-- 
+Pádraig Brady - http://www.pixelbeat.org
+--

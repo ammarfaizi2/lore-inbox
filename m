@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVGGNX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVGGNW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbVGGNX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 09:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVGGNR4
+	id S261450AbVGGNW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 09:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVGGNHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 09:17:56 -0400
-Received: from ece.iisc.ernet.in ([144.16.64.2]:19212 "EHLO ece.iisc.ernet.in")
-	by vger.kernel.org with ESMTP id S261459AbVGGNPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 09:15:47 -0400
-From: anand@eis.iisc.ernet.in (SVR Anand)
-Message-Id: <200507071315.SAA09068@eis.iisc.ernet.in>
-Subject: Can Linux remain to be general purpose OS ?
-To: linux-kernel@vger.kernel.org
-Date: Thu, 7 Jul 2005 18:45:30 +0530 (GMT+05:30)
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	Thu, 7 Jul 2005 09:07:02 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:31421 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261471AbVGGNGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 09:06:10 -0400
+Date: Thu, 7 Jul 2005 14:06:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Victor <andrew@sanpeople.com>
+Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [RFC] Atmel-supplied hardware headers for AT91RM9200 SoC processor
+Message-ID: <20050707130607.GC28489@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Victor <andrew@sanpeople.com>, linux-kernel@vger.kernel.org,
+	Russell King <rmk@arm.linux.org.uk>
+References: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jul 07, 2005 at 11:58:39AM +0200, Andrew Victor wrote:
+> While he seems generally happy with most of the code, he has doubts
+> about merging the Atmel-supplied headers and suggested I post this to
+> the linux-kernel list for a wider review.
+> 
+> While I agree that their usage of structs/coding-style is not the
+> cleanest/Linux way of doing things, re-using their headers is useful
+> since:
+> 1) they are supplied by the hardware manufacturer.
+> 2) Atmel automatically generates them from their chip design database,
+> so they should be correct.
+> 3) they are used by most AT91RM9200 developers, not just those using
+> Linux.
 
-I have been following Linux kernel development for many years. Of late there seems to be a
-general trend in expecting Linux kernel to do specialized tasks to cater to specific end-user
-applications. This could even mean that the kernel algorithms that make Linux a generic OS
-may have to be customized to serve these specialized needs which would not be possible 
-otherwise. Thinking aloud, would it make sense to make Linux kernel take a different "avatar"
-depending on the user specificities, say through a configurable option while building the 
-kernel, or a heuristic or any other approach ?
+No reason to use the horror it is as-is.  Beein hardware description they
+won't change ever except for additions, so just clean the mess up into
+somethign nice and submit them.  You could have done so in the time you
+spent arguing on linux-arm-kernel already.
 
-The above concern is motivated by growing expectations from the community to use Linux not
-merely as a general purpose OS but in specific environments as well. One could argue that
-there could be many specific variants possible, but if we could capture some of them that 
-could serve the purpose in most cases.
-
-Please pardon me if I have sounded too generic. I hope I have conveyed basic idea.
-
-Thanks.
-
-Regards
-Anand

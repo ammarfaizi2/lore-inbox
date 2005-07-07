@@ -1,36 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVGGMxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVGGMzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVGGMxW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 08:53:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVGGMvc
+	id S261417AbVGGMzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 08:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVGGMzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 08:51:32 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:26799 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S261346AbVGGMtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 08:49:45 -0400
-To: ncunningham@cyclades.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
-In-Reply-To: <1120738525.4860.1433.camel@localhost>
-References: <11206164393426@foobar.com> <20050706082230.GF1412@elf.ucw.cz> <20050706082230.GF1412@elf.ucw.cz> <1120696047.4860.525.camel@localhost> <E1DqV7G-0004PX-00@chiark.greenend.org.uk> <E1DqV7G-0004PX-00@chiark.greenend.org.uk> <1120738525.4860.1433.camel@localhost>
-Date: Thu, 7 Jul 2005 13:49:45 +0100
-Message-Id: <E1DqVp3-00064l-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Thu, 7 Jul 2005 08:55:24 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:4065 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261417AbVGGMxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 08:53:37 -0400
+Date: Thu, 7 Jul 2005 22:53:25 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: David Gibson <david@gibson.dropbear.id.au>
+Cc: avi@argo.co.il, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Hugepage COW
+Message-Id: <20050707225325.082ced8f.sfr@canb.auug.org.au>
+In-Reply-To: <20050707092425.GA10044@localhost.localdomain>
+References: <20050707055554.GC11246@localhost.localdomain>
+	<1120718967.2989.7.camel@blast.q>
+	<20050707092425.GA10044@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__7_Jul_2005_22_53_25_+1000_xWcCEcc37x+HWdrA"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@cyclades.com> wrote:
-> On Thu, 2005-07-07 at 22:04, Matthew Garrett wrote:
->> Do you implement the entire swsusp userspace interface? If not, removing
->> it probably isn't a reasonable plan without fair warning.
-> 
-> I'm not suggesting removing the sysfs interface or replacing system to
-> ram - just the suspend to disk part.
+--Signature=_Thu__7_Jul_2005_22_53_25_+1000_xWcCEcc37x+HWdrA
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Right, so you support the resume from disk trigger in sysfs and the
-/proc/acpi/sleep interface? If suspend2 is a complete dropin replacement
-then I'm much happier with the idea of dropping swsusp, but I don't want
-to have to tie suspend/resume scripts to kernel versions.
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+On Thu, 7 Jul 2005 19:24:25 +1000 David Gibson <david@gibson.dropbear.id.au=
+> wrote:
+>
+> That's not necessarily possible.  On some archs - ppc64 for one -
+> the mmu has to be set up for hugepages on a granularity greater than
+> the hugepage size.  So you can just arbitrarily substitute normal
+                             ^^^
+presumably you meant "cannot"
+
+> pages for hugepages.
+
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Thu__7_Jul_2005_22_53_25_+1000_xWcCEcc37x+HWdrA
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCzSXMFdBgD/zoJvwRAiQMAJ9JTW/CILYiQII/TdbsId9pMntOeQCeL9Kd
+2wU8RDiNtzbcp5FBa7KcUZs=
+=jQID
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__7_Jul_2005_22_53_25_+1000_xWcCEcc37x+HWdrA--

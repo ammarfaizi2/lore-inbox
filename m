@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVGGIbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVGGIeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVGGIbq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 04:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVGGI3R
+	id S261259AbVGGIeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 04:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVGGIbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 04:29:17 -0400
-Received: from nysv.org ([213.157.66.145]:52136 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S261245AbVGGI20 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 04:28:26 -0400
-Date: Thu, 7 Jul 2005 11:27:49 +0300
-To: David Masover <ninja@slaphack.com>, Douglas McNaught <doug@mcnaught.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Hubert Chan <hubert@uhoreg.ca>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
-       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Hans Reiser <reiser@namesys.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: reiser4 plugins
-Message-ID: <20050707082749.GZ11013@nysv.org>
-References: <200506290509.j5T595I6010576@laptop11.inf.utfsm.cl> <m2k6kd2rx8.fsf@Douglas-McNaughts-Powerbook.local> <20050629135820.GJ11013@nysv.org> <20050629205636.GN16867@khan.acc.umu.se> <42C4FA1A.1050100@slaphack.com> <20050701155446.GZ16867@khan.acc.umu.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="umhhH1MY3lvPZrwj"
-Content-Disposition: inline
-In-Reply-To: <20050701155446.GZ16867@khan.acc.umu.se>
-User-Agent: Mutt/1.5.9i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+	Thu, 7 Jul 2005 04:31:51 -0400
+Received: from cartier.jerryweb.org ([80.68.90.16]:58383 "EHLO
+	cartier.jerryweb.org") by vger.kernel.org with ESMTP
+	id S261259AbVGGIbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 04:31:09 -0400
+Message-ID: <1120725073.42cce85173364@webmail.jerryweb.org>
+Date: Thu, 07 Jul 2005 09:31:13 +0100
+From: Jeremy Laine <jeremy.laine@polytechnique.org>
+To: 7eggert@gmx.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OOPS: frequent crashes with bttv in 2.6.X series (inc. 2.6.12)
+References: <4njei-1Ps-21@gated-at.bofh.it> <E1DqJ1b-0001Li-0t@be1.7eggert.dyndns.org>
+In-Reply-To: <E1DqJ1b-0001Li-0t@be1.7eggert.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.6
+X-Originating-IP: 195.115.41.103
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Heavy HDD IO almost certainly caused soon death (recognizable by heavy
+> picture distortion), while an idle system lasted one evening. It did not
+> happen with kernel 2.4 and a NVidia card on XF86.
 
---umhhH1MY3lvPZrwj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You are very probably onto something there, the latest OOPS I sent (the 2AM one)
+occurred while my daily backup script was running!
 
-On Fri, Jul 01, 2005 at 05:54:46PM +0200, David Weinehall wrote:
->
->Which would neither need VFS changes nor be dependent on Reiser4 in
->any way, so I don't see why this thread lives on.  Just get down to
->business and implement this metafs =3D)
+Jul  7 02:10:01 sharky /USR/SBIN/CRON[6656]: (root) CMD
+(/home/save/bin/mount-wrapper bkp-section -c daily)
+Jul  7 02:10:08 sharky kernel: EXT3 FS on dm-2, internal journal
+Jul  7 02:11:36 sharky kernel: Unable to handle kernel paging request at virtual
+address 1400000c
 
-I've been gone for a while and suddenly drowning in mail...
+Kind regards,
+Jeremy
 
-Anyway, I don't really like the metafs thing.
-
-To access the data, you still need to refactor userspace,
-so that's not a real advantage. Doing lookups from /meta
-all the time, instead of in the file-as-dir-whatever...
-
-And the best thing to do would be to bring these "Reiser4-specific"
-enhancements to every FS.
-
---=20
-mjt
-
-
---umhhH1MY3lvPZrwj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCzOeFIqNMpVm8OhwRAhZoAJ0adDv6sug/VsMk1Qn5uauM2N5jTACfQrwu
-aDpLjm1wZLJBtp4ovvYOlZY=
-=QoYa
------END PGP SIGNATURE-----
-
---umhhH1MY3lvPZrwj--
+-- 
+http://www.jerryweb.org/             : JerryWeb.org
+http://sailcut.sourceforge.net/      : Sailcut CAD
+http://opensource.polytechnique.org/ : Polytechnique.org Free Software

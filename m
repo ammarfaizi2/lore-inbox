@@ -1,54 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVGGOjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVGGOlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbVGGOjD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 10:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVGGOgN
+	id S261572AbVGGOlj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 10:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVGGOjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 10:36:13 -0400
-Received: from kirby.webscope.com ([204.141.84.57]:57266 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S261571AbVGGOgE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 10:36:04 -0400
-Message-ID: <42CD3DBB.8060501@m1k.net>
-Date: Thu, 07 Jul 2005 10:35:39 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Thu, 7 Jul 2005 10:39:11 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:57503
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261653AbVGGOhv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 10:37:51 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Jens Axboe'" <axboe@suse.de>, <hdaps-devel@lists.sourceforge.net>
+Cc: "'Jens Axboe'" <axboe@suse.de>, "'Lenz Grimmer'" <lenz@grimmer.com>,
+       "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Alejandro Bonilla'" <abonilla@linuxwireless.org>,
+       "'Jesper Juhl'" <jesper.juhl@gmail.com>,
+       "'Dave Hansen'" <dave@sr71.net>,
+       "'LKML List'" <linux-kernel@vger.kernel.org>
+Subject: RE: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
+Date: Thu, 7 Jul 2005 08:37:12 -0600
+Message-ID: <001901c58301$5d4b5070$600cc60a@amer.sykes.com>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: linux-kernel@vger.kernel.org,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       Linux and Kernel Video <video4linux-list@redhat.com>
-Subject: Re: OOPS: frequent crashes with bttv in 2.6.X series (inc. 2.6.12)
-References: <1120644686.42cbae4e16ea3@webmail.jerryweb.org>	 <42CBEE55.1050606@m1k.net> <1120746679.30980.1.camel@mindpipe>
-In-Reply-To: <1120746679.30980.1.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <200507071028.06765.spstarr@sh0n.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Jens,
 
->On Wed, 2005-07-06 at 10:44 -0400, Michael Krufky wrote:
->  
->
->>bttv is now maintained by Mauro Carvalho Chehab 
->><mchehab@brturbo.com.br>, as part of the video4linux project.  I am 
->>forwarding this to Mauro and the video4linux list. Linux and Kernel 
->>Video <video4linux-list@redhat.com>
->>    
->>
->
->Where's the MAINTAINERS patch?
->
->Lee
->
->  
->
-It has been in Linus' tree since 2.6.13-rc1
+	Thanks for this util. :-) It will make things easier for us and do part of
+the Job we are looking for. I will post this  script in the hdaps.sf.net for
+people if it's ok with you.
 
--- 
-Michael Krufky
+Thanks again,
 
+.Alejandro
+
+> > #include <stdio.h>
+> > #include <unistd.h>
+> > #include <fcntl.h>
+> > #include <string.h>
+> > #include <sys/ioctl.h>
+> > #include <linux/hdreg.h>
+> >
+> > int main(int argc, char *argv[])
+> > {
+> > 	unsigned char buf[8];
+> > 	int fd;
+> >
+> > 	if (argc < 2) {
+> > 		printf("%s <dev>\n", argv[0]);
+> > 		return 1;
+> > 	}
+> >
+> > 	fd = open(argv[1], O_RDONLY);
+> > 	if (fd == -1) {
+> > 		perror("open");
+> > 		return 1;
+> > 	}
+> >
+> > 	memset(buf, 0, sizeof(buf));
+> > 	buf[0] = 0xe1;
+> > 	buf[1] = 0x44;
+> > 	buf[3] = 0x4c;
+> > 	buf[4] = 0x4e;
+> > 	buf[5] = 0x55;
+> >
+> > 	if (ioctl(fd, HDIO_DRIVE_TASK, buf)) {
+> > 		perror("ioctl");
+> > 		return 1;
+> > 	}
+> >
+> > 	if (buf[3] == 0xc4)
+> > 		printf("head parked\n");
+> > 	else
+> > 		printf("head not parked %x\n", buf[3]);
+> >
+> > 	close(fd);
+> > 	return 0;
+> > }
 

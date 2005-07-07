@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVGGVJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVGGVMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVGGVJK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 17:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVGGVJK
+	id S261389AbVGGVMI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 17:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVGGVMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 17:09:10 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:32746 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261369AbVGGVJC (ORCPT
+	Thu, 7 Jul 2005 17:12:01 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:13233 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261389AbVGGVKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 17:09:02 -0400
-Message-Id: <200507072108.j67L8v4v031436@d01av03.pok.ibm.com>
-Subject: [PATCH 1/1] cdev: cdev_put oops
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       brking@us.ibm.com
-From: brking@us.ibm.com
-Date: Thu, 07 Jul 2005 16:08:56 -0500
+	Thu, 7 Jul 2005 17:10:34 -0400
+Date: Thu, 7 Jul 2005 23:10:33 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: st3@riseup.net
+Cc: Dave Jones <davej@redhat.com>, cpufreq@lists.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: enhanced intel speedstep feature was Re: speedstep-centrino on dothan
+Message-ID: <20050707211033.GB24774@isilmar.linta.de>
+Mail-Followup-To: st3@riseup.net, Dave Jones <davej@redhat.com>,
+	cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
+References: <20050706112202.33d63d4d@horst.morte.male> <42CC37FD.5040708@tmr.com> <20050706211159.GF27630@redhat.com> <20050706235557.0c122d33@horst.morte.male> <20050707220027.413343d4@horst.morte.male> <20050707200648.GA29142@redhat.com> <20050707222225.5b3113e0@horst.morte.male>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050707222225.5b3113e0@horst.morte.male>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 07, 2005 at 10:22:25PM +0200, st3@riseup.net wrote:
+> > This hasn't been seen to save any power whatsoever that I've seen.
+> 
+> It drops down power rating by 1500-1800mW on my Toshiba Satellite A50
+> while idling at 400MHz.
 
-While fixing an oops in the st driver in a dirty release path,
-I encountered an oops in cdev_put for cdevs allocated using
-cdev_alloc. If cdev_del is called when the cdev kobject still
-has an open user, when the last cdev_put is called, the cdev_put
-will call kobject_put, which will end up ultimately releasing the cdev
-in cdev_dynamic_release. Patch fixes the oops by preventing cdev_put
-from accessing freed memory.
+Do you use ACPI-based idling? If so, in which state is the CPU in (cat
+/proc/acpi/processor/*/power ? I suspect that you do not use ACPI (else 
+you wouldn't need the table-based approach) or that the ACPI-based idling is
+broken on your notebook; as then the Linux idle handler  only makes use of 
+"hlt" (IIRC), that is ACPI C1, while throttling "forces" ACPI C2 (again
+ IIRC).
 
-Signed-off-by: Brian King <brking@us.ibm.com>
----
-
- linux-2.6-bjking1/fs/char_dev.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
-
-diff -puN fs/char_dev.c~cdev_put_oops fs/char_dev.c
---- linux-2.6/fs/char_dev.c~cdev_put_oops	2005-07-07 08:20:09.000000000 -0500
-+++ linux-2.6-bjking1/fs/char_dev.c	2005-07-07 08:20:09.000000000 -0500
-@@ -276,9 +276,12 @@ static struct kobject *cdev_get(struct c
- 
- void cdev_put(struct cdev *p)
- {
-+	struct module *owner;
-+
- 	if (p) {
-+		owner = p->owner;
- 		kobject_put(&p->kobj);
--		module_put(p->owner);
-+		module_put(owner);
- 	}
- }
- 
-_
+	Dominik

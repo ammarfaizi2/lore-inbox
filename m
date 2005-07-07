@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVGGPty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVGGPvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVGGPty (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 11:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVGGPty
+	id S261306AbVGGPvp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 11:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVGGPvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 11:49:54 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:44258 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S261196AbVGGPty (ORCPT
+	Thu, 7 Jul 2005 11:51:44 -0400
+Received: from [66.150.84.1] ([66.150.84.1]:38552 "EHLO
+	rowdy.as.in.athenacr.com") by vger.kernel.org with ESMTP
+	id S261306AbVGGPv3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 11:49:54 -0400
-Subject: [patch 1/1] uml:remove user_constants.h on clean
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Thu, 07 Jul 2005 17:53:50 +0200
-Message-Id: <20050707155353.2AC3521AD6C@zion.home.lan>
+	Thu, 7 Jul 2005 11:51:29 -0400
+From: Andres Salomon <dilinger@debian.org>
+Subject: Re: tg3 driver fails
+Date: Thu, 07 Jul 2005 11:51:16 -0400
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Message-Id: <pan.2005.07.07.15.51.15.986957@debian.org>
+Newsgroups: gmane.linux.debian.ports.sparc
+References: <Pine.LNX.4.61.0507061051020.2607@bobcat> <20050706.160821.74746394.davem@redhat.com> <Pine.LNX.4.61.0507062328370.3236@bobcat> <20050707.030818.102573301.davem@redhat.com> <pan.2005.07.07.15.06.31.28150__21577.7607322254$1120750451$gmane$org@debian.org>
+To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 07 Jul 2005 11:06:37 -0400, Andres Salomon wrote:
+[...]
+> like this one. And no, ladies and gentlemen; the GPL is *not* a valid
+> license for binary firmware.  The key wording here is "The source code for
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+I should be more explicit; I'm talking about binary-only firmware. 
+Obviously, if the firmware source is made available, the GPL is a fine
+choice of license.
 
-make clean ARCH=um does not remove the generated file
-arch/um/include/user_constants.h, fix this.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.git-paolo/arch/um/Makefile |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -puN arch/um/Makefile~uml-remove-user-constants_h arch/um/Makefile
---- linux-2.6.git/arch/um/Makefile~uml-remove-user-constants_h	2005-07-07 17:52:09.000000000 +0200
-+++ linux-2.6.git-paolo/arch/um/Makefile	2005-07-07 17:52:09.000000000 +0200
-@@ -140,7 +140,8 @@ endef
- #When cleaning we don't include .config, so we don't include
- #TT or skas makefiles and don't clean skas_ptregs.h.
- CLEAN_FILES += linux x.i gmon.out $(ARCH_DIR)/include/uml-config.h \
--	$(GEN_HEADERS) $(ARCH_DIR)/include/skas_ptregs.h
-+	$(GEN_HEADERS) $(ARCH_DIR)/include/skas_ptregs.h \
-+	$(ARCH_DIR)/include/user_constants.h
- 
- MRPROPER_FILES += $(SYMLINK_HEADERS) $(ARCH_SYMLINKS) \
- 	$(addprefix $(ARCH_DIR)/kernel/,$(KERN_SYMLINKS)) $(ARCH_DIR)/os \
-_

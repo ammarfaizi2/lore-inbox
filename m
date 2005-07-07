@@ -1,57 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVGGMCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVGGMIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVGGMCz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 08:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVGGLn7
+	id S261351AbVGGMIE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 08:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVGGMFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 07:43:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18925 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261311AbVGGLnl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 07:43:41 -0400
-Date: Thu, 7 Jul 2005 04:42:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+	Thu, 7 Jul 2005 08:05:19 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:6303 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S261282AbVGGMEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 08:04:30 -0400
+To: ncunningham@cyclades.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc2-mm1
-Message-Id: <20050707044255.7f2aede2.akpm@osdl.org>
-In-Reply-To: <42CD12C4.8010200@ens-lyon.org>
-References: <20050707040037.04366e4e.akpm@osdl.org>
-	<42CD12C4.8010200@ens-lyon.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
+In-Reply-To: <1120696047.4860.525.camel@localhost>
+References: <11206164393426@foobar.com> <20050706082230.GF1412@elf.ucw.cz> <20050706082230.GF1412@elf.ucw.cz> <1120696047.4860.525.camel@localhost>
+Date: Thu, 7 Jul 2005 13:04:30 +0100
+Message-Id: <E1DqV7G-0004PX-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
->
-> Le 07.07.2005 13:00, Andrew Morton a écrit :
->  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc2/2.6.13-rc2-mm1/
->  > 
->  > (kernel.org seems to be stuck again - there's a copy at
->  > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-rc2-mm1.gz)
-> 
->    CC      kernel/power/disk.o
->  kernel/power/disk.c: Dans la fonction « software_resume »:
->  kernel/power/disk.c:242: attention : implicit declaration of function
->  `name_to_dev_t'
-> 
->  The attached patch adds an extern declaration in disk.c as it's
->  already done in swsusp.c
-> 
+Nigel Cunningham <ncunningham@cyclades.com> wrote:
 
-Well both are wrong...  This should go in a header file.  I guess mount.h
-is close enough.
+> I've been thinking about this some more and wondering whether I should
+> just replace swsusp. I really don't want to step on your toes though.
+> What would you like to see happen?
 
->  --- linux-mm/kernel/power/disk.c.old	2005-07-07 13:28:52.000000000 +0200
->  +++ linux-mm/kernel/power/disk.c	2005-07-07 13:30:02.000000000 +0200
->  @@ -30,6 +30,7 @@ extern void swsusp_close(void);
->   extern int swsusp_resume(void);
->   extern int swsusp_free(void);
->   
->  +extern dev_t name_to_dev_t(const char *line);
->   
->   static int noresume = 0;
->   char resume_file[256] = CONFIG_PM_STD_PARTITION;
+Do you implement the entire swsusp userspace interface? If not, removing
+it probably isn't a reasonable plan without fair warning.
+
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

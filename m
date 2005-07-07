@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVGGMZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVGGM3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbVGGMZI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 08:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVGGMXe
+	id S261435AbVGGM3d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 08:29:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVGGM3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 08:23:34 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:22916 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261284AbVGGMSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 08:18:15 -0400
-Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pekka Enberg <penberg@gmail.com>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <84144f02050705234074ff7b99@mail.gmail.com>
-References: <nigel@suspend2.net> <11206164393426@foobar.com>
-	 <84144f02050705234074ff7b99@mail.gmail.com>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120738774.4860.1443.camel@localhost>
+	Thu, 7 Jul 2005 08:29:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28808 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261435AbVGGM1z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 08:27:55 -0400
+Date: Thu, 7 Jul 2005 08:27:48 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: raja <vnagaraju@effigent.net>, linux-kernel@vger.kernel.org
+Subject: Re: ipc
+Message-ID: <20050707122747.GR3720@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <42CD12A7.90106@effigent.net> <20050707141302.1f40eb89@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 07 Jul 2005 22:19:34 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050707141302.1f40eb89@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Wed, 2005-07-06 at 16:40, Pekka Enberg wrote:
-> Hi Nigel,
+On Thu, Jul 07, 2005 at 02:13:02PM +0200, Paolo Ornati wrote:
+> You need to tell GCC to use "libmqueue"... something like this:
 > 
-> On 7/6/05, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > As requested, here are the patches that form Suspend2, for review.
-> > 
-> > I've tried to split it up into byte size chunks, but please don't expect
-> > that these will be patches that can mutate swsusp into Suspend2. That
-> > would roughly equivalent to asking for patches that patch Reiser3 into
-> > Reiser4 - it's a redesign.
-> 
-> Please consider putting diffstat in the patches. They make navigating
-> large patchsets easier.
+> 	gcc -Wall -O2 -o prog prog.c -lmqueue
 
-Adjusted my patch generation script to do this.
+If you have glibc 2.3.4 or later, you should use -lrt instead.
 
-Thanks.
-
-Nigel
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
-
+	Jakub

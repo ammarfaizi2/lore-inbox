@@ -1,37 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbVGGWfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVGGVdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262271AbVGGWfP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 18:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVGGWdq
+	id S262253AbVGGVdL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 17:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVGGVbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 18:33:46 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:43282 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261476AbVGGWcu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 18:32:50 -0400
-Message-ID: <42CDAD94.7000306@rtr.ca>
-Date: Thu, 07 Jul 2005 18:32:52 -0400
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Grant Coady <grant_lkml@dodo.com.au>
-Cc: Jens Axboe <axboe@suse.de>, Ondrej Zary <linux@rainbow-software.org>,
-       =?ISO-8859-1?Q?Andr=E9_Tomt?= <andre@tomt.net>,
-       Al Boldi <a1426z@gawab.com>,
-       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+	Thu, 7 Jul 2005 17:31:32 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:61644 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261863AbVGGV3w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 17:29:52 -0400
+Date: Thu, 7 Jul 2005 23:29:50 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: st3@riseup.net
+Cc: Dave Jones <davej@redhat.com>, cpufreq@lists.linux.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: [git patches] IDE update
-References: <42C9C56D.7040701@tomt.net> <42CA5A84.1060005@rainbow-software.org> <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de> <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com>
-In-Reply-To: <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: enhanced intel speedstep feature was Re: speedstep-centrino on dothan
+Message-ID: <20050707212950.GA25411@isilmar.linta.de>
+Mail-Followup-To: st3@riseup.net, Dave Jones <davej@redhat.com>,
+	cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
+References: <20050706112202.33d63d4d@horst.morte.male> <42CC37FD.5040708@tmr.com> <20050706211159.GF27630@redhat.com> <20050706235557.0c122d33@horst.morte.male> <20050707220027.413343d4@horst.morte.male> <20050707200648.GA29142@redhat.com> <20050707222225.5b3113e0@horst.morte.male> <20050707211033.GB24774@isilmar.linta.de> <20050707232238.077c7c1c@horst.morte.male>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050707232238.077c7c1c@horst.morte.male>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Note:
+On Thu, Jul 07, 2005 at 11:22:38PM +0200, st3@riseup.net wrote:
+> On Thu, 7 Jul 2005 23:10:33 +0200
+> Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+> 
+> > Do you use ACPI-based idling? If so, in which state is the CPU in (cat
+> > /proc/acpi/processor/*/power ? I suspect that you do not use ACPI (else 
+> > you wouldn't need the table-based approach) or that the ACPI-based idling is
+> > broken on your notebook; as then the Linux idle handler  only makes use of 
+> > "hlt" (IIRC), that is ACPI C1, while throttling "forces" ACPI C2 (again
+> >  IIRC).
+> 
+> For idling, I didn't mean 'real idling', but instead just 'doing nothing'
+> in ACPI C1 state, that's simply a CPU usage < 1%.
+> 
+> Sorry for being so lame =)
 
-hdparm can also use O_DIRECT for the -t timing test.
+That's exactly the "idling" I meant. So if it is only ACPI C1, then
+throttling makes some sense. It makes more sense, though, to get ACPI C2, C3
+and possibly C4 to work :)
 
-Eg.  hdparm --direct -t /dev/hda
+	Dominik

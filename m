@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVGGMeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVGGMgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVGGMeM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 08:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVGGMeL
+	id S261338AbVGGMgr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 08:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVGGMep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 08:34:11 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:25306 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261315AbVGGMdy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 08:33:54 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Thu, 7 Jul 2005 13:33:55 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050707114223.GA29825@elte.hu> <200507071315.24669.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200507071315.24669.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Jul 2005 08:34:45 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:52631 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S261456AbVGGMcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 08:32:00 -0400
+Date: Thu, 7 Jul 2005 16:31:40 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Tero Roponen <teanropo@cc.jyu.fi>
+Cc: Jon Smirl <jonsmirl@gmail.com>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc2 hangs at boot
+Message-ID: <20050707163140.A4006@jurassic.park.msu.ru>
+References: <Pine.GSO.4.58.0507061638380.13297@tukki.cc.jyu.fi> <9e47339105070618273dfb6ff8@mail.gmail.com> <20050707135928.A3314@jurassic.park.msu.ru> <Pine.GSO.4.58.0507071324560.26776@tukki.cc.jyu.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507071333.56016.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.58.0507071324560.26776@tukki.cc.jyu.fi>; from teanropo@cc.jyu.fi on Thu, Jul 07, 2005 at 01:33:46PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 Jul 2005 13:15, Alistair John Strachan wrote:
-> On Thursday 07 Jul 2005 12:42, Ingo Molnar wrote:
-> > * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > > > do you have DEBUG_STACKOVERFLOW and latency tracing still enabled? 
-> > > > The combination of those two options is pretty good at detecting
-> > > > stack overflows. Also, you might want to enable CONFIG_4KSTACKS, that
-> > > > too disturbs the stack layout enough so that the error message may
-> > > > make it to the console.
-> > >
-> > > I already have 4KSTACKS on. Latency tracing is enabled, but
-> > > STACKOVERFLOW isn't; I'll just reenable everything again until we fix
-> > > this. Do you think if I removed the printk() line I might get some
-> > > useful information, before it does the stack trace?
-> >
-> > usually such loops happen if the stack has been overflown and critical
-> > information that lies on the bottom of the stack (struct thread_info) is
-> > overwritten. Then we often cannot even perform simple printks. Stack
-> > overflow debugging wont prevent the crash, but might give a better
-> > traceback.
-> >
-> > 	Ingo
->
-> http://devzero.co.uk/~alistair/oops1.jpeg
->
-> I disabled the trace and the STACKOVERFLOW option seems to help; I've got a
-> (slightly truncated) oops from the kernel. What happens is that I get an
-> oops, then I get a BUG: warning me about the softlock, then I get another
-> oops. I'm about to reboot to confirm whether the second oops is identical
-> to the first (I suspect that it is).
+On Thu, Jul 07, 2005 at 01:33:46PM +0300, Tero Roponen wrote:
+> 00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (AGP disabled) (rev 02)
+> 	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+> 	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+> 	Latency: 64
+> 	Region 0: Memory at <unassigned> (32-bit, prefetchable)
+			    ^^^^^^^^^^^^
+I'd bet this is the cause of your problem.
+The pci_assign_unassigned_resources() is not aware of potential
+problems with i386 host bridges and just reassigns this region.
+Which effectively turns the DMA off on your machine, I guess.
 
-http://devzero.co.uk/~alistair/oops3.jpeg
+The patch here (against clean 2.6.13-rc2) should fix that.
 
-This shows the first oops (it's slightly different).
+Ivan.
 
-http://devzero.co.uk/~alistair/oops2.jpeg
-
-This shows the BUG: after the first oops
-
--- 
-Cheers,
-Alistair.
-
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+--- 2.6.13-rc2/arch/i386/pci/i386.c	Thu Jul  7 15:38:54 2005
++++ linux/arch/i386/pci/i386.c	Thu Jul  7 15:40:26 2005
+@@ -176,10 +176,6 @@ static int __init pcibios_assign_resourc
+ 	for_each_pci_dev(dev) {
+ 		int class = dev->class >> 8;
+ 
+-		/* Don't touch classless devices and host bridges */
+-		if (!class || class == PCI_CLASS_BRIDGE_HOST)
+-			continue;
+-
+ 		for(idx=0; idx<6; idx++) {
+ 			r = &dev->resource[idx];
+ 
+@@ -195,8 +191,15 @@ static int __init pcibios_assign_resourc
+ 			 *  the BIOS forgot to do so or because we have decided the old
+ 			 *  address was unusable for some reason.
+ 			 */
+-			if (!r->start && r->end)
+-				pci_assign_resource(dev, idx);
++			if (!r->start && r->end) {
++				/* Don't touch classless devices and host
++				   bridges and also hide their unassigned
++				   resources from the rest of PCI subsystem. */
++				if (!class || class == PCI_CLASS_BRIDGE_HOST)
++					r->flags = 0;
++				else
++					pci_assign_resource(dev, idx);
++			}
+ 		}
+ 
+ 		if (pci_probe & PCI_ASSIGN_ROMS) {

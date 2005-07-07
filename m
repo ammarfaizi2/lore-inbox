@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVGGKlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVGGKnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVGGKlj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 06:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVGGKlj
+	id S261289AbVGGKnq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 06:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVGGKlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 06:41:39 -0400
-Received: from cantor.suse.de ([195.135.220.2]:1944 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261273AbVGGKjW (ORCPT
+	Thu, 7 Jul 2005 06:41:47 -0400
+Received: from gold.veritas.com ([143.127.12.110]:76 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S261289AbVGGKlg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 06:39:22 -0400
-Date: Thu, 7 Jul 2005 12:39:18 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-pci@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH] Run PCI driver initialization on local node
-Message-ID: <20050707103918.GV21330@wotan.suse.de>
-References: <20050706133248.GG21330@wotan.suse.de> <Pine.LNX.4.62.0507060934360.20107@graphe.net> <20050706175603.GL21330@wotan.suse.de> <Pine.LNX.4.62.0507061232040.720@graphe.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0507061232040.720@graphe.net>
+	Thu, 7 Jul 2005 06:41:36 -0400
+Date: Thu, 7 Jul 2005 11:42:56 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: P@draigBrady.com, linux-kernel@vger.kernel.org
+Subject: Re: How do you accurately determine a process' RAM usage?
+In-Reply-To: <20050707014005.338ea657.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0507071129360.18479@goblin.wat.veritas.com>
+References: <42CC2923.2030709@draigBrady.com> <20050706181623.3729d208.akpm@osdl.org>
+ <42CCE737.70802@draigBrady.com> <20050707014005.338ea657.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 07 Jul 2005 10:41:31.0985 (UTC) FILETIME=[70648C10:01C582E0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 06, 2005 at 12:33:51PM -0700, Christoph Lameter wrote:
-> On Wed, 6 Jul 2005, Andi Kleen wrote:
+On Thu, 7 Jul 2005, Andrew Morton wrote:
+> P@draigBrady.com wrote:
 > 
-> > > That depends on the architecture. Some do round robin allocs for periods 
-> > > of time during bootup. I think it is better to explicitly place control 
-> > 
-> > slab will usually do the right thing because it has a forced
-> > local node policy, but __gfp might not.
+> > Looks like it's been stable for 4 months?
 > 
-> The slab allocator will do the right thing with the numa slab allocator in 
-> Andrew's tree but not with the one in Linus'tree. The one is Linus tree
-> will just pickup whatever slab is available irregardless of the node.
+> yup, although I don't think it's been used much.
 
-It should usually do the right thing because it
-runs on the correct CPUs. The only case that doesn't work 
-is freeing on different CPUs than it was allocated, but hopefully
-that is not too common during system startup.
+Just a sidenote to say I should be sending you an update to it
+(the /proc/$pid/smaps code) in the next couple of days, but merely
+cosmetic ("map" -> "vma", cond_resched_lock, p?d_addr_next ptwalking).
 
-And then at some point NUMA aware slab will make it into mainline
-I guess.
+I'm still pretty sceptical about it, but it's probably a useful
+framework for people to hack on, to report whatever kind of page
+numbers they're interested in for this or that investigation.
 
-> Only kmalloc_node will make a reasonable attempt to locate the memory on 
-> a specific node.
-
-You forgot __get_free_pages.
-
--Andi
+Hugh

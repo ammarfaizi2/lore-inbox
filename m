@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVGGKi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVGGKlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVGGKi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 06:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVGGKgt
+	id S261273AbVGGKlj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 06:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVGGKlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 06:36:49 -0400
-Received: from ns2.suse.de ([195.135.220.15]:5080 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261169AbVGGKeX (ORCPT
+	Thu, 7 Jul 2005 06:41:39 -0400
+Received: from cantor.suse.de ([195.135.220.2]:1944 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261273AbVGGKjW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 06:34:23 -0400
-Date: Thu, 7 Jul 2005 12:34:21 +0200
+	Thu, 7 Jul 2005 06:39:22 -0400
+Date: Thu, 7 Jul 2005 12:39:18 +0200
 From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: prasanna@in.ibm.com, ak@suse.de, davem@davemloft.net,
-       systemtap@sources.redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [1/6 PATCH] Kprobes : Prevent possible race conditions generic changes
-Message-ID: <20050707103421.GU21330@wotan.suse.de>
-References: <20050707101015.GE12106@in.ibm.com> <20050707032537.7588acb9.akpm@osdl.org>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pci@vger.kernel.org, gregkh@suse.de
+Subject: Re: [PATCH] Run PCI driver initialization on local node
+Message-ID: <20050707103918.GV21330@wotan.suse.de>
+References: <20050706133248.GG21330@wotan.suse.de> <Pine.LNX.4.62.0507060934360.20107@graphe.net> <20050706175603.GL21330@wotan.suse.de> <Pine.LNX.4.62.0507061232040.720@graphe.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050707032537.7588acb9.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0507061232040.720@graphe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 03:25:37AM -0700, Andrew Morton wrote:
-> Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
-> >
-> > There are possible race conditions if probes are placed on routines within the
-> > kprobes files and routines used by the kprobes.
+On Wed, Jul 06, 2005 at 12:33:51PM -0700, Christoph Lameter wrote:
+> On Wed, 6 Jul 2005, Andi Kleen wrote:
 > 
-> So...  don't do that then?  Is it likely that anyone would want to stick a
-> probe on the kprobe code itself?
-
-iirc one goal of systemtap (which uses kprobes) is to be provable
-safe so that an user cannot crash the kernel by adding probes. Basically
-to make it possible to use this on production systems safely. I have my
-doubts they will fully reach it, but at least it's a nice goal.
-
-> > -int register_kprobe(struct kprobe *p)
-> > +static int __kprobes in_kprobes_functions(unsigned long addr)
-> > +{
-> > +	/* Linker adds these: start and end of __kprobes functions */
-> > +	extern char __kprobes_text_start[], __kprobes_text_end[];
+> > > That depends on the architecture. Some do round robin allocs for periods 
+> > > of time during bootup. I think it is better to explicitly place control 
+> > 
+> > slab will usually do the right thing because it has a forced
+> > local node policy, but __gfp might not.
 > 
-> There's an old unix convention that section markers (start, end, edata,
-> etc) are declared `int'.  For some reason we don't do that in the kernel. 
-> Oh well.
+> The slab allocator will do the right thing with the numa slab allocator in 
+> Andrew's tree but not with the one in Linus'tree. The one is Linus tree
+> will just pickup whatever slab is available irregardless of the node.
 
-The Linux convention is to put it into asm-generic/sections.h at least.
+It should usually do the right thing because it
+runs on the correct CPUs. The only case that doesn't work 
+is freeing on different CPUs than it was allocated, but hopefully
+that is not too common during system startup.
+
+And then at some point NUMA aware slab will make it into mainline
+I guess.
+
+> Only kmalloc_node will make a reasonable attempt to locate the memory on 
+> a specific node.
+
+You forgot __get_free_pages.
 
 -Andi

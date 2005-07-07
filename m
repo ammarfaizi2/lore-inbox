@@ -1,281 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVGGORU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVGGOVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbVGGORU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 10:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVGGOOk
+	id S261551AbVGGOVa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 10:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVGGOT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 10:14:40 -0400
-Received: from posti6.jyu.fi ([130.234.4.43]:37032 "EHLO posti6.jyu.fi")
-	by vger.kernel.org with ESMTP id S261582AbVGGONz (ORCPT
+	Thu, 7 Jul 2005 10:19:26 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:58629 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S261551AbVGGOSP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 10:13:55 -0400
-Date: Thu, 7 Jul 2005 17:13:49 +0300 (EEST)
-From: Tero Roponen <teanropo@cc.jyu.fi>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Jon Smirl <jonsmirl@gmail.com>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc2 hangs at boot
-In-Reply-To: <20050707174158.A4318@jurassic.park.msu.ru>
-Message-ID: <Pine.GSO.4.58.0507071709170.697@tukki.cc.jyu.fi>
-References: <Pine.GSO.4.58.0507061638380.13297@tukki.cc.jyu.fi>
- <9e47339105070618273dfb6ff8@mail.gmail.com> <20050707135928.A3314@jurassic.park.msu.ru>
- <Pine.GSO.4.58.0507071324560.26776@tukki.cc.jyu.fi> <20050707163140.A4006@jurassic.park.msu.ru>
- <Pine.GSO.4.58.0507071546560.29406@tukki.cc.jyu.fi> <20050707174158.A4318@jurassic.park.msu.ru>
+	Thu, 7 Jul 2005 10:18:15 -0400
+From: "Alexander Y. Fomichev" <gluk@php4.ru>
+Reply-To: "Alexander Y. Fomichev" <gluk@php4.ru>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.12 hangs on boot
+Date: Thu, 7 Jul 2005 18:18:02 +0400
+User-Agent: KMail/1.8.1
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, admin@list.net.ru,
+       Git Mailing List <git@vger.kernel.org>
+References: <200506221813.50385.gluk@php4.ru> <Pine.LNX.4.58.0506241446440.11175@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0506241446440.11175@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-1120745629=:697"
-X-Spam-Checked: by miltrassassin
-	at posti6.jyu.fi; Thu, 07 Jul 2005 17:13:51 +0300
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507071818.03380.gluk@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
----559023410-851401618-1120745629=:697
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-On Thu, 7 Jul 2005, Ivan Kokshaysky wrote:
-
-> On Thu, Jul 07, 2005 at 03:47:58PM +0300, Tero Roponen wrote:
-> > I just tested the patch, but it didn't help. It still hangs.
+On Saturday 25 June 2005 02:20, Linus Torvalds wrote:
+> On Wed, 22 Jun 2005, Alexander Y. Fomichev wrote:
+> > I've been trying to switch from 2.6.12-rc3 to 2.6.12 on Dual EM64T 2.8
+> > GHz [ MoBo: Intel E7520, intel 82801 ]
+> > but kernel hangs on boot right after records:
+> >
+> > Booting processor 2/1 rip 6000 rsp ffff8100023dbf58
+> > Initializing CPU#2
 >
-> Well, the code in setup-bus.c does actually know about host
-> bridges, so the patch was just no-op...
+> Hmm.. Since you seem to be a git user, maybe you could try the git
+> "bisect" thing to help narrow down exactly where this happened (and help
+> test that thing too ;).
 >
-> Tero (and others), can you post dmesg from working kernel and,
-> if possible, from 2.6.13-rc2 captured from serial console?
+> You can basically use git to find the half-way point between a set of
+> "known good" points and a "known bad" point ("bisecting" the set of
+> commits), and doing just a few of those should give us a much better view
+> of where things started going wrong.
 >
-> Ivan.
+> For example, since you know that 2.6.12-rc3 is good, and 2.6.12 is bad,
+> you'd do
 >
+> 	git-rev-list --bisect v2.6.12 ^v2.6.12-rc3
+>
+> where the "v2.6.12 ^v2.6.12-rc3" thing basically means "everything in
+> v2.6.12 but _not_ in v2.6.12-rc3" (that's what the ^ marks), and the
+> "--bisect" flag just asks git-rev-list to list the middle-most commit,
+> rather than all the commits in between those kernel versions.
+>
+> You should get the answer "0e6ef3e02b6f07e37ba1c1abc059f8bee4e0847f", but
+> before you go any further, just make sure your git index is all clean:
+>
+> 	git status
+>
+> should not print anything else than "nothing to commit". If so, then
+> you're ready to try the new "mid-point" head:
+>
+> 	git-rev-list --bisect v2.6.12 ^v2.6.12-rc3 > .git/refs/heads/try1
+> 	git checkout try1
+>
+> which will create a new branch called "try1", where the head is that
+> "mid-point", and it will switch to that branch (this requires a fairly
+> recent "git", btw, so make sure you update your git first).
+>
+> Then, compile that kernel, and try it out.
+>
+> Now, there are two possibilities: either "try1" ends up being good, or it
+> still shows the bug. If it is a buggy kernel, then you now have a new
+> "bad"  point, and you do
+>
+> 	git-rev-list --bisect try1 ^v2.6.12-rc3 > .git/refs/heads/try2
+> 	git checkout try2
+>
+> which is all the same thing as you did before, except now we use "try1" as
+> the known bad one rather than v2.6.12 (and we call the new branch "try2"
+> of course).
+>
+> However, if that "try1" is _good_, and doesn't show the bug, then you
+> shouldn't replace the other "known good" case, but instead you should add
+> it to the list of good commits (aka commits we don't want to know about):
+>
+> 	git-rev-list --bisect v2.6.12 ^v2.6.12-rc3 ^try1 > .git/refs/heads/try2
+> 	git checkout try2
+>
+> ie notice how we now say: want to get the bisection of the commits in
+> v2.6.12 (known bad) but _not_ in either of v2.6.12-rc3 or the 'try1'
+> branch (which are known good).
+>
+> After compiling and testing a few kernels, you will have narrowed the
+> range down a _lot_, and at some point you can just say
+>
+> 	git-rev-list --pretty try4 ^v2.6.12-rc3 ^try1 ^try3
+>
+> (or however the "success/failure" pattern ends up being - the above
+> example line assumes that "try1" didn't have the bug, but "try2" did, and
+> then "try3" was ok again but "try4" was buggy), and you'll get a fairly
+> small list of commits that are the potential "bad" ones.
+>
+> After the above four tries, you'd have limited it down to a list of 95
+> changes (from the original 1520), so it would really be best to try six or
+> seven different kernels, but at that point you'd have it down to less than
+> 20 commits and then pinpointing the bug is usually much easier.
+>
+> And when you're done, you can just do
+>
+> 	git checkout master
+>
+> and you're back to where you started.
+>
+> 		Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I applied your original patch (the no-op one) and the
-end=0 patch. With those applied I could boot into login
-prompt.
+	Thank you for your answer, i've been on vacations last two weeks,
+and i didn't have an access to my mail account.
+	Hmmm... it seems that 'bisect' method not applicable to this host, this
+is production server, not so critical to one or two reboots but 'bisect' will
+require much more, i suspect. I've another host, nearly the same as of
+hardware and non-critical where such tests could be done , but i haven't a 
+serial console on it as now. It takes some time to link console because both 
+of this are remote hosts.
 
-Attached are lspci -vv and dmesg outputs from
-2.6.12 and 2.6.13-rc2 kernels.
-
--
-Tero Roponen
----559023410-851401618-1120745629=:697
-Content-Type: APPLICATION/octet-stream; name="lspci-2.6.13-rc2.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.58.0507071713490.697@tukki.cc.jyu.fi>
-Content-Description: 
-Content-Disposition: attachment; filename="lspci-2.6.13-rc2.gz"
-
-H4sICFA3zUIAA2xzcGNpLTIuNi4xMy1yYzIA7Zbfb5tIEMefzV8xj4kI9S4Q
-Qqw4J4PdFDWkPpOk1kV+wLC20dmAlqWt+9ffgAOxHecOtWnvh44XFjEzO/ud
-zwwQ0iHkDYF3SSZgyqNwzjrgxIItwU54+gZ0nVjj9m/jdn8MCpiqrmv185YT
-HPWuhhBGmT9dsvAYjjj7BEQ9llp2EgueLDFq+4MCLlvJYOWZ62eCcRm8lAX2
-Oliy8tVH5+ZegfurnhcnSarA0OcDzhXwBEvTKJ7jajAaKfAWvS3VUqSWJ3yR
-Zx2wfTQ3DHfxVYG7/tsnkzpGf3DvDa67KxZG+Qoub3vThAsFLuqFWy5kuNzs
-cTHEmyy1rn3B4mDdAUOXWiM2j5IYSKfINuFr8AVc5LGfZdE8ZuElHGmqMo3E
-CaSczZgIFoUex5JEUGcVdbZ9HuLxa6lv2Rc/Q8EzwfMVi0UGQ9uh6inZUtDL
-p9ka5VqhhpYLt4so/n3oh2AQsiuv/CPllV9FXuVFealhnuA+wYLBdRQz8KKv
-DIgptQoaOc9T0QFMEnrAk1ywEEQCzuhXoPRwWU7J5noqSZzEyk5Z4CHDTbr6
-+4nUsopjpjxa+XzdJeQEMhYkcVg+UXzKMfswijHbLtHLt8pyk3qXnhlS63Hj
-z1EcJp+LTIi+2V8hp7PZrExkl4k9F4ouRuVytnHBw7c/bMfEi5YGxQJtdgzo
-xkCtDNTSwCpJswUigrWKxLqqsuP1ShgQjao0I5Yx7ABqTFF0GYbY3x/RhWGd
-qFGICEs294M1REVNZn7AIEXPrNC7yKjinP7P+Q7nyjdwbjXlnL4a56d7nJuN
-ODcraM8bc+5XLtOXOdcqjLUXONcrA/1v4lzDeY5xIUhWqS8iPCwuS0qXjHfg
-hiUrfx4F5Yc04WiBpbtxVWoQeHCLN1fcTxdAVXPcnzz2AT0u5EvmSjTDneAB
-40+et8a+95+3h/LDv7Lyd7fHNw553dyH/xD41HAntT/d8T9v2jzqVgh1N4Te
-MATFECU4BoJjHfjXMlXtjPas9sBquxYMHWesF/TWaDSegvI/tcz1FCSVEhSc
-/uCpzxoIgubPe8Use6qQYXJIJuVn/nO+okyaWkOnl6d5mkOzYEZqvmuwVLjz
-LLC3xtBf6VnYH549d+9s5z+lpv78K9t/edDsC16MikfBNbUWXGvcyT176DRs
-5X/hxP5lT8hzSfoD/FH8zlwOAAA=
-
----559023410-851401618-1120745629=:697
-Content-Type: APPLICATION/octet-stream; name="lspci-2.6.12.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.58.0507071713491.697@tukki.cc.jyu.fi>
-Content-Description: 
-Content-Disposition: attachment; filename="lspci-2.6.12.gz"
-
-H4sICFA3zUIAA2xzcGNpLTIuNi4xMgDtll1zokgUhq/lV5zLpEiP3UgIY8Vs
-CToZakPG0SRjbcoLhEapVaCaZmadXz8HIkRNskvtZPar1hub4nx0v+c5p6G0
-S+kbCu+TTMJcRMGCd8GJJV+BnYj0Deg6tabtX6btwRQImJqud+rnHSc46l+O
-IIgyb77iwTEcCf4ZqHastOwkliJZYdT2BwIuX6tg5ZnrZZILFSYp9+2Nv+Ll
-q0/O9R2Bu8v+JE6SlMDIE0MhCEwkT9MoXuBqOB4TeIfelmYRpTWRnsyzLtge
-mhuGu/xK4Hbw7tGkjjEY3k2GV701D6J8DRc3/XkiJIHzeuGWCxUuHnKcj/BP
-VVpXnuSxv+mCoSutMV9ESQy0W+w2ERvwJJznsZdl0SLmwQUcdTQyj+QJpIKH
-XPrLQo9jRaGos4Y6254I8Pi11Df8Ny9DwTMp8jWPZQYj22HaKd1RcJLPsw3K
-tUYNLRdullH868gLwKB0X171R8qrvoq8ZE9esiMvM8wTzOMvOVxFMYdJ9JUD
-NZVWQaMQeSq7gJuEPogklzwAmYAz/giMPV+WU/rweyxJnMRkryxwn2GSnv7z
-TGlZxTFTEa09selRegIZ95M4KJ8YPuW4+yCKcbc9qpdvyeph6z12ZiitbeIv
-URwkX4qdUP0hP6F6JwzLjewzceDCChe9cjkrXfDw7Q+7MfGnlwblIgz3DNjW
-QK8M9MLAKkmzJSKCtYrkpqqyM+mXMCAaVWnGPOPYAcyYo+gqjLC/P6ELxzZg
-RiEirPjC8zcQFTUJPZ9Dip5ZoTcmZBXn7H/Ov5tzqynn7NU4Pz3g3GzGuVlB
-O2/MuV+5hC9zblYYmy9w7lcG/t/DeQfnOcYFP1mnnozwsLgsKV1x0YVrnqy9
-ReSXF2ki0AJLd+1qzKBw7xZvLoWXLoFp5nQw2/YBOy7kSxYkCjET3GP82dPW
-OPT+/fYgP/yWVb+7Pf7kkN+yR1+4d7fgM8Od1f5sz/9t0+bRdkJo+yH0hiEY
-hijBMRAc65lvLVPrnLG+1R5abdeCkeNM9YLeGo3GU1D9p5a5noK0UoKBMxg+
-9lkDQdD8aa+YZU8VMsyek4n8ld+cryhTR6uh08vTPM6h0A9pzXcNlga3Ewvs
-nTH0R3oW9s/Pntv3tvOfUlN/essOXh40h4IXo2IreEerBe807uS+PXIatvK/
-cGL/dCDkW0X5BojsWU9cDgAA
-
----559023410-851401618-1120745629=:697
-Content-Type: APPLICATION/octet-stream; name="dmesg-2.6.13-rc2.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.58.0507071713492.697@tukki.cc.jyu.fi>
-Content-Description: 
-Content-Disposition: attachment; filename="dmesg-2.6.13-rc2.gz"
-
-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
-588GnjGeDsdDa2yZ48Gx9j+/+omNFyUAAA==
-
----559023410-851401618-1120745629=:697
-Content-Type: APPLICATION/octet-stream; name="dmesg-2.6.12.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.58.0507071713493.697@tukki.cc.jyu.fi>
-Content-Description: 
-Content-Disposition: attachment; filename="dmesg-2.6.12.gz"
-
-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
-MQQiAAA=
-
----559023410-851401618-1120745629=:697--
+-- 
+Best regards.
+        Alexander Y. Fomichev <gluk@php4.ru>
+        Public PGP key: http://sysadminday.org.ru/gluk.asc

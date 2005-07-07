@@ -1,81 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVGGO6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVGGPA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVGGO6j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 10:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVGGMm3
+	id S261480AbVGGPA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 11:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVGGO7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 08:42:29 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:22145 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261366AbVGGMkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 08:40:12 -0400
-Date: Thu, 7 Jul 2005 14:29:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050707122959.GA4962@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507071237.42470.s0348365@sms.ed.ac.uk> <20050707114223.GA29825@elte.hu> <200507071315.24669.s0348365@sms.ed.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507071315.24669.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 7 Jul 2005 10:59:12 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:28862 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261476AbVGGO4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 10:56:34 -0400
+Date: Thu, 7 Jul 2005 10:56:29 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-45
+In-Reply-To: <20050706100451.GA7336@elte.hu>
+Message-ID: <Pine.LNX.4.58.0507071047540.12711@localhost.localdomain>
+References: <200506281927.43959.annabellesgarden@yahoo.de>
+ <200506301952.22022.annabellesgarden@yahoo.de> <20050630205029.GB1824@elte.hu>
+ <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu>
+ <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <20050703140432.GA19074@elte.hu>
+ <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507051155050.13165@echo.lysdexia.org>
+ <20050706100451.GA7336@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+Hi Ingo,
 
-> http://devzero.co.uk/~alistair/oops1.jpeg
-> 
-> I disabled the trace and the STACKOVERFLOW option seems to help; I've 
-> got a (slightly truncated) oops from the kernel. What happens is that 
-> I get an oops, then I get a BUG: warning me about the softlock, then I 
-> get another oops. I'm about to reboot to confirm whether the second 
-> oops is identical to the first (I suspect that it is).
+I've just downloaded 51-09 and tried running it here on a normal intel
+pentium4 box here at my customers site.  It included some hotplug PCI
+modules (I don't know why since it's doesn't have hotplug devices) and I
+got some init_MUTEX_LOCKED bugs on them.  Below you will find the patch (I
+assume that compat_semaphore is still used).
 
-unfortunately the EIP is at 0xedc, which is a corrupted value. The stack 
-trace portion that is visible on the screen is the usual pagefault trace 
-- without any information about the crash site itself. What the oops 
-tells us is that it's the openvpn process that crashed (if this was the 
-first oops). The preempt_count is 0x20010004, which shows us that this 
-was a section that had soft-IRQ-flags disabled and was in a hardirq 
-context.  (see the meaning of the preempt bits at the top of 
-include/linux/hardirq.h) That it's a hardirq handler that crashed is 
-further corroborated by the esp, which points into a kernel data area 
-(hardirq_ctx[], the 4K irq stacks), not into the process's kernel stack 
-(which is at threadinfo).
+Anyway, I also want to let you know that the e100 does not work.  It's
+detected, but it wont bring up DHCP, and when I manually configued it, it
+just froze (the process not the machine). But when I did a sysrq-t, the
+machine froze up after it completed with some RT yeilding bug. Here's what
+was last to spit out:
 
-the stack pointer itself looks healthy, it's near the end of a 4K page, 
-i.e. far from overflowing. So it would be really useful to get the full 
-oops output. (that way you can also be sure it's the first crash you are 
-seeing.)
+NETDEV WATCHDOG: eth0: transmit timed out
+BUG: events/0:10 RT task yield()-ing!
+ [<c01042ef>] dump_stack+0x1f/0x30 (20)
+ [<c02e8b1a>] yield+0x5a/0x60 (20)
+ [<c029bec5>] dev_deactivate+0x65/0x70 (20)
+ [<c0296ae8>] linkwatch_run_queue+0xf8/0x110 (40)
+ [<c0296b31>] linkwatch_event+0x31/0x70 (16)
+ [<c013081b>] worker_thread+0x17b/0x230 (124)
+ [<c01353de>] kthread+0xae/0xc0 (48)
+ [<c0101445>] kernel_thread_helper+0x5/0x10 (814882844)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c014007a>] .... add_preempt_count+0x1a/0x20
+.....[<c0140fcd>] ..   ( <= print_traces+0x1d/0x60)
 
-(i doubt netconsole debugging will work, given that we are in a hardirq 
-context. Serial logging will work.)
+------------------------------
+| showing all locks held by: |  (events/0/10 [cf6ca030,  98]):
+------------------------------
 
-one thing you could try is to apply the attached patch and reproduce the 
-crash. It should print a pure backtrace and lock the box up afterwards, 
-so that you can take a picture.
+#001:             [c0390684] {rtnl_sem.lock}
+... acquired at:  linkwatch_event+0x2c/0x70
 
-	Ingo
 
---- linux/arch/i386/kernel/traps.c.orig
-+++ linux/arch/i386/kernel/traps.c
-@@ -323,6 +323,8 @@ void die(const char * str, struct pt_reg
- 
- 	if (++die.lock_owner_depth < 3) {
- 		int nl = 0;
-+		dump_stack();
-+		for (;;) raw_local_irq_disable(); // freeze the box
- 		handle_BUG(regs);
- 		printk(KERN_ALERT "%s: %04lx [#%d]\n", str, err & 0xffff, ++die_counter);
- #ifdef CONFIG_PREEMPT
+This was right after the trace and all else froze. Anyway, I'll debug it
+tomorrow since I'm about to go home for the day. And here's the patch for
+the hotplug stuff (sorry about the -p0).
+
+Index: drivers/pci/hotplug/ibmphp_hpc.c
+===================================================================
+--- drivers/pci/hotplug/ibmphp_hpc.c	(revision 237)
++++ drivers/pci/hotplug/ibmphp_hpc.c	(working copy)
+@@ -104,7 +104,7 @@
+ static struct semaphore sem_hpcaccess;	// lock access to HPC
+ static struct semaphore semOperations;	// lock all operations and
+ 					// access to data structures
+-static struct semaphore sem_exit;	// make sure polling thread goes away
++static struct compat_semaphore sem_exit;	// make sure polling thread goes away
+ //----------------------------------------------------------------------------
+ // local function prototypes
+ //----------------------------------------------------------------------------
+Index: drivers/pci/hotplug/cpqphp_ctrl.c
+===================================================================
+--- drivers/pci/hotplug/cpqphp_ctrl.c	(revision 237)
++++ drivers/pci/hotplug/cpqphp_ctrl.c	(working copy)
+@@ -45,8 +45,8 @@
+ 			u8 behind_bridge, struct resource_lists *resources);
+ static void interrupt_event_handler(struct controller *ctrl);
+
+-static struct semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
+-static struct semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
++static struct compat_semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
++static struct compat_semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
+ static int event_finished;
+ static unsigned long pushbutton_pending;	/* = 0 */
+
+Index: drivers/pci/hotplug/shpchp_ctrl.c
+===================================================================
+--- drivers/pci/hotplug/shpchp_ctrl.c	(revision 237)
++++ drivers/pci/hotplug/shpchp_ctrl.c	(working copy)
+@@ -47,8 +47,8 @@
+ 	u8 behind_bridge, struct resource_lists *resources, u8 bridge_bus, u8 bridge_dev);
+ static void interrupt_event_handler(struct controller *ctrl);
+
+-static struct semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
+-static struct semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
++static struct compat_semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
++static struct compat_semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
+ static int event_finished;
+ static unsigned long pushbutton_pending;	/* = 0 */
+
+Index: drivers/pci/hotplug/cpci_hotplug_core.c
+===================================================================
+--- drivers/pci/hotplug/cpci_hotplug_core.c	(revision 237)
++++ drivers/pci/hotplug/cpci_hotplug_core.c	(working copy)
+@@ -60,8 +60,8 @@
+ static atomic_t extracting;
+ int cpci_debug;
+ static struct cpci_hp_controller *controller;
+-static struct semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
+-static struct semaphore thread_exit;		/* guard ensure thread has exited before calling it quits */
++static struct compat_semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
++static struct compat_semaphore thread_exit;		/* guard ensure thread has exited before calling it quits */
+ static int thread_finished = 1;
+
+ static int enable_slot(struct hotplug_slot *slot);
+Index: drivers/pci/hotplug/pciehp_ctrl.c
+===================================================================
+--- drivers/pci/hotplug/pciehp_ctrl.c	(revision 237)
++++ drivers/pci/hotplug/pciehp_ctrl.c	(working copy)
+@@ -48,8 +48,8 @@
+ 	u8 behind_bridge, struct resource_lists *resources, u8 bridge_bus, u8 bridge_dev);
+ static void interrupt_event_handler(struct controller *ctrl);
+
+-static struct semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
+-static struct semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
++static struct compat_semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
++static struct compat_semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
+ static int event_finished;
+ static unsigned long pushbutton_pending;	/* = 0 */
+ static unsigned long surprise_rm_pending;	/* = 0 */
+

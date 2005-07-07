@@ -1,137 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVGGQ2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVGGQaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbVGGQ2P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 12:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVGGQ1s
+	id S261436AbVGGQaG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 12:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVGGQaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 12:27:48 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:28911 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261363AbVGGQ11
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 12:27:27 -0400
-From: "Timothy R. Chavez" <tinytim@us.ibm.com>
-Organization: IBM
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] audit: file system auditing based on location and name
-Date: Thu, 7 Jul 2005 11:26:51 -0500
-User-Agent: KMail/1.8
-Cc: Andrew Morton <akpm@osdl.org>, linux-audit@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       David Woodhouse <dwmw2@infradead.org>,
-       Mounir Bsaibes <mbsaibes@us.ibm.com>, Steve Grubb <sgrubb@redhat.com>,
-       Serge Hallyn <serue@us.ibm.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Klaus Weidner <klaus@atsec.com>, Chris Wright <chrisw@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, Robert Love <rml@novell.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Daniel H Jones <danjones@us.ibm.com>, Amy Griffis <amy.griffis@hp.com>,
-       Maneesh Soni <maneesh@in.ibm.com>
-References: <1120668881.8328.1.camel@localhost> <200507061523.11468.tinytim@us.ibm.com> <20050706235008.GA9985@kroah.com>
-In-Reply-To: <20050706235008.GA9985@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 7 Jul 2005 12:30:03 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:45032 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261399AbVGGQ3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 12:29:32 -0400
+Date: Thu, 7 Jul 2005 09:29:15 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: thor@math.TU-Berlin.DE, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] joydev.c: Digital joysticks on analog ports
+Message-Id: <20050707092915.7fb5d7a4.rdunlap@xenotime.net>
+In-Reply-To: <20050707120607.GA14257@ucw.cz>
+References: <200507071114.NAA10656@mersenne.math.tu-berlin.de>
+	<20050707120607.GA14257@ucw.cz>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507071126.52375.tinytim@us.ibm.com>
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 July 2005 18:50, Greg KH wrote:
-> On Wed, Jul 06, 2005 at 03:23:10PM -0500, Timothy R. Chavez wrote:
-> > This is similar to Inotify in that the audit subsystem watches for file
-> > system activity and collects information about inodes its interested 
-> > in, but this is where the similarities stop.  Despite the fact that the
-> > Inotify requirements only dictate a subset of the activity the audit
-> > subsystem is interested in, there is a more fundamental divergence 
-> > between the two projects.  Like audit, Inotify takes paths and resolves 
-> > them to a single inode.  But, unlike audit, Inotify does not find the path 
-> > itself interesting.
-> 
-> Huh?  inotify users find that path interesting, as they use it to act
-> apon.
+On Thu, 7 Jul 2005 14:06:07 +0200 Vojtech Pavlik wrote:
 
-I really didn't want to go back and forth on this (my fingers are still sore from
-our convo on ltc-interlock :-)), but I might as well oblige.
+| On Thu, Jul 07, 2005 at 01:14:58PM +0200, Thomas Richter wrote:
+| > 
+| > Hi folks, hi Vojtech,
+| > 
+| > the following is a patch to drivers/input/joydev.c and
+| > include/linux/joystick.h that allows you to connect the "traditional"
+| > digital joysticks for C64, Atari, Amiga... on analog input ports by
+| > means of a minimalistic self- made adapter board ("ElCheapo",
+| > schematics below). The patch converts the digital inputs to suitable
+| > "analog" versions that are interpreted fine. The patch "as is" applies
+| > to kernel 2.4.31, but it should work for other kernel versions as
+| > well.
+| > 
+| > New kernel parameters for joydev: "digital = 1" sets all default input
+| > modes to "digital" instead of analog.
+| > 
+| > The new ioctl JSIOCSDIGITAL for joydev allows to adjusts this
+| > on the running driver.
+| 
+| Sorry, I have to reject this patch. 
+| 
+| First, you added support for the adapter to the wrong file - if
+| anywhere, the logic should be either inside analog.c, or in a separate
+| driver, which would be probably better.
+| 
+| Second, the 2.4 input layer is in bugfix-only mode now. Any new features
+| can go only into 2.6.
+| 
+| Third - the ElCheapo interface is totally ugly. With just a few more
+| component a real convertor, working as a real joystick is possible.
+| 
+| Fourth - we already have three drivers for these joystick (db9, gamecon
+| and turbografx), all connected via trivial circuits to the parallel
+| port.
 
-> 
-> > Much like the (device,inode)-based system call filters 
-> > currently available in the audit subsystem, Inotify targets only individual 
-> > inodes.  Thus, if the underlying inode associated with the file /etc/shadow 
-> > was changed, and /etc/shadow was being "watched", we'd lose auditability 
-> > on /etc/shadow across transactions.
-> 
-> That's why you watch /etc/ instead, which catches that rename.  That
-> being said, why would not inotify also want this functionality if you
-> think it is important?
+5.  Fix indentation.
 
-Sure, by watching a directory with Inotify, you receive notification upon rename() 
-events.  Now, as far as Inotify is concerned, how this is finally interpreted is up to 
-the user space programs it's feeding.  In terms of audit, there must never be a
-chance for subversion.  If this feature were implemented in terms of Inotify as it 
-stands now, the processing we do in fs/dcache.c would need to be shifted to a
-user space app which is obviously out of the question.  One alternative, the one 
-I believe you're in favor of, is to augment Inotify itself.  But, AFAICT, nothing in 
-Inotify's documentation leads me to believe that this adds anything to Inotify itself 
-(with the exception of complication and obfuscation), especially in terms of event 
-notification.  IMO, by tieing our logic to Inotify we'd inadvertently be dooming it to 
-the dreaded Second-system syndrome:
+6.  Don't init static data to 0.
 
-http://en.wikipedia.org/wiki/Second-system_effect
 
-> 
-> > More so, Inotify cannot watch inodes that do not yet exist (because
-> > the file does not yet exist).  To do this, the audit subsystem must
-> > hook deeper than Inotify (in fs/dcache.c) to adapt with the file
-> > system as it changes.  Where it makes sense, the small set of
-> > notification hooks in the VFS that Inotify and audit could share
-> > should be consolidated.
-> 
-> As inotify works off of open file descriptors, yes, this is true.  But,
-> again, if you think this is really important, then why not just work
-> with inotify to provide that kind of support to it?
+| > Greetings,
+| > 	Thomas Richter
+| > 
+| > Patch for drivers/input/joydev.c:
+| > 
+| > /* snip */
+| > 
+| > --- ../linux-2.4.31/drivers/input/joydev.c	2003-06-13 16:51:34.000000000 +0200
+| > +++ drivers/input/joydev.c	2005-07-06 22:37:21.000000000 +0200
+| > @@ -65,6 +65,7 @@
+| >  	struct JS_DATA_SAVE_TYPE glue;
+| >  	int nabs;
+| >  	int nkey;
+| > +        int digital;
+| >  	__u16 keymap[KEY_MAX - BTN_MISC];
+| >  	__u16 keypam[KEY_MAX - BTN_MISC];
+| >  	__u8 absmap[ABS_MAX];
+| > @@ -84,6 +85,11 @@
+| >  
+| >  static struct joydev *joydev_table[JOYDEV_MINORS];
+| >  
+| > +static int digital = 0;
+| > +
+| > +MODULE_PARM(digital,"i");
+| > +MODULE_PARM_DESC(digital,"if 1, handle digital joysticks via the 'ElCheapo' interface");
+| > +
+| >  MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
+| >  MODULE_DESCRIPTION("Joystick device driver");
+| >  MODULE_LICENSE("GPL");
+| > @@ -109,13 +115,68 @@
+| >  	return value;
+| >  }
+| >  
+| > +static int joydev_digital_event(struct js_event *ev,struct input_handle *handle,unsigned int type,
+| > +				unsigned int code, int value)
+| > +{
+| > +  struct joydev *joydev = handle->private;
+| > +
+| > +  switch(type) {
+| > +  case EV_KEY:
+| > +    if (code < BTN_MISC || value == 2) return 0;
+| > +    code = joydev->keymap[code - BTN_MISC];
+| > +    switch(code) {
+| > +    case 0:
+| > +      ev->type   = JS_EVENT_AXIS;
+| > +      ev->number = 1;
+| > +      ev->value  = (value)?+32767:0;
+| > +      break;
+| > +    case 1:
+| > +      ev->type   = JS_EVENT_AXIS;
+| > +      ev->number = 0;
+| > +      ev->value  = (value)?+32767:0;
+| > +      break;
+| > +    case 2:
+| > +      ev->type   = JS_EVENT_AXIS;
+| > +      ev->number = 1;
+| > +      ev->value  = (value)?-32767:0;
+| > +      break;
+| > +    case 3:
+| > +      ev->type   = JS_EVENT_AXIS;
+| > +      ev->number = 0;
+| > +      ev->value  = (value)?-32767:0;
+| > +      break;
+| > +    default:
+| > +      ev->type   = JS_EVENT_BUTTON;
+| > +      ev->number = code;
+| > +      ev->value  = value;
+| > +    }
+| > +    break;
+| > +  case EV_ABS:
+| > +    if (joydev->absmap[code] == 0) {
+| > +      ev->type   = JS_EVENT_BUTTON;
+| > +      ev->number = 0;
+| > +      if (joydev_correct(value, joydev->corr) >= 16384)
+| > +	ev->value = 1;
+| > +      else
+| > +	ev->value = 0;
+| > +    } else return 0;
+| > +    break;
+| > +  default:
+| > +    return 0;
+| > +  }
+| > +  return 1;
+| > +}
+| > +
+| >  static void joydev_event(struct input_handle *handle, unsigned int type, unsigned int code, int value)
+| >  {
+| >  	struct joydev *joydev = handle->private;
+| >  	struct joydev_list *list = joydev->list;
+| >  	struct js_event event;
+| >  
+| > -	switch (type) {
+| > +	if (joydev->digital) {
+| > +	  if (joydev_digital_event(&event,handle,type,code,value) == 0)
+| > +	    return;
+| > +	} else switch (type) {
+| >  
+| >  		case EV_KEY:
+| >  			if (code < BTN_MISC || value == 2) return;
+| > @@ -382,6 +443,8 @@
+| >  				joydev->absmap[joydev->abspam[i]] = i;
+| >  			}
+| >  			return 0;
+| > +	        case JSIOCSDIGITAL:
+| > +		        return get_user(joydev->digital, (__u8 *)arg);
+| >  		case JSIOCGAXMAP:
+| >  			return copy_to_user((__u8 *) arg, joydev->abspam,
+| >  						sizeof(__u8) * ABS_MAX) ? -EFAULT : 0;
+| > @@ -450,6 +513,7 @@
+| >  	joydev->handle.private = joydev;
+| >  
+| >  	joydev->exist = 1;
+| > +	joydev->digital = digital;
+| >  
+| >  	for (i = 0; i < ABS_MAX; i++)
+| >  		if (test_bit(i, dev->absbit)) {
+| > 
+| > /* snip */
+| > 
+| > Patch for include/linux/joystick.h:
+| > 
+| > /* snip */
+| > 
+| > --- ../linux-2.4.31/include/linux/joystick.h	2005-06-26 15:44:37.000000000 +0200
+| > +++ include/linux/joystick.h	2005-07-06 22:37:36.000000000 +0200
+| > @@ -70,6 +70,7 @@
+| >  #define JSIOCGAXMAP		_IOR('j', 0x32, __u8[ABS_MAX])			/* get axis mapping */
+| >  #define JSIOCSBTNMAP		_IOW('j', 0x33, __u16[KEY_MAX - BTN_MISC])	/* set button mapping */
+| >  #define JSIOCGBTNMAP		_IOR('j', 0x34, __u16[KEY_MAX - BTN_MISC])	/* get button mapping */
+| > +#define JSIOCSDIGITAL           _IOW('j', 0x35, __u8)                           /* set digital/analog flag */
+| >  
+| >  /*
+| >   * Types and constants for get/set correction
+| > 
+| > /* snip */
+| 
+| -- 
+| Vojtech Pavlik
+| SuSE Labs, SuSE CR
 
-I've yet to be convinced that merging these two projects or implementing 
-one in terms of the other has any real benefit to either project in terms of
-their individual goals and requirements.
 
-The only real similarty between the two projects from my POV is that they 
-are both interested in reporting a subset of file system activity and could 
-benefit from a set of common hooks (ie: fsnotify) where it makes sense.
-
-> 
-> I suggest you work together with the inotify developers to hash out your
-> differences, as it sounds like you are duplicating a lot of the same
-> functionality.
-
-Where functionality is the same or similar, we can address that, but surely 
-in the interim the inclusion of this patch into -mm would be beneficial to the 
-98% of dissimilar functionality :)
-
-> 
-> Also, inotify handles the namespace issues of processes by working off
-> of a file descriptor.  How do you handle this?
-
-Well I guess this boils down to what you consider an issue.  In terms of audit 
-and this patch, tagging audit info to the inode ensures that it's auditable from 
-any namespace.  When a location and name is audited, the administrator does 
-so from what they consider a meaningful namespace and device (ie: for most, 
-the path /etc/shadow is meaningful, so by "watching" it, you've made a file 
-containing security secrets auditable and not your favorite LOTR ascii art) .
-
--tim
-
-> 
-> Do you have any documetation or example userspace code that shows how to
-> use this auditfs interface you have created?
-
-> 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> 
+---
+~Randy

@@ -1,54 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVGGLq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVGGLsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbVGGLq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 07:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVGGLo2
+	id S261275AbVGGLsw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 07:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVGGLq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 07:44:28 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:46239 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261227AbVGGLmb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 07:42:31 -0400
-Date: Thu, 7 Jul 2005 13:42:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+	Thu, 7 Jul 2005 07:46:58 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:2231 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261282AbVGGLog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 07:44:36 -0400
+Message-ID: <42CD159F.3040302@ens-lyon.org>
+Date: Thu, 07 Jul 2005 13:44:31 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050707114223.GA29825@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507071221.47946.s0348365@sms.ed.ac.uk> <20050707112936.GA26335@elte.hu> <200507071237.42470.s0348365@sms.ed.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507071237.42470.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Subject: Re: 2.6.13-rc2-mm1
+References: <20050707040037.04366e4e.akpm@osdl.org> <42CD12C4.8010200@ens-lyon.org>
+In-Reply-To: <42CD12C4.8010200@ens-lyon.org>
+Content-Type: multipart/mixed;
+ boundary="------------070109020604000901000304"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------070109020604000901000304
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-
-> > do you have DEBUG_STACKOVERFLOW and latency tracing still enabled?  The
-> > combination of those two options is pretty good at detecting stack
-> > overflows. Also, you might want to enable CONFIG_4KSTACKS, that too
-> > disturbs the stack layout enough so that the error message may make it
-> > to the console.
+Le 07.07.2005 13:32, Brice Goglin a écrit :
+> Le 07.07.2005 13:00, Andrew Morton a écrit :
 > 
-> I already have 4KSTACKS on. Latency tracing is enabled, but 
-> STACKOVERFLOW isn't; I'll just reenable everything again until we fix 
-> this. Do you think if I removed the printk() line I might get some 
-> useful information, before it does the stack trace?
+>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc2/2.6.13-rc2-mm1/
+>>
+>>(kernel.org seems to be stuck again - there's a copy at
+>>http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-rc2-mm1.gz)
+> 
+> 
+>   CC      kernel/power/disk.o
+> kernel/power/disk.c: Dans la fonction « software_resume »:
+> kernel/power/disk.c:242: attention : implicit declaration of function
+> `name_to_dev_t'
+> 
+> The attached patch adds an extern declaration in disk.c as it's
+> already done in swsusp.c
 
-usually such loops happen if the stack has been overflown and critical 
-information that lies on the bottom of the stack (struct thread_info) is 
-overwritten. Then we often cannot even perform simple printks. Stack 
-overflow debugging wont prevent the crash, but might give a better 
-traceback.
+Actually, we could even remove the one from swsusp.c since it's not
+used anymore.
+New patch attached.
 
-	Ingo
+Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
+
+Brice
+
+--------------070109020604000901000304
+Content-Type: text/x-patch;
+ name="move_extern_name_to_dev_t_to_power_disk.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="move_extern_name_to_dev_t_to_power_disk.patch"
+
+--- linux-mm/kernel/power/swsusp.c.old	2005-07-07 13:41:09.000000000 +0200
++++ linux-mm/kernel/power/swsusp.c	2005-07-07 13:41:28.000000000 +0200
+@@ -1261,8 +1261,6 @@ static int data_read(struct pbe *pblist)
+ 	return error;
+ }
+ 
+-extern dev_t name_to_dev_t(const char *line);
+-
+ /**
+  *	read_pagedir - Read page backup list pages from swap
+  */
+--- linux-mm/kernel/power/disk.c.old	2005-07-07 13:28:52.000000000 +0200
++++ linux-mm/kernel/power/disk.c	2005-07-07 13:30:02.000000000 +0200
+@@ -30,6 +30,7 @@ extern void swsusp_close(void);
+ extern int swsusp_resume(void);
+ extern int swsusp_free(void);
+ 
++extern dev_t name_to_dev_t(const char *line);
+ 
+ static int noresume = 0;
+ char resume_file[256] = CONFIG_PM_STD_PARTITION;
+
+--------------070109020604000901000304--

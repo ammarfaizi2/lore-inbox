@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVGGSxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVGGS4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVGGSxo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 14:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVGGSvh
+	id S261748AbVGGS4I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 14:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVGGSxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 14:51:37 -0400
-Received: from unused.mind.net ([69.9.134.98]:14250 "EHLO echo.lysdexia.org")
-	by vger.kernel.org with ESMTP id S261463AbVGGSue (ORCPT
+	Thu, 7 Jul 2005 14:53:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25254 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261739AbVGGSv7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 14:50:34 -0400
-Date: Thu, 7 Jul 2005 11:49:39 -0700 (PDT)
-From: William Weston <weston@sysex.net>
-X-X-Sender: weston@echo.lysdexia.org
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-06
-In-Reply-To: <20050707104859.GD22422@elte.hu>
-Message-ID: <Pine.LNX.4.58.0507071140420.24968@echo.lysdexia.org>
-References: <200506281927.43959.annabellesgarden@yahoo.de>
- <200506301952.22022.annabellesgarden@yahoo.de> <20050630205029.GB1824@elte.hu>
- <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu>
- <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <20050703140432.GA19074@elte.hu>
- <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507061802570.20214@echo.lysdexia.org>
- <20050707104859.GD22422@elte.hu>
+	Thu, 7 Jul 2005 14:51:59 -0400
+From: Steve Grubb <sgrubb@redhat.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] audit: file system auditing based on location and name
+Date: Thu, 7 Jul 2005 14:49:09 -0400
+User-Agent: KMail/1.7.2
+Cc: "Timothy R. Chavez" <tinytim@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-audit@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+       Mounir Bsaibes <mbsaibes@us.ibm.com>, Serge Hallyn <serue@us.ibm.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Klaus Weidner <klaus@atsec.com>, Chris Wright <chrisw@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, Robert Love <rml@novell.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Daniel H Jones <danjones@us.ibm.com>, Amy Griffis <amy.griffis@hp.com>,
+       Maneesh Soni <maneesh@in.ibm.com>
+References: <1120668881.8328.1.camel@localhost> <200507062133.05827.sgrubb@redhat.com> <20050707181530.GB21072@kroah.com>
+In-Reply-To: <20050707181530.GB21072@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507071449.10271.sgrubb@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Jul 2005, Ingo Molnar wrote:
+On Thursday 07 July 2005 14:15, Greg KH wrote:
+> I fail to see any refactoring here, why not make your patch rely on
+> theirs?
 
-> > Still looking into this issue on -51-06.  Found something really odd: 
-> > SCHED_NORMAL tasks will start to inherit the priority value of some 
-> > other SCHED_FIFO task.  If JACK is started at a given SCHED_FIFO 
-> > priority, X and all of its children will inherit the same priority 
-> > value after login.  Other random processes will inherit this, too -- 
-> > sometimes init...
-> > 
-> > SCHED_NORMAL tasks suddenly inheriting priority values in the range 
-> > normally reserved for SCHED_FIFO could explain at least part of the 
-> > meltdown I've been seeing.  Any thoughts?
-> 
-> is this inheritance perpetual? It is normal for some tasks to be boosted 
-> momentarily, but if the condition remains even after jackd has exited, 
-> it's clearly an anomaly. (lets call it "RT priority leakage".) Priority 
-> leakage on SMP was fixed recently, but there could be other bugs 
-> remaining.
+At the time this code was developed, inotify was not in the kernel. We would 
+be patching against another patch that's not in the kernel.
 
-Yes, this leakage perpetual.  That's what struck me as odd.
+> > The whole rest of it is different. I hope the inotify people comment
+> > on this to see if there is indeed something that should be refactored.
+>
+> I realize your userspace access is different, yet I do not believe yet
+> that it should be this way.
 
-> There's priority-leakage debugging code in the -RT kernel, which is 
-> activated if you enable CONFIG_DEBUG_PREEMPT. This debugging code, if 
-> triggered, should produce 'BUG: comm/123 leaked RT prio 123 (123)?" type 
-> of messages. But ... due to a bug it would not print out anything but 
-> would lock up hard if it detects the condition (and if 
-> RT_DEADLOCK_DETECT is enabled). I have fixed this reporting bug in the 
-> -51-08 kernel.
+The problems that we are faced with are dictated by CAPP and other security 
+profiles. The audit user space access has been in the kernel for over a year, 
+so that's not really a good thing to go changing.
 
--51-08 is building now.  I'll check out the latest, too.
+> No documentation on the auditfs interface :(
 
---ww
+That's what Tim's email was providing. Its a new component.
+
+> > The audit package is currently distributed in Fedora Core 4. The code to
+> > use Tim's fs audit code is in the user space app, but is waiting for the
+> > kernel pieces.
+>
+> So the userspace package in FC4 will not use auditfs?
+
+Right. You get a few warnings due to missing functionality. If the kernel were 
+patched with Tim's code, it all works as expected. We have worked out the 
+user space access and that shouldn't be changing.
+
+-Steve

@@ -1,222 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVGGQaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVGGQaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbVGGQaG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 12:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVGGQaD
+	id S261355AbVGGQaH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 12:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVGGQ2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 12:30:03 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:45032 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261399AbVGGQ3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 12:29:32 -0400
-Date: Thu, 7 Jul 2005 09:29:15 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: thor@math.TU-Berlin.DE, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] joydev.c: Digital joysticks on analog ports
-Message-Id: <20050707092915.7fb5d7a4.rdunlap@xenotime.net>
-In-Reply-To: <20050707120607.GA14257@ucw.cz>
-References: <200507071114.NAA10656@mersenne.math.tu-berlin.de>
-	<20050707120607.GA14257@ucw.cz>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 7 Jul 2005 12:28:18 -0400
+Received: from mx1.suse.de ([195.135.220.2]:55688 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261355AbVGGQYo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 12:24:44 -0400
+Date: Thu, 7 Jul 2005 18:24:42 +0200
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andi Kleen <ak@suse.de>, linux-ide@vger.kernel.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [another PATCH] Fix crash on boot in kmalloc_node IDE changes
+Message-ID: <20050707162442.GI21330@wotan.suse.de>
+References: <20050706133052.GF21330@wotan.suse.de> <Pine.LNX.4.62.0507070912140.27066@graphe.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0507070912140.27066@graphe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Jul 2005 14:06:07 +0200 Vojtech Pavlik wrote:
+On Thu, Jul 07, 2005 at 09:21:55AM -0700, Christoph Lameter wrote:
+> On Wed, 6 Jul 2005, Andi Kleen wrote:
+> 
+> > Without this patch a dual Xeon EM64T machine would oops on boot
+> > because the hwif pointer here was NULL. I also added a check for
+> > pci_dev because it's doubtful that all IDE devices have pci_devs.
+> 
+> Here is IMHO the right way to fix this. Test for the hwif != NULL and
+> test for pci_dev != NULL before determining the node number of the pci 
+> bus that the device is connected to. Maybe we need a hwif_to_node for ide 
+> drivers that is also able to determine the locality of other hardware?
 
-| On Thu, Jul 07, 2005 at 01:14:58PM +0200, Thomas Richter wrote:
-| > 
-| > Hi folks, hi Vojtech,
-| > 
-| > the following is a patch to drivers/input/joydev.c and
-| > include/linux/joystick.h that allows you to connect the "traditional"
-| > digital joysticks for C64, Atari, Amiga... on analog input ports by
-| > means of a minimalistic self- made adapter board ("ElCheapo",
-| > schematics below). The patch converts the digital inputs to suitable
-| > "analog" versions that are interpreted fine. The patch "as is" applies
-| > to kernel 2.4.31, but it should work for other kernel versions as
-| > well.
-| > 
-| > New kernel parameters for joydev: "digital = 1" sets all default input
-| > modes to "digital" instead of analog.
-| > 
-| > The new ioctl JSIOCSDIGITAL for joydev allows to adjusts this
-| > on the running driver.
-| 
-| Sorry, I have to reject this patch. 
-| 
-| First, you added support for the adapter to the wrong file - if
-| anywhere, the logic should be either inside analog.c, or in a separate
-| driver, which would be probably better.
-| 
-| Second, the 2.4 input layer is in bugfix-only mode now. Any new features
-| can go only into 2.6.
-| 
-| Third - the ElCheapo interface is totally ugly. With just a few more
-| component a real convertor, working as a real joystick is possible.
-| 
-| Fourth - we already have three drivers for these joystick (db9, gamecon
-| and turbografx), all connected via trivial circuits to the parallel
-| port.
+Hmm? Where is the difference? 
 
-5.  Fix indentation.
+This is 100% equivalent to my code except that you compressed
+it all into a single expression.
 
-6.  Don't init static data to 0.
+The former one was more readable.
 
+-Andi
 
-| > Greetings,
-| > 	Thomas Richter
-| > 
-| > Patch for drivers/input/joydev.c:
-| > 
-| > /* snip */
-| > 
-| > --- ../linux-2.4.31/drivers/input/joydev.c	2003-06-13 16:51:34.000000000 +0200
-| > +++ drivers/input/joydev.c	2005-07-06 22:37:21.000000000 +0200
-| > @@ -65,6 +65,7 @@
-| >  	struct JS_DATA_SAVE_TYPE glue;
-| >  	int nabs;
-| >  	int nkey;
-| > +        int digital;
-| >  	__u16 keymap[KEY_MAX - BTN_MISC];
-| >  	__u16 keypam[KEY_MAX - BTN_MISC];
-| >  	__u8 absmap[ABS_MAX];
-| > @@ -84,6 +85,11 @@
-| >  
-| >  static struct joydev *joydev_table[JOYDEV_MINORS];
-| >  
-| > +static int digital = 0;
-| > +
-| > +MODULE_PARM(digital,"i");
-| > +MODULE_PARM_DESC(digital,"if 1, handle digital joysticks via the 'ElCheapo' interface");
-| > +
-| >  MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
-| >  MODULE_DESCRIPTION("Joystick device driver");
-| >  MODULE_LICENSE("GPL");
-| > @@ -109,13 +115,68 @@
-| >  	return value;
-| >  }
-| >  
-| > +static int joydev_digital_event(struct js_event *ev,struct input_handle *handle,unsigned int type,
-| > +				unsigned int code, int value)
-| > +{
-| > +  struct joydev *joydev = handle->private;
-| > +
-| > +  switch(type) {
-| > +  case EV_KEY:
-| > +    if (code < BTN_MISC || value == 2) return 0;
-| > +    code = joydev->keymap[code - BTN_MISC];
-| > +    switch(code) {
-| > +    case 0:
-| > +      ev->type   = JS_EVENT_AXIS;
-| > +      ev->number = 1;
-| > +      ev->value  = (value)?+32767:0;
-| > +      break;
-| > +    case 1:
-| > +      ev->type   = JS_EVENT_AXIS;
-| > +      ev->number = 0;
-| > +      ev->value  = (value)?+32767:0;
-| > +      break;
-| > +    case 2:
-| > +      ev->type   = JS_EVENT_AXIS;
-| > +      ev->number = 1;
-| > +      ev->value  = (value)?-32767:0;
-| > +      break;
-| > +    case 3:
-| > +      ev->type   = JS_EVENT_AXIS;
-| > +      ev->number = 0;
-| > +      ev->value  = (value)?-32767:0;
-| > +      break;
-| > +    default:
-| > +      ev->type   = JS_EVENT_BUTTON;
-| > +      ev->number = code;
-| > +      ev->value  = value;
-| > +    }
-| > +    break;
-| > +  case EV_ABS:
-| > +    if (joydev->absmap[code] == 0) {
-| > +      ev->type   = JS_EVENT_BUTTON;
-| > +      ev->number = 0;
-| > +      if (joydev_correct(value, joydev->corr) >= 16384)
-| > +	ev->value = 1;
-| > +      else
-| > +	ev->value = 0;
-| > +    } else return 0;
-| > +    break;
-| > +  default:
-| > +    return 0;
-| > +  }
-| > +  return 1;
-| > +}
-| > +
-| >  static void joydev_event(struct input_handle *handle, unsigned int type, unsigned int code, int value)
-| >  {
-| >  	struct joydev *joydev = handle->private;
-| >  	struct joydev_list *list = joydev->list;
-| >  	struct js_event event;
-| >  
-| > -	switch (type) {
-| > +	if (joydev->digital) {
-| > +	  if (joydev_digital_event(&event,handle,type,code,value) == 0)
-| > +	    return;
-| > +	} else switch (type) {
-| >  
-| >  		case EV_KEY:
-| >  			if (code < BTN_MISC || value == 2) return;
-| > @@ -382,6 +443,8 @@
-| >  				joydev->absmap[joydev->abspam[i]] = i;
-| >  			}
-| >  			return 0;
-| > +	        case JSIOCSDIGITAL:
-| > +		        return get_user(joydev->digital, (__u8 *)arg);
-| >  		case JSIOCGAXMAP:
-| >  			return copy_to_user((__u8 *) arg, joydev->abspam,
-| >  						sizeof(__u8) * ABS_MAX) ? -EFAULT : 0;
-| > @@ -450,6 +513,7 @@
-| >  	joydev->handle.private = joydev;
-| >  
-| >  	joydev->exist = 1;
-| > +	joydev->digital = digital;
-| >  
-| >  	for (i = 0; i < ABS_MAX; i++)
-| >  		if (test_bit(i, dev->absbit)) {
-| > 
-| > /* snip */
-| > 
-| > Patch for include/linux/joystick.h:
-| > 
-| > /* snip */
-| > 
-| > --- ../linux-2.4.31/include/linux/joystick.h	2005-06-26 15:44:37.000000000 +0200
-| > +++ include/linux/joystick.h	2005-07-06 22:37:36.000000000 +0200
-| > @@ -70,6 +70,7 @@
-| >  #define JSIOCGAXMAP		_IOR('j', 0x32, __u8[ABS_MAX])			/* get axis mapping */
-| >  #define JSIOCSBTNMAP		_IOW('j', 0x33, __u16[KEY_MAX - BTN_MISC])	/* set button mapping */
-| >  #define JSIOCGBTNMAP		_IOR('j', 0x34, __u16[KEY_MAX - BTN_MISC])	/* get button mapping */
-| > +#define JSIOCSDIGITAL           _IOW('j', 0x35, __u8)                           /* set digital/analog flag */
-| >  
-| >  /*
-| >   * Types and constants for get/set correction
-| > 
-| > /* snip */
-| 
-| -- 
-| Vojtech Pavlik
-| SuSE Labs, SuSE CR
-
-
----
-~Randy

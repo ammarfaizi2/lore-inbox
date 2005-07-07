@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVGGVdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVGGV2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVGGVdK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 17:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbVGGVbL
+	id S261251AbVGGV2b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 17:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVGGV1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 17:31:11 -0400
-Received: from coderock.org ([193.77.147.115]:10636 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262028AbVGGVaL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 17:30:11 -0400
-Message-Id: <20050707212957.724863000@homer>
-Date: Thu, 07 Jul 2005 23:29:55 +0200
-From: domen@coderock.org
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, Victor Fusco <victor@cetuc.puc-rio.br>,
-       domen@coderock.org
-Subject: [patch 4/4] as-iosched: fix sparse warnings (__nocast type)
-Content-Disposition: inline; filename=sparse-drivers_block_as-iosched
+	Thu, 7 Jul 2005 17:27:00 -0400
+Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:21921 "HELO
+	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261251AbVGGV03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 17:26:29 -0400
+From: nickpiggin@yahoo.com.au
+To: linux-kernel@vger.kernel.org, ncunningham@cyclades.com
+Subject: Re: [PATCH] [46/48] Suspend2 2.1.9.8 for 2.6.12: 622-swapwriter.patch
+Date: Fri, 8 Jul 2005 07:26:21 +1000
+User-Agent: KMail/1.8
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>
+References: <11206164393426@foobar.com> <84144f0205070706326849b1e@mail.gmail.com> <1120770991.4860.1554.camel@localhost>
+In-Reply-To: <1120770991.4860.1554.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507080726.22102.nickpiggin@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Victor Fusco <victor@cetuc.puc-rio.br>
+On Fri, 8 Jul 2005 07:16 am, Nigel Cunningham wrote:
 
+Hi,
 
-Fix the sparse warning "implicit cast to nocast type"
- 
-File/Subsystem: drivers/block/as-iosched
+> > > +struct io_info {
+> > > +       struct bio * sys_struct;
+> > > +       long block[PAGE_SIZE/512];
+> >
+> > Aah, but for this you should use block_size(io_info->dev) instead. No
+> > need to mess with sector sizes. Why is this long by the way?
+> > PAGE_SIZE/512 is block size in bytes.
+>
+> No...  it's the maximum number of blocks per page. Depending upon how
+> the user has set the blocksize when they created the filesystem (in the
+> case of filesystems), the number of blocks we use per page might be 1,
+> 2, 4 or 8.
+>
 
-Signed-off-by: Victor Fusco <victor@cetuc.puc-rio.br>
-Signed-off-by: Domen Puncer <domen@coderock.org>
- 
+MAX_BUF_PER_PAGE
 
----
- as-iosched.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+> It's long because a sector number is stored in it.
+>
 
-Index: quilt/drivers/block/as-iosched.c
-===================================================================
---- quilt.orig/drivers/block/as-iosched.c
-+++ quilt/drivers/block/as-iosched.c
-@@ -1807,7 +1807,7 @@ static void as_put_request(request_queue
- }
- 
- static int as_set_request(request_queue_t *q, struct request *rq,
--			  struct bio *bio, int gfp_mask)
-+			  struct bio *bio, unsigned int __nocast gfp_mask)
- {
- 	struct as_data *ad = q->elevator->elevator_data;
- 	struct as_rq *arq = mempool_alloc(ad->arq_pool, gfp_mask);
+sector_t?
 
---
+Nick
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

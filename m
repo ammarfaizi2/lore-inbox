@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVGGTtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVGGTwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbVGGTtX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 15:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVGGTNT
+	id S261867AbVGGTwI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 15:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVGGTtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 15:13:19 -0400
-Received: from mail.kroah.org ([69.55.234.183]:45014 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262228AbVGGTMP (ORCPT
+	Thu, 7 Jul 2005 15:49:55 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:31197 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262228AbVGGTtb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 15:12:15 -0400
-Date: Thu, 7 Jul 2005 12:04:55 -0700
-From: Greg KH <greg@kroah.com>
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: "Timothy R. Chavez" <tinytim@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-audit@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
-       Mounir Bsaibes <mbsaibes@us.ibm.com>, Serge Hallyn <serue@us.ibm.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Klaus Weidner <klaus@atsec.com>, Chris Wright <chrisw@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, Robert Love <rml@novell.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Daniel H Jones <danjones@us.ibm.com>, Amy Griffis <amy.griffis@hp.com>,
-       Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: [PATCH] audit: file system auditing based on location and name
-Message-ID: <20050707190455.GA19570@kroah.com>
-References: <1120668881.8328.1.camel@localhost> <200507062133.05827.sgrubb@redhat.com> <20050707181530.GB21072@kroah.com> <200507071449.10271.sgrubb@redhat.com>
+	Thu, 7 Jul 2005 15:49:31 -0400
+Date: Thu, 7 Jul 2005 21:49:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: realtime-preempt-2.6.12-final-V0.7.51-11 glitches
+Message-ID: <20050707194914.GA1161@elte.hu>
+References: <1119299227.20873.113.camel@cmn37.stanford.edu> <20050621105954.GA18765@elte.hu> <1119370868.26957.9.camel@cmn37.stanford.edu> <20050621164622.GA30225@elte.hu> <1119375988.28018.44.camel@cmn37.stanford.edu> <1120256404.22902.46.camel@cmn37.stanford.edu> <20050703133738.GB14260@elte.hu> <1120428465.21398.2.camel@cmn37.stanford.edu> <24833.195.245.190.94.1120761991.squirrel@www.rncbc.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200507071449.10271.sgrubb@redhat.com>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <24833.195.245.190.94.1120761991.squirrel@www.rncbc.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 02:49:09PM -0400, Steve Grubb wrote:
-> On Thursday 07 July 2005 14:15, Greg KH wrote:
-> > I fail to see any refactoring here, why not make your patch rely on
-> > theirs?
+
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+
+> Hi all,
 > 
-> At the time this code was developed, inotify was not in the kernel. We would 
-> be patching against another patch that's not in the kernel.
-
-You all are asking for this patch to be added to -mm, which contains
-inotify.
-
-> > > The whole rest of it is different. I hope the inotify people comment
-> > > on this to see if there is indeed something that should be refactored.
-> >
-> > I realize your userspace access is different, yet I do not believe yet
-> > that it should be this way.
+> These are one of my latest consolidated results while using (my) 
+> jack_test4.2 suite, against a couple of 2.6.12 kernels patched for 
+> PREEMPT_RT, on my P4@2.5GHz/UP laptop.
 > 
-> The problems that we are faced with are dictated by CAPP and other security 
-> profiles. The audit user space access has been in the kernel for over a year, 
-> so that's not really a good thing to go changing.
+> See anything funny?
 
-You are adding auditfs, a new userspace access, right?  That's what I am
-referring to.
+hm, you dont seem to have PREEMPT_RT enabled in your .config - it's set 
+to PREEMPT_DESKTOP (config-2.6.12-RT-V0.7.51-11.0). OTOH, your 49-01 
+config has PREEMPT_RT enabled. So it's not an apples to apples 
+comparison. Just to make sure, could you check 51-11 with PREEMPT_RT 
+enabled too?
 
-> > No documentation on the auditfs interface :(
-> 
-> That's what Tim's email was providing. Its a new component.
+i have just done a jack_test4.1 run, and indeed larger latencies seem to 
+have crept in. (But i forgot to chrt the sound IRQ above the network 
+IRQ, so i'll retest.)
 
-His email provided no documentation that I could see.  Am I just missing
-something?
-
-> > > The audit package is currently distributed in Fedora Core 4. The code to
-> > > use Tim's fs audit code is in the user space app, but is waiting for the
-> > > kernel pieces.
-> >
-> > So the userspace package in FC4 will not use auditfs?
-> 
-> Right. You get a few warnings due to missing functionality. If the kernel were 
-> patched with Tim's code, it all works as expected. We have worked out the 
-> user space access and that shouldn't be changing.
-
-Then what use is auditfs for if you don't need it?
-
-Am I correct in thinking that you all need to split this patch into two
-pieces, the new inode stuff, and auditfs, as neither one has anything to
-do with the other?
-
-Confused,
-
-greg k-h
+	Ingo

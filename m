@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVGGGKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVGGGLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVGGGKo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 02:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVGGGKo
+	id S261161AbVGGGLw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 02:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVGGGLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 02:10:44 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:5286 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261160AbVGGGKm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 02:10:42 -0400
-References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com>
-            <courier.42BA3791.000006F9@courier.cs.helsinki.fi>
-            <20050623044952.GA21017@alpha.home.local>
-            <200507061411.57725.mgross@linux.intel.com>
-In-Reply-To: <200507061411.57725.mgross@linux.intel.com>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Mark Gross <mgross@linux.intel.com>
-Cc: Willy Tarreau <willy@w.ods.org>, Pekka Enberg <penberg@gmail.com>,
-       "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "Lorenzini, Mario" <mario.lorenzini@ca.kontron.com>
-Subject: Re: Patch of a new driver for kernel 2.4.x that need review
-Date: Thu, 07 Jul 2005 09:10:41 +0300
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
+	Thu, 7 Jul 2005 02:11:51 -0400
+Received: from tag.witbe.net ([81.88.96.48]:48063 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S261161AbVGGGKx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 02:10:53 -0400
+Message-Id: <200507070610.j676AoD14062@tag.witbe.net>
+Reply-To: <rol@witbe.net>
+From: "Paul Rolland" <rol@witbe.net>
+To: "'Jeff Woods'" <Kazrak+kernel@cesmail.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: "Spy'ing" characters sent thru serial port ?
+Date: Thu, 7 Jul 2005 08:10:50 +0200
+Organization: Witbe
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <courier.42CCC761.000020F0@courier.cs.helsinki.fi>
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <6.2.3.4.0.20050706214134.03ce1d00@no.incoming.mail>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Thread-Index: AcWCp/h82vuuFxUUSEGcTgp1qgJxQwAEjmxw
+X-NCC-RegID: fr.witbe
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Gross writes:
-> +static int
-> +tlclk_open(struct inode *inode, struct file *filp)
-> +{
-> +	int result;
-> +#ifdef MODULE
-> +	if (!MOD_IN_USE) {
-> +		MOD_INC_USE_COUNT;
-> +#endif
-> +		/* Make sure there is no interrupt pending will 
-> +		   *  initialising interrupt handler */
-> +		inb(TLCLK_REG6);
-> +
-> +		result = request_irq(telclk_interrupt, &tlclk_interrupt,
-> +					SA_SHIRQ, "telclock", tlclk_interrupt);
+Hi Jeff,
 
-Instead of playing the MOD_IN_USE games, please either (1) grab the irq in 
-module init (it's a shared IRQ after all) or (2) do the following: 
+> I don't have any software answers, but it sounds like the modem is an 
+> external type connected by RS232 cable to a serial port.  RS-232 is 
+> pretty simple at the hardware level and you should be able to create 
+> a "Y" cable that "sniffs" the transmit from the computer to modem 
+> line without interrupting the dialogue between the serial port and 
+> modem. Just connect the transmit and signal ground lines to the 
+> receive and signal ground lines of a serial terminal or another 
+> computer with some terminal software (or even "cat </dev/serial1" or 
+> similar) listening to the serial port.  Back in Ye Olde Days (1980s) 
+> we used to diagnose modem problems like that all the time.
 
-static int tlclk_used; 
+Sure, that's what we did... provided you have a physical access to
+the machine to install such a cable and a second machine... 
+But as my only real access is thru an Ethernet cable, I was trying to
+identify a software solution.
 
-static int tlclk_open(struct inode *inode, struct file *filp) {
-       if (tlclk_used++)
-               return 0; 
+However, it looks like we're gonna have to go to yours, and try to 
+find a way to access the machine physically... 
 
-       // request_irq goes here.
-} 
-
-For an example, see the file drivers/input/mouse/amimouse.c (appears in 
-2.6.12 at least). 
-
-                        Pekka 
+Thx,
+Paul
 

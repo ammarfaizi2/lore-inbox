@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVGGMTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVGGMRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261434AbVGGMTe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 08:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVGGMPc
+	id S261227AbVGGMRz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 08:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVGGMP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 08:15:32 -0400
-Received: from ms005msg.fastwebnet.it ([213.140.2.50]:19108 "EHLO
-	ms005msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S261311AbVGGMNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 08:13:47 -0400
-Date: Thu, 7 Jul 2005 14:13:02 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: raja <vnagaraju@effigent.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ipc
-Message-ID: <20050707141302.1f40eb89@localhost>
-In-Reply-To: <42CD12A7.90106@effigent.net>
-References: <42CD12A7.90106@effigent.net>
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
+	Thu, 7 Jul 2005 08:15:26 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:65193 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261295AbVGGMOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 08:14:02 -0400
+Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1DqV7G-0004PX-00@chiark.greenend.org.uk>
+References: <11206164393426@foobar.com> <20050706082230.GF1412@elf.ucw.cz>
+	 <20050706082230.GF1412@elf.ucw.cz> <1120696047.4860.525.camel@localhost>
+	 <E1DqV7G-0004PX-00@chiark.greenend.org.uk>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1120738525.4860.1433.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 07 Jul 2005 22:15:25 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Jul 2005 17:01:51 +0530
-raja <vnagaraju@effigent.net> wrote:
+Hi.
 
-> Hi,
-> While working with posix ipc i used the function mq_open.
-> When i compiled using gcc i am getting error as
->  
-> : undefined reference to `mq_open'
-> collect2: ld returned 1 exit status
->  
-> will you please tell me how to avoid that.
+On Thu, 2005-07-07 at 22:04, Matthew Garrett wrote:
+> Nigel Cunningham <ncunningham@cyclades.com> wrote:
+> 
+> > I've been thinking about this some more and wondering whether I should
+> > just replace swsusp. I really don't want to step on your toes though.
+> > What would you like to see happen?
+> 
+> Do you implement the entire swsusp userspace interface? If not, removing
+> it probably isn't a reasonable plan without fair warning.
 
-Also this has nothing to do with kernel, stop posting here these
-questions.
+I'm not suggesting removing the sysfs interface or replacing system to
+ram - just the suspend to disk part.
 
-----
+Regards,
 
-You need to tell GCC to use "libmqueue"... something like this:
-
-	gcc -Wall -O2 -o prog prog.c -lmqueue
-
-
-Please read this book for other generic programming questions:
-	http://www.advancedlinuxprogramming.com/
-
-And use Google.
-
+Nigel
 -- 
-	Paolo Ornati
-	Linux 2.6.12.2 on x86_64
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
+Be amazed that people believe it happened. 
+

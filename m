@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVGGW04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVGGW3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbVGGW04 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 18:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVGGWYp
+	id S262233AbVGGW3D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 18:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVGGW2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 18:24:45 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:18926 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262239AbVGGWXI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 18:23:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=MPXQKMOd66cVZaov8huJb96UXWNyAB7ZBEL2tGGmzk+S6UI6yZh7G2NxYepI4tpNE1r8SgFjLRS0PdoeFxnV62NG5Iy+Vzcf96j24bUgIJKXAsXcqSUUQr67Z8F6Vt791U5MMn1nGKSmW80O7F8pqN/zkbmbg3Wc8CIR5Jwz8JY=
-Message-ID: <9a8748490507071523133e0ece@mail.gmail.com>
-Date: Fri, 8 Jul 2005 00:23:07 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: hdaps-devel@lists.sourceforge.net
-Subject: HDAPS I'll be out of it for a few days
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Dave Hansen <dave@sr71.net>, Henrik Brix Andersen <brix@gentoo.org>,
-       LKML List <linux-kernel@vger.kernel.org>
+	Thu, 7 Jul 2005 18:28:51 -0400
+Received: from gate.crashing.org ([63.228.1.57]:60303 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262233AbVGGW2B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 18:28:01 -0400
+Subject: Re: [PATCH 2.6.13-rc1 01/10] IOCHK interface for I/O error
+	handling/detecting
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
+       Linas Vepstas <linas@austin.ibm.com>,
+       long <tlnguyen@snoqualmie.dp.intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+In-Reply-To: <20050707184102.GC14726@kroah.com>
+References: <42CB63B2.6000505@jp.fujitsu.com>
+	 <20050707184102.GC14726@kroah.com>
+Content-Type: text/plain
+Date: Fri, 08 Jul 2005 08:27:18 +1000
+Message-Id: <1120775239.31924.262.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+On Thu, 2005-07-07 at 11:41 -0700, Greg KH wrote:
+> On Wed, Jul 06, 2005 at 01:53:06PM +0900, Hidetoshi Seto wrote:
+> > Hi all,
+> > 
+> > The followings are updated version of patches I've posted to
+> > implement IOCHK interface for I/O error handling/detecting.
+> > 
+> > The abstraction of patches hasn't changed, so please refer
+> > archives if you need, e.g.: http://lwn.net/Articles/139240/
+> 
+> How about the issue of tying this into the other pci error reporting
+> infrastructure that is being worked on?
 
-I've been swamped with work for the last few days and haven't been
-able to spend the time I intended on the hdaps driver :-(   I have to
-dedicate a few more days to other things, but then I hope to be able
-to resume work on the driver.  I /will/ be looking at the patches,
-comments, suggestions etc that people have send my way, but I won't be
-doing so for the next few days.  I'm sorry, but things turned up that
-I had not expected - that's real life for you I guess...
+The other infrastructure is for asynchronous reporting and recovery. We
+still need synchronous detection & reporting. So this is a bit
+different.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+However, it would be nice if Hidetoshi's work could be adapted a bit so
+that 1) naming is a bit more consistent with the other stuff (pcierr_*
+maybe) and 2) the error "token" is the same. The later is especially
+important if we start adding ways to query the error token to know what
+the error precisely was etc... There is no reason to have 2 different
+ways of representing error details.
+
+Ben
+
+

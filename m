@@ -1,26 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVGGGh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVGGGke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVGGGh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 02:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVGGGh0
+	id S261184AbVGGGke (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 02:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVGGGkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 02:37:26 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:3511 "EHLO
+	Thu, 7 Jul 2005 02:40:31 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:6327 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261179AbVGGGhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 02:37:24 -0400
-Subject: Re: Slowdown with randomize_va_space in 2.6.12.2
+	id S261184AbVGGGk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 02:40:27 -0400
+Subject: Re: [PATCH] audit: file system auditing based on location and name
 From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, davem@davemloft.net, pmarques@grupopie.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050706181220.3978d7f6.akpm@osdl.org>
-References: <42CBE97C.2060208@grupopie.com>
-	 <20050706.125719.08321870.davem@davemloft.net>
-	 <20050706205315.GC27630@redhat.com> <20050706181220.3978d7f6.akpm@osdl.org>
+To: "Timothy R. Chavez" <tinytim@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-audit@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       David Woodhouse <dwmw2@infradead.org>,
+       Mounir Bsaibes <mbsaibes@us.ibm.com>, Steve Grubb <sgrubb@redhat.com>,
+       Serge Hallyn <serue@us.ibm.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Klaus Weidner <klaus@atsec.com>, Chris Wright <chrisw@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, Robert Love <rml@novell.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Daniel H Jones <danjones@us.ibm.com>, Amy Griffis <amy.griffis@hp.com>,
+       Maneesh Soni <maneesh@in.ibm.com>
+In-Reply-To: <1120668881.8328.1.camel@localhost>
+References: <1120668881.8328.1.camel@localhost>
 Content-Type: text/plain
-Date: Thu, 07 Jul 2005 08:37:08 +0200
-Message-Id: <1120718229.3198.8.camel@laptopd505.fenrus.org>
+Date: Thu, 07 Jul 2005 08:40:13 +0200
+Message-Id: <1120718414.3198.11.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
@@ -40,27 +47,26 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-06 at 18:12 -0700, Andrew Morton wrote:
-> Dave Jones <davej@redhat.com> wrote:
-> >
-> > On Wed, Jul 06, 2005 at 12:57:19PM -0700, David S. Miller wrote:
-> >  > From: Paulo Marques <pmarques@grupopie.com>
-> >  > Date: Wed, 06 Jul 2005 15:23:56 +0100
-> >  > 
-> >  > > What is weird is that most of the extra time is being accounted as 
-> >  > > user-space time, but the user-space application is exactly the same in 
-> >  > > both runs, only the "randomize_va_space" parameter changed.
-> >  > 
-> >  > It might be attributable to more cpu cache misses in userspace since
-> >  > the virtual addresses of everything are changing each and every
-> >  > invocation.
-> > 
-> > On Transmeta CPUs that probably triggers a retranslation of
-> > x86->native bytecode, if it thinks it hasn't seen code at that
-> > address before.
-> > 
-> 
-> ouch.   What do we do?  Default to off?  Default to off on xmeta?
 
-off-on-xmeta would be my preference; I'll cook up a patch for that.
+> 
+> Some notable implementation details are as follows:
+> 
+>   * struct inode is _not_ extended to associate audit data with the
+>     inode.  A hash table is used in which the inode is hashed to 
+>     retrieve its audit data.  We know if an inode has audit data
+>     if I_AUDIT has been turned on in inode->i_state.
+
+why is this? It would be a very logical thing to store this stuff inside
+the inode. It sounds like a bad design to keep per inode data out of the
+inode. (if you're concerned about taking a lot of space, put a pointer
+to a kmalloc()'d piece of memory into the inode instead). A hash is
+just, well, odd for this.
+
+>   * Inodes with audit data are implicitly pinned in memory when 
+>     I_AUDIT is turned on in inode->i_state.  This prevents an
+>     auditable incore inode from being pushed out of the icache,
+>     preserving auditability even under memory pressures.
+
+sounds like inotify then... 
+
 

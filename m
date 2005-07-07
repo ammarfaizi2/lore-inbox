@@ -1,78 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVGGK2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVGGKcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVGGK2l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 06:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVGGK2k
+	id S261170AbVGGKcI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 06:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVGGKcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 06:28:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40917 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261289AbVGGK0v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 06:26:51 -0400
-Date: Thu, 7 Jul 2005 03:25:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: prasanna@in.ibm.com
-Cc: ak@suse.de, davem@davemloft.net, systemtap@sources.redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [1/6 PATCH] Kprobes : Prevent possible race conditions generic
- changes
-Message-Id: <20050707032537.7588acb9.akpm@osdl.org>
-In-Reply-To: <20050707101015.GE12106@in.ibm.com>
-References: <20050707101015.GE12106@in.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 7 Jul 2005 06:32:07 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:38072 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261171AbVGGKcA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 06:32:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gTJWK/fZGDbvnFVM+9KFdU5SpMO5PoUXvCMy3hA9M+ugrqjP3T1hfCDybZy5gCdazjJwqleocFs3jpLFkIUr5TK8EWRpTnNEk9JPs/JH7plT4anfU4R6I/XmTEH2mjXy9uh39U6b82bOpNCEgfrbZaCQJSOOyIHEVUR0AZWnF4k=
+Message-ID: <21d7e9970507070331107831c6@mail.gmail.com>
+Date: Thu, 7 Jul 2005 20:31:59 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Miles Lane <miles.lane@gmail.com>
+Subject: Re: OOPS in 2.6.13-rc1-mm1 -- EIP is at sysfs_release+0x49/0xb0
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <a44ae5cd05070301417531fac2@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <a44ae5cd05070301417531fac2@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
->
-> There are possible race conditions if probes are placed on routines within the
-> kprobes files and routines used by the kprobes.
+On 7/3/05, Miles Lane <miles.lane@gmail.com> wrote:
+> mtrr: base(0xe8020000) is not aligned on a size(0x3c0000) boundary
+> [drm:drm_unlock] *ERROR* Process 4470 using kernel context 0
+> mtrr: 0xe8000000,0x8000000 overlaps existing 0xe8000000,0x1000000
+> Unable to handle kernel paging request at virtual address 5f78735f
 
-So...  don't do that then?  Is it likely that anyone would want to stick a
-probe on the kprobe code itself?
+That is a bit suspicious.. what distro/X are you using? if you are
+running a newer X (I think anything after XFree86 4.3) you should be
+using the i915 DRM not the i830..
 
-> -kprobe_opcode_t *get_insn_slot(void)
-> +kprobe_opcode_t * __kprobes get_insn_slot(void)
-
-coding style regression...
-
-> -int register_kprobe(struct kprobe *p)
-> +static int __kprobes in_kprobes_functions(unsigned long addr)
-> +{
-> +	/* Linker adds these: start and end of __kprobes functions */
-> +	extern char __kprobes_text_start[], __kprobes_text_end[];
-
-There's an old unix convention that section markers (start, end, edata,
-etc) are declared `int'.  For some reason we don't do that in the kernel. 
-Oh well.
-
-> +	if ((ret = in_kprobes_functions((unsigned long) p->addr)) !=0)
-
-whitespace broke.
-
-Some people don't like the assign-then-test-it style.
-
-> +		return ret;
->  	if ((ret = arch_prepare_kprobe(p)) != 0) {
->  		goto rm_kprobe;
->  	}
-
-hm, who put the unneeded braces in there?
-
-> --- linux-2.6.13-rc1-mm1/include/linux/kprobes.h~kprobes-exclude-functions-generic	2005-07-06 18:51:16.000000000 +0530
-> +++ linux-2.6.13-rc1-mm1-prasanna/include/linux/kprobes.h	2005-07-06 18:51:16.000000000 +0530
-> @@ -42,6 +42,10 @@
->  #define KPROBE_REENTER		0x00000004
->  #define KPROBE_HIT_SSDONE	0x00000008
->  
-> +/* Attach to insert probes on any functions which should be ignored*/
-> +#define __kprobes	__attribute__((__section__(".kprobes.text")))
-> +/* Is this address in the __kprobes functions? */
-> +
-
-What's that comment mean?
-
-
+Dave.

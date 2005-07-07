@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVGGT4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVGGTyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbVGGT4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 15:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVGGTy3
+	id S262228AbVGGTyM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 15:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVGGTw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 15:54:29 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:65461 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262028AbVGGTxC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 15:53:02 -0400
-Date: Thu, 7 Jul 2005 21:52:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Weston <weston@sysex.net>
+	Thu, 7 Jul 2005 15:52:29 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:7149 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261258AbVGGTu6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 15:50:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QrKk9VsmWXFuEnHalJZT/kspREspM0lJmZdXMX1V5W/Rt2jg9HooR9KVSSts2XyzlVX7nDU2bPsJxJ/z5Ufwm7zsfEHzNnT0CAOFmxWoqmRYYnYrTU1+mZGeYCTn+1lFFl+RMWOthSLbnYF2sQ/dFiFNT5lXhyk48jN4FD8tcSw=
+Message-ID: <516d7fa805070712506ab2094b@mail.gmail.com>
+Date: Thu, 7 Jul 2005 19:50:54 +0000
+From: Mike Richards <mrmikerich@gmail.com>
+Reply-To: Mike Richards <mrmikerich@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Swap partition vs swap file
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-08
-Message-ID: <20050707195221.GA1601@elte.hu>
-References: <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu> <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <20050703140432.GA19074@elte.hu> <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507051155050.13165@echo.lysdexia.org> <20050706100451.GA7336@elte.hu> <Pine.LNX.4.58.0507070120100.22287@echo.lysdexia.org> <20050707191854.GA32384@elte.hu> <Pine.LNX.4.58.0507071233010.24968@echo.lysdexia.org>
+In-Reply-To: <20050628220334.66da4656.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0507071233010.24968@echo.lysdexia.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <516d7fa80506281757188b2fda@mail.gmail.com>
+	 <20050628220334.66da4656.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* William Weston <weston@sysex.net> wrote:
-
-> On Thu, 7 Jul 2005, Ingo Molnar wrote:
+> > Given this situation, is there any significant performance or
+> >  stability advantage to using a swap partition instead of a swap file?
 > 
-> > > Without the last two chunks of this patch, the UP Athlon box locks up 
-> > > hard as soon as jackd is started up.
-> > 
-> > hm, do you have CONFIG_PCI_MSI enabled by any chance?
-> 
-> I've never enabled CONFIG_PCI_MSI.  What's your experience when it 
-> comes to stability and performance?
+> In 2.6 they have the same reliability and they will have the same
+> performance unless the swapfile is badly fragmented.
 
-it's really not needed unless you have PCI-X hardware, but it sometimes 
-gets enabled and it had IRQ handling bugs under PREEMPT_HARDIRQS (and 
-PREEMPT_RT), which i fixed in the -51-12 patch. But if you didnt have it 
-enabled then there's no IO-APIC change affecting your config.
+Thanks for the reply -- that's been bugging me for a while now. There
+are a lot of different opinions on the net, and most of the
+conventional wisdom says use a partition instead of a file. It's nice
+to hear from an expert on the matter.
 
-	Ingo
+Three more short questions if you have time:
+
+1. You specify kernel 2.6 -- What about kernel 2.4? How less reliable
+or worse performing is a swapfile on 2.4?
+
+2. Is it possible for the swapfile to become fragmented over time, or
+does it just keep using the same blocks over and over? i.e. if it's
+all contiguous when you first create the swapfile, will it stay that
+way for the life of the file?
+
+3. Does creating the swapfile on a journaled filesystem (e.g. ext3 or
+reiser) incur a significant performance hit?
+
+Thanks again. It's much appreciated.

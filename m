@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVGGS4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVGGSxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbVGGS4I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 14:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVGGSx7
+	id S261540AbVGGSxp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 14:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVGGSv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 14:53:59 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:55080 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S261463AbVGGSvt (ORCPT
+	Thu, 7 Jul 2005 14:51:29 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:59791 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261540AbVGGSvK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 14:51:49 -0400
-Date: Thu, 7 Jul 2005 20:51:45 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Martin Knoblauch <knobi@knobisoft.de>
-Cc: Dave Hansen <dave@sr71.net>, abonilla@linuxwireless.org,
-       "'Pekka Enberg'" <penberg@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de,
-       "'Pekka Enberg'" <penberg@cs.helsinki.fi>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>
-Subject: Re: [Hdaps-devel] RE: Head parking (was: IBM HDAPS things are looking up)
-Message-ID: <20050707185145.GA3503@harddisk-recovery.com>
-References: <1120757693.5829.34.camel@localhost> <20050707184538.15647.qmail@web32605.mail.mud.yahoo.com>
+	Thu, 7 Jul 2005 14:51:10 -0400
+Date: Thu, 7 Jul 2005 20:52:24 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: "'Clemens Koller'" <clemens.koller@anagramm.de>,
+       "'Lenz Grimmer'" <lenz@grimmer.com>,
+       "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Jesper Juhl'" <jesper.juhl@gmail.com>,
+       "'Dave Hansen'" <dave@sr71.net>, hdaps-devel@lists.sourceforge.net,
+       "'LKML List'" <linux-kernel@vger.kernel.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
+Message-ID: <20050707185223.GC29449@suse.de>
+References: <42CD600C.2000105@anagramm.de> <002401c58317$865ee6a0$600cc60a@amer.sykes.com> <002401c58317$865ee6a0$600cc60a@amer.sykes.com> <20050707173412.GL24401@suse.de> <E1DqaUl-0003qg-00@chiark.greenend.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050707184538.15647.qmail@web32605.mail.mud.yahoo.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <E1DqaUl-0003qg-00@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 11:45:38AM -0700, Martin Knoblauch wrote:
->  If IBM would provide a CD image (bootable ISO) containing FW for all
-> supported drives - that would be great. No need for the "other OS" any
-> more.
+On Thu, Jul 07 2005, Matthew Garrett wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+> 
+> > What is needed is to flesh out what the kernel interface should looke
+> > like. I suggested a sysfs file for suspending and resuming access to the
+> > device, if people have other ideas they should voice them.
+> 
+> That sounds quite reasonable. Does it need to do anything other than
+> park the head and suspend the command queue for that device?
 
-I can imagine IBM doesn't do that because in that way you can't update
-the firmware of the CD/DVD drive. Bootable FreeDOS floppy images would
-be a nice idea, though.
+Not really, no. Someone mentioned a timeout for this as well, but I
+think that should just be done in user space.
 
+> (On an only slightly related note, for full ACPI support of PATA, we're
+> supposed to use the _GTF interface. This returns a set of taskfile
+> commands that are then supposed to be executed by the host. However, at
+> the point where we want to do this, the IDE queues haven't been
+> restarted. Is the best solution here just to add a trivial and stupid
+> IDE driver for managing the disks when we don't want userspace doing
+> anything with them?)
 
-Erik (not a ThinkPad owner)
+Either that, or always allow non-fs commands to go through a frozen
+queue. Or flag those commands as ok for a frozen queue. The advantage of
+either of those approaches, is that we probably don't have to add any
+kernel support then and the generic block device freezing/unfreezing can
+be used.
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Jens Axboe
+

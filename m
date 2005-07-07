@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVGGGEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVGGGKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVGGGEx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 02:04:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVGGGEx
+	id S261160AbVGGGKo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 02:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVGGGKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 02:04:53 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:35341 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261153AbVGGGEw
+	Thu, 7 Jul 2005 02:10:44 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:5286 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261160AbVGGGKm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 02:04:52 -0400
-Message-ID: <42CCC5FD.6070101@stud.feec.vutbr.cz>
-Date: Thu, 07 Jul 2005 08:04:45 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-CC: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-References: <200507061257.36738.s0348365@sms.ed.ac.uk>	 <200507062200.08924.s0348365@sms.ed.ac.uk> <20050706210249.GA2017@elte.hu>	 <200507062315.07536.s0348365@sms.ed.ac.uk> <1120691329.6766.62.camel@cmn37.stanford.edu>
-In-Reply-To: <1120691329.6766.62.camel@cmn37.stanford.edu>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	Thu, 7 Jul 2005 02:10:42 -0400
+References: <5009AD9521A8D41198EE00805F85F18F067F6A36@sembo111.teknor.com>
+            <courier.42BA3791.000006F9@courier.cs.helsinki.fi>
+            <20050623044952.GA21017@alpha.home.local>
+            <200507061411.57725.mgross@linux.intel.com>
+In-Reply-To: <200507061411.57725.mgross@linux.intel.com>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Mark Gross <mgross@linux.intel.com>
+Cc: Willy Tarreau <willy@w.ods.org>, Pekka Enberg <penberg@gmail.com>,
+       "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Lorenzini, Mario" <mario.lorenzini@ca.kontron.com>
+Subject: Re: Patch of a new driver for kernel 2.4.x that need review
+Date: Thu, 07 Jul 2005 09:10:41 +0300
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  tested this incoming email. See other headers to know if the email
-  has beed identified as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-   0.0 UPPERCASE_25_50        message body is 25-50% uppercase
-  ____
+Message-ID: <courier.42CCC761.000020F0@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fernando Lopez-Lezcano wrote:
-> I see the same thing. "CONFIG_PRINTK_IGNORE_LOGLEVEL is not set" but
-> still printk ignores the loglevel (I commented out the #ifdef in
-> kernel/printk.c to make the spurious messages go away). 
+Mark Gross writes:
+> +static int
+> +tlclk_open(struct inode *inode, struct file *filp)
+> +{
+> +	int result;
+> +#ifdef MODULE
+> +	if (!MOD_IN_USE) {
+> +		MOD_INC_USE_COUNT;
+> +#endif
+> +		/* Make sure there is no interrupt pending will 
+> +		   *  initialising interrupt handler */
+> +		inb(TLCLK_REG6);
+> +
+> +		result = request_irq(telclk_interrupt, &tlclk_interrupt,
+> +					SA_SHIRQ, "telclock", tlclk_interrupt);
 
-The condition is reversed.
-The '#ifdef CONFIG_PRINTK_IGNORE_LOGLEVEL' should be
-'#ifndef CONFIG_PRINTK_IGNORE_LOGLEVEL'.
+Instead of playing the MOD_IN_USE games, please either (1) grab the irq in 
+module init (it's a shared IRQ after all) or (2) do the following: 
 
-Michal
+static int tlclk_used; 
+
+static int tlclk_open(struct inode *inode, struct file *filp) {
+       if (tlclk_used++)
+               return 0; 
+
+       // request_irq goes here.
+} 
+
+For an example, see the file drivers/input/mouse/amimouse.c (appears in 
+2.6.12 at least). 
+
+                        Pekka 
+

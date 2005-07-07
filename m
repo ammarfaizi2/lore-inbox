@@ -1,50 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVGGNW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVGGNW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbVGGNW7 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261489AbVGGNW7 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 7 Jul 2005 09:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVGGNHC
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVGGNUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 09:07:02 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:31421 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261471AbVGGNGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 09:06:10 -0400
-Date: Thu, 7 Jul 2005 14:06:08 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Victor <andrew@sanpeople.com>
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [RFC] Atmel-supplied hardware headers for AT91RM9200 SoC processor
-Message-ID: <20050707130607.GC28489@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Victor <andrew@sanpeople.com>, linux-kernel@vger.kernel.org,
-	Russell King <rmk@arm.linux.org.uk>
-References: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 7 Jul 2005 09:20:44 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:13321 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S261462AbVGGNUZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 09:20:25 -0400
+Message-ID: <42CD2C16.1070308@arcom.com>
+Date: Thu, 07 Jul 2005 14:20:22 +0100
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Alex Williamson <alex.williamson@hp.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: serial: 8250 fails to detect Exar XR16L2551 correctly
+References: <42CA96FC.9000708@arcom.com> <20050706195740.A28758@flint.arm.linux.org.uk>
+In-Reply-To: <20050706195740.A28758@flint.arm.linux.org.uk>
+Content-Type: multipart/mixed;
+ boundary="------------090208030900070308080608"
+X-OriginalArrivalTime: 07 Jul 2005 13:30:56.0515 (UTC) FILETIME=[1AECBD30:01C582F8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 11:58:39AM +0200, Andrew Victor wrote:
-> While he seems generally happy with most of the code, he has doubts
-> about merging the Atmel-supplied headers and suggested I post this to
-> the linux-kernel list for a wider review.
+This is a multi-part message in MIME format.
+--------------090208030900070308080608
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Russell King wrote:
+> On Tue, Jul 05, 2005 at 03:19:40PM +0100, David Vrabel wrote:
 > 
-> While I agree that their usage of structs/coding-style is not the
-> cleanest/Linux way of doing things, re-using their headers is useful
-> since:
-> 1) they are supplied by the hardware manufacturer.
-> 2) Atmel automatically generates them from their chip design database,
-> so they should be correct.
-> 3) they are used by most AT91RM9200 developers, not just those using
-> Linux.
+>>The 8250 serial driver detects the Exar XR16L2551 as a 16550A.  The
+>>XR16L2551 has an EFR register and sleep capabilities (UART_CAP_FIFO |
+>>UART_CAP_EFR | UART_CAP_SLEEP).  However, broken_efr() thinks it's a
+>>buggy Exar ST16C255x.
+>>
+>>...
+>>
+>>Also, the initial IER test was failing (after a soft reboot) with the
+>>XR16L2551 part since the sleep mode bit was set but was read-only.  It
+>>seems sensible to make this test only look at the lower 4 bits.
+> 
+> ... or maybe this can be used to test for the buggy version.
 
-No reason to use the horror it is as-is.  Beein hardware description they
-won't change ever except for additions, so just clean the mess up into
-somethign nice and submit them.  You could have done so in the time you
-spent arguing on linux-arm-kernel already.
+I've redid the patch and added a check for this.  Alex, could you test
+this version, please.
 
+>>Index: linux-2.6-working/drivers/serial/8250.c
+>>===================================================================
+>>--- linux-2.6-working.orig/drivers/serial/8250.c	2005-07-04 13:43:13.000000000 +0100
+>>+++ linux-2.6-working/drivers/serial/8250.c	2005-07-05 15:08:05.000000000 +0100
+>>@@ -249,6 +249,14 @@
+>> 		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
+>> 		.flags		= UART_CAP_FIFO | UART_CAP_UUE,
+>> 	},
+>>+	[PORT_XR16550] = {
+>>+		.name		= "XR16550",
+>>+		.fifo_size	= 16,
+>>+		.tx_loadsz	= 16,
+>>+		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_01 |
+>>+				  UART_FCR_T_TRIG_00,
+> 
+> 
+> The docs I've just pulled of Exar's site imply that the XR16L2551
+> doesn't have a transmit trigger threshold, so UART_FCR_T_TRIG_00
+> shouldn't be specified here.  Also, is there a reason for restricting
+> the RX trigger level to 4 instead of 8 bytes?
+
+That's a cut-n-paste mistake.  It should be like the 16550A.
+
+David Vrabel
+-- 
+David Vrabel, Design Engineer
+
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
+
+--------------090208030900070308080608
+Content-Type: text/plain;
+ name="serial-XR16550"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="serial-XR16550"
+
+%state
+pending
+%patch
+Index: linux-2.6-working/drivers/serial/8250.c
+===================================================================
+--- linux-2.6-working.orig/drivers/serial/8250.c	2005-07-06 16:24:21.000000000 +0100
++++ linux-2.6-working/drivers/serial/8250.c	2005-07-07 14:11:50.000000000 +0100
+@@ -249,6 +249,13 @@
+ 		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
+ 		.flags		= UART_CAP_FIFO | UART_CAP_UUE,
+ 	},
++	[PORT_XR16550] = {
++		.name		= "XR16550",
++		.fifo_size	= 16,
++		.tx_loadsz	= 16,
++		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
++		.flags		= UART_CAP_FIFO | UART_CAP_EFR | UART_CAP_SLEEP,
++	},
+ };
+ 
+ static _INLINE_ unsigned int serial_in(struct uart_8250_port *up, int offset)
+@@ -573,6 +580,26 @@
+ 		up->port.type = PORT_16850;
+ 		return;
+ 	}
++	/* The Exar XR16L255x has an DVID of 0x02. This will misdetect the
++	 * Exar ST16C255x (A2 revision) which has registers like the XR16L255x
++	 * but doesn't have a working sleep mode.  See also
++	 * http://www.exar.com/info.php?pdf=dan180_oct2004.pdf */
++	if (id2 == 0x02) {
++		unsigned int ier;
++
++		up->port.type = PORT_XR16550;
++
++		/* If we can't set the sleep mode bit then it may be a buggy
++		 * ST16C255x. FIXME: This test is currently unverified. */
++		serial_out(up, UART_IER, UART_IERX_SLEEP);
++		ier = serial_in(up, UART_IER);
++		serial_out(up, UART_IER, 0);
++		if ((ier & UART_IERX_SLEEP) != UART_IERX_SLEEP) {
++			up->capabilities &= ~(UART_CAP_EFR | UART_CAP_SLEEP);
++			up->port.type = PORT_16550A;
++		}
++		return;
++	}
+ 
+ 	/*
+ 	 * It wasn't an XR16C850.
+@@ -585,7 +612,7 @@
+ 	 */
+ 	if (size_fifo(up) == 64)
+ 		up->port.type = PORT_16654;
+-	else
++	else if(size_fifo(up) == 32)
+ 		up->port.type = PORT_16650V2;
+ }
+ 
+@@ -611,19 +638,6 @@
+ 		up->port.type = PORT_16450;
+ }
+ 
+-static int broken_efr(struct uart_8250_port *up)
+-{
+-	/*
+-	 * Exar ST16C2550 "A2" devices incorrectly detect as
+-	 * having an EFR, and report an ID of 0x0201.  See
+-	 * http://www.exar.com/info.php?pdf=dan180_oct2004.pdf
+-	 */
+-	if (autoconfig_read_divisor_id(up) == 0x0201 && size_fifo(up) == 16)
+-		return 1;
+-
+-	return 0;
+-}
+-
+ /*
+  * We know that the chip has FIFOs.  Does it have an EFR?  The
+  * EFR is located in the same register position as the IIR and
+@@ -661,7 +675,7 @@
+ 	 * (other ST16C650V2 UARTs, TI16C752A, etc)
+ 	 */
+ 	serial_outp(up, UART_LCR, 0xBF);
+-	if (serial_in(up, UART_EFR) == 0 && !broken_efr(up)) {
++	if (serial_in(up, UART_EFR) == 0) {
+ 		DEBUG_AUTOCONF("EFRv2 ");
+ 		autoconfig_has_efr(up);
+ 		return;
+@@ -828,7 +842,7 @@
+ #endif
+ 		scratch3 = serial_inp(up, UART_IER);
+ 		serial_outp(up, UART_IER, scratch);
+-		if (scratch2 != 0 || scratch3 != 0x0F) {
++		if ((scratch2 & 0x0f) != 0 || (scratch3 & 0x0f) != 0x0F) {
+ 			/*
+ 			 * We failed; there's nothing here
+ 			 */
+Index: linux-2.6-working/include/linux/serial_core.h
+===================================================================
+--- linux-2.6-working.orig/include/linux/serial_core.h	2005-07-06 16:24:21.000000000 +0100
++++ linux-2.6-working/include/linux/serial_core.h	2005-07-07 14:11:35.000000000 +0100
+@@ -39,7 +39,8 @@
+ #define PORT_RSA	13
+ #define PORT_NS16550A	14
+ #define PORT_XSCALE	15
+-#define PORT_MAX_8250	15	/* max port ID */
++#define PORT_XR16550	16
++#define PORT_MAX_8250	16	/* max port ID */
+ 
+ /*
+  * ARM specific type numbers.  These are not currently guaranteed
+
+--------------090208030900070308080608--

@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVGGVdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbVGGWfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVGGVdL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 17:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVGGVbn
+	id S262271AbVGGWfP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 18:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVGGWdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 17:31:43 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:28857 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261781AbVGGV2g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 17:28:36 -0400
-Date: Thu, 7 Jul 2005 23:28:55 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dmitry Torokhov <dtor@mail.ru>
-Subject: Re: Synaptics Touchpad not detected in 2.6.13-rc2
-Message-ID: <20050707212855.GA2871@ucw.cz>
-References: <20050707193027.GA4162@inferi.kami.home> <20050707200238.52898.qmail@web81308.mail.yahoo.com> <20050707212442.GA4054@inferi.kami.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050707212442.GA4054@inferi.kami.home>
-User-Agent: Mutt/1.5.6i
+	Thu, 7 Jul 2005 18:33:46 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:43282 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S261476AbVGGWcu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 18:32:50 -0400
+Message-ID: <42CDAD94.7000306@rtr.ca>
+Date: Thu, 07 Jul 2005 18:32:52 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Grant Coady <grant_lkml@dodo.com.au>
+Cc: Jens Axboe <axboe@suse.de>, Ondrej Zary <linux@rainbow-software.org>,
+       =?ISO-8859-1?Q?Andr=E9_Tomt?= <andre@tomt.net>,
+       Al Boldi <a1426z@gawab.com>,
+       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
+       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [git patches] IDE update
+References: <42C9C56D.7040701@tomt.net> <42CA5A84.1060005@rainbow-software.org> <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de> <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com>
+In-Reply-To: <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 11:24:43PM +0200, Mattia Dongili wrote:
-> On Thu, Jul 07, 2005 at 01:02:38PM -0700, Dmitry Torokhov wrote:
-> > Mattia Dongili <malattia@gmail.com> wrote:
-> [...]
-> > > This is the device (on a Vaio GR), which other info could I provide to
-> > > better diagnose the problem?
-> > > 
-> > 
-> > Could you please do "echo 1 > /sys/modules/i8042/parameters/debug";
-> > reload psmouse module and send me dmesg please?
-> 
-> oh, it seems I'm not able to reproduce the error anymore!
-> I need some rest now, I'll try again tomorrow morning (I must be missing
-> something stupid right now) and report to you again.
- 
-Could be the enabled debug is adding extra delay, making the problem
-impossible to reproduce. IIRC, we've seen this with an ALPS pad, too,
-Dmitry, right?
+Note:
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+hdparm can also use O_DIRECT for the -t timing test.
+
+Eg.  hdparm --direct -t /dev/hda

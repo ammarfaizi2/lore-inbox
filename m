@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVGGMRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVGGMX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVGGMRz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 08:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVGGMP0
+	id S261377AbVGGMX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 08:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVGGMST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 08:15:26 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:65193 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261295AbVGGMOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 08:14:02 -0400
-Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1DqV7G-0004PX-00@chiark.greenend.org.uk>
-References: <11206164393426@foobar.com> <20050706082230.GF1412@elf.ucw.cz>
-	 <20050706082230.GF1412@elf.ucw.cz> <1120696047.4860.525.camel@localhost>
-	 <E1DqV7G-0004PX-00@chiark.greenend.org.uk>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120738525.4860.1433.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 07 Jul 2005 22:15:25 +1000
+	Thu, 7 Jul 2005 08:18:19 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:22742 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261303AbVGGMPY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 08:15:24 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Date: Thu, 7 Jul 2005 13:15:24 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507071237.42470.s0348365@sms.ed.ac.uk> <20050707114223.GA29825@elte.hu>
+In-Reply-To: <20050707114223.GA29825@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507071315.24669.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Thursday 07 Jul 2005 12:42, Ingo Molnar wrote:
+> * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > > do you have DEBUG_STACKOVERFLOW and latency tracing still enabled?  The
+> > > combination of those two options is pretty good at detecting stack
+> > > overflows. Also, you might want to enable CONFIG_4KSTACKS, that too
+> > > disturbs the stack layout enough so that the error message may make it
+> > > to the console.
+> >
+> > I already have 4KSTACKS on. Latency tracing is enabled, but
+> > STACKOVERFLOW isn't; I'll just reenable everything again until we fix
+> > this. Do you think if I removed the printk() line I might get some
+> > useful information, before it does the stack trace?
+>
+> usually such loops happen if the stack has been overflown and critical
+> information that lies on the bottom of the stack (struct thread_info) is
+> overwritten. Then we often cannot even perform simple printks. Stack
+> overflow debugging wont prevent the crash, but might give a better
+> traceback.
+>
+> 	Ingo
 
-On Thu, 2005-07-07 at 22:04, Matthew Garrett wrote:
-> Nigel Cunningham <ncunningham@cyclades.com> wrote:
-> 
-> > I've been thinking about this some more and wondering whether I should
-> > just replace swsusp. I really don't want to step on your toes though.
-> > What would you like to see happen?
-> 
-> Do you implement the entire swsusp userspace interface? If not, removing
-> it probably isn't a reasonable plan without fair warning.
+http://devzero.co.uk/~alistair/oops1.jpeg
 
-I'm not suggesting removing the sysfs interface or replacing system to
-ram - just the suspend to disk part.
+I disabled the trace and the STACKOVERFLOW option seems to help; I've got a 
+(slightly truncated) oops from the kernel. What happens is that I get an 
+oops, then I get a BUG: warning me about the softlock, then I get another 
+oops. I'm about to reboot to confirm whether the second oops is identical to 
+the first (I suspect that it is).
 
-Regards,
+Is this any help do you?
 
-Nigel
 -- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
+Cheers,
+Alistair.
 
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

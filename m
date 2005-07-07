@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVGGNvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVGGOOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVGGNvd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 09:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVGGNtJ
+	id S261597AbVGGOOj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 10:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVGGOOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 09:49:09 -0400
-Received: from web32603.mail.mud.yahoo.com ([68.142.207.230]:6281 "HELO
-	web32603.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261495AbVGGNrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 09:47:45 -0400
-Message-ID: <20050707134744.65837.qmail@web32603.mail.mud.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Thu, 7 Jul 2005 06:47:44 -0700 (PDT)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: Head parking (was: IBM HDAPS things are looking up)
-To: Pekka Enberg <penberg@gmail.com>, knobi@knobisoft.de
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <84144f020507070638393f68d6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 7 Jul 2005 10:14:33 -0400
+Received: from ns.suse.de ([195.135.220.2]:57307 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261589AbVGGON5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 10:13:57 -0400
+Date: Thu, 7 Jul 2005 16:13:56 +0200
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pci@vger.kernel.org, gregkh@suse.de
+Subject: Re: [PATCH] Run PCI driver initialization on local node
+Message-ID: <20050707141356.GC21330@wotan.suse.de>
+References: <20050706133248.GG21330@wotan.suse.de> <Pine.LNX.4.62.0507060934360.20107@graphe.net> <20050706175603.GL21330@wotan.suse.de> <Pine.LNX.4.62.0507061232040.720@graphe.net> <20050707103918.GV21330@wotan.suse.de> <Pine.LNX.4.62.0507070642370.22915@graphe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0507070642370.22915@graphe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- Pekka Enberg <penberg@gmail.com> wrote:
-
+> > > Only kmalloc_node will make a reasonable attempt to locate the memory on 
+> > > a specific node.
+> > 
+> > You forgot __get_free_pages.
 > 
-> Martin, don't trim the cc!
-> 
+> The slab allocator uses alloc_pages and alloc_pages_node
 
- sorry about that, but I did not have the CC at time of reply. I read
-LKLM from the archives and respond by cut and paste.
+alloc_pages is NUMA aware. __get_free_pages is just a wrapper for it.
 
-Martin
-
-
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+-Andi

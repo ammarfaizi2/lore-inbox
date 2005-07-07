@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVGGQey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVGGQex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVGGQey (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 12:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVGGQew
+	id S261410AbVGGQex (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 12:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVGGQer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 12:34:52 -0400
-Received: from graphe.net ([209.204.138.32]:13974 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261410AbVGGQcz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 12:32:55 -0400
-Date: Thu, 7 Jul 2005 09:32:51 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Andi Kleen <ak@suse.de>
-cc: linux-ide@vger.kernel.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [another PATCH] Fix crash on boot in kmalloc_node IDE changes
-In-Reply-To: <20050707162442.GI21330@wotan.suse.de>
-Message-ID: <Pine.LNX.4.62.0507070930220.5875@graphe.net>
-References: <20050706133052.GF21330@wotan.suse.de> <Pine.LNX.4.62.0507070912140.27066@graphe.net>
- <20050707162442.GI21330@wotan.suse.de>
+	Thu, 7 Jul 2005 12:34:47 -0400
+Received: from bay103-dav12.bay103.hotmail.com ([65.54.174.84]:3928 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261402AbVGGQdB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 12:33:01 -0400
+Message-ID: <BAY103-DAV12514B3290ED7EEF8A2C78C4D80@phx.gbl>
+X-Originating-IP: [65.54.174.200]
+X-Originating-Email: [jonschindler@hotmail.com]
+From: "Jon Schindler" <jonschindler@hotmail.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: <linux-kernel@vger.kernel.org>
+References: <BAY20-F42FDD187485A266D3988B6C4D80@phx.gbl> <200507071129.38714.rjw@sisk.pl>
+Subject: Re: Kernel Oops with dual core athlon 64
+Date: Thu, 7 Jul 2005 11:34:22 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+Content-Type: text/plain;
+	format=flowed;
+	charset="utf-8";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-OriginalArrivalTime: 07 Jul 2005 16:33:00.0518 (UTC) FILETIME=[8A235060:01C58311]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Jul 2005, Andi Kleen wrote:
+Thanks, I'll recompile tonight and let you know if I still experience any 
+issues.
 
-> On Thu, Jul 07, 2005 at 09:21:55AM -0700, Christoph Lameter wrote:
-> > On Wed, 6 Jul 2005, Andi Kleen wrote:
-> > 
-> > > Without this patch a dual Xeon EM64T machine would oops on boot
-> > > because the hwif pointer here was NULL. I also added a check for
-> > > pci_dev because it's doubtful that all IDE devices have pci_devs.
-> > 
-> > Here is IMHO the right way to fix this. Test for the hwif != NULL and
-> > test for pci_dev != NULL before determining the node number of the pci 
-> > bus that the device is connected to. Maybe we need a hwif_to_node for ide 
-> > drivers that is also able to determine the locality of other hardware?
+Jon
+----- Original Message ----- 
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Jon Schindler" <jonschindler@hotmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, July 07, 2005 4:29 AM
+Subject: Re: Kernel Oops with dual core athlon 64
+
+
+> Hi,
+>
+> On Thursday, 7 of July 2005 07:58, Jon Schindler wrote:
+>> The dmesg is below.  After I get this Oops, I am unable to use my (PS/2)
+>> keyboard, and had to ssh to my machine in order to save a copy of dmesg
+>> before rebooting the machine.  I've seen a couple of other users of dual
+>> core machings having this problem.  The suggestion so far has been to 
+>> remove
+>> the binary nvidia driver and repoducde the bug.  So, I went ahead and
+>> removed the nvidia driver and used the deprecated nv driver that comes 
+>> with
+>> X11 and I still have this issue.  Does anyone have any ideas what might 
+>> be
+>> causing this?  Thanks in advance for the help.  I don't know my way 
+>> around
+>> the kernel, but I do have experience with C and should be able to apply 
+>> any
+>> SMP patches if you want me to test it
+>
+> It seems to be a cpufreq issue.  You can try to apply the attached patch 
+> from
+> Mark Langsdorf.
+>
+> Greets,
+> Rafael
+>
+>
+> -- 
+> - Would you tell me, please, which way I ought to go from here?
+> - That depends a good deal on where you want to get to.
+> -- Lewis Carroll "Alice's Adventures in Wonderland"
 > 
-> Hmm? Where is the difference? 
-
-node = -1 if the node cannot be determined.
-
-> This is 100% equivalent to my code except that you compressed
-> it all into a single expression.
-
-My patch consistently checks for hwif != NULL and pci_dev != NULL. 
-There was someother stuff in your patch. This patch does not add any 
-additional variables and is more readable.

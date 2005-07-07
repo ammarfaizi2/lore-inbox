@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVGGKf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVGGKi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVGGKf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 06:35:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVGGKf6
+	id S261269AbVGGKi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 06:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVGGKgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 06:35:58 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:62196 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S261278AbVGGKfl convert rfc822-to-8bit (ORCPT
+	Thu, 7 Jul 2005 06:36:49 -0400
+Received: from ns2.suse.de ([195.135.220.15]:5080 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261169AbVGGKeX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 06:35:41 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Fedora core 3 Version magic error..
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Thu, 7 Jul 2005 16:13:56 +0530
-Message-ID: <4EE0CBA31942E547B99B3D4BFAB3481161079C@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Fedora core 3 Version magic error..
-Thread-Index: AcWCxJd5/k50SWzUQxSnwkhObVlXoAAGDHbg
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Cc: <linux-kernel@vger.kernel.org>
+	Thu, 7 Jul 2005 06:34:23 -0400
+Date: Thu, 7 Jul 2005 12:34:21 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: prasanna@in.ibm.com, ak@suse.de, davem@davemloft.net,
+       systemtap@sources.redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [1/6 PATCH] Kprobes : Prevent possible race conditions generic changes
+Message-ID: <20050707103421.GU21330@wotan.suse.de>
+References: <20050707101015.GE12106@in.ibm.com> <20050707032537.7588acb9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050707032537.7588acb9.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear sam,
-I was using an automated script to build the module sources.
-I failed noticing the module build failing due to some modifications.
-And the script was using the old version of object file to build the
-rpm.
-That's the problem. It is rectified now.
+On Thu, Jul 07, 2005 at 03:25:37AM -0700, Andrew Morton wrote:
+> Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
+> >
+> > There are possible race conditions if probes are placed on routines within the
+> > kprobes files and routines used by the kprobes.
+> 
+> So...  don't do that then?  Is it likely that anyone would want to stick a
+> probe on the kprobe code itself?
 
-Thanks for the response.
+iirc one goal of systemtap (which uses kprobes) is to be provable
+safe so that an user cannot crash the kernel by adding probes. Basically
+to make it possible to use this on production systems safely. I have my
+doubts they will fully reach it, but at least it's a nice goal.
 
-Regards,
-Mukund jampala
+> > -int register_kprobe(struct kprobe *p)
+> > +static int __kprobes in_kprobes_functions(unsigned long addr)
+> > +{
+> > +	/* Linker adds these: start and end of __kprobes functions */
+> > +	extern char __kprobes_text_start[], __kprobes_text_end[];
+> 
+> There's an old unix convention that section markers (start, end, edata,
+> etc) are declared `int'.  For some reason we don't do that in the kernel. 
+> Oh well.
 
+The Linux convention is to put it into asm-generic/sections.h at least.
 
->-----Original Message-----
->From: Sam Ravnborg [mailto:sam@ravnborg.org]
->Sent: Thursday, July 07, 2005 2:47 PM
->To: Mukund JB.
->Cc: linux-kernel@vger.kernel.org
->Subject: Re: Fedora core 3 Version magic error..
->
->On Thu, Jul 07, 2005 at 12:12:12PM +0530, Mukund JB. wrote:
->> Dear all,
->> ?
->> I have a problem loading the rpm build locally on Fedora core 3,
-linux
->kernel 2.6.10.
->> ?
->> After building the rpm file from the available sources on the Linux
->kernel 2.6.10 which was D/W from kernel.org and build, I am unable to
-load
->it.
->> ?
->> It results in the following errors:-
->> tifm: version magic '2.6.10 686 REGPARM gcc-3.3' should be '2.6.10
->REGPARM gcc-3.4'
->> ?
->Looks like you did not compile the tifm module with latest compiler.
->
->	Sam
+-Andi

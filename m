@@ -1,584 +1,412 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVGGWpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVGGWtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVGGWpB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 18:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVGGWnl
+	id S262338AbVGGWtp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 18:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVGGWsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 18:43:41 -0400
-Received: from pip251.ish.de ([80.69.98.251]:1166 "EHLO mail01.ish.de")
-	by vger.kernel.org with ESMTP id S261476AbVGGWmE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 18:42:04 -0400
-Message-ID: <42CDAFBA.5080005@crypto.rub.de>
-Date: Fri, 08 Jul 2005 00:42:02 +0200
-From: Marcel Selhorst <selhorst@crypto.rub.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050625)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: kjhall@us.ibm.com, adobriyan@gmail.com
-Subject: [PATCH] tpm: Support for new chip type
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-14; AVE: 6.31.0.7; VDF: 6.31.0.170; host: mail)
+	Thu, 7 Jul 2005 18:48:04 -0400
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:32976 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262390AbVGGWqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 18:46:38 -0400
+Date: Thu, 7 Jul 2005 17:46:04 -0500
+From: serge@hallyn.com
+To: serue@us.ibm.com
+Cc: Greg KH <greg@kroah.com>, James Morris <jmorris@redhat.com>,
+       Tony Jones <tonyj@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton <akpm@osdl.org>, Michael Halcrow <mhalcrow@us.ibm.com>,
+       David Safford <safford@watson.ibm.com>,
+       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [PATCH] securityfs
+Message-ID: <20050707224604.GA13117@vino.hallyn.com>
+References: <20050703182505.GA29491@immunix.com> <Xine.LNX.4.44.0507031450540.30297-100000@thoron.boston.redhat.com> <20050703204423.GA17418@kroah.com> <20050706220835.GA32005@serge.austin.ibm.com> <20050706222237.GB6696@kroah.com> <20050707173035.GA10503@vino.hallyn.com> <20050707174852.GA19609@kroah.com> <20050707182720.GA26431@serge.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050707182720.GA26431@serge.austin.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello LKML,
+Quoting serue@us.ibm.com (serue@us.ibm.com):
+> Quoting Greg KH (greg@kroah.com):
+> > > Unfortunately the simple_attr code from libfs really doesn't seem to be
+> > > usable for int args.
+> > 
+> > Why not?  You want a negative number?  Just cast the u64 to a signed int
+> > then.  Will that not work?  If not we can tweak the libfs interface to
+> > work properly for you.
+> 
+> Hmm, I ran into two problems:
+> 	1, the __simple_attr_check_format seems to complain about a "%d"
+> 	format.
+> 	2, when I try just doing the typecasting, I get an oops...
 
-after some corrections here is a newer patch supporting the Infineon Trusted Platform
-Module SLD 9630 (TPM 1.1b), which is embedded on Intel-mainboards or in
-HP/Fujitsu-Siemens/Toshiba-Notebooks.
-The module fits the interfaces created by IBM and was patched against the
-latest kernel-snapshot 2.6.13-rc2.
-Further information about this module and a list of supported hardware can be
-found here: http://www.prosec.rub.de/tpm
+Uh, never mind...
 
-Best Regards,
-Marcel Selhorst
+please don't look at that patch :)
 
-Signed-off-by: Marcel Selhorst <selhorst@crypto.rub.de>
----
+With the obvious fix, that does in fact work (patch appended).  The
+__simple_attr_check_format problem remains however.  I assume we don't
+really want to just take it out, though, like this patch does?  The
+error I get without the fs.h patch is:
 
-diff -uprN linux-2.6.12.2/drivers/char/tpm/Kconfig linux/drivers/char/tpm/Kconfig
---- linux-2.6.12.2/drivers/char/tpm/Kconfig	2005-06-29 23:00:53.000000000 +0000
-+++ linux/drivers/char/tpm/Kconfig	2005-07-06 21:35:29.000000000 +0000
-@@ -35,5 +35,18 @@ config TCG_ATMEL
- 	  will be accessible from within Linux.  To compile this driver
- 	  as a module, choose M here; the module will be called tpm_atmel.
+security/seclvl.c: In function `seclvl_file_ops_open':
+security/seclvl.c:186: warning: int format, different type arg (arg 2)
 
-+config TCG_INFINEON
-+	tristate "Infineon Technologies SLD 9630 TPM Interface"
-+	depends on TCG_TPM
-+	---help---
-+	  If you have a TPM security chip from Infineon Technologies
-+	  say Yes and it will be accessible from within Linux.  To
-+	  compile this driver as a module, choose M here; the module
-+	  will be called tpm_infineon.
-+	  Further information on this driver and the supported hardware
-+	  can be found at http://www.prosec.rub.de/tpm
-+	  Note: To get debugging output into the module, you have to enable
-+	  CONFIG_DEBUG_KERNEL, CONFIG_DEBUG_INFO and CONFIG_PCI_DEBUG
-+
- endmenu
+thanks,
+-serge
+--
+ include/linux/fs.h |    1 
+ security/seclvl.c  |  228 ++++++++++++++++-------------------------------------
+ 2 files changed, 70 insertions(+), 159 deletions(-)
 
-diff -uprN linux-2.6.12.2/drivers/char/tpm/Makefile linux/drivers/char/tpm/Makefile
---- linux-2.6.12.2/drivers/char/tpm/Makefile	2005-06-29 23:00:53.000000000 +0000
-+++ linux/drivers/char/tpm/Makefile	2005-07-06 21:35:29.000000000 +0000
-@@ -4,4 +4,5 @@
- obj-$(CONFIG_TCG_TPM) += tpm.o
- obj-$(CONFIG_TCG_NSC) += tpm_nsc.o
- obj-$(CONFIG_TCG_ATMEL) += tpm_atmel.o
-+obj-$(CONFIG_TCG_INFINEON) += tpm_infineon.o
-
-diff -uprN linux-2.6.12.2/drivers/char/tpm/tpm_infineon.c linux/drivers/char/tpm/tpm_infineon.c
---- linux-2.6.12.2/drivers/char/tpm/tpm_infineon.c	1970-01-01 00:00:00.000000000 +0000
-+++ linux/drivers/char/tpm/tpm_infineon.c	2005-07-07 14:56:27.000000000 +0000
-@@ -0,0 +1,505 @@
-+/*
-+ * Copyright (C) 2005
-+ * Marcel Selhorst <selhorst@crypto.rub.de>
-+ * Applied Data Security Group
-+ * Ruhr-University Bochum, Germany
-+ *
-+ * Description:
-+ * Device Driver for the Infineon Technologies
-+ * SLD 9630 TT Trusted Platform Module
-+ * Specifications at www.trustedcomputinggroup.org	
-+ *
-+ * Project-Homepage:
-+ * http://www.prosec.rub.de/tpm
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation, version 2 of the
-+ * License.
-+ *
-+ */
-+
-+#include "tpm.h"
-+
-+/* Infineon specific delay definitions */
-+enum infineon_tpm_delay {
-+	TPM_MAX_WTX_PACKAGES = 50,	/* maximum number of WTX-packages */
-+	TPM_WTX_MSLEEP_TIME = 20,	/* msleep-Time for WTX-packages */
-+	TPM_MSLEEP_TIME = 3,	/* msleep-Time --> Interval to check status register */
-+	TPM_MAX_TRIES = 5000	/* gives number of max. msleep()-calls before
-+				   throwing timeout */
-+};
-+
-+/* Infineon specific TPM data */
-+enum infineon_tpm_specific {
-+	TCPA_INFINEON_DEV_VEN_VALUE = 0x15D1,
-+	TPM_DATA = (TPM_ADDR + 1) & 0xff
-+};
-+
-+/* TPM header definitions */
-+enum infineon_tpm_header {
-+	TPM_VL_VER = 0x01,
-+	TPM_VL_CHANNEL_CONTROL = 0x07,
-+	TPM_VL_CHANNEL_PERSONALISATION = 0x0A,
-+	TPM_VL_CHANNEL_TPM = 0x0B,
-+	TPM_VL_CONTROL = 0x00,
-+	TPM_INF_NAK = 0x15,
-+	TPM_CTRL_WTX = 0x10,
-+	TPM_CTRL_WTX_ABORT = 0x18,
-+	TPM_CTRL_WTX_ABORT_ACK = 0x18,
-+	TPM_CTRL_ERROR = 0x20,
-+	TPM_CTRL_CHAININGACK = 0x40,
-+	TPM_CTRL_CHAINING = 0x80,
-+	TPM_CTRL_DATA = 0x04,
-+	TPM_CTRL_DATA_CHA = 0x84,
-+	TPM_CTRL_DATA_CHA_ACK = 0xC4
-+};
-+
-+enum infineon_tpm_register {
-+	WRFIFO = 0x00,
-+	RDFIFO = 0x01,
-+	STAT = 0x02,
-+	CMD = 0x03
-+};
-+
-+enum infineon_tpm_command_bits {
-+	CMD_DIS = 0x00,
-+	CMD_LP = 0x01,
-+	CMD_RES = 0x02,
-+	CMD_IRQC = 0x06
-+};
-+
-+enum infineon_tpm_status_bits {
-+	STAT_XFE = 0x00,
-+	STAT_LPA = 0x01,
-+	STAT_FOK = 0x02,
-+	STAT_TOK = 0x03,
-+	STAT_IRQA = 0x06,
-+	STAT_RDA = 0x07
-+};
-+
-+/* some outgoing values */
-+enum infineon_tpm_values {
-+	CHIP_ID1 = 0x20,
-+	CHIP_ID2 = 0x21,
-+	DAR = 0x30,
-+	RESET_LP_IRQC_DISABLE = 0x41,
-+	ENABLE_REGISTER_PAIR = 0x55,
-+	IOLIMH = 0x60,
-+	IOLIML = 0x61,
-+	DISABLE_REGISTER_PAIR = 0xAA,
-+	IDVENL = 0xF1,
-+	IDVENH = 0xF2,
-+	IDPDL = 0xF3,
-+	IDPDH = 0xF4
-+};
-+
-+static int number_of_wtx;
-+
-+static int empty_fifo(struct tpm_chip *chip, int clear_wrfifo)
-+{
-+	int status;
-+	int check = 0;
-+	int i;
-+	int j = 0;
-+
-+	if (clear_wrfifo) {
-+		for (i = 0; i < 4096; i++) {
-+			status = inb(chip->vendor->base + WRFIFO);
-+			if (status == 0xff) {
-+				if (check == 5)
-+					break;
-+				else
-+					check++;
-+			}
-+		}
-+	}
-+	/* Note: The values which are currently in the FIFO of the TPM
-+	   are thrown away since there is no usage for them. Usually,
-+	   this has nothing to say, since the TPM will give its answer immediately
-+	   or will be aborted anyway, so the data here is usually garbage and useless.
-+	   We have to clean this, because the next communication with the TPM would
-+	   be rubbish, if there is still some old data in the Read FIFO.
-+	 */
-+	i = 0;
-+	do {
-+		status = inb(chip->vendor->base + RDFIFO);
-+		status = inb(chip->vendor->base + STAT);
-+		j++;
-+		if (j == TPM_MAX_TRIES)
-+			return -EIO;
-+	} while ((status & (1 << STAT_RDA)) != 0);
-+	return 0;
-+}
-+
-+static int wait(struct tpm_chip *chip, int wait_for_bit)
-+{
-+
-+	int status;
-+	int i;
-+	for (i = 0; i < TPM_MAX_TRIES; i++) {
-+		status = inb(chip->vendor->base + STAT);
-+		if (status & 1 << wait_for_bit)	/* check the status-register if wait_for_bit is set */
-+			break;
-+		msleep(TPM_MSLEEP_TIME);
-+	}
-+	if (i == TPM_MAX_TRIES) {	/* when timeout occurs, print information and return -EIO */
-+		dev_err(&chip->pci_dev->dev, "Timeout in wait(");
-+		if (wait_for_bit == STAT_XFE)
-+			dev_err(&chip->pci_dev->dev, "STAT_XFE)\n");
-+		if (wait_for_bit == STAT_RDA)
-+			dev_err(&chip->pci_dev->dev, "STAT_RDA)\n");
-+		return -EIO;
-+	}
-+	return 0;
-+};
-+
-+static void wait_and_send(struct tpm_chip *chip, u8 sendbyte)
-+{
-+	wait(chip, STAT_XFE);
-+	outb(sendbyte, chip->vendor->base + WRFIFO);
-+}
-+
-+/* Note: WTX means Waiting-Time-Extension. Whenever the TPM
-+needs more calculation time, it sends a WTX-package, which has to
-+be acknowledged or aborted. This usually occurs if you are hammering
-+the TPM with key creation. Set the maximum number of WTX-packages in
-+the definitions above, if the number is reached, the waiting-time will be denied
-+and the TPM command has to be resend.
-+*/
-+
-+static void tpm_wtx(struct tpm_chip *chip)
-+{
-+	number_of_wtx++;
-+	dev_info(&chip->pci_dev->dev, "Granting WTX (%02d / %02d)\n",
-+		 number_of_wtx, TPM_MAX_WTX_PACKAGES);
-+	wait_and_send(chip, TPM_VL_VER);
-+	wait_and_send(chip, TPM_CTRL_WTX);
-+	wait_and_send(chip, 0x00);
-+	wait_and_send(chip, 0x00);
-+	msleep(TPM_WTX_MSLEEP_TIME);
-+}
-+
-+static void tpm_wtx_abort(struct tpm_chip *chip)
-+{
-+	dev_info(&chip->pci_dev->dev, "Aborting WTX\n");
-+	wait_and_send(chip, TPM_VL_VER);
-+	wait_and_send(chip, TPM_CTRL_WTX_ABORT);
-+	wait_and_send(chip, 0x00);
-+	wait_and_send(chip, 0x00);
-+	number_of_wtx = 0;
-+	msleep(TPM_WTX_MSLEEP_TIME);
-+}
-+
-+static int tpm_inf_recv(struct tpm_chip *chip, u8 * buf, size_t count)
-+{
-+	int i;
+Index: linux-2.6.13-rc1/include/linux/fs.h
+===================================================================
+--- linux-2.6.13-rc1.orig/include/linux/fs.h	2005-07-07 15:10:22.000000000 -0500
++++ linux-2.6.13-rc1/include/linux/fs.h	2005-07-07 17:59:54.000000000 -0500
+@@ -1717,7 +1717,6 @@ static inline void simple_transaction_se
+ #define DEFINE_SIMPLE_ATTRIBUTE(__fops, __get, __set, __fmt)		\
+ static int __fops ## _open(struct inode *inode, struct file *file)	\
+ {									\
+-	__simple_attr_check_format(__fmt, 0ull);			\
+ 	return simple_attr_open(inode, file, __get, __set, __fmt);	\
+ }									\
+ static struct file_operations __fops = {				\
+Index: linux-2.6.13-rc1/security/seclvl.c
+===================================================================
+--- linux-2.6.13-rc1.orig/security/seclvl.c	2005-07-07 15:33:45.000000000 -0500
++++ linux-2.6.13-rc1/security/seclvl.c	2005-07-07 22:30:45.000000000 -0500
+@@ -119,69 +119,6 @@ MODULE_PARM_DESC(hideHash, "When set to 
+ 	} while (0)
+ 
+ /**
+- * kobject stuff
+- */
+-
+-struct subsystem seclvl_subsys;
+-
+-struct seclvl_obj {
+-	char *name;
+-	struct list_head slot_list;
+-	struct kobject kobj;
+-};
+-
+-/**
+- * There is a seclvl_attribute struct for each file in sysfs.
+- *
+- * In our case, we have one of these structs for "passwd" and another
+- * for "seclvl".
+- */
+-struct seclvl_attribute {
+-	struct attribute attr;
+-	ssize_t(*show) (struct seclvl_obj *, char *);
+-	ssize_t(*store) (struct seclvl_obj *, const char *, size_t);
+-};
+-
+-/**
+- * When this function is called, one of the files in sysfs is being
+- * written to.  attribute->store is a function pointer to whatever the
+- * struct seclvl_attribute store function pointer points to.  It is
+- * unique for "passwd" and "seclvl".
+- */
+-static ssize_t
+-seclvl_attr_store(struct kobject *kobj,
+-		  struct attribute *attr, const char *buf, size_t len)
+-{
+-	struct seclvl_obj *obj = container_of(kobj, struct seclvl_obj, kobj);
+-	struct seclvl_attribute *attribute =
+-	    container_of(attr, struct seclvl_attribute, attr);
+-	return attribute->store ? attribute->store(obj, buf, len) : -EIO;
+-}
+-
+-static ssize_t
+-seclvl_attr_show(struct kobject *kobj, struct attribute *attr, char *buf)
+-{
+-	struct seclvl_obj *obj = container_of(kobj, struct seclvl_obj, kobj);
+-	struct seclvl_attribute *attribute =
+-	    container_of(attr, struct seclvl_attribute, attr);
+-	return attribute->show ? attribute->show(obj, buf) : -EIO;
+-}
+-
+-/**
+- * Callback function pointers for show and store
+- */
+-static struct sysfs_ops seclvlfs_sysfs_ops = {
+-	.show = seclvl_attr_show,
+-	.store = seclvl_attr_store,
+-};
+-
+-static struct kobj_type seclvl_ktype = {
+-	.sysfs_ops = &seclvlfs_sysfs_ops
+-};
+-
+-decl_subsys(seclvl, &seclvl_ktype, NULL);
+-
+-/**
+  * The actual security level.  Ranges between -1 and 2 inclusive.
+  */
+ static int seclvl;
+@@ -213,97 +150,44 @@ static int seclvl_sanity(int reqlvl)
+ }
+ 
+ /**
+- * Called whenever the user reads the sysfs handle to this kernel
+- * object
+- */
+-static ssize_t seclvl_read_file(struct seclvl_obj *obj, char *buff)
+-{
+-	return snprintf(buff, PAGE_SIZE, "%d\n", seclvl);
+-}
+-
+-/**
+  * security level advancement rules:
+  *   Valid levels are -1 through 2, inclusive.
+  *   From -1, stuck.  [ in case compiled into kernel ]
+  *   From 0 or above, can only increment.
+  */
+-static int do_seclvl_advance(int newlvl)
++static void do_seclvl_advance(void *data, u64 val)
+ {
+-	if (newlvl <= seclvl) {
+-		seclvl_printk(1, KERN_WARNING, "Cannot advance to seclvl "
+-			      "[%d]\n", newlvl);
+-		return -EINVAL;
+-	}
 +	int ret;
-+	u32 size = 0;
++	int newlvl = (int)val;
 +
-+      recv_begin:
-+	/* start reading header */
-+	dev_dbg(&chip->pci_dev->dev, "Receiving header: ");
-+
-+	for (i = 0; i < 4; i++) {
-+		ret = wait(chip, STAT_RDA);
-+		if (ret)
-+			return -EIO;
-+
-+		buf[i] = inb(chip->vendor->base + RDFIFO);
-+		dev_dbg(&chip->pci_dev->dev, "%02x ", buf[i]);
-+	}
-+	dev_dbg(&chip->pci_dev->dev, "\n");
-+
-+	if (buf[0] != TPM_VL_VER) {
-+		dev_err(&chip->pci_dev->dev,
-+			"Wrong transport protocol implementation!\n");
-+		return -EIO;
-+	}
-+
-+	if (buf[1] == TPM_CTRL_DATA) {
-+		/* size of the data received */
-+		size = ((buf[2] << 8) | buf[3]);
-+		dev_dbg(&chip->pci_dev->dev,
-+			"Number of bytes to copy:  %d (0x%04x)\n", size, size);
-+		dev_dbg(&chip->pci_dev->dev, "Receiving data: ");
-+
-+		for (i = 0; i < size; i++) {
-+			wait(chip, STAT_RDA);
-+			buf[i] = inb(chip->vendor->base + RDFIFO);
-+			dev_dbg(&chip->pci_dev->dev, "%02x ", buf[i]);
-+		}
-+		dev_dbg(&chip->pci_dev->dev, "\n");
-+
-+		if ((size == 0x6D00) && (buf[1] == 0x80)) {
-+			dev_err(&chip->pci_dev->dev,
-+				"Error handling on vendor layer!\n");
-+			return -EIO;
-+		}
-+
-+		for (i = 0; i < size; i++)
-+			buf[i] = buf[i + 6];
-+
-+		size = size - 6;
-+		return size;
-+	}
-+
-+	if (buf[1] == TPM_CTRL_WTX) {
-+		dev_info(&chip->pci_dev->dev, "WTX-package received\n");
-+		if (number_of_wtx < TPM_MAX_WTX_PACKAGES) {
-+			tpm_wtx(chip);
-+			goto recv_begin;
-+		} else {
-+			tpm_wtx_abort(chip);
-+			goto recv_begin;
-+		}
-+	}
-+	if (buf[1] == TPM_CTRL_WTX_ABORT_ACK) {
-+		dev_info(&chip->pci_dev->dev, "WTX-abort acknowledged\n");
-+		return size;
-+	}
-+
-+	if (buf[1] == TPM_CTRL_ERROR) {
-+		dev_err(&chip->pci_dev->dev, "ERROR-package received:\n");
-+		if (buf[4] == TPM_INF_NAK)
-+			dev_err(&chip->pci_dev->dev,
-+				"-> Negative acknowledgement - retransmit commando!\n");
-+		return -EIO;
-+	}
-+	return -EIO;
-+}
-+
-+static int tpm_inf_send(struct tpm_chip *chip, u8 * buf, size_t count)
-+{
-+	int i;
-+	int ret;
-+	u8 count_high, count_low, count_4, count_3, count_2, count_1;
-+	/* Disabling Reset, LP and IRQC */
-+	outb(RESET_LP_IRQC_DISABLE, chip->vendor->base + CMD);
-+
-+	ret = empty_fifo(chip, 1);
-+	if (ret) {
-+		dev_err(&chip->pci_dev->dev, "Timeout while clearing FIFO\n");
-+		return -EIO;
-+	}
-+
-+	ret = wait(chip, STAT_XFE);
++	ret = seclvl_sanity(newlvl);
 +	if (ret)
-+		return -EIO;
++		return;
 +
-+	count_4 = (count & 0xff000000) >> 24;
-+	count_3 = (count & 0x00ff0000) >> 16;
-+	count_2 = (count & 0x0000ff00) >> 8;
-+	count_1 = (count & 0x000000ff);
-+	count_high = ((count + 6) & 0xffffff00) >> 8;
-+	count_low = ((count + 6) & 0x000000ff);
+ 	if (newlvl > 2) {
+ 		seclvl_printk(1, KERN_WARNING, "Cannot advance to seclvl "
+ 			      "[%d]\n", newlvl);
+-		return -EINVAL;
++		return;
+ 	}
+ 	if (seclvl == -1) {
+ 		seclvl_printk(1, KERN_WARNING, "Not allowed to advance to "
+ 			      "seclvl [%d]\n", seclvl);
+-		return -EPERM;
++		return;
+ 	}
+-	seclvl = newlvl;
+-	return 0;
++	seclvl = newlvl;  /* would it be more "correct" to set *data? */
++	return;
+ }
+ 
+-/**
+- * Called whenever the user writes to the sysfs handle to this kernel
+- * object (seclvl/seclvl).  It expects a single-digit number.
+- */
+-static ssize_t
+-seclvl_write_file(struct seclvl_obj *obj, const char *buff, size_t count)
++static u64 seclvl_int_get(void *data)
+ {
+-	unsigned long val;
+-	if (count > 2 || (count == 2 && buff[1] != '\n')) {
+-		seclvl_printk(1, KERN_WARNING, "Invalid value passed to "
+-			      "seclvl: [%s]\n", buff);
+-		return -EINVAL;
+-	}
+-	val = buff[0] - 48;
+-	if (seclvl_sanity(val)) {
+-		seclvl_printk(1, KERN_WARNING, "Illegal secure level "
+-			      "requested: [%d]\n", (int)val);
+-		return -EPERM;
+-	}
+-	if (do_seclvl_advance(val)) {
+-		seclvl_printk(0, KERN_ERR, "Failure advancing security level "
+-			      "to %lu\n", val);
+-	}
+-	return count;
++	return *(int *)data;
+ }
+ 
+-/* Generate sysfs_attr_seclvl */
+-static struct seclvl_attribute sysfs_attr_seclvl =
+-__ATTR(seclvl, (S_IFREG | S_IRUGO | S_IWUSR), seclvl_read_file,
+-       seclvl_write_file);
++DEFINE_SIMPLE_ATTRIBUTE(seclvl_file_ops, seclvl_int_get, do_seclvl_advance, "%d\n");
+ 
+ static unsigned char hashedPassword[SHA1_DIGEST_SIZE];
+ 
+ /**
+- * Called whenever the user reads the sysfs passwd handle.
+- */
+-static ssize_t seclvl_read_passwd(struct seclvl_obj *obj, char *buff)
+-{
+-	/* So just how good *is* your password? :-) */
+-	char tmp[3];
+-	int i = 0;
+-	buff[0] = '\0';
+-	if (hideHash) {
+-		/* Security through obscurity */
+-		return 0;
+-	}
+-	while (i < SHA1_DIGEST_SIZE) {
+-		snprintf(tmp, 3, "%02x", hashedPassword[i]);
+-		strncat(buff, tmp, 2);
+-		i++;
+-	}
+-	strcat(buff, "\n");
+-	return ((SHA1_DIGEST_SIZE * 2) + 1);
+-}
+-
+-/**
+  * Converts a block of plaintext of into its SHA1 hashed value.
+  *
+  * It would be nice if crypto had a wrapper to do this for us linear
+@@ -347,12 +231,15 @@ plaintext_to_sha1(unsigned char *hash, c
+  * object.  It hashes the password and compares the hashed results.
+  */
+ static ssize_t
+-seclvl_write_passwd(struct seclvl_obj *obj, const char *buff, size_t count)
++passwd_write_file(struct file * file, const char __user * buf,
++				size_t count, loff_t *ppos)
+ {
+ 	int i;
+ 	unsigned char tmp[SHA1_DIGEST_SIZE];
++	char *page;
+ 	int rc;
+ 	int len;
 +
-+	/* Sending Header */
-+	dev_dbg(&chip->pci_dev->dev, "Sending header %02x %02x %02x %02x\n",
-+		TPM_VL_VER, TPM_CTRL_DATA, count_high, count_low);
+ 	if (!*passwd && !*sha1_passwd) {
+ 		seclvl_printk(0, KERN_ERR, "Attempt to password-unlock the "
+ 			      "seclvl module, but neither a plain text "
+@@ -363,13 +250,26 @@ seclvl_write_passwd(struct seclvl_obj *o
+ 			      "maintainer about this event.\n");
+ 		return -EINVAL;
+ 	}
+-	len = strlen(buff);
 +
-+	wait_and_send(chip, TPM_VL_VER);
-+	wait_and_send(chip, TPM_CTRL_DATA);
-+	wait_and_send(chip, count_high);
-+	wait_and_send(chip, count_low);
-+
-+	count_high = 0;
-+	count_low = 0;
-+
-+	count_high = (count & 0xffff0000);
-+	count_low = (count & 0x0000ffff);
-+
-+	/* Sending Data Header */
-+	dev_dbg(&chip->pci_dev->dev,
-+		"Sending data   %02x %02x %02x %02x %02x %02x ", TPM_VL_VER,
-+		TPM_VL_CHANNEL_TPM, count_4, count_3, count_2, count_1);
-+
-+	wait_and_send(chip, TPM_VL_VER);
-+	wait_and_send(chip, TPM_VL_CHANNEL_TPM);
-+	wait_and_send(chip, count_4);
-+	wait_and_send(chip, count_3);
-+	wait_and_send(chip, count_2);
-+	wait_and_send(chip, count_1);
-+
-+	for (i = 0; i < count; i++) {
-+		wait_and_send(chip, buf[i]);
-+		dev_dbg(&chip->pci_dev->dev, "%02x ", buf[i]);
++	if (count < 0 || count >= PAGE_SIZE)
++		return -ENOMEM;
++	if (*ppos != 0) {
++		return -EINVAL;
 +	}
-+	dev_dbg(&chip->pci_dev->dev,
-+		"\nSending data successful -> %d (0x%04x) from %d (0x%04x) data-bytes written\n",
-+		count, count, i, i);
-+	return count;
-+}
-+static void tpm_inf_cancel(struct tpm_chip *chip)
-+{
-+	/* Nothing yet!
-+	   This has something to do with the internal functions
-+	   of the TPM. Abort isn't really necessary...
-+	 */
-+}
++	page = (char *)get_zeroed_page(GFP_KERNEL);
++	if (!page)
++		return -ENOMEM;
++	len = -EFAULT;
++	if (copy_from_user(page, buf, count))
++		goto out;
++	
++	len = strlen(page);
+ 	/* ``echo "secret" > seclvl/passwd'' includes a newline */
+-	if (buff[len - 1] == '\n') {
++	if (page[len - 1] == '\n') {
+ 		len--;
+ 	}
+ 	/* Hash the password, then compare the hashed values */
+-	if ((rc = plaintext_to_sha1(tmp, buff, len))) {
++	if ((rc = plaintext_to_sha1(tmp, page, len))) {
+ 		seclvl_printk(0, KERN_ERR, "Error hashing password: rc = "
+ 			      "[%d]\n", rc);
+ 		return rc;
+@@ -382,13 +282,16 @@ seclvl_write_passwd(struct seclvl_obj *o
+ 	seclvl_printk(0, KERN_INFO,
+ 		      "Password accepted; seclvl reduced to 0.\n");
+ 	seclvl = 0;
+-	return count;
++	len = count;
 +
-+static DEVICE_ATTR(pubek, S_IRUGO, tpm_show_pubek, NULL);
-+static DEVICE_ATTR(pcrs, S_IRUGO, tpm_show_pcrs, NULL);
-+static DEVICE_ATTR(caps, S_IRUGO, tpm_show_caps, NULL);
-+static DEVICE_ATTR(cancel, S_IWUSR | S_IWGRP, NULL, tpm_store_cancel);
-+
-+static struct attribute *inf_attrs[] = {
-+	&dev_attr_pubek.attr,
-+	&dev_attr_pcrs.attr,
-+	&dev_attr_caps.attr,
-+	&dev_attr_cancel.attr,
-+	NULL,
++out:
++	free_page((unsigned long)page);
++	return len;
+ }
+ 
+-/* Generate sysfs_attr_passwd */
+-static struct seclvl_attribute sysfs_attr_passwd =
+-__ATTR(passwd, (S_IFREG | S_IRUGO | S_IWUSR), seclvl_read_passwd,
+-       seclvl_write_passwd);
++static struct file_operations passwd_file_ops = {
++	.write = passwd_write_file,
 +};
+ 
+ /**
+  * Explicitely disallow ptrace'ing the init process.
+@@ -647,22 +550,34 @@ static int processPassword(void)
+ }
+ 
+ /**
+- * Sysfs registrations
++ * securityfs registrations
+  */
+-static int doSysfsRegistrations(void)
++struct dentry *dir_ino, *seclvl_ino, *passwd_ino;
 +
-+static struct attribute_group inf_attr_grp = {.attrs = inf_attrs };
++static int seclvlfs_register(void)
+ {
+-	int rc = 0;
+-	if ((rc = subsystem_register(&seclvl_subsys))) {
+-		seclvl_printk(0, KERN_WARNING,
+-			      "Error [%d] registering seclvl subsystem\n", rc);
+-		return rc;
+-	}
+-	sysfs_create_file(&seclvl_subsys.kset.kobj, &sysfs_attr_seclvl.attr);
++	dir_ino = securityfs_create_dir("seclvl", NULL);
++	if (!dir_ino)
++		return -EFAULT;
 +
-+static struct file_operations inf_ops = {
-+	.owner = THIS_MODULE,
-+	.llseek = no_llseek,
-+	.open = tpm_open,
-+	.read = tpm_read,
-+	.write = tpm_write,
-+	.release = tpm_release,
-+};
++	seclvl_ino = securityfs_create_file("seclvl", S_IRUGO | S_IWUSR,
++				dir_ino, &seclvl, &seclvl_file_ops);
++	if (!seclvl_ino)
++		goto out_deldir;
+ 	if (*passwd || *sha1_passwd) {
+-		sysfs_create_file(&seclvl_subsys.kset.kobj,
+-				  &sysfs_attr_passwd.attr);
++		passwd_ino = securityfs_create_file("passwd", S_IRUGO | S_IWUSR,
++				dir_ino, NULL, &passwd_file_ops);
++		if (!passwd_ino)
++			goto out_delf;
+ 	}
+ 	return 0;
 +
-+static struct tpm_vendor_specific tpm_inf = {
-+	.recv = tpm_inf_recv,
-+	.send = tpm_inf_send,
-+	.cancel = tpm_inf_cancel,
-+	.req_complete_mask = 0,
-+	.req_complete_val = 0,
-+	.attr_group = &inf_attr_grp,
-+	.miscdev = {.fops = &inf_ops,},
-+};
++out_deldir:
++	securityfs_remove(dir_ino);
++out_delf:
++	securityfs_remove(seclvl_ino);
 +
-+static int __init tpm_inf_probe(struct pci_dev *pci_dev,
-+				const struct pci_device_id *pci_id)
-+{
-+
-+	int rc = 0;
-+	u8 ioh;
-+	u8 iol;
-+	int vendorid[2];
-+	int version[2];
-+	int productid[2];
-+	int status = 0;
-+
-+	if (pci_enable_device(pci_dev))
-+		return -EIO;
-+
-+	dev_dbg(&pci_dev->dev, "LPC-bus found at 0x%x\n", pci_id->device);
-+
-+	/* query chip for its vendor, its version number a.s.o. */
-+
-+	outb(ENABLE_REGISTER_PAIR, TPM_ADDR);
-+	outb(IDVENL, TPM_ADDR);
-+	vendorid[1] = inb(TPM_DATA);
-+	outb(IDVENH, TPM_ADDR);
-+	vendorid[0] = inb(TPM_DATA);
-+	outb(IDPDL, TPM_ADDR);
-+	productid[1] = inb(TPM_DATA);
-+	outb(IDPDH, TPM_ADDR);
-+	productid[0] = inb(TPM_DATA);
-+	outb(CHIP_ID1, TPM_ADDR);
-+	version[1] = inb(TPM_DATA);
-+	outb(CHIP_ID2, TPM_ADDR);
-+	version[0] = inb(TPM_DATA);
-+
-+	if ((vendorid[1] == (TCPA_INFINEON_DEV_VEN_VALUE & 0xFF))
-+	    && ((vendorid[0] << 8) ==
-+		(TCPA_INFINEON_DEV_VEN_VALUE & 0x00FF << 8))) {
-+
-+		/* read IO-ports from TPM */
-+		outb(IOLIMH, TPM_ADDR);
-+		ioh = inb(TPM_DATA);
-+		outb(IOLIML, TPM_ADDR);
-+		iol = inb(TPM_DATA);
-+		tpm_inf.base = (ioh << 8) | iol;
-+
-+		if (tpm_inf.base == 0) {
-+			dev_err(&pci_dev->dev, "No IO-ports set!\n");
-+			pci_disable_device(pci_dev);
-+			return -ENODEV;
-+		}
-+
-+		/* activate register */
-+		outb(DAR, TPM_ADDR);
-+		outb(0x01, TPM_DATA);
-+		outb(DAR, TPM_ADDR);
-+		status = inb(TPM_DATA);
-+		dev_dbg(&pci_dev->dev,
-+			"Device activate register status : %x \n", status);
-+		outb(DISABLE_REGISTER_PAIR, TPM_ADDR);
-+
-+		/* disable RESET, LP and IRQC */
-+		outb(RESET_LP_IRQC_DISABLE, tpm_inf.base + CMD);
-+
-+		/* Finally, we're done, print some infos */
-+		dev_info(&pci_dev->dev, "TPM found: "
-+			 "io base 0x%x, "
-+			 "chip version %02x%02x, "
-+			 "vendor id %x%x (Infineon), "
-+			 "product id %02x%02x"
-+			 "%s\n",
-+			 tpm_inf.base,
-+			 version[0], version[1],
-+			 vendorid[0], vendorid[1],
-+			 productid[0], productid[1], ((productid[0] == 0)
-+						      && (productid[1] ==
-+							  6)) ?
-+			 " (SLD 9630 TT 1.1)" : "");
-+
-+		rc = tpm_register_hardware(pci_dev, &tpm_inf);
-+		if (rc < 0) {
-+			pci_disable_device(pci_dev);
-+			return -ENODEV;
-+		}
-+		return 0;
-+
-+	} else {
-+		dev_info(&pci_dev->dev, "No Infineon TPM found!\n");
-+		pci_disable_device(pci_dev);
-+		return -ENODEV;
-+	}
-+}
-+
-+static struct pci_device_id tpm_pci_tbl[] __devinitdata = {
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CA_12)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_0)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_12)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_0)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_1)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_2)},
-+	{0,}
-+};
-+
-+MODULE_DEVICE_TABLE(pci, tpm_pci_tbl);
-+
-+static struct pci_driver inf_pci_driver = {
-+	.name = "tpm_inf",
-+	.id_table = tpm_pci_tbl,
-+	.probe = tpm_inf_probe,
-+	.remove = __devexit_p(tpm_remove),
-+	.suspend = tpm_pm_suspend,
-+	.resume = tpm_pm_resume,
-+};
-+
-+static int __init init_inf(void)
-+{
-+	return pci_register_driver(&inf_pci_driver);
-+}
-+
-+static void __exit cleanup_inf(void)
-+{
-+	pci_unregister_driver(&inf_pci_driver);
-+}
-+
-+module_init(init_inf);
-+module_exit(cleanup_inf);
-+
-+MODULE_AUTHOR("Marcel Selhorst <selhorst@crypto.rub.de>");
-+MODULE_DESCRIPTION("Driver for Infineon TPM SLD 9630 TT");
-+MODULE_VERSION("1.4");
-+MODULE_LICENSE("GPL");
-
++	return -EFAULT;
+ }
+ 
+ /**
+@@ -677,8 +592,6 @@ static int __init seclvl_init(void)
+ 		rc = -EINVAL;
+ 		goto exit;
+ 	}
+-	sysfs_attr_seclvl.attr.owner = THIS_MODULE;
+-	sysfs_attr_passwd.attr.owner = THIS_MODULE;
+ 	if (initlvl < -1 || initlvl > 2) {
+ 		seclvl_printk(0, KERN_ERR, "Error: bad initial securelevel "
+ 			      "[%d].\n", initlvl);
+@@ -706,7 +619,7 @@ static int __init seclvl_init(void)
+ 		}		/* if primary module registered */
+ 		secondary = 1;
+ 	}			/* if we registered ourselves with the security framework */
+-	if ((rc = doSysfsRegistrations())) {
++	if ((rc = seclvlfs_register())) {
+ 		seclvl_printk(0, KERN_ERR, "Error registering with sysfs\n");
+ 		goto exit;
+ 	}
+@@ -724,12 +637,11 @@ static int __init seclvl_init(void)
+  */
+ static void __exit seclvl_exit(void)
+ {
+-	sysfs_remove_file(&seclvl_subsys.kset.kobj, &sysfs_attr_seclvl.attr);
++	securityfs_remove(seclvl_ino);
+ 	if (*passwd || *sha1_passwd) {
+-		sysfs_remove_file(&seclvl_subsys.kset.kobj,
+-				  &sysfs_attr_passwd.attr);
++		securityfs_remove(passwd_ino);
+ 	}
+-	subsystem_unregister(&seclvl_subsys);
++	securityfs_remove(dir_ino);
+ 	if (secondary == 1) {
+ 		mod_unreg_security(MY_NAME, &seclvl_ops);
+ 	} else if (unregister_security(&seclvl_ops)) {

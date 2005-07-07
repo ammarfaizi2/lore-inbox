@@ -1,103 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVGGPLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVGGPOC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbVGGPLe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 11:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVGGPJf
+	id S261827AbVGGPOC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 11:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVGGPLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 11:09:35 -0400
-Received: from [66.150.84.1] ([66.150.84.1]:24564 "EHLO
-	rowdy.as.in.athenacr.com") by vger.kernel.org with ESMTP
-	id S261424AbVGGPGz convert rfc822-to-8bit (ORCPT
+	Thu, 7 Jul 2005 11:11:47 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47072 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261424AbVGGPJl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 11:06:55 -0400
-From: Andres Salomon <dilinger@debian.org>
-Subject: Re: tg3 driver fails
-Date: Thu, 07 Jul 2005 11:06:37 -0400
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
-Message-Id: <pan.2005.07.07.15.06.31.28150@debian.org>
-Newsgroups: gmane.linux.debian.ports.sparc
-References: <Pine.LNX.4.61.0507061051020.2607@bobcat> <20050706.160821.74746394.davem@redhat.com> <Pine.LNX.4.61.0507062328370.3236@bobcat> <20050707.030818.102573301.davem@redhat.com>
-To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 7 Jul 2005 11:09:41 -0400
+Date: Thu, 7 Jul 2005 17:11:10 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Aric Cyr <acyr@alumni.uwaterloo.ca>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: sata_sil 3112 activity LED patch
+Message-ID: <20050707151110.GF24401@suse.de>
+References: <20050706025136.GA15493@alumni.uwaterloo.ca> <42CBF3A1.1020508@pobox.com> <20050707124702.GB24401@suse.de> <20050707142301.GA11182@alumni.uwaterloo.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050707142301.GA11182@alumni.uwaterloo.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CC'ing lkml for relevance..
-
-On Thu, 07 Jul 2005 03:08:18 -0400, David S.
-Miller wrote:
-
-> From: Jurij Smakov <jurij@wooyd.org>
-> Date: Thu, 7 Jul 2005 00:38:00 -0400 (EDT)
+On Thu, Jul 07 2005, Aric Cyr wrote:
+> > There's also an existing variant of this in the block layer, the
+> > activity_fn, that we use on the ibook/powerbook to use the sleep led as
+> > an activity light. Just in case you prefer that to overloading the bmdma
+> > start/stop handlers.
 > 
->> In fact, Debian is actively working on resolving this situation.
+> You suggestion at first looked to be incredibly nice... until I looked
+> at how much implementation was required.  I am considering trying it,
+> but I cannot find a place for an sata driver to call the
+> blk_queue_activity_fn() with meaningful parameters during init.
 > 
-> Keep defending yourselves.  This was a disaster regardless
-> of the technical reasons or details of the situation.
-> 
-> No user wants to hear a story, they want their systems to work, and
-> developers do too.  I don't want to hear a story either, because all I
-> see are user's systems not working and nothing that can be done about
-> it at this time.
-> 
+> On a second look, I guess I would have to override
+> ata_scsi_slave_config() in the driver and hook up the activity light
+> there.  This would be fine I guess.  Unless I am interpreting this
+> incorrectly, however, I would need to use a timer or something to turn
+> the light back off?  I'm probably missing something, so is there a
+> simpler way to do this?
 
-As one of the authors of a driver that had to be stripped due to it not
-being distributable, I would be a bit more apologetic regarding this if I
-was you. We (Debian) are simply trying to abide by the licenses that
-people have made their works available under.  You'd probably get very
-upset if we distributed a heavily modified/improved kernel without
-providing sources (and thereby violating the GPL), and yet it's OK for us
-to distribute firmware under a license that we cannot satisfy?
+Hmm yes, it will require more work for you. It should be cleaned up a
+little to pass in a START/STOP variable and handle everything in the
+block layer instead. You probably just want to continue using the bmdma
+hooks now, that is actually a fine implementation imo.
 
-You're right, no one wants to hear a story, but I'm really quite curious
-how the authors of the kernel justify distributing code that includes bits
-like the smctr firmware [0]: 
-
- * The firmware this driver downloads into the tokenring card is a
- * separate program and is not GPL'd source code, even though the Linux
- * side driver and the routine that loads this data into the card are.
- *
- * This firmware is licensed to you strictly for use in conjunction
- * with the use of SMC TokenRing adapters. There is no waranty
- * expressed or implied about its fitness for any purpose.
-
-The license covers use, but not redistribution.  Is it even allowed to be
-redistributed?  The "strictly" bit leads me to believe it that the
-firmware author(s) don't want other permission to be assumed.
-
-This is the sort of thing that causes us (Debian) no end of headaches, and
-why I've wasted much of my time dealing w/ stripping out drivers, talking
-with companies like Broadcom and QLogic, and answering emails
-like this one. And no, ladies and gentlemen; the GPL is *not* a valid
-license for binary firmware.  The key wording here is "The source code for
-a work means the preferred form of the work for making modifications to
-it."  It doesn't matter whether the code actually executes on the host
-processor or not (as this seems to be the common excuse for not providing
-source). Unless the firmware was generated with a hex editor (which I
-don't see proof for, for any of the 7 or so drivers we're removing), the
-source for the firmware is not available upon request, so we cannot
-distribute it.
-
-
-> That's why many people are disappointed with the way the latest
-Debian
-> stable release turned out.  That's why many developers don't want to
-> work on Debian any more, and want to move on to other distributions
-> where it's not politics madness all the time.
-> 
-
-The release process isn't really relevant to this thread. 
-Besides, I'm just as annoyed as you, having been stuck maintaining a
-largely outdated kernel while freeze/release process dragged on and on. 
-Lots of Debian Developers have been extremely frustrated with the release
-process and the personalities involved in actually making things get done
-wrt infrastructure changes. Ranting here won't fix anything, though.
-
-I'm ignoring the rest of the email, as it's related more to release
-process frustration than firmware and tg3 removal.
-
-[0]
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=48994b043b7cf0e06e29b2f4424257edfae107b5;hb=c101f3136cc98a003d0d16be6fab7d0d950581a6;f=drivers/net/tokenring/smctr_firmware.h
+-- 
+Jens Axboe
 

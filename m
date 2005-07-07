@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVGGGLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVGGGOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVGGGLw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 02:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVGGGLv
+	id S261164AbVGGGOR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 02:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVGGGOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 02:11:51 -0400
-Received: from tag.witbe.net ([81.88.96.48]:48063 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S261161AbVGGGKx (ORCPT
+	Thu, 7 Jul 2005 02:14:16 -0400
+Received: from smtpq1.home.nl ([213.51.128.196]:19367 "EHLO smtpq1.home.nl")
+	by vger.kernel.org with ESMTP id S261164AbVGGGMG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 02:10:53 -0400
-Message-Id: <200507070610.j676AoD14062@tag.witbe.net>
-Reply-To: <rol@witbe.net>
-From: "Paul Rolland" <rol@witbe.net>
-To: "'Jeff Woods'" <Kazrak+kernel@cesmail.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: "Spy'ing" characters sent thru serial port ?
-Date: Thu, 7 Jul 2005 08:10:50 +0200
-Organization: Witbe
+	Thu, 7 Jul 2005 02:12:06 -0400
+Message-ID: <42CCC9F3.5080509@edsons.demon.nl>
+Date: Thu, 07 Jul 2005 08:21:39 +0200
+From: Rudy Zijlstra <rudy@edsons.demon.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7.8) Gecko/20050514
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Doug Wicks <doug@ccbill.com>
+CC: Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
+       Hubert Chan <hubert@uhoreg.ca>,
+       "Alexander G. M. Smith" <agmsmith@rogers.com>, ross.biro@gmail.com,
+       vonbrand@inf.utfsm.cl, mrmacman_g4@mac.com, Valdis.Kletnieks@vt.edu,
+       ltd@cisco.com, gmaxwell@gmail.com, jgarzik@pobox.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       zam@namesys.com, vs@thebsh.namesys.com, ndiller@namesys.com,
+       vitaly@thebsh.namesys.com
+Subject: Re: reiser4 plugins
+References: <889A47B16278164FB657E0FFB1CAB8C7B729A7@hq-exchange.ccbill-hq.local>
+In-Reply-To: <889A47B16278164FB657E0FFB1CAB8C7B729A7@hq-exchange.ccbill-hq.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <6.2.3.4.0.20050706214134.03ce1d00@no.incoming.mail>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcWCp/h82vuuFxUUSEGcTgp1qgJxQwAEjmxw
-X-NCC-RegID: fr.witbe
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+Doug Wicks wrote:
 
-> I don't have any software answers, but it sounds like the modem is an 
-> external type connected by RS232 cable to a serial port.  RS-232 is 
-> pretty simple at the hardware level and you should be able to create 
-> a "Y" cable that "sniffs" the transmit from the computer to modem 
-> line without interrupting the dialogue between the serial port and 
-> modem. Just connect the transmit and signal ground lines to the 
-> receive and signal ground lines of a serial terminal or another 
-> computer with some terminal software (or even "cat </dev/serial1" or 
-> similar) listening to the serial port.  Back in Ye Olde Days (1980s) 
-> we used to diagnose modem problems like that all the time.
+>How do I get off the mail list here? 
+>
+> 
+>doug@cavecreek.com
+> 
+>  
+>
+See www.namesys.com, click on "Join Mail List" then in "Unsubscribe 
+Mailinglist" and follow instructions.
 
-Sure, that's what we did... provided you have a physical access to
-the machine to install such a cable and a second machine... 
-But as my only real access is thru an Ethernet cable, I was trying to
-identify a software solution.
-
-However, it looks like we're gonna have to go to yours, and try to 
-find a way to access the machine physically... 
-
-Thx,
-Paul
-
+Very difficult, i know.

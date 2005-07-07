@@ -1,93 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVGGAXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbVGGBoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbVGGAXL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Jul 2005 20:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVGGAUj
+	id S262382AbVGGBoL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Jul 2005 21:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVGGBmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Jul 2005 20:20:39 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:42470 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262421AbVGGASD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Jul 2005 20:18:03 -0400
-Date: Wed, 6 Jul 2005 17:17:56 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Geoff Levand <geoffrey.levand@am.sony.com>
-Cc: linux-kernel@vger.kernel.org, george@mvista.com
-Subject: Re: [PATCH] Fix posix_bump_timer args
-Message-Id: <20050706171756.258d4f33.rdunlap@xenotime.net>
-In-Reply-To: <42CC2257.4030400@am.sony.com>
-References: <42CC2257.4030400@am.sony.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 6 Jul 2005 21:42:45 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:44596 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262451AbVGGBls convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Jul 2005 21:41:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IdD2aGdV6NfDUi6gDmGMInsQBNc4ZzBM2BlJ1UApXe9lhvAZc5WpAMYsCFix8duXESyugvmndwpPTgvC+0DEENaKugXZKVKMPOddOmAYs7ECHA+6CCM8HTZm4DXHLH2nl7nSHnkLKDzSaXaaH9vtH40nDISVRKWg1J/vasVBINk=
+Message-ID: <d4dc44d505070618411455b238@mail.gmail.com>
+Date: Thu, 7 Jul 2005 03:41:43 +0200
+From: Schneelocke <schneelocke@gmail.com>
+Reply-To: Schneelocke <schneelocke@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: OOPS in 2.6.13-rc1-mm1 -- EIP is at sysfs_release+0x49/0xb0
+Cc: Miles Lane <miles.lane@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050706152724.7645dd61.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <a44ae5cd05070301417531fac2@mail.gmail.com>
+	 <20050706152724.7645dd61.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 06 Jul 2005 11:26:31 -0700 Geoff Levand wrote:
+On 07/07/05, Andrew Morton <akpm@osdl.org> wrote:
+> One thing you could do is to disable `hald' (what is that anyway?) by
+> renaming it and try to get the system to boot.  Then run `hald' by hand,
+> under strace, work out which sysfs file it was trying to close.
 
-| This patch makes posix_bump_timer() consistent with common convention 
-| by expecting a pointer to the structure be passed.
-| 
-| Please apply.
+Probably the Hardware Abstraction Layer [1] daemon.
 
-Does it matter other than for consistency?
-
-E.g., in a large system with thousands of timers, it seems that it
-could (at least theoretically) have a negative impact by using a
-pointer dereference instead of a known fixed address.
-or am I just imagining that?
-
-Thanks,
-~Randy
-
-| Signed-off-by: Geoff Levand <geoffrey.levand@am.sony.com> for CELF
-| 
-| --
-| --- linux-2.6.12.1.orig/include/linux/posix-timers.h	2005-06-17 12:48:29.000000000 -0700
-| +++ linux-2.6.12.1/include/linux/posix-timers.h.bump	2005-07-06 10:58:52.000000000 -0700
-| @@ -108,7 +108,7 @@
-|  #define posix_bump_timer(timr, now)					\
-|           do {								\
-|                long delta, orun;						\
-| -	      delta = now.jiffies - (timr)->it.real.timer.expires;	\
-| +	      delta = (now)->jiffies - (timr)->it.real.timer.expires;	\
-|                if (delta >= 0) {						\
-|  	           orun = 1 + (delta / (timr)->it.real.incr);		\
-|  	          (timr)->it.real.timer.expires +=			\
-| 
-| --- linux-2.6.12.1.orig/kernel/posix-timers.c	2005-06-17 12:48:29.000000000 -0700
-| +++ linux-2.6.12.1/kernel/posix-timers.c.bump	2005-07-06 10:54:48.000000000 -0700
-| @@ -384,11 +384,11 @@
-|  		spin_lock(&abs_list.lock);
-|  		add_clockset_delta(timr, &new_wall_to);
-|  
-| -		posix_bump_timer(timr, now);
-| +		posix_bump_timer(timr, &now);
-|  
-|  		spin_unlock(&abs_list.lock);
-|  	} else {
-| -		posix_bump_timer(timr, now);
-| +		posix_bump_timer(timr, &now);
-|  	}
-|  	timr->it_overrun_last = timr->it_overrun;
-|  	timr->it_overrun = -1;
-| @@ -810,7 +810,7 @@
-|  	if (expires) {
-|  		if (timr->it_requeue_pending & REQUEUE_PENDING ||
-|  		    (timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE) {
-| -			posix_bump_timer(timr, now);
-| +			posix_bump_timer(timr, &now);
-|  			expires = timr->it.real.timer.expires;
-|  		}
-|  		else
+1. http://freedesktop.org/wiki/Software_2fhal
+-- 
+schnee

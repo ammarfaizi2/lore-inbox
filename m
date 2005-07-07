@@ -1,143 +1,453 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVGGExc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVGGFBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbVGGExc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 00:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVGGExb
+	id S262194AbVGGFBB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 01:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbVGGFBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 00:53:31 -0400
-Received: from adsl-67-39-48-196.dsl.milwwi.ameritech.net ([67.39.48.196]:8167
-	"EHLO mail.wit.org") by vger.kernel.org with ESMTP id S262138AbVGGExb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 00:53:31 -0400
-Message-ID: <42CCB662.6030405@linuxmachines.com>
-Date: Wed, 06 Jul 2005 21:58:10 -0700
-From: Jeff Carr <jcarr@linuxmachines.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+	Thu, 7 Jul 2005 01:01:01 -0400
+Received: from dsl081-242-086.sfo1.dsl.speakeasy.net ([64.81.242.86]:22501
+	"EHLO lapdance.christiehouse.net") by vger.kernel.org with ESMTP
+	id S262194AbVGGFA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 01:00:58 -0400
+Message-ID: <42CCB6C6.9040007@waychison.com>
+Date: Thu, 07 Jul 2005 00:59:50 -0400
+From: Mike Waychison <mike@waychison.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Keith Owens <kaos@sgi.com>
-Subject: Re: A correct method to use the x86 breakpoint registers (DR0-7)
-References: <42CAB369.5020901@linuxmachines.com>
-In-Reply-To: <42CAB369.5020901@linuxmachines.com>
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] add securityfs for all LSMs to use
+References: <20050706081725.GA15544@kroah.com>
+In-Reply-To: <20050706081725.GA15544@kroah.com>
 X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I setup KDB with 2.6.13-rc1. It works well. continuing past a BUG() is
-potentially very useful. Well, it's at least fun to see it happen :)
+Greg KH wrote:
+> Here's a small patch against 2.6.13-rc2 that adds securityfs, a virtual
+> fs that all LSMs can use instead of creating their own.  The fs should
+> be mounted at /sys/kernel/security, and the fs creates that mount point.
+> This will make the LSB people happy that we aren't creating a new
+> /my_lsm_fs directory in the root for every different LSM.
 
-I wanted to set the BR0/7 registers from within running code. I thought
-that would trigger KDB, but it doesn't. It seems that the breakpoint
-trap is passed through the kernel and into userspace and caught by
-glibc. I tried to track this down, but am lost in how or where a int3
-actually is handled.
+How are LSM modules supposed to use these files?  or is that forthcoming?
 
-I looked through the Documentation/kdb/ man pages (they are nice) but
-didn't see anything on how one might register a breakpoint with KDB from
- some exported function.
+Comments inline:
 
-The kprobe guys have a patch that I can use to try to solve my problem
-(described below), but I thought I would try kdb some more before I
-switched to trying kprobe.
+> 
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+>  
+>  include/linux/security.h |    5 
+>  security/Makefile        |    2 
+>  security/inode.c         |  344 +++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 350 insertions(+), 1 deletion(-)
+> 
+> ---
+> --- gregkh-2.6.orig/security/Makefile	2005-06-17 12:48:29.000000000 -0700
+> +++ gregkh-2.6/security/Makefile	2005-07-06 01:05:56.000000000 -0700
+> @@ -11,7 +11,7 @@
+>  endif
+>  
+>  # Object file lists
+> -obj-$(CONFIG_SECURITY)			+= security.o dummy.o
+> +obj-$(CONFIG_SECURITY)			+= security.o dummy.o inode.o
+>  # Must precede capability.o in order to stack properly.
+>  obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/built-in.o
+>  obj-$(CONFIG_SECURITY_CAPABILITIES)	+= commoncap.o capability.o
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ gregkh-2.6/security/inode.c	2005-07-06 01:08:12.000000000 -0700
+> @@ -0,0 +1,344 @@
+> +/*
+> + *  inode.c - securityfs
+> + *
+> + *  Copyright (C) 2005 Greg Kroah-Hartman <gregkh@suse.de>
+> + *
+> + *	This program is free software; you can redistribute it and/or
+> + *	modify it under the terms of the GNU General Public License version
+> + *	2 as published by the Free Software Foundation.
+> + *
+> + *  Based on fs/debugfs/inode.c which had the following copyright notice:
+> + *    Copyright (C) 2004 Greg Kroah-Hartman <greg@kroah.com>
+> + *    Copyright (C) 2004 IBM Inc.
+> + */
+> +
+> +/* #define DEBUG */
+> +#include <linux/config.h>
+> +#include <linux/module.h>
+> +#include <linux/fs.h>
+> +#include <linux/mount.h>
+> +#include <linux/pagemap.h>
+> +#include <linux/init.h>
+> +#include <linux/namei.h>
+> +#include <linux/security.h>
+> +
+> +#define SECURITYFS_MAGIC	0x73636673
+> +
+> +static struct vfsmount *mount;
+> +static int mount_count;
+> +
+> +/*
+> + * TODO:
+> + *   I think I can get rid of these default_file_ops, but not quite sure...
+> + */
+> +static ssize_t default_read_file(struct file *file, char __user *buf,
+> +				 size_t count, loff_t *ppos)
+> +{
+> +	return 0;
+> +}
+> +
+> +static ssize_t default_write_file(struct file *file, const char __user *buf,
+> +				   size_t count, loff_t *ppos)
+> +{
+> +	return count;
+> +}
+> +
+> +static int default_open(struct inode *inode, struct file *file)
+> +{
+> +	if (inode->u.generic_ip)
+> +		file->private_data = inode->u.generic_ip;
+> +
+> +	return 0;
+> +}
+> +
+> +static struct file_operations default_file_ops = {
+> +	.read =		default_read_file,
+> +	.write =	default_write_file,
+> +	.open =		default_open,
+> +};
+> +
+> +static struct inode *get_inode(struct super_block *sb, int mode, dev_t dev)
+> +{
+> +	struct inode *inode = new_inode(sb);
+> +
+> +	if (inode) {
+> +		inode->i_mode = mode;
+> +		inode->i_uid = 0;
+> +		inode->i_gid = 0;
+> +		inode->i_blksize = PAGE_CACHE_SIZE;
+> +		inode->i_blocks = 0;
+> +		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+> +		switch (mode & S_IFMT) {
+> +		default:
+> +			init_special_inode(inode, mode, dev);
+> +			break;
+> +		case S_IFREG:
+> +			inode->i_fop = &default_file_ops;
+> +			break;
+> +		case S_IFDIR:
+> +			inode->i_op = &simple_dir_inode_operations;
+> +			inode->i_fop = &simple_dir_operations;
+> +
+> +			/* directory inodes start off with i_nlink == 2 (for "." entry) */
+> +			inode->i_nlink++;
+> +			break;
+> +		}
+> +	}
+> +	return inode;
+> +}
+> +
+> +/* SMP-safe */
+> +static int mknod(struct inode *dir, struct dentry *dentry,
+> +			 int mode, dev_t dev)
+> +{
+> +	struct inode *inode = get_inode(dir->i_sb, mode, dev);
+> +	int error = -EPERM;
+> +
+> +	if (dentry->d_inode)
 
-Thanks,
-Jeff
+You leak an inode here.
 
-BTW, I don't know enough about kbuild, but if it is possible, you might
-want to force CONFIG_KPROBE off when you have kdb enabled or you get
-duplicate do_int3() functions defined in arch/i386/traps.c
+> +		return -EEXIST;
+> +
+> +	if (inode) {
+> +		d_instantiate(dentry, inode);
+> +		dget(dentry);
+> +		error = 0;
+> +	}
+> +	return error;
+> +}
+> +
+> +static int mkdir(struct inode *dir, struct dentry *dentry, int mode)
+> +{
+> +	int res;
+> +
+> +	mode = (mode & (S_IRWXUGO | S_ISVTX)) | S_IFDIR;
+> +	res = mknod(dir, dentry, mode, 0);
+> +	if (!res)
+> +		dir->i_nlink++;
+> +	return res;
+> +}
+> +
+> +static int create(struct inode *dir, struct dentry *dentry, int mode)
+> +{
+> +	mode = (mode & S_IALLUGO) | S_IFREG;
+> +	return mknod(dir, dentry, mode, 0);
+> +}
+> +
+> +static inline int positive(struct dentry *dentry)
+> +{
+> +	return dentry->d_inode && !d_unhashed(dentry);
+> +}
+> +
+> +static int fill_super(struct super_block *sb, void *data, int silent)
+> +{
+> +	static struct tree_descr files[] = {{""}};
+> +
+> +	return simple_fill_super(sb, SECURITYFS_MAGIC, files);
+> +}
+> +
+> +static struct super_block *get_sb(struct file_system_type *fs_type,
+> +				        int flags, const char *dev_name,
+> +					void *data)
+> +{
+> +	return get_sb_single(fs_type, flags, data, fill_super);
+> +}
+> +
+> +static struct file_system_type fs_type = {
+> +	.owner =	THIS_MODULE,
+> +	.name =		"securityfs",
+> +	.get_sb =	get_sb,
+> +	.kill_sb =	kill_litter_super,
+> +};
+> +
+> +static int create_by_name(const char *name, mode_t mode,
+> +			  struct dentry *parent,
+> +			  struct dentry **dentry)
+> +{
+> +	int error = 0;
+> +
+> +	/* If the parent is not specified, we create it in the root.
+> +	 * We need the root dentry to do this, which is in the super
+> +	 * block. A pointer to that is in the struct vfsmount that we
+> +	 * have around.
+> +	 */
+> +	if (!parent ) {
+> +		if (mount && mount->mnt_sb) {
+> +			parent = mount->mnt_sb->s_root;
+> +		}
+> +	}
+
+You should be guaranteed by here that mount is valid due to the
+simple_pin_fs().
+
+> +	if (!parent) {
+> +		pr_debug("securityfs: Ah! can not find a parent!\n");
+> +		return -EFAULT;
+> +	}
+> +
+> +	*dentry = NULL;
+
+Not needed?
+
+> +	down(&parent->d_inode->i_sem);
+> +	*dentry = lookup_one_len(name, parent, strlen(name));
+> +	if (!IS_ERR(dentry)) {
+> +		if ((mode & S_IFMT) == S_IFDIR)
+> +			error = mkdir(parent->d_inode, *dentry, mode);
+> +		else
+> +			error = create(parent->d_inode, *dentry, mode);
+> +	} else
+
+} else {
+
+> +		error = PTR_ERR(dentry);
+
+}
+
+> +	up(&parent->d_inode->i_sem);
+> +
+> +	return error;
+> +}
+> +
+> +/**
+> + * securityfs_create_file - create a file in the securityfs filesystem
+> + *
+> + * @name: a pointer to a string containing the name of the file to create.
+> + * @mode: the permission that the file should have
+> + * @parent: a pointer to the parent dentry for this file.  This should be a
+> + *          directory dentry if set.  If this paramater is NULL, then the
+> + *          file will be created in the root of the securityfs filesystem.
+> + * @data: a pointer to something that the caller will want to get to later
+> + *        on.  The inode.u.generic_ip pointer will point to this value on
+> + *        the open() call.
+> + * @fops: a pointer to a struct file_operations that should be used for
+> + *        this file.
+> + *
+> + * This is the basic "create a file" function for securityfs.  It allows for a
+> + * wide range of flexibility in createing a file, or a directory (if you
+> + * want to create a directory, the securityfs_create_dir() function is
+> + * recommended to be used instead.)
+> + *
+> + * This function will return a pointer to a dentry if it succeeds.  This
+> + * pointer must be passed to the securityfs_remove() function when the file is
+> + * to be removed (no automatic cleanup happens if your module is unloaded,
+> + * you are responsible here.)  If an error occurs, NULL will be returned.
+> + *
+> + * If securityfs is not enabled in the kernel, the value -ENODEV will be
+> + * returned.  It is not wise to check for this value, but rather, check for
+> + * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
+> + * code.
+> + */
+> +struct dentry *securityfs_create_file(const char *name, mode_t mode,
+> +				   struct dentry *parent, void *data,
+> +				   struct file_operations *fops)
+> +{
+> +	struct dentry *dentry = NULL;
+> +	int error;
+> +
+> +	pr_debug("securityfs: creating file '%s'\n",name);
+> +
+> +	error = simple_pin_fs("securityfs", &mount, &mount_count);
+> +	if (error) {
+> +		dentry = ERR_PTR(error);
+> +		goto exit;
+> +	}
+> +
+> +	error = create_by_name(name, mode, parent, &dentry);
+> +	if (error) {
+> +		dentry = ERR_PTR(error);
+
+simple_release_fs
+
+> +		goto exit;
+> +	}
+> +
+> +	if (dentry->d_inode) {
+> +		if (fops)
+> +			dentry->d_inode->i_fop = fops;
+> +		if (data)
+> +			dentry->d_inode->u.generic_ip = data;
+> +	}
+> +exit:
+> +	return dentry;
+> +}
+> +EXPORT_SYMBOL_GPL(securityfs_create_file);
+> +
+> +/**
+> + * securityfs_create_dir - create a directory in the securityfs filesystem
+> + *
+> + * @name: a pointer to a string containing the name of the directory to
+> + *        create.
+> + * @parent: a pointer to the parent dentry for this file.  This should be a
+> + *          directory dentry if set.  If this paramater is NULL, then the
+> + *          directory will be created in the root of the securityfs filesystem.
+> + *
+> + * This function creates a directory in securityfs with the given name.
+> + *
+> + * This function will return a pointer to a dentry if it succeeds.  This
+> + * pointer must be passed to the securityfs_remove() function when the file is
+> + * to be removed (no automatic cleanup happens if your module is unloaded,
+> + * you are responsible here.)  If an error occurs, NULL will be returned.
+> + *
+> + * If securityfs is not enabled in the kernel, the value -ENODEV will be
+> + * returned.  It is not wise to check for this value, but rather, check for
+> + * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
+> + * code.
+> + */
+> +struct dentry *securityfs_create_dir(const char *name, struct dentry *parent)
+> +{
+> +	return securityfs_create_file(name,
+> +				      S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO,
+> +				      parent, NULL, NULL);
+> +}
+> +EXPORT_SYMBOL_GPL(securityfs_create_dir);
+> +
+> +/**
+> + * securityfs_remove - removes a file or directory from the securityfs filesystem
+> + *
+> + * @dentry: a pointer to a the dentry of the file or directory to be
+> + *          removed.
+> + *
+> + * This function removes a file or directory in securityfs that was previously
+> + * created with a call to another securityfs function (like
+> + * securityfs_create_file() or variants thereof.)
+> + *
+> + * This function is required to be called in order for the file to be
+> + * removed, no automatic cleanup of files will happen when a module is
+> + * removed, you are responsible here.
+> + */
+
+Is this true?  It would appear that this module can't be unloaded until
+all files are _remove'd, no? (due to mount pinning).
+
+> +void securityfs_remove(struct dentry *dentry)
+> +{
+> +	struct dentry *parent;
+> +
+> +	if (!dentry)
+> +		return;
+> +
+> +	parent = dentry->d_parent;
+> +	if (!parent || !parent->d_inode)
+> +		return;
+> +
+> +	down(&parent->d_inode->i_sem);
+> +	if (positive(dentry)) {
+> +		if (dentry->d_inode) {
+> +			if (S_ISDIR(dentry->d_inode->i_mode))
+> +				simple_rmdir(parent->d_inode, dentry);
+> +			else
+> +				simple_unlink(parent->d_inode, dentry);
+> +		dput(dentry);
+
+Indentation?
+
+> +		}
+> +	}
+> +	up(&parent->d_inode->i_sem);
+> +	simple_release_fs(&mount, &mount_count);
+> +}
+> +EXPORT_SYMBOL_GPL(securityfs_remove);
+
+Does EXPORT_SYMBOL(_GPL) even work from a module?   I must be behind the
+times.
 
 
-
-On 07/05/2005 09:20 AM, Jeff Carr wrote:
-> I'm trying to set the x86 breakpoint registers to trip on write data.
-> 
-> After they are set, nothing seems to happen when I trigger them.
-> 
-> It's possible I'm not setting them correctly, I tried putting the
-> virt_to_phys() value in them. And, I tried looking at what KPROBE puts
-> in them, but it looks like kprobe doesn't use them at all.
-> 
-> In 2.6.11, arch/i386/ has 5 places where it modifies the db regs:
-> 	do_debug()              in traps.c    (??)
-> 	do_signal()             in signal.c   (re-enable them)
-> 	fix_processor_context() in cpu.c      (reload them)
-> 	__switch_to()		in process.c  (reload them)
-> 	cpu_init()		in common.c   (clears them)
-> 
-> Just FYI: sometime after 2.6.11, the macros get_debugreg() and
-> set_debugreg() were defined in include/asm-i386/processor.h and set to
-> be used in the 5 places above. In any case, the functionality seems the
-> same the above routines. (And the registers names corrected s/db/dr/g )
-> 
-> In any case, setting these registers never seems to do anything. No INT3
-> or INT1 (is it really supposed to generate an interrupt?) Perhaps I need
-> to have kgdb setup.
-> 
-> The closest I can get to making anything happen is if I set bit 13 of
-> DR7 (triggers on the next access of the breakpoint registers) then when
-> I insmod I get:
-> 
-> root@foxtrot:~/dbregtest# insmod ./dbregtest.ko
-> Trace/breakpoint trap
-> root@foxtrot:~/dbregtest#
-> 
-> If I set BR0 with the value from virt_to_phys() I don't get this
-> trace/breakpoint trap.
-> 
-> Enjoy,
-> Jeff
-> 
-> // Current documentation for these registers is in Vol 3 Section 15.2:
-> // Also note: EFLAGS BIT 16 (Resume) section 2.3 disables #DB exceptions
-> // http://developer.intel.com/design/pentium4/manuals/index_new.htm
-> 
-> static int __init db_reg_test(void)
-> {
->         u32 *i;
->         unsigned int phys_addr;
-> 
->         i = kmalloc( 0x1000, GFP_DMA );
->         printk("i == 0x%08X\n", (int) i);
->         phys_addr = virt_to_phys(i);
-> 
->         printk("virt_to_phys(i)  == 0x%08X\n", (int) phys_addr);
->         __asm__ __volatile__( "movl %0, %%dr0\n" : : "r" (phys_addr) );
-> 
->         // clear out the DR6 status register
->         __asm__ __volatile__( "movl %0, %%dr6\n" : : "r" (0xFFFF0FF0) );
-> 
->         // Enable DR0 as a global breakpoint
->         __asm__ __volatile__( "movl %0, %%dr7\n" : : "r" (0x00030002) );
-> 
->         // Enables all four BR registers as global breakpoints
->         __asm__ __volatile__( "movl %0, %%dr7\n" : : "r" (0x333300AA) );
-> 
->         // shouldn't this trigger a breakpoint exception?
->         i[0] = 0xDEADBEEF;
-> 
->         kfree(i);
-> 
-> 	// this will correctly trigger a breakpoint
-> 	// __asm__ ( "movl %0, %%dr7\n" : : "r" (0x333320AA) );
->         // __asm__ ( "movl %0, %%dr7\n" : : "r" (0x333300AA) );
->         return 0;
-> }
-> 
-> module_init(db_reg_test);
-> 
-> root@foxtrot:~/dbregtest# tail /var/log/kern.log
-> Jul  5 09:01:16 localhost kernel: i == 0xC046E000
-> Jul  5 09:01:16 localhost kernel: virt_to_phys(i)  == 0x0046E000
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> +
+> +static decl_subsys(security, NULL, NULL);
+> +
+> +static int __init securityfs_init(void)
+> +{
+> +	int retval;
+> +
+> +	kset_set_kset_s(&security_subsys, kernel_subsys);
+> +	retval = subsystem_register(&security_subsys);
+> +	if (retval)
+> +		return retval;
+> +
+> +	retval = register_filesystem(&fs_type);
+> +	if (retval)
+> +		subsystem_unregister(&security_subsys);
+> +	return retval;
+> +}
+> +
+> +static void __exit securityfs_exit(void)
+> +{
+> +	simple_release_fs(&mount, &mount_count);
+> +	unregister_filesystem(&fs_type);
+> +	subsystem_unregister(&security_subsys);
+> +}
+> +
+> +core_initcall(securityfs_init);
+> +module_exit(securityfs_exit);
+> +MODULE_LICENSE("GPL");
+> +
+> --- gregkh-2.6.orig/include/linux/security.h	2005-06-17 12:48:29.000000000 -0700
+> +++ gregkh-2.6/include/linux/security.h	2005-07-06 01:05:56.000000000 -0700
+> @@ -1983,6 +1983,11 @@
+>  extern int unregister_security	(struct security_operations *ops);
+>  extern int mod_reg_security	(const char *name, struct security_operations *ops);
+>  extern int mod_unreg_security	(const char *name, struct security_operations *ops);
+> +extern struct dentry *securityfs_create_file(const char *name, mode_t mode,
+> +					     struct dentry *parent, void *data,
+> +					     struct file_operations *fops);
+> +extern struct dentry *securityfs_create_dir(const char *name, struct dentry *parent);
+> +extern void securityfs_remove(struct dentry *dentry);
+>  
+>  
+>  #else /* CONFIG_SECURITY */
 > 
 

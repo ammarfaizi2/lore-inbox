@@ -1,419 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVGGVkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVGGVta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261781AbVGGVkq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 17:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVGGVi1
+	id S261283AbVGGVta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 17:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVGGVry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 17:38:27 -0400
-Received: from mail.kroah.org ([69.55.234.183]:23988 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261916AbVGGViC (ORCPT
+	Thu, 7 Jul 2005 17:47:54 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:34607 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261283AbVGGVpY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 17:38:02 -0400
-Date: Thu, 7 Jul 2005 14:37:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: [PATCH] add securityfs for all LSMs to use
-Message-ID: <20050707213753.GA31912@kroah.com>
-References: <20050706081725.GA15544@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Jul 2005 17:45:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=VidGkCBIBPdy1ETfDgY2jIMgaFNeK1glTGxNBEuUub9JPy2M2OSJoopg1XcyRnQcxXPB2kXks/3jhH9U3HXW+LiljRRoCOZmKdNS6O8w4+QHaJcdztVBSH9fROCSMKQFpm4Bsw1BGW8F+dupDtsBh/r1XpK0KOvzOOjUQBIJDn4=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Victor <andrew@sanpeople.com>
+Subject: Re: [RFC] Atmel-supplied hardware headers for AT91RM9200 SoC processor
+Date: Fri, 8 Jul 2005 01:52:03 +0400
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
+References: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
+In-Reply-To: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050706081725.GA15544@kroah.com>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200507080152.03976.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a small patch against 2.6.13-rc2 that adds securityfs, a virtual
-fs that all LSMs can use instead of creating their own.  The fs should
-be mounted at /sys/kernel/security, and the fs creates that mount point.
-This will make the LSB people happy that we aren't creating a new
-/my_lsm_fs directory in the root for every different LSM.
+On Thursday 07 July 2005 13:58, Andrew Victor wrote:
+> If the AT91RM9200+Linux community had to convert all the headers, bugs
+> may be introduced in the conversion process and we would have to assume
+> any maintenance responsibility.  What we have now may be slightly ugly,
+> but it is atleast known to be correct.
+> I've appended two of their headers as an example - the System
+> peripherals (timer, interrupt controller, etc) and Ethernet.
 
-It has changed a bit since the last version, thanks to comments from
-Mike Waychison.
+> Comments?
 
+Care to get rid of cool *_UART_MAP macros?
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
- 
----
- include/linux/security.h |    5 
- security/Makefile        |    2 
- security/inode.c         |  347 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 353 insertions(+), 1 deletion(-)
+For those who didn't bother to download the patch, the snippet is:
 
---- gregkh-2.6.orig/security/Makefile	2005-07-07 14:24:41.000000000 -0700
-+++ gregkh-2.6/security/Makefile	2005-07-07 14:24:46.000000000 -0700
-@@ -11,7 +11,7 @@
- endif
- 
- # Object file lists
--obj-$(CONFIG_SECURITY)			+= security.o dummy.o
-+obj-$(CONFIG_SECURITY)			+= security.o dummy.o inode.o
- # Must precede capability.o in order to stack properly.
- obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/built-in.o
- obj-$(CONFIG_SECURITY_CAPABILITIES)	+= commoncap.o capability.o
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gregkh-2.6/security/inode.c	2005-07-07 14:31:55.000000000 -0700
-@@ -0,0 +1,347 @@
-+/*
-+ *  inode.c - securityfs
-+ *
-+ *  Copyright (C) 2005 Greg Kroah-Hartman <gregkh@suse.de>
-+ *
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License version
-+ *	2 as published by the Free Software Foundation.
-+ *
-+ *  Based on fs/debugfs/inode.c which had the following copyright notice:
-+ *    Copyright (C) 2004 Greg Kroah-Hartman <greg@kroah.com>
-+ *    Copyright (C) 2004 IBM Inc.
-+ */
-+
-+/* #define DEBUG */
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/fs.h>
-+#include <linux/mount.h>
-+#include <linux/pagemap.h>
-+#include <linux/init.h>
-+#include <linux/namei.h>
-+#include <linux/security.h>
-+
-+#define SECURITYFS_MAGIC	0x73636673
-+
-+static struct vfsmount *mount;
-+static int mount_count;
-+
-+/*
-+ * TODO:
-+ *   I think I can get rid of these default_file_ops, but not quite sure...
-+ */
-+static ssize_t default_read_file(struct file *file, char __user *buf,
-+				 size_t count, loff_t *ppos)
-+{
-+	return 0;
-+}
-+
-+static ssize_t default_write_file(struct file *file, const char __user *buf,
-+				   size_t count, loff_t *ppos)
-+{
-+	return count;
-+}
-+
-+static int default_open(struct inode *inode, struct file *file)
-+{
-+	if (inode->u.generic_ip)
-+		file->private_data = inode->u.generic_ip;
-+
-+	return 0;
-+}
-+
-+static struct file_operations default_file_ops = {
-+	.read =		default_read_file,
-+	.write =	default_write_file,
-+	.open =		default_open,
-+};
-+
-+static struct inode *get_inode(struct super_block *sb, int mode, dev_t dev)
-+{
-+	struct inode *inode = new_inode(sb);
-+
-+	if (inode) {
-+		inode->i_mode = mode;
-+		inode->i_uid = 0;
-+		inode->i_gid = 0;
-+		inode->i_blksize = PAGE_CACHE_SIZE;
-+		inode->i_blocks = 0;
-+		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-+		switch (mode & S_IFMT) {
-+		default:
-+			init_special_inode(inode, mode, dev);
-+			break;
-+		case S_IFREG:
-+			inode->i_fop = &default_file_ops;
-+			break;
-+		case S_IFDIR:
-+			inode->i_op = &simple_dir_inode_operations;
-+			inode->i_fop = &simple_dir_operations;
-+
-+			/* directory inodes start off with i_nlink == 2 (for "." entry) */
-+			inode->i_nlink++;
-+			break;
-+		}
-+	}
-+	return inode;
-+}
-+
-+/* SMP-safe */
-+static int mknod(struct inode *dir, struct dentry *dentry,
-+			 int mode, dev_t dev)
-+{
-+	struct inode *inode;
-+	int error = -EPERM;
-+
-+	if (dentry->d_inode)
-+		return -EEXIST;
-+
-+	inode = get_inode(dir->i_sb, mode, dev);
-+	if (inode) {
-+		d_instantiate(dentry, inode);
-+		dget(dentry);
-+		error = 0;
-+	}
-+	return error;
-+}
-+
-+static int mkdir(struct inode *dir, struct dentry *dentry, int mode)
-+{
-+	int res;
-+
-+	mode = (mode & (S_IRWXUGO | S_ISVTX)) | S_IFDIR;
-+	res = mknod(dir, dentry, mode, 0);
-+	if (!res)
-+		dir->i_nlink++;
-+	return res;
-+}
-+
-+static int create(struct inode *dir, struct dentry *dentry, int mode)
-+{
-+	mode = (mode & S_IALLUGO) | S_IFREG;
-+	return mknod(dir, dentry, mode, 0);
-+}
-+
-+static inline int positive(struct dentry *dentry)
-+{
-+	return dentry->d_inode && !d_unhashed(dentry);
-+}
-+
-+static int fill_super(struct super_block *sb, void *data, int silent)
-+{
-+	static struct tree_descr files[] = {{""}};
-+
-+	return simple_fill_super(sb, SECURITYFS_MAGIC, files);
-+}
-+
-+static struct super_block *get_sb(struct file_system_type *fs_type,
-+				        int flags, const char *dev_name,
-+					void *data)
-+{
-+	return get_sb_single(fs_type, flags, data, fill_super);
-+}
-+
-+static struct file_system_type fs_type = {
-+	.owner =	THIS_MODULE,
-+	.name =		"securityfs",
-+	.get_sb =	get_sb,
-+	.kill_sb =	kill_litter_super,
-+};
-+
-+static int create_by_name(const char *name, mode_t mode,
-+			  struct dentry *parent,
-+			  struct dentry **dentry)
-+{
-+	int error = 0;
-+
-+	*dentry = NULL;
-+
-+	/* If the parent is not specified, we create it in the root.
-+	 * We need the root dentry to do this, which is in the super
-+	 * block. A pointer to that is in the struct vfsmount that we
-+	 * have around.
-+	 */
-+	if (!parent ) {
-+		if (mount && mount->mnt_sb) {
-+			parent = mount->mnt_sb->s_root;
-+		}
-+	}
-+	if (!parent) {
-+		pr_debug("securityfs: Ah! can not find a parent!\n");
-+		return -EFAULT;
-+	}
-+
-+	down(&parent->d_inode->i_sem);
-+	*dentry = lookup_one_len(name, parent, strlen(name));
-+	if (!IS_ERR(dentry)) {
-+		if ((mode & S_IFMT) == S_IFDIR)
-+			error = mkdir(parent->d_inode, *dentry, mode);
-+		else
-+			error = create(parent->d_inode, *dentry, mode);
-+	} else
-+		error = PTR_ERR(dentry);
-+	up(&parent->d_inode->i_sem);
-+
-+	return error;
-+}
-+
-+/**
-+ * securityfs_create_file - create a file in the securityfs filesystem
-+ *
-+ * @name: a pointer to a string containing the name of the file to create.
-+ * @mode: the permission that the file should have
-+ * @parent: a pointer to the parent dentry for this file.  This should be a
-+ *          directory dentry if set.  If this paramater is NULL, then the
-+ *          file will be created in the root of the securityfs filesystem.
-+ * @data: a pointer to something that the caller will want to get to later
-+ *        on.  The inode.u.generic_ip pointer will point to this value on
-+ *        the open() call.
-+ * @fops: a pointer to a struct file_operations that should be used for
-+ *        this file.
-+ *
-+ * This is the basic "create a file" function for securityfs.  It allows for a
-+ * wide range of flexibility in createing a file, or a directory (if you
-+ * want to create a directory, the securityfs_create_dir() function is
-+ * recommended to be used instead.)
-+ *
-+ * This function will return a pointer to a dentry if it succeeds.  This
-+ * pointer must be passed to the securityfs_remove() function when the file is
-+ * to be removed (no automatic cleanup happens if your module is unloaded,
-+ * you are responsible here.)  If an error occurs, NULL will be returned.
-+ *
-+ * If securityfs is not enabled in the kernel, the value -ENODEV will be
-+ * returned.  It is not wise to check for this value, but rather, check for
-+ * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * code.
-+ */
-+struct dentry *securityfs_create_file(const char *name, mode_t mode,
-+				   struct dentry *parent, void *data,
-+				   struct file_operations *fops)
-+{
-+	struct dentry *dentry = NULL;
-+	int error;
-+
-+	pr_debug("securityfs: creating file '%s'\n",name);
-+
-+	error = simple_pin_fs("securityfs", &mount, &mount_count);
-+	if (error) {
-+		dentry = ERR_PTR(error);
-+		goto exit;
-+	}
-+
-+	error = create_by_name(name, mode, parent, &dentry);
-+	if (error) {
-+		dentry = ERR_PTR(error);
-+		simple_release_fs(&mount, &mount_count);
-+		goto exit;
-+	}
-+
-+	if (dentry->d_inode) {
-+		if (fops)
-+			dentry->d_inode->i_fop = fops;
-+		if (data)
-+			dentry->d_inode->u.generic_ip = data;
-+	}
-+exit:
-+	return dentry;
-+}
-+EXPORT_SYMBOL_GPL(securityfs_create_file);
-+
-+/**
-+ * securityfs_create_dir - create a directory in the securityfs filesystem
-+ *
-+ * @name: a pointer to a string containing the name of the directory to
-+ *        create.
-+ * @parent: a pointer to the parent dentry for this file.  This should be a
-+ *          directory dentry if set.  If this paramater is NULL, then the
-+ *          directory will be created in the root of the securityfs filesystem.
-+ *
-+ * This function creates a directory in securityfs with the given name.
-+ *
-+ * This function will return a pointer to a dentry if it succeeds.  This
-+ * pointer must be passed to the securityfs_remove() function when the file is
-+ * to be removed (no automatic cleanup happens if your module is unloaded,
-+ * you are responsible here.)  If an error occurs, NULL will be returned.
-+ *
-+ * If securityfs is not enabled in the kernel, the value -ENODEV will be
-+ * returned.  It is not wise to check for this value, but rather, check for
-+ * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * code.
-+ */
-+struct dentry *securityfs_create_dir(const char *name, struct dentry *parent)
-+{
-+	return securityfs_create_file(name,
-+				      S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO,
-+				      parent, NULL, NULL);
-+}
-+EXPORT_SYMBOL_GPL(securityfs_create_dir);
-+
-+/**
-+ * securityfs_remove - removes a file or directory from the securityfs filesystem
-+ *
-+ * @dentry: a pointer to a the dentry of the file or directory to be
-+ *          removed.
-+ *
-+ * This function removes a file or directory in securityfs that was previously
-+ * created with a call to another securityfs function (like
-+ * securityfs_create_file() or variants thereof.)
-+ *
-+ * This function is required to be called in order for the file to be
-+ * removed, no automatic cleanup of files will happen when a module is
-+ * removed, you are responsible here.
-+ */
-+void securityfs_remove(struct dentry *dentry)
-+{
-+	struct dentry *parent;
-+
-+	if (!dentry)
-+		return;
-+
-+	parent = dentry->d_parent;
-+	if (!parent || !parent->d_inode)
-+		return;
-+
-+	down(&parent->d_inode->i_sem);
-+	if (positive(dentry)) {
-+		if (dentry->d_inode) {
-+			if (S_ISDIR(dentry->d_inode->i_mode))
-+				simple_rmdir(parent->d_inode, dentry);
-+			else
-+				simple_unlink(parent->d_inode, dentry);
-+			dput(dentry);
-+		}
-+	}
-+	up(&parent->d_inode->i_sem);
-+	simple_release_fs(&mount, &mount_count);
-+}
-+EXPORT_SYMBOL_GPL(securityfs_remove);
-+
-+static decl_subsys(security, NULL, NULL);
-+
-+static int __init securityfs_init(void)
-+{
-+	int retval;
-+
-+	kset_set_kset_s(&security_subsys, kernel_subsys);
-+	retval = subsystem_register(&security_subsys);
-+	if (retval)
-+		return retval;
-+
-+	retval = register_filesystem(&fs_type);
-+	if (retval)
-+		subsystem_unregister(&security_subsys);
-+	return retval;
-+}
-+
-+static void __exit securityfs_exit(void)
-+{
-+	simple_release_fs(&mount, &mount_count);
-+	unregister_filesystem(&fs_type);
-+	subsystem_unregister(&security_subsys);
-+}
-+
-+core_initcall(securityfs_init);
-+module_exit(securityfs_exit);
-+MODULE_LICENSE("GPL");
-+
---- gregkh-2.6.orig/include/linux/security.h	2005-07-07 14:24:41.000000000 -0700
-+++ gregkh-2.6/include/linux/security.h	2005-07-07 14:24:46.000000000 -0700
-@@ -1983,6 +1983,11 @@
- extern int unregister_security	(struct security_operations *ops);
- extern int mod_reg_security	(const char *name, struct security_operations *ops);
- extern int mod_unreg_security	(const char *name, struct security_operations *ops);
-+extern struct dentry *securityfs_create_file(const char *name, mode_t mode,
-+					     struct dentry *parent, void *data,
-+					     struct file_operations *fops);
-+extern struct dentry *securityfs_create_dir(const char *name, struct dentry *parent);
-+extern void securityfs_remove(struct dentry *dentry);
- 
- 
- #else /* CONFIG_SECURITY */
+	#define FOO_UART_MAP                { 4, 1, -1, -1, -1 }
+		...
+	int serial[AT91C_NR_UART] = FOO_UART_MAP;
+			[yes, each one is used in exactly one place]
+
+Obviously, AT91C_NR_UART should be AT91C_NR_UARTS, because it is "the number
+of UART_s_". And "serial" can be renamed to uart_map or something.
+
+You also constantly cast ioremap() return values to unsigned long and cast
+them back to "void __iomem *" back on iounmap()
+
+> +static struct resource *_s1dfb_resource[] = {
+> +       /* order *IS* significant */
+> +       {       /* video mem */
+
+Then rewrite it as
+
+	static struct ... = {
+		[0] = {
+			.name = ...
+			...
+		},
+		[1] = {
+			.name = ...
+			...
+		},
+	}
+
+And check for non-NULL data in at91_add_device_usbh() is useless:
+	at91_add_device_usbh(&carmeva_usbh_data);
+	at91_add_device_usbh(&csb337_usbh_data);
+	at91_add_device_usbh(&csb637_usbh_data);
+	at91_add_device_usbh(&dk_usbh_data);
+	at91_add_device_usbh(&ek_usbh_data);
+
+Same for add_device_eth(), _udc(), _cf(). In at91_add_device_mmc() you got it
+right.
+
+> +static struct file_operations spidev_fops = {
+> +       owner:          THIS_MODULE,
+
+Use C99 initializers. Everywhere.
+
+> +static int __init at91_spidev_init(void)
+> +{
+> +#ifdef CONFIG_DEVFS_FS
+
+It will be removed soon.
+
+at91_wdt_ioctl() isn't __user annotated. Let alone it is ioctl.
+
+> +#define BYTE_SWAP4(x) \
+> +  (((x & 0xFF000000) >> 24) | \
+> +   ((x & 0x00FF0000) >> 8) | \
+> +   ((x & 0x0000FF00) << 8)  | \
+> +   ((x & 0x000000FF) << 24))
+
+It's already somewhere in include/linux/byteorder/
+
+> unsigned* dmabuf = host->buffer;
+
+Space before star, please. Also everywhere.
+
+> +       char* command = kmalloc(2, GFP_KERNEL);
+
+Anyone remembers 1 kmallocated byte?
+
+> --- linux-2.6.13-rc2.orig/include/asm-arm/arch-at91rm9200/AT91RM9200_EMAC.h
+> +++ linux-2.6.13-rc2/include/asm-arm/arch-at91rm9200/AT91RM9200_EMAC.h
+
+> +typedef struct _AT91S_EMAC {
+
+> +} AT91S_EMAC, *AT91PS_EMAC;
+
+Potentially even worse than "PAT91S_EMAC", "AT91S_EMACP" combined. Putting P
+_there_...

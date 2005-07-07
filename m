@@ -1,86 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVGGGsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVGGGuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbVGGGsa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 02:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVGGGqG
+	id S261203AbVGGGuK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 02:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbVGGGsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 02:46:06 -0400
-Received: from smtpauth07.mail.atl.earthlink.net ([209.86.89.67]:7834 "EHLO
-	smtpauth07.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S261189AbVGGGpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 02:45:06 -0400
-From: Sheo Shanker Prasad <ssp@creativeresearch.org>
-Organization: Creative Research Enterprises
-To: linux-kernel@vger.kernel.org
-Subject: Disturbing wide variation in execution time
-Date: Wed, 6 Jul 2005 23:44:53 -0700
-User-Agent: KMail/1.8
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 7 Jul 2005 02:48:40 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:17591 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261189AbVGGGqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 02:46:12 -0400
+Subject: Re: Slowdown with randomize_va_space in 2.6.12.2
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davej@redhat.com, davem@davemloft.net, pmarques@grupopie.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050706234102.2172ca76.akpm@osdl.org>
+References: <42CBE97C.2060208@grupopie.com>
+	 <20050706.125719.08321870.davem@davemloft.net>
+	 <20050706205315.GC27630@redhat.com> <20050706181220.3978d7f6.akpm@osdl.org>
+	 <1120718229.3198.8.camel@laptopd505.fenrus.org>
+	 <20050706234102.2172ca76.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 07 Jul 2005 08:46:03 +0200
+Message-Id: <1120718764.3198.14.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200507062344.53615.ssp@creativeresearch.org>
-X-ELNK-Trace: c9e54813b5d7ed8a1e28108c03118538416dc04816f3191cc806d4903c0e600da0ddfb054188493450ceeb96deec3bed350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 24.4.45.120
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I will appreciate your help in eliminating a disturbing wide variation (by a 
-factors of 2 to 2.5) in the execution time of a test (execution benchmark) 
-program under identical conditions even when the machine is freshly started 
-(rebooted) and no other user program is running (not even e-mail or Internet 
-browser).
+On Wed, 2005-07-06 at 23:41 -0700, Andrew Morton wrote:
+> Arjan van de Ven <arjan@infradead.org> wrote:
+> >
+> > > > On Transmeta CPUs that probably triggers a retranslation of
+> >  > > x86->native bytecode, if it thinks it hasn't seen code at that
+> >  > > address before.
+> >  > > 
+> >  > 
+> >  > ouch.   What do we do?  Default to off?  Default to off on xmeta?
+> > 
+> >  off-on-xmeta would be my preference; I'll cook up a patch for that.
+> 
+> Well we seem to have several people reporting problems of various sorts
+> with that patch?
 
-I have a dual Opteron 250 (2.4 GHz) running SuSE 9.3 Pro & Linux version 
-2.6.11.4-21.7-smp (geeko@buildhost) (gcc version 3.3.5 20050117 (prerelease) 
-(SUSE Linux)) #1 SMP Thu Jun 2 14:23:14 UTC 2005. The motherboard is Tyan 
-Thunder K8W (S2885 ANRF) with AMI BIOS
-
-The machine has 4GB of PC3200 DDR RAM, two dimms on each CPU.
-
-The original machine bought from a vendor about 6 months ago. At that time it 
-was running SuSE 9.1 Pro and the execution time for the same test program was 
-consistently the same (around 2m 37s +/- a few %). Then the mother board 
-failed and the machine went totally dead. The vendor then replaced the failed 
-motherboard with a new Tyan Thunder K8W and installed the SuSE 9.3. I am not 
-sure whether or not the AMI BIOS was also replaced.
-
-When the repaired machine was started, I began to notice the disturbing wide 
-variation and the frequect significant slow down of the machine as exhibited 
-by the factor of 2 to 2.5 increased execution time of the test program as 
-described above.  Sometimes it would be quite fast (executing at the original 
-2m 40s) and sometime a factor of 2.5 slow, and sometimes with speed in 
-between.
-
-I have already done these tests. I have tested the memory using both 
-memtest86+ version 1.6 and memtest86-3.2. In both tests done over 3 cycles NO 
-memory error was reported. I also ran Linux version of BYTE Bench mark for 
-memory, floating point and integer indices. These tests matched test reported 
-by others for their Opteron 250. 
-
-Nevertheless, I have this wide and random variation in the execution time of 
-given program under identical conditions. Guided by the comments I 
-received from suse-amd64 user mailing list and the advises posted on LKML.ORG 
-(this list), I tried booting with the option "mem=3000M" (significantly less 
-than 4000M). That does not help either.
-
-I am now perplexed as to why the machine is behaving with so unpredictable 
-speeds varying by  factors of 2 to 2.5. What could the the cause and how can 
-I get rid of it and make the machine reliable and efficient? (Also, when I 
-boot with mem=3000M, then does that mean that the remainingg memory is wasted? 
-What is the significance of putting that limit on the memory?)
-
-Your help will be greatly appreciated.
-
-Best regards.
-
-Sheo
-(Sheo S. Prasad)
-Creative Research Enterprises
-6354 Camino del Lago
-Pleasanton, CA 94566, USA
-Voice Phone: (+1) 925 426-9341
-Fax   Phone: (+1) 925 426-9417
-e-mail: ssp@CreativeResearch.org
+actually we have several people reporting problems that started around
+the time the patch got merged. There's very few cases that actually go
+away when disabling this. (there's the weird kernel build one and we're
+waiting on a good maps on that one)
 

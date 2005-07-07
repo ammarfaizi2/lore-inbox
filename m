@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVGGJra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVGGJyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVGGJra (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 05:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVGGJr3
+	id S261253AbVGGJyf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 05:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVGGJyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 05:47:29 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:27800 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261262AbVGGJqk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 05:46:40 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Thu, 7 Jul 2005 10:46:41 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507062047.26855.s0348365@sms.ed.ac.uk> <20050706204429.GA1159@elte.hu>
-In-Reply-To: <20050706204429.GA1159@elte.hu>
+	Thu, 7 Jul 2005 05:54:35 -0400
+Received: from mf01.sitadelle.com ([212.94.174.68]:7902 "EHLO smtp.cegetel.net")
+	by vger.kernel.org with ESMTP id S261253AbVGGJye (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 05:54:34 -0400
+Message-ID: <42CCFBA1.1090807@lifl.fr>
+Date: Thu, 07 Jul 2005 11:53:37 +0200
+From: Eric Piel <Eric.Piel@lifl.fr>
+Organization: LIFL
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: en, fr, ja, es
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507071046.41938.s0348365@sms.ed.ac.uk>
+To: Sheo Shanker Prasad <ssp@creativeresearch.org>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: Re: Disturbing wide variation in execution time
+References: <200507062344.53615.ssp@creativeresearch.org> <20050707.001038.71088533.davem@davemloft.net> <200507070103.25563.ssp@creativeresearch.org>
+In-Reply-To: <200507070103.25563.ssp@creativeresearch.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 Jul 2005 21:44, Ingo Molnar wrote:
-> * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > > here's an updated patch - it will print out all timestamps too. (you'll
-> > > have to revert all previous softlockup patches first, via patch -R.)
-> >
-> > Yep, thanks, that fixed it. I don't know why it only shows up on my
-> > configuration, but it was a bug, and this patch fixes it. I also took
-> > the liberty of upgrading to -06 while I was doing it, so I think you
-> > can probably release -07 with the specified changes.
->
-> great.
->
-> > So far no lockups, either, but I'm not convinced they're gone forever.
-> > I'll let you know how it goes.
->
-> the ACPI-idle bug's primary effects were the missed wakeups, but they
-> should not cause lockups, because timer interrupts should always occur
-> and should eventually 'fix up' such missed wakeups.
+(please do not top-post)
 
-Okay, when I brought my laptop back into work today for audio work, it locked 
-up again within two minutes. I realise now what the problem is, but I don't 
-have a serial cable here, so I'll have to rely on capturing the oops from the 
-console.
+07.07.2005 10:03, Sheo Shanker Prasad wrote/a écrit:
+> Dear David,
+> 
+> The program is an atmospheric chemistry-transport modeling code that computes 
+> the distributions of atmospheric species (e.g., ozone) as a function of 
+> latitude and altitude and how that changes with time.
+Well, to let us examine your  problem, you need to describe what 
+*technicaly* does your program. ie: lots of disk access, lots of 
+networks acces, lots of CPU access, allocate huge memory... in 
+particular, is it CPU bound or I/O bound? You should also mention how 
+tasks/thread is your program composed of.
 
-The only difference between work and home is that I connect over an OpenVPN 
-connection at work, which is a userspace program that creates a "tun" device 
-as a virtual network adaptor.
+It's good to describe your hardware: cluster of NUMA computers or just 
+one x86? How much memory, what kind of network, how many hard disks, 
+which exact version of the kernel....
 
-I'm convinced this is the problem, because I enabled IPMASQ on the company 
-server today and bypassed the VPN, and I'm happily typing this email from the 
-same computer on the same network, just with no VPN started.
+Cherry on the top, you could include a *small* program which exhibit the 
+same problem.
 
-It's a bizarre problem, but my guess is that your user test bed don't end up 
-using tap/tun very often, which means it's poorly tested.
+> 
+> Thanks for taking time to think about my problem. I greatly appreciate it.
+> 
+To answer briefly your question, _in general_ a program which takes more 
+than a few seconds to execute should take roughly the same time to 
+execute all the times.
 
--- 
-Cheers,
-Alistair.
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+Eric

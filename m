@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVGGSvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVGGSxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbVGGSvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 14:51:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVGGStO
+	id S261582AbVGGSxo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 14:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVGGSvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 14:49:14 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:32909 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261569AbVGGSrH (ORCPT
+	Thu, 7 Jul 2005 14:51:37 -0400
+Received: from unused.mind.net ([69.9.134.98]:14250 "EHLO echo.lysdexia.org")
+	by vger.kernel.org with ESMTP id S261463AbVGGSue (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 14:47:07 -0400
-Date: Thu, 7 Jul 2005 20:48:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Dave Hansen <dave@sr71.net>
-Cc: Clemens Koller <clemens.koller@anagramm.de>,
-       Lenz Grimmer <lenz@grimmer.com>, Arjan van de Ven <arjan@infradead.org>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>,
-       LKML List <linux-kernel@vger.kernel.org>
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested? (Accelerometer))
-Message-ID: <20050707184820.GA29449@suse.de>
-References: <1120461401.3174.10.camel@laptopd505.fenrus.org> <20050704072231.GG1444@suse.de> <1120462037.3174.25.camel@laptopd505.fenrus.org> <20050704073031.GI1444@suse.de> <42C91073.80900@grimmer.com> <20050704110604.GL1444@suse.de> <20050707080323.GF1823@suse.de> <42CD600C.2000105@anagramm.de> <20050707172707.GI24401@suse.de> <1120757900.5829.38.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1120757900.5829.38.camel@localhost>
+	Thu, 7 Jul 2005 14:50:34 -0400
+Date: Thu, 7 Jul 2005 11:49:39 -0700 (PDT)
+From: William Weston <weston@sysex.net>
+X-X-Sender: weston@echo.lysdexia.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-06
+In-Reply-To: <20050707104859.GD22422@elte.hu>
+Message-ID: <Pine.LNX.4.58.0507071140420.24968@echo.lysdexia.org>
+References: <200506281927.43959.annabellesgarden@yahoo.de>
+ <200506301952.22022.annabellesgarden@yahoo.de> <20050630205029.GB1824@elte.hu>
+ <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu>
+ <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <20050703140432.GA19074@elte.hu>
+ <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507061802570.20214@echo.lysdexia.org>
+ <20050707104859.GD22422@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07 2005, Dave Hansen wrote:
-> On Thu, 2005-07-07 at 19:27 +0200, Jens Axboe wrote:
-> > On Thu, Jul 07 2005, Clemens Koller wrote:
-> > > Well, sure, it's not a notebook HDD, but maybe it's possible
-> > > to give headpark a more generic way to get the heads parked?
+On Thu, 7 Jul 2005, Ingo Molnar wrote:
+
+> > Still looking into this issue on -51-06.  Found something really odd: 
+> > SCHED_NORMAL tasks will start to inherit the priority value of some 
+> > other SCHED_FIFO task.  If JACK is started at a given SCHED_FIFO 
+> > priority, X and all of its children will inherit the same priority 
+> > value after login.  Other random processes will inherit this, too -- 
+> > sometimes init...
 > > 
-> > This _is_ the generic way, if your drive doesn't support it you are out
-> > of luck.
+> > SCHED_NORMAL tasks suddenly inheriting priority values in the range 
+> > normally reserved for SCHED_FIFO could explain at least part of the 
+> > meltdown I've been seeing.  Any thoughts?
 > 
-> I do wonder what is done in Windows, though...
-> 
-> They had to have had a method to park the drive there, or they probably
-> wouldn't have even included the HDAPS driver in the first place.
-> Anybody wanna strace the Windows app?
+> is this inheritance perpetual? It is normal for some tasks to be boosted 
+> momentarily, but if the condition remains even after jackd has exited, 
+> it's clearly an anomaly. (lets call it "RT priority leakage".) Priority 
+> leakage on SMP was fixed recently, but there could be other bugs 
+> remaining.
 
-It's not unlikely that the drives that IBM shipped in that notebook used
-a "secret" command or subfeature to park the head. It's a little strange
-though, as they supposedly shipped various makes and models of drives
-with the hdaps included. If they did use a vendor unique command for
-parking the head, I bet it would be different for each make.
+Yes, this leakage perpetual.  That's what struck me as odd.
 
--- 
-Jens Axboe
+> There's priority-leakage debugging code in the -RT kernel, which is 
+> activated if you enable CONFIG_DEBUG_PREEMPT. This debugging code, if 
+> triggered, should produce 'BUG: comm/123 leaked RT prio 123 (123)?" type 
+> of messages. But ... due to a bug it would not print out anything but 
+> would lock up hard if it detects the condition (and if 
+> RT_DEADLOCK_DETECT is enabled). I have fixed this reporting bug in the 
+> -51-08 kernel.
 
+-51-08 is building now.  I'll check out the latest, too.
+
+--ww

@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVGGQ61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVGGRBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbVGGQ61 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 12:58:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVGGQ4Z
+	id S261208AbVGGRBO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 13:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVGGQhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 12:56:25 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:50897
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261491AbVGGQyl (ORCPT
+	Thu, 7 Jul 2005 12:37:24 -0400
+Received: from mail.suse.de ([195.135.220.2]:4746 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261374AbVGGQgF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 12:54:41 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: <knobi@knobisoft.de>, "'Pekka Enberg'" <penberg@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>,
-       "'Pekka Enberg'" <penberg@cs.helsinki.fi>,
-       <hdaps-devel@lists.sourceforge.net>
-Subject: RE: Head parking (was: IBM HDAPS things are looking up)
-Date: Thu, 7 Jul 2005 10:54:20 -0600
-Message-ID: <002201c58314$85cd5c60$600cc60a@amer.sykes.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20050707163903.83550.qmail@web32605.mail.mud.yahoo.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
-Importance: Normal
+	Thu, 7 Jul 2005 12:36:05 -0400
+Date: Thu, 7 Jul 2005 18:36:04 +0200
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andi Kleen <ak@suse.de>, linux-ide@vger.kernel.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [another PATCH] Fix crash on boot in kmalloc_node IDE changes
+Message-ID: <20050707163604.GJ21330@wotan.suse.de>
+References: <20050706133052.GF21330@wotan.suse.de> <Pine.LNX.4.62.0507070912140.27066@graphe.net> <20050707162442.GI21330@wotan.suse.de> <Pine.LNX.4.62.0507070930220.5875@graphe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0507070930220.5875@graphe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 07, 2005 at 09:32:51AM -0700, Christoph Lameter wrote:
+> On Thu, 7 Jul 2005, Andi Kleen wrote:
+> 
+> > On Thu, Jul 07, 2005 at 09:21:55AM -0700, Christoph Lameter wrote:
+> > > On Wed, 6 Jul 2005, Andi Kleen wrote:
+> > > 
+> > > > Without this patch a dual Xeon EM64T machine would oops on boot
+> > > > because the hwif pointer here was NULL. I also added a check for
+> > > > pci_dev because it's doubtful that all IDE devices have pci_devs.
+> > > 
+> > > Here is IMHO the right way to fix this. Test for the hwif != NULL and
+> > > test for pci_dev != NULL before determining the node number of the pci 
+> > > bus that the device is connected to. Maybe we need a hwif_to_node for ide 
+> > > drivers that is also able to determine the locality of other hardware?
+> > 
+> > Hmm? Where is the difference? 
+> 
+> node = -1 if the node cannot be determined.
 
-> --- Pekka Enberg <penberg@gmail.com> wrote:
->
-> > On 7/7/05, Martin Knoblauch <knobi@knobisoft.de> wrote:
-> > >  Interesting. Same Notebook, same drive. The program say "not
-> > parked"
-> > > :-( This is on FC2 with a pretty much vanilla 2.6.9 kernel.
-> > >
-> > > [root@l15833 tmp]# hdparm -i /dev/hda
-> > >
-> > > /dev/hda:
-> > >
-> > >  Model=HTS726060M9AT00, FwRev=MH4OA6BA, SerialNo=MRH403M4GS88XB
-> >
-> > haji ~ # hdparm -i /dev/hda
-> >
-> > /dev/hda:
-> >
-> >  Model=HTS726060M9AT00, FwRev=MH4OA6DA, SerialNo=MRH453M4H2A6PB
->
->  OK, different FW levels. After upgrading my disk to MH40A6GA my head
-> parks :-) Minimum required level for this disk seems to be A6DA. Hope
-> this info is useful.
+But that will crash right now.
 
-Martin,
+Trading one crash for another doesn't seem to be particularly useful.
 
-	Simply upgrading your firmware fixed your problem for being to park the
-head?
 
-.Alejandro
+> > This is 100% equivalent to my code except that you compressed
+> > it all into a single expression.
+> 
+> My patch consistently checks for hwif != NULL and pci_dev != NULL. 
+> There was someother stuff in your patch. This patch does not add any 
+> additional variables and is more readable.
+
+No it was exactly the same except for a working node number.
+
+-Andi
 

@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVGGPOC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbVGGPQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVGGPOC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 11:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVGGPLr
+	id S262400AbVGGPQf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 11:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVGGPQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 11:11:47 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:47072 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261424AbVGGPJl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 11:09:41 -0400
-Date: Thu, 7 Jul 2005 17:11:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Aric Cyr <acyr@alumni.uwaterloo.ca>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: sata_sil 3112 activity LED patch
-Message-ID: <20050707151110.GF24401@suse.de>
-References: <20050706025136.GA15493@alumni.uwaterloo.ca> <42CBF3A1.1020508@pobox.com> <20050707124702.GB24401@suse.de> <20050707142301.GA11182@alumni.uwaterloo.ca>
+	Thu, 7 Jul 2005 11:16:34 -0400
+Received: from mail.sanpeople.com ([196.41.13.122]:53005 "EHLO
+	za-gw.sanpeople.com") by vger.kernel.org with ESMTP id S262103AbVGGPPS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 11:15:18 -0400
+Subject: Re: [RFC] Atmel-supplied hardware headers for AT91RM9200 SoC
+	processor
+From: Andrew Victor <andrew@sanpeople.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
+In-Reply-To: <1120747271.19467.388.camel@hades.cambridge.redhat.com>
+References: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
+	 <1120747271.19467.388.camel@hades.cambridge.redhat.com>
+Content-Type: text/plain
+Organization: SAN People (Pty) Ltd
+Message-Id: <1120749256.16806.146.camel@fuzzie.sanpeople.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050707142301.GA11182@alumni.uwaterloo.ca>
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 07 Jul 2005 17:14:16 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07 2005, Aric Cyr wrote:
-> > There's also an existing variant of this in the block layer, the
-> > activity_fn, that we use on the ibook/powerbook to use the sleep led as
-> > an activity light. Just in case you prefer that to overloading the bmdma
-> > start/stop handlers.
-> 
-> You suggestion at first looked to be incredibly nice... until I looked
-> at how much implementation was required.  I am considering trying it,
-> but I cannot find a place for an sata driver to call the
-> blk_queue_activity_fn() with meaningful parameters during init.
-> 
-> On a second look, I guess I would have to override
-> ata_scsi_slave_config() in the driver and hook up the activity light
-> there.  This would be fine I guess.  Unless I am interpreting this
-> incorrectly, however, I would need to use a timer or something to turn
-> the light back off?  I'm probably missing something, so is there a
-> simpler way to do this?
+hi David,
 
-Hmm yes, it will require more work for you. It should be cleaned up a
-little to pass in a START/STOP variable and handle everything in the
-block layer instead. You probably just want to continue using the bmdma
-hooks now, that is actually a fine implementation imo.
+> > +// -  Redistributions in binary form must reproduce the above copyright notice,
+> > +// this list of conditions and the disclaimer below in the documentation and/or
+> > +// other materials provided with the distribution.
+> 
+> Is that for real?
 
--- 
-Jens Axboe
+The hardware headers can't be GPL since they're also used on other
+non-Linux systems.  The best we can probably get is a BSD-style license.
+
+Regarding the actual wording, try:
+  grep -r "Redistributions in binary form" * | grep -v minimum
+
+I count 130 instances of the same requirement in 2.6.13-rc2, though some
+of the files are dual-licensed.
+
+
+Regards,
+  Andrew Victor
+
 

@@ -1,236 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVGHQVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVGHQ3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbVGHQVM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 12:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbVGHQVL
+	id S262701AbVGHQ3L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 12:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbVGHQ3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 12:21:11 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:5563 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262705AbVGHQTf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 12:19:35 -0400
-Subject: Re: [RFC PATCH 1/8] share/private/slave a subtree
-From: Ram <linuxram@us.ibm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
-       mike@waychison.com, bfields@fieldses.org
-In-Reply-To: <E1Dqttu-0004kx-00@dorka.pomaz.szeredi.hu>
-References: <1120816072.30164.10.camel@localhost>
-	 <1120816229.30164.13.camel@localhost> <1120817463.30164.43.camel@localhost>
-	 <E1Dqttu-0004kx-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1120839568.30164.88.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 08 Jul 2005 09:19:29 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Jul 2005 12:29:10 -0400
+Received: from web81301.mail.yahoo.com ([206.190.37.76]:53601 "HELO
+	web81301.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262701AbVGHQ3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 12:29:09 -0400
+Message-ID: <20050708162908.715.qmail@web81301.mail.yahoo.com>
+Date: Fri, 8 Jul 2005 09:29:08 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Synaptics Touchpad not detected in 2.6.13-rc2
+To: Mattia Dongili <malattia@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dtor@mail.ru>
+In-Reply-To: <20050708125537.GA4191@inferi.kami.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-08 at 07:32, Miklos Szeredi wrote:
-> > This patch adds the shared/private/slave support for VFS trees.
-> 
+Mattia Dongili <malattia@gmail.com> wrote:
+> On Thu, Jul 07, 2005 at 11:28:55PM +0200, Vojtech Pavlik wrote:
+> > On Thu, Jul 07, 2005 at 11:24:43PM +0200, Mattia Dongili wrote:
+> > > On Thu, Jul 07, 2005 at 01:02:38PM -0700, Dmitry Torokhov wrote:
+> > > > Mattia Dongili <malattia@gmail.com> wrote:
 > [...]
-> 
-> > -struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
-> > +struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry, struct dentry *root)
-> >  {
-> 
-> How about changing it to inline and calling it __lookup_mnt_root(),
-> and calling it from lookup_mnt() (which could keep the old signature)
-> and lookup_mnt_root().  That way the compiler can optimize away the
-> root check for the plain lookup_mnt() case, and there's no need to
-> modify callers of lookup_mnt().
-> 
-> [...]
-
-
-ok. 
-
-> 
+> > > oh, it seems I'm not able to reproduce the error anymore!
+> > > I need some rest now, I'll try again tomorrow morning (I must be missing
+> > > something stupid right now) and report to you again.
 > >  
-> > +struct vfsmount *do_make_mounted(struct vfsmount *mnt, struct dentry *dentry)
-> > +{
+> > Could be the enabled debug is adding extra delay, making the problem
+> > impossible to reproduce. IIRC, we've seen this with an ALPS pad, too,
+> > Dmitry, right?
 > 
-> What does this function do?  Can we have a header comment?
-
-This function does the equivalent of 'mount --bind dir dir'
-It  creates a new child vfsmount at that dentry, and moves
-the children vfsmounts below that dentry, under the newly created child
-vfsmount.  There is a header comment for that function. But it got
-into the 2nd patch.
-
+> Sorry, it took me a while but I got the error finally (see below for the
+> debug log). Anyway I suspect it's most likely a bios or hw problem, a
+> cold boot shows the issue, simply reboot-ing cures it (keeping the
+> ps2_adjust_timeout in place).
+> Also, not every cold boot shows the issue, I reproduced it at the 3rd
+> try today.
+> So I believe all my previous suspecions are mostly void.
 > 
-> > +int
-> > +_do_make_mounted(struct nameidata *nd, struct vfsmount **mnt)
-> > +{
-> 
-> Ditto.
 
-This function returns immeditely if a vfsmount already exists at the
-dentry. Otherwise it creates a vfsmount at the specified dentry, and if
-the dentry belongs to shared vfsmount it ensures the same
-operation is done on all peer vfsmounts to which propogation
-is set.
+I see several possible issues:
 
+> PNP: No PS/2 controller found. Probing ports directly.
 
-> 
-> > +/*
-> > + * recursively change the type of the mountpoint.
-> > + */
-> > +static int do_change_type(struct nameidata *nd, int flag)
-> > +{
-> > +	struct vfsmount *m, *mnt;
-> > +	struct vfspnode *old_pnode = NULL;
-> > +	int err;
-> > +
-> > +	if (!(flag & MS_SHARED) && !(flag & MS_PRIVATE)
-> > +			&& !(flag & MS_SLAVE))
-> > +		return -EINVAL;
-> > +
-> > +	if ((err = _do_make_mounted(nd, &mnt)))
-> > +		return err;
-> 
-> 
-> Why does this opertation do any mounting?  If it's a type change, it
-> should just change the type of something already mounted, no?
+Does it show this line when touchpad is being detected? 
+Do you have PNPACPI turned on?
 
-apart from changing types, it has to create a new vfsmount if one
-does not exist at that point. 
+> i8042.c: Detected active multiplexing controller, rev 5.3.
 
-> 
-> > +		case MS_SHARED:
-> > +			/*
-> > +			 * if the mount is already a slave mount,
-> > +			 * allocated a new pnode and make it
-> > +			 * a slave pnode of the original pnode.
-> > +			 */
-> > +			if (IS_MNT_SLAVE(m)) {
-> > +				old_pnode = m->mnt_pnode;
-> > +				pnode_del_slave_mnt(m);
-> > +			}
-> > +			if(!IS_MNT_SHARED(m)) {
-> > +				m->mnt_pnode = pnode_alloc();
-> > +				if(!m->mnt_pnode) {
-> > +					pnode_add_slave_mnt(old_pnode, m);
-> > +					err = -ENOMEM;
-> > +					break;
-> > +				}
-> > +				pnode_add_member_mnt(m->mnt_pnode, m);
-> > +			}
-> > +			if(old_pnode) {
-> > +				pnode_add_slave_pnode(old_pnode,
-> > +						m->mnt_pnode);
-> > +			}
-> > +			SET_MNT_SHARED(m);
-> > +			break;
-> > +
-> > +		case MS_SLAVE:
-> > +			if (IS_MNT_SLAVE(m)) {
-> > +				break;
-> > +			}
-> > +			/*
-> > +			 * only shared mounts can
-> > +			 * be made slave
-> > +			 */
-> > +			if (!IS_MNT_SHARED(m)) {
-> > +				err = -EINVAL;
-> > +				break;
-> > +			}
-> > +			old_pnode = m->mnt_pnode;
-> > +			pnode_del_member_mnt(m);
-> > +			pnode_add_slave_mnt(old_pnode, m);
-> > +			SET_MNT_SLAVE(m);
-> > +			break;
-> > +
-> > +		case MS_PRIVATE:
-> > +			if(m->mnt_pnode)
-> > +				pnode_disassociate_mnt(m);
-> > +			SET_MNT_PRIVATE(m);
-> > +			break;
-> > +
-> 
-> Can this be split into three functions?
+Revision 5.3 is suspicious. The last posted one is 1.1
+Again, when touchpad is detected, does it show this or 1.{0|1}?
 
-yes. will do.
+> serio: i8042 AUX0 port at 0x60,0x64 irq 12
+> serio: i8042 AUX1 port at 0x60,0x64 irq 12
+> serio: i8042 AUX2 port at 0x60,0x64 irq 12
+> serio: i8042 AUX3 port at 0x60,0x64 irq 12
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> mice: PS/2 mouse device common for all mice
 
-> 
-> [...]
-> 
-> > +/*
-> > + * Walk the pnode tree for each pnode encountered.  A given pnode in the tree
-> > + * can be returned a minimum of 2 times.  First time the pnode is encountered,
-> > + * it is returned with the flag PNODE_DOWN. Everytime the pnode is encountered
-> > + * after having traversed through each of its children, it is returned with the
-> > + * flag PNODE_MID.  And finally when the pnode is encountered after having
-> > + * walked all of its children, it is returned with the flag PNODE_UP.
-> > + *
-> > + * @context: provides context on the state of the last walk in the pnode
-> > + * 		tree.
-> > + */
-> > +static int inline
-> > +pnode_next(struct pcontext *context)
-> > +{
-> 
-> Is such a generic traversal function really needed?  Why?
+And now the real problem:
 
-Yes. I found it useful to write generic code without having to worry
-about the details of the traversal being duplicated everywhere.  Do you
-have better suggestion? This function is the equivalent of next_mnt()
-for traversing pnode trees.
+> drivers/input/serio/i8042.c: 91 -> i8042 (command) [220803]
+> drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [220803]
+> drivers/input/serio/i8042.c: fa <- i8042 (interrupt, KBD, 1) [220806]
 
+We are trying to talk to AUX port but KBC replies as if data
+is coming from the keyboard port.
 
+Does it help if you boot with "usb-handoff" kernel option? Another
+one would be "i8042.nomux". Btw, does your laptop have external
+PS/2 ports?
 
-> 
-> [...]
-> 
-> > +struct vfsmount *
-> > +pnode_make_mounted(struct vfspnode *pnode, struct vfsmount *mnt, struct dentry *dentry)
-> > +{
-> 
-> Again a header comment would be nice, on what exactly this function
-> does.  Also the implementation is really cryptic, but I can't even
-> start to decipher without knowing what it's supposed to do.
-
-yes. this function takes care of traversing the propogation tree and
-creating a child vfsmount for dentries in each vfsmount encountered.
-In other words it calls do_make_mounted() for each vfsmount that belongs
-to the propogation tree.
-
-
-> 
-> [...]
-> 
-> > +static inline struct vfspnode *
-> > +get_pnode_n(struct vfspnode *pnode, size_t n)
-> > +{
-> 
-> Seems to be unused throughout the patch series
-
-Yes. will delete it. Initially thought I would need it.
-
-
-> > +	struct list_head mnt_pnode_mntlist;/* and going through their
-> > +					   pnode's vfsmount */
-> > +	struct vfspnode *mnt_pnode;	/* and going through their
-> > +					   pnode's vfsmount */
-> >  	atomic_t mnt_count;
-> >  	int mnt_flags;
-> >  	int mnt_expiry_mark;		/* true if marked for expiry */
-> > @@ -38,6 +66,7 @@ struct vfsmount
-> >  	struct namespace *mnt_namespace; /* containing namespace */
-> >  };
-> >  
-> > +
-> >  static inline struct vfsmount *mntget(struct vfsmount *mnt)
-> 
-> Please don't add empty lines.
-
-ok.
-
-RP
-> 
-> Miklos
+-- 
+Dmitry
 

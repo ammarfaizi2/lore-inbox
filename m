@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262718AbVGHR27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbVGHRbH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262718AbVGHR27 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 13:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbVGHR27
+	id S262724AbVGHRbH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 13:31:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbVGHRbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 13:28:59 -0400
-Received: from alog0552.analogic.com ([208.224.223.89]:35808 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262718AbVGHR26
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 13:28:58 -0400
-Date: Fri, 8 Jul 2005 13:27:33 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Adnan Khaleel <Adnan.Khaleel@newisys.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Instruction Tracing for Linux
-In-Reply-To: <DC392CA07E5A5746837A411B4CA2B713010D7790@sekhmet.ad.newisys.com>
-Message-ID: <Pine.LNX.4.61.0507081318480.16726@chaos.analogic.com>
-References: <DC392CA07E5A5746837A411B4CA2B713010D7790@sekhmet.ad.newisys.com>
+	Fri, 8 Jul 2005 13:31:06 -0400
+Received: from ms-smtp-02-smtplb.tampabay.rr.com ([65.32.5.132]:57500 "EHLO
+	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S262724AbVGHRbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 13:31:03 -0400
+Message-ID: <42CEB851.1000004@tampabay.rr.com>
+Date: Fri, 08 Jul 2005 13:30:57 -0400
+From: Nathan Boyle <nboyle@tampabay.rr.com>
+Reply-To: nboyle@tampabay.rr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050514
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] Oops: EIP is at sysfs_release+0x34/0x80
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was logging in on vc2 to find out why my Quake3 game was being
+sluggish and this came up right after agetty:
 
-Please read:
-http://www.adapti.com/instruction-trace.html
+Unable to handle kernel paging request at virtual address 762f7473
+  printing eip:
+c0183c14
+*pde = 00000000
+Oops: 0002 [#1]
+PREEMPT
+Modules linked in: rtc nls_utf8 snd_emu10k1_synth snd_emu10k1
+snd_emux_synth snd_seq_virmidi snd_rawmidi snd_pcm_oss snd_ac97_codec
+snd_seq_midi_event snd_seq_midi_emul snd_seq snd_pcm ehci_hcd ide_cd
+usbhid snd_mixer_oss snd_timer uhci_hcd af_packet ohci_hcd cdrom
+snd_seq_device snd_page_alloc floppy isofs usbcore snd_hwdep ntfs snd
+tulip snd_util_mem soundcore evdev crc32 smbfs ext2 nls_base unix
+CPU:    0
+EIP:    0060:[<c0183c14>]    Not tainted VLI
+EFLAGS: 00010202   (2.6.13-rc2-GIT-08-7-2005-0)
+EIP is at sysfs_release+0x34/0x80
+eax: 00000001   ebx: dc7c2000   ecx: d1979860   edx: 00000001
+esi: 762f7373   edi: d5ba26a0   ebp: d9368544   esp: dc7c3f80
+ds: 007b   es: 007b   ss: 0068
+Process udev (pid: 31802, threadinfo=dc7c2000 task=c7c19040)
+Stack: df468c40 df798140 dffe4140 c0153c08 d5a9edbc df468c40 df798140
+00000000
+        dc7c2000 c01523d3 00000000 00000003 080ac568 00000003 c0103101
+00000003
+        080ac568 00000004 080ac568 00000003 08057198 00000006 0000007b
+0000007b
+Call Trace:
+  [<c0153c08>] __fput+0xf8/0x110
+  [<c01523d3>] filp_close+0x43/0x70
+  [<c0103101>] syscall_call+0x7/0xb
+Code: 8b 41 0c 8b 40 48 8b 58 14 8b 41 48 8b 40 14 85 db 8b 70 04 74 07
+89 d8 e8 9a 11 02 00 85 f6 74 1f bb 00 e0 ff ff 21 e3 ff 43 14 <ff> 8e
+00 01 00 00 83 3e 02 74 32 8b 43 08 ff 4b 14 a8 08 75 21
+  <6>note: udev[31802] exited with preempt_count 1
 
-It's part of an advertisement, but will tell you the problems
-you will have with a "software solution". Basically, software
-can't do it. Also, even hardware won't give you the real
-picture because there is too much going on inside the CPUs
-that you can't see. However a hardware/software solution
-can produce some useful information but it's not very accurate.
+I was still able to log in afterwards (I still haven't rebooted the
+machine and I'm typing this on it) but hotplug processes are reproducing
+like rodents and I think the kernel is starting them (I kill everything
+related and they all come back). This was around 5-10 minutes after my
+first boot with this kernel.
 
-
-On Fri, 8 Jul 2005, Adnan Khaleel wrote:
-
-> Hi there,
->
-> I'm a hardware designer and I'm interested in collecting dynamic execution traces in Linux. I've looked at several trace toolkits available for Linux currently but none of them offer the level of detail that I need. Ideally I would like to be able to record the instructions being executed on an SMP system along with markers for system or user space in addition to process id. I need these traces in order to evaluate the data sharing, coherence traffic etc in larger SMP systems. I've tried several other approaches to collecting execution traces namely via machine emulators etc but so far I've been dogged with the problem of trying to get any OS up and running stably on a multiprocessor configuration.
->
-> Is there a Linux kernel patch that will let me do this? I have considered using User Mode Linux but I'm not sure if this is the correct approach either - if any of you think that this is the easier path, I'd be interested in exploring this more. Other things that have crossed my mind is to use a gdb or the kernel debugger interface in order to collect the instructions but I'm not sure if this would be the correct path. Also I do require the tool/patch to be  stable enough so that I can run commercial benchmarks on it reliably.
->
-> I understand that recording every executed instruction can considerably slow down the application and may be considerably different from the freely running application but nevertheless I think that some trace is better than no trace and this is where I am at the moment.
->
-> If any of you have had experiences in profiling the kernel etc by collecting actual kernel instructions executed, I'd be interested in seeing if that may be extended for my purpose.
->
-> Thanks
->
-> Adnan
->
-> PS: I'm not subscribed to this mailing list so I'd appreciated if you would cc me on the responses.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVGHE2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVGHEhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbVGHE2y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 00:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbVGHE2y
+	id S262598AbVGHEhS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 00:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbVGHEhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 00:28:54 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:59281 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262594AbVGHE2x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 00:28:53 -0400
-Date: Fri, 8 Jul 2005 14:21:46 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Yura Pakhuchiy <pakhuchiy@gmail.com>
-Cc: linux-xfs@oss.sgi.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, tibor@altlinux.ru
-Subject: Re: XFS corruption on move from xscale to i686
-Message-ID: <20050708042146.GA1679@frodo>
-References: <1120756552.5298.10.camel@pc299.sam-solutions.net>
+	Fri, 8 Jul 2005 00:37:18 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:25425 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262598AbVGHEhQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 00:37:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gybXzRArGhffdrTk9I0+RKimjS1ZtoMAV466fcDC6uRTK4wdiqx1H+odYtg+CCx8+ejeIAbXfziqkeUOCNrIshYBrJP6KVD9kBZJj+AKdUEZYIc5LAiE4B7CKMS00vbiSXOiPAAHZSr9bmEWkl5YN2do8Lo079VbRNoxIWy/sB0=
+Message-ID: <ed5aea4305070721373480591d@mail.gmail.com>
+Date: Thu, 7 Jul 2005 21:37:15 -0700
+From: david mosberger <dmosberger@gmail.com>
+Reply-To: David.Mosberger@acm.org
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Subject: Re: [PATCH 2.6.13-rc1 07/10] IOCHK interface for I/O error handling/detecting
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
+       Linas Vepstas <linas@austin.ibm.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       long <tlnguyen@snoqualmie.dp.intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+In-Reply-To: <42CB6961.2060508@jp.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1120756552.5298.10.camel@pc299.sam-solutions.net>
-User-Agent: Mutt/1.5.3i
+References: <42CB63B2.6000505@jp.fujitsu.com> <42CB6961.2060508@jp.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 08:15:52PM +0300, Yura Pakhuchiy wrote:
-> Hi,
-> 
-> I'm creadted XFS volume on 2.6.10 linux xscale/iq31244 box, then I
-> copyied files on it and moved this hard drive to i686 machine. When I
-> mounted it on i686, I found no files on it. I runned xfs_check, here is
-> output:
+On 7/5/05, Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com> wrote:
 
-Someone else was doing this awhile back, and also had issues.
-Their trouble seemed to be related to xscale gcc miscompiling
-parts of XFS - search the linux-xfs archives for details.
+>    - could anyone write same barrier for intel compiler?
+>      Tony or David, could you help me?
 
-cheers.
+I think it might be best to make ia64_mca_barrier() a proper
+subroutine written in assembly code.  Yes, that costs some time, but
+we're talking about wasting 1,000+ cycles just to consume the value
+read via readX(), so the call-overhead is actually overlapped and
+completely trivial.
 
--- 
-Nathan
+  --david

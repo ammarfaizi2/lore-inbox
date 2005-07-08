@@ -1,45 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbVGHQvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbVGHQxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbVGHQvf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 12:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVGHQvf
+	id S262714AbVGHQxO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 12:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVGHQxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 12:51:35 -0400
-Received: from smtpgate.newisys.com ([208.190.191.186]:25247 "EHLO
-	mail2.newisys.com") by vger.kernel.org with ESMTP id S262714AbVGHQv2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 12:51:28 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Instruction Tracing for Linux
-Date: Fri, 8 Jul 2005 11:51:20 -0500
-Message-ID: <DC392CA07E5A5746837A411B4CA2B713010D7790@sekhmet.ad.newisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Instruction Tracing for Linux
-Thread-Index: AcWD3UQxtMJHqApvSBmZL0Ex6PFQLA==
-From: "Adnan Khaleel" <Adnan.Khaleel@newisys.com>
-To: <linux-kernel@vger.kernel.org>
+	Fri, 8 Jul 2005 12:53:14 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:59916 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262710AbVGHQvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 12:51:55 -0400
+To: linuxram@us.ibm.com
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       mike@waychison.com, bfields@fieldses.org
+In-reply-to: <1120839568.30164.88.camel@localhost> (message from Ram on Fri,
+	08 Jul 2005 09:19:29 -0700)
+Subject: Re: [RFC PATCH 1/8] share/private/slave a subtree
+References: <1120816072.30164.10.camel@localhost>
+	 <1120816229.30164.13.camel@localhost> <1120817463.30164.43.camel@localhost>
+	 <E1Dqttu-0004kx-00@dorka.pomaz.szeredi.hu> <1120839568.30164.88.camel@localhost>
+Message-Id: <E1Dqw4W-0004sT-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 08 Jul 2005 18:51:28 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+> > > + * recursively change the type of the mountpoint.
+> > > + */
+> > > +static int do_change_type(struct nameidata *nd, int flag)
+> > > +{
+> > > +	struct vfsmount *m, *mnt;
+> > > +	struct vfspnode *old_pnode = NULL;
+> > > +	int err;
+> > > +
+> > > +	if (!(flag & MS_SHARED) && !(flag & MS_PRIVATE)
+> > > +			&& !(flag & MS_SLAVE))
+> > > +		return -EINVAL;
+> > > +
+> > > +	if ((err = _do_make_mounted(nd, &mnt)))
+> > > +		return err;
+> > 
+> > 
+> > Why does this opertation do any mounting?  If it's a type change, it
+> > should just change the type of something already mounted, no?
+> 
+> apart from changing types, it has to create a new vfsmount if one
+> does not exist at that point. 
 
-I'm a hardware designer and I'm interested in collecting dynamic execution traces in Linux. I've looked at several trace toolkits available for Linux currently but none of them offer the level of detail that I need. Ideally I would like to be able to record the instructions being executed on an SMP system along with markers for system or user space in addition to process id. I need these traces in order to evaluate the data sharing, coherence traffic etc in larger SMP systems. I've tried several other approaches to collecting execution traces namely via machine emulators etc but so far I've been dogged with the problem of trying to get any OS up and running stably on a multiprocessor configuration.
+Why?
 
-Is there a Linux kernel patch that will let me do this? I have considered using User Mode Linux but I'm not sure if this is the correct approach either - if any of you think that this is the easier path, I'd be interested in exploring this more. Other things that have crossed my mind is to use a gdb or the kernel debugger interface in order to collect the instructions but I'm not sure if this would be the correct path. Also I do require the tool/patch to be  stable enough so that I can run commercial benchmarks on it reliably.
+I think it would be more logical to either
 
-I understand that recording every executed instruction can considerably slow down the application and may be considerably different from the freely running application but nevertheless I think that some trace is better than no trace and this is where I am at the moment.
+  - return -EINVAL if it's not a mountpoint
 
-If any of you have had experiences in profiling the kernel etc by collecting actual kernel instructions executed, I'd be interested in seeing if that may be extended for my purpose.
+  - change the type of the mount even if it's not a mountpoint
 
-Thanks
-
-Adnan
-
-PS: I'm not subscribed to this mailing list so I'd appreciated if you would cc me on the responses.
+Is there some reason the user can't do the 'bind dir dir' manually if
+needed?
 
 
+> > > +/*
+> > > + * Walk the pnode tree for each pnode encountered.  A given pnode in the tree
+> > > + * can be returned a minimum of 2 times.  First time the pnode is encountered,
+> > > + * it is returned with the flag PNODE_DOWN. Everytime the pnode is encountered
+> > > + * after having traversed through each of its children, it is returned with the
+> > > + * flag PNODE_MID.  And finally when the pnode is encountered after having
+> > > + * walked all of its children, it is returned with the flag PNODE_UP.
+> > > + *
+> > > + * @context: provides context on the state of the last walk in the pnode
+> > > + * 		tree.
+> > > + */
+> > > +static int inline
+> > > +pnode_next(struct pcontext *context)
+> > > +{
+> > 
+> > Is such a generic traversal function really needed?  Why?
+> 
+> Yes. I found it useful to write generic code without having to worry
+> about the details of the traversal being duplicated everywhere.  Do you
+> have better suggestion? This function is the equivalent of next_mnt()
+> for traversing pnode trees.
+
+I'm just wondering, why do you need to return 2/3 times per node.  Are
+all these traversal points needed by propagation operations?  Why?
+
+Some notes (maybe outside the code) explaining the mechanism of the
+propagations would be nice.  Without these it's hard to understand the
+design decisions behind such an implementation.
+
+> > 
+> > > +struct vfsmount *
+> > > +pnode_make_mounted(struct vfspnode *pnode, struct vfsmount *mnt, struct dentry *dentry)
+> > > +{
+> > 
+> > Again a header comment would be nice, on what exactly this function
+> > does.  Also the implementation is really cryptic, but I can't even
+> > start to decipher without knowing what it's supposed to do.
+> 
+> yes. this function takes care of traversing the propogation tree and
+> creating a child vfsmount for dentries in each vfsmount encountered.
+> In other words it calls do_make_mounted() for each vfsmount that belongs
+> to the propogation tree.
+
+So it just does the propagated 'bind dir dir'?
+
+Why not use the generic propagated bind routine (defined in a later
+patch I presume) for this? 
+
+Miklos

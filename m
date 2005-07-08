@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbVGHQtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbVGHQvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262711AbVGHQtj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 12:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVGHQtj
+	id S262713AbVGHQvf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 12:51:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVGHQvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 12:49:39 -0400
-Received: from mail.kroah.org ([69.55.234.183]:59586 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262711AbVGHQti (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 12:49:38 -0400
-Date: Fri, 8 Jul 2005 09:48:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: device_find broken in 2.6.11?
-Message-ID: <20050708164816.GB17723@kroah.com>
-References: <1120796213.12218.55.camel@localhost.localdomain> <20050708042922.GA4603@kroah.com> <1120836964.12218.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1120836964.12218.63.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+	Fri, 8 Jul 2005 12:51:35 -0400
+Received: from smtpgate.newisys.com ([208.190.191.186]:25247 "EHLO
+	mail2.newisys.com") by vger.kernel.org with ESMTP id S262714AbVGHQv2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 12:51:28 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Instruction Tracing for Linux
+Date: Fri, 8 Jul 2005 11:51:20 -0500
+Message-ID: <DC392CA07E5A5746837A411B4CA2B713010D7790@sekhmet.ad.newisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Instruction Tracing for Linux
+Thread-Index: AcWD3UQxtMJHqApvSBmZL0Ex6PFQLA==
+From: "Adnan Khaleel" <Adnan.Khaleel@newisys.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 09, 2005 at 01:36:04AM +1000, Rusty Russell wrote:
-> On Thu, 2005-07-07 at 21:29 -0700, Greg KH wrote:
-> > On Fri, Jul 08, 2005 at 02:16:53PM +1000, Rusty Russell wrote:
-> > > 
-> > > 	I was getting oopses in kset_find_obj when calling device_find in
-> > > 2.6.11.12.
-> > 
-> > Yup, there's a reason no one uses it.  Use the version in 2.6.13-rc2, it
-> > actually works.
-> > 
-> > What are you wanting to use it for?
-> 
-> The xenbus code
+Hi there,
 
-What is that?  Any pointers to it?
+I'm a hardware designer and I'm interested in collecting dynamic execution traces in Linux. I've looked at several trace toolkits available for Linux currently but none of them offer the level of detail that I need. Ideally I would like to be able to record the instructions being executed on an SMP system along with markers for system or user space in addition to process id. I need these traces in order to evaluate the data sharing, coherence traffic etc in larger SMP systems. I've tried several other approaches to collecting execution traces namely via machine emulators etc but so far I've been dogged with the problem of trying to get any OS up and running stably on a multiprocessor configuration.
 
-> wants to find if a device is new:
+Is there a Linux kernel patch that will let me do this? I have considered using User Mode Linux but I'm not sure if this is the correct approach either - if any of you think that this is the easier path, I'd be interested in exploring this more. Other things that have crossed my mind is to use a gdb or the kernel debugger interface in order to collect the instructions but I'm not sure if this would be the correct path. Also I do require the tool/patch to be  stable enough so that I can run commercial benchmarks on it reliably.
 
-new to whom?  Busses usually drive the finding of new devices, so they
-always know when a device has been found or goes away.
+I understand that recording every executed instruction can considerably slow down the application and may be considerably different from the freely running application but nevertheless I think that some trace is better than no trace and this is where I am at the moment.
 
-> the Xen code is currently against on 2.6.11.12.
+If any of you have had experiences in profiling the kernel etc by collecting actual kernel instructions executed, I'd be interested in seeing if that may be extended for my purpose.
 
-If you have code that is using the driver core, it will need big changes
-for 2.6.13 due to the internal rework that we have done.  I suggest you
-start now :)
+Thanks
 
-Good luck,
+Adnan
 
-greg k-h
+PS: I'm not subscribed to this mailing list so I'd appreciated if you would cc me on the responses.
+
+

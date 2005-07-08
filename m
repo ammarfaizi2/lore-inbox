@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262855AbVGHUML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262884AbVGHUOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262855AbVGHUML (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 16:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVGHUKF
+	id S262884AbVGHUOj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 16:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbVGHUOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 16:10:05 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22532 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262856AbVGHUHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 16:07:08 -0400
-Date: Fri, 8 Jul 2005 22:07:04 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: akpm@osdl.org
-Cc: Bernhard Rosenkraenzer <bero@arklinux.org>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, netdev@vger.kernel.org,
-       ipw2100-admin@linux.intel.com
-Subject: [-mm patch] is_broadcast_ether_addr() is still required
-Message-ID: <20050708200704.GH3671@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Fri, 8 Jul 2005 16:14:22 -0400
+Received: from unused.mind.net ([69.9.134.98]:11394 "EHLO echo.lysdexia.org")
+	by vger.kernel.org with ESMTP id S262856AbVGHUM6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 16:12:58 -0400
+Date: Fri, 8 Jul 2005 13:12:09 -0700 (PDT)
+From: William Weston <weston@sysex.net>
+X-X-Sender: weston@echo.lysdexia.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-12
+In-Reply-To: <20050708080359.GA32001@elte.hu>
+Message-ID: <Pine.LNX.4.58.0507081246340.30549@echo.lysdexia.org>
+References: <200506301952.22022.annabellesgarden@yahoo.de> <20050630205029.GB1824@elte.hu>
+ <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu>
+ <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <20050703140432.GA19074@elte.hu>
+ <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507061802570.20214@echo.lysdexia.org>
+ <20050707104859.GD22422@elte.hu> <Pine.LNX.4.58.0507071257320.25321@echo.lysdexia.org>
+ <20050708080359.GA32001@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch by Bernhard Rosenkraenzer <bero@arklinux.org> is still 
-required to fix the following compile error:
+On Fri, 8 Jul 2005, Ingo Molnar wrote:
 
-<--  snip  -->
+> could you check whether the priority leakage happens if you disable SMP?  
+> (if you can reproduce it easily)
 
-...
-  CC      drivers/net/wireless/ipw2200.o
-...
-drivers/net/wireless/ipw2200.c: In function `ipw_rx':
-drivers/net/wireless/ipw2200.c:4937: warning: implicit declaration of function `is_broadcast_ether_addr'
-...
-  CC      net/ieee80211/ieee80211_tx.o
-net/ieee80211/ieee80211_tx.c: In function `ieee80211_xmit':
-net/ieee80211/ieee80211_tx.c:341: warning: implicit declaration of function `is_broadcast_ether_addr'
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x422abc): In function `ipw_rx':
-: undefined reference to `is_broadcast_ether_addr'
-drivers/built-in.o(.text+0x4233f6): In function `ipw_rx':
-: undefined reference to `is_broadcast_ether_addr'
-drivers/built-in.o(.text+0x426b9f): In function 
-`ipw_net_hard_start_xmit':
-: undefined reference to `is_broadcast_ether_addr'
-drivers/built-in.o(.text+0x426f9d): In function 
-`ipw_net_hard_start_xmit':
-: undefined reference to `is_broadcast_ether_addr'
-net/built-in.o(.text+0x1e73c6): In function `ieee80211_xmit':
-: undefined reference to `is_broadcast_ether_addr'
-make: *** [.tmp_vmlinux1] Error 1
+No priority leakages have been seen with UP configs on any of the 
+machines I've been testing.
 
-<--  snip  -->
+The leakage is not hard to reproduce under SMT:  start up jackd from a
+text vc with an rt prio of 60 (or some unique prio above the IRQ threads),
+then restart X and login.  After several minutes, X and all of its
+children will be running at whatever prio jackd was started at (but still
+SCHED_NORMAL).  Eventually, init, a handful of SCHED_NORMAL kernel
+threads, and other random processes are all running at the same priority.  
+When reset to default priority with chrt or schedtool, these processes
+eventually revert back to the leaked priority level.  When jackd is
+stopped, the priorities stay in their elevated state.  If jackd is not 
+started before logging in to X, then the priority of one of the SCHED_FF 
+kernel threads is leaked to other processes in the same manner.
 
-
-is_broadcast_ether_addr() was removed but it's still used.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.13-rc1/include/net/ieee80211.h.ark	2005-07-01 17:46:22.000000000 +0200
-+++ linux-2.6.13-rc1/include/net/ieee80211.h	2005-07-01 17:47:26.000000000 +0200
-@@ -627,6 +627,11 @@
- #define MAC_FMT "%02x:%02x:%02x:%02x:%02x:%02x"
- #define MAC_ARG(x) ((u8*)(x))[0],((u8*)(x))[1],((u8*)(x))[2],((u8*)(x))[3],((u8*)(x))[4],((u8*)(x))[5]
- 
-+extern inline int is_broadcast_ether_addr(const u8 *addr)
-+{
-+	return ((addr[0] == 0xff) && (addr[1] == 0xff) && (addr[2] == 0xff) &&
-+		(addr[3] == 0xff) && (addr[4] == 0xff) && (addr[5] == 0xff));
-+}
- 
- #define CFG_IEEE80211_RESERVE_FCS (1<<0)
- #define CFG_IEEE80211_COMPUTE_FCS (1<<1)
-
+--ww
 

@@ -1,78 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVGHPB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVGHPDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVGHPB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 11:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbVGHPB1
+	id S262682AbVGHPDT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 11:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbVGHPDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 11:01:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4794 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261451AbVGHPB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 11:01:26 -0400
-Date: Fri, 8 Jul 2005 01:28:44 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Sizhao Yang <zaoyang@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ASPLOV miss ratio porting to planet labs kernel
-Message-ID: <20050708042843.GB5793@dmt.cnet>
-References: <f0655b9a0507071028209af86e@mail.gmail.com>
+	Fri, 8 Jul 2005 11:03:19 -0400
+Received: from ns2.suse.de ([195.135.220.15]:64436 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262682AbVGHPDP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 11:03:15 -0400
+Date: Fri, 8 Jul 2005 17:03:13 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH]  implicit declaration of function `page_cache_release'
+Message-ID: <20050708150313.GA30373@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <f0655b9a0507071028209af86e@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 12:28:09PM -0500, Sizhao Yang wrote:
-> Hi all,
-> 
-> I was wondering if someone could help me with this.  I'm porting an
-> ASPLOV paper miss ratio curve from 2.4.20 2.6.11.6 and eventually to
-> Planet Labs kernel.  It's a novel idea for memory management.  In
-> porting I at run time I'm consistently hitting kernel bugs at four
-> different places bad_page, bad_range, in rmap.c
-> BUG(page_mapcount(page)< 0), and failing at apm_do_idle.  All of these
-> functions except apm_do_idle seem to be new functions from 2.4.20 to
-> 2.6.11.6.  I'm pretty sure I'm forgetting to account for certain
-> things when modifying the pages, but I'm not sure where.
 
-Having the information which bad_page etc. dump out would definately help.
+In file included from include2/asm/tlb.h:31,
+                 from linux-2.6.13-rc2-olh/arch/ppc64/kernel/pSeries_lpar.c:37:
+linux-2.6.13-rc2-olh/include/asm-generic/tlb.h: In function `tlb_flush_mmu':
+linux-2.6.13-rc2-olh/include/asm-generic/tlb.h:77: warning: implicit declaration of function `release_pages'
+linux-2.6.13-rc2-olh/include/asm-generic/tlb.h: In function `tlb_remove_page':
+linux-2.6.13-rc2-olh/include/asm-generic/tlb.h:117: warning: implicit declaration of function `page_cache_release'
 
-I can't figure out what is going on with the data you provide, probably
-someone else can.
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-> What I'm doing in the port is resetting protection bits so that when
-> it page faults.  It will calculate a miss ratio based on the number of
-> accessed bits and other information.  After I gather the information I
-> will reset the accessed bits.  Then based on previous miss ratios and
-> current miss ratio it will give out memory to different processes
-> based on that.  That's the general idea.  For more specifics:
-> 
-> http://carmen.cs.uiuc.edu/paper/ASPLOS04-Zhou.pdf
-> 
-> I've narrowed it down to primarily when I call the following functions:
-> ptep_test_and_clear_young,
-> static inline pte_t pte_mknominor(pte_t pte) { (pte).pte_low &=
-> ~_PAGE_PROTNONE; return pte; }
-> static inline pte_t pte_mkminor(pte_t pte) { (pte).pte_low |=
-> _PAGE_PROTNONE; return pte; }
-> static inline pte_t pte_mkpresent(pte_t pte) { (pte).pte_low |=
-> _PAGE_PRESENT; return pte; }
-> static inline pte_t pte_mkabsent(pte_t pte) { (pte).pte_low &=
-> ~_PAGE_PRESENT; return pte; }
-> 
-> When I don't have those functions in my code the kernel doesn't crash,
-> but when I do they crash.  So, my question is am I to page accounting
-> aspects? I looked at rmap functions for incrementing the _mapcount but
-> they seem to be only for when a pte is copied.  Should I be
-> incrementing the pagecount at any point?
+ include/linux/pagemap.h |    2 +-
+ include/linux/swap.h    |    1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-Nope - that should be internal to rmap.c (you shouldnt touch mapcount directly). 
-But you dont seem to be doing that anyway. 
-
-> rmap.c
-> BUG(page_mapcount(page)< 0) is invoked when the accessed bits are
-> cleared in zap_pte, but I don't know how the page is being corrupted. 
-
-Why dont you post the code (in case its GPL)...
+Index: linux-2.6.13-rc2-olh/include/linux/pagemap.h
+===================================================================
+--- linux-2.6.13-rc2-olh.orig/include/linux/pagemap.h
++++ linux-2.6.13-rc2-olh/include/linux/pagemap.h
+@@ -48,7 +48,7 @@ static inline void mapping_set_gfp_mask(
+ 
+ #define page_cache_get(page)		get_page(page)
+ #define page_cache_release(page)	put_page(page)
+-void release_pages(struct page **pages, int nr, int cold);
++extern void release_pages(struct page **pages, int nr, int cold);
+ 
+ static inline struct page *page_cache_alloc(struct address_space *x)
+ {
+Index: linux-2.6.13-rc2-olh/include/linux/swap.h
+===================================================================
+--- linux-2.6.13-rc2-olh.orig/include/linux/swap.h
++++ linux-2.6.13-rc2-olh/include/linux/swap.h
+@@ -7,6 +7,7 @@
+ #include <linux/mmzone.h>
+ #include <linux/list.h>
+ #include <linux/sched.h>
++#include <linux/pagemap.h>
+ #include <asm/atomic.h>
+ #include <asm/page.h>
+ 

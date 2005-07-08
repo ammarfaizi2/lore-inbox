@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbVGHNqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262663AbVGHNyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262660AbVGHNqh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 09:46:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbVGHNqf
+	id S262663AbVGHNyr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 09:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbVGHNyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 09:46:35 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:30398 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262660AbVGHNos (ORCPT
+	Fri, 8 Jul 2005 09:54:47 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:43906 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262663AbVGHNyq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 09:44:48 -0400
-Date: Fri, 8 Jul 2005 15:43:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 'sleeping function called from invalid context' bug when mounting an IDE device
-Message-ID: <20050708134346.GA4890@elte.hu>
-References: <20050708162846.54de783d.vwool@ru.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050708162846.54de783d.vwool@ru.mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 8 Jul 2005 09:54:46 -0400
+Date: Fri, 8 Jul 2005 15:54:00 +0200 (MEST)
+Message-Id: <200507081354.j68Ds02b020296@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: ink@jurassic.park.msu.ru, teanropo@cc.jyu.fi
+Subject: Re: [SOLVED] Re: 2.6.13-rc2 hangs at boot
+Cc: gregkh@suse.de, jonsmirl@gmail.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Jul 2005 12:38:28 +0300 (EEST), Tero Roponen wrote:
+>On Fri, 8 Jul 2005, Ivan Kokshaysky wrote:
+>
+>> On Fri, Jul 08, 2005 at 10:57:56AM +0300, Tero Roponen wrote:
+>> > Thanks! Vanilla 2.6.13-rc2 with below patch applied
+>> > works perfectly!
+>>
+>> Thanks for testing. Though, bad news are that it's still unclear
+>> why your machine doesn't like large cardbus windows and therefore
+>> how to fix that correctly.
+>>
+>
+>> May I ask you to do couple of another tests with following variations
+>> of the latest patch (this will help to determine whether it's IO or
+>> MEM ranges to blame)?
+>> 1.
+>> #define CARDBUS_IO_SIZE		(256)
+>> #define CARDBUS_MEM_SIZE	(32*1024*1024)
+>
+>This works correctly.
+>
+>
+>
+>>
+>> 2.
+>> #define CARDBUS_IO_SIZE		(4096)
+>> #define CARDBUS_MEM_SIZE	(4*1024*1024)
+>
+>This hangs at boot.
 
-* Vitaly Wool <vwool@ru.mvista.com> wrote:
+Same here: 2.6.13-rc2 vanilla and 2.6.13-rc2 + patch #2 above both hang,
+but 2.6.13-rc2 + patch #1 boots fine.
 
-> Hi Ingo,
-> 
-> I've come across the following problem during the debugging of IDE 
-> driver for Philips PNX0105 ARM9 platform in RT mode 
-> (CONFIG_PREEMPT_RT). When I mount/unmount a device, the following 
-> error is printed out to a terminal:
-
-could you send me the full backtrace?
-
-> So, the problem is in the generic IDE code, namely, in ide_intr() 
-> taking ide_lock.
-
-which version did you try, and does this happen with the latest patch 
-too?
-
-	Ingo
+/Mikael

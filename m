@@ -1,51 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbVGHRIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVGHROC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262717AbVGHRIl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 13:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVGHRIl
+	id S262703AbVGHROC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 13:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVGHROC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 13:08:41 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:43364 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262717AbVGHRIk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 13:08:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=OYcoIeIBTPFkDdkYo1NF73Rh9bpGSz/M2QdYYu8Uy7AA9VY9IRzKVZbFudzG7KMD82OnHGb4aYg3jQ/CA2uQsoTWMhm4c4MhU5cSuSY2MMzJv2rBy8KPLH8QTkhTztYh/w3cxIXMKcZev/9m1FIJNZti36i6UA1e2tNruOrfM64=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Really __nocast-annotate kmalloc_node().
-Date: Fri, 8 Jul 2005 21:15:02 +0400
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, Victor Fusco <victor@cetuc.puc-rio.br>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Jul 2005 13:14:02 -0400
+Received: from ms004msg.fastwebnet.it ([213.140.2.58]:35734 "EHLO
+	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S262703AbVGHROA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 13:14:00 -0400
+Date: Fri, 8 Jul 2005 19:14:24 +0200
+From: Mattia Dongili <malattia@gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dtor@mail.ru>
+Subject: Re: Synaptics Touchpad not detected in 2.6.13-rc2
+Message-ID: <20050708171424.GC4191@inferi.kami.home>
+Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Dmitry Torokhov <dtor@mail.ru>
+References: <20050708125537.GA4191@inferi.kami.home> <20050708162908.715.qmail@web81301.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507082115.02904.adobriyan@gmail.com>
+In-Reply-To: <20050708162908.715.qmail@web81301.mail.yahoo.com>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.13-rc2-mm1-2 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One chunk was lost somewhere between my and Andrew's machine.
+On Fri, Jul 08, 2005 at 09:29:08AM -0700, Dmitry Torokhov wrote:
+> Mattia Dongili <malattia@gmail.com> wrote:
+[...]
+> I see several possible issues:
+> 
+> > PNP: No PS/2 controller found. Probing ports directly.
+> 
+> Does it show this line when touchpad is being detected? 
 
-Noticed by Victor Fusco.
+yes
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+> Do you have PNPACPI turned on?
 
- include/linux/slab.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+# CONFIG_PNPACPI is not set
 
---- linux-vanilla/include/linux/slab.h	2005-07-08 13:52:46.000000000 +0400
-+++ linux-slab/include/linux/slab.h	2005-07-08 21:02:47.000000000 +0400
-@@ -111,7 +111,7 @@ static inline void *kmem_cache_alloc_nod
- {
- 	return kmem_cache_alloc(cachep, flags);
- }
--static inline void *kmalloc_node(size_t size, int flags, int node)
-+static inline void *kmalloc_node(size_t size, unsigned int __nocast flags, int node)
- {
- 	return kmalloc(size, flags);
- }
+> > i8042.c: Detected active multiplexing controller, rev 5.3.
+> 
+> Revision 5.3 is suspicious. The last posted one is 1.1
+> Again, when touchpad is detected, does it show this or 1.{0|1}?
+
+nothing at all, no multiplexing controller and most important only 2
+ports
+
+PNP: No PS/2 controller found. Probing ports directly.
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+mice: PS/2 mouse device common for all mice
+
+> > serio: i8042 AUX0 port at 0x60,0x64 irq 12
+> > serio: i8042 AUX1 port at 0x60,0x64 irq 12
+> > serio: i8042 AUX2 port at 0x60,0x64 irq 12
+> > serio: i8042 AUX3 port at 0x60,0x64 irq 12
+> > serio: i8042 KBD port at 0x60,0x64 irq 1
+> > mice: PS/2 mouse device common for all mice
+> 
+> And now the real problem:
+> 
+> > drivers/input/serio/i8042.c: 91 -> i8042 (command) [220803]
+> > drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [220803]
+> > drivers/input/serio/i8042.c: fa <- i8042 (interrupt, KBD, 1) [220806]
+> 
+> We are trying to talk to AUX port but KBC replies as if data
+> is coming from the keyboard port.
+> 
+> Does it help if you boot with "usb-handoff" kernel option? Another
+> one would be "i8042.nomux". Btw, does your laptop have external
+> PS/2 ports?
+
+Well it's pretty hard to say currently I've only been able to trigger
+this problem only twice in at least 6 cold boots.
+Will try later anyway :)
+
+As said, I remember having this problem in the past, here's the thread:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108211185919825&w=2
+it seems we already talked about it!
+
+-- 
+mattia
+:wq!

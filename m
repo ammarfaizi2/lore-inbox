@@ -1,119 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbVGHOvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVGHPB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262681AbVGHOvU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 10:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbVGHOvU
+	id S261451AbVGHPB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 11:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbVGHPB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 10:51:20 -0400
-Received: from host-84-9-201-131.bulldogdsl.com ([84.9.201.131]:4484 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S262681AbVGHOvT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 10:51:19 -0400
-Date: Fri, 8 Jul 2005 15:50:59 +0100
-From: Ben Dooks <ben-linux@fluff.org>
-To: Andrew Victor <andrew@sanpeople.com>
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [RFC] Atmel-supplied hardware headers for AT91RM9200 SoC processor
-Message-ID: <20050708145059.GA16299@home.fluff.org>
-References: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
+	Fri, 8 Jul 2005 11:01:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4794 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261451AbVGHPB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 11:01:26 -0400
+Date: Fri, 8 Jul 2005 01:28:44 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Sizhao Yang <zaoyang@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ASPLOV miss ratio porting to planet labs kernel
+Message-ID: <20050708042843.GB5793@dmt.cnet>
+References: <f0655b9a0507071028209af86e@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <f0655b9a0507071028209af86e@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 11:58:39AM +0200, Andrew Victor wrote:
-> hi,
+On Thu, Jul 07, 2005 at 12:28:09PM -0500, Sizhao Yang wrote:
+> Hi all,
 > 
-> I am attempting to submit code for inclusion in the mainline kernel to
-> support the Atmel AT91RM9200 SoC processor, and the various boards that
-> use that processor.  Since it's based on an ARM9 core, I submitted the
-> patches to Russell King.
+> I was wondering if someone could help me with this.  I'm porting an
+> ASPLOV paper miss ratio curve from 2.4.20 2.6.11.6 and eventually to
+> Planet Labs kernel.  It's a novel idea for memory management.  In
+> porting I at run time I'm consistently hitting kernel bugs at four
+> different places bad_page, bad_range, in rmap.c
+> BUG(page_mapcount(page)< 0), and failing at apm_do_idle.  All of these
+> functions except apm_do_idle seem to be new functions from 2.4.20 to
+> 2.6.11.6.  I'm pretty sure I'm forgetting to account for certain
+> things when modifying the pages, but I'm not sure where.
+
+Having the information which bad_page etc. dump out would definately help.
+
+I can't figure out what is going on with the data you provide, probably
+someone else can.
+
+> What I'm doing in the port is resetting protection bits so that when
+> it page faults.  It will calculate a miss ratio based on the number of
+> accessed bits and other information.  After I gather the information I
+> will reset the accessed bits.  Then based on previous miss ratios and
+> current miss ratio it will give out memory to different processes
+> based on that.  That's the general idea.  For more specifics:
 > 
-> While he seems generally happy with most of the code, he has doubts
-> about merging the Atmel-supplied headers and suggested I post this to
-> the linux-kernel list for a wider review.
-
-I'm with rmk, I do not like this use of structs. There are IO access
-functions defined for a number of reasons.
- 
-> While I agree that their usage of structs/coding-style is not the
-> cleanest/Linux way of doing things, re-using their headers is useful
-> since:
-> 1) they are supplied by the hardware manufacturer.
-> 2) Atmel automatically generates them from their chip design database,
-> so they should be correct.
-
-Yes, but how do you know GCC is actually correctly compiling this?
-
-> 3) they are used by most AT91RM9200 developers, not just those using
-> Linux.
-
-I feel this argument is a dangerous, as it ends up with `well, we
-did it that way in XXX, so why can't we do it in linux`? This'll
-end up with bad quality code and implementations simply due to the
-fact they exist. (IE, it was good enough for Microsoft, Linux should do
-it the same way)
-
-> This gives the benefit that there is a larger 'installed base', and
-> Atmel has to take the responsibility that it is correct.  I don't
-> believe that Atmel will change the format of their hardware headers
-> specifically for Linux.
-
-Yes, so converting them to a different format is a _once only_ issue.
-
-> If the AT91RM9200+Linux community had to convert all the headers, bugs
-> may be introduced in the conversion process and we would have to assume
-> any maintenance responsibility.  What we have now may be slightly ugly,
-> but it is atleast known to be correct.
-
-And this is different from bugs in the way that structs are layed out
-by the compiler, or code re-ordering? It is know to be correct for
-at least the versions of GCC that you have tried it with.
-
-The arguments that structs are compiler efficient are also dying with
-newer GCCs getting better at factoring constants into registers.
-
-> As suggested by Russell King, I even added a warning message that these
-> headers should not be used as an example of how things should be done in
-> new implementations.
+> http://carmen.cs.uiuc.edu/paper/ASPLOS04-Zhou.pdf
 > 
+> I've narrowed it down to primarily when I call the following functions:
+> ptep_test_and_clear_young,
+> static inline pte_t pte_mknominor(pte_t pte) { (pte).pte_low &=
+> ~_PAGE_PROTNONE; return pte; }
+> static inline pte_t pte_mkminor(pte_t pte) { (pte).pte_low |=
+> _PAGE_PROTNONE; return pte; }
+> static inline pte_t pte_mkpresent(pte_t pte) { (pte).pte_low |=
+> _PAGE_PRESENT; return pte; }
+> static inline pte_t pte_mkabsent(pte_t pte) { (pte).pte_low &=
+> ~_PAGE_PRESENT; return pte; }
 > 
-> I've appended two of their headers as an example - the System
-> peripherals (timer, interrupt controller, etc) and Ethernet.
-> 
-> Comments?
-> 
-> 
-> For those who might be interested, the full AT91RM9200 patches are
-> available from http://maxim.org.za/AT91RM9200/2.6/
-> 
-> Regards,
->   Andrew Victor
+> When I don't have those functions in my code the kernel doesn't crash,
+> but when I do they crash.  So, my question is am I to page accounting
+> aspects? I looked at rmap functions for incrementing the _mapcount but
+> they seem to be only for when a pte is copied.  Should I be
+> incrementing the pagecount at any point?
 
+Nope - that should be internal to rmap.c (you shouldnt touch mapcount directly). 
+But you dont seem to be doing that anyway. 
 
-> --- linux-2.6.13-rc2.orig/include/asm-arm/arch-at91rm9200/AT91RM9200_EMAC.h	Thu Jan  1 02:00:00 1970
-> +++ linux-2.6.13-rc2/include/asm-arm/arch-at91rm9200/AT91RM9200_EMAC.h	Thu Jul  7 09:41:13 2005
+> rmap.c
+> BUG(page_mapcount(page)< 0) is invoked when the accessed bits are
+> cleared in zap_pte, but I don't know how the page is being corrupted. 
 
-[snip]
-
-> +typedef struct _AT91S_EMAC {
-> +	AT91_REG	 EMAC_CTL; 	// Network Control Register
-> +	AT91_REG	 EMAC_CFG; 	// Network Configuration Register
-> +	AT91_REG	 EMAC_SR; 	// Network Status Register
-> +	AT91_REG	 EMAC_TAR; 	// Transmit Address Register
-> +	AT91_REG	 EMAC_TCR; 	// Transmit Control Register
-> +	AT91_REG	 EMAC_TSR; 	// Transmit Status Register
-> +	AT91_REG	 EMAC_RBQP; 	// Receive Buffer Queue Pointer
-> +	AT91_REG	 Reserved0[1]; 	//
-
-pretty difficult to verify these are actually being assigned the
-correct address?
-
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+Why dont you post the code (in case its GPL)...

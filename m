@@ -1,133 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbVGHV4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbVGHVxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262882AbVGHV4M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 17:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbVGHVxq
+	id S262826AbVGHVxl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 17:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbVGHVvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 17:53:46 -0400
-Received: from smtpauth06.mail.atl.earthlink.net ([209.86.89.66]:28908 "EHLO
-	smtpauth06.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S262902AbVGHVvd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 17:51:33 -0400
-From: Sheo Shanker Prasad <ssp@creativeresearch.org>
-Organization: Creative Research Enterprises
-To: Philippe Troin <phil@fifi.org>
-Subject: Re: Disturbing wide variation in execution time
-Date: Fri, 8 Jul 2005 14:51:27 -0700
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <200507062344.53615.ssp@creativeresearch.org> <87oe9eo3n5.fsf@ceramic.fifi.org>
-In-Reply-To: <87oe9eo3n5.fsf@ceramic.fifi.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 8 Jul 2005 17:51:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53171 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262580AbVGHVtG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 17:49:06 -0400
+Date: Fri, 8 Jul 2005 14:50:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: nboyle@tampabay.rr.com
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: [BUG] Oops: EIP is at sysfs_release+0x34/0x80
+Message-Id: <20050708145001.34b9f8f2.akpm@osdl.org>
+In-Reply-To: <42CEB851.1000004@tampabay.rr.com>
+References: <42CEB851.1000004@tampabay.rr.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507081451.27563.ssp@creativeresearch.org>
-X-ELNK-Trace: c9e54813b5d7ed8a1e28108c03118538416dc04816f3191cb436338f62802c0ae0c529f19e8309e4718ea40762408fdc350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 24.4.45.120
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday July 7 2005 11:46 am, Philippe Troin wrote:
-> Sheo Shanker Prasad <ssp@creativeresearch.org> writes:
-> > I will appreciate your help in eliminating a disturbing wide
-> > variation (by a factors of 2 to 2.5) in the execution time of a test
-> > (execution benchmark) program under identical conditions even when
-> > the machine is freshly started (rebooted) and no other user program
-> > is running (not even e-mail or Internet browser).
-> >
-> > I have a dual Opteron 250 (2.4 GHz) running SuSE 9.3 Pro & Linux
-> > version 2.6.11.4-21.7-smp (geeko@buildhost) (gcc version 3.3.5
-> > 20050117 (prerelease) (SUSE Linux)) #1 SMP Thu Jun 2 14:23:14 UTC
-> > 2005. The motherboard is Tyan Thunder K8W (S2885 ANRF) with AMI BIOS
-> >
-> > The machine has 4GB of PC3200 DDR RAM, two dimms on each CPU.
-> >
-> > The original machine bought from a vendor about 6 months ago. At
-> > that time it was running SuSE 9.1 Pro and the execution time for the
-> > same test program was consistently the same (around 2m 37s +/- a few
-> > %). Then the mother board failed and the machine went totally
-> > dead. The vendor then replaced the failed motherboard with a new
-> > Tyan Thunder K8W and installed the SuSE 9.3. I am not sure whether
-> > or not the AMI BIOS was also replaced.
-> >
-> > When the repaired machine was started, I began to notice the
-> > disturbing wide variation and the frequect significant slow down of
-> > the machine as exhibited by the factor of 2 to 2.5 increased
-> > execution time of the test program as described above.  Sometimes it
-> > would be quite fast (executing at the original 2m 40s) and sometime
-> > a factor of 2.5 slow, and sometimes with speed in between.
+Nathan Boyle <nboyle@tampabay.rr.com> wrote:
 >
-> 8< snip >8
+> EIP is at sysfs_release+0x34/0x80
+> eax: 00000001   ebx: dc7c2000   ecx: d1979860   edx: 00000001
+> esi: 762f7373   edi: d5ba26a0   ebp: d9368544   esp: dc7c3f80
+> ds: 007b   es: 007b   ss: 0068
+> Process udev (pid: 31802, threadinfo=dc7c2000 task=c7c19040)
+> Stack: df468c40 df798140 dffe4140 c0153c08 d5a9edbc df468c40 df798140
+> 00000000
+>         dc7c2000 c01523d3 00000000 00000003 080ac568 00000003 c0103101
+> 00000003
+>         080ac568 00000004 080ac568 00000003 08057198 00000006 0000007b
+> 0000007b
+> Call Trace:
+>   [<c0153c08>] __fput+0xf8/0x110
+>   [<c01523d3>] filp_close+0x43/0x70
+>   [<c0103101>] syscall_call+0x7/0xb
+> Code: 8b 41 0c 8b 40 48 8b 58 14 8b 41 48 8b 40 14 85 db 8b 70 04 74 07
+> 89 d8 e8 9a 11 02 00 85 f6 74 1f bb 00 e0 ff ff 21 e3 ff 43 14 <ff> 8e
+> 00 01 00 00 83 3e 02 74 32 8b 43 08 ff 4b 14 a8 08 75 21
+>   <6>note: udev[31802] exited with preempt_count 1
 
-Thanks very much for your taking time to think about my problem. Here are 
-answers to your questions.
->
->  1. Are you running an i386 kernel or an x86_64 kernel?
+Gee we get a lot of these, and no idea which sysfs file caused it.
 
-I think, I am running a x86_64 kernel.  I think so, because I had asked the 
-vendor of the machine to install x86_64 and because the file
+How about we record the most-recently-opened sysfs file and display that at
+oops time?  (-mm only)
 
-System.map-2.6.11.4-21.7-smp 
-
-in the /boot directory has an entry: ffffffff804f0000 T x86_64_start_kernel
-
-and that directory also contains the gzipped file:
-
- symvers-2.6.11.4-21.7-x86_64-smp.gz
-
-The operating system is Linux version 2.6.11.4-21.7-smp (geeko@buildhost)  
-(gcc version 3.3.5 20050117 (prerelease) (SUSE Linux)) #1 SMP Thu Jun 2 
-14:23:14 UTC 2005
->
->  2. Which BIOS version?
-
-The BIOS is AMIBIOS version is 08.00.10 with the build date of 02/11/05 
-09:44:04 and has the ID:  0AAAA001.
-
->
->  3. Is node interleaving enabled in the BIOS?
-
-When I go through the BIOS setup, I do not see any choice for the node 
-interleaving ON or OFF. However, I think that the two CPUs (as node0 and 
-node1) are made NUMA aware by default, but I could be quite wrong. 
-
-Out of ignorance, therefore,  the following are the contents of 
-
- /sys/devices/system/node/node0/numastat &
-
-numa_hit 3620274
-numa_miss 0
-numa_foreign 0
-interleave_hit 21903
-local_node 3610298agravaited
-other_node 9976
-
-Similarly, following are the  the contents of
-
-  /sys/devices/system/node/node1/numastat
-
-numa_hit 3089426
-numa_miss 0
-numa_foreign 0
-interleave_hit 38355
-local_node 3072605
-other_node 16821
-
->
-> Phil.
-
- Thanks again, Phil, and I hope to hear from you soon.
--- 
-Best regards.
-
-Sheo
-(Sheo S. Prasad)
-Creative Research Enterprises
-6354 Camino del Lago
-Pleasanton, CA 94566, USA
-Voice Phone: (+1) 925 426-9341
-Fax   Phone: (+1) 925 426-9417
-e-mail: ssp@CreativeResearch.org
+--- 25/fs/sysfs/file.c~sysfs-crash-debugging	Fri Jul  8 14:33:11 2005
++++ 25-akpm/fs/sysfs/file.c	Fri Jul  8 14:47:38 2005
+@@ -6,6 +6,8 @@
+ #include <linux/dnotify.h>
+ #include <linux/kobject.h>
+ #include <linux/namei.h>
++#include <linux/limits.h>
++
+ #include <asm/uaccess.h>
+ #include <asm/semaphore.h>
+ 
+@@ -324,8 +326,13 @@ static int check_perm(struct inode * ino
+ 	return error;
+ }
+ 
++char last_sysfs_file[PATH_MAX];
++
+ static int sysfs_open_file(struct inode * inode, struct file * filp)
+ {
++	d_path(filp->f_dentry, sysfs_mount, last_sysfs_file,
++			sizeof(last_sysfs_file));
++
+ 	return check_perm(inode,filp);
+ }
+ 
+diff -puN arch/i386/kernel/traps.c~sysfs-crash-debugging arch/i386/kernel/traps.c
+--- 25/arch/i386/kernel/traps.c~sysfs-crash-debugging	Fri Jul  8 14:36:15 2005
++++ 25-akpm/arch/i386/kernel/traps.c	Fri Jul  8 14:37:01 2005
+@@ -337,6 +337,12 @@ void die(const char * str, struct pt_reg
+ #endif
+ 		if (nl)
+ 			printk("\n");
++		{
++			extern char last_sysfs_name[];
++
++			printk(KERN_ALERT "last sysfs file: %s\n",
++					last_sysfs_name);
++		}
+ 	notify_die(DIE_OOPS, (char *)str, regs, err, 255, SIGSEGV);
+ 		show_registers(regs);
+   	} else
+_
 

@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262808AbVGHTin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbVGHTin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262808AbVGHTin (ORCPT <rfc822;willy@w.ods.org>);
+	id S262810AbVGHTin (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Jul 2005 15:38:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVGHTgH
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVGHTgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 15:36:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22445 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262785AbVGHTdZ (ORCPT
+	Fri, 8 Jul 2005 15:36:00 -0400
+Received: from mail.kroah.org ([69.55.234.183]:45227 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262811AbVGHTeC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 15:33:25 -0400
-Date: Fri, 8 Jul 2005 20:32:04 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>,
-       "goggin, edward" <egoggin@emc.com>
-Subject: [PATCH] device-mapper multipath: Flush workqueue when destroying
-Message-ID: <20050708193204.GE12355@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Lars Marowsky-Bree <lmb@suse.de>,
-	"goggin, edward" <egoggin@emc.com>
+	Fri, 8 Jul 2005 15:34:02 -0400
+Date: Fri, 8 Jul 2005 12:33:57 -0700
+From: Greg KH <greg@kroah.com>
+To: Abhay Salunke <Abhay_Salunke@dell.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 2.6.12-rc3] modified firmware_class.c to add a new function request_firmware_nowait_nohotplug
+Message-ID: <20050708193357.GC2228@kroah.com>
+References: <20050709001657.GA29556@abhays.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050709001657.GA29556@abhays.us.dell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The multipath destructor must flush its workqueue.
-Otherwise items that reference the destroyed object could remain.
+Wrong Subject:  :(
 
-From: "goggin, edward" <egoggin@emc.com>
-Signed-off-by: Lars Marowsky-Bree <lmb@suse.de>
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+> +struct platform_device *rbu_device;
+> +int context;
 
---- diff/drivers/md/dm-mpath.c	2005-07-08 19:01:41.000000000 +0100
-+++ source/drivers/md/dm-mpath.c	2005-07-08 19:11:11.000000000 +0100
-@@ -752,6 +752,8 @@
- static void multipath_dtr(struct dm_target *ti)
- {
- 	struct multipath *m = (struct multipath *) ti->private;
-+
-+	flush_workqueue(kmultipathd);
- 	free_multipath(m);
- }
- 
+These should not be global variables.
+
+You also have some functions that are global, please fix them.
+
+thanks,
+
+greg k-h

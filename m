@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbVGHRTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262718AbVGHR27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbVGHRTR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 13:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVGHRTQ
+	id S262718AbVGHR27 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 13:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbVGHR27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 13:19:16 -0400
-Received: from smtp2.brturbo.com.br ([200.199.201.158]:13469 "EHLO
-	smtp2.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S262721AbVGHRTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 13:19:15 -0400
-Message-ID: <42CEB58E.5030401@brturbo.com.br>
-Date: Fri, 08 Jul 2005 14:19:10 -0300
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: pt-br, pt, es, en-us, en
+	Fri, 8 Jul 2005 13:28:59 -0400
+Received: from alog0552.analogic.com ([208.224.223.89]:35808 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262718AbVGHR26
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 13:28:58 -0400
+Date: Fri, 8 Jul 2005 13:27:33 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Adnan Khaleel <Adnan.Khaleel@newisys.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Instruction Tracing for Linux
+In-Reply-To: <DC392CA07E5A5746837A411B4CA2B713010D7790@sekhmet.ad.newisys.com>
+Message-ID: <Pine.LNX.4.61.0507081318480.16726@chaos.analogic.com>
+References: <DC392CA07E5A5746837A411B4CA2B713010D7790@sekhmet.ad.newisys.com>
 MIME-Version: 1.0
-To: 7eggert@gmx.de
-CC: Jeremy Laine <jeremy.laine@polytechnique.org>,
-       linux-kernel@vger.kernel.org,
-       "v4l >> Linux and Kernel Video" <video4linux-list@redhat.com>
-Subject: Re: OOPS: frequent crashes with bttv in 2.6.X series (inc. 2.6.12)
-References: <4nrlt-8po-15@gated-at.bofh.it> <4nrlt-8po-13@gated-at.bofh.it> <E1DqYg4-0001fC-VN@be1.7eggert.dyndns.org>
-In-Reply-To: <E1DqYg4-0001fC-VN@be1.7eggert.dyndns.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert wrote:
-> Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
-> 
-> 
->>Now I've upgraded to X.org 6.8.2 and done a first stress-test (copying
->>large files from network to local HDD), and I still can post.
-> 
-> 
-> It occured again. So it wasn't that easy.
 
-Bodo/Jeremy/Castet,
+Please read:
+http://www.adapti.com/instruction-trace.html
 
-	It looks to be an old reported trouble with bttv cards.
-
-	There is a doc at kernel that treats this subject. It is at:
-		Documentation/video4linux/bttv/README.freeze
+It's part of an advertisement, but will tell you the problems
+you will have with a "software solution". Basically, software
+can't do it. Also, even hardware won't give you the real
+picture because there is too much going on inside the CPUs
+that you can't see. However a hardware/software solution
+can produce some useful information but it's not very accurate.
 
 
-	Overlay works by transfering data from BTTV card directelly to Video Card.
+On Fri, 8 Jul 2005, Adnan Khaleel wrote:
 
-	This looks to be problem related to DMA troubles on some motherboards.
-Some chipsets (via being most prominent) have problems with DMA
-transfers between two PCI cards (or PCI to AGP) that affects overlay. It
-may also be related with multiple devices using DMA at the same time.
+> Hi there,
+>
+> I'm a hardware designer and I'm interested in collecting dynamic execution traces in Linux. I've looked at several trace toolkits available for Linux currently but none of them offer the level of detail that I need. Ideally I would like to be able to record the instructions being executed on an SMP system along with markers for system or user space in addition to process id. I need these traces in order to evaluate the data sharing, coherence traffic etc in larger SMP systems. I've tried several other approaches to collecting execution traces namely via machine emulators etc but so far I've been dogged with the problem of trying to get any OS up and running stably on a multiprocessor configuration.
+>
+> Is there a Linux kernel patch that will let me do this? I have considered using User Mode Linux but I'm not sure if this is the correct approach either - if any of you think that this is the easier path, I'd be interested in exploring this more. Other things that have crossed my mind is to use a gdb or the kernel debugger interface in order to collect the instructions but I'm not sure if this would be the correct path. Also I do require the tool/patch to be  stable enough so that I can run commercial benchmarks on it reliably.
+>
+> I understand that recording every executed instruction can considerably slow down the application and may be considerably different from the freely running application but nevertheless I think that some trace is better than no trace and this is where I am at the moment.
+>
+> If any of you have had experiences in profiling the kernel etc by collecting actual kernel instructions executed, I'd be interested in seeing if that may be extended for my purpose.
+>
+> Thanks
+>
+> Adnan
+>
+> PS: I'm not subscribed to this mailing list so I'd appreciated if you would cc me on the responses.
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-	Castet did mention, on this thread, that this is causing also disk
-corruption on his machine, with is an inication that this is the case.
-
-	Anyway, it doesn't seem to be a V4L specific issue.
-
-Mauro.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

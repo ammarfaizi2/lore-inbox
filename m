@@ -1,110 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262934AbVGHW27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262912AbVGHW27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262934AbVGHW27 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262912AbVGHW27 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Jul 2005 18:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbVGHW0v
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbVGHW0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 18:26:51 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:4255 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262934AbVGHW0Q (ORCPT
+	Fri, 8 Jul 2005 18:26:45 -0400
+Received: from mail.kroah.org ([69.55.234.183]:49060 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262935AbVGHW0S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 18:26:16 -0400
-Message-ID: <42CEFD51.5030807@austin.ibm.com>
-Date: Fri, 08 Jul 2005 17:25:21 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, grant_lkml@dodo.com.au,
-       linux@rainbow-software.org, andre@tomt.net, a1426z@gawab.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patches] IDE update
-References: <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de> <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com> <Pine.LNX.4.58.0507051748540.3570@g5.osdl.org> <nljmc1h40t2bv316ufij10o2am5607hpse@4ax.com> <Pine.LNX.4.58.0507052209180.3570@g5.osdl.org> <20050708084817.GB7050@suse.de> <20050708092422.GC7050@suse.de> <20050708023430.6a903e55.akpm@osdl.org> <20050708095335.GD7050@suse.de>
-In-Reply-To: <20050708095335.GD7050@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Jul 2005 18:26:18 -0400
+Date: Fri, 8 Jul 2005 15:24:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Abhay_Salunke@Dell.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 2.6.12-rc3] modified firmware_class.c to add a new function request_firmware_nowait_nohotplug
+Message-ID: <20050708222438.GA22141@kroah.com>
+References: <B37DF8F3777DDC4285FA831D366EB9E20730C7@ausx3mps302.aus.amer.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B37DF8F3777DDC4285FA831D366EB9E20730C7@ausx3mps302.aus.amer.dell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Fri, Jul 08, 2005 at 02:54:07PM -0500, Abhay_Salunke@Dell.com wrote:
+> > Also, why not just add the hotplug flag to the firmware structure?
+> That
+> request_firmware kmalloc's the firmware structure and frees it when
+> returned. The only way to indicate request_firmware to skip hotplug was
+> by passing a hotplug flag on the stack. 
 
->On Fri, Jul 08 2005, Andrew Morton wrote:
->  
->
->>Jens Axboe <axboe@suse.de> wrote:
->>    
->>
->>>Some more investigation - it appears to be broken read-ahead, actually.
->>> hdparm does repeated read(), lseek() loops which causes the read-ahead
->>> logic to mark the file as being in cache (since it reads the same chunk
->>> every time). Killing the INCACHE check (attached) makes it work fine for
->>> me, Grant can you test if it "fixes" it for you as well?
->>>
->>> No ideas how to fix the read-ahead logic right now, I pondered some
->>> depedency on sequential but I don't see how it can work correctly for
->>> other cases. Perhaps handle_ra_miss() just isn't being called
->>> appropriately everywhere?
->>>
->>> --- mm/readahead.c~	2005-07-08 11:16:14.000000000 +0200
->>> +++ mm/readahead.c	2005-07-08 11:17:49.000000000 +0200
->>> @@ -351,7 +351,9 @@
->>>  		ra->cache_hit += nr_to_read;
->>>  		if (ra->cache_hit >= VM_MAX_CACHE_HIT) {
->>>  			ra_off(ra);
->>> +#if 0
->>>  			ra->flags |= RA_FLAG_INCACHE;
->>> +#endif
->>>  			return 0;
->>>  		}
->>>  	} else {
->>>      
->>>
->>Interesting.  We should be turning that back off in handle_ra_miss() as
->>soon as hdparm seeks away.  I'd be suspecting that we're not correctly
->>undoing the resutls of ra_off() within handle_ra_miss(), except you didn't
->>comment that bit out.
->>
->>Or the readahead code is working as intended, and hdparm is doing something
->>really weird which trips it up.
->>
->>hdparm should also be misbehaving when run against a regular file, but it
->>looks like hdparm would need some alterations to test that.
->>    
->>
->
->Just use the test app I posted, it shows the problem just fine. If I use
->a regular file, behaviour is identical as expected (ie equally broken
->:-).
->
->bart:/data1 # ./read_disk ./test 1
->Mem Throughput: 101 MiB/sec
->Mem Throughput: 103 MiB/sec
->Disk Throughput: 22 MiB/sec
->
->bart:/data1 # ./read_disk ./test
->Disk Throughput: 29 MiB/sec
->  
->
+Ok, how about changing the function to pass in a flag saying what it
+wants (wait/nowait, hotplug/nohotplug) and fix up all callers of it?
 
-I don't see how this is broken.  The INCACHE flag should be cleared on 
-the first miss.  We will start up I/O slightly slower in this case since 
-it is not 1st IO, but within about 5 or 6 reads we should be back to 
-normal max_readahead behavior.  This is what I see on my old laptop.
+> > way you don't have to add another function just to add another flag.
+> > And you could probably get rid of the nowait version in the same way.
+> Also thought of leaving request_firmware_nowait intact didn't want to
+> break others using this function.
 
+Did you find any other in-kernel use of request_firmware_nowait?  I
+don't see any :)
 
-patches:/home/slpratt # ./readdisk /dev/hda
-Disk Throughput: 16 MiB/sec
-patches:/home/slpratt # ./readdisk /dev/hda 1
-Mem Throughput: 145 MiB/sec
-Mem Throughput: 153 MiB/sec
-Disk Throughput: 16 MiB/sec
+thanks,
 
-
-Can you post iostat -x output from your runs.  Are we doing the right 
-sized IO?
-
-Steve
-
-
-
+greg k-h

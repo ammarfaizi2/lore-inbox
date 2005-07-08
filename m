@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVGHLiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbVGHLkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbVGHLiS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 07:38:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbVGHLiS
+	id S262573AbVGHLkP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 07:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbVGHLkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 07:38:18 -0400
-Received: from oldconomy.demon.nl ([212.238.217.56]:18883 "EHLO
-	artemis.slagter.name") by vger.kernel.org with ESMTP
-	id S262552AbVGHLiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 07:38:13 -0400
-Subject: Re: [git patches] IDE update
-From: Erik Slagter <erik@slagter.name>
-To: Grant Coady <grant_lkml@dodo.com.au>
-Cc: Mark Lord <liml@rtr.ca>, Jens Axboe <axboe@suse.de>,
-       Ondrej Zary <linux@rainbow-software.org>,
-       =?ISO-8859-1?Q?Andr=E9?= Tomt <andre@tomt.net>,
-       Al Boldi <a1426z@gawab.com>,
-       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <koerc1h7m0iri2pdrvsa0pu2tjakobq78o@4ax.com>
-References: <42C9C56D.7040701@tomt.net>
-	 <42CA5A84.1060005@rainbow-software.org> <20050705101414.GB18504@suse.de>
-	 <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de>
-	 <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux>
-	 <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux>
-	 <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de>
-	 <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com> <42CDAD94.7000306@rtr.ca>
-	 <koerc1h7m0iri2pdrvsa0pu2tjakobq78o@4ax.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4txJhgJWWR6AwRZDpPBm"
-Date: Fri, 08 Jul 2005 13:37:42 +0200
-Message-Id: <1120822662.23681.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-8) 
+	Fri, 8 Jul 2005 07:40:15 -0400
+Received: from alog0367.analogic.com ([208.224.222.143]:57003 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262573AbVGHLkM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 07:40:12 -0400
+Date: Fri, 8 Jul 2005 07:34:10 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Denis Vlasenko <vda@ilport.com.ua>
+cc: Michael Tokarev <mjt@tls.msk.ru>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sent an invalid ICMP type 11, code 0 error to a broadcast:
+ 0.0.0.0 on lo?
+In-Reply-To: <200507081418.01686.vda@ilport.com.ua>
+Message-ID: <Pine.LNX.4.61.0507080726450.15557@chaos.analogic.com>
+References: <42CBCEDD.2020401@tls.msk.ru> <Pine.LNX.4.61.0507070801080.9558@chaos.analogic.com>
+ <42CD289B.5080403@tls.msk.ru> <200507081418.01686.vda@ilport.com.ua>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Jul 2005, Denis Vlasenko wrote:
 
---=-4txJhgJWWR6AwRZDpPBm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>> The problem is, I can't see what is causing this misconfiguration
+>> or whatever.  I wasn't able to capture such a packet so far either --
+>> it never happened while tcpdump was running.
+>
+> You may try to add printk("bad boy is: %s\n", current()->comm)),
+> or dump_stack(), or something like that in icmp path of IP stack.
+> (I am currently tracking an intermittent network problem
+> on my home box in similar way).
+>
+>>  Note the local IP address mentioned is different, I've
+>> seen 3 so far, all 3 are local on this box and are on 3
+>> different (ethernet) interfaces (but the ICMP always comes
+>> from lo).
+>
+> BTW what tcpdump actually shows?
+> --
+> vda
+>
 
-On Fri, 2005-07-08 at 10:06 +1000, Grant Coady wrote:
+Please read line 1148 of /usr/src/linux-`uname -r`/net/ipv4/icmp.c.
+The error message is in response to a bogus frame. The NETMASK
+must match at both ends (a configuration error). If the mask matches,
+then you can turn off the messages with 'sysctl', i.e., ....
+`echo "1" >/proc/sys/net/icmp_ignore_bogus_error_responses`.
+Otherwise, find the interface netmask that's broken and fix it.
 
-> I've not been able to get dual channel I/O speed faster than single=20
-> interface speed, either as 'md' RAID0 or simultaneous reading or=20
-> writing done the other day:
->=20
-> Time to write or read 500MB file:
->=20
-> >summary		2.4.31-hf1	2.6.12.2
-> >boxen \ time ->	 w 	 r	 w	 r
-> >---------------	----	----	----	----
-> ...
-> >peetoo			33	20	26.5	22
-> >(simultaneuous		57	37.5	52	38.5)
->=20
-> MB/s		2.4.31-hf1	2.6.12.2
-> 		w	r	w	r
-> single		15	25	19	23
-> dual		17.5	27	19	26
->=20
-> These timings show very little happening in parallel, is that normal?
-
-"me too" ;-)
-
---=-4txJhgJWWR6AwRZDpPBm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCzmWGJgD/6j32wUYRAr8rAJ9190t/vD4C2LrnRiSGmSiX7nvxeACfSBFN
-cfHF0oTcpeJPobjfZ2H3Ktg=
-=BWwZ
------END PGP SIGNATURE-----
-
---=-4txJhgJWWR6AwRZDpPBm--
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

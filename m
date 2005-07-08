@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262879AbVGHUXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVGHUes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262879AbVGHUXD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 16:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVGHUBz
+	id S261420AbVGHUes (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 16:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbVGHUdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 16:01:55 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17156 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262848AbVGHUAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 16:00:10 -0400
-Date: Fri, 8 Jul 2005 22:00:07 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: art <art@usfltd.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: 2.6.13-rc2 compilation errors with linux1394.org rev.1296
-Message-ID: <20050708200007.GF3671@stusta.de>
-References: <200507081117.AA241041554@usfltd.com>
+	Fri, 8 Jul 2005 16:33:50 -0400
+Received: from ss1000.ms.mff.cuni.cz ([195.113.20.8]:64730 "EHLO
+	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262821AbVGHU2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 16:28:03 -0400
+Date: Fri, 8 Jul 2005 22:27:53 +0200
+From: Rudo Thomas <rudo@matfyz.cz>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+Subject: Re: 2.6.12-ck3
+Message-ID: <20050708202753.GA32317@ss1000.ms.mff.cuni.cz>
+Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	ck list <ck@vds.kolivas.org>
+References: <200506301241.00593.kernel@kolivas.org> <20050704091648.GA14759@ss1000.ms.mff.cuni.cz> <20050707213034.GA9306@ss1000.ms.mff.cuni.cz> <200507081352.55660.kernel@kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200507081117.AA241041554@usfltd.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200507081352.55660.kernel@kolivas.org>
+User-Agent: Mutt/1.5.7i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 08, 2005 at 11:17:31AM -0500, art wrote:
+> > > Time seems to pass very fast with this kernel.
+> >
+> > Am I the only one who gets this strange behaviour? Kernel's notion of
+> > time seems to be about 30 times faster than real time.
 > 
-> 2.6.13-rc2 compilation errors with linux1394.org rev.1
->...
+> Sorry I really have no idea. If you can retest with latest stable mainline 
+> that this kernel is based on (2.6.12.2) and reproduce the problem
 
+The following one-liner (from 2.6.12.2) seems to be the problem:
 
+diff -urN linux-2.6.12-ck2-rudo/drivers/acpi/pci_irq.c linux-2.6.12-ck-rudo/drivers/acpi/pci_irq.c
+--- linux-2.6.12-ck2-rudo/drivers/acpi/pci_irq.c        2005-07-08 10:16:53.000000000 +0200
++++ linux-2.6.12-ck-rudo/drivers/acpi/pci_irq.c 2005-07-03 21:06:10.000000000 +0200
+@@ -435,6 +435,7 @@
+                /* Interrupt Line values above 0xF are forbidden */
+                if (dev->irq >= 0 && (dev->irq <= 0xF)) {
+                        printk(" - using IRQ %d\n", dev->irq);
++                       acpi_register_gsi(dev->irq, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW);
+                        return_VALUE(0);
+                }
+                else {
 
-cu
-Adrian
+I will report this to the lkml shortly.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Rudo.

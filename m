@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262929AbVGHWbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262942AbVGHWdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262929AbVGHWbA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 18:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbVGHW3E
+	id S262942AbVGHWdR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 18:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVGHWbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 18:29:04 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:31203 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262925AbVGHW1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 18:27:35 -0400
-Subject: Re: 2.6.12.2 -- time passes faster; related to the
-	acpi_register_gsi() call
-From: Lee Revell <rlrevell@joe-job.com>
-To: Phil Oester <kernel@linuxace.com>
-Cc: Alexander Nyberg <alexn@telia.com>, Rudo Thomas <rudo@matfyz.cz>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050708220309.GA16413@linuxace.com>
-References: <20050708211203.GC382@ss1000.ms.mff.cuni.cz>
-	 <1120857908.25294.33.camel@localhost.localdomain>
-	 <20050708220309.GA16413@linuxace.com>
-Content-Type: text/plain
-Date: Fri, 08 Jul 2005 18:27:33 -0400
-Message-Id: <1120861653.6488.38.camel@mindpipe>
+	Fri, 8 Jul 2005 18:31:05 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:54417 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262925AbVGHW3d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 18:29:33 -0400
+Date: Sat, 9 Jul 2005 00:29:59 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Peter Osterlund <petero2@telia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix SERIO_RAW config help text
+Message-ID: <20050708222959.GA3963@ucw.cz>
+References: <m3ackxj6re.fsf@telia.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3ackxj6re.fsf@telia.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-08 at 15:03 -0700, Phil Oester wrote:
-> On Fri, Jul 08, 2005 at 11:25:08PM +0200, Alexander Nyberg wrote:
-> > fre 2005-07-08 klockan 23:12 +0200 skrev Rudo Thomas:
-> > > Hello, guys.
-> > > 
-> > > Time started to pass faster with 2.6.12.2 (actually, it was 2.6.12-ck3
-> > > which is based on it). I have isolated the cause of the problem:
-> > 
-> > I bet you this fixes it (already in mainline)
-> > 
-> > If ACPI doesn't find an irq listed, don't accept 0 as a valid PCI irq.
+On Sat, Jul 09, 2005 at 12:02:45AM +0200, Peter Osterlund wrote:
+> Hi,
 > 
-> FYI, this did fix the time-passing-faster problem for me on a poweredge 750
-> a few days ago.  I'd suggest this fix should go to -stable.
+> The help text for SERIO_RAW refers to the wrong sysfs device node.
+> This patch fixes it.
+> 
+> Signed-off-by: Peter Osterlund <petero2@telia.com>
+> ---
 
-I think it's already queued for -stable.
+This patch is already in my queue, from Neil Brown.
 
-Lee
+>  linux-petero/drivers/input/serio/Kconfig |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff -puN drivers/input/serio/Kconfig~serio-help-fix drivers/input/serio/Kconfig
+> --- linux/drivers/input/serio/Kconfig~serio-help-fix	2005-07-05 11:43:25.000000000 +0200
+> +++ linux-petero/drivers/input/serio/Kconfig	2005-07-05 11:43:25.000000000 +0200
+> @@ -175,7 +175,7 @@ config SERIO_RAW
+>  	  allocating minor 1 (that historically corresponds to /dev/psaux)
+>  	  first. To bind this driver to a serio port use sysfs interface:
+>  
+> -	      echo -n "serio_raw" > /sys/bus/serio/devices/serioX/driver
+> +	      echo -n "serio_raw" > /sys/bus/serio/devices/serioX/drvctl
+>  
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called serio_raw.
+> _
+> 
+> -- 
+> Peter Osterlund - petero2@telia.com
+> http://web.telia.com/~u89404340
+> 
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

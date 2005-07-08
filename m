@@ -1,51 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVGHVZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262858AbVGHV20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbVGHVZs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 17:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbVGHVXm
+	id S262858AbVGHV20 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 17:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262895AbVGHV0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 17:23:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1498 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261535AbVGHVUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 17:20:48 -0400
-Date: Fri, 8 Jul 2005 06:20:13 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Adnan Khaleel <Adnan.Khaleel@newisys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Instruction Tracing for Linux
-Message-ID: <20050708092013.GA13542@dmt.cnet>
-References: <DC392CA07E5A5746837A411B4CA2B713010D7790@sekhmet.ad.newisys.com.suse.lists.linux.kernel> <p738y0hp0zc.fsf@verdi.suse.de>
+	Fri, 8 Jul 2005 17:26:16 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:15060 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262874AbVGHVYU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 17:24:20 -0400
+Date: Fri, 8 Jul 2005 23:24:42 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Neil Darlow <neil@darlow.co.uk>
+Cc: vojtech@suze.cz, linux-kernel@vger.kernel.org,
+       linux-joystick@atrey.karlin.mff.cuni.cz
+Subject: Re: ns558 mis-detects gameport
+Message-ID: <20050708212442.GB3584@ucw.cz>
+References: <200507082136.47475.neil@darlow.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p738y0hp0zc.fsf@verdi.suse.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200507082136.47475.neil@darlow.co.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 08, 2005 at 09:11:03PM +0200, Andi Kleen wrote:
-> "Adnan Khaleel" <Adnan.Khaleel@newisys.com> writes:
+On Fri, Jul 08, 2005 at 09:36:47PM +0100, Neil Darlow wrote:
+> Hi All,
 > 
-> > Hi there,
-> > 
-> > I'm a hardware designer and I'm interested in collecting dynamic execution traces in Linux. I've looked at several trace toolkits available for Linux currently but none of them offer the level of detail that I need. Ideally I would like to be able to record the instructions being executed on an SMP system along with markers for system or user space in addition to process id. I need these traces in order to evaluate the data sharing, coherence traffic etc in larger SMP systems. I've tried several other approaches to collecting execution traces namely via machine emulators etc but so far I've been dogged with the problem of trying to get any OS up and running stably on a multiprocessor configuration.
-> > 
-> > Is there a Linux kernel patch that will let me do this? I have considered using User Mode Linux but I'm not sure if this is the correct approach either - if any of you think that this is the easier path, I'd be interested in exploring this more. Other things that have crossed my mind is to use a gdb or the kernel debugger interface in order to collect the instructions but I'm not sure if this would be the correct path. Also I do require the tool/patch to be  stable enough so that I can run commercial benchmarks on it reliably.
-> > 
-> > I understand that recording every executed instruction can considerably slow down the application and may be considerably different from the freely running application but nevertheless I think that some trace is better than no trace and this is where I am at the moment.
-> > 
-> > If any of you have had experiences in profiling the kernel etc by collecting actual kernel instructions executed, I'd be interested in seeing if that may be extended for my purpose.
+> I am passing on this information at the request of Daniel Drake (Gentoo kernel 
+> ebuild maintainer).
 > 
-> While some CPUs (like Intel P4) have ways to do such hardware
-> tracing I know of no free tool that uses it. There are some user
-> space tools to collect at user space, but they probably won't help you.
+> My hardware is an ASRock K7S41GX motherboard with Athlon XP2200+ CPU
+> running 2.6.12 on Gentoo GNU/Linux 2005.0. My gamepad is an Heroic HC 3100 
+> 2-axis, 4-button digital model with Turbo features.
 > 
-> Your best bet is likely some full system simulator with tracing
-> support like Simics, SimNow, bochs, qemu.  The first two might be able to 
-> run enterprise benchmarks.
+> The CVS version string of ns558.c is:
+> $Id: ns558.c,v 1.43 2002/01/24 19:23:21 vojtech Exp $
+> 
+> My motherboard features a generic PC/ISA gameport at BIOS-selectable
+> addresses of 0x200 or 0x208. I have built my kernel (using Gentoo's genkernel) 
+> to include the Joystick Interface, Generic PC/ISA Gameport and Analog 
+> Joystick support as modules which are loaded at boot by coldplug/hotplug 
+> logic.
+> 
+> If I manually modprobe ns558 (which loads gameport), analog and joydev after 
+> boot my gameport is detected. If I let coldplug/hotplug load the modules at 
+> boot then ns558 fails to detect my gameport.
+> 
+> If I unload, and then reload, ns558 using coldplug/hotplug at boot then ns558 
+> detects my gameport correctly. My module loading setup and dmesg output for a 
+> ns558 insert-remove-insert cycle are as follows:
+> 
+>   options analog map=gamepad
+>   above analog joydev
+>   pre-install analog modprobe -r ns558; modprobe ns558
+> 
+>   gameport: NS558 ISA Gameport is isa0200/gameport0, io 0x201, speed 806kHz
+>   pnp: Device 00:0a disabled.
+>   ns558: probe of 00:0a failed with error -16
+>   gameport: kgameportd exiting
+>   pnp: Device 00:0a activated.
+>   gameport: NS558 PnP Gameport is pnp00:0a/gameport0, io 0x200, speed 806kHz
+>   input: Analog 2-axis 4-button gamepad at pnp00:0a/gameport0 [TSC timer, 1786
+>     MHz clock, 1299 ns res]
+> 
+> At https://www.redhat.com/archives/fedora-list/2005-January/msg04967.html the 
+> same problem is reported for 2.6.10 on Fedora.
+> 
+> Is a fix or workaround, other than what I'm doing already, available for this 
+> problem?
+ 
+ns558 first probes for legacy ISA gameports, and then for PnP gameports.
+The problem, as you can see above is that in the first case it finds
+your gameport as a legacy one, and then proceeds to probe for PnP
+devices. That fails and causes the legacy gameport to be disabled by the
+PnP subsystem.
 
-Laplace is a modified version of Bochs for load/store instruction tracing 
-and more:
+On the second try, the gameport is disabled. The legacy probe doesn't
+find it, and the PnP probe succeeds, and enables it. It then works.
 
-http://www.cs.amherst.edu/~sfkaplan/research/laplace/ 
+In the current input GIT tree there is a patch to reverse the order of
+probing (PnP first) for exactly this reason. I expect 2.6.13 should have
+the fix.
+
+As a workaround, you can try disabling the gameport in BIOS. The legacy
+probe won't see it, and the PnP probe might enable it just fine.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

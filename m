@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVGHTlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262830AbVGHTnC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbVGHTlE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 15:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbVGHTi6
+	id S262830AbVGHTnC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 15:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVGHTld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 15:38:58 -0400
-Received: from falcon30.maxeymade.com ([24.173.215.190]:10942 "EHLO
-	falcon30.maxeymade.com") by vger.kernel.org with ESMTP
-	id S262813AbVGHTfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 15:35:41 -0400
-Message-Id: <200507081935.j68JZSqr003200@falcon30.maxeymade.com>
-X-Mailer: exmh version 2.7.2.1 01/17/2005 with nmh-1.1
-In-reply-to: <20050708191326.GA6503@elte.hu> 
+	Fri, 8 Jul 2005 15:41:33 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:15660 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262787AbVGHTjD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 15:39:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lqLXnCcoKRRI/EF2Ubd9RNwY76wQRolQWSUf+dP1erLFbI2b+icPF2fJGcF86UD2SlTFQMLeSVCbpWcgfFGgJnO594Oy8yetpQjzGzKsnSApbnZmSqD0W1EK2HLeHaKha1x73s5tDtPITPky2iM+nqE5E1sRAh9icP+bOfdz1Eg=
+Message-ID: <161717d505070812385dea6099@mail.gmail.com>
+Date: Fri, 8 Jul 2005 15:38:36 -0400
+From: Dave Neuer <mr.fred.smoothie@gmail.com>
+Reply-To: mr.fred.smoothie@pobox.com
 To: Ingo Molnar <mingo@elte.hu>
-cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Real-Time Preemption -RT-V0.7.51-17 - Keyboard Problems 
+Subject: Re: Real-Time Preemption -RT-V0.7.51-17 - Keyboard Problems
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050708191326.GA6503@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Jul 2005 14:35:28 -0500
-From: Doug Maxey <dwm@maxeymade.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42CEC7B0.7000108@cybsft.com> <20050708191326.GA6503@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/8/05, Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+> > Ingo,
+> >
+> > I have an issue with keys VERY SPORADICALLY repeating, SOMETIMES, when
+> > running the RT patches.
 
-On Fri, 08 Jul 2005 21:13:26 +0200, Ingo Molnar wrote:
->
->* K.R. Foley <kr@cybsft.com> wrote:
->
->> Ingo,
->> 
->> I have an issue with keys VERY SPORADICALLY repeating, SOMETIMES, when 
->> running the RT patches. The problem manifests itself as if the key 
->> were stuck but happens far too quickly for that to be the case. I 
->> realize that the statements above are far from scientific, but I can't 
->> seem to narrow it down further. 2.6.12 doesn't seem to have the 
->> problem at all, only when running the RT patches. It SEEMS to have 
->> gotten worse lately. I am attaching my config as well as the output 
->> from lspci.
->> 
->> Adjusting the delay in the keyboard repeat seems to help. Any ideas?
+<snip>
 
-Is the keyboard standard (PS2) or USB?  Did not see the detail.
+> > 2.6.12 doesn't seem to have the
+> > problem at all, only when running the RT patches. It SEEMS to have
+> > gotten worse lately.
 
->
->hm. Would be nice to somehow find a condition that triggers it. One 
->possibility is that something else is starving the keyboard handling 
->path. Right now it's handled via workqueues, which live in keventd. Do 
->things improve if you chrt keventd up to prio 99? Also i'd chrt the 
->keyboard IRQ thread up to prio 99 too.
->
->the other possibility is some IRQ handling bug - those are usually 
->specific to the IRQ controller, so try turning off (or on) the IO-APIC 
->[if the box has an IO-APIC], does that change anything?
+<snip>
 
-FWIW, I have seen this issue under USB, off and on since about 2.6.9.
-Never have dug into it, was always simpler to just unplug and re-plug
-the keyboard.  Of course, this predates RT.
+> > Adjusting the delay in the keyboard repeat seems to help. Any ideas?
+> 
+> hm. Would be nice to somehow find a condition that triggers it.
 
-++doug
+FWIW, I've had this problem from time to time on my Compaq Presario
+x1010us laptop (which also uses the ICH-4 chipset) with several kernel
+versions between 2.6.7 and 2.6.12, and I have _not_ been running the
+RT patches (though I plan to start soon).
 
+It seems to only happen when the laptop has been running for a while.
+Also, X has been running each time. When it occurs, the stuck key
+events follow the mouse focus from window to window, and in the few
+cases where I'm able to either switch out of X to a different VT or
+kill X, the keyboard is still "wedged" -- if I recall correctly,
+switching VTs results in no keyboard events reaching that VT (as if X
+is still consuming them). Can't remember what happens when I've
+successfully killed X.
+
+Again, happens uncommonly enough that I haven't put much effort into
+debugging it.
+
+Anyway, unless it's a similar but unlrelated bug, it's not _caused_ by RT.
+
+Dave

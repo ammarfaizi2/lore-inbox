@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262915AbVGHWUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbVGHWUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262915AbVGHWUA (ORCPT <rfc822;willy@w.ods.org>);
+	id S262790AbVGHWUA (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Jul 2005 18:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbVGHWSf
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbVGHWSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 18:18:35 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:6339 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S262915AbVGHWCw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 18:02:52 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Instruction Tracing for Linux
-Date: Fri, 8 Jul 2005 22:02:47 +0000 (UTC)
-Organization: Cistron
-Message-ID: <damt67$2a3$1@news.cistron.nl>
-References: <DC392CA07E5A5746837A411B4CA2B713010D7791@sekhmet.ad.newisys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1120860167 2371 194.109.0.112 (8 Jul 2005 22:02:47 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Fri, 8 Jul 2005 18:18:40 -0400
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:51628 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S262790AbVGHWCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 18:02:55 -0400
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix SERIO_RAW config help text
+From: Peter Osterlund <petero2@telia.com>
+Date: 09 Jul 2005 00:02:45 +0200
+Message-ID: <m3ackxj6re.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <DC392CA07E5A5746837A411B4CA2B713010D7791@sekhmet.ad.newisys.com>,
-Adnan Khaleel <Adnan.Khaleel@newisys.com> wrote:
->Thanks for your suggestions. I have been working with Simics, SimNow and
->Bochs. I've had mixed luck with all of them. Although Simics should be
->the most promising, I've really had
->an uphill struggle with it especially when it comes to x86-64. I've been
->playing around with Bochs and most likely will end up using that but it
->has its drawbacks as well. 
->
->Even if I can't trace the kernel, is there anything available for just
->the user space stuff?
+Hi,
 
-You might be able to get valgrind or cachegrind to do what you need..
+The help text for SERIO_RAW refers to the wrong sysfs device node.
+This patch fixes it.
 
-Mike.
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
+ linux-petero/drivers/input/serio/Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN drivers/input/serio/Kconfig~serio-help-fix drivers/input/serio/Kconfig
+--- linux/drivers/input/serio/Kconfig~serio-help-fix	2005-07-05 11:43:25.000000000 +0200
++++ linux-petero/drivers/input/serio/Kconfig	2005-07-05 11:43:25.000000000 +0200
+@@ -175,7 +175,7 @@ config SERIO_RAW
+ 	  allocating minor 1 (that historically corresponds to /dev/psaux)
+ 	  first. To bind this driver to a serio port use sysfs interface:
+ 
+-	      echo -n "serio_raw" > /sys/bus/serio/devices/serioX/driver
++	      echo -n "serio_raw" > /sys/bus/serio/devices/serioX/drvctl
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called serio_raw.
+_
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

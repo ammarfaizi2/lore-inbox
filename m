@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVGHEhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVGHEj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbVGHEhS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 00:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbVGHEhS
+	id S262599AbVGHEj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 00:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbVGHEj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 00:37:18 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:25425 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262598AbVGHEhQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 00:37:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gybXzRArGhffdrTk9I0+RKimjS1ZtoMAV466fcDC6uRTK4wdiqx1H+odYtg+CCx8+ejeIAbXfziqkeUOCNrIshYBrJP6KVD9kBZJj+AKdUEZYIc5LAiE4B7CKMS00vbiSXOiPAAHZSr9bmEWkl5YN2do8Lo079VbRNoxIWy/sB0=
-Message-ID: <ed5aea4305070721373480591d@mail.gmail.com>
-Date: Thu, 7 Jul 2005 21:37:15 -0700
-From: david mosberger <dmosberger@gmail.com>
-Reply-To: David.Mosberger@acm.org
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Subject: Re: [PATCH 2.6.13-rc1 07/10] IOCHK interface for I/O error handling/detecting
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
-       Linas Vepstas <linas@austin.ibm.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       long <tlnguyen@snoqualmie.dp.intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-In-Reply-To: <42CB6961.2060508@jp.fujitsu.com>
+	Fri, 8 Jul 2005 00:39:28 -0400
+Received: from mail.kroah.org ([69.55.234.183]:14265 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262599AbVGHEjY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 00:39:24 -0400
+Date: Thu, 7 Jul 2005 21:29:22 -0700
+From: Greg KH <greg@kroah.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: device_find broken in 2.6.11?
+Message-ID: <20050708042922.GA4603@kroah.com>
+References: <1120796213.12218.55.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <42CB63B2.6000505@jp.fujitsu.com> <42CB6961.2060508@jp.fujitsu.com>
+In-Reply-To: <1120796213.12218.55.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/5/05, Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com> wrote:
+On Fri, Jul 08, 2005 at 02:16:53PM +1000, Rusty Russell wrote:
+> Hi Greg,
+> 
+> 	I was getting oopses in kset_find_obj when calling device_find in
+> 2.6.11.12.  Noone else in the kernel uses device_find, but I couldnt'
+> see anything wrong with it (mind you, I can't understand the
+> kset_find_obj code to judge it).
+> 
+> 	Iterating manually using bus_for_each_dev works though.
+> 
+> Known problem?
 
->    - could anyone write same barrier for intel compiler?
->      Tony or David, could you help me?
+Yup, there's a reason no one uses it.  Use the version in 2.6.13-rc2, it
+actually works.
 
-I think it might be best to make ia64_mca_barrier() a proper
-subroutine written in assembly code.  Yes, that costs some time, but
-we're talking about wasting 1,000+ cycles just to consume the value
-read via readX(), so the call-overhead is actually overlapped and
-completely trivial.
+What are you wanting to use it for?
 
-  --david
+thanks,
+
+greg k-h

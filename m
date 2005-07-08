@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbVGHRms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVGHRsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbVGHRms (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 13:42:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbVGHRms
+	id S262731AbVGHRsW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 13:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVGHRsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 13:42:48 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:10193 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262730AbVGHRmr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 13:42:47 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Ingo Molnar <mingo@elte.hu>
+	Fri, 8 Jul 2005 13:48:22 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7403 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262731AbVGHRsV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 13:48:21 -0400
+Date: Fri, 8 Jul 2005 13:48:15 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
 Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Fri, 8 Jul 2005 18:42:53 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081047.07643.s0348365@sms.ed.ac.uk> <20050708114838.GA12272@elte.hu>
-In-Reply-To: <20050708114838.GA12272@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050708174815.GA4884@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081047.07643.s0348365@sms.ed.ac.uk> <20050708114838.GA12272@elte.hu> <200507081842.53089.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507081842.53089.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200507081842.53089.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 Jul 2005 12:48, Ingo Molnar wrote:
-> * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > Well, just to let others who have this problem know, it's clear that
-> > Ingo's rt-preempt patches increase stack pressure on systems (like
-> > mine) where stack is borderline under 4K by default.
->
-> btw., which gcc version are you using?
->
+On Fri, Jul 08, 2005 at 06:42:53PM +0100, Alistair John Strachan wrote:
+> > btw., which gcc version are you using?
+> 
+> Not the GCC version known to bloat stacks ;-)
+> 
+> 3.4.4, on both my machines. I'm not touching 4.x until 4.0.1 is released with 
+> the miscompiled-code fixes.
 
-Not the GCC version known to bloat stacks ;-)
+GCC 4.0.x bloats stacks less than 3.4.4.
+And, if you are looking for 4.0.1, it has been released yesterday.
 
-3.4.4, on both my machines. I'm not touching 4.x until 4.0.1 is released with 
-the miscompiled-code fixes.
-
-btw, sorry for the delay replying, busy day..
-
--- 
-Cheers,
-Alistair.
-
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+	Jakub

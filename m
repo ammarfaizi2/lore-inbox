@@ -1,43 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbVGHIEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVGHIKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbVGHIEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 04:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbVGHIEZ
+	id S262145AbVGHIKc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 04:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVGHIKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 04:04:25 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:30939 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261916AbVGHIEW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 04:04:22 -0400
-Date: Fri, 8 Jul 2005 10:03:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Weston <weston@sysex.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-12
-Message-ID: <20050708080359.GA32001@elte.hu>
-References: <200506301952.22022.annabellesgarden@yahoo.de> <20050630205029.GB1824@elte.hu> <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu> <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <20050703140432.GA19074@elte.hu> <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507061802570.20214@echo.lysdexia.org> <20050707104859.GD22422@elte.hu> <Pine.LNX.4.58.0507071257320.25321@echo.lysdexia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Jul 2005 04:10:32 -0400
+Received: from rfhs0023.fh-regensburg.de ([194.95.104.23]:21449 "HELO
+	rfhs0023.fh-regensburg.de") by vger.kernel.org with SMTP
+	id S262145AbVGHIK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 04:10:29 -0400
+From: Markus Boas <ryven@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: useful Bug 2.6.13-rc1-mm1
+Date: Fri, 8 Jul 2005 10:09:50 +0200
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0507071257320.25321@echo.lysdexia.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200507081009.50571.ryven@gmx.de>
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.0.3.2, Antispam-Data: 2005.7.8.0
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CD 0, __CT 0, __CTE 0, __CTYPE_CHARSET_QUOTED 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I found a for my useful bug in 2.6.13-rc1-mm1 but only on x86-64.
+With ifdown ifup eth0 I was able to reset the tx and rx bit-counter.
+How it is use in x86 enviroment?
 
-* William Weston <weston@sysex.net> wrote:
-
-> -51-12 is still exhibhiting the RT priority leakage, but isn't 
-> producing any BUG messages.
-
-could you check whether the priority leakage happens if you disable SMP?  
-(if you can reproduce it easily)
-
-	Ingo
+Thx
+	Ryven

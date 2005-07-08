@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbVGHJfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVGHJij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbVGHJfg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 05:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVGHJfg
+	id S262385AbVGHJij (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 05:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVGHJij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 05:35:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57821 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262391AbVGHJfd (ORCPT
+	Fri, 8 Jul 2005 05:38:39 -0400
+Received: from posti5.jyu.fi ([130.234.4.34]:20406 "EHLO posti5.jyu.fi")
+	by vger.kernel.org with ESMTP id S262385AbVGHJih (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 05:35:33 -0400
-Date: Fri, 8 Jul 2005 02:34:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: torvalds@osdl.org, grant_lkml@dodo.com.au, linux@rainbow-software.org,
-       andre@tomt.net, a1426z@gawab.com, linux-kernel@vger.kernel.org,
-       slpratt@austin.ibm.com
-Subject: Re: [git patches] IDE update
-Message-Id: <20050708023430.6a903e55.akpm@osdl.org>
-In-Reply-To: <20050708092422.GC7050@suse.de>
-References: <1120567900.12942.8.camel@linux>
-	<42CA84DB.2050506@rainbow-software.org>
-	<1120569095.12942.11.camel@linux>
-	<42CAAC7D.2050604@rainbow-software.org>
-	<20050705142122.GY1444@suse.de>
-	<6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com>
-	<Pine.LNX.4.58.0507051748540.3570@g5.osdl.org>
-	<nljmc1h40t2bv316ufij10o2am5607hpse@4ax.com>
-	<Pine.LNX.4.58.0507052209180.3570@g5.osdl.org>
-	<20050708084817.GB7050@suse.de>
-	<20050708092422.GC7050@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Jul 2005 05:38:37 -0400
+Date: Fri, 8 Jul 2005 12:38:28 +0300 (EEST)
+From: Tero Roponen <teanropo@cc.jyu.fi>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Jon Smirl <jonsmirl@gmail.com>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [SOLVED] Re: 2.6.13-rc2 hangs at boot
+In-Reply-To: <20050708131914.B8779@jurassic.park.msu.ru>
+Message-ID: <Pine.GSO.4.58.0507081237140.10315@tukki.cc.jyu.fi>
+References: <Pine.GSO.4.58.0507061638380.13297@tukki.cc.jyu.fi>
+ <9e47339105070618273dfb6ff8@mail.gmail.com> <20050707135928.A3314@jurassic.park.msu.ru>
+ <Pine.GSO.4.58.0507071324560.26776@tukki.cc.jyu.fi> <20050707163140.A4006@jurassic.park.msu.ru>
+ <Pine.GSO.4.58.0507071546560.29406@tukki.cc.jyu.fi> <20050707174158.A4318@jurassic.park.msu.ru>
+ <Pine.GSO.4.58.0507071709170.697@tukki.cc.jyu.fi> <20050708102852.B612@den.park.msu.ru>
+ <Pine.GSO.4.58.0507081057001.8935@tukki.cc.jyu.fi> <20050708131914.B8779@jurassic.park.msu.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Checked: by miltrassassin
+	at posti5.jyu.fi; Fri, 08 Jul 2005 12:38:31 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
+On Fri, 8 Jul 2005, Ivan Kokshaysky wrote:
+
+> On Fri, Jul 08, 2005 at 10:57:56AM +0300, Tero Roponen wrote:
+> > Thanks! Vanilla 2.6.13-rc2 with below patch applied
+> > works perfectly!
 >
-> Some more investigation - it appears to be broken read-ahead, actually.
->  hdparm does repeated read(), lseek() loops which causes the read-ahead
->  logic to mark the file as being in cache (since it reads the same chunk
->  every time). Killing the INCACHE check (attached) makes it work fine for
->  me, Grant can you test if it "fixes" it for you as well?
-> 
->  No ideas how to fix the read-ahead logic right now, I pondered some
->  depedency on sequential but I don't see how it can work correctly for
->  other cases. Perhaps handle_ra_miss() just isn't being called
->  appropriately everywhere?
-> 
->  --- mm/readahead.c~	2005-07-08 11:16:14.000000000 +0200
->  +++ mm/readahead.c	2005-07-08 11:17:49.000000000 +0200
->  @@ -351,7 +351,9 @@
->   		ra->cache_hit += nr_to_read;
->   		if (ra->cache_hit >= VM_MAX_CACHE_HIT) {
->   			ra_off(ra);
->  +#if 0
->   			ra->flags |= RA_FLAG_INCACHE;
->  +#endif
->   			return 0;
->   		}
->   	} else {
+> Thanks for testing. Though, bad news are that it's still unclear
+> why your machine doesn't like large cardbus windows and therefore
+> how to fix that correctly.
+>
 
-Interesting.  We should be turning that back off in handle_ra_miss() as
-soon as hdparm seeks away.  I'd be suspecting that we're not correctly
-undoing the resutls of ra_off() within handle_ra_miss(), except you didn't
-comment that bit out.
+> May I ask you to do couple of another tests with following variations
+> of the latest patch (this will help to determine whether it's IO or
+> MEM ranges to blame)?
+> 1.
+> #define CARDBUS_IO_SIZE		(256)
+> #define CARDBUS_MEM_SIZE	(32*1024*1024)
 
-Or the readahead code is working as intended, and hdparm is doing something
-really weird which trips it up.
+This works correctly.
 
-hdparm should also be misbehaving when run against a regular file, but it
-looks like hdparm would need some alterations to test that.
+
+
+>
+> 2.
+> #define CARDBUS_IO_SIZE		(4096)
+> #define CARDBUS_MEM_SIZE	(4*1024*1024)
+
+This hangs at boot.
+
+
+
+>
+> Ivan.
+>
+
+-
+Tero Roponen

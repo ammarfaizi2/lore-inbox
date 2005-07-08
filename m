@@ -1,104 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbVGHMg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbVGHMi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262591AbVGHMg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 08:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbVGHMg0
+	id S262641AbVGHMi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 08:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbVGHMiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 08:36:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42933 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262591AbVGHMgY (ORCPT
+	Fri, 8 Jul 2005 08:38:55 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:23051 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262641AbVGHMiR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 08:36:24 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1491.1120594224@warthog.cambridge.redhat.com> 
-References: <1491.1120594224@warthog.cambridge.redhat.com> 
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Provide better printk() support for SMP machines [try #2]
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
-Date: Fri, 08 Jul 2005 13:36:12 +0100
-Message-ID: <31737.1120826172@warthog.cambridge.redhat.com>
+	Fri, 8 Jul 2005 08:38:17 -0400
+Date: Fri, 8 Jul 2005 08:37:50 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: david-b@pacbell.net
+Cc: ink@jurassic.park.msu.ru, rmk+lkml@arm.linux.org.uk, matthew@wil.cx,
+       linux-pm@lists.osdl.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, grundler@parisc-linux.org
+Subject: Re: [linux-pm] [patch 2.6.13-rc2] pci: restore BAR values in pci_set_power_state for D3hot->D0
+Message-ID: <20050708123747.GA13445@tuxdriver.com>
+Mail-Followup-To: david-b@pacbell.net, ink@jurassic.park.msu.ru,
+	rmk+lkml@arm.linux.org.uk, matthew@wil.cx, linux-pm@lists.osdl.org,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	grundler@parisc-linux.org
+References: <20050701014056.GA13710@tuxdriver.com> <20050701022634.GA5629.1@tuxdriver.com> <20050702072954.GA14091@colo.lackof.org> <20050702090913.B1506@flint.arm.linux.org.uk> <20050705200555.GA4756@parcelfarce.linux.theplanet.co.uk> <20050705224620.B15292@flint.arm.linux.org.uk> <20050706033454.A706@den.park.msu.ru> <20050708005701.GA13384@tuxdriver.com> <20050708005934.GB13384@tuxdriver.com> <20050708034302.267AF85EC2@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050708034302.267AF85EC2@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 07, 2005 at 08:43:02PM -0700, david-b@pacbell.net wrote:
+> > Some PCI devices lose all configuration (including BARs) when
+> > transitioning from D3hot->D0.  This leaves such a device in an
 
-The attached patch prevents oopses interleaving with characters from other
-printks on other CPUs by only breaking the lock if the oops is happening on
-the machine holding the lock.
+> Hmm, I wonder if I missed something in previous email, but exactly
+> why isn't this the responsibility of the driver for that device?
 
-It might be better if the oops generator got the lock and then called an inner
-vprintk routine that assumed the caller holds the lock, thus making oops
-reports "atomic".
+It certainly could be handled that way.  Of course, that could
+mean replicating essentially identical code across dozens (or more)
+drivers.  Plus, many of those drivers might only need such changes for
+one variation of a device or for devices under a handful of BIOSen.
+Those drivers probably won't get fixed anytime soon unless some kernel
+hacker happens to stumble into such a situation.  In the meantime,
+those drivers fail to work when they "should" be working.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 ../printk-smp-2613rc2mm1-2.diff 
- kernel/printk.c |   15 +++++++++++++--
- 1 files changed, 13 insertions(+), 2 deletions(-)
+In my mind, this is a documented behaviour that should not be
+unexpected.  It is not some random quirk of some oddball device.
+A few simple steps taken when this situation is recognized can allow
+drivers to remain unaware of this detail of PCI PM.  That seems
+worthwhile to me.
 
-diff -uNrp linux-2.6.13-rc2-mm1/kernel/printk.c linux-2.6.13-rc2-mm1-cachefs/kernel/printk.c
---- linux-2.6.13-rc2-mm1/kernel/printk.c	2005-07-07 22:24:17.000000000 +0100
-+++ linux-2.6.13-rc2-mm1-cachefs/kernel/printk.c	2005-07-08 12:35:51.000000000 +0100
-@@ -514,6 +514,9 @@ asmlinkage int printk(const char *fmt, .
- 	return r;
- }
- 
-+/* cpu currently holding logbuf_lock */
-+static volatile unsigned int printk_cpu = UINT_MAX;
-+
- asmlinkage int vprintk(const char *fmt, va_list args)
- {
- 	unsigned long flags;
-@@ -522,11 +525,15 @@ asmlinkage int vprintk(const char *fmt, 
- 	static char printk_buf[1024];
- 	static int log_level_unknown = 1;
- 
--	if (unlikely(oops_in_progress))
-+	preempt_disable();
-+	if (unlikely(oops_in_progress) && printk_cpu == raw_smp_processor_id())
-+		/* If a crash is occurring during printk() on this CPU,
-+		 * make sure we can't deadlock */
- 		zap_locks();
- 
- 	/* This stops the holder of console_sem just where we want him */
- 	spin_lock_irqsave(&logbuf_lock, flags);
-+	printk_cpu = raw_smp_processor_id();
- 
- 	/* Emit the output into the temporary buffer */
- 	printed_len = vscnprintf(printk_buf, sizeof(printk_buf), fmt, args);
-@@ -588,13 +595,14 @@ asmlinkage int vprintk(const char *fmt, 
- 			log_level_unknown = 1;
- 	}
- 
--	if (!cpu_online(smp_processor_id())) {
-+	if (!cpu_online(raw_smp_processor_id())) {
- 		/*
- 		 * Some console drivers may assume that per-cpu resources have
- 		 * been allocated.  So don't allow them to be called by this
- 		 * CPU until it is officially up.  We shouldn't be calling into
- 		 * random console drivers on a CPU which doesn't exist yet..
- 		 */
-+		printk_cpu = UINT_MAX;
- 		spin_unlock_irqrestore(&logbuf_lock, flags);
- 		goto out;
- 	}
-@@ -604,6 +612,7 @@ asmlinkage int vprintk(const char *fmt, 
- 		 * We own the drivers.  We can drop the spinlock and let
- 		 * release_console_sem() print the text
- 		 */
-+		printk_cpu = UINT_MAX;
- 		spin_unlock_irqrestore(&logbuf_lock, flags);
- 		console_may_schedule = 0;
- 		release_console_sem();
-@@ -613,9 +622,11 @@ asmlinkage int vprintk(const char *fmt, 
- 		 * allows the semaphore holder to proceed and to call the
- 		 * console drivers with the output which we just produced.
- 		 */
-+		printk_cpu = UINT_MAX;
- 		spin_unlock_irqrestore(&logbuf_lock, flags);
- 	}
- out:
-+	preempt_enable();
- 	return printed_len;
- }
- EXPORT_SYMBOL(printk);
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

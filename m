@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262891AbVGHVvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbVGHVtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262891AbVGHVvY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 17:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVGHVtJ
+	id S262874AbVGHVtA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 17:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbVGHVrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 17:49:09 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:20997 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262829AbVGHVsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 17:48:08 -0400
-Date: Fri, 8 Jul 2005 23:48:02 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: [2.6 patch] SCSI_SATA has to be a tristate
-Message-ID: <20050708214802.GK3671@stusta.de>
+	Fri, 8 Jul 2005 17:47:12 -0400
+Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:3342 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id S262871AbVGHVpP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 17:45:15 -0400
+Subject: excessive IDE log spamming
+From: Ray Lee <ray-lk@madrabbit.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: http://madrabbit.org/
+Date: Fri, 08 Jul 2005 14:45:13 -0700
+Message-Id: <1120859114.10563.35.camel@orca.madrabbit.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.3.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SCSI=m must disallow static drivers.
+ray:/var/log$ grep ' 08:' messages
+Jul  8 08:00:00 orca kernel: [7033724.854000] hdc: ATAPI reset complete
+Jul  8 08:00:00 orca kernel: [7033724.854000] hdc: status error: status=0x20 { DeviceFault }
+Jul  8 08:00:00 orca kernel: [7033724.854000] ide: failed opcode was: unknown
+Jul  8 08:00:00 orca kernel: [7033724.904000] hdc: ATAPI reset complete
+Jul  8 08:00:00 orca kernel: [7033724.904000] hdc: status error: status=0x20 { DeviceFault }
+Jul  8 08:00:00 orca kernel: [7033724.904000] ide: failed opcode was: unknown
+Jul  8 08:00:00 orca kernel: [7033724.904000] hdc: status error: status=0x20 { DeviceFault }
+Jul  8 08:00:00 orca kernel: [7033724.904000] ide: failed opcode was: unknown
+Jul  8 08:00:00 orca kernel: [7033724.954000] hdc: ATAPI reset complete
+Jul  8 08:00:00 orca kernel: [7033724.954000] hdc: status error: status=0x20 { DeviceFault }
+Jul  8 08:00:00 orca kernel: [7033724.954000] ide: failed opcode was: unknown
+Jul  8 08:00:00 orca kernel: [7033725.004000] hdc: ATAPI reset complete
+Jul  8 08:00:00 orca kernel: [7033725.004000] hdc: status error: status=0x20 { DeviceFault }
+Jul  8 08:00:00 orca kernel: [7033725.004000] ide: failed opcode was: unknown
+Jul  8 08:00:02 orca kernel: [7033727.006000] hdc: status error: status=0x20 { DeviceFault }
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+/var/log/{messages,syslog,kern.log} are each growing at about 4
+megabytes an hour. That's nearly a third of a gig per day. I may be a
+bit dense, but honest, I got the hint the first meg.
 
----
+/dev/hdc points to my Plextor CD/RW drive. I'm not sure when this
+started; it took some time before I noticed my hard drive filling up
+(they're pretty big these days). I'll be rebooting here soon, which I
+imagine will fix the problem.
 
-This patch was already sent on:
-- 2 Jul 2005
+Using Ubuntu's 2.6.12 kernel, so there's the outside chance that odd
+vendor patches are doing unhappy things.
 
---- linux-2.6.13-rc1-mm1/drivers/scsi/Kconfig.old	2005-07-02 21:57:40.000000000 +0200
-+++ linux-2.6.13-rc1-mm1/drivers/scsi/Kconfig	2005-07-02 21:58:06.000000000 +0200
-@@ -447,7 +447,7 @@
- source "drivers/scsi/megaraid/Kconfig.megaraid"
- 
- config SCSI_SATA
--	bool "Serial ATA (SATA) support"
-+	tristate "Serial ATA (SATA) support"
- 	depends on SCSI
- 	help
- 	  This driver family supports Serial ATA host controllers
+Ray
+

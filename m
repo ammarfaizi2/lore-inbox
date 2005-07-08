@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbVGHWDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262921AbVGHWDR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbVGHWDV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 18:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVGHWAO
+	id S262921AbVGHWDR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 18:03:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbVGHWAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 18:00:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9142 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262580AbVGHV6z (ORCPT
+	Fri, 8 Jul 2005 18:00:06 -0400
+Received: from mail.kroah.org ([69.55.234.183]:20375 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262829AbVGHV7v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 17:58:55 -0400
-Date: Fri, 8 Jul 2005 14:59:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Message-Id: <20050708145953.0b2d8030.akpm@osdl.org>
-In-Reply-To: <20050708214908.GA31225@taniwha.stupidest.org>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	<20050708214908.GA31225@taniwha.stupidest.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 8 Jul 2005 17:59:51 -0400
+Date: Fri, 8 Jul 2005 14:55:18 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nboyle@tampabay.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Oops: EIP is at sysfs_release+0x34/0x80
+Message-ID: <20050708215518.GB21768@kroah.com>
+References: <42CEB851.1000004@tampabay.rr.com> <20050708145001.34b9f8f2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050708145001.34b9f8f2.akpm@osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood <cw@f00f.org> wrote:
->
-> On Thu, Jun 23, 2005 at 11:28:47AM -0700, Linux Kernel Mailing List wrote:
-          ^^^^^^
-
-It's been over two weeks and nobody has complained about anything.
-
+On Fri, Jul 08, 2005 at 02:50:01PM -0700, Andrew Morton wrote:
+> Nathan Boyle <nboyle@tampabay.rr.com> wrote:
+> >
+> > EIP is at sysfs_release+0x34/0x80
+> > eax: 00000001   ebx: dc7c2000   ecx: d1979860   edx: 00000001
+> > esi: 762f7373   edi: d5ba26a0   ebp: d9368544   esp: dc7c3f80
+> > ds: 007b   es: 007b   ss: 0068
+> > Process udev (pid: 31802, threadinfo=dc7c2000 task=c7c19040)
+> > Stack: df468c40 df798140 dffe4140 c0153c08 d5a9edbc df468c40 df798140
+> > 00000000
+> >         dc7c2000 c01523d3 00000000 00000003 080ac568 00000003 c0103101
+> > 00000003
+> >         080ac568 00000004 080ac568 00000003 08057198 00000006 0000007b
+> > 0000007b
+> > Call Trace:
+> >   [<c0153c08>] __fput+0xf8/0x110
+> >   [<c01523d3>] filp_close+0x43/0x70
+> >   [<c0103101>] syscall_call+0x7/0xb
+> > Code: 8b 41 0c 8b 40 48 8b 58 14 8b 41 48 8b 40 14 85 db 8b 70 04 74 07
+> > 89 d8 e8 9a 11 02 00 85 f6 74 1f bb 00 e0 ff ff 21 e3 ff 43 14 <ff> 8e
+> > 00 01 00 00 83 3e 02 74 32 8b 43 08 ff 4b 14 a8 08 75 21
+> >   <6>note: udev[31802] exited with preempt_count 1
 > 
-> > [PATCH] i386: Selectable Frequency of the Timer Interrupt
+> Gee we get a lot of these, and no idea which sysfs file caused it.
 > 
-> [...]
-> 
-> > +choice
-> > +	prompt "Timer frequency"
-> > +	default HZ_250
-> 
-> WHAT?
-> 
-> The previous value here i386 is 1000 --- so why is the default 250.
+> How about we record the most-recently-opened sysfs file and display that at
+> oops time?  (-mm only)
 
-Because 1000 is too high.
+Looks good to me, I really have no idea of what is causing this, and
+haven't seen any reports of this on mainline.
 
-> Now that this has hit mainline please consider applying:
+thanks,
 
-We might indeed do that.  But if nobody continues to notice anything, we
-might not.  We'll see.
+greg k-h

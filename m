@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVGHNka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbVGHNlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262658AbVGHNka (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 09:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVGHNka
+	id S262659AbVGHNlt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 09:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVGHNls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 09:40:30 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:48535 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262658AbVGHNk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 09:40:28 -0400
-Subject: Re: Suspend2 2.1.9.8 for 2.6.12: 622-swapwriter.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pekka J Enberg <penberg@cs.helsinki.fi>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <courier.42CD288A.00003A98@courier.cs.helsinki.fi>
-References: <11206164393426@foobar.com> <11206164442712@foobar.com>
-	 <84144f0205070523332cc6d487@mail.gmail.com>
-	 <1120740053.4860.1494.camel@localhost>
-	 <courier.42CD288A.00003A98@courier.cs.helsinki.fi>
+	Fri, 8 Jul 2005 09:41:48 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:34550 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262659AbVGHNkq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 09:40:46 -0400
+Subject: Re: PREEMPT_RT and latency_trace
+From: Daniel Walker <dwalker@mvista.com>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1120826951.6225.167.camel@ibiza.btsn.frna.bull.fr>
+References: <1120826951.6225.167.camel@ibiza.btsn.frna.bull.fr>
 Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120830109.4860.3029.camel@localhost>
+Date: Fri, 08 Jul 2005 06:40:07 -0700
+Message-Id: <1120830007.19225.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 08 Jul 2005 23:41:50 +1000
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, 2005-07-08 at 14:49 +0200, Serge Noiraud wrote:
+> Hi,
+> 
+> I have a big dilemna on one machine :
+> I run a task with RT priority which make a loop to mesure the system
+> perturbation.
+> It works well except on  one machine.
+> On a multi-cpu, If I run the program on cpu 1, I get 23us. It's OK.
+> If I run the same program on cpu 0, I get 17373us !
 
-On Thu, 2005-07-07 at 23:05, Pekka J Enberg wrote:
-> Hi Nigel, 
-> 
-> On Wed, 2005-07-06 at 16:33, Pekka Enberg wrote:
-> > > You're hardcoding sector size here, no?
-> 
-> Nigel Cunningham writes:
-> > As others do.
-> 
-> Even so, please use a constant. 
+If it's not at RT priority 99 , then your application could be held off
+until higher priority applications have run. 17373us is a pretty long
+hold off time though .
 
-Done
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
+Daniel
 

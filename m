@@ -1,53 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbVGHKVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVGHKZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbVGHKVr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 06:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVGHKVq
+	id S262432AbVGHKZr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 06:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVGHKZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 06:21:46 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:58789 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262449AbVGHKVc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 06:21:32 -0400
-Date: Fri, 8 Jul 2005 12:20:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Grant Coady <grant_lkml@dodo.com.au>,
-       Ondrej Zary <linux@rainbow-software.org>,
-       =?iso-8859-1?Q?Andr=E9?= Tomt <andre@tomt.net>,
-       Al Boldi <a1426z@gawab.com>,
-       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [git patches] IDE update
-Message-ID: <20050708102056.GA7172@elte.hu>
-References: <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de> <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com> <Pine.LNX.4.58.0507051748540.3570@g5.osdl.org> <nljmc1h40t2bv316ufij10o2am5607hpse@4ax.com> <Pine.LNX.4.58.0507052209180.3570@g5.osdl.org> <20050708084817.GB7050@suse.de>
+	Fri, 8 Jul 2005 06:25:47 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:10990 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262432AbVGHKZo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 06:25:44 -0400
+Subject: [RFC PATCH 0/8] shared subtree
+From: Ram <linuxram@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
+       Andrew Morton <akpm@osdl.org>, mike@waychison.com, bfields@fieldses.org,
+       Miklos Szeredi <miklos@szeredi.hu>
+In-Reply-To: <1120816072.30164.10.camel@localhost>
+References: <1120816072.30164.10.camel@localhost>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1120817327.30164.40.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050708084817.GB7050@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Jul 2005 03:25:39 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am enclosing 8 patches that implement shared subtree functionality as
+detailed in Al Viro's RFC found at http://lwn.net/Articles/119232/
 
-* Jens Axboe <axboe@suse.de> wrote:
+The incremental patches provide the following functionality:
 
-> But! I used hdparm -t solely, 2.6 was always ~5% faster than 2.4. But 
-> using -Tt slowed down the hd speed by about 30%. So it looks like some 
-> scheduler interaction, perhaps the memory timing loops gets it marked 
-> as batch or something?
+1) shared_private_slave.patch : Provides the ability to mark a subtree
+as shared or private or slave.
+	
+2) unclone.patch : provides the ability to mark a subtree as unclonable.
+NOTE: this feature is an addition to Al Viro's RFC, to solve the
+vfsmount explosion. The problem is  detailed here:  
+	http://www.ussg.iu.edu/hypermail/linux/kernel/0502.0/0468.html
 
-to check whether that could be the case, could you try:
+3) rbind.patch : this patch adds the ability to propogate binds/rbinds
+across vfsmounts.
 
-	nice -n -20 hdparm -t /dev/hdc
+4) move.patch : this patch provides the ability to move a
+shared/private/slave/unclonable subtree to some other mountpoint. It
+also provides the same feature to pivot_root()
 
-does that produce different results?
+5) umount.patch: this patch provides the ability to propogate unmounts.
 
-	Ingo
+6) namespace.patch: this patch provides ability to clone a namespace,
+with propogation set to vfsmounts in the new namespace.
+
+7) automount.patch: this patch provides the automatic propogation for
+mounts/unmounts done through automounter.
+
+8) pnode_opt.patch: this patch optimizes the redundent code in pnode.c .
+
+
+I have unit tested the code and it mostly works. However i am still
+debugging some race conditions.
+
+Also have enclosed a mount command source (initially written by Miklos)
+that helps to create shared/private/unclone/slave trees. 
+
+
+Thanks to Mike Waychison, Miklos Szeredi, J. Bruce Fields for helping
+out with the various scenarios and initial comments on the code. And to
+Al Viro for silently listening to our conversation.
+
+Looking forward towards lots of feedback and comments,
+RP
+
+----------------------------------------------------------------------------------------
+
+//
+//this code was developed my Miklos Szeredi <miklos@szeredi.hu>
+//and modified by Ram Pai <linuxram@us.ibm.com>
+// sample usage:
+// 		newmount /tmp shared
+//
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/mount.h>
+#include <sys/fsuid.h>
+
+int main(int argc, char *argv[])
+{
+	int type;
+    if(argc != 3) {
+        fprintf(stderr, "usage: %s dir
+<shared|slave|private|unclone>\n", argv[0]);
+        return 1;
+    }
+
+     fprintf(stdout, "%s %s %s\n", argv[0], argv[1], argv[2]);
+
+    if (strcmp(argv[2],"shared")==0)
+	    type=1048576;
+    else if (strcmp(argv[2],"slave")==0)
+	    type=524288;
+    else if (strcmp(argv[2],"private")==0)
+	    type=262144;
+    else if (strcmp(argv[2],"unclone")==0)
+	    type=131072;
+    else {
+        fprintf(stderr, "invalid operation: %s\n", argv[2]);
+        return 1;
+    }
+
+    setfsuid(getuid());
+    if(mount("", argv[1], "ext2", type, "") == -1) {
+        perror("mount");
+        return 1;
+    }
+    return 0;
+}
+
+----------------------------------------------------------------------------------------
+
+

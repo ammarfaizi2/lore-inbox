@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVGHFln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262613AbVGHFoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbVGHFln (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 01:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVGHFlm
+	id S262613AbVGHFoU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 01:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVGHFoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 01:41:42 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:29903 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262618AbVGHFlc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 01:41:32 -0400
-Date: Fri, 8 Jul 2005 07:41:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Chuck Harding <charding@llnl.gov>
-Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-12
-Message-ID: <20050708054129.GA26208@elte.hu>
-References: <20050703140432.GA19074@elte.hu> <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507051155050.13165@echo.lysdexia.org> <20050706100451.GA7336@elte.hu> <Pine.LNX.4.58.0507071047540.12711@localhost.localdomain> <20050707153103.GA22782@elte.hu> <Pine.LNX.4.58.0507071139220.12711@localhost.localdomain> <Pine.LNX.4.58.0507071205080.12711@localhost.localdomain> <20050707175115.GA28772@elte.hu> <Pine.LNX.4.63.0507071402410.6952@ghostwheel.llnl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0507071402410.6952@ghostwheel.llnl.gov>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 8 Jul 2005 01:44:19 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:12441 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262613AbVGHFlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 01:41:46 -0400
+Message-ID: <42CE12D0.7060601@jp.fujitsu.com>
+Date: Fri, 08 Jul 2005 14:44:49 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David.Mosberger@acm.org
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
+       Linas Vepstas <linas@austin.ibm.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       long <tlnguyen@snoqualmie.dp.intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+Subject: Re: [PATCH 2.6.13-rc1 07/10] IOCHK interface for I/O error handling/detecting
+References: <42CB63B2.6000505@jp.fujitsu.com> <42CB6961.2060508@jp.fujitsu.com> <ed5aea4305070721373480591d@mail.gmail.com>
+In-Reply-To: <ed5aea4305070721373480591d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Chuck Harding <charding@llnl.gov> wrote:
-
-> Which still exhibits the lockup of sox. I built a 2.6.12 vanilla kernel
-> using the same .config as I used for 51-12 and the failure did not happen.
-> just the process of booting up causes later invocations of sox to lockup
-> in the D state. If I don't login to X and just run from a VT I can get
-> it to lockup by running something like:
-> $ for ((i=0;i<20;i++))
-> >do
-> >echo -ne "\r$i  "
-> >(play /usr/share/sounds/KDE_Beep_ShortBeep.wav &)
-> >done
+david mosberger wrote:
+>>   - could anyone write same barrier for intel compiler?
+>>     Tony or David, could you help me?
 > 
-> after about 14 or so iterations of the loop and thereafter no more 
-> sound can be played.
+> I think it might be best to make ia64_mca_barrier() a proper
+> subroutine written in assembly code.  Yes, that costs some time, but
+> we're talking about wasting 1,000+ cycles just to consume the value
+> read via readX(), so the call-overhead is actually overlapped and
+> completely trivial.
 
-tried it and cannot reproduce it, so i'll need the full backtrace of all 
-tasks in your system, whenever sox gets stuck, via:
+Yes, of course speed is worth, but in some situations it can happen
+that the data integrity is better than the speed.
+(sounds crazy but fact)
 
-  echo t > /proc/sysrq-trigger
-  dmesg -s 10000000 > toingo.txt
+I'm not familiar with assembly code for intel compiler. So David,
+could you write another macro of ia64_mca_barrier() or a proper
+subroutine instead?
 
-	Ingo
+Thanks,
+H.Seto
+

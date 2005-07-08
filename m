@@ -1,97 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262680AbVGHOs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbVGHOvU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262680AbVGHOs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 10:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVGHOs2
+	id S262681AbVGHOvU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 10:51:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbVGHOvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 10:48:28 -0400
-Received: from web34413.mail.mud.yahoo.com ([66.163.178.162]:49572 "HELO
-	web34413.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S262680AbVGHOs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 10:48:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=XilgJkMOtRHsK9sDqR4JeSuSBS2dOl/YspBHnPIHtF+mqa7DwfPO1pEVUVBYTrt8G8kzplH16ne4+FyeDtkiB4oW8Ed8ykURcEVk1zXYvZAdXm04+kZD9/zK+flu+g3nWHSXGNxXG70kHVNgzaNA9+YENH4728RCclRziKdL1kU=  ;
-Message-ID: <20050708144823.70503.qmail@web34413.mail.mud.yahoo.com>
-Date: Fri, 8 Jul 2005 07:48:22 -0700 (PDT)
-From: <jscottkasten@yahoo.com>
-Subject: Re: function Name
-To: raja <vnagaraju@effigent.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42CE1945.7080909@effigent.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 8 Jul 2005 10:51:20 -0400
+Received: from host-84-9-201-131.bulldogdsl.com ([84.9.201.131]:4484 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S262681AbVGHOvT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 10:51:19 -0400
+Date: Fri, 8 Jul 2005 15:50:59 +0100
+From: Ben Dooks <ben-linux@fluff.org>
+To: Andrew Victor <andrew@sanpeople.com>
+Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [RFC] Atmel-supplied hardware headers for AT91RM9200 SoC processor
+Message-ID: <20050708145059.GA16299@home.fluff.org>
+References: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120730318.16806.75.camel@fuzzie.sanpeople.com>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- raja <vnagaraju@effigent.net> wrote:
-
+On Thu, Jul 07, 2005 at 11:58:39AM +0200, Andrew Victor wrote:
 > hi,
->    I am writing a function that takes the return
-> value of the another 
-> function and gives the  status of the function.
-> if
->    error("functionName",arguments)
-> here the function with Name "functionName " is to be
-> executed with the 
-> corresponding argunents.But by knowing the function
-> name how can i get 
-> the address if that function and how can i execute
-> the function with the 
-> arguments.
 > 
+> I am attempting to submit code for inclusion in the mainline kernel to
+> support the Atmel AT91RM9200 SoC processor, and the various boards that
+> use that processor.  Since it's based on an ARM9 core, I submitted the
+> patches to Russell King.
+> 
+> While he seems generally happy with most of the code, he has doubts
+> about merging the Atmel-supplied headers and suggested I post this to
+> the linux-kernel list for a wider review.
 
-Dude, this is not the right forum for these types of
-questions.  You need to look at some good general
-texts.  I don't know if you can get a copy of Steven's
-or other general Unix programming text, but that's
-what would help you the most.  Anyway, here's an
-example for you.  The C compiler in general treats a
-function name as a type of pointer, similar to an
-array base pointer in that you cannot modify it, but
-you can de-reference it.
+I'm with rmk, I do not like this use of structs. There are IO access
+functions defined for a number of reasons.
+ 
+> While I agree that their usage of structs/coding-style is not the
+> cleanest/Linux way of doing things, re-using their headers is useful
+> since:
+> 1) they are supplied by the hardware manufacturer.
+> 2) Atmel automatically generates them from their chip design database,
+> so they should be correct.
 
-/* Crude demo program for calling a function
- * by indirect means and supplying arguments.
- *
- * Yes, it's GPL.  :-)
- */
+Yes, but how do you know GCC is actually correctly compiling this?
 
-#include <stdio.h>
+> 3) they are used by most AT91RM9200 developers, not just those using
+> Linux.
 
-int foo(char *message)
-{
-  int error = 0;
+I feel this argument is a dangerous, as it ends up with `well, we
+did it that way in XXX, so why can't we do it in linux`? This'll
+end up with bad quality code and implementations simply due to the
+fact they exist. (IE, it was good enough for Microsoft, Linux should do
+it the same way)
 
-  if (message)
-    printf("%s\n", message);
-  else
-    error = 1;
+> This gives the benefit that there is a larger 'installed base', and
+> Atmel has to take the responsibility that it is correct.  I don't
+> believe that Atmel will change the format of their hardware headers
+> specifically for Linux.
 
-  return error;
-}
+Yes, so converting them to a different format is a _once only_ issue.
 
-int call_a_function(int (*func)(char *), char *arg)
-{
-  return (*func)(arg);
-} 
+> If the AT91RM9200+Linux community had to convert all the headers, bugs
+> may be introduced in the conversion process and we would have to assume
+> any maintenance responsibility.  What we have now may be slightly ugly,
+> but it is atleast known to be correct.
 
-int main(int argc, char *argv[])
-{
-  int (*func)(char *);
-  char *arg;
+And this is different from bugs in the way that structs are layed out
+by the compiler, or code re-ordering? It is know to be correct for
+at least the versions of GCC that you have tried it with.
 
-  if (argc == 2) {
-    func = foo;
-    arg  = argv[1];
-    return call_a_function(func, arg);
-  } else {
-    return 1;
-  }
-}
+The arguments that structs are compiler efficient are also dying with
+newer GCCs getting better at factoring constants into registers.
+
+> As suggested by Russell King, I even added a warning message that these
+> headers should not be used as an example of how things should be done in
+> new implementations.
+> 
+> 
+> I've appended two of their headers as an example - the System
+> peripherals (timer, interrupt controller, etc) and Ethernet.
+> 
+> Comments?
+> 
+> 
+> For those who might be interested, the full AT91RM9200 patches are
+> available from http://maxim.org.za/AT91RM9200/2.6/
+> 
+> Regards,
+>   Andrew Victor
 
 
+> --- linux-2.6.13-rc2.orig/include/asm-arm/arch-at91rm9200/AT91RM9200_EMAC.h	Thu Jan  1 02:00:00 1970
+> +++ linux-2.6.13-rc2/include/asm-arm/arch-at91rm9200/AT91RM9200_EMAC.h	Thu Jul  7 09:41:13 2005
+
+[snip]
+
+> +typedef struct _AT91S_EMAC {
+> +	AT91_REG	 EMAC_CTL; 	// Network Control Register
+> +	AT91_REG	 EMAC_CFG; 	// Network Configuration Register
+> +	AT91_REG	 EMAC_SR; 	// Network Status Register
+> +	AT91_REG	 EMAC_TAR; 	// Transmit Address Register
+> +	AT91_REG	 EMAC_TCR; 	// Transmit Control Register
+> +	AT91_REG	 EMAC_TSR; 	// Transmit Status Register
+> +	AT91_REG	 EMAC_RBQP; 	// Receive Buffer Queue Pointer
+> +	AT91_REG	 Reserved0[1]; 	//
+
+pretty difficult to verify these are actually being assigned the
+correct address?
+
+-- 
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'

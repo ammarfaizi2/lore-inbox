@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVGHPg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVGHPvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbVGHPg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 11:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbVGHPg6
+	id S262691AbVGHPvV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 11:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbVGHPvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 11:36:58 -0400
-Received: from ozlabs.org ([203.10.76.45]:12180 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262690AbVGHPgF (ORCPT
+	Fri, 8 Jul 2005 11:51:20 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:698 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262691AbVGHPvU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 11:36:05 -0400
-Subject: Re: device_find broken in 2.6.11?
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050708042922.GA4603@kroah.com>
-References: <1120796213.12218.55.camel@localhost.localdomain>
-	 <20050708042922.GA4603@kroah.com>
-Content-Type: text/plain
-Date: Sat, 09 Jul 2005 01:36:04 +1000
-Message-Id: <1120836964.12218.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Jul 2005 11:51:20 -0400
+Message-ID: <42CE8005.8020108@suse.de>
+Date: Fri, 08 Jul 2005 15:30:45 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322 Thunderbird/1.0.2 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: linux-kernel@vger.kernel.org, ncunningham@cyclades.com
+Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
+References: <11206164393426@foobar.com> <20050706082230.GF1412@elf.ucw.cz> <20050706082230.GF1412@elf.ucw.cz> <1120696047.4860.525.camel@localhost> <E1DqV7G-0004PX-00@chiark.greenend.org.uk> <E1DqV7G-0004PX-00@chiark.greenend.org.uk> <1120738525.4860.1433.camel@localhost> <E1DqVp3-00064l-00@chiark.greenend.org.uk>
+In-Reply-To: <E1DqVp3-00064l-00@chiark.greenend.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-07 at 21:29 -0700, Greg KH wrote:
-> On Fri, Jul 08, 2005 at 02:16:53PM +1000, Rusty Russell wrote:
-> > 
-> > 	I was getting oopses in kset_find_obj when calling device_find in
-> > 2.6.11.12.
-> 
-> Yup, there's a reason no one uses it.  Use the version in 2.6.13-rc2, it
-> actually works.
-> 
-> What are you wanting to use it for?
+Matthew Garrett wrote:
 
-The xenbus code wants to find if a device is new: the Xen code is
-currently against on 2.6.11.12.
+> Right, so you support the resume from disk trigger in sysfs and the
+> /proc/acpi/sleep interface? If suspend2 is a complete dropin replacement
+> then I'm much happier with the idea of dropping swsusp, but I don't want
+> to have to tie suspend/resume scripts to kernel versions.
 
-Thanks!
-Rusty.
+JFTR: i second this. There is already enough hackery involved if one
+wants to provide a smooth user experience ;-)
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
 

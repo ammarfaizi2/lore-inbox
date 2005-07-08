@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbVGHFte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVGHFuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbVGHFte (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 01:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVGHFte
+	id S262627AbVGHFuv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 01:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVGHFuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 01:49:34 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:27061 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262620AbVGHFtd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 01:49:33 -0400
-References: <11206164393426@foobar.com>
-            <11206164442712@foobar.com>
-            <84144f0205070706326849b1e@mail.gmail.com>
-            <1120770991.4860.1554.camel@localhost>
-In-Reply-To: <1120770991.4860.1554.camel@localhost>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: ncunningham@cyclades.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend2 2.1.9.8 for 2.6.12: 622-swapwriter.patch
-Date: Fri, 08 Jul 2005 08:49:32 +0300
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.42CE13EC.00002CDD@courier.cs.helsinki.fi>
+	Fri, 8 Jul 2005 01:50:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20713 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262621AbVGHFtq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 01:49:46 -0400
+Date: Fri, 8 Jul 2005 01:48:00 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Arjan van de Ven <arjan@infradead.org>
+cc: serue@us.ibm.com, "Timothy R. Chavez" <tinytim@us.ibm.com>,
+       Steve Grubb <sgrubb@redhat.com>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, <linux-audit@redhat.com>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Mounir Bsaibes <mbsaibes@us.ibm.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Klaus Weidner <klaus@atsec.com>, Chris Wright <chrisw@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, Robert Love <rml@novell.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Daniel H Jones <danjones@us.ibm.com>, Amy Griffis <amy.griffis@hp.com>,
+       Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: [PATCH] audit: file system auditing based on location and name
+In-Reply-To: <1120800795.3249.5.camel@laptopd505.fenrus.org>
+Message-ID: <Xine.LNX.4.44.0507080138380.15737-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham writes:
-> No...  it's the maximum number of blocks per page. Depending upon how
-> the user has set the blocksize when they created the filesystem (in the
-> case of filesystems), the number of blocks we use per page might be 1,
-> 2, 4 or 8.
+On Fri, 8 Jul 2005, Arjan van de Ven wrote:
 
-Yes. Sorry about that. I don't know what I was smoking. (But it must have 
-been the good stuff (-:.) 
+> why not?
+> If your /etc/shadow has no selinux context you've lost already :0
 
-       Pekka 
+No, the kernel will map it to something safe.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 

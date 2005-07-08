@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbVGHNeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVGHNka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbVGHNeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 09:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVGHNeY
+	id S262658AbVGHNka (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 09:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVGHNka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 09:34:24 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:26547 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262654AbVGHNeW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 09:34:22 -0400
-Date: Fri, 8 Jul 2005 15:34:15 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
+	Fri, 8 Jul 2005 09:40:30 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:48535 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S262658AbVGHNk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 09:40:28 -0400
+Subject: Re: Suspend2 2.1.9.8 for 2.6.12: 622-swapwriter.patch
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
 To: Pekka J Enberg <penberg@cs.helsinki.fi>
-cc: Ram <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Andrew Morton <akpm@osdl.org>, mike@waychison.com, bfields@fieldses.org,
-       Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: share/private/slave a subtree
-In-Reply-To: <courier.42CE788F.00003AE7@courier.cs.helsinki.fi>
-Message-ID: <Pine.LNX.4.61.0507081527040.3743@scrub.home>
-References: <1120816072.30164.10.camel@localhost>           
- <1120816229.30164.13.camel@localhost>            <1120817463.30164.43.camel@localhost>
-            <84144f0205070804171d7c9726@mail.gmail.com>           
- <Pine.LNX.4.61.0507081412280.3743@scrub.home>           
- <courier.42CE70EE.000029AA@courier.cs.helsinki.fi>           
- <Pine.LNX.4.61.0507081441440.3728@scrub.home> <courier.42CE788F.00003AE7@courier.cs.helsinki.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Nigel Cunningham <nigel@suspend2.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <courier.42CD288A.00003A98@courier.cs.helsinki.fi>
+References: <11206164393426@foobar.com> <11206164442712@foobar.com>
+	 <84144f0205070523332cc6d487@mail.gmail.com>
+	 <1120740053.4860.1494.camel@localhost>
+	 <courier.42CD288A.00003A98@courier.cs.helsinki.fi>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1120830109.4860.3029.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 08 Jul 2005 23:41:50 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi.
 
-On Fri, 8 Jul 2005, Pekka J Enberg wrote:
-
-> > You can't do that with defines?
+On Thu, 2005-07-07 at 23:05, Pekka J Enberg wrote:
+> Hi Nigel, 
 > 
-> Sure you can but have you ever tried to figure out where a group of #define
-> enumerations end?
+> On Wed, 2005-07-06 at 16:33, Pekka Enberg wrote:
+> > > You're hardcoding sector size here, no?
+> 
+> Nigel Cunningham writes:
+> > As others do.
+> 
+> Even so, please use a constant. 
 
-Comments? Newlines?
+Done
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
+Be amazed that people believe it happened. 
 
-> Enums are a natural language construct for grouping related
-> constants so why not use it? 
-
-So are defines.
-
-> Bottom line, there are few advantages to using enums rather than #defines
-> which is why they are IMHO preferred for new code. 
-
-Are the advantages big enough to actively discourage defines? It's nice 
-that you do reviews, but please leave some room for personal preferences. 
-If the code is correct and perfectly readable, it doesn't matter whether 
-to use defines or enums. Unless you also intent to also debug and work 
-with that code, why don't leave the decision to the author?
-
-bye, Roman

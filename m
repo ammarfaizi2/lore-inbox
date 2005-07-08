@@ -1,130 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbVGHN7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVGHOA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbVGHN7D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 09:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVGHN7D
+	id S262668AbVGHOA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 10:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbVGHOA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 09:59:03 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:25488 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262666AbVGHN7B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 09:59:01 -0400
-Date: Fri, 8 Jul 2005 15:58:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PREEMPT_RT and latency_trace
-Message-ID: <20050708135828.GA5355@elte.hu>
-References: <1120826951.6225.167.camel@ibiza.btsn.frna.bull.fr>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="d6Gm4EdcadzBjdND"
-Content-Disposition: inline
-In-Reply-To: <1120826951.6225.167.camel@ibiza.btsn.frna.bull.fr>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 8 Jul 2005 10:00:27 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:55540 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S262668AbVGHN7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 09:59:12 -0400
+Message-ID: <42CE86B5.2080705@gentoo.org>
+Date: Fri, 08 Jul 2005 14:59:17 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050403)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
+Subject: 2.6.12 netfilter: local packets marked as invalid
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Some Gentoo users have reported very long application startup times in 2.6.12.
+This seems to be because the applications are attempting to connect to local
+ports such as sunrpc/portmap (where these services are not running), but some
+packets are being dropped, so the application load just pauses until the
+connection times out.
 
+There was a similar problem reported recently ("2.6.12: connection tracking
+broken?"), regarding bridge devices. No bridge devices are involved here.
 
-* Serge Noiraud <serge.noiraud@bull.net> wrote:
+This is easy to reproduce, and the problem exists on both Linux 2.6.12 and
+2.6.13-rc2. This was not a problem on Linux 2.6.11.
 
-> Hi,
-> 
-> I have a big dilemna on one machine :
-> I run a task with RT priority which make a loop to mesure the system
-> perturbation.
-> It works well except on  one machine.
-> On a multi-cpu, If I run the program on cpu 1, I get 23us. It's OK.
-> If I run the same program on cpu 0, I get 17373us !
-> If I do :
-> # echo 0 >/proc/sys/kernel/preempt_max_latency
+Taking a simple configuration:
 
-you can start/stop tracing from userspace too. Then you'll see what 
-happens. See the attached trace-it.c code. After having activated 
-user-triggered tracing, do something like this in your testcode:
+	# iptables -P INPUT ACCEPT
+	# iptables -P OUTPUT ACCEPT
+	# iptables -P FORWARD ACCEPT
 
-	for (;;) {
-	        gettimeofday(0, 1);
-        	gettimeofday(0, 0);
-	}
+I don't have a webserver running. If I try and telnet to port 80, I
+immediately get connection refused, as expected:
 
-this should measure the maximum userspace delay on that CPU. You can 
-also read the TSC in the inner loop to validate the kernel tracer:
+	# telnet 127.0.0.1 80
+	Trying 127.0.0.1...
+	telnet: connect to address 127.0.0.1: Connection refused
 
-	for (;;) {
-	        gettimeofday(0, 1);
-		t0 = rdtsc();
-		t1 = rdtsc();
-        	gettimeofday(0, 0);
-		if (t1-t0 > max)
-			print_max();
-	}
+I now add another rule, to drop invalid packets, and retry the telnet connection.
 
-(you should not measure the trace start/stop functions themselves, they 
-can take alot of time when a maximum-latency event happens.)
+	# iptables -A INPUT -m state --state INVALID -j DROP
+	# telnet 127.0.0.1 80
+	<very long pause>
+	telnet: connect to address 127.0.0.1: Connection timed out
 
-	Ingo
+During the pause, netstat reports the connection state as SYN_SENT:
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="trace-it.c"
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      1 localhost:39066         localhost:http          SYN_SENT
 
+I now flush the filter table, and make the kernel log invalid packets:
 
-/*
- * Copyright (C) 1999, Ingo Molnar <mingo@redhat.com>
- */
+	# iptables -t filter -F
+	#iptables -A INPUT -m state --state INVALID -j LOG --log-prefix "inv "
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <sys/wait.h>
-#include <linux/unistd.h>
+When retrying the telnet test, this appears in the logs:
 
-int main (int argc, char **argv)
-{
-	int ret;
+Jul  8 14:53:04 dsd inv IN=lo OUT=
+MAC=00:00:00:00:00:00:00:00:00:00:00:00:08:00 SRC=127.0.0.1 DST=127.0.0.1
+LEN=40 TOS=0x10 PREC=0x00 TTL=64 ID=15 DF PROTO=TCP SPT=80 DPT=58950 WINDOW=0
+RES=0x00 ACK RST URGP=0
 
-	if (getuid() != 0) {
-		fprintf(stderr, "needs to run as root.\n");
-		exit(1);
-	}
-	ret = system("cat /proc/sys/kernel/mcount_enabled >/dev/null 2>/dev/null");
-	if (ret) {
-		fprintf(stderr, "CONFIG_LATENCY_TRACING not enabled?\n");
-		exit(1);
-	}
-	system("echo 1 > /proc/sys/kernel/trace_all_cpus");
-	system("echo 1 > /proc/sys/kernel/trace_enabled");
-	system("echo 0 > /proc/sys/kernel/trace_freerunning");
-	system("echo 0 > /proc/sys/kernel/trace_print_at_crash");
-	system("echo 1 > /proc/sys/kernel/trace_user_triggered");
-	system("echo 0 > /proc/sys/kernel/trace_verbose");
-	system("echo 0 > /proc/sys/kernel/preempt_max_latency");
-	system("echo 0 > /proc/sys/kernel/preempt_thresh");
-	system("[ -e /proc/sys/kernel/wakeup_timing ] && echo 0 > /proc/sys/kernel/wakeup_timing");
-	system("echo 1 > /proc/sys/kernel/mcount_enabled");
+Does this mean that the kernel thinks its own ACK RST packet is invalid?
 
-	gettimeofday(0, 1);
-	usleep(100000);
-	gettimeofday(0, 0);
+There is a Gentoo bug on this here:
+http://bugs.gentoo.org/96948
+...but I think I got the imporant info into this message.
 
-	system("cat /proc/latency_trace");
+Let me know if I can provide any more info. For those interested in a
+temporary workaround, you can explicitly allow all local traffic, i.e.
 
-	return 0;
-}
+	# iptables -A INPUT -i lo -j ACCEPT
+	# iptables -A INPUT -m state --state INVALID -j DROP
 
-
-
---d6Gm4EdcadzBjdND--
+Thanks.
+Daniel

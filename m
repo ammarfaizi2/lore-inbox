@@ -1,67 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVGHV35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262883AbVGHUW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVGHV35 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 17:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbVGHV2c
+	id S262883AbVGHUW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 16:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbVGHUWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 17:28:32 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:14509 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261663AbVGHV1U (ORCPT
+	Fri, 8 Jul 2005 16:22:38 -0400
+Received: from relay03.pair.com ([209.68.5.17]:1551 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S262888AbVGHUUi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 17:27:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=lGD5RArgLO5+RfOiCb4EOSgpZqOpA5BhF1Luonkq6PN31BXRf56UpuIppcnqkohcOL3ILi8rP/iQo5F2Cp+WUa207p1uRwaGg2DBftZhlJdaphVB1vN3kn8xEL7bLKYFhnczH++Cy5Bl8LFgx11RynOL2b+o3gfBjJjU23suOZQ=
-Subject: Re: [ck] Re: 2.6.12-ck3
-From: Kerin Millar <kerframil@gmail.com>
-To: Rudo Thomas <rudo@matfyz.cz>
-Cc: Con Kolivas <kernel@kolivas.org>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050708202753.GA32317@ss1000.ms.mff.cuni.cz>
-References: <200506301241.00593.kernel@kolivas.org>
-	 <20050704091648.GA14759@ss1000.ms.mff.cuni.cz>
-	 <20050707213034.GA9306@ss1000.ms.mff.cuni.cz>
-	 <200507081352.55660.kernel@kolivas.org>
-	 <20050708202753.GA32317@ss1000.ms.mff.cuni.cz>
-Content-Type: text/plain
-Date: Fri, 08 Jul 2005 22:31:20 +0100
-Message-Id: <1120858280.22079.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Fri, 8 Jul 2005 16:20:38 -0400
+X-pair-Authenticated: 209.68.2.107
+Message-ID: <42CEE013.2000306@cybsft.com>
+Date: Fri, 08 Jul 2005 15:20:35 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Real-Time Preemption -RT-V0.7.51-17 - Keyboard Problems
+References: <42CEC7B0.7000108@cybsft.com> <20050708191326.GA6503@elte.hu>
+In-Reply-To: <20050708191326.GA6503@elte.hu>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-08 at 22:27 +0200, Rudo Thomas wrote:
-> > > > Time seems to pass very fast with this kernel.
-> > >
-> > > Am I the only one who gets this strange behaviour? Kernel's notion of
-> > > time seems to be about 30 times faster than real time.
-> > 
-> > Sorry I really have no idea. If you can retest with latest stable mainline 
-> > that this kernel is based on (2.6.12.2) and reproduce the problem
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
 > 
-> The following one-liner (from 2.6.12.2) seems to be the problem:
 > 
-> diff -urN linux-2.6.12-ck2-rudo/drivers/acpi/pci_irq.c linux-2.6.12-ck-rudo/drivers/acpi/pci_irq.c
-> --- linux-2.6.12-ck2-rudo/drivers/acpi/pci_irq.c        2005-07-08 10:16:53.000000000 +0200
-> +++ linux-2.6.12-ck-rudo/drivers/acpi/pci_irq.c 2005-07-03 21:06:10.000000000 +0200
-> @@ -435,6 +435,7 @@
->                 /* Interrupt Line values above 0xF are forbidden */
->                 if (dev->irq >= 0 && (dev->irq <= 0xF)) {
->                         printk(" - using IRQ %d\n", dev->irq);
-> +                       acpi_register_gsi(dev->irq, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW);
->                         return_VALUE(0);
->                 }
->                 else {
+>>Ingo,
+>>
+>>I have an issue with keys VERY SPORADICALLY repeating, SOMETIMES, when 
+>>running the RT patches. The problem manifests itself as if the key 
+>>were stuck but happens far too quickly for that to be the case. I 
+>>realize that the statements above are far from scientific, but I can't 
+>>seem to narrow it down further. 2.6.12 doesn't seem to have the 
+>>problem at all, only when running the RT patches. It SEEMS to have 
+>>gotten worse lately. I am attaching my config as well as the output 
+>>from lspci.
+>>
+>>Adjusting the delay in the keyboard repeat seems to help. Any ideas?
+> 
+> 
+> hm. Would be nice to somehow find a condition that triggers it. One 
+> possibility is that something else is starving the keyboard handling 
+> path. Right now it's handled via workqueues, which live in keventd. Do 
+> things improve if you chrt keventd up to prio 99? Also i'd chrt the 
+> keyboard IRQ thread up to prio 99 too.
+
+I would like very much to come up with a condition that causes it. 
+Unfortunately, the only event that I know of that is associated with 
+this typing. :-) There does not seem to be a method to the madness.
+
+As for bumping the priorities, I tried them all, at least the ones 
+mentioned above. I also tried the timer just for grins, after changing 
+the keyboard repeat delay seemed to help a bit. None of them seemed to 
+help, at least not for an extended period of time.
+
+> 
+> the other possibility is some IRQ handling bug - those are usually 
+> specific to the IRQ controller, so try turning off (or on) the IO-APIC 
+> [if the box has an IO-APIC], does that change anything?
 > 
 
-Hi, could you try the following patch please?
+You may be on to something here. Booting with noapic SEEMS to help.
 
-http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=44f8e1a20cf3afe10a3744bd9317808a39a242bb
+> 	Ingo
+> 
 
-Cheers,
 
---Kerin Millar
-
+-- 
+    kr

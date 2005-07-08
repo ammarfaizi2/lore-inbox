@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbVGHEQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVGHE2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262581AbVGHEQy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 00:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbVGHEQy
+	id S262602AbVGHE2y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 00:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbVGHE2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 00:16:54 -0400
-Received: from ozlabs.org ([203.10.76.45]:52202 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262581AbVGHEQx (ORCPT
+	Fri, 8 Jul 2005 00:28:54 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:59281 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262594AbVGHE2x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 00:16:53 -0400
-Subject: device_find broken in 2.6.11?
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 08 Jul 2005 14:16:53 +1000
-Message-Id: <1120796213.12218.55.camel@localhost.localdomain>
+	Fri, 8 Jul 2005 00:28:53 -0400
+Date: Fri, 8 Jul 2005 14:21:46 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Yura Pakhuchiy <pakhuchiy@gmail.com>
+Cc: linux-xfs@oss.sgi.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, tibor@altlinux.ru
+Subject: Re: XFS corruption on move from xscale to i686
+Message-ID: <20050708042146.GA1679@frodo>
+References: <1120756552.5298.10.camel@pc299.sam-solutions.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120756552.5298.10.camel@pc299.sam-solutions.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Thu, Jul 07, 2005 at 08:15:52PM +0300, Yura Pakhuchiy wrote:
+> Hi,
+> 
+> I'm creadted XFS volume on 2.6.10 linux xscale/iq31244 box, then I
+> copyied files on it and moved this hard drive to i686 machine. When I
+> mounted it on i686, I found no files on it. I runned xfs_check, here is
+> output:
 
-	I was getting oopses in kset_find_obj when calling device_find in
-2.6.11.12.  Noone else in the kernel uses device_find, but I couldnt'
-see anything wrong with it (mind you, I can't understand the
-kset_find_obj code to judge it).
+Someone else was doing this awhile back, and also had issues.
+Their trouble seemed to be related to xscale gcc miscompiling
+parts of XFS - search the linux-xfs archives for details.
 
-	Iterating manually using bus_for_each_dev works though.
+cheers.
 
-Known problem?
-Rusty.
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+Nathan

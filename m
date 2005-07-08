@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbVGHTyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVGHT7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262842AbVGHTyd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 15:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbVGHTyV
+	id S262846AbVGHT7T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 15:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbVGHT5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 15:54:21 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:17215 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S262842AbVGHTyK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 15:54:10 -0400
-X-IronPort-AV: i="3.94,182,1118034000"; 
-   d="scan'208"; a="263791647:sNHT22160676"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 8 Jul 2005 15:57:10 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:1672 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262835AbVGHTzR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 15:55:17 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Date: Fri, 8 Jul 2005 20:55:24 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081938.27815.s0348365@sms.ed.ac.uk> <20050708194827.GA22536@elte.hu>
+In-Reply-To: <20050708194827.GA22536@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 2.6.12-rc3] modified firmware_class.c to add a new function request_firmware_nowait_nohotplug
-Date: Fri, 8 Jul 2005 14:54:07 -0500
-Message-ID: <B37DF8F3777DDC4285FA831D366EB9E20730C7@ausx3mps302.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.12-rc3] modified firmware_class.c to add a new function request_firmware_nowait_nohotplug
-Thread-Index: AcWD9A09i95B3i8cRlOE+nJzCIRg+AAAJ8ZQ
-From: <Abhay_Salunke@Dell.com>
-To: <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
-X-OriginalArrivalTime: 08 Jul 2005 19:54:07.0594 (UTC) FILETIME=[CD16BCA0:01C583F6]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507082055.24116.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, why not just add the hotplug flag to the firmware structure?
-That
-request_firmware kmalloc's the firmware structure and frees it when
-returned. The only way to indicate request_firmware to skip hotplug was
-by passing a hotplug flag on the stack. 
-> way you don't have to add another function just to add another flag.
-> And you could probably get rid of the nowait version in the same way.
-Also thought of leaving request_firmware_nowait intact didn't want to
-break others using this function.
+On Friday 08 Jul 2005 20:48, Ingo Molnar wrote:
+> * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > Unfortunately I see nothing like this when the machine crashes. Find
+> > attached my config, which has CONFIG_4KSTACKS and the options you
+> > specified. Are you sure this is sufficient to enable it?
+>
+> i have booted your .config, and stack overflow debugging is active and
+> working. So it probably wasnt a straight (detectable) stack recursion /
+> stack footprint issue.
+>
 
-Thanks
-Abhay
+Ingo,
+
+Your first guess was accurate, I hadn't realised these messages were a lower 
+log level than BUG: or the oops, so I wasn't watching them. Disabling quiet 
+now, I'll try to address all your queries in a timely fashion.
+
+We're getting closer anyway, I feel.
+
+-- 
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

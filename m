@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVGHFkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVGHFln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262612AbVGHFkA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 01:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVGHFkA
+	id S262618AbVGHFln (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 01:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVGHFlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 01:40:00 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:61112 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S262612AbVGHFj7 (ORCPT
+	Fri, 8 Jul 2005 01:41:42 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:29903 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262618AbVGHFlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 01:39:59 -0400
-Date: Fri, 8 Jul 2005 07:40:21 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dmitry Torokhov <dtor@mail.ru>
-Subject: Re: Synaptics Touchpad not detected in 2.6.13-rc2
-Message-ID: <20050708054021.GA3224@ucw.cz>
-References: <20050707212855.GA2871@ucw.cz> <20050707213958.84153.qmail@web81309.mail.yahoo.com>
+	Fri, 8 Jul 2005 01:41:32 -0400
+Date: Fri, 8 Jul 2005 07:41:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Chuck Harding <charding@llnl.gov>
+Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-12
+Message-ID: <20050708054129.GA26208@elte.hu>
+References: <20050703140432.GA19074@elte.hu> <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507051155050.13165@echo.lysdexia.org> <20050706100451.GA7336@elte.hu> <Pine.LNX.4.58.0507071047540.12711@localhost.localdomain> <20050707153103.GA22782@elte.hu> <Pine.LNX.4.58.0507071139220.12711@localhost.localdomain> <Pine.LNX.4.58.0507071205080.12711@localhost.localdomain> <20050707175115.GA28772@elte.hu> <Pine.LNX.4.63.0507071402410.6952@ghostwheel.llnl.gov>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050707213958.84153.qmail@web81309.mail.yahoo.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.63.0507071402410.6952@ghostwheel.llnl.gov>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 02:39:58PM -0700, Dmitry Torokhov wrote:
-> Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Thu, Jul 07, 2005 at 11:24:43PM +0200, Mattia Dongili wrote:
-> > > On Thu, Jul 07, 2005 at 01:02:38PM -0700, Dmitry Torokhov wrote:
-> > > > Mattia Dongili <malattia@gmail.com> wrote:
-> > > [...]
-> > > > > This is the device (on a Vaio GR), which other info could I provide to
-> > > > > better diagnose the problem?
-> > > > > 
-> > > > 
-> > > > Could you please do "echo 1 > /sys/modules/i8042/parameters/debug";
-> > > > reload psmouse module and send me dmesg please?
-> > > 
-> > > oh, it seems I'm not able to reproduce the error anymore!
-> > > I need some rest now, I'll try again tomorrow morning (I must be missing
-> > > something stupid right now) and report to you again.
-> >  
-> > Could be the enabled debug is adding extra delay, making the problem
-> > impossible to reproduce. IIRC, we've seen this with an ALPS pad, too,
-> > Dmitry, right?
-> 
-> It was just a tad different - on one of the boxes alps-resume-typo
-> patch worked only with debug. 2 other boxes worked just fine without
-> debug.
-> 
-> I just can't see what could be wrong with ps2_adjust_timeout()...
-> It only reduces timeout to 100 ms when doing reset, exactly like
-> the old code did. Vojtech, can you see anything there?
- 
-No, I don't. I'll keep looking, though.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+* Chuck Harding <charding@llnl.gov> wrote:
+
+> Which still exhibits the lockup of sox. I built a 2.6.12 vanilla kernel
+> using the same .config as I used for 51-12 and the failure did not happen.
+> just the process of booting up causes later invocations of sox to lockup
+> in the D state. If I don't login to X and just run from a VT I can get
+> it to lockup by running something like:
+> $ for ((i=0;i<20;i++))
+> >do
+> >echo -ne "\r$i  "
+> >(play /usr/share/sounds/KDE_Beep_ShortBeep.wav &)
+> >done
+> 
+> after about 14 or so iterations of the loop and thereafter no more 
+> sound can be played.
+
+tried it and cannot reproduce it, so i'll need the full backtrace of all 
+tasks in your system, whenever sox gets stuck, via:
+
+  echo t > /proc/sysrq-trigger
+  dmesg -s 10000000 > toingo.txt
+
+	Ingo

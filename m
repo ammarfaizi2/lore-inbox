@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVGHNoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbVGHNqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262667AbVGHNoP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 09:44:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVGHNly
+	id S262660AbVGHNqh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 09:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbVGHNqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 09:41:54 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:63411 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262660AbVGHNk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 09:40:59 -0400
-Subject: Re: [PATCH] [46/48] Suspend2 2.1.9.8 for 2.6.12:
-	622-swapwriter.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: nickpiggin@yahoo.com.au
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-In-Reply-To: <200507080726.22102.nickpiggin@yahoo.com.au>
-References: <11206164393426@foobar.com>
-	 <84144f0205070706326849b1e@mail.gmail.com>
-	 <1120770991.4860.1554.camel@localhost>
-	 <200507080726.22102.nickpiggin@yahoo.com.au>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120830140.4860.3033.camel@localhost>
+	Fri, 8 Jul 2005 09:46:35 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:30398 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262660AbVGHNos (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 09:44:48 -0400
+Date: Fri, 8 Jul 2005 15:43:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 'sleeping function called from invalid context' bug when mounting an IDE device
+Message-ID: <20050708134346.GA4890@elte.hu>
+References: <20050708162846.54de783d.vwool@ru.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 08 Jul 2005 23:42:20 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050708162846.54de783d.vwool@ru.mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Fri, 2005-07-08 at 07:26, nickpiggin@yahoo.com.au wrote:
-> On Fri, 8 Jul 2005 07:16 am, Nigel Cunningham wrote:
-> 
-> Hi,
-> 
-> > > > +struct io_info {
-> > > > +       struct bio * sys_struct;
-> > > > +       long block[PAGE_SIZE/512];
-> > >
-> > > Aah, but for this you should use block_size(io_info->dev) instead. No
-> > > need to mess with sector sizes. Why is this long by the way?
-> > > PAGE_SIZE/512 is block size in bytes.
-> >
-> > No...  it's the maximum number of blocks per page. Depending upon how
-> > the user has set the blocksize when they created the filesystem (in the
-> > case of filesystems), the number of blocks we use per page might be 1,
-> > 2, 4 or 8.
-> >
-> 
-> MAX_BUF_PER_PAGE
-> 
-> > It's long because a sector number is stored in it.
-> >
-> 
-> sector_t?
+* Vitaly Wool <vwool@ru.mvista.com> wrote:
 
-Fixed. Ta.
+> Hi Ingo,
+> 
+> I've come across the following problem during the debugging of IDE 
+> driver for Philips PNX0105 ARM9 platform in RT mode 
+> (CONFIG_PREEMPT_RT). When I mount/unmount a device, the following 
+> error is printed out to a terminal:
 
-Nigel
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
+could you send me the full backtrace?
 
+> So, the problem is in the generic IDE code, namely, in ide_intr() 
+> taking ide_lock.
+
+which version did you try, and does this happen with the latest patch 
+too?
+
+	Ingo

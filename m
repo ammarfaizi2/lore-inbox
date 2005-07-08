@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262835AbVGHUeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262852AbVGHUob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262835AbVGHUeu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 16:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbVGHUdj
+	id S262852AbVGHUob (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 16:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbVGHUhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 16:33:39 -0400
-Received: from unused.mind.net ([69.9.134.98]:8877 "EHLO echo.lysdexia.org")
-	by vger.kernel.org with ESMTP id S262835AbVGHUbd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 16:31:33 -0400
-Date: Fri, 8 Jul 2005 13:30:37 -0700 (PDT)
-From: William Weston <weston@sysex.net>
-X-X-Sender: weston@echo.lysdexia.org
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-17
-In-Reply-To: <20050708094531.GA5515@elte.hu>
-Message-ID: <Pine.LNX.4.58.0507081314420.30549@echo.lysdexia.org>
-References: <200507010027.33079.annabellesgarden@yahoo.de> <20050701071850.GA18926@elte.hu>
- <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> <20050703140432.GA19074@elte.hu>
- <20050703181229.GA32741@elte.hu> <Pine.LNX.4.58.0507051155050.13165@echo.lysdexia.org>
- <20050706100451.GA7336@elte.hu> <Pine.LNX.4.58.0507070120100.22287@echo.lysdexia.org>
- <20050708092343.GA32586@elte.hu> <20050708092928.GA4135@elte.hu>
- <20050708094531.GA5515@elte.hu>
+	Fri, 8 Jul 2005 16:37:35 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:37109 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S262873AbVGHUg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 16:36:57 -0400
+From: Neil Darlow <neil@darlow.co.uk>
+To: vojtech@suze.cz
+Subject: ns558 mis-detects gameport
+Date: Fri, 8 Jul 2005 21:36:47 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, linux-joystick@atrey.karlin.mff.cuni.cz
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507082136.47475.neil@darlow.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Jul 2005, Ingo Molnar wrote:
+Hi All,
 
-> > > ok, you are right, the edge case was mishandled - but i think it was 
-> > > already mishandled upstream, we just never (or rarely) triggered it.  
-> > > I've reworked this area based on your patch, could you check -51-15, 
-> > > does it work for you?
+I am passing on this information at the request of Daniel Drake (Gentoo kernel 
+ebuild maintainer).
 
-I figured it would take a little reworking, especially with your recent
-MSI changes.  This was just a 'works for me' patch.  Your end_irq() is
-cleaner, IMHO.
+My hardware is an ASRock K7S41GX motherboard with Athlon XP2200+ CPU
+running 2.6.12 on Gentoo GNU/Linux 2005.0. My gamepad is an Heroic HC 3100 
+2-axis, 4-button digital model with Turbo features.
 
-> > if it doesnt work, could you disable CONFIG_X86_IOAPIC_FAST?
-> 
-> or rather, please try -51-16. One of my testsystems produced weird 
-> interrupt storms, which were caused by the IOAPIC_POSTFLUSH 
-> optimization. In -51-16 i've turned that optimization off, globally.  
-> Maybe this explains some of the other lockups reported.
+The CVS version string of ns558.c is:
+$Id: ns558.c,v 1.43 2002/01/24 19:23:21 vojtech Exp $
 
-OK.  Running -51-17 on the Athlon box.  CONFIG_X86_IOAPIC_FAST is still
-enabled.  No lockups.  No jack xruns.  Max wakeup-latency is 27us (so far)  
-on the debug config.  Nothing out of the ordinary logged except for the
-new stack-footprint maximums during boot.
+My motherboard features a generic PC/ISA gameport at BIOS-selectable
+addresses of 0x200 or 0x208. I have built my kernel (using Gentoo's genkernel) 
+to include the Joystick Interface, Generic PC/ISA Gameport and Analog 
+Joystick support as modules which are loaded at boot by coldplug/hotplug 
+logic.
 
-Any need to go back and check -51-16 as well?  Or -51-17 on a non-debug 
-config?
+If I manually modprobe ns558 (which loads gameport), analog and joydev after 
+boot my gameport is detected. If I let coldplug/hotplug load the modules at 
+boot then ns558 fails to detect my gameport.
 
---ww
+If I unload, and then reload, ns558 using coldplug/hotplug at boot then ns558 
+detects my gameport correctly. My module loading setup and dmesg output for a 
+ns558 insert-remove-insert cycle are as follows:
+
+  options analog map=gamepad
+  above analog joydev
+  pre-install analog modprobe -r ns558; modprobe ns558
+
+  gameport: NS558 ISA Gameport is isa0200/gameport0, io 0x201, speed 806kHz
+  pnp: Device 00:0a disabled.
+  ns558: probe of 00:0a failed with error -16
+  gameport: kgameportd exiting
+  pnp: Device 00:0a activated.
+  gameport: NS558 PnP Gameport is pnp00:0a/gameport0, io 0x200, speed 806kHz
+  input: Analog 2-axis 4-button gamepad at pnp00:0a/gameport0 [TSC timer, 1786
+    MHz clock, 1299 ns res]
+
+At https://www.redhat.com/archives/fedora-list/2005-January/msg04967.html the 
+same problem is reported for 2.6.10 on Fedora.
+
+Is a fix or workaround, other than what I'm doing already, available for this 
+problem?
+
+Regards,
+Neil Darlow
+-- 
+Anti-virus scanned by ClamAV-0.86.1 - http://www.clamav.net

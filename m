@@ -1,73 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbVGHUtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262840AbVGHUet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262873AbVGHUtD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 16:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVGHUrS
+	id S262840AbVGHUet (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 16:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbVGHUdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 16:47:18 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:7831 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262873AbVGHUo7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 16:44:59 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Fri, 8 Jul 2005 21:45:08 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081938.27815.s0348365@sms.ed.ac.uk> <20050708194827.GA22536@elte.hu>
-In-Reply-To: <20050708194827.GA22536@elte.hu>
+	Fri, 8 Jul 2005 16:33:44 -0400
+Received: from relay02.pair.com ([209.68.5.16]:65039 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S262852AbVGHU1v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 16:27:51 -0400
+X-pair-Authenticated: 209.68.2.107
+Message-ID: <42CEE1C6.8050500@cybsft.com>
+Date: Fri, 08 Jul 2005 15:27:50 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Doug Maxey <dwm@maxeymade.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Real-Time Preemption -RT-V0.7.51-17 - Keyboard Problems
+References: <200507081935.j68JZSqr003200@falcon30.maxeymade.com>
+In-Reply-To: <200507081935.j68JZSqr003200@falcon30.maxeymade.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507082145.08877.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 Jul 2005 20:48, Ingo Molnar wrote:
-> * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > Unfortunately I see nothing like this when the machine crashes. Find
-> > attached my config, which has CONFIG_4KSTACKS and the options you
-> > specified. Are you sure this is sufficient to enable it?
->
-> i have booted your .config, and stack overflow debugging is active and
-> working. So it probably wasnt a straight (detectable) stack recursion /
-> stack footprint issue.
->
+Doug Maxey wrote:
+> On Fri, 08 Jul 2005 21:13:26 +0200, Ingo Molnar wrote:
+> 
+>>* K.R. Foley <kr@cybsft.com> wrote:
+>>
+>>
+>>>Ingo,
+>>>
+>>>I have an issue with keys VERY SPORADICALLY repeating, SOMETIMES, when 
+>>>running the RT patches. The problem manifests itself as if the key 
+>>>were stuck but happens far too quickly for that to be the case. I 
+>>>realize that the statements above are far from scientific, but I can't 
+>>>seem to narrow it down further. 2.6.12 doesn't seem to have the 
+>>>problem at all, only when running the RT patches. It SEEMS to have 
+>>>gotten worse lately. I am attaching my config as well as the output 
+>>>from lspci.
+>>>
+>>>Adjusting the delay in the keyboard repeat seems to help. Any ideas?
+> 
+> 
+> Is the keyboard standard (PS2) or USB?  Did not see the detail.
 
-Okay, I disabled IO-APIC and Local APIC, recompiled with (an otherwise 
-identical) config.
+Sorry. It is PS2.
 
-Got this (slightly better) oops. Figured out how to use my camera :-)
+> 
+> 
+>>hm. Would be nice to somehow find a condition that triggers it. One 
+>>possibility is that something else is starving the keyboard handling 
+>>path. Right now it's handled via workqueues, which live in keventd. Do 
+>>things improve if you chrt keventd up to prio 99? Also i'd chrt the 
+>>keyboard IRQ thread up to prio 99 too.
+>>
+>>the other possibility is some IRQ handling bug - those are usually 
+>>specific to the IRQ controller, so try turning off (or on) the IO-APIC 
+>>[if the box has an IO-APIC], does that change anything?
+> 
+> 
+> FWIW, I have seen this issue under USB, off and on since about 2.6.9.
+> Never have dug into it, was always simpler to just unplug and re-plug
+> the keyboard.  Of course, this predates RT.
+> 
+> ++doug
+> 
+> 
 
-http://devzero.co.uk/~alistair/oops6.jpeg
-
-Onto your stack-footprint metric. I don't know what the number means, but at a 
-guess it's the size of the stack. Unfortunately, if this is the case, it's 
-unlikely to be an overflow causing the crash. Here's a grep of dmesg just 
-before the crash.
-
-[root] 21:39 [~] dmesg | grep new\ stack
-| new stack-footprint maximum: swapper/1, 1760 bytes.
-| new stack-footprint maximum: mount/471, 1716 bytes.
-| new stack-footprint maximum: cupsd/2623, 1564 bytes.
-| new stack-footprint maximum: kdm_greet/2845, 1528 bytes.
-| new stack-footprint maximum: krootimage/2846, 1204 bytes.
-| new stack-footprint maximum: konqueror/2938, 836 bytes.
-
-The complete traces are a bit long to include here, but I've uploaded the 
-entire dmesg:
-
-http://devzero.co.uk/~alistair/dmesg.gz
 
 -- 
-Cheers,
-Alistair.
-
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+    kr

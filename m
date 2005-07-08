@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbVGHWPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262881AbVGHVxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbVGHWPK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 18:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262923AbVGHWMq
+	id S262881AbVGHVxe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 17:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbVGHVtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 18:12:46 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:32136 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262901AbVGHWMP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 18:12:15 -0400
-Date: Sat, 9 Jul 2005 00:12:14 +0200
-From: Andi Kleen <ak@suse.de>
-To: Adnan Khaleel <Adnan.Khaleel@newisys.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Instruction Tracing for Linux
-Message-ID: <20050708221213.GU21330@wotan.suse.de>
-References: <DC392CA07E5A5746837A411B4CA2B713010D7791@sekhmet.ad.newisys.com>
+	Fri, 8 Jul 2005 17:49:04 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21765 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262882AbVGHVsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 17:48:10 -0400
+Date: Fri, 8 Jul 2005 23:48:06 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Max Asbock <masbock@us.ibm.com>, Vernon Mauery <vernux@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] IBM_ASM Kconfig corrections
+Message-ID: <20050708214806.GL3671@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DC392CA07E5A5746837A411B4CA2B713010D7791@sekhmet.ad.newisys.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 08, 2005 at 03:49:47PM -0500, Adnan Khaleel wrote:
-> Thanks for your suggestions. I have been working with Simics, SimNow and Bochs. I've had mixed luck with all of them. Although Simics should be the most promising, I've really had
-> an uphill struggle with it especially when it comes to x86-64. I've been playing around with Bochs and most likely will end up using that but it has its drawbacks as well. 
+This patch contains the following fixes:
+- IBM_ASM must depend on PCI
+- remove useless "default n"
+- correct the URL to further information
 
-I haven't tested any recent versions, but the original development
-was near mostly done with Simics and it did work well for me.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-iirc there was a recent bug that the optimized memcpy or memset
-in the glibc didn't like a CPU returning 0 bytes of cache size and
-Simics did that. You might have run into that. It should be
-fixed now.
+---
 
-Bochs used to be quite buggy on the x86-64 department and didn't do
-multi processor, but that also might have changed. It is significantly
-slower than the others.
+This patch was already sent on:
+- 1 Jul 2005
 
-> 
-> Even if I can't trace the kernel, is there anything available for just the user space stuff?
+--- linux-2.6.12-mm2-full/drivers/misc/Kconfig.old	2005-06-30 22:36:01.000000000 +0200
++++ linux-2.6.12-mm2-full/drivers/misc/Kconfig	2005-06-30 22:36:21.000000000 +0200
+@@ -6,8 +6,7 @@
+ 
+ config IBM_ASM
+ 	tristate "Device driver for IBM RSA service processor"
+-	depends on X86 && EXPERIMENTAL
+-	default n
++	depends on X86 && PCI && EXPERIMENTAL
+ 	---help---
+ 	  This option enables device driver support for in-band access to the
+ 	  IBM RSA (Condor) service processor in eServer xSeries systems.
+@@ -22,7 +21,7 @@
+ 	  
+ 	  WARNING: This software may not be supported or function
+ 	  correctly on your IBM server. Please consult the IBM ServerProven
+-	  website <http://www.pc.ibm/ww/eserver/xseries/serverproven> for
++	  website <http://www.pc.ibm.com/ww/eserver/xseries/serverproven> for
+ 	  information on the specific driver level and support statement
+ 	  for your IBM server.
+ 
 
-The AMD CodeAnalyst for Linux has a simulator that first collects 
-a trace and then runs that in a CPU model.  I assume it does
-first single stepping. It's unfortunately binary only.
-
-If slow single stepping is enough it's reasonably easy to write
-something yourself too. I have old example source that implements
-single stepping.
-
-However I doubt any of them are capable of running the bigger
-benchmarks.
-
--Andi

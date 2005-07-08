@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVGHA5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262405AbVGHA61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbVGHA5L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 20:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVGHA5L
+	id S262405AbVGHA61 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 20:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbVGHA61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 20:57:11 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:49332 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262390AbVGHA5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 20:57:10 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp]  IBM HDAPS Someone interested? (Accelerometer))
-To: Clemens Koller <clemens.koller@anagramm.de>, Jens Axboe <axboe@suse.de>,
-       Lenz Grimmer <lenz@grimmer.com>, Arjan van de Ven <arjan@infradead.org>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Dave Hansen <dave@sr71.net>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-Reply-To: 7eggert@gmx.de
-Date: Fri, 08 Jul 2005 02:56:08 +0200
-References: <4msjB-DS-9@gated-at.bofh.it> <4mste-IL-1@gated-at.bofh.it> <4msME-SM-9@gated-at.bofh.it> <4msWl-Yq-5@gated-at.bofh.it> <4mtza-1vg-15@gated-at.bofh.it> <4mtII-1Ab-13@gated-at.bofh.it> <4mtSm-1FA-5@gated-at.bofh.it> <4mtSn-1FA-11@gated-at.bofh.it> <4mwx1-3N9-25@gated-at.bofh.it> <4mx9A-4qm-1@gated-at.bofh.it> <4nzCr-6fN-19@gated-at.bofh.it> <4nI36-527-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DqhA2-000200-15@be1.7eggert.dyndns.org>
+	Thu, 7 Jul 2005 20:58:27 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:21769 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262405AbVGHA5n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 20:57:43 -0400
+Date: Thu, 7 Jul 2005 20:57:04 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Matthew Wilcox <matthew@wil.cx>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm <linux-pm@lists.osdl.org>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [patch 2.6.12 (repost w/ corrected subject)] pci: restore BAR values in pci_enable_device_bars
+Message-ID: <20050708005701.GA13384@tuxdriver.com>
+Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Matthew Wilcox <matthew@wil.cx>,
+	Grant Grundler <grundler@parisc-linux.org>,
+	linux-pci@atrey.karlin.mff.cuni.cz,
+	linux-pm <linux-pm@lists.osdl.org>, linux-kernel@vger.kernel.org,
+	Greg KH <greg@kroah.com>, Adam Belay <ambx1@neo.rr.com>
+References: <20050623191451.GA20572@tuxdriver.com> <20050624022807.GF28077@tuxdriver.com> <20050630171010.GD11369@kroah.com> <20050701014056.GA13710@tuxdriver.com> <20050701022634.GA5629.1@tuxdriver.com> <20050702072954.GA14091@colo.lackof.org> <20050702090913.B1506@flint.arm.linux.org.uk> <20050705200555.GA4756@parcelfarce.linux.theplanet.co.uk> <20050705224620.B15292@flint.arm.linux.org.uk> <20050706033454.A706@den.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050706033454.A706@den.park.msu.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clemens Koller <clemens.koller@anagramm.de> wrote:
+On Wed, Jul 06, 2005 at 03:34:54AM +0400, Ivan Kokshaysky wrote:
+> On Tue, Jul 05, 2005 at 10:46:20PM +0100, Russell King wrote:
 
-> Well, sure, it's not a notebook HDD, but maybe it's possible
-> to give headpark a more generic way to get the heads parked?
+> > Rather than reimplementing the internals of pci_update_resource() it
+> > may be worth splitting the common stuff out so it gets fixed for both
+> > pci_update_resource() and pci_enable_device().
+> 
+> Just use pci_update_resource().
+ 
+Problem: pci_update_resource doesn't exist for sparc64.
 
-I remember my old MFM HDD, which had a Landing Zone stored in the BIOS to
-which the park command would seek. Maybe you could do something similar
-and park the head on the last cylinder if the other options fail.
+> John, I'd also suggest following changes to the patch:
+> - move the code to pci_set_power_state(), where it belongs to;
+> - explicitly check for D3hot->D0 transition *and* for the
+>   No_Soft_Reset bit, to avoid unnecessary config space accesses;
+> - add a quote from PCI spec (as a comment) explaining why is it needed.
+
+I have reformulated the patch to account for these comments, but I am
+not currently using pci_update_resource for the reason stated above.
+I'll go ahead and post the new patch for comment.  If we can resolve
+the pci_update_resource issue, I'll post another (either alternative
+or additional) patch to cover that.  Patch to follow...
+
+Thanks!
+
+John
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+John W. Linville
+linville@tuxdriver.com

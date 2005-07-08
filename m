@@ -1,284 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVGHOOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbVGHOc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbVGHOOT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 10:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbVGHOOT
+	id S262674AbVGHOc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 10:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbVGHOc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 10:14:19 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:39311 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262670AbVGHOOR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 10:14:17 -0400
-Date: Fri, 8 Jul 2005 10:13:28 -0400
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-Cc: akpm@osdl.org, Andi Kleen <ak@suse.de>,
-       "David S. Miller" <davem@davemloft.net>, systemtap@sources.redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [4/6 PATCH] Kprobes : Prevent possible race conditions ppc64 changes
-Message-ID: <20050708141328.GA5724@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-References: <20050707101015.GE12106@in.ibm.com> <20050707101119.GF12106@in.ibm.com> <20050707101447.GG12106@in.ibm.com> <20050707101650.GH12106@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050707101650.GH12106@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 8 Jul 2005 10:32:58 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:23301 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262674AbVGHOc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 10:32:56 -0400
+To: linuxram@us.ibm.com
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       mike@waychison.com, bfields@fieldses.org
+In-reply-to: <1120817463.30164.43.camel@localhost> (message from Ram on Fri,
+	08 Jul 2005 03:25:42 -0700)
+Subject: Re: [RFC PATCH 1/8] share/private/slave a subtree
+References: <1120816072.30164.10.camel@localhost>
+	 <1120816229.30164.13.camel@localhost> <1120817463.30164.43.camel@localhost>
+Message-Id: <E1Dqttu-0004kx-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 08 Jul 2005 16:32:22 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 03:46:50PM +0530, Prasanna S Panchamukhi wrote:
-> 
-> This patch contains the ppc64 architecture specific changes to
-> prevent the possible race conditions.
+> This patch adds the shared/private/slave support for VFS trees.
 
-Prasanna,
+[...]
 
-Please cc or post this patch to linuxppc64-dev@ozlabs.org. This patch
-touches files I am not sure I can comment on with authority.
+> -struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
+> +struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry, struct dentry *root)
+>  {
 
-Thanks,
-Ananth
+How about changing it to inline and calling it __lookup_mnt_root(),
+and calling it from lookup_mnt() (which could keep the old signature)
+and lookup_mnt_root().  That way the compiler can optimize away the
+root check for the plain lookup_mnt() case, and there's no need to
+modify callers of lookup_mnt().
 
-> 
-> Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-> 
-> 
-> ---
-> 
->  linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/kprobes.c     |   29 +++++-----
->  linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/misc.S        |    4 -
->  linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/traps.c       |    5 +
->  linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/vmlinux.lds.S |    1 
->  linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/mm/fault.c           |    5 +
->  linux-2.6.13-rc1-mm1-prasanna/include/asm-ppc64/processor.h   |   14 ++++
->  6 files changed, 38 insertions(+), 20 deletions(-)
-> 
-> diff -puN arch/ppc64/kernel/kprobes.c~kprobes-exclude-functions-ppc64 arch/ppc64/kernel/kprobes.c
-> --- linux-2.6.13-rc1-mm1/arch/ppc64/kernel/kprobes.c~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-> +++ linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/kprobes.c	2005-07-06 20:07:22.000000000 +0530
-> @@ -44,7 +44,7 @@ static struct kprobe *kprobe_prev;
->  static unsigned long kprobe_status_prev, kprobe_saved_msr_prev;
->  static struct pt_regs jprobe_saved_regs;
+[...]
+
 >  
-> -int arch_prepare_kprobe(struct kprobe *p)
-> +int __kprobes arch_prepare_kprobe(struct kprobe *p)
->  {
->  	int ret = 0;
->  	kprobe_opcode_t insn = *p->addr;
-> @@ -68,27 +68,27 @@ int arch_prepare_kprobe(struct kprobe *p
->  	return ret;
->  }
->  
-> -void arch_copy_kprobe(struct kprobe *p)
-> +void __kprobes arch_copy_kprobe(struct kprobe *p)
->  {
->  	memcpy(p->ainsn.insn, p->addr, MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
->  	p->opcode = *p->addr;
->  }
->  
-> -void arch_arm_kprobe(struct kprobe *p)
-> +void __kprobes arch_arm_kprobe(struct kprobe *p)
->  {
->  	*p->addr = BREAKPOINT_INSTRUCTION;
->  	flush_icache_range((unsigned long) p->addr,
->  			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
->  }
->  
-> -void arch_disarm_kprobe(struct kprobe *p)
-> +void __kprobes arch_disarm_kprobe(struct kprobe *p)
->  {
->  	*p->addr = p->opcode;
->  	flush_icache_range((unsigned long) p->addr,
->  			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
->  }
->  
-> -void arch_remove_kprobe(struct kprobe *p)
-> +void __kprobes arch_remove_kprobe(struct kprobe *p)
->  {
->  	up(&kprobe_mutex);
->  	free_insn_slot(p->ainsn.insn);
-> @@ -122,7 +122,8 @@ static inline void restore_previous_kpro
->  	kprobe_saved_msr = kprobe_saved_msr_prev;
->  }
->  
-> -void arch_prepare_kretprobe(struct kretprobe *rp, struct pt_regs *regs)
-> +void __kprobes arch_prepare_kretprobe(struct kretprobe *rp,
-> +				      struct pt_regs *regs)
->  {
->  	struct kretprobe_instance *ri;
->  
-> @@ -244,7 +245,7 @@ void kretprobe_trampoline_holder(void)
->  /*
->   * Called when the probe at kretprobe trampoline is hit
->   */
-> -int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
-> +int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
->  {
->          struct kretprobe_instance *ri = NULL;
->          struct hlist_head *head;
-> @@ -308,7 +309,7 @@ int trampoline_probe_handler(struct kpro
->   * single-stepped a copy of the instruction.  The address of this
->   * copy is p->ainsn.insn.
->   */
-> -static void resume_execution(struct kprobe *p, struct pt_regs *regs)
-> +static void __kprobes resume_execution(struct kprobe *p, struct pt_regs *regs)
->  {
->  	int ret;
->  	unsigned int insn = *p->ainsn.insn;
-> @@ -373,8 +374,8 @@ static inline int kprobe_fault_handler(s
->  /*
->   * Wrapper routine to for handling exceptions.
->   */
-> -int kprobe_exceptions_notify(struct notifier_block *self, unsigned long val,
-> -			     void *data)
-> +int __kprobes kprobe_exceptions_notify(struct notifier_block *self,
-> +				       unsigned long val, void *data)
->  {
->  	struct die_args *args = (struct die_args *)data;
->  	int ret = NOTIFY_DONE;
-> @@ -406,7 +407,7 @@ int kprobe_exceptions_notify(struct noti
->  	return ret;
->  }
->  
-> -int setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
-> +int __kprobes setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
->  {
->  	struct jprobe *jp = container_of(p, struct jprobe, kp);
->  
-> @@ -419,16 +420,16 @@ int setjmp_pre_handler(struct kprobe *p,
->  	return 1;
->  }
->  
-> -void jprobe_return(void)
-> +void __kprobes jprobe_return(void)
->  {
->  	asm volatile("trap" ::: "memory");
->  }
->  
-> -void jprobe_return_end(void)
-> +void __kprobes jprobe_return_end(void)
->  {
+> +struct vfsmount *do_make_mounted(struct vfsmount *mnt, struct dentry *dentry)
+> +{
+
+What does this function do?  Can we have a header comment?
+
+> +int
+> +_do_make_mounted(struct nameidata *nd, struct vfsmount **mnt)
+> +{
+
+Ditto.
+
+> +/*
+> + * recursively change the type of the mountpoint.
+> + */
+> +static int do_change_type(struct nameidata *nd, int flag)
+> +{
+> +	struct vfsmount *m, *mnt;
+> +	struct vfspnode *old_pnode = NULL;
+> +	int err;
+> +
+> +	if (!(flag & MS_SHARED) && !(flag & MS_PRIVATE)
+> +			&& !(flag & MS_SLAVE))
+> +		return -EINVAL;
+> +
+> +	if ((err = _do_make_mounted(nd, &mnt)))
+> +		return err;
+
+
+Why does this opertation do any mounting?  If it's a type change, it
+should just change the type of something already mounted, no?
+
+> +		case MS_SHARED:
+> +			/*
+> +			 * if the mount is already a slave mount,
+> +			 * allocated a new pnode and make it
+> +			 * a slave pnode of the original pnode.
+> +			 */
+> +			if (IS_MNT_SLAVE(m)) {
+> +				old_pnode = m->mnt_pnode;
+> +				pnode_del_slave_mnt(m);
+> +			}
+> +			if(!IS_MNT_SHARED(m)) {
+> +				m->mnt_pnode = pnode_alloc();
+> +				if(!m->mnt_pnode) {
+> +					pnode_add_slave_mnt(old_pnode, m);
+> +					err = -ENOMEM;
+> +					break;
+> +				}
+> +				pnode_add_member_mnt(m->mnt_pnode, m);
+> +			}
+> +			if(old_pnode) {
+> +				pnode_add_slave_pnode(old_pnode,
+> +						m->mnt_pnode);
+> +			}
+> +			SET_MNT_SHARED(m);
+> +			break;
+> +
+> +		case MS_SLAVE:
+> +			if (IS_MNT_SLAVE(m)) {
+> +				break;
+> +			}
+> +			/*
+> +			 * only shared mounts can
+> +			 * be made slave
+> +			 */
+> +			if (!IS_MNT_SHARED(m)) {
+> +				err = -EINVAL;
+> +				break;
+> +			}
+> +			old_pnode = m->mnt_pnode;
+> +			pnode_del_member_mnt(m);
+> +			pnode_add_slave_mnt(old_pnode, m);
+> +			SET_MNT_SLAVE(m);
+> +			break;
+> +
+> +		case MS_PRIVATE:
+> +			if(m->mnt_pnode)
+> +				pnode_disassociate_mnt(m);
+> +			SET_MNT_PRIVATE(m);
+> +			break;
+> +
+
+Can this be split into three functions?
+
+[...]
+
+> +/*
+> + * Walk the pnode tree for each pnode encountered.  A given pnode in the tree
+> + * can be returned a minimum of 2 times.  First time the pnode is encountered,
+> + * it is returned with the flag PNODE_DOWN. Everytime the pnode is encountered
+> + * after having traversed through each of its children, it is returned with the
+> + * flag PNODE_MID.  And finally when the pnode is encountered after having
+> + * walked all of its children, it is returned with the flag PNODE_UP.
+> + *
+> + * @context: provides context on the state of the last walk in the pnode
+> + * 		tree.
+> + */
+> +static int inline
+> +pnode_next(struct pcontext *context)
+> +{
+
+Is such a generic traversal function really needed?  Why?
+
+[...]
+
+> +struct vfsmount *
+> +pnode_make_mounted(struct vfspnode *pnode, struct vfsmount *mnt, struct dentry *dentry)
+> +{
+
+Again a header comment would be nice, on what exactly this function
+does.  Also the implementation is really cryptic, but I can't even
+start to decipher without knowing what it's supposed to do.
+
+[...]
+
+> +static inline struct vfspnode *
+> +get_pnode_n(struct vfspnode *pnode, size_t n)
+> +{
+
+Seems to be unused throughout the patch series
+
+> +	struct list_head mnt_pnode_mntlist;/* and going through their
+> +					   pnode's vfsmount */
+> +	struct vfspnode *mnt_pnode;	/* and going through their
+> +					   pnode's vfsmount */
+>  	atomic_t mnt_count;
+>  	int mnt_flags;
+>  	int mnt_expiry_mark;		/* true if marked for expiry */
+> @@ -38,6 +66,7 @@ struct vfsmount
+>  	struct namespace *mnt_namespace; /* containing namespace */
 >  };
 >  
-> -int longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
-> +int __kprobes longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
->  {
->  	/*
->  	 * FIXME - we should ideally be validating that we got here 'cos
-> diff -puN arch/ppc64/kernel/traps.c~kprobes-exclude-functions-ppc64 arch/ppc64/kernel/traps.c
-> --- linux-2.6.13-rc1-mm1/arch/ppc64/kernel/traps.c~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-> +++ linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/traps.c	2005-07-06 20:07:22.000000000 +0530
-> @@ -30,6 +30,7 @@
->  #include <linux/init.h>
->  #include <linux/module.h>
->  #include <linux/delay.h>
-> +#include <linux/kprobes.h>
->  #include <asm/kdebug.h>
->  
->  #include <asm/pgtable.h>
-> @@ -220,7 +221,7 @@ void instruction_breakpoint_exception(st
->  	_exception(SIGTRAP, regs, TRAP_BRKPT, regs->nip);
->  }
->  
-> -void single_step_exception(struct pt_regs *regs)
-> +void __kprobes single_step_exception(struct pt_regs *regs)
->  {
->  	regs->msr &= ~MSR_SE;  /* Turn off 'trace' bit */
->  
-> @@ -398,7 +399,7 @@ check_bug_trap(struct pt_regs *regs)
->  	return 0;
->  }
->  
-> -void program_check_exception(struct pt_regs *regs)
-> +void __kprobes program_check_exception(struct pt_regs *regs)
->  {
->  	if (debugger_fault_handler(regs))
->  		return;
-> diff -puN arch/ppc64/kernel/vmlinux.lds.S~kprobes-exclude-functions-ppc64 arch/ppc64/kernel/vmlinux.lds.S
-> --- linux-2.6.13-rc1-mm1/arch/ppc64/kernel/vmlinux.lds.S~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-> +++ linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/vmlinux.lds.S	2005-07-06 20:07:22.000000000 +0530
-> @@ -15,6 +15,7 @@ SECTIONS
->  	*(.text .text.*)
->  	SCHED_TEXT
->  	LOCK_TEXT
-> +	KPROBES_TEXT
->  	*(.fixup)
->  	. = ALIGN(4096);
->  	_etext = .;
-> diff -puN arch/ppc64/mm/fault.c~kprobes-exclude-functions-ppc64 arch/ppc64/mm/fault.c
-> --- linux-2.6.13-rc1-mm1/arch/ppc64/mm/fault.c~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-> +++ linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/mm/fault.c	2005-07-06 20:07:22.000000000 +0530
-> @@ -29,6 +29,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/smp_lock.h>
->  #include <linux/module.h>
-> +#include <linux/kprobes.h>
->  
->  #include <asm/page.h>
->  #include <asm/pgtable.h>
-> @@ -84,8 +85,8 @@ static int store_updates_sp(struct pt_re
->   * The return value is 0 if the fault was handled, or the signal
->   * number if this is a kernel fault that can't be handled here.
->   */
-> -int do_page_fault(struct pt_regs *regs, unsigned long address,
-> -		  unsigned long error_code)
-> +int __kprobes do_page_fault(struct pt_regs *regs, unsigned long address,
-> +			    unsigned long error_code)
->  {
->  	struct vm_area_struct * vma;
->  	struct mm_struct *mm = current->mm;
-> diff -puN arch/ppc64/kernel/misc.S~kprobes-exclude-functions-ppc64 arch/ppc64/kernel/misc.S
-> --- linux-2.6.13-rc1-mm1/arch/ppc64/kernel/misc.S~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-> +++ linux-2.6.13-rc1-mm1-prasanna/arch/ppc64/kernel/misc.S	2005-07-07 10:24:00.000000000 +0530
-> @@ -183,7 +183,7 @@ PPC64_CACHES:
->   *   flush all bytes from start through stop-1 inclusive
->   */
->  
-> -_GLOBAL(__flush_icache_range)
-> +_KPROBE(__flush_icache_range)
->  
->  /*
->   * Flush the data cache to memory 
-> @@ -223,7 +223,7 @@ _GLOBAL(__flush_icache_range)
->  	bdnz	2b
->  	isync
->  	blr
-> -	
-> +	.previous .text
->  /*
->   * Like above, but only do the D-cache.
->   *
-> diff -puN include/asm-ppc64/processor.h~kprobes-exclude-functions-ppc64 include/asm-ppc64/processor.h
-> --- linux-2.6.13-rc1-mm1/include/asm-ppc64/processor.h~kprobes-exclude-functions-ppc64	2005-07-06 20:07:22.000000000 +0530
-> +++ linux-2.6.13-rc1-mm1-prasanna/include/asm-ppc64/processor.h	2005-07-07 10:22:29.000000000 +0530
-> @@ -309,6 +309,20 @@ name: \
->  	.type GLUE(.,name),@function; \
->  GLUE(.,name):
->  
-> +#define _KPROBE(name) \
-> +	.section ".kprobes.text","a"; \
-> +	.align 2 ; \
-> +	.globl name; \
-> +	.globl GLUE(.,name); \
-> +	.section ".opd","aw"; \
-> +name: \
-> +	.quad GLUE(.,name); \
-> +	.quad .TOC.@tocbase; \
-> +	.quad 0; \
-> +	.previous; \
-> +	.type GLUE(.,name),@function; \
-> +GLUE(.,name):
 > +
->  #define _STATIC(name) \
->  	.section ".text"; \
->  	.align 2 ; \
-> 
-> _
-> -- 
-> 
-> Prasanna S Panchamukhi
-> Linux Technology Center
-> India Software Labs, IBM Bangalore
-> Ph: 91-80-25044636
-> <prasanna@in.ibm.com>
+>  static inline struct vfsmount *mntget(struct vfsmount *mnt)
+
+Please don't add empty lines.
+
+Miklos

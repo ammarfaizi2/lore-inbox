@@ -1,36 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVGHRCj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbVGHRIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262715AbVGHRCj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 13:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbVGHRCj
+	id S262717AbVGHRIl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 13:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVGHRIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 13:02:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4042 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262715AbVGHRCi (ORCPT
+	Fri, 8 Jul 2005 13:08:41 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:43364 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262717AbVGHRIk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 13:02:38 -0400
-Date: Fri, 8 Jul 2005 10:02:19 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org, torvalds@osdl.org,
-       linux-audit@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add MAINTAINERS entry for audit subsystem
-Message-ID: <20050708170219.GA19052@shell0.pdx.osdl.net>
-References: <20050708011223.GS9046@shell0.pdx.osdl.net> <1120807113.3890.307.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Jul 2005 13:08:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=OYcoIeIBTPFkDdkYo1NF73Rh9bpGSz/M2QdYYu8Uy7AA9VY9IRzKVZbFudzG7KMD82OnHGb4aYg3jQ/CA2uQsoTWMhm4c4MhU5cSuSY2MMzJv2rBy8KPLH8QTkhTztYh/w3cxIXMKcZev/9m1FIJNZti36i6UA1e2tNruOrfM64=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Really __nocast-annotate kmalloc_node().
+Date: Fri, 8 Jul 2005 21:15:02 +0400
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, Victor Fusco <victor@cetuc.puc-rio.br>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1120807113.3890.307.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200507082115.02904.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David Woodhouse (dwmw2@infradead.org) wrote:
-> On Thu, 2005-07-07 at 18:12 -0700, Chris Wright wrote:
-> > I've been asked about this a couple times, and there's no info in
-> > MAINTAINERS file.  Add MAINTAINERS entry for audit subsystem.
-> 
-> It's already there in -mm, although I was evidently having a stupid day
-> and put it before Atmel.
+One chunk was lost somewhere between my and Andrew's machine.
 
-Sorry, David.  For some reason I missed that in the audit tree.
+Noticed by Victor Fusco.
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
+
+ include/linux/slab.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-vanilla/include/linux/slab.h	2005-07-08 13:52:46.000000000 +0400
++++ linux-slab/include/linux/slab.h	2005-07-08 21:02:47.000000000 +0400
+@@ -111,7 +111,7 @@ static inline void *kmem_cache_alloc_nod
+ {
+ 	return kmem_cache_alloc(cachep, flags);
+ }
+-static inline void *kmalloc_node(size_t size, int flags, int node)
++static inline void *kmalloc_node(size_t size, unsigned int __nocast flags, int node)
+ {
+ 	return kmalloc(size, flags);
+ }

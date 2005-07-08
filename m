@@ -1,94 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVGHUOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbVGHUTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbVGHUOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 16:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbVGHUJ6
+	id S262864AbVGHUTx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 16:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbVGHURW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 16:09:58 -0400
-Received: from vsmtp1alice.tin.it ([212.216.176.144]:14732 "EHLO
-	vsmtp1alice.tin.it") by vger.kernel.org with ESMTP id S262844AbVGHUGg
+	Fri, 8 Jul 2005 16:17:22 -0400
+Received: from bay103-f15.bay103.hotmail.com ([65.54.174.25]:3270 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262864AbVGHUQE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 16:06:36 -0400
-Message-ID: <42CEDC0B.2040803@inwind.it>
-Date: Fri, 08 Jul 2005 22:03:23 +0200
-From: federico <xaero@inwind.it>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050515)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kbd newbie [Fwd: Re: setkeycodes, sysrq, and USB keyboard]
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Jul 2005 16:16:04 -0400
+Message-ID: <BAY103-F15735CB496F2075E4B9494C4DB0@phx.gbl>
+X-Originating-IP: [65.54.174.201]
+X-Originating-Email: [jonschindler@hotmail.com]
+In-Reply-To: <p734qb5p04e.fsf@verdi.suse.de>
+From: "Jon Schindler" <jonschindler@hotmail.com>
+To: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: USB storage does not work with 3GB of RAM, but does with 2G of RAM
+Date: Fri, 08 Jul 2005 16:16:02 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 08 Jul 2005 20:16:03.0744 (UTC) FILETIME=[DD934A00:01C583F9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just thought that I would add, USB works fine if I boot with knoppix 3.9, 
+or with Windows XP, even with 3GB's of RAM installed.  It's only if I try to 
+use USB mass storage devices, Fedora Core 4 64 bit, and 3GB's of RAM at the 
+same time that I get this issue with USB.  If I change the OS to XP, but 
+keep the RAM at 3GB, it works fine.  If I remove some RAM and only run 2GB's 
+of RAM, then FC4 with the 2.6.12.1 64 bit kernel works fine.
+So, to sum things up:
+       RAM amount                OS            64or32bit               USB 
+storage works?
+            3GB                    FC4 2.6.12.1        64                    
+          no
+            2GB                    FC4 2.6.12.1        64                    
+          yes
+            3GB                         XP SP2           32                  
+            yes
+            2GB                         XP SP2           32                  
+            yes
+            3GB                  Knoppix 3.9           32                    
+          yes
+            2GB                  Knoppix 3.9           32                    
+          yes
+
+Thanks again,
+
+Jon
 
 
->>can you tell me in which source file this happens?
->>    
->>
-> 
->drivers/char/keyboard.c 
+>From: Andi Kleen <ak@suse.de>
+>To: "Jon Schindler" <jonschindler@hotmail.com>
+>CC: linux-kernel@vger.kernel.org
+>Subject: Re: USB storage does not work with 3GB of RAM, but does with 2G of 
+>RAM
+>Date: 08 Jul 2005 21:29:37 +0200
 >
-
-i looked at that source (sincerely, this is the first time i look into
-the linux sources! :)
-
-int setkeycode(unsigned int scancode, unsigned int keycode)
-{
-...
-    list_for_each(node,&kbd_handler.h_list) {
-        struct input_handle *handle = to_handle_h(node);
-        if (handle->dev->keycodesize) {
-            dev = handle->dev;
-            break;
-        }
-    }
-
-    if (!dev)
-        return -ENODEV;
-
-
-here i try to change scandodes for a keycode, but the the kernel says
-ENODEV.
-$ cat /proc/bus/input/devices   says me:
-
-I: Bus=0010 Vendor=001f Product=0001 Version=0100
-N: Name="PC Speaker"
-P: Phys=isa0061/input0
-H: Handlers=kbd event0
-...
-
-I: Bus=0003 Vendor=045e Product=0084 Version=0000
-N: Name="Microsoft Basic Optical Mouse"
-...
-
-I: Bus=0003 Vendor=05ac Product=0205 Version=0122
-N: Name="Mitsumi Electric Apple Extended USB Keyboard"
-P: Phys=usb-0000:00:02.1-1.1/input0
-H: Handlers=kbd event2
-B: EV=120013
-B: KEY=10000 7 ff87207a c14057ff febeffdf ffefffff ffffffff fffffffe
-B: MSC=10
-B: LED=1f
-
-I: Bus=0003 Vendor=05ac Product=0205 Version=0122
-N: Name="Mitsumi Electric Apple Extended USB Keyboard"
-P: Phys=usb-0000:00:02.1-1.1/input1
-H: Handlers=kbd event3
-B: EV=13
-B: KEY=1 0 10000 17a 800c000 e0000 0 0 0
-B: MSC=10
-
-
-that handler "kbd" is the one that should receive the scancodes?
-maybe the kernel can't get the device for that keyboard? or we miss a
-scancode table?
-
-sorry for my being so newbie ;)
-ciao!
-Federico
+>"Jon Schindler" <jonschindler@hotmail.com> writes:
+> >
+> > This mainly seems to be an issue with USB mass storage devices like
+> > USB memory sticks and USB hard drives (I've tried both, and neither is
+> > assigned a scsi device properly).  I am still able to use my USB mouse
+> > when I have 3GB installed.  I'm not sure if that makes it a USB 1.1
+> > issue or a USB storage issue, but hopefully someone will have some
+> > insight after looking at the logs.  Thanks in advance for any help.
+>
+>It sounds like the Nvidia EHCI controller has trouble DMAing to high
+>addresses. Would be a bad bug if true.
+>
+>Does it work when you disable EHCI and only enable OHCI? (this will
+>limit you to USB 1.1)
+>
+>-Andi
 
 

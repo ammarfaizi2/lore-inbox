@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVGHTpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262813AbVGHTnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbVGHTpU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 15:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbVGHTpK
+	id S262813AbVGHTnD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 15:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbVGHTl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 15:45:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43450 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262787AbVGHToM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 15:44:12 -0400
-Date: Fri, 8 Jul 2005 20:44:08 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] device-mapper snapshots: Handle origin extension
-Message-ID: <20050708194408.GI12355@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Fri, 8 Jul 2005 15:41:26 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:60308 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262813AbVGHTjR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 15:39:17 -0400
+Subject: Re: share/private/slave a subtree - define vs enum
+From: Ram <linuxram@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Pekka J Enberg <penberg@cs.helsinki.fi>,
+       Bryan Henderson <hbryan@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       bfields@fieldses.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, mike@waychison.com,
+       Miklos Szeredi <miklos@szeredi.hu>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <Pine.LNX.4.61.0507082108530.3728@scrub.home>
+References: <OFB01287B5.D35EDB80-ON88257038.005DEE97-88257038.005EDB8B@us.ibm.com>
+	 <courier.42CEC422.00001C6C@courier.cs.helsinki.fi>
+	 <Pine.LNX.4.61.0507082108530.3728@scrub.home>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1120851535.30164.155.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Jul 2005 12:38:55 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Handle writes to a snapshot-origin device that has been extended since
-the snapshot was taken.
+On Fri, 2005-07-08 at 12:11, Roman Zippel wrote:
+> Hi,
+> 
+> On Fri, 8 Jul 2005, Pekka J Enberg wrote:
+> 
+> > I don't see how the following is tortured: 
+> > enum {
+> >       PNODE_MEMBER_VFS  = 0x01,
+> >       PNODE_SLAVE_VFS   = 0x02
+> > }; 
+> > In fact, I think it is more natural. An almost identical example even appears
+> > in K&R. 
+> 
+> So it basically comes down to personal preference, if the original uses 
+> defines and it works fine, I don't really see a good enough reason to 
+> change it to enums, so please leave the decision to author.
 
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+Ok. I will change to enums whereever I define new categories of
+#defines. And leave the #defines for already existing category as is.
 
---- diff/drivers/md/dm-snap.c	2005-07-08 19:01:41.000000000 +0100
-+++ source/drivers/md/dm-snap.c	2005-07-08 19:41:00.000000000 +0100
-@@ -931,6 +931,10 @@
- 		if (!snap->valid)
- 			continue;
- 
-+		/* Nothing to do if writing beyond end of snapshot */
-+		if (bio->bi_sector >= dm_table_get_size(snap->table))
-+			continue;
-+
- 		down_write(&snap->lock);
- 
- 		/*
---- diff/drivers/md/dm-table.c	2005-06-17 20:48:29.000000000 +0100
-+++ source/drivers/md/dm-table.c	2005-07-08 19:41:00.000000000 +0100
-@@ -943,6 +943,7 @@
- EXPORT_SYMBOL(dm_get_device);
- EXPORT_SYMBOL(dm_put_device);
- EXPORT_SYMBOL(dm_table_event);
-+EXPORT_SYMBOL(dm_table_get_size);
- EXPORT_SYMBOL(dm_table_get_mode);
- EXPORT_SYMBOL(dm_table_put);
- EXPORT_SYMBOL(dm_table_get);
+RP
+
+

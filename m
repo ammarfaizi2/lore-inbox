@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262946AbVGHWfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262937AbVGHW26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262946AbVGHWfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 18:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262940AbVGHWd2
+	id S262937AbVGHW26 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 18:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbVGHW06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 18:33:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44475 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262925AbVGHWc2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 18:32:28 -0400
-Date: Fri, 8 Jul 2005 15:33:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: cw@f00f.org, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       christoph@lameter.org
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Message-Id: <20050708153327.224b56ae.akpm@osdl.org>
-In-Reply-To: <1120861349.6488.35.camel@mindpipe>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	<20050708214908.GA31225@taniwha.stupidest.org>
-	<20050708145953.0b2d8030.akpm@osdl.org>
-	<1120861349.6488.35.camel@mindpipe>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 8 Jul 2005 18:26:58 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:26831 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S262925AbVGHWZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 18:25:48 -0400
+Subject: Re: [0/48] Suspend2 2.1.9.8 for 2.6.12
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Stefan Seyfried <seife@suse.de>
+Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42CE8005.8020108@suse.de>
+References: <11206164393426@foobar.com> <20050706082230.GF1412@elf.ucw.cz>
+	 <20050706082230.GF1412@elf.ucw.cz> <1120696047.4860.525.camel@localhost>
+	 <E1DqV7G-0004PX-00@chiark.greenend.org.uk>
+	 <E1DqV7G-0004PX-00@chiark.greenend.org.uk>
+	 <1120738525.4860.1433.camel@localhost>
+	 <E1DqVp3-00064l-00@chiark.greenend.org.uk>  <42CE8005.8020108@suse.de>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1120861635.7716.6.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 09 Jul 2005 08:27:15 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
->
-> On Fri, 2005-07-08 at 14:59 -0700, Andrew Morton wrote:
-> > Chris Wedgwood <cw@f00f.org> wrote:
-> > >
-> > > On Thu, Jun 23, 2005 at 11:28:47AM -0700, Linux Kernel Mailing List wrote:
-> >           ^^^^^^
-> > 
-> > It's been over two weeks and nobody has complained about anything.
-> 
-> Wrong, I complained loudly about this as soon as it was posted, about
-> two weeks ago.
+Hi.
 
-You know what I mean.  Nobody has yet reported adverse effects upon real
-applications.
+On Fri, 2005-07-08 at 23:30, Stefan Seyfried wrote:
+> Matthew Garrett wrote:
+> 
+> > Right, so you support the resume from disk trigger in sysfs and the
+> > /proc/acpi/sleep interface? If suspend2 is a complete dropin replacement
+> > then I'm much happier with the idea of dropping swsusp, but I don't want
+> > to have to tie suspend/resume scripts to kernel versions.
+> 
+> JFTR: i second this. There is already enough hackery involved if one
+> wants to provide a smooth user experience ;-)
+
+Consider it promised, and feel free to poke me if I forget! (That said,
+I won't now!).
+
+Regards,
+
+Nigel
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
+Be amazed that people believe it happened. 
 

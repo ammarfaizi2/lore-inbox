@@ -1,73 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVGHL2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVGHLiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbVGHL2E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 07:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVGHL2E
+	id S262569AbVGHLiS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 07:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbVGHLiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 07:28:04 -0400
-Received: from aeimail.aei.ca ([206.123.6.84]:51921 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S262433AbVGHL2C convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 07:28:02 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Stelian Pop <stelian@popies.net>
-Subject: Re: GIT tree broken? (rsync depreciated)
-Date: Fri, 8 Jul 2005 07:28:16 -0400
-User-Agent: KMail/1.8.1
-Cc: Meelis Roos <mroos@linux.ee>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <Pine.SOC.4.61.0507081227540.25021@math.ut.ee> <1120816858.4688.4.camel@localhost.localdomain>
-In-Reply-To: <1120816858.4688.4.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200507080728.17192.tomlins@cam.org>
+	Fri, 8 Jul 2005 07:38:18 -0400
+Received: from oldconomy.demon.nl ([212.238.217.56]:18883 "EHLO
+	artemis.slagter.name") by vger.kernel.org with ESMTP
+	id S262552AbVGHLiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 07:38:13 -0400
+Subject: Re: [git patches] IDE update
+From: Erik Slagter <erik@slagter.name>
+To: Grant Coady <grant_lkml@dodo.com.au>
+Cc: Mark Lord <liml@rtr.ca>, Jens Axboe <axboe@suse.de>,
+       Ondrej Zary <linux@rainbow-software.org>,
+       =?ISO-8859-1?Q?Andr=E9?= Tomt <andre@tomt.net>,
+       Al Boldi <a1426z@gawab.com>,
+       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
+       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <koerc1h7m0iri2pdrvsa0pu2tjakobq78o@4ax.com>
+References: <42C9C56D.7040701@tomt.net>
+	 <42CA5A84.1060005@rainbow-software.org> <20050705101414.GB18504@suse.de>
+	 <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de>
+	 <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux>
+	 <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux>
+	 <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de>
+	 <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com> <42CDAD94.7000306@rtr.ca>
+	 <koerc1h7m0iri2pdrvsa0pu2tjakobq78o@4ax.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4txJhgJWWR6AwRZDpPBm"
+Date: Fri, 08 Jul 2005 13:37:42 +0200
+Message-Id: <1120822662.23681.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-8) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I resync(ed) cg and rebuild this morning and it worked fine.  
+--=-4txJhgJWWR6AwRZDpPBm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On another tack.  Updating the kernel gave a message that rsync is depreciated and
-will soon be turned off.  How should we be updating git/cg trees now?
+On Fri, 2005-07-08 at 10:06 +1000, Grant Coady wrote:
 
-Thanks
-Ed Tomlinson
+> I've not been able to get dual channel I/O speed faster than single=20
+> interface speed, either as 'md' RAID0 or simultaneous reading or=20
+> writing done the other day:
+>=20
+> Time to write or read 500MB file:
+>=20
+> >summary		2.4.31-hf1	2.6.12.2
+> >boxen \ time ->	 w 	 r	 w	 r
+> >---------------	----	----	----	----
+> ...
+> >peetoo			33	20	26.5	22
+> >(simultaneuous		57	37.5	52	38.5)
+>=20
+> MB/s		2.4.31-hf1	2.6.12.2
+> 		w	r	w	r
+> single		15	25	19	23
+> dual		17.5	27	19	26
+>=20
+> These timings show very little happening in parallel, is that normal?
 
-On Friday 08 July 2005 06:00, Stelian Pop wrote:
-> Le vendredi 08 juillet 2005 à 12:30 +0300, Meelis Roos a écrit :
-> > I'm trying to sync with 
-> > rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git 
-> > with cogito cg-update (cogito 0.11.3+20050610-1 Debian package) and it 
-> > fails with the following error:
-> > 
-> > Applying changes...
-> > error: cannot map sha1 file 043d051615aa5da09a7e44f1edbb69798458e067
-> > error: Could not read 043d051615aa5da09a7e44f1edbb69798458e067
-> > cg-merge: unable to automatically determine merge base
-> 
-> I see this too, with the latest cogito git tree, reproductible even in a
-> fresh environment:
-> 
-> $ rm -rf linux-2.6.git
-> $ cg-clone
-> http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-> linux-2.6.git
-> defaulting to local storage area
-> 
-> 11:57:48
-> URL:http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/refs/heads/master[41/41] -> "refs/heads/origin" [1] 
-> progress: 2 objects, 981 bytes
-> error: File 2a7e338ec2fc6aac461a11fe8049799e65639166
-> (http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/objects/2a/7e338ec2fc6aac461a11fe8049799e65639166) corrupt
-> 
-> Cannot obtain needed blob 2a7e338ec2fc6aac461a11fe8049799e65639166
-> while processing commit 0000000000000000000000000000000000000000.
-> cg-pull: objects pull failed
-> cg-init: pull failed
-> 
-> Stelian.
+"me too" ;-)
+
+--=-4txJhgJWWR6AwRZDpPBm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCzmWGJgD/6j32wUYRAr8rAJ9190t/vD4C2LrnRiSGmSiX7nvxeACfSBFN
+cfHF0oTcpeJPobjfZ2H3Ktg=
+=BWwZ
+-----END PGP SIGNATURE-----
+
+--=-4txJhgJWWR6AwRZDpPBm--

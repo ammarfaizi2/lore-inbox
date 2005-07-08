@@ -1,84 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVGHQ3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262708AbVGHQag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbVGHQ3L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 12:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbVGHQ3K
+	id S262708AbVGHQag (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 12:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbVGHQaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 12:29:10 -0400
-Received: from web81301.mail.yahoo.com ([206.190.37.76]:53601 "HELO
-	web81301.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262701AbVGHQ3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 12:29:09 -0400
-Message-ID: <20050708162908.715.qmail@web81301.mail.yahoo.com>
-Date: Fri, 8 Jul 2005 09:29:08 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Synaptics Touchpad not detected in 2.6.13-rc2
-To: Mattia Dongili <malattia@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dmitry Torokhov <dtor@mail.ru>
-In-Reply-To: <20050708125537.GA4191@inferi.kami.home>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 8 Jul 2005 12:30:24 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:24258 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262703AbVGHQ3P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 12:29:15 -0400
+Subject: Re: [RFC PATCH 1/8] share/private/slave a subtree
+From: Ram <linuxram@us.ibm.com>
+To: Pekka Enberg <penberg@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
+       mike@waychison.com, bfields@fieldses.org,
+       Miklos Szeredi <miklos@szeredi.hu>,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+In-Reply-To: <84144f0205070804171d7c9726@mail.gmail.com>
+References: <1120816072.30164.10.camel@localhost>
+	 <1120816229.30164.13.camel@localhost> <1120817463.30164.43.camel@localhost>
+	 <84144f0205070804171d7c9726@mail.gmail.com>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1120840148.30164.99.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Jul 2005 09:29:08 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mattia Dongili <malattia@gmail.com> wrote:
-> On Thu, Jul 07, 2005 at 11:28:55PM +0200, Vojtech Pavlik wrote:
-> > On Thu, Jul 07, 2005 at 11:24:43PM +0200, Mattia Dongili wrote:
-> > > On Thu, Jul 07, 2005 at 01:02:38PM -0700, Dmitry Torokhov wrote:
-> > > > Mattia Dongili <malattia@gmail.com> wrote:
-> [...]
-> > > oh, it seems I'm not able to reproduce the error anymore!
-> > > I need some rest now, I'll try again tomorrow morning (I must be missing
-> > > something stupid right now) and report to you again.
-> >  
-> > Could be the enabled debug is adding extra delay, making the problem
-> > impossible to reproduce. IIRC, we've seen this with an ALPS pad, too,
-> > Dmitry, right?
+On Fri, 2005-07-08 at 04:17, Pekka Enberg wrote:
+> On 7/8/05, Ram <linuxram@us.ibm.com> wrote:
+> > This patch adds the shared/private/slave support for VFS trees.
 > 
-> Sorry, it took me a while but I got the error finally (see below for the
-> debug log). Anyway I suspect it's most likely a bios or hw problem, a
-> cold boot shows the issue, simply reboot-ing cures it (keeping the
-> ps2_adjust_timeout in place).
-> Also, not every cold boot shows the issue, I reproduced it at the 3rd
-> try today.
-> So I believe all my previous suspecions are mostly void.
+> Inlining the patches to email would be greatly appreciated. Here are
+> some comments.
 > 
+> > +int
+> > +_do_make_mounted(struct nameidata *nd, struct vfsmount **mnt)
+> 
+> Use two underscores to follow naming conventions.
 
-I see several possible issues:
+I have renamed this function as make_mounted() in the 2nd patch.
+Sure, will follow the convention.
 
-> PNP: No PS/2 controller found. Probing ports directly.
+> 
+> > Index: 2.6.12/fs/pnode.c
+> > ===================================================================
+> > --- /dev/null
+> > +++ 2.6.12/fs/pnode.c
+> > @@ -0,0 +1,362 @@
+> > +
+> > +#define PNODE_MEMBER_VFS  0x01
+> > +#define PNODE_SLAVE_VFS   0x02
+> 
+> Enums, please.
 
-Does it show this line when touchpad is being detected? 
-Do you have PNPACPI turned on?
+ok.
 
-> i8042.c: Detected active multiplexing controller, rev 5.3.
+> 
+> > +
+> > +static kmem_cache_t * pnode_cachep;
+> > +
+> > +/* spinlock for pnode related operations */
+> > + __cacheline_aligned_in_smp DEFINE_SPINLOCK(vfspnode_lock);
+> > +
+> > +
+> > +static void
+> > +pnode_init_fn(void *data, kmem_cache_t *cachep, unsigned long flags)
+> > +{
+> > +	struct vfspnode *pnode = (struct vfspnode *)data;
+> 
+> Redundant cast.
 
-Revision 5.3 is suspicious. The last posted one is 1.1
-Again, when touchpad is detected, does it show this or 1.{0|1}?
+ok.
 
-> serio: i8042 AUX0 port at 0x60,0x64 irq 12
-> serio: i8042 AUX1 port at 0x60,0x64 irq 12
-> serio: i8042 AUX2 port at 0x60,0x64 irq 12
-> serio: i8042 AUX3 port at 0x60,0x64 irq 12
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> mice: PS/2 mouse device common for all mice
+> 
+> > +	INIT_LIST_HEAD(&pnode->pnode_vfs);
+> > +	INIT_LIST_HEAD(&pnode->pnode_slavevfs);
+> > +	INIT_LIST_HEAD(&pnode->pnode_slavepnode);
+> > +	INIT_LIST_HEAD(&pnode->pnode_peer_slave);
+> > +	pnode->pnode_master = NULL;
+> > +	pnode->pnode_flags = 0;
+> > +	atomic_set(&pnode->pnode_count,0);
+> > +}
+> > +
+> > +void __init
+> > +pnode_init(unsigned long mempages)
+> > +{
+> > +	pnode_cachep = kmem_cache_create("pnode_cache",
+> > +                       sizeof(struct vfspnode), 0,
+> > +                       SLAB_HWCACHE_ALIGN|SLAB_PANIC, pnode_init_fn, NULL);
+> > +}
+> > +
+> > +
+> > +struct vfspnode *
+> > +pnode_alloc(void)
+> > +{
+> > +	struct vfspnode *pnode =  (struct vfspnode *)kmem_cache_alloc(
+> > +			pnode_cachep, GFP_KERNEL);
+> 
+> Redundant cast.
 
-And now the real problem:
+ok.
 
-> drivers/input/serio/i8042.c: 91 -> i8042 (command) [220803]
-> drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [220803]
-> drivers/input/serio/i8042.c: fa <- i8042 (interrupt, KBD, 1) [220806]
+> 
+> > +struct inoutdata {
+> 
+> Wants a better name.
 
-We are trying to talk to AUX port but KBC replies as if data
-is coming from the keyboard port.
+ok. something like propogation_data? or pdata?
 
-Does it help if you boot with "usb-handoff" kernel option? Another
-one would be "i8042.nomux". Btw, does your laptop have external
-PS/2 ports?
+> 
+> > +	void *my_data; /* produced and consumed by me */
+> > +	void *in_data; /* produced by master, consumed by slave */
+> > +	void *out_data; /* produced by slave, comsume by master */
+> > +};
+> > +
+> > +struct pcontext {
+> > +	struct vfspnode *start;
+> > +	int 	flag;
+> > +	int 	traversal;
+> > +	int	level;
+> > +	struct vfspnode *master_pnode;
+> > +	struct vfspnode *pnode;
+> > +	struct vfspnode *slave_pnode;
+> > +};
+> > +
+> > +
+> > +#define PNODE_UP 1
+> > +#define PNODE_DOWN 2
+> > +#define PNODE_MID 3
+> 
+> Enums, please.
 
--- 
-Dmitry
+ok. I will incorporate all the rest of the comments.  There are lots of
+places as noted by you I need to following the coding style. I will.
+
+Thanks,
+RP
+ 
 

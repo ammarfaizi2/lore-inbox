@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVGGXVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVGHAHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbVGGXVk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 19:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbVGGXVk
+	id S262335AbVGHAHs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 20:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVGHAHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 19:21:40 -0400
-Received: from smtp4.netcabo.pt ([212.113.174.31]:26675 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262316AbVGGXVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 19:21:39 -0400
-Message-ID: <49943.192.168.1.5.1120778373.squirrel@www.rncbc.org>
-In-Reply-To: <20050707194914.GA1161@elte.hu>
-References: <1119299227.20873.113.camel@cmn37.stanford.edu>
-    <20050621105954.GA18765@elte.hu>
-    <1119370868.26957.9.camel@cmn37.stanford.edu>
-    <20050621164622.GA30225@elte.hu>
-    <1119375988.28018.44.camel@cmn37.stanford.edu>
-    <1120256404.22902.46.camel@cmn37.stanford.edu>
-    <20050703133738.GB14260@elte.hu>
-    <1120428465.21398.2.camel@cmn37.stanford.edu>
-    <24833.195.245.190.94.1120761991.squirrel@www.rncbc.org>
-    <20050707194914.GA1161@elte.hu>
-Date: Fri, 8 Jul 2005 00:19:33 +0100 (WEST)
-Subject: Re: realtime-preempt-2.6.12-final-V0.7.51-11 glitches
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4
+	Thu, 7 Jul 2005 20:07:48 -0400
+Received: from [202.136.32.45] ([202.136.32.45]:2277 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S262335AbVGHAHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 20:07:45 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Mark Lord <liml@rtr.ca>
+Cc: Jens Axboe <axboe@suse.de>, Ondrej Zary <linux@rainbow-software.org>,
+       =?ISO-8859-1?Q?=20Andr=E9?= Tomt <andre@tomt.net>,
+       Al Boldi <a1426z@gawab.com>,
+       "'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>,
+       "'Linus Torvalds'" <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [git patches] IDE update
+Date: Fri, 08 Jul 2005 10:06:43 +1000
+Organization: <http://scatter.mine.nu/>
+Message-ID: <koerc1h7m0iri2pdrvsa0pu2tjakobq78o@4ax.com>
+References: <42C9C56D.7040701@tomt.net> <42CA5A84.1060005@rainbow-software.org> <20050705101414.GB18504@suse.de> <42CA5EAD.7070005@rainbow-software.org> <20050705104208.GA20620@suse.de> <42CA7EA9.1010409@rainbow-software.org> <1120567900.12942.8.camel@linux> <42CA84DB.2050506@rainbow-software.org> <1120569095.12942.11.camel@linux> <42CAAC7D.2050604@rainbow-software.org> <20050705142122.GY1444@suse.de> <6m8mc1lhug5d345uqikru1vpsqi6hciv41@4ax.com> <42CDAD94.7000306@rtr.ca>
+In-Reply-To: <42CDAD94.7000306@rtr.ca>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 07 Jul 2005 23:21:37.0945 (UTC) FILETIME=[9FA9C890:01C5834A]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * Rui Nuno Capela <rncbc@rncbc.org> wrote:
+On Thu, 07 Jul 2005 18:32:52 -0400, Mark Lord <liml@rtr.ca> wrote:
 >
->> Hi all,
->>
->> These are one of my latest consolidated results while using (my)
->> jack_test4.2 suite, against a couple of 2.6.12 kernels patched for
->> PREEMPT_RT, on my P4@2.5GHz/UP laptop.
->>
->> See anything funny?
->
-> hm, you dont seem to have PREEMPT_RT enabled in your .config - it's set
-> to PREEMPT_DESKTOP (config-2.6.12-RT-V0.7.51-11.0). OTOH, your 49-01
-> config has PREEMPT_RT enabled. So it's not an apples to apples
-> comparison. Just to make sure, could you check 51-11 with PREEMPT_RT
-> enabled too?
->
+>hdparm can also use O_DIRECT for the -t timing test.
 
-Damn. You're right... grrr! I gotta spank myself later... I've been
-running PREEMPT_DESKTOP all along since V0.7.5x . Anyway, all that seems
-to show some pretty figures on the distinction between PREEMPT_DESKTOP and
-PREEMPT_RT performance :)
+I've not been able to get dual channel I/O speed faster than single 
+interface speed, either as 'md' RAID0 or simultaneous reading or 
+writing done the other day:
 
-> i have just done a jack_test4.1 run, and indeed larger latencies seem to
-> have crept in. (But i forgot to chrt the sound IRQ above the network
-> IRQ, so i'll retest.)
->
+Time to write or read 500MB file:
 
-I will do my homework too ;)
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+>summary		2.4.31-hf1	2.6.12.2
+>boxen \ time ->	 w 	 r	 w	 r
+>---------------	----	----	----	----
+...
+>peetoo			33	20	26.5	22
+>(simultaneuous		57	37.5	52	38.5)
+
+MB/s		2.4.31-hf1	2.6.12.2
+		w	r	w	r
+single		15	25	19	23
+dual		17.5	27	19	26
+
+These timings show very little happening in parallel, is that normal?
+
+Thanks,
+--Grant.
 

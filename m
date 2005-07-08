@@ -1,33 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVGHIKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262218AbVGHIM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbVGHIKc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 04:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVGHIKc
+	id S262218AbVGHIM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 04:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbVGHIM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 04:10:32 -0400
-Received: from rfhs0023.fh-regensburg.de ([194.95.104.23]:21449 "HELO
-	rfhs0023.fh-regensburg.de") by vger.kernel.org with SMTP
-	id S262145AbVGHIK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 04:10:29 -0400
-From: Markus Boas <ryven@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: useful Bug 2.6.13-rc1-mm1
-Date: Fri, 8 Jul 2005 10:09:50 +0200
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Jul 2005 04:12:56 -0400
+Received: from zenon.apartia.fr ([82.66.93.83]:41673 "EHLO zenon.apartia.org")
+	by vger.kernel.org with ESMTP id S262218AbVGHIKy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 04:10:54 -0400
+Date: Fri, 8 Jul 2005 10:10:50 +0200
+From: Louis-David Mitterrand <vindex@apartia.org>
+To: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: how to use compression with reiser4
+Message-ID: <20050708081050.GA6608@apartia.fr>
+Mail-Followup-To: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507081009.50571.ryven@gmx.de>
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.0.3.2, Antispam-Data: 2005.7.8.0
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CD 0, __CT 0, __CTE 0, __CTYPE_CHARSET_QUOTED 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found a for my useful bug in 2.6.13-rc1-mm1 but only on x86-64.
-With ifdown ifup eth0 I was able to reset the tx and rx bit-counter.
-How it is use in x86 enviroment?
+Hello,
 
-Thx
-	Ryven
+I just converted a server to reiser4 for a big speed gain. Thanks, this
+looks really promising.
+
+How can I activate compression on certain parts of the filesystem? (I
+digged google for this without finding anything).

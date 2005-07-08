@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVGHDDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbVGHDL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVGHDDI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 23:03:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVGHDDI
+	id S262479AbVGHDL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 23:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVGHDLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 23:03:08 -0400
-Received: from ozlabs.org ([203.10.76.45]:32999 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261347AbVGHDDH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 23:03:07 -0400
-Date: Fri, 8 Jul 2005 12:44:31 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: avi@argo.co.il, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Hugepage COW
-Message-ID: <20050708024431.GB30761@localhost.localdomain>
-Mail-Followup-To: Stephen Rothwell <sfr@canb.auug.org.au>, avi@argo.co.il,
-	linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-References: <20050707055554.GC11246@localhost.localdomain> <1120718967.2989.7.camel@blast.q> <20050707092425.GA10044@localhost.localdomain> <20050707225325.082ced8f.sfr@canb.auug.org.au>
+	Thu, 7 Jul 2005 23:11:55 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:7077
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262479AbVGHDLt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 23:11:49 -0400
+Date: Thu, 07 Jul 2005 20:11:03 -0700 (PDT)
+Message-Id: <20050707.201103.41635951.davem@davemloft.net>
+To: linville@tuxdriver.com
+Cc: ink@jurassic.park.msu.ru, rmk+lkml@arm.linux.org.uk, matthew@wil.cx,
+       grundler@parisc-linux.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com,
+       ambx1@neo.rr.com
+Subject: Re: [patch 2.6.12 (repost w/ corrected subject)] pci: restore BAR
+ values in pci_enable_device_bars
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050708005701.GA13384@tuxdriver.com>
+References: <20050705224620.B15292@flint.arm.linux.org.uk>
+	<20050706033454.A706@den.park.msu.ru>
+	<20050708005701.GA13384@tuxdriver.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
-Content-Disposition: inline
-In-Reply-To: <20050707225325.082ced8f.sfr@canb.auug.org.au>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "John W. Linville" <linville@tuxdriver.com>
+Date: Thu, 7 Jul 2005 20:57:04 -0400
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Problem: pci_update_resource doesn't exist for sparc64.
 
-On Thu, Jul 07, 2005 at 10:53:25PM +1000, Stephen Rothwell wrote:
-> On Thu, 7 Jul 2005 19:24:25 +1000 David Gibson <david@gibson.dropbear.id.=
-au> wrote:
-> >
-> > That's not necessarily possible.  On some archs - ppc64 for one -
-> > the mmu has to be set up for hugepages on a granularity greater than
-> > the hugepage size.  So you can just arbitrarily substitute normal
->                              ^^^
-> presumably you meant "cannot"
+Yes, the drivers/pci/setup-res.c code isn't compiled in on
+sparc64 because it assumes a totally different model of
+PCI bus probing than we use on sparc64.
 
-Oops.. yes, indeed.
-
-> > pages for hugepages.
-
---=20
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/people/dgibson
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCzeiOaILKxv3ab8YRAqfIAKCDfg6EgUe7VQAHiqKNLusLG61P3gCfcxTs
-xsPrV2HkxJ550e4zzY/Mw/Y=
-=jRLv
------END PGP SIGNATURE-----
-
---9jxsPFA5p3P2qPhR--
+On sparc64, we check out if the boot firmware has assigned
+the PCI resources for the device, and if so we just leave
+things alone.  We also make sure that the firmware device
+tree properties mostly match what the PCI config space registers
+say and we spit out a warning message if not.

@@ -1,385 +1,307 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVGHLCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbVGHLE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262495AbVGHLCb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 07:02:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbVGHLCa
+	id S262501AbVGHLE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 07:04:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbVGHLEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 07:02:30 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:29826 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262495AbVGHLCY (ORCPT
+	Fri, 8 Jul 2005 07:04:51 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:47291 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262509AbVGHLEg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 07:02:24 -0400
-Date: Fri, 8 Jul 2005 16:32:32 +0530
+	Fri, 8 Jul 2005 07:04:36 -0400
+Date: Fri, 8 Jul 2005 16:35:11 +0530
 From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
+Cc: akpm@osdl.org, "David S. Miller" <davem@davemloft.net>,
        systemtap@sources.redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [1/6 PATCH] Kprobes : Prevent possible race conditions generic changes
-Message-ID: <20050708110232.GE29277@in.ibm.com>
+Subject: Re: [2/6 PATCH] Kprobes : Prevent possible race conditions i386 changes
+Message-ID: <20050708110511.GA15502@in.ibm.com>
 Reply-To: prasanna@in.ibm.com
-References: <20050707101015.GE12106@in.ibm.com> <20050707032537.7588acb9.akpm@osdl.org> <20050707103421.GU21330@wotan.suse.de> <20050707130134.GA29266@in.ibm.com>
+References: <20050707101015.GE12106@in.ibm.com> <20050707101119.GF12106@in.ibm.com> <20050707131906.GY21330@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050707130134.GA29266@in.ibm.com>
+In-Reply-To: <20050707131906.GY21330@wotan.suse.de>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Hi Andi,
 
-I have modified the patches as per your's and Andi's comments.
-Also modified entry.S for i386 and x86_64 architecture, to move
-few exception handlers page fault, general protection, int3, debug
-to .kprobes.text section. Also ia64 specific patch contains more
-routines from jprobes.S file as per Anil's comment.
+I have updated the patch as per your comments to move int3,debug, page_fault,
+general_protection routines to .kprobes.text section.
 
-Please let me know if you have any issues.
+Please let me know if you any issues.
 
 Thanks
 Prasanna
 
 
-There are possible race conditions if probes are placed on routines within the
-kprobes files and routines used by the kprobes. For example if you put probe on
-get_kprobe() routines, the system can hang while inserting probes on
-any routine such as do_fork(). Because while inserting probes on do_fork(),
-register_kprobes() routine grabs the kprobes spin lock and executes get_kprobe()
-routine and to handle probe of get_kprobe(), kprobes_handler() gets executed 
-and tries to grab kprobes spin lock, and spins forever. This patch avoids such
-possible race conditions by preventing probes on routines within the kprobes
-file and routines used by kprobes.
-
-I have modified the patches as per Andi Kleen's suggestion to move kprobes
-routines and other routines used by kprobes to a seperate section .kprobes.text.
-Also moved page fault and exception handlers, general protection fault to 
-.kprobes.text section.
-These patches have been tested on i386, x86_64 and ppc64 architectures,
-also compiled on ia64 and sparc64 architectures.
+This patch contains the i386 architecture specific changes to
+prevent the possible race conditions.
 
 Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 
 
 ---
 
- linux-2.6.13-rc1-mm1-prasanna/include/asm-generic/sections.h    |    1 
- linux-2.6.13-rc1-mm1-prasanna/include/asm-generic/vmlinux.lds.h |    5 
- linux-2.6.13-rc1-mm1-prasanna/include/linux/kprobes.h           |    3 
- linux-2.6.13-rc1-mm1-prasanna/include/linux/linkage.h           |    7 
- linux-2.6.13-rc1-mm1-prasanna/kernel/kprobes.c                  |   72 +++++-----
- 5 files changed, 59 insertions(+), 29 deletions(-)
+ linux-2.6.13-rc1-mm1-prasanna/arch/i386/kernel/entry.S       |   13 +++-
+ linux-2.6.13-rc1-mm1-prasanna/arch/i386/kernel/kprobes.c     |   29 +++++------
+ linux-2.6.13-rc1-mm1-prasanna/arch/i386/kernel/traps.c       |   12 ++--
+ linux-2.6.13-rc1-mm1-prasanna/arch/i386/kernel/vmlinux.lds.S |    1 
+ linux-2.6.13-rc1-mm1-prasanna/arch/i386/mm/fault.c           |    4 +
+ 5 files changed, 34 insertions(+), 25 deletions(-)
 
-diff -puN kernel/kprobes.c~kprobes-exclude-functions-generic kernel/kprobes.c
---- linux-2.6.13-rc1-mm1/kernel/kprobes.c~kprobes-exclude-functions-generic	2005-07-08 14:05:14.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/kernel/kprobes.c	2005-07-08 14:05:14.000000000 +0530
-@@ -37,6 +37,7 @@
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/moduleloader.h>
-+#include <asm-generic/sections.h>
- #include <asm/cacheflush.h>
- #include <asm/errno.h>
- #include <asm/kdebug.h>
-@@ -72,7 +73,7 @@ static struct hlist_head kprobe_insn_pag
-  * get_insn_slot() - Find a slot on an executable page for an instruction.
-  * We allocate an executable page if there's no room on existing ones.
-  */
--kprobe_opcode_t *get_insn_slot(void)
-+kprobe_opcode_t __kprobes *get_insn_slot(void)
- {
- 	struct kprobe_insn_page *kip;
- 	struct hlist_node *pos;
-@@ -117,7 +118,7 @@ kprobe_opcode_t *get_insn_slot(void)
- 	return kip->insns;
- }
- 
--void free_insn_slot(kprobe_opcode_t *slot)
-+void __kprobes free_insn_slot(kprobe_opcode_t *slot)
- {
- 	struct kprobe_insn_page *kip;
- 	struct hlist_node *pos;
-@@ -152,20 +153,20 @@ void free_insn_slot(kprobe_opcode_t *slo
- }
- 
- /* Locks kprobe: irqs must be disabled */
--void lock_kprobes(void)
-+void __kprobes lock_kprobes(void)
- {
- 	spin_lock(&kprobe_lock);
- 	kprobe_cpu = smp_processor_id();
- }
- 
--void unlock_kprobes(void)
-+void __kprobes unlock_kprobes(void)
- {
- 	kprobe_cpu = NR_CPUS;
- 	spin_unlock(&kprobe_lock);
- }
- 
- /* You have to be holding the kprobe_lock */
--struct kprobe *get_kprobe(void *addr)
-+struct kprobe __kprobes *get_kprobe(void *addr)
- {
- 	struct hlist_head *head;
- 	struct hlist_node *node;
-@@ -183,7 +184,7 @@ struct kprobe *get_kprobe(void *addr)
-  * Aggregate handlers for multiple kprobes support - these handlers
-  * take care of invoking the individual kprobe handlers on p->list
-  */
--static int aggr_pre_handler(struct kprobe *p, struct pt_regs *regs)
-+static int __kprobes aggr_pre_handler(struct kprobe *p, struct pt_regs *regs)
- {
- 	struct kprobe *kp;
- 
-@@ -198,8 +199,8 @@ static int aggr_pre_handler(struct kprob
+diff -puN arch/i386/kernel/kprobes.c~kprobes-exclude-functions-i386 arch/i386/kernel/kprobes.c
+--- linux-2.6.13-rc1-mm1/arch/i386/kernel/kprobes.c~kprobes-exclude-functions-i386	2005-07-08 12:09:51.000000000 +0530
++++ linux-2.6.13-rc1-mm1-prasanna/arch/i386/kernel/kprobes.c	2005-07-08 12:09:51.000000000 +0530
+@@ -62,32 +62,32 @@ static inline int is_IF_modifier(kprobe_
  	return 0;
  }
  
--static void aggr_post_handler(struct kprobe *p, struct pt_regs *regs,
--			      unsigned long flags)
-+static void __kprobes aggr_post_handler(struct kprobe *p, struct pt_regs *regs,
-+					unsigned long flags)
+-int arch_prepare_kprobe(struct kprobe *p)
++int __kprobes arch_prepare_kprobe(struct kprobe *p)
  {
- 	struct kprobe *kp;
- 
-@@ -213,8 +214,8 @@ static void aggr_post_handler(struct kpr
- 	return;
- }
- 
--static int aggr_fault_handler(struct kprobe *p, struct pt_regs *regs,
--			      int trapnr)
-+static int __kprobes aggr_fault_handler(struct kprobe *p, struct pt_regs *regs,
-+					int trapnr)
- {
- 	/*
- 	 * if we faulted "during" the execution of a user specified
-@@ -227,7 +228,7 @@ static int aggr_fault_handler(struct kpr
  	return 0;
  }
  
--static int aggr_break_handler(struct kprobe *p, struct pt_regs *regs)
-+static int __kprobes aggr_break_handler(struct kprobe *p, struct pt_regs *regs)
+-void arch_copy_kprobe(struct kprobe *p)
++void __kprobes arch_copy_kprobe(struct kprobe *p)
  {
- 	struct kprobe *kp = curr_kprobe;
- 	if (curr_kprobe && kp->break_handler) {
-@@ -240,7 +241,7 @@ static int aggr_break_handler(struct kpr
- 	return 0;
+ 	memcpy(p->ainsn.insn, p->addr, MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
+ 	p->opcode = *p->addr;
  }
  
--struct kretprobe_instance *get_free_rp_inst(struct kretprobe *rp)
-+struct kretprobe_instance __kprobes *get_free_rp_inst(struct kretprobe *rp)
+-void arch_arm_kprobe(struct kprobe *p)
++void __kprobes arch_arm_kprobe(struct kprobe *p)
  {
- 	struct hlist_node *node;
- 	struct kretprobe_instance *ri;
-@@ -249,7 +250,8 @@ struct kretprobe_instance *get_free_rp_i
- 	return NULL;
+ 	*p->addr = BREAKPOINT_INSTRUCTION;
+ 	flush_icache_range((unsigned long) p->addr,
+ 			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
  }
  
--static struct kretprobe_instance *get_used_rp_inst(struct kretprobe *rp)
-+static struct kretprobe_instance __kprobes *get_used_rp_inst(struct kretprobe
-+							      *rp)
+-void arch_disarm_kprobe(struct kprobe *p)
++void __kprobes arch_disarm_kprobe(struct kprobe *p)
  {
- 	struct hlist_node *node;
- 	struct kretprobe_instance *ri;
-@@ -258,7 +260,7 @@ static struct kretprobe_instance *get_us
- 	return NULL;
+ 	*p->addr = p->opcode;
+ 	flush_icache_range((unsigned long) p->addr,
+ 			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
  }
  
--void add_rp_inst(struct kretprobe_instance *ri)
-+void __kprobes add_rp_inst(struct kretprobe_instance *ri)
+-void arch_remove_kprobe(struct kprobe *p)
++void __kprobes arch_remove_kprobe(struct kprobe *p)
  {
- 	/*
- 	 * Remove rp inst off the free list -
-@@ -276,7 +278,7 @@ void add_rp_inst(struct kretprobe_instan
- 	hlist_add_head(&ri->uflist, &ri->rp->used_instances);
  }
  
--void recycle_rp_inst(struct kretprobe_instance *ri)
-+void __kprobes recycle_rp_inst(struct kretprobe_instance *ri)
- {
- 	/* remove rp inst off the rprobe_inst_table */
- 	hlist_del(&ri->hlist);
-@@ -291,7 +293,7 @@ void recycle_rp_inst(struct kretprobe_in
- 		kfree(ri);
+@@ -127,7 +127,8 @@ static inline void prepare_singlestep(st
+ 		regs->eip = (unsigned long)&p->ainsn.insn;
  }
  
--struct hlist_head * kretprobe_inst_table_head(struct task_struct *tsk)
-+struct hlist_head __kprobes *kretprobe_inst_table_head(struct task_struct *tsk)
+-void arch_prepare_kretprobe(struct kretprobe *rp, struct pt_regs *regs)
++void __kprobes arch_prepare_kretprobe(struct kretprobe *rp,
++				      struct pt_regs *regs)
  {
- 	return &kretprobe_inst_table[hash_ptr(tsk, KPROBE_HASH_BITS)];
- }
-@@ -302,7 +304,7 @@ struct hlist_head * kretprobe_inst_table
-  * instances associated with this task. These left over instances represent
-  * probed functions that have been called but will never return.
-  */
--void kprobe_flush_task(struct task_struct *tk)
-+void __kprobes kprobe_flush_task(struct task_struct *tk)
- {
+ 	unsigned long *sara = (unsigned long *)&regs->esp;
          struct kretprobe_instance *ri;
+@@ -150,7 +151,7 @@ void arch_prepare_kretprobe(struct kretp
+  * Interrupts are disabled on entry as trap3 is an interrupt gate and they
+  * remain disabled thorough out this function.
+  */
+-static int kprobe_handler(struct pt_regs *regs)
++static int __kprobes kprobe_handler(struct pt_regs *regs)
+ {
+ 	struct kprobe *p;
+ 	int ret = 0;
+@@ -259,7 +260,7 @@ no_kprobe:
+ /*
+  * Called when we hit the probe point at kretprobe_trampoline
+  */
+-int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
++int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+ {
+         struct kretprobe_instance *ri = NULL;
          struct hlist_head *head;
-@@ -322,7 +324,8 @@ void kprobe_flush_task(struct task_struc
-  * This kprobe pre_handler is registered with every kretprobe. When probe
-  * hits it will set up the return probe.
+@@ -338,7 +339,7 @@ int trampoline_probe_handler(struct kpro
+  * that is atop the stack is the address following the copied instruction.
+  * We need to make it the address following the original instruction.
   */
--static int pre_handler_kretprobe(struct kprobe *p, struct pt_regs *regs)
-+static int __kprobes pre_handler_kretprobe(struct kprobe *p,
-+					   struct pt_regs *regs)
+-static void resume_execution(struct kprobe *p, struct pt_regs *regs)
++static void __kprobes resume_execution(struct kprobe *p, struct pt_regs *regs)
  {
- 	struct kretprobe *rp = container_of(p, struct kretprobe, kp);
- 
-@@ -353,7 +356,7 @@ static inline void copy_kprobe(struct kp
- * Add the new probe to old_p->list. Fail if this is the
- * second jprobe at the address - two jprobes can't coexist
- */
--static int add_new_kprobe(struct kprobe *old_p, struct kprobe *p)
-+static int __kprobes add_new_kprobe(struct kprobe *old_p, struct kprobe *p)
- {
-         struct kprobe *kp;
- 
-@@ -395,7 +398,8 @@ static inline void add_aggr_kprobe(struc
-  * the intricacies
-  * TODO: Move kcalloc outside the spinlock
+ 	unsigned long *tos = (unsigned long *)&regs->esp;
+ 	unsigned long next_eip = 0;
+@@ -444,8 +445,8 @@ static inline int kprobe_fault_handler(s
+ /*
+  * Wrapper routine to for handling exceptions.
   */
--static int register_aggr_kprobe(struct kprobe *old_p, struct kprobe *p)
-+static int __kprobes register_aggr_kprobe(struct kprobe *old_p,
-+					  struct kprobe *p)
+-int kprobe_exceptions_notify(struct notifier_block *self, unsigned long val,
+-			     void *data)
++int __kprobes kprobe_exceptions_notify(struct notifier_block *self,
++				       unsigned long val, void *data)
  {
- 	int ret = 0;
- 	struct kprobe *ap;
-@@ -434,15 +438,25 @@ static inline void cleanup_aggr_kprobe(s
- 		spin_unlock_irqrestore(&kprobe_lock, flags);
+ 	struct die_args *args = (struct die_args *)data;
+ 	switch (val) {
+@@ -473,7 +474,7 @@ int kprobe_exceptions_notify(struct noti
+ 	return NOTIFY_DONE;
  }
  
--int register_kprobe(struct kprobe *p)
-+static int __kprobes in_kprobes_functions(unsigned long addr)
-+{
-+	if (addr >= (unsigned long)__kprobes_text_start
-+		&& addr < (unsigned long)__kprobes_text_end)
-+		return -EINVAL;
-+	return 0;
-+}
-+
-+int __kprobes register_kprobe(struct kprobe *p)
+-int setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
++int __kprobes setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
  {
- 	int ret = 0;
- 	unsigned long flags = 0;
- 	struct kprobe *old_p;
- 
--	if ((ret = arch_prepare_kprobe(p)) != 0) {
-+	if ((ret = in_kprobes_functions((unsigned long) p->addr)) != 0)
-+		return ret;
-+	if ((ret = arch_prepare_kprobe(p)) != 0)
- 		goto rm_kprobe;
--	}
-+
- 	spin_lock_irqsave(&kprobe_lock, flags);
- 	old_p = get_kprobe(p->addr);
- 	p->nmissed = 0;
-@@ -466,7 +480,7 @@ rm_kprobe:
- 	return ret;
+ 	struct jprobe *jp = container_of(p, struct jprobe, kp);
+ 	unsigned long addr;
+@@ -495,7 +496,7 @@ int setjmp_pre_handler(struct kprobe *p,
+ 	return 1;
  }
  
--void unregister_kprobe(struct kprobe *p)
-+void __kprobes unregister_kprobe(struct kprobe *p)
+-void jprobe_return(void)
++void __kprobes jprobe_return(void)
  {
- 	unsigned long flags;
- 	struct kprobe *old_p;
-@@ -487,7 +501,7 @@ static struct notifier_block kprobe_exce
- 	.priority = 0x7fffffff /* we need to notified first */
- };
- 
--int register_jprobe(struct jprobe *jp)
-+int __kprobes register_jprobe(struct jprobe *jp)
- {
- 	/* Todo: Verify probepoint is a function entry point */
- 	jp->kp.pre_handler = setjmp_pre_handler;
-@@ -496,14 +510,14 @@ int register_jprobe(struct jprobe *jp)
- 	return register_kprobe(&jp->kp);
+ 	preempt_enable_no_resched();
+ 	asm volatile ("       xchgl   %%ebx,%%esp     \n"
+@@ -506,7 +507,7 @@ void jprobe_return(void)
+ 		      (jprobe_saved_esp):"memory");
  }
  
--void unregister_jprobe(struct jprobe *jp)
-+void __kprobes unregister_jprobe(struct jprobe *jp)
+-int longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
++int __kprobes longjmp_break_handler(struct kprobe *p, struct pt_regs *regs)
  {
- 	unregister_kprobe(&jp->kp);
+ 	u8 *addr = (u8 *) (regs->eip - 1);
+ 	unsigned long stack_addr = (unsigned long)jprobe_saved_esp;
+diff -puN arch/i386/kernel/traps.c~kprobes-exclude-functions-i386 arch/i386/kernel/traps.c
+--- linux-2.6.13-rc1-mm1/arch/i386/kernel/traps.c~kprobes-exclude-functions-i386	2005-07-08 12:09:51.000000000 +0530
++++ linux-2.6.13-rc1-mm1-prasanna/arch/i386/kernel/traps.c	2005-07-08 12:09:51.000000000 +0530
+@@ -408,8 +408,9 @@ static inline void die_if_kernel(const c
+ 		die(str, regs, err);
  }
  
- #ifdef ARCH_SUPPORTS_KRETPROBES
- 
--int register_kretprobe(struct kretprobe *rp)
-+int __kprobes register_kretprobe(struct kretprobe *rp)
+-static void do_trap(int trapnr, int signr, char *str, int vm86,
+-			   struct pt_regs * regs, long error_code, siginfo_t *info)
++static void __kprobes do_trap(int trapnr, int signr, char *str, int vm86,
++			      struct pt_regs * regs, long error_code,
++			      siginfo_t *info)
  {
- 	int ret = 0;
- 	struct kretprobe_instance *inst;
-@@ -540,14 +554,14 @@ int register_kretprobe(struct kretprobe 
+ 	struct task_struct *tsk = current;
+ 	tsk->thread.error_code = error_code;
+@@ -507,7 +508,8 @@ DO_ERROR(12, SIGBUS,  "stack segment", s
+ DO_ERROR_INFO(17, SIGBUS, "alignment check", alignment_check, BUS_ADRALN, 0)
+ DO_ERROR_INFO(32, SIGSEGV, "iret exception", iret_error, ILL_BADSTK, 0)
  
- #else /* ARCH_SUPPORTS_KRETPROBES */
- 
--int register_kretprobe(struct kretprobe *rp)
-+int __kprobes register_kretprobe(struct kretprobe *rp)
+-fastcall void do_general_protection(struct pt_regs * regs, long error_code)
++fastcall void __kprobes do_general_protection(struct pt_regs * regs,
++					      long error_code)
  {
- 	return -ENOSYS;
- }
+ 	int cpu = get_cpu();
+ 	struct tss_struct *tss = &per_cpu(init_tss, cpu);
+@@ -737,7 +739,7 @@ void unset_nmi_callback(void)
+ EXPORT_SYMBOL_GPL(unset_nmi_callback);
  
- #endif /* ARCH_SUPPORTS_KRETPROBES */
- 
--void unregister_kretprobe(struct kretprobe *rp)
-+void __kprobes unregister_kretprobe(struct kretprobe *rp)
+ #ifdef CONFIG_KPROBES
+-fastcall void do_int3(struct pt_regs *regs, long error_code)
++fastcall void __kprobes do_int3(struct pt_regs *regs, long error_code)
  {
- 	unsigned long flags;
- 	struct kretprobe_instance *ri;
-diff -puN include/linux/kprobes.h~kprobes-exclude-functions-generic include/linux/kprobes.h
---- linux-2.6.13-rc1-mm1/include/linux/kprobes.h~kprobes-exclude-functions-generic	2005-07-08 14:05:14.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/include/linux/kprobes.h	2005-07-08 14:05:14.000000000 +0530
-@@ -42,6 +42,9 @@
- #define KPROBE_REENTER		0x00000004
- #define KPROBE_HIT_SSDONE	0x00000008
+ 	if (notify_die(DIE_INT3, "int3", regs, error_code, 3, SIGTRAP)
+ 			== NOTIFY_STOP)
+@@ -771,7 +773,7 @@ fastcall void do_int3(struct pt_regs *re
+  * find every occurrence of the TF bit that could be saved away even
+  * by user code)
+  */
+-fastcall void do_debug(struct pt_regs * regs, long error_code)
++fastcall void __kprobes do_debug(struct pt_regs * regs, long error_code)
+ {
+ 	unsigned int condition;
+ 	struct task_struct *tsk = current;
+diff -puN arch/i386/kernel/vmlinux.lds.S~kprobes-exclude-functions-i386 arch/i386/kernel/vmlinux.lds.S
+--- linux-2.6.13-rc1-mm1/arch/i386/kernel/vmlinux.lds.S~kprobes-exclude-functions-i386	2005-07-08 12:09:51.000000000 +0530
++++ linux-2.6.13-rc1-mm1-prasanna/arch/i386/kernel/vmlinux.lds.S	2005-07-08 12:09:51.000000000 +0530
+@@ -22,6 +22,7 @@ SECTIONS
+ 	*(.text)
+ 	SCHED_TEXT
+ 	LOCK_TEXT
++	KPROBES_TEXT
+ 	*(.fixup)
+ 	*(.gnu.warning)
+ 	} = 0x9090
+diff -puN arch/i386/mm/fault.c~kprobes-exclude-functions-i386 arch/i386/mm/fault.c
+--- linux-2.6.13-rc1-mm1/arch/i386/mm/fault.c~kprobes-exclude-functions-i386	2005-07-08 12:09:51.000000000 +0530
++++ linux-2.6.13-rc1-mm1-prasanna/arch/i386/mm/fault.c	2005-07-08 12:09:51.000000000 +0530
+@@ -21,6 +21,7 @@
+ #include <linux/vt_kern.h>		/* For unblank_screen() */
+ #include <linux/highmem.h>
+ #include <linux/module.h>
++#include <linux/kprobes.h>
  
-+/* Attach to insert probes on any functions which should be ignored*/
-+#define __kprobes	__attribute__((__section__(".kprobes.text")))
-+
- struct kprobe;
- struct pt_regs;
- struct kretprobe;
-diff -puN include/asm-generic/vmlinux.lds.h~kprobes-exclude-functions-generic include/asm-generic/vmlinux.lds.h
---- linux-2.6.13-rc1-mm1/include/asm-generic/vmlinux.lds.h~kprobes-exclude-functions-generic	2005-07-08 14:05:14.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/include/asm-generic/vmlinux.lds.h	2005-07-08 14:05:14.000000000 +0530
-@@ -95,3 +95,8 @@
- 		VMLINUX_SYMBOL(__lock_text_start) = .;			\
- 		*(.spinlock.text)					\
- 		VMLINUX_SYMBOL(__lock_text_end) = .;
-+
-+#define KPROBES_TEXT							\
-+		VMLINUX_SYMBOL(__kprobes_text_start) = .;			\
-+		*(.kprobes.text)					\
-+		VMLINUX_SYMBOL(__kprobes_text_end) = .;
-diff -puN include/asm-generic/sections.h~kprobes-exclude-functions-generic include/asm-generic/sections.h
---- linux-2.6.13-rc1-mm1/include/asm-generic/sections.h~kprobes-exclude-functions-generic	2005-07-08 14:05:14.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/include/asm-generic/sections.h	2005-07-08 14:05:14.000000000 +0530
-@@ -11,5 +11,6 @@ extern char _sinittext[], _einittext[];
- extern char _sextratext[] __attribute__((weak));
- extern char _eextratext[] __attribute__((weak));
- extern char _end[];
-+extern char __kprobes_text_start[], __kprobes_text_end[];
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -211,7 +212,8 @@ fastcall void do_invalid_op(struct pt_re
+  *	bit 1 == 0 means read, 1 means write
+  *	bit 2 == 0 means kernel, 1 means user-mode
+  */
+-fastcall void do_page_fault(struct pt_regs *regs, unsigned long error_code)
++fastcall void __kprobes do_page_fault(struct pt_regs *regs,
++				      unsigned long error_code)
+ {
+ 	struct task_struct *tsk;
+ 	struct mm_struct *mm;
+diff -puN arch/i386/kernel/entry.S~kprobes-exclude-functions-i386 arch/i386/kernel/entry.S
+--- linux-2.6.13-rc1-mm1/arch/i386/kernel/entry.S~kprobes-exclude-functions-i386	2005-07-08 12:09:51.000000000 +0530
++++ linux-2.6.13-rc1-mm1-prasanna/arch/i386/kernel/entry.S	2005-07-08 12:09:51.000000000 +0530
+@@ -532,7 +532,7 @@ label:						\
+ 	pushl $__KERNEL_CS;			\
+ 	pushl $sysenter_past_esp
  
- #endif /* _ASM_GENERIC_SECTIONS_H_ */
-diff -puN arch/i386/kernel/entry.S~kprobes-exclude-functions-generic arch/i386/kernel/entry.S
-diff -puN include/linux/linkage.h~kprobes-exclude-functions-generic include/linux/linkage.h
---- linux-2.6.13-rc1-mm1/include/linux/linkage.h~kprobes-exclude-functions-generic	2005-07-08 14:05:14.000000000 +0530
-+++ linux-2.6.13-rc1-mm1-prasanna/include/linux/linkage.h	2005-07-08 14:05:27.000000000 +0530
-@@ -33,6 +33,13 @@
-   ALIGN; \
-   name:
+-ENTRY(debug)
++KPROBE_ENTRY(debug)
+ 	cmpl $sysenter_entry,(%esp)
+ 	jne debug_stack_correct
+ 	FIX_STACK(12, debug_stack_correct, debug_esp_fix_insn)
+@@ -543,7 +543,7 @@ debug_stack_correct:
+ 	movl %esp,%eax			# pt_regs pointer
+ 	call do_debug
+ 	jmp ret_from_exception
+-
++	.previous .text
+ /*
+  * NMI is doubly nasty. It can happen _while_ we're handling
+  * a debug fault, and the debug fault hasn't yet been able to
+@@ -616,13 +616,14 @@ nmi_16bit_stack:
+ 	.long 1b,iret_exc
+ .previous
  
-+#define KPROBE_ENTRY(name) \
-+  .section .kprobes.text, "ax"; \
-+  .globl name; \
-+  ALIGN; \
-+  name:
-+
-+
- #endif
+-ENTRY(int3)
++KPROBE_ENTRY(int3)
+ 	pushl $-1			# mark this as an int
+ 	SAVE_ALL
+ 	xorl %edx,%edx		# zero error code
+ 	movl %esp,%eax		# pt_regs pointer
+ 	call do_int3
+ 	jmp ret_from_exception
++	.previous .text
  
- #define NORET_TYPE    /**/
+ ENTRY(overflow)
+ 	pushl $0
+@@ -656,17 +657,19 @@ ENTRY(stack_segment)
+ 	pushl $do_stack_segment
+ 	jmp error_code
+ 
+-ENTRY(general_protection)
++KPROBE_ENTRY(general_protection)
+ 	pushl $do_general_protection
+ 	jmp error_code
++	.previous .text
+ 
+ ENTRY(alignment_check)
+ 	pushl $do_alignment_check
+ 	jmp error_code
+ 
+-ENTRY(page_fault)
++KPROBE_ENTRY(page_fault)
+ 	pushl $do_page_fault
+ 	jmp error_code
++	.previous .text
+ 
+ #ifdef CONFIG_X86_MCE
+ ENTRY(machine_check)
 
 _
 -- 

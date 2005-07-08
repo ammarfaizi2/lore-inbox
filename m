@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbVGHIvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbVGHIxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbVGHIvh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 04:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVGHIvh
+	id S262384AbVGHIxm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 04:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVGHIxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 04:51:37 -0400
-Received: from styx.suse.cz ([82.119.242.94]:8930 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S262273AbVGHItp (ORCPT
+	Fri, 8 Jul 2005 04:53:42 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:4064 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262364AbVGHIw5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 04:49:45 -0400
-Date: Fri, 8 Jul 2005 10:49:43 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: 7eggert@gmx.de
-Cc: Clemens Koller <clemens.koller@anagramm.de>, Jens Axboe <axboe@suse.de>,
-       Lenz Grimmer <lenz@grimmer.com>, Arjan van de Ven <arjan@infradead.org>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Dave Hansen <dave@sr71.net>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp]  IBM HDAPS Someone interested? (Accelerometer))
-Message-ID: <20050708084943.GA1035@ucw.cz>
-References: <4msWl-Yq-5@gated-at.bofh.it> <4mtza-1vg-15@gated-at.bofh.it> <4mtII-1Ab-13@gated-at.bofh.it> <4mtSm-1FA-5@gated-at.bofh.it> <4mtSn-1FA-11@gated-at.bofh.it> <4mwx1-3N9-25@gated-at.bofh.it> <4mx9A-4qm-1@gated-at.bofh.it> <4nzCr-6fN-19@gated-at.bofh.it> <4nI36-527-9@gated-at.bofh.it> <E1DqhA2-000200-15@be1.7eggert.dyndns.org>
+	Fri, 8 Jul 2005 04:52:57 -0400
+Date: Fri, 8 Jul 2005 10:52:53 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: realtime-preempt-2.6.12-final-V0.7.51-11 glitches [no more]
+Message-ID: <20050708085253.GA1177@elte.hu>
+References: <1119370868.26957.9.camel@cmn37.stanford.edu> <20050621164622.GA30225@elte.hu> <1119375988.28018.44.camel@cmn37.stanford.edu> <1120256404.22902.46.camel@cmn37.stanford.edu> <20050703133738.GB14260@elte.hu> <1120428465.21398.2.camel@cmn37.stanford.edu> <24833.195.245.190.94.1120761991.squirrel@www.rncbc.org> <20050707194914.GA1161@elte.hu> <49943.192.168.1.5.1120778373.squirrel@www.rncbc.org> <57445.195.245.190.94.1120812419.squirrel@www.rncbc.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1DqhA2-000200-15@be1.7eggert.dyndns.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <57445.195.245.190.94.1120812419.squirrel@www.rncbc.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 08, 2005 at 02:56:08AM +0200, Bodo Eggert wrote:
 
-> Clemens Koller <clemens.koller@anagramm.de> wrote:
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+
+> OK.
 > 
-> > Well, sure, it's not a notebook HDD, but maybe it's possible
-> > to give headpark a more generic way to get the heads parked?
-> 
-> I remember my old MFM HDD, which had a Landing Zone stored in the BIOS to
-> which the park command would seek. Maybe you could do something similar
-> and park the head on the last cylinder if the other options fail.
- 
-This is not really a good idea. It worked for the old drives, because
-you weren't supposed to move them around.
+> Just for the heads up, here goes todays summary results regarding my 
+> jack_test4.2 test suite against 2.6.12 kernels configured with 
+> PREEMPT_RT, but... now with 99.9% certainty :)
 
-The shock when the machine hits the ground will cause the head to move
-anyway and bounce across the whole surface.
+thanks for the testing!
 
-Real parking makes a click because the head is moved outside the surface
-and locked in that position.
+>   ------------------------------ ------------- -------------
+>                                  RT-V0.7.51-13 RT-V0.7.49-01
+>   ------------------------------ ------------- -------------
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+>   Delay Maximum . . . . . . . . :      333           295     usecs
+>   Cycle Maximum . . . . . . . . :      970           943     usecs
+>   Average DSP Load. . . . . . . :       45.7          44.4   %
+>   Average CPU System Load . . . :       15.6          16.3   %
+>   Average CPU User Load . . . . :       32.0          30.1   %
+
+i'm wondering - is this slight increase in CPU utilization (and 
+latencies) due to natural fluctuations, or is it a genuine overhead 
+increase?
+
+	Ingo

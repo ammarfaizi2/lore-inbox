@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVGHVs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262964AbVGHX3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbVGHVs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 17:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbVGHVrR
+	id S262964AbVGHX3D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 19:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbVGHX06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 17:47:17 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18949 "HELO
+	Fri, 8 Jul 2005 19:26:58 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38917 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262580AbVGHVo6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 17:44:58 -0400
-Date: Fri, 8 Jul 2005 23:44:55 +0200
+	id S262922AbVGHWR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 18:17:59 -0400
+Date: Sat, 9 Jul 2005 00:17:56 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Jesper Juhl <juhl-lkml@dif.dk>
-Subject: [2.6 patch] Documentation/Changes: document the required udev version
-Message-ID: <20050708214454.GJ3671@stusta.de>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Documentation mismatch in Documentation/kbuild/kconfig-language.txt
+Message-ID: <20050708221756.GM3671@stusta.de>
+References: <Pine.LNX.4.58.0507041639500.24224@be1.lrz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0507041639500.24224@be1.lrz>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Document that udev 058 is required.
+On Mon, Jul 04, 2005 at 04:59:18PM +0200, Bodo Eggert wrote:
+> --- Documentation/kbuild/kconfig-language.txt ---
+> - input prompt: "prompt" <prompt> ["if" <expr>]
+>   Every menu entry can have at most one prompt, which is used to display
+>   to the user. Optionally dependencies only for this prompt can be added
+>   with "if".
+> ---
+> 
+> This is misleading, since the "if" will not affect only the prompt, but 
+> also the config option. 
+> 
+> Therefore I can't use
+> config SGI_IOC4
+>     tristate
+>     prompt "SGI IOC4 Base IO support" if PROMPT_FOR_UNUSED_CORES
+>     depends on (IA64_GENERIC || IA64_SGI_SN2) && MMTIMER
+>     default n
+> 
+> to hide this option unless PROMPT_FOR_UNUSED_CORES is selected.
+> 
+> Since the "if" is useless, misleading and redundand with this behaviour, I 
+> suggest stripping it out.
 
-A similar patch (that no longger applies due to unrelated context 
-changes) was sent by Jesper Juhl.
+"if" is valuable in "default y" cases.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+cu
+Adrian
 
----
+-- 
 
-This patch was already sent on:
-- 2 Jul 2005
-
---- linux-2.6.13-rc1-mm1-full/Documentation/Changes.old	2005-07-02 12:41:09.000000000 +0200
-+++ linux-2.6.13-rc1-mm1-full/Documentation/Changes	2005-07-02 12:41:42.000000000 +0200
-@@ -66,6 +66,7 @@
- o  nfs-utils              1.0.5                   # showmount --version
- o  procps                 3.2.0                   # ps --version
- o  oprofile               0.9                     # oprofiled --version
-+o  udev                   058                     # udevinfo -V
- 
- Kernel compilation
- ==================
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVGHAob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVGHA5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbVGHAob (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 20:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbVGHAob
+	id S262390AbVGHA5L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 20:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVGHA5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 20:44:31 -0400
-Received: from nproxy.gmail.com ([64.233.182.204]:33243 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262360AbVGHAoa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 20:44:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ub6Ul214E+RBH2IUp+TvVQpx5M3SyoLLkmOhP/Ufm/xLfRYvKp79fS/zRee0fjS0+dRoSSM3nmQeJD0xU/VTK1+Btvdl6vDtHQnWBpXdKKyIK7i2tlYj5CfvZfMf4QPsIugTs8PXtTlRi7FYi1qvs+jVXsAGF49KLxzzxcRx4iQ=
-Message-ID: <2cd57c9005070717446dcc52a1@mail.gmail.com>
-Date: Fri, 8 Jul 2005 08:44:28 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Swap partition vs swap file
-Cc: Mike Richards <mrmikerich@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050707145944.3ad8a1ab.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <516d7fa80506281757188b2fda@mail.gmail.com>
-	 <20050628220334.66da4656.akpm@osdl.org>
-	 <516d7fa805070712506ab2094b@mail.gmail.com>
-	 <20050707145944.3ad8a1ab.akpm@osdl.org>
+	Thu, 7 Jul 2005 20:57:11 -0400
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:49332 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262390AbVGHA5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 20:57:10 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: IBM HDAPS things are looking up (was: Re: [Hdaps-devel] Re: [ltp]  IBM HDAPS Someone interested? (Accelerometer))
+To: Clemens Koller <clemens.koller@anagramm.de>, Jens Axboe <axboe@suse.de>,
+       Lenz Grimmer <lenz@grimmer.com>, Arjan van de Ven <arjan@infradead.org>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Dave Hansen <dave@sr71.net>,
+       hdaps-devel@lists.sourceforge.net,
+       LKML List <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Fri, 08 Jul 2005 02:56:08 +0200
+References: <4msjB-DS-9@gated-at.bofh.it> <4mste-IL-1@gated-at.bofh.it> <4msME-SM-9@gated-at.bofh.it> <4msWl-Yq-5@gated-at.bofh.it> <4mtza-1vg-15@gated-at.bofh.it> <4mtII-1Ab-13@gated-at.bofh.it> <4mtSm-1FA-5@gated-at.bofh.it> <4mtSn-1FA-11@gated-at.bofh.it> <4mwx1-3N9-25@gated-at.bofh.it> <4mx9A-4qm-1@gated-at.bofh.it> <4nzCr-6fN-19@gated-at.bofh.it> <4nI36-527-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DqhA2-000200-15@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/8/05, Andrew Morton <akpm@osdl.org> wrote:
-> Mike Richards <mrmikerich@gmail.com> wrote:
-> >
-> > > > Given this situation, is there any significant performance or
-> > > >  stability advantage to using a swap partition instead of a swap file?
-> > >
-> > > In 2.6 they have the same reliability and they will have the same
-> > > performance unless the swapfile is badly fragmented.
-> >
-> > Thanks for the reply -- that's been bugging me for a while now. There
-> > are a lot of different opinions on the net, and most of the
-> > conventional wisdom says use a partition instead of a file. It's nice
-> > to hear from an expert on the matter.
-> >
-> > Three more short questions if you have time:
-> >
-> > 1. You specify kernel 2.6 -- What about kernel 2.4? How less reliable
-> > or worse performing is a swapfile on 2.4?
-> 
-> 2.4 is weaker: it has to allocate memory from the main page allocator when
-> performing swapout.  2.6 avoids that.
-> 
-> > 2. Is it possible for the swapfile to become fragmented over time, or
-> > does it just keep using the same blocks over and over? i.e. if it's
-> > all contiguous when you first create the swapfile, will it stay that
-> > way for the life of the file?
-> 
-> The latter.  Create the swapfile when the filesystem is young and empty,
+Clemens Koller <clemens.koller@anagramm.de> wrote:
 
-I guess/hope dd always makes it contiguously.
+> Well, sure, it's not a notebook HDD, but maybe it's possible
+> to give headpark a more generic way to get the heads parked?
 
-> it'll be nice and contiguous.  Once created the kernel will never add or
-> remove blocks.  The kernel won't let you use a sparse file for a swapfile.
-> 
-
+I remember my old MFM HDD, which had a Landing Zone stored in the BIOS to
+which the park command would seek. Maybe you could do something similar
+and park the head on the last cylinder if the other options fail.
 -- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbVGHQpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbVGHQtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbVGHQpG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 12:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVGHQpG
+	id S262711AbVGHQtj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 12:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVGHQtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 12:45:06 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:3340 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S262709AbVGHQpE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 12:45:04 -0400
-Message-ID: <42CEADA8.4060303@slaphack.com>
-Date: Fri, 08 Jul 2005 11:45:28 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hubert Chan <hubert@uhoreg.ca>
-Cc: Hans Reiser <reiser@namesys.com>,
-       "Alexander G. M. Smith" <agmsmith@rogers.com>, ross.biro@gmail.com,
-       vonbrand@inf.utfsm.cl, mrmacman_g4@mac.com, Valdis.Kletnieks@vt.edu,
-       ltd@cisco.com, gmaxwell@gmail.com, jgarzik@pobox.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-       zam@namesys.com, vs@thebsh.namesys.com, ndiller@namesys.com,
-       vitaly@thebsh.namesys.com
-Subject: Re: reiser4 plugins
-References: <42CB1E12.2090005@namesys.com> <1740726161-BeMail@cr593174-a>	<87hdf8zqca.fsf@evinrude.uhoreg.ca> <42CB7DE0.4050200@namesys.com>	<1120675943.13341.10.camel@localhost> <42CCCEEA.7040302@namesys.com> <87oe9duu9o.fsf@evinrude.uhoreg.ca>
-In-Reply-To: <87oe9duu9o.fsf@evinrude.uhoreg.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Jul 2005 12:49:39 -0400
+Received: from mail.kroah.org ([69.55.234.183]:59586 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262711AbVGHQti (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 12:49:38 -0400
+Date: Fri, 8 Jul 2005 09:48:16 -0700
+From: Greg KH <greg@kroah.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: device_find broken in 2.6.11?
+Message-ID: <20050708164816.GB17723@kroah.com>
+References: <1120796213.12218.55.camel@localhost.localdomain> <20050708042922.GA4603@kroah.com> <1120836964.12218.63.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120836964.12218.63.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubert Chan wrote:
-> On Wed, 06 Jul 2005 23:42:50 -0700, Hans Reiser <reiser@namesys.com> said:
+On Sat, Jul 09, 2005 at 01:36:04AM +1000, Rusty Russell wrote:
+> On Thu, 2005-07-07 at 21:29 -0700, Greg KH wrote:
+> > On Fri, Jul 08, 2005 at 02:16:53PM +1000, Rusty Russell wrote:
+> > > 
+> > > 	I was getting oopses in kset_find_obj when calling device_find in
+> > > 2.6.11.12.
+> > 
+> > Yup, there's a reason no one uses it.  Use the version in 2.6.13-rc2, it
+> > actually works.
+> > 
+> > What are you wanting to use it for?
 > 
-> 
->>Oh no, don't store the whole path, store just the parent list.  This
->>will make fsck more robust in the event that the directory gets
->>clobbered by hardware error.
-> 
-> 
->>I don't think it affects the cost of detecting cycles though, I think
->>it only makes fsck more robust.
-> 
-> 
-> It doesn't affect the worst-case cost of detecting cycles; by necessity,
-> any (static [1]) directed cycle detection algorithm must take O(n) time,
-> n being the size of the tree (nodes + links).  However, under
-> "reasonable assumptions" (where the reasonableness of those assumptions
-> may be questioned, but I think they're reasonable), I think that doing a
-> depth-first-search through the parent links makes the algorithm
-> not-too-terrible.  Namely, the "reasonable assumptions" are that a node
-> doesn't have "too many" parents, and the filesystem hierarchy is not
-> "too deep".
+> The xenbus code
 
-And, remember, there are other things affected by depth of the tree 
-anyway.  For that matter, most of the time, when you push a system past 
-"reasonable assumptions", you hit performance issues, if not stability 
-ones.  Most everything but Reiser assumes that you won't have "too many" 
-files in a directory, or "too many" small files in the FS as a whole.
+What is that?  Any pointers to it?
 
-I think it's fair to assume people will keep things "reasonable", 
-especially if we tell them what "reasonable" means.  As in, "This is the 
-kind of organization which Reiser4 handles really well, and this is the 
-kind of organization which will absolutely kill your performance."
+> wants to find if a device is new:
 
+new to whom?  Busses usually drive the finding of new devices, so they
+always know when a device has been found or goes away.
+
+> the Xen code is currently against on 2.6.11.12.
+
+If you have code that is using the driver core, it will need big changes
+for 2.6.13 due to the internal rework that we have done.  I suggest you
+start now :)
+
+Good luck,
+
+greg k-h

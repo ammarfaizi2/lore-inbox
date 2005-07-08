@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262792AbVGHT2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbVGHT1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbVGHT2e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 15:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbVGHT14
+	id S262804AbVGHT1r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 15:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbVGHTZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 15:27:56 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:20133 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262798AbVGHTZu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 15:25:50 -0400
-Date: Fri, 8 Jul 2005 21:25:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050708192555.GB6503@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081047.07643.s0348365@sms.ed.ac.uk> <20050708114642.GA10379@elte.hu> <200507081938.27815.s0348365@sms.ed.ac.uk>
+	Fri, 8 Jul 2005 15:25:13 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40663
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262788AbVGHTXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 15:23:47 -0400
+Date: Fri, 08 Jul 2005 12:23:34 -0700 (PDT)
+Message-Id: <20050708.122334.66180889.davem@davemloft.net>
+To: ak@suse.de
+Cc: Adnan.Khaleel@newisys.com, linux-kernel@vger.kernel.org
+Subject: Re: Instruction Tracing for Linux
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <p738y0hp0zc.fsf@verdi.suse.de>
+References: <DC392CA07E5A5746837A411B4CA2B713010D7790@sekhmet.ad.newisys.com.suse.lists.linux.kernel>
+	<p738y0hp0zc.fsf@verdi.suse.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507081938.27815.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Andi Kleen <ak@suse.de>
+Date: 08 Jul 2005 21:11:03 +0200
 
-* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> While some CPUs (like Intel P4) have ways to do such hardware
+> tracing I know of no free tool that uses it. There are some user
+> space tools to collect at user space, but they probably won't help you.
 
-> > | new stack-footprint maximum: smartd/1747, 1768 bytes.
+FWIW, even without explicit tracing support in the CPU it
+is possible to get these kinds of traces nontheless.
 
-> Unfortunately I see nothing like this when the machine crashes. Find 
-> attached my config, which has CONFIG_4KSTACKS and the options you 
-> specified. Are you sure this is sufficient to enable it?
+One great example is how they did this on Sparc sun4d machines
+at Sun using SKY which was written by Gordon Irlam.  You can
+read about it at:
 
-do you have any such messages in the syslog? You should be getting a 
-bunch of them during bootup.
+     http://www.base.com/gordoni/sky.html
 
-> Here is an extremely bad digital camera pic from the crash. My 
-> debugging prowess has evolved to the stage where by I'm using a 
-> maximum res vesafb console.
-> 
-> However, I'm not at work so it's my own digital camera that I'm using 
-> rather than work's, and it seems to react badly to the LCD. I hope you 
-> can read the numbers, if not I'll try to transliterate them for you.
-> 
-> http://devzero.co.uk/~alistair/oops5.jpeg
+Basically, the "simulator" would take advantage of Sparc's
+delay slot branching to explicitly execute one instruction
+from the kernel's code stream at a time.
 
-yeah, i could decypher it - it's a rare type of crash which too signals 
-some sort of stack trouble. But it's not necessarily a stack overflow - 
-e.g. the process name that is printed (openvpn) is correct, which means 
-the kernel could find the right thread_info (which lies on the bottom of 
-the stack). So it could be some other type of stack corruption. To debug 
-this even more, there's this line in kernel/latency.c:
+So it would branch to the kernel's current PC, and in the delay
+slot branch back into the simulator.
 
-//#define DEBUG_STACK_POISON
-
-could you enable it by uncommenting the line? Does that make the crash 
-any more informative? (Note that runtime stack poisoning is extremely 
-expensive (we clear 128 bytes of stack for every function call), so if 
-it doesnt have any impact then turn it off. That's the reason why i'm 
-not offering the option even over a .config flag.)
-
-	Ingo
+The only special case is that it needs two temporary registers, global
+registers %g2 and %g3, to pull off this trick.  So if the instruction
+needed to actually use either register %g2 or %g3, it was emulated in
+software instead of actually being executed.

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVGHBqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVGHCJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbVGHBqS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Jul 2005 21:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVGHBqS
+	id S261400AbVGHCJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Jul 2005 22:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVGHCJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Jul 2005 21:46:18 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:53932
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261363AbVGHBqR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Jul 2005 21:46:17 -0400
-Message-ID: <42CDCCCC.9050309@linuxwireless.org>
-Date: Thu, 07 Jul 2005 19:46:04 -0500
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: 7eggert@gmx.de
-CC: Clemens Koller <clemens.koller@anagramm.de>, Jens Axboe <axboe@suse.de>,
-       Lenz Grimmer <lenz@grimmer.com>, Arjan van de Ven <arjan@infradead.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Dave Hansen <dave@sr71.net>,
-       hdaps-devel@lists.sourceforge.net,
-       LKML List <linux-kernel@vger.kernel.org>
-Subject: Re: IBM HDAPS things are looking up
-References: <4msjB-DS-9@gated-at.bofh.it> <4mste-IL-1@gated-at.bofh.it> <4msME-SM-9@gated-at.bofh.it> <4msWl-Yq-5@gated-at.bofh.it> <4mtza-1vg-15@gated-at.bofh.it> <4mtII-1Ab-13@gated-at.bofh.it> <4mtSm-1FA-5@gated-at.bofh.it> <4mtSn-1FA-11@gated-at.bofh.it> <4mwx1-3N9-25@gated-at.bofh.it> <4mx9A-4qm-1@gated-at.bofh.it> <4nzCr-6fN-19@gated-at.bofh.it> <4nI36-527-9@gated-at.bofh.it> <E1DqhA2-000200-15@be1.7eggert.dyndns.org>
-In-Reply-To: <E1DqhA2-000200-15@be1.7eggert.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Jul 2005 22:09:27 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:6284 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261400AbVGHCJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Jul 2005 22:09:25 -0400
+Date: Thu, 7 Jul 2005 19:06:45 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+Cc: akpm@osdl.org, Andi Kleen <ak@suse.de>,
+       "David S. Miller" <davem@davemloft.net>, systemtap@sources.redhat.com,
+       linux-kernel@vger.kernel.org, anil.s.keshavamurthy@intel.com
+Subject: Re: [5/6 PATCH] Kprobes : Prevent possible race conditions ia64 changes
+Message-ID: <20050707190645.A29253@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20050707101833.GI12106@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050707101833.GI12106@in.ibm.com>; from prasanna@in.ibm.com on Thu, Jul 07, 2005 at 03:18:33AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert wrote:
+On Thu, Jul 07, 2005 at 03:18:33AM -0700, Prasanna S Panchamukhi wrote:
+> 
+>    This patch contains the ia64 architecture specific changes to
+>    prevent the possible race conditions.
+> 
+>    Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+> 
+>    ---
+> 
+>     linux-2.6.13-rc1-mm1-prasanna/arch/ia64/kernel/kprobes.c      |    57
+>    ++++++-----
+>     linux-2.6.13-rc1-mm1-prasanna/arch/ia64/kernel/traps.c       |    5
+>     linux-2.6.13-rc1-mm1-prasanna/arch/ia64/kernel/vmlinux.lds.S |    1
+>     linux-2.6.13-rc1-mm1-prasanna/arch/ia64/lib/flush.S          |    1
+>     linux-2.6.13-rc1-mm1-prasanna/arch/ia64/mm/fault.c           |    3
+>     5 files changed, 40 insertions(+), 27 deletions(-)
 
->Clemens Koller <clemens.koller@anagramm.de> wrote:
->
->  
->
->>Well, sure, it's not a notebook HDD, but maybe it's possible
->>to give headpark a more generic way to get the heads parked?
->>    
->>
->
->I remember my old MFM HDD, which had a Landing Zone stored in the BIOS to
->which the park command would seek. Maybe you could do something similar
->and park the head on the last cylinder if the other options fail.
->  
->
-This makes me wonder... If you replace the internal HD with a non IBM or 
-IBM supported Hard Drive, will it still park the head and will it 
-support all the stuff?
+Prasanna,
+	You have missed one jprobe specific file
+i.e arch/ia64/kernel/jprobe.S. I guess you need to patch this
+file in the same way as you have done for flush.S, i,e by adding
+.section .kprobes.text
 
-.Alejandro
+Thanks,
+Anil
+

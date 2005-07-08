@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262912AbVGHW27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262929AbVGHWbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbVGHW27 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 18:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbVGHW0p
+	id S262929AbVGHWbA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 18:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbVGHW3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 18:26:45 -0400
-Received: from mail.kroah.org ([69.55.234.183]:49060 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262935AbVGHW0S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 18:26:18 -0400
-Date: Fri, 8 Jul 2005 15:24:38 -0700
-From: Greg KH <greg@kroah.com>
-To: Abhay_Salunke@Dell.com
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch 2.6.12-rc3] modified firmware_class.c to add a new function request_firmware_nowait_nohotplug
-Message-ID: <20050708222438.GA22141@kroah.com>
-References: <B37DF8F3777DDC4285FA831D366EB9E20730C7@ausx3mps302.aus.amer.dell.com>
+	Fri, 8 Jul 2005 18:29:04 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:31203 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262925AbVGHW1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 18:27:35 -0400
+Subject: Re: 2.6.12.2 -- time passes faster; related to the
+	acpi_register_gsi() call
+From: Lee Revell <rlrevell@joe-job.com>
+To: Phil Oester <kernel@linuxace.com>
+Cc: Alexander Nyberg <alexn@telia.com>, Rudo Thomas <rudo@matfyz.cz>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050708220309.GA16413@linuxace.com>
+References: <20050708211203.GC382@ss1000.ms.mff.cuni.cz>
+	 <1120857908.25294.33.camel@localhost.localdomain>
+	 <20050708220309.GA16413@linuxace.com>
+Content-Type: text/plain
+Date: Fri, 08 Jul 2005 18:27:33 -0400
+Message-Id: <1120861653.6488.38.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B37DF8F3777DDC4285FA831D366EB9E20730C7@ausx3mps302.aus.amer.dell.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 08, 2005 at 02:54:07PM -0500, Abhay_Salunke@Dell.com wrote:
-> > Also, why not just add the hotplug flag to the firmware structure?
-> That
-> request_firmware kmalloc's the firmware structure and frees it when
-> returned. The only way to indicate request_firmware to skip hotplug was
-> by passing a hotplug flag on the stack. 
+On Fri, 2005-07-08 at 15:03 -0700, Phil Oester wrote:
+> On Fri, Jul 08, 2005 at 11:25:08PM +0200, Alexander Nyberg wrote:
+> > fre 2005-07-08 klockan 23:12 +0200 skrev Rudo Thomas:
+> > > Hello, guys.
+> > > 
+> > > Time started to pass faster with 2.6.12.2 (actually, it was 2.6.12-ck3
+> > > which is based on it). I have isolated the cause of the problem:
+> > 
+> > I bet you this fixes it (already in mainline)
+> > 
+> > If ACPI doesn't find an irq listed, don't accept 0 as a valid PCI irq.
+> 
+> FYI, this did fix the time-passing-faster problem for me on a poweredge 750
+> a few days ago.  I'd suggest this fix should go to -stable.
 
-Ok, how about changing the function to pass in a flag saying what it
-wants (wait/nowait, hotplug/nohotplug) and fix up all callers of it?
+I think it's already queued for -stable.
 
-> > way you don't have to add another function just to add another flag.
-> > And you could probably get rid of the nowait version in the same way.
-> Also thought of leaving request_firmware_nowait intact didn't want to
-> break others using this function.
+Lee
 
-Did you find any other in-kernel use of request_firmware_nowait?  I
-don't see any :)
-
-thanks,
-
-greg k-h

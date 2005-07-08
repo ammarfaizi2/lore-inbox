@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVGHSMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262754AbVGHSN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262749AbVGHSMc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 14:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbVGHSMc
+	id S262754AbVGHSN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 14:13:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbVGHSN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 14:12:32 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:49887 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262749AbVGHSMa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 14:12:30 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jakub Jelinek <jakub@redhat.com>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Fri, 8 Jul 2005 19:12:36 +0100
-User-Agent: KMail/1.8.1
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081842.53089.s0348365@sms.ed.ac.uk> <20050708174815.GA4884@devserv.devel.redhat.com>
-In-Reply-To: <20050708174815.GA4884@devserv.devel.redhat.com>
+	Fri, 8 Jul 2005 14:13:29 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:44582 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S262752AbVGHSNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 14:13:22 -0400
+Message-ID: <42CEC17D.8020309@waychison.com>
+Date: Fri, 08 Jul 2005 11:10:05 -0700
+From: Mike Waychison <mike@waychison.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Wichert Akkerman <wichert@wiggy.net>
+CC: Bryan Henderson <hbryan@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>, bfields@fieldses.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linuxram@us.ibm.com, Miklos Szeredi <miklos@szeredi.hu>,
+       Pekka J Enberg <penberg@cs.helsinki.fi>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: share/private/slave a subtree - define vs enum
+References: <Pine.LNX.4.61.0507081527040.3743@scrub.home> <OFF7ECFC50.4EDB3D93-ON88257038.0059F048-88257038.005AEAF4@us.ibm.com> <20050708180302.GC1165@wiggy.net>
+In-Reply-To: <20050708180302.GC1165@wiggy.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507081912.36827.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 Jul 2005 18:48, Jakub Jelinek wrote:
-> On Fri, Jul 08, 2005 at 06:42:53PM +0100, Alistair John Strachan wrote:
-> > > btw., which gcc version are you using?
-> >
-> > Not the GCC version known to bloat stacks ;-)
-> >
-> > 3.4.4, on both my machines. I'm not touching 4.x until 4.0.1 is released
-> > with the miscompiled-code fixes.
->
-> GCC 4.0.x bloats stacks less than 3.4.4.
-> And, if you are looking for 4.0.1, it has been released yesterday.
->
+Wichert Akkerman wrote:
+> Previously Bryan Henderson wrote:
+> 
+>>Two advantages of the enum declaration that haven't been mentioned yet, 
+>>that help me significantly:
+> 
+> 
+> There is another one: with enums the compiler checks types for you.
+> 
 
-Thanks for the info, great. However, I'm sure it would be good if a "known 
-good" GCC prior to 4.0.x was usable on a 4KSTACKS/RT-PREEMPT kernel?
-
--- 
-Cheers,
-Alistair.
-
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+enums in C are (de?)promoted to integral types under most conditions, so 
+the type-checking is useless.

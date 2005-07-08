@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbVGHWUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262939AbVGHW0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbVGHWUA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 18:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbVGHWSk
+	id S262939AbVGHW0k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 18:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbVGHWYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 18:18:40 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:51628 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S262790AbVGHWCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 18:02:55 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix SERIO_RAW config help text
-From: Peter Osterlund <petero2@telia.com>
-Date: 09 Jul 2005 00:02:45 +0200
-Message-ID: <m3ackxj6re.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Jul 2005 18:24:22 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:995 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262912AbVGHWWc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 18:22:32 -0400
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, christoph@lameter.org
+In-Reply-To: <20050708145953.0b2d8030.akpm@osdl.org>
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	 <20050708214908.GA31225@taniwha.stupidest.org>
+	 <20050708145953.0b2d8030.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 08 Jul 2005 18:22:28 -0400
+Message-Id: <1120861349.6488.35.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2005-07-08 at 14:59 -0700, Andrew Morton wrote:
+> Chris Wedgwood <cw@f00f.org> wrote:
+> >
+> > On Thu, Jun 23, 2005 at 11:28:47AM -0700, Linux Kernel Mailing List wrote:
+>           ^^^^^^
+> 
+> It's been over two weeks and nobody has complained about anything.
 
-The help text for SERIO_RAW refers to the wrong sysfs device node.
-This patch fixes it.
+Wrong, I complained loudly about this as soon as it was posted, about
+two weeks ago.  There was an LKML thread about it and lwn.net linked to
+it.
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
+In case you missed it my reaction was almost word for word the same as
+Chris's, along the lines of "Are you insane?"
 
- linux-petero/drivers/input/serio/Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Lee
 
-diff -puN drivers/input/serio/Kconfig~serio-help-fix drivers/input/serio/Kconfig
---- linux/drivers/input/serio/Kconfig~serio-help-fix	2005-07-05 11:43:25.000000000 +0200
-+++ linux-petero/drivers/input/serio/Kconfig	2005-07-05 11:43:25.000000000 +0200
-@@ -175,7 +175,7 @@ config SERIO_RAW
- 	  allocating minor 1 (that historically corresponds to /dev/psaux)
- 	  first. To bind this driver to a serio port use sysfs interface:
- 
--	      echo -n "serio_raw" > /sys/bus/serio/devices/serioX/driver
-+	      echo -n "serio_raw" > /sys/bus/serio/devices/serioX/drvctl
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called serio_raw.
-_
-
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340

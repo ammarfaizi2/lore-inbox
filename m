@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262608AbVGHFKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbVGHFdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262608AbVGHFKz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 01:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVGHFKy
+	id S262615AbVGHFdf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 01:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262618AbVGHFdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 01:10:54 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:5286 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S262608AbVGHFKw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 01:10:52 -0400
-Date: Fri, 8 Jul 2005 07:10:50 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: st3@riseup.net
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
-       cpufreq@lists.linux.org.uk
-Subject: Re: speedstep-centrino on dothan
-Message-ID: <20050708051050.GA3201@isilmar.linta.de>
-Mail-Followup-To: st3@riseup.net, Bill Davidsen <davidsen@tmr.com>,
-	linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-References: <20050706112202.33d63d4d@horst.morte.male> <42CC37FD.5040708@tmr.com> <20050707235928.71016f61@horst.morte.male>
+	Fri, 8 Jul 2005 01:33:35 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:6607 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262615AbVGHFdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 01:33:33 -0400
+Subject: Re: [PATCH] audit: file system auditing based on location and name
+From: Arjan van de Ven <arjan@infradead.org>
+To: serue@us.ibm.com
+Cc: "Timothy R. Chavez" <tinytim@us.ibm.com>, Steve Grubb <sgrubb@redhat.com>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-audit@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+       Mounir Bsaibes <mbsaibes@us.ibm.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Klaus Weidner <klaus@atsec.com>, Chris Wright <chrisw@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, Robert Love <rml@novell.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Daniel H Jones <danjones@us.ibm.com>, Amy Griffis <amy.griffis@hp.com>,
+       Maneesh Soni <maneesh@in.ibm.com>
+In-Reply-To: <20050707225136.GA27099@serge.austin.ibm.com>
+References: <1120668881.8328.1.camel@localhost>
+	 <200507071548.37996.sgrubb@redhat.com>
+	 <1120771909.3198.32.camel@laptopd505.fenrus.org>
+	 <200507071708.32451.tinytim@us.ibm.com>
+	 <20050707225136.GA27099@serge.austin.ibm.com>
+Content-Type: text/plain
+Date: Fri, 08 Jul 2005 07:33:15 +0200
+Message-Id: <1120800795.3249.5.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050707235928.71016f61@horst.morte.male>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2005 at 11:59:28PM +0200, st3@riseup.net wrote:
-> read from ACPI tables, while still keeping them available.
 
-You're only keeping some of them available, as you overwrite one such
-setting. Alternatively you can increase p.state_count by one early enough.
-
-> index = (((frequency)/100) << 8) | ((voltage - 700) / 16);
-> printf ("%u\n", index);
-	printf ("0x%x\n", index);
-is better
-
-> want 500MHz at 940mV, you could add:
+> > [foo@liltux /]$ cat /etc/shadow
+> > cat: /etc/shadow: Permission denied
 > 
-> centrino_model[cpu]->op_points[p.state_count - 2].index = 0x1295;
-> centrino_model[cpu]->op_points[p.state_count - 2].index = 500000;
-						.frequency
-> p.states[p.state_count - 2].core_frequency = 500;
+> Additionally, the apps would need to either be rewritten to create
+> the files under the audited context, or policy would have to cause all
+> files created by those apps to be under the audited context.  Neither
+> one of those options is satisfactory
+
+why not?
+If your /etc/shadow has no selinux context you've lost already :0
 
 
-	Dominik

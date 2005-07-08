@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVGHSGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVGHSMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbVGHSGK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 14:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbVGHSGK
+	id S262749AbVGHSMc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 14:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbVGHSMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 14:06:10 -0400
-Received: from smtp-1.llnl.gov ([128.115.250.81]:12181 "EHLO smtp-1.llnl.gov")
-	by vger.kernel.org with ESMTP id S261483AbVGHSGH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 14:06:07 -0400
-Date: Fri, 08 Jul 2005 11:06:01 -0700 (PDT)
-From: Chuck Harding <charding@llnl.gov>
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-12
-In-reply-to: <20050708080056.GA31381@elte.hu>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>,
-       Jaroslav Kysela <perex@suse.cz>
-Message-id: <Pine.LNX.4.63.0507081104520.9620@ghostwheel.llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Pine/4.62 (X11; U; Linux i686; en-US; rv:2.6.11-rc2-mm1)
-References: <20050703181229.GA32741@elte.hu>
- <Pine.LNX.4.58.0507051155050.13165@echo.lysdexia.org>
- <20050706100451.GA7336@elte.hu>
- <Pine.LNX.4.58.0507071047540.12711@localhost.localdomain>
- <20050707153103.GA22782@elte.hu>
- <Pine.LNX.4.58.0507071139220.12711@localhost.localdomain>
- <Pine.LNX.4.58.0507071205080.12711@localhost.localdomain>
- <20050707175115.GA28772@elte.hu>
- <Pine.LNX.4.63.0507071402410.6952@ghostwheel.llnl.gov>
- <20050708054129.GA26208@elte.hu> <20050708080056.GA31381@elte.hu>
+	Fri, 8 Jul 2005 14:12:32 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:49887 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262749AbVGHSMa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 14:12:30 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jakub Jelinek <jakub@redhat.com>
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Date: Fri, 8 Jul 2005 19:12:36 +0100
+User-Agent: KMail/1.8.1
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081842.53089.s0348365@sms.ed.ac.uk> <20050708174815.GA4884@devserv.devel.redhat.com>
+In-Reply-To: <20050708174815.GA4884@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507081912.36827.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Jul 2005, Ingo Molnar wrote:
-
+On Friday 08 Jul 2005 18:48, Jakub Jelinek wrote:
+> On Fri, Jul 08, 2005 at 06:42:53PM +0100, Alistair John Strachan wrote:
+> > > btw., which gcc version are you using?
+> >
+> > Not the GCC version known to bloat stacks ;-)
+> >
+> > 3.4.4, on both my machines. I'm not touching 4.x until 4.0.1 is released
+> > with the miscompiled-code fixes.
 >
-> * Ingo Molnar <mingo@elte.hu> wrote:
->
->> tried it and cannot reproduce it, so i'll need the full backtrace of
->> all tasks in your system, whenever sox gets stuck, via:
->
-> managed to reproduce it via your script - and with RT_DEADLOCK_DETECT
-> turned on the circular deadlock was immediately detected (see the trace
-> below). It turns out this is an upstream locking bug in the sound
-> subsystem, which has been fixed already - i've merged the upstream fix
-> to -51-14. Could you check whether sox works for you now?
->
-> 	Ingo
+> GCC 4.0.x bloats stacks less than 3.4.4.
+> And, if you are looking for 4.0.1, it has been released yesterday.
 >
 
-That did it. I can now hammer the sound system and sox won't hang anymore.
-Thanks!!
+Thanks for the info, great. However, I'm sure it would be good if a "known 
+good" GCC prior to 4.0.x was usable on a 4KSTACKS/RT-PREEMPT kernel?
 
 -- 
-Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
-Senior Computer Associate         ICCD            Fax: 925-423-6961
-Lawrence Livermore National Laboratory      Computation Directorate
-Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
------------------- http://tinyurl.com/5w5ey -----------------------
--- You've certainly got smooth skin - between the wrinkles, that is. --
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

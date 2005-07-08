@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbVGHEss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262608AbVGHFKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262616AbVGHEss (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 00:48:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbVGHEsr
+	id S262608AbVGHFKz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 01:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVGHFKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 00:48:47 -0400
-Received: from bay20-f22.bay20.hotmail.com ([64.4.54.111]:65112 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262614AbVGHEsk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 00:48:40 -0400
-Message-ID: <BAY20-F22F887E749670F2B2BB7DDC4DB0@phx.gbl>
-X-Originating-IP: [65.64.155.98]
-X-Originating-Email: [jonschindler@hotmail.com]
-In-Reply-To: <200507072104.26034.rjw@sisk.pl>
-From: "Jon Schindler" <jonschindler@hotmail.com>
-To: rjw@sisk.pl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Oops with dual core athlon 64 (quick question)
-Date: Fri, 08 Jul 2005 00:48:31 -0400
+	Fri, 8 Jul 2005 01:10:54 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:5286 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S262608AbVGHFKw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 01:10:52 -0400
+Date: Fri, 8 Jul 2005 07:10:50 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: st3@riseup.net
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
+       cpufreq@lists.linux.org.uk
+Subject: Re: speedstep-centrino on dothan
+Message-ID: <20050708051050.GA3201@isilmar.linta.de>
+Mail-Followup-To: st3@riseup.net, Bill Davidsen <davidsen@tmr.com>,
+	linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+References: <20050706112202.33d63d4d@horst.morte.male> <42CC37FD.5040708@tmr.com> <20050707235928.71016f61@horst.morte.male>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 08 Jul 2005 04:48:32.0328 (UTC) FILETIME=[4ABF1C80:01C58378]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050707235928.71016f61@horst.morte.male>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael,
+On Thu, Jul 07, 2005 at 11:59:28PM +0200, st3@riseup.net wrote:
+> read from ACPI tables, while still keeping them available.
 
-Thanks a lot for the quick reply and patch.  I have tested the patch tonight 
-and things are looking good so far.  For the first time since I upgraded 
-from my single core athlon 64 3500+ my cpu fan isn't a tornado.  Also, my 
-CPU frequency isn't pegged at full throttle 24/7 (it's dropping down to 1000 
-Mhz at idle as it should).  This is a good sign that your patch did fix the 
-cpufreq driver in addition to the oopses I've been experiencing.
+You're only keeping some of them available, as you overwrite one such
+setting. Alternatively you can increase p.state_count by one early enough.
 
-Thanks again for the patch, I'll let you know if the oopses reappear, but so 
-far things are looking very good.
+> index = (((frequency)/100) << 8) | ((voltage - 700) / 16);
+> printf ("%u\n", index);
+	printf ("0x%x\n", index);
+is better
 
-Jon
-
->From: "Rafael J. Wysocki" <rjw@sisk.pl>
->To: "Jon Schindler" <jonschindler@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: Kernel Oops with dual core athlon 64 (quick question)
->Date: Thu, 7 Jul 2005 21:04:25 +0200
->
->Hi,
->
->On Thursday, 7 of July 2005 18:41, Jon Schindler wrote:
-> > Hi Rafael,
-> > I looked at the patch and noticed that it's changing a file inside
-> > linux-2.6.12-rc6/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
-> > So, basically, it's modifying the powernow driver in the i386 arch
-> > directory, but shouldn't that file be in "arch/x86_64/....", or am I 
->missing
-> > something?
->
->Yes. :-)
->
-> > I'm compiling the kernel for x86_64, so will my 64 bit kernel
-> > use this file even though it's in the i386 directory?
->
->Yes, it will.  x86-64 uses some sources from i386 directly, including
->cpufreq (they would be identical anyway).
->
->Greets,
->Rafael
->
->
->--
->- Would you tell me, please, which way I ought to go from here?
->- That depends a good deal on where you want to get to.
->		-- Lewis Carroll "Alice's Adventures in Wonderland"
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> want 500MHz at 940mV, you could add:
+> 
+> centrino_model[cpu]->op_points[p.state_count - 2].index = 0x1295;
+> centrino_model[cpu]->op_points[p.state_count - 2].index = 500000;
+						.frequency
+> p.states[p.state_count - 2].core_frequency = 500;
 
 
+	Dominik

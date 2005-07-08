@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVGHLUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVGHL2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbVGHLUu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 07:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVGHLUl
+	id S262433AbVGHL2E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 07:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVGHL2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 07:20:41 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:21681 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262524AbVGHLSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 07:18:42 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Michael Tokarev <mjt@tls.msk.ru>, linux-os@analogic.com
-Subject: Re: sent an invalid ICMP type 11, code 0 error to a broadcast: 0.0.0.0 on lo?
-Date: Fri, 8 Jul 2005 14:18:01 +0300
-User-Agent: KMail/1.5.4
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <42CBCEDD.2020401@tls.msk.ru> <Pine.LNX.4.61.0507070801080.9558@chaos.analogic.com> <42CD289B.5080403@tls.msk.ru>
-In-Reply-To: <42CD289B.5080403@tls.msk.ru>
+	Fri, 8 Jul 2005 07:28:04 -0400
+Received: from aeimail.aei.ca ([206.123.6.84]:51921 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S262433AbVGHL2C convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 07:28:02 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Stelian Pop <stelian@popies.net>
+Subject: Re: GIT tree broken? (rsync depreciated)
+Date: Fri, 8 Jul 2005 07:28:16 -0400
+User-Agent: KMail/1.8.1
+Cc: Meelis Roos <mroos@linux.ee>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <Pine.SOC.4.61.0507081227540.25021@math.ut.ee> <1120816858.4688.4.camel@localhost.localdomain>
+In-Reply-To: <1120816858.4688.4.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200507081418.01686.vda@ilport.com.ua>
+Message-Id: <200507080728.17192.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem is, I can't see what is causing this misconfiguration
-> or whatever.  I wasn't able to capture such a packet so far either --
-> it never happened while tcpdump was running.
+Hi,
 
-You may try to add printk("bad boy is: %s\n", current()->comm)),
-or dump_stack(), or something like that in icmp path of IP stack.
-(I am currently tracking an intermittent network problem
-on my home box in similar way).
+I resync(ed) cg and rebuild this morning and it worked fine.  
 
->  Note the local IP address mentioned is different, I've
-> seen 3 so far, all 3 are local on this box and are on 3
-> different (ethernet) interfaces (but the ICMP always comes
-> from lo).
+On another tack.  Updating the kernel gave a message that rsync is depreciated and
+will soon be turned off.  How should we be updating git/cg trees now?
 
-BTW what tcpdump actually shows?
---
-vda
+Thanks
+Ed Tomlinson
 
+On Friday 08 July 2005 06:00, Stelian Pop wrote:
+> Le vendredi 08 juillet 2005 à 12:30 +0300, Meelis Roos a écrit :
+> > I'm trying to sync with 
+> > rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git 
+> > with cogito cg-update (cogito 0.11.3+20050610-1 Debian package) and it 
+> > fails with the following error:
+> > 
+> > Applying changes...
+> > error: cannot map sha1 file 043d051615aa5da09a7e44f1edbb69798458e067
+> > error: Could not read 043d051615aa5da09a7e44f1edbb69798458e067
+> > cg-merge: unable to automatically determine merge base
+> 
+> I see this too, with the latest cogito git tree, reproductible even in a
+> fresh environment:
+> 
+> $ rm -rf linux-2.6.git
+> $ cg-clone
+> http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+> linux-2.6.git
+> defaulting to local storage area
+> 
+> 11:57:48
+> URL:http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/refs/heads/master[41/41] -> "refs/heads/origin" [1] 
+> progress: 2 objects, 981 bytes
+> error: File 2a7e338ec2fc6aac461a11fe8049799e65639166
+> (http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/objects/2a/7e338ec2fc6aac461a11fe8049799e65639166) corrupt
+> 
+> Cannot obtain needed blob 2a7e338ec2fc6aac461a11fe8049799e65639166
+> while processing commit 0000000000000000000000000000000000000000.
+> cg-pull: objects pull failed
+> cg-init: pull failed
+> 
+> Stelian.

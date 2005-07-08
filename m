@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVGHFuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbVGHFxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262627AbVGHFuv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 01:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVGHFuu
+	id S262622AbVGHFxN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 01:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbVGHFxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 01:50:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20713 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262621AbVGHFtq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 01:49:46 -0400
-Date: Fri, 8 Jul 2005 01:48:00 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Arjan van de Ven <arjan@infradead.org>
-cc: serue@us.ibm.com, "Timothy R. Chavez" <tinytim@us.ibm.com>,
-       Steve Grubb <sgrubb@redhat.com>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, <linux-audit@redhat.com>,
-       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Mounir Bsaibes <mbsaibes@us.ibm.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Klaus Weidner <klaus@atsec.com>, Chris Wright <chrisw@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, Robert Love <rml@novell.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Daniel H Jones <danjones@us.ibm.com>, Amy Griffis <amy.griffis@hp.com>,
-       Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: [PATCH] audit: file system auditing based on location and name
-In-Reply-To: <1120800795.3249.5.camel@laptopd505.fenrus.org>
-Message-ID: <Xine.LNX.4.44.0507080138380.15737-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Jul 2005 01:53:13 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:32408 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S262622AbVGHFvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 01:51:11 -0400
+Date: Fri, 8 Jul 2005 09:51:04 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linville@tuxdriver.com, rmk+lkml@arm.linux.org.uk, matthew@wil.cx,
+       grundler@parisc-linux.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com,
+       ambx1@neo.rr.com
+Subject: Re: [patch 2.6.12 (repost w/ corrected subject)] pci: restore BAR values in pci_enable_device_bars
+Message-ID: <20050708095104.A612@den.park.msu.ru>
+References: <20050705224620.B15292@flint.arm.linux.org.uk> <20050706033454.A706@den.park.msu.ru> <20050708005701.GA13384@tuxdriver.com> <20050707.201103.41635951.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050707.201103.41635951.davem@davemloft.net>; from davem@davemloft.net on Thu, Jul 07, 2005 at 08:11:03PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Jul 2005, Arjan van de Ven wrote:
+On Thu, Jul 07, 2005 at 08:11:03PM -0700, David S. Miller wrote:
+> > Problem: pci_update_resource doesn't exist for sparc64.
+> 
+> Yes, the drivers/pci/setup-res.c code isn't compiled in on
+> sparc64 because it assumes a totally different model of
+> PCI bus probing than we use on sparc64.
 
-> why not?
-> If your /etc/shadow has no selinux context you've lost already :0
+Why not just implement sparc64 version of pci_update_resource elsewhere
+(perhaps a dummy one, if you don't need PCI PM), rather than force the
+rest of the world to duplicate the code?
 
-No, the kernel will map it to something safe.
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+Ivan.

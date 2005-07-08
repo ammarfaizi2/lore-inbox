@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVGHHUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVGHHd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVGHHUI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 03:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVGHHUH
+	id S261388AbVGHHd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 03:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVGHHd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 03:20:07 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:42704 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261550AbVGHHUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 03:20:06 -0400
-Subject: Re: [PATCH] Add MAINTAINERS entry for audit subsystem
-From: David Woodhouse <dwmw2@infradead.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-audit@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050708011223.GS9046@shell0.pdx.osdl.net>
-References: <20050708011223.GS9046@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Fri, 08 Jul 2005 08:18:32 +0100
-Message-Id: <1120807113.3890.307.camel@localhost.localdomain>
+	Fri, 8 Jul 2005 03:33:58 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9932
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261388AbVGHHd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 03:33:57 -0400
+Date: Fri, 08 Jul 2005 00:33:33 -0700 (PDT)
+Message-Id: <20050708.003333.28789082.davem@davemloft.net>
+To: ink@jurassic.park.msu.ru
+Cc: linville@tuxdriver.com, rmk+lkml@arm.linux.org.uk, matthew@wil.cx,
+       grundler@parisc-linux.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com,
+       ambx1@neo.rr.com
+Subject: Re: [patch 2.6.12 (repost w/ corrected subject)] pci: restore BAR
+ values in pci_enable_device_bars
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050708110358.A8491@jurassic.park.msu.ru>
+References: <20050708095104.A612@den.park.msu.ru>
+	<20050707.233530.85417983.davem@davemloft.net>
+	<20050708110358.A8491@jurassic.park.msu.ru>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-07 at 18:12 -0700, Chris Wright wrote:
-> I've been asked about this a couple times, and there's no info in
-> MAINTAINERS file.  Add MAINTAINERS entry for audit subsystem.
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Date: Fri, 8 Jul 2005 11:03:58 +0400
 
-It's already there in -mm, although I was evidently having a stupid day
-and put it before Atmel.
+> On Thu, Jul 07, 2005 at 11:35:30PM -0700, David S. Miller wrote:
+> > That's fine, what would be the most minimal implementation?
+> 
+> #define pci_update_resource(dev, res, n)	BUG()
+> 
+> No, I'm serious - I don't believe that generic implementation of
+> pcibios_resource_to_bus() in the proposed patch does the right thing
+> on sparc64 anyway.
 
--- 
-dwmw2
+We really don't do power management on sparc64 at all currently,
+besides cpufreq, so I guess this would be OK.
 
+Do PCI devices ever come out of reset in a PM state, and thus
+would execute John's new code as a side effect?

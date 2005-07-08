@@ -1,115 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVGHNCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbVGHNIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262643AbVGHNCl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 09:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVGHNCl
+	id S262645AbVGHNIT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 09:08:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbVGHNIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 09:02:41 -0400
-Received: from odin2.bull.net ([192.90.70.84]:36606 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S262643AbVGHNCk convert rfc822-to-8bit
+	Fri, 8 Jul 2005 09:08:19 -0400
+Received: from odin2.bull.net ([192.90.70.84]:36351 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S262645AbVGHNIF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 09:02:40 -0400
-Subject: PREEMPT_RT and latency_trace
+	Fri, 8 Jul 2005 09:08:05 -0400
+Subject: Re: PREEMPT_RT and mptfusion
 From: "Serge Noiraud" <serge.noiraud@bull.net>
 To: Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-15
+In-Reply-To: <1120823999.6225.149.camel@ibiza.btsn.frna.bull.fr>
+References: <1120633558.6225.64.camel@ibiza.btsn.frna.bull.fr>
+	 <20050706120848.GB16843@elte.hu>
+	 <1120653209.6225.96.camel@ibiza.btsn.frna.bull.fr>
+	 <1120659178.6225.99.camel@ibiza.btsn.frna.bull.fr>
+	 <20050706143157.GA22156@elte.hu>
+	 <1120719326.6225.102.camel@ibiza.btsn.frna.bull.fr>
+	 <20050707175231.GA29046@elte.hu>
+	 <1120823999.6225.149.camel@ibiza.btsn.frna.bull.fr>
+Content-Type: text/plain; charset=iso-8859-15
 Organization: BTS
-Message-Id: <1120826951.6225.167.camel@ibiza.btsn.frna.bull.fr>
+Message-Id: <1120827278.6225.171.camel@ibiza.btsn.frna.bull.fr>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-5.1.100mdk 
-Date: Fri, 08 Jul 2005 14:49:14 +0200
+Date: Fri, 08 Jul 2005 14:54:38 +0200
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Le ven 08/07/2005 à 14:00, Serge Noiraud a écrit :
+> Le jeu 07/07/2005 à 19:52, Ingo Molnar a écrit :
+> > * Serge Noiraud <serge.noiraud@bull.net> wrote:
+> > 
+> > > Same problem with this patch and CONFIG_PCI_MSI=y
+> > > This is not the solution.
+> > 
+> > ok, -51-12 should have a better fix - does that kernel work for you with 
+> > PCI_MSI=y?
+> I tried 51-13. It's OK.
+> I have new messages :
+> ...
+> Freeing unused kernel memory: 376k freed
+> input: AT Translated Set 2 keyboard on isa0060/serio0
+> logips2pp: Detected unknown logitech mouse model 1
+> input: PS/2 Logitech Mouse on isa0060/serio1
+> BUG: modprobe:1099 RT task yield()-ing!
+>  [<c0104533>] dump_stack+0x23/0x30 (20)
+>  [<c03ce248>] yield+0x58/0x60 (20)
+>  [<c011b7e3>] wait_task_inactive+0x93/0xb0 (24)
+>  [<c013b1d6>] kthread_bind+0x26/0x60 (24)
+>  [<c014f05c>] __stop_machine_run+0x9c/0xd0 (132)
+>  [<c014f0b4>] stop_machine_run+0x24/0x40 (20)
+>  [<c014a74a>] sys_init_module+0x8a/0x230 (32)
+>  [<c01034a8>] sysenter_past_esp+0x61/0x89 (-8116)
+> ------------------------------
+> | showing all locks held by: |  (modprobe/1099 [f700a610,  98]):
+> ------------------------------
+> 
+> #001:             [c0440fa4] {module_mutex.lock}
+> ... acquired at:  sys_init_module+0x3b/0x230
+> 
+> #002:             [c04416a4] {stopmachine_mutex.lock}
+> ... acquired at:  __stop_machine_run+0x69/0xd0
+> 
+> ts: Compaq touchscreen protocol output
+> Generic RTC Driver v1.07
+> ACPI: Power Button (FF) [PWRF]
+> ...
+I'm not sure it's good. I loose my file system :
+After one RT test, I cannot ls -l on all my filesystems :
+# ls -l
+ls: get_cpu_speed.c: Input/output error
+ls: get_cpu_speed.o: Input/output error
+ls: toto: Input/output error
+ls: fonctions.h: Input/output error
+ls: Makefile: Input/output error
+ls: max_tsc_aff.c: Input/output error
+ls: max_tsc_aff.o: Input/output error
+total 12
+-rwxr-xr-x  1 root root 10279 Jul  8 11:19 tsc*
 
-I have a big dilemna on one machine :
-I run a task with RT priority which make a loop to mesure the system
-perturbation.
-It works well except on  one machine.
-On a multi-cpu, If I run the program on cpu 1, I get 23us. It's OK.
-If I run the same program on cpu 0, I get 17373us !
-If I do :
-# echo 0 >/proc/sys/kernel/preempt_max_latency
-# ./tsc 0
- temps deb 60229d5e6ee 
-cptr mlockall 0
- temps fin 6c386df6612 
- temps max 1  6472c52d682 
- temps max 2  6472fa35c26 
-duree du test 259.450819 s max detecte 17373 µs
-#cat /proc/latency_trace 
-preemption latency trace v1.1.4 on 2.6.12-RT-V0.7.51-13-DAV06
---------------------------------------------------------------------
- latency: 33 us, #48/48, CPU#1 | (M:rt VP:0, KP:1, SP:1 HP:1 #P:2)
-   -----------------
-   | task: softirq-timer/1-12 (uid:0 nice:-10 policy:0 rt_prio:0)
-   -----------------
-
-                _------=> CPU#            
-               / _-----=> irqs-off        
-              | / _----=> need-resched    
-              || / _---=> hardirq/softirq 
-              ||| / _--=> preempt-depth
-              |||| /                      
-              |||||     delay             
-  cmd     pid ||||| time  |   caller      
-     \   /    |||||   \   |   /           
- <idle>-0     1Dnh3    0us!: <70617773> (<00726570>)
- <idle>-0     1Dnh3    0us : __trace_start_sched_wakeup (try_to_wake_up)
- <idle>-0     1Dnh3    0us : __trace_start_sched_wakeup <<...>-12>(69 1)
- <idle>-0     1Dnh3    0us : _raw_spin_unlock (try_to_wake_up)
- <idle>-0     1Dnh2    0us : resched_task (try_to_wake_up)
- <idle>-0     1Dnh2    0us+: try_to_wake_up <<...>-12> (69 8c)
- <idle>-0     1Dnh2   22us : _raw_spin_unlock_irqrestore
-(try_to_wake_up)
- <idle>-0     1Dnh1   22us : preempt_schedule (try_to_wake_up)
- <idle>-0     1Dnh1   22us : wake_up_process (trigger_softirqs)
- <idle>-0     1Dnh.   23us : preempt_schedule_irq (need_resched)
- <idle>-0     1Dnh.   23us : __schedule (preempt_schedule_irq)
- <idle>-0     1Dnh.   23us : profile_hit (__schedule)
- <idle>-0     1Dnh1   23us : sched_clock (__schedule)
- <idle>-0     1Dnh1   23us : _raw_spin_lock_irq (__schedule)
- <idle>-0     1Dnh1   24us : _raw_spin_lock_irqsave (__schedule)
- <idle>-0     1Dnh2   24us : pull_rt_tasks (__schedule)
- <idle>-0     1Dnh2   24us : double_lock_balance (pull_rt_tasks)
- <idle>-0     1Dnh2   24us : _raw_spin_trylock (double_lock_balance)
- <idle>-0     1Dnh3   25us : pick_rt_task (pull_rt_tasks)
- <idle>-0     1Dnh3   25us : find_next_bit (pick_rt_task)
- <idle>-0     1Dnh3   25us : find_next_bit (pick_rt_task)
- <idle>-0     1Dnh3   25us : find_next_bit (pick_rt_task)
- <idle>-0     1Dnh3   25us : _raw_spin_unlock (pull_rt_tasks)
- <idle>-0     1Dnh2   26us : preempt_schedule (pull_rt_tasks)
- <idle>-0     1Dnh2   26us : find_next_bit (pull_rt_tasks)
- <idle>-0     1Dnh2   26us : find_next_bit (pull_rt_tasks)
- <idle>-0     1Dnh2   26us : dependent_sleeper (__schedule)
- <idle>-0     1Dnh2   26us : _raw_spin_unlock (dependent_sleeper)
- <idle>-0     1Dnh1   27us : preempt_schedule (dependent_sleeper)
- <idle>-0     1Dnh1   27us : _raw_spin_lock (dependent_sleeper)
- <idle>-0     1Dnh2   27us : find_next_bit (dependent_sleeper)
- <idle>-0     1Dnh2   27us : dequeue_task (__schedule)
- <idle>-0     1Dnh2   27us : recalc_task_prio (__schedule)
- <idle>-0     1Dnh2   28us : effective_prio (recalc_task_prio)
- <idle>-0     1Dnh2   28us : enqueue_task (__schedule)
- <idle>-0     1Dnh2   28us : trace_array (__schedule)
- <idle>-0     1Dnh2   29us : trace_array <<...>-12> (69 6e)
- <idle>-0     1Dnh2   29us : trace_array (__schedule)
-  <...>-12    1Dnh2   31us : __switch_to (__schedule)
-  <...>-12    1Dnh2   31us : __schedule <<idle>-0> (8c 69)
-  <...>-12    1Dnh2   31us : finish_task_switch (__schedule)
-  <...>-12    1Dnh2   31us : _raw_spin_unlock (finish_task_switch)
-  <...>-12    1Dnh1   32us : trace_stop_sched_switched
-(finish_task_switch)
-  <...>-12    1Dnh1   32us : _raw_spin_lock (trace_stop_sched_switched)
-  <...>-12    1Dnh2   32us : trace_stop_sched_switched <<...>-12>(69 1)
-  <...>-12    1Dnh2   32us : trace_stop_sched_switched
-(finish_task_switch)
-
-
-vim:ft=help
-
-
-My Question is : where is the time missing ?
 

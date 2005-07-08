@@ -1,37 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbVGHR6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262747AbVGHSDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbVGHR6j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 13:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbVGHR6c
+	id S262747AbVGHSDM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 14:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVGHSDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 13:58:32 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:48034 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S262737AbVGHR5Y (ORCPT
+	Fri, 8 Jul 2005 14:03:12 -0400
+Received: from levante.wiggy.net ([195.85.225.139]:64701 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S262738AbVGHSDK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 13:57:24 -0400
-Date: Fri, 8 Jul 2005 13:58:40 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: aio-stress throughput regressions from 2.6.11 to 2.6.12
-Message-ID: <20050708175840.GD781@kvack.org>
-References: <20050701075600.GC4625@in.ibm.com> <20050701142555.GB31989@kvack.org> <20050706043056.GA4223@in.ibm.com>
+	Fri, 8 Jul 2005 14:03:10 -0400
+Date: Fri, 8 Jul 2005 20:03:03 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Bryan Henderson <hbryan@us.ibm.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       bfields@fieldses.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linuxram@us.ibm.com, mike@waychison.com,
+       Miklos Szeredi <miklos@szeredi.hu>,
+       Pekka J Enberg <penberg@cs.helsinki.fi>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: share/private/slave a subtree - define vs enum
+Message-ID: <20050708180302.GC1165@wiggy.net>
+Mail-Followup-To: Bryan Henderson <hbryan@us.ibm.com>,
+	Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+	bfields@fieldses.org, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linuxram@us.ibm.com,
+	mike@waychison.com, Miklos Szeredi <miklos@szeredi.hu>,
+	Pekka J Enberg <penberg@cs.helsinki.fi>,
+	Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.61.0507081527040.3743@scrub.home> <OFF7ECFC50.4EDB3D93-ON88257038.0059F048-88257038.005AEAF4@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050706043056.GA4223@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <OFF7ECFC50.4EDB3D93-ON88257038.0059F048-88257038.005AEAF4@us.ibm.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 06, 2005 at 10:00:56AM +0530, Suparna Bhattacharya wrote:
-> Do you see the regression as well, or is it just me ?
+Previously Bryan Henderson wrote:
+> Two advantages of the enum declaration that haven't been mentioned yet, 
+> that help me significantly:
 
-Throughput for me on an ICH6 SATA system using O_DIRECT seems to remain 
-pretty constant across 2.6.11-something-FC3 to 2.6.13-rc2 around 31MB/s.  
-2.6.11 proper hangs for me, though.
+There is another one: with enums the compiler checks types for you.
 
-		-ben
+Wichert.
+
 -- 
-"Time is what keeps everything from happening all at once." -- John Wheeler
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

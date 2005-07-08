@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262854AbVGHUXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262866AbVGHUXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbVGHUXE (ORCPT <rfc822;willy@w.ods.org>);
+	id S262866AbVGHUXE (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Jul 2005 16:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262833AbVGHTtt
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbVGHTlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 15:49:49 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:34982 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262835AbVGHTtB (ORCPT
+	Fri, 8 Jul 2005 15:41:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42421 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262824AbVGHTkf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 15:49:01 -0400
-Date: Fri, 8 Jul 2005 21:48:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050708194827.GA22536@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081047.07643.s0348365@sms.ed.ac.uk> <20050708114642.GA10379@elte.hu> <200507081938.27815.s0348365@sms.ed.ac.uk>
+	Fri, 8 Jul 2005 15:40:35 -0400
+Date: Fri, 8 Jul 2005 20:40:19 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>
+Subject: [PATCH] device-mapper: Fix dm_swap_table error cases
+Message-ID: <20050708194019.GH12355@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Lars Marowsky-Bree <lmb@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200507081938.27815.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fix dm_swap_table() __bind error cases: a missing unlock, and EINVAL
+preferable to EPERM.
 
-* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+--- diff/drivers/md/dm.c	2005-07-08 19:21:37.000000000 +0100
++++ source/drivers/md/dm.c	2005-07-08 19:36:03.000000000 +0100
+@@ -966,23 +966,20 @@
+  */
+ int dm_swap_table(struct mapped_device *md, struct dm_table *table)
+ {
+-	int r;
++	int r = -EINVAL;
+ 
+ 	down_write(&md->lock);
+ 
+ 	/* device must be suspended */
+-	if (!test_bit(DMF_SUSPENDED, &md->flags)) {
+-		up_write(&md->lock);
+-		return -EPERM;
+-	}
++	if (!test_bit(DMF_SUSPENDED, &md->flags))
++		goto out;
+ 
+ 	__unbind(md);
+ 	r = __bind(md, table);
+-	if (r)
+-		return r;
+ 
++out:
+ 	up_write(&md->lock);
+-	return 0;
++	return r;
+ }
+ 
+ /*
 
-> Unfortunately I see nothing like this when the machine crashes. Find 
-> attached my config, which has CONFIG_4KSTACKS and the options you 
-> specified. Are you sure this is sufficient to enable it?
-
-i have booted your .config, and stack overflow debugging is active and 
-working. So it probably wasnt a straight (detectable) stack recursion / 
-stack footprint issue.
-
-	Ingo

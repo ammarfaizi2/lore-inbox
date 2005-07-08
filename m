@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262995AbVGHXmQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbVGHTdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262995AbVGHXmQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 19:42:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbVGHXmL
+	id S262793AbVGHTdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 15:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbVGHTam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 19:42:11 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:33462 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262928AbVGHXjq (ORCPT
+	Fri, 8 Jul 2005 15:30:42 -0400
+Received: from mx1.suse.de ([195.135.220.2]:65516 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262782AbVGHT3i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 19:39:46 -0400
-Date: Sat, 9 Jul 2005 01:36:08 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [2.6 patch] SCSI_SATA has to be a tristate
-In-Reply-To: <20050708214802.GK3671@stusta.de>
-Message-ID: <Pine.LNX.4.61.0507090134040.3743@scrub.home>
-References: <20050708214802.GK3671@stusta.de>
+	Fri, 8 Jul 2005 15:29:38 -0400
+To: "Jon Schindler" <jonschindler@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB storage does not work with 3GB of RAM, but does with 2G of RAM
+References: <200507081938.27815.s0348365@sms.ed.ac.uk.suse.lists.linux.kernel>
+	<BAY20-F56DA47C91D7C093A5E426C4DB0@phx.gbl.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 08 Jul 2005 21:29:37 +0200
+In-Reply-To: <BAY20-F56DA47C91D7C093A5E426C4DB0@phx.gbl.suse.lists.linux.kernel>
+Message-ID: <p734qb5p04e.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Jon Schindler" <jonschindler@hotmail.com> writes:
+> 
+> This mainly seems to be an issue with USB mass storage devices like
+> USB memory sticks and USB hard drives (I've tried both, and neither is
+> assigned a scsi device properly).  I am still able to use my USB mouse
+> when I have 3GB installed.  I'm not sure if that makes it a USB 1.1
+> issue or a USB storage issue, but hopefully someone will have some
+> insight after looking at the logs.  Thanks in advance for any help.
 
-On Fri, 8 Jul 2005, Adrian Bunk wrote:
+It sounds like the Nvidia EHCI controller has trouble DMAing to high
+addresses. Would be a bad bug if true.
 
-> --- linux-2.6.13-rc1-mm1/drivers/scsi/Kconfig.old	2005-07-02 21:57:40.000000000 +0200
-> +++ linux-2.6.13-rc1-mm1/drivers/scsi/Kconfig	2005-07-02 21:58:06.000000000 +0200
-> @@ -447,7 +447,7 @@
->  source "drivers/scsi/megaraid/Kconfig.megaraid"
->  
->  config SCSI_SATA
-> -	bool "Serial ATA (SATA) support"
-> +	tristate "Serial ATA (SATA) support"
->  	depends on SCSI
->  	help
->  	  This driver family supports Serial ATA host controllers
+Does it work when you disable EHCI and only enable OHCI? (this will
+limit you to USB 1.1) 
 
-Did you verify that this works?
-Overwise "depends on SCSI=y" might also be correct.
-
-bye, Roman
+-Andi

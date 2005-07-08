@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262881AbVGHVxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262877AbVGHWT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262881AbVGHVxe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 17:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbVGHVtE
+	id S262877AbVGHWT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 18:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbVGHWSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 17:49:04 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21765 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262882AbVGHVsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 17:48:10 -0400
-Date: Fri, 8 Jul 2005 23:48:06 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Max Asbock <masbock@us.ibm.com>, Vernon Mauery <vernux@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] IBM_ASM Kconfig corrections
-Message-ID: <20050708214806.GL3671@stusta.de>
+	Fri, 8 Jul 2005 18:18:44 -0400
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:38845
+	"HELO linuxace.com") by vger.kernel.org with SMTP id S262917AbVGHWDK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 18:03:10 -0400
+Date: Fri, 8 Jul 2005 15:03:09 -0700
+From: Phil Oester <kernel@linuxace.com>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: Rudo Thomas <rudo@matfyz.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12.2 -- time passes faster; related to the acpi_register_gsi() call
+Message-ID: <20050708220309.GA16413@linuxace.com>
+References: <20050708211203.GC382@ss1000.ms.mff.cuni.cz> <1120857908.25294.33.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1120857908.25294.33.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following fixes:
-- IBM_ASM must depend on PCI
-- remove useless "default n"
-- correct the URL to further information
+On Fri, Jul 08, 2005 at 11:25:08PM +0200, Alexander Nyberg wrote:
+> fre 2005-07-08 klockan 23:12 +0200 skrev Rudo Thomas:
+> > Hello, guys.
+> > 
+> > Time started to pass faster with 2.6.12.2 (actually, it was 2.6.12-ck3
+> > which is based on it). I have isolated the cause of the problem:
+> 
+> I bet you this fixes it (already in mainline)
+> 
+> If ACPI doesn't find an irq listed, don't accept 0 as a valid PCI irq.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+FYI, this did fix the time-passing-faster problem for me on a poweredge 750
+a few days ago.  I'd suggest this fix should go to -stable.
 
----
-
-This patch was already sent on:
-- 1 Jul 2005
-
---- linux-2.6.12-mm2-full/drivers/misc/Kconfig.old	2005-06-30 22:36:01.000000000 +0200
-+++ linux-2.6.12-mm2-full/drivers/misc/Kconfig	2005-06-30 22:36:21.000000000 +0200
-@@ -6,8 +6,7 @@
- 
- config IBM_ASM
- 	tristate "Device driver for IBM RSA service processor"
--	depends on X86 && EXPERIMENTAL
--	default n
-+	depends on X86 && PCI && EXPERIMENTAL
- 	---help---
- 	  This option enables device driver support for in-band access to the
- 	  IBM RSA (Condor) service processor in eServer xSeries systems.
-@@ -22,7 +21,7 @@
- 	  
- 	  WARNING: This software may not be supported or function
- 	  correctly on your IBM server. Please consult the IBM ServerProven
--	  website <http://www.pc.ibm/ww/eserver/xseries/serverproven> for
-+	  website <http://www.pc.ibm.com/ww/eserver/xseries/serverproven> for
- 	  information on the specific driver level and support statement
- 	  for your IBM server.
- 
-
+Phil

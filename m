@@ -1,266 +1,436 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263068AbVGIBT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbVGIBXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263068AbVGIBT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 21:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263055AbVGIBSf
+	id S263028AbVGIBXM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 21:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVGIAjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 21:18:35 -0400
-Received: from opersys.com ([64.40.108.71]:27401 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S263071AbVGIBRS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 21:17:18 -0400
-Message-ID: <42CF282C.3060501@opersys.com>
-Date: Fri, 08 Jul 2005 21:28:12 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Fri, 8 Jul 2005 20:39:17 -0400
+Received: from smtp3.brturbo.com.br ([200.199.201.164]:35745 "EHLO
+	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S263030AbVGIAjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 20:39:04 -0400
+Message-ID: <42CF1CA2.3060504@brturbo.com.br>
+Date: Fri, 08 Jul 2005 21:38:58 -0300
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: pt-br, pt, es, en-us, en
 MIME-Version: 1.0
-To: Kristian Benoit <kbenoit@opersys.com>
-CC: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
-       andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, part 4
-References: <42CF05BE.3070908@opersys.com>
-In-Reply-To: <42CF05BE.3070908@opersys.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+Subject: [PATCH 4/14 2.6.13-rc2-mm1] V4L Documentation
+X-Enigmail-Version: 0.91.0.0
 Content-Type: multipart/mixed;
- boundary="------------090003080208090300030908"
+ boundary="------------050601090801020403040501"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------090003080208090300030908
-Content-Type: text/plain; charset=us-ascii
+--------------050601090801020403040501
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 
-Missing attachment herein included.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
-
---------------090003080208090300030908
-Content-Type: text/plain;
- name="highmem.sum"
-Content-Transfer-Encoding: base64
+--------------050601090801020403040501
+Content-Type: text/x-patch;
+ name="v4l_driver-doc.diff"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="highmem.sum"
+ filename="v4l_driver-doc.diff"
 
-ICAgICAgICAgICAgICAgICBMIE0gQiBFIE4gQyBIICAyIC4gMCAgIFMgVSBNIE0gQSBSIFkK
-ICAgICAgICAgICAgICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0K
-ClByb2Nlc3NvciwgUHJvY2Vzc2VzIC0gdGltZXMgaW4gbWljcm9zZWNvbmRzIC0gc21hbGxl
-ciBpcyBiZXR0ZXIKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICBudWxsICAgICBudWxsICAgICAgICAgICAgICAgICAgICAgICBvcGVuICAgIHNpZ25hbCAg
-IHNpZ25hbCAgICBmb3JrICAgIGV4ZWN2ZSAgL2Jpbi9zaAprZXJuZWwgICAgICAgICAgICAg
-ICAgICAgICAgICAgICBjYWxsICAgICAgSS9PICAgICBzdGF0ICAgIGZzdGF0ICAgIGNsb3Nl
-ICAgaW5zdGFsbCAgIGhhbmRsZSAgcHJvY2VzcyAgcHJvY2VzcyAgcHJvY2VzcwotLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0t
-LS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0t
-LS0tLQpISUdITUVNLVJULVYwLjcuNTAtMzUgICAgICAgICAgICAgMC4xOCAgIDAuMjk0NyAg
-ICAgMy4wMiAgICAgMC40MiAgICAgMy42MiAgICAgMC41OSAgICAgMS45OCAgICAgIDE1NiAg
-ICAgIDQ0OCAgICAgMTQ4MQpOT0hJR0hNRU0tUlQtVjAuNy41MC0zNSAgICAgICAgICAgMC4x
-OCAgMC4yODYzNSAgICAgMi45MSAgICAgMC40MiAgICAgMy43MCAgICAgMC41OCAgICAgMi4w
-MiAgICAgIDExMSAgICAgIDM4MyAgICAgMTM3MgpISUdITUVNLVJULVYwLjcuNTEtMDIgICAg
-ICAgICAgICAgMC4xOCAgMC4yNzA0NSAgICAgMi40NyAgICAgMC4zOSAgICAgMy4wMiAgICAg
-MC41NiAgICAgMS43NSAgICAgIDEwMyAgICAgIDM3MiAgICAgMTM1MgpOT0hJR0hNRU0tUlQt
-VjAuNy41MS0wMiAgICAgICAgICAgMC4xOCAgIDAuMjY3MyAgICAgMi4zNiAgICAgMC4zOSAg
-ICAgMi43NyAgICAgMC41NiAgICAgMS43MiAgICAgICA5MCAgICAgIDM1MSAgICAgMTMyOAoK
-RmlsZSBzZWxlY3QgLSB0aW1lcyBpbiBtaWNyb3NlY29uZHMgLSBzbWFsbGVyIGlzIGJldHRl
-cgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2VsZWN0ICAgc2VsZWN0ICAg
-c2VsZWN0ICAgc2VsZWN0ICAgc2VsZWN0ICAgc2VsZWN0ICAgc2VsZWN0ICAgc2VsZWN0Cmtl
-cm5lbCAgICAgICAgICAgICAgICAgICAgICAgICAgIDEwIGZkICAgMTAwIGZkICAgMjUwIGZk
-ICAgNTAwIGZkICAgMTAgdGNwICAxMDAgdGNwICAyNTAgdGNwICA1MDAgdGNwCi0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tICAtLS0tLS0tICAtLS0tLS0tICAtLS0tLS0tICAtLS0t
-LS0tICAtLS0tLS0tICAtLS0tLS0tICAtLS0tLS0tICAtLS0tLS0tCkhJR0hNRU0tUlQtVjAu
-Ny41MC0zNSAgICAgICAgICAgICAxLjI5ICAgICA1LjcwICAgIDEzLjIxICAgIDI1Ljc2ICAg
-ICAxLjQ5ICAgNy44ODA5ICAxOC42OTA1ICAgICAgIG5hCk5PSElHSE1FTS1SVC1WMC43LjUw
-LTM1ICAgICAgICAgICAxLjI2ICAgICA1LjY5ICAgIDEzLjI1ICAgIDI1Ljg0ICAgICAxLjQ3
-ICAgICAgIG5hICAgICAgIG5hICAgICAgIG5hCkhJR0hNRU0tUlQtVjAuNy41MS0wMiAgICAg
-ICAgICAgICAxLjAxICAgICAzLjg4ICAgICA4LjgyICAgIDE3LjA4ICAgICAxLjI0ICAgICAg
-IG5hICAxNC4xOTc5ICAyNy44MTU4Ck5PSElHSE1FTS1SVC1WMC43LjUxLTAyICAgICAgICAg
-ICAxLjAyICAgICAzLjkwICAgICA4Ljg0ICAgIDE3LjEyICAgICAxLjMwICAgNi4wNTczICAg
-ICAgIG5hICAgICAgIG5hCgpDb250ZXh0IHN3aXRjaGluZyB3aXRoIDBLIC0gdGltZXMgaW4g
-bWljcm9zZWNvbmRzIC0gc21hbGxlciBpcyBiZXR0ZXIKLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgMnByb2MvMGsgICA0cHJvYy8wayAgIDhwcm9j
-LzBrICAxNnByb2MvMGsgIDMycHJvYy8wayAgNjRwcm9jLzBrICA5NnByb2MvMGsKa2VybmVs
-ICAgICAgICAgICAgICAgICAgICAgICAgIGN0eCBzd3RjaCAgY3R4IHN3dGNoICBjdHggc3d0
-Y2ggIGN0eCBzd3RjaCAgY3R4IHN3dGNoICBjdHggc3d0Y2ggIGN0eCBzd3RjaAotLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAgLS0tLS0tLS0tICAtLS0tLS0tLS0gIC0tLS0tLS0t
-LSAgLS0tLS0tLS0tICAtLS0tLS0tLS0gIC0tLS0tLS0tLSAgLS0tLS0tLS0tCkhJR0hNRU0t
-UlQtVjAuNy41MC0zNSAgICAgICAgICAgICAgIDQuODcgICAgICAgNS41NSAgICAgICA1LjAx
-ICAgICAgIDQuNDcgICAgICAgNC4wMCAgICAgICA0LjQ1ICAgICAgIDUuMTMKTk9ISUdITUVN
-LVJULVYwLjcuNTAtMzUgICAgICAgICAgICAgMy4yNSAgICAgICAzLjkyICAgICAgIDMuNTMg
-ICAgICAgMy4xMCAgICAgICAyLjk2ICAgICAgIDMuNDYgICAgICAgNC4wOQpISUdITUVNLVJU
-LVYwLjcuNTEtMDIgICAgICAgICAgICAgICAyLjcwICAgICAgIDMuNDggICAgICAgMy41MSAg
-ICAgICAzLjUwICAgICAgIDMuMzYgICAgICAgMy45MyAgICAgICA0LjgyCk5PSElHSE1FTS1S
-VC1WMC43LjUxLTAyICAgICAgICAgICAgIDEuODYgICAgICAgMi4yMyAgICAgICAyLjQxICAg
-ICAgIDIuNDEgICAgICAgMi40MSAgICAgICAzLjAyICAgICAgIDMuOTIKCkNvbnRleHQgc3dp
-dGNoaW5nIHdpdGggNEsgLSB0aW1lcyBpbiBtaWNyb3NlY29uZHMgLSBzbWFsbGVyIGlzIGJl
-dHRlcgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAy
-cHJvYy80ayAgIDRwcm9jLzRrICAgOHByb2MvNGsgIDE2cHJvYy80ayAgMzJwcm9jLzRrICA2
-NHByb2MvNGsgIDk2cHJvYy80awprZXJuZWwgICAgICAgICAgICAgICAgICAgICAgICAgY3R4
-IHN3dGNoICBjdHggc3d0Y2ggIGN0eCBzd3RjaCAgY3R4IHN3dGNoICBjdHggc3d0Y2ggIGN0
-eCBzd3RjaCAgY3R4IHN3dGNoCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tICAtLS0t
-LS0tLS0gIC0tLS0tLS0tLSAgLS0tLS0tLS0tICAtLS0tLS0tLS0gIC0tLS0tLS0tLSAgLS0t
-LS0tLS0tICAtLS0tLS0tLS0KSElHSE1FTS1SVC1WMC43LjUwLTM1ICAgICAgICAgICAgICAg
-NS40OCAgICAgICA0Ljc1ICAgICAgIDQuNDcgICAgICAgNC43NiAgICAgICA0LjY4ICAgICAg
-IDUuOTAgICAgICAgNy4yNApOT0hJR0hNRU0tUlQtVjAuNy41MC0zNSAgICAgICAgICAgICAz
-Ljg4ICAgICAgIDQuNTQgICAgICAgNC4wMiAgICAgICAzLjkxICAgICAgIDQuMDQgICAgICAg
-NC45MyAgICAgICA1Ljg1CkhJR0hNRU0tUlQtVjAuNy41MS0wMiAgICAgICAgICAgICAgIDMu
-MjUgICAgICAgMy41OSAgICAgICAzLjg1ICAgICAgIDMuODkgICAgICAgNC4xOCAgICAgICA1
-LjQxICAgICAgIDYuNzUKTk9ISUdITUVNLVJULVYwLjcuNTEtMDIgICAgICAgICAgICAgMi43
-MCAgICAgICAzLjAxICAgICAgIDIuOTkgICAgICAgMy4wNCAgICAgICAzLjMxICAgICAgIDQu
-NTYgICAgICAgNi4xNgoKQ29udGV4dCBzd2l0Y2hpbmcgd2l0aCA4SyAtIHRpbWVzIGluIG1p
-Y3Jvc2Vjb25kcyAtIHNtYWxsZXIgaXMgYmV0dGVyCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIDJwcm9jLzhrICAgNHByb2MvOGsgICA4cHJvYy84
-ayAgMTZwcm9jLzhrICAzMnByb2MvOGsgIDY0cHJvYy84ayAgOTZwcm9jLzhrCmtlcm5lbCAg
-ICAgICAgICAgICAgICAgICAgICAgICBjdHggc3d0Y2ggIGN0eCBzd3RjaCAgY3R4IHN3dGNo
-ICBjdHggc3d0Y2ggIGN0eCBzd3RjaCAgY3R4IHN3dGNoICBjdHggc3d0Y2gKLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0gIC0tLS0tLS0tLSAgLS0tLS0tLS0tICAtLS0tLS0tLS0g
-IC0tLS0tLS0tLSAgLS0tLS0tLS0tICAtLS0tLS0tLS0gIC0tLS0tLS0tLQpISUdITUVNLVJU
-LVYwLjcuNTAtMzUgICAgICAgICAgICAgICA2LjA5ICAgICAgIDUuMzEgICAgICAgNS4yMiAg
-ICAgICA1LjA5ICAgICAgIDUuNjggICAgICAgNy44MiAgICAgICA4Ljg3Ck5PSElHSE1FTS1S
-VC1WMC43LjUwLTM1ICAgICAgICAgICAgIDQuNTEgICAgICAgNS4wOCAgICAgICA0LjU0ICAg
-ICAgIDQuMzYgICAgICAgNC40NCAgICAgICA2LjQ5ICAgICAgIDcuNzUKSElHSE1FTS1SVC1W
-MC43LjUxLTAyICAgICAgICAgICAgICAgMy44NSAgICAgICA0LjAxICAgICAgIDQuMjAgICAg
-ICAgNC4zMSAgICAgICA1LjI3ICAgICAgIDcuMzggICAgICAgOC41MQpOT0hJR0hNRU0tUlQt
-VjAuNy41MS0wMiAgICAgICAgICAgICAzLjA1ICAgICAgIDMuNDkgICAgICAgMy41MyAgICAg
-ICAzLjYwICAgICAgIDMuOTkgICAgICAgNi4zNyAgICAgICA3LjU2CgpDb250ZXh0IHN3aXRj
-aGluZyB3aXRoIDE2SyAtIHRpbWVzIGluIG1pY3Jvc2Vjb25kcyAtIHNtYWxsZXIgaXMgYmV0
-dGVyCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDJw
-cm9jLzE2ayAgNHByb2MvMTZrICA4cHJvYy8xNmsgIDE2cHJjLzE2ayAgMzJwcmMvMTZrICA2
-NHByYy8xNmsgIDk2cHJjLzE2awprZXJuZWwgICAgICAgICAgICAgICAgICAgICAgICAgY3R4
-IHN3dGNoICBjdHggc3d0Y2ggIGN0eCBzd3RjaCAgY3R4IHN3dGNoICBjdHggc3d0Y2ggIGN0
-eCBzd3RjaCAgY3R4IHN3dGNoCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tICAtLS0t
-LS0tLS0gIC0tLS0tLS0tLSAgLS0tLS0tLS0tICAtLS0tLS0tLS0gIC0tLS0tLS0tLSAgLS0t
-LS0tLS0tICAtLS0tLS0tLS0KSElHSE1FTS1SVC1WMC43LjUwLTM1ICAgICAgICAgICAgICAg
-Ni4yOSAgICAgICA1LjQ3ICAgICAgIDUuNTUgICAgICAgNS4yNyAgICAgICA3LjE5ICAgICAg
-MTAuODcgICAgICAxMS4yOQpOT0hJR0hNRU0tUlQtVjAuNy41MC0zNSAgICAgICAgICAgICA0
-LjcyICAgICAgIDQuMjggICAgICAgNC4wMSAgICAgICA0LjM3ICAgICAgIDYuMTYgICAgICAg
-OS4zMiAgICAgIDEwLjAxCkhJR0hNRU0tUlQtVjAuNy41MS0wMiAgICAgICAgICAgICAgIDQu
-MjAgICAgICAgNC43NCAgICAgICA0LjU3ICAgICAgIDQuNzggICAgICAgNi45MiAgICAgIDEw
-LjY3ICAgICAgMTEuMTYKTk9ISUdITUVNLVJULVYwLjcuNTEtMDIgICAgICAgICAgICAgMy4x
-NyAgICAgICAzLjQ1ICAgICAgIDMuNTEgICAgICAgMy43NiAgICAgICA1LjY1ICAgICAgIDku
-ODQgICAgICAxMC4zMQoKQ29udGV4dCBzd2l0Y2hpbmcgd2l0aCAzMksgLSB0aW1lcyBpbiBt
-aWNyb3NlY29uZHMgLSBzbWFsbGVyIGlzIGJldHRlcgotLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAycHJvYy8zMmsgIDRwcm9jLzMyayAgOHByb2Mv
-MzJrICAxNnByYy8zMmsgIDMycHJjLzMyayAgNjRwcmMvMzJrICA5NnByYy8zMmsKa2VybmVs
-ICAgICAgICAgICAgICAgICAgICAgICAgIGN0eCBzd3RjaCAgY3R4IHN3dGNoICBjdHggc3d0
-Y2ggIGN0eCBzd3RjaCAgY3R4IHN3dGNoICBjdHggc3d0Y2ggIGN0eCBzd3RjaAotLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAgLS0tLS0tLS0tICAtLS0tLS0tLS0gIC0tLS0tLS0t
-LSAgLS0tLS0tLS0tICAtLS0tLS0tLS0gIC0tLS0tLS0tLSAgLS0tLS0tLS0tCkhJR0hNRU0t
-UlQtVjAuNy41MC0zNSAgICAgICAgICAgICAgNi42MjAgICAgICA1Ljc1MCAgICAgIDUuOTkw
-ICAgICAgOC44MjAgICAgIDEyLjcwMCAgICAgMTQuNjEwICAgICAxNC42MzAKTk9ISUdITUVN
-LVJULVYwLjcuNTAtMzUgICAgICAgICAgICA1LjQ2MCAgICAgIDUuMDcwICAgICAgNS4wODAg
-ICAgICA2LjI3MCAgICAgMTIuMzEwICAgICAxNC4wODAgICAgIDEzLjk3MApISUdITUVNLVJU
-LVYwLjcuNTEtMDIgICAgICAgICAgICAgIDQuODAwICAgICAgNS41MTAgICAgICA1LjU1MCAg
-ICAgIDcuMDUwICAgICAxMy4zNTAgICAgIDE0Ljk3MCAgICAgMTQuOTQwCk5PSElHSE1FTS1S
-VC1WMC43LjUxLTAyICAgICAgICAgICAgMy45NDAgICAgICA0LjI1MCAgICAgIDQuMzIwICAg
-ICAgNi4wMjAgICAgIDEyLjAxMCAgICAgMTQuMTYwICAgICAxNC4xNTAKCkNvbnRleHQgc3dp
-dGNoaW5nIHdpdGggNjRLIC0gdGltZXMgaW4gbWljcm9zZWNvbmRzIC0gc21hbGxlciBpcyBi
-ZXR0ZXIKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-MnByb2MvNjRrICA0cHJvYy82NGsgIDhwcm9jLzY0ayAgMTZwcmMvNjRrICAzMnByYy82NGsg
-IDY0cHJjLzY0ayAgOTZwcmMvNjRrCmtlcm5lbCAgICAgICAgICAgICAgICAgICAgICAgICBj
-dHggc3d0Y2ggIGN0eCBzd3RjaCAgY3R4IHN3dGNoICBjdHggc3d0Y2ggIGN0eCBzd3RjaCAg
-Y3R4IHN3dGNoICBjdHggc3d0Y2gKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gIC0t
-LS0tLS0tLSAgLS0tLS0tLS0tICAtLS0tLS0tLS0gIC0tLS0tLS0tLSAgLS0tLS0tLS0tICAt
-LS0tLS0tLS0gIC0tLS0tLS0tLQpISUdITUVNLVJULVYwLjcuNTAtMzUgICAgICAgICAgICAg
-ICA4LjgyICAgICAgIDkuNTQgICAgICAxMC42NyAgICAgIDE5LjIxICAgICAgMjMuMTYgICAg
-ICAyMi45NCAgICAgIDIyLjkwCk5PSElHSE1FTS1SVC1WMC43LjUwLTM1ICAgICAgICAgICAg
-IDcuMjAgICAgICAgNy45NiAgICAgICA4LjU5ICAgICAgMTcuNzUgICAgICAyMS43MyAgICAg
-IDIxLjgxICAgICAgMjEuNzkKSElHSE1FTS1SVC1WMC43LjUxLTAyICAgICAgICAgICAgICAg
-Ni42OCAgICAgICA3LjQ0ICAgICAgIDkuMDggICAgICAxOC43MCAgICAgIDIyLjQzICAgICAg
-MjIuNjkgICAgICAyMi42NgpOT0hJR0hNRU0tUlQtVjAuNy41MS0wMiAgICAgICAgICAgICA1
-Ljk5ICAgICAgIDcuMzUgICAgICAgOS4wNCAgICAgIDE3LjI4ICAgICAgMjEuODEgICAgICAy
-Mi4yNCAgICAgIDIyLjA4CgpGaWxlIGNyZWF0ZS9kZWxldGUgYW5kIFZNIHN5c3RlbSBsYXRl
-bmNpZXMgaW4gbWljcm9zZWNvbmRzIC0gc21hbGxlciBpcyBiZXR0ZXIKLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwSyAgICAgICAw
-SyAgICAgICAxSyAgICAgICAxSyAgICAgICA0SyAgICAgICA0SyAgICAgIDEwSyAgICAgIDEw
-SyAgICAgTW1hcCAgICAgUHJvdCAgICBQYWdlCmtlcm5lbCAgICAgICAgICAgICAgICAgICAg
-ICAgICBDcmVhdGUgICBEZWxldGUgICBDcmVhdGUgICBEZWxldGUgICBDcmVhdGUgICBEZWxl
-dGUgICBDcmVhdGUgICBEZWxldGUgICBMYXRlbmN5ICBGYXVsdCAgIEZhdWx0Ci0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAtLS0tLS0tICAtLS0tLS0tICAtLS0tLS0tICAtLS0t
-LS0tICAtLS0tLS0tICAtLS0tLS0tICAtLS0tLS0tICAtLS0tLS0tICAtLS0tLS0tICAtLS0t
-LS0gIC0tLS0tLQpISUdITUVNLVJULVYwLjcuNTAtMzUgICAgICAgICAgICAgMTQuNiAgICAg
-IDcuNyAgICAgMjcuNCAgICAgMTYuNiAgICAgMjguOCAgICAgMTYuNiAgICAgNDMuNiAgICAg
-MjAuMSAgICAgMjg2MiAgICAwLjg2ICAgICAyLjAKTk9ISUdITUVNLVJULVYwLjcuNTAtMzUg
-ICAgICAgICAgIDE0LjEgICAgICA3LjMgICAgIDI3LjMgICAgIDE2LjIgICAgIDI3LjkgICAg
-IDE2LjAgICAgIDQ0LjcgICAgIDIxLjYgICAgIDExODAgICAgMC44NiAgICAgMi4wCkhJR0hN
-RU0tUlQtVjAuNy41MS0wMiAgICAgICAgICAgICAxMy4zICAgICAgNi4wICAgICAyNC45ICAg
-ICAxMy44ICAgICAyNS43ICAgICAxMy44ICAgICA0MC40ICAgICAxNi4yICAgICAgNjQyICAg
-IDEuMDEgICAgIDIuMApOT0hJR0hNRU0tUlQtVjAuNy41MS0wMiAgICAgICAgICAgMTIuMCAg
-ICAgIDUuOSAgICAgMjQuMCAgICAgMTMuMSAgICAgMjQuNSAgICAgMTMuMSAgICAgNDAuNiAg
-ICAgMTYuMSAgICAgIDYzMCAgICAxLjU1ICAgICAyLjAKCipMb2NhbCogQ29tbXVuaWNhdGlv
-biBsYXRlbmNpZXMgaW4gbWljcm9zZWNvbmRzIC0gc21hbGxlciBpcyBiZXR0ZXIKLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLQprZXJuZWwgICAgICAgICAgICAgICAgICAgICAgICAgICBQaXBlICAgQUYvVW5p
-eCAgICAgVURQICAgUlBDL1VEUCAgICAgVENQICAgUlBDL1RDUCAgVENQY29ubgotLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0t
-LS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLQpISUdITUVNLVJULVYwLjcuNTAtMzUg
-ICAgICAgICAgICAxMS41MiAgICAxNy4zNiAgIDIzLjMwMyAgMzQuNjEyMiAgMjUuNTI5NCAg
-MzkuODY3NSAgICA4NC45NQpOT0hJR0hNRU0tUlQtVjAuNy41MC0zNSAgICAgICAgICAgOC4z
-MCAgICAxMS44OSAgMTguNzI1NCAgMjkuMjk1MiAgMTkuMzIzOSAgMzEuOTQ0MiAgICA3MC4y
-NwpISUdITUVNLVJULVYwLjcuNTEtMDIgICAgICAgICAgICAgNy4xMCAgICAxMy42OCAgMjEu
-Njg1MiAgMzEuODExMiAgMjMuMzk4OCAgMzcuNTA1MiAgICA3OS4yOQpOT0hJR0hNRU0tUlQt
-VjAuNy41MS0wMiAgICAgICAgICAgOS44NiAgICAxNi4yNCAgMTkuNDkwNyAgMzYuNzQ2OCAg
-MzAuODQwMSAgIDQ1LjkzMSAgMzAwNDYzLjAwCgoqTG9jYWwqIENvbW11bmljYXRpb24gYmFu
-ZHdpZHRocyBpbiBNQi9zIC0gYmlnZ2VyIGlzIGJldHRlcgotLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRmlsZSAg
-ICAgTW1hcCAgICBCY29weSAgICBCY29weSAgIE1lbW9yeSAgIE1lbW9yeQprZXJuZWwgICAg
-ICAgICAgICAgICAgICAgICAgICAgICBQaXBlICAgQUYvVW5peCAgICBUQ1AgICAgIHJlcmVh
-ZCAgIHJlcmVhZCAgIChsaWJjKSAgIChoYW5kKSAgICAgcmVhZCAgICB3cml0ZQotLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0t
-LS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLSAgLS0tLS0tLQpISUdI
-TUVNLVJULVYwLjcuNTAtMzUgICAgICAgICAgIDE3NDIuOCAgIDIyMjMuMiAgIDExMTkuNyAg
-IDIxNTQuMCAgIDMxNzguMyAgICA4NjYuNiAgICA4ODEuNSAgIDMxODMuNCAgIDE0MjEuMApO
-T0hJR0hNRU0tUlQtVjAuNy41MC0zNSAgICAgICAgIDE5MTguMSAgIDIzODIuOSAgIDEzMTcu
-OSAgIDIxNTYuNCAgIDMxNzAuNCAgICA5MzUuOSAgICA4ODIuMSAgIDMxNjQuNSAgIDE0MTAu
-MwpISUdITUVNLVJULVYwLjcuNTEtMDIgICAgICAgICAgIDIwNDcuOCAgIDI0MDAuMCAgIDEx
-OTkuNiAgIDIyMDguNiAgIDMxODEuNiAgICA4NjcuMiAgICA4ODAuMSAgIDMxMzQuOSAgIDE0
-MTcuMgpOT0hJR0hNRU0tUlQtVjAuNy41MS0wMiAgICAgICAgIDEzNjcuMiAgIDE3MDEuMyAg
-IDExNjUuNiAgIDIwNjcuNSAgIDMxNjIuNCAgICA4ODcuNSAgICA5MTguMiAgIDMxNTYuNiAg
-IDE0NDYuNgoKKkxvY2FsKiBNb3JlIENvbW11bmljYXRpb24gYmFuZHdpZHRocyBpbiBNQi9z
-IC0gYmlnZ2VyIGlzIGJldHRlcgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICBGaWxlICAgICBNbWFwICBBbGlnbmVkICBQYXJ0aWFsICBQYXJ0aWFsICBQ
-YXJ0aWFsICBQYXJ0aWFsICAKT1MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG9w
-ZW4gICAgIG9wZW4gICAgQmNvcHkgICAgQmNvcHkgICAgIE1tYXAgICAgIE1tYXAgICAgIE1t
-YXAgICAgQnplcm8KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY2xvc2UgICAg
-Y2xvc2UgICAobGliYykgICAoaGFuZCkgICAgIHJlYWQgICAgd3JpdGUgICByZC93cnQgICAg
-IGNvcHkgICAgIEhUVFAKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gIC0tLS0tLS0g
-IC0tLS0tLS0gIC0tLS0tLS0gIC0tLS0tLS0gIC0tLS0tLS0gIC0tLS0tLS0gIC0tLS0tLS0g
-IC0tLS0tLS0gIC0tLS0tLS0KSElHSE1FTS1SVC1WMC43LjUwLTM1ICAgICAgICAgICAyMTc4
-LjIgICAxMzUwLjEgICAgODk2LjcgICAgODg2LjQgICAzNTA0LjAgICAxNDU1LjEgICAxNDMy
-LjMgICAxMjc1LjcgICAgMTYuMTUKTk9ISUdITUVNLVJULVYwLjcuNTAtMzUgICAgICAgICAy
-MTc2LjcgICAxNDE0LjYgICAgODkyLjUgICAgODc4LjAgICAzNTAwLjkgICAxNDQwLjYgICAx
-NDI1LjkgICAxMjgxLjggICAgMTguMTEKSElHSE1FTS1SVC1WMC43LjUxLTAyICAgICAgICAg
-ICAyMjA2LjUgICAxNDUzLjcgICAgOTAxLjMgICAgODkwLjUgICAzNTA5LjkgICAxNDUzLjIg
-ICAxNDMzLjkgICAxMjc5LjMgICAgMTcuMjAKTk9ISUdITUVNLVJULVYwLjcuNTEtMDIgICAg
-ICAgICAyMDY1LjEgICAxMzk3LjggICAgODk1LjYgICAgOTMxLjkgICAzNDg5LjggICAxNDcy
-LjUgICAxNDUwLjkgICAxMjQ3LjMgICAgMTYuNzUKCk1lbW9yeSBsYXRlbmNpZXMgaW4gbmFu
-b3NlY29uZHMgLSBzbWFsbGVyIGlzIGJldHRlcgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0Ka2VybmVsICAgICAgICAgICAgICAgICAgICAg
-ICAgICBNaHogICAgIEwxICQgICAgIEwyICQgICAgTWFpbiBtZW0KLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0gIC0tLS0tICAtLS0tLS0tICAtLS0tLS0tICAtLS0tLS0tLS0KSElH
-SE1FTS1SVC1WMC43LjUwLTM1ICAgICAgICAgICAyNzc5ICAgICAxLjQ1ICAgIDEwLjMyICAg
-ICAgIDQ0LjkKTk9ISUdITUVNLVJULVYwLjcuNTAtMzUgICAgICAgICAyNzc5ICAgICAxLjQ1
-ICAgIDEwLjQxICAgICAgIDQ0LjgKSElHSE1FTS1SVC1WMC43LjUxLTAyICAgICAgICAgICAy
-Nzc5ICAgICAxLjQ0ICAgIDEwLjQwICAgICAgIDQ0LjgKTk9ISUdITUVNLVJULVYwLjcuNTEt
-MDIgICAgICAgICAyNzc5ICAgICAxLjQ1ICAgIDEwLjIzICAgICAgIDQ1LjEK
---------------090003080208090300030908--
+- Card definitions updated.
+- Tail spaces removed.
+- Mark all 7135 cards as 7133.
+- Correct info about sync byte for MPEG-2 transport stream packets.
+
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Signed-off-by: hermann pitton <hermann.pitton@onlinehome.de>
+Signed-Off-By: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+ linux/Documentation/video4linux/CARDLIST.bttv                |    2 
+ linux/Documentation/video4linux/CARDLIST.cx88                |    2 
+ linux/Documentation/video4linux/CARDLIST.saa7134             |   14 +
+ linux/Documentation/video4linux/CARDLIST.tuner               |    4 
+ linux/Documentation/video4linux/README.saa7134               |    6 
+ linux/Documentation/video4linux/bttv/Cards                   |   74 +++++-----
+ linux/Documentation/video4linux/not-in-cx2388x-datasheet.txt |    4 
+ 7 files changed, 57 insertions(+), 49 deletions(-)
+
+diff -u linux-2.6.13/Documentation/video4linux/bttv/Cards linux/Documentation/video4linux/bttv/Cards
+--- linux-2.6.13/Documentation/video4linux/bttv/Cards	2005-07-06 00:46:33.000000000 -0300
++++ linux/Documentation/video4linux/bttv/Cards	2005-07-07 21:32:26.000000000 -0300
+@@ -20,7 +20,7 @@
+ decoders, EEPROMs, teletext decoders ...
+ 
+ 
+-Unsupported Cards: 
++Unsupported Cards:
+ ------------------
+ 
+ Cards with Zoran (ZR) or Philips (SAA) or ISA are not supported by
+@@ -50,11 +50,11 @@
+ Miro/Pinnacle PCTV
+ ------------------
+ 
+-- Bt848 
+-  some (all??) come with 2 crystals for PAL/SECAM and NTSC 
++- Bt848
++  some (all??) come with 2 crystals for PAL/SECAM and NTSC
+ - PAL, SECAM or NTSC TV tuner (Philips or TEMIC)
+ - MSP34xx sound decoder on add on board
+-  decoder is supported but AFAIK does not yet work 
++  decoder is supported but AFAIK does not yet work
+   (other sound MUX setting in GPIO port needed??? somebody who fixed this???)
+ - 1 tuner, 1 composite and 1 S-VHS input
+ - tuner type is autodetected
+@@ -70,7 +70,7 @@
+ Hauppauge Win/TV pci
+ --------------------
+ 
+-There are many different versions of the Hauppauge cards with different 
++There are many different versions of the Hauppauge cards with different
+ tuners (TV+Radio ...), teletext decoders.
+ Note that even cards with same model numbers have (depending on the revision)
+ different chips on it.
+@@ -80,22 +80,22 @@
+ - PAL, SECAM, NTSC or tuner with or without Radio support
+ 
+ e.g.:
+-  PAL: 
++  PAL:
+   TDA5737: VHF, hyperband and UHF mixer/oscillator for TV and VCR 3-band tuners
+   TSA5522: 1.4 GHz I2C-bus controlled synthesizer, I2C 0xc2-0xc3
+-  
++
+   NTSC:
+   TDA5731: VHF, hyperband and UHF mixer/oscillator for TV and VCR 3-band tuners
+   TSA5518: no datasheet available on Philips site
+-- Philips SAA5246 or SAA5284 ( or no) Teletext decoder chip	
++- Philips SAA5246 or SAA5284 ( or no) Teletext decoder chip
+   with buffer RAM (e.g. Winbond W24257AS-35: 32Kx8 CMOS static RAM)
+   SAA5246 (I2C 0x22) is supported
+-- 256 bytes EEPROM: Microchip 24LC02B or Philips 8582E2Y 
++- 256 bytes EEPROM: Microchip 24LC02B or Philips 8582E2Y
+   with configuration information
+   I2C address 0xa0 (24LC02B also responds to 0xa2-0xaf)
+ - 1 tuner, 1 composite and (depending on model) 1 S-VHS input
+ - 14052B: mux for selection of sound source
+-- sound decoder: TDA9800, MSP34xx (stereo cards) 
++- sound decoder: TDA9800, MSP34xx (stereo cards)
+ 
+ 
+ Askey CPH-Series
+@@ -108,17 +108,17 @@
+     CPH05x: BT878 with FM
+     CPH06x: BT878 (w/o FM)
+     CPH07x: BT878 capture only
+- 
++
+   TV standards:
+      CPH0x0: NTSC-M/M
+      CPH0x1: PAL-B/G
+      CPH0x2: PAL-I/I
+      CPH0x3: PAL-D/K
+-     CPH0x4: SECAM-L/L 
+-     CPH0x5: SECAM-B/G 
+-     CPH0x6: SECAM-D/K 
+-     CPH0x7: PAL-N/N 
+-     CPH0x8: PAL-B/H 
++     CPH0x4: SECAM-L/L
++     CPH0x5: SECAM-B/G
++     CPH0x6: SECAM-D/K
++     CPH0x7: PAL-N/N
++     CPH0x8: PAL-B/H
+      CPH0x9: PAL-M/M
+ 
+   CPH03x was often sold as "TV capturer".
+@@ -174,7 +174,7 @@
+       "The FlyVideo2000 and FlyVideo2000s product name have renamed to FlyVideo98."
+       Their Bt8x8 cards are listed as discontinued.
+       Flyvideo 2000S was probably sold as Flyvideo 3000 in some contries(Europe?).
+-      The new Flyvideo 2000/3000 are SAA7130/SAA7134 based. 
++      The new Flyvideo 2000/3000 are SAA7130/SAA7134 based.
+ 
+   "Flyvideo II" had been the name for the 848 cards, nowadays (in Germany)
+   this name is re-used for LR50 Rev.W.
+@@ -235,12 +235,12 @@
+    Multimedia TV packages (card + software pack):
+    PixelView Play TV Theater - (Model: PV-M4200) =  PixelView Play TV pro + Software
+    PixelView Play TV PAK -     (Model: PV-BT878P+ REV 4E)
+-   PixelView Play TV/VCR -     (Model: PV-M3200 REV 4C / 8D / 10A ) 
++   PixelView Play TV/VCR -     (Model: PV-M3200 REV 4C / 8D / 10A )
+    PixelView Studio PAK -      (Model:    M2200 REV 4C / 8D / 10A )
+    PixelView PowerStudio PAK - (Model: PV-M3600 REV 4E)
+    PixelView DigitalVCR PAK -  (Model: PV-M2400 REV 4C / 8D / 10A )
+ 
+-   PixelView PlayTV PAK II (TV/FM card + usb camera)  PV-M3800 
++   PixelView PlayTV PAK II (TV/FM card + usb camera)  PV-M3800
+    PixelView PlayTV XP PV-M4700,PV-M4700(w/FM)
+    PixelView PlayTV DVR PV-M4600  package contents:PixelView PlayTV pro, windvr & videoMail s/w
+ 
+@@ -254,7 +254,7 @@
+ 
+    DTV3000 PV-DTV3000P+ DVB-S CI = Twinhan VP-1030
+    DTV2000 DVB-S = Twinhan VP-1020
+-   
++
+    Video Conferencing:
+    PixelView Meeting PAK - (Model: PV-BT878P)
+    PixelView Meeting PAK Lite - (Model: PV-BT878P)
+@@ -308,7 +308,7 @@
+ 
+    newer Cards have saa7134, but model name stayed the same?
+ 
+-Provideo 
++Provideo
+ --------
+   PV951 or PV-951 (also are sold as:
+    Boeder TV-FM Video Capture Card
+@@ -353,7 +353,7 @@
+    AVerTV
+    AVerTV Stereo
+    AVerTV Studio (w/FM)
+-   AVerMedia TV98 with Remote 
++   AVerMedia TV98 with Remote
+    AVerMedia TV/FM98 Stereo
+    AVerMedia TVCAM98
+    TVCapture (Bt848)
+@@ -373,7 +373,7 @@
+    (1) Daughterboard MB68-A with TDA9820T and TDA9840T
+    (2) Sony NE41S soldered (stereo sound?)
+    (3) Daughterboard M118-A w/ pic 16c54 and 4 MHz quartz
+- 
++
+    US site has different drivers for (as of 09/2002):
+    EZ Capture/InterCam PCI (BT-848 chip)
+    EZ Capture/InterCam PCI (BT-878 chip)
+@@ -437,7 +437,7 @@
+    Terra TValueRadio,             "LR102 Rev.C" printed on the PCB
+    Terra TV/Radio+ Version 1.0,   "80-CP2830100-0" TTTV3 printed on the PCB,
+ 				     "CPH010-E83" on the back, SAA6588T, TDA9873H
+-   Terra TValue Version BT878,    "80-CP2830110-0 TTTV4" printed on the PCB, 
++   Terra TValue Version BT878,    "80-CP2830110-0 TTTV4" printed on the PCB,
+ 				     "CPH011-D83" on back
+    Terra TValue Version 1.0       "ceb105.PCB" (really identical to Terra TV+ Version 1.0)
+    Terra TValue New Revision	  "LR102 Rec.C"
+@@ -528,7 +528,7 @@
+    KW-606RSF
+    KW-607A (capture only)
+    KW-608 (Zoran capture only)
+- 
++
+ IODATA (jp)
+ ------
+    GV-BCTV/PCI
+@@ -542,15 +542,15 @@
+ -------
+    WinDVR	= Kworld "KW-TVL878RF"
+ 
+-www.sigmacom.co.kr 
++www.sigmacom.co.kr
+ ------------------
+-   Sigma Cyber TV II 
++   Sigma Cyber TV II
+ 
+ www.sasem.co.kr
+ ---------------
+    Litte OnAir TV
+ 
+-hama 
++hama
+ ----
+    TV/Radio-Tuner Card, PCI (Model 44677) = CPH051
+ 
+@@ -638,7 +638,7 @@
+ 
+ Jetway (www.jetway.com.tw)
+ --------------------------
+-   JW-TV 878M 
++   JW-TV 878M
+    JW-TV 878  = KWorld KW-TV878RF
+ 
+ Galaxis
+@@ -715,7 +715,7 @@
+   809 MyVideo
+   872 MyTV2Go FM
+ 
+- 
++
+   546 WinTV Nova-S CI
+   543 WinTV Nova
+   907 Nova-S USB
+@@ -739,7 +739,7 @@
+   832 MyTV2Go
+   869 MyTV2Go-FM
+   805 MyVideo (USB)
+-  
++
+ 
+ Matrix-Vision
+ -------------
+@@ -764,7 +764,7 @@
+    Intervision IV-550 (bt8x8)
+    Intervision IV-100 (zoran)
+    Intervision IV-1000 (bt8x8)
+-   
++
+ Asonic (www.asonic.com.cn) (website down)
+ -----------------------------------------
+    SkyEye tv 878
+@@ -804,11 +804,11 @@
+ 
+ JTT/ Justy Corp.http://www.justy.co.jp/ (www.jtt.com.jp website down)
+ ---------------------------------------------------------------------
+-   JTT-02 (JTT TV) "TV watchmate pro" (bt848) 
++   JTT-02 (JTT TV) "TV watchmate pro" (bt848)
+ 
+ ADS www.adstech.com
+ -------------------
+-   Channel Surfer TV ( CHX-950 ) 
++   Channel Surfer TV ( CHX-950 )
+    Channel Surfer TV+FM ( CHX-960FM )
+ 
+ AVEC www.prochips.com
+@@ -874,7 +874,7 @@
+ ------------------
+    Falcon Series (capture only)
+  In USA: http://www.theimagingsource.com/
+-   DFG/LC1	
++   DFG/LC1
+ 
+ www.sknet-web.co.jp
+ -------------------
+@@ -890,7 +890,7 @@
+    CyberMail Xtreme
+   These are Flyvideo
+ 
+-VCR (http://www.vcrinc.com/) 
++VCR (http://www.vcrinc.com/)
+ ---
+   Video Catcher 16
+ 
+@@ -920,7 +920,7 @@
+     SDI Silk 200 SDI Input Card
+ 
+ www.euresys.com
+-    PICOLO series 
++    PICOLO series
+ 
+ PMC/Pace
+ www.pacecom.co.uk website closed
+diff -u linux-2.6.13/Documentation/video4linux/README.saa7134 linux/Documentation/video4linux/README.saa7134
+--- linux-2.6.13/Documentation/video4linux/README.saa7134	2005-07-06 00:46:33.000000000 -0300
++++ linux/Documentation/video4linux/README.saa7134	2005-07-07 21:32:26.000000000 -0300
+@@ -61,11 +61,11 @@
+ 
+  - saa7130 - low-price chip, doesn't have mute, that is why all those
+  cards should have .mute field defined in their tuner structure.
+-
++ 
+  - saa7134 - usual chip
+-
++ 
+  - saa7133/35 - saa7135 is probably a marketing decision, since all those
+- chips identifies itself as 33 on pci.
++ chips identifies itself as 33 on pci. 
+ 
+ Credits
+ =======
+diff -u linux-2.6.13/Documentation/video4linux/not-in-cx2388x-datasheet.txt linux/Documentation/video4linux/not-in-cx2388x-datasheet.txt
+--- linux-2.6.13/Documentation/video4linux/not-in-cx2388x-datasheet.txt	2005-07-06 00:46:33.000000000 -0300
++++ linux/Documentation/video4linux/not-in-cx2388x-datasheet.txt	2005-07-07 21:32:26.000000000 -0300
+@@ -34,4 +34,8 @@
+   2: HACTEXT
+   1: HSFMT
+ 
++0x47 is the sync byte for MPEG-2 transport stream packets.
++Datasheet incorrectly states to use 47 decimal. 188 is the length. 
++All DVB compliant frontends output packets with this start code.
++
+ =================================================================================
+diff -u linux-2.6.13/Documentation/video4linux/CARDLIST.bttv linux/Documentation/video4linux/CARDLIST.bttv
+--- linux-2.6.13/Documentation/video4linux/CARDLIST.bttv	2005-07-06 00:46:33.000000000 -0300
++++ linux/Documentation/video4linux/CARDLIST.bttv	2005-07-07 21:32:26.000000000 -0300
+@@ -1,4 +1,4 @@
+-card=0 -  *** UNKNOWN/GENERIC *** 
++card=0 -  *** UNKNOWN/GENERIC ***
+ card=1 - MIRO PCTV
+ card=2 - Hauppauge (bt848)
+ card=3 - STB, Gateway P/N 6000699 (bt848)
+diff -u linux-2.6.13/Documentation/video4linux/CARDLIST.saa7134 linux/Documentation/video4linux/CARDLIST.saa7134
+--- linux-2.6.13/Documentation/video4linux/CARDLIST.saa7134	2005-07-06 00:46:33.000000000 -0300
++++ linux/Documentation/video4linux/CARDLIST.saa7134	2005-07-07 21:32:26.000000000 -0300
+@@ -1,10 +1,10 @@
+-  0 -> UNKNOWN/GENERIC                         
++  0 -> UNKNOWN/GENERIC
+   1 -> Proteus Pro [philips reference design]   [1131:2001,1131:2001]
+   2 -> LifeView FlyVIDEO3000                    [5168:0138,4e42:0138]
+   3 -> LifeView FlyVIDEO2000                    [5168:0138]
+   4 -> EMPRESS                                  [1131:6752]
+   5 -> SKNet Monster TV                         [1131:4e85]
+-  6 -> Tevion MD 9717                          
++  6 -> Tevion MD 9717
+   7 -> KNC One TV-Station RDS / Typhoon TV Tuner RDS [1131:fe01,1894:fe01]
+   8 -> Terratec Cinergy 400 TV                  [153B:1142]
+   9 -> Medion 5044
+@@ -34,6 +34,7 @@
+  33 -> AVerMedia DVD EZMaker                    [1461:10ff]
+  34 -> Noval Prime TV 7133
+  35 -> AverMedia AverTV Studio 305              [1461:2115]
++ 36 -> UPMOST PURPLE TV                         [12ab:0800]
+  37 -> Items MuchTV Plus / IT-005
+  38 -> Terratec Cinergy 200 TV                  [153B:1152]
+  39 -> LifeView FlyTV Platinum Mini             [5168:0212]
+@@ -43,20 +44,21 @@
+  43 -> :Zolid Xpert TV7134
+  44 -> Empire PCI TV-Radio LE
+  45 -> Avermedia AVerTV Studio 307              [1461:9715]
+- 46 -> AVerMedia Cardbus TV/Radio               [1461:d6ee]
++ 46 -> AVerMedia Cardbus TV/Radio (E500)        [1461:d6ee]
+  47 -> Terratec Cinergy 400 mobile              [153b:1162]
+  48 -> Terratec Cinergy 600 TV MK3              [153B:1158]
+  49 -> Compro VideoMate Gold+ Pal               [185b:c200]
+  50 -> Pinnacle PCTV 300i DVB-T + PAL           [11bd:002d]
+  51 -> ProVideo PV952                           [1540:9524]
+  52 -> AverMedia AverTV/305                     [1461:2108]
++ 53 -> ASUS TV-FM 7135                          [1043:4845]
+  54 -> LifeView FlyTV Platinum FM               [5168:0214,1489:0214]
+- 55 -> LifeView FlyDVB-T DUO                    [5168:0306]
++ 55 -> LifeView FlyDVB-T DUO                    [5168:0502,5168:0306]
+  56 -> Avermedia AVerTV 307                     [1461:a70a]
+  57 -> Avermedia AVerTV GO 007 FM               [1461:f31f]
+  58 -> ADS Tech Instant TV (saa7135)            [1421:0350,1421:0370]
+  59 -> Kworld/Tevion V-Stream Xpert TV PVR7134
+- 60 -> Typhoon DVB-T Duo Digital/Analog Cardbus
+- 61 -> Philips TOUGH DVB-T reference design
++ 60 -> Typhoon DVB-T Duo Digital/Analog Cardbus [4e42:0502]
++ 61 -> Philips TOUGH DVB-T reference design     [1131:2004]
+  62 -> Compro VideoMate TV Gold+II
+  63 -> Kworld Xpert TV PVR7134
+diff -u linux-2.6.13/Documentation/video4linux/CARDLIST.tuner linux/Documentation/video4linux/CARDLIST.tuner
+--- linux-2.6.13/Documentation/video4linux/CARDLIST.tuner	2005-07-06 00:46:33.000000000 -0300
++++ linux/Documentation/video4linux/CARDLIST.tuner	2005-07-07 21:32:26.000000000 -0300
+@@ -56,9 +56,9 @@
+ tuner=55 - LG PAL (TAPE series)
+ tuner=56 - Philips PAL/SECAM multi (FQ1216AME MK4)
+ tuner=57 - Philips FQ1236A MK4
+-tuner=58 - Ymec TVision TVF-8531MF
++tuner=58 - Ymec TVision TVF-8531MF/8831MF/8731MF
+ tuner=59 - Ymec TVision TVF-5533MF
+ tuner=60 - Thomson DDT 7611 (ATSC/NTSC)
+-tuner=61 - Tena TNF9533-D/IF
++tuner=61 - Tena TNF9533-D/IF/TNF9533-B/DF
+ tuner=62 - Philips TEA5767HN FM Radio
+ tuner=63 - Philips FMD1216ME MK3 Hybrid Tuner
+diff -u linux-2.6.13/Documentation/video4linux/CARDLIST.cx88 linux/Documentation/video4linux/CARDLIST.cx88
+--- linux-2.6.13/Documentation/video4linux/CARDLIST.cx88	2005-07-06 00:46:33.000000000 -0300
++++ linux/Documentation/video4linux/CARDLIST.cx88	2005-07-07 21:32:26.000000000 -0300
+@@ -27,3 +27,5 @@
+ card=26 - IODATA GV/BCTV7E
+ card=27 - PixelView PlayTV Ultra Pro (Stereo)
+ card=28 - DViCO FusionHDTV 3 Gold-T
++card=29 - ADS Tech Instant TV DVB-T PCI
++card=30 - TerraTec Cinergy 1400 DVB-T
+
+--------------050601090801020403040501--

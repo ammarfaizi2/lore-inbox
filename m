@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263167AbVGIIRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVGIIoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263167AbVGIIRL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 04:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263168AbVGIIRL
+	id S261268AbVGIIoG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 04:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVGIIoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 04:17:11 -0400
-Received: from nproxy.gmail.com ([64.233.182.205]:64999 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263167AbVGIIRJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 04:17:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=AXDdkjudkK8UOEC4Hd2B6wXyZh1hTTLfoSXO+Oyf1sHgmqrWrU70dTi3tL+AuMz0RIyPjnODA1RCrBKbYR0fDCcOGELFzE8xYWHK46IJrWg8057SIqSxi5shu2GzKo2kaFSceSUDAeF6SKIjSHZ3zikglyRqpnqLmfNe3IMletY=
-Message-ID: <d9def9db05070901176b552f1e@mail.gmail.com>
-Date: Sat, 9 Jul 2005 10:17:08 +0200
-From: Rechberger Markus <mrechberger@gmail.com>
-Reply-To: Rechberger Markus <mrechberger@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: v4l, terratec cinergy 250 USB
+	Sat, 9 Jul 2005 04:44:06 -0400
+Received: from mailfe03.swip.net ([212.247.154.65]:22483 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261268AbVGIIoF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 04:44:05 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: Patch for slab leak debugging
+From: Alexander Nyberg <alexn@telia.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050708165554.4b958087.akpm@osdl.org>
+References: <1120856219.25294.29.camel@localhost.localdomain>
+	 <20050708165554.4b958087.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 09 Jul 2005 10:44:03 +0200
+Message-Id: <1120898643.1171.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+fre 2005-07-08 klockan 16:55 -0700 skrev Andrew Morton:
+> Alexander Nyberg <alexn@telia.com> wrote:
+> >
+> > I think we really need an option in the kernel to help users in tracking
+> > slab leaks so that they can be brought down easier.
+> 
+> Well we already have slab-leak-detector.patch, whcih I appear to have been
+> sitting on since 2.6.0-test8.  it fell out of -mm after 2.6.12-rc5-mm2 due
+> to various ravaging of slab.c, but could be brought back.
+> 
+> pc/2.6.12-rc5-mm2-series:slab-leak-detector.patch
+> pc/2.6.12-rc5-mm2-series:slab-leak-detector-warning-fixes.patch
 
-I recently bought an USB TV device, which isn't really supported by
-linux.. I started to dig into how to write an USB driver .. so far so
-good I'm already able to enable a videostream and watch it with xine,
-beside that I try to stick to the design of the driver for the
-previous device release (tt cinergy 200 USB). My current problem is
-how to figure out the i2c interface of the USB device (I called the
-company for getting some informations but I got no response, also
-wrote an email no luck either.. )
-The device contains an empia 2820 chip (which has another protocol
-than the em2800)...
-so any idea how I can figure out the i2c device of it, or where I can
-get more general informations about i2c? (I'm kinda new to it so every
-information could help me at least a bit to understand more about it)
+Yeah I knew there was one, but I thought that was a standalone patch
+(the one turning all bufctl to unsigned long, turning off irqs and
+printing all slabs_full to console), my intention with this was a
+proper /proc entry, something that could be a simple config option.
 
-thanks
+But if something like this already exists, would you please send me what
+you have and I'll fix the numa changes
 
-Markus

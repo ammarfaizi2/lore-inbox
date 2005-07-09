@@ -1,98 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbVGIAFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262994AbVGIAFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbVGIAFb (ORCPT <rfc822;willy@w.ods.org>);
+	id S262994AbVGIAFb (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Jul 2005 20:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbVGIADc
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262999AbVGIADZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 20:03:32 -0400
-Received: from gold.veritas.com ([143.127.12.110]:46781 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S262989AbVGIAAj (ORCPT
+	Fri, 8 Jul 2005 20:03:25 -0400
+Received: from gold.veritas.com ([143.127.12.110]:55485 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S262994AbVGIACZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 20:00:39 -0400
-Date: Sat, 9 Jul 2005 01:01:58 +0100 (BST)
+	Fri, 8 Jul 2005 20:02:25 -0400
+Date: Sat, 9 Jul 2005 01:03:47 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 02/13] correct swapfile nr_good_pages
+Subject: [PATCH 04/13] swap extent list is ordered
 In-Reply-To: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0507090101240.13391@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0507090102540.13391@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Jul 2005 00:00:36.0726 (UTC) FILETIME=[3C193160:01C58419]
+X-OriginalArrivalTime: 09 Jul 2005 00:02:25.0351 (UTC) FILETIME=[7CD80D70:01C58419]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If a regular swapfile lies on a filesystem whose blocksize is less than
-PAGE_SIZE, then setup_swap_extents may have to cut the number of usable
-swap pages; but sys_swapon's nr_good_pages was not expecting that.  Also,
-setup_swap_extents takes no account of badpages listed in the swap header:
-not worth doing so, but ensure nr_badpages is 0 for a regular swapfile.
+There are several comments that swap's extent_list.prev points to the
+lowest extent: that's not so, it's extent_list.next which points to it,
+as you'd expect.  And a couple of loops in add_swap_extent which go all
+the way through the list, when they should just add to the other end.
+
+Fix those up, and let map_swap_page search the list forwards: profiles
+shows it to be twice as quick that way - because prefetch works better
+on how the structs are typically kmalloc'ed?  or because usually more
+is written to than read from swap, and swap is allocated ascendingly?
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/swapfile.c |   25 ++++++++++++++++---------
- 1 files changed, 16 insertions(+), 9 deletions(-)
+ include/linux/swap.h |    2 --
+ mm/swapfile.c        |   27 +++++++++------------------
+ 2 files changed, 9 insertions(+), 20 deletions(-)
 
---- swap1/mm/swapfile.c	2005-07-08 19:13:21.000000000 +0100
-+++ swap2/mm/swapfile.c	2005-07-08 19:13:33.000000000 +0100
-@@ -1006,8 +1006,9 @@ reprobe:
- 	}
- 	ret = 0;
- 	if (page_no == 0)
--		ret = -EINVAL;
-+		page_no = 1;	/* force Empty message */
- 	sis->max = page_no;
-+	sis->pages = page_no - 1;
- 	sis->highest_bit = page_no - 1;
- done:
- 	sis->curr_swap_extent = list_entry(sis->extent_list.prev,
-@@ -1444,6 +1445,10 @@ asmlinkage long sys_swapon(const char __
- 		p->highest_bit = maxpages - 1;
+--- swap3/include/linux/swap.h	2005-07-07 12:33:21.000000000 +0100
++++ swap4/include/linux/swap.h	2005-07-08 19:14:00.000000000 +0100
+@@ -115,8 +115,6 @@ enum {
  
- 		error = -EINVAL;
-+		if (!maxpages)
-+			goto bad_swap;
-+		if (swap_header->info.nr_badpages && S_ISREG(inode->i_mode))
-+			goto bad_swap;
- 		if (swap_header->info.nr_badpages > MAX_SWAP_BADPAGES)
- 			goto bad_swap;
- 		
-@@ -1468,25 +1473,27 @@ asmlinkage long sys_swapon(const char __
- 		if (error) 
- 			goto bad_swap;
- 	}
--	
-+
- 	if (swapfilesize && maxpages > swapfilesize) {
- 		printk(KERN_WARNING
- 		       "Swap area shorter than signature indicates\n");
- 		error = -EINVAL;
- 		goto bad_swap;
- 	}
-+	if (nr_good_pages) {
-+		p->swap_map[0] = SWAP_MAP_BAD;
-+		p->max = maxpages;
-+		p->pages = nr_good_pages;
-+		error = setup_swap_extents(p);
-+		if (error)
-+			goto bad_swap;
-+		nr_good_pages = p->pages;
-+	}
- 	if (!nr_good_pages) {
- 		printk(KERN_WARNING "Empty swap-file\n");
- 		error = -EINVAL;
- 		goto bad_swap;
- 	}
--	p->swap_map[0] = SWAP_MAP_BAD;
--	p->max = maxpages;
--	p->pages = nr_good_pages;
--
--	error = setup_swap_extents(p);
--	if (error)
--		goto bad_swap;
+ /*
+  * The in-memory structure used to track swap areas.
+- * extent_list.prev points at the lowest-index extent.  That list is
+- * sorted.
+  */
+ struct swap_info_struct {
+ 	unsigned int flags;
+--- swap3/mm/swapfile.c	2005-07-08 19:13:46.000000000 +0100
++++ swap4/mm/swapfile.c	2005-07-08 19:14:00.000000000 +0100
+@@ -830,9 +830,9 @@ sector_t map_swap_page(struct swap_info_
+ 				offset < (se->start_page + se->nr_pages)) {
+ 			return se->start_block + (offset - se->start_page);
+ 		}
+-		lh = se->list.prev;
++		lh = se->list.next;
+ 		if (lh == &sis->extent_list)
+-			lh = lh->prev;
++			lh = lh->next;
+ 		se = list_entry(lh, struct swap_extent, list);
+ 		sis->curr_swap_extent = se;
+ 		BUG_ON(se == start_se);		/* It *must* be present */
+@@ -857,10 +857,9 @@ static void destroy_swap_extents(struct 
  
- 	down(&swapon_sem);
- 	swap_list_lock();
+ /*
+  * Add a block range (and the corresponding page range) into this swapdev's
+- * extent list.  The extent list is kept sorted in block order.
++ * extent list.  The extent list is kept sorted in page order.
+  *
+- * This function rather assumes that it is called in ascending sector_t order.
+- * It doesn't look for extent coalescing opportunities.
++ * This function rather assumes that it is called in ascending page order.
+  */
+ static int
+ add_swap_extent(struct swap_info_struct *sis, unsigned long start_page,
+@@ -870,16 +869,15 @@ add_swap_extent(struct swap_info_struct 
+ 	struct swap_extent *new_se;
+ 	struct list_head *lh;
+ 
+-	lh = sis->extent_list.next;	/* The highest-addressed block */
+-	while (lh != &sis->extent_list) {
++	lh = sis->extent_list.prev;	/* The highest page extent */
++	if (lh != &sis->extent_list) {
+ 		se = list_entry(lh, struct swap_extent, list);
+-		if (se->start_block + se->nr_pages == start_block &&
+-		    se->start_page  + se->nr_pages == start_page) {
++		BUG_ON(se->start_page + se->nr_pages != start_page);
++		if (se->start_block + se->nr_pages == start_block) {
+ 			/* Merge it */
+ 			se->nr_pages += nr_pages;
+ 			return 0;
+ 		}
+-		lh = lh->next;
+ 	}
+ 
+ 	/*
+@@ -892,14 +890,7 @@ add_swap_extent(struct swap_info_struct 
+ 	new_se->nr_pages = nr_pages;
+ 	new_se->start_block = start_block;
+ 
+-	lh = sis->extent_list.prev;	/* The lowest block */
+-	while (lh != &sis->extent_list) {
+-		se = list_entry(lh, struct swap_extent, list);
+-		if (se->start_block > start_block)
+-			break;
+-		lh = lh->prev;
+-	}
+-	list_add_tail(&new_se->list, lh);
++	list_add_tail(&new_se->list, &sis->extent_list);
+ 	sis->nr_extents++;
+ 	return 0;
+ }

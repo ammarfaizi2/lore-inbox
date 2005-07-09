@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVGINTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVGINYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVGINTK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 09:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVGINTK
+	id S261378AbVGINYe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 09:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVGINYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 09:19:10 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:43464 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261382AbVGINTI (ORCPT
+	Sat, 9 Jul 2005 09:24:34 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:42170 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261378AbVGINYe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 09:19:08 -0400
-Date: Sat, 9 Jul 2005 22:18:56 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.13-rc2-mm1] add PCI IRQ initialization to TB0219
-Message-Id: <20050709221856.535dc779.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Jul 2005 09:24:34 -0400
+Date: Sat, 9 Jul 2005 15:24:11 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Bodo Eggert <7eggert@gmx.de>
+cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: Documentation mismatch in Documentation/kbuild/kconfig-language.txt
+In-Reply-To: <Pine.LNX.4.58.0507090934510.4231@be1.lrz>
+Message-ID: <Pine.LNX.4.61.0507091521500.3743@scrub.home>
+References: <Pine.LNX.4.58.0507041639500.24224@be1.lrz> <20050708221756.GM3671@stusta.de>
+ <Pine.LNX.4.58.0507090934510.4231@be1.lrz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch had added PCI IRQ initialization to TB0219 driver.
-Please apply.
+On Sat, 9 Jul 2005, Bodo Eggert wrote:
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+> On Sat, 9 Jul 2005, Adrian Bunk wrote:
+> > On Mon, Jul 04, 2005 at 04:59:18PM +0200, Bodo Eggert wrote:
+> 
+> ...
+> > > Therefore I can't use
+> > > config SGI_IOC4
+> > >     tristate
+> > >     prompt "SGI IOC4 Base IO support" if PROMPT_FOR_UNUSED_CORES
+> > >     depends on (IA64_GENERIC || IA64_SGI_SN2) && MMTIMER
+> > >     default n
+> ...
+> > > Since the "if" is useless, misleading and redundand with this behaviour, I 
+> > > suggest stripping it out.
+> > 
+> > "if" is valuable in "default y" cases.
+> 
+> It should be, but either it's really applied to the config instead of the 
+> prompt (in which can also be added to the depends on list) or the 
+> menuconfig '/' function has bogus output.
 
-diff -urN -X dontdiff mm1-orig/drivers/char/tb0219.c mm1/drivers/char/tb0219.c
---- mm1-orig/drivers/char/tb0219.c	2005-07-06 12:46:33.000000000 +0900
-+++ mm1/drivers/char/tb0219.c	2005-07-09 17:26:34.395047032 +0900
-@@ -24,6 +24,8 @@
- 
- #include <asm/io.h>
- #include <asm/reboot.h>
-+#include <asm/vr41xx/giu.h>
-+#include <asm/vr41xx/tb0219.h>
- 
- MODULE_AUTHOR("Yoichi Yuasa <yuasa@hh.iij4u.or.jp>");
- MODULE_DESCRIPTION("TANBAC TB0219 base board driver");
-@@ -266,6 +268,21 @@
- 	tb0219_write(TB0219_RESET, 0);
- }
- 
-+static void tb0219_pci_irq_init(void)
-+{
-+	/* PCI Slot 1 */
-+	vr41xx_set_irq_trigger(TB0219_PCI_SLOT1_PIN, IRQ_TRIGGER_LEVEL, IRQ_SIGNAL_THROUGH);
-+	vr41xx_set_irq_level(TB0219_PCI_SLOT1_PIN, IRQ_LEVEL_LOW);
-+
-+	/* PCI Slot 2 */
-+	vr41xx_set_irq_trigger(TB0219_PCI_SLOT2_PIN, IRQ_TRIGGER_LEVEL, IRQ_SIGNAL_THROUGH);
-+	vr41xx_set_irq_level(TB0219_PCI_SLOT2_PIN, IRQ_LEVEL_LOW);
-+
-+	/* PCI Slot 3 */
-+	vr41xx_set_irq_trigger(TB0219_PCI_SLOT3_PIN, IRQ_TRIGGER_LEVEL, IRQ_SIGNAL_THROUGH);
-+	vr41xx_set_irq_level(TB0219_PCI_SLOT3_PIN, IRQ_LEVEL_LOW);
-+}
-+
- static int tb0219_probe(struct device *dev)
- {
- 	int retval;
-@@ -292,6 +309,8 @@
- 	old_machine_restart = _machine_restart;
- 	_machine_restart = tb0219_restart;
- 
-+	tb0219_pci_irq_init();
-+
- 	if (major == 0) {
- 		major = retval;
- 		printk(KERN_INFO "TB0219: major number %d\n", major);
+It's not bogus but simplified, look at the xconfig debug info for a more 
+correct representation of the internal data.
 
+bye, Roman

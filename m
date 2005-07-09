@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263058AbVGIAve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263035AbVGIAxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263058AbVGIAve (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 20:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbVGIAvd
+	id S263035AbVGIAxb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 20:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbVGIAvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 20:51:33 -0400
-Received: from smtp1.brturbo.com.br ([200.199.201.163]:6114 "EHLO
-	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S263058AbVGIAuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 20:50:04 -0400
-Message-ID: <42CF1F3A.70909@brturbo.com.br>
-Date: Fri, 08 Jul 2005 21:50:02 -0300
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: pt-br, pt, es, en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux and Kernel Video <video4linux-list@redhat.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 11/14 2.6.13-rc2-mm1] V4L MXB fix to correct tuner ioctl
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------090801060506030705070908"
+	Fri, 8 Jul 2005 20:51:38 -0400
+Received: from bay20-f7.bay20.hotmail.com ([64.4.54.96]:2153 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S263059AbVGIAtf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 20:49:35 -0400
+Message-ID: <BAY20-F7EE6B3C3A0E5C80A183D7C4DA0@phx.gbl>
+X-Originating-IP: [65.64.155.98]
+X-Originating-Email: [jonschindler@hotmail.com]
+In-Reply-To: <p734qb5p04e.fsf@verdi.suse.de>
+From: "Jon Schindler" <jonschindler@hotmail.com>
+To: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: USB storage does not work with 3GB of RAM, but does with 2G of RAM
+Date: Fri, 08 Jul 2005 20:49:12 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 09 Jul 2005 00:49:13.0596 (UTC) FILETIME=[06B03BC0:01C58420]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090801060506030705070908
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Hi Andi,
+
+As you suggested, removing ehci_hcd (using rmmod ehci_hcd) allows the USB 
+storage device to work.  So, to answer your question, yes, the ohci_hcd 
+driver does work with 3GB's of RAM.  Still, knoppix 3.9 IS able to work with 
+both ehci and 3GB's of RAM, so it still sounds like it's a software problem, 
+not an nvidia hardware issue.
+
+Jon
+
+>From: Andi Kleen <ak@suse.de>
+>To: "Jon Schindler" <jonschindler@hotmail.com>
+>CC: linux-kernel@vger.kernel.org
+>Subject: Re: USB storage does not work with 3GB of RAM, but does with 2G of 
+>RAM
+>Date: 08 Jul 2005 21:29:37 +0200
+>
+>"Jon Schindler" <jonschindler@hotmail.com> writes:
+> >
+> > This mainly seems to be an issue with USB mass storage devices like
+> > USB memory sticks and USB hard drives (I've tried both, and neither is
+> > assigned a scsi device properly).  I am still able to use my USB mouse
+> > when I have 3GB installed.  I'm not sure if that makes it a USB 1.1
+> > issue or a USB storage issue, but hopefully someone will have some
+> > insight after looking at the logs.  Thanks in advance for any help.
+>
+>It sounds like the Nvidia EHCI controller has trouble DMAing to high
+>addresses. Would be a bad bug if true.
+>
+>Does it work when you disable EHCI and only enable OHCI? (this will
+>limit you to USB 1.1)
+>
+>-Andi
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 
---------------090801060506030705070908
-Content-Type: text/x-patch;
- name="v4l_mxb.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="v4l_mxb.diff"
-
-- driver command adapted to use new control (TUNER_SET_TYPE_ADDR, 
-  instead of TUNER_SET_TYPE)
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-
- linux-2.6.13-rc2-mm1/drivers/media/video/mxb.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
-
---- linux-2.6.13-rc2-mm1/drivers/media/video/mxb.c.orig	2005-07-07 23:05:25.000000000 -0300
-+++ linux-2.6.13-rc2-mm1/drivers/media/video/mxb.c	2005-07-07 23:11:19.000000000 -0300
-@@ -326,6 +326,7 @@ static int mxb_init_done(struct saa7146_
- 	struct mxb* mxb = (struct mxb*)dev->ext_priv;
- 	struct video_decoder_init init;
- 	struct i2c_msg msg;
-+	struct tuner_setup tun_setup;
- 
- 	int i = 0, err = 0;
- 	struct	tea6415c_multiplex vm;	
-@@ -349,8 +350,10 @@ static int mxb_init_done(struct saa7146_
- 	mxb->saa7111a->driver->command(mxb->saa7111a,DECODER_SET_VBI_BYPASS, &i);
- 
- 	/* select a tuner type */
--	i = 5; 
--	mxb->tuner->driver->command(mxb->tuner,TUNER_SET_TYPE, &i);
-+	tun_setup.mode_mask = T_ANALOG_TV;
-+	tun_setup.addr = ADDR_UNSET;
-+	tun_setup.type = 5;
-+	mxb->tuner->driver->command(mxb->tuner,TUNER_SET_TYPE_ADDR, &tun_setup);
- 	
- 	/* mute audio on tea6420s */
- 	mxb->tea6420_1->driver->command(mxb->tea6420_1,TEA6420_SWITCH, &TEA6420_line[6][0]);
-
---------------090801060506030705070908--

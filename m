@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVGIMGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVGIMKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVGIMGv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 08:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVGIMEL
+	id S261229AbVGIMKz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 08:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVGIMKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 08:04:11 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:2458 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261343AbVGIMAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 08:00:49 -0400
-Subject: Re: [PATCH] [9/48] Suspend2 2.1.9.8 for 2.6.12:
-	354-disable-mce-checking-during-suspend-avoid-smp-deadlock.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050709114936.GA1878@elf.ucw.cz>
-References: <11206164393426@foobar.com> <11206164401343@foobar.com>
-	 <20050709114936.GA1878@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120910522.7716.126.camel@localhost>
+	Sat, 9 Jul 2005 08:10:54 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28555 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261353AbVGIMKs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 08:10:48 -0400
+Date: Sat, 9 Jul 2005 14:10:37 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [48/48] Suspend2 2.1.9.8 for 2.6.12: 624-filewriter.patch
+Message-ID: <20050709121037.GF1878@elf.ucw.cz>
+References: <11206164393426@foobar.com> <11206164443920@foobar.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 09 Jul 2005 22:02:03 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11206164443920@foobar.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi!
 
-On Sat, 2005-07-09 at 21:49, Pavel Machek wrote:
-> Hi!
-> 
-> > diff -ruNp 360-reset-kswapd-max-order-after-resume.patch-old/mm/vmscan.c 360-reset-kswapd-max-order-after-resume.patch-new/mm/vmscan.c
-> > --- 360-reset-kswapd-max-order-after-resume.patch-old/mm/vmscan.c	2005-07-06 11:18:05.000000000 +1000
-> > +++ 360-reset-kswapd-max-order-after-resume.patch-new/mm/vmscan.c	2005-07-04 23:14:20.000000000 +1000
-> > @@ -1228,8 +1228,10 @@ static int kswapd(void *p)
-> >  	order = 0;
-> >  	for ( ; ; ) {
-> >  		unsigned long new_order;
-> > -
-> > -		try_to_freeze();
-> > +		if (freezing(current)) {
-> > +			try_to_freeze();
-> > +			pgdat->kswapd_max_order = 0;
-> > +		}
-> 
-> Why not
-> 	if (try_to_freeze())
-> 		pgdat->... = 0;
-> 
-> ?
+> +/*
+> + * sacrifice some compression quality in favour of compression speed.
+> + * (roughly 1-2% worse compression for large blocks and
+> + * 9-10% for small, redundant, blocks and >>20% better speed in both cases)
+> + * In short: enable this for binary data, disable this for text data.
+> + */
+> +#define ULTRA_FAST 1
+> +
+> +#define STRICT_ALIGN 0
+> +#define USE_MEMCPY 1
+> +#define INIT_HTAB 0
 
-I have no idea. Fixed. Thanks!
+Ugly, ugly, ugly. Pick one set of options and use them.
 
-Nigel
+> +/*
+> + * don't play with this unless you benchmark!
+> + * decompression is not dependent on the hash function
+> + * the hashing function might seem strange, just believe me
+> + * it works ;)
+> + */
+> +#define FRST(p) (((p[0]) << 8) + p[1])
+> +#define NEXT(v,p) (((v) << 8) + p[2])
+
+Dnt wrt mcr nms lk ths!
+
+> +	if (ctx->first_call) {
+> +		ctx->first_call = 0;
+> +	}
+> +#if INIT_HTAB
+> +# if USE_MEMCPY
+> +    memset (htab, 0, sizeof (htab));
+> +# else
+> +    for (hslot = htab; hslot < htab + HSIZE; hslot++)
+> +      *hslot++ = ip;
+> +# endif
+> +#endif
+
+
+Eh? Use_memcpy and then it memsets?
+
+BTW if it is "contributed code", you may want original contributor to
+push it, so that you don't have to do all the lindenting/cleaning/etc
+yourself.
+
+								Pavel
 -- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
-
+teflon -- maybe it is a trademark, but it should not be.

@@ -1,77 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbVGIA3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263014AbVGIAIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbVGIA3M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 20:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbVGIA1Z
+	id S263014AbVGIAIq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 20:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbVGIAFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 20:27:25 -0400
-Received: from aeimail.aei.ca ([206.123.6.84]:50410 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S263024AbVGIA0u (ORCPT
+	Fri, 8 Jul 2005 20:05:49 -0400
+Received: from gold.veritas.com ([143.127.12.110]:190 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S262989AbVGIAEO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 20:26:50 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Ed Cogburn <edcogburn@hotpop.com>
-Subject: Re: reiser4 vs politics: linux misses out again
-Date: Fri, 8 Jul 2005 20:26:48 -0400
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200507040211.j642BL6f005488@laptop11.inf.utfsm.cl> <028601c581a0$cb1f3e20$2800000a@pc365dualp2> <dan077$n4t$1@sea.gmane.org>
-In-Reply-To: <dan077$n4t$1@sea.gmane.org>
+	Fri, 8 Jul 2005 20:04:14 -0400
+Date: Sat, 9 Jul 2005 01:05:35 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 06/13] swap unsigned int consistency
+In-Reply-To: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0507090104470.13391@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507082026.49404.tomlins@cam.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Jul 2005 00:04:13.0351 (UTC) FILETIME=[BD378B70:01C58419]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 July 2005 18:59, Ed Cogburn wrote:
-> cutaway@bellsouth.net wrote:
-> >
-> > In reality is it doesn't count.  Users don't care what level of pain is
-> > involved in producing the products they use.
-> > 
-> > Development efforts and results for OS's are always just taken for
-> > granted.
-> > 
-> > BTDT - if you're very lucky, a (very) few non-programming users might
-> > notice something nice and mention that they noticed a difference.  The 
-> > majority are still struggling to find the power switch ;->
-> 
-> 
-> You no longer have to be a kernel dev to see that there is more to the
-> resistance to R4 than objective technical issues, anyone with an
-> understanding of English whose been reading the R4
-> debates-that-quickly-turn-into-flame-wars the last couple of years here can
-> see that.  For you guys to continue to suggest otherwise only makes you out
-> to be the fools, not the "lusers" (which you obviously define as anyone who
-> isn't a kernel dev).
-> 
-> So be my guest, ignore the message and attack the messenger, I didn't
-> respond to start yet another flamewar, nor did I really expect much
-> objectivity anyway, as that's been thrown out the window even in
-> discussions between developers, e.g. the R4 plugins thread.
-> 
-> If its a fork of the kernel that you really want, so be it.  When it
-> happens, and given the increasing divergence going on between the
-> commercial distros and the vanilla kernel, maybe it's already begun, I'll
-> use the one that isn't afraid of giving new ideas a chance.
-> 
-> Flame away, I'm done.
+The swap header's unsigned int last_page determines the range of swap
+pages, but swap_info has been using int or unsigned long in some cases:
+use unsigned int throughout (except, in several places a local unsigned
+long is useful to avoid overflows when adding).
 
-No Flame from me.  One thing to remember is that Hans and friends _have_ supported
-R3 for years.  This is an undisputed fact.  Second third parties have be able to add much
-function (like journaling) to R3 so the code must be sort of readable...  With R4 they have
-created a new FS that is _fast_ and _can_ do things no other FS can - I also expect they have
-written cleaner code...  Why are we fighting about adding this sort of function to the kernel?  
-Yes it may not be the absolute best way to do things.  How many times has tcpip be rewritten 
-for linux?  The answer is more than once.  Lets put R4 in, see how it works, generalize the ideas 
-and if we have to rewrite and rethink part of it lets do so.  
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-Please do add R4 to the kernel!
+ include/linux/swap.h |    6 +++---
+ mm/swapfile.c        |   17 +++++++++--------
+ 2 files changed, 12 insertions(+), 11 deletions(-)
 
-Thanks,
-
-Ed Tomlinson 
+--- swap5/include/linux/swap.h	2005-07-08 19:14:12.000000000 +0100
++++ swap6/include/linux/swap.h	2005-07-08 19:14:26.000000000 +0100
+@@ -129,10 +129,10 @@ struct swap_info_struct {
+ 	unsigned int highest_bit;
+ 	unsigned int cluster_next;
+ 	unsigned int cluster_nr;
++	unsigned int pages;
++	unsigned int max;
++	unsigned int inuse_pages;
+ 	int prio;			/* swap priority */
+-	int pages;
+-	unsigned long max;
+-	unsigned long inuse_pages;
+ 	int next;			/* next entry on swap list */
+ };
+ 
+--- swap5/mm/swapfile.c	2005-07-08 19:14:12.000000000 +0100
++++ swap6/mm/swapfile.c	2005-07-08 19:14:26.000000000 +0100
+@@ -82,7 +82,7 @@ void swap_unplug_io_fn(struct backing_de
+ 	up_read(&swap_unplug_sem);
+ }
+ 
+-static inline int scan_swap_map(struct swap_info_struct *si)
++static inline unsigned long scan_swap_map(struct swap_info_struct *si)
+ {
+ 	unsigned long offset;
+ 	/* 
+@@ -529,10 +529,11 @@ static int unuse_mm(struct mm_struct *mm
+  * Scan swap_map from current position to next entry still in use.
+  * Recycle to start on reaching the end, returning 0 when empty.
+  */
+-static int find_next_to_unuse(struct swap_info_struct *si, int prev)
++static unsigned int find_next_to_unuse(struct swap_info_struct *si,
++					unsigned int prev)
+ {
+-	int max = si->max;
+-	int i = prev;
++	unsigned int max = si->max;
++	unsigned int i = prev;
+ 	int count;
+ 
+ 	/*
+@@ -575,7 +576,7 @@ static int try_to_unuse(unsigned int typ
+ 	unsigned short swcount;
+ 	struct page *page;
+ 	swp_entry_t entry;
+-	int i = 0;
++	unsigned int i = 0;
+ 	int retval = 0;
+ 	int reset_overflow = 0;
+ 	int shmem;
+@@ -1214,7 +1215,7 @@ static int swap_show(struct seq_file *sw
+ 
+ 	file = ptr->swap_file;
+ 	len = seq_path(swap, file->f_vfsmnt, file->f_dentry, " \t\n\\");
+-	seq_printf(swap, "%*s%s\t%d\t%ld\t%d\n",
++	seq_printf(swap, "%*s%s\t%u\t%u\t%d\n",
+ 		       len < 40 ? 40 - len : 1, " ",
+ 		       S_ISBLK(file->f_dentry->d_inode->i_mode) ?
+ 				"partition" : "file\t",
+@@ -1273,7 +1274,7 @@ asmlinkage long sys_swapon(const char __
+ 	static int least_priority;
+ 	union swap_header *swap_header = NULL;
+ 	int swap_header_version;
+-	int nr_good_pages = 0;
++	unsigned int nr_good_pages = 0;
+ 	int nr_extents;
+ 	sector_t span;
+ 	unsigned long maxpages = 1;
+@@ -1507,7 +1508,7 @@ asmlinkage long sys_swapon(const char __
+ 	nr_swap_pages += nr_good_pages;
+ 	total_swap_pages += nr_good_pages;
+ 
+-	printk(KERN_INFO "Adding %dk swap on %s.  "
++	printk(KERN_INFO "Adding %uk swap on %s.  "
+ 			"Priority:%d extents:%d across:%lluk\n",
+ 		nr_good_pages<<(PAGE_SHIFT-10), name, p->prio,
+ 		nr_extents, (unsigned long long)span<<(PAGE_SHIFT-10));

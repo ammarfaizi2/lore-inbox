@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVGIPmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVGIPn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbVGIPmN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 11:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVGIPmN
+	id S261557AbVGIPn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 11:43:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVGIPn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 11:42:13 -0400
-Received: from opersys.com ([64.40.108.71]:1549 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261532AbVGIPmM (ORCPT
+	Sat, 9 Jul 2005 11:43:27 -0400
+Received: from opersys.com ([64.40.108.71]:5389 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261583AbVGIPm5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 11:42:12 -0400
-Message-ID: <42CFF2E1.3090301@opersys.com>
-Date: Sat, 09 Jul 2005 11:53:05 -0400
+	Sat, 9 Jul 2005 11:42:57 -0400
+Message-ID: <42CFF30E.9050201@opersys.com>
+Date: Sat, 09 Jul 2005 11:53:50 -0400
 From: Karim Yaghmour <karim@opersys.com>
 Reply-To: karim@opersys.com
 Organization: Opersys inc.
@@ -25,23 +25,19 @@ CC: Ingo Molnar <mingo@elte.hu>, Kristian Benoit <kbenoit@opersys.com>,
        sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
        akpm@osdl.org, rpm@xenomai.org
 Subject: Re: PREEMPT_RT and I-PIPE: the numbers, part 4
-References: <42CF05BE.3070908@opersys.com> <20050709071911.GB31100@elte.hu> <42CFEFC9.7070007@opersys.com>
-In-Reply-To: <42CFEFC9.7070007@opersys.com>
+References: <42CF05BE.3070908@opersys.com> <20050709071911.GB31100@elte.hu> <42CFEFC9.7070007@opersys.com> <42CFF2E1.3090301@opersys.com>
+In-Reply-To: <42CFF2E1.3090301@opersys.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Karim Yaghmour wrote:
-> I would usually like very much to entertain this further, but we've
-> really busted all the time slots I had allocated to this work. So at
-> this time, we really think others should start publishing results.
-> After all, our results are no more authoritative than those
-> published by others.
+Can't type right anymore ...
 
-BTW, we've also released the latest very of the LRTBF we used to
-publish these latest results, so others can it a try too :)
+Karim Yaghmour wrote:
+> BTW, we've also released the latest very of the LRTBF we used to
+                                      ^^^^ version
 
 Karim
 -- 

@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVGIRWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVGIRbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVGIRWW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 13:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVGIRWW
+	id S261630AbVGIRbV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 13:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVGIRbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 13:22:22 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1530 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261613AbVGIRWV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 13:22:21 -0400
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, part 4
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
-       karim@opersys.com, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
-In-Reply-To: <20050709071911.GB31100@elte.hu>
-References: <42CF05BE.3070908@opersys.com>  <20050709071911.GB31100@elte.hu>
+	Sat, 9 Jul 2005 13:31:21 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:8667 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261630AbVGIRbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 13:31:20 -0400
+Subject: Re: [patch] compress the stack layout of do_page_fault(), x86
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <p73ll4f29m7.fsf@verdi.suse.de>
+References: <20050709144116.GA9444@elte.hu.suse.lists.linux.kernel>
+	 <20050709152924.GA13492@elte.hu.suse.lists.linux.kernel>
+	 <p73ll4f29m7.fsf@verdi.suse.de>
 Content-Type: text/plain
-Date: Sat, 09 Jul 2005 10:22:07 -0700
-Message-Id: <1120929727.22337.15.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Date: Sat, 09 Jul 2005 19:31:04 +0200
+Message-Id: <1120930264.3176.52.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-09 at 09:19 +0200, Ingo Molnar wrote:
-
-
-> (if your goal was to check how heavily external interrupts can influence 
-> a PREEMPT_RT box, you should chrt the network IRQ thread to SCHED_OTHER 
-> and renice it and softirq-net-rx and softirq-net-tx to nice +19.)
+On Sat, 2005-07-09 at 19:05 +0200, Andi Kleen wrote:
+> Ingo Molnar <mingo@elte.hu> writes:
+> >  
+> > +static void force_sig_info_fault(int si_signo, int si_code,
+> > +				 unsigned long address, struct task_struct *tsk)
 > 
+> This won't work with a unit-at-a-time compiler which happily
+> inlines everything static with only a single caller. Use noinline
 
-This is interesting. I wonder how much tuning like this , just changing
-thread priorities, which would effect the results of these tests.
-PREEMPT_RT is not pre-tuned for every situation , but the bests
-performance is achieved when the system is tuned. If any of these tests
-rely on a low priority thread, then we just raise the priority and you
-have better performance.
+but.... the x86 kernel is -fno-unit-at-a-time.... for stack reasons ;)
 
-These other systems like Vanilla 2.6.x , and I-pipe aren't massively
-tunable like PREEMPT_RT . 
-
-Daniel 
 

@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVGIWuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVGIWvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbVGIWuu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 18:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVGIWuu
+	id S261767AbVGIWvk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 18:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVGIWvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 18:50:50 -0400
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:42666 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261761AbVGIWur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 18:50:47 -0400
-To: Stelian Pop <stelian@popies.net>
-Cc: Johannes Berg <johannes@sipsolutions.net>,
+	Sat, 9 Jul 2005 18:51:35 -0400
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:60899 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261767AbVGIWux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 18:50:53 -0400
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Stelian Pop <stelian@popies.net>,
+       Johannes Berg <johannes@sipsolutions.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>,
        Frank Arnold <frank@scirocco-5v-turbo.de>
 Subject: Re: [PATCH] Apple USB Touchpad driver (new)
 References: <20050708101731.GM18608@sd291.sivit.org>
 	<1120821481.5065.2.camel@localhost>
 	<20050708121005.GN18608@sd291.sivit.org>
+	<20050709191357.GA2244@ucw.cz>
 From: Peter Osterlund <petero2@telia.com>
-Date: 10 Jul 2005 00:32:45 +0200
-In-Reply-To: <20050708121005.GN18608@sd291.sivit.org>
-Message-ID: <m37jfzr4oi.fsf@telia.com>
+Date: 10 Jul 2005 00:48:30 +0200
+In-Reply-To: <20050709191357.GA2244@ucw.cz>
+Message-ID: <m33bqnr3y9.fsf@telia.com>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop <stelian@popies.net> writes:
+Vojtech Pavlik <vojtech@suse.cz> writes:
 
-> +Synaptics re-detection problems:
-> +--------------------------------
-> +
-> +The synaptics X11 driver tries to re-open the touchpad input device file
-> +(/dev/input/eventX) each time you change from text mode back to X11. If the
-> +input device file does not exist at this precise moment, the synaptics driver
-> +will give up searching for a touchpad, permanently. You will need to restart
-> +X11 if you want to reissue a scan.
+> Btw, what I don't completely understand is why you need linear
+> regression, when you're not trying to detect motion or something like
+> that. Basic floating average, or even simpler filtering like the input
+> core uses for fuzz could work well enough I believe.
 
-I think this particular problem is fixed by the following patch to the
-X driver:
+Indeed, this function doesn't make much sense:
 
---- synaptics.c.old	2005-07-10 00:09:02.000000000 +0200
-+++ synaptics.c	2005-07-10 00:09:12.000000000 +0200
-@@ -524,6 +524,11 @@
- 
-     local->fd = xf86OpenSerial(local->options);
-     if (local->fd == -1) {
-+	xf86ReplaceStrOption(local->options, "Device", "");
-+	SetDeviceAndProtocol(local);
-+	local->fd = xf86OpenSerial(local->options);
-+    }
-+    if (local->fd == -1) {
- 	xf86Msg(X_WARNING, "%s: cannot open input device\n", local->name);
- 	return !Success;
-     }
++static inline int smooth_history(int x0, int x1, int x2, int x3)
++{
++	return x0 - ( x0 * 3 + x1 - x2 - x3 * 3 ) / 10;
++}
 
-> +static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact) {
+In the X driver, a derivative estimate is computed from the last 4
+absolute positions, and in that case the least squares estimate is
+given by the factors [.3 .1 -.1 -.3]. However, in this case you want
+to compute an absolute position estimate from the last 4 absolute
+positions, and in this case the least squares estimate is given by the
+factors [.25 .25 .25 .25], ie a floating average. If the function is
+changed to this:
 
-I think this CodingStyle violation is quite annoying, because it
-prevents emacs from finding the beginning of the function. It should
-be written like this:
++static inline int smooth_history(int x0, int x1, int x2, int x3)
++{
++	return (x0 + x1 + x2 + x3) / 4;
++}
 
-static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact)
-{
+the standard deviation of the noise will be reduced by a factor of 2
+compared to the unfiltered values. With the old smooth_history()
+function, the noise reduction will only be a factor of 1.29.
 
 -- 
 Peter Osterlund - petero2@telia.com

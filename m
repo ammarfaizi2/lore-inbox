@@ -1,341 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVGIRzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVGIR7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbVGIRzj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 13:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVGIRzj
+	id S261645AbVGIR7y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 13:59:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVGIR7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 13:55:39 -0400
-Received: from ms-smtp-01-smtplb.tampabay.rr.com ([65.32.5.131]:61938 "EHLO
-	ms-smtp-01.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S261648AbVGIRzg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 13:55:36 -0400
-Message-ID: <42D00F94.6050206@tampabay.rr.com>
-Date: Sat, 09 Jul 2005 13:55:32 -0400
+	Sat, 9 Jul 2005 13:59:53 -0400
+Received: from ms-smtp-02-smtplb.tampabay.rr.com ([65.32.5.132]:52906 "EHLO
+	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S261645AbVGIR7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 13:59:53 -0400
+Message-ID: <42D01096.8050601@tampabay.rr.com>
+Date: Sat, 09 Jul 2005 13:59:50 -0400
 From: Nathan Boyle <nboyle@tampabay.rr.com>
 Reply-To: nboyle@tampabay.rr.com
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050514
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dave Airlie <airlied@gmail.com>
-CC: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
 Subject: Re: [BUG] Oops: EIP is at sysfs_release+0x34/0x80
-References: <42CEB851.1000004@tampabay.rr.com> <21d7e9970507081935268a2651@mail.gmail.com>
-In-Reply-To: <21d7e9970507081935268a2651@mail.gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------000404020905070806040301"
+References: <42CEB851.1000004@tampabay.rr.com> <20050708145001.34b9f8f2.akpm@osdl.org> <20050708215518.GB21768@kroah.com>
+In-Reply-To: <20050708215518.GB21768@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000404020905070806040301
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Greg KH wrote:
 
-Dave Airlie wrote:
-
->>Unable to handle kernel paging request at virtual address 762f7473
->>  printing eip:
->>c0183c14
->>*pde = 00000000
->>Oops: 0002 [#1]
->>PREEMPT
->>Modules linked in: rtc nls_utf8 snd_emu10k1_synth snd_emu10k1
->>snd_emux_synth snd_seq_virmidi snd_rawmidi snd_pcm_oss snd_ac97_codec
->>snd_seq_midi_event snd_seq_midi_emul snd_seq snd_pcm ehci_hcd ide_cd
->>usbhid snd_mixer_oss snd_timer uhci_hcd af_packet ohci_hcd cdrom
->>snd_seq_device snd_page_alloc floppy isofs usbcore snd_hwdep ntfs snd
->>tulip snd_util_mem soundcore evdev crc32 smbfs ext2 nls_base unix
->>CPU:    0
->>EIP:    0060:[<c0183c14>]    Not tainted VLI
->>EFLAGS: 00010202   (2.6.13-rc2-GIT-08-7-2005-0)
->>EIP is at sysfs_release+0x34/0x80
->>eax: 00000001   ebx: dc7c2000   ecx: d1979860   edx: 00000001
->>esi: 762f7373   edi: d5ba26a0   ebp: d9368544   esp: dc7c3f80
->>ds: 007b   es: 007b   ss: 0068
->>Process udev (pid: 31802, threadinfo=dc7c2000 task=c7c19040)
->>Stack: df468c40 df798140 dffe4140 c0153c08 d5a9edbc df468c40 df798140
->>00000000
->>        dc7c2000 c01523d3 00000000 00000003 080ac568 00000003 c0103101
->>00000003
->>        080ac568 00000004 080ac568 00000003 08057198 00000006 0000007b
->>0000007b
->>Call Trace:
->>  [<c0153c08>] __fput+0xf8/0x110
->>  [<c01523d3>] filp_close+0x43/0x70
->>  [<c0103101>] syscall_call+0x7/0xb
->>Code: 8b 41 0c 8b 40 48 8b 58 14 8b 41 48 8b 40 14 85 db 8b 70 04 74 07
->>89 d8 e8 9a 11 02 00 85 f6 74 1f bb 00 e0 ff ff 21 e3 ff 43 14 <ff> 8e
->>00 01 00 00 83 3e 02 74 32 8b 43 08 ff 4b 14 a8 08 75 21
->>  <6>note: udev[31802] exited with preempt_count 1
->>
->>I was still able to log in afterwards (I still haven't rebooted the
->>machine and I'm typing this on it) but hotplug processes are reproducing
->>like rodents and I think the kernel is starting them (I kill everything
->>related and they all come back). This was around 5-10 minutes after my
->>first boot with this kernel.
->>
->>    
->>
->Can you send my your .config, lspci and /var/log/Xorg.0.log?
->
->Dave.
->-
+>On Fri, Jul 08, 2005 at 02:50:01PM -0700, Andrew Morton wrote:
 >  
 >
-I don't have that Xorg logfile anymore, but here's the lspci output and 
-my .config
+>>Nathan Boyle <nboyle@tampabay.rr.com> wrote:
+>>    
+>>
+>>>EIP is at sysfs_release+0x34/0x80
+>>>eax: 00000001   ebx: dc7c2000   ecx: d1979860   edx: 00000001
+>>>esi: 762f7373   edi: d5ba26a0   ebp: d9368544   esp: dc7c3f80
+>>>ds: 007b   es: 007b   ss: 0068
+>>>Process udev (pid: 31802, threadinfo=dc7c2000 task=c7c19040)
+>>>Stack: df468c40 df798140 dffe4140 c0153c08 d5a9edbc df468c40 df798140
+>>>00000000
+>>>        dc7c2000 c01523d3 00000000 00000003 080ac568 00000003 c0103101
+>>>00000003
+>>>        080ac568 00000004 080ac568 00000003 08057198 00000006 0000007b
+>>>0000007b
+>>>Call Trace:
+>>>  [<c0153c08>] __fput+0xf8/0x110
+>>>  [<c01523d3>] filp_close+0x43/0x70
+>>>  [<c0103101>] syscall_call+0x7/0xb
+>>>Code: 8b 41 0c 8b 40 48 8b 58 14 8b 41 48 8b 40 14 85 db 8b 70 04 74 07
+>>>89 d8 e8 9a 11 02 00 85 f6 74 1f bb 00 e0 ff ff 21 e3 ff 43 14 <ff> 8e
+>>>00 01 00 00 83 3e 02 74 32 8b 43 08 ff 4b 14 a8 08 75 21
+>>>  <6>note: udev[31802] exited with preempt_count 1
+>>>      
+>>>
+>>Gee we get a lot of these, and no idea which sysfs file caused it.
+>>
+>>How about we record the most-recently-opened sysfs file and display that at
+>>oops time?  (-mm only)
+>>    
+>>
+>
+>Looks good to me, I really have no idea of what is causing this, and
+>haven't seen any reports of this on mainline.
+>
+>thanks,
+>
+>greg k-h
+>
+>  
+>
+Actually, I'm running a kernel straight from Linus' GIT repository.
+EFLAGS: 00010202   (2.6.13-rc2-GIT-08-7-2005-0)
 
-
---------------000404020905070806040301
-Content-Type: text/plain;
- name="config.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="config.txt"
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-CONFIG_LOCALVERSION="-GIT-08-7-2005-0"
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_POSIX_MQUEUE=y
-CONFIG_SYSCTL=y
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_KALLSYMS=y
-CONFIG_KALLSYMS_EXTRA_PASS=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_BASE_SMALL=0
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODULE_SRCVERSION_ALL=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_NOHIGHMEM=y
-CONFIG_SELECT_MEMORY_MODEL=y
-CONFIG_FLATMEM_MANUAL=y
-CONFIG_FLATMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_REGPARM=y
-CONFIG_SECCOMP=y
-CONFIG_HZ_1000=y
-CONFIG_HZ=1000
-CONFIG_PHYSICAL_START=0x100000
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-CONFIG_ACPI_BLACKLIST_YEAR=0
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_X86_PM_TIMER=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-CONFIG_PCI_MSI=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA_DMA_API=y
-CONFIG_BINFMT_ELF=y
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_PNP=y
-CONFIG_PNPACPI=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_NET=y
-CONFIG_PACKET=m
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=m
-CONFIG_NET_KEY=m
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_FIB_HASH=y
-CONFIG_TCP_CONG_BIC=y
-CONFIG_XFRM=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_TULIP=y
-CONFIG_TULIP=m
-CONFIG_TULIP_MWI=y
-CONFIG_TULIP_MMIO=y
-CONFIG_TULIP_NAPI=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=m
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_LIBPS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_RTC=m
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_RADEON=y
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=y
-CONFIG_I2C_ALGOBIT=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=m
-CONFIG_SND=m
-CONFIG_SND_TIMER=m
-CONFIG_SND_PCM=m
-CONFIG_SND_HWDEP=m
-CONFIG_SND_RAWMIDI=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_AC97_CODEC=m
-CONFIG_SND_EMU10K1=m
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_EHCI_SPLIT_ISO=y
-CONFIG_USB_EHCI_ROOT_HUB_TT=y
-CONFIG_USB_OHCI_HCD=m
-CONFIG_USB_OHCI_LITTLE_ENDIAN=y
-CONFIG_USB_UHCI_HCD=m
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_EXT2_FS=m
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_DNOTIFY=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=m
-CONFIG_UDF_NLS=y
-CONFIG_NTFS_FS=m
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_SMB_FS=m
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="utf8"
-CONFIG_CIFS=m
-CONFIG_CIFS_EXPERIMENTAL=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=m
-CONFIG_NLS_DEFAULT="utf8"
-CONFIG_NLS_UTF8=m
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRC32=m
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
-
---------------000404020905070806040301
-Content-Type: text/plain;
- name="lspci.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lspci.txt"
-
-00:00.0 Host bridge: VIA Technologies, Inc. VT8375 [KM266/KL266] Host Bridge
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8633 [Apollo Pro266 AGP]
-00:09.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 0a)
-00:09.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 0a)
-00:0a.0 Ethernet controller: Linksys Network Everywhere Fast Ethernet 10/100 model NC100 (rev 11)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8233A ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-00:11.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 23)
-00:11.3 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 23)
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV200 QW [Radeon 7500]
-
---------------000404020905070806040301--

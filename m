@@ -1,150 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVGIHXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263161AbVGIHYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVGIHXW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 03:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbVGIHXV
+	id S263161AbVGIHYa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 03:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbVGIHY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 03:23:21 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:30340 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S261567AbVGIHXU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 03:23:20 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-Id: <200507090722.j697Mcrv015292@einhorn.in-berlin.de>
-Date: Sat, 9 Jul 2005 09:22:38 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [2.6 patch] drivers/ieee1394/: schedule unused EXPORT_SYMBOL's
- for removal
-To: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-cc: scjody@modernduck.com, bunk@stusta.de
-In-Reply-To: <20050709030734.GD28243@stusta.de>
+	Sat, 9 Jul 2005 03:24:29 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:65013 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263161AbVGIHX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 03:23:57 -0400
+Message-ID: <42CF7B83.9000804@namesys.com>
+Date: Sat, 09 Jul 2005 00:23:47 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-X-Spam-Score: (-0.679) AWL,BAYES_00,MSGID_FROM_MTA_ID
+To: David Lang <david.lang@digitalinsight.com>
+CC: Ed Tomlinson <tomlins@cam.org>, Ed Cogburn <edcogburn@hotpop.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: reiser4 vs politics: linux misses out again
+References: <200507040211.j642BL6f005488@laptop11.inf.utfsm.cl> <028601c581a0$cb1f3e20$2800000a@pc365dualp2> <dan077$n4t$1@sea.gmane.org> <200507082026.49404.tomlins@cam.org> <Pine.LNX.4.62.0507081737120.4458@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.62.0507081737120.4458@qynat.qvtvafvgr.pbz>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  9 Jul, Adrian Bunk wrote:
-> On Thu, Jul 07, 2005 at 09:30:21PM +0200, Stefan Richter wrote:
->> Now that we are at it, the following EXPORT_SYMBOLs should be removed too...
->> 	_csr1212_read_keyval
-> used in sbp2.c
->> 	_csr1212_destroy_keyval
-> used in raw1394.c
+David Lang wrote:
 
-You are right.
+>
+> remember that Hans is on record (over a year ago) arguing that R3
+> should not be fixed becouse R4 was replacing it.
 
+No, I said and say that V3 should not have features added to it, because
+features should not be added to a stable branch.  Bug fixes are good.
 
-<--  snip  -->
+There are a few V3 bug fixes where the fix is so deep that it belongs in
+V4, all of the ones that I can think of at the moment are ones requiring
+disk format changes.
 
+Note that in V4, disk format changes are no longer deep fixes because of
+plugins.
 
+>
+> This type of thing is one of the reasons that you see arguments that
+> aren't 'purely code-related' becouse the kernel folks realize that
+> _they_ will have to maintain the code over time, Hans and company will
+> go on and develop R5 (R10, whatever) and consider R4 obsolete and stop
+> maintaining it.
 
-This patch schedules unused EXPORT_SYMBOL's for removal.
+No, we will stop adding features to it at some point, only add bug
+fixes, and let it become stable enough for mission critical use.  Of
+course, with plugins this becomes more complicated of a policy because
+smaller releases with more orthogonal features are easier and more
+tempting, and it becomes tempting to version and release plugins rather
+than the FS, so I am not sure exactly how this will play out yet.  I
+think we will have an option to select experimental plugins individually.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
-
----
-
- Documentation/feature-removal-schedule.txt |   21 ++++++++++++++
- drivers/ieee1394/ieee1394_core.c           |   31 +++++++++++++++++++++
- 2 files changed, 52 insertions(+)
-
---- linux-2.6.12-rc4-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-05-13 15:19:54.000000000 +0200
-+++ linux-2.6.12-rc4-mm1-full/Documentation/feature-removal-schedule.txt	2005-05-13 15:29:24.000000000 +0200
-@@ -93,0 +94,21 @@
-+
-+---------------------------
-+
-+What:	remove the following ieee1394 EXPORT_SYMBOL's:
-+	- hpsb_send_phy_config
-+	- hpsb_send_packet_and_wait
-+	- highlevel_add_host
-+	- highlevel_remove_host
-+	- nodemgr_for_each_host
-+	- csr1212_create_csr
-+	- csr1212_init_local_csr
-+	- csr1212_new_immediate
-+	- csr1212_associate_keyval
-+	- csr1212_new_string_descriptor_leaf
-+	- csr1212_destroy_csr
-+	- csr1212_generate_csr_image
-+	- csr1212_parse_csr
-+When:	August 2005
-+Files:	drivers/ieee1394/ieee1394_core.c
-+Why:	No modular usage in the kernel.
-+Who:	Adrian Bunk <bunk@stusta.de>
---- linux-2.6.12-rc4-mm1-full/drivers/ieee1394/ieee1394_core.c.old	2005-05-13 15:19:34.000000000 +0200
-+++ linux-2.6.12-rc4-mm1-full/drivers/ieee1394/ieee1394_core.c	2005-05-13 15:28:17.000000000 +0200
-@@ -1226,7 +1226,13 @@
- EXPORT_SYMBOL(hpsb_alloc_packet);
- EXPORT_SYMBOL(hpsb_free_packet);
-+
-+/* EXPORT_SYMBOL scheduled for removal */
- EXPORT_SYMBOL(hpsb_send_phy_config);
-+
- EXPORT_SYMBOL(hpsb_send_packet);
-+
-+/* EXPORT_SYMBOL scheduled for removal */
- EXPORT_SYMBOL(hpsb_send_packet_and_wait);
-+
- EXPORT_SYMBOL(hpsb_reset_bus);
- EXPORT_SYMBOL(hpsb_bus_reset);
-@@ -1265,6 +1271,11 @@
- EXPORT_SYMBOL(hpsb_get_hostinfo_bykey);
- EXPORT_SYMBOL(hpsb_set_hostinfo);
-+
-+/* EXPORT_SYMBOL scheduled for removal */
- EXPORT_SYMBOL(highlevel_add_host);
-+
-+/* EXPORT_SYMBOL scheduled for removal */
- EXPORT_SYMBOL(highlevel_remove_host);
-+
- EXPORT_SYMBOL(highlevel_host_reset);
- 
-@@ -1275,4 +1286,6 @@
- EXPORT_SYMBOL(hpsb_unregister_protocol);
- EXPORT_SYMBOL(ieee1394_bus_type);
-+
-+/* EXPORT_SYMBOL scheduled for removal */
- EXPORT_SYMBOL(nodemgr_for_each_host);
- 
-@@ -1312,18 +1325,36 @@
- 
- /** csr1212.c **/
-+
-+/* EXPORT_SYMBOLs scheduled for removal */
- EXPORT_SYMBOL(csr1212_create_csr);
- EXPORT_SYMBOL(csr1212_init_local_csr);
- EXPORT_SYMBOL(csr1212_new_immediate);
-+
- EXPORT_SYMBOL(csr1212_new_directory);
-+
-+/* EXPORT_SYMBOL scheduled for removal */
- EXPORT_SYMBOL(csr1212_associate_keyval);
-+
- EXPORT_SYMBOL(csr1212_attach_keyval_to_directory);
-+
-+/* EXPORT_SYMBOL scheduled for removal */
- EXPORT_SYMBOL(csr1212_new_string_descriptor_leaf);
-+
- EXPORT_SYMBOL(csr1212_detach_keyval_from_directory);
- EXPORT_SYMBOL(csr1212_release_keyval);
-+
-+/* EXPORT_SYMBOL scheduled for removal */
- EXPORT_SYMBOL(csr1212_destroy_csr);
-+
- EXPORT_SYMBOL(csr1212_read);
-+
-+/* EXPORT_SYMBOL scheduled for removal */
- EXPORT_SYMBOL(csr1212_generate_csr_image);
-+
- EXPORT_SYMBOL(csr1212_parse_keyval);
-+
-+/* EXPORT_SYMBOL scheduled for removal */
- EXPORT_SYMBOL(csr1212_parse_csr);
-+
- EXPORT_SYMBOL(_csr1212_read_keyval);
- EXPORT_SYMBOL(_csr1212_destroy_keyval);
-
+>
+> David Lang
+>
 

@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVGILq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVGILud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVGILq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 07:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVGILq1
+	id S261211AbVGILud (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 07:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVGILua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 07:46:27 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:40137 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261190AbVGILqY (ORCPT
+	Sat, 9 Jul 2005 07:50:30 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15791 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261211AbVGILu1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 07:46:24 -0400
-Date: Sat, 9 Jul 2005 12:46:22 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git tree] DRM fixes/cleanups tree
-In-Reply-To: <20050709120947.D2175@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0507091245330.6297@skynet>
-References: <Pine.LNX.4.58.0507091202460.6297@skynet>
- <20050709120947.D2175@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Jul 2005 07:50:27 -0400
+Date: Sat, 9 Jul 2005 13:49:36 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [9/48] Suspend2 2.1.9.8 for 2.6.12: 354-disable-mce-checking-during-suspend-avoid-smp-deadlock.patch
+Message-ID: <20050709114936.GA1878@elf.ucw.cz>
+References: <11206164393426@foobar.com> <11206164401343@foobar.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11206164401343@foobar.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Can folk consider using the -p argument to diffstat to obtain the full
-> path to the file from the kernels top directory please?
->
-> Consider the case where you modify just a Kconfig or Makefile.  What
-> use does a diffstat showing that just one Makefile or Kconfig somewhere
-> in the kernel tree was modified, but not where it was?
+Hi!
 
-Will do in future...
+> diff -ruNp 360-reset-kswapd-max-order-after-resume.patch-old/mm/vmscan.c 360-reset-kswapd-max-order-after-resume.patch-new/mm/vmscan.c
+> --- 360-reset-kswapd-max-order-after-resume.patch-old/mm/vmscan.c	2005-07-06 11:18:05.000000000 +1000
+> +++ 360-reset-kswapd-max-order-after-resume.patch-new/mm/vmscan.c	2005-07-04 23:14:20.000000000 +1000
+> @@ -1228,8 +1228,10 @@ static int kswapd(void *p)
+>  	order = 0;
+>  	for ( ; ; ) {
+>  		unsigned long new_order;
+> -
+> -		try_to_freeze();
+> +		if (freezing(current)) {
+> +			try_to_freeze();
+> +			pgdat->kswapd_max_order = 0;
+> +		}
 
-Granted in this case it should be obviously be the drm ones as I usually
-stay in my own directory, but I can see your point...
+Why not
+	if (try_to_freeze())
+		pgdat->... = 0;
 
-Dave.
+?
+							Pavel
 
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
-
+teflon -- maybe it is a trademark, but it should not be.

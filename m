@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVGIVGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVGIVK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbVGIVGw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 17:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVGIVGw
+	id S261732AbVGIVK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 17:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVGIVK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 17:06:52 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:6583 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261730AbVGIVGv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 17:06:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=sEAHc/N23BhQ5JCi+dDqRVAUkSpGinVhxP8svfLucf6AxowoZD/tBGk27tMRHt3kpzWZQ5hS9Dv2XB4EdTCgSTal4KiQhb4ymTmpi5Ag3smegWAD42EkfAIKvkoBpf775o0eMLK9YAlN+o+48DRIghJcT82QVe0WELDhZAR17dQ=
-Message-ID: <31d23c6905070914064700b2bd@mail.gmail.com>
-Date: Sat, 9 Jul 2005 23:06:51 +0200
-From: Jaroslav Soltys <jaro.soltys@gmail.com>
-Reply-To: Jaroslav Soltys <jaro.soltys@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: proper network intarface behaviour ?
+	Sat, 9 Jul 2005 17:10:57 -0400
+Received: from [206.246.247.150] ([206.246.247.150]:26849 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261732AbVGIVKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 17:10:55 -0400
+Date: Sat, 9 Jul 2005 17:10:54 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       scjody@modernduck.com, bunk@stusta.de
+Subject: Re: alternative [PATCH] 1/2) drivers/ieee1394/: schedule unused EXPORT_SYMBOL's for removal
+Message-ID: <20050709211054.GO29099@phunnypharm.org>
+References: <20050709075035.GA20151@phunnypharm.org> <200507091032.j69AWXrv027400@einhorn.in-berlin.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200507091032.j69AWXrv027400@einhorn.in-berlin.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+Applied, but I set the default to "N". No reason to prolong doing it,
+since it doesn't break anything in the kernel or in our tree. It's an easy
+pointer to the option for anyone inquiring about the change.
 
-i have two disjunct networks with only one computer connected to both
-of them. I did the following setup:
+On Sat, Jul 09, 2005 at 12:32:33PM +0200, Stefan Richter wrote:
+> Ben Collins wrote:
+> > Can we, instead of removing these, wrap then in a "Export full API" config
+> > option? I've already got several reports from external projects that are
+> > using most of these exported symbols, and I'd hate to make it harder on
+> > them to use our drivers (for internal projects or otherwise).
+> 
+> OK, why not. Here is an alternative patch, split in two parts. The first
+> part is independent of the second, although the 2nd motivates the 1st.
+> 2nd part follows in a separate posting.
 
-eth0: 192.168.111.13/24
-eth1: 158.195.100.248/22
-
-later i added eth0:0 158.195.101.13/22
-
-i did ssh user@158.195.101.13 from the eth1's network, but notice the
-eth0:0's address.
-ip_forward was 0, rp_filter was 1.
-
-i suppose this behaviour is incorrect. is it ?
-
-jaro soltys
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+SwissDisk  - http://www.swissdisk.com/

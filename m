@@ -1,116 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263014AbVGIAIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263009AbVGIAdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbVGIAIq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 20:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbVGIAFt
+	id S263009AbVGIAdy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 20:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVGIAdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 20:05:49 -0400
-Received: from gold.veritas.com ([143.127.12.110]:190 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S262989AbVGIAEO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 20:04:14 -0400
-Date: Sat, 9 Jul 2005 01:05:35 +0100 (BST)
+	Fri, 8 Jul 2005 20:33:50 -0400
+Received: from silver.veritas.com ([143.127.12.111]:54335 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S263009AbVGIAIL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 20:08:11 -0400
+Date: Sat, 9 Jul 2005 01:09:33 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 06/13] swap unsigned int consistency
+Subject: [PATCH 10/13] scan_swap_map drop swap_device_lock
 In-Reply-To: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0507090104470.13391@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0507090108350.13391@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Jul 2005 00:04:13.0351 (UTC) FILETIME=[BD378B70:01C58419]
+X-OriginalArrivalTime: 09 Jul 2005 00:08:11.0241 (UTC) FILETIME=[4B02AD90:01C5841A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The swap header's unsigned int last_page determines the range of swap
-pages, but swap_info has been using int or unsigned long in some cases:
-use unsigned int throughout (except, in several places a local unsigned
-long is useful to avoid overflows when adding).
+get_swap_page has often shown up on latency traces, doing lengthy scans
+while holding two spinlocks.  swap_list_lock is already dropped, now
+scan_swap_map drop swap_device_lock before scanning the swap_map.
+
+While scanning for an empty cluster, don't worry that racing tasks may
+allocate what was free and free what was allocated; but when allocating
+an entry, check it's still free after retaking the lock.  Avoid dropping
+the lock in the expected common path.  No barriers beyond the locks,
+just let the cookie crumble; highest_bit limit is volatile, but benign.
+
+Guard against swapoff: must check SWP_WRITEOK before allocating, must
+raise SWP_SCANNING reference count while in scan_swap_map, swapoff wait
+for that to fall - just use schedule_timeout, we don't want to burden
+scan_swap_map itself, and it's very unlikely that anyone can really
+still be in scan_swap_map once swapoff gets this far.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- include/linux/swap.h |    6 +++---
- mm/swapfile.c        |   17 +++++++++--------
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ include/linux/swap.h |    2 ++
+ mm/swapfile.c        |   42 +++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 37 insertions(+), 7 deletions(-)
 
---- swap5/include/linux/swap.h	2005-07-08 19:14:12.000000000 +0100
-+++ swap6/include/linux/swap.h	2005-07-08 19:14:26.000000000 +0100
-@@ -129,10 +129,10 @@ struct swap_info_struct {
- 	unsigned int highest_bit;
- 	unsigned int cluster_next;
- 	unsigned int cluster_nr;
-+	unsigned int pages;
-+	unsigned int max;
-+	unsigned int inuse_pages;
- 	int prio;			/* swap priority */
--	int pages;
--	unsigned long max;
--	unsigned long inuse_pages;
- 	int next;			/* next entry on swap list */
+--- swap9/include/linux/swap.h	2005-07-08 19:14:26.000000000 +0100
++++ swap10/include/linux/swap.h	2005-07-08 19:15:20.000000000 +0100
+@@ -106,6 +106,8 @@ enum {
+ 	SWP_USED	= (1 << 0),	/* is slot in swap_info[] used? */
+ 	SWP_WRITEOK	= (1 << 1),	/* ok to write to this swap?	*/
+ 	SWP_ACTIVE	= (SWP_USED | SWP_WRITEOK),
++					/* add others here before... */
++	SWP_SCANNING	= (1 << 8),	/* refcount in scan_swap_map */
  };
  
---- swap5/mm/swapfile.c	2005-07-08 19:14:12.000000000 +0100
-+++ swap6/mm/swapfile.c	2005-07-08 19:14:26.000000000 +0100
-@@ -82,7 +82,7 @@ void swap_unplug_io_fn(struct backing_de
- 	up_read(&swap_unplug_sem);
+ #define SWAP_CLUSTER_MAX 32
+--- swap9/mm/swapfile.c	2005-07-08 19:15:06.000000000 +0100
++++ swap10/mm/swapfile.c	2005-07-08 19:15:20.000000000 +0100
+@@ -96,10 +96,12 @@ static inline unsigned long scan_swap_ma
+ 	 * But we do now try to find an empty cluster.  -Andrea
+ 	 */
+ 
++	si->flags += SWP_SCANNING;
+ 	if (unlikely(!si->cluster_nr)) {
+ 		si->cluster_nr = SWAPFILE_CLUSTER - 1;
+ 		if (si->pages - si->inuse_pages < SWAPFILE_CLUSTER)
+ 			goto lowest;
++		swap_device_unlock(si);
+ 
+ 		offset = si->lowest_bit;
+ 		last_in_cluster = offset + SWAPFILE_CLUSTER - 1;
+@@ -109,10 +111,12 @@ static inline unsigned long scan_swap_ma
+ 			if (si->swap_map[offset])
+ 				last_in_cluster = offset + SWAPFILE_CLUSTER;
+ 			else if (offset == last_in_cluster) {
++				swap_device_lock(si);
+ 				si->cluster_next = offset-SWAPFILE_CLUSTER-1;
+ 				goto cluster;
+ 			}
+ 		}
++		swap_device_lock(si);
+ 		goto lowest;
+ 	}
+ 
+@@ -121,10 +125,12 @@ cluster:
+ 	offset = si->cluster_next;
+ 	if (offset > si->highest_bit)
+ lowest:		offset = si->lowest_bit;
++checks:	if (!(si->flags & SWP_WRITEOK))
++		goto no_page;
+ 	if (!si->highest_bit)
+ 		goto no_page;
+ 	if (!si->swap_map[offset]) {
+-got_page:	if (offset == si->lowest_bit)
++		if (offset == si->lowest_bit)
+ 			si->lowest_bit++;
+ 		if (offset == si->highest_bit)
+ 			si->highest_bit--;
+@@ -135,16 +141,22 @@ got_page:	if (offset == si->lowest_bit)
+ 		}
+ 		si->swap_map[offset] = 1;
+ 		si->cluster_next = offset + 1;
++		si->flags -= SWP_SCANNING;
+ 		return offset;
+ 	}
+ 
++	swap_device_unlock(si);
+ 	while (++offset <= si->highest_bit) {
+-		if (!si->swap_map[offset])
+-			goto got_page;
++		if (!si->swap_map[offset]) {
++			swap_device_lock(si);
++			goto checks;
++		}
+ 	}
++	swap_device_lock(si);
+ 	goto lowest;
+ 
+ no_page:
++	si->flags -= SWP_SCANNING;
+ 	return 0;
  }
  
--static inline int scan_swap_map(struct swap_info_struct *si)
-+static inline unsigned long scan_swap_map(struct swap_info_struct *si)
- {
- 	unsigned long offset;
- 	/* 
-@@ -529,10 +529,11 @@ static int unuse_mm(struct mm_struct *mm
-  * Scan swap_map from current position to next entry still in use.
-  * Recycle to start on reaching the end, returning 0 when empty.
-  */
--static int find_next_to_unuse(struct swap_info_struct *si, int prev)
-+static unsigned int find_next_to_unuse(struct swap_info_struct *si,
-+					unsigned int prev)
- {
--	int max = si->max;
--	int i = prev;
-+	unsigned int max = si->max;
-+	unsigned int i = prev;
- 	int count;
+@@ -1109,10 +1121,6 @@ asmlinkage long sys_swapoff(const char _
+ 	err = try_to_unuse(type);
+ 	current->flags &= ~PF_SWAPOFF;
  
- 	/*
-@@ -575,7 +576,7 @@ static int try_to_unuse(unsigned int typ
- 	unsigned short swcount;
- 	struct page *page;
- 	swp_entry_t entry;
--	int i = 0;
-+	unsigned int i = 0;
- 	int retval = 0;
- 	int reset_overflow = 0;
- 	int shmem;
-@@ -1214,7 +1215,7 @@ static int swap_show(struct seq_file *sw
+-	/* wait for any unplug function to finish */
+-	down_write(&swap_unplug_sem);
+-	up_write(&swap_unplug_sem);
+-
+ 	if (err) {
+ 		/* re-insert swap space back into swap_list */
+ 		swap_list_lock();
+@@ -1126,10 +1134,28 @@ asmlinkage long sys_swapoff(const char _
+ 			swap_info[prev].next = p - swap_info;
+ 		nr_swap_pages += p->pages;
+ 		total_swap_pages += p->pages;
++		swap_device_lock(p);
+ 		p->flags |= SWP_WRITEOK;
++		swap_device_unlock(p);
+ 		swap_list_unlock();
+ 		goto out_dput;
+ 	}
++
++	/* wait for any unplug function to finish */
++	down_write(&swap_unplug_sem);
++	up_write(&swap_unplug_sem);
++
++	/* wait for anyone still in scan_swap_map */
++	swap_device_lock(p);
++	p->highest_bit = 0;		/* cuts scans short */
++	while (p->flags >= SWP_SCANNING) {
++		swap_device_unlock(p);
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(1);
++		swap_device_lock(p);
++	}
++	swap_device_unlock(p);
++
+ 	destroy_swap_extents(p);
+ 	down(&swapon_sem);
+ 	swap_list_lock();
+@@ -1429,6 +1455,8 @@ asmlinkage long sys_swapon(const char __
+ 		}
  
- 	file = ptr->swap_file;
- 	len = seq_path(swap, file->f_vfsmnt, file->f_dentry, " \t\n\\");
--	seq_printf(swap, "%*s%s\t%d\t%ld\t%d\n",
-+	seq_printf(swap, "%*s%s\t%u\t%u\t%d\n",
- 		       len < 40 ? 40 - len : 1, " ",
- 		       S_ISBLK(file->f_dentry->d_inode->i_mode) ?
- 				"partition" : "file\t",
-@@ -1273,7 +1274,7 @@ asmlinkage long sys_swapon(const char __
- 	static int least_priority;
- 	union swap_header *swap_header = NULL;
- 	int swap_header_version;
--	int nr_good_pages = 0;
-+	unsigned int nr_good_pages = 0;
- 	int nr_extents;
- 	sector_t span;
- 	unsigned long maxpages = 1;
-@@ -1507,7 +1508,7 @@ asmlinkage long sys_swapon(const char __
- 	nr_swap_pages += nr_good_pages;
- 	total_swap_pages += nr_good_pages;
- 
--	printk(KERN_INFO "Adding %dk swap on %s.  "
-+	printk(KERN_INFO "Adding %uk swap on %s.  "
- 			"Priority:%d extents:%d across:%lluk\n",
- 		nr_good_pages<<(PAGE_SHIFT-10), name, p->prio,
- 		nr_extents, (unsigned long long)span<<(PAGE_SHIFT-10));
+ 		p->lowest_bit  = 1;
++		p->cluster_next = 1;
++
+ 		/*
+ 		 * Find out how many pages are allowed for a single swap
+ 		 * device. There are two limiting factors: 1) the number of

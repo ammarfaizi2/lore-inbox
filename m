@@ -1,131 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVGIMUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVGIMWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVGIMUk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 08:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVGIMUj
+	id S261372AbVGIMWq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 08:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVGIMUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 08:20:39 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:53697 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261353AbVGIMUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 08:20:32 -0400
-Subject: Re: [PATCH] [31/48] Suspend2 2.1.9.8 for 2.6.12:
-	608-compression.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050709115547.GD1878@elf.ucw.cz>
-References: <11206164393426@foobar.com> <11206164423992@foobar.com>
-	 <20050709115547.GD1878@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1120911317.7716.137.camel@localhost>
+	Sat, 9 Jul 2005 08:20:45 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:134 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261348AbVGIMUK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 08:20:10 -0400
+Date: Sat, 9 Jul 2005 14:16:12 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [37/48] Suspend2 2.1.9.8 for 2.6.12: 613-pageflags.patch
+Message-ID: <20050709121612.GG1878@elf.ucw.cz>
+References: <11206164393426@foobar.com> <11206164434190@foobar.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 09 Jul 2005 22:15:17 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11206164434190@foobar.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy.
+Hi!
 
-On Sat, 2005-07-09 at 21:55, Pavel Machek wrote:
-> Hi!
-> 
-> > diff -ruNp 609-driver-model.patch-old/kernel/power/suspend2_core/driver_model.c 609-driver-model.patch-new/kernel/power/suspend2_core/driver_model.c
-> > --- 609-driver-model.patch-old/kernel/power/suspend2_core/driver_model.c	1970-01-01 10:00:00.000000000 +1000
-> > +++ 609-driver-model.patch-new/kernel/power/suspend2_core/driver_model.c	2005-07-04 23:14:19.000000000 +1000
-> > @@ -0,0 +1,95 @@
-> > +/*
-> > + * kernel/power/suspend2_core/driver_model.c
-> > + *
-> > + * Copyright (C) 2004-2005 Nigel Cunningham <nigel@suspend2.net>
-> > + *
-> > + * This file is released under the GPLv2.
-> > + *
-> > + * Support for the driver model and ACPI sleep states.
-> > + */
-> > +
-> > +#include <linux/pm.h>
-> > +#include "driver_model.h"
-> > +#include "power_off.h"
-> > +
-> > +extern struct pm_ops * pm_ops;
-> > +static u32 pm_disk_mode_save;
-> > +
-> > +#ifdef CONFIG_ACPI
-> > +static int suspend_pm_state_used = 0;
-> > +extern u32 acpi_leave_sleep_state (u8 sleep_state);
-> > +#endif
-> > +
-> > +/* suspend_drivers_init
-> > + *
-> > + * Store the original pm ops settings.
-> > + */
-> > +int suspend_drivers_init(void)
-> > +{
-> > +	if (pm_ops) {
-> > +		pm_disk_mode_save = pm_ops->pm_disk_mode;
-> > +		pm_ops->pm_disk_mode = PM_DISK_PLATFORM;
-> > +	}
-> > +			
-> > +	return 0;
-> > +}
-> 
-> That seems like quite an ugly hack.
+You know what I think about plugins, right? There are already plugins
+at block device level, like raid5, LVM, device mapper... I do not see
+why you should need another one.
 
-Mmm. Adam and I have been discussing a more generic mechanism for
-powering down, switching between states and so on. Hopefully that will
-take care of these issues.
+> +/*
+> + * expected_compression_ratio
+> + *
+> + * Returns the expected ratio between the amount of memory
+> + * to be saved and the amount of space required on the
+> + * storage device.
+> + */
+> +int expected_compression_ratio(void)
+> +{
+> +	struct suspend_plugin_ops * this_filter;
+> +	unsigned long ratio = 100;
+> +	
+> +	list_for_each_entry(this_filter, &suspend_filters, ops.filter.filter_list) {
+> +		if (this_filter->disabled)
+> +			continue;
+> +		if (this_filter->ops.filter.expected_compression)
+> +			ratio = ratio * this_filter->ops.filter.expected_compression() / 100;
+> +	}
+> +
+> +	return (int) ratio;
+> +}
 
-> > +/* suspend_drivers_cleanup
-> > + *
-> > + * Restore the original pm disk mode.
-> > + */
-> > +void suspend_drivers_cleanup(void)
-> > +{
-> > +	if (pm_ops)
-> > +		pm_ops->pm_disk_mode = pm_disk_mode_save;
-> > +}
-> > +
-> > +/* suspend_drivers_suspend
-> > + *
-> > + * Suspend the drivers after an atomic copy.
-> > + */
-> > +int suspend_drivers_suspend(int stage)
-> > +{
-> > +	int result = 0;
-> > +	const pm_message_t state = PMSG_FREEZE;
-> > +
-> > +	switch (stage) {
-> > +		case SUSPEND_DRIVERS_IRQS_DISABLED:
-> > +			BUG_ON(!irqs_disabled());
-> > +			result = device_power_down(state);
-> > +			BUG_ON(!irqs_disabled());
-> > +			break;
-> > +
-> > +		case SUSPEND_DRIVERS_IRQS_ENABLED:
-> > +			BUG_ON(irqs_disabled());
-> > +			result = device_suspend(state);
-> > +			BUG_ON(irqs_disabled());
-> > +			break;
-> > +	}
-> > +	return result;
-> > +}
-> 
-> Can't you just inline these?
+Why the cast and why long in the first place?
 
-Yes, I could. Just trying to keep driver model stuff separate.
+> +struct suspend_plugin_ops * find_plugin_given_name(char * name)
+> +{
+> +	struct suspend_plugin_ops * this_plugin, * found_plugin = NULL;
+> +	
+> +	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
+> +		if (!strcmp(name, this_plugin->name)) {
+> +			found_plugin = this_plugin;
+> +			break;
+> +		}			
+> +	}
+> +
+> +	return found_plugin;
+> +}
 
-Regards,
+How often are you doing this? Would hash table be prefered? How many
+plugins do you have? Maybe statical registration is right solution?
 
-Nigel
+								Pavel
 -- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
-
+teflon -- maybe it is a trademark, but it should not be.

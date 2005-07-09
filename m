@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVGIRGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVGIRJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbVGIRGz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 13:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVGIRGy
+	id S261625AbVGIRJv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 13:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVGIRJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 13:06:54 -0400
-Received: from ctb-mesg3.saix.net ([196.25.240.83]:64457 "EHLO
-	ctb-mesg3.saix.net") by vger.kernel.org with ESMTP id S261621AbVGIRGs
+	Sat, 9 Jul 2005 13:09:46 -0400
+Received: from nproxy.gmail.com ([64.233.182.192]:57032 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261622AbVGIRJ2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 13:06:48 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, christoph@lameter.org
-In-Reply-To: <20050708145953.0b2d8030.akpm@osdl.org>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	 <20050708214908.GA31225@taniwha.stupidest.org>
-	 <20050708145953.0b2d8030.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lZiJE5sCrp1esK5wcb6D"
-Date: Sat, 09 Jul 2005 19:08:11 +0200
-Message-Id: <1120928891.17184.10.camel@lycan.lan>
+	Sat, 9 Jul 2005 13:09:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c+zCqK3nfvn6eaGIR3dXDDR1Lft/+oqsysXi7mMSEWSy1Z7sBV1u9/+Onmf/j063pzYJb0kahFBLM8L0RkWA9keJ0Vf0BDmzMnjfv1+5VjtUjrnUh7xs/HoMBhcHJCpWJkWy6297zKwQ7qYahUc66uLla48b7p605mHOitgLYH0=
+Message-ID: <2cd57c9005070910091f1051f7@mail.gmail.com>
+Date: Sun, 10 Jul 2005 01:09:22 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: halt: init exits/panic
+In-Reply-To: <20050709151227.GM1322@schottelius.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050709151227.GM1322@schottelius.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/9/05, Nico Schottelius <nico-kernel@schottelius.org> wrote:
+> Hello!
+> 
+> What's the 'correct behaviour' of an init system, if someone wants
+> to shutdown the system?
+> 
+> I currently do:
+> 
+> - call reboot(RB_POWER_OFF/RB_AUTOBOOT/RB_HALT_SYSTEM)
+> - _exit(0)
+> 
+> Is this exit() call wrong? If I do RB_HALT_SYSTEM and _exit(0) after,
+> the kernel panics.
 
---=-lZiJE5sCrp1esK5wcb6D
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, 2005-07-08 at 14:59 -0700, Andrew Morton wrote:
-> Chris Wedgwood <cw@f00f.org> wrote:
-
-> > WHAT?
-> >=20
-> > The previous value here i386 is 1000 --- so why is the default 250.
->=20
-> Because 1000 is too high.
->=20
-
-What happened to 300 as default, as that is divisible by both 50 and 60
-(or something like that) ?  Wanted to remember somebody suggested rather
-using that ...  Curiosity sake.
-
-
-Thanks,
-
---=20
-Martin Schlemmer
-
-
---=-lZiJE5sCrp1esK5wcb6D
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC0AR7qburzKaJYLYRAsIDAJ9jNq5zvLK9XeTKRV02b1Kwy6aY6wCfcYZg
-FJe1/uX8OtB/k4HpvE18QRQ=
-=uCkh
------END PGP SIGNATURE-----
-
---=-lZiJE5sCrp1esK5wcb6D--
-
+What the panic shows?
+-- 
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

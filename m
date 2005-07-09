@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVGIQrC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVGIRFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVGIQrC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 12:47:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVGIQrB
+	id S261618AbVGIRFY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 13:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVGIRFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 12:47:01 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:23450 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261607AbVGIQqz (ORCPT
+	Sat, 9 Jul 2005 13:05:23 -0400
+Received: from ns2.suse.de ([195.135.220.15]:24293 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261618AbVGIRFV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 12:46:55 -0400
-Date: Sat, 9 Jul 2005 18:46:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: randy_dunlap <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, arjanv@infradead.org,
-       guichaz@gmail.com
+	Sat, 9 Jul 2005 13:05:21 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [patch] compress the stack layout of do_page_fault(), x86
-Message-ID: <20050709164637.GA16517@elte.hu>
-References: <20050709144116.GA9444@elte.hu> <20050709152924.GA13492@elte.hu> <20050709094455.0ef508e3.rdunlap@xenotime.net>
-Mime-Version: 1.0
+References: <20050709144116.GA9444@elte.hu.suse.lists.linux.kernel>
+	<20050709152924.GA13492@elte.hu.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 09 Jul 2005 19:05:20 +0200
+In-Reply-To: <20050709152924.GA13492@elte.hu.suse.lists.linux.kernel>
+Message-ID: <p73ll4f29m7.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050709094455.0ef508e3.rdunlap@xenotime.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar <mingo@elte.hu> writes:
+>  
+> +static void force_sig_info_fault(int si_signo, int si_code,
+> +				 unsigned long address, struct task_struct *tsk)
 
-* randy_dunlap <rdunlap@xenotime.net> wrote:
+This won't work with a unit-at-a-time compiler which happily
+inlines everything static with only a single caller. Use noinline
 
-> Just to clarify this, "boot tested" does not mean that this changed 
-> code was tested, right? or do you have a test case that was tested?
-
-i tested segfaults, but not bus-faults. The bug would have resulted in 
-sigsegv being delivered not a sigbus.
-
-	Ingo
+-Andi

@@ -1,231 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263072AbVGIB4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVGICB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263072AbVGIB4r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 21:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263073AbVGIB4q
+	id S261380AbVGICB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 22:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbVGICB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 21:56:46 -0400
-Received: from gold.veritas.com ([143.127.12.110]:59657 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S263072AbVGIB4S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 21:56:18 -0400
-Date: Sat, 9 Jul 2005 02:57:39 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Mauricio Lin <mauriciolin@gmail.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] smaps use new ptwalks
-In-Reply-To: <Pine.LNX.4.61.0507090253270.15778@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0507090256430.15778@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0507090253270.15778@goblin.wat.veritas.com>
+	Fri, 8 Jul 2005 22:01:57 -0400
+Received: from web25801.mail.ukl.yahoo.com ([217.12.10.186]:21593 "HELO
+	web25801.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261380AbVGICB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 22:01:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.es;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=amuRvYti5sc67pDx8OB13VF6iJmaMlAVUCeppa48pDJ8xgiq8j8Qv/3pBt+w4wxrVPxkTp8GS0E3BZKMmpdmfTRbFsXEJH5NJxn7F13K4CW9j+YfsY7sk4kBXFyqFJEE9PgxWoS8O8vvhHGoj8Ulh5hHsifSAdlktvoXfybw6RY=  ;
+Message-ID: <20050709020148.64664.qmail@web25801.mail.ukl.yahoo.com>
+Date: Sat, 9 Jul 2005 04:01:48 +0200 (CEST)
+From: Albert Herranz <albert_herranz@yahoo.es>
+Subject: [PATCH 2.6.13-rc2] kexec-ppc: fix for ksysfs crash_notes
+To: Eric Biederman <ebiederm@xmission.com>, Vivek Goyal <vgoyal@in.ibm.com>
+Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Jul 2005 01:56:17.0915 (UTC) FILETIME=[655E94B0:01C58429]
+Content-Type: multipart/mixed; boundary="0-1269602165-1120874508=:63085"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/proc/$pid/smaps code was based on the old ptwalking style just as we
-converted over to the p?d_addr_end style: convert it to the new style.
+--0-1269602165-1120874508=:63085
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-Do an easy cond_resched_lock at the end of each page table: looking at
-the struct page of every pte will be heavy on the cache, and others are
-likely to hack on this example, so better limit its still poor latency.
+Hi,
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+Signed-off-by: Albert Herranz
+<albert_herranz@yahoo.es>
 
- fs/proc/task_mmu.c |  150 ++++++++++++++++++++---------------------------------
- 1 files changed, 58 insertions(+), 92 deletions(-)
+The following patch prevents the crash dump helper
+code  found within kexec from breaking ppc which still
+lacks crash dump functionality.
 
---- smaps1/fs/proc/task_mmu.c	2005-07-09 02:14:05.000000000 +0100
-+++ smaps2/fs/proc/task_mmu.c	2005-07-09 02:29:33.000000000 +0100
-@@ -158,120 +158,88 @@ struct mem_size_stats
- 	unsigned long private_dirty;
- };
+As discussed in [1], ksysfs crash_notes attribute
+handling was left under CONFIG_KEXEC for simplicity
+although it is not strictly kexec related.
+
+We provide here a dummy definition for crash_notes on
+ppc.
+
+Cheers,
+Albert
+
+[1]
+http://lists.osdl.org/mailman/htdig/fastboot/2005-April/001324.html
+
+
+
+
+		
+______________________________________________ 
+Renovamos el Correo Yahoo! 
+Nuevos servicios, más seguridad 
+http://correo.yahoo.es
+--0-1269602165-1120874508=:63085
+Content-Type: text/x-patch; name="kexec-ppc-ksysfs-crash_notes-fix.patch"
+Content-Description: 1992546426-kexec-ppc-ksysfs-crash_notes-fix.patch
+Content-Disposition: inline; filename="kexec-ppc-ksysfs-crash_notes-fix.patch"
+
+--- a/include/asm-ppc/kexec.h	2005-07-09 00:44:31.000000000 +0200
++++ b/include/asm-ppc/kexec.h	2005-07-09 03:17:20.000000000 +0200
+@@ -27,6 +27,8 @@
  
--static void smaps_pte_range(pmd_t *pmd,
--			    unsigned long address,
--			    unsigned long size,
--			    struct mem_size_stats *mss)
-+static void smaps_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
-+				unsigned long addr, unsigned long end,
-+				struct mem_size_stats *mss)
- {
--	pte_t *ptep, pte;
--	unsigned long end;
-+	pte_t *pte, ptent;
- 	unsigned long pfn;
- 	struct page *page;
+ #ifndef __ASSEMBLY__
  
--	if (pmd_none(*pmd))
--		return;
--	if (unlikely(pmd_bad(*pmd))) {
--		pmd_ERROR(*pmd);
--		pmd_clear(pmd);
--		return;
--	}
--	ptep = pte_offset_map(pmd, address);
--	address &= ~PMD_MASK;
--	end = address + size;
--	if (end > PMD_SIZE)
--		end = PMD_SIZE;
-+	pte = pte_offset_map(pmd, addr);
- 	do {
--		pte = *ptep;
--		address += PAGE_SIZE;
--		ptep++;
--
--		if (pte_none(pte) || (!pte_present(pte)))
-+		ptent = *pte;
-+		if (pte_none(ptent) || !pte_present(ptent))
- 			continue;
- 
- 		mss->resident += PAGE_SIZE;
--		pfn = pte_pfn(pte);
--		if (pfn_valid(pfn)) {
--			page = pfn_to_page(pfn);
--			if (page_count(page) >= 2) {
--				if (pte_dirty(pte))
--					mss->shared_dirty += PAGE_SIZE;
--				else
--					mss->shared_clean += PAGE_SIZE;
--			} else {
--				if (pte_dirty(pte))
--					mss->private_dirty += PAGE_SIZE;
--				else
--					mss->private_clean += PAGE_SIZE;
--			}
-+		pfn = pte_pfn(ptent);
-+		if (!pfn_valid(pfn))
-+			continue;
++extern void *crash_notes;
 +
-+		page = pfn_to_page(pfn);
-+		if (page_count(page) >= 2) {
-+			if (pte_dirty(ptent))
-+				mss->shared_dirty += PAGE_SIZE;
-+			else
-+				mss->shared_clean += PAGE_SIZE;
-+		} else {
-+			if (pte_dirty(ptent))
-+				mss->private_dirty += PAGE_SIZE;
-+			else
-+				mss->private_clean += PAGE_SIZE;
- 		}
--	} while (address < end);
--	pte_unmap(ptep - 1);
-+	} while (pte++, addr += PAGE_SIZE, addr != end);
-+	pte_unmap(pte - 1);
-+	cond_resched_lock(&vma->vm_mm->page_table_lock);
- }
+ struct kimage;
  
--static void smaps_pmd_range(pud_t *pud,
--			    unsigned long address,
--			    unsigned long size,
--			    struct mem_size_stats *mss)
-+static inline void smaps_pmd_range(struct vm_area_struct *vma, pud_t *pud,
-+				unsigned long addr, unsigned long end,
-+				struct mem_size_stats *mss)
- {
- 	pmd_t *pmd;
--	unsigned long end;
-+	unsigned long next;
+ extern void machine_kexec_simple(struct kimage *image);
+--- a/arch/ppc/kernel/machine_kexec.c	2005-07-09 00:44:25.000000000 +0200
++++ b/arch/ppc/kernel/machine_kexec.c	2005-07-09 03:45:18.000000000 +0200
+@@ -28,6 +28,12 @@ typedef NORET_TYPE void (*relocate_new_k
+ const extern unsigned char relocate_new_kernel[];
+ const extern unsigned int relocate_new_kernel_size;
  
--	if (pud_none(*pud))
--		return;
--	if (unlikely(pud_bad(*pud))) {
--		pud_ERROR(*pud);
--		pud_clear(pud);
--		return;
--	}
--	pmd = pmd_offset(pud, address);
--	address &= ~PUD_MASK;
--	end = address + size;
--	if (end > PUD_SIZE)
--		end = PUD_SIZE;
-+	pmd = pmd_offset(pud, addr);
- 	do {
--		smaps_pte_range(pmd, address, end - address, mss);
--		address = (address + PMD_SIZE) & PMD_MASK;
--		pmd++;
--	} while (address < end);
-+		next = pmd_addr_end(addr, end);
-+		if (pmd_none_or_clear_bad(pmd))
-+			continue;
-+		smaps_pte_range(vma, pmd, addr, next, mss);
-+	} while (pmd++, addr = next, addr != end);
- }
- 
--static void smaps_pud_range(pgd_t *pgd,
--			    unsigned long address,
--			    unsigned long size,
--			    struct mem_size_stats *mss)
-+static inline void smaps_pud_range(struct vm_area_struct *vma, pgd_t *pgd,
-+				unsigned long addr, unsigned long end,
-+				struct mem_size_stats *mss)
- {
- 	pud_t *pud;
--	unsigned long end;
-+	unsigned long next;
- 
--	if (pgd_none(*pgd))
--		return;
--	if (unlikely(pgd_bad(*pgd))) {
--		pgd_ERROR(*pgd);
--		pgd_clear(pgd);
--		return;
--	}
--	pud = pud_offset(pgd, address);
--	address &= ~PGDIR_MASK;
--	end = address + size;
--	if (end > PGDIR_SIZE)
--		end = PGDIR_SIZE;
-+	pud = pud_offset(pgd, addr);
- 	do {
--		smaps_pmd_range(pud, address, end - address, mss);
--		address = (address + PUD_SIZE) & PUD_MASK;
--		pud++;
--	} while (address < end);
-+		next = pud_addr_end(addr, end);
-+		if (pud_none_or_clear_bad(pud))
-+			continue;
-+		smaps_pmd_range(vma, pud, addr, next, mss);
-+	} while (pud++, addr = next, addr != end);
- }
- 
--static void smaps_pgd_range(pgd_t *pgd,
--			    unsigned long start_address,
--			    unsigned long end_address,
--			    struct mem_size_stats *mss)
-+static inline void smaps_pgd_range(struct vm_area_struct *vma,
-+				unsigned long addr, unsigned long end,
-+				struct mem_size_stats *mss)
- {
-+	pgd_t *pgd;
-+	unsigned long next;
++/*
++ * Provide a dummy crash_notes definition while crash dump arrives to ppc.
++ * This prevents breakage of crash_notes attribute in kernel/ksysfs.c.
++ */
++void *crash_notes = NULL;
 +
-+	pgd = pgd_offset(vma->vm_mm, addr);
- 	do {
--		smaps_pud_range(pgd, start_address, end_address - start_address, mss);
--		start_address = (start_address + PGDIR_SIZE) & PGDIR_MASK;
--		pgd++;
--	} while (start_address < end_address);
-+		next = pgd_addr_end(addr, end);
-+		if (pgd_none_or_clear_bad(pgd))
-+			continue;
-+		smaps_pud_range(vma, pgd, addr, next, mss);
-+	} while (pgd++, addr = next, addr != end);
- }
- 
- static int show_smap(struct seq_file *m, void *v)
-@@ -286,10 +254,8 @@ static int show_smap(struct seq_file *m,
- 	memset(&mss, 0, sizeof mss);
- 
- 	if (mm) {
--		pgd_t *pgd;
- 		spin_lock(&mm->page_table_lock);
--		pgd = pgd_offset(mm, vma->vm_start);
--		smaps_pgd_range(pgd, vma->vm_start, vma->vm_end, &mss);
-+		smaps_pgd_range(vma, vma->vm_start, vma->vm_end, &mss);
- 		spin_unlock(&mm->page_table_lock);
- 	}
- 
+ void machine_shutdown(void)
+ {
+ 	if (ppc_md.machine_shutdown)
+
+--0-1269602165-1120874508=:63085--

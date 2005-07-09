@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVGINOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVGINTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVGINOX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 09:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVGINOW
+	id S261382AbVGINTK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 09:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVGINTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 09:14:22 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:32658 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261362AbVGINOV (ORCPT
+	Sat, 9 Jul 2005 09:19:10 -0400
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:43464 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261382AbVGINTI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 09:14:21 -0400
-Date: Sat, 9 Jul 2005 15:13:40 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@infradead.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050709131340.GA5925@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081938.27815.s0348365@sms.ed.ac.uk> <20050708194827.GA22536@elte.hu> <200507082145.08877.s0348365@sms.ed.ac.uk> <20050709124105.GB4665@elte.hu>
+	Sat, 9 Jul 2005 09:19:08 -0400
+Date: Sat, 9 Jul 2005 22:18:56 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.13-rc2-mm1] add PCI IRQ initialization to TB0219
+Message-Id: <20050709221856.535dc779.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050709124105.GB4665@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> (gdb) ####################################
-> (gdb) # c02decd6, stack size:  460 bytes #
-> (gdb) ####################################
-> (gdb) 0xc02decd6 is in ip_getsockopt (net/ipv4/ip_sockglue.c:877).
+This patch had added PCI IRQ initialization to TB0219 driver.
+Please apply.
 
-----
-this patch reduces the stack footprint of ip_getsockopt() from 460 bytes 
-to 188 bytes. (note: needs review & testing because i did not excercise 
-this multicast codepath.)
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-Index: linux/net/ipv4/ip_sockglue.c
-===================================================================
---- linux.orig/net/ipv4/ip_sockglue.c
-+++ linux/net/ipv4/ip_sockglue.c
-@@ -1006,20 +1024,28 @@ int ip_getsockopt(struct sock *sk, int l
- 		}
- 		case MCAST_MSFILTER:
- 		{
--			struct group_filter gsf;
-+			struct group_filter *gsf;
- 			int err;
+diff -urN -X dontdiff mm1-orig/drivers/char/tb0219.c mm1/drivers/char/tb0219.c
+--- mm1-orig/drivers/char/tb0219.c	2005-07-06 12:46:33.000000000 +0900
++++ mm1/drivers/char/tb0219.c	2005-07-09 17:26:34.395047032 +0900
+@@ -24,6 +24,8 @@
  
-+			gsf = kmalloc(sizeof(*gsf), GFP_KERNEL);
-+			if (!gsf) {
-+				release_sock(sk);
-+				return -ENOMEM;
-+			}
- 			if (len < GROUP_FILTER_SIZE(0)) {
- 				release_sock(sk);
-+				kfree(gsf);
- 				return -EINVAL;
- 			}
--			if (copy_from_user(&gsf, optval, GROUP_FILTER_SIZE(0))) {
-+			if (copy_from_user(gsf, optval, GROUP_FILTER_SIZE(0))) {
- 				release_sock(sk);
-+				kfree(gsf);
- 				return -EFAULT;
- 			}
--			err = ip_mc_gsfget(sk, &gsf,
-+			err = ip_mc_gsfget(sk, gsf,
- 				(struct group_filter __user *)optval, optlen);
- 			release_sock(sk);
-+			kfree(gsf);
- 			return err;
- 		}
- 		case IP_PKTOPTIONS:		
+ #include <asm/io.h>
+ #include <asm/reboot.h>
++#include <asm/vr41xx/giu.h>
++#include <asm/vr41xx/tb0219.h>
+ 
+ MODULE_AUTHOR("Yoichi Yuasa <yuasa@hh.iij4u.or.jp>");
+ MODULE_DESCRIPTION("TANBAC TB0219 base board driver");
+@@ -266,6 +268,21 @@
+ 	tb0219_write(TB0219_RESET, 0);
+ }
+ 
++static void tb0219_pci_irq_init(void)
++{
++	/* PCI Slot 1 */
++	vr41xx_set_irq_trigger(TB0219_PCI_SLOT1_PIN, IRQ_TRIGGER_LEVEL, IRQ_SIGNAL_THROUGH);
++	vr41xx_set_irq_level(TB0219_PCI_SLOT1_PIN, IRQ_LEVEL_LOW);
++
++	/* PCI Slot 2 */
++	vr41xx_set_irq_trigger(TB0219_PCI_SLOT2_PIN, IRQ_TRIGGER_LEVEL, IRQ_SIGNAL_THROUGH);
++	vr41xx_set_irq_level(TB0219_PCI_SLOT2_PIN, IRQ_LEVEL_LOW);
++
++	/* PCI Slot 3 */
++	vr41xx_set_irq_trigger(TB0219_PCI_SLOT3_PIN, IRQ_TRIGGER_LEVEL, IRQ_SIGNAL_THROUGH);
++	vr41xx_set_irq_level(TB0219_PCI_SLOT3_PIN, IRQ_LEVEL_LOW);
++}
++
+ static int tb0219_probe(struct device *dev)
+ {
+ 	int retval;
+@@ -292,6 +309,8 @@
+ 	old_machine_restart = _machine_restart;
+ 	_machine_restart = tb0219_restart;
+ 
++	tb0219_pci_irq_init();
++
+ 	if (major == 0) {
+ 		major = retval;
+ 		printk(KERN_INFO "TB0219: major number %d\n", major);
+

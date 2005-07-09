@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVGIUa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVGIUeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbVGIUa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 16:30:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVGIUa4
+	id S261722AbVGIUeH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 16:34:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVGIUeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 16:30:56 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:3762 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261721AbVGIUay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 16:30:54 -0400
-Date: Sat, 9 Jul 2005 13:30:36 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: akpm@osdl.org, arjan@infradead.org, azarah@nosferatu.za.org, cw@f00f.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Message-Id: <20050709133036.11e60a3c.rdunlap@xenotime.net>
-In-Reply-To: <1120936561.6488.84.camel@mindpipe>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	<20050708214908.GA31225@taniwha.stupidest.org>
-	<20050708145953.0b2d8030.akpm@osdl.org>
-	<1120928891.17184.10.camel@lycan.lan>
-	<1120932991.6488.64.camel@mindpipe>
-	<1120933916.3176.57.camel@laptopd505.fenrus.org>
-	<1120934163.6488.72.camel@mindpipe>
-	<20050709121212.7539a048.akpm@osdl.org>
-	<1120936561.6488.84.camel@mindpipe>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 9 Jul 2005 16:34:07 -0400
+Received: from [84.77.101.245] ([84.77.101.245]:11153 "EHLO
+	dardhal.24x7linux.com") by vger.kernel.org with ESMTP
+	id S261722AbVGIUeG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 16:34:06 -0400
+Date: Sat, 9 Jul 2005 22:34:03 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [2.6.12-git8] ACPI shutdown fails to power off machine
+Message-ID: <20050709203402.GA4621@localhost>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>,
+	"Eric W. Biederman" <ebiederm@xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 09 Jul 2005 15:16:01 -0400 Lee Revell wrote:
 
-| On Sat, 2005-07-09 at 12:12 -0700, Andrew Morton wrote:
-| > Lee Revell <rlrevell@joe-job.com> wrote:
-| > >
-| > >  > This is not a userspace visible thing really with few exceptions, and
-| > >  > well people can select the one they want, right?
-| > > 
-| > >  Then why not leave the default at 1000?
-| > 
-| > Because some machines exhibit appreciable latency in entering low power
-| > state via ACPI, and 1000Hz reduces their battery life.  By about half,
-| > iirc.
-| > 
-| 
-| Then the owners of such machines can use HZ=250 and leave the default
-| alone.  Why should everyone have to bear the cost?
+--9amGYk9869ThD9tj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-indeed, why should everyone have to have 1000 timer interrupts per second?
+Hi:
 
----
-~Randy
+I realized 2.6.13-rc2 would not power off my box anymore, although it
+worked fine back in 2.6.12. A binary search of intermediate -git patches
+showed that between -git7 and -git8 something broke power down. Every
+kernel used has been compiled from sources downloaded from kernel.org, no
+additional patches, and .config has been exactly the same.
+
+Searching "gitweb" located at www.kernel.org (excelent tool, by the way;
+you rock guys!) starting from "patch-2.6.12-git8.id" tag back in time, I
+located a recent commited patch that, when reversed (against 2.6.12-git8)
+makes power off work again in my box. Patch at:
+http://www.kernel.org/git/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
+commitdiff;h=3Dcee5dab4856f51c5cad3aecc630ad0a4d2217a85
+
+The commit text points to a bugme entry, that seems not to be applicable
+to my situation: stock kernel sources from kernel.org. If you need some
+more info (motherboard make and model, BIOS and version, output from
+"lshw" or "dmidecode", etc.), please ask.
+
+Greetings,
+
+--=20
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.13-rc2)
+
+
+--9amGYk9869ThD9tj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC0DS6ao1/w/yPYI0RAsvVAKCMv0RUxFDG6T7kSzrZnFQJZkeT2wCaA3DL
+CQtWhj3O2BhBo09PG0RMnOE=
+=f2ea
+-----END PGP SIGNATURE-----
+
+--9amGYk9869ThD9tj--

@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVGIRex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVGIRkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbVGIRex (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 13:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVGIRex
+	id S261635AbVGIRkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 13:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbVGIRkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 13:34:53 -0400
-Received: from h80ad2581.async.vt.edu ([128.173.37.129]:37330 "EHLO
-	h80ad2581.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261634AbVGIRew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 13:34:52 -0400
-Message-Id: <200507091734.j69HYerL005546@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Lance <molecularbiophysics@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-kernel Cannot determine dependencies of module piix 
-In-Reply-To: Your message of "Sat, 09 Jul 2005 12:16:46 +0200."
-             <a015f9a005070903165a6248fd@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <a015f9a005070903165a6248fd@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1120930478_8886P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 09 Jul 2005 13:34:38 -0400
+	Sat, 9 Jul 2005 13:40:16 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:63424 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S261635AbVGIRkO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 13:40:14 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-Id: <200507091739.j69Hda5Y031891@einhorn.in-berlin.de>
+Date: Sat, 9 Jul 2005 19:39:36 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: 2.6.13-rc2 compilation errors with linux1394.org rev.1296
+To: linux-kernel@vger.kernel.org
+cc: linux1394-devel@lists.sourceforge.net, bunk@stusta.de, art@usfltd.com,
+       mingo@elte.hu
+In-Reply-To: <42CEF394.9000703@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
+X-Spam-Score: (-0.667) AWL,BAYES_00,MSGID_FROM_MTA_ID
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1120930478_8886P
-Content-Type: text/plain; charset=us-ascii
+I wrote on  8 Jul:
+> Adrian Bunk wrote:
+>> You should tell the developers at linux1394.org (Cc'ed) that they should 
+>> fix it in their tree.
+> 
+> Better yet: Send in a patch.
 
-On Sat, 09 Jul 2005 12:16:46 +0200, Lance said:
+Well, I just bundled the relevant changes in two patches against
+linux1394's trunk (head) and posted them on linux1394-devel.
+http://marc.theaimsgroup.com/?m=112092943630355
+http://marc.theaimsgroup.com/?m=112093021309357
 
-> I  get the message "Cannot determine dependencies of module piix"
-> while running mkinitrd. My apologies that this might me a very
-> "newbie" question. (until now I have compiled upto 2.6.11.12 without
-> any problems.
+HTH,
+-- 
+Stefan Richter
+-=====-=-=-= -=== -=--=
+http://arcgraph.de/sr/
 
-man depmod
-
-You've probably managed to corrupt the modules.dep file somehow.
-
---==_Exmh_1120930478_8886P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFC0AqucC3lWbTT17ARApXFAKDEnstv5/7FhpggQ8MBMaVgF5I+FgCePmDv
-LG8Y2FqijuP6mRstR31gnVQ=
-=3Gmg
------END PGP SIGNATURE-----
-
---==_Exmh_1120930478_8886P--

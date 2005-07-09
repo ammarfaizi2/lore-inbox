@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVGIRbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVGIRex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVGIRbV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 13:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVGIRbV
+	id S261634AbVGIRex (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 13:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVGIRex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 13:31:21 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:8667 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261630AbVGIRbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 13:31:20 -0400
-Subject: Re: [patch] compress the stack layout of do_page_fault(), x86
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <p73ll4f29m7.fsf@verdi.suse.de>
-References: <20050709144116.GA9444@elte.hu.suse.lists.linux.kernel>
-	 <20050709152924.GA13492@elte.hu.suse.lists.linux.kernel>
-	 <p73ll4f29m7.fsf@verdi.suse.de>
-Content-Type: text/plain
-Date: Sat, 09 Jul 2005 19:31:04 +0200
-Message-Id: <1120930264.3176.52.camel@laptopd505.fenrus.org>
+	Sat, 9 Jul 2005 13:34:53 -0400
+Received: from h80ad2581.async.vt.edu ([128.173.37.129]:37330 "EHLO
+	h80ad2581.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261634AbVGIRew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 13:34:52 -0400
+Message-Id: <200507091734.j69HYerL005546@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Lance <molecularbiophysics@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-kernel Cannot determine dependencies of module piix 
+In-Reply-To: Your message of "Sat, 09 Jul 2005 12:16:46 +0200."
+             <a015f9a005070903165a6248fd@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <a015f9a005070903165a6248fd@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: multipart/signed; boundary="==_Exmh_1120930478_8886P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Date: Sat, 09 Jul 2005 13:34:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-09 at 19:05 +0200, Andi Kleen wrote:
-> Ingo Molnar <mingo@elte.hu> writes:
-> >  
-> > +static void force_sig_info_fault(int si_signo, int si_code,
-> > +				 unsigned long address, struct task_struct *tsk)
-> 
-> This won't work with a unit-at-a-time compiler which happily
-> inlines everything static with only a single caller. Use noinline
+--==_Exmh_1120930478_8886P
+Content-Type: text/plain; charset=us-ascii
 
-but.... the x86 kernel is -fno-unit-at-a-time.... for stack reasons ;)
+On Sat, 09 Jul 2005 12:16:46 +0200, Lance said:
 
+> I  get the message "Cannot determine dependencies of module piix"
+> while running mkinitrd. My apologies that this might me a very
+> "newbie" question. (until now I have compiled upto 2.6.11.12 without
+> any problems.
 
+man depmod
+
+You've probably managed to corrupt the modules.dep file somehow.
+
+--==_Exmh_1120930478_8886P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFC0AqucC3lWbTT17ARApXFAKDEnstv5/7FhpggQ8MBMaVgF5I+FgCePmDv
+LG8Y2FqijuP6mRstR31gnVQ=
+=3Gmg
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1120930478_8886P--

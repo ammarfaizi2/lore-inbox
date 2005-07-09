@@ -1,61 +1,35 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbVGHRKE (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 8 Jul 2005 13:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVGHRKE
+	id S263075AbVGICJJ (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 8 Jul 2005 22:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbVGICJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 13:10:04 -0400
-Received: from edumail.co.za ([66.18.70.104]:7300 "EHLO sentechsa.net")
-	by vger.kernel.org with ESMTP id S262726AbVGHRJ7 (ORCPT
+	Fri, 8 Jul 2005 22:09:09 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:27576 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S263075AbVGICI4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 13:09:59 -0400
-X-SpamCatcher-Score: 10 [X]
-From: "arlindo carvalho" <arlindo@edumail.co.za>
-Subject: Partnership
-X-Mailer: CommuniGate Pro WebUser Interface v.4.3.5
-Date: Fri, 08 Jul 2005 19:06:37 +0200
-Message-ID: <web-1137224@cgp8.sentechsa.net>
+	Fri, 8 Jul 2005 22:08:56 -0400
+Message-Id: <200507090208.j6928oLB031695@zeus2.kernel.org>
+Reply-To: <team_sks@yahoo.ca>
+From: "SKS Music" <team_sks@yahoo.ca>
+Subject: H Pisces mailing list
+Date: Fri, 8 Jul 2005 19:08:58 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262726AbVGHRKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S263075AbVGICJJ@vger.kernel.org>
 
-Dear Sir/Madam,
+Hi everybody
 
-My name is Arlindo Carvalho. Am from a small island in
-West Africa called Sao Tome and Principe. I am writing
-you based on an urgent need for a trustworthy and
-reliable representative/associate who will stand on
-behalf of me and my colleagues whom are also in the
-public service of my country for a mutually beneficial
-business.
+It's Rachel here from SKS and we are sorting out our mailing lists finally. Seven years of disarray. Yikes. As it's not our intention to be sending any spam to anyone, please do us the favour of responding to this mail with the word 'Subscribe' in the subject line to remain on the list.
 
-My country is about to commence the exploration and
-drilling of crude oil which is one of the numerous
-natural resources she is endowed with. I and my
-colleagues have plans to invest and own majority of
-the companies that will be appointed to carryout these
-exploration activities about to take place very soon.
+This way we can be sure our list is finally cleaned up and you can continue to receive updates on H Pisces, Living Jane, Bowlox and more!
 
-In order to achieve this aim, we intend to keep the
-funds required for setting up the company in totality
-solely in your care. The funds will be transferred to
-you in form of consultation fees as the name of our
-chosen company will be included amongst companies to
-be invited for this purpose. The funds will in turn be
-used to set up the proposed company with you fronting
-as the owner.
-
-Should you be interested in this proposal, kindly
-state your interest urgently and we will furnish you
-with details as soon as we receive your favorable
-response. If you are not interested in this, kindly
-keep this information very confidential.
-
-I wait for your urgent response.
-
-Yours sincerely,
-
-Arlindo Carvalho
+Thanks and God Bless
+Rachel @ SKS Music

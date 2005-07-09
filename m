@@ -1,86 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263156AbVGIHTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVGIHXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263156AbVGIHTj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 03:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbVGIHTj
+	id S261567AbVGIHXW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 03:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbVGIHXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 03:19:39 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:55487 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263156AbVGIHTi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 03:19:38 -0400
-Date: Sat, 9 Jul 2005 09:19:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Kristian Benoit <kbenoit@opersys.com>
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
-       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT and I-PIPE: the numbers, part 4
-Message-ID: <20050709071911.GB31100@elte.hu>
-References: <42CF05BE.3070908@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42CF05BE.3070908@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 9 Jul 2005 03:23:21 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:30340 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S261567AbVGIHXU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 03:23:20 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-Id: <200507090722.j697Mcrv015292@einhorn.in-berlin.de>
+Date: Sat, 9 Jul 2005 09:22:38 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [2.6 patch] drivers/ieee1394/: schedule unused EXPORT_SYMBOL's
+ for removal
+To: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+cc: scjody@modernduck.com, bunk@stusta.de
+In-Reply-To: <20050709030734.GD28243@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
+X-Spam-Score: (-0.679) AWL,BAYES_00,MSGID_FROM_MTA_ID
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On  9 Jul, Adrian Bunk wrote:
+> On Thu, Jul 07, 2005 at 09:30:21PM +0200, Stefan Richter wrote:
+>> Now that we are at it, the following EXPORT_SYMBOLs should be removed too...
+>> 	_csr1212_read_keyval
+> used in sbp2.c
+>> 	_csr1212_destroy_keyval
+> used in raw1394.c
 
-* Kristian Benoit <kbenoit@opersys.com> wrote:
+You are right.
 
-> The numbers for PREEMPT_RT, however, have dramatically improved. All 
-> the 50%+ overhead we saw earlier has now gone away completely. The 
-> improvement is in fact nothing short of amazing. We were actually so 
-> surprised that we went around looking for any mistakes we may have 
-> done in our testing. We haven't found any though. So unless someone 
-> comes out with another set of numbers showing differently, we think 
-> that a warm round of applause should go to the PREEMPT_RT folks. If 
-> nothing else, it gives us satisfaction to know that these test rounds 
-> have helped make things better.
 
-yeah, they definitely have helped, and thanks for this round of testing 
-too! I'll explain the recent changes to PREEMPT_RT that resulted in 
-these speedups in another mail.
+<--  snip  -->
 
-Looking at your numbers i realized that the area where PREEMPT_RT is 
-still somewhat behind (the flood ping +~10% overhead), you might be 
-using an invalid test methodology:
 
-> ping           = on host: "sudo ping -f $TARGET_IP_ADDR"
 
-i've done a couple of ping -f flood tests between various testboxes 
-myself, and one thing i found was that it's close to impossible to 
-create a stable, comparable packets per second workload! The pps rate 
-heavily fluctuated even within the same testrun. Another phenomenon i 
-noticed is that the PREEMPT_RT kernel has a tendency to handle _more_ 
-ping packets per second, while the vanilla (and thus i suspect the 
-i-pipe) kernel throws away more packets.
+This patch schedules unused EXPORT_SYMBOL's for removal.
 
-Thus lmbench under PREEMPT_RT may perform 'slower', but in fact it was 
-just an unbalanced and thus unfair test. Once i created a stable packet 
-rate, PREEMPT_RT's IRQ overhead became acceptable.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 
-(if your goal was to check how heavily external interrupts can influence 
-a PREEMPT_RT box, you should chrt the network IRQ thread to SCHED_OTHER 
-and renice it and softirq-net-rx and softirq-net-tx to nice +19.)
+---
 
-this phenomenon could be a speciality of my network setup, but still, 
-could you please verify the comparability of the ping -f workloads on 
-the vanilla and the PREEMPT_RT kernels? In particular, the interrupt 
-rate should be constant and comparable - but it might be better to look 
-at both the received and transmitted packets per second. (Since things 
-like iptraf are quite expensive when flood pinging is going on, the best 
-way i found to measure the packet rate was to process netstat -s output 
-via a simple script.)
+ Documentation/feature-removal-schedule.txt |   21 ++++++++++++++
+ drivers/ieee1394/ieee1394_core.c           |   31 +++++++++++++++++++++
+ 2 files changed, 52 insertions(+)
 
-	Ingo
+--- linux-2.6.12-rc4-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-05-13 15:19:54.000000000 +0200
++++ linux-2.6.12-rc4-mm1-full/Documentation/feature-removal-schedule.txt	2005-05-13 15:29:24.000000000 +0200
+@@ -93,0 +94,21 @@
++
++---------------------------
++
++What:	remove the following ieee1394 EXPORT_SYMBOL's:
++	- hpsb_send_phy_config
++	- hpsb_send_packet_and_wait
++	- highlevel_add_host
++	- highlevel_remove_host
++	- nodemgr_for_each_host
++	- csr1212_create_csr
++	- csr1212_init_local_csr
++	- csr1212_new_immediate
++	- csr1212_associate_keyval
++	- csr1212_new_string_descriptor_leaf
++	- csr1212_destroy_csr
++	- csr1212_generate_csr_image
++	- csr1212_parse_csr
++When:	August 2005
++Files:	drivers/ieee1394/ieee1394_core.c
++Why:	No modular usage in the kernel.
++Who:	Adrian Bunk <bunk@stusta.de>
+--- linux-2.6.12-rc4-mm1-full/drivers/ieee1394/ieee1394_core.c.old	2005-05-13 15:19:34.000000000 +0200
++++ linux-2.6.12-rc4-mm1-full/drivers/ieee1394/ieee1394_core.c	2005-05-13 15:28:17.000000000 +0200
+@@ -1226,7 +1226,13 @@
+ EXPORT_SYMBOL(hpsb_alloc_packet);
+ EXPORT_SYMBOL(hpsb_free_packet);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(hpsb_send_phy_config);
++
+ EXPORT_SYMBOL(hpsb_send_packet);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(hpsb_send_packet_and_wait);
++
+ EXPORT_SYMBOL(hpsb_reset_bus);
+ EXPORT_SYMBOL(hpsb_bus_reset);
+@@ -1265,6 +1271,11 @@
+ EXPORT_SYMBOL(hpsb_get_hostinfo_bykey);
+ EXPORT_SYMBOL(hpsb_set_hostinfo);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(highlevel_add_host);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(highlevel_remove_host);
++
+ EXPORT_SYMBOL(highlevel_host_reset);
+ 
+@@ -1275,4 +1286,6 @@
+ EXPORT_SYMBOL(hpsb_unregister_protocol);
+ EXPORT_SYMBOL(ieee1394_bus_type);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(nodemgr_for_each_host);
+ 
+@@ -1312,18 +1325,36 @@
+ 
+ /** csr1212.c **/
++
++/* EXPORT_SYMBOLs scheduled for removal */
+ EXPORT_SYMBOL(csr1212_create_csr);
+ EXPORT_SYMBOL(csr1212_init_local_csr);
+ EXPORT_SYMBOL(csr1212_new_immediate);
++
+ EXPORT_SYMBOL(csr1212_new_directory);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(csr1212_associate_keyval);
++
+ EXPORT_SYMBOL(csr1212_attach_keyval_to_directory);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(csr1212_new_string_descriptor_leaf);
++
+ EXPORT_SYMBOL(csr1212_detach_keyval_from_directory);
+ EXPORT_SYMBOL(csr1212_release_keyval);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(csr1212_destroy_csr);
++
+ EXPORT_SYMBOL(csr1212_read);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(csr1212_generate_csr_image);
++
+ EXPORT_SYMBOL(csr1212_parse_keyval);
++
++/* EXPORT_SYMBOL scheduled for removal */
+ EXPORT_SYMBOL(csr1212_parse_csr);
++
+ EXPORT_SYMBOL(_csr1212_read_keyval);
+ EXPORT_SYMBOL(_csr1212_destroy_keyval);
+
+

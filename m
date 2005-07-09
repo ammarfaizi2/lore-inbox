@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVGITRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVGITTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbVGITRD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 15:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVGITRC
+	id S261705AbVGITTO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 15:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVGITRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 15:17:02 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:16552 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261712AbVGITQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 15:16:02 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: arjan@infradead.org, azarah@nosferatu.za.org, cw@f00f.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
-In-Reply-To: <20050709121212.7539a048.akpm@osdl.org>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	 <20050708214908.GA31225@taniwha.stupidest.org>
-	 <20050708145953.0b2d8030.akpm@osdl.org>
-	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
-	 <1120933916.3176.57.camel@laptopd505.fenrus.org>
-	 <1120934163.6488.72.camel@mindpipe> <20050709121212.7539a048.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 09 Jul 2005 15:16:01 -0400
-Message-Id: <1120936561.6488.84.camel@mindpipe>
+	Sat, 9 Jul 2005 15:17:07 -0400
+Received: from mx2.suse.de ([195.135.220.15]:30080 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261705AbVGITPZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 15:15:25 -0400
+Date: Sat, 9 Jul 2005 21:15:01 +0200
+From: Andi Kleen <ak@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] compress the stack layout of do_page_fault(), x86
+Message-ID: <20050709191501.GA9068@wotan.suse.de>
+References: <20050709144116.GA9444@elte.hu.suse.lists.linux.kernel> <20050709152924.GA13492@elte.hu.suse.lists.linux.kernel> <p73ll4f29m7.fsf@verdi.suse.de> <1120930264.3176.52.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120930264.3176.52.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-09 at 12:12 -0700, Andrew Morton wrote:
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> >
-> >  > This is not a userspace visible thing really with few exceptions, and
-> >  > well people can select the one they want, right?
+On Sat, Jul 09, 2005 at 07:31:04PM +0200, Arjan van de Ven wrote:
+> On Sat, 2005-07-09 at 19:05 +0200, Andi Kleen wrote:
+> > Ingo Molnar <mingo@elte.hu> writes:
+> > >  
+> > > +static void force_sig_info_fault(int si_signo, int si_code,
+> > > +				 unsigned long address, struct task_struct *tsk)
 > > 
-> >  Then why not leave the default at 1000?
+> > This won't work with a unit-at-a-time compiler which happily
+> > inlines everything static with only a single caller. Use noinline
 > 
-> Because some machines exhibit appreciable latency in entering low power
-> state via ACPI, and 1000Hz reduces their battery life.  By about half,
-> iirc.
-> 
+> but.... the x86 kernel is -fno-unit-at-a-time.... for stack reasons ;)
 
-Then the owners of such machines can use HZ=250 and leave the default
-alone.  Why should everyone have to bear the cost?
+The gcc people are making noises of removing that. So eventually
+it will need to go.
 
-Lee
+Also some kernels are compiled with that option removed and it works
+just fine.
 
+-Andi

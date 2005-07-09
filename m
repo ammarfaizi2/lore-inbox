@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVGITox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVGITri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbVGITox (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 15:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVGITox
+	id S261706AbVGITri (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 15:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVGITri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 15:44:53 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:49869 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S261716AbVGITow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 15:44:52 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-Id: <200507091944.j69Jhv5Y008419@einhorn.in-berlin.de>
-Date: Sat, 9 Jul 2005 21:43:57 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [2.6 patch] drivers/ieee1394/: schedule unused EXPORT_SYMBOL's
- for removal
-To: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-cc: bcollins@debian.org, scjody@modernduck.com, bunk@stusta.de
-In-Reply-To: <20050709185557.GI28243@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-X-Spam-Score: (-0.665) AWL,BAYES_00,MSGID_FROM_MTA_ID
+	Sat, 9 Jul 2005 15:47:38 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:40615 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261706AbVGITrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 15:47:36 -0400
+Subject: Re: [patch] compress the stack layout of do_page_fault(), x86
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050709191501.GA9068@wotan.suse.de>
+References: <20050709144116.GA9444@elte.hu.suse.lists.linux.kernel>
+	 <20050709152924.GA13492@elte.hu.suse.lists.linux.kernel>
+	 <p73ll4f29m7.fsf@verdi.suse.de>
+	 <1120930264.3176.52.camel@laptopd505.fenrus.org>
+	 <20050709191501.GA9068@wotan.suse.de>
+Content-Type: text/plain
+Date: Sat, 09 Jul 2005 21:47:26 +0200
+Message-Id: <1120938446.3176.59.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Sat, Jul 09, 2005 at 03:50:35AM -0400, Ben Collins wrote:
->> Can we, instead of removing these, wrap then in a "Export full API" config
->> option? I've already got several reports from external projects that are
+On Sat, 2005-07-09 at 21:15 +0200, Andi Kleen wrote:
+> On Sat, Jul 09, 2005 at 07:31:04PM +0200, Arjan van de Ven wrote:
+> > On Sat, 2005-07-09 at 19:05 +0200, Andi Kleen wrote:
+> > > Ingo Molnar <mingo@elte.hu> writes:
+> > > >  
+> > > > +static void force_sig_info_fault(int si_signo, int si_code,
+> > > > +				 unsigned long address, struct task_struct *tsk)
+> > > 
+> > > This won't work with a unit-at-a-time compiler which happily
+> > > inlines everything static with only a single caller. Use noinline
+> > 
+> > but.... the x86 kernel is -fno-unit-at-a-time.... for stack reasons ;)
 > 
-> This will end in all distributions having this option enabled resulting 
-> in no change compared to todays status quo.
+> The gcc people are making noises of removing that. So eventually
+> it will need to go.
 
-I disagree. Distributors, especially those oriented towards private/
-SOHO/ big commercial customers, don't need to care much for classroom
-projects or the hacker next door. Distributors will not enable this
-option once it defaults to off in mainline. This config option is
-ultimately *no* solution for commercial support of external drivers,
-regardless whether they are free software or unfree. The patch does not
-attempt to establish a warranted managed API.
-
->> using most of these exported symbols, and I'd hate to make it harder on
->> them to use our drivers (for internal projects or otherwise).
-> 
-> What are these external projects?
-
-There are countless FireWire related projects, especially in academia.
-For example, FireWire seems to be a hit in robotics. We at
-linux1394-devel may not even hear about what they are doing in
-particular but we do get feedback, bugfixes, and improvements from them.
-For them, Linux' IEEE 1394 stack may be only one choice out of several,
-including stacks in the big desktop operating systems or in various
-embedded OSs. So in my personal opinion, it is in best interest for
-Linux' 1394 stack if we can keep these people motivated to stick with
-Linux.
-
-> Is they are internal projects, re-adding the EXPORT_SYMBOL's should be 
-> trivial for them.
-
-We make it even more trivial by providing a compile option for that. The
-cost is minimal.
--- 
-Stefan Richter
--=====-=-=-= -=== -=--=
-http://arcgraph.de/sr/
+the gcc people also fixed the stack usage on inlining (at least this
+specific class) in CVS HEAD so the "problem" is a lot smaller whenever
+they make it go away.
 

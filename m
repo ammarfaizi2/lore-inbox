@@ -1,66 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263152AbVGIGX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263156AbVGIHTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbVGIGX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 02:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbVGIGX5
+	id S263156AbVGIHTj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 03:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbVGIHTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 02:23:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:3478 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263152AbVGIGX4 (ORCPT
+	Sat, 9 Jul 2005 03:19:39 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:55487 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263156AbVGIHTi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 02:23:56 -0400
-Date: Sat, 9 Jul 2005 08:25:28 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Fix broken kmalloc_node in rc1/rc2
-Message-ID: <20050709062528.GC7050@suse.de>
-References: <Pine.LNX.4.62.0507061042460.30563@graphe.net>
+	Sat, 9 Jul 2005 03:19:38 -0400
+Date: Sat, 9 Jul 2005 09:19:11 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Kristian Benoit <kbenoit@opersys.com>
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
+       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT and I-PIPE: the numbers, part 4
+Message-ID: <20050709071911.GB31100@elte.hu>
+References: <42CF05BE.3070908@opersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0507061042460.30563@graphe.net>
+In-Reply-To: <42CF05BE.3070908@opersys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 06 2005, Christoph Lameter wrote:
-> This patch used to be in Andrew's tree before the NUMA slab allocator went 
-> in. Either this patch or the NUMA slab allocator is needed in order for
-> kmalloc_node to work correctly.
-> 
-> pcibus_to_node may be used to generate the node information passed to 
-> kmalloc_node. pcibus_to_node returns -1 if it was not able to determine
-> on which node a pcibus is located. For that case kmalloc_node must
-> work like kmalloc.
-> 
-> Signed-off-by: Christoph Lameter <christoph@lameter.com>
-> 
-> Index: linux-2.6.13-rc2/mm/slab.c
-> ===================================================================
-> --- linux-2.6.13-rc2.orig/mm/slab.c	2005-07-06 03:46:33.000000000 +0000
-> +++ linux-2.6.13-rc2/mm/slab.c	2005-07-06 17:34:19.000000000 +0000
-> @@ -2372,6 +2372,9 @@ void *kmem_cache_alloc_node(kmem_cache_t
->  	struct slab *slabp;
->  	kmem_bufctl_t next;
->  
-> +	if (nodeid == -1)
-> +		return kmem_cache_alloc(cachep, flags);
-> +
->  	for (loop = 0;;loop++) {
->  		struct list_head *q;
 
-imho, things like this are much cleaner coded as:
+* Kristian Benoit <kbenoit@opersys.com> wrote:
 
-void *kmem_cache_alloc_node(cachep, flags, node)
-{
-        if (node != -1)
-                return __kmem_cache_alloc_node(cachep, flags, node);
+> The numbers for PREEMPT_RT, however, have dramatically improved. All 
+> the 50%+ overhead we saw earlier has now gone away completely. The 
+> improvement is in fact nothing short of amazing. We were actually so 
+> surprised that we went around looking for any mistakes we may have 
+> done in our testing. We haven't found any though. So unless someone 
+> comes out with another set of numbers showing differently, we think 
+> that a warm round of applause should go to the PREEMPT_RT folks. If 
+> nothing else, it gives us satisfaction to know that these test rounds 
+> have helped make things better.
 
-        /* no valid node, fall back to regular slab alloc */
-        return kmem_cache_alloc(cachep, flags);
+yeah, they definitely have helped, and thanks for this round of testing 
+too! I'll explain the recent changes to PREEMPT_RT that resulted in 
+these speedups in another mail.
 
-}
+Looking at your numbers i realized that the area where PREEMPT_RT is 
+still somewhat behind (the flood ping +~10% overhead), you might be 
+using an invalid test methodology:
 
--- 
-Jens Axboe
+> ping           = on host: "sudo ping -f $TARGET_IP_ADDR"
 
+i've done a couple of ping -f flood tests between various testboxes 
+myself, and one thing i found was that it's close to impossible to 
+create a stable, comparable packets per second workload! The pps rate 
+heavily fluctuated even within the same testrun. Another phenomenon i 
+noticed is that the PREEMPT_RT kernel has a tendency to handle _more_ 
+ping packets per second, while the vanilla (and thus i suspect the 
+i-pipe) kernel throws away more packets.
+
+Thus lmbench under PREEMPT_RT may perform 'slower', but in fact it was 
+just an unbalanced and thus unfair test. Once i created a stable packet 
+rate, PREEMPT_RT's IRQ overhead became acceptable.
+
+(if your goal was to check how heavily external interrupts can influence 
+a PREEMPT_RT box, you should chrt the network IRQ thread to SCHED_OTHER 
+and renice it and softirq-net-rx and softirq-net-tx to nice +19.)
+
+this phenomenon could be a speciality of my network setup, but still, 
+could you please verify the comparability of the ping -f workloads on 
+the vanilla and the PREEMPT_RT kernels? In particular, the interrupt 
+rate should be constant and comparable - but it might be better to look 
+at both the received and transmitted packets per second. (Since things 
+like iptraf are quite expensive when flood pinging is going on, the best 
+way i found to measure the packet rate was to process netstat -s output 
+via a simple script.)
+
+	Ingo

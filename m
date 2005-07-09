@@ -1,79 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263012AbVGIBYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263029AbVGIB2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263012AbVGIBYp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 21:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263022AbVGIBYo
+	id S263029AbVGIB2I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 21:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263031AbVGIB2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 21:24:44 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:63238 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263012AbVGIBYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 21:24:04 -0400
-Date: Sat, 9 Jul 2005 03:24:00 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [2.6 patch] SCSI_SATA has to be a tristate
-Message-ID: <20050709012359.GO3671@stusta.de>
-References: <20050708214802.GK3671@stusta.de> <Pine.LNX.4.61.0507090134040.3743@scrub.home>
+	Fri, 8 Jul 2005 21:28:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20194 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263029AbVGIB0x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 21:26:53 -0400
+Date: Fri, 8 Jul 2005 18:24:36 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Robert Love <rml@novell.com>, ttb@tentacle.dhs.org
+Cc: linux-kernel@vger.kernel.org, linux-audit@redhat.com,
+       David Woodhouse <dwmw2@infradead.org>,
+       "Timothy R. Chavez" <tinytim@us.ibm.com>
+Subject: [RFC/PATCH 0/2] fsnotify/inotify split
+Message-ID: <20050709012436.GD19052@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0507090134040.3743@scrub.home>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 09, 2005 at 01:36:08AM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Fri, 8 Jul 2005, Adrian Bunk wrote:
-> 
-> > --- linux-2.6.13-rc1-mm1/drivers/scsi/Kconfig.old	2005-07-02 21:57:40.000000000 +0200
-> > +++ linux-2.6.13-rc1-mm1/drivers/scsi/Kconfig	2005-07-02 21:58:06.000000000 +0200
-> > @@ -447,7 +447,7 @@
-> >  source "drivers/scsi/megaraid/Kconfig.megaraid"
-> >  
-> >  config SCSI_SATA
-> > -	bool "Serial ATA (SATA) support"
-> > +	tristate "Serial ATA (SATA) support"
-> >  	depends on SCSI
-> >  	help
-> >  	  This driver family supports Serial ATA host controllers
-> 
-> Did you verify that this works?
-> Overwise "depends on SCSI=y" might also be correct.
+The following two patches simply split fsnotify from inotify.
+There should be no functional change to inotify at all.  Perhaps the
+split will help identify the interface bits that can easily converge
+for inotify and audit.  They're completely untested...  I started with
+inotify-45 in 2.6.13-rc2-mm1, and worked against base 2.6.13-rc2.
 
-Yes, I did.
+My first pass was trivial split, this is my second pass which moves
+dnotify and inotify functionality out of fsnotify.h into their respective
+corners.  I'm sure audit can at least use the hooks, and perhaps more
+base inode watch functionality could be shared (at no cost to you! ;-)
+moving forward.
 
-The problem is that all the SATA drivers depend on SCSI_SATA.
-
-With SCSI=m and SCSI_SATA=y this allows the static enabling of the SATA 
-drivers with unwanted effects, e.g.:
-- SCSI=m, SCSI_SATA=y, SCSI_ATA_ADMA=y
-  -> SCSI_ATA_ADMA is built statically but scsi/built-in.o is not linked 
-     into the kernel
-- SCSI=m, SCSI_SATA=y, SCSI_ATA_ADMA=y, SCSI_SATA_AHCI=m
-  -> SCSI_ATA_ADMA and libata are built statically but 
-     scsi/built-in.o is not linked into the kernel,
-     SCSI_SATA_AHCI is built modular (unresolved symbols due to missing 
-                                      libata)
-
-Making SCSI_SATA a tristate solves all these problems.
-
-"depends on SCSI=y" would also solve these problems, but it would leave 
-people with modular SCSI without SATA support...
-
-> bye, Roman
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+thanks,
+-chris

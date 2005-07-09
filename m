@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVGITEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVGITNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbVGITEX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 15:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVGITEX
+	id S261699AbVGITNU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 15:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVGITNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 15:04:23 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:34317 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261695AbVGITEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 15:04:21 -0400
-Date: Sat, 9 Jul 2005 21:04:17 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: chas@cmf.nrl.navy.mil, linux-atm-general@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       Jesper Juhl <juhl-lkml@dif.dk>
-Subject: [2.6 patch] net/Kconfig: two ATM-related spelling fixes
-Message-ID: <20050709190417.GJ28243@stusta.de>
+	Sat, 9 Jul 2005 15:13:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59290 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261699AbVGITNS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 15:13:18 -0400
+Date: Sat, 9 Jul 2005 12:12:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: arjan@infradead.org, azarah@nosferatu.za.org, cw@f00f.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Message-Id: <20050709121212.7539a048.akpm@osdl.org>
+In-Reply-To: <1120934163.6488.72.camel@mindpipe>
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	<20050708214908.GA31225@taniwha.stupidest.org>
+	<20050708145953.0b2d8030.akpm@osdl.org>
+	<1120928891.17184.10.camel@lycan.lan>
+	<1120932991.6488.64.camel@mindpipe>
+	<1120933916.3176.57.camel@laptopd505.fenrus.org>
+	<1120934163.6488.72.camel@mindpipe>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial spelling fix patch for net/Kconfig
+Lee Revell <rlrevell@joe-job.com> wrote:
+>
+>  > This is not a userspace visible thing really with few exceptions, and
+>  > well people can select the one they want, right?
+> 
+>  Then why not leave the default at 1000?
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was sent by Jesper Juhl on:
-- 16 Mar 2005
-
---- linux-2.6.11-mm4-orig/net/Kconfig	2005-03-16 15:45:41.000000000 +0100
-+++ linux-2.6.11-mm4/net/Kconfig	2005-03-16 20:54:23.000000000 +0100
-@@ -281,7 +281,7 @@
- 	tristate "RFC1483/2684 Bridged protocols"
- 	depends on ATM && INET
- 	help
--	  ATM PVCs can carry ethernet PDUs according to rfc2684 (formerly 1483)
-+	  ATM PVCs can carry ethernet PDUs according to RFC2684 (formerly 1483)
- 	  This device will act like an ethernet from the kernels point of view,
- 	  with the traffic being carried by ATM PVCs (currently 1 PVC/device).
- 	  This is sometimes used over DSL lines.  If in doubt, say N.
-@@ -290,7 +290,7 @@
- 	bool "Per-VC IP filter kludge"
- 	depends on ATM_BR2684
- 	help
--	  This is an experimental mechanism for users who need to terminating a
-+	  This is an experimental mechanism for users who need to terminate a
- 	  large number of IP-only vcc's.  Do not enable this unless you are sure
- 	  you know what you are doing.
- 
-
-
+Because some machines exhibit appreciable latency in entering low power
+state via ACPI, and 1000Hz reduces their battery life.  By about half,
+iirc.

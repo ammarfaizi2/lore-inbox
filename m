@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbVGICkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263086AbVGIC6C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbVGICkG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 22:40:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbVGICkG
+	id S263086AbVGIC6C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 22:58:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbVGIC6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 22:40:06 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18857 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263085AbVGICkE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 22:40:04 -0400
-Date: Fri, 8 Jul 2005 19:40:00 -0700
-From: Greg KH <greg@kroah.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
+	Fri, 8 Jul 2005 22:58:02 -0400
+Received: from bay20-f7.bay20.hotmail.com ([64.4.54.96]:19539 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263086AbVGIC6A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 22:58:00 -0400
+Message-ID: <BAY20-F7DB5F47EFD2E102B0FFD2C4DA0@phx.gbl>
+X-Originating-IP: [65.64.155.98]
+X-Originating-Email: [jonschindler@hotmail.com]
+In-Reply-To: <20050709005638.GE21330@wotan.suse.de>
+From: "Jon Schindler" <jonschindler@hotmail.com>
+To: ak@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.6.13-rc1] driver core: subclasses
-Message-ID: <20050709024000.GA7608@kroah.com>
-References: <20050708225448.GA18193@lists.us.dell.com>
+Subject: Re: USB storage does not work with 3GB of RAM, but does with 2G of RAM
+Date: Fri, 08 Jul 2005 22:57:58 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050708225448.GA18193@lists.us.dell.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 09 Jul 2005 02:57:59.0421 (UTC) FILETIME=[03A392D0:01C58432]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 08, 2005 at 05:54:48PM -0500, Matt Domsch wrote:
-> Greg,
-> 
-> The below patch is a first pass at implementing subclasses, for review
-> and comment.
-> 
-> As a test, I modified drivers/input/input.c to allocate a new class,
-> and register it as a subclass.
-> 
-> Before:
-> 
-> /sys/class/input/
-> /sys/class/input_device/
-> 
-> After:
-> /sys/class/input/input_device/
+Do you know if there is a way to tell the ehci driver to do the DMA at a 
+lower memory address?  i.e. tell the kernel to reserve a block of memory (as 
+a boot option) and then tell the ehci driver to use that area of RAM 
+instead?
 
-Oops, when you mentioned this on irc, I thought you were referring to
-class_devices not classes.  I don't want classes to be able to be
-nested, only class devices.
+Thanks again for your help,
 
-I don't see a need for nested classes, as I thought the input thread had
-resolved itself so that it didn't need it (but I stopped paying
-attention, sorry, so I might be wrong here...)
+Jon
 
-Why can't you just use class_device's that can have children?  That way
-the /sys/block stuff could be converted to also use this.
+>From: Andi Kleen <ak@suse.de>
+>To: Jon Schindler <jonschindler@hotmail.com>
+>CC: ak@suse.de, linux-kernel@vger.kernel.org
+>Subject: Re: USB storage does not work with 3GB of RAM, but does with 2G of 
+>RAM
+>Date: Sat, 9 Jul 2005 02:56:38 +0200
+>
+>On Fri, Jul 08, 2005 at 08:49:12PM -0400, Jon Schindler wrote:
+> > Hi Andi,
+> >
+> > As you suggested, removing ehci_hcd (using rmmod ehci_hcd) allows the 
+>USB
+> > storage device to work.  So, to answer your question, yes, the ohci_hcd
+> > driver does work with 3GB's of RAM.  Still, knoppix 3.9 IS able to work
+> > with both ehci and 3GB's of RAM, so it still sounds like it's a software
+> > problem, not an nvidia hardware issue.
+>
+>Knoppix is 32bit I guess. The 32bit kernel will do a lot of DMA
+>only in the first 800-900MB (lowmem)
+>
+>-Andi
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-thanks,
 
-greg k-h

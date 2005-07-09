@@ -1,251 +1,231 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263065AbVGIBzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263072AbVGIB4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263065AbVGIBzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 21:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbVGIBzQ
+	id S263072AbVGIB4r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 21:56:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263073AbVGIB4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 21:55:16 -0400
-Received: from silver.veritas.com ([143.127.12.111]:4679 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S263065AbVGIBzO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 21:55:14 -0400
-Date: Sat, 9 Jul 2005 02:56:34 +0100 (BST)
+	Fri, 8 Jul 2005 21:56:46 -0400
+Received: from gold.veritas.com ([143.127.12.110]:59657 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S263072AbVGIB4S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 21:56:18 -0400
+Date: Sat, 9 Jul 2005 02:57:39 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: Mauricio Lin <mauriciolin@gmail.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] smaps say vma not map
-Message-ID: <Pine.LNX.4.61.0507090253270.15778@goblin.wat.veritas.com>
+Subject: [PATCH 2/2] smaps use new ptwalks
+In-Reply-To: <Pine.LNX.4.61.0507090253270.15778@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0507090256430.15778@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0507090253270.15778@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Jul 2005 01:55:13.0141 (UTC) FILETIME=[3EC2DA50:01C58429]
+X-OriginalArrivalTime: 09 Jul 2005 01:56:17.0915 (UTC) FILETIME=[655E94B0:01C58429]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/proc/$pid/smaps show_smap has followed show_map in using variable name
-"map" where we would usually say "vma": change them to "vma" throughout.
+/proc/$pid/smaps code was based on the old ptwalking style just as we
+converted over to the p?d_addr_end style: convert it to the new style.
+
+Do an easy cond_resched_lock at the end of each page table: looking at
+the struct page of every pte will be heavy on the cache, and others are
+likely to hack on this example, so better limit its still poor latency.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- fs/proc/task_mmu.c |   98 ++++++++++++++++++++++++++---------------------------
- 1 files changed, 49 insertions(+), 49 deletions(-)
+ fs/proc/task_mmu.c |  150 ++++++++++++++++++++---------------------------------
+ 1 files changed, 58 insertions(+), 92 deletions(-)
 
---- 2.6.13-rc2-mm1/fs/proc/task_mmu.c	2005-07-07 12:33:19.000000000 +0100
-+++ smaps1/fs/proc/task_mmu.c	2005-07-09 02:14:05.000000000 +0100
-@@ -93,46 +93,46 @@ static void pad_len_spaces(struct seq_fi
- static int show_map(struct seq_file *m, void *v)
+--- smaps1/fs/proc/task_mmu.c	2005-07-09 02:14:05.000000000 +0100
++++ smaps2/fs/proc/task_mmu.c	2005-07-09 02:29:33.000000000 +0100
+@@ -158,120 +158,88 @@ struct mem_size_stats
+ 	unsigned long private_dirty;
+ };
+ 
+-static void smaps_pte_range(pmd_t *pmd,
+-			    unsigned long address,
+-			    unsigned long size,
+-			    struct mem_size_stats *mss)
++static void smaps_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
++				unsigned long addr, unsigned long end,
++				struct mem_size_stats *mss)
  {
- 	struct task_struct *task = m->private;
--	struct vm_area_struct *map = v;
--	struct mm_struct *mm = map->vm_mm;
--	struct file *file = map->vm_file;
--	int flags = map->vm_flags;
-+	struct vm_area_struct *vma = v;
-+	struct mm_struct *mm = vma->vm_mm;
-+	struct file *file = vma->vm_file;
-+	int flags = vma->vm_flags;
- 	unsigned long ino = 0;
- 	dev_t dev = 0;
- 	int len;
+-	pte_t *ptep, pte;
+-	unsigned long end;
++	pte_t *pte, ptent;
+ 	unsigned long pfn;
+ 	struct page *page;
  
- 	if (file) {
--		struct inode *inode = map->vm_file->f_dentry->d_inode;
-+		struct inode *inode = vma->vm_file->f_dentry->d_inode;
- 		dev = inode->i_sb->s_dev;
- 		ino = inode->i_ino;
- 	}
+-	if (pmd_none(*pmd))
+-		return;
+-	if (unlikely(pmd_bad(*pmd))) {
+-		pmd_ERROR(*pmd);
+-		pmd_clear(pmd);
+-		return;
+-	}
+-	ptep = pte_offset_map(pmd, address);
+-	address &= ~PMD_MASK;
+-	end = address + size;
+-	if (end > PMD_SIZE)
+-		end = PMD_SIZE;
++	pte = pte_offset_map(pmd, addr);
+ 	do {
+-		pte = *ptep;
+-		address += PAGE_SIZE;
+-		ptep++;
+-
+-		if (pte_none(pte) || (!pte_present(pte)))
++		ptent = *pte;
++		if (pte_none(ptent) || !pte_present(ptent))
+ 			continue;
  
- 	seq_printf(m, "%08lx-%08lx %c%c%c%c %08lx %02x:%02x %lu %n",
--			map->vm_start,
--			map->vm_end,
-+			vma->vm_start,
-+			vma->vm_end,
- 			flags & VM_READ ? 'r' : '-',
- 			flags & VM_WRITE ? 'w' : '-',
- 			flags & VM_EXEC ? 'x' : '-',
- 			flags & VM_MAYSHARE ? 's' : 'p',
--			map->vm_pgoff << PAGE_SHIFT,
-+			vma->vm_pgoff << PAGE_SHIFT,
- 			MAJOR(dev), MINOR(dev), ino, &len);
- 
- 	/*
- 	 * Print the dentry name for named mappings, and a
- 	 * special [heap] marker for the heap:
- 	 */
--	if (map->vm_file) {
-+	if (vma->vm_file) {
- 		pad_len_spaces(m, len);
- 		seq_path(m, file->f_vfsmnt, file->f_dentry, "");
- 	} else {
- 		if (mm) {
--			if (map->vm_start <= mm->start_brk &&
--						map->vm_end >= mm->brk) {
-+			if (vma->vm_start <= mm->start_brk &&
-+						vma->vm_end >= mm->brk) {
- 				pad_len_spaces(m, len);
- 				seq_puts(m, "[heap]");
- 			} else {
--				if (map->vm_start <= mm->start_stack &&
--					map->vm_end >= mm->start_stack) {
-+				if (vma->vm_start <= mm->start_stack &&
-+					vma->vm_end >= mm->start_stack) {
- 
- 					pad_len_spaces(m, len);
- 					seq_puts(m, "[stack]");
-@@ -144,8 +144,8 @@ static int show_map(struct seq_file *m, 
+ 		mss->resident += PAGE_SIZE;
+-		pfn = pte_pfn(pte);
+-		if (pfn_valid(pfn)) {
+-			page = pfn_to_page(pfn);
+-			if (page_count(page) >= 2) {
+-				if (pte_dirty(pte))
+-					mss->shared_dirty += PAGE_SIZE;
+-				else
+-					mss->shared_clean += PAGE_SIZE;
+-			} else {
+-				if (pte_dirty(pte))
+-					mss->private_dirty += PAGE_SIZE;
+-				else
+-					mss->private_clean += PAGE_SIZE;
+-			}
++		pfn = pte_pfn(ptent);
++		if (!pfn_valid(pfn))
++			continue;
++
++		page = pfn_to_page(pfn);
++		if (page_count(page) >= 2) {
++			if (pte_dirty(ptent))
++				mss->shared_dirty += PAGE_SIZE;
++			else
++				mss->shared_clean += PAGE_SIZE;
++		} else {
++			if (pte_dirty(ptent))
++				mss->private_dirty += PAGE_SIZE;
++			else
++				mss->private_clean += PAGE_SIZE;
  		}
- 	}
- 	seq_putc(m, '\n');
--	if (m->count < m->size)  /* map is copied successfully */
--		m->version = (map != get_gate_vma(task))? map->vm_start: 0;
-+	if (m->count < m->size)  /* vma is copied successfully */
-+		m->version = (vma != get_gate_vma(task))? vma->vm_start: 0;
- 	return 0;
+-	} while (address < end);
+-	pte_unmap(ptep - 1);
++	} while (pte++, addr += PAGE_SIZE, addr != end);
++	pte_unmap(pte - 1);
++	cond_resched_lock(&vma->vm_mm->page_table_lock);
  }
  
-@@ -276,11 +276,11 @@ static void smaps_pgd_range(pgd_t *pgd,
+-static void smaps_pmd_range(pud_t *pud,
+-			    unsigned long address,
+-			    unsigned long size,
+-			    struct mem_size_stats *mss)
++static inline void smaps_pmd_range(struct vm_area_struct *vma, pud_t *pud,
++				unsigned long addr, unsigned long end,
++				struct mem_size_stats *mss)
+ {
+ 	pmd_t *pmd;
+-	unsigned long end;
++	unsigned long next;
+ 
+-	if (pud_none(*pud))
+-		return;
+-	if (unlikely(pud_bad(*pud))) {
+-		pud_ERROR(*pud);
+-		pud_clear(pud);
+-		return;
+-	}
+-	pmd = pmd_offset(pud, address);
+-	address &= ~PUD_MASK;
+-	end = address + size;
+-	if (end > PUD_SIZE)
+-		end = PUD_SIZE;
++	pmd = pmd_offset(pud, addr);
+ 	do {
+-		smaps_pte_range(pmd, address, end - address, mss);
+-		address = (address + PMD_SIZE) & PMD_MASK;
+-		pmd++;
+-	} while (address < end);
++		next = pmd_addr_end(addr, end);
++		if (pmd_none_or_clear_bad(pmd))
++			continue;
++		smaps_pte_range(vma, pmd, addr, next, mss);
++	} while (pmd++, addr = next, addr != end);
+ }
+ 
+-static void smaps_pud_range(pgd_t *pgd,
+-			    unsigned long address,
+-			    unsigned long size,
+-			    struct mem_size_stats *mss)
++static inline void smaps_pud_range(struct vm_area_struct *vma, pgd_t *pgd,
++				unsigned long addr, unsigned long end,
++				struct mem_size_stats *mss)
+ {
+ 	pud_t *pud;
+-	unsigned long end;
++	unsigned long next;
+ 
+-	if (pgd_none(*pgd))
+-		return;
+-	if (unlikely(pgd_bad(*pgd))) {
+-		pgd_ERROR(*pgd);
+-		pgd_clear(pgd);
+-		return;
+-	}
+-	pud = pud_offset(pgd, address);
+-	address &= ~PGDIR_MASK;
+-	end = address + size;
+-	if (end > PGDIR_SIZE)
+-		end = PGDIR_SIZE;
++	pud = pud_offset(pgd, addr);
+ 	do {
+-		smaps_pmd_range(pud, address, end - address, mss);
+-		address = (address + PUD_SIZE) & PUD_MASK;
+-		pud++;
+-	} while (address < end);
++		next = pud_addr_end(addr, end);
++		if (pud_none_or_clear_bad(pud))
++			continue;
++		smaps_pmd_range(vma, pud, addr, next, mss);
++	} while (pud++, addr = next, addr != end);
+ }
+ 
+-static void smaps_pgd_range(pgd_t *pgd,
+-			    unsigned long start_address,
+-			    unsigned long end_address,
+-			    struct mem_size_stats *mss)
++static inline void smaps_pgd_range(struct vm_area_struct *vma,
++				unsigned long addr, unsigned long end,
++				struct mem_size_stats *mss)
+ {
++	pgd_t *pgd;
++	unsigned long next;
++
++	pgd = pgd_offset(vma->vm_mm, addr);
+ 	do {
+-		smaps_pud_range(pgd, start_address, end_address - start_address, mss);
+-		start_address = (start_address + PGDIR_SIZE) & PGDIR_MASK;
+-		pgd++;
+-	} while (start_address < end_address);
++		next = pgd_addr_end(addr, end);
++		if (pgd_none_or_clear_bad(pgd))
++			continue;
++		smaps_pud_range(vma, pgd, addr, next, mss);
++	} while (pgd++, addr = next, addr != end);
+ }
  
  static int show_smap(struct seq_file *m, void *v)
- {
--	struct vm_area_struct *map = v;
--	struct file *file = map->vm_file;
--	int flags = map->vm_flags;
--	struct mm_struct *mm = map->vm_mm;
--	unsigned long vma_len = (map->vm_end - map->vm_start);
-+	struct vm_area_struct *vma = v;
-+	struct file *file = vma->vm_file;
-+	int flags = vma->vm_flags;
-+	struct mm_struct *mm = vma->vm_mm;
-+	unsigned long vma_len = (vma->vm_end - vma->vm_start);
- 	struct mem_size_stats mss;
- 
+@@ -286,10 +254,8 @@ static int show_smap(struct seq_file *m,
  	memset(&mss, 0, sizeof mss);
-@@ -288,20 +288,20 @@ static int show_smap(struct seq_file *m,
+ 
  	if (mm) {
- 		pgd_t *pgd;
+-		pgd_t *pgd;
  		spin_lock(&mm->page_table_lock);
--		pgd = pgd_offset(mm, map->vm_start);
--		smaps_pgd_range(pgd, map->vm_start, map->vm_end, &mss);
-+		pgd = pgd_offset(mm, vma->vm_start);
-+		smaps_pgd_range(pgd, vma->vm_start, vma->vm_end, &mss);
+-		pgd = pgd_offset(mm, vma->vm_start);
+-		smaps_pgd_range(pgd, vma->vm_start, vma->vm_end, &mss);
++		smaps_pgd_range(vma, vma->vm_start, vma->vm_end, &mss);
  		spin_unlock(&mm->page_table_lock);
  	}
  
- 	seq_printf(m, "%08lx-%08lx %c%c%c%c ",
--		   map->vm_start,
--		   map->vm_end,
-+		   vma->vm_start,
-+		   vma->vm_end,
- 		   flags & VM_READ ? 'r' : '-',
- 		   flags & VM_WRITE ? 'w' : '-',
- 		   flags & VM_EXEC ? 'x' : '-',
- 		   flags & VM_MAYSHARE ? 's' : 'p');
- 
--	if (map->vm_file)
-+	if (vma->vm_file)
- 		seq_path(m, file->f_vfsmnt, file->f_dentry, " \t\n\\");
- 
- 	seq_printf(m, "\n"
-@@ -325,14 +325,14 @@ static void *m_start(struct seq_file *m,
- 	struct task_struct *task = m->private;
- 	unsigned long last_addr = m->version;
- 	struct mm_struct *mm;
--	struct vm_area_struct *map, *tail_map;
-+	struct vm_area_struct *vma, *tail_vma;
- 	loff_t l = *pos;
- 
- 	/*
- 	 * We remember last_addr rather than next_addr to hit with
- 	 * mmap_cache most of the time. We have zero last_addr at
- 	 * the begining and also after lseek. We will have -1 last_addr
--	 * after the end of the maps.
-+	 * after the end of the vmas.
- 	 */
- 
- 	if (last_addr == -1UL)
-@@ -342,47 +342,47 @@ static void *m_start(struct seq_file *m,
- 	if (!mm)
- 		return NULL;
- 
--	tail_map = get_gate_vma(task);
-+	tail_vma = get_gate_vma(task);
- 	down_read(&mm->mmap_sem);
- 
- 	/* Start with last addr hint */
--	if (last_addr && (map = find_vma(mm, last_addr))) {
--		map = map->vm_next;
-+	if (last_addr && (vma = find_vma(mm, last_addr))) {
-+		vma = vma->vm_next;
- 		goto out;
- 	}
- 
- 	/*
--	 * Check the map index is within the range and do
-+	 * Check the vma index is within the range and do
- 	 * sequential scan until m_index.
- 	 */
--	map = NULL;
-+	vma = NULL;
- 	if ((unsigned long)l < mm->map_count) {
--		map = mm->mmap;
--		while (l-- && map)
--			map = map->vm_next;
-+		vma = mm->mmap;
-+		while (l-- && vma)
-+			vma = vma->vm_next;
- 		goto out;
- 	}
- 
- 	if (l != mm->map_count)
--		tail_map = NULL; /* After gate map */
-+		tail_vma = NULL; /* After gate vma */
- 
- out:
--	if (map)
--		return map;
-+	if (vma)
-+		return vma;
- 
--	/* End of maps has reached */
--	m->version = (tail_map != NULL)? 0: -1UL;
-+	/* End of vmas has been reached */
-+	m->version = (tail_vma != NULL)? 0: -1UL;
- 	up_read(&mm->mmap_sem);
- 	mmput(mm);
--	return tail_map;
-+	return tail_vma;
- }
- 
- static void m_stop(struct seq_file *m, void *v)
- {
- 	struct task_struct *task = m->private;
--	struct vm_area_struct *map = v;
--	if (map && map != get_gate_vma(task)) {
--		struct mm_struct *mm = map->vm_mm;
-+	struct vm_area_struct *vma = v;
-+	if (vma && vma != get_gate_vma(task)) {
-+		struct mm_struct *mm = vma->vm_mm;
- 		up_read(&mm->mmap_sem);
- 		mmput(mm);
- 	}
-@@ -391,14 +391,14 @@ static void m_stop(struct seq_file *m, v
- static void *m_next(struct seq_file *m, void *v, loff_t *pos)
- {
- 	struct task_struct *task = m->private;
--	struct vm_area_struct *map = v;
--	struct vm_area_struct *tail_map = get_gate_vma(task);
-+	struct vm_area_struct *vma = v;
-+	struct vm_area_struct *tail_vma = get_gate_vma(task);
- 
- 	(*pos)++;
--	if (map && (map != tail_map) && map->vm_next)
--		return map->vm_next;
-+	if (vma && (vma != tail_vma) && vma->vm_next)
-+		return vma->vm_next;
- 	m_stop(m, v);
--	return (map != tail_map)? tail_map: NULL;
-+	return (vma != tail_vma)? tail_vma: NULL;
- }
- 
- struct seq_operations proc_pid_maps_op = {

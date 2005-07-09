@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVGIMWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVGIMch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVGIMWq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 08:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVGIMUp
+	id S261254AbVGIMch (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 08:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVGIMcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 08:20:45 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:134 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261348AbVGIMUK (ORCPT
+	Sat, 9 Jul 2005 08:32:36 -0400
+Received: from imap.gmx.net ([213.165.64.20]:43232 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261254AbVGIMcg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 08:20:10 -0400
-Date: Sat, 9 Jul 2005 14:16:12 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [37/48] Suspend2 2.1.9.8 for 2.6.12: 613-pageflags.patch
-Message-ID: <20050709121612.GG1878@elf.ucw.cz>
-References: <11206164393426@foobar.com> <11206164434190@foobar.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11206164434190@foobar.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 9 Jul 2005 08:32:36 -0400
+X-Authenticated: #6553809
+Message-ID: <42CFC3EF.2090804@gmx.net>
+Date: Sat, 09 Jul 2005 14:32:47 +0200
+From: Thomas Heinz <thomasheinz@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: SCSI DVD-RAM partitions
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi
 
-You know what I think about plugins, right? There are already plugins
-at block device level, like raid5, LVM, device mapper... I do not see
-why you should need another one.
+My SCSI DVD-RAM is available as /dev/sr1. fdisk -l /dev/sr1 shows
+for a certain medium:
 
-> +/*
-> + * expected_compression_ratio
-> + *
-> + * Returns the expected ratio between the amount of memory
-> + * to be saved and the amount of space required on the
-> + * storage device.
-> + */
-> +int expected_compression_ratio(void)
-> +{
-> +	struct suspend_plugin_ops * this_filter;
-> +	unsigned long ratio = 100;
-> +	
-> +	list_for_each_entry(this_filter, &suspend_filters, ops.filter.filter_list) {
-> +		if (this_filter->disabled)
-> +			continue;
-> +		if (this_filter->ops.filter.expected_compression)
-> +			ratio = ratio * this_filter->ops.filter.expected_compression() / 100;
-> +	}
-> +
-> +	return (int) ratio;
-> +}
+Note: sector size is 2048 (not 512)
 
-Why the cast and why long in the first place?
+Disk /dev/sr1: 2496 MB, 2496430080 bytes
+255 heads, 63 sectors/track, 75 cylinders
+Units = cylinders of 16065 * 2048 = 32901120 bytes
 
-> +struct suspend_plugin_ops * find_plugin_given_name(char * name)
-> +{
-> +	struct suspend_plugin_ops * this_plugin, * found_plugin = NULL;
-> +	
-> +	list_for_each_entry(this_plugin, &suspend_plugins, plugin_list) {
-> +		if (!strcmp(name, this_plugin->name)) {
-> +			found_plugin = this_plugin;
-> +			break;
-> +		}			
-> +	}
-> +
-> +	return found_plugin;
-> +}
+     Device Boot      Start         End      Blocks   Id  System
+/dev/sr1p1   *           1          75     2409624    b  W95 FAT32
 
-How often are you doing this? Would hash table be prefered? How many
-plugins do you have? Maybe statical registration is right solution?
 
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+Note that /dev/sr1p1 does not exist. Neither does /dev/sdX.
+
+Mounting /dev/sr1 does not work. However, I was able to mount the
+partition with the following "trick":
+# losetup -o 129024 /dev/loop0 /dev/sr1
+# mount /dev/loop0 /mnt
+
+Is it possible to make the DVD-RAM partitions available as device
+nodes (or at least directly mountable without the losetup hack)?
+One solution would be to make the device available as /dev/sdX and
+/dev/srX. Is that possible?
+
+Thanks for your help. If this is a known issue, I would appreciate
+a pointer on that topic.
+
+
+Here is some more information about my system:
+
+Linux version 2.6.11-gentoo-r9 (root@localhost) (gcc version 
+3.3.5-20050130 (Gentoo Hardened 3.3.5.20050130-r1, ssp-3.3.5.20050130-1, 
+pie-8.7.7.1))
+
+Host: scsi0 Channel: 00 Id: 04 Lun: 00
+   Vendor: MATSHITA Model: PD-2 LF-D100     Rev: A113
+   Type:   CD-ROM                           ANSI SCSI revision: 02
+
+
+Regards,
+
+Thomas

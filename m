@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVGIW7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVGIXat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261726AbVGIW7U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 18:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVGIW7U
+	id S261770AbVGIXat (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 19:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVGIXat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 18:59:20 -0400
-Received: from dslb138.fsr.net ([12.7.7.138]:45230 "EHLO sandall.us")
-	by vger.kernel.org with ESMTP id S261726AbVGIW7T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 18:59:19 -0400
-Date: Sat, 9 Jul 2005 15:59:39 -0700 (PDT)
-From: Eric Sandall <eric@sandall.us>
-X-X-Sender: sandalle@cerberus
-To: Wakko Warner <wakko@animx.eu.org>
-cc: Jeremy Nickurak <atrus@lkml.spam.rifetech.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Swap partition vs swap file
-In-Reply-To: <20050708224106.GA10649@animx.eu.org>
-Message-ID: <Pine.LNX.4.63.0507091559030.486@cerberus>
-References: <E1DqhZV-0004yW-00@calista.eckenfels.6bone.ka-ip.net>
- <1120836958.16935.1.camel@localhost> <20050708224106.GA10649@animx.eu.org>
+	Sat, 9 Jul 2005 19:30:49 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:42142 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261770AbVGIXaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 19:30:46 -0400
+Message-ID: <19474.71.111.147.75.1120951847.squirrel@chretien.affordablehost.com>
+In-Reply-To: <1120944358.6488.90.camel@mindpipe>
+References: <200506231828.j5NISlCe020350@hera.kernel.org> 
+    <20050708214908.GA31225@taniwha.stupidest.org> 
+    <20050708145953.0b2d8030.akpm@osdl.org> 
+    <1120928891.17184.10.camel@lycan.lan>
+    <1120932991.6488.64.camel@mindpipe> 
+    <1120933916.3176.57.camel@laptopd505.fenrus.org> 
+    <1120934163.6488.72.camel@mindpipe>
+    <20050709121212.7539a048.akpm@osdl.org> 
+    <1120936561.6488.84.camel@mindpipe> 
+    <20050709133036.11e60a3c.rdunlap@xenotime.net>
+    <1120944358.6488.90.camel@mindpipe>
+Date: Sat, 9 Jul 2005 16:30:47 -0700 (PDT)
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+From: "Randy Dunlap" <rdunlap@xenotime.net>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Cc: "randy_dunlap" <rdunlap@xenotime.net>, akpm@osdl.org, arjan@infradead.org,
+       azarah@nosferatu.za.org, cw@f00f.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, christoph@lameter.org
+User-Agent: SquirrelMail/1.4.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Fri, 8 Jul 2005, Wakko Warner wrote:
-> Jeremy Nickurak wrote:
->> On ven, 2005-07-08 at 03:22 +0200, Bernd Eckenfels wrote:
->>> No, it is creating files by appending just like any other file write. One
->>> could think about a call to create unfragmented files however since this is
->>> not always working best is to create those files young or defragment them
->>> before usage.
+Lee Revell said:
+> On Sat, 2005-07-09 at 13:30 -0700, randy_dunlap wrote:
+>> | Then the owners of such machines can use HZ=250 and leave the default
+>> | alone.  Why should everyone have to bear the cost?
 >>
->> Except that this defeats one of the biggest advantages a swap file has
->> over a swap partition: the ability to easilly reconfigure the amount of
->> hd space reserved for swap.
+>> indeed, why should everyone have to have 1000 timer interrupts per
+>> second?
 >
-> Of course, now this begs the question: Is it possible to create a large file
-> w/o actually writing that much to the device (ie uninitialized).  There's
-> absolutely no reason that a swap file needs to be fully initialized, only
-> part which mkswap does.  Of course, I would expect that ONLY root beable to
-> do this. (or capsysadmin or whatever the caps are)
+> So why waste everyone's time with CONFIG_HZ when there are working
+> dynamic tick solutions out there?  It's just bad release engineering.
 
-That would make the swap file fragment as it's used, instead of
-allocating one big file (the entire file) at once (and hopefully get
-one contiguous chunk of the disk).
+hey, that seems to expect some top-level release (or project)
+management.  ;)
 
-- -sandalle
+anyway, I was just trying to point out more than one side to this,
+and you have now done the same.  thanks.
 
-- --
-Eric Sandall                     |  Source Mage GNU/Linux Developer
-eric@sandall.us                  |  http://www.sourcemage.org/
-http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
-http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+-- 
+~Randy
 
-iD8DBQFC0FbfHXt9dKjv3WERApKjAJ9ZObnrYWCmTyZW0ChggtgGjTKIvQCfbnvm
-/U4zfjTYqMxEd5vmIRe1wbM=
-=smCj
------END PGP SIGNATURE-----

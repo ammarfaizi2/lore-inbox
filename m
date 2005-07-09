@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVGILMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVGILWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVGILMR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 07:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVGILMR
+	id S261204AbVGILWH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 07:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVGILWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 07:12:17 -0400
-Received: from gold.veritas.com ([143.127.12.110]:51754 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S261201AbVGILML (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 07:12:11 -0400
-Date: Sat, 9 Jul 2005 12:13:28 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <ncunningham@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 14/13] swsusp mod needed parentheses
-In-Reply-To: <Pine.LNX.4.61.0507090111440.13391@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0507091211390.18520@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0507090111440.13391@goblin.wat.veritas.com>
+	Sat, 9 Jul 2005 07:22:07 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:60178 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S261204AbVGILWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 07:22:06 -0400
+From: Neil Darlow <neil@darlow.co.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: ns558 mis-detects gameport
+Date: Sat, 9 Jul 2005 12:22:01 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, linux-joystick@atrey.karlin.mff.cuni.cz,
+       Daniel Drake <dsd@gentoo.org>
+References: <200507082136.47475.neil@darlow.co.uk> <20050708212442.GB3584@ucw.cz>
+In-Reply-To: <20050708212442.GB3584@ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Jul 2005 11:12:08.0791 (UTC) FILETIME=[0C0A6670:01C58477]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507091222.01860.neil@darlow.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, some parentheses around my SWP_WRITEOK check would help.
+Hi Vojtech,
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+On Friday 08 Jul 2005 22:24, Vojtech Pavlik wrote:
+> In the current input GIT tree there is a patch to reverse the order of
+> probing (PnP first) for exactly this reason. I expect 2.6.13 should have
+> the fix.
 
- kernel/power/swsusp.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Daniel, is it worth backporting this fix for gentoo-sources-2.6.12 so others 
+aren't bitten or will we have to wait for 2.6.13?
 
---- swap13/kernel/power/swsusp.c	2005-07-08 19:15:59.000000000 +0100
-+++ swap14/kernel/power/swsusp.c	2005-07-09 12:04:19.000000000 +0100
-@@ -180,7 +180,7 @@ static int swsusp_swap_check(void) /* Th
- 
- 	spin_lock(&swap_lock);
- 	for (i=0; i<MAX_SWAPFILES; i++) {
--		if (!swap_info[i].flags & SWP_WRITEOK) {
-+		if (!(swap_info[i].flags & SWP_WRITEOK)) {
- 			swapfile_used[i]=SWAPFILE_UNUSED;
- 		} else {
- 			if (!len) {
+> As a workaround, you can try disabling the gameport in BIOS. The legacy
+> probe won't see it, and the PnP probe might enable it just fine.
+
+Disabling the gameport in my BIOS seems to take it off the bus and PnP doesn't 
+see it at all.
+
+Regards,
+Neil Darlow
+-- 
+Anti-virus scanned by ClamAV-0.86.1 - http://www.clamav.net

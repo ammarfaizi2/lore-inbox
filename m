@@ -1,111 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263104AbVGIDJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVGIDLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263104AbVGIDJS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 23:09:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbVGIDJM
+	id S261356AbVGIDLW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 23:11:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263099AbVGIDJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 23:09:12 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:40455 "HELO
+	Fri, 8 Jul 2005 23:09:37 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36359 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263104AbVGIDHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 23:07:53 -0400
-Date: Sat, 9 Jul 2005 05:07:50 +0200
+	id S263100AbVGIDHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 23:07:33 -0400
+Date: Sat, 9 Jul 2005 05:07:30 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: irda-users@lists.sourceforge.net, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/irda/: possible cleanups
-Message-ID: <20050709030750.GF28243@stusta.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fix IP_FIB_HASH kconfig warning
+Message-ID: <20050709030730.GC28243@stusta.de>
+References: <20050703222002.GQ5346@stusta.de> <Pine.LNX.4.61.0507042025180.3728@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0507042025180.3728@scrub.home>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make the following needlessly global function static:
-  - irnet/irnet_ppp.c: irnet_init
-- remove the following unneeded EXPORT_SYMBOL's:
-  - irlmp.c: sysctl_discovery_timeout
-  - irlmp.c: irlmp_reasons
-  - irlmp.c: irlmp_dup
-  - irqueue.c: hashbin_find_next
+On Mon, Jul 04, 2005 at 08:27:56PM +0200, Roman Zippel wrote:
 
-Please review which of these changes do make sense and which conflict 
-with pending patches.
+>...
+> config IP_FIB_HASH  
+> 	def_bool ASK_IP_FIB_HASH || !IP_ADVANCED_ROUTER
+
+An updated patch is below.
+
+> bye, Roman
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+This patch fixes the following kconfig warning:
+  net/ipv4/Kconfig:92:warning: defaults for choice values not supported
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
-This patch was already sent on:
-- 30 May 2005
-- 7 May 2005
-
- net/irda/irlmp.c           |    3 ---
- net/irda/irnet/irnet.h     |    3 ---
- net/irda/irnet/irnet_ppp.c |    2 +-
- net/irda/irqueue.c         |    1 -
- 4 files changed, 1 insertion(+), 8 deletions(-)
-
---- linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet.h.old	2005-05-05 22:38:59.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet.h	2005-05-05 22:39:12.000000000 +0200
-@@ -517,9 +517,6 @@
- 	irda_irnet_init(void);		/* Initialise IrDA part of IrNET */
- extern void
- 	irda_irnet_cleanup(void);	/* Teardown IrDA part of IrNET */
--/* ---------------------------- MODULE ---------------------------- */
--extern int
--	irnet_init(void);		/* Initialise IrNET module */
+--- linux-2.6.13-rc2-mm1-modular/net/ipv4/Kconfig.old	2005-07-08 23:55:31.000000000 +0200
++++ linux-2.6.13-rc2-mm1-modular/net/ipv4/Kconfig	2005-07-08 23:56:23.000000000 +0200
+@@ -56,9 +56,9 @@
+ choice 
+ 	prompt "Choose IP: FIB lookup algorithm (choose FIB_HASH if unsure)"
+ 	depends on IP_ADVANCED_ROUTER
+-	default IP_FIB_HASH
++	default ASK_IP_FIB_HASH
  
- /**************************** VARIABLES ****************************/
+-config IP_FIB_HASH
++config ASK_IP_FIB_HASH
+ 	bool "FIB_HASH"
+ 	---help---
+ 	Current FIB is very proven and good enough for most users.
+@@ -84,12 +84,8 @@
+        
+ endchoice
  
---- linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet_ppp.c.old	2005-05-05 22:39:21.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet_ppp.c	2005-05-05 22:39:29.000000000 +0200
-@@ -1107,7 +1107,7 @@
- /*
-  * Module main entry point
-  */
--int __init
-+static int __init
- irnet_init(void)
- {
-   int err;
---- linux-2.6.12-rc3-mm3-full/net/irda/irlmp.c.old	2005-05-05 22:46:47.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/irda/irlmp.c	2005-05-05 22:50:52.000000000 +0200
-@@ -53,7 +53,6 @@
- /* These can be altered by the sysctl interface */
- int  sysctl_discovery         = 0;
- int  sysctl_discovery_timeout = 3; /* 3 seconds by default */
--EXPORT_SYMBOL(sysctl_discovery_timeout);
- int  sysctl_discovery_slots   = 6; /* 6 slots by default */
- int  sysctl_lap_keepalive_time = LM_IDLE_TIMEOUT * 1000 / HZ;
- char sysctl_devname[65];
-@@ -67,7 +66,6 @@
- 	"LM_INIT_DISCONNECT",
- 	"ERROR, NOT USED",
- };
--EXPORT_SYMBOL(irlmp_reasons);
+-# If the user does not enable advanced routing, he gets the safe
+-# default of the fib-hash algorithm.
+ config IP_FIB_HASH
+-	bool
+-	depends on !IP_ADVANCED_ROUTER
+-	default y
++	def_bool ASK_IP_FIB_HASH || !IP_ADVANCED_ROUTER
  
- /*
-  * Function irlmp_init (void)
-@@ -675,7 +673,6 @@
- 
- 	return new;
- }
--EXPORT_SYMBOL(irlmp_dup);
- 
- /*
-  * Function irlmp_disconnect_request (handle, userdata)
---- linux-2.6.12-rc3-mm3-full/net/irda/irqueue.c.old	2005-05-05 22:48:55.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/irda/irqueue.c	2005-05-05 22:49:03.000000000 +0200
-@@ -822,7 +822,6 @@
- 
- 	return entry;
- }
--EXPORT_SYMBOL(hashbin_find_next);
- 
- /*
-  * Function hashbin_get_first (hashbin)
+ config IP_MULTIPLE_TABLES
+ 	bool "IP: policy routing"
 

@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVGIVV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVGIVYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbVGIVV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 17:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVGIVV5
+	id S261737AbVGIVYH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 17:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVGIVYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 17:21:57 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:23372 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261735AbVGIVV4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 17:21:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=MxlfgraEdmb/zrXFlgrB0hB+NaMYw+Dw+lzQACralhK+GxnFAFN1fGELM5T2TxPc/zAovOWHmHSlwRNyG0bfBHqRk30aS4V7YGJCSYlqwRaMu4BiKPT7X47kCC5jrQUh1rROGjKrSYt9siPRl7UhG5X1IIGywcHVXVVqJjb6lMI=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: federico <xaero@inwind.it>
-Subject: Re: [PATCH] ability to change SysRq scancode
-Date: Sun, 10 Jul 2005 01:28:46 +0400
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <42D03731.9060809@inwind.it>
-In-Reply-To: <42D03731.9060809@inwind.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 9 Jul 2005 17:24:07 -0400
+Received: from amsfep11-int.chello.nl ([213.46.243.19]:32563 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261737AbVGIVYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 17:24:04 -0400
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-12
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: William Weston <weston@sysex.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0507081246340.30549@echo.lysdexia.org>
+References: <200506301952.22022.annabellesgarden@yahoo.de>
+	 <20050630205029.GB1824@elte.hu>
+	 <200507010027.33079.annabellesgarden@yahoo.de>
+	 <20050701071850.GA18926@elte.hu>
+	 <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org>
+	 <20050703140432.GA19074@elte.hu> <20050703181229.GA32741@elte.hu>
+	 <Pine.LNX.4.58.0507061802570.20214@echo.lysdexia.org>
+	 <20050707104859.GD22422@elte.hu>
+	 <Pine.LNX.4.58.0507071257320.25321@echo.lysdexia.org>
+	 <20050708080359.GA32001@elte.hu>
+	 <Pine.LNX.4.58.0507081246340.30549@echo.lysdexia.org>
+Content-Type: text/plain
+Date: Sat, 09 Jul 2005 23:24:03 +0200
+Message-Id: <1120944243.12169.3.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507100128.46959.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 10 July 2005 00:44, federico wrote:
-> i release this patch because my keyboard ("Mitsumi Electric Apple
-> Extended USB Keyboard" Bus=0003 Vendor=05ac Product=0205 Version=0122)
-> doesn't have a PrintScr key, so cannot send the right scancode, and
-> KEY_SYSRQ needs to be modified.
+On Fri, 2005-07-08 at 13:12 -0700, William Weston wrote:
+> On Fri, 8 Jul 2005, Ingo Molnar wrote:
 > 
-> i hope that i've done in the right way ;)
+> > could you check whether the priority leakage happens if you disable SMP?  
+> > (if you can reproduce it easily)
+> 
+> No priority leakages have been seen with UP configs on any of the 
+> machines I've been testing.
+> 
+> The leakage is not hard to reproduce under SMT:  start up jackd from a
+> text vc with an rt prio of 60 (or some unique prio above the IRQ threads),
+> then restart X and login.  After several minutes, X and all of its
+> children will be running at whatever prio jackd was started at (but still
+> SCHED_NORMAL).  Eventually, init, a handful of SCHED_NORMAL kernel
+> threads, and other random processes are all running at the same priority.  
+> When reset to default priority with chrt or schedtool, these processes
+> eventually revert back to the leaked priority level.  When jackd is
+> stopped, the priorities stay in their elevated state.  If jackd is not 
+> started before logging in to X, then the priority of one of the SCHED_FF 
+> kernel threads is leaked to other processes in the same manner.
+> 
 
-diff -uprN please.
+I can reproduce priority leakage on my SMP system; any userspace process
+chrt'ed up and a lot will follow. This makes the system very
+unresponsive when doing a make -j5. Verified on 51-{6,18,23}.
 
-> it's tested by me, and it's working, yeah i'm pressing the SAK with F13 :P
+-- 
+Peter Zijlstra <a.p.zijlstra@chello.nl>
 

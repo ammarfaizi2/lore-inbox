@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVGIVK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVGIVOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbVGIVK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 17:10:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVGIVK5
+	id S261733AbVGIVOV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 17:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVGIVOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 17:10:57 -0400
-Received: from [206.246.247.150] ([206.246.247.150]:26849 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261732AbVGIVKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 17:10:55 -0400
-Date: Sat, 9 Jul 2005 17:10:54 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       scjody@modernduck.com, bunk@stusta.de
-Subject: Re: alternative [PATCH] 1/2) drivers/ieee1394/: schedule unused EXPORT_SYMBOL's for removal
-Message-ID: <20050709211054.GO29099@phunnypharm.org>
-References: <20050709075035.GA20151@phunnypharm.org> <200507091032.j69AWXrv027400@einhorn.in-berlin.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507091032.j69AWXrv027400@einhorn.in-berlin.de>
-User-Agent: Mutt/1.5.8i
+	Sat, 9 Jul 2005 17:14:21 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:9188 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261733AbVGIVOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 17:14:20 -0400
+Date: Sat, 9 Jul 2005 23:14:34 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Bodo Eggert <7eggert@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: Documentation mismatch in Documentation/kbuild/kconfig-language.txt
+In-Reply-To: <20050709093657.GG28243@stusta.de>
+Message-ID: <Pine.LNX.4.58.0507092309120.7783@be1.lrz>
+References: <Pine.LNX.4.58.0507041639500.24224@be1.lrz> <20050708221756.GM3671@stusta.de>
+ <Pine.LNX.4.58.0507090934510.4231@be1.lrz> <20050709093657.GG28243@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applied, but I set the default to "N". No reason to prolong doing it,
-since it doesn't break anything in the kernel or in our tree. It's an easy
-pointer to the option for anyone inquiring about the change.
+On Sat, 9 Jul 2005, Adrian Bunk wrote:
+> On Sat, Jul 09, 2005 at 09:37:48AM +0200, Bodo Eggert wrote:
 
-On Sat, Jul 09, 2005 at 12:32:33PM +0200, Stefan Richter wrote:
-> Ben Collins wrote:
-> > Can we, instead of removing these, wrap then in a "Export full API" config
-> > option? I've already got several reports from external projects that are
-> > using most of these exported symbols, and I'd hate to make it harder on
-> > them to use our drivers (for internal projects or otherwise).
+[menu dependencies "if" vs. "depends on"]
+
+> > It should be, but either it's really applied to the config instead of the 
+> > prompt (in which can also be added to the depends on list) or the 
+> > menuconfig '/' function has bogus output.
 > 
-> OK, why not. Here is an alternative patch, split in two parts. The first
-> part is independent of the second, although the 2nd motivates the 1st.
-> 2nd part follows in a separate posting.
+> config FUTEX
+>         bool "Enable futex support" if EMBEDDED
+>         default y
+> 
+> This option is always "y" if EMBEDDED=n.
+> This option is uservisible if EMBEDDED=y.
+> 
+> I don't understand what's not working for you in this case.
 
+I used make menuconfig for diagnosis, and it's output meges "depends on" 
+with "if". Therefore I had to asume that the config logic does the same.
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-SwissDisk  - http://www.swissdisk.com/
+Top 100 things you don't want the sysadmin to say:
+55. NO!  Not _that_ button!

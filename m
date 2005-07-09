@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVGITri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVGIUa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbVGITri (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 15:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVGITri
+	id S261721AbVGIUa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 16:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVGIUa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 15:47:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:40615 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261706AbVGITrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 15:47:36 -0400
-Subject: Re: [patch] compress the stack layout of do_page_fault(), x86
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050709191501.GA9068@wotan.suse.de>
-References: <20050709144116.GA9444@elte.hu.suse.lists.linux.kernel>
-	 <20050709152924.GA13492@elte.hu.suse.lists.linux.kernel>
-	 <p73ll4f29m7.fsf@verdi.suse.de>
-	 <1120930264.3176.52.camel@laptopd505.fenrus.org>
-	 <20050709191501.GA9068@wotan.suse.de>
-Content-Type: text/plain
-Date: Sat, 09 Jul 2005 21:47:26 +0200
-Message-Id: <1120938446.3176.59.camel@laptopd505.fenrus.org>
+	Sat, 9 Jul 2005 16:30:56 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:3762 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261721AbVGIUay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 16:30:54 -0400
+Date: Sat, 9 Jul 2005 13:30:36 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: akpm@osdl.org, arjan@infradead.org, azarah@nosferatu.za.org, cw@f00f.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Message-Id: <20050709133036.11e60a3c.rdunlap@xenotime.net>
+In-Reply-To: <1120936561.6488.84.camel@mindpipe>
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	<20050708214908.GA31225@taniwha.stupidest.org>
+	<20050708145953.0b2d8030.akpm@osdl.org>
+	<1120928891.17184.10.camel@lycan.lan>
+	<1120932991.6488.64.camel@mindpipe>
+	<1120933916.3176.57.camel@laptopd505.fenrus.org>
+	<1120934163.6488.72.camel@mindpipe>
+	<20050709121212.7539a048.akpm@osdl.org>
+	<1120936561.6488.84.camel@mindpipe>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-09 at 21:15 +0200, Andi Kleen wrote:
-> On Sat, Jul 09, 2005 at 07:31:04PM +0200, Arjan van de Ven wrote:
-> > On Sat, 2005-07-09 at 19:05 +0200, Andi Kleen wrote:
-> > > Ingo Molnar <mingo@elte.hu> writes:
-> > > >  
-> > > > +static void force_sig_info_fault(int si_signo, int si_code,
-> > > > +				 unsigned long address, struct task_struct *tsk)
-> > > 
-> > > This won't work with a unit-at-a-time compiler which happily
-> > > inlines everything static with only a single caller. Use noinline
-> > 
-> > but.... the x86 kernel is -fno-unit-at-a-time.... for stack reasons ;)
-> 
-> The gcc people are making noises of removing that. So eventually
-> it will need to go.
+On Sat, 09 Jul 2005 15:16:01 -0400 Lee Revell wrote:
 
-the gcc people also fixed the stack usage on inlining (at least this
-specific class) in CVS HEAD so the "problem" is a lot smaller whenever
-they make it go away.
+| On Sat, 2005-07-09 at 12:12 -0700, Andrew Morton wrote:
+| > Lee Revell <rlrevell@joe-job.com> wrote:
+| > >
+| > >  > This is not a userspace visible thing really with few exceptions, and
+| > >  > well people can select the one they want, right?
+| > > 
+| > >  Then why not leave the default at 1000?
+| > 
+| > Because some machines exhibit appreciable latency in entering low power
+| > state via ACPI, and 1000Hz reduces their battery life.  By about half,
+| > iirc.
+| > 
+| 
+| Then the owners of such machines can use HZ=250 and leave the default
+| alone.  Why should everyone have to bear the cost?
 
+indeed, why should everyone have to have 1000 timer interrupts per second?
+
+---
+~Randy

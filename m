@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263176AbVGIK4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVGIK61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263176AbVGIK4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 06:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbVGIK4X
+	id S261173AbVGIK61 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 06:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVGIK60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 06:56:23 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:36801 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S263176AbVGIK4W (ORCPT
+	Sat, 9 Jul 2005 06:58:26 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:24748 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S261173AbVGIK5m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 06:56:22 -0400
-Date: Sat, 9 Jul 2005 11:56:21 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [git tree] DRM 32/64 tree merge
-Message-ID: <Pine.LNX.4.58.0507091153240.6297@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Jul 2005 06:57:42 -0400
+Subject: [patch 1/1] uml: fix lvalue for gcc4
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Sat, 09 Jul 2005 13:01:33 +0200
+Message-Id: <20050709110143.D59181E9EA4@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Linus,
-	Can you pull the 'drm-3264' tree from
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git
+This construct is refused by GCC 4, so here's the fix.
 
-This contains 32/64 compatibility changes for MGA/i915 and r128.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-Dave.
+ linux-2.6.git-paolo/arch/um/sys-x86_64/signal.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
- Makefile     |    3
- i915_drv.c   |    3
- i915_drv.h   |    4 +
- i915_ioc32.c |  221 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- mga_drv.c    |    3
- mga_drv.h    |    2
- mga_ioc32.c  |  167 ++++++++++++++++++++++++++++++++++++++++++++
- r128_drv.c   |    3
- r128_drv.h   |    3
- r128_ioc32.c |  219 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 10 files changed, 628 insertions(+)
+diff -puN arch/um/sys-x86_64/signal.c~uml-fix-for-gcc4-lvalue arch/um/sys-x86_64/signal.c
+--- linux-2.6.git/arch/um/sys-x86_64/signal.c~uml-fix-for-gcc4-lvalue	2005-07-09 13:01:03.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/sys-x86_64/signal.c	2005-07-09 13:01:03.000000000 +0200
+@@ -168,7 +168,7 @@ int setup_signal_stack_si(unsigned long 
+ 
+ 	frame = (struct rt_sigframe __user *)
+ 		round_down(stack_top - sizeof(struct rt_sigframe), 16) - 8;
+-	((unsigned char *) frame) -= 128;
++	frame -= 128 / sizeof(frame);
+ 
+ 	if (!access_ok(VERIFY_WRITE, fp, sizeof(struct _fpstate)))
+ 		goto out;
+_

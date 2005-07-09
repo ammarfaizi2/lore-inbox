@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVGIXat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVGIXbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVGIXat (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 19:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVGIXat
+	id S261772AbVGIXbm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 19:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbVGIXbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 19:30:49 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:42142 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261770AbVGIXaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 19:30:46 -0400
-Message-ID: <19474.71.111.147.75.1120951847.squirrel@chretien.affordablehost.com>
-In-Reply-To: <1120944358.6488.90.camel@mindpipe>
-References: <200506231828.j5NISlCe020350@hera.kernel.org> 
-    <20050708214908.GA31225@taniwha.stupidest.org> 
-    <20050708145953.0b2d8030.akpm@osdl.org> 
-    <1120928891.17184.10.camel@lycan.lan>
-    <1120932991.6488.64.camel@mindpipe> 
-    <1120933916.3176.57.camel@laptopd505.fenrus.org> 
-    <1120934163.6488.72.camel@mindpipe>
-    <20050709121212.7539a048.akpm@osdl.org> 
-    <1120936561.6488.84.camel@mindpipe> 
-    <20050709133036.11e60a3c.rdunlap@xenotime.net>
-    <1120944358.6488.90.camel@mindpipe>
-Date: Sat, 9 Jul 2005 16:30:47 -0700 (PDT)
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: "Randy Dunlap" <rdunlap@xenotime.net>
-To: "Lee Revell" <rlrevell@joe-job.com>
-Cc: "randy_dunlap" <rdunlap@xenotime.net>, akpm@osdl.org, arjan@infradead.org,
-       azarah@nosferatu.za.org, cw@f00f.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, christoph@lameter.org
-User-Agent: SquirrelMail/1.4.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sat, 9 Jul 2005 19:31:42 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:42253 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261772AbVGIXbN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 19:31:13 -0400
+Date: Sat, 9 Jul 2005 16:37:41 -0700
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Kristian Benoit <kbenoit@opersys.com>,
+       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
+       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, hch@infradead.org, akpm@osdl.org,
+       rpm@xenomai.org
+Subject: Re: PREEMPT_RT and I-PIPE: the numbers, part 4
+Message-ID: <20050709233741.GA18435@nietzsche.lynx.com>
+References: <42CF05BE.3070908@opersys.com> <20050709071911.GB31100@elte.hu> <1120929727.22337.15.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120929727.22337.15.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 09, 2005 at 10:22:07AM -0700, Daniel Walker wrote:
+> PREEMPT_RT is not pre-tuned for every situation , but the bests
+> performance is achieved when the system is tuned. If any of these tests
+> rely on a low priority thread, then we just raise the priority and you
+> have better performance.
 
-Lee Revell said:
-> On Sat, 2005-07-09 at 13:30 -0700, randy_dunlap wrote:
->> | Then the owners of such machines can use HZ=250 and leave the default
->> | alone.  Why should everyone have to bear the cost?
->>
->> indeed, why should everyone have to have 1000 timer interrupts per
->> second?
->
-> So why waste everyone's time with CONFIG_HZ when there are working
-> dynamic tick solutions out there?  It's just bad release engineering.
+Just think about it. Throttling those threads via the scheduler throttles 
+the system in super controllable ways. This is very cool stuff. :)
 
-hey, that seems to expect some top-level release (or project)
-management.  ;)
-
-anyway, I was just trying to point out more than one side to this,
-and you have now done the same.  thanks.
-
--- 
-~Randy
+bill
 

@@ -1,82 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263002AbVGIAUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263026AbVGIASO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbVGIAUE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 20:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbVGIASu
+	id S263026AbVGIASO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 20:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbVGIAIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 20:18:50 -0400
-Received: from silver.veritas.com ([143.127.12.111]:58943 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S263002AbVGIAI7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 20:08:59 -0400
-Date: Sat, 9 Jul 2005 01:10:17 +0100 (BST)
+	Fri, 8 Jul 2005 20:08:55 -0400
+Received: from gold.veritas.com ([143.127.12.110]:11966 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S263002AbVGIAGQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Jul 2005 20:06:16 -0400
+Date: Sat, 9 Jul 2005 01:07:37 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 11/13] scan_swap_map latency breaks
+Subject: [PATCH 08/13] get_swap_page drop swap_list_lock
 In-Reply-To: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0507090109410.13391@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0507090106320.13391@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Jul 2005 00:08:56.0089 (UTC) FILETIME=[65BDF090:01C5841A]
+X-OriginalArrivalTime: 09 Jul 2005 00:06:16.0229 (UTC) FILETIME=[06753D50:01C5841A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The get_swap_page/scan_swap_map latency can be so bad that even those
-without preemption configured deserve relief: periodically cond_resched.
+Rewrite get_swap_page to allocate in just the same sequence as before,
+but without holding swap_list_lock across its scan_swap_map.  Decrement
+nr_swap_pages and update swap_list.next in advance, while still holding
+swap_list_lock.  Skip full devices by testing highest_bit.  Swapoff hold
+swap_device_lock as well as swap_list_lock to clear SWP_WRITEOK.  Reduces
+lock contention when there are parallel swap devices of the same priority.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/swapfile.c |   14 ++++++++++++--
- 1 files changed, 12 insertions(+), 2 deletions(-)
+ mm/swapfile.c |   73 +++++++++++++++++++++++++++-------------------------------
+ 1 files changed, 35 insertions(+), 38 deletions(-)
 
---- swap10/mm/swapfile.c	2005-07-08 19:15:20.000000000 +0100
-+++ swap11/mm/swapfile.c	2005-07-08 19:15:33.000000000 +0100
-@@ -54,8 +54,6 @@ static DECLARE_MUTEX(swapon_sem);
-  */
- static DECLARE_RWSEM(swap_unplug_sem);
+--- swap7/mm/swapfile.c	2005-07-08 19:14:39.000000000 +0100
++++ swap8/mm/swapfile.c	2005-07-08 19:14:54.000000000 +0100
+@@ -137,7 +137,6 @@ static inline unsigned long scan_swap_ma
+ 		}
+ 		si->swap_map[offset] = 1;
+ 		si->inuse_pages++;
+-		nr_swap_pages--;
+ 		si->cluster_next = offset+1;
+ 		return offset;
+ 	}
+@@ -148,50 +147,45 @@ static inline unsigned long scan_swap_ma
  
--#define SWAPFILE_CLUSTER 256
--
- void swap_unplug_io_fn(struct backing_dev_info *unused_bdi, struct page *page)
+ swp_entry_t get_swap_page(void)
  {
- 	swp_entry_t entry;
-@@ -82,9 +80,13 @@ void swap_unplug_io_fn(struct backing_de
- 	up_read(&swap_unplug_sem);
+-	struct swap_info_struct * p;
+-	unsigned long offset;
+-	swp_entry_t entry;
+-	int type, wrapped = 0;
++	struct swap_info_struct *si;
++	pgoff_t offset;
++	int type, next;
++	int wrapped = 0;
+ 
+-	entry.val = 0;	/* Out of memory */
+ 	swap_list_lock();
+-	type = swap_list.next;
+-	if (type < 0)
+-		goto out;
+ 	if (nr_swap_pages <= 0)
+-		goto out;
++		goto noswap;
++	nr_swap_pages--;
+ 
+-	while (1) {
+-		p = &swap_info[type];
+-		if ((p->flags & SWP_ACTIVE) == SWP_ACTIVE) {
+-			swap_device_lock(p);
+-			offset = scan_swap_map(p);
+-			swap_device_unlock(p);
+-			if (offset) {
+-				entry = swp_entry(type,offset);
+-				type = swap_info[type].next;
+-				if (type < 0 ||
+-					p->prio != swap_info[type].prio) {
+-						swap_list.next = swap_list.head;
+-				} else {
+-					swap_list.next = type;
+-				}
+-				goto out;
+-			}
++	for (type = swap_list.next; type >= 0 && wrapped < 2; type = next) {
++		si = swap_info + type;
++		next = si->next;
++		if (next < 0 ||
++		    (!wrapped && si->prio != swap_info[next].prio)) {
++			next = swap_list.head;
++			wrapped++;
+ 		}
+-		type = p->next;
+-		if (!wrapped) {
+-			if (type < 0 || p->prio != swap_info[type].prio) {
+-				type = swap_list.head;
+-				wrapped = 1;
+-			}
+-		} else
+-			if (type < 0)
+-				goto out;	/* out of swap space */
++
++		if (!si->highest_bit)
++			continue;
++		if (!(si->flags & SWP_WRITEOK))
++			continue;
++
++		swap_list.next = next;
++		swap_device_lock(si);
++		swap_list_unlock();
++		offset = scan_swap_map(si);
++		swap_device_unlock(si);
++		if (offset)
++			return swp_entry(type, offset);
++		swap_list_lock();
++		next = swap_list.next;
+ 	}
+-out:
++
++	nr_swap_pages++;
++noswap:
+ 	swap_list_unlock();
+-	return entry;
++	return (swp_entry_t) {0};
  }
  
-+#define SWAPFILE_CLUSTER	256
-+#define LATENCY_LIMIT		256
-+
- static inline unsigned long scan_swap_map(struct swap_info_struct *si)
- {
- 	unsigned long offset, last_in_cluster;
-+	int latency_ration = LATENCY_LIMIT;
- 
- 	/* 
- 	 * We try to cluster swap pages by allocating them sequentially
-@@ -115,6 +117,10 @@ static inline unsigned long scan_swap_ma
- 				si->cluster_next = offset-SWAPFILE_CLUSTER-1;
- 				goto cluster;
- 			}
-+			if (unlikely(--latency_ration < 0)) {
-+				cond_resched();
-+				latency_ration = LATENCY_LIMIT;
-+			}
- 		}
- 		swap_device_lock(si);
- 		goto lowest;
-@@ -151,6 +157,10 @@ checks:	if (!(si->flags & SWP_WRITEOK))
- 			swap_device_lock(si);
- 			goto checks;
- 		}
-+		if (unlikely(--latency_ration < 0)) {
-+			cond_resched();
-+			latency_ration = LATENCY_LIMIT;
-+		}
+ static struct swap_info_struct * swap_info_get(swp_entry_t entry)
+@@ -1103,8 +1097,11 @@ asmlinkage long sys_swapoff(const char _
  	}
- 	swap_device_lock(si);
- 	goto lowest;
+ 	nr_swap_pages -= p->pages;
+ 	total_swap_pages -= p->pages;
++	swap_device_lock(p);
+ 	p->flags &= ~SWP_WRITEOK;
++	swap_device_unlock(p);
+ 	swap_list_unlock();
++
+ 	current->flags |= PF_SWAPOFF;
+ 	err = try_to_unuse(type);
+ 	current->flags &= ~PF_SWAPOFF;

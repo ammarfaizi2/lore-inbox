@@ -1,118 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262994AbVGIAFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263006AbVGIAK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262994AbVGIAFb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Jul 2005 20:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262999AbVGIADZ
+	id S263006AbVGIAK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Jul 2005 20:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbVGIAJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Jul 2005 20:03:25 -0400
-Received: from gold.veritas.com ([143.127.12.110]:55485 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S262994AbVGIACZ (ORCPT
+	Fri, 8 Jul 2005 20:09:04 -0400
+Received: from gold.veritas.com ([143.127.12.110]:17086 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S263006AbVGIAHJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Jul 2005 20:02:25 -0400
-Date: Sat, 9 Jul 2005 01:03:47 +0100 (BST)
+	Fri, 8 Jul 2005 20:07:09 -0400
+Date: Sat, 9 Jul 2005 01:08:31 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 04/13] swap extent list is ordered
+Subject: [PATCH 09/13] scan_swap_map restyled
 In-Reply-To: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0507090102540.13391@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0507090107420.13391@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0507090057340.13391@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Jul 2005 00:02:25.0351 (UTC) FILETIME=[7CD80D70:01C58419]
+X-OriginalArrivalTime: 09 Jul 2005 00:07:09.0398 (UTC) FILETIME=[26262F60:01C5841A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are several comments that swap's extent_list.prev points to the
-lowest extent: that's not so, it's extent_list.next which points to it,
-as you'd expect.  And a couple of loops in add_swap_extent which go all
-the way through the list, when they should just add to the other end.
-
-Fix those up, and let map_swap_page search the list forwards: profiles
-shows it to be twice as quick that way - because prefetch works better
-on how the structs are typically kmalloc'ed?  or because usually more
-is written to than read from swap, and swap is allocated ascendingly?
+Rewrite scan_swap_map to allocate in just the same way as before
+(taking the next free entry SWAPFILE_CLUSTER-1 times, then restarting at
+the lowest wholly empty cluster, falling back to lowest entry if none),
+but with a view towards dropping the lock in the next patch.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- include/linux/swap.h |    2 --
- mm/swapfile.c        |   27 +++++++++------------------
- 2 files changed, 9 insertions(+), 20 deletions(-)
+ mm/swapfile.c |   91 +++++++++++++++++++++++++++++-----------------------------
+ 1 files changed, 47 insertions(+), 44 deletions(-)
 
---- swap3/include/linux/swap.h	2005-07-07 12:33:21.000000000 +0100
-+++ swap4/include/linux/swap.h	2005-07-08 19:14:00.000000000 +0100
-@@ -115,8 +115,6 @@ enum {
+--- swap8/mm/swapfile.c	2005-07-08 19:14:54.000000000 +0100
++++ swap9/mm/swapfile.c	2005-07-08 19:15:06.000000000 +0100
+@@ -84,64 +84,67 @@ void swap_unplug_io_fn(struct backing_de
  
- /*
-  * The in-memory structure used to track swap areas.
-- * extent_list.prev points at the lowest-index extent.  That list is
-- * sorted.
-  */
- struct swap_info_struct {
- 	unsigned int flags;
---- swap3/mm/swapfile.c	2005-07-08 19:13:46.000000000 +0100
-+++ swap4/mm/swapfile.c	2005-07-08 19:14:00.000000000 +0100
-@@ -830,9 +830,9 @@ sector_t map_swap_page(struct swap_info_
- 				offset < (se->start_page + se->nr_pages)) {
- 			return se->start_block + (offset - se->start_page);
+ static inline unsigned long scan_swap_map(struct swap_info_struct *si)
+ {
+-	unsigned long offset;
++	unsigned long offset, last_in_cluster;
++
+ 	/* 
+-	 * We try to cluster swap pages by allocating them
+-	 * sequentially in swap.  Once we've allocated
+-	 * SWAPFILE_CLUSTER pages this way, however, we resort to
+-	 * first-free allocation, starting a new cluster.  This
+-	 * prevents us from scattering swap pages all over the entire
+-	 * swap partition, so that we reduce overall disk seek times
+-	 * between swap pages.  -- sct */
+-	if (si->cluster_nr) {
+-		while (si->cluster_next <= si->highest_bit) {
+-			offset = si->cluster_next++;
++	 * We try to cluster swap pages by allocating them sequentially
++	 * in swap.  Once we've allocated SWAPFILE_CLUSTER pages this
++	 * way, however, we resort to first-free allocation, starting
++	 * a new cluster.  This prevents us from scattering swap pages
++	 * all over the entire swap partition, so that we reduce
++	 * overall disk seek times between swap pages.  -- sct
++	 * But we do now try to find an empty cluster.  -Andrea
++	 */
++
++	if (unlikely(!si->cluster_nr)) {
++		si->cluster_nr = SWAPFILE_CLUSTER - 1;
++		if (si->pages - si->inuse_pages < SWAPFILE_CLUSTER)
++			goto lowest;
++
++		offset = si->lowest_bit;
++		last_in_cluster = offset + SWAPFILE_CLUSTER - 1;
++
++		/* Locate the first empty (unaligned) cluster */
++		for (; last_in_cluster <= si->highest_bit; offset++) {
+ 			if (si->swap_map[offset])
+-				continue;
+-			si->cluster_nr--;
+-			goto got_page;
++				last_in_cluster = offset + SWAPFILE_CLUSTER;
++			else if (offset == last_in_cluster) {
++				si->cluster_next = offset-SWAPFILE_CLUSTER-1;
++				goto cluster;
++			}
  		}
--		lh = se->list.prev;
-+		lh = se->list.next;
- 		if (lh == &sis->extent_list)
--			lh = lh->prev;
-+			lh = lh->next;
- 		se = list_entry(lh, struct swap_extent, list);
- 		sis->curr_swap_extent = se;
- 		BUG_ON(se == start_se);		/* It *must* be present */
-@@ -857,10 +857,9 @@ static void destroy_swap_extents(struct 
- 
- /*
-  * Add a block range (and the corresponding page range) into this swapdev's
-- * extent list.  The extent list is kept sorted in block order.
-+ * extent list.  The extent list is kept sorted in page order.
-  *
-- * This function rather assumes that it is called in ascending sector_t order.
-- * It doesn't look for extent coalescing opportunities.
-+ * This function rather assumes that it is called in ascending page order.
-  */
- static int
- add_swap_extent(struct swap_info_struct *sis, unsigned long start_page,
-@@ -870,16 +869,15 @@ add_swap_extent(struct swap_info_struct 
- 	struct swap_extent *new_se;
- 	struct list_head *lh;
- 
--	lh = sis->extent_list.next;	/* The highest-addressed block */
--	while (lh != &sis->extent_list) {
-+	lh = sis->extent_list.prev;	/* The highest page extent */
-+	if (lh != &sis->extent_list) {
- 		se = list_entry(lh, struct swap_extent, list);
--		if (se->start_block + se->nr_pages == start_block &&
--		    se->start_page  + se->nr_pages == start_page) {
-+		BUG_ON(se->start_page + se->nr_pages != start_page);
-+		if (se->start_block + se->nr_pages == start_block) {
- 			/* Merge it */
- 			se->nr_pages += nr_pages;
- 			return 0;
- 		}
--		lh = lh->next;
++		goto lowest;
  	}
+-	si->cluster_nr = SWAPFILE_CLUSTER;
  
- 	/*
-@@ -892,14 +890,7 @@ add_swap_extent(struct swap_info_struct 
- 	new_se->nr_pages = nr_pages;
- 	new_se->start_block = start_block;
- 
--	lh = sis->extent_list.prev;	/* The lowest block */
--	while (lh != &sis->extent_list) {
--		se = list_entry(lh, struct swap_extent, list);
--		if (se->start_block > start_block)
--			break;
--		lh = lh->prev;
+-	/* try to find an empty (even not aligned) cluster. */
+-	offset = si->lowest_bit;
+- check_next_cluster:
+-	if (offset+SWAPFILE_CLUSTER-1 <= si->highest_bit)
+-	{
+-		unsigned long nr;
+-		for (nr = offset; nr < offset+SWAPFILE_CLUSTER; nr++)
+-			if (si->swap_map[nr])
+-			{
+-				offset = nr+1;
+-				goto check_next_cluster;
+-			}
+-		/* We found a completly empty cluster, so start
+-		 * using it.
+-		 */
+-		goto got_page;
 -	}
--	list_add_tail(&new_se->list, lh);
-+	list_add_tail(&new_se->list, &sis->extent_list);
- 	sis->nr_extents++;
+-	/* No luck, so now go finegrined as usual. -Andrea */
+-	for (offset = si->lowest_bit; offset <= si->highest_bit ; offset++) {
+-		if (si->swap_map[offset])
+-			continue;
+-		si->lowest_bit = offset+1;
+-	got_page:
+-		if (offset == si->lowest_bit)
++	si->cluster_nr--;
++cluster:
++	offset = si->cluster_next;
++	if (offset > si->highest_bit)
++lowest:		offset = si->lowest_bit;
++	if (!si->highest_bit)
++		goto no_page;
++	if (!si->swap_map[offset]) {
++got_page:	if (offset == si->lowest_bit)
+ 			si->lowest_bit++;
+ 		if (offset == si->highest_bit)
+ 			si->highest_bit--;
+-		if (si->lowest_bit > si->highest_bit) {
++		si->inuse_pages++;
++		if (si->inuse_pages == si->pages) {
+ 			si->lowest_bit = si->max;
+ 			si->highest_bit = 0;
+ 		}
+ 		si->swap_map[offset] = 1;
+-		si->inuse_pages++;
+-		si->cluster_next = offset+1;
++		si->cluster_next = offset + 1;
+ 		return offset;
+ 	}
+-	si->lowest_bit = si->max;
+-	si->highest_bit = 0;
++
++	while (++offset <= si->highest_bit) {
++		if (!si->swap_map[offset])
++			goto got_page;
++	}
++	goto lowest;
++
++no_page:
  	return 0;
  }
+ 

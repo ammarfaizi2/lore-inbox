@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVGILWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVGILq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVGILWH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 07:22:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVGILWH
+	id S261190AbVGILq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 07:46:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVGILq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 07:22:07 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:60178 "EHLO
-	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S261204AbVGILWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 07:22:06 -0400
-From: Neil Darlow <neil@darlow.co.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: ns558 mis-detects gameport
-Date: Sat, 9 Jul 2005 12:22:01 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, linux-joystick@atrey.karlin.mff.cuni.cz,
-       Daniel Drake <dsd@gentoo.org>
-References: <200507082136.47475.neil@darlow.co.uk> <20050708212442.GB3584@ucw.cz>
-In-Reply-To: <20050708212442.GB3584@ucw.cz>
+	Sat, 9 Jul 2005 07:46:27 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:40137 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261190AbVGILqY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 07:46:24 -0400
+Date: Sat, 9 Jul 2005 12:46:22 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [git tree] DRM fixes/cleanups tree
+In-Reply-To: <20050709120947.D2175@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0507091245330.6297@skynet>
+References: <Pine.LNX.4.58.0507091202460.6297@skynet>
+ <20050709120947.D2175@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507091222.01860.neil@darlow.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vojtech,
+>
+> Can folk consider using the -p argument to diffstat to obtain the full
+> path to the file from the kernels top directory please?
+>
+> Consider the case where you modify just a Kconfig or Makefile.  What
+> use does a diffstat showing that just one Makefile or Kconfig somewhere
+> in the kernel tree was modified, but not where it was?
 
-On Friday 08 Jul 2005 22:24, Vojtech Pavlik wrote:
-> In the current input GIT tree there is a patch to reverse the order of
-> probing (PnP first) for exactly this reason. I expect 2.6.13 should have
-> the fix.
+Will do in future...
 
-Daniel, is it worth backporting this fix for gentoo-sources-2.6.12 so others 
-aren't bitten or will we have to wait for 2.6.13?
+Granted in this case it should be obviously be the drm ones as I usually
+stay in my own directory, but I can see your point...
 
-> As a workaround, you can try disabling the gameport in BIOS. The legacy
-> probe won't see it, and the PnP probe might enable it just fine.
+Dave.
 
-Disabling the gameport in my BIOS seems to take it off the bus and PnP doesn't 
-see it at all.
-
-Regards,
-Neil Darlow
 -- 
-Anti-virus scanned by ClamAV-0.86.1 - http://www.clamav.net
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

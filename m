@@ -1,81 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVGIPWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVGIP3C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbVGIPWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 11:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVGIPWr
+	id S261517AbVGIP3C (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 11:29:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVGIP3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 11:22:47 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:17361 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261521AbVGIPWq (ORCPT
+	Sat, 9 Jul 2005 11:29:01 -0400
+Received: from opersys.com ([64.40.108.71]:51468 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261517AbVGIP3A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 11:22:46 -0400
-Date: Sat, 9 Jul 2005 17:22:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Rolland <rol@witbe.net>
-Cc: "'Kristian Benoit'" <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+	Sat, 9 Jul 2005 11:29:00 -0400
+Message-ID: <42CFEFC9.7070007@opersys.com>
+Date: Sat, 09 Jul 2005 11:39:53 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
        paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
-       karim@opersys.com, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org, rpm@xenomai.org
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
 Subject: Re: PREEMPT_RT and I-PIPE: the numbers, part 4
-Message-ID: <20050709152207.GA12797@elte.hu>
-References: <42CF05BE.3070908@opersys.com> <200507090901.j6991PD22890@tag.witbe.net>
-Mime-Version: 1.0
+References: <42CF05BE.3070908@opersys.com> <20050709071911.GB31100@elte.hu>
+In-Reply-To: <20050709071911.GB31100@elte.hu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507090901.j6991PD22890@tag.witbe.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Paul Rolland <rol@witbe.net> wrote:
+Ingo Molnar wrote:
+> yeah, they definitely have helped, and thanks for this round of testing 
+> too! I'll explain the recent changes to PREEMPT_RT that resulted in 
+> these speedups in another mail.
 
-> > "IRQ & hd" run:
-> > Measurements   |   Vanilla   |  preempt_rt    |   ipipe
-> > ---------------+-------------+----------------+-------------
-> > fork           |     101us   |   94us (-7%)   |  103us (+2%)
-> > open/close     |     2.9us   |  2.9us (~)     |  3.0us (+3%)
-> > execve         |     366us   |  370us (+1%)   |  372us (+2%)
-> > select 500fd   |    14.3us   | 18.1us (+27%)  | 14.5us (+1%)
-> > mmap           |     794us   |  654us (+18%)  |  822us (+4%)
-> 
->                                   ^^^^^^^^^^^^
-> You mean -18%, not +18% I think.
-> 
-> Just having a quick long at the numbers, it seems that now the "weak" 
-> part in PREEMPT_RT is the select 500fd test.
-> 
-> Ingo, any idea about this one ?
+Great, I'm very much looking forward to it.
 
-yeah. In the '500 fds select' benchmark workload do_select() does an 
-extremely tight loop over a 500-entry table that does an fget(). fget() 
-acquires/releases current->files->file_lock. So we get 1000 lock and 
-unlock operations in this workload. It cannot be for free. In fact, look 
-at how the various vanilla kernels compare:
+> Looking at your numbers i realized that the area where PREEMPT_RT is 
+> still somewhat behind (the flood ping +~10% overhead), you might be 
+> using an invalid test methodology:
 
-    AVG           v2.6.12        v2.6.12-PREEMPT        v2.6.12-SMP         
- ------------------------------------------------------------------
-       select:      11.48           12.35 (  7%)       26.40 (129%)
+I've got to smile reading this :) If one thing became clear out of
+these threads is that no matter how careful we are with our testing,
+there is always something that can be criticized about them.
 
-(tested on one of my single-processor testsystems.)
+Take the highmem thing, for example, I never really bought the
+argument that highmem was the root of all evil ;) , and the last
+comparison we did between 50-35 and 51-02 with and without highmem
+clearly showed that indeed while highmem is a factor, there are
+inherent problems elsewhere than the disabling of highmem doesn't
+erase. Also, both vanilla and I-pipe were run with highmem, and if
+they don't suffer from it, then the problem is/was with PREEMPT_RT.
 
-I.e. SMP locking is already 129% overhead, and CONFIG_PREEMPT (which 
-just bumps the preempt count twice(!)) has 7% overhead. In that sense, 
-the 27% select-500-fds overhead measured for PREEMPT_RT is more than 
-acceptable.
+With ping floods, as with other things, there is room for
+improvement, but keep in mind that these are standard tests used
+as-is by others to make measurements, that each run is made 5
+times, and that the values in those tables represent the average
+of 5 runs. So while they may not be as exact as could be, I don't
+see why they couldn't be interpreted as giving us a "good idea" of
+what's happening.
 
-anyway, these days apps that do select() over 500 fds are expected to 
-perform bad no matter what locking method is used. [To fix this
-particular overhead we could take the current->file_lock outside of the
-loop and do a get_file() within do_select(). This would improve SMP too.
-But i doubt anyone cares.]
+For one thing, the heavy fluctuation in ping packets may actually
+induce a state in the monitored kernel which is more akin to the
+one we want to measure than if we had a steady flow of packets.
 
-	Ingo
+I would usually like very much to entertain this further, but we've
+really busted all the time slots I had allocated to this work. So at
+this time, we really think others should start publishing results.
+After all, our results are no more authoritative than those
+published by others.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

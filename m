@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVGIL75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVGIMAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVGIL75 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 07:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVGIL4w
+	id S261218AbVGIMAR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 08:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVGIMAC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 07:56:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58077 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261224AbVGILys (ORCPT
+	Sat, 9 Jul 2005 08:00:02 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:20879 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261218AbVGIL6g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 07:54:48 -0400
-Date: Sat, 9 Jul 2005 13:53:59 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
+	Sat, 9 Jul 2005 07:58:36 -0400
+Date: Sat, 9 Jul 2005 13:58:18 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [26/48] Suspend2 2.1.9.8 for 2.6.12: 603-suspend2_common-headers.patch
-Message-ID: <20050709115359.GC1878@elf.ucw.cz>
-References: <11206164393426@foobar.com> <11206164424053@foobar.com>
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Message-ID: <20050709115817.GA4665@elte.hu>
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081938.27815.s0348365@sms.ed.ac.uk> <20050708194827.GA22536@elte.hu> <200507082145.08877.s0348365@sms.ed.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <11206164424053@foobar.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200507082145.08877.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> diff -ruNp 604-utility-header.patch-old/kernel/power/suspend2_core/utility.c 604-utility-header.patch-new/kernel/power/suspend2_core/utility.c
-> --- 604-utility-header.patch-old/kernel/power/suspend2_core/utility.c	1970-01-01 10:00:00.000000000 +1000
-> +++ 604-utility-header.patch-new/kernel/power/suspend2_core/utility.c	2005-07-05 23:48:59.000000000 +1000
-> @@ -0,0 +1,46 @@
-> +/*
-> + * kernel/power/utility.c
-> + *
-> + * Copyright (C) 2004-2005 Nigel Cunningham <nigel@suspend2.net>
-> + * 
-> + * This file is released under the GPLv2.
-> + *
-> + * Routines that only suspend uses at the moment, but which might move
-> + * when we merge because they're generic.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/mm.h>
-> +#include <linux/proc_fs.h>
-> +#include <asm/string.h>
-> +
-> +#include "pageflags.h"
-> +
-> +/*
-> + * suspend_snprintf
-> + *
-> + * Functionality    : Print a string with parameters to a buffer of a 
-> + *                    limited size. Unlike vsnprintf, we return the number
-> + *                    of bytes actually put in the buffer, not the number
-> + *                    that would have been put in if it was big enough.
-> + */
-> +int suspend_snprintf(char * buffer, int buffer_size, const char *fmt, ...)
-> +{
-> +	int result;
-> +	va_list args;
-> +
-> +	if (!buffer_size) {
-> +		return 0;
-> +	}
-> +
-> +	va_start(args, fmt);
-> +	result = vsnprintf(buffer, buffer_size, fmt, args);
-> +	va_end(args);
-> +
-> +	if (result > buffer_size) {
-> +		return buffer_size;
-> +	}
-> +
-> +	return result;
-> +}
+* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
 
-Eh, this needs to be either generic function or not there at all.
-										Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+> Got this (slightly better) oops. Figured out how to use my camera :-)
+> 
+> http://devzero.co.uk/~alistair/oops6.jpeg
+
+this was a bit more useful - shows a softirq wakeup. Could you send me 
+your vmlinux (bzip -9 compressed, via private mail), your gcc generates 
+a slightly different code layout so i couldnt match up everything that 
+might be useful.
+
+> Onto your stack-footprint metric. I don't know what the number means, 
+> but at a guess it's the size of the stack. Unfortunately, if this is 
+> the case, it's unlikely to be an overflow causing the crash. Here's a 
+> grep of dmesg just before the crash.
+
+it could still be near an overflow. To make sure i've changed the oops 
+printout to also include the current stack left, and the worst-case 
+stack-left value, and have uploaded the -51-18 kernel - could you try 
+it? That way we can tell for sure. (note that the maximum-tracker can 
+not always do an immediate printout of a worst-case - we have to skip 
+printouts if irqs are disabled. [or we could recurse from within the 
+scheduler or the printk code] Even in those cases we save the worst-case 
+stack and print it out as soon as interrupts are enabled again. (The 
+worst-case stack-left value printed out at oops time is immediate.)
+
+	Ingo

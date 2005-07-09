@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVGIQCw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVGIQEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVGIQCw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 12:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVGIQCv
+	id S261575AbVGIQEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 12:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVGIQEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 12:02:51 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:36306 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261563AbVGIQCq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 12:02:46 -0400
-Date: Sat, 9 Jul 2005 18:02:10 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 9 Jul 2005 12:04:15 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:2021 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261575AbVGIQEJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 12:04:09 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Ingo Molnar <mingo@elte.hu>
 Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050709160210.GA14729@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507082145.08877.s0348365@sms.ed.ac.uk> <20050709115817.GA4665@elte.hu> <200507091507.13215.s0348365@sms.ed.ac.uk> <20050709155704.GA14535@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: Sat, 9 Jul 2005 17:04:12 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507091507.13215.s0348365@sms.ed.ac.uk> <20050709155704.GA14535@elte.hu>
 In-Reply-To: <20050709155704.GA14535@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507091704.12368.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
+On Saturday 09 Jul 2005 16:57, Ingo Molnar wrote:
+> * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > Okay, I'll send you the vmlinux from -18 with a new digital photo, and
+> > config, with CONFIG_4KSTACKS enabled.
+>
+> this crash too seems to indicate trigger_softirqs()/wakeup_softirqd().
+> Somewhere we somehow corrupt the stack and e.g. in oops7.jpg we return
+> to 00c011ed. Note that it's a right-shifted address that could be one of
+> these:
+>
 >  c011ed50 t wakeup_softirqd
 >  c011ed80 t trigger_softirqs
-> 
-> but it looks pretty weird. DEBUG_STACK_POISON (and the full-debug 
-> .config i sent) could perhaps uncover other types of stack 
-> corruptions.
+>
+> but it looks pretty weird. DEBUG_STACK_POISON (and the full-debug
+> .config i sent) could perhaps uncover other types of stack corruptions.
+>
 
-there's one more pretty efficient debugging method:
+You weren't kidding about the overhead from DEBUG_STACK_POISON. Unfortunately 
+that config causes a triple fault randomly after boot. The machine doesn't 
+crash, or oops, it just resets.
 
-  echo 1 > /proc/sys/kernel/trace_print_at_crash
-  echo 1 > /proc/sys/kernel/trace_freerunning
+This problem has gone from bad to worse :-)
 
-and then upon oopses the kernel will print a full execution trace that 
-led up to the crash. But this definitely needs a serial console to be 
-usable, as the kernel will print out thousands of trace entries.
+-- 
+Cheers,
+Alistair.
 
-(also, since it seems your kernel crashes when trying to print out the 
-stacktrace, you'd also have to move the print_traces(task) line within 
-arch/i386/kernel/traps.c:show_trace() to the beginning of that 
-function.)
-
-	Ingo
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

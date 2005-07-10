@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVGJVSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVGJVSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVGJVSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 17:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVGJTjv
+	id S262109AbVGJVSY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 17:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVGJTjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:39:51 -0400
-Received: from ns2.suse.de ([195.135.220.15]:36060 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261708AbVGJTfi (ORCPT
+	Sun, 10 Jul 2005 15:39:53 -0400
+Received: from mail.suse.de ([195.135.220.2]:403 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261671AbVGJTfg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:38 -0400
-Date: Sun, 10 Jul 2005 19:35:37 +0000
+	Sun, 10 Jul 2005 15:35:36 -0400
+Date: Sun, 10 Jul 2005 19:35:36 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Subject: [PATCH 29/82] remove linux/version.h from drivers/scsi/3w-xxxx.h
-Message-ID: <20050710193537.29.YyPlzr3046.2247.olh@nectarine.suse.de>
+Cc: schwidefsky@de.ibm.com
+Subject: [PATCH 28/82] remove linux/version.h from drivers/s390/net/claw.c
+Message-ID: <20050710193536.28.UysRgL3018.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -30,18 +30,18 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/scsi/3w-xxxx.h |    1 -
+drivers/s390/net/claw.c |    1 -
 1 files changed, 1 deletion(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/scsi/3w-xxxx.h
+Index: linux-2.6.13-rc2-mm1/drivers/s390/net/claw.c
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/scsi/3w-xxxx.h
-+++ linux-2.6.13-rc2-mm1/drivers/scsi/3w-xxxx.h
-@@ -54,7 +54,6 @@
-#ifndef _3W_XXXX_H
-#define _3W_XXXX_H
-
--#include <linux/version.h>
+--- linux-2.6.13-rc2-mm1.orig/drivers/s390/net/claw.c
++++ linux-2.6.13-rc2-mm1/drivers/s390/net/claw.c
+@@ -88,7 +88,6 @@
+#include <linux/tcp.h>
+#include <linux/timer.h>
 #include <linux/types.h>
+-#include <linux/version.h>
 
-/* AEN strings */
+#include "cu3088.h"
+#include "claw.h"

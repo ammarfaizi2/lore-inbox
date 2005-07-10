@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVGJTfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVGJTgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVGJTfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 15:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVGJTfL
+	id S262044AbVGJTgq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 15:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVGJTgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:35:11 -0400
-Received: from mx2.suse.de ([195.135.220.15]:22492 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261164AbVGJTfJ (ORCPT
+	Sun, 10 Jul 2005 15:36:44 -0400
+Received: from cantor.suse.de ([195.135.220.2]:24467 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262032AbVGJTgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:09 -0400
-Date: Sun, 10 Jul 2005 19:35:08 +0000
+	Sun, 10 Jul 2005 15:36:21 -0400
+Date: Sun, 10 Jul 2005 19:36:21 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/82] changing CONFIG_LOCALVERSION rebuilds too much, for no good reason.
-Message-ID: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>
+Subject: [PATCH 73/82] remove linux/version.h from include/linux/phonedev.h
+Message-ID: <20050710193621.73.EqSzcM4208.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 X-DOS: I got your 640K Real Mode Right Here Buddy!
 X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
 User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>  
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The following series of patches removes almost all inclusions
-of linux/version.h. The 3 #defines are unused in most of the touched files.
+changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
-A few drivers use the simple KERNEL_VERSION(a,b,c) macro, which is unfortunatly
-in linux/version.h. This define moved to linux/utsname.h
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-There are also lots of #ifdef for long obsolete kernels, this will go as well.
+include/linux/phonedev.h |    1 -
+1 files changed, 1 deletion(-)
 
+Index: linux-2.6.13-rc2-mm1/include/linux/phonedev.h
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/include/linux/phonedev.h
++++ linux-2.6.13-rc2-mm1/include/linux/phonedev.h
+@@ -2,7 +2,6 @@
+#define __LINUX_PHONEDEV_H
 
-quilt vi `find * -type f -name "*.[ch]"|xargs grep -El '(UTS_RELEASE|LINUX_VERSION_CODE|KERNEL_VERSION|linux/version.h)'|grep -Ev '(/(boot|coda|drm)/|~$)'`
+#include <linux/types.h>
+-#include <linux/version.h>
 
-search pattern:
-/UTS_RELEASE|LINUX_VERSION_CODE|KERNEL_VERSION|linux/(utsname|version).h
+#ifdef __KERNEL__
 
-PS: I hope my script is working ok.

@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVGJTEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVGJTOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVGJTEP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 15:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVGJTEP
+	id S261160AbVGJTOy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 15:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVGJTOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:04:15 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:21943 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261158AbVGJTDY (ORCPT
+	Sun, 10 Jul 2005 15:14:53 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:50626 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261160AbVGJTOw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:03:24 -0400
-Date: Sun, 10 Jul 2005 20:46:49 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Bob Tracy <rct@gherkin.frus.com>
-Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 vs. /sbin/cardmgr
-Message-ID: <20050710184649.GG8758@dominikbrodowski.de>
-Mail-Followup-To: Bob Tracy <rct@gherkin.frus.com>,
-	linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20050709051217.A4F0FDBA1@gherkin.frus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050709051217.A4F0FDBA1@gherkin.frus.com>
-User-Agent: Mutt/1.5.8i
+	Sun, 10 Jul 2005 15:14:52 -0400
+Date: Sun, 10 Jul 2005 21:14:08 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: Bryan Henderson <hbryan@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       bfields@fieldses.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linuxram@us.ibm.com, mike@waychison.com,
+       Miklos Szeredi <miklos@szeredi.hu>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: share/private/slave a subtree - define vs enum
+In-Reply-To: <1121019702.20821.17.camel@localhost>
+Message-ID: <Pine.LNX.4.61.0507102047380.3728@scrub.home>
+References: <OFB01287B5.D35EDB80-ON88257038.005DEE97-88257038.005EDB8B@us.ibm.com>
+  <courier.42CEC422.00001C6C@courier.cs.helsinki.fi> 
+ <Pine.LNX.4.61.0507082108530.3728@scrub.home>  <1120851221.9655.17.camel@localhost>
+  <Pine.LNX.4.61.0507082154090.3728@scrub.home> <1121019702.20821.17.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Sat, Jul 09, 2005 at 12:12:17AM -0500, Bob Tracy wrote:
-> I've got a Mandrake 10.0 system with a 2.6.12 kernel presently.
-> Somewhere between 2.6.11 and 2.6.12, /sbin/cardmgr from the
-> pcmcia-cs-3.2.5-3mdk package decided it needs to consume incredible
-> amounts of CPU time when invoked the first time following a boot.
-> You can definitely notice the load on the system.
-> 
-> Stopping cardmgr requires a "kill -9": softer kills are ignored.
-> Restarting cardmgr produces the following output:
-> 
-> cardmgr[3731]: watching 2 sockets
-> cardmgr[3731]: could not adjust resource: IO ports 0xc00-0xcff: Device or resource busy
-> cardmgr[3731]: could not adjust resource: IO ports 0x100-0x4ff: Device or resource busy
-> cardmgr[3731]: could not adjust resource: memory 0xc0000-0xfffff: Input/output error
-> cardmgr[3731]: could not adjust resource: memory 0x60000000-0x60ffffff: Input/output error
-> cardmgr[3731]: could not adjust resource: memory 0xa0000000-0xa0ffffff: Input/output error
-> cardmgr[3731]: could not adjust resource: IO ports 0x1000-0x1fff: Device or resource busy
-> cardmgr[3731]: could not adjust resource: IO ports 0xa00-0xaff: Device or resource busy
-> 
-> But at least it doesn't seem to be running around in tight circles at
-> this point :-).
-> 
-> System is a Dell Latitude CPxJ notebook that continues to work fine
-> with 2.6.11 and older kernels.  Any idea what changed between 2.6.11
-> and 2.6.12 that might be causing this problem?  I can probably provide
-> more info on request.
+On Sun, 10 Jul 2005, Pekka Enberg wrote:
 
-Please post the output of "lspci" and "lsmod" as I'd like to know which
-kind of PCMCIA bridge is in your notebook.
+> > The point of a review is to comment on things that _need_ fixing. Less 
+> > experienced hackers take this a requirement for their drivers to be 
+> > included.
+> 
+> Hmm. So we disagree on that issue as well. I think the point of review
+> is to improve code and help others conform with the existing coding
+> style which is why I find it strange that you're suggesting me to limit
+> my comments to a subset you agree with.
+> 
+> Would you please be so kind to define your criteria for things that
+> "need fixing" so we could see if can reach some sort of an agreement on
+> this. My list is roughly as follows:
+> 
+>   - Erroneous use of kernel API
+>   - Bad coding style
+>   - Layering violations
+>   - Duplicate code
+>   - Hard to read code
 
-	Dominik
+I don't generally disagree with that, I just think that defines are not 
+part of that list.
+Look, it's great that you do reviews, but please keep in mind it's the 
+author who has to work with code and he has to be primarily happy with, 
+so you don't have to point out every minor issue.
+Although it also differs between core and driver code, we don't have to be 
+that strict with driver code as longs as it "looks" ok and is otherwise 
+correct. The requirements for core kernel code are higher, but even here 
+defines are a well accepted language construct.
+
+bye, Roman

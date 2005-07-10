@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVGJDde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVGJDgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbVGJDde (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 23:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVGJDde
+	id S261833AbVGJDgK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 23:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVGJDgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 23:33:34 -0400
-Received: from node-40240a4a.sjc.onnet.us.uu.net ([64.36.10.74]:24587 "EHLO
-	sphinx.zankel.net") by vger.kernel.org with ESMTP id S261830AbVGJDde
+	Sat, 9 Jul 2005 23:36:10 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:31927 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261833AbVGJDgH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 23:33:34 -0400
-Message-ID: <42D0990D.8030701@zankel.net>
-Date: Sat, 09 Jul 2005 20:42:05 -0700
-From: Christian Zankel <chris@zankel.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050210)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Dittmer <jdittmer@ppp0.net>
-CC: czankel@tensilica.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: arch xtensa does not compile
-References: <42BD6557.9070102@ppp0.net> <42BD8622.8060506@zankel.net> <42C80B34.80007@ppp0.net>
-In-Reply-To: <42C80B34.80007@ppp0.net>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Jul 2005 23:36:07 -0400
+X-ORBL: [63.202.173.158]
+Date: Sat, 9 Jul 2005 20:35:59 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [patch] compress the stack layout of do_page_fault(), x86
+Message-ID: <20050710033559.GA31057@taniwha.stupidest.org>
+References: <20050709144116.GA9444@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050709144116.GA9444@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Dittmer wrote:
-> I guess I'm using the wrong binutils version (2.15.94.0.2.2). Which is the
-> recommended gcc/binutils pair which is supposed to compile the kernel?
+On Sat, Jul 09, 2005 at 04:41:16PM +0200, Ingo Molnar wrote:
 
-Bob Wilson made some changes to binutils last week to address this 
-problem but he only submitted it to the latest binutils version.
+> this patch pushes the creation of a rare signal frame (SIGBUS or
+> SIGSEGV) into a separate function, thus saving stackspace in the
+> main do_page_fault() stackframe. The effect is 132 bytes less of
+> stack used by the typical do_page_fault() invocation - resulting in
+> a denser cache-layout.
 
-With the latest gcc+binutils toolchain, the kernel compiles for me.
-Note, however, that I just submitted a patch that is not in Linus' tree, 
-yet.
-
-gcc version 3.4.5 20050707 (prerelease)
-GNU ld version 2.16.91 20050707
-
-Thanks,
-Chris
+does the benefit actually show up anywhere?

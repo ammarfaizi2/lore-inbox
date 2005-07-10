@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVGJTnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbVGJTyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVGJTnY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 15:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVGJTmM
+	id S261921AbVGJTyF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 15:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVGJTmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:42:12 -0400
-Received: from mail.suse.de ([195.135.220.2]:11923 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261898AbVGJTgA (ORCPT
+	Sun, 10 Jul 2005 15:42:05 -0400
+Received: from ns1.suse.de ([195.135.220.2]:14995 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261921AbVGJTgD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:36:00 -0400
-Date: Sun, 10 Jul 2005 19:35:59 +0000
+	Sun, 10 Jul 2005 15:36:03 -0400
+Date: Sun, 10 Jul 2005 19:36:02 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Subject: [PATCH 51/82] remove linux/version.h from drivers/scsi/sgiwd93.c
-Message-ID: <20050710193559.51.IaswNc3626.2247.olh@nectarine.suse.de>
+Cc: rmk+serial@arm.linux.org.uk
+Subject: [PATCH 54/82] remove linux/version.h from drivers/serial/crisv32.c
+Message-ID: <20050710193602.54.aYgCdW3708.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -30,18 +30,18 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/scsi/sgiwd93.c |    1 -
+drivers/serial/crisv32.c |    1 -
 1 files changed, 1 deletion(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/scsi/sgiwd93.c
+Index: linux-2.6.13-rc2-mm1/drivers/serial/crisv32.c
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/scsi/sgiwd93.c
-+++ linux-2.6.13-rc2-mm1/drivers/scsi/sgiwd93.c
-@@ -15,7 +15,6 @@
-#include <linux/types.h>
-#include <linux/mm.h>
-#include <linux/blkdev.h>
+--- linux-2.6.13-rc2-mm1.orig/drivers/serial/crisv32.c
++++ linux-2.6.13-rc2-mm1/drivers/serial/crisv32.c
+@@ -198,7 +198,6 @@
+static char *serial_version = "$Revision: 1.50 $";
+
+#include <linux/config.h>
 -#include <linux/version.h>
-#include <linux/delay.h>
-#include <linux/dma-mapping.h>
-#include <linux/spinlock.h>
+
+#include <linux/types.h>
+#include <linux/errno.h>

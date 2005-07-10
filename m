@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVGJVBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVGJVBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVGJVBq (ORCPT <rfc822;willy@w.ods.org>);
+	id S261272AbVGJVBq (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 10 Jul 2005 17:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVGJTkh
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVGJTko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:40:37 -0400
-Received: from mx1.suse.de ([195.135.220.2]:62610 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261411AbVGJTfd (ORCPT
+	Sun, 10 Jul 2005 15:40:44 -0400
+Received: from ns2.suse.de ([195.135.220.15]:30428 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261272AbVGJTfb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:33 -0400
-Date: Sun, 10 Jul 2005 19:35:32 +0000
+	Sun, 10 Jul 2005 15:35:31 -0400
+Date: Sun, 10 Jul 2005 19:35:26 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Max Asbock <masbock@us.ibm.com>
-Subject: [PATCH 24/82] remove linux/version.h from drivers/misc/ibmasm/
-Message-ID: <20050710193532.24.yomyuT2919.2247.olh@nectarine.suse.de>
+Cc: openib-general@openib.org, rolandd@cisco.com
+Subject: [PATCH 18/82] remove linux/version.h from drivers/infiniband/
+Message-ID: <20050710193526.18.UYMiOz2756.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -30,18 +30,57 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/misc/ibmasm/ibmasm.h |    1 -
-1 files changed, 1 deletion(-)
+drivers/infiniband/core/cache.c           |    1 -
+drivers/infiniband/hw/mthca/mthca_main.c  |    1 -
+drivers/infiniband/ulp/ipoib/ipoib_main.c |    1 -
+drivers/infiniband/ulp/ipoib/ipoib_vlan.c |    1 -
+4 files changed, 4 deletions(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/misc/ibmasm/ibmasm.h
+Index: linux-2.6.13-rc2-mm1/drivers/infiniband/core/cache.c
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/misc/ibmasm/ibmasm.h
-+++ linux-2.6.13-rc2-mm1/drivers/misc/ibmasm/ibmasm.h
-@@ -31,7 +31,6 @@
-#include <linux/slab.h>
-#include <linux/config.h>
-#include <linux/module.h>
+--- linux-2.6.13-rc2-mm1.orig/drivers/infiniband/core/cache.c
++++ linux-2.6.13-rc2-mm1/drivers/infiniband/core/cache.c
+@@ -32,7 +32,6 @@
+* $Id: cache.c 1349 2004-12-16 21:09:43Z roland $
+*/
+
 -#include <linux/version.h>
-#include <linux/interrupt.h>
-#include <linux/device.h>
-#include <linux/input.h>
+#include <linux/module.h>
+#include <linux/errno.h>
+#include <linux/slab.h>
+Index: linux-2.6.13-rc2-mm1/drivers/infiniband/hw/mthca/mthca_main.c
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/drivers/infiniband/hw/mthca/mthca_main.c
++++ linux-2.6.13-rc2-mm1/drivers/infiniband/hw/mthca/mthca_main.c
+@@ -34,7 +34,6 @@
+*/
+
+#include <linux/config.h>
+-#include <linux/version.h>
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/errno.h>
+Index: linux-2.6.13-rc2-mm1/drivers/infiniband/ulp/ipoib/ipoib_main.c
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/drivers/infiniband/ulp/ipoib/ipoib_main.c
++++ linux-2.6.13-rc2-mm1/drivers/infiniband/ulp/ipoib/ipoib_main.c
+@@ -34,7 +34,6 @@
+
+#include "ipoib.h"
+
+-#include <linux/version.h>
+#include <linux/module.h>
+
+#include <linux/init.h>
+Index: linux-2.6.13-rc2-mm1/drivers/infiniband/ulp/ipoib/ipoib_vlan.c
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/drivers/infiniband/ulp/ipoib/ipoib_vlan.c
++++ linux-2.6.13-rc2-mm1/drivers/infiniband/ulp/ipoib/ipoib_vlan.c
+@@ -32,7 +32,6 @@
+* $Id: ipoib_vlan.c 1349 2004-12-16 21:09:43Z roland $
+*/
+
+-#include <linux/version.h>
+#include <linux/module.h>
+
+#include <linux/init.h>

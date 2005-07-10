@@ -1,70 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVGJKzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbVGJLMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbVGJKzs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 06:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVGJKzs
+	id S261897AbVGJLMP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 07:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVGJLMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 06:55:48 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:5548 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261886AbVGJKzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 06:55:44 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Roman Zippel <zippel@linux-m68k.org>, Bryan Henderson <hbryan@us.ibm.com>
-Subject: Re: share/private/slave a subtree - define vs enum
-Date: Sun, 10 Jul 2005 13:55:33 +0300
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, bfields@fieldses.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linuxram@us.ibm.com, mike@waychison.com,
-       Miklos Szeredi <miklos@szeredi.hu>,
-       Pekka J Enberg <penberg@cs.helsinki.fi>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-References: <OFF7ECFC50.4EDB3D93-ON88257038.0059F048-88257038.005AEAF4@us.ibm.com> <Pine.LNX.4.61.0507081845170.3743@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0507081845170.3743@scrub.home>
+	Sun, 10 Jul 2005 07:12:15 -0400
+Received: from mail.portrix.net ([212.202.157.208]:34993 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S261897AbVGJLMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 07:12:13 -0400
+Message-ID: <42D10283.6040701@ppp0.net>
+Date: Sun, 10 Jul 2005 13:12:03 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050331 Thunderbird/1.0.2 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: Christian Zankel <chris@zankel.net>
+CC: czankel@tensilica.com, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: arch xtensa does not compile
+References: <42BD6557.9070102@ppp0.net> <42BD8622.8060506@zankel.net> <42C80B34.80007@ppp0.net> <42D0990D.8030701@zankel.net>
+In-Reply-To: <42D0990D.8030701@zankel.net>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507101355.33338.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 July 2005 19:57, Roman Zippel wrote:
-> Hi,
+Christian Zankel wrote:
+> Jan Dittmer wrote:
 > 
-> On Fri, 8 Jul 2005, Bryan Henderson wrote:
+>>I guess I'm using the wrong binutils version (2.15.94.0.2.2). Which is the
+>>recommended gcc/binutils pair which is supposed to compile the kernel?
 > 
-> > I wasn't aware anyone preferred defines to enums for declaring enumerated 
-> > data types.
 > 
-> If it's really enumerated data types, that's fine, but this example was 
-> about bitfield masks.
+> Bob Wilson made some changes to binutils last week to address this 
+> problem but he only submitted it to the latest binutils version.
 > 
-> > Isn't the only argument for defines, "that's what I'm used to."?
+> With the latest gcc+binutils toolchain, the kernel compiles for me.
+> Note, however, that I just submitted a patch that is not in Linus' tree, 
+> yet.
 > 
-> defines are not just used for constants and there is _nothing_ wrong with 
-> using defines for constants.
+> gcc version 3.4.5 20050707 (prerelease)
+> GNU ld version 2.16.91 20050707
 
-Apart from the wart that defines know zilch about scopes.
-Thus completely fine looking code will give you atrociously
-obscure compiler message. Real world example for userspace:
+Yep, using GNU ld 20050710 and gcc 3.4.4 20050513 I get much further now.
 
-# cat t.c
-#include <errno.h>
-#include <stdio.h>
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+arch/xtensa/kernel/built-in.o: In function `__down_interruptible':
+: dangerous relocation: l32r: literal target out of range: .sched.literal
+arch/xtensa/kernel/built-in.o: In function `__down_interruptible':
+: dangerous relocation: l32r: literal target out of range: (.sched.literal+0x4)
+arch/xtensa/kernel/built-in.o: In function `__down_interruptible':
+: dangerous relocation: l32r: literal target out of range: (.sched.literal+0x8)
+arch/xtensa/kernel/built-in.o: In function `__down_interruptible':
+: dangerous relocation: l32r: literal target out of range: (.sched.literal+0xc)
+arch/xtensa/kernel/built-in.o: In function `__down_interruptible':
+: dangerous relocation: l32r: literal target out of range: (.sched.literal+0xc)
+arch/xtensa/kernel/built-in.o: In function `__down':
+: dangerous relocation: l32r: literal target out of range: .sched.literal
+arch/xtensa/kernel/built-in.o: In function `__down':
+: dangerous relocation: l32r: literal target out of range: (.sched.literal+0x4)
+arch/xtensa/kernel/built-in.o: In function `__down':
+: dangerous relocation: l32r: literal target out of range: (.sched.literal+0x8)
+arch/xtensa/kernel/built-in.o: In function `__down':
+: dangerous relocation: l32r: literal target out of range: (.sched.literal+0xc)
+kernel/built-in.o: In function `schedule':
 
-void f() {
-    char errno[] = "hello world";
-    puts(errno);
-}
+... lots more of these, until ...
 
-# gcc -c t.c
-t.c: In function `f':
-t.c:5: error: function `__errno_location' is initialized like a variable
-t.c:5: error: conflicting types for '__errno_location'
-/usr/include/bits/errno.h:38: error: previous declaration of '__errno_location' was here
---
-vda
+rwsem.c:(.sched.text+0x290): dangerous relocation: l32r: literal target out of range: (. sched.literal+0x18)
+rwsem.c:(.sched.text+0x297): dangerous relocation: l32r: literal target out of range: (. sched.literal+0x1c)
+rwsem.c:(.sched.text+0x29c): dangerous relocation: l32r: literal target out of range: (. sched.literal+0x20)
+rwsem.c:(.sched.text+0x2bb): dangerous relocation: l32r: literal target out of range: (. sched.literal+0x24)
+make: *** [.tmp_vmlinux1] Error 1
 
+Is the gcc version still too old? Or do I need some special config option?
+
+Reading specs from /usr/cc/xtensa/lib/gcc/xtensa-linux/3.4.4/specs
+Configured with: ../configure --prefix=/usr/cc --exec-prefix=/usr/cc/xtensa --target=xtensa-linux --disable-shared --disable-werror --disable-nls
+--disable-threads --disable-werror --disable-libmudflap --with-newlib --with-gnu-as --with-gnu-ld --enable-languages=c
+Thread model: single
+gcc version 3.4.4 20050513 (prerelease)
+
+Thanks,
+
+-- 
+Jan

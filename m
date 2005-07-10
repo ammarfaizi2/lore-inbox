@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbVGJBGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVGJB2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbVGJBGV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 21:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVGJBGV
+	id S261810AbVGJB2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 21:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVGJB2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 21:06:21 -0400
-Received: from graphe.net ([209.204.138.32]:30670 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261808AbVGJBGU (ORCPT
+	Sat, 9 Jul 2005 21:28:25 -0400
+Received: from animx.eu.org ([216.98.75.249]:58565 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261810AbVGJB2Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 21:06:20 -0400
-Date: Sat, 9 Jul 2005 18:06:11 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Andi Kleen <ak@suse.de>
-cc: Bob Picco <bob.picco@hp.com>, linux-mm@kvack.org, manfred@colorfullife.com,
-       alex.williamson@hp.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Early kmalloc/kfree
-In-Reply-To: <p73zmsxncym.fsf@verdi.suse.de>
-Message-ID: <Pine.LNX.4.62.0507091801170.22975@graphe.net>
-References: <20050708203807.GG27544@localhost.localdomain.suse.lists.linux.kernel>
- <p73zmsxncym.fsf@verdi.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Sat, 9 Jul 2005 21:28:24 -0400
+Date: Sat, 9 Jul 2005 21:45:59 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Eric Sandall <eric@sandall.us>
+Cc: Jeremy Nickurak <atrus@lkml.spam.rifetech.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Swap partition vs swap file
+Message-ID: <20050710014559.GA15844@animx.eu.org>
+Mail-Followup-To: Eric Sandall <eric@sandall.us>,
+	Jeremy Nickurak <atrus@lkml.spam.rifetech.com>,
+	linux-kernel@vger.kernel.org
+References: <E1DqhZV-0004yW-00@calista.eckenfels.6bone.ka-ip.net> <1120836958.16935.1.camel@localhost> <20050708224106.GA10649@animx.eu.org> <Pine.LNX.4.63.0507091559030.486@cerberus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0507091559030.486@cerberus>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jul 2005, Andi Kleen wrote:
+Eric Sandall wrote:
+> >Of course, now this begs the question: Is it possible to create a large 
+> >file
+> >w/o actually writing that much to the device (ie uninitialized).  There's
+> >absolutely no reason that a swap file needs to be fully initialized, only
+> >part which mkswap does.  Of course, I would expect that ONLY root beable to
+> >do this. (or capsysadmin or whatever the caps are)
+> 
+> That would make the swap file fragment as it's used, instead of
+> allocating one big file (the entire file) at once (and hopefully get
+> one contiguous chunk of the disk).
 
-> I think that is a really really bad idea.   slab is already complex enough
-> and adding scary hacks like this will probably make it collapse
-> under its own weight at some point.
+You misunderstood entirely what I said.
 
-Seconded.
-
-Maybe we can solve this by bringing the system up in a limited 
-configuration and then discover additional capabilities during ACPI 
-discovery and reconfigure.
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

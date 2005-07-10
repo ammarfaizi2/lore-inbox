@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVGJTn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVGJTnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbVGJTn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 15:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVGJTmH
+	id S261898AbVGJTnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 15:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVGJTmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:42:07 -0400
-Received: from mx1.suse.de ([195.135.220.2]:13459 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261919AbVGJTgC (ORCPT
+	Sun, 10 Jul 2005 15:42:10 -0400
+Received: from ns.suse.de ([195.135.220.2]:12691 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261915AbVGJTgA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:36:02 -0400
-Date: Sun, 10 Jul 2005 19:36:01 +0000
+	Sun, 10 Jul 2005 15:36:00 -0400
+Date: Sun, 10 Jul 2005 19:36:00 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: rmk+serial@arm.linux.org.uk
-Subject: [PATCH 53/82] remove linux/version.h from drivers/serial/crisv10.c
-Message-ID: <20050710193601.53.fmwjfG3682.2247.olh@nectarine.suse.de>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
+Subject: [PATCH 52/82] remove linux/version.h from drivers/scsi/wd33c93.c
+Message-ID: <20050710193600.52.wrYWPC3654.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -30,18 +30,18 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/serial/crisv10.c |    1 -
+drivers/scsi/wd33c93.c |    1 -
 1 files changed, 1 deletion(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/serial/crisv10.c
+Index: linux-2.6.13-rc2-mm1/drivers/scsi/wd33c93.c
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/serial/crisv10.c
-+++ linux-2.6.13-rc2-mm1/drivers/serial/crisv10.c
-@@ -426,7 +426,6 @@
-static char *serial_version = "$Revision: 1.25 $";
-
-#include <linux/config.h>
+--- linux-2.6.13-rc2-mm1.orig/drivers/scsi/wd33c93.c
++++ linux-2.6.13-rc2-mm1/drivers/scsi/wd33c93.c
+@@ -77,7 +77,6 @@
+#include <linux/sched.h>
+#include <linux/string.h>
+#include <linux/delay.h>
 -#include <linux/version.h>
-
-#include <linux/types.h>
-#include <linux/errno.h>
+#include <linux/init.h>
+#include <linux/blkdev.h>
+#include <asm/irq.h>

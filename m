@@ -1,109 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbVGJFxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVGJGOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbVGJFxh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 01:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVGJFxg
+	id S261852AbVGJGOD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 02:14:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVGJGOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 01:53:36 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:26779 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261850AbVGJFxg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 01:53:36 -0400
-Message-Id: <200507100510.j6A5ATun010304@laptop11.inf.utfsm.cl>
-To: Ed Cogburn <edcogburn@hotpop.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: reiser4 vs politics: linux misses out again 
-In-Reply-To: Message from Ed Cogburn <edcogburn@hotpop.com> 
-   of "Fri, 08 Jul 2005 23:25:39 -0400." <danen6$h3p$1@sea.gmane.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Sun, 10 Jul 2005 01:10:29 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sun, 10 Jul 2005 02:14:03 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:18305 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261852AbVGJGOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 02:14:01 -0400
+Date: Sat, 9 Jul 2005 23:13:57 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: guorke <gourke@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: I confused about diff(simple question)
+Message-Id: <20050709231357.01680297.rdunlap@xenotime.net>
+In-Reply-To: <d73ab4d005070922413fb0dbba@mail.gmail.com>
+References: <d73ab4d005070922413fb0dbba@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Cogburn <edcogburn@hotpop.com> wrote:
-> David Lang wrote:
-> > On Fri, 8 Jul 2005, Ed Tomlinson wrote:
+On Sun, 10 Jul 2005 13:41:40 +0800 guorke wrote:
 
-> >> No Flame from me.  One thing to remember is that Hans and friends
-> >> _have_ supported R3 for years.
+| like:
+| 
+|  /*
+| @@ -220,9 +232,8(HERE: why not -220,9 +220,8) @@ fastcall notrace void
+| do_page_fault(stru
+|        struct vm_area_struct * vma;
+|        unsigned long address;
+|        unsigned long page;
+| -       int write;
+| -       siginfo_t info;
+| -
+| +       int write, si_code;
+| +
+|        /* get the address */
+|        __asm__("movl %%cr2,%0":"=r" (address));
+|        trace_special(regs->eip, error_code, address);
+| @@ -236,7 +247,7 (HERE: why not -236,7,+236,7) @@ fastcall notrace
+| void do_page_fault(stru
+| 
+|        tsk = current;
+| 
+| -       info.si_code = SEGV_MAPERR;
+| +       si_code = SEGV_MAPERR;
+| 
+|        /*
+|         * We fault-in kernel-space virtual memory on-demand. The
+| @@ -316,7 +327,7 (HERE -316,7, +316,7) @@ fastcall notrace void
+| do_page_fault(stru
+|  * we can handle it..
+|  */
+|  good_area:
+| -       info.si_code = SEGV_ACCERR;
+| +       si_code = SEGV_ACCERR;
+|        write = 0;
+|        switch (error_code & 3) {
+|                default:        /* 3: write, present */
+| @@ -390,11 +401,7 (HERE:why not -390,11,+390,11) @@ bad_area_nosemaphore:
+|                /* Kernel addresses are always protection faults */
+|                tsk->thread.error_code = error_code | (address >= TASK_SIZE);
+|                tsk->thread.trap_no = 14;
+| -               info.si_signo = SIGSEGV;
+| -               info.si_errno = 0;
+| -               /* info.si_code has been set above */
+| -               info.si_addr = (void __user *)address;
+| -               force_sig_info(SIGSEGV, &info, tsk);
+| +               force_sig_info_fault(SIGSEGV, si_code, address, tsk);
+|                return;
+|        }
+| 
+| @@ -500,11 +507,7(HERE: why not -500,11,+500,7) @@ do_sigbus:
+|        tsk->thread.cr2 = address;
+|        tsk->thread.error_code = error_code;
+|        tsk->thread.trap_no = 14;
+| -       info.si_signo = SIGBUS;
+| -       info.si_errno = 0;
+| -       info.si_code = BUS_ADRERR;
+| -       info.si_addr = (void __user *)address;
+| -       force_sig_info(SIGBUS, &info, tsk);
+| +       force_sig_info_fault(SIGBUS, BUS_ADRERR, address, tsk);
+|        return;
+| 
+| ...
+| 
+| in :-220,9 +232,8
+|  I think the old file from the line 220,and have 9 lines,then the
+| newfile have 8 lines
+| so must delete one line. but why +232,it from the line 232 ?
 
-They let it fall into disrepair when they started work on 4.
+That patch segment begins at line 232 in the new file because the
+previous patch segments added 12 lines (232 - 220).
 
-> >>                                This is an undisputed fact.
+Now, were there some previous patch segments (that you omitted) or
+not?  If not, it is confusing...
 
-Exactly.
+| like this..
+| 
+| maybe it's very very simple.but i really confused it.wishes helps,
 
-> >>                                                            Second
-> >> third parties have be able to add much function (like journaling)
-> >> to R3 so the code must be sort of readable...
 
-Why don't you check it? Wouldn't you much prefer if the original authors
-(or somebody similarly initmate with the code) did mayor surgery on it?
-Specially if it is something you depend on?
 
-> >> With R4 they have created a new FS that is _fast_
-
-Remains to be seen.
-
-> >>                                                   and _can_ do things
-> >> no other FS can
-
-Mostly useless things...
-
-> >>                  - I also expect they have written cleaner code...
-
-Better check first.
-
-> >> Why are we fighting about adding this sort of function to the kernel?
-
-Because the filessytem experts in the kernel development crowd (and others)
-have /serious/ problems with the ideas and the code?
-
-> >> Yes it may not be the absolute best way to do things.  How many times
-> >> has tcpip be rewritten for linux?  The answer is more than once.
-
-So?
-
-> >> Lets put R4 in, see how it works, generalize the ideas and if we have
-> >> to rewrite and rethink part of it lets do so.
-
-Why not: Let's keep it out, fix the problems that it has and evaluate it
-for inclusion once the problems have been ironed out?  That has been the
-policy for everything else as far as I can remember (and that is from
-nearly the beginning...)
-
-> > remember that Hans is on record (over a year ago) arguing that R3 should
-> > not be fixed becouse R4 was replacing it.
-
-> > This type of thing is one of the reasons that you see arguments that
-> > aren't 'purely code-related' becouse the kernel folks realize that _they_
-> > will have to maintain the code over time, Hans and company will go on and
-> > develop R5 (R10, whatever) and consider R4 obsolete and stop maintaining
-> > it.
-
-> Maybe its because Hans and Co., having only a finite amount of dev time,
-> would much prefer to spend that time on R4 rather than R3?
-
-ext2 is still being maintained alongside ext3.
- 
->                                                            Maybe if we
-> were to let R4 into the kernel, it wouldn't be long after that R3 could be
-> retired because everyone has moved to R4?
-
-ext3 is several years old, and there are /still/ ext2 users around...
-
-[...]
-
-> Devs should be free to work on whatever they want, because most of them are
-> doing this on their own time anyway, otherwise they might just decide to
-> hack on some other OS, or a fork of Linux instead.
-
-Nobody forces anybody to work on Linux, or even on the standard Linus
-kernel. It is the ReiserFS crowd who are demanding something from the Linux
-crowd, not the other way around.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+---
+~Randy

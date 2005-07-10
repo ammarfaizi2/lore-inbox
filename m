@@ -1,101 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVGJIEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVGJIF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbVGJIEE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 04:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVGJIED
+	id S261875AbVGJIF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 04:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVGJIF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 04:04:03 -0400
-Received: from smtp1.oregonstate.edu ([128.193.0.11]:17364 "EHLO
-	smtp1.oregonstate.edu") by vger.kernel.org with ESMTP
-	id S261869AbVGJIEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 04:04:02 -0400
-Message-ID: <42D0D669.1010706@engr.orst.edu>
-Date: Sun, 10 Jul 2005 01:03:53 -0700
-From: Micheal Marineau <marineam@engr.orst.edu>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050525)
-X-Accept-Language: en-us, en
+	Sun, 10 Jul 2005 04:05:27 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:33229 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S261872AbVGJIFI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 04:05:08 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6-mm swapped kmalloc args.
+Date: Sun, 10 Jul 2005 10:04:42 +0200
+User-Agent: KMail/1.8.1
+References: <20050709054935.GA9130@redhat.com>
+In-Reply-To: <20050709054935.GA9130@redhat.com>
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: ALPS psmouse_reset on reconnect confusing Tecra M2
-References: <42C9A69A.5050905@waychison.com> <200507041705.17626.dtor_core@ameritech.net> <42CB63AD.4070208@engr.orst.edu> <200507100136.49735.dtor_core@ameritech.net>
-In-Reply-To: <200507100136.49735.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig6727E6B001A21800986B7762"
+Content-Type: multipart/signed;
+  boundary="nextPart7681047.BLqDnnHbzG";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507101004.42774.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6727E6B001A21800986B7762
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+--nextPart7681047.BLqDnnHbzG
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Dmitry Torokhov wrote:
-> On Tuesday 05 July 2005 23:53, Micheal Marineau wrote:
-> 
->>Dmitry Torokhov wrote:
->>
->>>On Monday 04 July 2005 16:14, Mike Waychison wrote:
->>>
->>>
->>>>Hi,
->>>>
->>>>I just upgrade my Tecra M2 this weekend to the latest GIT tree and
->>>>noticed that my mouse pointer/touchpad is now broken on resume.
->>>>
->>>>Investigating, it appears that mouse device gets confused due to the
->>>>introduced psmouse_reset(psmouse) during reconnect:
->>>>
->>>>http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f3a5c73d5ecb40909db662c4d2ace497b25c5940
->>>
->>>
->>>Hi,
->>>
->>>Please try the following patch:
->>>
->>>	http://www.ucw.cz/~vojtech/input/alps-suspend-typo
->>> 
->>
->>This fixed the problem for mylaptop, but ONLY if I had #define DEBUG in
->>alps.c, switch it back to the usual #undef and the exact same problem
->>happens.  I've got no idea what's going on, I'll poke at it more when
->>I'm awake....
->>
-> 
-> 
-> Hi,
-> 
-> Sorry, any update on this topic? Does it still only work with DEBUG?
-> 
-> Thanks!
-> 
+Quoting Dave Jones <davej@redhat.com>:
+> Repeat after me Cris developers..  "Size, then flags."  :-)
+>=20
+> aacraid suffers the same affliction.  Yay for type-unsafe interfaces.
+>=20
+> Signed-off-by: Dave Jones <davej@redhat.com>
+>=20
+>=20
+> --- 2.6-mm/arch/cris/arch-v32/mm/intmem.c~	2005-07-09 00:13:54 -04:00
+> +++ 2.6-mm/arch/cris/arch-v32/mm/intmem.c	2005-07-09 00:14:48 -04:00
+> @@ -28,7 +28,7 @@ static void crisv32_intmem_init(void)
+>  	static int initiated =3D 0;
+>  	if (!initiated) {
+>  		struct intmem_allocation* alloc =3D
+> -		  (struct intmem_allocation*)kmalloc(GFP_KERNEL, sizeof *alloc);
+> +		  (struct intmem_allocation*)kmalloc(sizeof *alloc, GFP_KERNEL);
+>  		INIT_LIST_HEAD(&intmem_allocations);
+>  		intmem_virtual =3D ioremap(MEM_INTMEM_START, MEM_INTMEM_SIZE);
+>  		initiated =3D 1;
+> @@ -57,7 +57,7 @@ void* crisv32_intmem_alloc(unsigned size
+>  			if (allocation->size > size + alignment) {
+>  				struct intmem_allocation* alloc =3D
+>  					(struct intmem_allocation*)
+> -					kmalloc(GFP_ATOMIC, sizeof *alloc);
+> +					kmalloc(sizeof *alloc, GFP_ATOMIC);
+>  				alloc->status =3D STATUS_FREE;
+>  				alloc->size =3D allocation->size - size - alignment;
+>  				alloc->offset =3D allocation->offset + size;
+> @@ -66,7 +66,7 @@ void* crisv32_intmem_alloc(unsigned size
+>  				if (alignment) {
+>  					struct intmem_allocation* tmp;
+>  					tmp =3D (struct intmem_allocation*)
+> -						kmalloc(GFP_ATOMIC, sizeof *tmp);
+> +						kmalloc(sizeof *tmp, GFP_ATOMIC);
 
-Yey! fixed it, simple little patch, just updates the alps_model_info
-struct. Here's a link so my mail client won't mess up the white space:
-http://dev.gentoo.org/~marineam/files/alps-dell8500-dualpoint.patch
+What about also removing these void* to struct intmem_allocation* casts?
 
-(note, this sill requires the alps-suspend-typo fix)
+=2D-=20
+Greetings, Michael
 
--- 
-Michael Marineau
-marineam@engr.orst.edu
-Oregon State University
 
---------------enig6727E6B001A21800986B7762
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+
+--nextPart7681047.BLqDnnHbzG
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFC0NZviP+LossGzjARAr04AKDCiwpPlUtajfn1NauE6mSE4uLPKgCguzeE
-atNzOjHs9y3UHDi6M0dsiuU=
-=q5OE
+iD8DBQBC0NaaFGK1OIvVOP4RApRrAKDhkAQxPSwrpN1i+BNyFBjnZtBkQgCfTyom
+aJUM/V053ApvFoja+LXGnhA=
+=AHJV
 -----END PGP SIGNATURE-----
 
---------------enig6727E6B001A21800986B7762--
+--nextPart7681047.BLqDnnHbzG--

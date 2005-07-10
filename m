@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVGJUoC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVGJUoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVGJUoC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 16:44:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVGJTlH
+	id S261231AbVGJUoB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 16:44:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVGJTlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:41:07 -0400
-Received: from mx2.suse.de ([195.135.220.15]:26844 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261232AbVGJTfZ (ORCPT
+	Sun, 10 Jul 2005 15:41:13 -0400
+Received: from ns1.suse.de ([195.135.220.2]:59282 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261231AbVGJTfZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 10 Jul 2005 15:35:25 -0400
-Date: Sun, 10 Jul 2005 19:35:24 +0000
+Date: Sun, 10 Jul 2005 19:35:20 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: sfr@canb.auug.org.au
-Subject: [PATCH 16/82] remove linux/version.h from drivers/char/viocons.c
-Message-ID: <20050710193524.16.ozXVmL2702.2247.olh@nectarine.suse.de>
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH 12/82] remove linux/version.h from drivers/char/mxser.c
+Message-ID: <20050710193520.12.ZYMomM2594.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -28,20 +28,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
+
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/char/viocons.c |    1 -
+drivers/char/mxser.c |    1 -
 1 files changed, 1 deletion(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/char/viocons.c
+Index: linux-2.6.13-rc2-mm1/drivers/char/mxser.c
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/char/viocons.c
-+++ linux-2.6.13-rc2-mm1/drivers/char/viocons.c
-@@ -26,7 +26,6 @@
-* Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+--- linux-2.6.13-rc2-mm1.orig/drivers/char/mxser.c
++++ linux-2.6.13-rc2-mm1/drivers/char/mxser.c
+@@ -38,7 +38,6 @@
+
 #include <linux/config.h>
+#include <linux/module.h>
 -#include <linux/version.h>
-#include <linux/kernel.h>
-#include <linux/proc_fs.h>
+#include <linux/autoconf.h>
 #include <linux/errno.h>
+#include <linux/signal.h>

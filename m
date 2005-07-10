@@ -1,93 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVGJUJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVGJTyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262096AbVGJUJD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 16:09:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVGJUIw
+	id S262023AbVGJTyH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 15:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVGJTl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 16:08:52 -0400
-Received: from smtp2.oregonstate.edu ([128.193.4.8]:3528 "EHLO
-	smtp2.oregonstate.edu") by vger.kernel.org with ESMTP
-	id S262107AbVGJUGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 16:06:54 -0400
-Message-ID: <42D17FCD.20702@engr.orst.edu>
-Date: Sun, 10 Jul 2005 13:06:37 -0700
-From: Micheal Marineau <marineam@engr.orst.edu>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050525)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: ALPS psmouse_reset on reconnect confusing Tecra M2
-References: <42C9A69A.5050905@waychison.com> <200507041705.17626.dtor_core@ameritech.net> <42CB63AD.4070208@engr.orst.edu> <200507100136.49735.dtor_core@ameritech.net> <42D0D669.1010706@engr.orst.edu> <20050710122118.GA3174@ucw.cz>
-In-Reply-To: <20050710122118.GA3174@ucw.cz>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE7AED98AC6DA223151857845"
+	Sun, 10 Jul 2005 15:41:57 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:51932 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262023AbVGJTgT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 15:36:19 -0400
+Date: Sun, 10 Jul 2005 19:36:18 +0000
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: linux-xfs@oss.sgi.com
+Subject: [PATCH 70/82] remove linux/version.h from fs/xfs/
+Message-ID: <20050710193618.70.qNxGNj4127.2247.olh@nectarine.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>  
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE7AED98AC6DA223151857845
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
-Vojtech Pavlik wrote:
-> On Sun, Jul 10, 2005 at 01:03:53AM -0700, Micheal Marineau wrote:
-> 
-> 
->>Yey! fixed it, simple little patch, just updates the alps_model_info
->>struct. Here's a link so my mail client won't mess up the white space:
->>http://dev.gentoo.org/~marineam/files/alps-dell8500-dualpoint.patch
->>
->>(note, this sill requires the alps-suspend-typo fix)
-> 
-> 
-> It's hard to believe your patch
-> 
-> --- linux-2.6.12-suspend2.orig/drivers/input/mouse/alps.c	2005-07-07 23:50:48.000000000 -0700
-> +++ linux-2.6.12-suspend2/drivers/input/mouse/alps.c	2005-07-10 00:51:36.000000000 -0700
-> @@ -48,1 +48,1 @@
-> -	{ { 0x63, 0x03, 0xc8 }, 0xf8, 0xf8, ALPS_PASS },		/* Dell Latitude D800 */
-> +	{ { 0x63, 0x03, 0xc8 }, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* Dell Latitude D800, Inspiron 8500 */
-> 
-> can fix it, because the ALPS_DUALPOINT constant doesn't affect the
-> initalization behavior at all, only the way how TouchPoint data are
-> decoded. 
-> 
+changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+remove code for obsolete kernels
 
-I don't really understand what's going on with that.  It's not the root
-issue for sure, just now after a run of about 15 suspends the mouse
-finally capped out. Somehow that made it slightly more reliable? Or it
-was just dumb luck that I couldn't reproduce it yesterday, but I managed
-to do it once today.
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-My best guess is that something more needs to be done to priv->dev2 to
-make sure it initilizes properly but I don't know what, I'm having some
-difficulty understanding the alps driver.
+fs/xfs/linux-2.6/xfs_linux.h |    1 -
+fs/xfs/xfs_dmapi.h           |   16 ----------------
+2 files changed, 17 deletions(-)
 
-But it could be something independent of resume, I have a gentoo user
-with another inspiron 8500 who says even with 2.6.12, the dualpoint
-stick doesn't initilize a lot of the time even on boot.
+Index: linux-2.6.13-rc2-mm1/fs/xfs/linux-2.6/xfs_linux.h
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/fs/xfs/linux-2.6/xfs_linux.h
++++ linux-2.6.13-rc2-mm1/fs/xfs/linux-2.6/xfs_linux.h
+@@ -87,7 +87,6 @@
+#include <linux/init.h>
+#include <linux/list.h>
+#include <linux/proc_fs.h>
+-#include <linux/version.h>
+#include <linux/sort.h>
 
--- 
-Michael Marineau
-marineam@engr.orst.edu
-Oregon State University
+#include <asm/page.h>
+Index: linux-2.6.13-rc2-mm1/fs/xfs/xfs_dmapi.h
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/fs/xfs/xfs_dmapi.h
++++ linux-2.6.13-rc2-mm1/fs/xfs/xfs_dmapi.h
+@@ -172,25 +172,9 @@ typedef enum {
+/*
+*	Based on IO_ISDIRECT, decide which i_ flag is set.
+*/
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
+#define DM_SEM_FLAG_RD(ioflags) (((ioflags) & IO_ISDIRECT) ?  			      DM_FLAGS_ISEM : 0)
+#define DM_SEM_FLAG_WR	(DM_FLAGS_IALLOCSEM_WR | DM_FLAGS_ISEM)
+-#endif
+-
+-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)) && -    (LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,22))
+-#define DM_SEM_FLAG_RD(ioflags) (((ioflags) & IO_ISDIRECT) ? -			      DM_FLAGS_IALLOCSEM_RD : DM_FLAGS_ISEM)
+-#define DM_SEM_FLAG_WR	(DM_FLAGS_IALLOCSEM_WR | DM_FLAGS_ISEM)
+-#endif
+-
+-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,4,21)
+-#define DM_SEM_FLAG_RD(ioflags) (((ioflags) & IO_ISDIRECT) ? -			      0 : DM_FLAGS_ISEM)
+-#define DM_SEM_FLAG_WR	(DM_FLAGS_ISEM)
+-#endif
+-
 
---------------enigE7AED98AC6DA223151857845
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFC0X/XiP+LossGzjARAnkfAJ43ix38JnQsdTYWqK4dhDs7ZqeseACeJYys
-fff8EQ/U8kKtTbpRpeoFrNw=
-=lA8o
------END PGP SIGNATURE-----
-
---------------enigE7AED98AC6DA223151857845--
+/*
+*	Macros to turn caller specified delay/block flags into

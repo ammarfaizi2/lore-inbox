@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVGJTyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVGJTyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbVGJTyH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 15:54:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVGJTl5
+	id S261944AbVGJTyG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 15:54:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVGJTmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:41:57 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:51932 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262023AbVGJTgT (ORCPT
+	Sun, 10 Jul 2005 15:42:00 -0400
+Received: from ns2.suse.de ([195.135.220.15]:48860 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261944AbVGJTgG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:36:19 -0400
-Date: Sun, 10 Jul 2005 19:36:18 +0000
+	Sun, 10 Jul 2005 15:36:06 -0400
+Date: Sun, 10 Jul 2005 19:36:05 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: linux-xfs@oss.sgi.com
-Subject: [PATCH 70/82] remove linux/version.h from fs/xfs/
-Message-ID: <20050710193618.70.qNxGNj4127.2247.olh@nectarine.suse.de>
+Subject: [PATCH 57/82] remove linux/version.h from drivers/telephony/ixj.h
+Message-ID: <20050710193605.57.jawCNc3788.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -27,49 +26,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
-remove code for obsolete kernels
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-fs/xfs/linux-2.6/xfs_linux.h |    1 -
-fs/xfs/xfs_dmapi.h           |   16 ----------------
-2 files changed, 17 deletions(-)
+drivers/telephony/ixj.h |    1 -
+1 files changed, 1 deletion(-)
 
-Index: linux-2.6.13-rc2-mm1/fs/xfs/linux-2.6/xfs_linux.h
+Index: linux-2.6.13-rc2-mm1/drivers/telephony/ixj.h
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/fs/xfs/linux-2.6/xfs_linux.h
-+++ linux-2.6.13-rc2-mm1/fs/xfs/linux-2.6/xfs_linux.h
-@@ -87,7 +87,6 @@
-#include <linux/init.h>
-#include <linux/list.h>
-#include <linux/proc_fs.h>
+--- linux-2.6.13-rc2-mm1.orig/drivers/telephony/ixj.h
++++ linux-2.6.13-rc2-mm1/drivers/telephony/ixj.h
+@@ -40,7 +40,6 @@
+*****************************************************************************/
+#define IXJ_VERSION 3031
+
 -#include <linux/version.h>
-#include <linux/sort.h>
+#include <linux/types.h>
 
-#include <asm/page.h>
-Index: linux-2.6.13-rc2-mm1/fs/xfs/xfs_dmapi.h
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/fs/xfs/xfs_dmapi.h
-+++ linux-2.6.13-rc2-mm1/fs/xfs/xfs_dmapi.h
-@@ -172,25 +172,9 @@ typedef enum {
-/*
-*	Based on IO_ISDIRECT, decide which i_ flag is set.
-*/
--#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
-#define DM_SEM_FLAG_RD(ioflags) (((ioflags) & IO_ISDIRECT) ?  			      DM_FLAGS_ISEM : 0)
-#define DM_SEM_FLAG_WR	(DM_FLAGS_IALLOCSEM_WR | DM_FLAGS_ISEM)
--#endif
--
--#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)) && -    (LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,22))
--#define DM_SEM_FLAG_RD(ioflags) (((ioflags) & IO_ISDIRECT) ? -			      DM_FLAGS_IALLOCSEM_RD : DM_FLAGS_ISEM)
--#define DM_SEM_FLAG_WR	(DM_FLAGS_IALLOCSEM_WR | DM_FLAGS_ISEM)
--#endif
--
--#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,4,21)
--#define DM_SEM_FLAG_RD(ioflags) (((ioflags) & IO_ISDIRECT) ? -			      0 : DM_FLAGS_ISEM)
--#define DM_SEM_FLAG_WR	(DM_FLAGS_ISEM)
--#endif
--
-
-/*
-*	Macros to turn caller specified delay/block flags into
+#include <linux/ixjuser.h>

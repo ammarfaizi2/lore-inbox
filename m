@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbVGKAJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVGKAMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbVGKAJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 20:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVGJTfO
+	id S261189AbVGKAMj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 20:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbVGKAKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:35:14 -0400
-Received: from mx1.suse.de ([195.135.220.2]:53394 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261184AbVGJTfK (ORCPT
+	Sun, 10 Jul 2005 20:10:43 -0400
+Received: from mx2.suse.de ([195.135.220.15]:23260 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261191AbVGJTfM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:10 -0400
-Date: Sun, 10 Jul 2005 19:35:09 +0000
+	Sun, 10 Jul 2005 15:35:12 -0400
+Date: Sun, 10 Jul 2005 19:35:11 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: spyro@f2s.com, Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [PATCH 1/82] remove linux/version.h include from arch/arm*
-Message-ID: <20050710193509.1.AyeCaI2278.2247.olh@nectarine.suse.de>
+Cc: linux-ia64@vger.kernel.org
+Subject: [PATCH 3/82] remove linux/version.h include from arch/ia64
+Message-ID: <20050710193511.3.HkjxyJ2330.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -27,72 +27,47 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
-remove one LINUX_VERSION_CODE check
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-arch/arm/mach-omap/leds-h2p2-debug.c |    1 -
-arch/arm/mach-omap/ocpi.c            |    1 -
-arch/arm/nwfpe/fpmodule.c            |    1 -
-arch/arm26/nwfpe/fpmodule.c          |    3 ---
-4 files changed, 6 deletions(-)
+arch/ia64/kernel/perfmon.c  |    1 -
+arch/ia64/sn/kernel/tiocx.c |    1 -
+include/asm-ia64/sn/xp.h    |    1 -
+3 files changed, 3 deletions(-)
 
-Index: linux-2.6.13-rc2-mm1/arch/arm26/nwfpe/fpmodule.c
+Index: linux-2.6.13-rc2-mm1/arch/ia64/kernel/perfmon.c
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/arch/arm26/nwfpe/fpmodule.c
-+++ linux-2.6.13-rc2-mm1/arch/arm26/nwfpe/fpmodule.c
-@@ -24,7 +24,6 @@
-#include "fpa11.h"
+--- linux-2.6.13-rc2-mm1.orig/arch/ia64/kernel/perfmon.c
++++ linux-2.6.13-rc2-mm1/arch/ia64/kernel/perfmon.c
+@@ -37,7 +37,6 @@
+#include <linux/vfs.h>
+#include <linux/pagemap.h>
+#include <linux/mount.h>
+-#include <linux/version.h>
+#include <linux/bitops.h>
+#include <linux/rcupdate.h>
+
+Index: linux-2.6.13-rc2-mm1/arch/ia64/sn/kernel/tiocx.c
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/arch/ia64/sn/kernel/tiocx.c
++++ linux-2.6.13-rc2-mm1/arch/ia64/sn/kernel/tiocx.c
+@@ -8,7 +8,6 @@
 
 #include <linux/module.h>
--#include <linux/version.h>
-#include <linux/config.h>
-
-/* XXX */
-@@ -46,10 +45,8 @@ typedef struct task_struct*	PTASK;
-
-#ifdef MODULE
-void fp_send_sig(unsigned long sig, PTASK p, int priv);
--#if LINUX_VERSION_CODE > 0x20115
-MODULE_AUTHOR("Scott Bambrough <scottb@rebel.com>");
-MODULE_DESCRIPTION("NWFPE floating point emulator");
--#endif
-
-#else
-#define fp_send_sig	send_sig
-Index: linux-2.6.13-rc2-mm1/arch/arm/mach-omap/leds-h2p2-debug.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/arch/arm/mach-omap/leds-h2p2-debug.c
-+++ linux-2.6.13-rc2-mm1/arch/arm/mach-omap/leds-h2p2-debug.c
-@@ -13,7 +13,6 @@
-#include <linux/init.h>
-#include <linux/kernel_stat.h>
-#include <linux/sched.h>
--#include <linux/version.h>
-
-#include <asm/io.h>
-#include <asm/hardware.h>
-Index: linux-2.6.13-rc2-mm1/arch/arm/mach-omap/ocpi.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/arch/arm/mach-omap/ocpi.c
-+++ linux-2.6.13-rc2-mm1/arch/arm/mach-omap/ocpi.c
-@@ -25,7 +25,6 @@
-
-#include <linux/config.h>
-#include <linux/module.h>
--#include <linux/version.h>
-#include <linux/types.h>
-#include <linux/errno.h>
 #include <linux/kernel.h>
-Index: linux-2.6.13-rc2-mm1/arch/arm/nwfpe/fpmodule.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/arch/arm/nwfpe/fpmodule.c
-+++ linux-2.6.13-rc2-mm1/arch/arm/nwfpe/fpmodule.c
-@@ -24,7 +24,6 @@
-#include "fpa11.h"
-
-#include <linux/module.h>
 -#include <linux/version.h>
-#include <linux/config.h>
+#include <linux/slab.h>
+#include <linux/spinlock.h>
+#include <linux/proc_fs.h>
+Index: linux-2.6.13-rc2-mm1/include/asm-ia64/sn/xp.h
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/include/asm-ia64/sn/xp.h
++++ linux-2.6.13-rc2-mm1/include/asm-ia64/sn/xp.h
+@@ -16,7 +16,6 @@
+#define _ASM_IA64_SN_XP_H
 
-/* XXX */
+
+-#include <linux/version.h>
+#include <linux/cache.h>
+#include <linux/hardirq.h>
+#include <asm/sn/types.h>

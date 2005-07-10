@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVGJDyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVGJEU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVGJDyY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 23:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbVGJDyX
+	id S261403AbVGJEU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 00:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVGJEU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 23:54:23 -0400
-Received: from h80ad2588.async.vt.edu ([128.173.37.136]:60058 "EHLO
-	h80ad2588.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261387AbVGJDyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 23:54:22 -0400
-Message-Id: <200507100353.j6A3rtU9020857@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: "liyu@WAN" <liyu@ccoss.com.cn>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: The question come again. 
-In-Reply-To: Your message of "Sun, 10 Jul 2005 11:28:20 +0800."
-             <42D095D4.3020907@ccoss.com.cn> 
-From: Valdis.Kletnieks@vt.edu
-References: <42D095D4.3020907@ccoss.com.cn>
+	Sun, 10 Jul 2005 00:20:57 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:9393 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261403AbVGJEUz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 00:20:55 -0400
+Date: Sun, 10 Jul 2005 14:20:22 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: XFS Oops Under 2.6.12.2
+Message-ID: <20050710142021.B2904172@wobbly.melbourne.sgi.com>
+References: <Pine.LNX.4.63.0507090614290.21767@p34>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1120967631_8886P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 09 Jul 2005 23:53:51 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.63.0507090614290.21767@p34>; from jpiszcz@lucidpixels.com on Sat, Jul 09, 2005 at 06:20:53AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1120967631_8886P
-Content-Type: text/plain; charset=us-ascii
+Hi there,
 
-On Sun, 10 Jul 2005 11:28:20 +0800, "liyu@WAN" said:
+On Sat, Jul 09, 2005 at 06:20:53AM -0400, Justin Piszcz wrote:
+> After a couple hours of use, I get this error on a linear RAID under 
+> 2.6.12.2 using loop-AES w/AES-256 encrypted filesystem.
+> 
+> Anyone know what is wrong?
 
->     But I found it may call __you_cannot_kmalloc_that_much(). but I can 
-> not get where is
-> defined.
+This is not an Oops as your subject line states ... its a forced
+filesystem shutdown due to (what looks like) corruption in a btree
+block in a directory inode.
 
-Note that you can only reach it if you have a *compile-time constant* of
-over 32M or so in size.  If it's smaller, it will catch the appropriate
-if/then from kmalloc_sizes.h (and all the others removed by the optimizer).
+> Filesystem "loop1": XFS internal error xfs_da_do_buf(2) at line 2271 of 
+> file fs/xfs/xfs_da_btree.c.  Caller 0xc025e807
 
-And since there *isn't* a definition, you'll get a complaint when you
-try to link vmlinux - and the complaint will tell you where it's referenced.
+Is this reproducible?  In particular, is it reproducible if you take
+some of the MD/loop/encryption complexities out of the picture (just
+to try to narrow down the source of the failure).  And if so, could
+you send me a recipe describing how to reproduce it... thanks!
 
+cheers.
 
-
---==_Exmh_1120967631_8886P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFC0JvPcC3lWbTT17ARAu97AKDwSmQbpHHwtOLWIwWARLVuQg+d9gCg4RPt
-6g0KWyTpX2oOAO4EO0h0Qfc=
-=bjPt
------END PGP SIGNATURE-----
-
---==_Exmh_1120967631_8886P--
+-- 
+Nathan

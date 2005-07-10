@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVGKAMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVGKAMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbVGKAMk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 20:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVGKAKa
+	id S261184AbVGKAMj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 20:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVGKAKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 20:10:30 -0400
-Received: from ns1.suse.de ([195.135.220.2]:54674 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261184AbVGJTfO (ORCPT
+	Sun, 10 Jul 2005 20:10:36 -0400
+Received: from ns1.suse.de ([195.135.220.2]:54162 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261189AbVGJTfN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:14 -0400
-Date: Sun, 10 Jul 2005 19:35:13 +0000
+	Sun, 10 Jul 2005 15:35:13 -0400
+Date: Sun, 10 Jul 2005 19:35:12 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: parisc-linux@parisc-linux.org
-Subject: [PATCH 5/82] remove linux/version.h include from arch/parisc
-Message-ID: <20050710193513.5.zzSumL2388.2247.olh@nectarine.suse.de>
+Cc: linux-mips@linux-mips.org
+Subject: [PATCH 4/82] remove linux/version.h include from arch/mips
+Message-ID: <20050710193512.4.TqwKKi2359.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -30,18 +30,44 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-arch/parisc/kernel/asm-offsets.c |    1 -
-1 files changed, 1 deletion(-)
+arch/mips/pmc-sierra/yosemite/atmel_read_eeprom.h |    1 -
+arch/mips/pmc-sierra/yosemite/ht-irq.c            |    1 -
+arch/mips/pmc-sierra/yosemite/ht.c                |    1 -
+3 files changed, 3 deletions(-)
 
-Index: linux-2.6.13-rc2-mm1/arch/parisc/kernel/asm-offsets.c
+Index: linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/atmel_read_eeprom.h
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/arch/parisc/kernel/asm-offsets.c
-+++ linux-2.6.13-rc2-mm1/arch/parisc/kernel/asm-offsets.c
-@@ -30,7 +30,6 @@
-#include <linux/types.h>
-#include <linux/sched.h>
-#include <linux/thread_info.h>
+--- linux-2.6.13-rc2-mm1.orig/arch/mips/pmc-sierra/yosemite/atmel_read_eeprom.h
++++ linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/atmel_read_eeprom.h
+@@ -34,7 +34,6 @@
+#include <linux/pci.h>
+#include <linux/kernel.h>
+#include <linux/slab.h>
 -#include <linux/version.h>
-#include <linux/ptrace.h>
-#include <linux/hardirq.h>
+#include <asm/pci.h>
+#include <asm/io.h>
+#include <linux/init.h>
+Index: linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/ht-irq.c
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/arch/mips/pmc-sierra/yosemite/ht-irq.c
++++ linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/ht-irq.c
+@@ -26,7 +26,6 @@
+#include <linux/types.h>
+#include <linux/pci.h>
+#include <linux/kernel.h>
+-#include <linux/version.h>
+#include <linux/init.h>
+#include <asm/pci.h>
+
+Index: linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/ht.c
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/arch/mips/pmc-sierra/yosemite/ht.c
++++ linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/ht.c
+@@ -28,7 +28,6 @@
+#include <linux/pci.h>
+#include <linux/kernel.h>
+#include <linux/slab.h>
+-#include <linux/version.h>
+#include <asm/pci.h>
+#include <asm/io.h>
 

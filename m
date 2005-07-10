@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbVGJS3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbVGJS3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbVGJS3O (ORCPT <rfc822;willy@w.ods.org>);
+	id S262018AbVGJS3O (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 10 Jul 2005 14:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVGJS11
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVGJS1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 14:27:27 -0400
-Received: from web52201.mail.yahoo.com ([206.190.48.124]:35411 "HELO
-	web52201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262010AbVGJSZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 14:25:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=fchYw8eBp9CdkFdQrnjwkU15ipSyK7XnSUWBvQxNSuCK43gK0uMJOZT22nnIPPAcs8YpYEA1gRgPAELtSVQ4Hd8sEkLuj8S/AGYRkfZ2WlK/DFXI9JrPmguAiZU0bDi9a3e7K3pWmhpsKwca3hVFindmK4S6E8ZxXhqeU7JYy0s=  ;
-Message-ID: <20050710182548.38389.qmail@web52201.mail.yahoo.com>
-Date: Sun, 10 Jul 2005 11:25:48 -0700 (PDT)
-From: Shiow-wen Cheng <cheng_27513@yahoo.com>
-Subject: [PATCH] Add ENOSYS into sys_io_cancel
-To: bcrl@kvack.org
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1907975829-1121019948=:37290"
-Content-Transfer-Encoding: 8bit
+	Sun, 10 Jul 2005 14:27:23 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:31710 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262021AbVGJS0m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 14:26:42 -0400
+Date: Sun, 10 Jul 2005 20:26:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: William Weston <weston@sysex.net>, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-12
+Message-ID: <20050710182612.GA1776@elte.hu>
+References: <Pine.LNX.4.58.0507061802570.20214@echo.lysdexia.org> <20050707104859.GD22422@elte.hu> <Pine.LNX.4.58.0507071257320.25321@echo.lysdexia.org> <20050708080359.GA32001@elte.hu> <Pine.LNX.4.58.0507081246340.30549@echo.lysdexia.org> <1120944243.12169.3.camel@twins> <1120994288.14680.0.camel@twins> <20050710151008.GA28194@elte.hu> <1121010236.14680.6.camel@twins> <1121011953.14580.0.camel@twins>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1121011953.14580.0.camel@twins>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1907975829-1121019948=:37290
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
 
-Other than few exceptions (e.g. usb/gadget), none of
-the current filesystems and/or drivers that has
-io_cancel implemented (kiocb->ki_cancel left with
-NULL). However, the io_cancel() system call
-(sys_io_cancel) somehow universally sets return code
-to -EAGAIN. This gives us a false impression that
-io_cancel() is supported (implemented) but just never
-works - would appreciate if this patch is taken.
+* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
 
--- s.w.
+> On Sun, 2005-07-10 at 17:43 +0200, Peter Zijlstra wrote:
+> 
+> > > I've also 
+> > > released the -51-23 patch with these changes included. Does this fix 
+> > > priority leakage on your SMP system?
+> > > 
+> > 
+> > -51-24 right? I'll give it a spin.
+> > 
+> 
+> a quick test seems to indicate it is indeed solved.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
---0-1907975829-1121019948=:37290
-Content-Type: application/octet-stream; name="cancel.patch"
-Content-Transfer-Encoding: base64
-Content-Description: 3748003194-cancel.patch
-Content-Disposition: attachment; filename="cancel.patch"
+great!
 
-LS0tIGxpbnV4LTIuNi4xMi9mcy9haW8uYwkyMDA1LTA2LTE3IDE1OjQ4OjI5
-LjAwMDAwMDAwMCAtMDQwMAorKysgbGludXgvZnMvYWlvLmMJMjAwNS0wNy0x
-MCAxMjo0ODoxNC4wMDAwMDAwMDAgLTA0MDAKQEAgLTE2NDEsOCArMTY0MSw5
-IEBAIGFzbWxpbmthZ2UgbG9uZyBzeXNfaW9fY2FuY2VsKGFpb19jb250ZXgK
-IAkJY2FuY2VsID0ga2lvY2ItPmtpX2NhbmNlbDsKIAkJa2lvY2ItPmtpX3Vz
-ZXJzICsrOwogCQlraW9jYlNldENhbmNlbGxlZChraW9jYik7Ci0JfSBlbHNl
-CisJfSBlbHNlIAogCQljYW5jZWwgPSBOVUxMOworCSAKIAlzcGluX3VubG9j
-a19pcnEoJmN0eC0+Y3R4X2xvY2spOwogCiAJaWYgKE5VTEwgIT0gY2FuY2Vs
-KSB7CkBAIC0xNjU5LDggKzE2NjAsMTAgQEAgYXNtbGlua2FnZSBsb25nIHN5
-c19pb19jYW5jZWwoYWlvX2NvbnRleAogCQkJaWYgKGNvcHlfdG9fdXNlcihy
-ZXN1bHQsICZ0bXAsIHNpemVvZih0bXApKSkKIAkJCQlyZXQgPSAtRUZBVUxU
-OwogCQl9Ci0JfSBlbHNlCisJfSBlbHNlIHsKKwkJcmV0ID0gLUVOT1NZUzsK
-IAkJcHJpbnRrKEtFUk5fREVCVUcgImlvY2IgaGFzIG5vIGNhbmNlbCBvcGVy
-YXRpb25cbiIpOworCX0gCiAKIAlwdXRfaW9jdHgoY3R4KTsKIAo=
-
---0-1907975829-1121019948=:37290--
+	Ingo

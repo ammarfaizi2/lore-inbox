@@ -1,913 +1,927 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVGJWjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVGJVgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbVGJWjt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 18:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbVGJWjq
+	id S261799AbVGJVgk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 17:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbVGJTja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 18:39:46 -0400
-Received: from fsmlabs.com ([168.103.115.128]:62142 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262165AbVGJWhK (ORCPT
+	Sun, 10 Jul 2005 15:39:30 -0400
+Received: from ns1.suse.de ([195.135.220.2]:4755 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261799AbVGJTfq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 18:37:10 -0400
-Date: Sun, 10 Jul 2005 16:41:29 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-cc: "Raj, Ashok" <ashok.raj@intel.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, Len Brown <len.brown@intel.com>
-Subject: [RFC][PATCH] i386: Per node IDT
-Message-ID: <Pine.LNX.4.61.0507101617240.16055@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Jul 2005 15:35:46 -0400
+Date: Sun, 10 Jul 2005 19:35:45 +0000
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       Achim Leubner <achim_leubner@adaptec.com>
+Subject: [PATCH 37/82] remove linux/version.h from drivers/scsi/gdth
+Message-ID: <20050710193545.37.eRXtWE3260.2247.olh@nectarine.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>  
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As most are aware there is a growing need for more devices on i386/x86_64 
-based platforms and with that, support for interrupt servicing for all 
-these devices. The proliferation of MSI based devices will also drive that 
-requirement higher due to some devices requiring multiple vectors. Natalie 
-and others have worked on ways of alleviating this recently, but i'd like 
-to put the following forward as well, which should be able to work with 
-other methodologies in place.
 
-The general idea behind it is to setup an IDT per node to be shared 
-between all processors on that node, with the definition of 'node' 
-currently based on the NUMA topology. This could, of course, be changed in 
-future to some form of interrupt handling domain/node for finer control 
-over the number of participating cpus in a node. The following patch is a 
-functioning proof of concept, tested on 32 processor, 8 node NUMA system 
-with 320 irq lines and i believe Natalie tested it with 576 interrupts.
+changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+remove code for obsolete kernels
 
-There is basic MSI support (it'll boot) although i haven't added node 
-awareness to it yet. I'd like to collect opinions on general approach. The 
-patch is currently i386 only, but adding x86_64 for example, should be 
-easy.
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-Thanks
+drivers/scsi/gdth.c      |  204 -----------------------------------------------
+drivers/scsi/gdth.h      |   11 --
+drivers/scsi/gdth_proc.c |  143 --------------------------------
+drivers/scsi/gdth_proc.h |    6 -
+4 files changed, 1 insertion(+), 363 deletions(-)
 
- arch/i386/kernel/cpu/common.c                      |   31 +++++
- arch/i386/kernel/entry.S                           |   19 ---
- arch/i386/kernel/head.S                            |   12 +-
- arch/i386/kernel/i8259.c                           |    2
- arch/i386/kernel/io_apic.c                         |  112 +++++++++++++--------
- arch/i386/kernel/irq.c                             |    3
- arch/i386/kernel/smpboot.c                         |    2
- arch/i386/kernel/traps.c                           |   41 +++++--
- arch/i386/mm/fault.c                               |    6 -
- drivers/pci/msi.c                                  |    6 -
- drivers/pci/msi.h                                  |    1
- include/asm-i386/cpu.h                             |    3
- include/asm-i386/desc.h                            |    5
- include/asm-i386/hw_irq.h                          |    2
- include/asm-i386/io_apic.h                         |    2
- include/asm-i386/mach-default/irq_vectors_limits.h |    8 +
- include/asm-i386/mach-visws/irq_vectors.h          |    3
- include/asm-i386/mach-voyager/irq_vectors.h        |    3
- include/asm-i386/segment.h                         |    2
- 19 files changed, 176 insertions(+), 87 deletions(-)
-
-Index: linux-2.6.13-rc1-mm1/arch/i386/kernel/entry.S
+Index: linux-2.6.13-rc2-mm1/drivers/scsi/gdth.c
 ===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/arch/i386/kernel/entry.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 entry.S
---- linux-2.6.13-rc1-mm1/arch/i386/kernel/entry.S	3 Jul 2005 13:20:43 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/arch/i386/kernel/entry.S	10 Jul 2005 22:33:37 -0000
-@@ -407,27 +407,18 @@ syscall_badsys:
- 	FIXUP_ESPFIX_STACK \
- 28:	popl %eax;
- 
--/*
-- * Build the entry stubs and pointer table with
-- * some assembler magic.
-- */
--.data
--ENTRY(interrupt)
--.text
+--- linux-2.6.13-rc2-mm1.orig/drivers/scsi/gdth.c
++++ linux-2.6.13-rc2-mm1/drivers/scsi/gdth.c
+@@ -374,7 +374,6 @@
+
+#include <linux/module.h>
+
+-#include <linux/version.h>
+#include <linux/kernel.h>
+#include <linux/types.h>
+#include <linux/pci.h>
+@@ -398,12 +397,7 @@
+#include <asm/io.h>
+#include <asm/uaccess.h>
+#include <linux/spinlock.h>
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+#include <linux/blkdev.h>
+-#else
+-#include <linux/blk.h>
+-#include "sd.h"
+-#endif
+
+#include "scsi.h"
+#include <scsi/scsi_host.h>
+@@ -2135,29 +2129,17 @@ static int __init gdth_search_drives(int
+printk("GDT-HA %d: Vendor: %s Name: %sn",
+hanum,oemstr->text.oem_company_name,ha->binfo.type_string);
+/* Save the Host Drive inquiry data */
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+strlcpy(ha->oem_name,oemstr->text.scsi_host_drive_inquiry_vendor_id,
+sizeof(ha->oem_name));
+-#else
+-        strncpy(ha->oem_name,oemstr->text.scsi_host_drive_inquiry_vendor_id,7);
+-        ha->oem_name[7] = '0';
+-#endif
+} else {
+/* Old method, based on PCI ID */
+TRACE2(("gdth_search_drives(): CACHE_READ_OEM_STRING_RECORD failedn"));
+printk("GDT-HA %d: Name: %sn",
+hanum,ha->binfo.type_string);
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+if (ha->oem_id == OEM_ID_INTEL)
+strlcpy(ha->oem_name,"Intel  ", sizeof(ha->oem_name));
+else
+strlcpy(ha->oem_name,"ICP    ", sizeof(ha->oem_name));
+-#else
+-        if (ha->oem_id == OEM_ID_INTEL)
+-            strcpy(ha->oem_name,"Intel  ");
+-        else
+-            strcpy(ha->oem_name,"ICP    ");
+-#endif
+}
+
+/* scanning for host drives */
+@@ -4293,10 +4275,6 @@ static int __init gdth_detect(Scsi_Host_
+hdr_channel = ha->bus_cnt;
+ha->virt_bus = hdr_channel;
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,20) && -    LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
+-                shp->highmem_io  = 0;
+-#endif
+if (ha->cache_feat & ha->raw_feat & ha->screen_feat & GDT_64BIT)
+shp->max_cmd_len = 16;
+
+@@ -4417,10 +4395,6 @@ static int __init gdth_detect(Scsi_Host_
+hdr_channel = ha->bus_cnt;
+ha->virt_bus = hdr_channel;
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,20) && -    LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
+-                shp->highmem_io  = 0;
+-#endif
+if (ha->cache_feat & ha->raw_feat & ha->screen_feat & GDT_64BIT)
+shp->max_cmd_len = 16;
+
+@@ -4521,9 +4495,6 @@ static int __init gdth_detect(Scsi_Host_
+ha->virt_bus = hdr_channel;
+
+
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
+-            scsi_set_pci_device(shp, pcistr[ctr].pdev);
+-#endif
+if (!(ha->cache_feat & ha->raw_feat & ha->screen_feat &GDT_64BIT)||
+/* 64-bit DMA only supported from FW >= x.43 */
+(!ha->dma64_support)) {
+@@ -4755,11 +4726,7 @@ static int gdth_eh_bus_reset(Scsi_Cmnd *
+return SUCCESS;
+}
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+static int gdth_bios_param(struct scsi_device *sdev,struct block_device *bdev,sector_t cap,int *ip)
+-#else
+-static int gdth_bios_param(Disk *disk,kdev_t dev,int *ip)
+-#endif
+{
+unchar b, t;
+int hanum;
+@@ -4767,13 +4734,8 @@ static int gdth_bios_param(Disk *disk,kd
+struct scsi_device *sd;
+unsigned capacity;
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+sd = sdev;
+capacity = cap;
+-#else
+-    sd = disk->device;
+-    capacity = disk->capacity;
+-#endif
+hanum = NUMDATA(sd->host)->hanum;
+b = virt_ctr ? NUMDATA(sd->host)->busnum : sd->channel;
+t = sd->id;
+@@ -4921,11 +4883,7 @@ static int ioc_resetdrv(void __user *arg
+gdth_cmd_str cmd;
+int hanum;
+gdth_ha_str *ha;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+Scsi_Request *srp;
+-#else
+-    Scsi_Cmnd *scp;
+-#endif
+
+if (copy_from_user(&res, arg, sizeof(gdth_ioctl_reset)) ||
+res.ionode >= gdth_ctr_count || res.number >= MAX_HDRIVES)
+@@ -4942,7 +4900,6 @@ static int ioc_resetdrv(void __user *arg
+cmd.u.cache64.DeviceNo = res.number;
+else
+cmd.u.cache.DeviceNo = res.number;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+srp  = scsi_allocate_request(ha->sdev, GFP_KERNEL);
+if (!srp)
+return -ENOMEM;
+@@ -4951,16 +4908,6 @@ static int ioc_resetdrv(void __user *arg
+gdth_do_req(srp, &cmd, cmnd, 30);
+res.status = (ushort)srp->sr_command->SCp.Status;
+scsi_release_request(srp);
+-#else
+-    scp  = scsi_allocate_device(ha->sdev, 1, FALSE);
+-    if (!scp)
+-        return -ENOMEM;
+-    scp->cmd_len = 12;
+-    scp->use_sg = 0;
+-    gdth_do_cmd(scp, &cmd, cmnd, 30);
+-    res.status = (ushort)scp->SCp.Status;
+-    scsi_release_command(scp);
+-#endif
+
+if (copy_to_user(arg, &res, sizeof(gdth_ioctl_reset)))
+return -EFAULT;
+@@ -4974,11 +4921,7 @@ static int ioc_general(void __user *arg,
+ulong64 paddr;
+int hanum;
+gdth_ha_str *ha;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+Scsi_Request *srp;
+-#else
+-        Scsi_Cmnd *scp;
+-#endif
+
+if (copy_from_user(&gen, arg, sizeof(gdth_ioctl_general)) ||
+gen.ionode >= gdth_ctr_count)
+@@ -5070,7 +5013,6 @@ static int ioc_general(void __user *arg,
+}
+}
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+srp  = scsi_allocate_request(ha->sdev, GFP_KERNEL);
+if (!srp)
+return -ENOMEM;
+@@ -5080,17 +5022,6 @@ static int ioc_general(void __user *arg,
+gen.status = srp->sr_command->SCp.Status;
+gen.info = srp->sr_command->SCp.Message;
+scsi_release_request(srp);
+-#else
+-    scp  = scsi_allocate_device(ha->sdev, 1, FALSE);
+-    if (!scp)
+-        return -ENOMEM;
+-    scp->cmd_len = 12;
+-    scp->use_sg = 0;
+-    gdth_do_cmd(scp, &gen.command, cmnd, gen.timeout);
+-    gen.status = scp->SCp.Status;
+-    gen.info = scp->SCp.Message;
+-    scsi_release_command(scp);
+-#endif
+
+if (copy_to_user(arg + sizeof(gdth_ioctl_general), buf,
+gen.data_len + gen.sense_len)) {
+@@ -5113,11 +5044,7 @@ static int ioc_hdrlist(void __user *arg,
+gdth_ha_str *ha;
+unchar i;
+int hanum, rc = -ENOMEM;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+Scsi_Request *srp;
+-#else
+-    Scsi_Cmnd *scp;
+-#endif
+
+rsc = kmalloc(sizeof(*rsc), GFP_KERNEL);
+cmd = kmalloc(sizeof(*cmd), GFP_KERNEL);
+@@ -5133,19 +5060,11 @@ static int ioc_hdrlist(void __user *arg,
+ha = HADATA(gdth_ctr_tab[hanum]);
+memset(cmd, 0, sizeof(gdth_cmd_str));
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+srp  = scsi_allocate_request(ha->sdev, GFP_KERNEL);
+if (!srp)
+goto free_fail;
+srp->sr_cmd_len = 12;
+srp->sr_use_sg = 0;
+-#else
+-    scp  = scsi_allocate_device(ha->sdev, 1, FALSE);
+-    if (!scp)
+-        goto free_fail;
+-    scp->cmd_len = 12;
+-    scp->use_sg = 0;
+-#endif
+
+for (i = 0; i < MAX_HDRIVES; ++i) {
+if (!ha->hdr[i].present) {
+@@ -5163,22 +5082,12 @@ static int ioc_hdrlist(void __user *arg,
+cmd->u.cache64.DeviceNo = i;
+else
+cmd->u.cache.DeviceNo = i;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(srp, cmd, cmnd, 30);
+if (srp->sr_command->SCp.Status == S_OK)
+rsc->hdr_list[i].cluster_type = srp->sr_command->SCp.Message;
+-#else
+-            gdth_do_cmd(scp, cmd, cmnd, 30);
+-            if (scp->SCp.Status == S_OK)
+-                rsc->hdr_list[i].cluster_type = scp->SCp.Message;
+-#endif
+}
+}
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+scsi_release_request(srp);
+-#else
+-    scsi_release_command(scp);
+-#endif
+
+if (copy_to_user(arg, rsc, sizeof(gdth_ioctl_rescan)))
+rc = -EFAULT;
+@@ -5201,11 +5110,7 @@ static int ioc_rescan(void __user *arg,
+int rc = -ENOMEM;
+ulong flags;
+gdth_ha_str *ha;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+Scsi_Request *srp;
+-#else
+-    Scsi_Cmnd *scp;
+-#endif
+
+rsc = kmalloc(sizeof(*rsc), GFP_KERNEL);
+cmd = kmalloc(sizeof(*cmd), GFP_KERNEL);
+@@ -5221,19 +5126,11 @@ static int ioc_rescan(void __user *arg,
+ha = HADATA(gdth_ctr_tab[hanum]);
+memset(cmd, 0, sizeof(gdth_cmd_str));
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+srp  = scsi_allocate_request(ha->sdev, GFP_KERNEL);
+if (!srp)
+goto free_fail;
+srp->sr_cmd_len = 12;
+srp->sr_use_sg = 0;
+-#else
+-    scp  = scsi_allocate_device(ha->sdev, 1, FALSE);
+-    if (!scp)
+-        goto free_fail;
+-    scp->cmd_len = 12;
+-    scp->use_sg = 0;
+-#endif
+
+if (rsc->flag == 0) {
+/* old method: re-init. cache service */
+@@ -5245,19 +5142,9 @@ static int ioc_rescan(void __user *arg,
+cmd->OpCode = GDT_INIT;
+cmd->u.cache.DeviceNo = LINUX_OS;
+}
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(srp, cmd, cmnd, 30);
+status = (ushort)srp->sr_command->SCp.Status;
+info = (ulong32)srp->sr_command->SCp.Message;
+-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+-        gdth_do_cmd(scp, cmd, cmnd, 30);
+-        status = (ushort)scp->SCp.Status;
+-        info = (ulong32)scp->SCp.Message;
+-#else
+-        gdth_do_cmd(&scp, cmd, cmnd, 30);
+-        status = (ushort)scp.SCp.Status;
+-        info = (ulong32)scp.SCp.Message;
+-#endif
+i = 0;
+hdr_cnt = (status == S_OK ? (ushort)info : 0);
+} else {
+@@ -5272,15 +5159,9 @@ static int ioc_rescan(void __user *arg,
+cmd->u.cache64.DeviceNo = i;
+else
+cmd->u.cache.DeviceNo = i;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(srp, cmd, cmnd, 30);
+status = (ushort)srp->sr_command->SCp.Status;
+info = (ulong32)srp->sr_command->SCp.Message;
+-#else
+-        gdth_do_cmd(scp, cmd, cmnd, 30);
+-        status = (ushort)scp->SCp.Status;
+-        info = (ulong32)scp->SCp.Message;
+-#endif
+spin_lock_irqsave(&ha->smp_lock, flags);
+rsc->hdr_list[i].bus = ha->virt_bus;
+rsc->hdr_list[i].target = i;
+@@ -5312,15 +5193,9 @@ static int ioc_rescan(void __user *arg,
+cmd->u.cache64.DeviceNo = i;
+else
+cmd->u.cache.DeviceNo = i;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(srp, cmd, cmnd, 30);
+status = (ushort)srp->sr_command->SCp.Status;
+info = (ulong32)srp->sr_command->SCp.Message;
+-#else
+-        gdth_do_cmd(scp, cmd, cmnd, 30);
+-        status = (ushort)scp->SCp.Status;
+-        info = (ulong32)scp->SCp.Message;
+-#endif
+spin_lock_irqsave(&ha->smp_lock, flags);
+ha->hdr[i].devtype = (status == S_OK ? (ushort)info : 0);
+spin_unlock_irqrestore(&ha->smp_lock, flags);
+@@ -5331,15 +5206,9 @@ static int ioc_rescan(void __user *arg,
+cmd->u.cache64.DeviceNo = i;
+else
+cmd->u.cache.DeviceNo = i;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(srp, cmd, cmnd, 30);
+status = (ushort)srp->sr_command->SCp.Status;
+info = (ulong32)srp->sr_command->SCp.Message;
+-#else
+-        gdth_do_cmd(scp, cmd, cmnd, 30);
+-        status = (ushort)scp->SCp.Status;
+-        info = (ulong32)scp->SCp.Message;
+-#endif
+spin_lock_irqsave(&ha->smp_lock, flags);
+ha->hdr[i].cluster_type =
+((status == S_OK && !shared_access) ? (ushort)info : 0);
+@@ -5352,24 +5221,14 @@ static int ioc_rescan(void __user *arg,
+cmd->u.cache64.DeviceNo = i;
+else
+cmd->u.cache.DeviceNo = i;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(srp, cmd, cmnd, 30);
+status = (ushort)srp->sr_command->SCp.Status;
+info = (ulong32)srp->sr_command->SCp.Message;
+-#else
+-        gdth_do_cmd(scp, cmd, cmnd, 30);
+-        status = (ushort)scp->SCp.Status;
+-        info = (ulong32)scp->SCp.Message;
+-#endif
+spin_lock_irqsave(&ha->smp_lock, flags);
+ha->hdr[i].rw_attribs = (status == S_OK ? (ushort)info : 0);
+spin_unlock_irqrestore(&ha->smp_lock, flags);
+}
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+scsi_release_request(srp);
+-#else
+-    scsi_release_command(scp);
+-#endif
+
+if (copy_to_user(arg, rsc, sizeof(gdth_ioctl_rescan)))
+rc = -EFAULT;
+@@ -5416,9 +5275,7 @@ static int gdth_ioctl(struct inode *inod
+{
+gdth_ioctl_osvers osv;
+
+-        osv.version = (unchar)(LINUX_VERSION_CODE >> 16);
+-        osv.subversion = (unchar)(LINUX_VERSION_CODE >> 8);
+-        osv.revision = (ushort)(LINUX_VERSION_CODE & 0xff);
++	memset(&osv, 0, sizeof(osv));
+if (copy_to_user(argp, &osv, sizeof(gdth_ioctl_osvers)))
+return -EFAULT;
+break;
+@@ -5515,7 +5372,6 @@ static int gdth_ioctl(struct inode *inod
+ha = HADATA(gdth_ctr_tab[hanum]);
+
+/* Because we need a Scsi_Cmnd struct., we make a scsi_allocate device also for kernels >=2.6.x */
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+scp  = scsi_get_command(ha->sdev, GFP_KERNEL);
+if (!scp)
+return -ENOMEM;
+@@ -5525,17 +5381,6 @@ static int gdth_ioctl(struct inode *inod
+rval = gdth_eh_bus_reset(scp);
+res.status = (rval == SUCCESS ? S_OK : S_GENERR);
+scsi_put_command(scp);
+-#else
+-        scp  = scsi_allocate_device(ha->sdev, 1, FALSE);
+-        if (!scp)
+-            return -ENOMEM;
+-        scp->cmd_len = 12;
+-        scp->use_sg = 0;
+-        scp->channel = virt_ctr ? 0 : res.number;
+-        rval = gdth_eh_bus_reset(scp);
+-        res.status = (rval == SUCCESS ? S_OK : S_GENERR);
+-        scsi_release_command(scp);
+-#endif
+if (copy_to_user(argp, &res, sizeof(gdth_ioctl_reset)))
+return -EFAULT;
+break;
+@@ -5557,11 +5402,7 @@ static void gdth_flush(int hanum)
+int             i;
+gdth_ha_str     *ha;
+gdth_cmd_str    gdtcmd;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+Scsi_Request    *srp;
+-#else
+-    Scsi_Cmnd       *scp;
+-#endif
+Scsi_Device     *sdev;
+char            cmnd[MAX_COMMAND_SIZE];
+memset(cmnd, 0xff, MAX_COMMAND_SIZE);
+@@ -5569,21 +5410,12 @@ static void gdth_flush(int hanum)
+TRACE2(("gdth_flush() hanum %dn",hanum));
+ha = HADATA(gdth_ctr_tab[hanum]);
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+sdev = scsi_get_host_dev(gdth_ctr_tab[hanum]);
+srp  = scsi_allocate_request(sdev, GFP_KERNEL);
+if (!srp)
+return;
+srp->sr_cmd_len = 12;
+srp->sr_use_sg = 0;
+-#else
+-    sdev = scsi_get_host_dev(gdth_ctr_tab[hanum]);
+-    scp  = scsi_allocate_device(sdev, 1, FALSE);
+-    if (!scp)
+-        return;
+-    scp->cmd_len = 12;
+-    scp->use_sg = 0;
+-#endif
+
+for (i = 0; i < MAX_HDRIVES; ++i) {
+if (ha->hdr[i].present) {
+@@ -5600,20 +5432,11 @@ static void gdth_flush(int hanum)
+gdtcmd.u.cache.sg_canz = 0;
+}
+TRACE2(("gdth_flush(): flush ha %d drive %dn", hanum, i));
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(srp, &gdtcmd, cmnd, 30);
+-#else
+-            gdth_do_cmd(scp, &gdtcmd, cmnd, 30);
+-#endif
+}
+}
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+scsi_release_request(srp);
+scsi_free_host_dev(sdev);
+-#else
+-    scsi_release_command(scp);
+-    scsi_free_host_dev(sdev);
+-#endif
+}
+
+/* shutdown routine */
+@@ -5622,13 +5445,8 @@ static int gdth_halt(struct notifier_blo
+int             hanum;
+#ifndef __alpha__
+gdth_cmd_str    gdtcmd;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+Scsi_Request    *srp;
+Scsi_Device     *sdev;
+-#else
+-    Scsi_Cmnd       *scp;
+-    Scsi_Device     *sdev;
+-#endif
+char            cmnd[MAX_COMMAND_SIZE];
+#endif
+
+@@ -5647,7 +5465,6 @@ static int gdth_halt(struct notifier_blo
+gdtcmd.Service = CACHESERVICE;
+gdtcmd.OpCode = GDT_RESET;
+TRACE2(("gdth_halt(): reset controller %dn", hanum));
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+sdev = scsi_get_host_dev(gdth_ctr_tab[hanum]);
+srp  = scsi_allocate_request(sdev, GFP_KERNEL);
+if (!srp) {
+@@ -5659,19 +5476,6 @@ static int gdth_halt(struct notifier_blo
+gdth_do_req(srp, &gdtcmd, cmnd, 10);
+scsi_release_request(srp);
+scsi_free_host_dev(sdev);
+-#else
+-        sdev = scsi_get_host_dev(gdth_ctr_tab[hanum]);
+-        scp  = scsi_allocate_device(sdev, 1, FALSE);
+-        if (!scp) {
+-            unregister_reboot_notifier(&gdth_notifier);
+-            return NOTIFY_OK;
+-        }
+-        scp->cmd_len = 12;
+-        scp->use_sg = 0;
+-        gdth_do_cmd(scp, &gdtcmd, cmnd, 10);
+-        scsi_release_command(scp);
+-        scsi_free_host_dev(sdev);
+-#endif
+#endif
+}
+printk("Done.n");
+@@ -5699,12 +5503,6 @@ static Scsi_Host_Template driver_templat
+.cmd_per_lun            = GDTH_MAXC_P_L,
+.unchecked_isa_dma      = 1,
+.use_clustering         = ENABLE_CLUSTERING,
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
+-        .use_new_eh_code        = 1,
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,20)
+-        .highmem_io             = 1,
+-#endif
+-#endif
+};
+
+#include "scsi_module.c"
+Index: linux-2.6.13-rc2-mm1/drivers/scsi/gdth.h
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/drivers/scsi/gdth.h
++++ linux-2.6.13-rc2-mm1/drivers/scsi/gdth.h
+@@ -13,7 +13,6 @@
+* $Id: gdth.h,v 1.57 2004/03/31 11:52:09 achim Exp $
+*/
+
+-#include <linux/version.h>
+#include <linux/types.h>
+
+#ifndef TRUE
+@@ -936,18 +935,12 @@ typedef struct {
+gdth_binfo_str      binfo;                  /* controller info */
+gdth_evt_data       dvr;                    /* event structure */
+spinlock_t          smp_lock;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+struct pci_dev      *pdev;
+-#endif
+char                oem_name[8];
+#ifdef GDTH_DMA_STATISTICS
+ulong               dma32_cnt, dma64_cnt;   /* statistics: DMA buffer */
+#endif
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+Scsi_Device         *sdev;
+-#else
+-    Scsi_Device         sdev;
+-#endif
+} gdth_ha_str;
+
+/* structure for scsi_register(), SCSI bus != 0 */
+@@ -1029,10 +1022,6 @@ typedef struct {
+
+/* function prototyping */
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+int gdth_proc_info(struct Scsi_Host *, char *,char **,off_t,int,int);
+-#else
+-int gdth_proc_info(char *,char **,off_t,int,int,int);
+-#endif
+
+#endif
+Index: linux-2.6.13-rc2-mm1/drivers/scsi/gdth_proc.c
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/drivers/scsi/gdth_proc.c
++++ linux-2.6.13-rc2-mm1/drivers/scsi/gdth_proc.c
+@@ -4,7 +4,6 @@
+
+#include <linux/completion.h>
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+int gdth_proc_info(struct Scsi_Host *host, char *buffer,char **start,off_t offset,int length,
+int inout)
+{
+@@ -21,61 +20,21 @@ int gdth_proc_info(struct Scsi_Host *hos
+else
+return(gdth_get_info(buffer,start,offset,length,host,hanum,busnum));
+}
+-#else
+-int gdth_proc_info(char *buffer,char **start,off_t offset,int length,int hostno,
+-                   int inout)
+-{
+-    int hanum,busnum,i;
 -
-+/* Build the IRQ entry stubs */
- vector=0
--ENTRY(irq_entries_start)
-+	.align IRQ_STUB_SIZE,0x90
-+ENTRY(interrupt)
- .rept NR_IRQS
- 	ALIGN
--1:	pushl $vector-256
-+	pushl $vector
- 	jmp common_interrupt
--.data
--	.long 1b
--.text
-+	.align IRQ_STUB_SIZE,0x90
- vector=vector+1
- .endr
- 
--	ALIGN
- common_interrupt:
- 	SAVE_ALL
- 	movl %esp,%eax
-Index: linux-2.6.13-rc1-mm1/arch/i386/kernel/head.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/arch/i386/kernel/head.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 head.S
---- linux-2.6.13-rc1-mm1/arch/i386/kernel/head.S	3 Jul 2005 13:20:43 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/arch/i386/kernel/head.S	4 Jul 2005 21:39:56 -0000
-@@ -11,6 +11,7 @@
- #include <linux/config.h>
- #include <linux/threads.h>
- #include <linux/linkage.h>
-+#include <linux/numa.h>
- #include <asm/segment.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-@@ -300,7 +301,7 @@ is386:	movl $2,%ecx		# set MP
- 
- 	call check_x87
- 	lgdt cpu_gdt_descr
--	lidt idt_descr
-+	lidt node_idt_descr		# we switch to per node IDTs later
- 	ljmp $(__KERNEL_CS),$1f
- 1:	movl $(__KERNEL_DS),%eax	# reload all the segment registers
- 	movl %eax,%ss			# after changing gdt.
-@@ -366,7 +367,7 @@ setup_idt:
- 	movw %dx,%ax		/* selector = 0x0010 = cs */
- 	movw $0x8E00,%dx	/* interrupt gate - dpl=0, present */
- 
--	lea idt_table,%edi
-+	lea node_idt_table,%edi
- 	mov $256,%ecx
- rp_sidt:
- 	movl %eax,(%edi)
-@@ -441,7 +442,7 @@ int_msg:
-  */
- 
- .globl boot_gdt_descr
--.globl idt_descr
-+.globl node_idt_descr
- .globl cpu_gdt_descr
- 
- 	ALIGN
-@@ -452,9 +453,10 @@ boot_gdt_descr:
- 	.long boot_gdt_table - __PAGE_OFFSET
- 
- 	.word 0				# 32-bit align idt_desc.address
--idt_descr:
-+node_idt_descr:
- 	.word IDT_ENTRIES*8-1		# idt contains 256 entries
--	.long idt_table
-+	.long node_idt_table
-+	.fill MAX_NUMNODES-1,8,0
- 
- # boot GDT descriptor (later on used by CPU#0):
- 	.word 0				# 32 bit align gdt_desc.address
-Index: linux-2.6.13-rc1-mm1/arch/i386/kernel/i8259.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/arch/i386/kernel/i8259.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 i8259.c
---- linux-2.6.13-rc1-mm1/arch/i386/kernel/i8259.c	3 Jul 2005 13:20:44 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/arch/i386/kernel/i8259.c	10 Jul 2005 21:21:44 -0000
-@@ -412,7 +412,7 @@ void __init init_IRQ(void)
- 	 * us. (some of these will be overridden and become
- 	 * 'special' SMP interrupts)
- 	 */
--	for (i = 0; i < (NR_VECTORS - FIRST_EXTERNAL_VECTOR); i++) {
-+	for (i = 0; i < (NR_DEVICE_VECTORS); i++) {
- 		int vector = FIRST_EXTERNAL_VECTOR + i;
- 		if (i >= NR_IRQS)
- 			break;
-Index: linux-2.6.13-rc1-mm1/arch/i386/kernel/io_apic.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/arch/i386/kernel/io_apic.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 io_apic.c
---- linux-2.6.13-rc1-mm1/arch/i386/kernel/io_apic.c	3 Jul 2005 13:20:43 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/arch/i386/kernel/io_apic.c	10 Jul 2005 21:20:50 -0000
-@@ -78,12 +78,13 @@ static struct irq_pin_list {
- 	int apic, pin, next;
- } irq_2_pin[PIN_MAP_SIZE];
- 
--int vector_irq[NR_VECTORS] = { [0 ... NR_VECTORS - 1] = -1};
-+int vector_irq[MAX_NUMNODES][NR_VECTORS] =
-+	{ [0 ... MAX_NUMNODES-1][0 ... NR_VECTORS - 1] = -1 };
- #ifdef CONFIG_PCI_MSI
--#define vector_to_irq(vector) 	\
--	(platform_legacy_irq(vector) ? vector : vector_irq[vector])
-+#define vector_to_irq(node, vector) 	\
-+	(platform_legacy_irq(vector) ? vector : vector_irq[node][vector])
- #else
--#define vector_to_irq(vector)	(vector)
-+#define vector_to_irq(node, vector)	(vector)
- #endif
- 
- /*
-@@ -1120,31 +1121,43 @@ static inline int IO_APIC_irq_trigger(in
- 
- /* irq_vectors is indexed by the sum of all RTEs in all I/O APICs. */
- u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
-+u8 vector_allocated[MAX_NUMNODES][FIRST_SYSTEM_VECTOR];
- 
--int assign_irq_vector(int irq)
-+int assign_irq_vector(int irq, int node)
- {
--	static int current_vector = FIRST_DEVICE_VECTOR, offset = 0;
-+	static u8 current_vector[MAX_NUMNODES] = {[0 ... MAX_NUMNODES-1] =
-+		FIRST_DEVICE_VECTOR};
-+	static int offset[MAX_NUMNODES];
-+	int vector;
- 
--	BUG_ON(irq >= NR_IRQ_VECTORS);
--	if (irq != AUTO_ASSIGN && IO_APIC_VECTOR(irq) > 0)
--		return IO_APIC_VECTOR(irq);
-+	vector = IO_APIC_VECTOR(irq);
-+	if ((vector > 0) && (irq != AUTO_ASSIGN)) {
-+		vector_allocated[node][vector] = 1;
-+		return vector;
-+	}
- next:
--	current_vector += 8;
--	if (current_vector == SYSCALL_VECTOR)
-+	current_vector[node] += 8;
-+	if (current_vector[node] == SYSCALL_VECTOR)
- 		goto next;
+-    TRACE2(("gdth_proc_info() length %d offs %d inout %dn",
+-            length,(int)offset,inout));
 -
--	if (current_vector >= FIRST_SYSTEM_VECTOR) {
--		offset++;
--		if (!(offset%8))
--			return -ENOSPC;
--		current_vector = FIRST_DEVICE_VECTOR + offset;
-+	
-+	if (current_vector[node] >= FIRST_SYSTEM_VECTOR) {
-+		offset[node] = (offset[node] + 1) & 7;
-+		current_vector[node] = FIRST_DEVICE_VECTOR + offset[node];
- 	}
- 
--	vector_irq[current_vector] = irq;
-+	if (current_vector[node] == FIRST_SYSTEM_VECTOR)
-+		return -ENOSPC;
-+
-+	vector = current_vector[node];
-+	vector_irq[node][vector] = irq;
-+	if (vector_allocated[node][vector])
-+		goto next;
-+	
-+	vector_allocated[node][vector] = 1;
- 	if (irq != AUTO_ASSIGN)
--		IO_APIC_VECTOR(irq) = current_vector;
-+		IO_APIC_VECTOR(irq) = vector;
- 
--	return current_vector;
-+	return vector;
- }
- 
- static struct hw_interrupt_type ioapic_level_type;
-@@ -1154,7 +1167,7 @@ static struct hw_interrupt_type ioapic_e
- #define IOAPIC_EDGE	0
- #define IOAPIC_LEVEL	1
- 
--static inline void ioapic_register_intr(int irq, int vector, unsigned long trigger)
-+static inline void ioapic_register_intr(int node, int irq, int vector, unsigned long trigger)
- {
- 	if (use_pci_vector() && !platform_legacy_irq(irq)) {
- 		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
-@@ -1162,21 +1175,21 @@ static inline void ioapic_register_intr(
- 			irq_desc[vector].handler = &ioapic_level_type;
- 		else
- 			irq_desc[vector].handler = &ioapic_edge_type;
--		set_intr_gate(vector, interrupt[vector]);
-+		node_set_intr_gate(node, vector, interrupt[vector]);
- 	} else	{
- 		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
- 				trigger == IOAPIC_LEVEL)
- 			irq_desc[irq].handler = &ioapic_level_type;
- 		else
- 			irq_desc[irq].handler = &ioapic_edge_type;
--		set_intr_gate(vector, interrupt[irq]);
-+		node_set_intr_gate(node, vector, interrupt[irq]);
- 	}
- }
- 
- static void __init setup_IO_APIC_irqs(void)
- {
- 	struct IO_APIC_route_entry entry;
--	int apic, pin, idx, irq, first_notcon = 1, vector;
-+	int apic, pin, idx, irq, first_notcon = 1, vector, bus, node;
- 	unsigned long flags;
- 
- 	apic_printk(APIC_VERBOSE, KERN_DEBUG "init IO_APIC IRQs\n");
-@@ -1192,8 +1205,6 @@ static void __init setup_IO_APIC_irqs(vo
- 		entry.delivery_mode = INT_DELIVERY_MODE;
- 		entry.dest_mode = INT_DEST_MODE;
- 		entry.mask = 0;				/* enable IRQ */
--		entry.dest.logical.logical_dest = 
--					cpu_mask_to_apicid(TARGET_CPUS);
- 
- 		idx = find_irq_entry(apic,pin,mp_INT);
- 		if (idx == -1) {
-@@ -1212,12 +1223,22 @@ static void __init setup_IO_APIC_irqs(vo
- 		entry.trigger = irq_trigger(idx);
- 		entry.polarity = irq_polarity(idx);
- 
-+		bus = mp_irqs[idx].mpc_srcbus;
-+		node = mp_bus_id_to_node[bus];
-+		entry.dest.logical.logical_dest = cpu_mask_to_apicid(node_to_cpumask(node));
-+
- 		if (irq_trigger(idx)) {
- 			entry.trigger = 1;
- 			entry.mask = 1;
- 		}
- 
- 		irq = pin_2_irq(idx, apic, pin);
-+		if (irq >= NR_IRQS) {
-+			apic_printk(APIC_VERBOSE, KERN_DEBUG
-+				"IO-APIC: out of IRQS node%d/bus%d/ioapic%d/irq%d\n",
-+					node, bus, apic, irq);
-+			continue;
-+		}
- 		/*
- 		 * skip adding the timer int on secondary nodes, which causes
- 		 * a small but painful rift in the time-space continuum
-@@ -1231,9 +1252,12 @@ static void __init setup_IO_APIC_irqs(vo
- 			continue;
- 
- 		if (IO_APIC_IRQ(irq)) {
--			vector = assign_irq_vector(irq);
-+			vector = assign_irq_vector(irq, node);
-+			if (vector < 0)
-+				continue;
-+
- 			entry.vector = vector;
--			ioapic_register_intr(irq, vector, IOAPIC_AUTO);
-+			ioapic_register_intr(node, irq, vector, IOAPIC_AUTO);
- 		
- 			if (!apic && (irq < 16))
- 				disable_8259A_irq(irq);
-@@ -1928,14 +1952,14 @@ static void end_level_ioapic_irq (unsign
- #ifdef CONFIG_PCI_MSI
- static unsigned int startup_edge_ioapic_vector(unsigned int vector)
- {
--	int irq = vector_to_irq(vector);
-+	int irq = vector_to_irq(cpu_to_node(smp_processor_id()), vector);
- 
- 	return startup_edge_ioapic_irq(irq);
- }
- 
- static void ack_edge_ioapic_vector(unsigned int vector)
- {
--	int irq = vector_to_irq(vector);
-+	int irq = vector_to_irq(cpu_to_node(smp_processor_id()), vector);
- 
- 	move_irq(vector);
- 	ack_edge_ioapic_irq(irq);
-@@ -1943,14 +1967,14 @@ static void ack_edge_ioapic_vector(unsig
- 
- static unsigned int startup_level_ioapic_vector (unsigned int vector)
- {
--	int irq = vector_to_irq(vector);
-+	int irq = vector_to_irq(cpu_to_node(smp_processor_id()), vector);
- 
- 	return startup_level_ioapic_irq (irq);
- }
- 
- static void end_level_ioapic_vector (unsigned int vector)
- {
--	int irq = vector_to_irq(vector);
-+	int irq = vector_to_irq(cpu_to_node(smp_processor_id()), vector);
- 
- 	move_irq(vector);
- 	end_level_ioapic_irq(irq);
-@@ -1958,14 +1982,14 @@ static void end_level_ioapic_vector (uns
- 
- static void mask_IO_APIC_vector (unsigned int vector)
- {
--	int irq = vector_to_irq(vector);
-+	int irq = vector_to_irq(cpu_to_node(smp_processor_id()), vector);
- 
- 	mask_IO_APIC_irq(irq);
- }
- 
- static void unmask_IO_APIC_vector (unsigned int vector)
- {
--	int irq = vector_to_irq(vector);
-+	int irq = vector_to_irq(cpu_to_node(smp_processor_id()), vector);
- 
- 	unmask_IO_APIC_irq(irq);
- }
-@@ -1974,7 +1998,8 @@ static void unmask_IO_APIC_vector (unsig
- static void set_ioapic_affinity_vector (unsigned int vector,
- 					cpumask_t cpu_mask)
- {
--	int irq = vector_to_irq(vector);
-+	int node = cpu_to_node(first_cpu(cpu_mask));
-+	int irq = vector_to_irq(node, vector);
- 
- 	set_native_irq_info(vector, cpu_mask);
- 	set_ioapic_affinity_irq(irq, cpu_mask);
-@@ -2035,7 +2060,7 @@ static inline void init_IO_APIC_traps(vo
- 		int tmp = irq;
- 		if (use_pci_vector()) {
- 			if (!platform_legacy_irq(tmp))
--				if ((tmp = vector_to_irq(tmp)) == -1)
-+				if ((tmp = vector_to_irq(0, tmp)) == -1) /* FIXME - zwane */
- 					continue;
- 		}
- 		if (IO_APIC_IRQ(tmp) && !IO_APIC_VECTOR(tmp)) {
-@@ -2181,7 +2206,8 @@ static inline void check_timer(void)
- 	 * get/set the timer IRQ vector:
- 	 */
- 	disable_8259A_irq(0);
--	vector = assign_irq_vector(0);
-+	vector = assign_irq_vector(0, cpu_to_node(smp_processor_id()));
-+	/* This gets reserved on all nodes as FIRST_DEVICE_VECTOR */
- 	set_intr_gate(vector, interrupt[0]);
- 
- 	/*
-@@ -2528,6 +2554,7 @@ int io_apic_set_pci_routing (int ioapic,
- {
- 	struct IO_APIC_route_entry entry;
- 	unsigned long flags;
-+	int node, bus;
- 
- 	if (!IO_APIC_IRQ(irq)) {
- 		printk(KERN_ERR "IOAPIC[%d]: Invalid reference to IRQ 0\n",
-@@ -2545,7 +2572,6 @@ int io_apic_set_pci_routing (int ioapic,
- 
- 	entry.delivery_mode = INT_DELIVERY_MODE;
- 	entry.dest_mode = INT_DEST_MODE;
--	entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
- 	entry.trigger = edge_level;
- 	entry.polarity = active_high_low;
- 	entry.mask  = 1;
-@@ -2555,15 +2581,19 @@ int io_apic_set_pci_routing (int ioapic,
- 	 */
- 	if (irq >= 16)
- 		add_pin_to_irq(irq, ioapic, pin);
+-    for (i = 0; i < gdth_ctr_vcount; ++i) {
+-        if (gdth_ctr_vtab[i]->host_no == hostno)
+-            break;
+-    }
+-    if (i == gdth_ctr_vcount)
+-        return(-EINVAL);
 -
--	entry.vector = assign_irq_vector(irq);
-+	bus = mp_irqs[pin].mpc_srcbus;
-+	node = mp_bus_id_to_node[bus];
-+	entry.dest.logical.logical_dest = cpu_mask_to_apicid(node_to_cpumask(node));
-+	entry.vector = assign_irq_vector(irq, node);
-+	if (entry.vector < 0)
-+		return -ENOSPC;
- 
- 	apic_printk(APIC_DEBUG, KERN_DEBUG "IOAPIC[%d]: Set PCI routing entry "
- 		"(%d-%d -> 0x%x -> IRQ %d Mode:%i Active:%i)\n", ioapic,
- 		mp_ioapics[ioapic].mpc_apicid, pin, entry.vector, irq,
- 		edge_level, active_high_low);
- 
--	ioapic_register_intr(irq, entry.vector, edge_level);
-+	ioapic_register_intr(node, irq, entry.vector, edge_level);
- 
- 	if (!ioapic && (irq < 16))
- 		disable_8259A_irq(irq);
-Index: linux-2.6.13-rc1-mm1/arch/i386/kernel/irq.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/arch/i386/kernel/irq.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 irq.c
---- linux-2.6.13-rc1-mm1/arch/i386/kernel/irq.c	3 Jul 2005 13:20:43 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/arch/i386/kernel/irq.c	4 Jul 2005 21:39:56 -0000
-@@ -53,8 +53,7 @@ static union irq_ctx *softirq_ctx[NR_CPU
-  */
- fastcall unsigned int do_IRQ(struct pt_regs *regs)
- {	
--	/* high bits used in ret_from_ code */
--	int irq = regs->orig_eax & 0xff;
-+	int irq = regs->orig_eax;
- #ifdef CONFIG_4KSTACKS
- 	union irq_ctx *curctx, *irqctx;
- 	u32 *isp;
-Index: linux-2.6.13-rc1-mm1/arch/i386/kernel/smpboot.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/arch/i386/kernel/smpboot.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smpboot.c
---- linux-2.6.13-rc1-mm1/arch/i386/kernel/smpboot.c	3 Jul 2005 13:20:43 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/arch/i386/kernel/smpboot.c	10 Jul 2005 21:23:15 -0000
-@@ -53,6 +53,7 @@
- #include <asm/tlbflush.h>
- #include <asm/desc.h>
- #include <asm/arch_hooks.h>
-+#include <asm/cpu.h>
- 
- #include <mach_apic.h>
- #include <mach_wakecpu.h>
-@@ -483,6 +484,7 @@ static void __devinit start_secondary(vo
- 	 */
- 	cpu_init();
- 	smp_callin();
-+	setup_cpu_idt();
- 	while (!cpu_isset(smp_processor_id(), smp_commenced_mask))
- 		rep_nop();
- 	setup_secondary_APIC_clock();
-Index: linux-2.6.13-rc1-mm1/arch/i386/kernel/traps.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/arch/i386/kernel/traps.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 traps.c
---- linux-2.6.13-rc1-mm1/arch/i386/kernel/traps.c	3 Jul 2005 13:20:43 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/arch/i386/kernel/traps.c	4 Jul 2005 21:39:56 -0000
-@@ -51,6 +51,7 @@
- #include <asm/smp.h>
- #include <asm/arch_hooks.h>
- #include <asm/kdebug.h>
-+#include <asm/cpu.h>
- 
- #include <linux/irq.h>
- #include <linux/module.h>
-@@ -70,7 +71,8 @@ char ignore_fpu_irq = 0;
-  * F0 0F bug workaround.. We have a special link segment
-  * for this.
-  */
--struct desc_struct idt_table[256] __attribute__((__section__(".data.idt"))) = { {0, 0}, };
-+struct desc_struct node_idt_table[MAX_NUMNODES][IDT_ENTRIES]
-+	__attribute__((__section__(".data.idt"))) = {[0 ... MAX_NUMNODES-1] = {{0, 0}, }};
- 
- asmlinkage void divide_error(void);
- asmlinkage void debug(void);
-@@ -1085,14 +1087,16 @@ asmlinkage void math_emulate(long arg)
- #ifdef CONFIG_X86_F00F_BUG
- void __init trap_init_f00f_bug(void)
- {
--	__set_fixmap(FIX_F00F_IDT, __pa(&idt_table), PAGE_KERNEL_RO);
-+	int node = cpu_to_node(smp_processor_id());
-+
-+	__set_fixmap(FIX_F00F_IDT, __pa(&node_idt_table[node]), PAGE_KERNEL_RO);
- 
- 	/*
- 	 * Update the IDT descriptor and reload the IDT so that
- 	 * it uses the read-only mapped virtual address.
- 	 */
--	idt_descr.address = fix_to_virt(FIX_F00F_IDT);
--	__asm__ __volatile__("lidt %0" : : "m" (idt_descr));
-+	node_idt_descr.address = fix_to_virt(FIX_F00F_IDT);
-+	__asm__ __volatile__("lidt %0" : : "m" (node_idt_descr[node]));
- }
- #endif
- 
-@@ -1111,14 +1115,21 @@ do { \
- 
- 
- /*
-- * This needs to use 'idt_table' rather than 'idt', and
-+ * This needs to use 'node_idt_table' rather than 'idt', and
-  * thus use the _nonmapped_ version of the IDT, as the
-  * Pentium F0 0F bugfix can have resulted in the mapped
-  * IDT being write-protected.
-  */
-+void node_set_intr_gate(unsigned int node, unsigned int n, void *addr)
-+{
-+	_set_gate(&node_idt_table[node][n],14,0,addr,__KERNEL_CS);
-+}
-+
- void set_intr_gate(unsigned int n, void *addr)
- {
--	_set_gate(idt_table+n,14,0,addr,__KERNEL_CS);
-+	int node;
-+	for (node = 0; node < MAX_NUMNODES; node++)
-+		node_set_intr_gate(node, n, addr);
- }
- 
- /*
-@@ -1126,22 +1137,30 @@ void set_intr_gate(unsigned int n, void 
-  */
- static inline void set_system_intr_gate(unsigned int n, void *addr)
- {
--	_set_gate(idt_table+n, 14, 3, addr, __KERNEL_CS);
-+	int node;
-+	for (node = 0; node < MAX_NUMNODES; node++)
-+		_set_gate(&node_idt_table[node][n], 14, 3, addr, __KERNEL_CS);
- }
- 
- static void __init set_trap_gate(unsigned int n, void *addr)
- {
--	_set_gate(idt_table+n,15,0,addr,__KERNEL_CS);
-+	int node;
-+	for (node = 0; node < MAX_NUMNODES; node++)
-+		_set_gate(&node_idt_table[node][n],15,0,addr,__KERNEL_CS);
- }
- 
- static void __init set_system_gate(unsigned int n, void *addr)
- {
--	_set_gate(idt_table+n,15,3,addr,__KERNEL_CS);
-+	int node;
-+	for (node = 0; node < MAX_NUMNODES; node++)
-+		_set_gate(&node_idt_table[node][n],15,3,addr,__KERNEL_CS);
- }
- 
- static void __init set_task_gate(unsigned int n, unsigned int gdt_entry)
- {
--	_set_gate(idt_table+n,5,0,0,(gdt_entry<<3));
-+	int node;
-+	for (node = 0; node < MAX_NUMNODES; node++)
-+		_set_gate(&node_idt_table[node][n],5,0,0,(gdt_entry<<3));
- }
- #ifdef CONFIG_KGDB
- void set_intr_usr_gate(unsigned int n, void *addr)
-@@ -1194,6 +1213,8 @@ void __init trap_init(void)
- 
- 	set_system_gate(SYSCALL_VECTOR,&system_call);
- 
-+	setup_node_idts();
-+
- 	/*
- 	 * Should be a barrier for any external CPU state.
- 	 */
-Index: linux-2.6.13-rc1-mm1/arch/i386/kernel/cpu/common.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/arch/i386/kernel/cpu/common.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 common.c
---- linux-2.6.13-rc1-mm1/arch/i386/kernel/cpu/common.c	3 Jul 2005 13:20:44 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/arch/i386/kernel/cpu/common.c	4 Jul 2005 21:42:08 -0000
-@@ -562,10 +562,38 @@ void __init early_cpu_init(void)
- 	disable_pse = 1;
- #endif
- }
-+
-+/*
-+ * copy over the boot node idt across all nodes, we currently only have
-+ * non-unique idt entries for device io interrupts.
-+ */
-+void __devinit setup_node_idts(void)
-+{
-+	int node = MAX_NUMNODES;
-+
-+	/* we can skip setting up node0 since it's done in head.S */
-+	while (--node) {
-+		memcpy(node_idt_table[node], node_idt_table[0], IDT_SIZE);
-+		node_idt_descr[node].size = IDT_SIZE - 1;
-+		node_idt_descr[node].address = (unsigned long)node_idt_table[node];
-+	}
-+}
-+
-+void __devinit setup_cpu_idt(void)
-+{
-+	int cpu = smp_processor_id(), node =  cpu_to_node(cpu);
-+
-+	printk(KERN_DEBUG "CPU%d IDT at 0x%08lx\n", 
-+		cpu, node_idt_descr[node].address);
-+
-+	/* reload the idt on all processors as they come up */
-+	__asm__ __volatile__("lidt %0": "=m" (node_idt_descr[node]));
-+}
-+
- /*
-  * cpu_init() initializes state that is per-CPU. Some data is already
-  * initialized (naturally) in the bootstrap process, such as the GDT
-- * and IDT. We reload them nevertheless, this function acts as a
-+ * We reload them nevertheless, this function acts as a
-  * 'CPU state barrier', nothing should get across.
-  */
- void __devinit cpu_init(void)
-@@ -614,7 +642,6 @@ void __devinit cpu_init(void)
- 		GDT_ENTRY_TLS_ENTRIES * 8);
- 
- 	__asm__ __volatile__("lgdt %0" : : "m" (cpu_gdt_descr[cpu]));
--	__asm__ __volatile__("lidt %0" : : "m" (idt_descr));
- 
- 	/*
- 	 * Delete NT
-Index: linux-2.6.13-rc1-mm1/arch/i386/mm/fault.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/arch/i386/mm/fault.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 fault.c
---- linux-2.6.13-rc1-mm1/arch/i386/mm/fault.c	3 Jul 2005 13:20:44 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/arch/i386/mm/fault.c	4 Jul 2005 21:39:56 -0000
-@@ -400,9 +400,9 @@ bad_area_nosemaphore:
- 	 * Pentium F0 0F C7 C8 bug workaround.
- 	 */
- 	if (boot_cpu_data.f00f_bug) {
--		unsigned long nr;
--		
--		nr = (address - idt_descr.address) >> 3;
-+		unsigned long nr, node;
-+		node = cpu_to_node(smp_processor_id());
-+		nr = (address - node_idt_descr[node].address) >> 3;
- 
- 		if (nr == 6) {
- 			do_invalid_op(regs, 0);
-Index: linux-2.6.13-rc1-mm1/drivers/pci/msi.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/drivers/pci/msi.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 msi.c
---- linux-2.6.13-rc1-mm1/drivers/pci/msi.c	3 Jul 2005 13:20:28 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/drivers/pci/msi.c	10 Jul 2005 21:24:44 -0000
-@@ -330,7 +330,7 @@ static int assign_msi_vector(void)
- 
- 		return free_vector;
- 	}
--	vector = assign_irq_vector(AUTO_ASSIGN);
-+	vector = assign_irq_vector(AUTO_ASSIGN, 0); /* FIXME - Zwane */
- 	last_alloc_vector = vector;
- 	if (vector  == LAST_DEVICE_VECTOR)
- 		new_vector_avail = 0;
-@@ -344,7 +344,7 @@ static int get_new_vector(void)
- 	int vector;
- 
- 	if ((vector = assign_msi_vector()) > 0)
--		set_intr_gate(vector, interrupt[vector]);
-+		set_intr_gate(vector, interrupt[vector]); /* FIXME - Zwane */
- 
- 	return vector;
- }
-@@ -368,7 +368,7 @@ static int msi_init(void)
- 		printk(KERN_WARNING "PCI: MSI cache init failed\n");
- 		return status;
- 	}
--	last_alloc_vector = assign_irq_vector(AUTO_ASSIGN);
-+	last_alloc_vector = assign_irq_vector(AUTO_ASSIGN, 0); /* FIXME - Zwane */
- 	if (last_alloc_vector < 0) {
- 		pci_msi_enable = 0;
- 		printk(KERN_WARNING "PCI: No interrupt vectors available for MSI\n");
-Index: linux-2.6.13-rc1-mm1/drivers/pci/msi.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/drivers/pci/msi.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 msi.h
---- linux-2.6.13-rc1-mm1/drivers/pci/msi.h	3 Jul 2005 13:20:28 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/drivers/pci/msi.h	10 Jul 2005 21:20:18 -0000
-@@ -19,7 +19,6 @@
- #define NR_HP_RESERVED_VECTORS 	20
- 
- extern int vector_irq[NR_VECTORS];
--extern void (*interrupt[NR_IRQS])(void);
- extern int pci_vector_resources(int last, int nr_released);
- 
- #ifdef CONFIG_SMP
-Index: linux-2.6.13-rc1-mm1/include/asm-i386/cpu.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/include/asm-i386/cpu.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 cpu.h
---- linux-2.6.13-rc1-mm1/include/asm-i386/cpu.h	3 Jul 2005 13:21:15 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/include/asm-i386/cpu.h	4 Jul 2005 21:43:58 -0000
-@@ -17,5 +17,8 @@ extern int arch_register_cpu(int num);
- extern void arch_unregister_cpu(int);
- #endif
- 
-+extern void __devinit setup_cpu_idt(void);
-+extern void __devinit setup_node_idts(void);
-+
- DECLARE_PER_CPU(int, cpu_state);
- #endif /* _ASM_I386_CPU_H_ */
-Index: linux-2.6.13-rc1-mm1/include/asm-i386/desc.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/include/asm-i386/desc.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 desc.h
---- linux-2.6.13-rc1-mm1/include/asm-i386/desc.h	3 Jul 2005 13:21:15 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/include/asm-i386/desc.h	4 Jul 2005 21:39:57 -0000
-@@ -2,6 +2,7 @@
- #define __ARCH_DESC_H
- 
- #include <asm/ldt.h>
-+#include <asm/numnodes.h>
- #include <asm/segment.h>
- 
- #define CPU_16BIT_STACK_SIZE 1024
-@@ -15,6 +16,7 @@
- #include <asm/mmu.h>
- 
- extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
-+extern struct desc_struct node_idt_table[MAX_NUMNODES][IDT_ENTRIES];
- DECLARE_PER_CPU(struct desc_struct, cpu_gdt_table[GDT_ENTRIES]);
- 
- DECLARE_PER_CPU(unsigned char, cpu_16bit_stack[CPU_16BIT_STACK_SIZE]);
-@@ -25,7 +27,7 @@ struct Xgt_desc_struct {
- 	unsigned short pad;
- } __attribute__ ((packed));
- 
--extern struct Xgt_desc_struct idt_descr, cpu_gdt_descr[NR_CPUS];
-+extern struct Xgt_desc_struct node_idt_descr[MAX_NUMNODES], cpu_gdt_descr[NR_CPUS];
- 
- #define load_TR_desc() __asm__ __volatile__("ltr %%ax"::"a" (GDT_ENTRY_TSS*8))
- #define load_LDT_desc() __asm__ __volatile__("lldt %%ax"::"a" (GDT_ENTRY_LDT*8))
-@@ -36,6 +38,7 @@ extern struct Xgt_desc_struct idt_descr,
-  */
- extern struct desc_struct default_ldt[];
- extern void set_intr_gate(unsigned int irq, void * addr);
-+extern void node_set_intr_gate(unsigned int node, unsigned int vector, void * addr);
- 
- #define _set_tssldt_desc(n,addr,limit,type) \
- __asm__ __volatile__ ("movw %w3,0(%2)\n\t" \
-Index: linux-2.6.13-rc1-mm1/include/asm-i386/hw_irq.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/include/asm-i386/hw_irq.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 hw_irq.h
---- linux-2.6.13-rc1-mm1/include/asm-i386/hw_irq.h	3 Jul 2005 13:21:15 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/include/asm-i386/hw_irq.h	10 Jul 2005 21:16:51 -0000
-@@ -29,7 +29,7 @@ extern u8 irq_vector[NR_IRQ_VECTORS];
- #define IO_APIC_VECTOR(irq)	(irq_vector[irq])
- #define AUTO_ASSIGN		-1
- 
--extern void (*interrupt[NR_IRQS])(void);
-+extern char interrupt[NR_IRQS][IRQ_STUB_SIZE];
- 
- #ifdef CONFIG_SMP
- fastcall void reschedule_interrupt(void);
-Index: linux-2.6.13-rc1-mm1/include/asm-i386/io_apic.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/include/asm-i386/io_apic.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 io_apic.h
---- linux-2.6.13-rc1-mm1/include/asm-i386/io_apic.h	3 Jul 2005 13:21:15 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/include/asm-i386/io_apic.h	4 Jul 2005 21:39:57 -0000
-@@ -208,6 +208,6 @@ extern int (*ioapic_renumber_irq)(int io
- #define io_apic_assign_pci_irqs 0
- #endif
- 
--extern int assign_irq_vector(int irq);
-+extern int assign_irq_vector(int irq, int node);
- 
- #endif
-Index: linux-2.6.13-rc1-mm1/include/asm-i386/segment.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/include/asm-i386/segment.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 segment.h
---- linux-2.6.13-rc1-mm1/include/asm-i386/segment.h	3 Jul 2005 13:21:15 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/include/asm-i386/segment.h	4 Jul 2005 21:39:57 -0000
-@@ -97,5 +97,5 @@
-  * of tasks we can have..
-  */
- #define IDT_ENTRIES 256
+-    hanum = NUMDATA(gdth_ctr_vtab[i])->hanum;
+-    busnum= NUMDATA(gdth_ctr_vtab[i])->busnum;
 -
-+#define IDT_SIZE (IDT_ENTRIES * 8)
- #endif
-Index: linux-2.6.13-rc1-mm1/include/asm-i386/mach-default/irq_vectors_limits.h
+-    if (inout)
+-        return(gdth_set_info(buffer,length,gdth_ctr_vtab[i],hanum,busnum));
+-    else
+-        return(gdth_get_info(buffer,start,offset,length,
+-                             gdth_ctr_vtab[i],hanum,busnum));
+-}
+-#endif
+
+static int gdth_set_info(char *buffer,int length,struct Scsi_Host *host,
+int hanum,int busnum)
+{
+int             ret_val = -EINVAL;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+Scsi_Request    *scp;
+Scsi_Device     *sdev;
+-#else
+-    Scsi_Cmnd       *scp;
+-    Scsi_Device     *sdev;
+-#endif
+TRACE2(("gdth_set_info() ha %d bus %dn",hanum,busnum));
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+sdev = scsi_get_host_dev(host);
+scp  = scsi_allocate_request(sdev, GFP_KERNEL);
+if (!scp)
+return -ENOMEM;
+scp->sr_cmd_len = 12;
+scp->sr_use_sg = 0;
+-#else
+-    sdev = scsi_get_host_dev(host);
+-    scp  = scsi_allocate_device(sdev, 1, FALSE);
+-    if (!scp)
+-        return -ENOMEM;
+-    scp->cmd_len = 12;
+-    scp->use_sg = 0;
+-#endif
+
+if (length >= 4) {
+if (strncmp(buffer,"gdth",4) == 0) {
+@@ -84,21 +43,12 @@ static int gdth_set_info(char *buffer,in
+ret_val = gdth_set_asc_info( buffer, length, hanum, scp );
+}
+}
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+scsi_release_request(scp);
+scsi_free_host_dev(sdev);
+-#else
+-    scsi_release_command(scp);
+-    scsi_free_host_dev(sdev);
+-#endif
+return ret_val;
+}
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+static int gdth_set_asc_info(char *buffer,int length,int hanum,Scsi_Request *scp)
+-#else
+-static int gdth_set_asc_info(char *buffer,int length,int hanum,Scsi_Cmnd *scp)
+-#endif
+{
+int             orig_length, drive, wb_mode;
+int             i, found;
+@@ -146,11 +96,7 @@ static int gdth_set_asc_info(char *buffe
+gdtcmd.u.cache.DeviceNo = i;
+gdtcmd.u.cache.BlockNo = 1;
+}
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(scp, &gdtcmd, cmnd, 30);
+-#else
+-                gdth_do_cmd(scp, &gdtcmd, cmnd, 30);
+-#endif
+}
+}
+if (!found)
+@@ -202,11 +148,7 @@ static int gdth_set_asc_info(char *buffe
+gdtcmd.u.ioctl.subfunc = CACHE_CONFIG;
+gdtcmd.u.ioctl.channel = INVALID_CHANNEL;
+pcpar->write_back = wb_mode==1 ? 0:1;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(scp, &gdtcmd, cmnd, 30);
+-#else
+-        gdth_do_cmd(scp, &gdtcmd, cmnd, 30);
+-#endif
+gdth_ioctl_free(hanum, GDTH_SCRATCH, ha->pscratch, paddr);
+printk("Done.n");
+return(orig_length);
+@@ -230,13 +172,8 @@ static int gdth_get_info(char *buffer,ch
+
+gdth_cmd_str *gdtcmd;
+gdth_evt_str *estr;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+Scsi_Request *scp;
+Scsi_Device *sdev;
+-#else
+-    Scsi_Cmnd *scp;
+-    Scsi_Device *sdev;
+-#endif
+char hrec[161];
+struct timeval tv;
+
+@@ -260,28 +197,12 @@ static int gdth_get_info(char *buffer,ch
+TRACE2(("gdth_get_info() ha %d bus %dn",hanum,busnum));
+ha = HADATA(gdth_ctr_tab[hanum]);
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+sdev = scsi_get_host_dev(host);
+scp  = scsi_allocate_request(sdev, GFP_KERNEL);
+if (!scp)
+goto free_fail;
+scp->sr_cmd_len = 12;
+scp->sr_use_sg = 0;
+-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+-    sdev = scsi_get_host_dev(host);
+-    scp  = scsi_allocate_device(sdev, 1, FALSE);
+-    if (!scp)
+-        goto free_fail;
+-    scp->cmd_len = 12;
+-    scp->use_sg = 0;
+-#else
+-    memset(&sdev,0,sizeof(Scsi_Device));
+-    memset(&scp, 0,sizeof(Scsi_Cmnd));
+-    sdev.host = scp.host = host;
+-    sdev.id = scp.target = sdev.host->this_id;
+-    scp.device = &sdev;
+-#endif
+-
+
+/* request is i.e. "cat /proc/scsi/gdth/0" */
+/* format: %-15st%-10st%-15st%s */
+@@ -386,13 +307,8 @@ static int gdth_get_info(char *buffer,ch
+sizeof(pds->list[0]);
+if (pds->entries > cnt)
+pds->entries = cnt;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(scp, gdtcmd, cmnd, 30);
+if (scp->sr_command->SCp.Status != S_OK)
+-#else
+-            gdth_do_cmd(scp, gdtcmd, cmnd, 30);
+-            if (scp->SCp.Status != S_OK)
+-#endif
+{
+pds->count = 0;
+}
+@@ -410,13 +326,8 @@ static int gdth_get_info(char *buffer,ch
+gdtcmd->u.ioctl.subfunc = SCSI_DR_INFO | L_CTRL_PATTERN;
+gdtcmd->u.ioctl.channel =
+ha->raw[i].address | ha->raw[i].id_list[j];
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(scp, gdtcmd, cmnd, 30);
+if (scp->sr_command->SCp.Status == S_OK)
+-#else
+-                gdth_do_cmd(scp, gdtcmd, cmnd, 30);
+-                if (scp->SCp.Status == S_OK)
+-#endif
+{
+strncpy(hrec,pdi->vendor,8);
+strncpy(hrec+8,pdi->product,16);
+@@ -466,13 +377,8 @@ static int gdth_get_info(char *buffer,ch
+gdtcmd->u.ioctl.channel =
+ha->raw[i].address | ha->raw[i].id_list[j];
+pdef->sddc_type = 0x08;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(scp, gdtcmd, cmnd, 30);
+if (scp->sr_command->SCp.Status == S_OK)
+-#else
+-                    gdth_do_cmd(scp, gdtcmd, cmnd, 30);
+-                    if (scp->SCp.Status == S_OK)
+-#endif
+{
+size = sprintf(buffer+len,
+" Grown Defects:t%dn",
+@@ -519,13 +425,8 @@ static int gdth_get_info(char *buffer,ch
+gdtcmd->u.ioctl.param_size = sizeof(gdth_cdrinfo_str);
+gdtcmd->u.ioctl.subfunc = CACHE_DRV_INFO;
+gdtcmd->u.ioctl.channel = drv_no;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(scp, gdtcmd, cmnd, 30);
+if (scp->sr_command->SCp.Status != S_OK)
+-#else
+-                gdth_do_cmd(scp, gdtcmd, cmnd, 30);
+-                if (scp->SCp.Status != S_OK)
+-#endif
+{
+break;
+}
+@@ -629,13 +530,8 @@ static int gdth_get_info(char *buffer,ch
+gdtcmd->u.ioctl.param_size = sizeof(gdth_arrayinf_str);
+gdtcmd->u.ioctl.subfunc = ARRAY_INFO | LA_CTRL_PATTERN;
+gdtcmd->u.ioctl.channel = i;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(scp, gdtcmd, cmnd, 30);
+if (scp->sr_command->SCp.Status == S_OK)
+-#else
+-            gdth_do_cmd(scp, gdtcmd, cmnd, 30);
+-            if (scp->SCp.Status == S_OK)
+-#endif
+{
+if (pai->ai_state == 0)
+strcpy(hrec, "idle");
+@@ -710,13 +606,8 @@ static int gdth_get_info(char *buffer,ch
+gdtcmd->u.ioctl.channel = i;
+phg->entries = MAX_HDRIVES;
+phg->offset = GDTOFFSOF(gdth_hget_str, entry[0]);
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+gdth_do_req(scp, gdtcmd, cmnd, 30);
+if (scp->sr_command->SCp.Status != S_OK)
+-#else
+-            gdth_do_cmd(scp, gdtcmd, cmnd, 30);
+-            if (scp->SCp.Status != S_OK)
+-#endif
+{
+ha->hdr[i].ldr_no = i;
+ha->hdr[i].rw_attribs = 0;
+@@ -791,13 +682,8 @@ static int gdth_get_info(char *buffer,ch
+}
+
+stop_output:
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+scsi_release_request(scp);
+scsi_free_host_dev(sdev);
+-#else
+-    scsi_release_command(scp);
+-    scsi_free_host_dev(sdev);
+-#endif
+*start = buffer +(offset-begin);
+len -= (offset-begin);
+if (len > length)
+@@ -813,7 +699,6 @@ free_fail:
+}
+
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+static void gdth_do_req(Scsi_Request *scp, gdth_cmd_str *gdtcmd,
+char *cmnd, int timeout)
+{
+@@ -832,42 +717,14 @@ static void gdth_do_req(Scsi_Request *sc
+wait_for_completion(&wait);
+}
+
+-#else
+-static void gdth_do_cmd(Scsi_Cmnd *scp, gdth_cmd_str *gdtcmd,
+-                        char *cmnd, int timeout)
+-{
+-    unsigned bufflen;
+-    DECLARE_COMPLETION(wait);
+-
+-    TRACE2(("gdth_do_cmd()n"));
+-    if (gdtcmd != NULL) {
+-        scp->SCp.this_residual = IOCTL_PRI;
+-        bufflen = sizeof(gdth_cmd_str);
+-    } else {
+-        scp->SCp.this_residual = DEFAULT_PRI;
+-        bufflen = 0;
+-    }
+-
+-    scp->request.rq_status = RQ_SCSI_BUSY;
+-    scp->request.waiting = &wait;
+-    scsi_do_cmd(scp, cmnd, gdtcmd, bufflen, gdth_scsi_done, timeout*HZ, 1);
+-    wait_for_completion(&wait);
+-}
+-#endif
+
+void gdth_scsi_done(Scsi_Cmnd *scp)
+{
+TRACE2(("gdth_scsi_done()n"));
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+scp->request->rq_status = RQ_SCSI_DONE;
+if (scp->request->waiting != NULL)
+complete(scp->request->waiting);
+-#else
+-    scp->request.rq_status = RQ_SCSI_DONE;
+-    if (scp->request.waiting != NULL)
+-        complete(scp->request.waiting);
+-#endif
+}
+
+static char *gdth_ioctl_alloc(int hanum, int size, int scratch,
+Index: linux-2.6.13-rc2-mm1/drivers/scsi/gdth_proc.h
 ===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/include/asm-i386/mach-default/irq_vectors_limits.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 irq_vectors_limits.h
---- linux-2.6.13-rc1-mm1/include/asm-i386/mach-default/irq_vectors_limits.h	3 Jul 2005 13:21:15 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/include/asm-i386/mach-default/irq_vectors_limits.h	10 Jul 2005 20:13:50 -0000
-@@ -2,11 +2,13 @@
- #define _ASM_IRQ_VECTORS_LIMITS_H
- 
- #ifdef CONFIG_PCI_MSI
--#define NR_IRQS FIRST_SYSTEM_VECTOR
-+#define NR_IRQS 224
-+#define IRQ_STUB_SIZE 16
- #define NR_IRQ_VECTORS NR_IRQS
- #else
- #ifdef CONFIG_X86_IO_APIC
- #define NR_IRQS 224
-+#define IRQ_STUB_SIZE 16
- # if (224 >= 32 * NR_CPUS)
- # define NR_IRQ_VECTORS NR_IRQS
- # else
-@@ -14,8 +16,12 @@
- # endif
- #else
- #define NR_IRQS 16
-+#define IRQ_STUB_SIZE 8
- #define NR_IRQ_VECTORS NR_IRQS
- #endif
- #endif
- 
-+/* number of vectors available for external interrupts in Linux */
-+#define NR_DEVICE_VECTORS	190
-+
- #endif /* _ASM_IRQ_VECTORS_LIMITS_H */
-Index: linux-2.6.13-rc1-mm1/include/asm-i386/mach-visws/irq_vectors.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/include/asm-i386/mach-visws/irq_vectors.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 irq_vectors.h
---- linux-2.6.13-rc1-mm1/include/asm-i386/mach-visws/irq_vectors.h	3 Jul 2005 13:21:15 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/include/asm-i386/mach-visws/irq_vectors.h	4 Jul 2005 21:39:57 -0000
-@@ -52,7 +52,10 @@
-  */
- #define NR_VECTORS 256
- #define NR_IRQS 224
-+#define IRQ_STUB_SIZE 16
- #define NR_IRQ_VECTORS NR_IRQS
-+/* number of vectors available for external interrupts in Linux */
-+#define NR_DEVICE_VECTORS	190
- 
- #define FPU_IRQ			13
- 
-Index: linux-2.6.13-rc1-mm1/include/asm-i386/mach-voyager/irq_vectors.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.13-rc1-mm1/include/asm-i386/mach-voyager/irq_vectors.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 irq_vectors.h
---- linux-2.6.13-rc1-mm1/include/asm-i386/mach-voyager/irq_vectors.h	3 Jul 2005 13:21:15 -0000	1.1.1.1
-+++ linux-2.6.13-rc1-mm1/include/asm-i386/mach-voyager/irq_vectors.h	4 Jul 2005 21:39:57 -0000
-@@ -57,7 +57,10 @@
- 
- #define NR_VECTORS 256
- #define NR_IRQS 224
-+#define IRQ_STUB_SIZE 16
- #define NR_IRQ_VECTORS NR_IRQS
-+/* number of vectors available for external interrupts in Linux */
-+#define NR_DEVICE_VECTORS	190
- 
- #define FPU_IRQ				13
- 
+--- linux-2.6.13-rc2-mm1.orig/drivers/scsi/gdth_proc.h
++++ linux-2.6.13-rc2-mm1/drivers/scsi/gdth_proc.h
+@@ -10,15 +10,9 @@ static int gdth_set_info(char *buffer,in
+static int gdth_get_info(char *buffer,char **start,off_t offset,int length,
+struct Scsi_Host *host,int hanum,int busnum);
+
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+static void gdth_do_req(Scsi_Request *srp, gdth_cmd_str *cmd,
+char *cmnd, int timeout);
+static int gdth_set_asc_info(char *buffer,int length,int hanum,Scsi_Request *scp);
+-#else
+-static void gdth_do_cmd(Scsi_Cmnd *scp, gdth_cmd_str *cmd,
+-                        char *cmnd, int timeout);
+-static int gdth_set_asc_info(char *buffer,int length,int hanum,Scsi_Cmnd *scp);
+-#endif
+
+static char *gdth_ioctl_alloc(int hanum, int size, int scratch,
+ulong64 *paddr);

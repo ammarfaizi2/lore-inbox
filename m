@@ -1,63 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVGJSYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVGJSYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbVGJSYn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 14:24:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVGJSWq
+	id S262013AbVGJSYy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 14:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVGJSYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 14:22:46 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:19658 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262012AbVGJSWO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 14:22:14 -0400
-Subject: Re: share/private/slave a subtree - define vs enum
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Bryan Henderson <hbryan@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       bfields@fieldses.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linuxram@us.ibm.com, mike@waychison.com,
-       Miklos Szeredi <miklos@szeredi.hu>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <Pine.LNX.4.61.0507082154090.3728@scrub.home>
-References: <OFB01287B5.D35EDB80-ON88257038.005DEE97-88257038.005EDB8B@us.ibm.com>
-	 <courier.42CEC422.00001C6C@courier.cs.helsinki.fi>
-	 <Pine.LNX.4.61.0507082108530.3728@scrub.home>
-	 <1120851221.9655.17.camel@localhost>
-	 <Pine.LNX.4.61.0507082154090.3728@scrub.home>
-Date: Sun, 10 Jul 2005 21:21:42 +0300
-Message-Id: <1121019702.20821.17.camel@localhost>
+	Sun, 10 Jul 2005 14:24:47 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59297 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262013AbVGJSYD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 14:24:03 -0400
+Date: Sun, 10 Jul 2005 20:24:10 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [47/48] Suspend2 2.1.9.8 for 2.6.12: 623-generic-block-io.patch
+Message-ID: <20050710182410.GK10904@elf.ucw.cz>
+References: <11206164393426@foobar.com> <1120616444110@foobar.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120616444110@foobar.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roman,
+Hi!
 
-At some point in time, I wrote:
-> > Roman, it is not as if I get to decide for the patch submitters. I
-> > comment on any issues _I_ have with the patch and the authors fix
-> > whatever they want (or what the maintainers ask for).
+> +static int target_type = -1;
+> +
+> +/*
+> +static char * description[7] = {
+> +	"Socket",
+> +	"Link",
+> +	"Regular file",
+> +	"Block device",
+> +	"Directory",
+> +	"Character device",
+> +	"Fifo",
+> +};
+> +*/
+> +
+...
+> +/*
+> + *		Helpers.
+> + */
+> +
+> +/* 
+> + * Return the type of target we have, an index into the descriptions
+> + * above.
+> + */
+> +static int get_target_type(struct inode * inode)
+> +{
+> +	switch (inode->i_mode & S_IFMT) {
+> +		case S_IFSOCK:
+> +			target_type = 0;
+> +			break;
+> +		case S_IFLNK:
+> +			target_type = 1;
+> +			break;
+> +		case S_IFREG:
+> +			target_type = 2;
+> +			break;
+> +		case S_IFBLK:
+> +			target_type = 3;
+> +			break;
+> +		case S_IFDIR:
+> +			target_type = 4;
+> +			break;
+> +		case S_IFCHR:
+> +			target_type = 5;
+> +			break;
+> +		case S_IFIFO:
+> +			target_type = 6;
+> +			break;
+> +	}
+> +	return target_type;
+> +}
+> +	
+> +#define target_is_usable (!(target_type == 1 || target_type == 4))
+> +#define target_num_sectors (target_inode->i_size >> target_blkbits)
 
-On Fri, 2005-07-08 at 21:59 +0200, Roman Zippel wrote:
-> The point of a review is to comment on things that _need_ fixing. Less 
-> experienced hackers take this a requirement for their drivers to be 
-> included.
+Why do you need this?
+								Pavel
 
-Hmm. So we disagree on that issue as well. I think the point of review
-is to improve code and help others conform with the existing coding
-style which is why I find it strange that you're suggesting me to limit
-my comments to a subset you agree with.
-
-Would you please be so kind to define your criteria for things that
-"need fixing" so we could see if can reach some sort of an agreement on
-this. My list is roughly as follows:
-
-  - Erroneous use of kernel API
-  - Bad coding style
-  - Layering violations
-  - Duplicate code
-  - Hard to read code
-
-			Pekka
-
+-- 
+teflon -- maybe it is a trademark, but it should not be.

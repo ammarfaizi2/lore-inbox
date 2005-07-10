@@ -1,46 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVGJB2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVGJCO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVGJB2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 21:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVGJB2Z
+	id S261815AbVGJCO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 22:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVGJCO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 21:28:25 -0400
-Received: from animx.eu.org ([216.98.75.249]:58565 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261810AbVGJB2Y (ORCPT
+	Sat, 9 Jul 2005 22:14:58 -0400
+Received: from quechua.inka.de ([193.197.184.2]:60567 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261815AbVGJCO5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 21:28:24 -0400
-Date: Sat, 9 Jul 2005 21:45:59 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Eric Sandall <eric@sandall.us>
-Cc: Jeremy Nickurak <atrus@lkml.spam.rifetech.com>,
-       linux-kernel@vger.kernel.org
+	Sat, 9 Jul 2005 22:14:57 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Swap partition vs swap file
-Message-ID: <20050710014559.GA15844@animx.eu.org>
-Mail-Followup-To: Eric Sandall <eric@sandall.us>,
-	Jeremy Nickurak <atrus@lkml.spam.rifetech.com>,
-	linux-kernel@vger.kernel.org
-References: <E1DqhZV-0004yW-00@calista.eckenfels.6bone.ka-ip.net> <1120836958.16935.1.camel@localhost> <20050708224106.GA10649@animx.eu.org> <Pine.LNX.4.63.0507091559030.486@cerberus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0507091559030.486@cerberus>
-User-Agent: Mutt/1.5.6+20040907i
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <20050710014559.GA15844@animx.eu.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1DrRLL-00017G-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sun, 10 Jul 2005 04:14:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Sandall wrote:
-> >Of course, now this begs the question: Is it possible to create a large 
-> >file
-> >w/o actually writing that much to the device (ie uninitialized).  There's
-> >absolutely no reason that a swap file needs to be fully initialized, only
-> >part which mkswap does.  Of course, I would expect that ONLY root beable to
-> >do this. (or capsysadmin or whatever the caps are)
-> 
-> That would make the swap file fragment as it's used, instead of
-> allocating one big file (the entire file) at once (and hopefully get
-> one contiguous chunk of the disk).
+In article <20050710014559.GA15844@animx.eu.org> you wrote:
+> You misunderstood entirely what I said.
 
-You misunderstood entirely what I said.
+There is no portable/documented way to grow a file without having the file
+system null its content. However why is that a problem, you dont create
+those files very often. Besides it is better for the OS to be able to asume
+that a page with zeros in it is equal to the page on fresh swap.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Gruss
+Bernd

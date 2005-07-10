@@ -1,290 +1,254 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVGJVgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVGJWW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbVGJVgl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 17:36:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVGJTjT
+	id S262160AbVGJWW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 18:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVGJWUD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:39:19 -0400
-Received: from mail.suse.de ([195.135.220.2]:6291 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261809AbVGJTft (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:49 -0400
-Date: Sun, 10 Jul 2005 19:35:48 +0000
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Subject: [PATCH 40/82] remove linux/version.h from drivers/scsi/ips
-Message-ID: <20050710193548.40.oQkFzx3336.2247.olh@nectarine.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
-In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>  
+	Sun, 10 Jul 2005 18:20:03 -0400
+Received: from smtp2.oregonstate.edu ([128.193.4.8]:15236 "EHLO
+	smtp2.oregonstate.edu") by vger.kernel.org with ESMTP
+	id S262140AbVGJWTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 18:19:23 -0400
+Message-ID: <42D19EE1.90809@engr.orst.edu>
+Date: Sun, 10 Jul 2005 15:19:13 -0700
+From: Micheal Marineau <marineam@engr.orst.edu>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050525)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][help?] Radeonfb acpi resume
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig996440969A7CE4542F785172"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig996440969A7CE4542F785172
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
-remove code for obsolete kernels
+I've been forward porting this patch for a while now and need
+some input on it. You can see the last time someone posted it
+to the list here:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0410.0/0600.html
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+The big issue mentioned in that thread, that it reqires a key
+press during the resume process to keep going still exists and
+I have been unable to understand why.  The issue is in radeon_pm.c
+in this block that follows the last hunk of the diff:
 
-drivers/scsi/ips.c |  104 -----------------------------------------------------
-drivers/scsi/ips.h |   33 ----------------
-2 files changed, 137 deletions(-)
+        if (rinfo->no_schedule) {
+                if (try_acquire_console_sem())
+                        return 0;
+        } else
+                acquire_console_sem();
 
-Index: linux-2.6.13-rc2-mm1/drivers/scsi/ips.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/scsi/ips.c
-+++ linux-2.6.13-rc2-mm1/drivers/scsi/ips.c
-@@ -162,7 +162,6 @@
-#include <asm/byteorder.h>
-#include <asm/page.h>
-#include <linux/stddef.h>
--#include <linux/version.h>
-#include <linux/string.h>
-#include <linux/errno.h>
-#include <linux/kernel.h>
-@@ -180,12 +179,7 @@
-#include <scsi/sg.h>
+Specificly it's acquire_console_sem(); where the resume stops waiting
+for a key press.  What could be stopping things?
 
-#include "scsi.h"
--
--#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,0)
--#include "hosts.h"
--#else
-#include <scsi/scsi_host.h>
--#endif
+btw, I also have a suspend2 friendly version of the patch:
+http://dev.gentoo.org/~marineam/files/patch-radeonfb-2.6.12-suspend2
 
-#include "ips.h"
 
-@@ -214,21 +208,10 @@ module_param(ips, charp, 0);
-#warning "This driver has only been tested on the x86/ia64/x86_64 platforms"
-#endif
+diff -ru linux-2.6.12.orig/arch/i386/kernel/acpi/sleep.c
+linux-2.6.12/arch/i386/kernel/acpi/sleep.c
+--- linux-2.6.12.orig/arch/i386/kernel/acpi/sleep.c	2005-06-17
+12:48:29.000000000 -0700
++++ linux-2.6.12/arch/i386/kernel/acpi/sleep.c	2005-07-03
+18:01:34.000000000 -0700
+@@ -5,6 +5,7 @@
+  *  Copyright (C) 2001-2003 Pavel Machek <pavel@suse.cz>
+  */
 
--#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,0)
--#include <linux/blk.h>
--#include "sd.h"
--#define IPS_SG_ADDRESS(sg)       ((sg)->address)
--#define IPS_LOCK_SAVE(lock,flags) spin_lock_irqsave(&io_request_lock,flags)
--#define IPS_UNLOCK_RESTORE(lock,flags) spin_unlock_irqrestore(&io_request_lock,flags)
--#ifndef __devexit_p
--#define __devexit_p(x) x
--#endif
--#else
-#define IPS_SG_ADDRESS(sg)      (page_address((sg)->page) ?                                     page_address((sg)->page)+(sg)->offset : NULL)
-#define IPS_LOCK_SAVE(lock,flags) do{spin_lock(lock);(void)flags;}while(0)
-#define IPS_UNLOCK_RESTORE(lock,flags) do{spin_unlock(lock);(void)flags;}while(0)
--#endif
++#include <linux/module.h>
+ #include <linux/acpi.h>
+ #include <linux/bootmem.h>
+ #include <asm/smp.h>
+@@ -55,6 +56,31 @@
+ 	zap_low_mappings();
+ }
 
-#define IPS_DMA_DIR(scb) ((!scb->scsi_cmd || ips_is_passthru(scb->scsi_cmd) ||                           DMA_NONE == scb->scsi_cmd->sc_data_direction) ? @@ -384,24 +367,13 @@ static Scsi_Host_Template ips_driver_tem
-.eh_abort_handler	= ips_eh_abort,
-.eh_host_reset_handler	= ips_eh_reset,
-.proc_name		= "ips",
--#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
-.proc_info		= ips_proc_info,
-.slave_configure	= ips_slave_configure,
--#else
--	.proc_info		= ips_proc24_info,
--	.select_queue_depths	= ips_select_queue_depth,
--#endif
-.bios_param		= ips_biosparam,
-.this_id		= -1,
-.sg_tablesize		= IPS_MAX_SG,
-.cmd_per_lun		= 3,
-.use_clustering		= ENABLE_CLUSTERING,
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--	.use_new_eh_code	= 1,
--#endif
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,20)  &&  LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--    .highmem_io          = 1,
--#endif
-};
++/*
++ * acpi_vgapost
++ */
++
++extern void do_vgapost_lowlevel (unsigned long);
++
++void acpi_vgapost (unsigned long slot)
++{
++  unsigned long flags, saved_video_flags = acpi_video_flags;
++  acpi_video_flags = (slot & 0xffff) << 16 | 1;
++  /* Map low memory and copy information */
++  init_low_mapping(swapper_pg_dir, USER_PTRS_PER_PGD);
++  memcpy((void *) acpi_wakeup_address, &wakeup_start, &wakeup_end -
+&wakeup_start);
++  acpi_copy_wakeup_routine(acpi_wakeup_address);
++  /* Tunnel thru real mode */
++  local_irq_save(flags);
++  do_vgapost_lowlevel(acpi_wakeup_address);
++  local_irq_restore(flags);
++  /* Restore mapping etc */
++  zap_low_mappings();
++  acpi_video_flags = saved_video_flags;
++}
++
++EXPORT_SYMBOL (acpi_vgapost);
++
+ /**
+  * acpi_reserve_bootmem - do _very_ early ACPI initialisation
+  *
+diff -ru linux-2.6.12.orig/arch/i386/kernel/acpi/wakeup.S
+linux-2.6.12/arch/i386/kernel/acpi/wakeup.S
+--- linux-2.6.12.orig/arch/i386/kernel/acpi/wakeup.S	2005-06-17
+12:48:29.000000000 -0700
++++ linux-2.6.12/arch/i386/kernel/acpi/wakeup.S	2005-07-03
+18:01:34.000000000 -0700
+@@ -170,6 +170,32 @@
 
-static IPS_DEFINE_COMPAT_TABLE( Compatable );	/* Version Compatability Table      */
-@@ -1186,17 +1158,10 @@ ips_queue(Scsi_Cmnd * SC, void (*done) (
-/*                                                                          */
-/****************************************************************************/
-static int
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--ips_biosparam(Disk * disk, kdev_t dev, int geom[])
--{
--	ips_ha_t *ha = (ips_ha_t *) disk->device->host->hostdata;
--	unsigned long capacity = disk->capacity;
--#else
-ips_biosparam(struct scsi_device *sdev, struct block_device *bdev,
-sector_t capacity, int geom[])
-{
-ips_ha_t *ha = (ips_ha_t *) sdev->host->hostdata;
--#endif
-int heads;
-int sectors;
-int cylinders;
-@@ -1234,70 +1199,6 @@ ips_biosparam(struct scsi_device *sdev,
-return (0);
-}
+ _setbad: jmp setbad
 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--
--/* ips_proc24_info is a wrapper around ips_proc_info *
-- * for compatibility with the 2.4 scsi parameters    */
--static int
--ips_proc24_info(char *buffer, char **start, off_t offset, int length,
--		              int hostno, int func)
--{
--	int i;
--
--	for (i = 0; i < ips_next_controller; i++) {
--		if (ips_sh[i] && ips_sh[i]->host_no == hostno) {
--			return ips_proc_info(ips_sh[i], buffer, start,
--					     offset, length, func);
--		}
--	}
--	return -EINVAL;
--}
--
--/****************************************************************************/
--/*                                                                          */
--/* Routine Name: ips_select_queue_depth                                     */
--/*                                                                          */
--/* Routine Description:                                                     */
--/*                                                                          */
--/*   Select queue depths for the devices on the contoller                   */
--/*                                                                          */
--/****************************************************************************/
--static void
--ips_select_queue_depth(struct Scsi_Host *host, Scsi_Device * scsi_devs)
--{
--	Scsi_Device *device;
--	ips_ha_t *ha;
--	int count = 0;
--	int min;
--
--	ha = IPS_HA(host);
--	min = ha->max_cmds / 4;
--
--	for (device = scsi_devs; device; device = device->next) {
--		if (device->host == host) {
--			if ((device->channel == 0) && (device->type == 0))
--				count++;
--		}
--	}
--
--	for (device = scsi_devs; device; device = device->next) {
--		if (device->host == host) {
--			if ((device->channel == 0) && (device->type == 0)) {
--				device->queue_depth =
--				    (ha->max_cmds - 1) / count;
--				if (device->queue_depth < min)
--					device->queue_depth = min;
--			} else {
--				device->queue_depth = 2;
--			}
--
--			if (device->queue_depth < 2)
--				device->queue_depth = 2;
--		}
--	}
--}
--
--#else
-/****************************************************************************/
-/*                                                                          */
-/* Routine Name: ips_slave_configure                                        */
-@@ -1322,7 +1223,6 @@ ips_slave_configure(Scsi_Device * SDptr)
-}
-return 0;
-}
--#endif
++#
++#	Real mode switch - verbatim from reboot.c
++#
++go_real:
++	movl	%cr0, %eax
++	andl	$0x00000011, %eax
++	orl	$0x60000000, %eax
++	movl	%eax, %cr0
++	movl	%eax, %cr3
++	movl	%cr0, %ebx
++	andl	$0x60000000, %ebx
++	jz	1f
++	wbinvd
++1:	andb	$0x10, %al
++	movl	%eax, %cr0
++go_real_jmp:		.byte	0xea
++go_real_jmp_off:	.word	0x0000
++go_real_jmp_seg:	.word	0x0000
++#
++# 	Real mode descriptor table
++#
++		.align	8
++go_real_desc:	.quad	0x0000000000000000
++go_real_cseg:	.quad	0x00009a000000ffff
++go_real_dseg:	.quad	0x000092000000ffff
++
+ 	.code32
+ 	ALIGN
 
-/****************************************************************************/
-/*                                                                          */
-@@ -7044,9 +6944,7 @@ ips_register_scsi(int index)
-sh->unchecked_isa_dma = sh->hostt->unchecked_isa_dma;
-sh->use_clustering = sh->hostt->use_clustering;
+@@ -309,6 +335,59 @@
+ 	call acpi_enter_sleep_state_s4bios
+ 	ret
 
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,7)
-sh->max_sectors = 128;
--#endif
++ENTRY(do_vgapost_lowlevel)
++	# Convert target offset to physical address
++	movl	%eax, %ecx
++	subl	$__PAGE_OFFSET, %ecx
++	# Fixup GDT pointer
++	movl	%ecx, %edx
++	addl	$go_real_desc - wakeup_start, %edx
++	movl	%edx, go_real_gdt + 2
++	# Fixup 16-bit CS descriptor
++	movl	%ecx, %edx
++	movw	%dx, go_real_cseg - wakeup_start + 2 (%eax)
++	shrl	$16, %edx
++	movb	%dl, go_real_cseg - wakeup_start + 4 (%eax)
++	movb	%dh, go_real_cseg - wakeup_start + 7 (%eax)
++	# Fixup 16-bit jump
++	movl	%ecx, %edx
++	shrl	$4, %edx
++	movw	%dx, go_real_jmp_seg - wakeup_start (%eax)
++	# Save state and registers
++	call	save_processor_state
++	call	save_registers
++	# Reload page table with low mapping
++	movl	$swapper_pg_dir-__PAGE_OFFSET, %eax
++	movl	%eax, %cr3
++	# Load IDTR and GDTR for real mode
++	lidt	go_real_idt
++	lgdt	go_real_gdt
++	# Load DS & al
++	movl	$0x0010, %eax
++	movl	%eax, %ss
++	movl	%eax, %ds
++	movl	%eax, %es
++	movl	%eax, %fs
++	movl	%eax, %gs
++	# Load CS
++	call	$0x0008, $(go_real - wakeup_start)
++	# Phony return code
++	call	restore_registers
++	call	restore_processor_state
++	ret
++	
++	.align	4
++	.word	0
++go_real_idt:
++	.word	0x3ff
++	.long	0
++	
++	.align	4
++	.word	0
++go_real_gdt:
++	.word	3*8-1
++	.long	0
++
+ ALIGN
+ # saved registers
+ saved_gdt:	.long	0,0
+diff -ru linux-2.6.12.orig/drivers/video/aty/radeon_pm.c
+linux-2.6.12/drivers/video/aty/radeon_pm.c
+--- linux-2.6.12.orig/drivers/video/aty/radeon_pm.c	2005-06-17
+12:48:29.000000000 -0700
++++ linux-2.6.12/drivers/video/aty/radeon_pm.c	2005-07-03
+19:55:36.000000000 -0700
+@@ -2606,10 +2606,13 @@
 
-sh->max_id = ha->ntargets;
-sh->max_lun = ha->nlun;
-@@ -7470,9 +7368,7 @@ ips_init_phase2(int index)
-return SUCCESS;
-}
+  done:
+ 	pdev->dev.power.power_state = state;
++	pci_save_state (pdev);
 
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,9)
-MODULE_LICENSE("GPL");
--#endif
+ 	return 0;
+ }
 
-MODULE_DESCRIPTION("IBM ServeRAID Adapter Driver " IPS_VER_STRING);
++extern void acpi_vgapost (unsigned long slot);
++
+ int radeonfb_pci_resume(struct pci_dev *pdev)
+ {
+         struct fb_info *info = pci_get_drvdata(pdev);
+@@ -2619,6 +2622,12 @@
+ 	if (pdev->dev.power.power_state == 0)
+ 		return 0;
 
-Index: linux-2.6.13-rc2-mm1/drivers/scsi/ips.h
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/scsi/ips.h
-+++ linux-2.6.13-rc2-mm1/drivers/scsi/ips.h
-@@ -56,9 +56,7 @@
-/*
-* Some handy macros
-*/
--   #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,20) || defined CONFIG_HIGHIO
-#define IPS_HIGHIO
--   #endif
++	if (pdev->dev.power.power_state != 4)
++	{
++		pci_restore_state (pdev);
++		acpi_vgapost (pdev->devfn);
++	}
++
+ 	if (rinfo->no_schedule) {
+ 		if (try_acquire_console_sem())
+ 			return 0;
+-- 
+Michael Marineau
+marineam@engr.orst.edu
+Oregon State University
 
-#define IPS_HA(x)                   ((ips_ha_t *) x->hostdata)
-#define IPS_COMMAND_ID(ha, scb)     (int) (scb - ha->scbs)
-@@ -82,31 +80,7 @@
-#define IPS_SGLIST_SIZE(ha)       (IPS_USE_ENH_SGLIST(ha) ?                                           sizeof(IPS_ENH_SG_LIST) : sizeof(IPS_STD_SG_LIST))
+--------------enig996440969A7CE4542F785172
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
--   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,4)
--      #define pci_set_dma_mask(dev,mask) ( mask > 0xffffffff ? 1:0 )
--      #define scsi_set_pci_device(sh,dev) (0)
--   #endif
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
--   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--
--      #ifndef irqreturn_t
--         typedef void irqreturn_t;
--      #endif
--
--      #define IRQ_NONE
--      #define IRQ_HANDLED
--      #define IRQ_RETVAL(x)
--      #define IPS_REGISTER_HOSTS(SHT)      scsi_register_module(MODULE_SCSI_HA,SHT)
--      #define IPS_UNREGISTER_HOSTS(SHT)    scsi_unregister_module(MODULE_SCSI_HA,SHT)
--      #define IPS_ADD_HOST(shost,device)
--      #define IPS_REMOVE_HOST(shost)
--      #define IPS_SCSI_SET_DEVICE(sh,ha)   scsi_set_pci_device(sh, (ha)->pcidev)
--      #define IPS_PRINTK(level, pcidev, format, arg...)                 -            printk(level "%s %s:" format , "ips" ,     -            (pcidev)->slot_name , ## arg)
--      #define scsi_host_alloc(sh,size)         scsi_register(sh,size)
--      #define scsi_host_put(sh)             scsi_unregister(sh)
--   #else
-#define IPS_REGISTER_HOSTS(SHT)      (!ips_detect(SHT))
-#define IPS_UNREGISTER_HOSTS(SHT)
-#define IPS_ADD_HOST(shost,device)   do { scsi_add_host(shost,device); scsi_scan_host(shost); } while (0)
-@@ -114,7 +88,6 @@
-#define IPS_SCSI_SET_DEVICE(sh,ha)   do { } while (0)
-#define IPS_PRINTK(level, pcidev, format, arg...)                              dev_printk(level , &((pcidev)->dev) , format , ## arg)
--   #endif
+iD8DBQFC0Z7miP+LossGzjARAlQTAJ94u8yXab5gueLi1VFu4THoVEH2rwCdEIeP
+DxByxS6nUWsO2g0UYbrWr40=
+=6Pf/
+-----END PGP SIGNATURE-----
 
-#ifndef MDELAY
-#define MDELAY mdelay
-@@ -444,16 +417,10 @@
-/*
-* Scsi_Host Template
-*/
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--   static int ips_proc24_info(char *, char **, off_t, int, int, int);
--   static void ips_select_queue_depth(struct Scsi_Host *, Scsi_Device *);
--   static int ips_biosparam(Disk *disk, kdev_t dev, int geom[]);
--#else
-static int ips_proc_info(struct Scsi_Host *, char *, char **, off_t, int, int);
-static int ips_biosparam(struct scsi_device *sdev, struct block_device *bdev,
-sector_t capacity, int geom[]);
-static int ips_slave_configure(Scsi_Device *SDptr);
--#endif
-
-/*
-* Raid Command Formats
+--------------enig996440969A7CE4542F785172--

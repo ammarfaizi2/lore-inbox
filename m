@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVGJMfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVGJMhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbVGJMfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 08:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVGJMfZ
+	id S261924AbVGJMhM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 08:37:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVGJMhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 08:35:25 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:32737 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261914AbVGJMfX (ORCPT
+	Sun, 10 Jul 2005 08:37:12 -0400
+Received: from animx.eu.org ([216.98.75.249]:21935 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261924AbVGJMhH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 08:35:23 -0400
-Date: Sun, 10 Jul 2005 14:35:50 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Marcel Selhorst <selhorst@crypto.rub.de>, linux-kernel@vger.kernel.org,
-       kjhall@us.ibm.com, adobriyan@gmail.com
-Subject: Re: [PATCH] tpm: Support for new chip type
-Message-ID: <20050710123550.GA3378@ucw.cz>
-References: <42CDAFBA.5080005@crypto.rub.de> <20050709191903.GB1553@elf.ucw.cz>
+	Sun, 10 Jul 2005 08:37:07 -0400
+Date: Sun, 10 Jul 2005 08:54:38 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Swap partition vs swap file
+Message-ID: <20050710125438.GA17784@animx.eu.org>
+Mail-Followup-To: Bernd Eckenfels <ecki@lina.inka.de>,
+	linux-kernel@vger.kernel.org
+References: <20050710014559.GA15844@animx.eu.org> <E1DrRLL-00017G-00@calista.eckenfels.6bone.ka-ip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050709191903.GB1553@elf.ucw.cz>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <E1DrRLL-00017G-00@calista.eckenfels.6bone.ka-ip.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 09, 2005 at 09:19:04PM +0200, Pavel Machek wrote:
- 
-> Ugh, is it just me or are you abusing enums a bit?
-> > +static int __init tpm_inf_probe(struct pci_dev *pci_dev,
-> > +				const struct pci_device_id *pci_id)
-> > +{
-> > +
-> > +	int rc = 0;
-> > +	u8 ioh;
-> > +	u8 iol;
+Bernd Eckenfels wrote:
+> In article <20050710014559.GA15844@animx.eu.org> you wrote:
+> > You misunderstood entirely what I said.
 > 
-> Put these two on one line? Are you sure probe can't be called during
-> runtime for some pci hotplug case?
- 
-__devinit should be used here, if for nothing else, then for sanity's
-sake.
+> There is no portable/documented way to grow a file without having the file
+> system null its content. However why is that a problem, you dont create
+> those files very often. Besides it is better for the OS to be able to asume
+> that a page with zeros in it is equal to the page on fresh swap.
+
+So are you saying that if I create a swap partition it's best to use dd to
+zero it out before mkswap?  If no, then why would a file be different?  I
+know there's no documented way to create a file of given size without
+writing content.  I saw windows grow a pagefile several meg in less than a
+second so I'm sure that it doesn't zero out the space first.
+
+As far as portable, we're talking about linux, portability is not an issue
+in this case.  I myself don't use swap files (or partitions), however, there
+was a project I recall that would dynamically add/remove swap as needed. 
+Creating a file of 20-50mb quickly would have been beneficial.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,128 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVGJDlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVGJDyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbVGJDlk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Jul 2005 23:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVGJDlk
+	id S261387AbVGJDyY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Jul 2005 23:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbVGJDyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Jul 2005 23:41:40 -0400
-Received: from siaag2ae.compuserve.com ([149.174.40.135]:39819 "EHLO
-	siaag2ae.compuserve.com") by vger.kernel.org with ESMTP
-	id S261401AbVGJDlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Jul 2005 23:41:39 -0400
-Date: Sat, 9 Jul 2005 23:39:12 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [PATCH 2.6.13-rc2] [RFD] Text section for "slow" code
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200507092341_MC3-1-A40A-8EA@compuserve.com>
-MIME-Version: 1.0
+	Sat, 9 Jul 2005 23:54:23 -0400
+Received: from h80ad2588.async.vt.edu ([128.173.37.136]:60058 "EHLO
+	h80ad2588.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261387AbVGJDyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Jul 2005 23:54:22 -0400
+Message-Id: <200507100353.j6A3rtU9020857@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: "liyu@WAN" <liyu@ccoss.com.cn>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: The question come again. 
+In-Reply-To: Your message of "Sun, 10 Jul 2005 11:28:20 +0800."
+             <42D095D4.3020907@ccoss.com.cn> 
+From: Valdis.Kletnieks@vt.edu
+References: <42D095D4.3020907@ccoss.com.cn>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1120967631_8886P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Date: Sat, 09 Jul 2005 23:53:51 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1120967631_8886P
+Content-Type: text/plain; charset=us-ascii
 
-I came up with this patch for moving slow code to its own section, but
-some questions arose:
+On Sun, 10 Jul 2005 11:28:20 +0800, "liyu@WAN" said:
 
-        1.  How to implement for each arch?
+>     But I found it may call __you_cannot_kmalloc_that_much(). but I can 
+> not get where is
+> defined.
 
-        2.  What name to use for the text section?
+Note that you can only reach it if you have a *compile-time constant* of
+over 32M or so in size.  If it's smaller, it will catch the appropriate
+if/then from kmalloc_sizes.h (and all the others removed by the optimizer).
 
-Patch for X86 and PPC follows, then a test patch for i386 to show it
-boots and runs.
-
-
-Index: 2.6.13-rc2a/arch/i386/kernel/vmlinux.lds.S
-===================================================================
---- 2.6.13-rc2a.orig/arch/i386/kernel/vmlinux.lds.S
-+++ 2.6.13-rc2a/arch/i386/kernel/vmlinux.lds.S
-@@ -23,6 +23,7 @@
- 	SCHED_TEXT
- 	LOCK_TEXT
- 	*(.fixup)
-+	*(.slow.text)
- 	*(.gnu.warning)
- 	} = 0x9090
- 
-Index: 2.6.13-rc2a/arch/ppc/kernel/vmlinux.lds.S
-===================================================================
---- 2.6.13-rc2a.orig/arch/ppc/kernel/vmlinux.lds.S
-+++ 2.6.13-rc2a/arch/ppc/kernel/vmlinux.lds.S
-@@ -34,6 +34,7 @@
-     SCHED_TEXT
-     LOCK_TEXT
-     *(.fixup)
-+    *(.slow.text)
-     *(.got1)
-     __got2_start = .;
-     *(.got2)
-Index: 2.6.13-rc2a/arch/ppc64/kernel/vmlinux.lds.S
-===================================================================
---- 2.6.13-rc2a.orig/arch/ppc64/kernel/vmlinux.lds.S
-+++ 2.6.13-rc2a/arch/ppc64/kernel/vmlinux.lds.S
-@@ -16,6 +16,7 @@
- 	SCHED_TEXT
- 	LOCK_TEXT
- 	*(.fixup)
-+	*(.slow.text)
- 	. = ALIGN(4096);
- 	_etext = .;
- 	}
-Index: 2.6.13-rc2a/arch/x86_64/kernel/vmlinux.lds.S
-===================================================================
---- 2.6.13-rc2a.orig/arch/x86_64/kernel/vmlinux.lds.S
-+++ 2.6.13-rc2a/arch/x86_64/kernel/vmlinux.lds.S
-@@ -22,6 +22,7 @@
- 	SCHED_TEXT
- 	LOCK_TEXT
- 	*(.fixup)
-+	*(.slow.text)
- 	*(.gnu.warning)
- 	} = 0x9090
-   				/* out-of-line lock text */
-Index: 2.6.13-rc2a/include/linux/compiler.h
-===================================================================
---- 2.6.13-rc2a.orig/include/linux/compiler.h
-+++ 2.6.13-rc2a/include/linux/compiler.h
-@@ -48,6 +48,17 @@
- # error Sorry, your compiler is too old/not recognized.
- #endif
- 
-+/* Text section for code that is not speed-critical.
-+ * Temporary hack includes arch-specific test in generic header.
-+ */
-+#if defined(CONFIG_X86) || defined(CONFIG_PPC)
-+# define __slow		noinline __attribute__((__section__(".slow.text")))
-+#endif
-+
-+#if !defined(__slow)
-+# define __slow		noinline
-+#endif
-+
- /* Intel compiler defines __GNUC__. So we will overwrite implementations
-  * coming from above header files here
-  */
-
-=======================================================================================
-
-Test patch:
-
-Index: 2.6.13-rc2a/arch/i386/kernel/irq.c
-===================================================================
---- 2.6.13-rc2a.orig/arch/i386/kernel/irq.c
-+++ 2.6.13-rc2a/arch/i386/kernel/irq.c
-@@ -210,7 +210,7 @@
-  * /proc/interrupts printing:
-  */
- 
--int show_interrupts(struct seq_file *p, void *v)
-+int __slow show_interrupts(struct seq_file *p, void *v)
- {
- 	int i = *(loff_t *) v, j;
- 	struct irqaction * action;
+And since there *isn't* a definition, you'll get a complaint when you
+try to link vmlinux - and the complaint will tell you where it's referenced.
 
 
---
-Chuck
+
+--==_Exmh_1120967631_8886P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFC0JvPcC3lWbTT17ARAu97AKDwSmQbpHHwtOLWIwWARLVuQg+d9gCg4RPt
+6g0KWyTpX2oOAO4EO0h0Qfc=
+=bjPt
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1120967631_8886P--

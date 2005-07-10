@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVGJUoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVGJUqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbVGJUoD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 16:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVGJTlB
+	id S262085AbVGJUqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 16:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVGJUoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:41:01 -0400
-Received: from mx2.suse.de ([195.135.220.15]:27356 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261233AbVGJTf0 (ORCPT
+	Sun, 10 Jul 2005 16:44:08 -0400
+Received: from mx1.rowland.org ([192.131.102.7]:22034 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S262117AbVGJUmb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:26 -0400
-Date: Sun, 10 Jul 2005 19:35:25 +0000
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: sfr@canb.auug.org.au
-Subject: [PATCH 17/82] remove linux/version.h from drivers/char/viotape.c
-Message-ID: <20050710193525.17.Lcgpmr2730.2247.olh@nectarine.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
-In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>  
+	Sun, 10 Jul 2005 16:42:31 -0400
+Date: Sun, 10 Jul 2005 16:42:26 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Parag Warudkar <kernel-stuff@comcast.net>
+cc: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] 2.6.12 - USB Mouse not detected
+In-Reply-To: <200507100936.23705.kernel-stuff@comcast.net>
+Message-ID: <Pine.LNX.4.44L0.0507101638470.24579-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 10 Jul 2005, Parag Warudkar wrote:
 
-changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+> Beginning 2.6.12 my Wireless USB Mouse is not detected in the first attempt - 
+> Meaning if I boot the machine with the mouse connected, it's not detected 
+> until I disconnect the mouse and then reconnect it.
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+That's not quite right.  Your log clearly shows the mouse was detected and 
+assigned address 2.
 
-drivers/char/viotape.c |    1 -
-1 files changed, 1 deletion(-)
+>  It works fine after the disconnect-reconnect cycle. Looking at the
+> dmesg, it seems that at first time it forgets to register the hiddev
+> driver - mysteriously, it remembers the second time.
 
-Index: linux-2.6.13-rc2-mm1/drivers/char/viotape.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/char/viotape.c
-+++ linux-2.6.13-rc2-mm1/drivers/char/viotape.c
-@@ -32,7 +32,6 @@
-* iSeries/vio.h
-*/
-#include <linux/config.h>
--#include <linux/version.h>
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/errno.h>
+Exactly.  The hiddev driver wasn't loaded the first time, which makes this 
+sound like some sort of hotplug failure.  Are your hotplug and udev 
+packages up to date?
+
+Alan Stern
+

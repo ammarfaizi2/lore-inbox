@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVGJV1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVGJV1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbVGJV1v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 17:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbVGJTjh
+	id S261784AbVGJV1u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 17:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVGJTjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:39:37 -0400
-Received: from ns.suse.de ([195.135.220.2]:3987 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261788AbVGJTfm (ORCPT
+	Sun, 10 Jul 2005 15:39:39 -0400
+Received: from ns2.suse.de ([195.135.220.15]:38364 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261784AbVGJTfm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 10 Jul 2005 15:35:42 -0400
-Date: Sun, 10 Jul 2005 19:35:42 +0000
+Date: Sun, 10 Jul 2005 19:35:41 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Subject: [PATCH 34/82] remove linux/version.h from drivers/scsi/bvme6000.c
-Message-ID: <20050710193542.34.GTlMMS3178.2247.olh@nectarine.suse.de>
+Subject: [PATCH 33/82] remove linux/version.h from drivers/scsi/arcmsr
+Message-ID: <20050710193541.33.RXSOKn3150.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -30,18 +30,31 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/scsi/bvme6000.c |    1 -
-1 files changed, 1 deletion(-)
+drivers/scsi/arcmsr/arcmsr.c |    1 -
+drivers/scsi/arcmsr/arcmsr.h |    1 -
+2 files changed, 2 deletions(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/scsi/bvme6000.c
+Index: linux-2.6.13-rc2-mm1/drivers/scsi/arcmsr/arcmsr.c
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/scsi/bvme6000.c
-+++ linux-2.6.13-rc2-mm1/drivers/scsi/bvme6000.c
-@@ -7,7 +7,6 @@
-#include <linux/mm.h>
-#include <linux/blkdev.h>
-#include <linux/sched.h>
+--- linux-2.6.13-rc2-mm1.orig/drivers/scsi/arcmsr/arcmsr.c
++++ linux-2.6.13-rc2-mm1/drivers/scsi/arcmsr/arcmsr.c
+@@ -81,7 +81,6 @@
+#include <config/modversions.h>
+#endif
+#include <linux/module.h>
 -#include <linux/version.h>
-#include <linux/zorro.h>
+/* Now your module include files & source code follows */
+#include <asm/dma.h>
+#include <asm/io.h>
+Index: linux-2.6.13-rc2-mm1/drivers/scsi/arcmsr/arcmsr.h
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/drivers/scsi/arcmsr/arcmsr.h
++++ linux-2.6.13-rc2-mm1/drivers/scsi/arcmsr/arcmsr.h
+@@ -43,7 +43,6 @@
+**************************************************************************
+*/
+#include <linux/config.h>
+-#include <linux/version.h>
 
-#include <asm/setup.h>
+#if defined(__SMP__) && !defined(CONFIG_SMP)
+# define CONFIG_SMP

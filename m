@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVGJUoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVGJUoD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbVGJUoA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 16:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVGJTlT
+	id S261411AbVGJUoD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 16:44:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVGJTlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:41:19 -0400
-Received: from ns.suse.de ([195.135.220.2]:58514 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261219AbVGJTfX (ORCPT
+	Sun, 10 Jul 2005 15:41:01 -0400
+Received: from mx2.suse.de ([195.135.220.15]:27356 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261233AbVGJTf0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:23 -0400
-Date: Sun, 10 Jul 2005 19:35:23 +0000
+	Sun, 10 Jul 2005 15:35:26 -0400
+Date: Sun, 10 Jul 2005 19:35:25 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: tpmdd-devel@lists.sourceforge.net
-Subject: [PATCH 15/82] remove linux/version.h from drivers/char/tpm/tpm.h
-Message-ID: <20050710193523.15.NIFKfj2675.2247.olh@nectarine.suse.de>
+Cc: sfr@canb.auug.org.au
+Subject: [PATCH 17/82] remove linux/version.h from drivers/char/viotape.c
+Message-ID: <20050710193525.17.Lcgpmr2730.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -30,18 +30,18 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/char/tpm/tpm.h |    1 -
+drivers/char/viotape.c |    1 -
 1 files changed, 1 deletion(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/char/tpm/tpm.h
+Index: linux-2.6.13-rc2-mm1/drivers/char/viotape.c
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/char/tpm/tpm.h
-+++ linux-2.6.13-rc2-mm1/drivers/char/tpm/tpm.h
-@@ -19,7 +19,6 @@
-*
+--- linux-2.6.13-rc2-mm1.orig/drivers/char/viotape.c
++++ linux-2.6.13-rc2-mm1/drivers/char/viotape.c
+@@ -32,7 +32,6 @@
+* iSeries/vio.h
 */
-#include <linux/module.h>
+#include <linux/config.h>
 -#include <linux/version.h>
-#include <linux/pci.h>
-#include <linux/delay.h>
-#include <linux/fs.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/errno.h>

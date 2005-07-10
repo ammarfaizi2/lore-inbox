@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVGJM0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVGJMfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbVGJM0c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 08:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVGJM0c
+	id S261914AbVGJMfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 08:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVGJMfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 08:26:32 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:63969 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261923AbVGJM0b (ORCPT
+	Sun, 10 Jul 2005 08:35:25 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:32737 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261914AbVGJMfX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 08:26:31 -0400
-Date: Sun, 10 Jul 2005 14:26:59 +0200
+	Sun, 10 Jul 2005 08:35:23 -0400
+Date: Sun, 10 Jul 2005 14:35:50 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dmitry Torokhov <dtor@mail.ru>
-Cc: alan@redhat.com
-Subject: Re: Synaptics Touchpad not detected in 2.6.13-rc2
-Message-ID: <20050710122659.GB3174@ucw.cz>
-References: <20050708125537.GA4191@inferi.kami.home> <20050708162908.715.qmail@web81301.mail.yahoo.com> <20050709142706.GA4181@inferi.kami.home>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Marcel Selhorst <selhorst@crypto.rub.de>, linux-kernel@vger.kernel.org,
+       kjhall@us.ibm.com, adobriyan@gmail.com
+Subject: Re: [PATCH] tpm: Support for new chip type
+Message-ID: <20050710123550.GA3378@ucw.cz>
+References: <42CDAFBA.5080005@crypto.rub.de> <20050709191903.GB1553@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050709142706.GA4181@inferi.kami.home>
+In-Reply-To: <20050709191903.GB1553@elf.ucw.cz>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 09, 2005 at 04:27:06PM +0200, Mattia Dongili wrote:
-> On Fri, Jul 08, 2005 at 09:29:08AM -0700, Dmitry Torokhov wrote:
-> [...]
-> > Does it help if you boot with "usb-handoff" kernel option? Another
-> > one would be "i8042.nomux". Btw, does your laptop have external
-> > PS/2 ports?
-> 
-> Ok, it seems I can now reliably reproduce the wrong detection (by
-> removing the power supply before a cold boot) and 'usb-handoff'
-> definitely helps.
-> 
-> Oh, and I don't have any extra ps/2 port available.
+On Sat, Jul 09, 2005 at 09:19:04PM +0200, Pavel Machek wrote:
  
-Since we (SUSE, many thanks to Andi Kleen and Andrea Arcangeli) have
-already fixed most of the breakage "usb-handoff" causes on certain
-(nvidia, etc) boxes, because of unusual memory layouts and iounmap()
-that can't cope with that, I believe it'd be a good idea to enable
-"usb-handoff" on vanilla kernels by default as well - SUSE already has
-it enabled for more than a year.
+> Ugh, is it just me or are you abusing enums a bit?
+> > +static int __init tpm_inf_probe(struct pci_dev *pci_dev,
+> > +				const struct pci_device_id *pci_id)
+> > +{
+> > +
+> > +	int rc = 0;
+> > +	u8 ioh;
+> > +	u8 iol;
+> 
+> Put these two on one line? Are you sure probe can't be called during
+> runtime for some pci hotplug case?
+ 
+__devinit should be used here, if for nothing else, then for sanity's
+sake.
 
 -- 
 Vojtech Pavlik

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVGJUSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVGJUSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbVGJUSn (ORCPT <rfc822;willy@w.ods.org>);
+	id S261203AbVGJUSn (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 10 Jul 2005 16:18:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVGJTlh
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVGJTll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:41:37 -0400
-Received: from ns2.suse.de ([195.135.220.15]:24540 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261206AbVGJTfX (ORCPT
+	Sun, 10 Jul 2005 15:41:41 -0400
+Received: from cantor.suse.de ([195.135.220.2]:58002 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261203AbVGJTfT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:23 -0400
-Date: Sun, 10 Jul 2005 19:35:17 +0000
+	Sun, 10 Jul 2005 15:35:19 -0400
+Date: Sun, 10 Jul 2005 19:35:19 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 9/82] remove linux/version.h from drivers/block/amiflop.c
-Message-ID: <20050710193517.9.vfGzYd2509.2247.olh@nectarine.suse.de>
+Subject: [PATCH 11/82] remove linux/version.h from drivers/char/mwave/tp3780i.c
+Message-ID: <20050710193519.11.qtXEsi2567.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -29,18 +29,18 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/block/amiflop.c |    1 -
+drivers/char/mwave/tp3780i.c |    1 -
 1 files changed, 1 deletion(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/block/amiflop.c
+Index: linux-2.6.13-rc2-mm1/drivers/char/mwave/tp3780i.c
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/block/amiflop.c
-+++ linux-2.6.13-rc2-mm1/drivers/block/amiflop.c
-@@ -1816,7 +1816,6 @@ out_blkdev:
-}
+--- linux-2.6.13-rc2-mm1.orig/drivers/char/mwave/tp3780i.c
++++ linux-2.6.13-rc2-mm1/drivers/char/mwave/tp3780i.c
+@@ -46,7 +46,6 @@
+*	First release to the public
+*/
 
-#ifdef MODULE
 -#include <linux/version.h>
-
-int init_module(void)
-{
+#include <linux/interrupt.h>
+#include <linux/kernel.h>
+#include <linux/ptrace.h>

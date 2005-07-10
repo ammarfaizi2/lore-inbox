@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVGJWyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVGJWyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262043AbVGJWyY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 18:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVGJTid
+	id S262061AbVGJWyX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 18:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVGJThR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:38:33 -0400
-Received: from ns1.suse.de ([195.135.220.2]:20371 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262019AbVGJTgM (ORCPT
+	Sun, 10 Jul 2005 15:37:17 -0400
+Received: from ns2.suse.de ([195.135.220.15]:55260 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262039AbVGJTg1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:36:12 -0400
-Date: Sun, 10 Jul 2005 19:36:12 +0000
+	Sun, 10 Jul 2005 15:36:27 -0400
+Date: Sun, 10 Jul 2005 19:36:27 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 64/82] remove linux/version.h from fs/adfs/adfs.h
-Message-ID: <20050710193612.64.Gkscog3968.2247.olh@nectarine.suse.de>
+Subject: [PATCH 79/82] move KERNEL_VERSION from linux/version.h to linux/utsname.h
+Message-ID: <20050710193627.79.OiyzkS4369.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -27,20 +27,34 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
+KERNEL_VERSION is a static macro, it doesnt belong to a changing header file.
+stuff which relies on UTS_RELEASE or LINUX_VERSION_CODE does already
+include linux/version.h
+some drivers use KERNEL_VERSION for different purposes
+
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-fs/adfs/adfs.h |    1 -
-1 files changed, 1 deletion(-)
+Makefile                |    1 -
+include/linux/utsname.h |    3 +++
+2 files changed, 3 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.13-rc2-mm1/fs/adfs/adfs.h
+Index: linux-2.6.13-rc2-mm1/include/linux/utsname.h
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/fs/adfs/adfs.h
-+++ linux-2.6.13-rc2-mm1/fs/adfs/adfs.h
-@@ -12,7 +12,6 @@
-#define ADFS_NDA_PUBLIC_READ	(1 << 5)
-#define ADFS_NDA_PUBLIC_WRITE	(1 << 6)
+--- linux-2.6.13-rc2-mm1.orig/include/linux/utsname.h
++++ linux-2.6.13-rc2-mm1/include/linux/utsname.h
+@@ -33,4 +33,7 @@ struct new_utsname {
+extern struct new_utsname system_utsname;
 
--#include <linux/version.h>
-#include "dir_f.h"
+extern struct rw_semaphore uts_sem;
++
++#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
++
+#endif
+Index: linux-2.6.13-rc2-mm1/Makefile
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/Makefile
++++ linux-2.6.13-rc2-mm1/Makefile
+@@ -836,7 +836,6 @@ define filechk_version.h
+fi;  	(echo #define UTS_RELEASE "$(KERNELRELEASE)";  	  echo #define LINUX_VERSION_CODE `expr $(VERSION) \* 65536 + $(PATCHLEVEL) \* 256 + $(SUBLEVEL)`; -	 echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';  	)
+endef
 
-struct buffer_head;

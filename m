@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVGJTOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVGJTRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVGJTOy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 15:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVGJTOx
+	id S261179AbVGJTRI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 15:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVGJTQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:14:53 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:50626 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261160AbVGJTOw (ORCPT
+	Sun, 10 Jul 2005 15:16:56 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:38866 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261179AbVGJTPk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:14:52 -0400
-Date: Sun, 10 Jul 2005 21:14:08 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
+	Sun, 10 Jul 2005 15:15:40 -0400
+Date: Sun, 10 Jul 2005 21:16:07 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
 To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Bryan Henderson <hbryan@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       bfields@fieldses.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linuxram@us.ibm.com, mike@waychison.com,
+Cc: Roman Zippel <zippel@linux-m68k.org>, Bryan Henderson <hbryan@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, bfields@fieldses.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linuxram@us.ibm.com, mike@waychison.com,
        Miklos Szeredi <miklos@szeredi.hu>,
        Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
 Subject: Re: share/private/slave a subtree - define vs enum
+Message-ID: <20050710191607.GA4102@ucw.cz>
+References: <OFB01287B5.D35EDB80-ON88257038.005DEE97-88257038.005EDB8B@us.ibm.com> <courier.42CEC422.00001C6C@courier.cs.helsinki.fi> <Pine.LNX.4.61.0507082108530.3728@scrub.home> <1120851221.9655.17.camel@localhost> <Pine.LNX.4.61.0507082154090.3728@scrub.home> <1121019702.20821.17.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <1121019702.20821.17.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0507102047380.3728@scrub.home>
-References: <OFB01287B5.D35EDB80-ON88257038.005DEE97-88257038.005EDB8B@us.ibm.com>
-  <courier.42CEC422.00001C6C@courier.cs.helsinki.fi> 
- <Pine.LNX.4.61.0507082108530.3728@scrub.home>  <1120851221.9655.17.camel@localhost>
-  <Pine.LNX.4.61.0507082154090.3728@scrub.home> <1121019702.20821.17.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jul 10, 2005 at 09:21:42PM +0300, Pekka Enberg wrote:
 
-On Sun, 10 Jul 2005, Pekka Enberg wrote:
-
-> > The point of a review is to comment on things that _need_ fixing. Less 
-> > experienced hackers take this a requirement for their drivers to be 
-> > included.
-> 
 > Hmm. So we disagree on that issue as well. I think the point of review
 > is to improve code and help others conform with the existing coding
 > style which is why I find it strange that you're suggesting me to limit
@@ -52,15 +45,26 @@ On Sun, 10 Jul 2005, Pekka Enberg wrote:
 >   - Layering violations
 >   - Duplicate code
 >   - Hard to read code
+ 
+The reason people post their patches for review is to get good feedback
+on them. The problems you list above are mostly nitpicks. They must be
+fixed before inclusion of the patch, but only make sense to start fixing
+once the patch does a reasonable change.
 
-I don't generally disagree with that, I just think that defines are not 
-part of that list.
-Look, it's great that you do reviews, but please keep in mind it's the 
-author who has to work with code and he has to be primarily happy with, 
-so you don't have to point out every minor issue.
-Although it also differs between core and driver code, we don't have to be 
-that strict with driver code as longs as it "looks" ok and is otherwise 
-correct. The requirements for core kernel code are higher, but even here 
-defines are a well accepted language construct.
+Often patches have deeper problems (like "this won't ever work", "there
+is a nice race hidden in there", "why do we need this part at all"), and
+spotting those is much more valuable for both the sumbitter and the
+progress of development.
 
-bye, Roman
+Obviously, it's much harder to do that than to comment on a misplaced
+brace.
+
+It's an utter waste of effort to force a first time patch author to fix
+all the style issues in his patch, just to see it rejected by the
+maintainer because it is fundamentally wrong later.
+
+Just something to consider.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

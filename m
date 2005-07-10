@@ -1,167 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVGJTka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVGJVP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbVGJTka (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 15:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbVGJTkP
+	id S261718AbVGJVP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 17:15:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVGJVNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:40:15 -0400
-Received: from mail.suse.de ([195.135.220.2]:64402 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261602AbVGJTff (ORCPT
+	Sun, 10 Jul 2005 17:13:55 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:17827 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262084AbVGJVME convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:35 -0400
-Date: Sun, 10 Jul 2005 19:35:30 +0000
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Eric Moore <Eric.Moore@lsil.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-scsi@vger.kernel.org
-Subject: [PATCH 22/82] remove linux/version.h from drivers/message/fusion
-Message-ID: <20050710193530.22.KSLVIt2863.2247.olh@nectarine.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Sun, 10 Jul 2005 17:12:04 -0400
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.6.12 - USB Mouse not detected
+Date: Sun, 10 Jul 2005 17:11:59 -0400
+User-Agent: KMail/1.8.1
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0507101638470.24579-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0507101638470.24579-100000@netrider.rowland.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
-In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>  
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200507101712.00181.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 10 July 2005 16:42, Alan Stern wrote:
+> > Beginning 2.6.12 my Wireless USB Mouse is not detected in the first
+> > attempt - Meaning if I boot the machine with the mouse connected, it's
+> > not detected until I disconnect the mouse and then reconnect it.
+>
+> That's not quite right.  Your log clearly shows the mouse was detected and
+> assigned address 2.
+Yeah, I shoud have worded it properly - kernel detects the device but it's 
+unusable since the driver for it - USBHID wasn't loaded.
+>
+> >  It works fine after the disconnect-reconnect cycle. Looking at the
+> > dmesg, it seems that at first time it forgets to register the hiddev
+> > driver - mysteriously, it remembers the second time.
+>
+> Exactly.  The hiddev driver wasn't loaded the first time, which makes this
+> sound like some sort of hotplug failure.  Are your hotplug and udev
+> packages up to date?
+I hadn't changed anything (except for the system board which failed recently) 
+and it used to work fine - So I didnt suspect hotplug to be the culprit - 
+another reason for not considering hotplug was it worked the second time with 
+identical setup.
 
-changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+What's funny - I rebuilt hotplug - same version - and it works now! Probably 
+it was failing for some reason the first time.
 
-remove also drivers/message/fusion/linux_compat.h,
-because it is empty after the change
+Thanks!
 
-Signed-off-by: Olaf Hering <olh@suse.de>
-
-drivers/message/fusion/linux_compat.h |   18 ------------------
-drivers/message/fusion/mptbase.c      |    1 -
-drivers/message/fusion/mptbase.h      |    1 -
-drivers/message/fusion/mptctl.c       |    1 -
-drivers/message/fusion/mptctl.h       |    1 -
-drivers/message/fusion/mptfc.c        |    1 -
-drivers/message/fusion/mptlan.h       |    1 -
-drivers/message/fusion/mptscsih.c     |    1 -
-drivers/message/fusion/mptspi.c       |    1 -
-9 files changed, 26 deletions(-)
-
-Index: linux-2.6.13-rc2-mm1/drivers/message/fusion/linux_compat.h
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/message/fusion/linux_compat.h
-+++ /dev/null
-@@ -1,18 +0,0 @@
--/* drivers/message/fusion/linux_compat.h */
--
--#ifndef FUSION_LINUX_COMPAT_H
--#define FUSION_LINUX_COMPAT_H
--
--#include <linux/version.h>
--#include <scsi/scsi_device.h>
--
--#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,6))
--static int inline scsi_device_online(struct scsi_device *sdev)
--{
--	return sdev->online;
--}
--#endif
--
--
--/*}-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
--#endif /* _LINUX_COMPAT_H */
-Index: linux-2.6.13-rc2-mm1/drivers/message/fusion/mptbase.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/message/fusion/mptbase.c
-+++ linux-2.6.13-rc2-mm1/drivers/message/fusion/mptbase.c
-@@ -47,7 +47,6 @@
-/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-#include <linux/config.h>
--#include <linux/version.h>
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/errno.h>
-Index: linux-2.6.13-rc2-mm1/drivers/message/fusion/mptbase.h
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/message/fusion/mptbase.h
-+++ linux-2.6.13-rc2-mm1/drivers/message/fusion/mptbase.h
-@@ -49,7 +49,6 @@
-#define MPTBASE_H_INCLUDED
-/*{-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
--#include <linux/version.h>
-#include <linux/config.h>
-#include <linux/kernel.h>
-#include <linux/pci.h>
-Index: linux-2.6.13-rc2-mm1/drivers/message/fusion/mptctl.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/message/fusion/mptctl.c
-+++ linux-2.6.13-rc2-mm1/drivers/message/fusion/mptctl.c
-@@ -45,7 +45,6 @@
-*/
-/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
--#include <linux/version.h>
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/errno.h>
-Index: linux-2.6.13-rc2-mm1/drivers/message/fusion/mptctl.h
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/message/fusion/mptctl.h
-+++ linux-2.6.13-rc2-mm1/drivers/message/fusion/mptctl.h
-@@ -49,7 +49,6 @@
-#define MPTCTL_H_INCLUDED
-/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
--#include "linux/version.h"
-
-
-/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-Index: linux-2.6.13-rc2-mm1/drivers/message/fusion/mptlan.h
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/message/fusion/mptlan.h
-+++ linux-2.6.13-rc2-mm1/drivers/message/fusion/mptlan.h
-@@ -66,7 +66,6 @@
-#include <linux/slab.h>
-#include <linux/miscdevice.h>
-#include <linux/spinlock.h>
--#include <linux/version.h>
-#include <linux/workqueue.h>
-#include <linux/delay.h>
-// #include <linux/trdevice.h>
-Index: linux-2.6.13-rc2-mm1/drivers/message/fusion/mptfc.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/message/fusion/mptfc.c
-+++ linux-2.6.13-rc2-mm1/drivers/message/fusion/mptfc.c
-@@ -43,7 +43,6 @@
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
-/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
--#include "linux_compat.h"	/* linux-2.6 tweaks */
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/init.h>
-Index: linux-2.6.13-rc2-mm1/drivers/message/fusion/mptscsih.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/message/fusion/mptscsih.c
-+++ linux-2.6.13-rc2-mm1/drivers/message/fusion/mptscsih.c
-@@ -44,7 +44,6 @@
-*/
-/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
--#include "linux_compat.h"	/* linux-2.6 tweaks */
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/init.h>
-Index: linux-2.6.13-rc2-mm1/drivers/message/fusion/mptspi.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/message/fusion/mptspi.c
-+++ linux-2.6.13-rc2-mm1/drivers/message/fusion/mptspi.c
-@@ -44,7 +44,6 @@
-*/
-/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
--#include "linux_compat.h"	/* linux-2.6 tweaks */
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/init.h>
+Parag

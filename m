@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVGJUSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVGJUSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVGJUSn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 16:18:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVGJTll
+	id S262027AbVGJUSm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 16:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVGJTln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:41:41 -0400
-Received: from cantor.suse.de ([195.135.220.2]:58002 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261203AbVGJTfT (ORCPT
+	Sun, 10 Jul 2005 15:41:43 -0400
+Received: from mail.suse.de ([195.135.220.2]:23187 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262027AbVGJTgT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:19 -0400
-Date: Sun, 10 Jul 2005 19:35:19 +0000
+	Sun, 10 Jul 2005 15:36:19 -0400
+Date: Sun, 10 Jul 2005 19:36:19 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 11/82] remove linux/version.h from drivers/char/mwave/tp3780i.c
-Message-ID: <20050710193519.11.qtXEsi2567.2247.olh@nectarine.suse.de>
+Cc: netdev@oss.sgi.com
+Subject: [PATCH 71/82] remove linux/version.h from include/linux/if_wanpipe_common.h
+Message-ID: <20050710193619.71.OhUmOh4153.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -29,18 +30,19 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/char/mwave/tp3780i.c |    1 -
-1 files changed, 1 deletion(-)
+include/linux/if_wanpipe_common.h |    2 --
+1 files changed, 2 deletions(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/char/mwave/tp3780i.c
+Index: linux-2.6.13-rc2-mm1/include/linux/if_wanpipe_common.h
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/char/mwave/tp3780i.c
-+++ linux-2.6.13-rc2-mm1/drivers/char/mwave/tp3780i.c
-@@ -46,7 +46,6 @@
-*	First release to the public
-*/
+--- linux-2.6.13-rc2-mm1.orig/include/linux/if_wanpipe_common.h
++++ linux-2.6.13-rc2-mm1/include/linux/if_wanpipe_common.h
+@@ -17,8 +17,6 @@
+#ifndef _WANPIPE_SOCK_DRIVER_COMMON_H
+#define _WANPIPE_SOCK_DRIVER_COMMON_H
 
 -#include <linux/version.h>
-#include <linux/interrupt.h>
-#include <linux/kernel.h>
-#include <linux/ptrace.h>
+-
+typedef struct {
+struct net_device *slave;
+atomic_t packet_sent;

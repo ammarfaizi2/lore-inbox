@@ -1,32 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbVGJXIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVGJWyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262199AbVGJXIb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 19:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVGJXFh
+	id S262058AbVGJWyW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 18:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVGJTin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 19:05:37 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:3814 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262147AbVGJXEm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 19:04:42 -0400
-Date: Mon, 11 Jul 2005 00:04:41 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [5/48] Suspend2 2.1.9.8 for 2.6.12: 350-workthreads.patch
-Message-ID: <20050710230441.GC513@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
-References: <11206164393426@foobar.com> <112061643920@foobar.com>
+	Sun, 10 Jul 2005 15:38:43 -0400
+Received: from mx1.suse.de ([195.135.220.2]:10387 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261849AbVGJTf5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 15:35:57 -0400
+Date: Sun, 10 Jul 2005 19:35:57 +0000
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
+Subject: [PATCH 49/82] remove linux/version.h from drivers/scsi/scsi_debug.c
+Message-ID: <20050710193557.49.eHfyeO3572.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <112061643920@foobar.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>  
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Again, why do you think you need this?
+
+changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+
+Signed-off-by: Olaf Hering <olh@suse.de>
+
+drivers/scsi/scsi_debug.c |    4 ----
+1 files changed, 4 deletions(-)
+
+Index: linux-2.6.13-rc2-mm1/drivers/scsi/scsi_debug.c
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/drivers/scsi/scsi_debug.c
++++ linux-2.6.13-rc2-mm1/drivers/scsi/scsi_debug.c
+@@ -48,10 +48,6 @@
+
+#include <linux/stat.h>
+
+-#ifndef LINUX_VERSION_CODE
+-#include <linux/version.h>
+-#endif
+-
+#include "scsi_logging.h"
+#include "scsi_debug.h"
 

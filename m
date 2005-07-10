@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVGJTyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbVGJUSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262088AbVGJTyF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 15:54:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVGJTmC
+	id S262110AbVGJUSl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 16:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVGJTlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:42:02 -0400
-Received: from ns2.suse.de ([195.135.220.15]:48092 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261932AbVGJTgE (ORCPT
+	Sun, 10 Jul 2005 15:41:49 -0400
+Received: from ns2.suse.de ([195.135.220.15]:52444 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262025AbVGJTgT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:36:04 -0400
-Date: Sun, 10 Jul 2005 19:36:03 +0000
+	Sun, 10 Jul 2005 15:36:19 -0400
+Date: Sun, 10 Jul 2005 19:36:14 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: rmk+serial@arm.linux.org.uk, Michael Anderson <mjanders@us.ibm.com>
-Subject: [PATCH 55/82] remove linux/version.h from drivers/serial/icom.c
-Message-ID: <20050710193603.55.XRHGXL3736.2247.olh@nectarine.suse.de>
+Cc: zippel@linux-m68k.org
+Subject: [PATCH 66/82] remove linux/version.h from fs/hfs/
+Message-ID: <20050710193614.66.sNRbVO4020.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -30,18 +30,31 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/serial/icom.c |    1 -
-1 files changed, 1 deletion(-)
+fs/hfs/hfs_fs.h |    1 -
+fs/hfs/inode.c  |    1 -
+2 files changed, 2 deletions(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/serial/icom.c
+Index: linux-2.6.13-rc2-mm1/fs/hfs/hfs_fs.h
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/serial/icom.c
-+++ linux-2.6.13-rc2-mm1/drivers/serial/icom.c
-@@ -25,7 +25,6 @@
-#define SERIAL_DO_RESTART
-#include <linux/module.h>
-#include <linux/config.h>
+--- linux-2.6.13-rc2-mm1.orig/fs/hfs/hfs_fs.h
++++ linux-2.6.13-rc2-mm1/fs/hfs/hfs_fs.h
+@@ -9,7 +9,6 @@
+#ifndef _LINUX_HFS_FS_H
+#define _LINUX_HFS_FS_H
+
 -#include <linux/version.h>
-#include <linux/kernel.h>
-#include <linux/errno.h>
-#include <linux/signal.h>
+#include <linux/slab.h>
+#include <linux/types.h>
+#include <linux/buffer_head.h>
+Index: linux-2.6.13-rc2-mm1/fs/hfs/inode.c
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/fs/hfs/inode.c
++++ linux-2.6.13-rc2-mm1/fs/hfs/inode.c
+@@ -12,7 +12,6 @@
+*/
+
+#include <linux/pagemap.h>
+-#include <linux/version.h>
+#include <linux/mpage.h>
+
+#include "hfs_fs.h"

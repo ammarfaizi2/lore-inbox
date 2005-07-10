@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVGJVSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVGJVSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbVGJVSZ (ORCPT <rfc822;willy@w.ods.org>);
+	id S261708AbVGJVSZ (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 10 Jul 2005 17:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVGJTjs
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVGJTjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:39:48 -0400
-Received: from cantor.suse.de ([195.135.220.2]:2195 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261718AbVGJTfi (ORCPT
+	Sun, 10 Jul 2005 15:39:51 -0400
+Received: from ns2.suse.de ([195.135.220.15]:36060 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261708AbVGJTfi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 10 Jul 2005 15:35:38 -0400
-Date: Sun, 10 Jul 2005 19:35:38 +0000
+Date: Sun, 10 Jul 2005 19:35:37 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Subject: [PATCH 30/82] remove linux/version.h from drivers/scsi/a2091.c
-Message-ID: <20050710193538.30.jeykjm3072.2247.olh@nectarine.suse.de>
+Subject: [PATCH 29/82] remove linux/version.h from drivers/scsi/3w-xxxx.h
+Message-ID: <20050710193537.29.YyPlzr3046.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -30,18 +30,18 @@ changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
 
-drivers/scsi/a2091.c |    1 -
+drivers/scsi/3w-xxxx.h |    1 -
 1 files changed, 1 deletion(-)
 
-Index: linux-2.6.13-rc2-mm1/drivers/scsi/a2091.c
+Index: linux-2.6.13-rc2-mm1/drivers/scsi/3w-xxxx.h
 ===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/scsi/a2091.c
-+++ linux-2.6.13-rc2-mm1/drivers/scsi/a2091.c
-@@ -2,7 +2,6 @@
-#include <linux/mm.h>
-#include <linux/blkdev.h>
-#include <linux/sched.h>
--#include <linux/version.h>
-#include <linux/init.h>
-#include <linux/interrupt.h>
+--- linux-2.6.13-rc2-mm1.orig/drivers/scsi/3w-xxxx.h
++++ linux-2.6.13-rc2-mm1/drivers/scsi/3w-xxxx.h
+@@ -54,7 +54,6 @@
+#ifndef _3W_XXXX_H
+#define _3W_XXXX_H
 
+-#include <linux/version.h>
+#include <linux/types.h>
+
+/* AEN strings */

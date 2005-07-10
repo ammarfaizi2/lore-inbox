@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVGJQMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVGJQOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbVGJQMj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 12:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbVGJQMi
+	id S261968AbVGJQOF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 12:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVGJQOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 12:12:38 -0400
-Received: from amsfep11-int.chello.nl ([213.46.243.19]:49704 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261900AbVGJQMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 12:12:36 -0400
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-12
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+	Sun, 10 Jul 2005 12:14:05 -0400
+Received: from mx1.suse.de ([195.135.220.2]:63618 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261968AbVGJQOA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 12:14:00 -0400
+Date: Sun, 10 Jul 2005 18:13:58 +0200
+From: Andi Kleen <ak@suse.de>
 To: Ingo Molnar <mingo@elte.hu>
-Cc: William Weston <weston@sysex.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <1121010236.14680.6.camel@twins>
-References: <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org>
-	 <20050703140432.GA19074@elte.hu> <20050703181229.GA32741@elte.hu>
-	 <Pine.LNX.4.58.0507061802570.20214@echo.lysdexia.org>
-	 <20050707104859.GD22422@elte.hu>
-	 <Pine.LNX.4.58.0507071257320.25321@echo.lysdexia.org>
-	 <20050708080359.GA32001@elte.hu>
-	 <Pine.LNX.4.58.0507081246340.30549@echo.lysdexia.org>
-	 <1120944243.12169.3.camel@twins> <1120994288.14680.0.camel@twins>
-	 <20050710151008.GA28194@elte.hu>  <1121010236.14680.6.camel@twins>
-Content-Type: text/plain
-Date: Sun, 10 Jul 2005 18:12:33 +0200
-Message-Id: <1121011953.14580.0.camel@twins>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] compress the stack layout of do_page_fault(), x86
+Message-ID: <20050710161358.GE9068@wotan.suse.de>
+References: <20050709144116.GA9444@elte.hu.suse.lists.linux.kernel> <20050709152924.GA13492@elte.hu.suse.lists.linux.kernel> <p73ll4f29m7.fsf@verdi.suse.de> <20050709194220.GA20791@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050709194220.GA20791@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-07-10 at 17:43 +0200, Peter Zijlstra wrote:
-
-> > I've also 
-> > released the -51-23 patch with these changes included. Does this fix 
-> > priority leakage on your SMP system?
+On Sat, Jul 09, 2005 at 09:42:20PM +0200, Ingo Molnar wrote:
+> 
+> * Andi Kleen <ak@suse.de> wrote:
+> 
+> > Ingo Molnar <mingo@elte.hu> writes:
+> > >  
+> > > +static void force_sig_info_fault(int si_signo, int si_code,
+> > > +				 unsigned long address, struct task_struct *tsk)
 > > 
+> > This won't work with a unit-at-a-time compiler which happily inlines 
+> > everything static with only a single caller. Use noinline
 > 
-> -51-24 right? I'll give it a spin.
-> 
+> this function has two callers.
 
-a quick test seems to indicate it is indeed solved.
+Even then it's still better to mark it noinline, otherwise
+a different inlining algorithm in a new compiler might do the wrong
+thing.  It's also useful documentation.
 
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
-
+-Andi

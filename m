@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVGJVgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVGJVgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbVGJVgm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 17:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVGJTjN
+	id S261824AbVGJVgl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 17:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVGJTjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:39:13 -0400
-Received: from ns2.suse.de ([195.135.220.15]:43228 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261831AbVGJTfv (ORCPT
+	Sun, 10 Jul 2005 15:39:16 -0400
+Received: from cantor.suse.de ([195.135.220.2]:7315 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261824AbVGJTft (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:51 -0400
-Date: Sun, 10 Jul 2005 19:35:50 +0000
+	Sun, 10 Jul 2005 15:35:49 -0400
+Date: Sun, 10 Jul 2005 19:35:49 +0000
 From: Olaf Hering <olh@suse.de>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Subject: [PATCH 42/82] remove linux/version.h from drivers/scsi/megaraid
-Message-ID: <20050710193550.42.tKRWic3388.2247.olh@nectarine.suse.de>
+Subject: [PATCH 41/82] remove linux/version.h from drivers/scsi/iteraid.h
+Message-ID: <20050710193549.41.pEwTZh3360.2247.olh@nectarine.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
@@ -29,32 +29,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
 
 Signed-off-by: Olaf Hering <olh@suse.de>
+drivers/scsi/iteraid.h |    1 -
+1 files changed, 1 deletion(-)
 
-drivers/scsi/megaraid/mega_common.h |    1 -
-drivers/scsi/megaraid/megaraid_mm.h |    1 -
-2 files changed, 2 deletions(-)
+Index: linux-2.6.13-rc2-mm1/drivers/scsi/iteraid.h
+===================================================================
+--- linux-2.6.13-rc2-mm1.orig/drivers/scsi/iteraid.h
++++ linux-2.6.13-rc2-mm1/drivers/scsi/iteraid.h
+@@ -23,7 +23,6 @@
+#ifndef _ITERAID_H_
+#define _ITERAID_H_
 
-Index: linux-2.6.13-rc2-mm1/drivers/scsi/megaraid/mega_common.h
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/scsi/megaraid/mega_common.h
-+++ linux-2.6.13-rc2-mm1/drivers/scsi/megaraid/mega_common.h
-@@ -25,7 +25,6 @@
-#include <linux/delay.h>
-#include <linux/blkdev.h>
-#include <linux/list.h>
 -#include <linux/version.h>
-#include <linux/moduleparam.h>
-#include <linux/dma-mapping.h>
-#include <asm/semaphore.h>
-Index: linux-2.6.13-rc2-mm1/drivers/scsi/megaraid/megaraid_mm.h
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/scsi/megaraid/megaraid_mm.h
-+++ linux-2.6.13-rc2-mm1/drivers/scsi/megaraid/megaraid_mm.h
-@@ -18,7 +18,6 @@
-#include <linux/spinlock.h>
-#include <linux/fs.h>
-#include <asm/uaccess.h>
--#include <linux/version.h>
-#include <linux/module.h>
-#include <linux/moduleparam.h>
-#include <linux/pci.h>
+#include <linux/types.h>
+
+#define ITE_VENDOR_ID	0x1283

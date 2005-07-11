@@ -1,84 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVGKSt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVGKSyO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVGKSt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 14:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVGKSsE
+	id S261494AbVGKSyO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 14:54:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVGKSwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 14:48:04 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:4348 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261640AbVGKSqp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 14:46:45 -0400
-Subject: Re: Real-Time Preemption Patch -RT-2.6.12-final-V0.7.51-26 failed
-	,to compile
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Steven Wooding <steve@wooding.uklinux.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42D2B6AD.40907@wooding.uklinux.net>
-References: <42D2B6AD.40907@wooding.uklinux.net>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Mon, 11 Jul 2005 11:46:38 -0700
-Message-Id: <1121107598.9477.3.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Jul 2005 14:52:18 -0400
+Received: from unused.mind.net ([69.9.134.98]:36773 "EHLO echo.lysdexia.org")
+	by vger.kernel.org with ESMTP id S261494AbVGKStp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 14:49:45 -0400
+Date: Mon, 11 Jul 2005 11:49:02 -0700 (PDT)
+From: William Weston <weston@sysex.net>
+X-X-Sender: weston@echo.lysdexia.org
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.51-12
+In-Reply-To: <1121011953.14580.0.camel@twins>
+Message-ID: <Pine.LNX.4.58.0507111141060.13011@echo.lysdexia.org>
+References: <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org> 
+ <20050703140432.GA19074@elte.hu> <20050703181229.GA32741@elte.hu> 
+ <Pine.LNX.4.58.0507061802570.20214@echo.lysdexia.org>  <20050707104859.GD22422@elte.hu>
+  <Pine.LNX.4.58.0507071257320.25321@echo.lysdexia.org>  <20050708080359.GA32001@elte.hu>
+  <Pine.LNX.4.58.0507081246340.30549@echo.lysdexia.org>  <1120944243.12169.3.camel@twins>
+ <1120994288.14680.0.camel@twins>  <20050710151008.GA28194@elte.hu> 
+ <1121010236.14680.6.camel@twins> <1121011953.14580.0.camel@twins>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This may help ..
+On Sun, 10 Jul 2005, Peter Zijlstra wrote:
 
-
-Index: linux-2.6.12/arch/x86_64/kernel/mce.c
-===================================================================
---- linux-2.6.12.orig/arch/x86_64/kernel/mce.c  2005-06-17 19:48:29.000000000 +0000
-+++ linux-2.6.12/arch/x86_64/kernel/mce.c       2005-07-11 18:44:42.000000000 +0000
-@@ -15,6 +15,8 @@
- #include <linux/sysdev.h>
- #include <linux/miscdevice.h>
- #include <linux/fs.h>
-+#include <linux/semaphore.h>
-+
- #include <asm/processor.h>
- #include <asm/msr.h>
- #include <asm/mce.h>
-
-
-On Mon, 2005-07-11 at 19:13 +0100, Steven Wooding wrote:
-> Hi,
->  
-> I wonder if someone can help a newbie to the Real-Time Preemption 
-> Patch. After appling the lastest patch (-RT-2.6.12-final-V0.7.51-26) to the 
-> 2.6.12 vanilla kernel I get the following error when compiling the 
-> patched kernel:
->  
-> arch/x86_64/kernel/mce.c: In function 'mce_read':
-> arch/x86_64/kernel/mce.c:383: warning: type defaults to 'int' in 
-> declarationd of 'DECLARE_MUTEX'
-> arch/x86_64/kernel/mce.c:383: warning: parameter names (without types) 
-> in function declaration
-> arch/x86_64/kernel/mce.c:392:error: 'mce_read_sem' undeclared (first 
-> use in this function)
->  
-> Then the mce.o fails to get made and the make stops.
->  
-> I've tried compiling the vanilla 2.6.12 kernel without the patch and 
-> that works fine. It is strange that the error should be in 
-> arch/x86_64/kernel/mce.c as this is not altered by the patch. I've also tried saying 
-> no to MCE support, but got the some error.
->  
-> I'm using RHEL 4 on a SMP system (gcc version 3.4.3).
->  
-> Thanks,
->  
-> Steve.
+> On Sun, 2005-07-10 at 17:43 +0200, Peter Zijlstra wrote:
 > 
-> PS Please CC me on replies. Thanks.
+> > > I've also 
+> > > released the -51-23 patch with these changes included. Does this fix 
+> > > priority leakage on your SMP system?
+> > > 
+> > 
+> > -51-24 right? I'll give it a spin.
+> > 
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> a quick test seems to indicate it is indeed solved.
 
+Running -51-26.  Priority leakage on the SMT box is gone.  This indeed 
+fixes the scheduler meltdown issue I was dealing with.  Great work, guys!
+
+--ww

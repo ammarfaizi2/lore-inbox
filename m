@@ -1,78 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbVGKEBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVGKED3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbVGKEBr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 00:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVGKEBr
+	id S262223AbVGKED3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 00:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbVGKED2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 00:01:47 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:24060 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S262221AbVGKEBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 00:01:46 -0400
-Message-ID: <42D1F06C.9010905@stesmi.com>
-Date: Mon, 11 Jul 2005 06:07:08 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Masover <ninja@slaphack.com>
-CC: Hans Reiser <reiser@namesys.com>, Hubert Chan <hubert@uhoreg.ca>,
-       Ross Biro <ross.biro@gmail.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
-       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
-       Nate Diller <ndiller@namesys.com>
-Subject: Re: reiser4 plugins
-References: <hubert@uhoreg.ca>	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>	<8783be6605062914341bcff7cb@mail.gmail.com>	<878y0svj1h.fsf@evinrude.uhoreg.ca> <42C4F97B.1080803@slaphack.com> <87ll4lynky.fsf@evinrude.uhoreg.ca> <42CB0328.3070706@namesys.com> <42CB07EB.4000605@slaphack.com> <42CB0ED7.8070501@namesys.com> <42CB1128.6000000@slaphack.com> <42CB1C20.3030204@namesys.com> <42CB22A6.40306@namesys.com> <42CBE426.9080106@slaphack.com>
-In-Reply-To: <42CBE426.9080106@slaphack.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 11 Jul 2005 00:03:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:64219 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262223AbVGKEDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 00:03:13 -0400
+Subject: Re: [RFC][PATCH] i386: Per node IDT
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <p73eka614t7.fsf@verdi.suse.de>
+References: <Pine.LNX.4.61.0507101617240.16055@montezuma.fsmlabs.com.suse.lists.linux.kernel>
+	 <p73eka614t7.fsf@verdi.suse.de>
+Content-Type: text/plain
+Date: Mon, 11 Jul 2005 06:02:44 +0200
+Message-Id: <1121054565.3177.2.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2005-07-11 at 03:59 +0200, Andi Kleen wrote:
+> Why per node? Why not go the whole way and make it per CPU?
 
-> Ok, still haven't heard much discussion of metafs vs file-as-directory,
-> but it seems like it'd be easier in metafs.
+Agreed, for two reasons even
+1) Per cpu allows for even more devices and cache locality
+2) While few people have a NUMA system, many have an SMP system so you
+get a lot more testing.
 
-Why not implement it inside the directory containg the file ?
 
-Ie the metadata for /home/stesmi/foo is in /home/stesmi/.meta/foo
+> I would also not define it statically, but allocate it at boot time
+> in node local memory.
 
-This should be suit both camps I'd think?
+this is probably more tricky so I would suggest doing this in a second
+step.
 
-I mean, editing something is easy and you don't have to "know" how
-to navigate /meta and you don't have the clash of files vs metadata
-(is /meta/vfs/home/stesmi/foo a file or an attribute called foo of
-the dir stesmi ?).
-
-/home/stesmi/foo <- dir
-/home/stesmi/.meta/foo <- "dir" containing all metadata
-/home/stesmi/.meta/foo/attrib <- some attribute called attrib
-/home/stesmi/foo/bar <- file
-/home/stesmi/foo/.meta/bar <- "dir" containg all metadata
-/home/stesmi/foo/.meta/bar/attrib <- some attribute called attrib
-
-The file is $dir/$file. The attrib dir is $dir/.meta/$file.
-The attribute is $dir/.meta/$file/$attribute.
-
-If $attrib is something user-editable it's easy to
-$EDITOR $dir/.meta/$file/$attrib
-
-If this has already been taken up, I must've missed it.
-
-// Stefan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
-
-iD8DBQFC0fBsBrn2kJu9P78RAlt4AJ4qWik6hA4oXBNZMdZ1TkweYrJHmgCdFAY+
-m+Qtg9uqBq9m0qKfRkK6iUI=
-=ghWb
------END PGP SIGNATURE-----

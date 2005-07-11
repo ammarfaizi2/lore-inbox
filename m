@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262072AbVGKP7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVGKP7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262072AbVGKP7N (ORCPT <rfc822;willy@w.ods.org>);
+	id S262093AbVGKP7N (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Jul 2005 11:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVGKP5O
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVGKP5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 11:57:14 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28356 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262072AbVGKPyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 11:54:50 -0400
-Date: Mon, 11 Jul 2005 17:54:45 +0200
-From: Jan Kara <jack@suse.cz>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, reiserfs-devel@namesys.com
-Subject: [PATCH] Change ll_rw_block() calls in Reiser
-Message-ID: <20050711155445.GT12428@atrey.karlin.mff.cuni.cz>
+	Mon, 11 Jul 2005 11:57:08 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:28622 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262086AbVGKPy7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 11:54:59 -0400
+Date: Mon, 11 Jul 2005 17:55:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: realtime-preempt-2.6.12-final-V0.7.51-11 glitches [no more]
+Message-ID: <20050711155503.GA21762@elte.hu>
+References: <20050703133738.GB14260@elte.hu> <1120428465.21398.2.camel@cmn37.stanford.edu> <24833.195.245.190.94.1120761991.squirrel@www.rncbc.org> <20050707194914.GA1161@elte.hu> <49943.192.168.1.5.1120778373.squirrel@www.rncbc.org> <57445.195.245.190.94.1120812419.squirrel@www.rncbc.org> <20050708085253.GA1177@elte.hu> <28798.195.245.190.94.1120815616.squirrel@www.rncbc.org> <20050708095600.GA5910@elte.hu> <63108.195.245.190.94.1121094757.squirrel@www.rncbc.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="11Y7aswkeuHtSBEs"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <63108.195.245.190.94.1121094757.squirrel@www.rncbc.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---11Y7aswkeuHtSBEs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-  Hello,
+> After several trials, with CONFIG_PROFILING=y and profile=1 
+> nmi_watchdog=2 as boot parameters, I'm almost convinced I'm doing 
+> something wrong :)
+> 
+> - `readprofile` always just outputs one line:
+> 
+>      0 total                                    0.0000
+> 
+> - `readprofile -a` gives the whole kernel symbol list, all with zero times.
+> 
+> Is there anything else I can check around here?
 
-  attached patch changes ll_rw_block() calls in Reiserfs to make sure
-that submitted data really reach the disk (the patch relies on the
-previous ll_rw_block() patch).
+it means that the NMI watchdog was not activated - i.e. the 'NMI' counts 
+in /proc/interrupts do not increase. Do you have LOCAL_APIC enabled in 
+the .config? If yes and if nmi_watchdog=1 does not work either then it's 
+probably not possible to activate the NMI watchdog on your box. In that 
+case try nmi_watchdog=0, that should activate normal profiling. (unless 
+i've broken it via the profile-via-NMI changes ...)
 
-								Honza
-
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
-
---11Y7aswkeuHtSBEs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="reiser-2.6.12-ll_rw_block-fix.diff"
-
-We need to be sure that current data in buffer are sent to disk.
-Hence we need to call ll_rw_block() with SWRITE.
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.12-1-forgetfix/fs/reiserfs/journal.c linux-2.6.12-2-ll_rw_block-fix/fs/reiserfs/journal.c
---- linux-2.6.12-1-forgetfix/fs/reiserfs/journal.c	2005-06-28 13:26:20.000000000 +0200
-+++ linux-2.6.12-2-ll_rw_block-fix/fs/reiserfs/journal.c	2005-07-07 07:20:19.000000000 +0200
-@@ -966,7 +966,7 @@ static int flush_commit_list(struct supe
-          SB_ONDISK_JOURNAL_SIZE(s);
-     tbh = journal_find_get_block(s, bn) ;
-     if (buffer_dirty(tbh)) /* redundant, ll_rw_block() checks */
--	ll_rw_block(WRITE, 1, &tbh) ;
-+	ll_rw_block(SWRITE, 1, &tbh) ;
-     put_bh(tbh) ;
-   }
-   atomic_dec(&journal->j_async_throttle);
-@@ -1977,7 +1977,7 @@ abort_replay:
-   /* flush out the real blocks */
-   for (i = 0 ; i < get_desc_trans_len(desc) ; i++) {
-     set_buffer_dirty(real_blocks[i]) ;
--    ll_rw_block(WRITE, 1, real_blocks + i) ;
-+    ll_rw_block(SWRITE, 1, real_blocks + i) ;
-   }
-   for (i = 0 ; i < get_desc_trans_len(desc) ; i++) {
-     wait_on_buffer(real_blocks[i]) ; 
-
---11Y7aswkeuHtSBEs--
+	Ingo

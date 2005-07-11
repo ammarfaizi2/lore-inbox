@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVGKMx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVGKNQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVGKMx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 08:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVGKMxW
+	id S261675AbVGKNQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 09:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVGKNQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 08:53:22 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:11190 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261668AbVGKMvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 08:51:52 -0400
-Subject: Re: [RFC/PATCH 1/2] fsnotify
-From: David Woodhouse <dwmw2@infradead.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Robert Love <rml@novell.com>, ttb@tentacle.dhs.org, linux-audit@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050709012657.GE19052@shell0.pdx.osdl.net>
-References: <20050709012436.GD19052@shell0.pdx.osdl.net>
-	 <20050709012657.GE19052@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Mon, 11 Jul 2005 13:52:45 +0100
-Message-Id: <1121086366.27264.108.camel@hades.cambridge.redhat.com>
+	Mon, 11 Jul 2005 09:16:25 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:60165 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261674AbVGKNQY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 09:16:24 -0400
+Date: Mon, 11 Jul 2005 09:15:22 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Lennert Buytenhek <buytenh+lkml@liacs.nl>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       "David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
+       matthew@wil.cx, grundler@parisc-linux.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, greg@kroah.com, ambx1@neo.rr.com,
+       byjac@matfyz.cz, herbertb@cs.vu.nl
+Subject: Re: [patch 2.6.13-rc2] pci: restore BAR values from pci_set_power_state for D3hot->D0
+Message-ID: <20050711131518.GB23093@tuxdriver.com>
+Mail-Followup-To: Lennert Buytenhek <buytenh+lkml@liacs.nl>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	"David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
+	matthew@wil.cx, grundler@parisc-linux.org,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+	linux-kernel@vger.kernel.org, greg@kroah.com, ambx1@neo.rr.com,
+	byjac@matfyz.cz, herbertb@cs.vu.nl
+References: <20050708095104.A612@den.park.msu.ru> <20050707.233530.85417983.davem@davemloft.net> <20050708110358.A8491@jurassic.park.msu.ru> <20050708.003333.28789082.davem@davemloft.net> <20050708122043.A8779@jurassic.park.msu.ru> <20050708183452.GB13445@tuxdriver.com> <20050711144844.A16143@tin.liacs.nl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050711144844.A16143@tin.liacs.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-08 at 18:26 -0700, Chris Wright wrote:
-> Add fsnotify as infrastructure for various fs notifcation schemes.
-> Move dnotify to fsnotify.
+On Mon, Jul 11, 2005 at 02:48:44PM +0200, Lennert Buytenhek wrote:
+> On Fri, Jul 08, 2005 at 02:34:56PM -0400, John W. Linville wrote:
+> 
+> > Some PCI devices lose all configuration (including BARs) when
+> > transitioning from D3hot->D0.  This leaves such a device in an
+> > inaccessible state.  The patch below causes the BARs to be restored
+> > when enabling such a device, so that its driver will be able to
+> > access it.
+> 
+> It might be useful to have this functionality exported to outside of
+> the generic PCI code.
 
--               inode_dir_notify(dir, DN_CREATE);
-+               fsnotify_create(dir, new_dentry->d_name.name);
-....
-+ * We don't compile any of this away in some complicated menagerie of ifdefs.
-+ * Instead, we rely on the code inside to optimize away as needed.
-....
-+static inline void fsnotify_create(struct inode *inode, const char *name)
-+{
-+       dnotify_create(inode, name);
-+}
-....
-+static inline void dnotify_create(struct inode *inode, const char *name)
-+{
-+       inode_dir_notify(inode, DN_CREATE);
-+}
+Fine by me...patch to follow...
 
-To be honest, I don't really see that this is in any way better than
-what we had before. Yes, two different pieces of code actually use hooks
-in similar places in the VFS code. But this 'infrastructure' just to
-share those hooks is overkill as far as I can tell. It really isn't any
-better than having both inotify and audit hooks side by side where we
-can actually see what's going on at a glance. In fact, it's worse.
-
-What would make sense, perhaps, would be to actually merge those hooks;
-not just a cosmetic amalgamation of the calling sites. Currently, each
-of inotify and the audit code does its own filtering when its hooks are
-triggered, and then acts upon the event only if it affects a watched
-inode. 
-
-To actually merge that filtering code would make sense -- and then both
-inotify and auditfs would just register watches on certain inodes and
-receive notification as appropriate.
-
-There are features of each which would probably be desirable in the
-merged result. The inotify version grows the inode structure by quite a
-lot, while the auditfs version recognises that watches will be
-relatively infrequent, so uses only a bit in i_flags as a
-quickly-accessible indication that an inode is 'interesting' and
-maintains its actual data for that inode elsewhere. The auditfs version
-is also capable of handling the "Child named 'XXXX' of this inode" kind
-of watch, where watches are placed on objects which don't yet exist.
-Also, the auditfs code already calls back to a separate function
-auditfs_attach_wdata() in the _real_ audit code, which actually reports
-when the watch is triggered; it shouldn't be hard to make it call into
-an inotify function instead, depending on the type of watch which is
-hit.
-
-On the other hand, the inotify triggers require a little more
-information from the original hook, which audit_notify_watch() would
-need to pass through if the audit code were used as the basis for a
-merged 'core watch' functionality.
-
+John
 -- 
-dwmw2
-
+John W. Linville
+linville@tuxdriver.com

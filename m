@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVGKTfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbVGKTkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbVGKTfU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 15:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVGKTfN
+	id S262485AbVGKTkf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 15:40:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVGKTka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 15:35:13 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30849 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261656AbVGKTfG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 15:35:06 -0400
-Date: Mon, 11 Jul 2005 21:34:54 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-Subject: arm: how to operate leds on zaurus?
-Message-ID: <20050711193454.GA2210@elf.ucw.cz>
+	Mon, 11 Jul 2005 15:40:30 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:62667 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262485AbVGKTia
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 15:38:30 -0400
+Subject: [PATCH 0/29v2] InfiniBand core update
+From: Hal Rosenstock <halr@voltaire.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1121110249.4389.4984.camel@hal.voltaire.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Jul 2005 15:30:50 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is version 2 of a patch series to get the Infiniband core up to
+date. Aside from bug fixes, the following new functionality is also
+introduced: 
 
-2.6.12-rc5 (and newer) does not boot on sharp zaurus sl-5500. It
-blinks with green led, fast; what does it mean? I'd like to verify if
-it at least reaches .c code in setup.c. I inserted this code at
-begining of setup.c:674...
+	MAD (Management Datagram) support for RMPP
+			(Reliable MultiPacket Protocol)
+	CM (Communications Manager) support
+	User CM support
+	User MAD changes for RMPP
+	Service Record support in SA query
 
-#define locomo_writel(val,addr) ({ *(volatile u16 *)(addr) = (val); })
-#define LOCOMO_LPT_TOFH         0x80
-#define LOCOMO_LED              0xe8
-#define LOCOMO_LPT0             0x00
+Thanks.
 
-      locomo_writel(LOCOMO_LPT_TOFH, LOCOMO_LPT0 + LOCOMO_LED);
+-- Hal
 
-...but that does not seem to do a trick -- it only breaks the boot :-(
-(do I need to add some kind of IO_BASE?).
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.

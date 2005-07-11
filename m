@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVGKX6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVGKX6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbVGKX6h (ORCPT <rfc822;willy@w.ods.org>);
+	id S262283AbVGKX6h (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Jul 2005 19:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbVGKUSk
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVGKUSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 16:18:40 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:60876 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262571AbVGKUSE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 16:18:04 -0400
-Subject: [PATCH 11/29v2] Simplify calling of list_del in MAD
-From: Hal Rosenstock <halr@voltaire.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1121110302.4389.5006.camel@hal.voltaire.com>
+	Mon, 11 Jul 2005 16:18:34 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45321 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262570AbVGKURK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 16:17:10 -0400
+Date: Mon, 11 Jul 2005 21:17:06 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: David Vrabel <dvrabel@arcom.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: serial: 8250 fails to detect Exar XR16L2551 correctly
+Message-ID: <20050711211706.E1540@flint.arm.linux.org.uk>
+Mail-Followup-To: Alex Williamson <alex.williamson@hp.com>,
+	David Vrabel <dvrabel@arcom.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <42CA96FC.9000708@arcom.com> <20050706195740.A28758@flint.arm.linux.org.uk> <42CD2C16.1070308@arcom.com> <1121108408.28557.71.camel@tdi> <20050711204646.D1540@flint.arm.linux.org.uk> <1121112057.28557.91.camel@tdi>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 16:10:25 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1121112057.28557.91.camel@tdi>; from alex.williamson@hp.com on Mon, Jul 11, 2005 at 02:00:57PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simplify calling of list_del.
+On Mon, Jul 11, 2005 at 02:00:57PM -0600, Alex Williamson wrote:
+> On Mon, 2005-07-11 at 20:46 +0100, Russell King wrote:
+> > There was a bug in this area - does it happen with latest and greatest
+> > kernels?
+> 
+>    Yes, I'm using a git pull from ~5hrs ago.  How recent was the bug
+> fix?  It worked fine before I applied David's patch, the A2 UART was
+> detected as a 16550A.  Thanks,
 
+The fix for this went in on 21st May 2005, so obviously it's not
+actually fixed.
 
-Signed-off-by: Sean Hefty <sean.hefty@intel.com>
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
-
-This patch depends on patch 10/29.
-
---
- mad.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1-10/drivers/infiniband/core/mad.c linux-2.6.13-rc2-mm1-11/drivers/infiniband/core/mad.c
--- linux-2.6.13-rc2-mm1-10/drivers/infiniband/core/mad.c	2005-07-11 13:37:54.000000000 -0400
-+++ linux-2.6.13-rc2-mm1-11/drivers/infiniband/core/mad.c	2005-07-11 13:38:06.000000000 -0400
-@@ -2188,7 +2188,6 @@ static int retry_send(struct ib_mad_send
- 
- 	if (!ret) {
- 		mad_send_wr->refcount++;
--		list_del(&mad_send_wr->agent_list);
- 		list_add_tail(&mad_send_wr->agent_list,
- 			      &mad_send_wr->mad_agent_priv->send_list);
- 	}
-@@ -2223,10 +2222,10 @@ static void timeout_sends(void *data)
- 			break;
- 		}
- 
-+		list_del(&mad_send_wr->agent_list);
- 		if (!retry_send(mad_send_wr))
- 			continue;
- 
--		list_del(&mad_send_wr->agent_list);
- 		spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
- 
- 		mad_send_wc.wr_id = mad_send_wr->wr_id;
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

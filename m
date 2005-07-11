@@ -1,69 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbVGKWNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbVGKWPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262916AbVGKWNS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 18:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVGKWNK
+	id S262739AbVGKWPl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbVGKWNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 18:13:10 -0400
-Received: from smtp4.netcabo.pt ([212.113.174.31]:43485 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262740AbVGKWDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 18:03:17 -0400
-Message-ID: <33519.192.168.1.8.1121119251.squirrel@www.rncbc.org>
-In-Reply-To: <20050711155503.GA21762@elte.hu>
-References: <20050703133738.GB14260@elte.hu>
-    <1120428465.21398.2.camel@cmn37.stanford.edu>
-    <24833.195.245.190.94.1120761991.squirrel@www.rncbc.org>
-    <20050707194914.GA1161@elte.hu>
-    <49943.192.168.1.5.1120778373.squirrel@www.rncbc.org>
-    <57445.195.245.190.94.1120812419.squirrel@www.rncbc.org>
-    <20050708085253.GA1177@elte.hu>
-    <28798.195.245.190.94.1120815616.squirrel@www.rncbc.org>
-    <20050708095600.GA5910@elte.hu>
-    <63108.195.245.190.94.1121094757.squirrel@www.rncbc.org>
-    <20050711155503.GA21762@elte.hu>
-Date: Mon, 11 Jul 2005 23:00:51 +0100 (WEST)
-Subject: Re: realtime-preempt-2.6.12-final-V0.7.51-11 glitches [no more]
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4
+	Mon, 11 Jul 2005 18:13:42 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:27298 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262788AbVGKWLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 18:11:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=cTsVE8QeRYfbLjeZgdU1CBju8nWHaQu7oy+jFwsiPHPJ70XDaaKNSdXmLAg1aop0cFyfKGUmi7+VDUgh7GczOCIpFHiAMOBX0mj0GxXqVUSV/pRUiK/cT/YFcq5Mq4XnTji7kCckKvSdKLCUF5mAgOiZQ03NjrdUZXYtr4cTAnc=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: CONFIG_REGPARM - prevent_tail_call doubts (context: SKAS3 bug in detail)
+Date: Tue, 12 Jul 2005 00:18:50 +0200
+User-Agent: KMail/1.8.1
+Cc: Jeff Dike <jdike@addtoit.com>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 11 Jul 2005 22:03:13.0525 (UTC) FILETIME=[55434250:01C58664]
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507120018.51436.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * Rui Nuno Capela <rncbc@rncbc.org> wrote:
->
->> After several trials, with CONFIG_PROFILING=y and profile=1
->> nmi_watchdog=2 as boot parameters, I'm almost convinced I'm doing
->> something wrong :)
->>
->> - `readprofile` always just outputs one line:
->>
->>      0 total                                    0.0000
->>
->> - `readprofile -a` gives the whole kernel symbol list, all with zero
->> times.
->>
->> Is there anything else I can check around here?
->
-> it means that the NMI watchdog was not activated - i.e. the 'NMI' counts
-> in /proc/interrupts do not increase. Do you have LOCAL_APIC enabled in
-> the .config? If yes and if nmi_watchdog=1 does not work either then it's
-> probably not possible to activate the NMI watchdog on your box. In that
-> case try nmi_watchdog=0, that should activate normal profiling. (unless
-> i've broken it via the profile-via-NMI changes ...)
->
+I just diagnosed (and announced) a big bug affecting the SKAS3 patch: namely, 
+syscall parameter values stored in registers may be corrupted for some 
+syscalls on return, when called through int 0x80, and when CONFIG_REGPARM is 
+enabled.
 
-I've tried whether having nmi_watchdog has any influence, to no
-distinguishable result; readprofile always says zero times. And I'm sure I
-have LOCAL_APIC=y (see attached config.gz)
+Ok, the diagnosys of the SKAS3 bug I just noticed is that simply, this 
+construct:
+
+int do_foo(params...) {
+}
+
+asmlinkage int sys_foo(params...) {
+	return do_foo(a_new_param, params...);
+}
+
+does not work, because sys_foo() is optimized to reorder parameters on the 
+stack and to tail-call do_foo. The corrupted parameters on the stack will 
+then be restored (when calling with int $0x80) inside the userspace 
+registers. From entry.S, especially from this comment:
+
+	/* if something modifies registers it must also disable sysexit */
+
+it's clear that when using SYSENTER registers are not restored (even verified 
+through sys_iopl() code, which touched EFLAGS).
+
+I've used prevent_tail_call to fix this, and it works (verified with tests and 
+assembly inspection). I even think I've understood why it works... it's clear 
+why it disallows tail call, but I thought that GCC could create a normal call 
+reusing some space from the stack frame of sys_foo, to create the stack frame 
+of do_foo... it's just that it wouldn't improve speed.
+
+This construct is used for four syscalls (sys_mmap2, old_mmap, sys_mprotect, 
+sys_modify_ldt) and I verified the bug for all sys_mmap2 and sys_mprotect, 
+and I'm sure about modify_ldt because the compiled code is identical to 
+sys_mprotect().
+
+I initially noticed this with the errno-vs-NPTL fix I and Al Viro discussed 
+some time ago: it used indeed mmap2() and triggered the bug.
+
+Luckily, strace reads the correct data (since syscall params are read before 
+the syscall is done) so I couldn't do anything else than understand something 
+bad was happening.
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

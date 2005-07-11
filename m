@@ -1,204 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbVGKWXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbVGKWaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262956AbVGKWXa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 18:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262922AbVGKWUs
+	id S262980AbVGKWaN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVGKW17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 18:20:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33259 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262878AbVGKWTJ (ORCPT
+	Mon, 11 Jul 2005 18:27:59 -0400
+Received: from rimuhosting.com ([69.90.33.248]:49847 "EHLO rimuhosting.com")
+	by vger.kernel.org with ESMTP id S262962AbVGKW1A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 18:19:09 -0400
-Date: Mon, 11 Jul 2005 23:19:02 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] device-mapper: [1/4] Fix deadlocks in core
-Message-ID: <20050711221902.GC12355@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 11 Jul 2005 18:27:00 -0400
+Message-ID: <42D2F22C.3060102@rimuhosting.com>
+Date: Tue, 12 Jul 2005 10:26:52 +1200
+From: Peter <peter.spamcatcher@rimuhosting.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Blaisorblade <blaisorblade@yahoo.it>
+CC: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: unregister_netdevice: waiting for tap24 to become free
+References: <20050709110143.D59181E9EA4@zion.home.lan> <20050709120703.C2175@flint.arm.linux.org.uk> <42D2C487.60302@rimuhosting.com> <200507120020.52418.blaisorblade@yahoo.it>
+In-Reply-To: <200507120020.52418.blaisorblade@yahoo.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some code tidy-ups in preparation for the next patches.
-Change dm_table_pre/postsuspend_targets to accept NULL.
-Use dm_suspended() throughout.
+Nothing in the logs prior to the first error message.
 
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+I've hit this before at different times on other servers.  If there are 
+some commands I can run to gather more diagnostics on the problem, 
+please let me know and I'll capture more information next time.
 
---- diff/drivers/md/dm.c	2005-07-11 22:52:16.000000000 +0100
-+++ source/drivers/md/dm.c	2005-07-11 22:52:10.000000000 +0100
-@@ -610,7 +610,7 @@
- 	int ret = -ENXIO;
- 
- 	if (map) {
--		ret = dm_table_flush_all(md->map);
-+		ret = dm_table_flush_all(map);
- 		dm_table_put(map);
- 	}
- 
-@@ -854,7 +854,7 @@
- 	write_unlock(&md->map_lock);
- 
- 	dm_table_get(t);
--	dm_table_event_callback(md->map, event_callback, md);
-+	dm_table_event_callback(t, event_callback, md);
- 	dm_table_set_restrictions(t, q);
- 	return 0;
- }
-@@ -935,7 +935,7 @@
- 	struct dm_table *map = dm_get_table(md);
- 
- 	if (atomic_dec_and_test(&md->holders)) {
--		if (!test_bit(DMF_SUSPENDED, &md->flags) && map) {
-+		if (!dm_suspended(md)) {
- 			dm_table_presuspend_targets(map);
- 			dm_table_postsuspend_targets(map);
- 		}
-@@ -971,7 +971,7 @@
- 	down_write(&md->lock);
- 
- 	/* device must be suspended */
--	if (!test_bit(DMF_SUSPENDED, &md->flags))
-+	if (!dm_suspended(md))
- 		goto out;
- 
- 	__unbind(md);
-@@ -988,7 +988,7 @@
-  */
- static int __lock_fs(struct mapped_device *md)
- {
--	int error = -ENOMEM;
-+	int r = -ENOMEM;
- 
- 	if (test_and_set_bit(DMF_FS_LOCKED, &md->flags))
- 		return 0;
-@@ -1003,7 +1003,7 @@
- 
- 	md->frozen_sb = freeze_bdev(md->frozen_bdev);
- 	if (IS_ERR(md->frozen_sb)) {
--		error = PTR_ERR(md->frozen_sb);
-+		r = PTR_ERR(md->frozen_sb);
- 		goto out_bdput;
- 	}
- 
-@@ -1019,7 +1019,7 @@
- 	md->frozen_bdev = NULL;
- out:
- 	clear_bit(DMF_FS_LOCKED, &md->flags);
--	return error;
-+	return r;
- }
- 
- static void __unlock_fs(struct mapped_device *md)
-@@ -1045,20 +1045,20 @@
- {
- 	struct dm_table *map;
- 	DECLARE_WAITQUEUE(wait, current);
--	int error = -EINVAL;
-+	int r = -EINVAL;
- 
--	/* Flush I/O to the device. */
- 	down_read(&md->lock);
- 	if (test_bit(DMF_BLOCK_IO, &md->flags))
- 		goto out_read_unlock;
- 
- 	map = dm_get_table(md);
--	if (map)
--		/* This does not get reverted if there's an error later. */
--		dm_table_presuspend_targets(map);
- 
--	error = __lock_fs(md);
--	if (error) {
-+	/* This does not get reverted if there's an error later. */
-+	dm_table_presuspend_targets(map);
-+
-+	/* Flush I/O to the device. */
-+	r = __lock_fs(md);
-+	if (r) {
- 		dm_table_put(map);
- 		goto out_read_unlock;
- 	}
-@@ -1071,7 +1071,7 @@
- 	 * If the flag is already set we know another thread is trying to
- 	 * suspend as well, so we leave the fs locked for this thread.
- 	 */
--	error = -EINVAL;
-+	r = -EINVAL;
- 	down_write(&md->lock);
- 	if (test_and_set_bit(DMF_BLOCK_IO, &md->flags)) {
- 		if (map)
-@@ -1106,15 +1106,14 @@
- 	remove_wait_queue(&md->wait, &wait);
- 
- 	/* were we interrupted ? */
--	error = -EINTR;
-+	r = -EINTR;
- 	if (atomic_read(&md->pending))
- 		goto out_unfreeze;
- 
- 	set_bit(DMF_SUSPENDED, &md->flags);
- 
- 	map = dm_get_table(md);
--	if (map)
--		dm_table_postsuspend_targets(map);
-+	dm_table_postsuspend_targets(map);
- 	dm_table_put(map);
- 	up_write(&md->lock);
- 
-@@ -1125,25 +1124,29 @@
- 	clear_bit(DMF_BLOCK_IO, &md->flags);
- out_write_unlock:
- 	up_write(&md->lock);
--	return error;
-+	return r;
- 
- out_read_unlock:
- 	up_read(&md->lock);
--	return error;
-+	return r;
- }
- 
- int dm_resume(struct mapped_device *md)
- {
-+	int r = -EINVAL;
- 	struct bio *def;
--	struct dm_table *map = dm_get_table(md);
-+	struct dm_table *map = NULL;
- 
- 	down_write(&md->lock);
--	if (!map ||
--	    !test_bit(DMF_SUSPENDED, &md->flags) ||
--	    !dm_table_get_size(map)) {
-+	if (!dm_suspended(md)) {
- 		up_write(&md->lock);
--		dm_table_put(map);
--		return -EINVAL;
-+		goto out;
-+	}
-+
-+	map = dm_get_table(md);
-+	if (!map || !dm_table_get_size(map)) {
-+		up_write(&md->lock);
-+		goto out;
- 	}
- 
- 	dm_table_resume_targets(map);
-@@ -1155,9 +1158,11 @@
- 	up_write(&md->lock);
- 	__unlock_fs(md);
- 	dm_table_unplug_all(map);
--	dm_table_put(map);
- 
--	return 0;
-+	r = 0;
-+out:
-+	dm_table_put(map);
-+	return r;
- }
- 
- /*-----------------------------------------------------------------
+I see the error was reported with older 2.6 kernels and a patch was 
+floating around.  I'm not sure if that is integrated into the current 
+2.6.11 kernel. 
+http://www.google.com/search?q=unregister_netdevice%3A+waiting
+
+Regards, Peter
+
+Jul 10 16:52:03 host39 sshd(pam_unix)[19779]: authentication failure; 
+logname= uid=0 euid=0 tty=ssh ruser= rhost=140.123.23.77  user=halt
+Jul 10 16:52:07 host39 sshd(pam_unix)[19781]: check pass; user unknown
+Jul 10 16:52:07 host39 sshd(pam_unix)[19781]: authentication failure; 
+logname= uid=0 euid=0 tty=ssh ruser= rhost=140.123.23.77
+Jul 11 12:04:04 host39 kernel: unregister_netdevice: waiting for tap24 
+to become free. Usage count = 1
+
+
+Blaisorblade wrote:
+> On Monday 11 July 2005 21:12, Peter wrote:
+> 
+>>Hi.  I am hitting a bug that manifests in an unregister_netdevice error
+>>message.  After the problem is triggered processes like ifconfig, tunctl
+>>and route refuse to exit, even with killed.
+> 
+> Even from the "D" state below, it's clear that there was a deadlock on some 
+> semaphore, related to tap24... Could you search your kernel logs for traces 
+> of an Oops?
+> 
+>>And the only solution I 
+>>have found to regaining control of the server is issuing a reboot.
+> 
+> 
+>>The server is running a number of tap devices.  (It is a UML host server
+>>running the skas patches http://www.user-mode-linux.org/~blaisorblade/).
+>>
+>>Regards, Peter
+>>
+>># uname -r
+>>2.6.11.7-skas3-v8
+>>
+>>unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+>>unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+>>unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+>>unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+>>unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+>>unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+>>unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+>>
+>>
+>>30684 ?        DW     0:45          \_ [tunctl]
+>>31974 ?        S      0:00 /bin/bash ./monitorbw.sh
+>>31976 ?        S      0:00  \_ /bin/bash ./monitorbw.sh
+>>31978 ?        D      0:00      \_ /sbin/ifconfig
+>>31979 ?        S      0:00      \_ grep \(tap\)\|\(RX bytes\)
+>>32052 ?        S      0:00 /bin/bash /opt/uml/umlcontrol.sh start --user
+>>gildersleeve.de
+>>32112 ?        S      0:00  \_ /bin/bash /opt/uml/umlrun.sh --user
+>>gildersleeve.de
+>>32152 ?        S      0:00      \_ /bin/bash ./umlnetworksetup.sh
+>>--check --user gildersleeve.de
+>>32176 ?        D      0:00          \_ tunctl -u gildersleeve.de -t tap24
+>>

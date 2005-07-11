@@ -1,28 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262807AbVGKW14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262922AbVGKWc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262807AbVGKW14 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 18:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbVGKWXg
+	id S262922AbVGKWc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbVGKWa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 18:23:36 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:20609 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S262955AbVGKWWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 18:22:30 -0400
-Message-ID: <42D2F11C.2040900@snacksy.com>
-Date: Tue, 12 Jul 2005 00:22:20 +0200
-From: jan malstrom <xanon@snacksy.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc2-mm1 - unknown symbol: is_broadcast_ether_addr
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Jul 2005 18:30:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55936 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262948AbVGKW2Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 18:28:24 -0400
+Date: Mon, 11 Jul 2005 23:28:15 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] device-mapper: [4/4] Fix deadlocks in core
+Message-ID: <20050711222815.GF12355@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-seems andrew forgot to apply the patch in mm2...
+Oh - the 4th patch is empty now:-)
+The remaining changes all ended up in the 3rd one.
 
+Alasdair
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0507.0/0247.html

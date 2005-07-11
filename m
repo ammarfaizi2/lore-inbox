@@ -1,54 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbVGKVvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbVGKV4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262654AbVGKVvS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 17:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVGKVtP
+	id S262772AbVGKV4G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 17:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbVGKVzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 17:49:15 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:1752 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262654AbVGKVsd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 17:48:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=J8wG0CS7he2sQNsmJng5BrVD4v+8o8Cr5m8RthEHBsdgvi+AJwNGgtCNE+LKhqB6w1Njpc+LZ74TbJID4JvCeD0d7befMWfc9mlRAcgCS5UuWCsAzZ7h5ueKn4pAlGIDwajQk86Bo21zMvam09A0GOi5ASBVf3CTmV1cdl+UtK4=
-Message-ID: <d4dc44d5050711144733422f4b@mail.gmail.com>
-Date: Mon, 11 Jul 2005 23:47:44 +0200
-From: Schneelocke <schneelocke@gmail.com>
-Reply-To: Schneelocke <schneelocke@gmail.com>
-To: Chris Friesen <cfriesen@nortel.com>
-Subject: Re: kernel.org COPYING file not current?
-Cc: linux-kernel@vger.kernel.org, ftpadmin@kernel.org
-In-Reply-To: <42D2E585.6080307@nortel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42D2E585.6080307@nortel.com>
+	Mon, 11 Jul 2005 17:55:50 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:57030 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262801AbVGKVzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 17:55:17 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ondemand cpufreq ineffective in 2.6.12 ?
+Date: Tue, 12 Jul 2005 07:55:00 +1000
+User-Agent: KMail/1.8.1
+Cc: Ken Moffat <ken@kenmoffat.uklinux.net>
+References: <Pine.LNX.4.58.0507111702410.2222@ppg_penguin.kenmoffat.uklinux.net> <Pine.LNX.4.58.0507112044001.3450@ppg_penguin.kenmoffat.uklinux.net>
+In-Reply-To: <Pine.LNX.4.58.0507112044001.3450@ppg_penguin.kenmoffat.uklinux.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2739073.8hSicVdXCD";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507120755.03110.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/07/05, Chris Friesen <cfriesen@nortel.com> wrote:
-> I was putting together a small webpage and wanted to link to the COPYING
-> file for the linux kernel.
-> 
-> I found the one at http://www.kernel.org/pub/linux/kernel/COPYING (also
-> at ftp://ftp.kernel.org/pub/linux/kernel/COPYING), but when I compared
-> it with the latest version in 2.6.12.2, there were some differences.
-> 
-> It would be convenient to have a web-accessable up-to-date version of
-> this file.  Any chance of getting it updated?
+--nextPart2739073.8hSicVdXCD
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-You could link to the latest version in Linus' git repository:
+On Tue, 12 Jul 2005 05:45, Ken Moffat wrote:
+> On Mon, 11 Jul 2005, Ken Moffat wrote:
+> > Hi,
+> >
+> >  I've been using the ondemand governor on athlon64 winchesters for a few
+> > weeks.  I've just noticed that in 2.6.12 the frequency is not
+> > increasing under load, it remains at the lowest frequency.  This seems
+> > to be down to something in 2.6.12-rc6, but I've seen at least one report
+> > since then that ondemand works fine.  Anybody else seeing this problem ?
+>
+>  And just for the record, it's still not working in 2.6.13-rc2.  Oh
+> well, back to 2.6.11 for this box.
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=2a7e338ec2fc6aac461a11fe8049799e65639166;hb=1604d9c8f8dffafe3a077dc5ae7c935d2318bcf6;f=COPYING
+I noticed a change in ondemand on pentiumM, where it would not ramp up if t=
+he=20
+task using cpu was +niced. It does ramp up if the task is not niced. This=20
+seems to have been considered all round better but at my end it is not - if=
+=20
+it takes the same number of cycles to complete a task it does not save any=
+=20
+battery running it at 600Mhz vs 1700Mhz, it just takes longer. Yes I know=20
+during the initial ramp up the 1700Mhz one will waste more battery, but tha=
+t=20
+is miniscule compared to something that burns cpu constantly for 10 mins. N=
+ow=20
+I'm forced to run my background tasks at nice 0 and not get the benefit of=
+=20
+nicing the tasks, _or_ I have to go diddling with settings in /sys to disab=
+le=20
+this feature or temporarily move to the performance governor. Although I=20
+complained lightly initially when this change was suggested, I didn't reali=
+se=20
+it was actually going to become standard.=20
 
-That's a link to a specific revision, though, and I'm not sure if you
-can just link to the latest version of the file. Somebody else with
-more experience regarding git's web front-end may be able to tell you
-more.
+To me the ondemand governor was supposed to not delay you at all, but cause=
+ as=20
+much battery saving as possible without noticeable slowdown...
 
+Oh well you can't please everyone all the time.=20
 
--- 
-schnee
+Con
+
+--nextPart2739073.8hSicVdXCD
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC0uq3ZUg7+tp6mRURAlldAJ9QS4MwND4hydGjLVDB0d5dJNphowCfUvyo
+YhU1E+WNpFvJTZ9f68WpLuI=
+=V5DZ
+-----END PGP SIGNATURE-----
+
+--nextPart2739073.8hSicVdXCD--

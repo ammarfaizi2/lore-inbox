@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVGKSdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVGKSgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVGKSdx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 14:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVGKPQo
+	id S261939AbVGKSgX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 14:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbVGKSd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 11:16:44 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:25035 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261966AbVGKPQe (ORCPT
+	Mon, 11 Jul 2005 14:33:59 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:56471 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261393AbVGKScK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 11:16:34 -0400
-Date: Mon, 11 Jul 2005 17:16:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com
-Subject: Re: [RFC] RCU and CONFIG_PREEMPT_RT progress, part 2
-Message-ID: <20050711151627.GA19794@elte.hu>
-References: <20050625013821.GA2996@us.ibm.com> <20050711150728.GA1497@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 11 Jul 2005 14:32:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=kER2uLrGm3MMfrLElqDuu3mNZyuWMGHK/ee1uF1fyiGvX1wKepTNg57AbDd+8h/RBhYmHssEGF7WDy3GOZQm2a1s1u/yyG6WXP7MEINZ7zHWbj6j1qHg2/zeA7Mx9Jlikr3OFMHrirzMcUbfq91SCroG8YSL82FPGj3iIbBxzj8=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Tom Duffy <Tom.Duffy@sun.com>
+Subject: Re: [openib-general] Re: [PATCH 3/27] Add MAD helper functions
+Date: Mon, 11 Jul 2005 22:38:27 +0400
+User-Agent: KMail/1.8.1
+Cc: Hal Rosenstock <halr@voltaire.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+References: <1121089079.4389.4511.camel@hal.voltaire.com> <200507111839.41807.adobriyan@gmail.com> <42D2B1F1.7000408@sun.com>
+In-Reply-To: <42D2B1F1.7000408@sun.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050711150728.GA1497@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200507112238.27856.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Paul E. McKenney <paulmck@us.ibm.com> wrote:
-
-> Hello!
+On Monday 11 July 2005 21:52, Tom Duffy wrote:
+> Alexey Dobriyan wrote:
 > 
-> More progress on CONFIG_PREEMPT_RT-compatible RCU.
-> 
-> o	Continued prototyping Linux-kernel implementation, still
-> 	in the CONFIG_PREEMPT environment.
+> >unsigned int __nocast gfp_mask, please. 430 or so infiniband sparse warnings
+> >is not a reason to add more.
+> >  
+> >
+> Can you please elaborate on the sparse warnings that you are seeing 
+> throughout the rest of infiniband?
 
-cool! With the debugging code removed it doesnt look all that complex.  
-Do you think i can attempt to plug this into the -RT tree, or should i 
-wait some more? (One observation: if you know some branch is slowpath in 
-a common codepath then it's useful to mark the condition via unlikely().  
-That results in better code layout and is also a guidance for the casual 
-reader of the code.)
-
-	Ingo
+$ make allmodconfig >/dev/null
+$ make C=2 CHECK="sparse -Wbitwise" drivers/infiniband/ 2>&1 | tee ../W_infiniband
+	[snip]
+$ grep -c "warning: " ../W_infiniband
+430

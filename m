@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVGKQxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVGKQxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVGKQxy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 12:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVGKQkH
+	id S262172AbVGKQxx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 12:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbVGKQkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 12:40:07 -0400
-Received: from mx2.suse.de ([195.135.220.15]:46465 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262067AbVGKQjd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 12:39:33 -0400
-Date: Mon, 11 Jul 2005 18:39:30 +0200
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Brian Gerst <bgerst@didntduck.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] i386: Per node IDT
-Message-ID: <20050711163930.GH7538@bragg.suse.de>
-References: <Pine.LNX.4.61.0507101617240.16055@montezuma.fsmlabs.com.suse.lists.linux.kernel> <p73eka614t7.fsf@verdi.suse.de> <Pine.LNX.4.61.0507110718500.16055@montezuma.fsmlabs.com> <42D28A27.9000507@didntduck.org> <Pine.LNX.4.61.0507110919270.16055@montezuma.fsmlabs.com>
+	Mon, 11 Jul 2005 12:40:15 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:39656 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S262141AbVGKQiU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 12:38:20 -0400
+Date: Mon, 11 Jul 2005 18:38:19 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, cborntra@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 12/12] s390: use __cpcmd in vmcp_write.
+Message-ID: <20050711163819.GL10822@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0507110919270.16055@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes you're right, i wasn't quite awake when i replied, thanks for 
-> correcting that.
+[patch 12/12] s390: use __cpcmd in vmcp_write.
 
-You would need to allocate it using vmalloc if you wanted
-to put it node local, eating up precious TLB entries.
+From: Christian Borntraeger <cborntra@de.ibm.com>
 
-Anyways, i386 NUMA is so broken anyways regarding all that that I wouldn't
-worry about node local allocation. Just allocate it somewhere, just
-not statically. 
+vmcp_write uses GPF_DMA for the memory allocation of the response
+buffer, so it can use the low level function __cpcmd directly,
+no need to call the wrapper.
 
-I only worried about static memory consumption of a kernel. An IDT is quite
-big and NR_CPUS tends to be too.
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
--Andi
+diffstat:
+ drivers/s390/char/vmcp.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/char/vmcp.c linux-2.6-patched/drivers/s390/char/vmcp.c
+--- linux-2.6/drivers/s390/char/vmcp.c	2005-07-11 17:37:30.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/vmcp.c	2005-07-11 17:37:51.000000000 +0200
+@@ -115,9 +115,9 @@ vmcp_write(struct file *file, const char
+ 		return -ENOMEM;
+ 	}
+ 	debug_text_event(vmcp_debug, 1, cmd);
+-	session->resp_size = cpcmd(cmd, session->response,
+-				   session->bufsize,
+-				   &session->resp_code);
++	session->resp_size = __cpcmd(cmd, session->response,
++				     session->bufsize,
++				     &session->resp_code);
+ 	up(&session->mutex);
+ 	kfree(cmd);
+ 	*ppos = 0;		/* reset the file pointer after a command */

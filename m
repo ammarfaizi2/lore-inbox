@@ -1,126 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVGKDpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbVGKEBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbVGKDpu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 23:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVGKDpt
+	id S262221AbVGKEBr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 00:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVGKEBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 23:45:49 -0400
-Received: from smtp2.nbnz.co.nz ([202.49.143.67]:10771 "HELO smtp2.nbnz.co.nz")
-	by vger.kernel.org with SMTP id S262211AbVGKDpr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 23:45:47 -0400
-Message-ID: <40BC5D4C2DD333449FBDE8AE961E0C334F9385@psexc03.nbnz.co.nz>
-From: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
-To: "'Alan Stern'" <stern@rowland.harvard.edu>
-Cc: "'Stefano Rivoir'" <s.rivoir@gts.it>,
-       "'Kernel development list'" <linux-kernel@vger.kernel.org>,
-       "'USB development list'" <linux-usb-devel@lists.sourceforge.net>
-Subject: RE: [linux-usb-devel] Kernel unable to read partition table on US
-	B Memory Key
-Date: Mon, 11 Jul 2005 15:45:16 +1200
+	Mon, 11 Jul 2005 00:01:47 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:24060 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S262221AbVGKEBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 00:01:46 -0400
+Message-ID: <42D1F06C.9010905@stesmi.com>
+Date: Mon, 11 Jul 2005 06:07:08 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C585CA.F39BD010"
+To: David Masover <ninja@slaphack.com>
+CC: Hans Reiser <reiser@namesys.com>, Hubert Chan <hubert@uhoreg.ca>,
+       Ross Biro <ross.biro@gmail.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: reiser4 plugins
+References: <hubert@uhoreg.ca>	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>	<8783be6605062914341bcff7cb@mail.gmail.com>	<878y0svj1h.fsf@evinrude.uhoreg.ca> <42C4F97B.1080803@slaphack.com> <87ll4lynky.fsf@evinrude.uhoreg.ca> <42CB0328.3070706@namesys.com> <42CB07EB.4000605@slaphack.com> <42CB0ED7.8070501@namesys.com> <42CB1128.6000000@slaphack.com> <42CB1C20.3030204@namesys.com> <42CB22A6.40306@namesys.com> <42CBE426.9080106@slaphack.com>
+In-Reply-To: <42CBE426.9080106@slaphack.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-------_=_NextPart_000_01C585CA.F39BD010
-Content-Type: text/plain
+> Ok, still haven't heard much discussion of metafs vs file-as-directory,
+> but it seems like it'd be easier in metafs.
 
-All,
+Why not implement it inside the directory containg the file ?
 
-> > Can you try adding delays before, after, and inbetween the calls to 
-> > sd_read_capacity, sd_read_write_protect_flag, and 
-> sd_read_cache_type, 
-> > all near the end of sd_revalidate_disk?
-> 
-> Yes, will do this and post results.
+Ie the metadata for /home/stesmi/foo is in /home/stesmi/.meta/foo
 
-OK, it turns out that for this particular key, a two second pause after
-"sd_spinup_disk" is called and before "sd_read_capacity" will make it work.
-The 'dmesg' (or syslog) output is still ugly, however; but once I realised
-that it was "sd_spinup_disk" that:
+This should be suit both camps I'd think?
 
-A) needed the delay, and 
-B) causes the first ugly message to be printed in the first place, then a
-better patch came to mind.
+I mean, editing something is easy and you don't have to "know" how
+to navigate /meta and you don't have the clash of files vs metadata
+(is /meta/vfs/home/stesmi/foo a file or an attribute called foo of
+the dir stesmi ?).
 
-So, after combining Alan's suggestion to use "msleep" rather than my
-previous convoluted method, and moving the location of the pause to inside
-sd_spinup_disk (and targeting it to remove the first "ugly"), I came up with
-a better patch, which is attached.
+/home/stesmi/foo <- dir
+/home/stesmi/.meta/foo <- "dir" containing all metadata
+/home/stesmi/.meta/foo/attrib <- some attribute called attrib
+/home/stesmi/foo/bar <- file
+/home/stesmi/foo/.meta/bar <- "dir" containg all metadata
+/home/stesmi/foo/.meta/bar/attrib <- some attribute called attrib
 
-This patch adds the module parameter 'firmware_delay', and will cause a
-pause for "firmware_delay" seconds inside sd_spinup_disk when the first SCSI
-command returns UNIT_ATTENTION as the sense key.
+The file is $dir/$file. The attrib dir is $dir/.meta/$file.
+The attribute is $dir/.meta/$file/$attribute.
 
-Again, I have deliberately made the default value for this parameter 0,
-which means that the end-user will need to ensure insmod or modprobe
-supplies a >0 value to firmware_delay before the patch takes effect.
+If $attrib is something user-editable it's easy to
+$EDITOR $dir/.meta/$file/$attrib
 
-I'm not sure what the procedure is for getting this patch officially
-recognised for inclusion into the kernel - Alan, are you able to "sponsor"
-this patch for inclusion?
+If this has already been taken up, I must've missed it.
 
-Thanks,
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
 
-James Roberts-Thomson
-----------
-Hardware:  The parts of a computer system that can be kicked.
-
-Mailing list Readers:  Please ignore the following disclaimer - this email
-is explicitly declared to be non confidential and does not contain
-privileged information.
-
-
-This communication is confidential and may contain privileged material.
-If you are not the intended recipient you must not use, disclose, copy or retain it.
-If you have received it in error please immediately notify me by return email
-and delete the emails.
-Thank you.
-
-------_=_NextPart_000_01C585CA.F39BD010
-Content-Type: application/octet-stream;
-	name="oti-usb-key-v2.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="oti-usb-key-v2.patch"
-
---- /home/n202042/src/kernel2612/linux-2.6.12/drivers/scsi/sd.c	=
-2005-06-18 07:48:29.000000000 +1200=0A=
-+++ /usr/src/linux/drivers/scsi/sd.c	2005-07-11 15:40:45.000000000 =
-+1200=0A=
-@@ -89,6 +89,10 @@=0A=
- #define SD_MAX_RETRIES		5=0A=
- #define SD_PASSTHROUGH_RETRIES	1=0A=
- =0A=
-+static unsigned int firmware_delay =3D 0;=0A=
-+module_param(firmware_delay, uint, S_IRUGO | S_IWUSR);=0A=
-+MODULE_PARM_DESC(firmware_delay, "Optional number of seconds delay for =
-dodgy USB keys to settle");=0A=
-+=0A=
- static void scsi_disk_release(struct kref *kref);=0A=
- =0A=
- struct scsi_disk {=0A=
-@@ -1080,6 +1084,12 @@ sd_spinup_disk(struct scsi_disk *sdkp, c=0A=
- 			/* Wait 1 second for next try */=0A=
- 			msleep(1000);=0A=
- 			printk(".");=0A=
-+		} else if (sense_valid && sshdr.sense_key =3D=3D UNIT_ATTENTION && =
-firmware_delay > 0 ) {=0A=
-+				/* Some USB flash drives need a small delay (perhaps to allow =
-internal firmware=0A=
-+				 * time to initialise=0A=
-+				 */=0A=
-+				printk(KERN_NOTICE "%s: Allowing time for firmware =
-initialisation\n", diskname);=0A=
-+				msleep(firmware_delay * HZ);=0A=
- 		} else {=0A=
- 			/* we don't understand the sense code, so it's=0A=
- 			 * probably pointless to loop */=0A=
-
-------_=_NextPart_000_01C585CA.F39BD010--
+iD8DBQFC0fBsBrn2kJu9P78RAlt4AJ4qWik6hA4oXBNZMdZ1TkweYrJHmgCdFAY+
+m+Qtg9uqBq9m0qKfRkK6iUI=
+=ghWb
+-----END PGP SIGNATURE-----

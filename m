@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVGKS6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVGKTBC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVGKS6s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 14:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVGKS4b
+	id S262036AbVGKTBC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 15:01:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVGKS6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 14:56:31 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34740 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261452AbVGKS4Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 14:56:16 -0400
-Date: Mon, 11 Jul 2005 20:56:04 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Micheal Marineau <marineam@engr.orst.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][help?] Radeonfb acpi resume
-Message-ID: <20050711185604.GA1997@elf.ucw.cz>
-References: <42D19EE1.90809@engr.orst.edu> <42D19FEE.1040306@engr.orst.edu> <20050711151156.GA2001@elf.ucw.cz> <42D2BF5D.2030703@engr.orst.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 11 Jul 2005 14:58:53 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:25277 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262065AbVGKS6D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 14:58:03 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: dwalker@mvista.com
+Subject: Re: Real-Time Preemption Patch -RT-2.6.12-final-V0.7.51-26 failed ,to compile
+Date: Mon, 11 Jul 2005 19:58:12 +0100
+User-Agent: KMail/1.8.1
+Cc: Steven Wooding <steve@wooding.uklinux.net>, linux-kernel@vger.kernel.org
+References: <42D2B6AD.40907@wooding.uklinux.net> <1121107598.9477.3.camel@dhcp153.mvista.com>
+In-Reply-To: <1121107598.9477.3.camel@dhcp153.mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <42D2BF5D.2030703@engr.orst.edu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200507111958.12040.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Monday 11 Jul 2005 19:46, Daniel Walker wrote:
+> This may help ..
+>
+>
 
-> >>Aww crap, thunderbird screwed up the white space...
-> >>
-> >>A usable version of the patch is attached, or here is a link:
-> >>http://dev.gentoo.org/~marineam/files/patch-radeonfb-2.6.12
-> > 
-> > 
-> > Wrong indentation in acpi_vgapost; I remember there was better patch
-> > to fix this out there.
-> Ok, I'll go through and fix any coding style problems.  I've only seen
-> older versions of this same patch, but if there is a better way I'd love
-> to hear it.  I'll google around a little more just in case.
+Unless Ingo's fixed it, x86-64 is broken at the moment anyway. I just get a 
+segfault from init.
 
-It *was* version of the same patch, but it had codingstyle fixed, IIRC.
-
-> > Anyway, are you sure machine you have can't be fixed by any methods
-> > listed in Doc*/power/video.txt? I guess they are preferable to
-> > acpi_vgapost...
-> Actually, this is one of the metholds listed in video.txt. Take a look
-> at #7 ;-).  I just tried acpi_sleep=s3_bios to see what that does, but
-> just caused an instant reboot on resume.  The only other solutions that
-> works is to disable the frame buffer and use X or some other app to do
-> the job as listed in #5 and #6, but something in kernel like this patch
-> is required to be able to use the framebuffer.
-
-I'd say that disabling framebuffer and going #5 or #6 is still
-prefered, but given nice patch, I'll probably accept it. Oh, and do
-note that (7) is listed near just one notebook.
-
-								Pavel
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

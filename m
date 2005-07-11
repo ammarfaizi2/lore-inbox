@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262702AbVGKU6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbVGKVFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262702AbVGKU6v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 16:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVGKU5P
+	id S262710AbVGKVFF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 17:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262716AbVGKVDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 16:57:15 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:43273 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262654AbVGKUyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 16:54:15 -0400
-Subject: Re: [PATCH] Apple USB Touchpad driver (new)
-From: Stelian Pop <stelian@popies.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Peter Osterlund <petero2@telia.com>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Frank Arnold <frank@scirocco-5v-turbo.de>
-In-Reply-To: <1121114686.2383.11.camel@mindpipe>
-References: <20050708101731.GM18608@sd291.sivit.org>
-	 <1120821481.5065.2.camel@localhost>
-	 <20050708121005.GN18608@sd291.sivit.org> <20050709191357.GA2244@ucw.cz>
-	 <m33bqnr3y9.fsf@telia.com> <20050710120425.GC3018@ucw.cz>
-	 <m3y88e9ozu.fsf@telia.com>
-	 <1121078371.12621.36.camel@localhost.localdomain>
-	 <20050711035244.115067ac.akpm@osdl.org>
-	 <20050711110416.GA24652@sd291.sivit.org>
-	 <1121114686.2383.11.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Mon, 11 Jul 2005 22:54:11 +0200
-Message-Id: <1121115251.5310.10.camel@deep-space-9.dsnet>
+	Mon, 11 Jul 2005 17:03:40 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:46534 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262654AbVGKVAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 17:00:23 -0400
+Subject: Re: Bug in pcmcia-core
+From: Lee Revell <rlrevell@joe-job.com>
+To: James Courtier-Dutton <James@superbug.demon.co.uk>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <42B8565A.5070809@superbug.demon.co.uk>
+References: <42B1FF2A.2080608@superbug.demon.co.uk>
+	 <20050617014820.GA15045@animx.eu.org>
+	 <42B27D51.4040407@superbug.demon.co.uk>
+	 <1119368594.19357.22.camel@mindpipe>
+	 <20050621165303.GA14487@isilmar.linta.de>
+	 <1119375864.4569.10.camel@mindpipe> <42B8565A.5070809@superbug.demon.co.uk>
+Content-Type: text/plain
+Date: Mon, 11 Jul 2005 17:00:20 -0400
+Message-Id: <1121115620.2632.0.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le lundi 11 juillet 2005 à 16:44 -0400, Lee Revell a écrit :
-> On Mon, 2005-07-11 at 13:04 +0200, Stelian Pop wrote:
-> > Oops, bad Evolution (even if I did use insert->text file for the patch).
-> > 
-> > Going back to mutt. Sorry about this.
+On Tue, 2005-06-21 at 19:03 +0100, James Courtier-Dutton wrote:
+> linux-2.6.12-rc6-mm1 fails to even boot on my system. See previous
+> email for details.
 > 
-> There's no need to go back to mutt, Evolution is not broken.  Before
-> doing 'Insert->Text File', you just have to change the text style at the
-> insertion point from 'Normal' to 'Preformat' to avoid word-wrapping the
-> patch.
+> I have the same problem with 2 different laptops, and those laptops
+> had different pcmcia chips, so that is why I suspect the pcmcia-core.
 
-Indeed, Alexander Nyberg already pointed this to me in private.
+James,
 
-Thanks.
+Did you ever try 2.6.13-rcx?  I see that lots of PCMCIA fixes went in
+since you posted this.
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+Lee  
 

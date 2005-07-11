@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVGKQr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVGKQr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbVGKQr0 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262128AbVGKQr0 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Jul 2005 12:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVGKQpP
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVGKQpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 12:45:15 -0400
-Received: from wproxy.gmail.com ([64.233.184.192]:14791 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262141AbVGKQny convert rfc822-to-8bit
+	Mon, 11 Jul 2005 12:45:24 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:57325 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262128AbVGKQnF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 12:43:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=t9fY3LXwvnNKomn9/qoTkDVl2GVPbNJGPouhY9dfBcrPUQBi8awDOLMi77M2SJUOcVmAvhfg7jOYryBaDqH732WwaFEcf/aAT73HOeIDlcMIJOAaDNt+O/hkpESOLmlgRNHyuJOAuUTVSZeKDdQm10wtGxGViIyvhh6E9VEoQeU=
-Message-ID: <f95c1df10507110943756eb894@mail.gmail.com>
-Date: Mon, 11 Jul 2005 09:43:15 -0700
-From: Jon Florence <jonflo@gmail.com>
-Reply-To: Jon Florence <jonflo@gmail.com>
-To: Douglas McNaught <doug@mcnaught.org>
-Subject: Re: Swapping broken on 2.6.9? Limit Page Cache growth?
+	Mon, 11 Jul 2005 12:43:05 -0400
+Date: Mon, 11 Jul 2005 09:43:22 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Daniel Walker <dwalker@mvista.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m2ll4ds9jn.fsf@Douglas-McNaughts-Powerbook.local>
+Subject: Re: Attempted summary of "RT patch acceptance" thread, take 2
+Message-ID: <20050711164322.GD1304@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050711145552.GA1489@us.ibm.com> <1121098272.7050.13.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <f95c1df1050710234275d52cad@mail.gmail.com>
-	 <m2ll4ds9jn.fsf@Douglas-McNaughts-Powerbook.local>
+In-Reply-To: <1121098272.7050.13.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes but I was having the same problems when I ran the tests on stock
-2.6.10 & 2.6.11 kernels so it isnt limited to redhat only.
+Hello, Daniel,
 
+In principle, one could inspect the Linux kernel with the PREEMPT_RT patch
+applied, and calculate the worst-case time during which interrupts are
+disabled, though I have not heard of anyone actually doing this.  Is this
+what you are getting at, or are you thinking in terms of Kristian's and
+Karim's testing?
 
+							Thanx, Paul
 
-On 7/11/05, Douglas McNaught <doug@mcnaught.org> wrote:
-> Jon Florence <jonflo@gmail.com> writes:
+On Mon, Jul 11, 2005 at 09:11:12AM -0700, Daniel Walker wrote:
 > 
-> > Hi,
-> > I have got a box running  2.6.9-1.667smp (FC3)
+> The PREEMPT_RT description doesn't seem correct. According to your
+> "hard" definition, PREEMPT_RT can provably hit a hard deadline for
+> interrupt response. 
 > 
-> That's a Red Hat kernel so you should take it up with them, not the
-> LKML.
+> Daniel
 > 
-> -Doug
->
+> On Mon, 2005-07-11 at 07:55 -0700, Paul E. McKenney wrote:
+> 
+> 
+> > 
+> > a.	Quality of service: "soft realtime", with timeframe of a few 10s
+> > 	of microseconds for task scheduling and interrupt-handler entry.
+> > 	System services providing I/O, networking, task creation, and
+> > 	VM manipulation can take much longer, though some subsystems
+> > 	(e.g., ALSA) have been reworked to obtain good latencies.
+> > 	Since spinlocks are replaced by blocking mutexes, the performance
+> > 	penalty can be significant (up to 40%) for some system calls,
+> > 	but user-mode execution runs at full speed.  There is likely to
+> > 	be some performance penalty exacted from RCU, but, with luck,
+> > 	this penalty will be minimal.
+> > 
+> > 	Kristian Benoit and Karim Yaghmour have run an impressive set of
+> > 	benchmarks comparing CONFIG_PREEMPT_RT with CONFIG_PREEMPT(?) and
+> > 	Ipipe, see the LKML threads starting with:
+> > 
+> > 	1. http://marc.theaimsgroup.com/?l=linux-kernel&m=111846495403131&w=2
+> > 	2. http://marc.theaimsgroup.com/?l=linux-kernel&m=111928813818151&w=2
+> > 	3. http://marc.theaimsgroup.com/?l=linux-kernel&m=112008491422956&w=2
+> > 	4. http://marc.theaimsgroup.com/?l=linux-kernel&m=112086443319815&w=2
+> > 
+> > 	This last run put CONFIG_PREEMPT_RT at about 70 microseconds
+> > 	interrupt-response-time latency.  The machine under test was a
+> > 	Dell PowerEdge SC420 with a P4 2.8GHz CPU and 256MB RAM running
+> > 	a UP build of Fedora Core 3.
+> 
+> 
+> 

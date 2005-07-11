@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbVGKQmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVGKQop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262140AbVGKQmp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 12:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVGKQkY
+	id S262165AbVGKQop (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 12:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVGKQmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 12:40:24 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:55686 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262140AbVGKQh6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 12:37:58 -0400
-Date: Mon, 11 Jul 2005 18:37:57 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 11/12] s390: cpu timer reset in machine check handler.
-Message-ID: <20050711163757.GK10822@localhost.localdomain>
+	Mon, 11 Jul 2005 12:42:50 -0400
+Received: from main.gmane.org ([80.91.229.2]:24197 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262128AbVGKQkw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 12:40:52 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jose Barroca <jose.barroca@netcabo.pt>
+Subject: segmentation fault in "top" command
+Date: Mon, 11 Jul 2005 16:24:20 +0100
+Message-ID: <dau2v4$l62$2@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213.22.178.18
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 11/12] s390: cpu timer reset in machine check handler.
+Dear all,
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+I'm trying to deal with a peculiar problem that came up the other day.
+I've searched the net, posted in newbie groups, but to no avail. So,
+perhaps you can lend a hand:
 
-Fix wrong move direction of timer values for cpu accounting
-in case of a machine check that indicates a broken cpu timer.
+Using a 2.6.12.12 straight from kernel.org:
+- I experience loss of responsiveness (mouse, keyboard, music) during
+r/w intensive operations, such as lengthy computations in matlab
+(exceeding my RAM), or a simple system update using Debian's dselect.
+Mouse clicks and keypresses don't get lost, but xmms may skip the
+tracks. And all this happens intermitently during the mentioned r-w op.
+== This did not happen with previous kernels ==
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+- I had a case of FS corruption, which I could not trace. I use ext3,
+only one partition for the complete debian system. I keep my data in
+other partitions. Reason is a small disk in a laptop. This corruption
+made itself visible after a reboot, when I called top to check why bash
+was taking so long to complete a directory name (TAB press):
 
-diffstat:
- arch/s390/kernel/entry.S   |    6 +++---
- arch/s390/kernel/entry64.S |    6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+rdrs@abafado:~$ top
+Segmentation fault
 
-diff -urpN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-patched/arch/s390/kernel/entry64.S
---- linux-2.6/arch/s390/kernel/entry64.S	2005-07-11 17:37:26.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/entry64.S	2005-07-11 17:37:50.000000000 +0200
-@@ -727,9 +727,9 @@ mcck_int_handler:
- 	jo	0f
- 	spt	__LC_LAST_UPDATE_TIMER
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
--	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
--	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_EXIT_TIMER
-+	mvc	__LC_ASYNC_ENTER_TIMER(8),__LC_LAST_UPDATE_TIMER
-+	mvc	__LC_SYNC_ENTER_TIMER(8),__LC_LAST_UPDATE_TIMER
-+	mvc	__LC_EXIT_TIMER(8),__LC_LAST_UPDATE_TIMER
- 0:	tm	__LC_MCCK_CODE+2,0x08	# mwp of old psw valid?
- 	jno	mcck_no_vtime		# no -> no timer update
- 	tm      __LC_MCK_OLD_PSW+1,0x01 # interrupting from user ?
-diff -urpN linux-2.6/arch/s390/kernel/entry.S linux-2.6-patched/arch/s390/kernel/entry.S
---- linux-2.6/arch/s390/kernel/entry.S	2005-07-11 17:37:26.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/entry.S	2005-07-11 17:37:50.000000000 +0200
-@@ -690,9 +690,9 @@ mcck_int_handler:
- 	bo	BASED(0f)
- 	spt	__LC_LAST_UPDATE_TIMER	# revalidate cpu timer
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING
--	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
--	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
--	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_EXIT_TIMER
-+	mvc	__LC_ASYNC_ENTER_TIMER(8),__LC_LAST_UPDATE_TIMER
-+	mvc	__LC_SYNC_ENTER_TIMER(8),__LC_LAST_UPDATE_TIMER
-+	mvc	__LC_EXIT_TIMER(8),__LC_LAST_UPDATE_TIMER
- 0:	tm	__LC_MCCK_CODE+2,0x08   # mwp of old psw valid?
- 	bno	BASED(mcck_no_vtime)	# no -> skip cleanup critical
- 	tm	__LC_MCK_OLD_PSW+1,0x01 # interrupting from user ?
+Other outputs included: "can't execute binary file", "attempt to access
+beyond end of device"
+
+I ran e2fsck -vc to get a read-only badblock scan, but the latter came
+out clean. I had a lot of illegal inodes, though. This ext3 partition
+was never accessed by other OSs.
+== I use top on a dayly basis, so corruption happenned not long ago.
+There were no power outages, but the previous kernel (2.6.11) had
+NLS_DEFAULT=iso8859-1, whereas the new one has NLS_DEFAULT=utf8 ==
+
+---
+And, to sum up, I've been through a MEMTEST86, an E2FSCK, don't think
+the machine was cracked (not even literally speaking), and ran SMARTCTL
+-a /dev/hda.
+
+This one had an interesting output: there was indication of an error
+happening some 197 days ago. I could decipher the remaining info. Also,
+the REALLOACTED_SECTOR_CT has a very high number, though it is labelled
+"PRE_FAIL".
+
+
+I'm quite at a loss on what to do now - where should I start looking?
+And even if I simply replace "top", is that even possible, or advisable?
+
+Eagerly waiting for your answers,
+
+Jose
+
+
+
+
+

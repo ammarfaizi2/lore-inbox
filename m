@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVGKQZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVGKQaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262089AbVGKQZk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 12:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVGKQZb
+	id S262137AbVGKQaV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 12:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVGKQ2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 12:25:31 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:31247 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262100AbVGKQXd (ORCPT
+	Mon, 11 Jul 2005 12:28:32 -0400
+Received: from spc2-brig1-3-0-cust232.asfd.broadband.ntl.com ([82.1.142.232]:37311
+	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
+	id S262100AbVGKQZv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 12:23:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=kFKTqgbxHuGUvDylfru/6JOBG/eqMlER70cQVXhRn35hIvN7bsLI8hd6rEXpC/bBzxt8vCPjEhEbt47c+XsgQItffv4ZU3tcwVgaYqs/d4fO0bgfZq1PrIclYQUcU1pCO/7wKlHUJrqmlH+wQZFZMAZe4VhqXNSmC1c/ZHbYCSE=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Hal Rosenstock <halr@voltaire.com>
-Subject: Re: [PATCH 3/27] Add MAD helper functions
-Date: Mon, 11 Jul 2005 20:29:26 +0400
-User-Agent: KMail/1.8.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-References: <1121089079.4389.4511.camel@hal.voltaire.com> <200507111839.41807.adobriyan@gmail.com> <1121094791.4389.4591.camel@hal.voltaire.com>
-In-Reply-To: <1121094791.4389.4591.camel@hal.voltaire.com>
+	Mon, 11 Jul 2005 12:25:51 -0400
+Date: Mon, 11 Jul 2005 17:25:48 +0100 (BST)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: linux-kernel@vger.kernel.org
+Subject: ondemand cpufreq ineffective in 2.6.12 ?
+Message-ID: <Pine.LNX.4.58.0507111702410.2222@ppg_penguin.kenmoffat.uklinux.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507112029.26890.adobriyan@gmail.com>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 July 2005 19:30, Hal Rosenstock wrote:
-> On Mon, 2005-07-11 at 10:39, Alexey Dobriyan wrote:
-> > On Monday 11 July 2005 17:48, Hal Rosenstock wrote:
-> > > Add new helper routines for allocating MADs for sending and formatting
-> > > a send WR.
-> > 
-> > > -- linux-2.6.13-rc2-mm1/drivers/infiniband2/core/mad.c
-> > > +++ linux-2.6.13-rc2-mm1/drivers/infiniband3/core/mad.c
-> > 				   ^^^^^^^^^^^
-> > Ick. You'd better have linux-2.6.13-rc2-mm1-[0123...].
-> 
-> Shall I resubmit with linux-2.6.13-rc2-mm1-[0123...] ?
+Hi,
 
-I'd wait for comments and then resubmit clean series which can be applied
-with patch -p1.
+ I've been using the ondemand governor on athlon64 winchesters for a few
+weeks.  I've just noticed that in 2.6.12 the frequency is not
+increasing under load, it remains at the lowest frequency.  This seems
+to be down to something in 2.6.12-rc6, but I've seen at least one report
+since then that ondemand works fine.  Anybody else seeing this problem ?
 
-> > > +struct ib_mad_send_buf * ib_create_send_mad(struct ib_mad_agent *mad_agent,
-> > > +					    u32 remote_qpn, u16 pkey_index,
-> > > +					    struct ib_ah *ah,
-> > > +					    int hdr_len, int data_len,
-> > > +					    int gfp_mask)
-> > 
-> > unsigned int __nocast gfp_mask, please. 430 or so infiniband sparse warnings
-> > is not a reason to add more.
-> 
-> I'll fix this in a subsequent patch. Is that OK ?
+ Testcase: boot (my bootscripts set the governor to ondemand), set the
+governor to ondemand, performance, powersave and untar a nice big
+bzip2'd tarball (gcc-3.4.1) from an nfs mount. All using the config from
+2.6.11.9 and defaults for new options.
 
-If Andrew will fix patches locally, OK.
+kernel		2.6.11.9	2.6.12-rc5	2.6.12-rc6	2.6.12
+
+ondemand	20.8 sec	21.3 sec	33.9 sec	34.1 sec
+performance	21.3 sec	22.0 sec	22.6 sec	20.1 sec
+powersave	32.4 sec	33.1 sec	33.6 sec	33.9 sec
+
+I don't have confidence that the numbers are more repeatable than +/- 2
+seconds on this, they just illustrate that ondemand used to give a
+similar time to performance, but now doesn't.  Other intermediate and
+later tests have been omitted for clarity, but 2.6.12.2 does show the
+same problem.
+
+Since 2.6.12-rc6, 'ondemand' appears to be still accepted (the echo to
+scaling_governor returns 0, and the displayed frequency drops back if
+I try going from performance to ondemand).
+
+When ondemand appears to work properly, /proc/cpuinfo shows the speed
+jumping to 2 GHz, then falling back to 1.8 after the untar ends, then
+back to 1.0 GHz.  In the problem cases, the speed remains at 1GHz.
+
+As far as I can see, nothing untoward shows in the logs.  Any
+suggestions, please ?
+
+Ken
+-- 
+ das eine Mal als Tragödie, das andere Mal als Farce
+

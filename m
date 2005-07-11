@@ -1,49 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVGKOQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVGKOOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbVGKOQr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVGKOOZ
+	id S261738AbVGKOOU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVGKOMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:14:25 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:16516 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261744AbVGKOMy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:12:54 -0400
-Date: Mon, 11 Jul 2005 16:12:32 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050711141232.GA16586@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050709155704.GA14535@elte.hu> <200507091704.12368.s0348365@sms.ed.ac.uk> <200507111455.45105.s0348365@sms.ed.ac.uk>
+	Mon, 11 Jul 2005 10:12:25 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:3782 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261738AbVGKOMJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 10:12:09 -0400
+Subject: [PATCH 8/27] Minor cleanup during MAD startup and shutdown
+From: Hal Rosenstock <halr@voltaire.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1121089102.4389.4521.camel@hal.voltaire.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507111455.45105.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Jul 2005 10:04:31 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Minor cleanup during startup and shutdown
 
-* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+Signed-off-by: Hal Rosenstock <halr@voltaire.com>
 
-> Here's a screenshot of the oops. Notice that "stack left" is now -52. 
-> We've confirmed this is a stack overflow!
-> 
-> http://devzero.co.uk/~alistair/oops8.jpeg
-> 
-> I'm going to try the 8K stack kernel with the same stuff and see if I 
-> can get a stack trace. I hope this is the beginning of the end for 
-> this problem.
+This patch depends on patch 7/27.
 
-might be an incorrect printout of stack_left :( The esp looks more or 
-less normal. Not sure why it printed -52.
+-- 
+ mad.c |   44 +++++++++--
+ 1 files changed, 9 insertions(+), 35 deletions(-)
+diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband7/core/mad.c linux-2.6.13-rc2-mm1/drivers/infiniband8/core/mad.c
+-- linux-2.6.13-rc2-mm1/drivers/infiniband7/core/mad.c	2005-07-09 16:48:45.000000000 -0400
++++ linux-2.6.13-rc2-mm1/drivers/infiniband8/core/mad.c	2005-07-09 16:51:21.000000000 -0400
+@@ -2487,14 +2487,6 @@ static int ib_mad_port_open(struct ib_de
+ 	unsigned long flags;
+ 	char name[sizeof "ib_mad123"];
+ 
+-	/* First, check if port already open at MAD layer */
+-	port_priv = ib_get_mad_port(device, port_num);
+-	if (port_priv) {
+-		printk(KERN_DEBUG PFX "%s port %d already open\n",
+-		       device->name, port_num);
+-		return 0;
+-	}
+-
+ 	/* Create new device info */
+ 	port_priv = kmalloc(sizeof *port_priv, GFP_KERNEL);
+ 	if (!port_priv) {
+@@ -2619,7 +2611,7 @@ static int ib_mad_port_close(struct ib_d
+ 
+ static void ib_mad_init_device(struct ib_device *device)
+ {
+-	int ret, num_ports, cur_port, i, ret2;
++	int num_ports, cur_port, i;
+ 
+ 	if (device->node_type == IB_NODE_SWITCH) {
+ 		num_ports = 1;
+@@ -2629,47 +2621,37 @@ static void ib_mad_init_device(struct ib
+ 		cur_port = 1;
+ 	}
+ 	for (i = 0; i < num_ports; i++, cur_port++) {
+-		ret = ib_mad_port_open(device, cur_port);
+-		if (ret) {
++		if (ib_mad_port_open(device, cur_port)) {
+ 			printk(KERN_ERR PFX "Couldn't open %s port %d\n",
+ 			       device->name, cur_port);
+ 			goto error_device_open;
+ 		}
+-		ret = ib_agent_port_open(device, cur_port);
+-		if (ret) {
++		if (ib_agent_port_open(device, cur_port)) {
+ 			printk(KERN_ERR PFX "Couldn't open %s port %d "
+ 			       "for agents\n",
+ 			       device->name, cur_port);
+ 			goto error_device_open;
+ 		}
+ 	}
+-
+-	goto error_device_query;
++	return;
+ 
+ error_device_open:
+ 	while (i > 0) {
+ 		cur_port--;
+-		ret2 = ib_agent_port_close(device, cur_port);
+-		if (ret2) {
++		if (ib_agent_port_close(device, cur_port))
+ 			printk(KERN_ERR PFX "Couldn't close %s port %d "
+ 			       "for agents\n",
+ 			       device->name, cur_port);
+-		}
+-		ret2 = ib_mad_port_close(device, cur_port);
+-		if (ret2) {
++		if (ib_mad_port_close(device, cur_port))
+ 			printk(KERN_ERR PFX "Couldn't close %s port %d\n",
+ 			       device->name, cur_port);
+-		}
+ 		i--;
+ 	}
+-
+-error_device_query:
+-	return;
+ }
+ 
+ static void ib_mad_remove_device(struct ib_device *device)
+ {
+-	int ret = 0, i, num_ports, cur_port, ret2;
++	int i, num_ports, cur_port;
+ 
+ 	if (device->node_type == IB_NODE_SWITCH) {
+ 		num_ports = 1;
+@@ -2679,21 +2661,13 @@ static void ib_mad_remove_device(struct 
+ 		cur_port = 1;
+ 	}
+ 	for (i = 0; i < num_ports; i++, cur_port++) {
+-		ret2 = ib_agent_port_close(device, cur_port);
+-		if (ret2) {
++		if (ib_agent_port_close(device, cur_port))
+ 			printk(KERN_ERR PFX "Couldn't close %s port %d "
+ 			       "for agents\n",
+ 			       device->name, cur_port);
+-			if (!ret)
+-				ret = ret2;
+-		}
+-		ret2 = ib_mad_port_close(device, cur_port);
+-		if (ret2) {
++		if (ib_mad_port_close(device, cur_port))
+ 			printk(KERN_ERR PFX "Couldn't close %s port %d\n",
+ 			       device->name, cur_port);
+-			if (!ret)
+-				ret = ret2;
+-		}
+ 	}
+ }
+ 
 
-	Ingo
+

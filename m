@@ -1,144 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbVGKOVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVGKOQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbVGKOVg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVGKOTQ
+	id S261744AbVGKOQr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVGKOOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:19:16 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:13254 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261841AbVGKOSe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:18:34 -0400
-Subject: [PATCH 10/27] Add automatic retries to MAD layer
-From: Hal Rosenstock <halr@voltaire.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1121089111.4389.4525.camel@hal.voltaire.com>
+	Mon, 11 Jul 2005 10:14:25 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:16516 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261744AbVGKOMy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 10:12:54 -0400
+Date: Mon, 11 Jul 2005 16:12:32 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Message-ID: <20050711141232.GA16586@elte.hu>
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050709155704.GA14535@elte.hu> <200507091704.12368.s0348365@sms.ed.ac.uk> <200507111455.45105.s0348365@sms.ed.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 10:10:58 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507111455.45105.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add automatic retries to MAD layer. 
-Signed-off-by: Sean Hefty <sean.hefty@intel.com>
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
 
-This patch depends on patch 9/27.
+* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
 
--- 
- core/mad.c         |   26 +++++++++++++++++++++++++-
- core/mad_priv.h    |    2 ++
- core/sa_query.c    |    3 ++-
- core/user_mad.c    |    1 +
- include/ib_verbs.h |    1 +
- 5 files changed, 31 insertions(+), 2 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband9/core/mad.c linux-2.6.13-rc2-mm1/drivers/infiniband10/core/mad.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband9/core/mad.c	2005-07-09 17:25:36.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband10/core/mad.c	2005-07-09 17:25:28.000000000 -0400
-@@ -954,7 +954,7 @@ int ib_post_send_mad(struct ib_mad_agent
- 		/* Timeout will be updated after send completes */
- 		mad_send_wr->timeout = msecs_to_jiffies(send_wr->wr.
- 							ud.timeout_ms);
--		mad_send_wr->retry = 0;
-+		mad_send_wr->retries = mad_send_wr->send_wr.wr.ud.retries;
- 		/* One reference for each work request to QP + response */
- 		mad_send_wr->refcount = 1 + (mad_send_wr->timeout > 0);
- 		mad_send_wr->status = IB_WC_SUCCESS;
-@@ -2174,6 +2174,27 @@ local_send_completion:
- 	spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
- }
- 
-+static int retry_send(struct ib_mad_send_wr_private *mad_send_wr)
-+{
-+	int ret;
-+
-+	if (!mad_send_wr->retries--)
-+		return -ETIMEDOUT;
-+
-+	mad_send_wr->timeout = msecs_to_jiffies(mad_send_wr->send_wr.
-+						wr.ud.timeout_ms);
-+
-+	ret = ib_send_mad(mad_send_wr);
-+
-+	if (!ret) {
-+		mad_send_wr->refcount++;
-+		list_del(&mad_send_wr->agent_list);
-+		list_add_tail(&mad_send_wr->agent_list,
-+			      &mad_send_wr->mad_agent_priv->send_list);
-+	}
-+	return ret;
-+}
-+
- static void timeout_sends(void *data)
- {
- 	struct ib_mad_agent_private *mad_agent_priv;
-@@ -2202,6 +2223,9 @@ static void timeout_sends(void *data)
- 			break;
- 		}
- 
-+		if (!retry_send(mad_send_wr))
-+			continue;
-+
- 		list_del(&mad_send_wr->agent_list);
- 		spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
- 
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband9/core/mad_priv.h linux-2.6.13-rc2-mm1/drivers/infiniband10/core/mad_priv.h
--- linux-2.6.13-rc2-mm1/drivers/infiniband9/core/mad_priv.h	2005-07-09 16:48:05.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband10/core/mad_priv.h	2005-07-09 17:15:40.000000000 -0400
-@@ -123,6 +123,7 @@ struct ib_mad_send_wr_private {
- 	u64 wr_id;			/* client WR ID */
- 	u64 tid;
- 	unsigned long timeout;
-+	int retries;
- 	int retry;
- 	int refcount;
- 	enum ib_wc_status status;
-@@ -136,6 +137,7 @@ struct ib_mad_local_private {
- 	struct ib_sge sg_list[IB_MAD_SEND_REQ_MAX_SG];
- 	u64 wr_id;			/* client WR ID */
- 	u64 tid;
-+	int retries;
- };
- 
- struct ib_mad_mgmt_method_table {
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband9/core/sa_query.c linux-2.6.13-rc2-mm1/drivers/infiniband10/core/sa_query.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband9/core/sa_query.c	2005-07-10 16:21:55.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband10/core/sa_query.c	2005-07-10 16:22:13.000000000 -0400
-@@ -462,7 +462,8 @@ static int send_mad(struct ib_sa_query *
- 				 .mad_hdr     = &query->mad->mad_hdr,
- 				 .remote_qpn  = 1,
- 				 .remote_qkey = IB_QP1_QKEY,
--				 .timeout_ms  = timeout_ms
-+				 .timeout_ms  = timeout_ms,
-+				 .retries     = 0 
- 			 }
- 		 }
- 	};
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband9/core/user_mad.c linux-2.6.13-rc2-mm1/drivers/infiniband10/core/user_mad.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband9/core/user_mad.c	2005-06-29 19:00:53.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband10/core/user_mad.c	2005-07-09 17:14:46.000000000 -0400
-@@ -322,6 +322,7 @@ static ssize_t ib_umad_write(struct file
- 	wr.wr.ud.remote_qpn  = be32_to_cpu(packet->mad.qpn);
- 	wr.wr.ud.remote_qkey = be32_to_cpu(packet->mad.qkey);
- 	wr.wr.ud.timeout_ms  = packet->mad.timeout_ms;
-+	wr.wr.ud.retries     = 0;
- 
- 	wr.wr_id            = (unsigned long) packet;
- 
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband9/include/ib_verbs.h linux-2.6.13-rc2-mm1/drivers/infiniband10/include/ib_verbs.h
--- linux-2.6.13-rc2-mm1/drivers/infiniband9/include/ib_verbs.h	2005-07-10 11:11:43.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband10/include/ib_verbs.h	2005-07-10 10:55:59.000000000 -0400
-@@ -566,6 +566,7 @@ struct ib_send_wr {
- 			u32	remote_qpn;
- 			u32	remote_qkey;
- 			int	timeout_ms; /* valid for MADs only */
-+			int	retries;    /* valid for MADs only */
- 			u16	pkey_index; /* valid for GSI only */
- 			u8	port_num;   /* valid for DR SMPs on switch only */
- 		} ud;
+> Here's a screenshot of the oops. Notice that "stack left" is now -52. 
+> We've confirmed this is a stack overflow!
+> 
+> http://devzero.co.uk/~alistair/oops8.jpeg
+> 
+> I'm going to try the 8K stack kernel with the same stuff and see if I 
+> can get a stack trace. I hope this is the beginning of the end for 
+> this problem.
 
+might be an incorrect printout of stack_left :( The esp looks more or 
+less normal. Not sure why it printed -52.
 
+	Ingo

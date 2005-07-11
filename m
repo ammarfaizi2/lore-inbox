@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVGKOhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVGLAzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbVGKOhy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:37:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVGKOff
+	id S261864AbVGLAzM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 20:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVGLAzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:35:35 -0400
-Received: from thunk.org ([69.25.196.29]:3735 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261877AbVGKOea (ORCPT
+	Mon, 11 Jul 2005 20:55:07 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:41881 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261878AbVGKOdS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:34:30 -0400
-Date: Mon, 11 Jul 2005 10:34:27 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Lack of Documentation about SA_RESTART...
-Message-ID: <20050711143427.GC14529@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Paolo Ornati <ornati@fastwebnet.it>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050711123237.787dfcde@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 11 Jul 2005 10:33:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=dAS3EK9WQOy/xcjM7JhZWCsUvKG9tL3QIxvewE7murPoPbOFN0HUanQo9XCOQmeFyMwAKNTwbRfDFQe6OTtoQOh24OlAN0uRIzV6EgZsjn4A/flOB3lljRUvQCw+3EEhOX7eNpC03kZCZllfBz/Gx7i3n4F8bTIEGzGiykiMFJU=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Hal Rosenstock <halr@voltaire.com>
+Subject: Re: [PATCH 3/27] Add MAD helper functions
+Date: Mon, 11 Jul 2005 18:39:41 +0400
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+References: <1121089079.4389.4511.camel@hal.voltaire.com>
+In-Reply-To: <1121089079.4389.4511.camel@hal.voltaire.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050711123237.787dfcde@localhost>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200507111839.41807.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 11, 2005 at 12:32:37PM +0200, Paolo Ornati wrote:
-> But what I'm looking for is a list of syscalls that are automatically
-> restarted when SA_RESTART is set, and especially in what conditions.
-> 
-> For example: read(), write(), open() are obviously restarted, but even
-> on non-blocking fd?
-> And what about connect() and select() for example?
-> 
-> There are a lot of syscalls that can fail with "EINTR"! What's the
-> advantage of using SA_RESTART if one doesn't know what syscalls are
-> restarted?
+On Monday 11 July 2005 17:48, Hal Rosenstock wrote:
+> Add new helper routines for allocating MADs for sending and formatting
+> a send WR.
 
-According to the Single Unix Specification V3, all functions that
-return EINTR are supposed to restart if a process receives a signal
-where signal handler has been installed with the SA_RESTART flag.  
+> -- linux-2.6.13-rc2-mm1/drivers/infiniband2/core/mad.c
+> +++ linux-2.6.13-rc2-mm1/drivers/infiniband3/core/mad.c
+				   ^^^^^^^^^^^
+Ick. You'd better have linux-2.6.13-rc2-mm1-[0123...].
 
-There may be a few places in the kernel where this isn't happenning,
-that's what the specification states. 
+> +struct ib_mad_send_buf * ib_create_send_mad(struct ib_mad_agent *mad_agent,
+> +					    u32 remote_qpn, u16 pkey_index,
+> +					    struct ib_ah *ah,
+> +					    int hdr_len, int data_len,
+> +					    int gfp_mask)
 
-My preference is to always check for EINTR out of sheer paranoia and
-for portability, since SA_RESTART is an optional part (XSI) of the
-specification which is not necessarily implemented by all Unix
-systems, and contrary to popular belief, there _are_ Linux-like
-systems beyond just Linux that an application writer might want their
-programs to be portable to.  You know, quaint legacy systems like
-Solaris, HP-UX, AIX, etc.  :-)
+unsigned int __nocast gfp_mask, please. 430 or so infiniband sparse warnings
+is not a reason to add more.
 
-> Example of behavior: according to source code it seems that "connect()"
-> (the "net/ipv4/af_inet.c : inet_stream_connect()" implementation)
-> returns -ERESTARTSYS if interrupted, but if the socket is in
-> non-blocking mode it returns -EINTR.
+> +{
 
-If the socket is non-blocking mode, and there isn't a connection ready
-to be received, then the socket is going to return with some kind of
-errno set; either EINPROGRESS (Operation now in progress) or EALREADY
-(Operation already in progress), or if a signal came in during the
-system call (which would happen pretty rarely, the window for the race
-condition is pretty small) it will return EINTR.  I _think_ that a
-close reading of the specification would state that the system call
-should be restarted, and since a connection isn't ready, then at that
-point EINPROGRESS or EALREADY would be returned.  
-
-But this is a pretty small corner case, and in practice happens quite
-rarely.  There might be some existing code that expects EINTR in this
-case, which might explain this, or perhaps it was thought that it was
-useful for the application to know that a system call was handled in
-the middle of a non-blocking system call (but what's the point, since
-no notification would be given if the signal was processed right
-before or right after the system call).  
-
-Still, I'd suggest that the old internet dictum of being conservative
-in what you send and liberal in what you accept applies here.  If you
-want your program to be robust and portable, check for EINTR.  
-
-						- Ted
+> +	buf = kmalloc(sizeof *send_buf + buf_size, gfp_mask);

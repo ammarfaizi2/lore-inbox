@@ -1,207 +1,237 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVGKPEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVGKPEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbVGKPEM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 11:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVGKPCI
+	id S261947AbVGKPEN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 11:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVGKO5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 11:02:08 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:20935 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261882AbVGKPAd
+	Mon, 11 Jul 2005 10:57:11 -0400
+Received: from [194.90.237.34] ([194.90.237.34]:56922 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261947AbVGKOzc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 11:00:33 -0400
-Subject: [PATCH 23/27] User MAD ABI changes to support RMPP
-From: Hal Rosenstock <halr@voltaire.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1121089249.4389.4551.camel@hal.voltaire.com>
+	Mon, 11 Jul 2005 10:55:32 -0400
+Date: Mon, 11 Jul 2005 17:56:16 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: linux-kernel@vger.kernel.org
+Subject: kernel guide to space
+Message-ID: <20050711145616.GA22936@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 10:52:58 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-User MAD ABI changes to support RMPP
+Hi!
+I've been tasked with edicating some new hires on linux kernel coding style.
+While we have Documentation/CodingStyle, it skips detail that is supposed to
+be learned by example.
 
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
+Since I've been burned by this a couple of times myself till I learned,
+I've put together a short list of rules complementing Documentation/CodingStyle.
+This list is attached, below.
 
-This patch depends on patch 22/27.
+Please cc me directly with comments, if any.
+
+Thanks,
+MST
+
+---
+
+kernel guide to space AKA a boring list of rules
+http://www.mellanox.com/mst/boring.txt
+
+This text deals mostly with whitespace issues, hence the name.
+
+Whitespace -- In computer science, a whitespace (or a whitespace character) is
+any character which does not display itself but does take up space.
+	From Wikipedia, the free encyclopedia.
+
+1. Read Documentation/CodingStyle. Yes, it applies to you.
+   When working on a specific driver/subsystem, try to follow
+   the style of the surrounding codebase.
+
+2. The last character on a line is never a whitespace
+		Get a decent editor and don't leave whitespace at the end of
+		lines.
+			Documentation/CodingStyle
+
+Whitespace issues:
+
+3. Space rules for C
+
+3a. Binary operators
+	+ - / * %
+	== !=  > < >= <= && || 
+	& | ^ << >> 
+	= *= /= %= += -= <<= >>= &= ^= |=
+
+	spaces around the operator
+	a + b
+
+3b. Unary operators
+	! ~
+	+ - *
+	&
+
+	no space between operator and operand
+	*a
+
+3c. * in types
+	Leave space between name and * in types.
+	Multiple * dont need additional space between them.
+
+	struct foo **bar;
+
+3d. Conditional
+	?:
+	spaces around both ? and :
+	a ? b : c
+
+3e. sizeof
+	space after the operator
+	sizeof a
+
+3f. Braces etc
+	() [] -> .
+
+	no space around any of these (but see 3h)
+	foo(bar)
+
+3g. Comma
+	,
+	space after comma, no space before comma
+	foo, bar
+
+3h. Semicolon
+	;
+	no space before semicolon
+	foo;
+
+3i. if/else/do/while/for/switch
+	space between if/else/do/while and following/preceeding
+	statements/expressions, if any:
+
+	if (a) {
+	} else {
+	}
+
+	do {
+	} while (b);
+
+3j. Labels
+	goto and case labels should have a line of their own (possibly
+	with a comment).
+	No space before colon in labels.
+
+int foobar()
+{
+	...
+foolabel: /* short comment */
+	foo();
+}
+
+4. Indentation rules for C
+	Use tabs, not spaces, for indentation. Tabs should be 8 characters wide.
+
+4a. Labels
+	case labels should be indented same as the switch statement.
+	statements occurring after a case label are indented by one level.
+
+	switch (foo) {
+	case foo:
+		bar();
+	default:
+		break;
+	}
+
+4b. Global scope
+	Functions, type definitions/declarations, defines, global
+	variables etc are global scope. Start them at the first
+	character in a line (indent level 0).
+
+static struct foo *foo_bar(struct foo *first, struct bar *second,
+			   struct foobar* thirsd);
+
+4c. Breaking long lines
+		Descendants are always substantially shorter than the parent
+		and are placed substantially to the right.
+			Documentation/CodingStyle
+
+	Descendant must be indented at least to the level of the innermost
+	compound expression in the parent. All descendants at the same level
+	are indented the same.
+	if (foobar(.................................) + barbar * foobar(bar +
+				     					foo *
+									oof)) {
+	}
+
+5. Blank lines
+	One blank line between functions.
+
+void foo()
+{
+}
+
+/* comment */
+void bar()
+{
+}
+
+	No more than one blank line in a row.
+	Last (or first) line in a file is never blank.
+
+Non-whitespace issues:
+
+6. One-line statement does not need a {} block, so dont put it into one
+	if (foo)
+		bar;
+
+7. Comments
+	Dont use C99 // comments.
+
+8. Return codes
+	Functions that return success/failure status, should use 0 for success,
+	a negative value for failure.
+	Error codes are in linux/errno.h .
+
+	if (do_something()) {
+		handle_error();
+		return -EINVAL;
+	}
+
+	Functions that test a condition return 1 if condition is satisfied,
+	0 if its not.
+
+	if (is_condition())
+		condition_true();
+
+9. Data types
+	Standard linux types are in linux/types.h .
+	See also Linux Device Drivers, Third Edition,
+	Chapter 11: Data Types in the Kernel.  http://lwn.net/images/pdf/LDD3/
+
+9a. Integer types
+	int is the default integer type.
+	Use unsigned type if you perform bit operations (<<,>>,&,|,~).
+	Use unsigned long if you have to fit a pointer into integer.
+	long long is at least 64 bit wide on all platforms.
+	char is for ASCII characters and strings.
+	Use u8,u16,u32,u64 if you need an integer of a specific size.
+
+9b. typedef
+	Using typedefs to hide the data type is generally discouraged.
+	typedefs to function types are ok, since these can get very long.
+
+typedef struct foo *(foo_bar_handler)(struct foo *first, struct bar *second,
+				      struct foobar* thirsd);
+
+Editor configuration:
+
+9. The following is helpful with VIM
+	set cinoptions=(0:0
+
+Michael S. Tsirkin
 
 -- 
- ib_user_mad.h |   28 ++++++++++++++++++++++--
- 1 files changed, 22 insertions(+), 6 deletions(-)
- user_mad.txt |   51 +++++++++++++++++++++++++++++++++++++++--
- 1 files changed, 39 insertions(+), 12 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband22/include/ib_user_mad.h linux-2.6.13-rc2-mm1/drivers/infiniband23/include/ib_user_mad.h
--- linux-2.6.13-rc2-mm1/drivers/infiniband22/include/ib_user_mad.h	2005-06-29 19:00:53.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband23/include/ib_user_mad.h	2005-07-10 16:55:43.000000000 -0400
-@@ -1,5 +1,6 @@
- /*
-  * Copyright (c) 2004 Topspin Communications.  All rights reserved.
-+ * Copyright (c) 2005 Voltaire, Inc. All rights reserved.
-  *
-  * This software is available to you under a choice of one of two
-  * licenses.  You may choose to be licensed under the terms of the GNU
-@@ -29,7 +30,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: ib_user_mad.h 1389 2004-12-27 22:56:47Z roland $
-+ * $Id: ib_user_mad.h 2814 2005-07-06 19:14:09Z halr $
-  */
- 
- #ifndef IB_USER_MAD_H
-@@ -42,7 +43,7 @@
-  * Increment this value if any changes that break userspace ABI
-  * compatibility are made.
-  */
--#define IB_USER_MAD_ABI_VERSION	2
-+#define IB_USER_MAD_ABI_VERSION	5
- 
- /*
-  * Make sure that all structs defined in this file remain laid out so
-@@ -51,13 +52,13 @@
-  */
- 
- /**
-- * ib_user_mad - MAD packet
-- * @data - Contents of MAD
-+ * ib_user_mad_hdr - MAD packet header
-  * @id - ID of agent MAD received with/to be sent with
-  * @status - 0 on successful receive, ETIMEDOUT if no response
-  *   received (transaction ID in data[] will be set to TID of original
-  *   request) (ignored on send)
-  * @timeout_ms - Milliseconds to wait for response (unset on receive)
-+ * @retries - Number of automatic retries to attempt
-  * @qpn - Remote QP number received from/to be sent to
-  * @qkey - Remote Q_Key to be sent with (unset on receive)
-  * @lid - Remote lid received from/to be sent to
-@@ -72,11 +73,12 @@
-  *
-  * All multi-byte quantities are stored in network (big endian) byte order.
-  */
--struct ib_user_mad {
--	__u8	data[256];
-+struct ib_user_mad_hdr {
- 	__u32	id;
- 	__u32	status;
- 	__u32	timeout_ms;
-+	__u32	retries;
-+	__u32	length;
- 	__u32	qpn;
- 	__u32   qkey;
- 	__u16	lid;
-@@ -91,6 +93,17 @@ struct ib_user_mad {
- };
- 
- /**
-+ * ib_user_mad - MAD packet
-+ * @hdr - MAD packet header
-+ * @data - Contents of MAD
-+ *
-+ */
-+struct ib_user_mad {
-+	struct ib_user_mad_hdr hdr;
-+	__u8	data[0];
-+};
-+
-+/**
-  * ib_user_mad_reg_req - MAD registration request
-  * @id - Set by the kernel; used to identify agent in future requests.
-  * @qpn - Queue pair number; must be 0 or 1.
-@@ -103,6 +116,8 @@ struct ib_user_mad {
-  *   management class to receive.
-  * @oui: Indicates IEEE OUI when mgmt_class is a vendor class
-  *   in the range from 0x30 to 0x4f. Otherwise not used.
-+ * @rmpp_version: If set, indicates the RMPP version used.
-+ * 
-  */
- struct ib_user_mad_reg_req {
- 	__u32	id;
-@@ -111,6 +126,7 @@ struct ib_user_mad_reg_req {
- 	__u8	mgmt_class;
- 	__u8	mgmt_class_version;
- 	__u8    oui[3];
-+	__u8	rmpp_version;
- };
- 
- #define IB_IOCTL_MAGIC		0x1b
-diff -uprN linux-2.6.13-rc2-mm1/Documentation/infiniband/user_mad.txt linux-2.6.13-rc2-mm1/Documentation23/infiniband/user_mad.txt
--- linux-2.6.13-rc2-mm1/Documentation/infiniband/user_mad.txt	2005-06-29 19:00:53.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/Documentation23/infiniband/user_mad.txt	2005-07-01 14:27:50.000000000 -0400
-@@ -28,13 +28,37 @@ Creating MAD agents
- 
- Receiving MADs
- 
--  MADs are received using read().  The buffer passed to read() must be
--  large enough to hold at least one struct ib_user_mad.  For example:
-+  MADs are received using read().  The receive side now supports
-+  RMPP. The buffer passed to read() must be at least one 
-+  struct ib_user_mad + 256 bytes. For example:
-+
-+  If the buffer passed is not large enough to hold the received
-+  MAD (RMPP), the errno is set to ENOSPC and the length of the
-+  buffer needed is set in mad.length.
-+
-+  Example for normal MAD (non RMPP) reads:
-+	struct ib_user_mad *mad;
-+	mad = malloc(sizeof *mad + 256);
-+	ret = read(fd, mad, sizeof *mad + 256);
-+	if (ret != sizeof mad + 256) {
-+		perror("read");
-+		free(mad);
-+	}
- 
--	struct ib_user_mad mad;
--	ret = read(fd, &mad, sizeof mad);
--	if (ret != sizeof mad)
-+  Example for RMPP reads:
-+	struct ib_user_mad *mad;
-+	mad = malloc(sizeof *mad + 256);
-+	ret = read(fd, mad, sizeof *mad + 256);
-+	if (ret == -ENOSPC)) {
-+		length = mad.length;
-+		free(mad);
-+		mad = malloc(sizeof *mad + length);
-+		ret = read(fd, mad, sizeof *mad + length);
-+	}
-+	if (ret < 0) {
- 		perror("read");
-+		free(mad);
-+	}
- 
-   In addition to the actual MAD contents, the other struct ib_user_mad
-   fields will be filled in with information on the received MAD.  For
-@@ -50,18 +74,21 @@ Sending MADs
- 
-   MADs are sent using write().  The agent ID for sending should be
-   filled into the id field of the MAD, the destination LID should be
--  filled into the lid field, and so on.  For example:
-+  filled into the lid field, and so on.  The send side does support
-+  RMPP so arbitrary length MAD can be sent. For example:
-+
-+	struct ib_user_mad *mad;
- 
--	struct ib_user_mad mad;
-+	mad = malloc(sizeof *mad + mad_length);
- 
--	/* fill in mad.data */
-+	/* fill in mad->data */
- 
--	mad.id  = my_agent;	/* req.id from agent registration */
--	mad.lid = my_dest;	/* in network byte order... */
-+	mad->hdr.id  = my_agent;	/* req.id from agent registration */
-+	mad->hdr.lid = my_dest;		/* in network byte order... */
- 	/* etc. */
- 
--	ret = write(fd, &mad, sizeof mad);
--	if (ret != sizeof mad)
-+	ret = write(fd, &mad, sizeof *mad + mad_length);
-+	if (ret != sizeof *mad + mad_length)
- 		perror("write");
- 
- Setting IsSM Capability Bit
-
-
+MST

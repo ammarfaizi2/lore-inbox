@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVGKVYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVGKVYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262716AbVGKVYK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 17:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbVGKVWO
+	id S262742AbVGKVYL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 17:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbVGKVV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 17:22:14 -0400
-Received: from agminet02.oracle.com ([141.146.126.229]:26297 "EHLO
-	agminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S262716AbVGKVTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 17:19:55 -0400
-Date: Mon, 11 Jul 2005 14:19:26 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, sct@redhat.com
-Subject: [PATCH] kjournald() missing JFS_UNMOUNT check
-Message-ID: <20050711211926.GC14505@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+	Mon, 11 Jul 2005 17:21:59 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:52667 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S262761AbVGKVVG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 17:21:06 -0400
+Date: Mon, 11 Jul 2005 17:21:05 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Michel Bouissou <michel@bouissou.net>
+cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [SOLVED ??] Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
+In-Reply-To: <200507112246.48069@totor.bouissou.net>
+Message-ID: <Pine.LNX.4.44L0.0507111713320.14116-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	Can we please merge this patch? I sent it to ext2-devel for comments
-last week and haven't hear anything back. It seems trivially correct and is
-testing fine - famous last words, I know :)
+On Mon, 11 Jul 2005, Michel Bouissou wrote:
 
-My original mail follows:
+> Well, I'm afraid I spoke too fast :-(
+> 
+> I rebooted my system with "usb-handoff" again, but still the USB mouse enabled 
+> in BIOS, and this time got the punishent again :-(
 
-	It seems that kjournald() may be missing a check of the JFS_UNMOUNT
-flag before calling schedule(). This showed up in testing of OCFS2 recovery
-where our recovery thread would hang in journal_kill_thread() called from  
-journal_destroy() because kjournald never got a chance to read the flag to 
-shut down before the schedule().
+> irq 21: nobody cared!
+> 
+> ...etc :-(
+> 
+> Well, this time, I deactivated the mouse in BIOS, rebooted again, also with 
+> "usb-handoff", and "again it works"...
 
-Zach pointed out the missing check which led me to hack up this trivial
-patch. It's been tested many times now and I have yet to reproduce the 
-hang, which was happening very regularly before.
+> ...at least, it worked until I unplugged my USB scanner...
+>
+> Jul 11 22:52:54 totor kernel: usb 3-2: USB disconnect, address 2
+>
+> ...then replugged my USB scanner...
+>
+> Jul 11 22:53:08 totor kernel: usb 3-2: new full speed USB device using
+> uhci_hcd and address 3
+> Jul 11 22:53:08 totor kernel: irq 21: nobody cared!
+>
+> Oh no :-(
 
-<mild rant>
-I'm guessing that we could really use some wait_event() calls with helper
-functions in, well, most of jbd these days which would make a ton of the 
-wait code there vastly cleaner.
-</mild rant>
+Don't jump to hasty conclusions.  Problems like this are often caused by
+unrelated things that you wouldn't suspect at first.  Getting something to
+work once doesn't mean the problem has been fixed.  And you can be fooled
+by coincidences.  (I would be surprised if that event above was really 
+caused by plugging in the scanner, unless your UHCI hardware is broken.)
 
-As for why this doesn't happen in ext3 (or OCFS2 during normal mount/unmount
-of the local nodes journal), I think it may that the specific timing of
-events in the ocfs2 recovery thread exposes a race there. Because
-ocfs2_replay_journal() is only interested in playing back the journal,
-initialization and shutdown happen very quicky with no other metadata put
-into that specific journal.
-	--Mark
+One thing you might try, time-consuming though it will be, is to remove or
+disable as much hardware as possible from your system.  If you can
+reliably determine that the problem occurs only when one particular piece
+of hardware is enabled, then you'll know how to proceed.
 
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+Alan Stern
 
---- ../linux-2.6.13-rc1-ro/fs/jbd/journal.c	2005-06-28 22:57:29.000000000 -0700
-+++ linux-2.6.13-rc1/fs/jbd/journal.c	2005-07-07 12:01:44.280714000 -0700
-@@ -193,6 +193,8 @@
- 		if (transaction && time_after_eq(jiffies,
- 						transaction->t_expires))
- 			should_sleep = 0;
-+		if (journal->j_flags & JFS_UNMOUNT)
-+ 			should_sleep = 0;
- 		if (should_sleep) {
- 			spin_unlock(&journal->j_state_lock);
- 			schedule();

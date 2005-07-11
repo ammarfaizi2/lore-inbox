@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVGKSlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVGKSlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbVGKSlK (ORCPT <rfc822;willy@w.ods.org>);
+	id S261393AbVGKSlK (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Jul 2005 14:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVGKSjK
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVGKSjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 14:39:10 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:8921 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261638AbVGKSgb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 14:36:31 -0400
-Date: Mon, 11 Jul 2005 14:36:28 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Michel Bouissou <michel@bouissou.net>
-cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       <linux-kernel@vger.kernel.org>, <mingo@redhat.com>
-Subject: Re: Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
-In-Reply-To: <200507111106.22951@totor.bouissou.net>
-Message-ID: <Pine.LNX.4.44L0.0507111432530.5164-100000@iolanthe.rowland.org>
+	Mon, 11 Jul 2005 14:39:04 -0400
+Received: from dvhart.com ([64.146.134.43]:64693 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261640AbVGKSiL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 14:38:11 -0400
+Date: Mon, 11 Jul 2005 11:38:07 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Lee Revell <rlrevell@joe-job.com>, Diego Calleja <diegocg@gmail.com>
+Cc: azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Message-ID: <176640000.1121107087@flay>
+In-Reply-To: <1120934466.6488.77.camel@mindpipe>
+References: <200506231828.j5NISlCe020350@hera.kernel.org> <20050708214908.GA31225@taniwha.stupidest.org> <20050708145953.0b2d8030.akpm@osdl.org> <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe> <20050709203920.394e970d.diegocg@gmail.com> <1120934466.6488.77.camel@mindpipe>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Jul 2005, Michel Bouissou wrote:
+>> Lots of people have switched from 2.4 to 2.6 (100 Hz to 1000 Hz) with no impact in
+>> stability, AFAIK. (I only remember some weird warning about HZ with debian woody's
+>> ps).
+>> 
+> 
+> Yes, that's called "progress" so no one complained.  Going back is
+> called a "regression".  People don't like those as much.
 
-> Hi Nathalie,
-> 
-> Thanks for your answer and pointer. Unfortunately it doesn't help.
-> 
-> The patch you mention won't apply on my kernel alone, I need first to apply 
-> the patch from 
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=c434b7a6aedfe428ad17cd61b21b125a7b7a29ce , 
-> then your patch applies OK.
-> 
-> Unfortunately, it doesn't solve my issue. Booting this kernel still results in 
-> an interrupt issue with uhci_hcd.
-> 
-> After boot, "cat /proc/interrupts" shows:
->            CPU0
->   0:     188066    IO-APIC-edge  timer
->   1:        308    IO-APIC-edge  i8042
->   2:          0          XT-PIC  cascade
->   4:        413    IO-APIC-edge  serial
->   7:          3    IO-APIC-edge  parport0
->  14:       1177    IO-APIC-edge  ide4
->  15:       1186    IO-APIC-edge  ide5
->  18:       1028   IO-APIC-level  eth0, eth1
->  19:       8513   IO-APIC-level  ide0, ide1, ide2, ide3, ehci_hcd:usb4
->  21:     100000   IO-APIC-level  uhci_hcd:usb1, uhci_hcd:usb2, uhci_hcd:usb3
->  22:          0   IO-APIC-level  VIA8233
-> NMI:          0
-> LOC:     187967
-> ERR:          0
-> MIS:          0
-> 
-> (The problem is with IRQ 21 for uhci_hcd)
-> 
-> (It is to note that without those patches, I didn't see any IRQ managed by 
-> "XT-PIC", all were managed by the IO-APIC...)
+That's a very subjective viewpoint. Realize that this is a balancing
+act between latency and overhead ... and you're firmly only looking
+at one side of the argument, instead of taking a comprimise in the
+middle ...
 
-It's possible that the errors you're getting are caused by some other
-device erroneously generating interrupt requests on IRQ 21.  Then when
-uhci-hcd enables that IRQ, there's no driver available to handle the 
-interrupts...
+If I start arguing for 100HZ on the grounds that it's much more efficient,
+will that make 250/300 look much better to you? ;-)
 
-It's also possible that the UHCI controllers are generating the unwanted 
-interrupt requests.  You should make sure that Legacy USB Support is 
-turned off in your BIOS settings.  You can also try adding the 
-"usb-handoff" kernel parameter to your boot command line.
-
-Alan Stern
+M.
 

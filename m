@@ -1,91 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVGKR4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVGKR4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVGKR4L (ORCPT <rfc822;willy@w.ods.org>);
+	id S261941AbVGKR4L (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Jul 2005 13:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVGKRyY
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbVGKRyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 13:54:24 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:60294 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261941AbVGKRwU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 13:52:20 -0400
-Date: Mon, 11 Jul 2005 12:51:35 -0500
-From: serue@us.ibm.com
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: serue@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, James Morris <jmorris@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Safford <safford@watson.ibm.com>,
-       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gerrit@us.ibm.com>
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-Message-ID: <20050711175135.GD15292@serge.austin.ibm.com>
-References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com> <1121092828.12334.94.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121092828.12334.94.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.8i
+	Mon, 11 Jul 2005 13:54:13 -0400
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:33450 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S262141AbVGKRwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 13:52:50 -0400
+Date: Mon, 11 Jul 2005 10:52:49 -0700
+From: Tom Duffy <Tom.Duffy@Sun.COM>
+Subject: Re: [openib-general] Re: [PATCH 3/27] Add MAD helper functions
+In-reply-to: <200507111839.41807.adobriyan@gmail.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Hal Rosenstock <halr@voltaire.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Message-id: <42D2B1F1.7000408@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <1121089079.4389.4511.camel@hal.voltaire.com>
+ <200507111839.41807.adobriyan@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Stephen.
+Alexey Dobriyan wrote:
 
-More comments below.  This finally proves that I need to provide some
-documentation for each hook under stacker showing how modules are
-expected to interact.  This hopefully will help me catch things like
-this.  Hopefully it would also be useful to module writers in general.
+>unsigned int __nocast gfp_mask, please. 430 or so infiniband sparse warnings
+>is not a reason to add more.
+>  
+>
+Can you please elaborate on the sparse warnings that you are seeing 
+throughout the rest of infiniband?
 
-Quoting Stephen Smalley (sds@epoch.ncsc.mil):
-> On Thu, 2005-06-30 at 14:50 -0500, serue@us.ibm.com wrote:
-> > Adds the actual stacker LSM.
-> <snip>
-> > +static int stacker_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
-> > +{
-> > +	RETURN_ERROR_IF_ANY_ERROR(inode_getsecurity,inode_getsecurity(inode,name,buffer,size));
-> > +}
-> > +
-> > +static int stacker_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
-> > +{
-> > +	RETURN_ERROR_IF_ANY_ERROR(inode_setsecurity,inode_setsecurity(inode,name,value,size,flags));
-> > +}
-> > +
-> > +static int stacker_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size)
-> > +{
-> > +	RETURN_ERROR_IF_ANY_ERROR(inode_listsecurity,inode_listsecurity(inode,buffer, buffer_size));
-> > +}
-> 
-> These hooks pose a similar problem for stacking as with the
-> [gs]etprocattr hooks, although [gs]etsecurity have the benefit of
-> already taking a distinguishing name suffix (the part after the
-> security. prefix).  Note also that inode_getsecurity returns the number
-> of bytes used/required on success.
-> 
-> The proposed inode_init_security hook will likewise have an issue for
-> stacking.
+Thanks,
 
-I can imagine a few ways of fixing this:
-
-	1.	We simply expect that only one module use xattrs.  This
-	is probably unacceptable, as we will want both EVM and selinux
-	to store xattrs.
-
-	2.	A module registers an xattr name when it registers
-	itself.  Then only the registered module is consulted on one of
-	these calls.  If no module is registered, all are consulted as
-	they are now.
-
-		This prevents a module like capability from deciding
-	based on its own credentials whether another module's hook
-	should be called.  Is that a good or bad thing?
-
-		This might have the added bonus of obviating the need
-	for a separate cap_stack module.
-	
-	3.	We return an error <0 only if all modules return <0.
-	Otherwise we do the obvious thing:  setxattr, return 0.
-	getxattr: do we return the first nonzero and stop there, or
-	do we return a concatenation of the results?  I assume the
-	former...
-
-thanks,
--serge
+-tduffy

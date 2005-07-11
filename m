@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVGKW4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVGKXBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262243AbVGKW4b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 18:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262857AbVGKWNV
+	id S262296AbVGKXBA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 19:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVGKW7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 18:13:21 -0400
-Received: from mail.kroah.org ([69.55.234.183]:32476 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262841AbVGKWDK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 18:03:10 -0400
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: max6875 Kconfig update
-In-Reply-To: <11211193761992@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 11 Jul 2005 15:02:56 -0700
-Message-Id: <11211193763938@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+	Mon, 11 Jul 2005 18:59:00 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:48878 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262207AbVGKW6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 18:58:18 -0400
+Message-ID: <42D2F983.1060105@namesys.com>
+Date: Mon, 11 Jul 2005 15:58:11 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stefan Smietanowski <stesmi@stesmi.com>
+CC: David Masover <ninja@slaphack.com>, Hubert Chan <hubert@uhoreg.ca>,
+       Ross Biro <ross.biro@gmail.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: reiser4 plugins
+References: <hubert@uhoreg.ca>	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>	<8783be6605062914341bcff7cb@mail.gmail.com>	<878y0svj1h.fsf@evinrude.uhoreg.ca> <42C4F97B.1080803@slaphack.com> <87ll4lynky.fsf@evinrude.uhoreg.ca> <42CB0328.3070706@namesys.com> <42CB07EB.4000605@slaphack.com> <42CB0ED7.8070501@namesys.com> <42CB1128.6000000@slaphack.com> <42CB1C20.3030204@namesys.com> <42CB22A6.40306@namesys.com> <42CBE426.9080106@slaphack.com> <42D1F06C.9010905@stesmi.com> <42D2DB99.9050307@slaphack.com> <42D2DCA0.1040106@stesmi.com>
+In-Reply-To: <42D2DCA0.1040106@stesmi.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: max6875 Kconfig update
+Stefan Smietanowski wrote:
 
-Here is a proposed Kconfig update for the new max6875 i2c chip driver.
+>
+> I think "..." and ".meta" both serve as a logical delimiter. However
+> some programs implement their own "..." which would make it clash with
+> them. Naturally if some program created a directory called .meta we're
+> equally screwed.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
-commit 2146fec20c38d926f0d88413977f941f42a14588
-tree daaf87a4ec6e6c70c9e1be8b2bd09257b3be092f
-parent 089bd86632769051f15cd7387eebe126d18f151f
-author Jean Delvare <khali@linux-fr.org> Thu, 23 Jun 2005 23:41:39 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 11 Jul 2005 14:10:36 -0700
-
- drivers/i2c/chips/Kconfig |   11 +++++++----
- 1 files changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
---- a/drivers/i2c/chips/Kconfig
-+++ b/drivers/i2c/chips/Kconfig
-@@ -519,13 +519,16 @@ config SENSORS_M41T00
- 	  will be called m41t00.
- 
- config SENSORS_MAX6875
--	tristate "MAXIM MAX6875 Power supply supervisor"
-+	tristate "Maxim MAX6875 Power supply supervisor"
- 	depends on I2C && EXPERIMENTAL
- 	help
--	  If you say yes here you get support for the MAX6875
--	  EEPROM-Programmable, Hex/Quad, Power-Suppy Sequencers/Supervisors.
-+	  If you say yes here you get support for the Maxim MAX6875
-+	  EEPROM-programmable, quad power-supply sequencer/supervisor.
- 
--          This provides a interface to program the EEPROM and reset the chip.
-+	  This provides an interface to program the EEPROM and reset the chip.
-+
-+	  This driver also supports the Maxim MAX6874 hex power-supply
-+	  sequencer/supervisor if found at a compatible address.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called max6875.
-
+I chose '....' (four dots) because it clashes with less, not three dots.

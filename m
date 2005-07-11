@@ -1,138 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVGJX7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVGJX7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbVGJX7r (ORCPT <rfc822;willy@w.ods.org>);
+	id S262014AbVGJX7r (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 10 Jul 2005 19:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVGJThL
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVGJX7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 15:37:11 -0400
-Received: from ns2.suse.de ([195.135.220.15]:54748 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262038AbVGJTg1 (ORCPT
+	Sun, 10 Jul 2005 19:59:35 -0400
+Received: from main.gmane.org ([80.91.229.2]:43726 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262014AbVGJX6p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:36:27 -0400
-Date: Sun, 10 Jul 2005 19:36:26 +0000
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com
-Subject: [PATCH 78/82] remove linux/version.h from net/ieee80211/
-Message-ID: <20050710193626.78.eBhnWL4343.2247.olh@nectarine.suse.de>
+	Sun, 10 Jul 2005 19:58:45 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ed Cogburn <edcogburn@hotpop.com>
+Subject: Re: reiser4 vs politics: linux misses out again
+Date: Sun, 10 Jul 2005 20:01:26 -0400
+Message-ID: <dascln$lq3$1@sea.gmane.org>
+References: <200507100510.j6A5ATun010304@laptop11.inf.utfsm.cl> <200507100848.05090.tomlins@cam.org> <200507102006.27152.adobriyan@gmail.com> <20050710202129.GA3550@mail>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
-In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>  
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: nc-69-68-78-108.dyn.sprint-hsd.net
+User-Agent: KNode/0.9.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jim Crilly wrote:
 
-changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+> But in most of the changesets on the bkbits site you can go back over 2
+> years and not see anything from namesys people. Nearly all of the fixes 
+> commited in the past 2-3 years are from SuSe.
 
-Signed-off-by: Olaf Hering <olh@suse.de>
 
-net/ieee80211/ieee80211_crypt.c      |    1 -
-net/ieee80211/ieee80211_crypt_ccmp.c |    1 -
-net/ieee80211/ieee80211_crypt_tkip.c |    1 -
-net/ieee80211/ieee80211_crypt_wep.c  |    1 -
-net/ieee80211/ieee80211_module.c     |    1 -
-net/ieee80211/ieee80211_rx.c         |    1 -
-net/ieee80211/ieee80211_tx.c         |    1 -
-net/ieee80211/ieee80211_wx.c         |    1 -
-8 files changed, 8 deletions(-)
+So, for the sake of argument, if IBM were to drop official support for JFS,
+we'd yank JFS out of the kernel even if there was someone else willing to
+support it?  Why does it now *matter* who supports it, as long as its being
+maintained?  And will we now block IBM's hypothetical JFS2 from the kernel
+if IBM, from the programmers up to the CEO, doesn't swear on their momma's
+grave that they'll continue to support JFS1, even if JFS1 is being
+supported by others?  Jeez, this is why it doesn't take a kernel dev to see
+the problems here, common sense seems to be an increasingly rare ingredient
+in these arguments against R4.  If I didn't know better, I'd think you were
+making this stuff up as you went along....
 
-Index: linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_crypt.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/net/ieee80211/ieee80211_crypt.c
-+++ linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_crypt.c
-@@ -12,7 +12,6 @@
-*/
 
-#include <linux/config.h>
--#include <linux/version.h>
-#include <linux/module.h>
-#include <linux/init.h>
-#include <linux/slab.h>
-Index: linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_crypt_ccmp.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/net/ieee80211/ieee80211_crypt_ccmp.c
-+++ linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_crypt_ccmp.c
-@@ -10,7 +10,6 @@
-*/
-
-#include <linux/config.h>
--#include <linux/version.h>
-#include <linux/module.h>
-#include <linux/init.h>
-#include <linux/slab.h>
-Index: linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_crypt_tkip.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/net/ieee80211/ieee80211_crypt_tkip.c
-+++ linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_crypt_tkip.c
-@@ -10,7 +10,6 @@
-*/
-
-#include <linux/config.h>
--#include <linux/version.h>
-#include <linux/module.h>
-#include <linux/init.h>
-#include <linux/slab.h>
-Index: linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_crypt_wep.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/net/ieee80211/ieee80211_crypt_wep.c
-+++ linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_crypt_wep.c
-@@ -10,7 +10,6 @@
-*/
-
-#include <linux/config.h>
--#include <linux/version.h>
-#include <linux/module.h>
-#include <linux/init.h>
-#include <linux/slab.h>
-Index: linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_module.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/net/ieee80211/ieee80211_module.c
-+++ linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_module.c
-@@ -46,7 +46,6 @@
-#include <linux/slab.h>
-#include <linux/tcp.h>
-#include <linux/types.h>
--#include <linux/version.h>
-#include <linux/wireless.h>
-#include <linux/etherdevice.h>
-#include <asm/uaccess.h>
-Index: linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_rx.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/net/ieee80211/ieee80211_rx.c
-+++ linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_rx.c
-@@ -29,7 +29,6 @@
-#include <linux/slab.h>
-#include <linux/tcp.h>
-#include <linux/types.h>
--#include <linux/version.h>
-#include <linux/wireless.h>
-#include <linux/etherdevice.h>
-#include <asm/uaccess.h>
-Index: linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_tx.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/net/ieee80211/ieee80211_tx.c
-+++ linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_tx.c
-@@ -39,7 +39,6 @@
-#include <linux/slab.h>
-#include <linux/tcp.h>
-#include <linux/types.h>
--#include <linux/version.h>
-#include <linux/wireless.h>
-#include <linux/etherdevice.h>
-#include <asm/uaccess.h>
-Index: linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_wx.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/net/ieee80211/ieee80211_wx.c
-+++ linux-2.6.13-rc2-mm1/net/ieee80211/ieee80211_wx.c
-@@ -30,7 +30,6 @@
-
-******************************************************************************/
-#include <linux/wireless.h>
--#include <linux/version.h>
-#include <linux/kmod.h>
-#include <linux/module.h>
 

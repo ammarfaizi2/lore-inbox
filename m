@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVGKOos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVGKOos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVGKOos (ORCPT <rfc822;willy@w.ods.org>);
+	id S261886AbVGKOos (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Jul 2005 10:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVGKOnZ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVGKOnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:43:25 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:4087 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261892AbVGKOmE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:42:04 -0400
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: serue@us.ibm.com
-Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Safford <safford@watson.ibm.com>,
-       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gerrit@us.ibm.com>
-In-Reply-To: <20050630195043.GE23538@serge.austin.ibm.com>
-References: <20050630194458.GA23439@serge.austin.ibm.com>
-	 <20050630195043.GE23538@serge.austin.ibm.com>
+	Mon, 11 Jul 2005 10:43:18 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:57798 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261890AbVGKOlI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 10:41:08 -0400
+Subject: [PATCH 17/27] A couple of IB core bug fixes
+From: Hal Rosenstock <halr@voltaire.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
 Content-Type: text/plain
-Organization: National Security Agency
-Date: Mon, 11 Jul 2005 10:40:28 -0400
-Message-Id: <1121092828.12334.94.camel@moss-spartans.epoch.ncsc.mil>
+Organization: 
+Message-Id: <1121089138.4389.4539.camel@hal.voltaire.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Jul 2005 10:33:33 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-30 at 14:50 -0500, serue@us.ibm.com wrote:
-> Adds the actual stacker LSM.
-<snip>
-> +static int stacker_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
-> +{
-> +	RETURN_ERROR_IF_ANY_ERROR(inode_getsecurity,inode_getsecurity(inode,name,buffer,size));
-> +}
-> +
-> +static int stacker_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
-> +{
-> +	RETURN_ERROR_IF_ANY_ERROR(inode_setsecurity,inode_setsecurity(inode,name,value,size,flags));
-> +}
-> +
-> +static int stacker_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size)
-> +{
-> +	RETURN_ERROR_IF_ANY_ERROR(inode_listsecurity,inode_listsecurity(inode,buffer, buffer_size));
-> +}
+Replace be32_to_cpup with be32_to_cpu and fix bug referencing pointer 
+rather than value in ib_create_ah_from_wc().
 
-These hooks pose a similar problem for stacking as with the
-[gs]etprocattr hooks, although [gs]etsecurity have the benefit of
-already taking a distinguishing name suffix (the part after the
-security. prefix).  Note also that inode_getsecurity returns the number
-of bytes used/required on success.
+Signed-off-by: Tom Duffy <tduffy@sun.com>
+Signed-off-by: Sean Hefty <sean.hefty@intel.com>
+Signed-off-by: Hal Rosenstock <halr@voltaire.com>
 
-The proposed inode_init_security hook will likewise have an issue for
-stacking.
+This patch depends on patch 16/27.
 
 -- 
-Stephen Smalley
-National Security Agency
+ agent.c |    8 ++++--
+ verbs.c |    2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband16/core/agent.c linux-2.6.13-rc2-mm1/drivers/infiniband17/core/agent.c
+-- linux-2.6.13-rc2-mm1/drivers/infiniband16/core/agent.c	2005-07-09 13:22:55.000000000 -0400
++++ linux-2.6.13-rc2-mm1/drivers/infiniband17/core/agent.c	2005-07-10 11:50:26.000000000 -0400
+@@ -156,10 +156,10 @@ static int agent_mad_send(struct ib_mad_
+ 			/* Should sgid be looked up ? */
+ 			ah_attr.grh.sgid_index = 0;
+ 			ah_attr.grh.hop_limit = grh->hop_limit;
+-			ah_attr.grh.flow_label = be32_to_cpup(
+-				&grh->version_tclass_flow)  & 0xfffff;
+-			ah_attr.grh.traffic_class = (be32_to_cpup(
+-				&grh->version_tclass_flow) >> 20) & 0xff;
++			ah_attr.grh.flow_label = be32_to_cpu(
++				grh->version_tclass_flow)  & 0xfffff;
++			ah_attr.grh.traffic_class = (be32_to_cpu(
++				grh->version_tclass_flow) >> 20) & 0xff;
+ 			memcpy(ah_attr.grh.dgid.raw,
+ 			       grh->sgid.raw,
+ 			       sizeof(ah_attr.grh.dgid));
+diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband16/core/verbs.c linux-2.6.13-rc2-mm1/drivers/infiniband17/core/verbs.c
+-- linux-2.6.13-rc2-mm1/drivers/infiniband16/core/verbs.c	2005-07-10 11:43:44.000000000 -0400
++++ linux-2.6.13-rc2-mm1/drivers/infiniband17/core/verbs.c	2005-07-10 11:50:26.000000000 -0400
+@@ -113,7 +113,7 @@ struct ib_ah *ib_create_ah_from_wc(struc
+ 			return ERR_PTR(ret);
+ 
+ 		ah_attr.grh.sgid_index = (u8) gid_index;
+-		flow_class = be32_to_cpu(&grh->version_tclass_flow);
++		flow_class = be32_to_cpu(grh->version_tclass_flow);
+ 		ah_attr.grh.flow_label = flow_class & 0xFFFFF;
+ 		ah_attr.grh.traffic_class = (flow_class >> 20) & 0xFF;
+ 		ah_attr.grh.hop_limit = grh->hop_limit;
+
 

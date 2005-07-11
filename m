@@ -1,360 +1,608 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVGKOyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVGKO5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbVGKOyN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVGKOwB
+	id S261949AbVGKO5F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVGKOy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:52:01 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:9415 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261891AbVGKOut
+	Mon, 11 Jul 2005 10:54:26 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:12743 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261948AbVGKOyG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:50:49 -0400
-Subject: [PATCH 20/27] Add Service Record support to SA client
+	Mon, 11 Jul 2005 10:54:06 -0400
+Subject: [PATCH 21/27] Add the header file for kernel CM (Communications
+	Manager)
 From: Hal Rosenstock <halr@voltaire.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
 Content-Type: text/plain
 Organization: 
-Message-Id: <1121089173.4389.4545.camel@hal.voltaire.com>
+Message-Id: <1121089182.4389.4547.camel@hal.voltaire.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 10:43:14 -0400
+Date: 11 Jul 2005 10:46:28 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add Service Record support to SA client
+Add the header file for kernel CM (Communications Manager)
 
+Signed-off-by: Sean Hefty <sean.hefty@intel.com>
 Signed-off-by: Hal Rosenstock <halr@voltaire.com>
 
-This patch depends on patch 19/27.
-
 -- 
- core/sa_query.c |  166 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- include/ib_sa.h |   75 ++++++++++++++++++++++++-
- 2 files changed, 236 insertions(+), 5 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband19/core/sa_query.c linux-2.6.13-rc2-mm1/drivers/infiniband20/core/sa_query.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband19/core/sa_query.c	2005-07-10 16:22:18.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband20/core/sa_query.c	2005-07-10 16:41:32.000000000 -0400
-@@ -1,5 +1,6 @@
- /*
-  * Copyright (c) 2004 Topspin Communications.  All rights reserved.
-+ * Copyright (c) 2005 Voltaire, Inc.  All rights reserved.
-  *
-  * This software is available to you under a choice of one of two
-  * licenses.  You may choose to be licensed under the terms of the GNU
-@@ -29,7 +30,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: sa_query.c 1389 2004-12-27 22:56:47Z roland $
-+ * $Id: sa_query.c 2811 2005-07-06 18:11:43Z halr $
-  */
- 
- #include <linux/module.h>
-@@ -79,6 +80,12 @@ struct ib_sa_query {
- 	int                 id;
- };
- 
-+struct ib_sa_service_query {
-+	void (*callback)(int, struct ib_sa_service_rec *, void *);
-+	void *context;
-+	struct ib_sa_query sa_query;
+ ib_cm.h |  568 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 568 insertions(+)
+diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband20/include/ib_cm.h linux-2.6.13-rc2-mm1/drivers/infiniband21/include/ib_cm.h
+-- linux-2.6.13-rc2-mm1/drivers/infiniband20/include/ib_cm.h	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.13-rc2-mm1/drivers/infiniband21/include/ib_cm.h	2005-06-28 13:07:34.000000000 -0400
+@@ -0,0 +1,568 @@
++/*
++ * Copyright (c) 2004 Intel Corporation.  All rights reserved.
++ * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
++ * Copyright (c) 2004 Voltaire Corporation.  All rights reserved.
++ * Copyright (c) 2005 Sun Microsystems, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * $Id: ib_cm.h 2730 2005-06-28 16:43:03Z sean.hefty $
++ */
++#if !defined(IB_CM_H)
++#define IB_CM_H
++
++#include <ib_mad.h>
++#include <ib_sa.h>
++
++enum ib_cm_state {
++	IB_CM_IDLE,
++	IB_CM_LISTEN,
++	IB_CM_REQ_SENT,
++	IB_CM_REQ_RCVD,
++	IB_CM_MRA_REQ_SENT,
++	IB_CM_MRA_REQ_RCVD,
++	IB_CM_REP_SENT,
++	IB_CM_REP_RCVD,
++	IB_CM_MRA_REP_SENT,
++	IB_CM_MRA_REP_RCVD,
++	IB_CM_ESTABLISHED,
++	IB_CM_DREQ_SENT,
++	IB_CM_DREQ_RCVD,
++	IB_CM_TIMEWAIT,
++	IB_CM_SIDR_REQ_SENT,
++	IB_CM_SIDR_REQ_RCVD
 +};
 +
- struct ib_sa_path_query {
- 	void (*callback)(int, struct ib_sa_path_rec *, void *);
- 	void *context;
-@@ -320,6 +327,54 @@ static const struct ib_field mcmember_re
- 	  .size_bits    = 23 },
- };
- 
-+#define SERVICE_REC_FIELD(field) \
-+	.struct_offset_bytes = offsetof(struct ib_sa_service_rec, field),	\
-+	.struct_size_bytes   = sizeof ((struct ib_sa_service_rec *) 0)->field,	\
-+	.field_name          = "sa_service_rec:" #field
-+
-+static const struct ib_field service_rec_table[] = {
-+	{ SERVICE_REC_FIELD(id),
-+	  .offset_words = 0,
-+	  .offset_bits  = 0,
-+	  .size_bits    = 64 },
-+	{ SERVICE_REC_FIELD(gid),
-+	  .offset_words = 2,
-+	  .offset_bits  = 0,
-+	  .size_bits    = 128 },
-+	{ SERVICE_REC_FIELD(pkey),
-+	  .offset_words = 6,
-+	  .offset_bits  = 0,
-+	  .size_bits    = 16 },
-+	{ SERVICE_REC_FIELD(lease),
-+	  .offset_words = 7,
-+	  .offset_bits  = 0,
-+	  .size_bits    = 32 },
-+	{ SERVICE_REC_FIELD(key),
-+	  .offset_words = 8,
-+	  .offset_bits  = 0,
-+	  .size_bits    = 128 },
-+	{ SERVICE_REC_FIELD(name),
-+	  .offset_words = 12,
-+	  .offset_bits  = 0,
-+	  .size_bits    = 64*8 },
-+	{ SERVICE_REC_FIELD(data8),
-+	  .offset_words = 28,
-+	  .offset_bits  = 0,
-+	  .size_bits    = 16*8 },
-+	{ SERVICE_REC_FIELD(data16),
-+	  .offset_words = 32,
-+	  .offset_bits  = 0,
-+	  .size_bits    = 8*16 },
-+	{ SERVICE_REC_FIELD(data32),
-+	  .offset_words = 36,
-+	  .offset_bits  = 0,
-+	  .size_bits    = 4*32 },
-+	{ SERVICE_REC_FIELD(data64),
-+	  .offset_words = 40,
-+	  .offset_bits  = 0,
-+	  .size_bits    = 2*64 },
++enum ib_cm_lap_state {
++	IB_CM_LAP_IDLE,
++	IB_CM_LAP_SENT,
++	IB_CM_LAP_RCVD,
++	IB_CM_MRA_LAP_SENT,
++	IB_CM_MRA_LAP_RCVD,
 +};
 +
- static void free_sm_ah(struct kref *kref)
- {
- 	struct ib_sa_sm_ah *sm_ah = container_of(kref, struct ib_sa_sm_ah, ref);
-@@ -443,7 +498,6 @@ static int send_mad(struct ib_sa_query *
- 				 .remote_qpn  = 1,
- 				 .remote_qkey = IB_QP1_QKEY,
- 				 .timeout_ms  = timeout_ms,
--				 .retries     = 0 
- 			 }
- 		 }
- 	};
-@@ -596,6 +650,114 @@ int ib_sa_path_rec_get(struct ib_device 
- }
- EXPORT_SYMBOL(ib_sa_path_rec_get);
- 
-+static void ib_sa_service_rec_callback(struct ib_sa_query *sa_query,
-+				    int status,
-+				    struct ib_sa_mad *mad)
-+{
-+	struct ib_sa_service_query *query =
-+		container_of(sa_query, struct ib_sa_service_query, sa_query);
++enum ib_cm_event_type {
++	IB_CM_REQ_ERROR,
++	IB_CM_REQ_RECEIVED,
++	IB_CM_REP_ERROR,
++	IB_CM_REP_RECEIVED,
++	IB_CM_RTU_RECEIVED,
++	IB_CM_USER_ESTABLISHED,
++	IB_CM_DREQ_ERROR,
++	IB_CM_DREQ_RECEIVED,
++	IB_CM_DREP_RECEIVED,
++	IB_CM_TIMEWAIT_EXIT,
++	IB_CM_MRA_RECEIVED,
++	IB_CM_REJ_RECEIVED,
++	IB_CM_LAP_ERROR,
++	IB_CM_LAP_RECEIVED,
++	IB_CM_APR_RECEIVED,
++	IB_CM_SIDR_REQ_ERROR,
++	IB_CM_SIDR_REQ_RECEIVED,
++	IB_CM_SIDR_REP_RECEIVED
++};
 +
-+	if (mad) {
-+		struct ib_sa_service_rec rec;
++enum ib_cm_data_size {
++	IB_CM_REQ_PRIVATE_DATA_SIZE	 = 92,
++	IB_CM_MRA_PRIVATE_DATA_SIZE	 = 222,
++	IB_CM_REJ_PRIVATE_DATA_SIZE	 = 148,
++	IB_CM_REP_PRIVATE_DATA_SIZE	 = 196,
++	IB_CM_RTU_PRIVATE_DATA_SIZE	 = 224,
++	IB_CM_DREQ_PRIVATE_DATA_SIZE	 = 220,
++	IB_CM_DREP_PRIVATE_DATA_SIZE	 = 224,
++	IB_CM_REJ_ARI_LENGTH		 = 72,
++	IB_CM_LAP_PRIVATE_DATA_SIZE	 = 168,
++	IB_CM_APR_PRIVATE_DATA_SIZE	 = 148,
++	IB_CM_APR_INFO_LENGTH		 = 72,
++	IB_CM_SIDR_REQ_PRIVATE_DATA_SIZE = 216,
++	IB_CM_SIDR_REP_PRIVATE_DATA_SIZE = 136,
++	IB_CM_SIDR_REP_INFO_LENGTH	 = 72
++};
 +
-+		ib_unpack(service_rec_table, ARRAY_SIZE(service_rec_table),
-+			  mad->data, &rec);
-+		query->callback(status, &rec, query->context);
-+	} else
-+		query->callback(status, NULL, query->context);
-+}
++struct ib_cm_id;
 +
-+static void ib_sa_service_rec_release(struct ib_sa_query *sa_query)
-+{
-+	kfree(sa_query->mad);
-+	kfree(container_of(sa_query, struct ib_sa_service_query, sa_query));
-+}
++struct ib_cm_req_event_param {
++	struct ib_cm_id		*listen_id;
++	struct ib_device	*device;
++	u8			port;
++
++	struct ib_sa_path_rec	*primary_path;
++	struct ib_sa_path_rec	*alternate_path;
++
++	u64			remote_ca_guid;
++	u32			remote_qkey;
++	u32			remote_qpn;
++	enum ib_qp_type		qp_type;
++
++	u32			starting_psn;
++	u8			responder_resources;
++	u8			initiator_depth;
++	unsigned int		local_cm_response_timeout:5;
++	unsigned int		flow_control:1;
++	unsigned int		remote_cm_response_timeout:5;
++	unsigned int		retry_count:3;
++	unsigned int		rnr_retry_count:3;
++	unsigned int		srq:1;
++};
++
++struct ib_cm_rep_event_param {
++	u64			remote_ca_guid;
++	u32			remote_qkey;
++	u32			remote_qpn;
++	u32			starting_psn;
++	u8			responder_resources;
++	u8			initiator_depth;
++	unsigned int		target_ack_delay:5;
++	unsigned int		failover_accepted:2;
++	unsigned int		flow_control:1;
++	unsigned int		rnr_retry_count:3;
++	unsigned int		srq:1;
++};
++
++enum ib_cm_rej_reason {
++	IB_CM_REJ_NO_QP				= __constant_htons(1),
++	IB_CM_REJ_NO_EEC			= __constant_htons(2),
++	IB_CM_REJ_NO_RESOURCES			= __constant_htons(3),
++	IB_CM_REJ_TIMEOUT			= __constant_htons(4),
++	IB_CM_REJ_UNSUPPORTED			= __constant_htons(5),
++	IB_CM_REJ_INVALID_COMM_ID		= __constant_htons(6),
++	IB_CM_REJ_INVALID_COMM_INSTANCE		= __constant_htons(7),
++	IB_CM_REJ_INVALID_SERVICE_ID		= __constant_htons(8),
++	IB_CM_REJ_INVALID_TRANSPORT_TYPE	= __constant_htons(9),
++	IB_CM_REJ_STALE_CONN			= __constant_htons(10),
++	IB_CM_REJ_RDC_NOT_EXIST			= __constant_htons(11),
++	IB_CM_REJ_INVALID_GID			= __constant_htons(12),
++	IB_CM_REJ_INVALID_LID			= __constant_htons(13),
++	IB_CM_REJ_INVALID_SL			= __constant_htons(14),
++	IB_CM_REJ_INVALID_TRAFFIC_CLASS		= __constant_htons(15),
++	IB_CM_REJ_INVALID_HOP_LIMIT		= __constant_htons(16),
++	IB_CM_REJ_INVALID_PACKET_RATE		= __constant_htons(17),
++	IB_CM_REJ_INVALID_ALT_GID		= __constant_htons(18),
++	IB_CM_REJ_INVALID_ALT_LID		= __constant_htons(19),
++	IB_CM_REJ_INVALID_ALT_SL		= __constant_htons(20),
++	IB_CM_REJ_INVALID_ALT_TRAFFIC_CLASS	= __constant_htons(21),
++	IB_CM_REJ_INVALID_ALT_HOP_LIMIT		= __constant_htons(22),
++	IB_CM_REJ_INVALID_ALT_PACKET_RATE	= __constant_htons(23),
++	IB_CM_REJ_PORT_REDIRECT			= __constant_htons(24),
++	IB_CM_REJ_INVALID_MTU			= __constant_htons(26),
++	IB_CM_REJ_INSUFFICIENT_RESP_RESOURCES	= __constant_htons(27),
++	IB_CM_REJ_CONSUMER_DEFINED		= __constant_htons(28),
++	IB_CM_REJ_INVALID_RNR_RETRY		= __constant_htons(29),
++	IB_CM_REJ_DUPLICATE_LOCAL_COMM_ID	= __constant_htons(30),
++	IB_CM_REJ_INVALID_CLASS_VERSION		= __constant_htons(31),
++	IB_CM_REJ_INVALID_FLOW_LABEL		= __constant_htons(32),
++	IB_CM_REJ_INVALID_ALT_FLOW_LABEL	= __constant_htons(33)
++};
++
++struct ib_cm_rej_event_param {
++	enum ib_cm_rej_reason	reason;
++	void			*ari;
++	u8			ari_length;
++};
++
++struct ib_cm_mra_event_param {
++	u8	service_timeout;
++};
++
++struct ib_cm_lap_event_param {
++	struct ib_sa_path_rec	*alternate_path;
++};
++
++enum ib_cm_apr_status {
++	IB_CM_APR_SUCCESS,
++	IB_CM_APR_INVALID_COMM_ID,
++	IB_CM_APR_UNSUPPORTED,
++	IB_CM_APR_REJECT,
++	IB_CM_APR_REDIRECT,
++	IB_CM_APR_IS_CURRENT,
++	IB_CM_APR_INVALID_QPN_EECN,
++	IB_CM_APR_INVALID_LID,
++	IB_CM_APR_INVALID_GID,
++	IB_CM_APR_INVALID_FLOW_LABEL,
++	IB_CM_APR_INVALID_TCLASS,
++	IB_CM_APR_INVALID_HOP_LIMIT,
++	IB_CM_APR_INVALID_PACKET_RATE,
++	IB_CM_APR_INVALID_SL
++};
++
++struct ib_cm_apr_event_param {
++	enum ib_cm_apr_status	ap_status;
++	void			*apr_info;
++	u8			info_len;
++};
++
++struct ib_cm_sidr_req_event_param {
++	struct ib_cm_id		*listen_id;
++	struct ib_device	*device;
++	u8			port;
++
++	u16	pkey;
++};
++
++enum ib_cm_sidr_status {
++	IB_SIDR_SUCCESS,
++	IB_SIDR_UNSUPPORTED,
++	IB_SIDR_REJECT,
++	IB_SIDR_NO_QP,
++	IB_SIDR_REDIRECT,
++	IB_SIDR_UNSUPPORTED_VERSION
++};
++
++struct ib_cm_sidr_rep_event_param {
++	enum ib_cm_sidr_status	status;
++	u32			qkey;
++	u32			qpn;
++	void			*info;
++	u8			info_len;
++
++};
++
++struct ib_cm_event {
++	enum ib_cm_event_type	event;
++	union {
++		struct ib_cm_req_event_param	req_rcvd;
++		struct ib_cm_rep_event_param	rep_rcvd;
++		/* No data for RTU received events. */
++		struct ib_cm_rej_event_param	rej_rcvd;
++		struct ib_cm_mra_event_param	mra_rcvd;
++		struct ib_cm_lap_event_param	lap_rcvd;
++		struct ib_cm_apr_event_param	apr_rcvd;
++		/* No data for DREQ/DREP received events. */
++		struct ib_cm_sidr_req_event_param sidr_req_rcvd;
++		struct ib_cm_sidr_rep_event_param sidr_rep_rcvd;
++		enum ib_wc_status		send_status;
++	} param;
++
++	void			*private_data;
++};
 +
 +/**
-+ * ib_sa_service_rec_query - Start Service Record operation
-+ * @device:device to send request on
-+ * @port_num: port number to send request on
-+ * @method:SA method - should be get, set, or delete
-+ * @rec:Service Record to send in request
-+ * @comp_mask:component mask to send in request
-+ * @timeout_ms:time to wait for response
-+ * @gfp_mask:GFP mask to use for internal allocations
-+ * @callback:function called when request completes, times out or is
-+ * canceled
-+ * @context:opaque user context passed to callback
-+ * @sa_query:request context, used to cancel request
++ * ib_cm_handler - User-defined callback to process communication events.
++ * @cm_id: Communication identifier associated with the reported event.
++ * @event: Information about the communication event.
 + *
-+ * Send a Service Record set/get/delete to the SA to register,
-+ * unregister or query a service record.
-+ * The callback function will be called when the request completes (or
-+ * fails); status is 0 for a successful response, -EINTR if the query
-+ * is canceled, -ETIMEDOUT is the query timed out, or -EIO if an error
-+ * occurred sending the query.  The resp parameter of the callback is
-+ * only valid if status is 0.
++ * IB_CM_REQ_RECEIVED and IB_CM_SIDR_REQ_RECEIVED communication events 
++ * generated as a result of listen requests result in the allocation of a 
++ * new @cm_id.  The new @cm_id is returned to the user through this callback.
++ * Clients are responsible for destroying the new @cm_id.  For peer-to-peer
++ * IB_CM_REQ_RECEIVED and all other events, the returned @cm_id corresponds
++ * to a user's existing communication identifier.
 + *
-+ * If the return value of ib_sa_service_rec_query() is negative, it is an
-+ * error code.  Otherwise it is a request ID that can be used to cancel
-+ * the query.
++ * Users may not call ib_destroy_cm_id while in the context of this callback;
++ * however, returning a non-zero value instructs the communication manager to
++ * destroy the @cm_id after the callback completes. 
 + */
-+int ib_sa_service_rec_query(struct ib_device *device, u8 port_num, u8 method,
-+			    struct ib_sa_service_rec *rec,
-+			    ib_sa_comp_mask comp_mask,
-+			    int timeout_ms, int gfp_mask,
-+			    void (*callback)(int status,
-+					     struct ib_sa_service_rec *resp,
-+					     void *context),
-+			    void *context,
-+			    struct ib_sa_query **sa_query)
-+{
-+	struct ib_sa_service_query *query;
-+	struct ib_sa_device *sa_dev = ib_get_client_data(device, &sa_client);
-+	struct ib_sa_port   *port   = &sa_dev->port[port_num - sa_dev->start_port];
-+	struct ib_mad_agent *agent  = port->agent;
-+	int ret;
++typedef int (*ib_cm_handler)(struct ib_cm_id *cm_id,
++			     struct ib_cm_event *event);
 +
-+	if (method != IB_MGMT_METHOD_GET &&
-+	    method != IB_MGMT_METHOD_SET &&
-+	    method != IB_SA_METHOD_DELETE)
-+		return -EINVAL;
-+
-+	query = kmalloc(sizeof *query, gfp_mask);
-+	if (!query)
-+		return -ENOMEM;
-+	query->sa_query.mad = kmalloc(sizeof *query->sa_query.mad, gfp_mask);
-+	if (!query->sa_query.mad) {
-+		kfree(query);
-+		return -ENOMEM;
-+	}
-+
-+	query->callback = callback;
-+	query->context  = context;
-+
-+	init_mad(query->sa_query.mad, agent);
-+
-+	query->sa_query.callback              = callback ? ib_sa_service_rec_callback : NULL;
-+	query->sa_query.release               = ib_sa_service_rec_release;
-+	query->sa_query.port                  = port;
-+	query->sa_query.mad->mad_hdr.method   = method;
-+	query->sa_query.mad->mad_hdr.attr_id  =
-+				cpu_to_be16(IB_SA_ATTR_SERVICE_REC);
-+	query->sa_query.mad->sa_hdr.comp_mask = comp_mask;
-+
-+	ib_pack(service_rec_table, ARRAY_SIZE(service_rec_table),
-+		rec, query->sa_query.mad->data);
-+
-+	*sa_query = &query->sa_query;
-+
-+	ret = send_mad(&query->sa_query, timeout_ms);
-+	if (ret < 0) {
-+		*sa_query = NULL;
-+		kfree(query->sa_query.mad);
-+		kfree(query);
-+	}
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(ib_sa_service_rec_query);
-+
- static void ib_sa_mcmember_rec_callback(struct ib_sa_query *sa_query,
- 					int status,
- 					struct ib_sa_mad *mad)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband19/include/ib_sa.h linux-2.6.13-rc2-mm1/drivers/infiniband20/include/ib_sa.h
--- linux-2.6.13-rc2-mm1/drivers/infiniband19/include/ib_sa.h	2005-07-10 12:07:41.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband20/include/ib_sa.h	2005-07-10 16:40:43.000000000 -0400
-@@ -1,5 +1,6 @@
- /*
-  * Copyright (c) 2004 Topspin Communications.  All rights reserved.
-+ * Copyright (c) 2005 Voltaire, Inc.  All rights reserved.
-  *
-  * This software is available to you under a choice of one of two
-  * licenses.  You may choose to be licensed under the terms of the GNU
-@@ -29,7 +30,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: ib_sa.h 1389 2004-12-27 22:56:47Z roland $
-+ * $Id: ib_sa.h 2811 2005-07-06 18:11:43Z halr $
-  */
- 
- #ifndef IB_SA_H
-@@ -41,9 +42,11 @@
- #include <ib_mad.h>
- 
- enum {
--	IB_SA_CLASS_VERSION	= 2,	/* IB spec version 1.1/1.2 */
-+	IB_SA_CLASS_VERSION		= 2,	/* IB spec version 1.1/1.2 */
- 
--	IB_SA_METHOD_DELETE	= 0x15
-+	IB_SA_METHOD_GET_TABLE		= 0x12,
-+	IB_SA_METHOD_GET_TABLE_RESP	= 0x92,
-+	IB_SA_METHOD_DELETE		= 0x15
- };
- 
- enum ib_sa_selector {
-@@ -191,6 +194,61 @@ struct ib_sa_mcmember_rec {
- 	int          proxy_join;
- };
- 
-+/* Service Record Component Mask Sec 15.2.5.14 Ver 1.1	*/
-+#define IB_SA_SERVICE_REC_SERVICE_ID			IB_SA_COMP_MASK( 0)
-+#define IB_SA_SERVICE_REC_SERVICE_GID			IB_SA_COMP_MASK( 1)
-+#define IB_SA_SERVICE_REC_SERVICE_PKEY			IB_SA_COMP_MASK( 2)
-+/* reserved:								 3 */
-+#define IB_SA_SERVICE_REC_SERVICE_LEASE			IB_SA_COMP_MASK( 4)
-+#define IB_SA_SERVICE_REC_SERVICE_KEY			IB_SA_COMP_MASK( 5)
-+#define IB_SA_SERVICE_REC_SERVICE_NAME			IB_SA_COMP_MASK( 6)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_0		IB_SA_COMP_MASK( 7)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_1		IB_SA_COMP_MASK( 8)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_2		IB_SA_COMP_MASK( 9)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_3		IB_SA_COMP_MASK(10)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_4		IB_SA_COMP_MASK(11)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_5		IB_SA_COMP_MASK(12)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_6		IB_SA_COMP_MASK(13)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_7		IB_SA_COMP_MASK(14)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_8		IB_SA_COMP_MASK(15)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_9		IB_SA_COMP_MASK(16)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_10		IB_SA_COMP_MASK(17)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_11		IB_SA_COMP_MASK(18)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_12		IB_SA_COMP_MASK(19)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_13		IB_SA_COMP_MASK(20)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_14		IB_SA_COMP_MASK(21)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA8_15		IB_SA_COMP_MASK(22)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA16_0		IB_SA_COMP_MASK(23)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA16_1		IB_SA_COMP_MASK(24)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA16_2		IB_SA_COMP_MASK(25)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA16_3		IB_SA_COMP_MASK(26)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA16_4		IB_SA_COMP_MASK(27)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA16_5		IB_SA_COMP_MASK(28)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA16_6		IB_SA_COMP_MASK(29)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA16_7		IB_SA_COMP_MASK(30)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA32_0		IB_SA_COMP_MASK(31)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA32_1		IB_SA_COMP_MASK(32)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA32_2		IB_SA_COMP_MASK(33)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA32_3		IB_SA_COMP_MASK(34)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA64_0		IB_SA_COMP_MASK(35)
-+#define IB_SA_SERVICE_REC_SERVICE_DATA64_1		IB_SA_COMP_MASK(36)
-+
-+#define IB_DEFAULT_SERVICE_LEASE 	0xFFFFFFFF
-+
-+struct ib_sa_service_rec {
-+	u64		id;
-+	union ib_gid	gid;		
-+	u16 		pkey;
-+	/* reserved */
-+	u32		lease;
-+	u8		key[16];
-+	u8		name[64];
-+	u8		data8[16];
-+	u16		data16[8];
-+	u32		data32[4];
-+	u64		data64[2];
++struct ib_cm_id {
++	ib_cm_handler		cm_handler;
++	void			*context;
++	u64			service_id;
++	u64			service_mask;
++	enum ib_cm_state	state;		/* internal CM/debug use */
++	enum ib_cm_lap_state	lap_state;	/* internal CM/debug use */
++	u32			local_id;
++	u32			remote_id;
 +};
 +
- struct ib_sa_query;
- 
- void ib_sa_cancel_query(int id, struct ib_sa_query *query);
-@@ -216,6 +274,17 @@ int ib_sa_mcmember_rec_query(struct ib_d
- 			     void *context,
- 			     struct ib_sa_query **query);
- 
-+int ib_sa_service_rec_query(struct ib_device *device, u8 port_num,
-+			 u8 method,
-+			 struct ib_sa_service_rec *rec,
-+			 ib_sa_comp_mask comp_mask,
-+			 int timeout_ms, int gfp_mask,
-+			 void (*callback)(int status,
-+					  struct ib_sa_service_rec *resp,
-+					  void *context),
-+			 void *context,
-+			 struct ib_sa_query **sa_query);
++/**
++ * ib_create_cm_id - Allocate a communication identifier.
++ * @cm_handler: Callback invoked to notify the user of CM events.
++ * @context: User specified context associated with the communication
++ *   identifier.
++ *
++ * Communication identifiers are used to track connection states, service
++ * ID resolution requests, and listen requests.
++ */
++struct ib_cm_id *ib_create_cm_id(ib_cm_handler cm_handler,
++				 void *context);
 +
- /**
-  * ib_sa_mcmember_rec_set - Start an MCMember set query
-  * @device:device to send query on
++/**
++ * ib_destroy_cm_id - Destroy a connection identifier.
++ * @cm_id: Connection identifier to destroy.
++ *
++ * This call blocks until the connection identifier is destroyed.
++ */
++void ib_destroy_cm_id(struct ib_cm_id *cm_id);
++
++#define IB_SERVICE_ID_AGN_MASK	__constant_cpu_to_be64(0xFF00000000000000ULL)
++#define IB_CM_ASSIGN_SERVICE_ID __constant_cpu_to_be64(0x0200000000000000ULL)
++
++/**
++ * ib_cm_listen - Initiates listening on the specified service ID for
++ *   connection and service ID resolution requests.
++ * @cm_id: Connection identifier associated with the listen request.
++ * @service_id: Service identifier matched against incoming connection
++ *   and service ID resolution requests.  The service ID should be specified
++ *   network-byte order.  If set to IB_CM_ASSIGN_SERVICE_ID, the CM will
++ *   assign a service ID to the caller.
++ * @service_mask: Mask applied to service ID used to listen across a
++ *   range of service IDs.  If set to 0, the service ID is matched
++ *   exactly.  This parameter is ignored if %service_id is set to
++ *   IB_CM_ASSIGN_SERVICE_ID.
++ */
++int ib_cm_listen(struct ib_cm_id *cm_id,
++		 u64 service_id,
++		 u64 service_mask);
++
++struct ib_cm_req_param {
++	struct ib_sa_path_rec	*primary_path;
++	struct ib_sa_path_rec	*alternate_path;
++	u64			service_id;
++	u32			qp_num;
++	enum ib_qp_type		qp_type;
++	u32			starting_psn;
++	const void		*private_data;
++	u8			private_data_len;
++	u8			peer_to_peer;
++	u8			responder_resources;
++	u8			initiator_depth;
++	u8			remote_cm_response_timeout;
++	u8			flow_control;
++	u8			local_cm_response_timeout;
++	u8			retry_count;
++	u8			rnr_retry_count;
++	u8			max_cm_retries;
++	u8			srq;
++};
++
++/**
++ * ib_send_cm_req - Sends a connection request to the remote node.
++ * @cm_id: Connection identifier that will be associated with the
++ *   connection request.
++ * @param: Connection request information needed to establish the
++ *   connection.
++ */
++int ib_send_cm_req(struct ib_cm_id *cm_id,
++		   struct ib_cm_req_param *param);
++
++struct ib_cm_rep_param {
++	u32		qp_num;
++	u32		starting_psn;
++	const void	*private_data;
++	u8		private_data_len;
++	u8		responder_resources;
++	u8		initiator_depth;
++	u8		target_ack_delay;
++	u8		failover_accepted;
++	u8		flow_control;
++	u8		rnr_retry_count;
++	u8		srq;
++};
++
++/**
++ * ib_send_cm_rep - Sends a connection reply in response to a connection
++ *   request.
++ * @cm_id: Connection identifier that will be associated with the
++ *   connection request.
++ * @param: Connection reply information needed to establish the
++ *   connection.
++ */
++int ib_send_cm_rep(struct ib_cm_id *cm_id,
++		   struct ib_cm_rep_param *param);
++
++/**
++ * ib_send_cm_rtu - Sends a connection ready to use message in response
++ *   to a connection reply message.
++ * @cm_id: Connection identifier associated with the connection request.
++ * @private_data: Optional user-defined private data sent with the
++ *   ready to use message.
++ * @private_data_len: Size of the private data buffer, in bytes.
++ */
++int ib_send_cm_rtu(struct ib_cm_id *cm_id,
++		   const void *private_data,
++		   u8 private_data_len);
++
++/**
++ * ib_send_cm_dreq - Sends a disconnection request for an existing
++ *   connection.
++ * @cm_id: Connection identifier associated with the connection being
++ *   released.
++ * @private_data: Optional user-defined private data sent with the
++ *   disconnection request message.
++ * @private_data_len: Size of the private data buffer, in bytes.
++ */
++int ib_send_cm_dreq(struct ib_cm_id *cm_id,
++		    const void *private_data,
++		    u8 private_data_len);
++
++/**
++ * ib_send_cm_drep - Sends a disconnection reply to a disconnection request.
++ * @cm_id: Connection identifier associated with the connection being
++ *   released.
++ * @private_data: Optional user-defined private data sent with the
++ *   disconnection reply message.
++ * @private_data_len: Size of the private data buffer, in bytes.
++ *
++ * If the cm_id is in the correct state, the CM will transition the connection
++ * to the timewait state, even if an error occurs sending the DREP message.
++ */
++int ib_send_cm_drep(struct ib_cm_id *cm_id,
++		    const void *private_data,
++		    u8 private_data_len);
++
++/**
++ * ib_cm_establish - Forces a connection state to established.
++ * @cm_id: Connection identifier to transition to established.
++ *
++ * This routine should be invoked by users who receive messages on a
++ * connected QP before an RTU has been received.
++ */
++int ib_cm_establish(struct ib_cm_id *cm_id);
++
++/**
++ * ib_send_cm_rej - Sends a connection rejection message to the
++ *   remote node.
++ * @cm_id: Connection identifier associated with the connection being
++ *   rejected.
++ * @reason: Reason for the connection request rejection.
++ * @ari: Optional additional rejection information.
++ * @ari_length: Size of the additional rejection information, in bytes.
++ * @private_data: Optional user-defined private data sent with the
++ *   rejection message.
++ * @private_data_len: Size of the private data buffer, in bytes.
++ */
++int ib_send_cm_rej(struct ib_cm_id *cm_id,
++		   enum ib_cm_rej_reason reason,
++		   void *ari,
++		   u8 ari_length,
++		   const void *private_data,
++		   u8 private_data_len);
++
++/**
++ * ib_send_cm_mra - Sends a message receipt acknowledgement to a connection
++ *   message.
++ * @cm_id: Connection identifier associated with the connection message.
++ * @service_timeout: The maximum time required for the sender to reply to
++ *   to the connection message.
++ * @private_data: Optional user-defined private data sent with the
++ *   message receipt acknowledgement.
++ * @private_data_len: Size of the private data buffer, in bytes.
++ */
++int ib_send_cm_mra(struct ib_cm_id *cm_id,
++		   u8 service_timeout,
++		   const void *private_data,
++		   u8 private_data_len);
++
++/**
++ * ib_send_cm_lap - Sends a load alternate path request.
++ * @cm_id: Connection identifier associated with the load alternate path
++ *   message.
++ * @alternate_path: A path record that identifies the alternate path to
++ *   load.
++ * @private_data: Optional user-defined private data sent with the
++ *   load alternate path message.
++ * @private_data_len: Size of the private data buffer, in bytes.
++ */
++int ib_send_cm_lap(struct ib_cm_id *cm_id,
++		   struct ib_sa_path_rec *alternate_path,
++		   const void *private_data,
++		   u8 private_data_len);
++
++/**
++ * ib_cm_init_qp_attr - Initializes the QP attributes for use in transitioning
++ *   to a specified QP state.
++ * @cm_id: Communication identifier associated with the QP attributes to
++ *   initialize.
++ * @qp_attr: On input, specifies the desired QP state.  On output, the
++ *   mandatory and desired optional attributes will be set in order to
++ *   modify the QP to the specified state.
++ * @qp_attr_mask: The QP attribute mask that may be used to transition the
++ *   QP to the specified state.
++ *
++ * Users must set the @qp_attr->qp_state to the desired QP state.  This call
++ * will set all required attributes for the given transition, along with
++ * known optional attributes.  Users may override the attributes returned from
++ * this call before calling ib_modify_qp.
++ */
++int ib_cm_init_qp_attr(struct ib_cm_id *cm_id,
++		       struct ib_qp_attr *qp_attr,
++		       int *qp_attr_mask);
++
++/**
++ * ib_send_cm_apr - Sends an alternate path response message in response to
++ *   a load alternate path request.
++ * @cm_id: Connection identifier associated with the alternate path response.
++ * @status: Reply status sent with the alternate path response.
++ * @info: Optional additional information sent with the alternate path
++ *   response.
++ * @info_length: Size of the additional information, in bytes.
++ * @private_data: Optional user-defined private data sent with the
++ *   alternate path response message.
++ * @private_data_len: Size of the private data buffer, in bytes.
++ */
++int ib_send_cm_apr(struct ib_cm_id *cm_id,
++		   enum ib_cm_apr_status status,
++		   void *info,
++		   u8 info_length,
++		   const void *private_data,
++		   u8 private_data_len);
++
++struct ib_cm_sidr_req_param {
++	struct ib_sa_path_rec	*path;
++	u64			service_id;
++	int			timeout_ms;
++	const void		*private_data;
++	u8			private_data_len;
++	u8			max_cm_retries;
++	u16			pkey;
++};
++
++/**
++ * ib_send_cm_sidr_req - Sends a service ID resolution request to the
++ *   remote node.
++ * @cm_id: Communication identifier that will be associated with the
++ *   service ID resolution request.
++ * @param: Service ID resolution request information.
++ */
++int ib_send_cm_sidr_req(struct ib_cm_id *cm_id,
++			struct ib_cm_sidr_req_param *param);
++
++struct ib_cm_sidr_rep_param {
++	u32			qp_num;
++	u32			qkey;
++	enum ib_cm_sidr_status	status;
++	const void		*info;
++	u8			info_length;
++	const void		*private_data;
++	u8			private_data_len;
++};
++
++/**
++ * ib_send_cm_sidr_rep - Sends a service ID resolution request to the
++ *   remote node.
++ * @cm_id: Communication identifier associated with the received service ID
++ *   resolution request.
++ * @param: Service ID resolution reply information.
++ */
++int ib_send_cm_sidr_rep(struct ib_cm_id *cm_id,
++			struct ib_cm_sidr_rep_param *param);
++
++#endif /* IB_CM_H */
 
 

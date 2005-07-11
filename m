@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbVGKSLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVGKSLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261980AbVGKSLQ (ORCPT <rfc822;willy@w.ods.org>);
+	id S262015AbVGKSLQ (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Jul 2005 14:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVGKSK5
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVGKSLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 14:10:57 -0400
-Received: from silver.veritas.com ([143.127.12.111]:12183 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S262065AbVGKSKp
+	Mon, 11 Jul 2005 14:11:06 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:62663 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262015AbVGKPiA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 14:10:45 -0400
-Date: Mon, 11 Jul 2005 19:12:04 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Mauricio Lin <mauriciolin@gmail.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/2] smaps say kB not KB
-In-Reply-To: <Pine.LNX.4.61.0507090256430.15778@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0507111910410.1522@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0507090253270.15778@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0507090256430.15778@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 11 Jul 2005 18:10:41.0270 (UTC) FILETIME=[D9121960:01C58643]
+	Mon, 11 Jul 2005 11:38:00 -0400
+Subject: Re: [PATCH 3/27] Add MAD helper functions
+From: Hal Rosenstock <halr@voltaire.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <200507111839.41807.adobriyan@gmail.com>
+References: <1121089079.4389.4511.camel@hal.voltaire.com>
+	 <200507111839.41807.adobriyan@gmail.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1121094791.4389.4591.camel@hal.voltaire.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Jul 2005 11:30:23 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/proc/$pid/smaps should be reporting in "kB" not "KB"
-(and pray that this doesn't start another kibibytes war ;)
+On Mon, 2005-07-11 at 10:39, Alexey Dobriyan wrote:
+> On Monday 11 July 2005 17:48, Hal Rosenstock wrote:
+> > Add new helper routines for allocating MADs for sending and formatting
+> > a send WR.
+> 
+> > -- linux-2.6.13-rc2-mm1/drivers/infiniband2/core/mad.c
+> > +++ linux-2.6.13-rc2-mm1/drivers/infiniband3/core/mad.c
+> 				   ^^^^^^^^^^^
+> Ick. You'd better have linux-2.6.13-rc2-mm1-[0123...].
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+Shall I resubmit with linux-2.6.13-rc2-mm1-[0123...] ?
 
- fs/proc/task_mmu.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+> > +struct ib_mad_send_buf * ib_create_send_mad(struct ib_mad_agent *mad_agent,
+> > +					    u32 remote_qpn, u16 pkey_index,
+> > +					    struct ib_ah *ah,
+> > +					    int hdr_len, int data_len,
+> > +					    int gfp_mask)
+> 
+> unsigned int __nocast gfp_mask, please. 430 or so infiniband sparse warnings
+> is not a reason to add more.
 
---- smaps2/fs/proc/task_mmu.c	2005-07-09 02:29:33.000000000 +0100
-+++ smaps3/fs/proc/task_mmu.c	2005-07-11 18:09:13.000000000 +0100
-@@ -271,12 +271,12 @@ static int show_smap(struct seq_file *m,
- 		seq_path(m, file->f_vfsmnt, file->f_dentry, " \t\n\\");
- 
- 	seq_printf(m, "\n"
--		   "Size:          %8lu KB\n"
--		   "Rss:           %8lu KB\n"
--		   "Shared_Clean:  %8lu KB\n"
--		   "Shared_Dirty:  %8lu KB\n"
--		   "Private_Clean: %8lu KB\n"
--		   "Private_Dirty: %8lu KB\n",
-+		   "Size:          %8lu kB\n"
-+		   "Rss:           %8lu kB\n"
-+		   "Shared_Clean:  %8lu kB\n"
-+		   "Shared_Dirty:  %8lu kB\n"
-+		   "Private_Clean: %8lu kB\n"
-+		   "Private_Dirty: %8lu kB\n",
- 		   vma_len >> 10,
- 		   mss.resident >> 10,
- 		   mss.shared_clean  >> 10,
+I'll fix this in a subsequent patch. Is that OK ?
+
+Thanks.
+
+-- Hal
+

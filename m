@@ -1,71 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVGKOnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVGKOhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261902AbVGKOnK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbVGKOkN
+	id S261881AbVGKOhz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVGKOf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:40:13 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:55002 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261882AbVGKOiK
+	Mon, 11 Jul 2005 10:35:28 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:46278 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261553AbVGKOel
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:38:10 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Mon, 11 Jul 2005 15:38:22 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050711141232.GA16586@elte.hu> <20050711141622.GA17327@elte.hu>
-In-Reply-To: <20050711141622.GA17327@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 11 Jul 2005 10:34:41 -0400
+Subject: [PATCH 15/27] Fix a couple of MAD code paths
+From: Hal Rosenstock <halr@voltaire.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1121089129.4389.4535.camel@hal.voltaire.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Jul 2005 10:27:06 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507111538.22551.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 Jul 2005 15:16, Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> > might be an incorrect printout of stack_left :( The esp looks more or
-> > less normal. Not sure why it printed -52.
->
-> here's the stack_left calculation:
->
-> +       printk("ds: %04x   es: %04x   ss: %04x   preempt: %08x\n",
-> +               regs->xds & 0xffff, regs->xes & 0xffff, ss,
-> preempt_count()); +       printk("Process %s (pid: %d, threadinfo=%p
-> task=%p stack_left=%ld worst_left=%ld)", +               current->comm,
-> current->pid, current_thread_info(), current, +               (regs->esp &
-> (THREAD_SIZE-1))-sizeof(struct thread_info), +              
-> worst_stack_left);
->
-> i cannot see anything wrong in it, but your esp is 0xc04cded0,
-> THREAD_SIZE-1 is 0xfff, so the result should be:
->
-> 	0xed0-sizeof(struct thread_info).
->
-> which should not be -52.
+Fixed locking to handle error posting MAD send work requests. 
+Fixed handling canceling a MAD with an active work request.
 
-Actually, it's now pretty much confirmed that this ISN'T a stack overflow, not 
-just because of what you've said (now and before), but also because I've 
-tried an 8K stacks kernel and, sadly, there's no stand-out stack abusers.
+Signed-off-by: Sean Hefty <sean.hefty@intel.com>
+Signed-off-by: Hal Rosenstock <halr@voltaire.com>
 
-It's annoying that this is so readily reproducible here, yet almost impossible 
-to debug, and clearly a sideaffect of 4KSTACKS.. without it actually being a 
-stack overflow.
-
-I realise 4KSTACKS is a considerable rework of the IRQ handler, etc. and 
-probably even more heavily modified by rt-preempt, but is there nothing else 
-that can be tested before a serial console run?
+This patch depends on patch 14/27.
 
 -- 
-Cheers,
-Alistair.
+ mad.c |   28 ++++++++++++++--
+ 1 files changed, 14 insertions(+), 14 deletions(-)
+diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband14/core/mad.c linux-2.6.13-rc2-mm1/drivers/infiniband15/core/mad.c
+-- linux-2.6.13-rc2-mm1/drivers/infiniband14/core/mad.c	2005-07-09 18:19:51.000000000 -0400
++++ linux-2.6.13-rc2-mm1/drivers/infiniband15/core/mad.c	2005-07-09 18:24:43.000000000 -0400
+@@ -841,6 +841,7 @@ static int ib_send_mad(struct ib_mad_sen
+ {
+ 	struct ib_mad_qp_info *qp_info;
+ 	struct ib_send_wr *bad_send_wr;
++	struct list_head *list;
+ 	unsigned long flags;
+ 	int ret;
+ 
+@@ -850,22 +851,20 @@ static int ib_send_mad(struct ib_mad_sen
+ 	mad_send_wr->mad_list.mad_queue = &qp_info->send_queue;
+ 
+ 	spin_lock_irqsave(&qp_info->send_queue.lock, flags);
+-	if (qp_info->send_queue.count++ < qp_info->send_queue.max_active) {
+-		list_add_tail(&mad_send_wr->mad_list.list,
+-			      &qp_info->send_queue.list);
+-		spin_unlock_irqrestore(&qp_info->send_queue.lock, flags);
++	if (qp_info->send_queue.count < qp_info->send_queue.max_active) {
+ 		ret = ib_post_send(mad_send_wr->mad_agent_priv->agent.qp,
+ 				   &mad_send_wr->send_wr, &bad_send_wr);
+-		if (ret) {
+-			printk(KERN_ERR PFX "ib_post_send failed: %d\n", ret);
+-			dequeue_mad(&mad_send_wr->mad_list);
+-		}
++		list = &qp_info->send_queue.list;
+ 	} else {
+-		list_add_tail(&mad_send_wr->mad_list.list,
+-			      &qp_info->overflow_list);
+-		spin_unlock_irqrestore(&qp_info->send_queue.lock, flags);
+ 		ret = 0;
++		list = &qp_info->overflow_list;
+ 	}
++
++	if (!ret) {
++		qp_info->send_queue.count++;
++		list_add_tail(&mad_send_wr->mad_list.list, list);
++	}
++	spin_unlock_irqrestore(&qp_info->send_queue.lock, flags);
+ 	return ret;
+ }
+ 
+@@ -2023,8 +2022,7 @@ static void cancel_mads(struct ib_mad_ag
+ }
+ 
+ static struct ib_mad_send_wr_private*
+-find_send_by_wr_id(struct ib_mad_agent_private *mad_agent_priv,
+-		   u64 wr_id)
++find_send_by_wr_id(struct ib_mad_agent_private *mad_agent_priv, u64 wr_id)
+ {
+ 	struct ib_mad_send_wr_private *mad_send_wr;
+ 
+@@ -2047,6 +2045,7 @@ int ib_modify_mad(struct ib_mad_agent *m
+ 	struct ib_mad_agent_private *mad_agent_priv;
+ 	struct ib_mad_send_wr_private *mad_send_wr;
+ 	unsigned long flags;
++	int active;
+ 
+ 	mad_agent_priv = container_of(mad_agent, struct ib_mad_agent_private,
+ 				      agent);
+@@ -2057,13 +2056,14 @@ int ib_modify_mad(struct ib_mad_agent *m
+ 		return -EINVAL;
+ 	}
+ 
++	active = (!mad_send_wr->timeout || mad_send_wr->refcount > 1);
+ 	if (!timeout_ms) {
+ 		mad_send_wr->status = IB_WC_WR_FLUSH_ERR;
+ 		mad_send_wr->refcount -= (mad_send_wr->timeout > 0);
+ 	}
+ 
+ 	mad_send_wr->send_wr.wr.ud.timeout_ms = timeout_ms;
+-	if (!mad_send_wr->timeout || mad_send_wr->refcount > 1)
++	if (active)
+ 		mad_send_wr->timeout = msecs_to_jiffies(timeout_ms);
+ 	else
+ 		ib_reset_mad_timeout(mad_send_wr, timeout_ms);
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+

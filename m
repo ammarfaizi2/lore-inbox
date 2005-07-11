@@ -1,65 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbVGKWUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVGKWos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbVGKWUh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 18:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbVGKWUd
+	id S262141AbVGKWos (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbVGKWms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 18:20:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62187 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262950AbVGKWUY (ORCPT
+	Mon, 11 Jul 2005 18:42:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25278 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262143AbVGKWk5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 18:20:24 -0400
-Date: Mon, 11 Jul 2005 23:20:13 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] device-mapper: [2/4] Fix deadlocks in core
-Message-ID: <20050711222013.GD12355@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Mon, 11 Jul 2005 18:40:57 -0400
+Date: Mon, 11 Jul 2005 15:41:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, dwalker@mvista.com,
+       mingo@elte.hu, sct@redhat.com
+Subject: Re: kjournald wasting CPU in invert_lock fs/jbd/commit.c
+Message-Id: <20050711154113.5abc81dd.akpm@osdl.org>
+In-Reply-To: <1121120222.6087.44.camel@localhost.localdomain>
+References: <1121120222.6087.44.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avoid another bdget_disk which can deadlock.
+Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> I noticed that the code in commit.c of the jbd system can waste CPU
+> cycles.
 
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+How did you notice?  By code inspection or by runtime observation?  If the
+latter, please share.
 
---- diff/drivers/md/dm.c	2005-07-11 22:52:10.000000000 +0100
-+++ source/drivers/md/dm.c	2005-07-11 22:57:58.000000000 +0100
-@@ -825,18 +825,13 @@
- 	wake_up(&md->eventq);
- }
- 
--static void __set_size(struct gendisk *disk, sector_t size)
-+static void __set_size(struct mapped_device *md, sector_t size)
- {
--	struct block_device *bdev;
-+	set_capacity(md->disk, size);
- 
--	set_capacity(disk, size);
--	bdev = bdget_disk(disk, 0);
--	if (bdev) {
--		down(&bdev->bd_inode->i_sem);
--		i_size_write(bdev->bd_inode, (loff_t)size << SECTOR_SHIFT);
--		up(&bdev->bd_inode->i_sem);
--		bdput(bdev);
--	}
-+	down(&md->frozen_bdev->bd_inode->i_sem);
-+	i_size_write(md->frozen_bdev->bd_inode, (loff_t)size << SECTOR_SHIFT);
-+	up(&md->frozen_bdev->bd_inode->i_sem);
- }
- 
- static int __bind(struct mapped_device *md, struct dm_table *t)
-@@ -845,7 +840,7 @@
- 	sector_t size;
- 
- 	size = dm_table_get_size(t);
--	__set_size(md->disk, size);
-+	__set_size(md, size);
- 	if (size == 0)
- 		return 0;
- 
+> The offending code is as follows.
+> 
+> static int inverted_lock(journal_t *journal, struct buffer_head *bh)
+> {
+>         if (!jbd_trylock_bh_state(bh)) {
+>                 spin_unlock(&journal->j_list_lock);
+>                 schedule();
+>                 return 0;
+>         }
+>         return 1;
+> }
+
+"offending" is a good description.  That code sucks.  But it sits on the
+edge between two subsystems which really really want to take those locks in
+opposite order.
+
+
+> This code makes a loop if the jbd_trylock_bh_state fails. This code will
+> wait till whoever owns the lock releases it. But it is really in a busy
+> loop and will only be interrupted when the kjournald uses up all its
+> quota.  So it's basically just wasting CPU cycles here.
+
+Yeah.  But these _are_ spinlocks, so spinning is what's supposed to happen.
+ Maybe we should dump that silly schedule() and just do cpu_relax(). 
+Although I do recall once theorising that the time we spend in the
+schedule() might be preventing livelocks.
+
+>  The following
+> patch should fix this.
+> 
+> Signed-off-by: Steven Rostedt rostedt@goodmis.org
+
+Please put "<>" around the email address.
+
+> ---
+> --- a/fs/jbd/commit.c	2005-07-11 17:51:37.000000000 -0400
+> +++ b/fs/jbd/commit.c	2005-07-11 17:51:58.000000000 -0400
+> @@ -87,7 +87,7 @@ static int inverted_lock(journal_t *jour
+>  {
+>  	if (!jbd_trylock_bh_state(bh)) {
+>  		spin_unlock(&journal->j_list_lock);
+> -		schedule();
+> +		yield();
+>  		return 0;
+>  	}
+>  	return 1;
+
+Nope, yield() can cause terribly long delays when other tasks are cpu-bound.

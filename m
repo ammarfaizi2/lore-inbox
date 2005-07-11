@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262870AbVGKWJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262867AbVGKWJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262870AbVGKWJL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 18:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbVGKWGs
+	id S262867AbVGKWJK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbVGKWGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 18:06:48 -0400
-Received: from mail.kroah.org ([69.55.234.183]:65244 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262887AbVGKWDy convert rfc822-to-8bit
+	Mon, 11 Jul 2005 18:06:45 -0400
+Received: from mail.kroah.org ([69.55.234.183]:733 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262894AbVGKWDy convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 11 Jul 2005 18:03:54 -0400
 Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Clarify the usage of i2c-dev.h
-In-Reply-To: <11211193771329@kroah.com>
+Subject: [PATCH] I2C: max6875 documentation update
+In-Reply-To: <20050711220123.GA3807@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 11 Jul 2005 15:02:57 -0700
-Message-Id: <1121119377583@kroah.com>
+Date: Mon, 11 Jul 2005 15:02:56 -0700
+Message-Id: <11211193761992@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,51 +24,68 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C: Clarify the usage of i2c-dev.h
+[PATCH] I2C: max6875 documentation update
 
-Upon suggestion by Nils Roeder, here is an update to the i2c
-documentation to clarify which header files user-space applications
-relying on the i2c-dev interface should include.
+Here is a proposed documentation update for the new max6875 i2c chip
+driver.
 
 Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 1d772e2587da3c8b0fb8610fcc1c91fd82f87e52
-tree 816702c0b2b1a37f772b8884ce2177b88af4ab73
-parent a68e2f4895070f3a449bfe5ae1174b73cc900642
-author Jean Delvare <khali@linux-fr.org> Sat, 25 Jun 2005 11:37:40 +0200
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 11 Jul 2005 14:10:37 -0700
+commit 089bd86632769051f15cd7387eebe126d18f151f
+tree 57637f07d7cb28543db158d2457804e968d2a021
+parent 9ab1ee2ab7d65979c0f14a60ee1f29f8988f5811
+author Jean Delvare <khali@linux-fr.org> Thu, 23 Jun 2005 23:37:53 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 11 Jul 2005 14:10:36 -0700
 
- Documentation/i2c/dev-interface |   11 +++++++----
- 1 files changed, 7 insertions(+), 4 deletions(-)
+ Documentation/i2c/chips/max6875 |   22 +++++++++++++++++-----
+ 1 files changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
---- a/Documentation/i2c/dev-interface
-+++ b/Documentation/i2c/dev-interface
-@@ -14,9 +14,12 @@ C example
- =========
+diff --git a/Documentation/i2c/chips/max6875 b/Documentation/i2c/chips/max6875
+--- a/Documentation/i2c/chips/max6875
++++ b/Documentation/i2c/chips/max6875
+@@ -2,10 +2,10 @@ Kernel driver max6875
+ =====================
  
- So let's say you want to access an i2c adapter from a C program. The
--first thing to do is `#include <linux/i2c.h>" and "#include <linux/i2c-dev.h>. 
--Yes, I know, you should never include kernel header files, but until glibc 
--knows about i2c, there is not much choice.
-+first thing to do is "#include <linux/i2c-dev.h>". Please note that
-+there are two files named "i2c-dev.h" out there, one is distributed
-+with the Linux kernel and is meant to be included from kernel
-+driver code, the other one is distributed with lm_sensors and is
-+meant to be included from user-space programs. You obviously want
-+the second one here.
+ Supported chips:
+-  * Maxim max6874, max6875
+-    Prefixes: 'max6875'
++  * Maxim MAX6874, MAX6875
++    Prefix: 'max6875'
+     Addresses scanned: 0x50, 0x52
+-    Datasheets:
++    Datasheet:
+         http://pdfserv.maxim-ic.com/en/ds/MAX6874-MAX6875.pdf
  
- Now, you have to decide which adapter you want to access. You should
- inspect /sys/class/i2c-dev/ to decide this. Adapter numbers are assigned
-@@ -78,7 +81,7 @@ Full interface description
- ==========================
+ Author: Ben Gardner <bgardner@wabtec.com>
+@@ -23,14 +23,26 @@ Module Parameters
+ Description
+ -----------
  
- The following IOCTLs are defined and fully supported 
--(see also i2c-dev.h and i2c.h):
-+(see also i2c-dev.h):
+-The MAXIM max6875 is a EEPROM-programmable power-supply sequencer/supervisor.
++The Maxim MAX6875 is an EEPROM-programmable power-supply sequencer/supervisor.
+ It provides timed outputs that can be used as a watchdog, if properly wired.
+ It also provides 512 bytes of user EEPROM.
  
- ioctl(file,I2C_SLAVE,long addr)
-   Change slave address. The address is passed in the 7 lower bits of the
+-At reset, the max6875 reads the configuration eeprom into its configuration
++At reset, the MAX6875 reads the configuration EEPROM into its configuration
+ registers.  The chip then begins to operate according to the values in the
+ registers.
+ 
++The Maxim MAX6874 is a similar, mostly compatible device, with more intputs
++and outputs:
++
++             vin     gpi    vout
++MAX6874        6       4       8
++MAX6875        4       3       5
++
++MAX6874 chips can have four different addresses (as opposed to only two for
++the MAX6875). The additional addresses (0x54 and 0x56) are not probed by
++this driver by default, but the probe module parameter can be used if
++needed.
++
+ See the datasheet for details on how to program the EEPROM.
+ 
+ 
 

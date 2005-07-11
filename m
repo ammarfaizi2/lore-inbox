@@ -1,70 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVGKLVW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVGKLbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVGKLVW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 07:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVGKLVW
+	id S261650AbVGKLbb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 07:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVGKLbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 07:21:22 -0400
-Received: from styx.suse.cz ([82.119.242.94]:21719 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261643AbVGKLVV (ORCPT
+	Mon, 11 Jul 2005 07:31:31 -0400
+Received: from opersys.com ([64.40.108.71]:45062 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261650AbVGKLb3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 07:21:21 -0400
-Date: Mon, 11 Jul 2005 13:21:21 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Stelian Pop <stelian@popies.net>
-Cc: Peter Osterlund <petero2@telia.com>, Andrew Morton <akpm@osdl.org>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Frank Arnold <frank@scirocco-5v-turbo.de>
-Subject: Re: [PATCH] Apple USB Touchpad driver (new)
-Message-ID: <20050711112121.GA24345@ucw.cz>
-References: <20050708101731.GM18608@sd291.sivit.org> <1120821481.5065.2.camel@localhost> <20050708121005.GN18608@sd291.sivit.org> <20050709191357.GA2244@ucw.cz> <m33bqnr3y9.fsf@telia.com> <20050710120425.GC3018@ucw.cz> <m3y88e9ozu.fsf@telia.com> <1121078371.12621.36.camel@localhost.localdomain> <20050711110024.GA23333@ucw.cz> <1121080115.12627.44.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 11 Jul 2005 07:31:29 -0400
+Message-ID: <42D2572B.8070103@opersys.com>
+Date: Mon, 11 Jul 2005 07:25:31 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       paulmck@us.ibm.com, bhuey@lnxw.com, tglx@linutronix.de,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT and I-PIPE: the numbers, part 4
+References: <42CF05BE.3070908@opersys.com> <20050709071911.GB31100@elte.hu> <42CFEFC9.7070007@opersys.com> <20050711070516.GA2238@elte.hu>
+In-Reply-To: <20050711070516.GA2238@elte.hu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121080115.12627.44.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 11, 2005 at 01:08:35PM +0200, Stelian Pop wrote:
 
-> Possible. The 'fuzz' parameter in input core serves too many usages
-> ihmo. Let me try removing the quick motion compensation and see...
+Ingo Molnar wrote:
+> So why do your "ping flood" results show such difference? It really is 
+> just another type of interrupt workload and has nothing special in it.
+...
+> are you suggesting this is not really a benchmark but a way to test how 
+> well a particular system withholds against extreme external load?
 
-It was designed for joysticks and works very well for them. Usefulness
-for other device types may vary. And I'll gladly accept patches to
-improve it.
+Look, you're basically splitting hairs. No matter how involved an explanation
+you can provide, it remains that both vanilla and I-pipe were subject to the
+same load. If PREEMPT_RT consistently shows the same degradation under the
+same setup, and that is indeed the case, then the problem is with PREEMPT_RT,
+not the tests.
 
-> > > I already thought about this, one problem is that the sensors do not
-> > > report the pressure but only the amount of surface touched. A person
-> > > with thick fingers will always generate higher pressures then one with
-> > > thin ones, no matter how hard they push on the touchpad.
-> > 
-> > That's what all other touchpads do.
-> 
-> I thought the hardware is capable of calculating real pressure...
+> so you can see ping packet flow fluctuations in your tests? Then you 
+> cannot use those results as any sort of benchmark metric.
 
-Since the sensor is just a multi-layer PCB with a clever trace layout,
-it can't.
+I didn't say this. I said that if fluctuation there is, then maybe this is
+something we want to see the effect of. In real world applications,
+interrupts may not come in at a steady pace, as you try to achieve in your
+own tests.
 
-> > > I don't think this value is reliable enough to be reported to the
-> > > userspace as ABS_PRESSURE...
-> > 
-> > I believe it'd still be more useful than a two-value (0 and 100) output.
-> 
-> Ok, I'll do it.
+> and from this point on you should see zero lmbench overhead from flood 
+> pinging. Can vanilla or I-PIPE do that?
 
-Thanks. Should I wait for that or apply the patch you just sent?
+Let's not get into what I-pipe can or cannot do, that's not what these
+numbers are about. It's pretty darn amazing that we're even having this
+conversation. The PREEMPT_RT stuff is being worked on by more than a
+dozen developers spread accross some of the most well-known Linux companies
+out there (RedHat, MontaVista, IBM, TimeSys, etc.). Yet, despite this
+massive involvement, here we have a patch developed by a single guy,
+Philippe, who's doing this work outside his regular work hours, and his
+patch, which does provide guaranteed deterministic behavior, is:
+a) Much smaller than PREEMPT_RT
+b) Less intrusive than PREEMPT_RT
+c) Performs very well, as-good-as if not sometimes even better than PREEMPT_RT
 
-> > This could be quite useful, too, for right and middle button taps (2 and
-> > 3 fingers) - since the Macs lack these buttons.
-> 
-> Indeed. But this can be a later improvement, let's make one finger work
-> for now :)
- 
-Agreed.
+Splitting hairs won't erase this reality. And again, before the I get the
+PREEMPT_RT mob again on my back, this is just for the sake of argument,
+both approaches remain valid, and are not mutually exclusive.
 
+Like I said before, others are free to publish their own numbers showing
+differently from what we've found.
+
+Karim
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+

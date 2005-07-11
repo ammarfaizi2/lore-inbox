@@ -1,115 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVGKVRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbVGKVrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbVGKVRE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 17:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVGKVO3
+	id S262557AbVGKVrN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 17:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbVGKVon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 17:14:29 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:15822 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262706AbVGKVNt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 17:13:49 -0400
-Subject: [PATCH 28/29v2] Eliminate sparse warnings in SA client
-From: Hal Rosenstock <halr@voltaire.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1121110441.4389.5040.camel@hal.voltaire.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 17:06:10 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Jul 2005 17:44:43 -0400
+Received: from pilsener.srv.ualberta.ca ([129.128.5.19]:28656 "EHLO
+	pilsener.srv.ualberta.ca") by vger.kernel.org with ESMTP
+	id S262786AbVGKVhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 17:37:52 -0400
+Date: Mon, 11 Jul 2005 15:37:47 -0600 (MDT)
+From: Marc Aurele La France <tsi@ualberta.ca>
+X-X-Sender: tsi@login3.srv.ualberta.ca
+To: linux-kernel@vger.kernel.org
+Subject: Kernel header policy
+Message-ID: <Pine.BSO.4.61.0507111533340.23021@login3.srv.ualberta.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eliminate sparse warnings in SA client
+It has been more than a week now...
 
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
++----------------------------------+-----------------------------------+
+|  Marc Aurele La France           |  work:   1-780-492-9310           |
+|  Academic Information and        |  fax:    1-780-492-1729           |
+|    Communications Technologies   |  email:  tsi@ualberta.ca          |
+|  352 General Services Building   +-----------------------------------+
+|  University of Alberta           |                                   |
+|  Edmonton, Alberta               |     Standard disclaimers apply    |
+|  T6G 2H1                         |                                   |
+|  CANADA                          |                                   |
++----------------------------------+-----------------------------------+
+XFree86 developer and VP.  ATI driver and X server internals.
 
-This patch depends on patch 20/29.
+---------- Forwarded message ----------
+Date: Sun, 3 Jul 2005 11:12:03 -0600 (MDT)
+From: Marc Aurele La France <tsi@ualberta.ca>
+To: Linus Torvalds
+Subject: Kernel header policy
 
--- 
- core/sa_query.c |    6 +++--
- include/ib_sa.h |   10 +++++--
- 2 files changed, 8 insertions(+), 8 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1-27/drivers/infiniband/core/sa_query.c linux-2.6.13-rc2-mm1-28/drivers/infiniband/core/sa_query.c
--- linux-2.6.13-rc2-mm1-27/drivers/infiniband/core/sa_query.c	2005-07-10 16:41:32.000000000 -0400
-+++ linux-2.6.13-rc2-mm1-28/drivers/infiniband/core/sa_query.c	2005-07-11 13:55:40.000000000 -0400
-@@ -600,7 +600,7 @@ static void ib_sa_path_rec_release(struc
- int ib_sa_path_rec_get(struct ib_device *device, u8 port_num,
- 		       struct ib_sa_path_rec *rec,
- 		       ib_sa_comp_mask comp_mask,
--		       int timeout_ms, int gfp_mask,
-+		       int timeout_ms, unsigned int __nocast gfp_mask,
- 		       void (*callback)(int status,
- 					struct ib_sa_path_rec *resp,
- 					void *context),
-@@ -702,7 +702,7 @@ static void ib_sa_service_rec_release(st
- int ib_sa_service_rec_query(struct ib_device *device, u8 port_num, u8 method,
- 			    struct ib_sa_service_rec *rec,
- 			    ib_sa_comp_mask comp_mask,
--			    int timeout_ms, int gfp_mask,
-+			    int timeout_ms, unsigned int __nocast gfp_mask,
- 			    void (*callback)(int status,
- 					     struct ib_sa_service_rec *resp,
- 					     void *context),
-@@ -785,7 +785,7 @@ int ib_sa_mcmember_rec_query(struct ib_d
- 			     u8 method,
- 			     struct ib_sa_mcmember_rec *rec,
- 			     ib_sa_comp_mask comp_mask,
--			     int timeout_ms, int gfp_mask,
-+			     int timeout_ms, unsigned int __nocast gfp_mask,
- 			     void (*callback)(int status,
- 					      struct ib_sa_mcmember_rec *resp,
- 					      void *context),
-diff -uprN linux-2.6.13-rc2-mm1-27/drivers/infiniband/include/ib_sa.h linux-2.6.13-rc2-mm1-28/drivers/infiniband/include/ib_sa.h
--- linux-2.6.13-rc2-mm1-27/drivers/infiniband/include/ib_sa.h	2005-07-10 16:40:43.000000000 -0400
-+++ linux-2.6.13-rc2-mm1-28/drivers/infiniband/include/ib_sa.h	2005-07-11 13:55:37.000000000 -0400
-@@ -256,7 +256,7 @@ void ib_sa_cancel_query(int id, struct i
- int ib_sa_path_rec_get(struct ib_device *device, u8 port_num,
- 		       struct ib_sa_path_rec *rec,
- 		       ib_sa_comp_mask comp_mask,
--		       int timeout_ms, int gfp_mask,
-+		       int timeout_ms, unsigned int __nocast gfp_mask,
- 		       void (*callback)(int status,
- 					struct ib_sa_path_rec *resp,
- 					void *context),
-@@ -267,7 +267,7 @@ int ib_sa_mcmember_rec_query(struct ib_d
- 			     u8 method,
- 			     struct ib_sa_mcmember_rec *rec,
- 			     ib_sa_comp_mask comp_mask,
--			     int timeout_ms, int gfp_mask,
-+			     int timeout_ms, unsigned int __nocast gfp_mask,
- 			     void (*callback)(int status,
- 					      struct ib_sa_mcmember_rec *resp,
- 					      void *context),
-@@ -278,7 +278,7 @@ int ib_sa_service_rec_query(struct ib_de
- 			 u8 method,
- 			 struct ib_sa_service_rec *rec,
- 			 ib_sa_comp_mask comp_mask,
--			 int timeout_ms, int gfp_mask,
-+			 int timeout_ms, unsigned int __nocast gfp_mask,
- 			 void (*callback)(int status,
- 					  struct ib_sa_service_rec *resp,
- 					  void *context),
-@@ -313,7 +313,7 @@ static inline int
- ib_sa_mcmember_rec_set(struct ib_device *device, u8 port_num,
- 		       struct ib_sa_mcmember_rec *rec,
- 		       ib_sa_comp_mask comp_mask,
--		       int timeout_ms, int gfp_mask,
-+		       int timeout_ms, unsigned int __nocast gfp_mask,
- 		       void (*callback)(int status,
- 					struct ib_sa_mcmember_rec *resp,
- 					void *context),
-@@ -355,7 +355,7 @@ static inline int
- ib_sa_mcmember_rec_delete(struct ib_device *device, u8 port_num,
- 			  struct ib_sa_mcmember_rec *rec,
- 			  ib_sa_comp_mask comp_mask,
--			  int timeout_ms, int gfp_mask,
-+			  int timeout_ms, unsigned int __nocast gfp_mask,
- 			  void (*callback)(int status,
- 					   struct ib_sa_mcmember_rec *resp,
- 					   void *context),
+Hi, Linus.  It has been a while since we last talked.  I hope all is well
+with you and your family.
 
+I am contacting you to express my concern over a growing trend in kernel
+development.  I am specifically referring to changes being made to kernel
+headers that break compatibility at the userland level, where __KERNEL__
+isn't #define'd.
 
+The most common errors involve the introduction of references, in 
+non-__KERNEL__ code, to symbols that ...
+
+1) are only #define'd or typedef'ed in __KERNEL__-bracketed code;  and/or
+2) are non-ANSIC C99'isms.
+
+Recent examples include, but are not limited to, ...
+
+a) <linux/fb.h> was temporarily broken during 2.6.9's development cycle.
+    The problem here (fixed before 2.6.9's release) was an #include of
+    <linux/list.h> not bracketed by __KERNEL__. i.e. "1)" above.
+
+b) <linux/pci.h> has been broken since 2.5.62's development cycle and has
+    yet to be fixed.  Here, the #include of <linux/mod_devicetable.h> needs
+    to be bracked by __KERNEL__.  This is another occurrence of "1)".
+
+c) <linux/joystick.h> is broken in both ways by 2.6.13-rc1.  This change
+    introduces references to <asm/types.h> symbols BITS_PER_LONG (only
+    #define'd under __KERNEL__), and __s64 (on 32-bit platforms, only
+    typedef'ed under gcc without -ansi).
+
+It is understandable that such errors do not usually show up during kernel
+development.  Yet, an unfortunate consequence of the policy against
+/usr/include/{linux,asm,...} symlinks is to delay detection of such errors
+until someone attempts to rebuild an X server, or some other software,
+with a glibc re-generated using the modified kernel headers.
+
+It is certainly possible to report such problems individually and have
+done so for most of them.  But, in practice, it has sometimes been
+difficult to determine who to contact, let alone convince the relevant
+party that there is a problem.  Furthermore, repetition over time turns
+the reporting of such errors into an exercise in evangelisation, a
+function I feel would be more effectively provided internally within the
+kernel development community.
+
+To that end, I would propose, as a possible technical solution, extending
+the kernel build process to detect these errors during kernel development.
+
+Your thoughts on this matter would be greatly appreciated.
+
+Thanks.
+
+Marc.
+
++----------------------------------+-----------------------------------+
+|  Marc Aurele La France           |  work:   1-780-492-9310           |
+|  Academic Information and        |  fax:    1-780-492-1729           |
+|    Communications Technologies   |  email:  tsi@ualberta.ca          |
+|  352 General Services Building   +-----------------------------------+
+|  University of Alberta           |                                   |
+|  Edmonton, Alberta               |     Standard disclaimers apply    |
+|  T6G 2H1                         |                                   |
+|  CANADA                          |                                   |
++----------------------------------+-----------------------------------+
+XFree86 developer and VP.  ATI driver and X server internals.

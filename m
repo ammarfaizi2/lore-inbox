@@ -1,73 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVGKQD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVGKQDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbVGKQD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 12:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVGKQBa
+	id S261998AbVGKQDl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 12:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVGKQDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 12:01:30 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49604 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262141AbVGKP7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 11:59:34 -0400
-Date: Mon, 11 Jul 2005 17:59:28 +0200
-From: Jan Kara <jack@suse.cz>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] Change HFS+ to not use ll_rw_block()
-Message-ID: <20050711155928.GV12428@atrey.karlin.mff.cuni.cz>
+	Mon, 11 Jul 2005 12:03:35 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:39118 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262142AbVGKQCQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 12:02:16 -0400
+X-ORBL: [63.202.173.158]
+Date: Mon, 11 Jul 2005 09:02:05 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: "Theodore Ts'o" <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       arjan@infradead.org, azarah@nosferatu.za.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, christoph@lameter.org
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Message-ID: <20050711160205.GA6834@taniwha.stupidest.org>
+References: <20050708214908.GA31225@taniwha.stupidest.org> <20050708145953.0b2d8030.akpm@osdl.org> <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe> <1120933916.3176.57.camel@laptopd505.fenrus.org> <1120934163.6488.72.camel@mindpipe> <20050709121212.7539a048.akpm@osdl.org> <1120936561.6488.84.camel@mindpipe> <1121088186.7407.61.camel@localhost.localdomain> <20050711140510.GB14529@thunk.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="nYySOmuH/HDX6pKp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050711140510.GB14529@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 11, 2005 at 10:05:10AM -0400, Theodore Ts'o wrote:
 
---nYySOmuH/HDX6pKp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> The real answer here is for the tickless patches to cleaned up to
+> the point where they can be merged, and then we won't waste battery
+> power entering the timer interrupt in the first place.  :-)
 
-  Hi,
-
-  attached patch changes HFS+ to use sync_one_buffer() instead of
-ll_rw_block() and wait_on_buffer().
-
-								Honza
-
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
-
---nYySOmuH/HDX6pKp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="hfsplus-2.6.12-ll_rw_block-fix.diff"
-
-Use block layer predefined function.
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.12-1-forgetfix/fs/hfsplus/super.c linux-2.6.12-2-ll_rw_block-fix/fs/hfsplus/super.c
---- linux-2.6.12-1-forgetfix/fs/hfsplus/super.c	2005-06-28 13:26:18.000000000 +0200
-+++ linux-2.6.12-2-ll_rw_block-fix/fs/hfsplus/super.c	2005-07-09 01:52:10.000000000 +0200
-@@ -217,8 +217,7 @@ static void hfsplus_put_super(struct sup
- 		vhdr->attributes |= cpu_to_be32(HFSPLUS_VOL_UNMNT);
- 		vhdr->attributes &= cpu_to_be32(~HFSPLUS_VOL_INCNSTNT);
- 		mark_buffer_dirty(HFSPLUS_SB(sb).s_vhbh);
--		ll_rw_block(WRITE, 1, &HFSPLUS_SB(sb).s_vhbh);
--		wait_on_buffer(HFSPLUS_SB(sb).s_vhbh);
-+		sync_dirty_buffer(HFSPLUS_SB(sb).s_vhbh);
- 	}
- 
- 	hfs_btree_close(HFSPLUS_SB(sb).cat_tree);
-@@ -415,8 +414,7 @@ static int hfsplus_fill_super(struct sup
- 	vhdr->attributes &= cpu_to_be32(~HFSPLUS_VOL_UNMNT);
- 	vhdr->attributes |= cpu_to_be32(HFSPLUS_VOL_INCNSTNT);
- 	mark_buffer_dirty(HFSPLUS_SB(sb).s_vhbh);
--	ll_rw_block(WRITE, 1, &HFSPLUS_SB(sb).s_vhbh);
--	wait_on_buffer(HFSPLUS_SB(sb).s_vhbh);
-+	sync_dirty_buffer(HFSPLUS_SB(sb).s_vhbh);
- 
- 	if (!HFSPLUS_SB(sb).hidden_dir) {
- 		printk("HFS+: create hidden dir...\n");
-
---nYySOmuH/HDX6pKp--
+Whilst conceptually this is a nice idea I've yet to see any viable
+code that overall has a lower cost.  Tickless is a really nice idea
+for embedded devices and also paravirtualized hardware but I don't
+think anyone has it working well enough yet do they?

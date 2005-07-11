@@ -1,353 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbVGKWor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbVGKWPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbVGKWor (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 18:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVGKWmz
+	id S262732AbVGKWPl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbVGKWNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 18:42:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63212 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262756AbVGKWWx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 18:22:53 -0400
-Date: Mon, 11 Jul 2005 23:22:47 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
+	Mon, 11 Jul 2005 18:13:38 -0400
+Received: from smtp4.netcabo.pt ([212.113.174.31]:18185 "EHLO
+	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S262732AbVGKWMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 18:12:20 -0400
+Message-ID: <49635.192.168.1.8.1121119792.squirrel@www.rncbc.org>
+In-Reply-To: <33519.192.168.1.8.1121119251.squirrel@www.rncbc.org>
+References: <20050703133738.GB14260@elte.hu>   
+    <1120428465.21398.2.camel@cmn37.stanford.edu>   
+    <24833.195.245.190.94.1120761991.squirrel@www.rncbc.org>   
+    <20050707194914.GA1161@elte.hu>   
+    <49943.192.168.1.5.1120778373.squirrel@www.rncbc.org>   
+    <57445.195.245.190.94.1120812419.squirrel@www.rncbc.org>   
+    <20050708085253.GA1177@elte.hu>   
+    <28798.195.245.190.94.1120815616.squirrel@www.rncbc.org>   
+    <20050708095600.GA5910@elte.hu>   
+    <63108.195.245.190.94.1121094757.squirrel@www.rncbc.org>   
+    <20050711155503.GA21762@elte.hu>
+    <33519.192.168.1.8.1121119251.squirrel@www.rncbc.org>
+Date: Mon, 11 Jul 2005 23:09:52 +0100 (WEST)
+Subject: Re: realtime-preempt-2.6.12-final-V0.7.51-11 glitches [no more]
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] device-mapper: [3/4] Fix deadlocks in core
-Message-ID: <20050711222247.GE12355@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
+Content-Type: multipart/mixed;boundary="----=_20050711230952_78334"
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 11 Jul 2005 22:12:14.0492 (UTC) FILETIME=[97B445C0:01C58665]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is an attempt to fix deadlocks discovered in the core dm.
+------=_20050711230952_78334
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 
-The problems boil down to md->lock having to be held in too many
-places, so I've split it into two: md->suspend_lock and md->io_lock.
+> I've tried whether having nmi_watchdog has any influence, to no
+> distinguishable result; readprofile always says zero times. And
+> I'm sure I have LOCAL_APIC=y (see attached config.gz)
 
-suspend_lock is now held throughout dm_suspended() as well as
-dm_resume() and dm_swap_table() so that these functions cannot
-run concurrently: there's no requirement for that and it added
-complexity.
+Damn, forgot the attachement. Here it goes.
+Sorry.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+------=_20050711230952_78334
+Content-Type: application/x-gzip; name="config-2.6.12-RT-V0.7.51-26.0.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="config-2.6.12-RT-V0.7.51-26.0.gz"
 
-DMF_FS_LOCKED becomes redundant: DMF_SUSPENDED provides adequate
-protection.
+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
+eAvzf2lDlTt8iwAA
+------=_20050711230952_78334--
 
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
 
---- diff/drivers/md/dm.c	2005-07-11 22:57:58.000000000 +0100
-+++ source/drivers/md/dm.c	2005-07-11 23:03:21.000000000 +0100
-@@ -55,10 +55,10 @@
-  */
- #define DMF_BLOCK_IO 0
- #define DMF_SUSPENDED 1
--#define DMF_FS_LOCKED 2
- 
- struct mapped_device {
--	struct rw_semaphore lock;
-+	struct rw_semaphore io_lock;
-+	struct semaphore suspend_lock;
- 	rwlock_t map_lock;
- 	atomic_t holders;
- 
-@@ -248,16 +248,16 @@
-  */
- static int queue_io(struct mapped_device *md, struct bio *bio)
- {
--	down_write(&md->lock);
-+	down_write(&md->io_lock);
- 
- 	if (!test_bit(DMF_BLOCK_IO, &md->flags)) {
--		up_write(&md->lock);
-+		up_write(&md->io_lock);
- 		return 1;
- 	}
- 
- 	bio_list_add(&md->deferred, bio);
- 
--	up_write(&md->lock);
-+	up_write(&md->io_lock);
- 	return 0;		/* deferred successfully */
- }
- 
-@@ -568,14 +568,14 @@
- 	int r;
- 	struct mapped_device *md = q->queuedata;
- 
--	down_read(&md->lock);
-+	down_read(&md->io_lock);
- 
- 	/*
- 	 * If we're suspended we have to queue
- 	 * this io for later.
- 	 */
- 	while (test_bit(DMF_BLOCK_IO, &md->flags)) {
--		up_read(&md->lock);
-+		up_read(&md->io_lock);
- 
- 		if (bio_rw(bio) == READA) {
- 			bio_io_error(bio, bio->bi_size);
-@@ -594,11 +594,11 @@
- 		 * We're in a while loop, because someone could suspend
- 		 * before we get to the following read lock.
- 		 */
--		down_read(&md->lock);
-+		down_read(&md->io_lock);
- 	}
- 
- 	__split_bio(md, bio);
--	up_read(&md->lock);
-+	up_read(&md->io_lock);
- 	return 0;
- }
- 
-@@ -747,7 +747,8 @@
- 		goto bad1;
- 
- 	memset(md, 0, sizeof(*md));
--	init_rwsem(&md->lock);
-+	init_rwsem(&md->io_lock);
-+	init_MUTEX(&md->suspend_lock);
- 	rwlock_init(&md->map_lock);
- 	atomic_set(&md->holders, 1);
- 	atomic_set(&md->event_nr, 0);
-@@ -844,13 +845,14 @@
- 	if (size == 0)
- 		return 0;
- 
-+	dm_table_get(t);
-+	dm_table_event_callback(t, event_callback, md);
-+
- 	write_lock(&md->map_lock);
- 	md->map = t;
-+	dm_table_set_restrictions(t, q);
- 	write_unlock(&md->map_lock);
- 
--	dm_table_get(t);
--	dm_table_event_callback(t, event_callback, md);
--	dm_table_set_restrictions(t, q);
- 	return 0;
- }
- 
-@@ -963,7 +965,7 @@
- {
- 	int r = -EINVAL;
- 
--	down_write(&md->lock);
-+	down(&md->suspend_lock);
- 
- 	/* device must be suspended */
- 	if (!dm_suspended(md))
-@@ -973,7 +975,7 @@
- 	r = __bind(md, table);
- 
- out:
--	up_write(&md->lock);
-+	up(&md->suspend_lock);
- 	return r;
- }
- 
-@@ -981,16 +983,13 @@
-  * Functions to lock and unlock any filesystem running on the
-  * device.
-  */
--static int __lock_fs(struct mapped_device *md)
-+static int lock_fs(struct mapped_device *md)
- {
- 	int r = -ENOMEM;
- 
--	if (test_and_set_bit(DMF_FS_LOCKED, &md->flags))
--		return 0;
--
- 	md->frozen_bdev = bdget_disk(md->disk, 0);
- 	if (!md->frozen_bdev) {
--		DMWARN("bdget failed in __lock_fs");
-+		DMWARN("bdget failed in lock_fs");
- 		goto out;
- 	}
- 
-@@ -1004,7 +1003,7 @@
- 
- 	/* don't bdput right now, we don't want the bdev
- 	 * to go away while it is locked.  We'll bdput
--	 * in __unlock_fs
-+	 * in unlock_fs
- 	 */
- 	return 0;
- 
-@@ -1013,15 +1012,11 @@
- 	md->frozen_sb = NULL;
- 	md->frozen_bdev = NULL;
- out:
--	clear_bit(DMF_FS_LOCKED, &md->flags);
- 	return r;
- }
- 
--static void __unlock_fs(struct mapped_device *md)
-+static void unlock_fs(struct mapped_device *md)
- {
--	if (!test_and_clear_bit(DMF_FS_LOCKED, &md->flags))
--		return;
--
- 	thaw_bdev(md->frozen_bdev, md->frozen_sb);
- 	bdput(md->frozen_bdev);
- 
-@@ -1038,13 +1033,14 @@
-  */
- int dm_suspend(struct mapped_device *md)
- {
--	struct dm_table *map;
-+	struct dm_table *map = NULL;
- 	DECLARE_WAITQUEUE(wait, current);
- 	int r = -EINVAL;
- 
--	down_read(&md->lock);
--	if (test_bit(DMF_BLOCK_IO, &md->flags))
--		goto out_read_unlock;
-+	down(&md->suspend_lock);
-+
-+	if (dm_suspended(md))
-+		goto out;
- 
- 	map = dm_get_table(md);
- 
-@@ -1052,36 +1048,22 @@
- 	dm_table_presuspend_targets(map);
- 
- 	/* Flush I/O to the device. */
--	r = __lock_fs(md);
--	if (r) {
--		dm_table_put(map);
--		goto out_read_unlock;
--	}
--
--	up_read(&md->lock);
-+	r = lock_fs(md);
-+	if (r)
-+		goto out;
- 
- 	/*
- 	 * First we set the BLOCK_IO flag so no more ios will be mapped.
--	 *
--	 * If the flag is already set we know another thread is trying to
--	 * suspend as well, so we leave the fs locked for this thread.
- 	 */
--	r = -EINVAL;
--	down_write(&md->lock);
--	if (test_and_set_bit(DMF_BLOCK_IO, &md->flags)) {
--		if (map)
--			dm_table_put(map);
--		goto out_write_unlock;
--	}
-+	down_write(&md->io_lock);
-+	set_bit(DMF_BLOCK_IO, &md->flags);
- 
- 	add_wait_queue(&md->wait, &wait);
--	up_write(&md->lock);
-+	up_write(&md->io_lock);
- 
- 	/* unplug */
--	if (map) {
-+	if (map)
- 		dm_table_unplug_all(map);
--		dm_table_put(map);
--	}
- 
- 	/*
- 	 * Then we wait for the already mapped ios to
-@@ -1097,32 +1079,28 @@
- 	}
- 	set_current_state(TASK_RUNNING);
- 
--	down_write(&md->lock);
-+	down_write(&md->io_lock);
- 	remove_wait_queue(&md->wait, &wait);
- 
- 	/* were we interrupted ? */
- 	r = -EINTR;
--	if (atomic_read(&md->pending))
--		goto out_unfreeze;
--
--	set_bit(DMF_SUSPENDED, &md->flags);
-+	if (atomic_read(&md->pending)) {
-+		up_write(&md->io_lock);
-+		unlock_fs(md);
-+		clear_bit(DMF_BLOCK_IO, &md->flags);
-+		goto out;
-+	}
-+	up_write(&md->io_lock);
- 
--	map = dm_get_table(md);
- 	dm_table_postsuspend_targets(map);
--	dm_table_put(map);
--	up_write(&md->lock);
- 
--	return 0;
-+	set_bit(DMF_SUSPENDED, &md->flags);
- 
--out_unfreeze:
--	__unlock_fs(md);
--	clear_bit(DMF_BLOCK_IO, &md->flags);
--out_write_unlock:
--	up_write(&md->lock);
--	return r;
-+	r = 0;
- 
--out_read_unlock:
--	up_read(&md->lock);
-+out:
-+	dm_table_put(map);
-+	up(&md->suspend_lock);
- 	return r;
- }
- 
-@@ -1132,31 +1110,35 @@
- 	struct bio *def;
- 	struct dm_table *map = NULL;
- 
--	down_write(&md->lock);
--	if (!dm_suspended(md)) {
--		up_write(&md->lock);
-+	down(&md->suspend_lock);
-+	if (!dm_suspended(md))
- 		goto out;
--	}
- 
- 	map = dm_get_table(md);
--	if (!map || !dm_table_get_size(map)) {
--		up_write(&md->lock);
-+	if (!map || !dm_table_get_size(map))
- 		goto out;
--	}
- 
- 	dm_table_resume_targets(map);
--	clear_bit(DMF_SUSPENDED, &md->flags);
-+
-+	down_write(&md->io_lock);
- 	clear_bit(DMF_BLOCK_IO, &md->flags);
- 
- 	def = bio_list_get(&md->deferred);
- 	__flush_deferred_io(md, def);
--	up_write(&md->lock);
--	__unlock_fs(md);
-+	up_write(&md->io_lock);
-+
-+	unlock_fs(md);
-+
-+	clear_bit(DMF_SUSPENDED, &md->flags);
-+
- 	dm_table_unplug_all(map);
- 
- 	r = 0;
-+
- out:
- 	dm_table_put(map);
-+	up(&md->suspend_lock);
-+
- 	return r;
- }
- 

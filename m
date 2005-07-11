@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVGKTVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVGKTVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262317AbVGKTVR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 15:21:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVGKTIv
+	id S262025AbVGKTVS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 15:21:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVGKTIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 15:08:51 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:61616 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S262389AbVGKTFL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 15:05:11 -0400
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: serue@us.ibm.com
-Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Safford <safford@watson.ibm.com>,
-       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gerrit@us.ibm.com>
-In-Reply-To: <20050711175135.GD15292@serge.austin.ibm.com>
-References: <20050630194458.GA23439@serge.austin.ibm.com>
-	 <20050630195043.GE23538@serge.austin.ibm.com>
-	 <1121092828.12334.94.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050711175135.GD15292@serge.austin.ibm.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Mon, 11 Jul 2005 15:03:59 -0400
-Message-Id: <1121108639.3528.90.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Mon, 11 Jul 2005 15:08:46 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:54210 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262025AbVGKTFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 15:05:14 -0400
+Message-ID: <42D2C2D1.70603@namesys.com>
+Date: Mon, 11 Jul 2005 12:04:49 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: erik@hensema.net, linux-kernel@vger.kernel.org
+Subject: Re: reiser4 vs politics: linux misses out again
+References: <200507111815.j6BIFgc6002696@laptop11.inf.utfsm.cl>
+In-Reply-To: <200507111815.j6BIFgc6002696@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 12:51 -0500, serue@us.ibm.com wrote:
-> I can imagine a few ways of fixing this:
-> 
-> 	1.	We simply expect that only one module use xattrs.  This
-> 	is probably unacceptable, as we will want both EVM and selinux
-> 	to store xattrs.
+Horst von Brand wrote:
 
-Note that these particular hooks are only used for filesystems like
-devpts and tmpfs where there is no underlying storage for the security
-xattrs but we still need a way to [gs]et the incore inode security label
-from userspace.
+>
+>
+>  
+>
+>>                                          It's not always
+>>nescesary to let the demand create the means. Give programmers
+>>some powerful tools and wait and see what wonderful things start
+>>to evolve.
+>>    
+>>
+>
+>The sad truth is that if you give a random collection of people powerful
+>tools they misuse them more often than not, creating a huge mess in the
+>process. That is why it is so hard to design good tools.
+>  
+>
+We are rope makers.  Our job is to make good rope.  If someone might use
+it to hang dissidents, that does not mean we should now make the rope
+too inflexible to form a noose.  It is important that we know our
+place.  Our place is to help users express themselves the way they want
+to.  It is not our job to keep them from hanging dissidents.  If they
+hang dissidents, we should not change the way we make rope, we should
+shoot them.   Most of our users don't hang dissidents, to the contrary,
+they do work of value to society, and need their time saved so that they
+can do more of it.
 
-> 	2.	A module registers an xattr name when it registers
-> 	itself.  Then only the registered module is consulted on one of
-> 	these calls.  If no module is registered, all are consulted as
-> 	they are now.
+The users of reiser4 know a lot more than I do, and are much wiser than
+I am.  Because I focus on a narrow little area, I am able to do
+something useful to help them express their greater wisdom more
+flexibly.  I take pride in that.
 
-SELinux already checks the name suffix in inode_getsecurity and
-inode_setsecurity, and returns -EOPNOTSUPP if it isn't selinux.  Hence,
-stacker could just iterate through the modules until it gets a result
-other than -EOPNOTSUPP, relying on the modules to check the name.
+The belief expressed above that powerful tools will be misused more than
+well used, and the dislike of power for the users it contains, is why we
+will never do more than talk past each other.  Perhaps we should just
+agree to disagree.
 
-listsecurity is different, as it is supposed to yield the list of
-attribute names concatenated together, but that shouldn't be difficult
-for stacker to construct, similar to your getprocattr logic but without
-the need to add tags.
-
-> 		This prevents a module like capability from deciding
-> 	based on its own credentials whether another module's hook
-> 	should be called.  Is that a good or bad thing?
-
-These hooks aren't supposed to be doing permission checking; that is
-handled by the separate security_inode_*xattr hooks.  They are just for
-getting/setting the incore inode security label.
-
-> 		This might have the added bonus of obviating the need
-> 	for a separate cap_stack module.
-
-I don't think so - different hooks are involved (inode_setxattr vs.
-inode_setsecurity).
-
--- 
-Stephen Smalley
-National Security Agency
-
+Hans

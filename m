@@ -1,85 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262745AbVGKVYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVGKVfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbVGKVYK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 17:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVGKVWH
+	id S262761AbVGKVfH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 17:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbVGKVew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 17:22:07 -0400
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:48539 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S262745AbVGKVUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 17:20:08 -0400
-Subject: Re: [openib-general] [PATCH 26/29v2] Add kernel portion of user CM
-	implementation
-From: Tom Duffy <tduffy@sun.com>
-To: Hal Rosenstock <halr@voltaire.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <1121110427.4389.5036.camel@hal.voltaire.com>
-References: <1121110427.4389.5036.camel@hal.voltaire.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 11 Jul 2005 14:19:28 -0700
-Message-Id: <1121116768.3028.9.camel@duffman>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-11.fc5) 
+	Mon, 11 Jul 2005 17:34:52 -0400
+Received: from totor.bouissou.net ([82.67.27.165]:7859 "EHLO
+	totor.bouissou.net") by vger.kernel.org with ESMTP id S262761AbVGKVef
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 17:34:35 -0400
+From: Michel Bouissou <michel@bouissou.net>
+Organization: Me, Myself and I
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [SOLVED ??] Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
+Date: Mon, 11 Jul 2005 23:34:30 +0200
+User-Agent: KMail/1.7.2
+Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0507111713320.14116-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0507111713320.14116-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200507112334.30680@totor.bouissou.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 16:59 -0400, Hal Rosenstock wrote:
-> Add kernel portion of user CM implementation
+Le Lundi 11 Juillet 2005 23:21, Alan Stern a écrit :
+> Don't jump to hasty conclusions.  Problems like this are often caused by
+> unrelated things that you wouldn't suspect at first.
 
-Hal, does this compile?  As it doesn't seem to include the patch I sent
-to openib-general changing class_simple to class, I don't think it
-should work on 2.6.13-rc.
+I know... Been working with computers for... Uh... 25 years ?
 
-[ also, in future patch bombs, could you please set the references
-header so that the message thread properly, thanks ]
+> Getting something to work once doesn't mean the problem has been fixed.
 
-Signed-off-by: Tom Duffy <tduffy@sun.com>
+That's so sadly right ;-)
 
-Index: linux-2.6.13-rc2-openib/drivers/infiniband/core/ucm.c
-===================================================================
---- linux-2.6.13-rc2-openib/drivers/infiniband/core/ucm.c	(revision 2832)
-+++ linux-2.6.13-rc2-openib/drivers/infiniband/core/ucm.c	(working copy)
-@@ -1339,7 +1339,7 @@ static struct file_operations ib_ucm_fop
- };
- 
- 
--static struct class_simple *ib_ucm_class;
-+static struct class *ib_ucm_class;
- static struct cdev	  ib_ucm_cdev;
- 
- static int __init ib_ucm_init(void)
-@@ -1360,17 +1360,14 @@ static int __init ib_ucm_init(void)
- 		goto err_cdev;
- 	}
- 
--	ib_ucm_class = class_simple_create(THIS_MODULE, "infiniband_cm");
-+	ib_ucm_class = class_create(THIS_MODULE, "infiniband_cm");
- 	if (IS_ERR(ib_ucm_class)) {
- 		result = PTR_ERR(ib_ucm_class);
- 		printk(KERN_ERR "UCM: Error <%d> creating class\n", result);
- 		goto err_class;
- 	}
- 
--	class_simple_device_add(ib_ucm_class,
--				IB_UCM_DEV,
--				NULL,
--				"ucm");
-+	class_device_create(ib_ucm_class, IB_UCM_DEV, NULL, "ucm");
- 	
- 	idr_init(&ctx_id_table);
- 	init_MUTEX(&ctx_id_mutex);
-@@ -1386,8 +1383,8 @@ err_chr:
- 
- static void __exit ib_ucm_cleanup(void)
- {
--	class_simple_device_remove(IB_UCM_DEV);
--	class_simple_destroy(ib_ucm_class);
-+	class_device_destroy(ib_ucm_class, IB_UCM_DEV);
-+	class_destroy(ib_ucm_class);
- 	cdev_del(&ib_ucm_cdev);
- 	unregister_chrdev_region(IB_UCM_DEV, 1);
- }
+> And you can be fooled by coincidences.  (I would be surprised if that event
+> above was really caused by plugging in the scanner, unless your UHCI
+> hardware is broken.) 
 
+I don't believe the hardware is broken, as it's been running for more than 2 
+years 100% stable with a 24/7/365 uptime. And with me plugging and unplugging 
+USB devices...
+
+Never had a single problem of the kind with any 2.4.x kernel. Get those 
+problems only with 2.6.x kernels, and, in 2.6.12, only when UP IO-APIC is 
+enabled (which ran perfectly good in 2.4).
+
+So the problem is circled to 2.6 kernel, uhci_hcd and UP IO-APIC.
+
+> One thing you might try, time-consuming though it will be, is to remove or
+> disable as much hardware as possible from your system.  If you can
+> reliably determine that the problem occurs only when one particular piece
+> of hardware is enabled, then you'll know how to proceed.
+
+I can hardly remove my VIA chipset from the mobo, and the USB thing is in the 
+VIA thing ;-))
+
+And I'm afraid I won't have the time to play that much with hardware, besides 
+the fact that this is supposed to be a server which usually has uptimes over 
+90 days rather than reboot-for-testing-the-damn-kernel-once-again ;-))
+
+But I'm pretty sure this is no hardware problem, unless 2.6 considers "bad 
+hardware" what 2.4 used to consider "nice hardware"...
+
+Cheers.
+
+-- 
+Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E

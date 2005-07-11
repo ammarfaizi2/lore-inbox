@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVGKJjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVGKJnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbVGKJjP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 05:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVGKJjO
+	id S261524AbVGKJnK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 05:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVGKJnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 05:39:14 -0400
-Received: from mailfe10.tele2.fr ([212.247.155.44]:57485 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261476AbVGKJjN convert rfc822-to-8bit
+	Mon, 11 Jul 2005 05:43:09 -0400
+Received: from starsky.19inch.net ([80.1.73.116]:31915 "EHLO
+	starsky.19inch.net") by vger.kernel.org with ESMTP id S261524AbVGKJnI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 05:39:13 -0400
-X-T2-Posting-ID: k1c2aGMK8Lj9Cnpb+Eju4eOhqUzXuhsckJNC9B9P7R8=
-Date: Mon, 11 Jul 2005 11:41:52 +0200
-From: Frederik Deweerdt <frederik.deweerdt@gmail.com>
-To: Miles Bader <miles@gnu.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] v850: Update checksum.h to match changed function signatures
-Message-ID: <20050711094151.GA31805@gilgamesh.home.res>
-Mail-Followup-To: Miles Bader <miles@gnu.org>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050711092450.52815625@mctpc71>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20050711092450.52815625@mctpc71>
-User-Agent: Mutt/1.5.6i
-Content-Transfer-Encoding: 8BIT
+	Mon, 11 Jul 2005 05:43:08 -0400
+Date: Mon, 11 Jul 2005 10:42:26 +0100 (BST)
+From: Paul Sladen <thinkpad@paul.sladen.org>
+To: Alejandro Bonilla <abonilla@linuxwireless.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
+       Paul Sladen <thinkpad@paul.sladen.org>,
+       linux-thinkpad@linux-thinkpad.org,
+       Eric Piel <Eric.Piel@tremplin-utc.net>, borislav@users.sourceforge.net,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net
+Subject: Re: [ltp] IBM HDAPS Someone interested? (Userspace accelerometer
+ viewer)
+In-Reply-To: <42C7A3B2.4090502@linuxwireless.org>
+Message-ID: <Pine.LNX.4.21.0507111011170.25721-100000@starsky.19inch.net>
+X-GPG-Key: DSA/E90CFA24
+X-message-flag: Please use plain text when replying--not HTML.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 11/07/05 18:24 +0900, Miles Bader écrivit:
-> 
-> -unsigned int csum_partial_copy_from_user (const unsigned char *src, unsigned char *dst,
-> +unsigned int csum_partial_copy_from_user (const unsigned char *src,
-> +					  unsigned char *dst,
-					  ^^^^^^^ Alignment looks fuzzy here
->                                            int len, unsigned int sum,
->                                            int *err_ptr)
+On Sun, 3 Jul 2005, Alejandro Bonilla wrote:
+> PLEASE read the following article, it has the data of a guy that made a 
+> driver in IBM for Linux and he described the driver he made.
+> http://www.almaden.ibm.com/cs/people/marksmith/tpaps.html
 
-Regards,
-Frederik Deweerdt
+Yesterday evening, I used my time here at Debconf5 constructively!  ;-)
+
+  http://www.paul.sladen.org/thinkpad-r31/aps/accelerometer-viewer.jpg    (43kB)
+  http://www.paul.sladen.org/thinkpad-r31/aps/accelerometer-lid-shut.jpg  (27kB)
+
+The sensor gives us two 10-bit AD values (corresponding to 0..1 volts on the
+ADI chip), temperature (Celsius) and three status bits indicating:
+
+  * lid open/closed
+  * keyboard activity
+  * nipple movement
+
+On the X40 I borrowed (thanks Robert McQueen), at rest the outputs hover
+around 512 (0x200).  Gravity is supposed to fall off in a sine-wave during
+rotation, but I found that:
+
+  theta = (N - 512) * 0.5
+
+provides a surprisingly good approximation for pitch/roll values in degrees
+in the range (-90..+90) so I think the sensor can do ~= +/-2.5G .
+
+  http://www.paul.sladen.org/thinkpad-r31/aps/accelerometer-screenshot.png (9kB)
+
+	-Paul
+
+PS.  Coincidently, the name of the machine I borrowed is 'theta'...
+-- 
+Mostly it snows here.  Helsinki, FI
+
+
+

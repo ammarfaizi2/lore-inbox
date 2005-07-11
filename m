@@ -1,153 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVGKOnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVGKOnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbVGKOnO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVGKOkV
+	id S261902AbVGKOnK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbVGKOkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:40:21 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:53190 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261839AbVGKOh5
+	Mon, 11 Jul 2005 10:40:13 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:55002 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261882AbVGKOiK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:37:57 -0400
-Subject: [PATCH 16/27] Add ib_create_ah_from_wc to IB verbs
-From: Hal Rosenstock <halr@voltaire.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1121089135.4389.4537.camel@hal.voltaire.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 10:30:19 -0400
+	Mon, 11 Jul 2005 10:38:10 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Date: Mon, 11 Jul 2005 15:38:22 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050711141232.GA16586@elte.hu> <20050711141622.GA17327@elte.hu>
+In-Reply-To: <20050711141622.GA17327@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507111538.22551.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Added new call: ib_create_ah_from_wc. Call will allocate an 
-address handle given work completion information, including any
-received GRH.
+On Monday 11 Jul 2005 15:16, Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> > might be an incorrect printout of stack_left :( The esp looks more or
+> > less normal. Not sure why it printed -52.
+>
+> here's the stack_left calculation:
+>
+> +       printk("ds: %04x   es: %04x   ss: %04x   preempt: %08x\n",
+> +               regs->xds & 0xffff, regs->xes & 0xffff, ss,
+> preempt_count()); +       printk("Process %s (pid: %d, threadinfo=%p
+> task=%p stack_left=%ld worst_left=%ld)", +               current->comm,
+> current->pid, current_thread_info(), current, +               (regs->esp &
+> (THREAD_SIZE-1))-sizeof(struct thread_info), +              
+> worst_stack_left);
+>
+> i cannot see anything wrong in it, but your esp is 0xc04cded0,
+> THREAD_SIZE-1 is 0xfff, so the result should be:
+>
+> 	0xed0-sizeof(struct thread_info).
+>
+> which should not be -52.
 
-Signed-off-by: Sean Hefty <sean.hefty@intel.com>
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
+Actually, it's now pretty much confirmed that this ISN'T a stack overflow, not 
+just because of what you've said (now and before), but also because I've 
+tried an 8K stacks kernel and, sadly, there's no stand-out stack abusers.
 
-This patch depends on patch 15/27.
+It's annoying that this is so readily reproducible here, yet almost impossible 
+to debug, and clearly a sideaffect of 4KSTACKS.. without it actually being a 
+stack overflow.
+
+I realise 4KSTACKS is a considerable rework of the IRQ handler, etc. and 
+probably even more heavily modified by rt-preempt, but is there nothing else 
+that can be tested before a serial console run?
 
 -- 
- core/verbs.c       |   35 +++++++++++++++++++++++++++++++++++
- include/ib_mad.h   |    9 --
- include/ib_verbs.h |   24 ++++++++++++++++++++++++
- 3 files changed, 59 insertions(+), 9 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband15/core/verbs.c linux-2.6.13-rc2-mm1/drivers/infiniband16/core/verbs.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband15/core/verbs.c	2005-07-10 11:09:37.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband16/core/verbs.c	2005-07-10 11:43:44.000000000 -0400
-@@ -41,6 +41,7 @@
- #include <linux/err.h>
- 
- #include <ib_verbs.h>
-+#include <ib_cache.h>
- 
- /* Protection domains */
- 
-@@ -88,6 +89,40 @@ struct ib_ah *ib_create_ah(struct ib_pd 
- }
- EXPORT_SYMBOL(ib_create_ah);
- 
-+struct ib_ah *ib_create_ah_from_wc(struct ib_pd *pd, struct ib_wc *wc,
-+				   struct ib_grh *grh, u8 port_num)
-+{
-+	struct ib_ah_attr ah_attr;
-+	u32 flow_class;
-+	u16 gid_index;
-+	int ret;
-+
-+	memset(&ah_attr, 0, sizeof ah_attr);
-+	ah_attr.dlid = wc->slid;
-+	ah_attr.sl = wc->sl;
-+	ah_attr.src_path_bits = wc->dlid_path_bits;
-+	ah_attr.port_num = port_num;
-+	
-+	if (wc->wc_flags & IB_WC_GRH) {
-+		ah_attr.ah_flags = IB_AH_GRH;
-+		ah_attr.grh.dgid = grh->dgid;
-+
-+		ret = ib_find_cached_gid(pd->device, &grh->sgid, &port_num,
-+					 &gid_index);
-+		if (ret)
-+			return ERR_PTR(ret);
-+
-+		ah_attr.grh.sgid_index = (u8) gid_index;
-+		flow_class = be32_to_cpu(&grh->version_tclass_flow);
-+		ah_attr.grh.flow_label = flow_class & 0xFFFFF;
-+		ah_attr.grh.traffic_class = (flow_class >> 20) & 0xFF;
-+		ah_attr.grh.hop_limit = grh->hop_limit;
-+	}
-+
-+	return ib_create_ah(pd, &ah_attr);
-+}
-+EXPORT_SYMBOL(ib_create_ah_from_wc);
-+
- int ib_modify_ah(struct ib_ah *ah, struct ib_ah_attr *ah_attr)
- {
- 	return ah->device->modify_ah ?
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband15/include/ib_mad.h linux-2.6.13-rc2-mm1/drivers/infiniband16/include/ib_mad.h
--- linux-2.6.13-rc2-mm1/drivers/infiniband15/include/ib_mad.h	2005-07-09 17:57:11.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband16/include/ib_mad.h	2005-07-10 11:43:45.000000000 -0400
-@@ -77,15 +77,6 @@
- #define IB_QP1_QKEY	0x80010000
- #define IB_QP_SET_QKEY	0x80000000
- 
--struct ib_grh {
--	u32		version_tclass_flow;
--	u16		paylen;
--	u8		next_hdr;
--	u8		hop_limit;
--	union ib_gid	sgid;
--	union ib_gid	dgid;
--} __attribute__ ((packed));
--
- struct ib_mad_hdr {
- 	u8	base_version;
- 	u8	mgmt_class;
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband15/include/ib_verbs.h linux-2.6.13-rc2-mm1/drivers/infiniband16/include/ib_verbs.h
--- linux-2.6.13-rc2-mm1/drivers/infiniband15/include/ib_verbs.h	2005-07-10 10:55:59.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband16/include/ib_verbs.h	2005-07-10 11:43:45.000000000 -0400
-@@ -289,6 +289,15 @@ struct ib_global_route {
- 	u8		traffic_class;
- };
- 
-+struct ib_grh {
-+	u32		version_tclass_flow;
-+	u16		paylen;
-+	u8		next_hdr;
-+	u8		hop_limit;
-+	union ib_gid	sgid;
-+	union ib_gid	dgid;
-+};
-+
- enum {
- 	IB_MULTICAST_QPN = 0xffffff
- };
-@@ -991,6 +1000,21 @@ int ib_dealloc_pd(struct ib_pd *pd);
- struct ib_ah *ib_create_ah(struct ib_pd *pd, struct ib_ah_attr *ah_attr);
- 
- /**
-+ * ib_create_ah_from_wc - Creates an address handle associated with the
-+ *   sender of the specified work completion.
-+ * @pd: The protection domain associated with the address handle.
-+ * @wc: Work completion information associated with a received message.
-+ * @grh: References the received global route header.  This parameter is
-+ *   ignored unless the work completion indicates that the GRH is valid.
-+ * @port_num: The outbound port number to associate with the address.
-+ *
-+ * The address handle is used to reference a local or global destination
-+ * in all UD QP post sends.
-+ */
-+struct ib_ah *ib_create_ah_from_wc(struct ib_pd *pd, struct ib_wc *wc,
-+				   struct ib_grh *grh, u8 port_num);
-+
-+/**
-  * ib_modify_ah - Modifies the address vector associated with an address
-  *   handle.
-  * @ah: The address handle to modify.
+Cheers,
+Alistair.
 
-
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

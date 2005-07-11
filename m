@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262764AbVGKVT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262751AbVGKVT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262764AbVGKVT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 17:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbVGKVTZ
+	id S262751AbVGKVT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 17:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVGKVRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 17:19:25 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:3980 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S262764AbVGKVRj (ORCPT
+	Mon, 11 Jul 2005 17:17:07 -0400
+Received: from cpe-24-93-204-161.neo.res.rr.com ([24.93.204.161]:22404 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S262693AbVGKVP4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 17:17:39 -0400
-Subject: Re: serial: 8250 fails to detect Exar XR16L2551 correctly
-From: Alex Williamson <alex.williamson@hp.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: David Vrabel <dvrabel@arcom.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050711211706.E1540@flint.arm.linux.org.uk>
-References: <42CA96FC.9000708@arcom.com>
-	 <20050706195740.A28758@flint.arm.linux.org.uk> <42CD2C16.1070308@arcom.com>
-	 <1121108408.28557.71.camel@tdi>
-	 <20050711204646.D1540@flint.arm.linux.org.uk>
-	 <1121112057.28557.91.camel@tdi>
-	 <20050711211706.E1540@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: LOSL
-Date: Mon, 11 Jul 2005 15:17:57 -0600
-Message-Id: <1121116677.28557.104.camel@tdi>
+	Mon, 11 Jul 2005 17:15:56 -0400
+Date: Mon, 11 Jul 2005 17:08:34 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: James Courtier-Dutton <James@superbug.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug in pcmcia-core
+Message-ID: <20050711210834.GA4898@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	James Courtier-Dutton <James@superbug.demon.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <42B1FF2A.2080608@superbug.demon.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42B1FF2A.2080608@superbug.demon.co.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 21:17 +0100, Russell King wrote:
-> On Mon, Jul 11, 2005 at 02:00:57PM -0600, Alex Williamson wrote:
-> > On Mon, 2005-07-11 at 20:46 +0100, Russell King wrote:
-> > > There was a bug in this area - does it happen with latest and greatest
-> > > kernels?
-> > 
-> >    Yes, I'm using a git pull from ~5hrs ago.  How recent was the bug
-> > fix?  It worked fine before I applied David's patch, the A2 UART was
-> > detected as a 16550A.  Thanks,
+On Thu, Jun 16, 2005 at 11:37:30PM +0100, James Courtier-Dutton wrote:
+> Hi,
 > 
-> The fix for this went in on 21st May 2005, so obviously it's not
-> actually fixed.
+> I have tried conacting the mailing list for the PCMCIA subsystem in
+> Linux, but no-one seems to respond.
+> 
+> PCMCIA SUBSYSTEM
+> L:      http://lists.infradead.org/mailman/listinfo/linux-pcmcia
+> S:      Unmaintained
+> 
+> I am trying to write a Linux ALSA driver for the Creative Audigy 2 NX
+> Notebook PCMCIA card.
+> This is a cardbus card, that uses ioports.
+> When it is inserted into the laptop, the entry appears in "lspci -vv "
+> showing ioports used by the card.
+> As soon as my driver uses "outb()" to anything in the address range
+> shown in "lspci -vv" , the PC hangs.
+> 
+> I can only conclude from this that ioport resources are not being
+> allocated correctly to the PCMCIA card.
 
-   No, I think this is a problem with the broken A2 UARTs getting
-confused in serial8250_set_sleep().  If I remove either UART_CAP_SLEEP
-or UART_CAP_EFR from the capabilities list for this UART, it behaves
-normally.  Also, just commenting out the UART_CAP_EFR chunks of
-set_sleep make it behave.  I'll ping Exar for more data.  Thanks,
+It's possible.
 
-	Alex
+> 
+> Can anybody help me track this down. If someone could tell me which
+> PCMCIA and PCI registers should be set for it to work, I could then find
+> out which pcmcia registers have not been set correctly, and fix the bug.
+> 
+> It seems that the PCMCIA specification is not open and free, so I cannot
+> refer to it in order to fix this myself.
+> 
+> Can anybody help me?
+> 
+> James
 
--- 
-Alex Williamson                             HP Linux & Open Source Lab
+Please provide more information.  /proc/ioports, lspci -vv, the ranges
+assigned to your driver, and your driver code if it's available.  I'll try
+to look into the problem.
 
+Thanks,
+Adam

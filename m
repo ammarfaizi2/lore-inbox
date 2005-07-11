@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVGKQkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVGKRKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbVGKQkE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 12:40:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVGKQhg
+	id S262067AbVGKRKa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 13:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVGKRIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 12:37:36 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:55782 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S262100AbVGKQg0
+	Mon, 11 Jul 2005 13:08:44 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:30665 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262238AbVGKRGV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 12:36:26 -0400
-Date: Mon, 11 Jul 2005 18:36:25 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, horst.hummel@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 7/12] s390: fba dasd i/o errors.
-Message-ID: <20050711163625.GG10822@localhost.localdomain>
+	Mon, 11 Jul 2005 13:06:21 -0400
+Subject: Re: [PATCH 3/27] Add MAD helper functions
+From: Hal Rosenstock <halr@voltaire.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <200507112029.26890.adobriyan@gmail.com>
+References: <1121089079.4389.4511.camel@hal.voltaire.com>
+	 <200507111839.41807.adobriyan@gmail.com>
+	 <1121094791.4389.4591.camel@hal.voltaire.com>
+	 <200507112029.26890.adobriyan@gmail.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1121100534.4389.4609.camel@hal.voltaire.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Jul 2005 12:58:43 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 7/12] s390: fba dasd i/o errors.
+On Mon, 2005-07-11 at 12:29, Alexey Dobriyan wrote:
+> On Monday 11 July 2005 19:30, Hal Rosenstock wrote:
+> > On Mon, 2005-07-11 at 10:39, Alexey Dobriyan wrote:
+> > > On Monday 11 July 2005 17:48, Hal Rosenstock wrote:
+> > > > Add new helper routines for allocating MADs for sending and formatting
+> > > > a send WR.
+> > > 
+> > > > -- linux-2.6.13-rc2-mm1/drivers/infiniband2/core/mad.c
+> > > > +++ linux-2.6.13-rc2-mm1/drivers/infiniband3/core/mad.c
+> > > 				   ^^^^^^^^^^^
+> > > Ick. You'd better have linux-2.6.13-rc2-mm1-[0123...].
+> > 
+> > Shall I resubmit with linux-2.6.13-rc2-mm1-[0123...] ?
+> 
+> I'd wait for comments and then resubmit clean series which can be applied
+> with patch -p1.
+> 
+> > > > +struct ib_mad_send_buf * ib_create_send_mad(struct ib_mad_agent *mad_agent,
+> > > > +					    u32 remote_qpn, u16 pkey_index,
+> > > > +					    struct ib_ah *ah,
+> > > > +					    int hdr_len, int data_len,
+> > > > +					    int gfp_mask)
+> > > 
+> > > unsigned int __nocast gfp_mask, please. 430 or so infiniband sparse warnings
+> > > is not a reason to add more.
+> > 
+> > I'll fix this in a subsequent patch. Is that OK ?
+> 
+> If Andrew will fix patches locally, OK.
 
-From: Horst Hummel <horst.hummel@de.ibm.com>
+I will work this into the resubmitted patches.
 
-The FBA discipline does not use retries for failed requests. A request
-fails after the first unsuccessful start attempt. There are some rare
-conditions (e.g. CIO path recovery) in which the start of an i/o on
-a fba device can fail. A tiny amount of retries is therefore
-reasonable.
+-- Hal
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
-diffstat:
- drivers/s390/block/dasd_fba.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
-
-diff -urpN linux-2.6/drivers/s390/block/dasd_fba.c linux-2.6-patched/drivers/s390/block/dasd_fba.c
---- linux-2.6/drivers/s390/block/dasd_fba.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/block/dasd_fba.c	2005-07-11 17:37:46.000000000 +0200
-@@ -4,7 +4,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
-  *
-- * $Revision: 1.39 $
-+ * $Revision: 1.40 $
-  */
- 
- #include <linux/config.h>
-@@ -354,6 +354,8 @@ dasd_fba_build_cp(struct dasd_device * d
- 	}
- 	cqr->device = device;
- 	cqr->expires = 5 * 60 * HZ;	/* 5 minutes */
-+	cqr->retries = 32;
-+	cqr->buildclk = get_clock();
- 	cqr->status = DASD_CQR_FILLED;
- 	return cqr;
- }

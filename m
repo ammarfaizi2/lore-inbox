@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVGLBM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVGKOKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbVGLBM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 21:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVGLBJz
+	id S261786AbVGKOKF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVGKOHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 21:09:55 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:42685 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S261895AbVGLBHb (ORCPT
+	Mon, 11 Jul 2005 10:07:32 -0400
+Received: from thunk.org ([69.25.196.29]:53398 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261755AbVGKOGb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 21:07:31 -0400
-Message-ID: <33703.127.0.0.1.1121130438.squirrel@localhost>
-In-Reply-To: <20050711193454.GA2210@elf.ucw.cz>
-References: <20050711193454.GA2210@elf.ucw.cz>
-Date: Mon, 11 Jul 2005 20:07:18 -0500 (CDT)
-Subject: Re: arm: how to operate leds on zaurus?
-From: "John Lenz" <lenz@cs.wisc.edu>
-To: "Pavel Machek" <pavel@ucw.cz>
-Cc: "kernel list" <linux-kernel@vger.kernel.org>,
-       "Russell King" <rmk+lkml@arm.linux.org.uk>
-User-Agent: SquirrelMail/1.4.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Mon, 11 Jul 2005 10:06:31 -0400
+Date: Mon, 11 Jul 2005 10:05:10 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       arjan@infradead.org, azarah@nosferatu.za.org, cw@f00f.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, christoph@lameter.org
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Message-ID: <20050711140510.GB14529@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+	arjan@infradead.org, azarah@nosferatu.za.org, cw@f00f.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	torvalds@osdl.org, christoph@lameter.org
+References: <200506231828.j5NISlCe020350@hera.kernel.org> <20050708214908.GA31225@taniwha.stupidest.org> <20050708145953.0b2d8030.akpm@osdl.org> <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe> <1120933916.3176.57.camel@laptopd505.fenrus.org> <1120934163.6488.72.camel@mindpipe> <20050709121212.7539a048.akpm@osdl.org> <1120936561.6488.84.camel@mindpipe> <1121088186.7407.61.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1121088186.7407.61.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, July 11, 2005 2:34 pm, Pavel Machek said:
-> Hi!
->
-> 2.6.12-rc5 (and newer) does not boot on sharp zaurus sl-5500. It
-> blinks with green led, fast; what does it mean? I'd like to verify if
-> it at least reaches .c code in setup.c. I inserted this code at
-> begining of setup.c:674...
->
-> #define locomo_writel(val,addr) ({ *(volatile u16 *)(addr) = (val); })
-> #define LOCOMO_LPT_TOFH         0x80
-> #define LOCOMO_LED              0xe8
-> #define LOCOMO_LPT0             0x00
->
->       locomo_writel(LOCOMO_LPT_TOFH, LOCOMO_LPT0 + LOCOMO_LED);
->
-> ...but that does not seem to do a trick -- it only breaks the boot :-(
-> (do I need to add some kind of IO_BASE?).
-> 								Pavel
+On Mon, Jul 11, 2005 at 02:23:08PM +0100, Alan Cox wrote:
+> > > Because some machines exhibit appreciable latency in entering low power
+> > > state via ACPI, and 1000Hz reduces their battery life.  By about half,
+> > > iirc.
+> > > 
+> > Then the owners of such machines can use HZ=250 and leave the default
+> > alone.  Why should everyone have to bear the cost?
+> 
+> They need 100 really it seems, 250-500 have no real effect and on the
+> Dell I tried 250 didn't stop the wild clock slew from the APM bios
+> either. I played with this a fair bit on a couple of laptops. I've not
+> seen anything > 20% saving however so I've no idea who/why someone saw
+> 50%
 
-No, that won't work.
+The real answer here is for the tickless patches to cleaned up to the
+point where they can be merged, and then we won't waste battery power
+entering the timer interrupt in the first place.  :-)
 
-As Russell said, there are problems accessing memory before the io maps
-have been set up correctly.  You can see the patch
-http://www.cs.wisc.edu/~lenz/zaurus/files/2.6.12-rc5/lenz-03-leds-2.6.12-rc5.patch
-need scroll near the bottom in file locomo.c to see how the led gets set. 
-You won't actually be able to know where in memory that space is mapped
-because we call ioremap, and won't be able to access the locomo stuff
-until device_initcall.
-
-WARNING: Horrible hack!  Ugly, ugly, ugly!  First read and understand the
-warning at
-http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2002-January/006730.html
-
-Having said that, either before the MMU has been activated or before the
-ioremap() has been called, it is sometimes possible to access the LEDs at
-the physical addresses they are located at.  This may or may not work,
-might not always work, etc... but it can help as a last resort.  On the
-SL5500, the physical address of the start of the locomo chip is
-0x40000000, and the leds are at an offset of 0xe8, so something like
-volatile u16 *led = (volatile u16 *)0x400000e8;
-*led = 0x80;
-As the above email says, this is not guarenteed to work at all, will fail
-at some point in the boot process, but is something you can try.
-
-That said, I am aware that recent kernel versions have broken the boot on
-collie, but haven't looked at the problem in detail (i.e. tried doing a
-binary search between known working versions and broken ones to see the
-patch that introduced the problem).  I have been working on the SL5600
-recently.
-
-John
-
+						- Ted

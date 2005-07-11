@@ -1,62 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVGKUGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVGKUIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbVGKUGN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 16:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbVGKUEH
+	id S262531AbVGKUIo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 16:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbVGKUGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 16:04:07 -0400
-Received: from totor.bouissou.net ([82.67.27.165]:39101 "EHLO
-	totor.bouissou.net") by vger.kernel.org with ESMTP id S262508AbVGKUC0
+	Mon, 11 Jul 2005 16:06:20 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:41164 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262529AbVGKUFh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 16:02:26 -0400
-From: Michel Bouissou <michel@bouissou.net>
-Organization: Me, Myself and I
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [SOLVED ??] Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
-Date: Mon, 11 Jul 2005 22:02:16 +0200
-User-Agent: KMail/1.7.2
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0507111539280.6399-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0507111539280.6399-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200507112202.16876@totor.bouissou.net>
+	Mon, 11 Jul 2005 16:05:37 -0400
+Subject: [PATCH 8/29v2] Minor cleanup during MAD startup and shutdown
+From: Hal Rosenstock <halr@voltaire.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1121110285.4389.5000.camel@hal.voltaire.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Jul 2005 15:57:59 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Lundi 11 Juillet 2005 21:43, Alan Stern a écrit :
-> >
-> > Enable USB mouse support: YES	(Well, I have one ;-)
->
-> That's what I was talking about.  BIOS support for keyboard and mouse is
-> called "Legacy" support, because it emulates plain old non-USB AT-type
-> devices.  I bet if you turned off the "Enable USB mouse support" option
-> then everything would work.
+Minor cleanup during startup and shutdown
 
-Aha. And what would be your advice ? Rather leave the BIOS mouse option ON and 
-use "usb-handoff", or remove both ?
+Signed-off-by: Hal Rosenstock <halr@voltaire.com>
 
-I'll check without both tomorrow anyway, it's a bit late tonight for keeping 
-on breaking the machine ;-)
+This patch depends on patch 7/29.
 
-> > A thousand thanks for your suggestion Alan !
->
-> You're welcome.
+--
+ mad.c |   44 +++++++++--
+ 1 files changed, 9 insertions(+), 35 deletions(-)
+diff -uprN linux-2.6.13-rc2-mm1-7/drivers/infiniband/core/mad.c linux-2.6.13-rc2-mm1-8/drivers/infiniband/core/mad.c
+-- linux-2.6.13-rc2-mm1-7/drivers/infiniband/core/mad.c	2005-07-11 13:36:29.000000000 -0400
++++ linux-2.6.13-rc2-mm1-8/drivers/infiniband/core/mad.c	2005-07-11 13:36:47.000000000 -0400
+@@ -2487,14 +2487,6 @@ static int ib_mad_port_open(struct ib_de
+ 	unsigned long flags;
+ 	char name[sizeof "ib_mad123"];
+ 
+-	/* First, check if port already open at MAD layer */
+-	port_priv = ib_get_mad_port(device, port_num);
+-	if (port_priv) {
+-		printk(KERN_DEBUG PFX "%s port %d already open\n",
+-		       device->name, port_num);
+-		return 0;
+-	}
+-
+ 	/* Create new device info */
+ 	port_priv = kmalloc(sizeof *port_priv, GFP_KERNEL);
+ 	if (!port_priv) {
+@@ -2619,7 +2611,7 @@ static int ib_mad_port_close(struct ib_d
+ 
+ static void ib_mad_init_device(struct ib_device *device)
+ {
+-	int ret, num_ports, cur_port, i, ret2;
++	int num_ports, cur_port, i;
+ 
+ 	if (device->node_type == IB_NODE_SWITCH) {
+ 		num_ports = 1;
+@@ -2629,47 +2621,37 @@ static void ib_mad_init_device(struct ib
+ 		cur_port = 1;
+ 	}
+ 	for (i = 0; i < num_ports; i++, cur_port++) {
+-		ret = ib_mad_port_open(device, cur_port);
+-		if (ret) {
++		if (ib_mad_port_open(device, cur_port)) {
+ 			printk(KERN_ERR PFX "Couldn't open %s port %d\n",
+ 			       device->name, cur_port);
+ 			goto error_device_open;
+ 		}
+-		ret = ib_agent_port_open(device, cur_port);
+-		if (ret) {
++		if (ib_agent_port_open(device, cur_port)) {
+ 			printk(KERN_ERR PFX "Couldn't open %s port %d "
+ 			       "for agents\n",
+ 			       device->name, cur_port);
+ 			goto error_device_open;
+ 		}
+ 	}
+-
+-	goto error_device_query;
++	return;
+ 
+ error_device_open:
+ 	while (i > 0) {
+ 		cur_port--;
+-		ret2 = ib_agent_port_close(device, cur_port);
+-		if (ret2) {
++		if (ib_agent_port_close(device, cur_port))
+ 			printk(KERN_ERR PFX "Couldn't close %s port %d "
+ 			       "for agents\n",
+ 			       device->name, cur_port);
+-		}
+-		ret2 = ib_mad_port_close(device, cur_port);
+-		if (ret2) {
++		if (ib_mad_port_close(device, cur_port))
+ 			printk(KERN_ERR PFX "Couldn't close %s port %d\n",
+ 			       device->name, cur_port);
+-		}
+ 		i--;
+ 	}
+-
+-error_device_query:
+-	return;
+ }
+ 
+ static void ib_mad_remove_device(struct ib_device *device)
+ {
+-	int ret = 0, i, num_ports, cur_port, ret2;
++	int i, num_ports, cur_port;
+ 
+ 	if (device->node_type == IB_NODE_SWITCH) {
+ 		num_ports = 1;
+@@ -2679,21 +2661,13 @@ static void ib_mad_remove_device(struct 
+ 		cur_port = 1;
+ 	}
+ 	for (i = 0; i < num_ports; i++, cur_port++) {
+-		ret2 = ib_agent_port_close(device, cur_port);
+-		if (ret2) {
++		if (ib_agent_port_close(device, cur_port))
+ 			printk(KERN_ERR PFX "Couldn't close %s port %d "
+ 			       "for agents\n",
+ 			       device->name, cur_port);
+-			if (!ret)
+-				ret = ret2;
+-		}
+-		ret2 = ib_mad_port_close(device, cur_port);
+-		if (ret2) {
++		if (ib_mad_port_close(device, cur_port))
+ 			printk(KERN_ERR PFX "Couldn't close %s port %d\n",
+ 			       device->name, cur_port);
+-			if (!ret)
+-				ret = ret2;
+-		}
+ 	}
+ }
+ 
 
-Well, you really deserve my thanks :-)
 
-> A lot has changed since 2.4... not always for the better!
-
-Hmmm... I've seen... 2.6.12 is the first release that seems to be willing to 
-work on my system -- with some tweaking, coffee and aspirin. Previous 2.6.x 
-releases I had tried (2.6.3, 2.6.6) were horribly broken on my poor VIA 
-hardware ;-)
-
-Cheers.
-
--- 
-Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E

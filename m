@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVGKPie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVGKQcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbVGKPie (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 11:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVGKPhX
+	id S262116AbVGKQcn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 12:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVGKQXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 11:37:23 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59790 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261996AbVGKPf5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 11:35:57 -0400
-Date: Mon, 11 Jul 2005 17:11:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Micheal Marineau <marineam@engr.orst.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][help?] Radeonfb acpi resume
-Message-ID: <20050711151156.GA2001@elf.ucw.cz>
-References: <42D19EE1.90809@engr.orst.edu> <42D19FEE.1040306@engr.orst.edu>
+	Mon, 11 Jul 2005 12:23:10 -0400
+Received: from blackbird.sr71.net ([64.146.134.44]:38098 "EHLO
+	blackbird.sr71.net") by vger.kernel.org with ESMTP id S262092AbVGKQVq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 12:21:46 -0400
+Subject: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested?
+	(Userspace accelerometer viewer)
+From: Dave Hansen <dave@sr71.net>
+To: Paul Sladen <thinkpad@paul.sladen.org>
+Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
+       linux-thinkpad@linux-thinkpad.org,
+       Eric Piel <Eric.Piel@tremplin-utc.net>, borislav@users.sourceforge.net,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.21.0507111011170.25721-100000@starsky.19inch.net>
+References: <Pine.LNX.4.21.0507111011170.25721-100000@starsky.19inch.net>
+Content-Type: text/plain
+Date: Mon, 11 Jul 2005 09:21:35 -0700
+Message-Id: <1121098895.15095.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42D19FEE.1040306@engr.orst.edu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Aww crap, thunderbird screwed up the white space...
+On Mon, 2005-07-11 at 10:42 +0100, Paul Sladen wrote:
+> The sensor gives us two 10-bit AD values (corresponding to 0..1 volts on the
+> ADI chip), temperature (Celsius) and three status bits indicating:
 > 
-> A usable version of the patch is attached, or here is a link:
-> http://dev.gentoo.org/~marineam/files/patch-radeonfb-2.6.12
+>   * lid open/closed
 
-Wrong indentation in acpi_vgapost; I remember there was better patch
-to fix this out there.
+Which bit did you find this in?  I haven't tried with the lid closed.
 
-Anyway, are you sure machine you have can't be fixed by any methods
-listed in Doc*/power/video.txt? I guess they are preferable to
-acpi_vgapost...
+>   * keyboard activity
+>   * nipple movement
 
-If not... indent it acording to the coding style and drop "phony
-return code" (it is unneeded, anyway, right?) and try again. (Oh and
-Cc me ;-).
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+Technically, it's mouse movement :)  I think it gets set on my T41p when
+I'm using the touchpad.
+
+> On the X40 I borrowed (thanks Robert McQueen), at rest the outputs hover
+> around 512 (0x200).  Gravity is supposed to fall off in a sine-wave during
+> rotation, but I found that:
+> 
+>   theta = (N - 512) * 0.5
+> 
+> provides a surprisingly good approximation for pitch/roll values in degrees
+> in the range (-90..+90) so I think the sensor can do ~= +/-2.5G .
+
+Interesting.  
+
+-- Dave
+

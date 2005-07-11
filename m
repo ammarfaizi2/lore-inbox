@@ -1,234 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVGKPyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVGKPyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbVGKPyI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 11:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVGKPwR
+	id S262021AbVGKPyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 11:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVGKPvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 11:52:17 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:11909 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S262051AbVGKPuV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 11:50:21 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Date: Mon, 11 Jul 2005 16:50:33 +0100
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507111538.22551.s0348365@sms.ed.ac.uk> <20050711144328.GA18244@elte.hu>
-In-Reply-To: <20050711144328.GA18244@elte.hu>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_JVp0CiADg6tqW2K"
-Message-Id: <200507111650.33187.s0348365@sms.ed.ac.uk>
+	Mon, 11 Jul 2005 11:51:50 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6852 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262089AbVGKPvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 11:51:14 -0400
+Date: Mon, 11 Jul 2005 17:51:08 +0200
+From: Jan Kara <jack@suse.cz>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH] Make ll_rw_block() wait for buffer lock
+Message-ID: <20050711155108.GR12428@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="dTy3Mrz/UPE2dbVg"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_JVp0CiADg6tqW2K
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+
+--dTy3Mrz/UPE2dbVg
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Monday 11 Jul 2005 15:43, Ingo Molnar wrote:
-> * Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > It's annoying that this is so readily reproducible here, yet almost
-> > impossible to debug, and clearly a sideaffect of 4KSTACKS.. without it
-> > actually being a stack overflow.
-> >
-> > I realise 4KSTACKS is a considerable rework of the IRQ handler, etc.
-> > and probably even more heavily modified by rt-preempt, but is there
-> > nothing else that can be tested before a serial console run?
->
-> 4K stacks never really caused any trouble under PREEMPT_RT (or any other
-> kernel i tried). It's not that complex either.
->
-> one useful thing could be to give me exact instructions on how to set up
-> an openvpn network similar to yours, and what kind of workload to
-> generate. Maybe i can reproduce it here.
+  Hello,
 
-OpenVPN isn't terribly difficult to set up, but it's more than a 5 minute job. 
-You'll need universal tun/tap in your kernel before you start, and openvpn 
-itself installed (I've compiled from source and used Debian's 2.0.0 package, 
-I'm sure Red Hat has an equivalent), then it's just a case of setting up a 
-client and a server.
+  attached patch adds an operation SWRITE to ll_rw_block(). When this
+operation is specified ll_rw_block() waits for a buffer lock and doesn't
+just skip the locked buffer. Under some circumstances we need to make
+sure that current data are really being sent to disk and the old
+ll_rw_block()'s behaviour makes this impossible to achieve (as in some
+places we lock and unlock buffer without sending it to disk). The patch
+also changes the one caller in buffer.c. Please apply.
 
-If you like, I can generate the "keys" used for server/client and I've 
-attached the configs for the server and the client they we use here. 
-Obviously for security reasons I can't attach OUR keys verbatim, but I'll 
-instruct you on how to generate them.
-
-So, on the server:
-
-a) Install OpenVPN
-b) mkdir -p /etc/openvpn/keys
-c) Copy attached server.conf to /etc/openvpn
-d) Modify server.conf if necessary (shouldn't be required)
-e) Generate your server and client keys (see below)
-
-This mostly repeats the moderately good documentation on 
-http://openvpn.net/howto.html, but I can't expect you to read it all so I'll 
-give you a bite-sized version. It saves you figuring out the same rubbish I 
-had to about 6 months ago. OpenVPN will create (with my configs) a verbose 
-log in /etc/openvpn/log on both machines.
-
-1) cd /usr/share/doc/openvpn/easy-rsa
-
-2) Edit "vars". Change line export KEY_DIR=... to:
-
-	export KEY_DIR=/etc/openvpn/keys
-
-3) Save and exit
-
-4) On Bash (at least) type
-
-	. ./vars
-
-	Which imports "vars" into your environment.
-
-5) ./clean-all
-
-6) ./build-ca (enter any old crap)
-
-7) ./build-key-server server
-
-	Enter the common-name as "server" again. No password.
-
-8) Finally, generate the client key (used by the client for crypto)
-
-	./build-key client1
-
-	Where "client1" is an arbitrary name. When prompted for "common-name", enter
-	the same string; this is important and I was head-scratching for some time
-	as to why it wouldn't work without this... Again no password.
-
-8) ./build-dh (this takes a while)
-
-With that done, /etc/openvpn/keys should contain at least..
-
-01.pem
-ca.{crt,key}
-dh1024.pem
-server.{crt,csr,key}
-client1.{crt,csr,key}
-
-Plus some other cruft that's probably not required. Now you should be able to 
-start the openvpn server with something like..
-
-openvpn --cd /etc/openvpn --config server.conf
-
-Add some other flags like verbose if you want to see what's happening. 
-Remember it's logging everything to /etc/openvpn/log which you can supress by 
-commenting out the logfile line in the config.
-
-It'll bring up a tun device on the server side, and wait patiently for VPN 
-connections.
-
-The client side is a piece of cake.
-
-1) mkdir /etc/openvpn
-
-2) Copy client1.crt, client1.key, and ca.crt from the server's /etc/openvpn 
-directory to the client's /etc/openvpn directory.
-
-3) Copy the attached client.conf to the same directory.
-
-4) Edit the config as necessary and save (should work with only the server IP 
-changes).
-
-Again, the client machine will need to have the universal tun/tap driver 
-loaded. Bring up the openvpn with:
-
-openvpn --cd /etc/openvpn --config client.conf
-
-A connection should be established and, hopefully, you'll get a pingable route 
-to 10.0.0.1. I then made this my default gateway with:
-
-route del default wlan
-route add default tun0
-
-Then I was able to ping machines on the server side without having a local 
-gateway to them. One working VPN.
-
-I suggest you try all this on a "stable" kernel, and once you've established 
-it works, just transfer a file at a reasonable data rate through the tunnel.
-
-Ours links to a company server with a consumer grade 1Mbit ADSL connection, 
-and transferring just about anything at 110K/s causes the kernel to crash 
-within about 10 seconds.
-
-I wish you the best of luck with getting this going, and I apologise in 
-advance for the poor instructions.
-
+								Honza
 -- 
-Cheers,
-Alistair.
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+--dTy3Mrz/UPE2dbVg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="buffer-2.6.12-2-ll_rw_block-fix.diff"
 
---Boundary-00=_JVp0CiADg6tqW2K
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="client.conf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="client.conf"
+Introduce new ll_rw_block() operation SWRITE meaning that block layer should
+wait for the buffer lock and write-out afterwards. Hence data in buffers
+at the time of call are guaranteed to be submitted to the disk.
 
-client
-remote 192.168.99.1 443
+Signed-off-by: Jan Kara <jack@suse.cz>
 
-ca ca.crt
-cert client1.crt
-key client1.key
-ns-cert-type server
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.12-1-forgetfix/fs/buffer.c linux-2.6.12-2-ll_rw_block-fix/fs/buffer.c
+--- linux-2.6.12-1-forgetfix/fs/buffer.c	2005-06-28 13:26:17.000000000 +0200
++++ linux-2.6.12-2-ll_rw_block-fix/fs/buffer.c	2005-07-07 07:10:34.000000000 +0200
+@@ -933,8 +933,7 @@ static int fsync_buffers_list(spinlock_t
+ 				 * contents - it is a noop if I/O is still in
+ 				 * flight on potentially older contents.
+ 				 */
+-				wait_on_buffer(bh);
+-				ll_rw_block(WRITE, 1, &bh);
++				ll_rw_block(SWRITE, 1, &bh);
+ 				brelse(bh);
+ 				spin_lock(lock);
+ 			}
+@@ -2805,21 +2804,22 @@ int submit_bh(int rw, struct buffer_head
+ 
+ /**
+  * ll_rw_block: low-level access to block devices (DEPRECATED)
+- * @rw: whether to %READ or %WRITE or maybe %READA (readahead)
++ * @rw: whether to %READ or %WRITE or %SWRITE or maybe %READA (readahead)
+  * @nr: number of &struct buffer_heads in the array
+  * @bhs: array of pointers to &struct buffer_head
+  *
+- * ll_rw_block() takes an array of pointers to &struct buffer_heads,
+- * and requests an I/O operation on them, either a %READ or a %WRITE.
+- * The third %READA option is described in the documentation for
+- * generic_make_request() which ll_rw_block() calls.
++ * ll_rw_block() takes an array of pointers to &struct buffer_heads, and
++ * requests an I/O operation on them, either a %READ or a %WRITE.  The third
++ * %SWRITE is like %WRITE only we make sure that the *current* data in buffers
++ * are sent to disk. The fourth %READA option is described in the documentation
++ * for generic_make_request() which ll_rw_block() calls.
+  *
+  * This function drops any buffer that it cannot get a lock on (with the
+- * BH_Lock state bit), any buffer that appears to be clean when doing a
+- * write request, and any buffer that appears to be up-to-date when doing
+- * read request.  Further it marks as clean buffers that are processed for
+- * writing (the buffer cache won't assume that they are actually clean until
+- * the buffer gets unlocked).
++ * BH_Lock state bit) unless SWRITE is required, any buffer that appears to be
++ * clean when doing a write request, and any buffer that appears to be
++ * up-to-date when doing read request.  Further it marks as clean buffers that
++ * are processed for writing (the buffer cache won't assume that they are
++ * actually clean until the buffer gets unlocked).
+  *
+  * ll_rw_block sets b_end_io to simple completion handler that marks
+  * the buffer up-to-date (if approriate), unlocks the buffer and wakes
+@@ -2835,11 +2835,13 @@ void ll_rw_block(int rw, int nr, struct 
+ 	for (i = 0; i < nr; i++) {
+ 		struct buffer_head *bh = bhs[i];
+ 
+-		if (test_set_buffer_locked(bh))
++		if (rw == SWRITE)
++			lock_buffer(bh);
++		else if (test_set_buffer_locked(bh))
+ 			continue;
+ 
+ 		get_bh(bh);
+-		if (rw == WRITE) {
++		if (rw == WRITE || rw == SWRITE) {
+ 			if (test_clear_buffer_dirty(bh)) {
+ 				bh->b_end_io = end_buffer_write_sync;
+ 				submit_bh(WRITE, bh);
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.12-1-forgetfix/include/linux/fs.h linux-2.6.12-2-ll_rw_block-fix/include/linux/fs.h
+--- linux-2.6.12-1-forgetfix/include/linux/fs.h	2005-06-28 13:26:35.000000000 +0200
++++ linux-2.6.12-2-ll_rw_block-fix/include/linux/fs.h	2005-07-07 07:16:39.000000000 +0200
+@@ -69,6 +69,7 @@ extern int dir_notify_enable;
+ #define READ 0
+ #define WRITE 1
+ #define READA 2		/* read-ahead  - don't block if no resources */
++#define SWRITE 3	/* for ll_rw_block() - wait for buffer lock */
+ #define SPECIAL 4	/* For non-blockdevice requests in request queue */
+ #define READ_SYNC	(READ | (1 << BIO_RW_SYNC))
+ #define WRITE_SYNC	(WRITE | (1 << BIO_RW_SYNC))
 
-dev tun
-proto udp
-nobind
-user nobody
-group nobody
-
-persist-key
-persist-tun
-
-log /etc/openvpn/log
-verb 3
-
---Boundary-00=_JVp0CiADg6tqW2K
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="server.conf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="server.conf"
-
-server 10.0.0.0 255.255.255.0
-port 443
-
-ca keys/ca.crt
-cert keys/server.crt
-key keys/server.key
-dh keys/dh1024.pem
-
-dev tun
-proto udp
-user nobody
-group nogroup
-
-persist-key
-persist-tun
-ifconfig-pool-persist ipp
-
-log /etc/openvpn/log
-verb 3
-
-client-to-client
-push "redirect-gateway def1"
-push "dhcp-option DNS 192.168.1.1"
-push "dhcp-option WINS 192.168.1.2"
-
---Boundary-00=_JVp0CiADg6tqW2K--
+--dTy3Mrz/UPE2dbVg--

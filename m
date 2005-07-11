@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbVGKWkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbVGKWUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262042AbVGKWkt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 18:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVGKWkf
+	id S262951AbVGKWUh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbVGKWUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 18:40:35 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:50843 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262042AbVGKWkX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 18:40:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=xCDKlDYVTKI/hNxzZxBrT6rWRFXtWla1tgA0DCx43e5w/VtT0BUkOJCg9KAYNRXP5p7Enamz+CeFrda2IWfFae0Ytiuz4bZloouz+RCZMzhRt+ybNUmJinVFxoTahlNr8akl78pg+IVjsqIdVbU7Ty4EoB1kRnQ3fa6qktd5t+o=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Peter <peter.spamcatcher@rimuhosting.com>
-Subject: Re: unregister_netdevice: waiting for tap24 to become free
-Date: Tue, 12 Jul 2005 00:47:32 +0200
-User-Agent: KMail/1.8.1
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20050709110143.D59181E9EA4@zion.home.lan> <200507120020.52418.blaisorblade@yahoo.it> <42D2F22C.3060102@rimuhosting.com>
-In-Reply-To: <42D2F22C.3060102@rimuhosting.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Jul 2005 18:20:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62187 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262950AbVGKWUY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 18:20:24 -0400
+Date: Mon, 11 Jul 2005 23:20:13 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] device-mapper: [2/4] Fix deadlocks in core
+Message-ID: <20050711222013.GD12355@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507120047.33064.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 July 2005 00:26, Peter wrote:
-> Nothing in the logs prior to the first error message.
->
-> I've hit this before at different times on other servers.  If there are
-> some commands I can run to gather more diagnostics on the problem,
-> please let me know and I'll capture more information next time.
->
-> I see the error was reported with older 2.6 kernels and a patch was
-> floating around.  I'm not sure if that is integrated into the current
-> 2.6.11 kernel.
-The patch named there has been integrated, verifyable at 
-http://linux.bkbits.net:8080/linux-2.6/cset@4129735fMSVl0_RA4uNcNBWHFjT-zw
+Avoid another bdget_disk which can deadlock.
 
-However this time the bug is probably due to something entirely different, the 
-message is not very specific.
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
 
-Tried 2.6.12? SKAS has been already updated (plus there's an important update 
-for SKAS, from -V8 to -V8.2).
-> http://www.google.com/search?q=unregister_netdevice%3A+waiting
->
-> Regards, Peter
-
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+--- diff/drivers/md/dm.c	2005-07-11 22:52:10.000000000 +0100
++++ source/drivers/md/dm.c	2005-07-11 22:57:58.000000000 +0100
+@@ -825,18 +825,13 @@
+ 	wake_up(&md->eventq);
+ }
+ 
+-static void __set_size(struct gendisk *disk, sector_t size)
++static void __set_size(struct mapped_device *md, sector_t size)
+ {
+-	struct block_device *bdev;
++	set_capacity(md->disk, size);
+ 
+-	set_capacity(disk, size);
+-	bdev = bdget_disk(disk, 0);
+-	if (bdev) {
+-		down(&bdev->bd_inode->i_sem);
+-		i_size_write(bdev->bd_inode, (loff_t)size << SECTOR_SHIFT);
+-		up(&bdev->bd_inode->i_sem);
+-		bdput(bdev);
+-	}
++	down(&md->frozen_bdev->bd_inode->i_sem);
++	i_size_write(md->frozen_bdev->bd_inode, (loff_t)size << SECTOR_SHIFT);
++	up(&md->frozen_bdev->bd_inode->i_sem);
+ }
+ 
+ static int __bind(struct mapped_device *md, struct dm_table *t)
+@@ -845,7 +840,7 @@
+ 	sector_t size;
+ 
+ 	size = dm_table_get_size(t);
+-	__set_size(md->disk, size);
++	__set_size(md, size);
+ 	if (size == 0)
+ 		return 0;
+ 

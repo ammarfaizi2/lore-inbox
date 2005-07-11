@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVGKSgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVGKSlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbVGKSgX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 14:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbVGKSd7
+	id S262041AbVGKSlK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 14:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVGKSjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 14:33:59 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:56471 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261393AbVGKScK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 14:32:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=kER2uLrGm3MMfrLElqDuu3mNZyuWMGHK/ee1uF1fyiGvX1wKepTNg57AbDd+8h/RBhYmHssEGF7WDy3GOZQm2a1s1u/yyG6WXP7MEINZ7zHWbj6j1qHg2/zeA7Mx9Jlikr3OFMHrirzMcUbfq91SCroG8YSL82FPGj3iIbBxzj8=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Tom Duffy <Tom.Duffy@sun.com>
-Subject: Re: [openib-general] Re: [PATCH 3/27] Add MAD helper functions
-Date: Mon, 11 Jul 2005 22:38:27 +0400
-User-Agent: KMail/1.8.1
-Cc: Hal Rosenstock <halr@voltaire.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-References: <1121089079.4389.4511.camel@hal.voltaire.com> <200507111839.41807.adobriyan@gmail.com> <42D2B1F1.7000408@sun.com>
-In-Reply-To: <42D2B1F1.7000408@sun.com>
+	Mon, 11 Jul 2005 14:39:10 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:8921 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261638AbVGKSgb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 14:36:31 -0400
+Date: Mon, 11 Jul 2005 14:36:28 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Michel Bouissou <michel@bouissou.net>
+cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       <linux-kernel@vger.kernel.org>, <mingo@redhat.com>
+Subject: Re: Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
+In-Reply-To: <200507111106.22951@totor.bouissou.net>
+Message-ID: <Pine.LNX.4.44L0.0507111432530.5164-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507112238.27856.adobriyan@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 July 2005 21:52, Tom Duffy wrote:
-> Alexey Dobriyan wrote:
-> 
-> >unsigned int __nocast gfp_mask, please. 430 or so infiniband sparse warnings
-> >is not a reason to add more.
-> >  
-> >
-> Can you please elaborate on the sparse warnings that you are seeing 
-> throughout the rest of infiniband?
+On Mon, 11 Jul 2005, Michel Bouissou wrote:
 
-$ make allmodconfig >/dev/null
-$ make C=2 CHECK="sparse -Wbitwise" drivers/infiniband/ 2>&1 | tee ../W_infiniband
-	[snip]
-$ grep -c "warning: " ../W_infiniband
-430
+> Hi Nathalie,
+> 
+> Thanks for your answer and pointer. Unfortunately it doesn't help.
+> 
+> The patch you mention won't apply on my kernel alone, I need first to apply 
+> the patch from 
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=c434b7a6aedfe428ad17cd61b21b125a7b7a29ce , 
+> then your patch applies OK.
+> 
+> Unfortunately, it doesn't solve my issue. Booting this kernel still results in 
+> an interrupt issue with uhci_hcd.
+> 
+> After boot, "cat /proc/interrupts" shows:
+>            CPU0
+>   0:     188066    IO-APIC-edge  timer
+>   1:        308    IO-APIC-edge  i8042
+>   2:          0          XT-PIC  cascade
+>   4:        413    IO-APIC-edge  serial
+>   7:          3    IO-APIC-edge  parport0
+>  14:       1177    IO-APIC-edge  ide4
+>  15:       1186    IO-APIC-edge  ide5
+>  18:       1028   IO-APIC-level  eth0, eth1
+>  19:       8513   IO-APIC-level  ide0, ide1, ide2, ide3, ehci_hcd:usb4
+>  21:     100000   IO-APIC-level  uhci_hcd:usb1, uhci_hcd:usb2, uhci_hcd:usb3
+>  22:          0   IO-APIC-level  VIA8233
+> NMI:          0
+> LOC:     187967
+> ERR:          0
+> MIS:          0
+> 
+> (The problem is with IRQ 21 for uhci_hcd)
+> 
+> (It is to note that without those patches, I didn't see any IRQ managed by 
+> "XT-PIC", all were managed by the IO-APIC...)
+
+It's possible that the errors you're getting are caused by some other
+device erroneously generating interrupt requests on IRQ 21.  Then when
+uhci-hcd enables that IRQ, there's no driver available to handle the 
+interrupts...
+
+It's also possible that the UHCI controllers are generating the unwanted 
+interrupt requests.  You should make sure that Legacy USB Support is 
+turned off in your BIOS settings.  You can also try adding the 
+"usb-handoff" kernel parameter to your boot command line.
+
+Alan Stern
+

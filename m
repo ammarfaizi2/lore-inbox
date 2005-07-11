@@ -1,46 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVGKKNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVGKKdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVGKKNN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 06:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVGKKNN
+	id S261606AbVGKKdp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 06:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVGKKdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 06:13:13 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:57122 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261554AbVGKKMe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 06:12:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iuV7R7ufxaFDW8L6lEfMM9+VvWu41UuJr+upSVonnHwqN0fWwrm9yzg1gFmeLn30dNqbE3E4fCpA4sSk8v0fzgJwiVLKkd+qg0Cuivohq+b5MzMNwRSsU0o5F0KDh/edjx9WIhy1flfNGZHpmpKzxXK9VlGsAKYqfFGs2HSeEfk=
-Message-ID: <fc339e4a050711031222c4c0b5@mail.gmail.com>
-Date: Mon, 11 Jul 2005 19:12:34 +0900
-From: Miles Bader <snogglethorpe@gmail.com>
-Reply-To: snogglethorpe@gmail.com, miles@gnu.org
-To: Miles Bader <miles@gnu.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] v850: Update checksum.h to match changed function signatures
-In-Reply-To: <20050711094151.GA31805@gilgamesh.home.res>
+	Mon, 11 Jul 2005 06:33:45 -0400
+Received: from ms002msg.fastwebnet.it ([213.140.2.52]:58079 "EHLO
+	ms002msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S261614AbVGKKdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 06:33:44 -0400
+Date: Mon, 11 Jul 2005 12:32:37 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Lack of Documentation about SA_RESTART...
+Message-ID: <20050711123237.787dfcde@localhost>
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050711092450.52815625@mctpc71>
-	 <20050711094151.GA31805@gilgamesh.home.res>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/7/11, Frederik Deweerdt <frederik.deweerdt@gmail.com>:
-> > -unsigned int csum_partial_copy_from_user (const unsigned char *src, unsigned char *dst,
-> > +unsigned int csum_partial_copy_from_user (const unsigned char *src,
-> > +                                       unsigned char *dst,
->                                           ^^^^^^^ Alignment looks fuzzy here
+The documentation (man pages & info libc) doesn't cover well interaction
+between various syscalls and SA_RESTART flag of sigaction()... I wonder
+why!
 
-It's actually a spaces-vs-tabs issue -- the existing lines use all
-spaces for indentation, but my new line uses tabs, so when viewed as
-part of the diff they look unaligned; they look OK in the actual
-source file though.
+	> MAN SIGACTION <
 
--Miles
+"SA_RESTART
+Provide behaviour compatible with BSD signal semantics by
+making certain system calls restartable across signals."
+
+	certain?!? :-O!
+
+
+	> INFO LIBC <
+
+"   One important exception is `EINTR' (*note Interrupted Primitives::).
+Many stream I/O implementations will treat it as an ordinary error,
+which can be quite inconvenient.  You can avoid this hassle by
+installing all signals with the `SA_RESTART' flag."
+
+
+" -- Macro: int SA_RESTART
+     This flag controls what happens when a signal is delivered during
+     certain primitives (such as `open', `read' or `write'), and the
+     signal handler returns normally.  There are two alternatives: the
+     library function can resume, or it can return failure with error
+     code `EINTR'."
+
+	Ok, "info libc" is a bit better.
+
+
+But what I'm looking for is a list of syscalls that are automatically
+restarted when SA_RESTART is set, and especially in what conditions.
+
+For example: read(), write(), open() are obviously restarted, but even
+on non-blocking fd?
+And what about connect() and select() for example?
+
+There are a lot of syscalls that can fail with "EINTR"! What's the
+advantage of using SA_RESTART if one doesn't know what syscalls are
+restarted?
+
+One should always check for "EINTR" or use "TEMP_FAILURE_RETRY()" macro
+as suggested in "info libc" !
+
+
+Looking at the source I can easly see that a syscall is retarted when it
+returns "-ERESTARTSYS" and SA_RESTART flag is set. Should I look at the
+code for every syscall / particular condition?
+
+
+Example of behavior: according to source code it seems that "connect()"
+(the "net/ipv4/af_inet.c : inet_stream_connect()" implementation)
+returns -ERESTARTSYS if interrupted, but if the socket is in
+non-blocking mode it returns -EINTR.
+
+
+SUMMARY:
+
+1) there is a reason for this lack of documentation?
+
+2) what can I safely assume about syscalls restart when using SA_RESTART
+flag?
+
+
+Bye,
+
 -- 
-Do not taunt Happy Fun Ball.
+	Paolo Ornati
+	Linux 2.6.12.2 on x86_64

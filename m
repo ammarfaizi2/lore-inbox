@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVGKAfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVGKAmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbVGKAfl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 20:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVGKAKJ
+	id S261193AbVGKAmc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 20:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVGKAmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 20:10:09 -0400
-Received: from mx1.suse.de ([195.135.220.2]:57234 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261200AbVGJTfS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:18 -0400
-Date: Sun, 10 Jul 2005 19:35:18 +0000
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 10/82] remove linux/version.h from drivers/char/ip2.c
-Message-ID: <20050710193518.10.UlHmza2542.2247.olh@nectarine.suse.de>
+	Sun, 10 Jul 2005 20:42:32 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:51883 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261193AbVGKAma
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Jul 2005 20:42:30 -0400
+Subject: Re: [PATCH 0/82] changing CONFIG_LOCALVERSION rebuilds too much,
+	for no good reason.
+From: Josh Boyer <jdub@us.ibm.com>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>
+References: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>
+Content-Type: text/plain
+Date: Sun, 10 Jul 2005 19:42:20 -0500
+Message-Id: <1121042540.3408.3.camel@windu.rchland.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
-In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>  
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2005-07-10 at 19:35 +0000, Olaf Hering wrote:
+> The following series of patches removes almost all inclusions
+> of linux/version.h. The 3 #defines are unused in most of the touched files.
+> 
+> A few drivers use the simple KERNEL_VERSION(a,b,c) macro, which is unfortunatly
+> in linux/version.h. This define moved to linux/utsname.h
+> 
+> There are also lots of #ifdef for long obsolete kernels, this will go as well.
 
-changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+Unless I missed it in the patch-bomb, you missed fs/jffs2/ and
+include/linux/jffs2_fs_i.h.
 
-Signed-off-by: Olaf Hering <olh@suse.de>
-
-drivers/char/ip2.c |    1 -
-1 files changed, 1 deletion(-)
-
-Index: linux-2.6.13-rc2-mm1/drivers/char/ip2.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/drivers/char/ip2.c
-+++ linux-2.6.13-rc2-mm1/drivers/char/ip2.c
-@@ -7,7 +7,6 @@
-//
-
-#include <linux/module.h>
--#include <linux/version.h>
-#include <linux/init.h>
-#include <linux/wait.h>
+josh
 

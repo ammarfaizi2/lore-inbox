@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVGKPif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVGKPm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbVGKPif (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 11:38:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbVGKPha
+	id S262047AbVGKPm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 11:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVGKPmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 11:37:30 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:20960 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S261981AbVGKPeu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 11:34:50 -0400
-Date: Mon, 11 Jul 2005 17:34:47 +0200
-From: Sander <sander@humilis.net>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel guide to space
-Message-ID: <20050711153447.GA19848@favonius>
-Reply-To: sander@humilis.net
-References: <20050711145616.GA22936@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 11 Jul 2005 11:42:49 -0400
+Received: from compunauta.com ([69.36.170.169]:52140 "EHLO compunauta.com")
+	by vger.kernel.org with ESMTP id S262064AbVGKPmj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 11:42:39 -0400
+From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
+	<gustavo@compunauta.com>
+Organization: www.compunauta.com
+To: linux-kernel@vger.kernel.org
+Subject: PAGE_BUG macro
+Date: Sun, 10 Jul 2005 23:47:32 -0500
+User-Agent: KMail/1.8
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20050711145616.GA22936@mellanox.co.il>
-X-Uptime: 16:44:51 up 18:59, 17 users,  load average: 5.46, 5.33, 5.01
-User-Agent: Mutt/1.5.9i
+Message-Id: <200507102347.32388.gustavo@compunauta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael S. Tsirkin wrote (ao):
-> 	Use tabs, not spaces, for indentation. Tabs should be 8
-> 	characters wide.
+Hello list, I have old code, and updating I see PAGE_BUG was gone, is fine to 
+diable with a macro to allow build on old kernels?.
 
-A tab is a tab. The editor/viewer can be configured to show 2, 3, 4, 8,
-any amount of characters, right?
+I see on old post PAGE_BUG and friends seems to be exterminated
 
-        Sander
+#ifdef PAGE_BUG
+....
+....
+#endif
+
+:|
 
 -- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Gustavo Guillermo Pérez
+Compunauta uLinux
+www.compunauta.com

@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVGKTMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVGKTMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262326AbVGKTMa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 15:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVGKTM1
+	id S262478AbVGKTMK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 15:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVGKTMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 15:12:27 -0400
-Received: from rimuhosting.com ([69.90.33.248]:42165 "EHLO rimuhosting.com")
-	by vger.kernel.org with ESMTP id S262257AbVGKTMT (ORCPT
+	Mon, 11 Jul 2005 15:12:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:57574 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262337AbVGKTMB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 15:12:19 -0400
-Message-ID: <42D2C487.60302@rimuhosting.com>
-Date: Tue, 12 Jul 2005 07:12:07 +1200
-From: Peter <peter.spamcatcher@rimuhosting.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+	Mon, 11 Jul 2005 15:12:01 -0400
+Message-ID: <42D2C34C.4040406@redhat.com>
+Date: Mon, 11 Jul 2005 15:06:52 -0400
+From: Wendy Cheng <wcheng@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: user-mode-linux-devel@lists.sourceforge.net
-Subject: unregister_netdevice: waiting for tap24 to become free
-References: <20050709110143.D59181E9EA4@zion.home.lan> <20050709120703.C2175@flint.arm.linux.org.uk>
-In-Reply-To: <20050709120703.C2175@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: bcrl@kvack.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Add ENOSYS into sys_io_cancel
+Content-Type: multipart/mixed;
+ boundary="------------090908030008040201040206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I am hitting a bug that manifests in an unregister_netdevice error 
-message.  After the problem is triggered processes like ifconfig, tunctl 
-and route refuse to exit, even with killed.  And the only solution I 
-have found to regaining control of the server is issuing a reboot.
+This is a multi-part message in MIME format.
+--------------090908030008040201040206
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The server is running a number of tap devices.  (It is a UML host server 
-running the skas patches http://www.user-mode-linux.org/~blaisorblade/).
+Previously sent via private mail that doesn't seem to go thru - resend 
+via office mailer.
 
-Regards, Peter
+Note that other than few exceptions, most of the current filesystem 
+and/or drivers do not have aio cancel specifically defined 
+(kiob->ki_cancel field is mostly NULL). However, sys_io_cancel system 
+call universally sets return code to -EGAIN. This gives applications a 
+wrong impression that this call is implemented but just never works. We 
+have customer inquires about this issue.
 
-# uname -r
-2.6.11.7-skas3-v8
+Upload a trivial patch to address this confusion.
 
-unregister_netdevice: waiting for tap24 to become free. Usage count = 1
-unregister_netdevice: waiting for tap24 to become free. Usage count = 1
-unregister_netdevice: waiting for tap24 to become free. Usage count = 1
-unregister_netdevice: waiting for tap24 to become free. Usage count = 1
-unregister_netdevice: waiting for tap24 to become free. Usage count = 1
-unregister_netdevice: waiting for tap24 to become free. Usage count = 1
-unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+-- Wendy
 
 
-30684 ?        DW     0:45          \_ [tunctl]
-31974 ?        S      0:00 /bin/bash ./monitorbw.sh
-31976 ?        S      0:00  \_ /bin/bash ./monitorbw.sh
-31978 ?        D      0:00      \_ /sbin/ifconfig
-31979 ?        S      0:00      \_ grep \(tap\)\|\(RX bytes\)
-32052 ?        S      0:00 /bin/bash /opt/uml/umlcontrol.sh start --user 
-gildersleeve.de
-32112 ?        S      0:00  \_ /bin/bash /opt/uml/umlrun.sh --user 
-gildersleeve.de
-32152 ?        S      0:00      \_ /bin/bash ./umlnetworksetup.sh 
---check --user gildersleeve.de
-32176 ?        D      0:00          \_ tunctl -u gildersleeve.de -t tap24
+
+--------------090908030008040201040206
+Content-Type: text/plain;
+ name="cancel.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cancel.patch"
+
+--- linux-2.6.12/fs/aio.c	2005-06-17 15:48:29.000000000 -0400
++++ linux/fs/aio.c	2005-07-10 12:48:14.000000000 -0400
+@@ -1641,8 +1641,9 @@ asmlinkage long sys_io_cancel(aio_contex
+ 		cancel = kiocb->ki_cancel;
+ 		kiocb->ki_users ++;
+ 		kiocbSetCancelled(kiocb);
+-	} else
++	} else 
+ 		cancel = NULL;
++	 
+ 	spin_unlock_irq(&ctx->ctx_lock);
+ 
+ 	if (NULL != cancel) {
+@@ -1659,8 +1660,10 @@ asmlinkage long sys_io_cancel(aio_contex
+ 			if (copy_to_user(result, &tmp, sizeof(tmp)))
+ 				ret = -EFAULT;
+ 		}
+-	} else
++	} else {
++		ret = -ENOSYS;
+ 		printk(KERN_DEBUG "iocb has no cancel operation\n");
++	} 
+ 
+ 	put_ioctx(ctx);
+ 
+
+--------------090908030008040201040206--

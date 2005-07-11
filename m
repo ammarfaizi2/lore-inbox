@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbVGKTD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVGKTMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262292AbVGKTD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 15:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVGKTBJ
+	id S262326AbVGKTMa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 15:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVGKTM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 15:01:09 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:55261 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S262025AbVGKS7u (ORCPT
+	Mon, 11 Jul 2005 15:12:27 -0400
+Received: from rimuhosting.com ([69.90.33.248]:42165 "EHLO rimuhosting.com")
+	by vger.kernel.org with ESMTP id S262257AbVGKTMT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 14:59:50 -0400
-Subject: Re: serial: 8250 fails to detect Exar XR16L2551 correctly
-From: Alex Williamson <alex.williamson@hp.com>
-To: David Vrabel <dvrabel@arcom.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42CD2C16.1070308@arcom.com>
-References: <42CA96FC.9000708@arcom.com>
-	 <20050706195740.A28758@flint.arm.linux.org.uk> <42CD2C16.1070308@arcom.com>
-Content-Type: text/plain
-Organization: LOSL
-Date: Mon, 11 Jul 2005 13:00:08 -0600
-Message-Id: <1121108408.28557.71.camel@tdi>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Mon, 11 Jul 2005 15:12:19 -0400
+Message-ID: <42D2C487.60302@rimuhosting.com>
+Date: Tue, 12 Jul 2005 07:12:07 +1200
+From: Peter <peter.spamcatcher@rimuhosting.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: user-mode-linux-devel@lists.sourceforge.net
+Subject: unregister_netdevice: waiting for tap24 to become free
+References: <20050709110143.D59181E9EA4@zion.home.lan> <20050709120703.C2175@flint.arm.linux.org.uk>
+In-Reply-To: <20050709120703.C2175@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-07 at 14:20 +0100, David Vrabel wrote:
+Hi.  I am hitting a bug that manifests in an unregister_netdevice error 
+message.  After the problem is triggered processes like ifconfig, tunctl 
+and route refuse to exit, even with killed.  And the only solution I 
+have found to regaining control of the server is issuing a reboot.
 
-> I've redid the patch and added a check for this.  Alex, could you test
-> this version, please.
+The server is running a number of tap devices.  (It is a UML host server 
+running the skas patches http://www.user-mode-linux.org/~blaisorblade/).
 
-   This detects the A2 ST16C255x as an XR16550, so apparently the sleep
-check doesn't work.  I contacted Exar about these two seemingly
-identical UARTs, and they say that the A2 ST16C255x should be compatible
-with the XR16550 so perhaps we don't need to special case the A2 UART at
-all.  Unfortunately, when I use the UART for a console, I get garbled
-output from the time the UART is detected until we hit userspace.  I
-wonder if this has something to do with the early console registration
-with a conflicting type...  I'll see if I can figure out what's going
-on.  Have you used the XR16550 as a console on your system?  Perhaps
-it's as simple as the baud getting reset via the has_efr check.  I'm
-trying to use the system with a 115.2k baud rate.  Thanks,
+Regards, Peter
 
-	Alex
+# uname -r
+2.6.11.7-skas3-v8
 
--- 
-Alex Williamson                             HP Linux & Open Source Lab
+unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+unregister_netdevice: waiting for tap24 to become free. Usage count = 1
+unregister_netdevice: waiting for tap24 to become free. Usage count = 1
 
+
+30684 ?        DW     0:45          \_ [tunctl]
+31974 ?        S      0:00 /bin/bash ./monitorbw.sh
+31976 ?        S      0:00  \_ /bin/bash ./monitorbw.sh
+31978 ?        D      0:00      \_ /sbin/ifconfig
+31979 ?        S      0:00      \_ grep \(tap\)\|\(RX bytes\)
+32052 ?        S      0:00 /bin/bash /opt/uml/umlcontrol.sh start --user 
+gildersleeve.de
+32112 ?        S      0:00  \_ /bin/bash /opt/uml/umlrun.sh --user 
+gildersleeve.de
+32152 ?        S      0:00      \_ /bin/bash ./umlnetworksetup.sh 
+--check --user gildersleeve.de
+32176 ?        D      0:00          \_ tunctl -u gildersleeve.de -t tap24

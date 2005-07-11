@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVGKLQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVGKLVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVGKLQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 07:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVGKLQ2
+	id S261643AbVGKLVW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 07:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVGKLVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 07:16:28 -0400
-Received: from aeimail.aei.ca ([206.123.6.84]:46566 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261641AbVGKLQX (ORCPT
+	Mon, 11 Jul 2005 07:21:22 -0400
+Received: from styx.suse.cz ([82.119.242.94]:21719 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261643AbVGKLVV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 07:16:23 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Ed Cogburn <edcogburn@hotpop.com>
-Subject: Re: reiser4 vs politics: linux misses out again
-Date: Mon, 11 Jul 2005 07:09:46 -0400
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200507100510.j6A5ATun010304@laptop11.inf.utfsm.cl> <20050710202129.GA3550@mail> <dascln$lq3$1@sea.gmane.org>
-In-Reply-To: <dascln$lq3$1@sea.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Jul 2005 07:21:21 -0400
+Date: Mon, 11 Jul 2005 13:21:21 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Stelian Pop <stelian@popies.net>
+Cc: Peter Osterlund <petero2@telia.com>, Andrew Morton <akpm@osdl.org>,
+       Johannes Berg <johannes@sipsolutions.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Frank Arnold <frank@scirocco-5v-turbo.de>
+Subject: Re: [PATCH] Apple USB Touchpad driver (new)
+Message-ID: <20050711112121.GA24345@ucw.cz>
+References: <20050708101731.GM18608@sd291.sivit.org> <1120821481.5065.2.camel@localhost> <20050708121005.GN18608@sd291.sivit.org> <20050709191357.GA2244@ucw.cz> <m33bqnr3y9.fsf@telia.com> <20050710120425.GC3018@ucw.cz> <m3y88e9ozu.fsf@telia.com> <1121078371.12621.36.camel@localhost.localdomain> <20050711110024.GA23333@ucw.cz> <1121080115.12627.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507110709.47180.tomlins@cam.org>
+In-Reply-To: <1121080115.12627.44.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 10 July 2005 20:01, Ed Cogburn wrote:
-> Jim Crilly wrote:
-> 
-> > But in most of the changesets on the bkbits site you can go back over 2
-> > years and not see anything from namesys people. Nearly all of the fixes 
-> > commited in the past 2-3 years are from SuSe.
+On Mon, Jul 11, 2005 at 01:08:35PM +0200, Stelian Pop wrote:
 
-With Chris Mason's name attached?  Chris wrote the journaling support for R3
-and worked for SUSE for a while (he may still?).   I also remember seeing quite
-a few patches run though the reiser mailing list for comment...
-  
-> So, for the sake of argument, if IBM were to drop official support for JFS,
-> we'd yank JFS out of the kernel even if there was someone else willing to
-> support it?  Why does it now *matter* who supports it, as long as its being
-> maintained?  And will we now block IBM's hypothetical JFS2 from the kernel
-> if IBM, from the programmers up to the CEO, doesn't swear on their momma's
-> grave that they'll continue to support JFS1, even if JFS1 is being
-> supported by others?  Jeez, this is why it doesn't take a kernel dev to see
-> the problems here, common sense seems to be an increasingly rare ingredient
-> in these arguments against R4.  If I didn't know better, I'd think you were
-> making this stuff up as you went along....
+> Possible. The 'fuzz' parameter in input core serves too many usages
+> ihmo. Let me try removing the quick motion compensation and see...
+
+It was designed for joysticks and works very well for them. Usefulness
+for other device types may vary. And I'll gladly accept patches to
+improve it.
+
+> > > I already thought about this, one problem is that the sensors do not
+> > > report the pressure but only the amount of surface touched. A person
+> > > with thick fingers will always generate higher pressures then one with
+> > > thin ones, no matter how hard they push on the touchpad.
+> > 
+> > That's what all other touchpads do.
+> 
+> I thought the hardware is capable of calculating real pressure...
+
+Since the sensor is just a multi-layer PCB with a clever trace layout,
+it can't.
+
+> > > I don't think this value is reliable enough to be reported to the
+> > > userspace as ABS_PRESSURE...
+> > 
+> > I believe it'd still be more useful than a two-value (0 and 100) output.
+> 
+> Ok, I'll do it.
+
+Thanks. Should I wait for that or apply the patch you just sent?
+
+> > This could be quite useful, too, for right and middle button taps (2 and
+> > 3 fingers) - since the Macs lack these buttons.
+> 
+> Indeed. But this can be a later improvement, let's make one finger work
+> for now :)
+ 
+Agreed.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

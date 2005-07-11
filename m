@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVGKQr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVGKQkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbVGKQr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 12:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVGKQpY
+	id S262117AbVGKQkF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 12:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVGKQh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 12:45:24 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:57325 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262128AbVGKQnF
+	Mon, 11 Jul 2005 12:37:29 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:8326 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262117AbVGKQgi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 12:43:05 -0400
-Date: Mon, 11 Jul 2005 09:43:22 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread, take 2
-Message-ID: <20050711164322.GD1304@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050711145552.GA1489@us.ibm.com> <1121098272.7050.13.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	Mon, 11 Jul 2005 12:36:38 -0400
+Date: Mon, 11 Jul 2005 18:36:37 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, horst.hummel@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 8/12] s390: free dasd slab cache.
+Message-ID: <20050711163637.GH10822@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1121098272.7050.13.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Daniel,
+[patch 8/12] s390: free dasd slab cache.
 
-In principle, one could inspect the Linux kernel with the PREEMPT_RT patch
-applied, and calculate the worst-case time during which interrupts are
-disabled, though I have not heard of anyone actually doing this.  Is this
-what you are getting at, or are you thinking in terms of Kristian's and
-Karim's testing?
+From: Horst Hummel <horst.hummel@de.ibm.com>
 
-							Thanx, Paul
+Free dasd slab cache on module unload.
 
-On Mon, Jul 11, 2005 at 09:11:12AM -0700, Daniel Walker wrote:
-> 
-> The PREEMPT_RT description doesn't seem correct. According to your
-> "hard" definition, PREEMPT_RT can provably hit a hard deadline for
-> interrupt response. 
-> 
-> Daniel
-> 
-> On Mon, 2005-07-11 at 07:55 -0700, Paul E. McKenney wrote:
-> 
-> 
-> > 
-> > a.	Quality of service: "soft realtime", with timeframe of a few 10s
-> > 	of microseconds for task scheduling and interrupt-handler entry.
-> > 	System services providing I/O, networking, task creation, and
-> > 	VM manipulation can take much longer, though some subsystems
-> > 	(e.g., ALSA) have been reworked to obtain good latencies.
-> > 	Since spinlocks are replaced by blocking mutexes, the performance
-> > 	penalty can be significant (up to 40%) for some system calls,
-> > 	but user-mode execution runs at full speed.  There is likely to
-> > 	be some performance penalty exacted from RCU, but, with luck,
-> > 	this penalty will be minimal.
-> > 
-> > 	Kristian Benoit and Karim Yaghmour have run an impressive set of
-> > 	benchmarks comparing CONFIG_PREEMPT_RT with CONFIG_PREEMPT(?) and
-> > 	Ipipe, see the LKML threads starting with:
-> > 
-> > 	1. http://marc.theaimsgroup.com/?l=linux-kernel&m=111846495403131&w=2
-> > 	2. http://marc.theaimsgroup.com/?l=linux-kernel&m=111928813818151&w=2
-> > 	3. http://marc.theaimsgroup.com/?l=linux-kernel&m=112008491422956&w=2
-> > 	4. http://marc.theaimsgroup.com/?l=linux-kernel&m=112086443319815&w=2
-> > 
-> > 	This last run put CONFIG_PREEMPT_RT at about 70 microseconds
-> > 	interrupt-response-time latency.  The machine under test was a
-> > 	Dell PowerEdge SC420 with a P4 2.8GHz CPU and 256MB RAM running
-> > 	a UP build of Fedora Core 3.
-> 
-> 
-> 
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+
+diffstat:
+ drivers/s390/block/dasd.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletion(-)
+
+diff -urpN linux-2.6/drivers/s390/block/dasd.c linux-2.6-patched/drivers/s390/block/dasd.c
+--- linux-2.6/drivers/s390/block/dasd.c	2005-07-11 17:37:30.000000000 +0200
++++ linux-2.6-patched/drivers/s390/block/dasd.c	2005-07-11 17:37:47.000000000 +0200
+@@ -7,7 +7,7 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
+  *
+- * $Revision: 1.164 $
++ * $Revision: 1.165 $
+  */
+ 
+ #include <linux/config.h>
+@@ -1740,6 +1740,10 @@ dasd_exit(void)
+ 	dasd_proc_exit();
+ #endif
+ 	dasd_ioctl_exit();
++        if (dasd_page_cache != NULL) {
++		kmem_cache_destroy(dasd_page_cache);
++		dasd_page_cache = NULL;
++	}
+ 	dasd_gendisk_exit();
+ 	dasd_devmap_exit();
+ 	devfs_remove("dasd");

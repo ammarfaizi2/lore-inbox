@@ -1,87 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVGKHKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVGKHSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVGKHKa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 03:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVGKHK3
+	id S261174AbVGKHSe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 03:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVGKHSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 03:10:29 -0400
-Received: from main.gmane.org ([80.91.229.2]:63683 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261183AbVGKHK1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 03:10:27 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Marc Haber <mh+usenetspam200516@zugschlus.de>
-Subject: 2.6.12.2 tg3 driver doesn't ARP on 8021q 802.1q dot1q VLAN interfaces?
-Date: Mon, 11 Jul 2005 08:29:51 +0200
-Organization: private site in Mannheim, Germany
-Message-ID: <dat3kv$rpq$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 193.151.248.5
-User-Agent: KNode/0.9.1
+	Mon, 11 Jul 2005 03:18:33 -0400
+Received: from mf01.sitadelle.com ([212.94.174.68]:48037 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S261174AbVGKHSd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 03:18:33 -0400
+Message-ID: <42D21D43.3060300@cosmosbay.com>
+Date: Mon, 11 Jul 2005 09:18:27 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] eventpoll : Suppress a short lived lock from struct file
+References: <4263275A.2020405@lab.ntt.co.jp>  <20050418040718.GA31163@taniwha.stupidest.org>  <4263356D.9080007@lab.ntt.co.jp>  <20050418044223.GB15002@nevyn.them.org> <1113800136.355.1.camel@localhost.localdomain> <Pine.LNX.4.58.0504172159120.28447@bigblue.dev.mdolabs.com>
+In-Reply-To: <Pine.LNX.4.58.0504172159120.28447@bigblue.dev.mdolabs.com>
+Content-Type: multipart/mixed;
+ boundary="------------050108000305010700040301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------050108000305010700040301
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-this morning, I tried upgrading a firewall from Debian woody to Debian
-sarge, and in the course upgrading from a locally compiled vanilla 2.4.30
-to a locally compiled vanilla 2.6.12.2. The box is a hp DL 140 which has
-two tg3-based Interfaces on board, and a dual-Interface E1000 PCI card in
-its PCI slot:
+Hi Davide
 
-$ lspci
-0000:00:00.0 Host bridge: ServerWorks GCNB-LE Host Bridge (rev 32)
-0000:00:00.1 Host bridge: ServerWorks GCNB-LE Host Bridge
-0000:00:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev
-27)
-0000:00:0f.0 ISA bridge: ServerWorks CSB6 South Bridge (rev a0)
-0000:00:0f.1 IDE interface: ServerWorks CSB6 RAID/IDE Controller (rev a0)
-0000:00:0f.2 USB Controller: ServerWorks CSB6 OHCI USB Controller (rev 05)
-0000:00:0f.3 Host bridge: ServerWorks GCLE-2 Host Bridge
-0000:00:10.0 Host bridge: ServerWorks CIOB-E I/O Bridge with Gigabit
-Ethernet (rev 12)
-0000:00:10.2 Host bridge: ServerWorks CIOB-E I/O Bridge with Gigabit
-Ethernet (rev 12)
-0000:01:06.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet
-Controller (Copper) (rev 01)
-0000:01:06.1 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet
-Controller (Copper) (rev 01)
-0000:02:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704
-Gigabit Ethernet (rev 02)
-0000:02:00.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704
-Gigabit Ethernet (rev 02)
-$
+I found in my tests that there is no need to have a f_ep_lock spinlock
+attached to each struct file, using 8 bytes on 64bits platforms. The
+lock is hold for a very short time period and can be global, with almost
+no change in performance for applications using epoll, and a gain for
+all others.
 
-The box uses dot1q VLANs on all interfaces.
+Thank you
+Eric Dumazet
 
-After rebooting, the VLANs on the Intel-based interfaces worked fine, while
-the tg3-based interfaces didn't answer to tagged ARP requests. The untagged
-VLAN on the tg3-based interfaces was fine as well. When tcpdumping the
-subinterfaces, I saw all traffic on the network, and especially the
-incoming ARP requests, but no ARP replies went out.
+[PATCH] eventpoll : Suppress a short lived lock from struct file
 
-Rebooting back to 2.4 solved the issue immediately, all VLANs were OK as
-well.
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
 
-Conclusion: Since the e1000-based VLANs work fine even with 2.6, the dot1q
-code seems to be ok. So, the issue most probably lies with the tg3 driver.
 
-I am pretty well aware that there are issues with tg3 on _Debian_ kernels,
-which is one of the reasons why I use locally compiled kernels built from
-vanilla kernel.org sources.
+--------------050108000305010700040301
+Content-Type: text/plain;
+ name="patch_eventpoll"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch_eventpoll"
 
-Any hints?
+--- linux-2.6.12/fs/eventpoll.c	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.12-ed/fs/eventpoll.c	2005-07-11 08:56:07.000000000 +0200
+@@ -179,6 +179,8 @@
+ 	spinlock_t lock;
+ };
+ 
++static DEFINE_SPINLOCK(f_ep_lock);
++
+ /*
+  * This structure is stored inside the "private_data" member of the file
+  * structure and rapresent the main data sructure for the eventpoll
+@@ -426,7 +428,6 @@
+ {
+ 
+ 	INIT_LIST_HEAD(&file->f_ep_links);
+-	spin_lock_init(&file->f_ep_lock);
+ }
+ 
+ 
+@@ -967,9 +968,9 @@
+ 		goto eexit_2;
+ 
+ 	/* Add the current item to the list of active epoll hook for this file */
+-	spin_lock(&tfile->f_ep_lock);
++	spin_lock(&f_ep_lock);
+ 	list_add_tail(&epi->fllink, &tfile->f_ep_links);
+-	spin_unlock(&tfile->f_ep_lock);
++	spin_unlock(&f_ep_lock);
+ 
+ 	/* We have to drop the new item inside our item list to keep track of it */
+ 	write_lock_irqsave(&ep->lock, flags);
+@@ -1160,7 +1161,6 @@
+ {
+ 	int error;
+ 	unsigned long flags;
+-	struct file *file = epi->ffd.file;
+ 
+ 	/*
+ 	 * Removes poll wait queue hooks. We _have_ to do this without holding
+@@ -1173,10 +1173,10 @@
+ 	ep_unregister_pollwait(ep, epi);
+ 
+ 	/* Remove the current item from the list of epoll hooks */
+-	spin_lock(&file->f_ep_lock);
++	spin_lock(&f_ep_lock);
+ 	if (EP_IS_LINKED(&epi->fllink))
+ 		EP_LIST_DEL(&epi->fllink);
+-	spin_unlock(&file->f_ep_lock);
++	spin_unlock(&f_ep_lock);
+ 
+ 	/* We need to acquire the write IRQ lock before calling ep_unlink() */
+ 	write_lock_irqsave(&ep->lock, flags);
+--- linux-2.6.12/include/linux/fs.h	2005-06-17 21:48:29.000000000 +0200
++++ linux-2.6.12-ed/include/linux/fs.h	2005-07-11 08:58:02.000000000 +0200
+@@ -597,7 +597,6 @@
+ #ifdef CONFIG_EPOLL
+ 	/* Used by fs/eventpoll.c to link all the hooks to this file */
+ 	struct list_head	f_ep_links;
+-	spinlock_t		f_ep_lock;
+ #endif /* #ifdef CONFIG_EPOLL */
+ 	struct address_space	*f_mapping;
+ };
 
-Greetings
-Marc
-
--- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Mannheim, Germany  |  lose things."    Winona Ryder | Fon: *49 621 72739834
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 621 72739835
-
+--------------050108000305010700040301--

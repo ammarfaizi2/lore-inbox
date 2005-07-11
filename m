@@ -1,73 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVGKAMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVGKAfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVGKAMj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Jul 2005 20:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVGKAKg
+	id S262048AbVGKAfl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Jul 2005 20:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVGKAKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Jul 2005 20:10:36 -0400
-Received: from ns1.suse.de ([195.135.220.2]:54162 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261189AbVGJTfN (ORCPT
+	Sun, 10 Jul 2005 20:10:03 -0400
+Received: from smtp2.nbnz.co.nz ([202.49.143.67]:34060 "HELO smtp2.nbnz.co.nz")
+	by vger.kernel.org with SMTP id S262050AbVGKAHc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Jul 2005 15:35:13 -0400
-Date: Sun, 10 Jul 2005 19:35:12 +0000
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org
-Subject: [PATCH 4/82] remove linux/version.h include from arch/mips
-Message-ID: <20050710193512.4.TqwKKi2359.2247.olh@nectarine.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
-In-Reply-To: <20050710193508.0.PmFpst2252.2247.olh@nectarine.suse.de>  
+	Sun, 10 Jul 2005 20:07:32 -0400
+Message-ID: <40BC5D4C2DD333449FBDE8AE961E0C334F937B@psexc03.nbnz.co.nz>
+From: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
+To: "'Alan Stern'" <stern@rowland.harvard.edu>,
+       "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
+Cc: Stefano Rivoir <s.rivoir@gts.it>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: RE: [linux-usb-devel] Kernel unable to read partition table on US
+	B Memory Key
+Date: Mon, 11 Jul 2005 12:07:03 +1200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Back again!  (had a 2 day course last week).
 
-changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+> > There are three delays from my patch in the above list,
+> 
+> Yes.  Why are there three instead of just one?  The 
+> sd_revalidate_disk routine should only be called once 
+> (although a bug in recent kernels causes it to be called twice).
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+Don't know; just call them as I see them.
 
-arch/mips/pmc-sierra/yosemite/atmel_read_eeprom.h |    1 -
-arch/mips/pmc-sierra/yosemite/ht-irq.c            |    1 -
-arch/mips/pmc-sierra/yosemite/ht.c                |    1 -
-3 files changed, 3 deletions(-)
+> >  and increasing the
+> > delay to 3 seconds didn't help, as I got three one-second delays.  
+> 
+> I don't understand.  Why didn't you get three three-second delays?
 
-Index: linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/atmel_read_eeprom.h
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/arch/mips/pmc-sierra/yosemite/atmel_read_eeprom.h
-+++ linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/atmel_read_eeprom.h
-@@ -34,7 +34,6 @@
-#include <linux/pci.h>
-#include <linux/kernel.h>
-#include <linux/slab.h>
--#include <linux/version.h>
-#include <asm/pci.h>
-#include <asm/io.h>
-#include <linux/init.h>
-Index: linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/ht-irq.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/arch/mips/pmc-sierra/yosemite/ht-irq.c
-+++ linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/ht-irq.c
-@@ -26,7 +26,6 @@
-#include <linux/types.h>
-#include <linux/pci.h>
-#include <linux/kernel.h>
--#include <linux/version.h>
-#include <linux/init.h>
-#include <asm/pci.h>
+I did, I just can't type.  Sorry.
 
-Index: linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/ht.c
-===================================================================
---- linux-2.6.13-rc2-mm1.orig/arch/mips/pmc-sierra/yosemite/ht.c
-+++ linux-2.6.13-rc2-mm1/arch/mips/pmc-sierra/yosemite/ht.c
-@@ -28,7 +28,6 @@
-#include <linux/pci.h>
-#include <linux/kernel.h>
-#include <linux/slab.h>
--#include <linux/version.h>
-#include <asm/pci.h>
-#include <asm/io.h>
+> Can you try adding delays before, after, and inbetween the 
+> calls to sd_read_capacity, sd_read_write_protect_flag, and 
+> sd_read_cache_type, all near the end of sd_revalidate_disk?
 
+Yes, will do this and post results.
+
+> > Note that I now have the output from the USB Snoop tool 
+> under Windows 
+> > if anyone wants it - please ask if needed to help solve the 
+> issue "correctly".
+> 
+> Can you make it available on a web or ftp site and post the 
+> URL for interested parties?
+
+(Smacks head)  Why didn't I think of that?
+
+http://users.actrix.co.nz/rtfamily/USBLog1.usblog.bz2 for the Snoopy tool
+output and
+http://users.actrix.co.nz/rtfamily/USBDebugMsgs.bz2 for the other output I
+emailed to this list last week.
+
+Thanks,
+
+James Roberts-Thomson
+----------
+Hardware:  The parts of a computer system that can be kicked.
+
+Mailing list Readers:  Please ignore the following disclaimer - this email
+is explicitly declared to be non confidential and does not contain
+privileged information.
+
+This communication is confidential and may contain privileged material.
+If you are not the intended recipient you must not use, disclose, copy or retain it.
+If you have received it in error please immediately notify me by return email
+and delete the emails.
+Thank you.

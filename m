@@ -1,83 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVGKKJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVGKKNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVGKKJK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 06:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVGKKJK
+	id S261554AbVGKKNN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 06:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVGKKNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 06:09:10 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:28853 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S261579AbVGKKJI convert rfc822-to-8bit
+	Mon, 11 Jul 2005 06:13:13 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:57122 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261554AbVGKKMe convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 06:09:08 -0400
-Subject: Re: [PATCH] Apple USB Touchpad driver (new)
-From: Stelian Pop <stelian@popies.net>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Johannes Berg <johannes@sipsolutions.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Frank Arnold <frank@scirocco-5v-turbo.de>
-In-Reply-To: <m37jfzr4oi.fsf@telia.com>
-References: <20050708101731.GM18608@sd291.sivit.org>
-	 <1120821481.5065.2.camel@localhost>
-	 <20050708121005.GN18608@sd291.sivit.org>  <m37jfzr4oi.fsf@telia.com>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 11 Jul 2005 12:06:25 +0200
-Message-Id: <1121076385.12619.5.camel@localhost.localdomain>
+	Mon, 11 Jul 2005 06:12:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iuV7R7ufxaFDW8L6lEfMM9+VvWu41UuJr+upSVonnHwqN0fWwrm9yzg1gFmeLn30dNqbE3E4fCpA4sSk8v0fzgJwiVLKkd+qg0Cuivohq+b5MzMNwRSsU0o5F0KDh/edjx9WIhy1flfNGZHpmpKzxXK9VlGsAKYqfFGs2HSeEfk=
+Message-ID: <fc339e4a050711031222c4c0b5@mail.gmail.com>
+Date: Mon, 11 Jul 2005 19:12:34 +0900
+From: Miles Bader <snogglethorpe@gmail.com>
+Reply-To: snogglethorpe@gmail.com, miles@gnu.org
+To: Miles Bader <miles@gnu.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] v850: Update checksum.h to match changed function signatures
+In-Reply-To: <20050711094151.GA31805@gilgamesh.home.res>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050711092450.52815625@mctpc71>
+	 <20050711094151.GA31805@gilgamesh.home.res>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le dimanche 10 juillet 2005 à 00:32 +0200, Peter Osterlund a écrit :
-> Stelian Pop <stelian@popies.net> writes:
-> 
-> > +Synaptics re-detection problems:
-> > +--------------------------------
-> > +
-> > +The synaptics X11 driver tries to re-open the touchpad input device file
-> > +(/dev/input/eventX) each time you change from text mode back to X11. If the
-> > +input device file does not exist at this precise moment, the synaptics driver
-> > +will give up searching for a touchpad, permanently. You will need to restart
-> > +X11 if you want to reissue a scan.
-> 
-> I think this particular problem is fixed by the following patch to the
-> X driver:
-> 
-> --- synaptics.c.old	2005-07-10 00:09:02.000000000 +0200
-> +++ synaptics.c	2005-07-10 00:09:12.000000000 +0200
-> @@ -524,6 +524,11 @@
->  
->      local->fd = xf86OpenSerial(local->options);
->      if (local->fd == -1) {
-> +	xf86ReplaceStrOption(local->options, "Device", "");
-> +	SetDeviceAndProtocol(local);
-> +	local->fd = xf86OpenSerial(local->options);
-> +    }
-> +    if (local->fd == -1) {
->  	xf86Msg(X_WARNING, "%s: cannot open input device\n", local->name);
->  	return !Success;
->      }
+2005/7/11, Frederik Deweerdt <frederik.deweerdt@gmail.com>:
+> > -unsigned int csum_partial_copy_from_user (const unsigned char *src, unsigned char *dst,
+> > +unsigned int csum_partial_copy_from_user (const unsigned char *src,
+> > +                                       unsigned char *dst,
+>                                           ^^^^^^^ Alignment looks fuzzy here
 
-It does indeed fix the problem.
+It's actually a spaces-vs-tabs issue -- the existing lines use all
+spaces for indentation, but my new line uses tabs, so when viewed as
+part of the diff they look unaligned; they look OK in the actual
+source file though.
 
-I removed that section from the documentation, as I assume you will
-integrate this patch in future synaptics releases (and it wasn't anyway
-a big problem for users, just for developers).
-
-> 
-> > +static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact) {
-> 
-> I think this CodingStyle violation is quite annoying, because it
-> prevents emacs from finding the beginning of the function. It should
-> be written like this:
-
-Indeed, that one slipped over, but this didn't prevent vim from finding
-the beginning of the function :)
-
-Thanks,
-
-Stelian.
+-Miles
 -- 
-Stelian Pop <stelian@popies.net>
-
+Do not taunt Happy Fun Ball.

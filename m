@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262911AbVGKWJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbVGKWNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262911AbVGKWJH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 18:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVGKWHG
+	id S262916AbVGKWNS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVGKWNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 18:07:06 -0400
-Received: from mail.kroah.org ([69.55.234.183]:60380 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262871AbVGKWDv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 18:03:51 -0400
-Cc: johnpol@2ka.mipt.ru
-Subject: [PATCH] w1: fix CRC calculation on bigendian platforms.
-In-Reply-To: <1121119377358@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 11 Jul 2005 15:02:57 -0700
-Message-Id: <11211193771329@kroah.com>
-Mime-Version: 1.0
+	Mon, 11 Jul 2005 18:13:10 -0400
+Received: from smtp4.netcabo.pt ([212.113.174.31]:43485 "EHLO
+	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S262740AbVGKWDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 18:03:17 -0400
+Message-ID: <33519.192.168.1.8.1121119251.squirrel@www.rncbc.org>
+In-Reply-To: <20050711155503.GA21762@elte.hu>
+References: <20050703133738.GB14260@elte.hu>
+    <1120428465.21398.2.camel@cmn37.stanford.edu>
+    <24833.195.245.190.94.1120761991.squirrel@www.rncbc.org>
+    <20050707194914.GA1161@elte.hu>
+    <49943.192.168.1.5.1120778373.squirrel@www.rncbc.org>
+    <57445.195.245.190.94.1120812419.squirrel@www.rncbc.org>
+    <20050708085253.GA1177@elte.hu>
+    <28798.195.245.190.94.1120815616.squirrel@www.rncbc.org>
+    <20050708095600.GA5910@elte.hu>
+    <63108.195.245.190.94.1121094757.squirrel@www.rncbc.org>
+    <20050711155503.GA21762@elte.hu>
+Date: Mon, 11 Jul 2005 23:00:51 +0100 (WEST)
+Subject: Re: realtime-preempt-2.6.12-final-V0.7.51-11 glitches [no more]
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
 Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 11 Jul 2005 22:03:13.0525 (UTC) FILETIME=[55434250:01C58664]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] w1: fix CRC calculation on bigendian platforms.
+> * Rui Nuno Capela <rncbc@rncbc.org> wrote:
+>
+>> After several trials, with CONFIG_PROFILING=y and profile=1
+>> nmi_watchdog=2 as boot parameters, I'm almost convinced I'm doing
+>> something wrong :)
+>>
+>> - `readprofile` always just outputs one line:
+>>
+>>      0 total                                    0.0000
+>>
+>> - `readprofile -a` gives the whole kernel symbol list, all with zero
+>> times.
+>>
+>> Is there anything else I can check around here?
+>
+> it means that the NMI watchdog was not activated - i.e. the 'NMI' counts
+> in /proc/interrupts do not increase. Do you have LOCAL_APIC enabled in
+> the .config? If yes and if nmi_watchdog=1 does not work either then it's
+> probably not possible to activate the NMI watchdog on your box. In that
+> case try nmi_watchdog=0, that should activate normal profiling. (unless
+> i've broken it via the profile-via-NMI changes ...)
+>
 
-In the 2.6.13-rc1 code the "rn" structure is in the wrong-endianness
-when passed to w1_attach_slave_device(). This causes problems like the
-family and crc being swapped around.
-
-Signed-off-by: Roger Blofeld <blofeldus@yahoo.com>
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
-commit 0e65f82814e9828d3ff54988de9e7c0b36794daa
-tree a4d5dfb9ab550160a453c6266fe67d18ace76857
-parent 80efa8c72006a1c04004f8fb07b22073348e4bf2
-author Evgeniy Polyakov <johnpol@2ka.mipt.ru> Thu, 30 Jun 2005 22:52:38 +0400
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 11 Jul 2005 14:10:37 -0700
-
- drivers/w1/w1.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
---- a/drivers/w1/w1.c
-+++ b/drivers/w1/w1.c
-@@ -516,6 +516,7 @@ static void w1_slave_found(unsigned long
- 	struct w1_reg_num *tmp;
- 	int family_found = 0;
- 	struct w1_master *dev;
-+	u64 rn_le = cpu_to_le64(rn);
- 
- 	dev = w1_search_master(data);
- 	if (!dev) {
-@@ -544,10 +545,8 @@ static void w1_slave_found(unsigned long
- 		slave_count++;
- 	}
- 
--	rn = cpu_to_le64(rn);
--
- 	if (slave_count == dev->slave_count &&
--		rn && ((le64_to_cpu(rn) >> 56) & 0xff) == w1_calc_crc8((u8 *)&rn, 7)) {
-+		rn && ((rn >> 56) & 0xff) == w1_calc_crc8((u8 *)&rn_le, 7)) {
- 		w1_attach_slave_device(dev, tmp);
- 	}
- 
+I've tried whether having nmi_watchdog has any influence, to no
+distinguishable result; readprofile always says zero times. And I'm sure I
+have LOCAL_APIC=y (see attached config.gz)
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 

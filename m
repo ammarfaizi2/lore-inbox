@@ -1,44 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVGKOdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVGKOfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbVGKOdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVGKOay
+	id S261873AbVGKOfM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:35:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVGKOdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:30:54 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:53197 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261839AbVGKOaZ
+	Mon, 11 Jul 2005 10:33:35 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:40646 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261839AbVGKOb1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:30:25 -0400
-Subject: Re: [ltp] IBM HDAPS Someone interested? (Userspace accelerometer
-	viewer)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Sladen <thinkpad@paul.sladen.org>
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
-       linux-thinkpad@linux-thinkpad.org,
-       Eric Piel <Eric.Piel@tremplin-utc.net>, borislav@users.sourceforge.net,
-       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hdaps-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.21.0507111011170.25721-100000@starsky.19inch.net>
-References: <Pine.LNX.4.21.0507111011170.25721-100000@starsky.19inch.net>
+	Mon, 11 Jul 2005 10:31:27 -0400
+Subject: [PATCH 14/27] Optimize canceling a MAD
+From: Hal Rosenstock <halr@voltaire.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1121092015.7407.68.camel@localhost.localdomain>
+Organization: 
+Message-Id: <1121089126.4389.4533.camel@hal.voltaire.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 11 Jul 2005 15:26:57 +0100
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Jul 2005 10:23:53 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-07-11 at 10:42, Paul Sladen wrote:
->   theta = (N - 512) * 0.5
-> 
-> provides a surprisingly good approximation for pitch/roll values in degrees
-> in the range (-90..+90) so I think the sensor can do ~= +/-2.5G .
-> 
->   http://www.paul.sladen.org/thinkpad-r31/aps/accelerometer-screenshot.png (9kB)
+Optimize canceling a MAD. 
+- Eliminate searching timeout list in cancel case.
+- Remove duplicate calls to queue work item.
+- Eliminate resending a MAD before MAD is completed.
 
-Is the quality good enough to use it DEC itsy style as an input device
-for games like Marble madness ?
+Signed-off-by: Sean Hefty <sean.hefty@intel.com>
+Signed-off-by: Hal Rosenstock <halr@voltaire.com>
+
+This patch depends on patch 13/27.
+
+-- 
+ mad.c |   21 +++++++++++++--
+ 1 files changed, 13 insertions(+), 8 deletions(-)
+diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband13/core/mad.c linux-2.6.13-rc2-mm1/drivers/infiniband14/core/mad.c
+-- linux-2.6.13-rc2-mm1/drivers/infiniband13/core/mad.c	2005-07-09 18:16:36.000000000 -0400
++++ linux-2.6.13-rc2-mm1/drivers/infiniband14/core/mad.c	2005-07-09 18:19:51.000000000 -0400
+@@ -1754,14 +1754,18 @@ static void wait_for_response(struct ib_
+ 	delay = mad_send_wr->timeout;
+ 	mad_send_wr->timeout += jiffies;
+ 
+-	list_for_each_prev(list_item, &mad_agent_priv->wait_list) {
+-		temp_mad_send_wr = list_entry(list_item,
+-					      struct ib_mad_send_wr_private,
+-					      agent_list);
+-		if (time_after(mad_send_wr->timeout,
+-			       temp_mad_send_wr->timeout))
+-			break;
++	if (delay) {
++		list_for_each_prev(list_item, &mad_agent_priv->wait_list) {
++			temp_mad_send_wr = list_entry(list_item,
++						struct ib_mad_send_wr_private,
++						agent_list);
++			if (time_after(mad_send_wr->timeout,
++				       temp_mad_send_wr->timeout))
++				break;
++		}
+ 	}
++	else
++		list_item = &mad_agent_priv->wait_list;
+ 	list_add(&mad_send_wr->agent_list, list_item);
+ 
+ 	/* Reschedule a work item if we have a shorter timeout */
+@@ -2197,7 +2201,8 @@ static void timeout_sends(void *data)
+ 		}
+ 
+ 		list_del(&mad_send_wr->agent_list);
+-		if (!retry_send(mad_send_wr))
++		if (mad_send_wr->status == IB_WC_SUCCESS &&
++		    !retry_send(mad_send_wr))
+ 			continue;
+ 
+ 		spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
+
 

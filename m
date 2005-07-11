@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVGKSRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVGKS27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVGKSRv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 14:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbVGKSPk
+	id S261178AbVGKS27 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 14:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVGKPTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 14:15:40 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:59444 "EHLO
-	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S261981AbVGKSNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 14:13:05 -0400
-Message-ID: <42D2B6AD.40907@wooding.uklinux.net>
-Date: Mon, 11 Jul 2005 19:13:01 +0100
-From: Steven Wooding <steve@wooding.uklinux.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041227)
-X-Accept-Language: en-us, en
+	Mon, 11 Jul 2005 11:19:08 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:15837 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261982AbVGKPSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 11:18:30 -0400
+Message-ID: <42D28D7E.3050401@jp.fujitsu.com>
+Date: Tue, 12 Jul 2005 00:17:18 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Real-Time Preemption Patch -RT-2.6.12-final-V0.7.51-26 failed ,to
- compile
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+CC: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] i386: Per node IDT
+References: <Pine.LNX.4.61.0507101617240.16055@montezuma.fsmlabs.com.suse.lists.linux.kernel>  <p73eka614t7.fsf@verdi.suse.de> <1121054565.3177.2.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0507110804210.16055@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.61.0507110804210.16055@montezuma.fsmlabs.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
- 
-I wonder if someone can help a newbie to the Real-Time Preemption 
-Patch. After appling the lastest patch (-RT-2.6.12-final-V0.7.51-26) to the 
-2.6.12 vanilla kernel I get the following error when compiling the 
-patched kernel:
- 
-arch/x86_64/kernel/mce.c: In function 'mce_read':
-arch/x86_64/kernel/mce.c:383: warning: type defaults to 'int' in 
-declarationd of 'DECLARE_MUTEX'
-arch/x86_64/kernel/mce.c:383: warning: parameter names (without types) 
-in function declaration
-arch/x86_64/kernel/mce.c:392:error: 'mce_read_sem' undeclared (first 
-use in this function)
- 
-Then the mce.o fails to get made and the make stops.
- 
-I've tried compiling the vanilla 2.6.12 kernel without the patch and 
-that works fine. It is strange that the error should be in 
-arch/x86_64/kernel/mce.c as this is not altered by the patch. I've also tried saying 
-no to MCE support, but got the some error.
- 
-I'm using RHEL 4 on a SMP system (gcc version 3.4.3).
- 
+
+> Agreed, the first version was a per cpu one simply so that i could test it 
+> on a normal SMP system. Andi seems to be of the same opinion, what do you 
+> think of the hotplug cpu case (explained in previous email)?
+
+I think we need to migrate interrupts to the other CPU
+in the hotplug CPU case. Even when we use per node approach,
+we need to consider interrupt migration between nodes
+because all CPUs on the node could be hot-removed.
+
 Thanks,
- 
-Steve.
-
-PS Please CC me on replies. Thanks.
-
+Kenji Kaneshige

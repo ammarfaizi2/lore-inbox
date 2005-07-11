@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVGKPMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVGKPMH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbVGKPMI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 11:12:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVGKPJ5
+	id S261948AbVGKPMH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 11:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVGKPKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 11:09:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:23242 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261950AbVGKPHI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 11:07:08 -0400
-Date: Mon, 11 Jul 2005 17:07:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050711150711.GA19290@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050709155704.GA14535@elte.hu> <200507091704.12368.s0348365@sms.ed.ac.uk> <200507111455.45105.s0348365@sms.ed.ac.uk> <20050711141232.GA16586@elte.hu> <20050711141622.GA17327@elte.hu>
+	Mon, 11 Jul 2005 11:10:05 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:56821 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261939AbVGKPGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 11:06:52 -0400
+Message-ID: <5489525.1121093570272.SLOX.WebMail.wwwrun@exchange.deltacomputer.de>
+Date: Mon, 11 Jul 2005 16:52:50 +0200 (CEST)
+From: Oliver Weihe <o.weihe@deltacomputer.de>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with more than 8 AMD Opteron Cores per System
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050711141622.GA17327@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (normal)
+X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.3826)
+X-Operating-System: Linux 2.4.21-241-smp i386 (JVM 1.3.1_04)
+Organization: Delta Computer Products GmbH
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:62e2eaa30f0557f14c09a5fa777a0a78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+I've two Iwill 8way Opteron equipped with 8 Opteron 875 CPUs each.
+(In the past we build some systems with singlecore CPUs and they went
+very well)
 
-> > might be an incorrect printout of stack_left :( The esp looks more or 
-> > less normal. Not sure why it printed -52.
-> 
-> here's the stack_left calculation:
-> 
-> +       printk("ds: %04x   es: %04x   ss: %04x   preempt: %08x\n",
-> +               regs->xds & 0xffff, regs->xes & 0xffff, ss, preempt_count());
-> +       printk("Process %s (pid: %d, threadinfo=%p task=%p stack_left=%ld worst_left=%ld)",
-> +               current->comm, current->pid, current_thread_info(), current,
-> +               (regs->esp & (THREAD_SIZE-1))-sizeof(struct thread_info),
-> +               worst_stack_left);
-> 
-> i cannot see anything wrong in it, [...]
+The Problem now is that the machines crash during boot when maxcpus is
+greater than 8.
+2.6.12-rc4 works well with maxcpus=8, with 9 or more it freezes after
+"Testing NMI Watchdog... OK"
 
-that should be "esp", not "regs->esp". regs->esp is something different 
-upon in-kernel faults. I've uploaded -27 with the fix - but it should 
-only confirm that it's not a stack overflow.
+2.6.12-rc5 and above have more problems even with maxcpus=4 or less very
+early during booting.
 
-	Ingo
+2.6.13-X crashes later during boot (from 2 to 16 cores it's the same
+behavior)
+
+The last I can so on the console (kernel 2.6.13-rc2-git4, maxcpus=2..16)
+is:
+
+NET: Registered protocol family 1
+Using IPI Shortcut mode
+int3: 0000 [1] SMP
+CPU4
+Modules linked in:
+Freeing unused kernel memory: 212k freed
+Pid: 0, comm: swapper Not tainted 2.6.13-rc2-git4-default
+RIP: 0010:[<ffffffff8050fc00>]
+
+After that the machines are totally freezed.
+
+With maxcpus=1 all (tested) versions >=2.6.12-rc3 are able to boot.
+
+Any hints/ideas/what ever?
+
+Regards,
+   Oliver Weihe
+
+P.S. if you answer CC me ;)
+

@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVGKSLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVGKSRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbVGKSLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 14:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVGKSLG
+	id S261774AbVGKSRv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 14:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVGKSPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 14:11:06 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:62663 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262015AbVGKPiA
+	Mon, 11 Jul 2005 14:15:33 -0400
+Received: from silver.veritas.com ([143.127.12.111]:32407 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S262025AbVGKSNH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 11:38:00 -0400
-Subject: Re: [PATCH 3/27] Add MAD helper functions
-From: Hal Rosenstock <halr@voltaire.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <200507111839.41807.adobriyan@gmail.com>
-References: <1121089079.4389.4511.camel@hal.voltaire.com>
-	 <200507111839.41807.adobriyan@gmail.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1121094791.4389.4591.camel@hal.voltaire.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 11:30:23 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Jul 2005 14:13:07 -0400
+Date: Mon, 11 Jul 2005 19:14:29 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] lower VM_DONTCOPY total_vm
+Message-ID: <Pine.LNX.4.61.0507111912140.1522@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 11 Jul 2005 18:13:06.0488 (UTC) FILETIME=[2FA09B80:01C58644]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 10:39, Alexey Dobriyan wrote:
-> On Monday 11 July 2005 17:48, Hal Rosenstock wrote:
-> > Add new helper routines for allocating MADs for sending and formatting
-> > a send WR.
-> 
-> > -- linux-2.6.13-rc2-mm1/drivers/infiniband2/core/mad.c
-> > +++ linux-2.6.13-rc2-mm1/drivers/infiniband3/core/mad.c
-> 				   ^^^^^^^^^^^
-> Ick. You'd better have linux-2.6.13-rc2-mm1-[0123...].
+dup_mmap of a VM_DONTCOPY vma forgot to lower the child's total_vm.  (But
+no way does this account for the recent report of total_vm seen too low.)
 
-Shall I resubmit with linux-2.6.13-rc2-mm1-[0123...] ?
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-> > +struct ib_mad_send_buf * ib_create_send_mad(struct ib_mad_agent *mad_agent,
-> > +					    u32 remote_qpn, u16 pkey_index,
-> > +					    struct ib_ah *ah,
-> > +					    int hdr_len, int data_len,
-> > +					    int gfp_mask)
-> 
-> unsigned int __nocast gfp_mask, please. 430 or so infiniband sparse warnings
-> is not a reason to add more.
+ kernel/fork.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
 
-I'll fix this in a subsequent patch. Is that OK ?
-
-Thanks.
-
--- Hal
-
+--- 2.6.13-rc2-mm1/kernel/fork.c	2005-07-07 12:33:21.000000000 +0100
++++ linux/kernel/fork.c	2005-07-11 18:47:33.000000000 +0100
+@@ -210,8 +210,10 @@ static inline int dup_mmap(struct mm_str
+ 		struct file *file;
+ 
+ 		if (mpnt->vm_flags & VM_DONTCOPY) {
++			long pages = vma_pages(mpnt);
++			mm->total_vm -= pages;
+ 			__vm_stat_account(mm, mpnt->vm_flags, mpnt->vm_file,
+-							-vma_pages(mpnt));
++								-pages);
+ 			continue;
+ 		}
+ 		charge = 0;

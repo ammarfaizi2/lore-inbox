@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVGKR4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262269AbVGKSAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbVGKR4L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 13:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbVGKRyN
+	id S262269AbVGKSAq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 14:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVGKR6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 13:54:13 -0400
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:33450 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S262141AbVGKRwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 13:52:50 -0400
-Date: Mon, 11 Jul 2005 10:52:49 -0700
-From: Tom Duffy <Tom.Duffy@Sun.COM>
-Subject: Re: [openib-general] Re: [PATCH 3/27] Add MAD helper functions
-In-reply-to: <200507111839.41807.adobriyan@gmail.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Hal Rosenstock <halr@voltaire.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Message-id: <42D2B1F1.7000408@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <1121089079.4389.4511.camel@hal.voltaire.com>
- <200507111839.41807.adobriyan@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
+	Mon, 11 Jul 2005 13:58:49 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:58056 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262141AbVGKR5c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 13:57:32 -0400
+Date: Mon, 11 Jul 2005 19:57:00 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+cc: Pekka Enberg <penberg@cs.helsinki.fi>, Bryan Henderson <hbryan@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, bfields@fieldses.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linuxram@us.ibm.com, mike@waychison.com,
+       Miklos Szeredi <miklos@szeredi.hu>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: share/private/slave a subtree - define vs enum 
+In-Reply-To: <200507111713.j6BHDUGd001817@laptop11.inf.utfsm.cl>
+Message-ID: <Pine.LNX.4.61.0507111950150.3728@scrub.home>
+References: <200507111713.j6BHDUGd001817@laptop11.inf.utfsm.cl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
+Hi,
 
->unsigned int __nocast gfp_mask, please. 430 or so infiniband sparse warnings
->is not a reason to add more.
->  
->
-Can you please elaborate on the sparse warnings that you are seeing 
-throughout the rest of infiniband?
+On Mon, 11 Jul 2005, Horst von Brand wrote:
 
-Thanks,
+> > I don't generally disagree with that, I just think that defines are not 
+> > part of that list.
+> 
+> Covered in "bad coding style" and "hard to read code", at least.
 
--tduffy
+Somehow I missed the last lkml debate about where simple defines where a 
+problem.
+
+> > Look, it's great that you do reviews, but please keep in mind it's the 
+> > author who has to work with code and he has to be primarily happy with, 
+> > so you don't have to point out every minor issue.
+> 
+> Wrong. The author has to work with the code, but there are much more people
+> that have to read it now and fix it in the future. It doesn't make sense
+> having everybody using their own indentation style, variable naming scheme,
+> and ways of defining constants.
+
+I didn't say this, I said "minor issues". Please read more carefully.
+
+bye, Roman

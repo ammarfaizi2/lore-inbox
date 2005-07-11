@@ -1,103 +1,294 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVGKTnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVGKTpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbVGKTnE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 15:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVGKTnA
+	id S262464AbVGKTpj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 15:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVGKTpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 15:43:00 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:2764 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261981AbVGKTls
+	Mon, 11 Jul 2005 15:45:33 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:7884 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262464AbVGKTpG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 15:41:48 -0400
-Subject: [PATCH 1/29v2] Update FMR functions
+	Mon, 11 Jul 2005 15:45:06 -0400
+Subject: [PATCH 2/29v2] Update MAD client API
 From: Hal Rosenstock <halr@voltaire.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
 Content-Type: text/plain
 Organization: 
-Message-Id: <1121110253.4389.4986.camel@hal.voltaire.com>
+Message-Id: <1121110257.4389.4988.camel@hal.voltaire.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 15:34:10 -0400
+Date: 11 Jul 2005 15:37:25 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change some functions to return void rather than an int since they are
-always returning 0, thus making checking return values rather pointless.
+Automatically allocate a MR when registering a MAD agent. 
+MAD clients are modified to use this updated API.
 
-Signed-off-by: Tom Duffy <tduffy@sun.com>
-Signed-off-by: Libor Michalek <libor@topspin.com>
+Signed-off-by: Sean Hefty <sean.hefty@intel.com>
 Signed-off-by: Hal Rosenstock <halr@voltaire.com>
 
---- 
- core/fmr_pool.c       |    7 +++--
- include/ib_fmr_pool.h |    5 +++--
- 2 files changed, 6 insertions(+), 6 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband/core/fmr_pool.c linux-2.6.13-rc2-mm1-1/drivers/infiniband/core/fmr_pool.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband/core/fmr_pool.c	2005-06-29 19:00:53.000000000 -0400
-+++ linux-2.6.13-rc2-mm1-1/drivers/infiniband/core/fmr_pool.c	2005-06-28 13:07:35.000000000 -0400
-@@ -1,5 +1,6 @@
- /*
-  * Copyright (c) 2004 Topspin Communications.  All rights reserved.
-+ * Copyright (c) 2005 Sun Microsystems, Inc. All rights reserved.
-  *
-  * This software is available to you under a choice of one of two
-  * licenses.  You may choose to be licensed under the terms of the GNU
-@@ -29,7 +30,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: fmr_pool.c 1349 2004-12-16 21:09:43Z roland $
-+ * $Id: fmr_pool.c 2730 2005-06-28 16:43:03Z sean.hefty $
-  */
+--
+ core/agent.c      |   16 +--
+ core/agent_priv.h |    3 +--
+ core/mad.c        |   31 +++++++++++++++++++--
+ core/sa_query.c   |   15 ++--
+ include/ib_mad.h  |    1 +
+ 5 files changed, 24 insertions(+), 42 deletions(-)
+diff -uprN linux-2.6.13-rc2-mm1-1/drivers/infiniband/core/agent.c linux-2.6.13-rc2-mm1-2/drivers/infiniband/core/agent.c
+-- linux-2.6.13-rc2-mm1-1/drivers/infiniband/core/agent.c	2005-07-08 14:12:17.000000000 -0400
++++ linux-2.6.13-rc2-mm1-2/drivers/infiniband/core/agent.c	2005-07-09 13:22:55.000000000 -0400
+@@ -129,13 +129,12 @@ static int agent_mad_send(struct ib_mad_
+ 		goto out;
+ 	agent_send_wr->mad = mad_priv;
  
- #include <linux/errno.h>
-@@ -329,7 +330,7 @@ EXPORT_SYMBOL(ib_create_fmr_pool);
-  *
-  * Destroy an FMR pool and free all associated resources.
-  */
--int ib_destroy_fmr_pool(struct ib_fmr_pool *pool)
-+void ib_destroy_fmr_pool(struct ib_fmr_pool *pool)
- {
- 	struct ib_pool_fmr *fmr;
- 	struct ib_pool_fmr *tmp;
-@@ -352,8 +353,6 @@ int ib_destroy_fmr_pool(struct ib_fmr_po
+-	/* PCI mapping */
+ 	gather_list.addr = dma_map_single(mad_agent->device->dma_device,
+ 					  &mad_priv->mad,
+ 					  sizeof(mad_priv->mad),
+ 					  DMA_TO_DEVICE);
+ 	gather_list.length = sizeof(mad_priv->mad);
+-	gather_list.lkey = (*port_priv->mr).lkey;
++	gather_list.lkey = mad_agent->mr->lkey;
  
- 	kfree(pool->cache_bucket);
- 	kfree(pool);
+ 	send_wr.next = NULL;
+ 	send_wr.opcode = IB_WR_SEND;
+@@ -261,7 +260,6 @@ static void agent_send_handler(struct ib
+ 	list_del(&agent_send_wr->send_list);
+ 	spin_unlock_irqrestore(&port_priv->send_list_lock, flags);
+ 
+-	/* Unmap PCI */
+ 	dma_unmap_single(mad_agent->device->dma_device,
+ 			 pci_unmap_addr(agent_send_wr, mapping),
+ 			 sizeof(agent_send_wr->mad->mad),
+@@ -324,22 +322,12 @@ int ib_agent_port_open(struct ib_device 
+ 		goto error3;
+ 	}
+ 
+-	port_priv->mr = ib_get_dma_mr(port_priv->smp_agent->qp->pd,
+-				      IB_ACCESS_LOCAL_WRITE);
+-	if (IS_ERR(port_priv->mr)) {
+-		printk(KERN_ERR SPFX "Couldn't get DMA MR\n");
+-		ret = PTR_ERR(port_priv->mr);
+-		goto error4;
+-	}
 -
--	return 0;
- }
- EXPORT_SYMBOL(ib_destroy_fmr_pool);
+ 	spin_lock_irqsave(&ib_agent_port_list_lock, flags);
+ 	list_add_tail(&port_priv->port_list, &ib_agent_port_list);
+ 	spin_unlock_irqrestore(&ib_agent_port_list_lock, flags);
  
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband/include/ib_fmr_pool.h linux-2.6.13-rc2-mm1-1/drivers/infiniband/include/ib_fmr_pool.h
--- linux-2.6.13-rc2-mm1/drivers/infiniband/include/ib_fmr_pool.h	2005-06-29 19:00:53.000000000 -0400
-+++ linux-2.6.13-rc2-mm1-1/drivers/infiniband/include/ib_fmr_pool.h	2005-06-28 13:07:34.000000000 -0400
-@@ -1,5 +1,6 @@
- /*
-  * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
-+ * Copyright (c) 2005 Sun Microsystems, Inc. All rights reserved.
-  *
-  * This software is available to you under a choice of one of two
-  * licenses.  You may choose to be licensed under the terms of the GNU
-@@ -29,7 +30,7 @@
+ 	return 0;
+ 
+-error4:
+-	ib_unregister_mad_agent(port_priv->perf_mgmt_agent);
+ error3:
+ 	ib_unregister_mad_agent(port_priv->smp_agent);
+ error2:
+@@ -363,8 +351,6 @@ int ib_agent_port_close(struct ib_device
+ 	list_del(&port_priv->port_list);
+ 	spin_unlock_irqrestore(&ib_agent_port_list_lock, flags);
+ 
+-	ib_dereg_mr(port_priv->mr);
+-
+ 	ib_unregister_mad_agent(port_priv->perf_mgmt_agent);
+ 	ib_unregister_mad_agent(port_priv->smp_agent);
+ 	kfree(port_priv);
+diff -uprN linux-2.6.13-rc2-mm1-1/drivers/infiniband/core/agent_priv.h linux-2.6.13-rc2-mm1-2/drivers/infiniband/core/agent_priv.h
+-- linux-2.6.13-rc2-mm1-1/drivers/infiniband/core/agent_priv.h	2005-06-29 19:00:53.000000000 -0400
++++ linux-2.6.13-rc2-mm1-2/drivers/infiniband/core/agent_priv.h	2005-07-09 12:14:49.000000000 -0400
+@@ -33,7 +33,7 @@
   * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-- * $Id: ib_fmr_pool.h 1349 2004-12-16 21:09:43Z roland $
-+ * $Id: ib_fmr_pool.h 2730 2005-06-28 16:43:03Z sean.hefty $
+- * $Id: agent_priv.h 1389 2004-12-27 22:56:47Z roland $
++ * $Id: agent_priv.h 1640 2005-01-24 22:39:02Z halr $
   */
  
- #if !defined(IB_FMR_POOL_H)
-@@ -78,7 +79,7 @@ struct ib_pool_fmr {
- struct ib_fmr_pool *ib_create_fmr_pool(struct ib_pd             *pd,
- 				       struct ib_fmr_pool_param *params);
+ #ifndef __IB_AGENT_PRIV_H__
+@@ -57,7 +57,6 @@ struct ib_agent_port_private {
+ 	int port_num;
+ 	struct ib_mad_agent *smp_agent;	      /* SM class */
+ 	struct ib_mad_agent *perf_mgmt_agent; /* PerfMgmt class */
+-	struct ib_mr *mr;
+ };
  
--int ib_destroy_fmr_pool(struct ib_fmr_pool *pool);
-+void ib_destroy_fmr_pool(struct ib_fmr_pool *pool);
+ #endif	/* __IB_AGENT_PRIV_H__ */
+diff -uprN linux-2.6.13-rc2-mm1-1/drivers/infiniband/core/mad.c linux-2.6.13-rc2-mm1-2/drivers/infiniband/core/mad.c
+-- linux-2.6.13-rc2-mm1-1/drivers/infiniband/core/mad.c	2005-06-29 19:00:53.000000000 -0400
++++ linux-2.6.13-rc2-mm1-2/drivers/infiniband/core/mad.c	2005-07-09 12:58:23.000000000 -0400
+@@ -261,19 +261,26 @@ struct ib_mad_agent *ib_register_mad_age
+ 		ret = ERR_PTR(-ENOMEM);
+ 		goto error1;
+ 	}
++	memset(mad_agent_priv, 0, sizeof *mad_agent_priv);
++
++	mad_agent_priv->agent.mr = ib_get_dma_mr(port_priv->qp_info[qpn].qp->pd,
++						 IB_ACCESS_LOCAL_WRITE);
++	if (IS_ERR(mad_agent_priv->agent.mr)) {
++		ret = ERR_PTR(-ENOMEM);
++		goto error2;
++	}
  
- int ib_flush_fmr_pool(struct ib_fmr_pool *pool);
+ 	if (mad_reg_req) {
+ 		reg_req = kmalloc(sizeof *reg_req, GFP_KERNEL);
+ 		if (!reg_req) {
+ 			ret = ERR_PTR(-ENOMEM);
+-			goto error2;
++			goto error3;
+ 		}
+ 		/* Make a copy of the MAD registration request */
+ 		memcpy(reg_req, mad_reg_req, sizeof *reg_req);
+ 	}
  
+ 	/* Now, fill in the various structures */
+-	memset(mad_agent_priv, 0, sizeof *mad_agent_priv);
+ 	mad_agent_priv->qp_info = &port_priv->qp_info[qpn];
+ 	mad_agent_priv->reg_req = reg_req;
+ 	mad_agent_priv->rmpp_version = rmpp_version;
+@@ -301,7 +308,7 @@ struct ib_mad_agent *ib_register_mad_age
+ 				if (method) {
+ 					if (method_in_use(&method,
+ 							   mad_reg_req))
+-						goto error3;
++						goto error4;
+ 				}
+ 			}
+ 			ret2 = add_nonoui_reg_req(mad_reg_req, mad_agent_priv,
+@@ -317,14 +324,14 @@ struct ib_mad_agent *ib_register_mad_age
+ 					if (is_vendor_method_in_use(
+ 							vendor_class,
+ 							mad_reg_req))
+-						goto error3;
++						goto error4;
+ 				}
+ 			}
+ 			ret2 = add_oui_reg_req(mad_reg_req, mad_agent_priv);
+ 		}
+ 		if (ret2) {
+ 			ret = ERR_PTR(ret2);
+-			goto error3;
++			goto error4;
+ 		}
+ 	}
+ 
+@@ -346,11 +353,13 @@ struct ib_mad_agent *ib_register_mad_age
+ 
+ 	return &mad_agent_priv->agent;
+ 
+-error3:
++error4:
+ 	spin_unlock_irqrestore(&port_priv->reg_lock, flags);
+ 	kfree(reg_req);
+-error2:
++error3:
+ 	kfree(mad_agent_priv);
++error2:
++	ib_dereg_mr(mad_agent_priv->agent.mr);
+ error1:
+ 	return ret;
+ }
+@@ -487,18 +496,15 @@ static void unregister_mad_agent(struct 
+ 	 * MADs, preventing us from queuing additional work
+ 	 */
+ 	cancel_mads(mad_agent_priv);
+-
+ 	port_priv = mad_agent_priv->qp_info->port_priv;
+-
+ 	cancel_delayed_work(&mad_agent_priv->timed_work);
+-	flush_workqueue(port_priv->wq);
+ 
+ 	spin_lock_irqsave(&port_priv->reg_lock, flags);
+ 	remove_mad_reg_req(mad_agent_priv);
+ 	list_del(&mad_agent_priv->agent_list);
+ 	spin_unlock_irqrestore(&port_priv->reg_lock, flags);
+ 
+-	/* XXX: Cleanup pending RMPP receives for this agent */
++	flush_workqueue(port_priv->wq);
+ 
+ 	atomic_dec(&mad_agent_priv->refcount);
+ 	wait_event(mad_agent_priv->wait,
+@@ -506,6 +512,7 @@ static void unregister_mad_agent(struct 
+ 
+ 	if (mad_agent_priv->reg_req)
+ 		kfree(mad_agent_priv->reg_req);
++	ib_dereg_mr(mad_agent_priv->agent.mr);
+ 	kfree(mad_agent_priv);
+ }
+ 
+@@ -750,7 +757,7 @@ static int handle_outgoing_dr_smp(struct
+ 	list_add_tail(&local->completion_list, &mad_agent_priv->local_list);
+ 	spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
+ 	queue_work(mad_agent_priv->qp_info->port_priv->wq,
+-		  &mad_agent_priv->local_work);
++		   &mad_agent_priv->local_work);
+ 	ret = 1;
+ out:
+ 	return ret;
+diff -uprN linux-2.6.13-rc2-mm1-1/drivers/infiniband/core/sa_query.c linux-2.6.13-rc2-mm1-2/drivers/infiniband/core/sa_query.c
+-- linux-2.6.13-rc2-mm1-1/drivers/infiniband/core/sa_query.c	2005-07-10 16:21:40.000000000 -0400
++++ linux-2.6.13-rc2-mm1-2/drivers/infiniband/core/sa_query.c	2005-07-10 16:21:55.000000000 -0400
+@@ -77,7 +77,6 @@ struct ib_sa_sm_ah {
+ 
+ struct ib_sa_port {
+ 	struct ib_mad_agent *agent;
+-	struct ib_mr        *mr;
+ 	struct ib_sa_sm_ah  *sm_ah;
+ 	struct work_struct   update_task;
+ 	spinlock_t           ah_lock;
+@@ -492,7 +491,7 @@ retry:
+ 					    sizeof (struct ib_sa_mad),
+ 					    DMA_TO_DEVICE);
+ 	gather_list.length = sizeof (struct ib_sa_mad);
+-	gather_list.lkey   = port->mr->lkey;
++	gather_list.lkey   = port->agent->mr->lkey;
+ 	pci_unmap_addr_set(query, mapping, gather_list.addr);
+ 
+ 	ret = ib_post_send_mad(port->agent, &wr, &bad_wr);
+@@ -780,7 +779,6 @@ static void ib_sa_add_one(struct ib_devi
+ 	sa_dev->end_port   = e;
+ 
+ 	for (i = 0; i <= e - s; ++i) {
+-		sa_dev->port[i].mr       = NULL;
+ 		sa_dev->port[i].sm_ah    = NULL;
+ 		sa_dev->port[i].port_num = i + s;
+ 		spin_lock_init(&sa_dev->port[i].ah_lock);
+@@ -792,13 +790,6 @@ static void ib_sa_add_one(struct ib_devi
+ 		if (IS_ERR(sa_dev->port[i].agent))
+ 			goto err;
+ 
+-		sa_dev->port[i].mr = ib_get_dma_mr(sa_dev->port[i].agent->qp->pd,
+-						   IB_ACCESS_LOCAL_WRITE);
+-		if (IS_ERR(sa_dev->port[i].mr)) {
+-			ib_unregister_mad_agent(sa_dev->port[i].agent);
+-			goto err;
+-		}
+-
+ 		INIT_WORK(&sa_dev->port[i].update_task,
+ 			  update_sm_ah, &sa_dev->port[i]);
+ 	}
+@@ -822,10 +813,8 @@ static void ib_sa_add_one(struct ib_devi
+ 	return;
+ 
+ err:
+-	while (--i >= 0) {
+-		ib_dereg_mr(sa_dev->port[i].mr);
++	while (--i >= 0)
+ 		ib_unregister_mad_agent(sa_dev->port[i].agent);
+-	}
+ 
+ 	kfree(sa_dev);
+ 
+diff -uprN linux-2.6.13-rc2-mm1-1/drivers/infiniband/include/ib_mad.h linux-2.6.13-rc2-mm1-2/drivers/infiniband/include/ib_mad.h
+-- linux-2.6.13-rc2-mm1-1/drivers/infiniband/include/ib_mad.h	2005-06-29 19:00:53.000000000 -0400
++++ linux-2.6.13-rc2-mm1-2/drivers/infiniband/include/ib_mad.h	2005-07-09 12:06:49.000000000 -0400
+@@ -180,6 +180,7 @@ typedef void (*ib_mad_recv_handler)(stru
+ struct ib_mad_agent {
+ 	struct ib_device	*device;
+ 	struct ib_qp		*qp;
++	struct ib_mr		*mr;
+ 	ib_mad_recv_handler	recv_handler;
+ 	ib_mad_send_handler	send_handler;
+ 	ib_mad_snoop_handler	snoop_handler;
 
 

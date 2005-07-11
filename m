@@ -1,80 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVGKQee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVGKQcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbVGKQee (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 12:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVGKQct
+	id S262142AbVGKQcn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 12:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVGKQXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 12:32:49 -0400
-Received: from mail01.solnet.ch ([212.101.4.135]:55816 "EHLO mail01.solnet.ch")
-	by vger.kernel.org with ESMTP id S262092AbVGKQaZ (ORCPT
+	Mon, 11 Jul 2005 12:23:16 -0400
+Received: from main.gmane.org ([80.91.229.2]:13801 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262141AbVGKQWC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 12:30:25 -0400
-From: Damir Perisa <damir.perisa@solnet.ch>
-To: Andrew Morton <akpm@osdl.org>
-Subject: 2.6.13-rc2-mm1 - unknown symbol: is_broadcast_ether_addr
-Date: Mon, 11 Jul 2005 18:29:01 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <20050707040037.04366e4e.akpm@osdl.org>
-In-Reply-To: <20050707040037.04366e4e.akpm@osdl.org>
-X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?utf-8?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/iP?=
- =?utf-8?q?Ov8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B2=7C?=
- =?utf-8?q?l6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
- =?utf-8?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
- =?utf-8?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
-Alanine: true
-Glycine: true
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1642388.zApOuGohgh";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Mon, 11 Jul 2005 12:22:02 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jose Barroca <jose.barroca@netcabo.pt>
+Subject: segmentation fault in TOP command
+Date: Mon, 11 Jul 2005 17:21:00 +0100
+Message-ID: <dau69d$vit$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <200507111829.05204.damir.perisa@solnet.ch>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213.22.178.18
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1642388.zApOuGohgh
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Dear all,
 
-i get an unknown symbol "is_broadcast_ether_addr" from ipw2200 and=20
-ieee80211
+I'm trying to deal with a peculiar problem that came up the other day.
+I've searched the net, posted in newbie groups, but to no avail. So,
+perhaps you can lend a hand:
 
-if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F=20
-System.map -b /home/damir/cvsARCH/extra/kernels/kernel26mm/pkg -r=20
-2.6.13-rc2-mm1-ARCH; fi
-WARNING: /home/damir/cvsARCH/extra/kernels/kernel26mm/pkg/lib/modules/2.6.1=
-3-rc2-mm1-ARCH/kernel/drivers/net/wireless/ipw2200.ko=20
-needs unknown symbol is_broadcast_ether_addr
-WARNING: /home/damir/cvsARCH/extra/kernels/kernel26mm/pkg/lib/modules/2.6.1=
-3-rc2-mm1-ARCH/kernel/net/ieee80211/ieee80211.ko=20
-needs unknown symbol is_broadcast_ether_addr
+Using a 2.6.12.12 straight from kernel.org:
+- I experience loss of responsiveness (mouse, keyboard, music) during
+r/w intensive operations, such as lengthy computations in matlab
+(exceeding my RAM), or a simple system update using Debian's dselect.
+Mouse clicks and keypresses don't get lost, but xmms may skip the
+tracks. And all this happens intermitently during the mentioned r-w op.
+== This did not happen with previous kernels ==
 
-lucky me, i don't have this hardware ;-)
+- I had a case of FS corruption, which I could not trace. I use ext3,
+only one partition for the complete debian system. I keep my data in
+other partitions. Reason is a small disk in a laptop. This corruption
+made itself visible after a reboot, when I called top to check why bash
+was taking so long to complete a directory name (TAB press):
 
-greetings,
-Damir
+rdrs@abafado:~$ top
+Segmentation fault
 
-Le Thursday 07 July 2005 13:00, Andrew Morton a =E9crit=A0:
-| - I seem to have quite a bit of material here which is appropriate to
-| =A0 2.6.13:
+Other outputs included: "can't execute binary file", "attempt to access
+beyond end of device"
 
-=2D-=20
-"Don't ever follow me, because I am difficult."
-    --- Eugene Ormandy
+I ran e2fsck -vc to get a read-only badblock scan, but the latter came
+out clean. I had a lot of illegal inodes, though. This ext3 partition
+was never accessed by other OSs.
+== I use top on a dayly basis, so corruption happenned not long ago.
+There were no power outages, but the previous kernel (2.6.11) had
+NLS_DEFAULT=iso8859-1, whereas the new one has NLS_DEFAULT=utf8 ==
 
---nextPart1642388.zApOuGohgh
-Content-Type: application/pgp-signature
+---
+And, to sum up, I've been through a MEMTEST86, an E2FSCK, don't think
+the machine was cracked (not even literally speaking), and ran SMARTCTL
+-a /dev/hda.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+This one had an interesting output: there was indication of an error
+happening some 197 days ago. I could decipher the remaining info. Also,
+the REALLOACTED_SECTOR_CT has a very high number, though it is labelled
+"PRE_FAIL".
 
-iD8DBQBC0p5RPABWKV6NProRAqtNAKDfj6sPqFWr4uCOZCoFjNnuDVVsZACgk7bF
-Q4GDnh+AzdNIROYc3TIEXIc=
-=ADVE
------END PGP SIGNATURE-----
 
---nextPart1642388.zApOuGohgh--
+I'm quite at a loss on what to do now - where should I start looking?
+And even if I simply replace "top", is that even possible, or advisable?
+
+Eagerly waiting for your answers,
+
+Jose
+
+
+
+
+
+

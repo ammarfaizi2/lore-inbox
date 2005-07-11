@@ -1,92 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbVGKUv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262911AbVGKWJH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbVGKUv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 16:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbVGKUtD
+	id S262911AbVGKWJH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:09:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVGKWHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 16:49:03 -0400
-Received: from totor.bouissou.net ([82.67.27.165]:1742 "EHLO
-	totor.bouissou.net") by vger.kernel.org with ESMTP id S262647AbVGKUq4
+	Mon, 11 Jul 2005 18:07:06 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60380 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262871AbVGKWDv convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 16:46:56 -0400
-From: Michel Bouissou <michel@bouissou.net>
-Organization: Me, Myself and I
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [SOLVED ??] Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
-Date: Mon, 11 Jul 2005 22:46:47 +0200
-User-Agent: KMail/1.7.2
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0507111611470.6399-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0507111611470.6399-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200507112246.48069@totor.bouissou.net>
+	Mon, 11 Jul 2005 18:03:51 -0400
+Cc: johnpol@2ka.mipt.ru
+Subject: [PATCH] w1: fix CRC calculation on bigendian platforms.
+In-Reply-To: <1121119377358@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 11 Jul 2005 15:02:57 -0700
+Message-Id: <11211193771329@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Lundi 11 Juillet 2005 22:16, Alan Stern a écrit :
-> > Aha. And what would be your advice ? Rather leave the BIOS mouse option
-> > ON and use "usb-handoff", or remove both ?
->
-> Well, some people don't have a choice.  They need to leave BIOS USB
-> keyboard/mouse support turned on in order to use their USB keyboard/mouse
-> before the Linux kernel has loaded (within Grub, for instance).
->
-> If you don't care about that, then it's cleaner to turn off the BIOS
-> support.  Of course, you may find that you still need to use
-> "usb-handoff" anyway!
+[PATCH] w1: fix CRC calculation on bigendian platforms.
 
-Well, I'm afraid I spoke too fast :-(
+In the 2.6.13-rc1 code the "rn" structure is in the wrong-endianness
+when passed to w1_attach_slave_device(). This causes problems like the
+family and crc being swapped around.
 
-I rebooted my system with "usb-handoff" again, but still the USB mouse enabled 
-in BIOS, and this time got the punishent again :-(
+Signed-off-by: Roger Blofeld <blofeldus@yahoo.com>
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-USB Universal Host Controller Interface driver v2.2
-PCI: Via IRQ fixup for 0000:00:10.0, from 10 to 5
-uhci_hcd 0000:00:10.0: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-Controller
-uhci_hcd 0000:00:10.0: new USB bus registered, assigned bus number 1
-uhci_hcd 0000:00:10.0: irq 21, io base 0x0000cc00
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 2 ports detected
-PCI: Via IRQ fixup for 0000:00:10.1, from 10 to 5
-uhci_hcd 0000:00:10.1: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-Controller (#2)
-uhci_hcd 0000:00:10.1: new USB bus registered, assigned bus number 2
-uhci_hcd 0000:00:10.1: irq 21, io base 0x0000d000
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 2 ports detected
-PCI: Via IRQ fixup for 0000:00:10.2, from 10 to 5
-uhci_hcd 0000:00:10.2: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-Controller (#3)
-usb 1-1: new low speed USB device using uhci_hcd and address 2
-uhci_hcd 0000:00:10.2: new USB bus registered, assigned bus number 3
-uhci_hcd 0000:00:10.2: irq 21, io base 0x0000d400
-hub 3-0:1.0: USB hub found
-hub 3-0:1.0: 2 ports detected
-PCI: Via IRQ fixup for 0000:00:10.3, from 11 to 3
-ehci_hcd 0000:00:10.3: VIA Technologies, Inc. USB 2.0
-ehci_hcd 0000:00:10.3: new USB bus registered, assigned bus number 4
-ehci_hcd 0000:00:10.3: irq 19, io mem 0xe3009000
-ehci_hcd 0000:00:10.3: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
-usbcore: registered new driver hiddev
-hub 4-0:1.0: USB hub found
-hub 4-0:1.0: 6 ports detected
-usbhid: probe of 1-1:1.0 failed with error -5
-usbcore: registered new driver usbhid
-drivers/usb/input/hid-core.c: v2.01:USB HID core driver
-irq 21: nobody cared!
+---
+commit 0e65f82814e9828d3ff54988de9e7c0b36794daa
+tree a4d5dfb9ab550160a453c6266fe67d18ace76857
+parent 80efa8c72006a1c04004f8fb07b22073348e4bf2
+author Evgeniy Polyakov <johnpol@2ka.mipt.ru> Thu, 30 Jun 2005 22:52:38 +0400
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 11 Jul 2005 14:10:37 -0700
 
-...etc :-(
+ drivers/w1/w1.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
-Well, this time, I deactivated the mouse in BIOS, rebooted again, also with 
-"usb-handoff", and "again it works"...
+diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
+--- a/drivers/w1/w1.c
++++ b/drivers/w1/w1.c
+@@ -516,6 +516,7 @@ static void w1_slave_found(unsigned long
+ 	struct w1_reg_num *tmp;
+ 	int family_found = 0;
+ 	struct w1_master *dev;
++	u64 rn_le = cpu_to_le64(rn);
+ 
+ 	dev = w1_search_master(data);
+ 	if (!dev) {
+@@ -544,10 +545,8 @@ static void w1_slave_found(unsigned long
+ 		slave_count++;
+ 	}
+ 
+-	rn = cpu_to_le64(rn);
+-
+ 	if (slave_count == dev->slave_count &&
+-		rn && ((le64_to_cpu(rn) >> 56) & 0xff) == w1_calc_crc8((u8 *)&rn, 7)) {
++		rn && ((rn >> 56) & 0xff) == w1_calc_crc8((u8 *)&rn_le, 7)) {
+ 		w1_attach_slave_device(dev, tmp);
+ 	}
+ 
 
--- 
-Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E

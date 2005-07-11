@@ -1,256 +1,373 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262586AbVGKUnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbVGKUnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262586AbVGKUnI (ORCPT <rfc822;willy@w.ods.org>);
+	id S262572AbVGKUnI (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Jul 2005 16:43:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbVGKUm2
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbVGKUmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 16:42:28 -0400
-Received: from scrat.hensema.net ([62.212.82.150]:19122 "EHLO
-	scrat.hensema.net") by vger.kernel.org with ESMTP id S262655AbVGKUkW
+	Mon, 11 Jul 2005 16:42:25 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:32717 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262594AbVGKUkk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 16:40:22 -0400
-From: Erik Hensema <erik@hensema.net>
-Subject: Re: reiser4 vs politics: linux misses out again
-Date: Mon, 11 Jul 2005 20:40:20 +0000 (UTC)
-Message-ID: <slrndd5m9k.2qu.erik@bender.home.hensema.net>
-References: <slrndd4dau.bct.erik@bender.home.hensema.net> <200507111815.j6BIFgc6002696@laptop11.inf.utfsm.cl>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.8.0 (Linux)
-To: linux-kernel@vger.kernel.org
+	Mon, 11 Jul 2005 16:40:40 -0400
+Subject: [PATCH 18/29v2] Introduce RMPP APIs
+From: Hal Rosenstock <halr@voltaire.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1121110345.4389.5020.camel@hal.voltaire.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Jul 2005 16:32:58 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand (vonbrand@inf.utfsm.cl):
-> Erik Hensema <erik@hensema.net> wrote:
->> Horst von Brand (vonbrand@inf.utfsm.cl):
->> [on reiserfs4]
->> >> >>                                                   and _can_ do things
->> >> >> no other FS can
->
->> > Mostly useless things...
->
->> Depends on your point of view. If you define things to be useful
->> only when POSIX requires them, then yes, reiser4 contains a lot
->> of useless stuff.
->
-> That isn't my definition.
+Introduce RMPP APIs 
 
-Ok. It seems to be the definition of some people over here tough.
+Signed-off-by: Sean Hefty <sean.hefty@intel.com>
+Signed-off-by: Hal Rosenstock <halr@voltaire.com>
 
->> However, it's the 'beyond POSIX'-stuff what makes reiser4
->> interesting.
->
-> I haven't seen a shred of evidence of that up to here. Just redoing
-> in-kernel (for completely inscrutable reasons) stuff that has been
-> confortably done in userland for many years isn't "Interesting", quite the
-> contrary.
+This patch depends on patch 17/29.
 
-Some things simply need to be done inside the kernel for
-atomicity, especially when mixing 'normal' posix applications
-with apps using extended semantics.
+--
+ core/mad.c       |    4 +
+ core/sa_query.c  |   20 --
+ include/ib_mad.h |  132 ++++++++++++++++++++++++++++++++++++++++++++++++++--
+ include/ib_sa.h  |    4 -
+ 4 files changed, 125 insertions(+), 35 deletions(-)
+diff -uprN linux-2.6.13-rc2-mm1-17/drivers/infiniband/core/mad.c linux-2.6.13-rc2-mm1-18/drivers/infiniband/core/mad.c
+-- linux-2.6.13-rc2-mm1-17/drivers/infiniband/core/mad.c	2005-07-11 13:39:42.000000000 -0400
++++ linux-2.6.13-rc2-mm1-18/drivers/infiniband/core/mad.c	2005-07-11 13:39:53.000000000 -0400
+@@ -777,7 +777,7 @@ static int get_buf_length(int hdr_len, i
+ 
+ struct ib_mad_send_buf * ib_create_send_mad(struct ib_mad_agent *mad_agent,
+ 					    u32 remote_qpn, u16 pkey_index,
+-					    struct ib_ah *ah,
++					    struct ib_ah *ah, int rmpp_active,
+ 					    int hdr_len, int data_len,
+ 					    unsigned int __nocast gfp_mask)
+ {
+@@ -786,6 +786,8 @@ struct ib_mad_send_buf * ib_create_send_
+ 	int buf_size;
+ 	void *buf;
+ 
++	if (rmpp_active)
++		return ERR_PTR(-EINVAL);	/* until RMPP implemented */
+ 	mad_agent_priv = container_of(mad_agent,
+ 				      struct ib_mad_agent_private, agent);
+ 	buf_size = get_buf_length(hdr_len, data_len);
+diff -uprN linux-2.6.13-rc2-mm1-17/drivers/infiniband/core/sa_query.c linux-2.6.13-rc2-mm1-18/drivers/infiniband/core/sa_query.c
+-- linux-2.6.13-rc2-mm1-17/drivers/infiniband/core/sa_query.c	2005-07-10 16:22:13.000000000 -0400
++++ linux-2.6.13-rc2-mm1-18/drivers/infiniband/core/sa_query.c	2005-07-10 16:22:18.000000000 -0400
+@@ -50,26 +50,6 @@ MODULE_AUTHOR("Roland Dreier");
+ MODULE_DESCRIPTION("InfiniBand subnet administration query support");
+ MODULE_LICENSE("Dual BSD/GPL");
+ 
+-/*
+- * These two structures must be packed because they have 64-bit fields
+- * that are only 32-bit aligned.  64-bit architectures will lay them
+- * out wrong otherwise.  (And unfortunately they are sent on the wire
+- * so we can't change the layout)
+- */
+-struct ib_sa_hdr {
+-	u64			sm_key;
+-	u16			attr_offset;
+-	u16			reserved;
+-	ib_sa_comp_mask		comp_mask;
+-} __attribute__ ((packed));
+-
+-struct ib_sa_mad {
+-	struct ib_mad_hdr	mad_hdr;
+-	struct ib_rmpp_hdr	rmpp_hdr;
+-	struct ib_sa_hdr	sa_hdr;
+-	u8			data[200];
+-} __attribute__ ((packed));
+-
+ struct ib_sa_sm_ah {
+ 	struct ib_ah        *ah;
+ 	struct kref          ref;
+diff -uprN linux-2.6.13-rc2-mm1-17/drivers/infiniband/include/ib_mad.h linux-2.6.13-rc2-mm1-18/drivers/infiniband/include/ib_mad.h
+-- linux-2.6.13-rc2-mm1-17/drivers/infiniband/include/ib_mad.h	2005-07-11 13:39:40.000000000 -0400
++++ linux-2.6.13-rc2-mm1-18/drivers/infiniband/include/ib_mad.h	2005-07-11 13:39:52.000000000 -0400
+@@ -33,7 +33,7 @@
+  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  * SOFTWARE.
+  *
+- * $Id: ib_mad.h 1389 2004-12-27 22:56:47Z roland $
++ * $Id: ib_mad.h 2775 2005-07-02 13:42:12Z halr $
+  */
+ 
+ #if !defined( IB_MAD_H )
+@@ -58,6 +58,8 @@
+ #define IB_MGMT_CLASS_VENDOR_RANGE2_START	0x30
+ #define IB_MGMT_CLASS_VENDOR_RANGE2_END		0x4F
+ 
++#define	IB_OPENIB_OUI				(0x001405)
++
+ /* Management methods */
+ #define IB_MGMT_METHOD_GET			0x01
+ #define IB_MGMT_METHOD_SET			0x02
+@@ -72,6 +74,33 @@
+ 
+ #define IB_MGMT_MAX_METHODS			128
+ 
++/* RMPP information */
++#define IB_MGMT_RMPP_VERSION			1
++
++#define IB_MGMT_RMPP_TYPE_DATA			1
++#define IB_MGMT_RMPP_TYPE_ACK			2
++#define IB_MGMT_RMPP_TYPE_STOP			3
++#define IB_MGMT_RMPP_TYPE_ABORT			4
++
++#define IB_MGMT_RMPP_FLAG_ACTIVE		1
++#define IB_MGMT_RMPP_FLAG_FIRST			(1<<1)
++#define IB_MGMT_RMPP_FLAG_LAST			(1<<2)
++
++#define IB_MGMT_RMPP_NO_RESPTIME		0x1F
++
++#define	IB_MGMT_RMPP_STATUS_SUCCESS		0
++#define	IB_MGMT_RMPP_STATUS_RESX		1
++#define	IB_MGMT_RMPP_STATUS_T2L			118
++#define	IB_MGMT_RMPP_STATUS_BAD_LEN		119
++#define	IB_MGMT_RMPP_STATUS_BAD_SEG		120
++#define	IB_MGMT_RMPP_STATUS_BADT		121
++#define	IB_MGMT_RMPP_STATUS_W2S			122
++#define	IB_MGMT_RMPP_STATUS_S2B			123
++#define	IB_MGMT_RMPP_STATUS_BAD_STATUS		124
++#define	IB_MGMT_RMPP_STATUS_UNV			125
++#define	IB_MGMT_RMPP_STATUS_TMR			126
++#define	IB_MGMT_RMPP_STATUS_UNSPEC		127
++
+ #define IB_QP0		0
+ #define IB_QP1		__constant_htonl(1)
+ #define IB_QP1_QKEY	0x80010000
+@@ -88,7 +117,7 @@ struct ib_mad_hdr {
+ 	u16	attr_id;
+ 	u16	resv;
+ 	u32	attr_mod;
+-} __attribute__ ((packed));
++};
+ 
+ struct ib_rmpp_hdr {
+ 	u8	rmpp_version;
+@@ -97,17 +126,41 @@ struct ib_rmpp_hdr {
+ 	u8	rmpp_status;
+ 	u32	seg_num;
+ 	u32	paylen_newwin;
++};
++
++typedef u64 __bitwise ib_sa_comp_mask;
++
++#define IB_SA_COMP_MASK(n) ((__force ib_sa_comp_mask) cpu_to_be64(1ull << n))
++
++/*
++ * ib_sa_hdr and ib_sa_mad structures must be packed because they have 
++ * 64-bit fields that are only 32-bit aligned. 64-bit architectures will
++ * lay them out wrong otherwise.  (And unfortunately they are sent on 
++ * the wire so we can't change the layout)
++ */
++struct ib_sa_hdr {
++	u64			sm_key;
++	u16			attr_offset;
++	u16			reserved;
++	ib_sa_comp_mask		comp_mask;
+ } __attribute__ ((packed));
+ 
+ struct ib_mad {
+ 	struct ib_mad_hdr	mad_hdr;
+ 	u8			data[232];
+-} __attribute__ ((packed));
++};
+ 
+ struct ib_rmpp_mad {
+ 	struct ib_mad_hdr	mad_hdr;
+ 	struct ib_rmpp_hdr	rmpp_hdr;
+ 	u8			data[220];
++};
++
++struct ib_sa_mad {
++	struct ib_mad_hdr	mad_hdr;
++	struct ib_rmpp_hdr	rmpp_hdr;
++	struct ib_sa_hdr	sa_hdr;
++	u8			data[200];
+ } __attribute__ ((packed));
+ 
+ struct ib_vendor_mad {
+@@ -116,7 +169,7 @@ struct ib_vendor_mad {
+ 	u8			reserved;
+ 	u8			oui[3];
+ 	u8			data[216];
+-} __attribute__ ((packed));
++};
+ 
+ /**
+  * ib_mad_send_buf - MAD data buffer and work request for sends.
+@@ -142,6 +195,45 @@ struct ib_mad_send_buf {
+ 	struct ib_sge		sge;
+ };
+ 
++/**
++ * ib_get_rmpp_resptime - Returns the RMPP response time.
++ * @rmpp_hdr: An RMPP header.
++ */
++static inline u8 ib_get_rmpp_resptime(struct ib_rmpp_hdr *rmpp_hdr)
++{
++	return rmpp_hdr->rmpp_rtime_flags >> 3;
++}
++
++/**
++ * ib_get_rmpp_flags - Returns the RMPP flags.
++ * @rmpp_hdr: An RMPP header.
++ */
++static inline u8 ib_get_rmpp_flags(struct ib_rmpp_hdr *rmpp_hdr)
++{
++	return rmpp_hdr->rmpp_rtime_flags & 0x7;
++}
++
++/**
++ * ib_set_rmpp_resptime - Sets the response time in an RMPP header.
++ * @rmpp_hdr: An RMPP header.
++ * @rtime: The response time to set.
++ */
++static inline void ib_set_rmpp_resptime(struct ib_rmpp_hdr *rmpp_hdr, u8 rtime)
++{
++	rmpp_hdr->rmpp_rtime_flags = ib_get_rmpp_flags(rmpp_hdr) | (rtime << 3);
++}
++
++/**
++ * ib_set_rmpp_flags - Sets the flags in an RMPP header.
++ * @rmpp_hdr: An RMPP header.
++ * @flags: The flags to set.
++ */
++static inline void ib_set_rmpp_flags(struct ib_rmpp_hdr *rmpp_hdr, u8 flags)
++{
++	rmpp_hdr->rmpp_rtime_flags = (rmpp_hdr->rmpp_rtime_flags & 0xF1) |
++				     (flags & 0x7);
++}
++
+ struct ib_mad_agent;
+ struct ib_mad_send_wc;
+ struct ib_mad_recv_wc;
+@@ -186,6 +278,7 @@ typedef void (*ib_mad_recv_handler)(stru
+  * ib_mad_agent - Used to track MAD registration with the access layer.
+  * @device: Reference to device registration is on.
+  * @qp: Reference to QP used for sending and receiving MADs.
++ * @mr: Memory region for system memory usable for DMA.
+  * @recv_handler: Callback handler for a received MAD.
+  * @send_handler: Callback handler for a sent MAD.
+  * @snoop_handler: Callback handler for snooped sent MADs.
+@@ -194,6 +287,7 @@ typedef void (*ib_mad_recv_handler)(stru
+  *   Unsolicited MADs sent by this client will have the upper 32-bits
+  *   of their TID set to this value.
+  * @port_num: Port number on which QP is registered
++ * @rmpp_version: If set, indicates the RMPP version used by this agent.
+  */
+ struct ib_mad_agent {
+ 	struct ib_device	*device;
+@@ -205,6 +299,7 @@ struct ib_mad_agent {
+ 	void			*context;
+ 	u32			hi_tid;
+ 	u8			port_num;
++	u8			rmpp_version;
+ };
+ 
+ /**
+@@ -238,6 +333,7 @@ struct ib_mad_recv_buf {
+  * ib_mad_recv_wc - received MAD information.
+  * @wc: Completion information for the received data.
+  * @recv_buf: Specifies the location of the received data buffer(s).
++ * @rmpp_list: Specifies a list of RMPP reassembled received MAD buffers.
+  * @mad_len: The length of the received MAD, without duplicated headers.
+  *
+  * For received response, the wr_id field of the wc is set to the wr_id
+@@ -246,6 +342,7 @@ struct ib_mad_recv_buf {
+ struct ib_mad_recv_wc {
+ 	struct ib_wc		*wc;
+ 	struct ib_mad_recv_buf	recv_buf;
++	struct list_head	rmpp_list;
+ 	int			mad_len;
+ };
+ 
+@@ -341,6 +438,16 @@ int ib_unregister_mad_agent(struct ib_ma
+  * @bad_send_wr: Specifies the MAD on which an error was encountered.
+  *
+  * Sent MADs are not guaranteed to complete in the order that they were posted.
++ *
++ * If the MAD requires RMPP, the data buffer should contain a single copy
++ * of the common MAD, RMPP, and class specific headers, followed by the class
++ * defined data.  If the class defined data would not divide evenly into
++ * RMPP segments, then space must be allocated at the end of the referenced
++ * buffer for any required padding.  To indicate the amount of class defined
++ * data being transferred, the paylen_newwin field in the RMPP header should
++ * be set to the size of the class specific header plus the amount of class
++ * defined data being transferred.  The paylen_newwin field should be
++ * specified in network-byte order.
+  */
+ int ib_post_send_mad(struct ib_mad_agent *mad_agent,
+ 		     struct ib_send_wr *send_wr,
+@@ -353,14 +460,13 @@ int ib_post_send_mad(struct ib_mad_agent
+  *   referenced buffer should be at least the size of the mad_len specified
+  *   by @mad_recv_wc.
+  *
+- * This call copies a chain of received RMPP MADs into a single data buffer,
++ * This call copies a chain of received MAD segments into a single data buffer,
+  * removing duplicated headers.
+  */
+ void ib_coalesce_recv_mad(struct ib_mad_recv_wc *mad_recv_wc, void *buf);
+ 
+ /**
+- * ib_free_recv_mad - Returns data buffers used to receive a MAD to the
+- *   access layer.
++ * ib_free_recv_mad - Returns data buffers used to receive a MAD.
+  * @mad_recv_wc: Work completion information for a received MAD.
+  *
+  * Clients receiving MADs through their ib_mad_recv_handler must call this
+@@ -437,10 +543,11 @@ int ib_process_mad_wc(struct ib_mad_agen
+  * @pkey_index: Specifies which PKey the MAD will be sent using.  This field
+  *   is valid only if the remote_qpn is QP 1.
+  * @ah: References the address handle used to transfer to the remote node.
++ * @rmpp_active: Indicates if the send will enable RMPP.
+  * @hdr_len: Indicates the size of the data header of the MAD.  This length
+  *   should include the common MAD header, RMPP header, plus any class
+  *   specific header.
+- * @data_len: Indicates the size of any user-transfered data.  The call will
++ * @data_len: Indicates the size of any user-transferred data.  The call will
+  *   automatically adjust the allocated buffer size to account for any
+  *   additional padding that may be necessary.
+  * @gfp_mask: GFP mask used for the memory allocation.
+@@ -448,11 +555,16 @@ int ib_process_mad_wc(struct ib_mad_agen
+  * This is a helper routine that may be used to allocate a MAD.  Users are
+  * not required to allocate outbound MADs using this call.  The returned
+  * MAD send buffer will reference a data buffer usable for sending a MAD, along
+- * with an intialized work request structure.
++ * with an initialized work request structure.  Users may modify the returned
++ * MAD data buffer or work request before posting the send.
++ *
++ * The returned data buffer will be cleared.  Users are responsible for
++ * initializing the common MAD and any class specific headers.  If @rmpp_active
++ * is set, the RMPP header will be initialized for sending.
+  */
+ struct ib_mad_send_buf * ib_create_send_mad(struct ib_mad_agent *mad_agent,
+ 					    u32 remote_qpn, u16 pkey_index,
+-					    struct ib_ah *ah,
++					    struct ib_ah *ah, int rmpp_active,
+ 					    int hdr_len, int data_len,
+ 					    unsigned int __nocast gfp_mask);
+ 
+diff -uprN linux-2.6.13-rc2-mm1-17/drivers/infiniband/include/ib_sa.h linux-2.6.13-rc2-mm1-18/drivers/infiniband/include/ib_sa.h
+-- linux-2.6.13-rc2-mm1-17/drivers/infiniband/include/ib_sa.h	2005-06-29 19:00:53.000000000 -0400
++++ linux-2.6.13-rc2-mm1-18/drivers/infiniband/include/ib_sa.h	2005-07-10 12:07:41.000000000 -0400
+@@ -87,10 +87,6 @@ static inline int ib_sa_rate_enum_to_int
+ 	}
+ }
+ 
+-typedef u64 __bitwise ib_sa_comp_mask;
+-
+-#define IB_SA_COMP_MASK(n)	((__force ib_sa_comp_mask) cpu_to_be64(1ull << n))
+-
+ /*
+  * Structures for SA records are named "struct ib_sa_xxx_rec."  No
+  * attempt is made to pack structures to match the physical layout of
 
->> Multistream files have been useful on other OSses for years.
->
-> I only have seen other OSes moving away from such stuff...
 
-That would be OSX I guesss.
->>                                                              They
->> might be useful on Linux too (Samba will surely like them).
->
-> OK, if you think Windows is a good idea all around...
-
-Windows is a fact of life, like it or not. Every Linux+Samba
-server replacing a Win2k3 server is a win, IMHO.
-
->> The plugin architecture is very interesting.
->
-> Again: It isn't "plugins", it's "kernel configuration options redefining
-> the filesystem layout". And that is extremely toxic: If the claims are to
-> be believed, somebody using ReiserFS 4 could end up using filesystems as
-> widely different as ext3 and ufs today. Both called the same. Or everybody
-> will end up using the exact same set of "plugins", so they make no sense as
-> configuration options. Sure, it is nice to have different versions of the
-> same filesystem (in a way, ext3 is a version of ext2; in ext3 there are
-> some options that where introduced later, and some of which aren't
-> backwards-compatible), but this is not something I would want each
-> individual user screw around with willy-nilly. So the whole "plugin" idea
-> is very questionable to me.
-
-Not every plugin changes the filesystem layout. Plugins can also
-change higher level APIs. 
-
-Changing the filesystem layout is quite dangerous indeed. Hans,
-is a list of required plugins stored in the superblock?
-
->> need files to be in the POSIX namespace.
->
-> The POSIX namespace /is/ the namespace for files.
-
-It doesn't need to be the namespace for _all_ files.
-
->>                                          Why would you want to
->> store a mysql database in files?
->
-> Because it is the abstraction of permanent storage that the OS gives me. Or
-> I could write them directly on a raw block device for performance (by
-> cutting out a middleman).
-
-Reiser4 could offer you a differend kind of abstraction. I don't
-know if it would be useful in the mysql case, I don't write
-database software.
-Mysql is just a random example of software needing to store data
-somewhere. The data is only accessable through the mysql api.
-Backing up the files is useles when the server is running.
-
->
->>                                  Why not skip the overhead of the
->> VFS and POSIX rules and just store them in a more efficient way?
->
-> Exactly. Cut out the filesystem.
->
->> Maybe you can create a swapfile plugin.
->
-> The kernel manages swapping on files and devices just fine, thank you.
-
-Just a random example.
-
->>                                         No need for a swapfile to
->> be in the POSIX namespace either.
->
-> And how do you handle it if it has no filename?!
-
-mkswap --kind=reiser4fsswap --operation=create
-
-whatever.
-
->> It's just a fun thing to experiment with.
->
-> Noone here is stopping you from experimenting.
->
->>                                           It's not always
->> nescesary to let the demand create the means. Give programmers
->> some powerful tools and wait and see what wonderful things start
->> to evolve.
->
-> The sad truth is that if you give a random collection of people powerful
-> tools they misuse them more often than not, creating a huge mess in the
-> process. That is why it is so hard to design good tools.
-
-Agreed. That's why you need to experiment.
-
->> And yes, maybe in ten years time POSIX is just a subsystem in
->> Linux. Maybe commerciale Unix vendors will start following Linux
->> as 'the' standard instead of the other way around. Seems fun to
->> me :-)
->
-> To me too. But forcing Linux today to be as non-POSIX as possible, just so
-> it will be prepared for 10 years in the future makes no sense, because you
-> break it /now/.
-
-Linux will still be posix. video4linux isn't posix either. I
-don't see why access to data stores should be posix all the time.
-
->> I think this debate will mostly boil down to 'do we want to
->> experiment with beyond-POSIX filesystems in linux?'.
->
-> You (and some others) clearly want to. More power to the bunch that comes
-> up with clean semantics that can be implemented efficiently and are useful
-> in real life (as opposed to "it would be oh-so-nice to also have $FEATURE
-> for my pet $NICHE_CASE, feature for which I just can't be bothered
-> considering ramifications at all"). Before going off look up "featuritis"
-> (and consider how it all but killed off a lot of OSes, even many Unix
-> variants, and uncountable other things too).
-
-Extending a filesystem beyond the standard POSIX semantics is a
-huge step. Not even a company as large as Microsoft can make the
-next step in filesystem design (WinFS). It must be done in small
-steps. Reiser4 is one of these small steps. Maybe the step isn't
-quite in the right direction, but I don't think it will be a
-detour either.
-
->> Clearly we don't _need_ it now. There simply are no users. But
->> will users come when reiser4 is merged? Nobody knows.
->
-> Probably a tiny minority. Something like the following ReiserFS 3 has
-> today.
-
-Do you include Reiser3 users in the tiny minority? Both SuSE and
-Gentoo use reiser3 as their default filesystem. Both distro's are
-huge.
-Both ext3 and reiser3 have a huge number of users. Both
-filesystems also have got a number of religious followers. Ignore
-them. Religion is no basis for a healty debate.
-
->> IMHO reiser4 should be merged and be marked as experimental.
->
-> IMHO ReiserFS 4 should not be merged into Linus' kernel. So what? It is not
-> my call (nor yours).
-
-By having this discussion we shape our opinions. We inspire
-others to form their own opinion. Maybe we even inspire Linus to
-have an opinion on the matter. Who knows.
-
->> should probably _always_ be marked as experimental, because we
->> _know_ we're going to need some other -- more generic -- API when
->> we decide we like the features of reiser4. The reiser4 APIs
->> should probably be implemented as generic VFS APIs. But since we
->> don't know yet what features we're going to use, let reiser4 be
->> self contained. Maybe reiser5 or reiser6 will follow standard
->> VFS-beyond-POSIX rules, with ext4 and JFS2 also implementing them.
->
-> If is is /that/ experimental, it has no place in Linus' kernel at all. It
-> is not (and has not been for a half dozen years at least) a playground for
-> random experiments. Sure, you can fork off a branch for fooling around, you
-> are even wellcome to keep your laboratory synched up with the version
-> everybody is using, if that serves your needs.
-
-I don't think it's a random experiment. Sure, it *is* an
-experiment. IPv6 has been an experiment for some time too.
-
-Sometimes you simply need to experiment on a larger scale than
-possible simply in a private kernel fork. Why would Samba support
-multi-fork files when almost nobody has access to kernels
-supporting those files? Why would INN store its newsspool in
-reiser4? Why would people think about the possibilities when the
-standard kernel doesn't offer them?
-
->> It's just too damn hard to predict the future.
->
-> Right. Instead of gambling it will turn out just as you think (why should I
-> give /your/ view more weight than mine? or prefer views which have shown to
-> be erroneous over the view of people who /have/ shaped the present we are
-> in today?), why not wait and see?
-
-Wait and see what others do? Clone their inventions? Chasing
-taillights? Isn't Open Source the place where innovation is
-supposed to happen?
-
->>                                                IMHO better just
->> merge reiser4 and let it be clear to everybody that reiser4 is an
->> experiment.
->
-> IMHO much simpler just leaving experiments to experimental branches.
-
-The simplest option is to stop developing linux, except for new
-hardware drivers.
-
->> As long as it doesn't affect the rest of the kernel
->
-> Impossible.
-
-Then make sure those effects are positive. If you can say
-'reiser4 got $feature wrong and I can do better' then that's a
-win.
-
->>                                                      and it's
->> clear to the users that reiser4 is *not* going to be the
->> standard, it's fine with me.
->
-> Now I'm at a complete loss... Why should it be placed in the standard
-> kernel then?
-
-Scale. Small experiments are fun, large experiments are even more
-fun ;-)
-
--- 
-Erik Hensema <erik@hensema.net>

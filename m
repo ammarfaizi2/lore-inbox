@@ -1,91 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVGKOMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVGKOOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbVGKOMS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVGKOKZ
+	id S261823AbVGKOOT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVGKOMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:10:25 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:61125 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261738AbVGKOIy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:08:54 -0400
-Subject: PATCH [7/27] Fix timeout/cancelled MAD handling
-From: Hal Rosenstock <halr@voltaire.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1121089096.4389.4519.camel@hal.voltaire.com>
+	Mon, 11 Jul 2005 10:12:30 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50106 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261814AbVGKOKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 10:10:38 -0400
+Date: Mon, 11 Jul 2005 16:10:29 +0200
+From: Jan Kara <jack@suse.cz>
+To: Nigel Kukard <nkukard@lbsd.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs + quotas in kernel 2.6.11.12
+Message-ID: <20050711141029.GK12428@atrey.karlin.mff.cuni.cz>
+References: <42CDA612.6000001@lbsd.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 10:01:17 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42CDA612.6000001@lbsd.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixes an issue processing a sent MAD after it has timed out or 
-been canceled.  The race occurs when a response MAD matches with
-the send request.  The request could time out or be canceled after
-the response MAD matches with the request, but before the request
-completion can be processed.
+  Hi,
 
-Signed-off-by: Sean Hefty <sean.hefty@intel.com>
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
-
-This patch depends on patch 6/27.
-
+> How stable is reiserfs quotas in 2.6.11.12?
+  They should be pretty stable. At least I don't know about any reported
+bugs in that or any newer version unless you are using 1KB blocks. With
+1KB blocks there was a bug which should be fixed since 2.6.13-rc1 I
+think.
+								Honza
 -- 
- mad.c      |   14 ++++++++++++--
- mad_priv.h |    1 +
- 2 files changed, 13 insertions(+), 2 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband6/core/mad.c linux-2.6.13-rc2-mm1/drivers/infiniband7/core/mad.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband6/core/mad.c	2005-07-09 15:12:32.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband7/core/mad.c	2005-07-09 16:48:45.000000000 -0400
-@@ -341,6 +341,7 @@ struct ib_mad_agent *ib_register_mad_age
- 	spin_lock_init(&mad_agent_priv->lock);
- 	INIT_LIST_HEAD(&mad_agent_priv->send_list);
- 	INIT_LIST_HEAD(&mad_agent_priv->wait_list);
-+	INIT_LIST_HEAD(&mad_agent_priv->done_list);
- 	INIT_WORK(&mad_agent_priv->timed_work, timeout_sends, mad_agent_priv);
- 	INIT_LIST_HEAD(&mad_agent_priv->local_list);
- 	INIT_WORK(&mad_agent_priv->local_work, local_completions,
-@@ -1559,6 +1560,16 @@ find_send_req(struct ib_mad_agent_privat
- 	return NULL;
- }
- 
-+static void ib_mark_req_done(struct ib_mad_send_wr_private *mad_send_wr)
-+{
-+	mad_send_wr->timeout = 0;
-+	if (mad_send_wr->refcount == 1) {
-+		list_del(&mad_send_wr->agent_list);
-+		list_add_tail(&mad_send_wr->agent_list,
-+			      &mad_send_wr->mad_agent_priv->done_list);
-+	}
-+}
-+
- static void ib_mad_complete_recv(struct ib_mad_agent_private *mad_agent_priv,
- 				 struct ib_mad_recv_wc *mad_recv_wc)
- {
-@@ -1580,8 +1591,7 @@ static void ib_mad_complete_recv(struct 
- 				wake_up(&mad_agent_priv->wait);
- 			return;
- 		}
--		/* Timeout = 0 means that we won't wait for a response */
--		mad_send_wr->timeout = 0;
-+		ib_mark_req_done(mad_send_wr);
- 		spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
- 
- 		/* Defined behavior is to complete response before request */
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband6/core/mad_priv.h linux-2.6.13-rc2-mm1/drivers/infiniband7/core/mad_priv.h
--- linux-2.6.13-rc2-mm1/drivers/infiniband6/core/mad_priv.h	2005-07-09 15:09:53.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband7/core/mad_priv.h	2005-07-09 16:48:05.000000000 -0400
-@@ -92,6 +92,7 @@ struct ib_mad_agent_private {
- 	spinlock_t lock;
- 	struct list_head send_list;
- 	struct list_head wait_list;
-+	struct list_head done_list;
- 	struct work_struct timed_work;
- 	unsigned long timeout;
- 	struct list_head local_list;
-
-
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

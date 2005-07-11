@@ -1,39 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVGKQDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVGKQB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbVGKQDl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 12:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVGKQDf
+	id S262086AbVGKQB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 12:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVGKP7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 12:03:35 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:39118 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262142AbVGKQCQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 12:02:16 -0400
-X-ORBL: [63.202.173.158]
-Date: Mon, 11 Jul 2005 09:02:05 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: "Theodore Ts'o" <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       arjan@infradead.org, azarah@nosferatu.za.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, christoph@lameter.org
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Message-ID: <20050711160205.GA6834@taniwha.stupidest.org>
-References: <20050708214908.GA31225@taniwha.stupidest.org> <20050708145953.0b2d8030.akpm@osdl.org> <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe> <1120933916.3176.57.camel@laptopd505.fenrus.org> <1120934163.6488.72.camel@mindpipe> <20050709121212.7539a048.akpm@osdl.org> <1120936561.6488.84.camel@mindpipe> <1121088186.7407.61.camel@localhost.localdomain> <20050711140510.GB14529@thunk.org>
+	Mon, 11 Jul 2005 11:59:17 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37316 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262142AbVGKP5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 11:57:20 -0400
+Date: Mon, 11 Jul 2005 17:57:14 +0200
+From: Jan Kara <jack@suse.cz>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH] Change ll_rw_block() calls in UFS
+Message-ID: <20050711155714.GU12428@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="kA1LkgxZ0NN7Mz3A"
 Content-Disposition: inline
-In-Reply-To: <20050711140510.GB14529@thunk.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 11, 2005 at 10:05:10AM -0400, Theodore Ts'o wrote:
 
-> The real answer here is for the tickless patches to cleaned up to
-> the point where they can be merged, and then we won't waste battery
-> power entering the timer interrupt in the first place.  :-)
+--kA1LkgxZ0NN7Mz3A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Whilst conceptually this is a nice idea I've yet to see any viable
-code that overall has a lower cost.  Tickless is a really nice idea
-for embedded devices and also paravirtualized hardware but I don't
-think anyone has it working well enough yet do they?
+  Hi,
+
+  attached patch changes UFS to use SWRITE when sending data to disk in
+O_SYNC mode. Please apply.
+
+								Honza
+
+
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
+
+--kA1LkgxZ0NN7Mz3A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ufs-2.6.12-ll_rw_block-fix.diff"
+
+We need to be sure that current data are sent to disk. Hence we call
+ll_rw_block() with SWRITE.
+
+Signed-off-by: Jan Kara <jack@suse.cz>
+
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.12-1-forgetfix/fs/ufs/balloc.c linux-2.6.12-2-ll_rw_block-fix/fs/ufs/balloc.c
+--- linux-2.6.12-1-forgetfix/fs/ufs/balloc.c	2005-01-05 17:19:34.000000000 +0100
++++ linux-2.6.12-2-ll_rw_block-fix/fs/ufs/balloc.c	2005-07-09 02:00:04.000000000 +0200
+@@ -114,8 +114,7 @@ void ufs_free_fragments (struct inode * 
+ 	ubh_mark_buffer_dirty (USPI_UBH);
+ 	ubh_mark_buffer_dirty (UCPI_UBH);
+ 	if (sb->s_flags & MS_SYNCHRONOUS) {
+-		ubh_wait_on_buffer (UCPI_UBH);
+-		ubh_ll_rw_block (WRITE, 1, (struct ufs_buffer_head **)&ucpi);
++		ubh_ll_rw_block (SWRITE, 1, (struct ufs_buffer_head **)&ucpi);
+ 		ubh_wait_on_buffer (UCPI_UBH);
+ 	}
+ 	sb->s_dirt = 1;
+@@ -200,8 +199,7 @@ do_more:
+ 	ubh_mark_buffer_dirty (USPI_UBH);
+ 	ubh_mark_buffer_dirty (UCPI_UBH);
+ 	if (sb->s_flags & MS_SYNCHRONOUS) {
+-		ubh_wait_on_buffer (UCPI_UBH);
+-		ubh_ll_rw_block (WRITE, 1, (struct ufs_buffer_head **)&ucpi);
++		ubh_ll_rw_block (SWRITE, 1, (struct ufs_buffer_head **)&ucpi);
+ 		ubh_wait_on_buffer (UCPI_UBH);
+ 	}
+ 
+@@ -459,8 +457,7 @@ ufs_add_fragments (struct inode * inode,
+ 	ubh_mark_buffer_dirty (USPI_UBH);
+ 	ubh_mark_buffer_dirty (UCPI_UBH);
+ 	if (sb->s_flags & MS_SYNCHRONOUS) {
+-		ubh_wait_on_buffer (UCPI_UBH);
+-		ubh_ll_rw_block (WRITE, 1, (struct ufs_buffer_head **)&ucpi);
++		ubh_ll_rw_block (SWRITE, 1, (struct ufs_buffer_head **)&ucpi);
+ 		ubh_wait_on_buffer (UCPI_UBH);
+ 	}
+ 	sb->s_dirt = 1;
+@@ -585,8 +582,7 @@ succed:
+ 	ubh_mark_buffer_dirty (USPI_UBH);
+ 	ubh_mark_buffer_dirty (UCPI_UBH);
+ 	if (sb->s_flags & MS_SYNCHRONOUS) {
+-		ubh_wait_on_buffer (UCPI_UBH);
+-		ubh_ll_rw_block (WRITE, 1, (struct ufs_buffer_head **)&ucpi);
++		ubh_ll_rw_block (SWRITE, 1, (struct ufs_buffer_head **)&ucpi);
+ 		ubh_wait_on_buffer (UCPI_UBH);
+ 	}
+ 	sb->s_dirt = 1;
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.12-1-forgetfix/fs/ufs/ialloc.c linux-2.6.12-2-ll_rw_block-fix/fs/ufs/ialloc.c
+--- linux-2.6.12-1-forgetfix/fs/ufs/ialloc.c	2005-03-03 18:58:30.000000000 +0100
++++ linux-2.6.12-2-ll_rw_block-fix/fs/ufs/ialloc.c	2005-07-09 02:01:06.000000000 +0200
+@@ -124,8 +124,7 @@ void ufs_free_inode (struct inode * inod
+ 	ubh_mark_buffer_dirty (USPI_UBH);
+ 	ubh_mark_buffer_dirty (UCPI_UBH);
+ 	if (sb->s_flags & MS_SYNCHRONOUS) {
+-		ubh_wait_on_buffer (UCPI_UBH);
+-		ubh_ll_rw_block (WRITE, 1, (struct ufs_buffer_head **) &ucpi);
++		ubh_ll_rw_block (SWRITE, 1, (struct ufs_buffer_head **) &ucpi);
+ 		ubh_wait_on_buffer (UCPI_UBH);
+ 	}
+ 	
+@@ -249,8 +248,7 @@ cg_found:
+ 	ubh_mark_buffer_dirty (USPI_UBH);
+ 	ubh_mark_buffer_dirty (UCPI_UBH);
+ 	if (sb->s_flags & MS_SYNCHRONOUS) {
+-		ubh_wait_on_buffer (UCPI_UBH);
+-		ubh_ll_rw_block (WRITE, 1, (struct ufs_buffer_head **) &ucpi);
++		ubh_ll_rw_block (SWRITE, 1, (struct ufs_buffer_head **) &ucpi);
+ 		ubh_wait_on_buffer (UCPI_UBH);
+ 	}
+ 	sb->s_dirt = 1;
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.12-1-forgetfix/fs/ufs/truncate.c linux-2.6.12-2-ll_rw_block-fix/fs/ufs/truncate.c
+--- linux-2.6.12-1-forgetfix/fs/ufs/truncate.c	2005-03-03 18:58:30.000000000 +0100
++++ linux-2.6.12-2-ll_rw_block-fix/fs/ufs/truncate.c	2005-07-09 02:01:52.000000000 +0200
+@@ -285,8 +285,7 @@ next:;
+ 		}
+ 	}
+ 	if (IS_SYNC(inode) && ind_ubh && ubh_buffer_dirty(ind_ubh)) {
+-		ubh_wait_on_buffer (ind_ubh);
+-		ubh_ll_rw_block (WRITE, 1, &ind_ubh);
++		ubh_ll_rw_block (SWRITE, 1, &ind_ubh);
+ 		ubh_wait_on_buffer (ind_ubh);
+ 	}
+ 	ubh_brelse (ind_ubh);
+@@ -353,8 +352,7 @@ static int ufs_trunc_dindirect (struct i
+ 		}
+ 	}
+ 	if (IS_SYNC(inode) && dind_bh && ubh_buffer_dirty(dind_bh)) {
+-		ubh_wait_on_buffer (dind_bh);
+-		ubh_ll_rw_block (WRITE, 1, &dind_bh);
++		ubh_ll_rw_block (SWRITE, 1, &dind_bh);
+ 		ubh_wait_on_buffer (dind_bh);
+ 	}
+ 	ubh_brelse (dind_bh);
+@@ -418,8 +416,7 @@ static int ufs_trunc_tindirect (struct i
+ 		}
+ 	}
+ 	if (IS_SYNC(inode) && tind_bh && ubh_buffer_dirty(tind_bh)) {
+-		ubh_wait_on_buffer (tind_bh);
+-		ubh_ll_rw_block (WRITE, 1, &tind_bh);
++		ubh_ll_rw_block (SWRITE, 1, &tind_bh);
+ 		ubh_wait_on_buffer (tind_bh);
+ 	}
+ 	ubh_brelse (tind_bh);
+
+--kA1LkgxZ0NN7Mz3A--

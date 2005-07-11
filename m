@@ -1,141 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVGKOOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVGKOMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbVGKOOU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVGKOMZ
+	id S261710AbVGKOMS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVGKOKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:12:25 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:3782 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261738AbVGKOMJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:12:09 -0400
-Subject: [PATCH 8/27] Minor cleanup during MAD startup and shutdown
-From: Hal Rosenstock <halr@voltaire.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+	Mon, 11 Jul 2005 10:10:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62100 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261710AbVGKOJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 10:09:18 -0400
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
+       Andrew Morton <akpm@osdl.org>, azarah@nosferatu.za.org, cw@f00f.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, christoph@lameter.org
+In-Reply-To: <20050711140510.GB14529@thunk.org>
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	 <20050708214908.GA31225@taniwha.stupidest.org>
+	 <20050708145953.0b2d8030.akpm@osdl.org>
+	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
+	 <1120933916.3176.57.camel@laptopd505.fenrus.org>
+	 <1120934163.6488.72.camel@mindpipe> <20050709121212.7539a048.akpm@osdl.org>
+	 <1120936561.6488.84.camel@mindpipe>
+	 <1121088186.7407.61.camel@localhost.localdomain>
+	 <20050711140510.GB14529@thunk.org>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1121089102.4389.4521.camel@hal.voltaire.com>
+Date: Mon, 11 Jul 2005 16:08:59 +0200
+Message-Id: <1121090939.3177.30.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 10:04:31 -0400
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor cleanup during startup and shutdown
 
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
+> The real answer here is for the tickless patches to cleaned up to the
+> point where they can be merged, and then we won't waste battery power
+> entering the timer interrupt in the first place.  :-)
 
-This patch depends on patch 7/27.
+one big step forward for that is to have a
 
--- 
- mad.c |   44 +++++++++--
- 1 files changed, 9 insertions(+), 35 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband7/core/mad.c linux-2.6.13-rc2-mm1/drivers/infiniband8/core/mad.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband7/core/mad.c	2005-07-09 16:48:45.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband8/core/mad.c	2005-07-09 16:51:21.000000000 -0400
-@@ -2487,14 +2487,6 @@ static int ib_mad_port_open(struct ib_de
- 	unsigned long flags;
- 	char name[sizeof "ib_mad123"];
- 
--	/* First, check if port already open at MAD layer */
--	port_priv = ib_get_mad_port(device, port_num);
--	if (port_priv) {
--		printk(KERN_DEBUG PFX "%s port %d already open\n",
--		       device->name, port_num);
--		return 0;
--	}
--
- 	/* Create new device info */
- 	port_priv = kmalloc(sizeof *port_priv, GFP_KERNEL);
- 	if (!port_priv) {
-@@ -2619,7 +2611,7 @@ static int ib_mad_port_close(struct ib_d
- 
- static void ib_mad_init_device(struct ib_device *device)
- {
--	int ret, num_ports, cur_port, i, ret2;
-+	int num_ports, cur_port, i;
- 
- 	if (device->node_type == IB_NODE_SWITCH) {
- 		num_ports = 1;
-@@ -2629,47 +2621,37 @@ static void ib_mad_init_device(struct ib
- 		cur_port = 1;
- 	}
- 	for (i = 0; i < num_ports; i++, cur_port++) {
--		ret = ib_mad_port_open(device, cur_port);
--		if (ret) {
-+		if (ib_mad_port_open(device, cur_port)) {
- 			printk(KERN_ERR PFX "Couldn't open %s port %d\n",
- 			       device->name, cur_port);
- 			goto error_device_open;
- 		}
--		ret = ib_agent_port_open(device, cur_port);
--		if (ret) {
-+		if (ib_agent_port_open(device, cur_port)) {
- 			printk(KERN_ERR PFX "Couldn't open %s port %d "
- 			       "for agents\n",
- 			       device->name, cur_port);
- 			goto error_device_open;
- 		}
- 	}
--
--	goto error_device_query;
-+	return;
- 
- error_device_open:
- 	while (i > 0) {
- 		cur_port--;
--		ret2 = ib_agent_port_close(device, cur_port);
--		if (ret2) {
-+		if (ib_agent_port_close(device, cur_port))
- 			printk(KERN_ERR PFX "Couldn't close %s port %d "
- 			       "for agents\n",
- 			       device->name, cur_port);
--		}
--		ret2 = ib_mad_port_close(device, cur_port);
--		if (ret2) {
-+		if (ib_mad_port_close(device, cur_port))
- 			printk(KERN_ERR PFX "Couldn't close %s port %d\n",
- 			       device->name, cur_port);
--		}
- 		i--;
- 	}
--
--error_device_query:
--	return;
- }
- 
- static void ib_mad_remove_device(struct ib_device *device)
- {
--	int ret = 0, i, num_ports, cur_port, ret2;
-+	int i, num_ports, cur_port;
- 
- 	if (device->node_type == IB_NODE_SWITCH) {
- 		num_ports = 1;
-@@ -2679,21 +2661,13 @@ static void ib_mad_remove_device(struct 
- 		cur_port = 1;
- 	}
- 	for (i = 0; i < num_ports; i++, cur_port++) {
--		ret2 = ib_agent_port_close(device, cur_port);
--		if (ret2) {
-+		if (ib_agent_port_close(device, cur_port))
- 			printk(KERN_ERR PFX "Couldn't close %s port %d "
- 			       "for agents\n",
- 			       device->name, cur_port);
--			if (!ret)
--				ret = ret2;
--		}
--		ret2 = ib_mad_port_close(device, cur_port);
--		if (ret2) {
-+		if (ib_mad_port_close(device, cur_port))
- 			printk(KERN_ERR PFX "Couldn't close %s port %d\n",
- 			       device->name, cur_port);
--			if (!ret)
--				ret = ret2;
--		}
- 	}
- }
- 
+mod_timer_relative() and add_timer_relative()
 
+which 
+1) take a relative delay as argument (and thus kill 99% of the jiffies
+use in the kernel right there and then)
+2) takes it in miliseconds, killing 99% of all the HZ conversions/uses
+3) takes a "accuracy" argument
+
+3) is tricky I guess, it's designed for cases that are like "I want a
+timer 1 second from now, but it's ok to be also at 1.5 seconds if that
+suits you better". Those cases are far less rare than you might think at
+first, most watchdog kind things are of this type. This accuracy thing
+will allow the kernel to save many wakeups by grouping them I suspect.
+
+Alan: you worked on this before, where did you end up with ?
 

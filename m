@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVGKOfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVGKOh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbVGKOfM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVGKOdf
+	id S261880AbVGKOh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:37:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVGKOfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:33:35 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:40646 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261839AbVGKOb1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:31:27 -0400
-Subject: [PATCH 14/27] Optimize canceling a MAD
-From: Hal Rosenstock <halr@voltaire.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1121089126.4389.4533.camel@hal.voltaire.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 10:23:53 -0400
+	Mon, 11 Jul 2005 10:35:19 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:8618 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261881AbVGKOex (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 10:34:53 -0400
+Message-ID: <42D285CD.CF9389F8@tv-sign.ru>
+Date: Mon, 11 Jul 2005 18:44:29 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [RFC][PATCH] i386: Per node IDT
+References: <42D26604.66A75939@tv-sign.ru> <Pine.LNX.4.61.0507110747480.16055@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Optimize canceling a MAD. 
-- Eliminate searching timeout list in cancel case.
-- Remove duplicate calls to queue work item.
-- Eliminate resending a MAD before MAD is completed.
+Hello Zwane,
 
-Signed-off-by: Sean Hefty <sean.hefty@intel.com>
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
+Zwane Mwaikambo wrote:
+>
+> > On Mon, 11 Jul 2005, Oleg Nesterov wrote:
+> >
+> > Could you explain this change? I think it breaks do_signal/handle_signal,
+> > they check orig_eax >= 0 to handle -ERESTARTSYS:
+> >
+> > 	/* Are we from a system call? */
+> > 	if (regs->orig_eax >= 0) {
+> > 		/* If so, check system call restarting.. */
+> > 		switch (regs->eax) {
+> > 		        case -ERESTART_RESTARTBLOCK:
+> > 			case -ERESTARTNOHAND:
+>
+> The change is so that we can send IRQs higher than 256 to do_IRQ. That 
+> looks like it tries to check if we came in via system_call since we'd save 
+> the system call number as orig_eax. Now that i think about it, doesn't 
+> that path always get taken when we interrupt userspace and have pending 
+> signals on return from interrupt?
 
-This patch depends on patch 13/27.
+As far as I can see, we always have orig_eax < 0 on interrupt, because
 
--- 
- mad.c |   21 +++++++++++++--
- 1 files changed, 13 insertions(+), 8 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband13/core/mad.c linux-2.6.13-rc2-mm1/drivers/infiniband14/core/mad.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband13/core/mad.c	2005-07-09 18:16:36.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband14/core/mad.c	2005-07-09 18:19:51.000000000 -0400
-@@ -1754,14 +1754,18 @@ static void wait_for_response(struct ib_
- 	delay = mad_send_wr->timeout;
- 	mad_send_wr->timeout += jiffies;
- 
--	list_for_each_prev(list_item, &mad_agent_priv->wait_list) {
--		temp_mad_send_wr = list_entry(list_item,
--					      struct ib_mad_send_wr_private,
--					      agent_list);
--		if (time_after(mad_send_wr->timeout,
--			       temp_mad_send_wr->timeout))
--			break;
-+	if (delay) {
-+		list_for_each_prev(list_item, &mad_agent_priv->wait_list) {
-+			temp_mad_send_wr = list_entry(list_item,
-+						struct ib_mad_send_wr_private,
-+						agent_list);
-+			if (time_after(mad_send_wr->timeout,
-+				       temp_mad_send_wr->timeout))
-+				break;
-+		}
- 	}
-+	else
-+		list_item = &mad_agent_priv->wait_list;
- 	list_add(&mad_send_wr->agent_list, list_item);
- 
- 	/* Reschedule a work item if we have a shorter timeout */
-@@ -2197,7 +2201,8 @@ static void timeout_sends(void *data)
- 		}
- 
- 		list_del(&mad_send_wr->agent_list);
--		if (!retry_send(mad_send_wr))
-+		if (mad_send_wr->status == IB_WC_SUCCESS &&
-+		    !retry_send(mad_send_wr))
- 			continue;
- 
- 		spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
+irq_entries_start:
+	pushl $vector-256	<-----  orig_eax
+	jmp common_interrupt
 
+and NR_IRQS < 256. So if we have pending signals on return from interrupt,
+do_signal() will not corrupt userspace registers when regs->eax == -ERESTART...
+accidentally.
 
+Probably it makes sense to change it to
+	pushl $vector - 0xFFFF - 1
+
+and in do_IRQ()
+	int irq = regs->orig_eax & 0xFFFF
+
+if you need to send IRQs higher than 256 to do_IRQ.
+
+Oleg.

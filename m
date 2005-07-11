@@ -1,119 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVGKHSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVGKHbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVGKHSe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 03:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVGKHSd
+	id S261198AbVGKHbk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 03:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVGKHbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 03:18:33 -0400
-Received: from mf01.sitadelle.com ([212.94.174.68]:48037 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S261174AbVGKHSd
+	Mon, 11 Jul 2005 03:31:40 -0400
+Received: from acheron.ifi.lmu.de ([129.187.214.135]:60311 "EHLO
+	acheron.ifi.lmu.de") by vger.kernel.org with ESMTP id S261198AbVGKHbj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 03:18:33 -0400
-Message-ID: <42D21D43.3060300@cosmosbay.com>
-Date: Mon, 11 Jul 2005 09:18:27 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Mon, 11 Jul 2005 03:31:39 -0400
+Message-ID: <42D22059.8000607@bio.ifi.lmu.de>
+Date: Mon, 11 Jul 2005 09:31:37 +0200
+From: Frank Steiner <fsteiner-mail1@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] eventpoll : Suppress a short lived lock from struct file
-References: <4263275A.2020405@lab.ntt.co.jp>  <20050418040718.GA31163@taniwha.stupidest.org>  <4263356D.9080007@lab.ntt.co.jp>  <20050418044223.GB15002@nevyn.them.org> <1113800136.355.1.camel@localhost.localdomain> <Pine.LNX.4.58.0504172159120.28447@bigblue.dev.mdolabs.com>
-In-Reply-To: <Pine.LNX.4.58.0504172159120.28447@bigblue.dev.mdolabs.com>
-Content-Type: multipart/mixed;
- boundary="------------050108000305010700040301"
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: tg3 fails with x86_64 (but works with i386)
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050108000305010700040301
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Hi Davide
+I've two 3com 3C996B-T network cards (lspci says it's
+a Broadcom BCM5701 chip) in Asus A8V boards with an
+AMD64 4000+ cpu. Booting a x86_64 version of the
+2.6.12.2 kernel, the tg3 module complains
 
-I found in my tests that there is no need to have a f_ep_lock spinlock
-attached to each struct file, using 8 bytes on 64bits platforms. The
-lock is hold for a very short time period and can be global, with almost
-no change in performance for applications using epoll, and a gain for
-all others.
+   tg3.c: v3.31 (June 8, 2005)
+   tg3_test_dma() Write the buffer failed -19
+   tg3: DMA engine test failed, aborting.
 
-Thank you
-Eric Dumazet
+and no eth0 is available. However, when booting a 32bit
+version of 2.6.12.2, the cards work well with the tg3
+module. So it must be some problem in the x86_64
+specific kernel code.
 
-[PATCH] eventpoll : Suppress a short lived lock from struct file
+Any ideas what I could do? What further information can
+I provide?
 
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+cu,
+Frank
 
-
---------------050108000305010700040301
-Content-Type: text/plain;
- name="patch_eventpoll"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch_eventpoll"
-
---- linux-2.6.12/fs/eventpoll.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.12-ed/fs/eventpoll.c	2005-07-11 08:56:07.000000000 +0200
-@@ -179,6 +179,8 @@
- 	spinlock_t lock;
- };
- 
-+static DEFINE_SPINLOCK(f_ep_lock);
-+
- /*
-  * This structure is stored inside the "private_data" member of the file
-  * structure and rapresent the main data sructure for the eventpoll
-@@ -426,7 +428,6 @@
- {
- 
- 	INIT_LIST_HEAD(&file->f_ep_links);
--	spin_lock_init(&file->f_ep_lock);
- }
- 
- 
-@@ -967,9 +968,9 @@
- 		goto eexit_2;
- 
- 	/* Add the current item to the list of active epoll hook for this file */
--	spin_lock(&tfile->f_ep_lock);
-+	spin_lock(&f_ep_lock);
- 	list_add_tail(&epi->fllink, &tfile->f_ep_links);
--	spin_unlock(&tfile->f_ep_lock);
-+	spin_unlock(&f_ep_lock);
- 
- 	/* We have to drop the new item inside our item list to keep track of it */
- 	write_lock_irqsave(&ep->lock, flags);
-@@ -1160,7 +1161,6 @@
- {
- 	int error;
- 	unsigned long flags;
--	struct file *file = epi->ffd.file;
- 
- 	/*
- 	 * Removes poll wait queue hooks. We _have_ to do this without holding
-@@ -1173,10 +1173,10 @@
- 	ep_unregister_pollwait(ep, epi);
- 
- 	/* Remove the current item from the list of epoll hooks */
--	spin_lock(&file->f_ep_lock);
-+	spin_lock(&f_ep_lock);
- 	if (EP_IS_LINKED(&epi->fllink))
- 		EP_LIST_DEL(&epi->fllink);
--	spin_unlock(&file->f_ep_lock);
-+	spin_unlock(&f_ep_lock);
- 
- 	/* We need to acquire the write IRQ lock before calling ep_unlink() */
- 	write_lock_irqsave(&ep->lock, flags);
---- linux-2.6.12/include/linux/fs.h	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.12-ed/include/linux/fs.h	2005-07-11 08:58:02.000000000 +0200
-@@ -597,7 +597,6 @@
- #ifdef CONFIG_EPOLL
- 	/* Used by fs/eventpoll.c to link all the hooks to this file */
- 	struct list_head	f_ep_links;
--	spinlock_t		f_ep_lock;
- #endif /* #ifdef CONFIG_EPOLL */
- 	struct address_space	*f_mapping;
- };
-
---------------050108000305010700040301--
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *

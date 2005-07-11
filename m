@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVGKRSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVGKRnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVGKRSO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 13:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVGKRRa
+	id S262107AbVGKRnR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 13:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVGKRkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 13:17:30 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:41679 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261255AbVGKRQi (ORCPT
+	Mon, 11 Jul 2005 13:40:49 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:36359 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261683AbVGKRjQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 13:16:38 -0400
-Message-Id: <200507111713.j6BHDUGd001817@laptop11.inf.utfsm.cl>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Pekka Enberg <penberg@cs.helsinki.fi>, Bryan Henderson <hbryan@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, bfields@fieldses.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linuxram@us.ibm.com, mike@waychison.com,
-       Miklos Szeredi <miklos@szeredi.hu>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: share/private/slave a subtree - define vs enum 
-In-Reply-To: Message from Roman Zippel <zippel@linux-m68k.org> 
-   of "Sun, 10 Jul 2005 21:14:08 +0200." <Pine.LNX.4.61.0507102047380.3728@scrub.home> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Mon, 11 Jul 2005 13:13:30 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 11 Jul 2005 13:13:37 -0400 (CLT)
+	Mon, 11 Jul 2005 13:39:16 -0400
+Date: Mon, 11 Jul 2005 13:38:18 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Greg KH <greg@kroah.com>
+Cc: Lennert Buytenhek <buytenh+lkml@liacs.nl>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       "David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
+       matthew@wil.cx, grundler@parisc-linux.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ambx1@neo.rr.com, byjac@matfyz.cz,
+       herbertb@cs.vu.nl
+Subject: [patch 2.6.13-rc2] PCI: Add GPL symbol export for pci_restore_bars
+Message-ID: <20050711173815.GG23093@tuxdriver.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Lennert Buytenhek <buytenh+lkml@liacs.nl>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	"David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
+	matthew@wil.cx, grundler@parisc-linux.org,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+	linux-kernel@vger.kernel.org, ambx1@neo.rr.com, byjac@matfyz.cz,
+	herbertb@cs.vu.nl
+References: <20050707.233530.85417983.davem@davemloft.net> <20050708110358.A8491@jurassic.park.msu.ru> <20050708.003333.28789082.davem@davemloft.net> <20050708122043.A8779@jurassic.park.msu.ru> <20050708183452.GB13445@tuxdriver.com> <20050711144844.A16143@tin.liacs.nl> <20050711131518.GB23093@tuxdriver.com> <20050711131859.GC23093@tuxdriver.com> <20050711171830.GA31050@kroah.com> <20050711173635.GF23093@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050711173635.GF23093@tuxdriver.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> wrote:
-> On Sun, 10 Jul 2005, Pekka Enberg wrote:
+Globalize and add EXPORT_SYMBOL_GPL for pci_restore_bars.
 
-[...]
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+Some have expressed interest in making general use of the the
+pci_restore_bars function.
 
-> > Would you please be so kind to define your criteria for things that
-> > "need fixing" so we could see if can reach some sort of an agreement on
-> > this. My list is roughly as follows:
-> > 
-> >   - Erroneous use of kernel API
-> >   - Bad coding style
-> >   - Layering violations
-> >   - Duplicate code
-> >   - Hard to read code
+Revised to use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL.
 
-> I don't generally disagree with that, I just think that defines are not 
-> part of that list.
+ drivers/pci/pci.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-Covered in "bad coding style" and "hard to read code", at least.
-
-> Look, it's great that you do reviews, but please keep in mind it's the 
-> author who has to work with code and he has to be primarily happy with, 
-> so you don't have to point out every minor issue.
-
-Wrong. The author has to work with the code, but there are much more people
-that have to read it now and fix it in the future. It doesn't make sense
-having everybody using their own indentation style, variable naming scheme,
-and ways of defining constants. For better or worse, #define /is/ the
-standard idiom (in kernel and elsewhere) to define constants in C. See also
-<http://www.lysator.liu.se/c/ten-commandments.html>, particularly
-comandment 8. And consider also the /spirit/ of Documentation/CodingStyle.
-
-> Although it also differs between core and driver code, we don't have to be 
-> that strict with driver code as longs as it "looks" ok and is otherwise 
-> correct. The requirements for core kernel code are higher, but even here 
-> defines are a well accepted language construct.
-
-I'd rather ask for the higher requirements of authors of new code... not
-demand, just ask.
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -228,7 +228,7 @@ pci_find_parent_resource(const struct pc
+  * Restore the BAR values for a given device, so as to make it
+  * accessible by its driver.
+  */
+-static void
++void
+ pci_restore_bars(struct pci_dev *dev)
+ {
+ 	int i, numres;
+@@ -833,6 +833,7 @@ struct pci_dev *isa_bridge;
+ EXPORT_SYMBOL(isa_bridge);
+ #endif
+ 
++EXPORT_SYMBOL_GPL(pci_restore_bars);
+ EXPORT_SYMBOL(pci_enable_device_bars);
+ EXPORT_SYMBOL(pci_enable_device);
+ EXPORT_SYMBOL(pci_disable_device);
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+John W. Linville
+linville@tuxdriver.com

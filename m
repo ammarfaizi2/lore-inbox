@@ -1,148 +1,260 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVGKOKC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVGKOCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbVGKOKC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:10:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVGKOHi
+	id S261778AbVGKOCp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 10:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVGKOA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:07:38 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:56005 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261710AbVGKOFq
+	Mon, 11 Jul 2005 10:00:28 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:43717 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261715AbVGKN7K
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:05:46 -0400
-Subject: PATCH [6/27] Change ib_mad_send_wr_private struct
+	Mon, 11 Jul 2005 09:59:10 -0400
+Subject: [PATCH 4/27] Combine some MAD routines
 From: Hal Rosenstock <halr@voltaire.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
 Content-Type: text/plain
 Organization: 
-Message-Id: <1121089092.4389.4517.camel@hal.voltaire.com>
+Message-Id: <1121089083.4389.4513.camel@hal.voltaire.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 09:58:03 -0400
+Date: 11 Jul 2005 09:51:35 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have ib_mad_send_wr_private reference the private agent structure
-directly, rather than the exposed agent definition.  Remove unneeded
-parameters to functions and simplify code were possible from this
-change.
+Combine response_mad() and solicited_mad() routines into a single
+function and simplify/encapsulate its usage.
 
 Signed-off-by: Sean Hefty <sean.hefty@intel.com>
 Signed-off-by: Hal Rosenstock <halr@voltaire.com>
 
-This patch depends on patch 5/27.
+This patch depends on patch 3/27.
 
 -- 
- mad.c      |   22 ++++++++++--
- mad_priv.h |    4 ++--
- 2 files changed, 12 insertions(+), 14 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband5/core/mad.c linux-2.6.13-rc2-mm1/drivers/infiniband6/core/mad.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband5/core/mad.c	2005-07-09 15:08:31.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband6/core/mad.c	2005-07-09 15:12:32.000000000 -0400
-@@ -839,8 +839,7 @@ void ib_free_send_mad(struct ib_mad_send
+ mad.c |  105 ++++++++++++++++--
+ 1 files changed, 27 insertions(+), 78 deletions(-)
+diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband3/core/mad.c linux-2.6.13-rc2-mm1/drivers/infiniband4/core/mad.c
+-- linux-2.6.13-rc2-mm1/drivers/infiniband3/core/mad.c	2005-07-09 14:31:49.000000000 -0400
++++ linux-2.6.13-rc2-mm1/drivers/infiniband4/core/mad.c	2005-07-09 15:06:29.000000000 -0400
+@@ -58,7 +58,7 @@ static int method_in_use(struct ib_mad_m
+ static void remove_mad_reg_req(struct ib_mad_agent_private *priv);
+ static struct ib_mad_agent_private *find_mad_agent(
+ 					struct ib_mad_port_private *port_priv,
+-					struct ib_mad *mad, int solicited);
++					struct ib_mad *mad);
+ static int ib_mad_post_receive_mads(struct ib_mad_qp_info *qp_info,
+ 				    struct ib_mad_private *mad);
+ static void cancel_mads(struct ib_mad_agent_private *mad_agent_priv);
+@@ -67,7 +67,6 @@ static void ib_mad_complete_send_wr(stru
+ static void timeout_sends(void *data);
+ static void cancel_sends(void *data);
+ static void local_completions(void *data);
+-static int solicited_mad(struct ib_mad *mad);
+ static int add_nonoui_reg_req(struct ib_mad_reg_req *mad_reg_req,
+ 			      struct ib_mad_agent_private *agent_priv,
+ 			      u8 mgmt_class);
+@@ -558,6 +557,13 @@ int ib_unregister_mad_agent(struct ib_ma
  }
- EXPORT_SYMBOL(ib_free_send_mad);
+ EXPORT_SYMBOL(ib_unregister_mad_agent);
  
--static int ib_send_mad(struct ib_mad_agent_private *mad_agent_priv,
--		       struct ib_mad_send_wr_private *mad_send_wr)
-+static int ib_send_mad(struct ib_mad_send_wr_private *mad_send_wr)
++static inline int response_mad(struct ib_mad *mad)
++{
++	/* Trap represses are responses although response bit is reset */
++	return ((mad->mad_hdr.method == IB_MGMT_METHOD_TRAP_REPRESS) ||
++		(mad->mad_hdr.method & IB_MGMT_METHOD_RESP));
++}
++
+ static void dequeue_mad(struct ib_mad_list_head *mad_list)
  {
- 	struct ib_mad_qp_info *qp_info;
- 	struct ib_send_wr *bad_send_wr;
-@@ -848,7 +847,7 @@ static int ib_send_mad(struct ib_mad_age
- 	int ret;
- 
- 	/* Set WR ID to find mad_send_wr upon completion */
--	qp_info = mad_agent_priv->qp_info;
-+	qp_info = mad_send_wr->mad_agent_priv->qp_info;
- 	mad_send_wr->send_wr.wr_id = (unsigned long)&mad_send_wr->mad_list;
- 	mad_send_wr->mad_list.mad_queue = &qp_info->send_queue;
- 
-@@ -857,7 +856,7 @@ static int ib_send_mad(struct ib_mad_age
- 		list_add_tail(&mad_send_wr->mad_list.list,
- 			      &qp_info->send_queue.list);
- 		spin_unlock_irqrestore(&qp_info->send_queue.lock, flags);
--		ret = ib_post_send(mad_agent_priv->agent.qp,
-+		ret = ib_post_send(mad_send_wr->mad_agent_priv->agent.qp,
- 				   &mad_send_wr->send_wr, &bad_send_wr);
- 		if (ret) {
- 			printk(KERN_ERR PFX "ib_post_send failed: %d\n", ret);
-@@ -950,7 +949,7 @@ int ib_post_send_mad(struct ib_mad_agent
- 		mad_send_wr->wr_id = mad_send_wr->send_wr.wr_id;
- 		mad_send_wr->send_wr.next = NULL;
- 		mad_send_wr->tid = send_wr->wr.ud.mad_hdr->tid;
--		mad_send_wr->agent = mad_agent;
-+		mad_send_wr->mad_agent_priv = mad_agent_priv;
- 		/* Timeout will be updated after send completes */
- 		mad_send_wr->timeout = msecs_to_jiffies(send_wr->wr.
- 							ud.timeout_ms);
-@@ -966,7 +965,7 @@ int ib_post_send_mad(struct ib_mad_agent
- 			      &mad_agent_priv->send_list);
- 		spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
- 
--		ret = ib_send_mad(mad_agent_priv, mad_send_wr);
-+		ret = ib_send_mad(mad_send_wr);
- 		if (ret) {
- 			/* Fail send request */
- 			spin_lock_irqsave(&mad_agent_priv->lock, flags);
-@@ -1742,13 +1741,14 @@ static void adjust_timeout(struct ib_mad
- 	}
- }
- 
--static void wait_for_response(struct ib_mad_agent_private *mad_agent_priv,
--			      struct ib_mad_send_wr_private *mad_send_wr )
-+static void wait_for_response(struct ib_mad_send_wr_private *mad_send_wr)
+ 	struct ib_mad_queue *mad_queue;
+@@ -650,7 +656,7 @@ static int handle_outgoing_dr_smp(struct
+ 				  struct ib_smp *smp,
+ 				  struct ib_send_wr *send_wr)
  {
-+	struct ib_mad_agent_private *mad_agent_priv;
- 	struct ib_mad_send_wr_private *temp_mad_send_wr;
- 	struct list_head *list_item;
- 	unsigned long delay;
- 
-+	mad_agent_priv = mad_send_wr->mad_agent_priv;
- 	list_del(&mad_send_wr->agent_list);
- 
- 	delay = mad_send_wr->timeout;
-@@ -1781,9 +1781,7 @@ static void ib_mad_complete_send_wr(stru
- 	struct ib_mad_agent_private	*mad_agent_priv;
- 	unsigned long			flags;
- 
--	mad_agent_priv = container_of(mad_send_wr->agent,
--				      struct ib_mad_agent_private, agent);
--
-+	mad_agent_priv = mad_send_wr->mad_agent_priv;
- 	spin_lock_irqsave(&mad_agent_priv->lock, flags);
- 	if (mad_send_wc->status != IB_WC_SUCCESS &&
- 	    mad_send_wr->status == IB_WC_SUCCESS) {
-@@ -1794,7 +1792,7 @@ static void ib_mad_complete_send_wr(stru
- 	if (--mad_send_wr->refcount > 0) {
- 		if (mad_send_wr->refcount == 1 && mad_send_wr->timeout &&
- 		    mad_send_wr->status == IB_WC_SUCCESS) {
--			wait_for_response(mad_agent_priv, mad_send_wr);
-+			wait_for_response(mad_send_wr);
+-	int ret, solicited;
++	int ret;
+ 	unsigned long flags;
+ 	struct ib_mad_local_private *local;
+ 	struct ib_mad_private *mad_priv;
+@@ -696,11 +702,7 @@ static int handle_outgoing_dr_smp(struct
+ 	switch (ret)
+ 	{
+ 	case IB_MAD_RESULT_SUCCESS | IB_MAD_RESULT_REPLY:
+-		/*
+-		 * See if response is solicited and
+-		 * there is a recv handler
+-		 */
+-		if (solicited_mad(&mad_priv->mad.mad) &&
++		if (response_mad(&mad_priv->mad.mad) &&
+ 		    mad_agent_priv->agent.recv_handler) {
+ 			local->mad_priv = mad_priv;
+ 			local->recv_mad_agent = mad_agent_priv;
+@@ -717,15 +719,13 @@ static int handle_outgoing_dr_smp(struct
+ 		break;
+ 	case IB_MAD_RESULT_SUCCESS:
+ 		/* Treat like an incoming receive MAD */
+-		solicited = solicited_mad(&mad_priv->mad.mad);
+ 		port_priv = ib_get_mad_port(mad_agent_priv->agent.device,
+ 					    mad_agent_priv->agent.port_num);
+ 		if (port_priv) {
+ 			mad_priv->mad.mad.mad_hdr.tid =
+ 				((struct ib_mad *)smp)->mad_hdr.tid;
+ 			recv_mad_agent = find_mad_agent(port_priv,
+-						       &mad_priv->mad.mad,
+-							solicited);
++						        &mad_priv->mad.mad);
  		}
- 		spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
- 		return;
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband5/core/mad_priv.h linux-2.6.13-rc2-mm1/drivers/infiniband6/core/mad_priv.h
--- linux-2.6.13-rc2-mm1/drivers/infiniband5/core/mad_priv.h	2005-06-29 19:00:53.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband6/core/mad_priv.h	2005-07-09 15:09:53.000000000 -0400
-@@ -29,7 +29,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: mad_priv.h 1389 2004-12-27 22:56:47Z roland $
-+ * $Id: mad_priv.h 1980 2005-03-11 22:33:53Z sean.hefty $
-  */
+ 		if (!port_priv || !recv_mad_agent) {
+ 			kmem_cache_free(ib_mad_cache, mad_priv);
+@@ -1421,42 +1421,15 @@ out:
+ 	return;
+ }
  
- #ifndef __IB_MAD_PRIV_H__
-@@ -116,7 +116,7 @@ struct ib_mad_snoop_private {
- struct ib_mad_send_wr_private {
- 	struct ib_mad_list_head mad_list;
- 	struct list_head agent_list;
--	struct ib_mad_agent *agent;
-+	struct ib_mad_agent_private *mad_agent_priv;
- 	struct ib_send_wr send_wr;
- 	struct ib_sge sg_list[IB_MAD_SEND_REQ_MAX_SG];
- 	u64 wr_id;			/* client WR ID */
+-static int response_mad(struct ib_mad *mad)
+-{
+-	/* Trap represses are responses although response bit is reset */
+-	return ((mad->mad_hdr.method == IB_MGMT_METHOD_TRAP_REPRESS) ||
+-		(mad->mad_hdr.method & IB_MGMT_METHOD_RESP));
+-}
+-
+-static int solicited_mad(struct ib_mad *mad)
+-{
+-	/* CM MADs are never solicited */
+-	if (mad->mad_hdr.mgmt_class == IB_MGMT_CLASS_CM) {
+-		return 0;
+-	}
+-
+-	/* XXX: Determine whether MAD is using RMPP */
+-
+-	/* Not using RMPP */
+-	/* Is this MAD a response to a previous MAD ? */
+-	return response_mad(mad);
+-}
+-
+ static struct ib_mad_agent_private *
+ find_mad_agent(struct ib_mad_port_private *port_priv,
+-	       struct ib_mad *mad,
+-	       int solicited)
++	       struct ib_mad *mad)
+ {
+ 	struct ib_mad_agent_private *mad_agent = NULL;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&port_priv->reg_lock, flags);
+-
+-	/*
+-	 * Whether MAD was solicited determines type of routing to
+-	 * MAD client.
+-	 */
+-	if (solicited) {
++	if (response_mad(mad)) {
+ 		u32 hi_tid;
+ 		struct ib_mad_agent_private *entry;
+ 
+@@ -1560,18 +1533,6 @@ out:
+ 	return valid;
+ }
+ 
+-/*
+- * Return start of fully reassembled MAD, or NULL, if MAD isn't assembled yet
+- */
+-static struct ib_mad_private *
+-reassemble_recv(struct ib_mad_agent_private *mad_agent_priv,
+-		struct ib_mad_private *recv)
+-{
+-	/* Until we have RMPP, all receives are reassembled!... */
+-	INIT_LIST_HEAD(&recv->header.recv_wc.recv_buf.list);
+-	return recv;
+-}
+-
+ static struct ib_mad_send_wr_private*
+ find_send_req(struct ib_mad_agent_private *mad_agent_priv,
+ 	      u64 tid)
+@@ -1600,29 +1561,22 @@ find_send_req(struct ib_mad_agent_privat
+ }
+ 
+ static void ib_mad_complete_recv(struct ib_mad_agent_private *mad_agent_priv,
+-				 struct ib_mad_private *recv,
+-				 int solicited)
++				 struct ib_mad_recv_wc *mad_recv_wc)
+ {
+ 	struct ib_mad_send_wr_private *mad_send_wr;
+ 	struct ib_mad_send_wc mad_send_wc;
+ 	unsigned long flags;
++	u64 tid;
+ 
+-	/* Fully reassemble receive before processing */
+-	recv = reassemble_recv(mad_agent_priv, recv);
+-	if (!recv) {
+-		if (atomic_dec_and_test(&mad_agent_priv->refcount))
+-			wake_up(&mad_agent_priv->wait);
+-		return;
+-	}
+-
++	INIT_LIST_HEAD(&mad_recv_wc->recv_buf.list);
+ 	/* Complete corresponding request */
+-	if (solicited) {
++	if (response_mad(mad_recv_wc->recv_buf.mad)) {
++		tid = mad_recv_wc->recv_buf.mad->mad_hdr.tid;
+ 		spin_lock_irqsave(&mad_agent_priv->lock, flags);
+-		mad_send_wr = find_send_req(mad_agent_priv,
+-					    recv->mad.mad.mad_hdr.tid);
++		mad_send_wr = find_send_req(mad_agent_priv, tid);
+ 		if (!mad_send_wr) {
+ 			spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
+-			ib_free_recv_mad(&recv->header.recv_wc);
++			ib_free_recv_mad(mad_recv_wc);
+ 			if (atomic_dec_and_test(&mad_agent_priv->refcount))
+ 				wake_up(&mad_agent_priv->wait);
+ 			return;
+@@ -1632,10 +1586,9 @@ static void ib_mad_complete_recv(struct 
+ 		spin_unlock_irqrestore(&mad_agent_priv->lock, flags);
+ 
+ 		/* Defined behavior is to complete response before request */
+-		recv->header.recv_wc.wc->wr_id = mad_send_wr->wr_id;
+-		mad_agent_priv->agent.recv_handler(
+-						&mad_agent_priv->agent,
+-						&recv->header.recv_wc);
++		mad_recv_wc->wc->wr_id = mad_send_wr->wr_id;
++		mad_agent_priv->agent.recv_handler(&mad_agent_priv->agent,
++						   mad_recv_wc);
+ 		atomic_dec(&mad_agent_priv->refcount);
+ 
+ 		mad_send_wc.status = IB_WC_SUCCESS;
+@@ -1643,9 +1596,8 @@ static void ib_mad_complete_recv(struct 
+ 		mad_send_wc.wr_id = mad_send_wr->wr_id;
+ 		ib_mad_complete_send_wr(mad_send_wr, &mad_send_wc);
+ 	} else {
+-		mad_agent_priv->agent.recv_handler(
+-						&mad_agent_priv->agent,
+-						&recv->header.recv_wc);
++		mad_agent_priv->agent.recv_handler(&mad_agent_priv->agent,
++						   mad_recv_wc);
+ 		if (atomic_dec_and_test(&mad_agent_priv->refcount))
+ 			wake_up(&mad_agent_priv->wait);
+ 	}
+@@ -1659,7 +1611,6 @@ static void ib_mad_recv_done_handler(str
+ 	struct ib_mad_private *recv, *response;
+ 	struct ib_mad_list_head *mad_list;
+ 	struct ib_mad_agent_private *mad_agent;
+-	int solicited;
+ 
+ 	response = kmem_cache_alloc(ib_mad_cache, GFP_KERNEL);
+ 	if (!response)
+@@ -1745,11 +1696,9 @@ local:
+ 		}
+ 	}
+ 
+-	/* Determine corresponding MAD agent for incoming receive MAD */
+-	solicited = solicited_mad(&recv->mad.mad);
+-	mad_agent = find_mad_agent(port_priv, &recv->mad.mad, solicited);
++	mad_agent = find_mad_agent(port_priv, &recv->mad.mad);
+ 	if (mad_agent) {
+-		ib_mad_complete_recv(mad_agent, recv, solicited);
++		ib_mad_complete_recv(mad_agent, &recv->header.recv_wc);
+ 		/*
+ 		 * recv is freed up in error cases in ib_mad_complete_recv
+ 		 * or via recv_handler in ib_mad_complete_recv()
 
 

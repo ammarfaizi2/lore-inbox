@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVGKMU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVGKM1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVGKMU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 08:20:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVGKMU0
+	id S261651AbVGKM1S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 08:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVGKM1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 08:20:26 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:31360 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261656AbVGKMTh (ORCPT
+	Mon, 11 Jul 2005 08:27:17 -0400
+Received: from [210.76.108.236] ([210.76.108.236]:51656 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S261651AbVGKM1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 08:19:37 -0400
-Message-ID: <42D263D7.8040006@drzeus.cx>
-Date: Mon, 11 Jul 2005 14:19:35 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
+	Mon, 11 Jul 2005 08:27:16 -0400
+Message-ID: <42D268F7.2060108@ccoss.com.cn>
+Date: Mon, 11 Jul 2005 20:41:27 +0800
+From: "liyu@WAN" <liyu@ccoss.com.cn>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
 X-Accept-Language: en-us, en
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-7089-1121084376-0001-2"
-To: Russell King <rmk+lkml@arm.linux.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] wbsd version bump
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: I have one doubt about detail of page reclaim.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+Hi, everyone on LKML.
 
---=_hermes.drzeus.cx-7089-1121084376-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+    This is my fourth or fifth send mail to this list. Of course, almost 
+all mail are submit question.
+and lucky, can get answers soon. thank that every man that reply my 
+question.
+   
+    I understand some kernel skills while I resolved one question. this 
+process is so fun.
 
-Version increase of the wbsd driver.
+    OK, the question at this time:
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+    I am reading code of function balabce_pgdat(pg_data_t *pgdat, int 
+nr_pages, int order).
 
-Even though the changes are minor for the next release an increasing
-version number simplifies my support issues.
+    As the comment said, the argument 'nr_free' is how many pages to 
+free when software suspending .
+In that function, define a int variable 'to_free' first, and it is 
+assigned to value of 'nr_pages'.
+but I found both two variables (to_free and nr_pages) didn't change in 
+this function at all, then,
+Why define variable to_free? And, in middle of this function, there have 
+one if condtion statement
+as follow:
+
+        if (nr_pages && to_free > total_reclaimed)
+            continue;    /* swsusp: need to do more work */
+
+    It's look like to guaruatee release enough pages to satisfy reqire 
+of software suspend. but as
+my view, 'nr_pages' and 'to_free' must have same value in this function.
+   
+    Do here have secret too?
+
+    Waiting for magical answer.
 
 
---=_hermes.drzeus.cx-7089-1121084376-0001-2
-Content-Type: text/x-patch; name="wbsd-version.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="wbsd-version.patch"
 
-Index: linux/drivers/mmc/wbsd.c
-===================================================================
---- linux/drivers/mmc/wbsd.c	(revision 151)
-+++ linux/drivers/mmc/wbsd.c	(working copy)
-@@ -42,7 +42,7 @@
- #include "wbsd.h"
- 
- #define DRIVER_NAME "wbsd"
--#define DRIVER_VERSION "1.2"
-+#define DRIVER_VERSION "1.3"
- 
- #ifdef CONFIG_MMC_DEBUG
- #define DBG(x...) \
 
---=_hermes.drzeus.cx-7089-1121084376-0001-2--
+                                                                         
+      liyu/NOW~
+
+   
+   
+
+   
+

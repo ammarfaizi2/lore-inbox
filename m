@@ -1,75 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVGKRnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVGKRSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262107AbVGKRnR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 13:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVGKRkt
+	id S261791AbVGKRSL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 13:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVGKRRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 13:40:49 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:36359 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261683AbVGKRjQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 13:39:16 -0400
-Date: Mon, 11 Jul 2005 13:38:18 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Greg KH <greg@kroah.com>
-Cc: Lennert Buytenhek <buytenh+lkml@liacs.nl>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       "David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
-       matthew@wil.cx, grundler@parisc-linux.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org, ambx1@neo.rr.com, byjac@matfyz.cz,
-       herbertb@cs.vu.nl
-Subject: [patch 2.6.13-rc2] PCI: Add GPL symbol export for pci_restore_bars
-Message-ID: <20050711173815.GG23093@tuxdriver.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Lennert Buytenhek <buytenh+lkml@liacs.nl>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	"David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
-	matthew@wil.cx, grundler@parisc-linux.org,
-	linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
-	linux-kernel@vger.kernel.org, ambx1@neo.rr.com, byjac@matfyz.cz,
-	herbertb@cs.vu.nl
-References: <20050707.233530.85417983.davem@davemloft.net> <20050708110358.A8491@jurassic.park.msu.ru> <20050708.003333.28789082.davem@davemloft.net> <20050708122043.A8779@jurassic.park.msu.ru> <20050708183452.GB13445@tuxdriver.com> <20050711144844.A16143@tin.liacs.nl> <20050711131518.GB23093@tuxdriver.com> <20050711131859.GC23093@tuxdriver.com> <20050711171830.GA31050@kroah.com> <20050711173635.GF23093@tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050711173635.GF23093@tuxdriver.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 11 Jul 2005 13:17:23 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62417 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261230AbVGKRRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 13:17:08 -0400
+Date: Mon, 11 Jul 2005 18:17:03 +0100 (BST)
+From: James Simmons <jsimmons@www.infradead.org>
+X-X-Sender: jsimmons@pentafluge.infradead.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: GIT problems.
+Message-ID: <Pine.LNX.4.56.0507111758300.15333@pentafluge.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Globalize and add EXPORT_SYMBOL_GPL for pci_restore_bars.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-Some have expressed interest in making general use of the the
-pci_restore_bars function.
 
-Revised to use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL.
+I'm having trouble merging my local branch to the latest tree from linus.
+I event tried to grab a fresh tree from kernel.org and then create a clone 
+from it.
 
- drivers/pci/pci.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+I did a 
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -228,7 +228,7 @@ pci_find_parent_resource(const struct pc
-  * Restore the BAR values for a given device, so as to make it
-  * accessible by its driver.
-  */
--static void
-+void
- pci_restore_bars(struct pci_dev *dev)
- {
- 	int i, numres;
-@@ -833,6 +833,7 @@ struct pci_dev *isa_bridge;
- EXPORT_SYMBOL(isa_bridge);
- #endif
- 
-+EXPORT_SYMBOL_GPL(pci_restore_bars);
- EXPORT_SYMBOL(pci_enable_device_bars);
- EXPORT_SYMBOL(pci_enable_device);
- EXPORT_SYMBOL(pci_disable_device);
--- 
-John W. Linville
-linville@tuxdriver.com
+cg-init 
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+
+This worked with output being
+
+sent 147 bytes  received 863 bytes  673.33 bytes/sec
+total size is 41  speedup is 0.04
+
+receiving file list ... done
+progress: 2139 objects, 6243714 bytes, 100% done
+pack/pack-e3117bbaf6a59cb53c3f6f0d9b17b9433f0e4135.idx
+pack/pack-e3117bbaf6a59cb53c3f6f0d9b17b9433f0e4135.pack
+
+sent 47219 bytes  received 73840482 bytes  304691.55 bytes/sec
+total size is 73625377  speedup is 1.00
+
+receiving file list ... done
+v2.6.11
+v2.6.11-tree
+v2.6.12
+v2.6.12-rc2
+v2.6.12-rc3
+v2.6.12-rc4
+v2.6.12-rc5
+v2.6.12-rc6
+v2.6.13-rc1
+v2.6.13-rc2
+
+sent 339 bytes  received 1789 bytes  4256.00 bytes/sec
+total size is 410  speedup is 0.19
+Missing object of tag v2.6.11... different source (obsolete tag?)
+Missing object of tag v2.6.11-tree... different source (obsolete tag?)
+Missing object of tag v2.6.12... different source (obsolete tag?)
+Missing object of tag v2.6.12-rc2... different source (obsolete tag?)
+Missing object of tag v2.6.12-rc3... different source (obsolete tag?)
+Missing object of tag v2.6.12-rc4... different source (obsolete tag?)
+Missing object of tag v2.6.12-rc5... different source (obsolete tag?)
+Missing object of tag v2.6.12-rc6... different source (obsolete tag?)
+Missing object of tag v2.6.13-rc1... different source (obsolete tag?)
+Missing object of tag v2.6.13-rc2... different source (obsolete tag?)
+New branch: 5c23804a0941a111752fdacefe0bea2db1b4d93f
+Cloned (origin 
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git 
+available as branch "origin")
+
+
+Next I did the below.
+
+mkdir fbdev-2.6
+cd fbdev-2.6
+cg-init /usr/src/linus-2.6/
+
+defaulting to local storage area
+`/usr/src/linus-2.6//.git/refs/heads/master' -> `.git/refs/heads/origin'
+progress: 2 objects, 896 bytes
+does not exist 
+/usr/src/linus-2.6//.git/objects/2a/7e338ec2fc6aac461a11fe8049799e65639166
+Cannot obtain needed blob 2a7e338ec2fc6aac461a11fe8049799e65639166
+while processing commit 0000000000000000000000000000000000000000.
+cg-pull: objects pull failed
+cg-init: pull failed
+
+What is wrong?
+
+

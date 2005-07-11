@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVGKR2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVGKR2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbVGKR2x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 13:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVGKR0r
+	id S262229AbVGKR2y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 13:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVGKR0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 13:26:47 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:36847 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261930AbVGKRZt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 13:25:49 -0400
-Subject: Re: Attempted summary of "RT patch acceptance" thread, take 2
-From: Daniel Walker <dwalker@mvista.com>
-To: paulmck@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050711171910.GE1304@us.ibm.com>
-References: <20050711145552.GA1489@us.ibm.com>
-	 <1121098272.7050.13.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <20050711164322.GD1304@us.ibm.com>
-	 <1121100589.7050.24.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <20050711171910.GE1304@us.ibm.com>
-Content-Type: text/plain
-Date: Mon, 11 Jul 2005 10:25:28 -0700
-Message-Id: <1121102728.7050.29.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	Mon, 11 Jul 2005 13:26:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:42198 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261941AbVGKR0C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 13:26:02 -0400
+Date: Mon, 11 Jul 2005 10:25:36 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Chris Wright <chrisw@osdl.org>, Robert Love <rml@novell.com>,
+       ttb@tentacle.dhs.org, linux-audit@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 1/2] fsnotify
+Message-ID: <20050711172536.GI19052@shell0.pdx.osdl.net>
+References: <20050709012436.GD19052@shell0.pdx.osdl.net> <20050709012657.GE19052@shell0.pdx.osdl.net> <1121086366.27264.108.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1121086366.27264.108.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 10:19 -0700, Paul E. McKenney wrote:
+* David Woodhouse (dwmw2@infradead.org) wrote:
+> What would make sense, perhaps, would be to actually merge those hooks;
+> not just a cosmetic amalgamation of the calling sites. Currently, each
+> of inotify and the audit code does its own filtering when its hooks are
+> triggered, and then acts upon the event only if it affects a watched
+> inode. 
 
-> OK, interesting point, though this would apply only to interrupt latency,
-> not to scheduling latency or to latency for any other system services,
-> right?
+That's exactly what my intention was by posting this.  The hook site is
+just enough to get the conversation going.  The really useful bits to
+merge are at inode watch level.
 
-Only for interrupt latency, that I know of. 
-
-> Do you believe that the 50-us delay measured by Kristian and Karim was
-> due to APM or due to hardware (as Karim suspected)?  If the latter,
-> any guesses as to the cause of the holdup?  50 us is a -really- long
-> time for ~100 instructions on today's hardware, even if each instruction
-> misses the cache!
-
-There are ~100 interrupt off critical sections. Those sections can be
-variable numbers of instructions. I would imagine that whatever maximum
-latency that Kristian and Karim found is the maximum for their hardware.
-
-Daniel
-
+thanks,
+-chris

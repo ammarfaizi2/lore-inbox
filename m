@@ -1,71 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262252AbVGKXLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262871AbVGKWJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262252AbVGKXLY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 19:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVGKXLR
+	id S262871AbVGKWJM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVGKWGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 19:11:17 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:29328 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262252AbVGKXKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 19:10:20 -0400
-Subject: Re: kjournald wasting CPU in invert_lock fs/jbd/commit.c
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, dwalker@mvista.com,
-       mingo@elte.hu, sct@redhat.com
-In-Reply-To: <20050711154113.5abc81dd.akpm@osdl.org>
-References: <1121120222.6087.44.camel@localhost.localdomain>
-	 <20050711154113.5abc81dd.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 11 Jul 2005 19:09:42 -0400
-Message-Id: <1121123382.5481.11.camel@localhost.localdomain>
+	Mon, 11 Jul 2005 18:06:54 -0400
+Received: from mail.kroah.org ([69.55.234.183]:63452 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262876AbVGKWDw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 18:03:52 -0400
+Cc: mhoffman@lightlink.com
+Subject: [PATCH] i2c: make better use of IDR in i2c-core
+In-Reply-To: <11211193773155@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 11 Jul 2005 15:02:57 -0700
+Message-Id: <1121119377358@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 15:41 -0700, Andrew Morton wrote:
-> Steven Rostedt <rostedt@goodmis.org> wrote:
-> >
-> > I noticed that the code in commit.c of the jbd system can waste CPU
-> > cycles.
-> 
-> How did you notice?  By code inspection or by runtime observation?  If the
-> latter, please share.
+[PATCH] i2c: make better use of IDR in i2c-core
 
-Argh! I just realize that this problem is really more in Ingo's RT
-kernel, but I assumed that it was a problem in vanilla since the code is
-more from the vanilla kernel.  With Ingo's spin_locks as mutexes, this
-creates a problem on UP, but your are right, this is not a problem for
-vanilla UP.
+This patch uses the already existing IDR mechanism to simplify and
+improve the i2c_get_adapter function in i2c-core.
 
+Signed-off-by: Mark M. Hoffman <mhoffman@lightlink.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-> Yeah.  But these _are_ spinlocks, so spinning is what's supposed to happen.
->  Maybe we should dump that silly schedule() and just do cpu_relax(). 
-> Although I do recall once theorising that the time we spend in the
-> schedule() might be preventing livelocks.
-> 
-
-As mentioned above, this was a confusion of paradigms. I just got back
-from Europe, so I'm blaming this on jetlag!  
-
-OK a cpu_relax() may be better. So here it is :-)
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 ---
---- a/fs/jbd/commit.c	2005-07-11 17:51:37.000000000 -0400
-+++ b/fs/jbd/commit.c	2005-07-11 19:05:35.000000000 -0400
-@@ -87,7 +87,7 @@ static int inverted_lock(journal_t *jour
- {
- 	if (!jbd_trylock_bh_state(bh)) {
- 		spin_unlock(&journal->j_list_lock);
--		schedule();
-+		cpu_relax();
- 		return 0;
- 	}
- 	return 1;
+commit a0920e10438e9fe8b22aba607083347c84458ed8
+tree 8953a2c3c19cab0d4e67fc0e396c23711388403b
+parent 5da69ba42aa42a479c0f5d8cb8351ebb6b51c12e
+author Mark M. Hoffman <mhoffman@lightlink.com> Tue, 28 Jun 2005 00:21:30 -0400
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 11 Jul 2005 14:10:36 -0700
 
+ drivers/i2c/i2c-core.c |   17 ++++++-----------
+ 1 files changed, 6 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -156,7 +156,7 @@ int i2c_add_adapter(struct i2c_adapter *
+ 		goto out_unlock;
+ 	}
+ 
+-	res = idr_get_new(&i2c_adapter_idr, NULL, &id);
++	res = idr_get_new(&i2c_adapter_idr, adap, &id);
+ 	if (res < 0) {
+ 		if (res == -EAGAIN)
+ 			res = -ENOMEM;
+@@ -765,20 +765,15 @@ int i2c_adapter_id(struct i2c_adapter *a
+ 
+ struct i2c_adapter* i2c_get_adapter(int id)
+ {
+-	struct list_head   *item;
+ 	struct i2c_adapter *adapter;
+ 	
+ 	down(&core_lists);
+-	list_for_each(item,&adapters) {
+-		adapter = list_entry(item, struct i2c_adapter, list);
+-		if (id == adapter->nr &&
+-		    try_module_get(adapter->owner)) {
+-			up(&core_lists);
+-			return adapter;
+-		}
+-	}
++	adapter = (struct i2c_adapter *)idr_find(&i2c_adapter_idr, id);
++	if (adapter && !try_module_get(adapter->owner))
++		adapter = NULL;
++
+ 	up(&core_lists);
+-	return NULL;
++	return adapter;
+ }
+ 
+ void i2c_put_adapter(struct i2c_adapter *adap)
 

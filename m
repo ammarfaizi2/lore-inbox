@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVGKE65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVGKFDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbVGKE65 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 00:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbVGKE65
+	id S262236AbVGKFDh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 01:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbVGKFDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 00:58:57 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50857
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262232AbVGKE65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 00:58:57 -0400
-Date: Sun, 10 Jul 2005 21:58:47 -0700 (PDT)
-Message-Id: <20050710.215847.41634202.davem@davemloft.net>
-To: nish.aravamudan@gmail.com
-Cc: jgarzik@pobox.com, olh@suse.de, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/82] changing CONFIG_LOCALVERSION rebuilds too much,
- for no good reason.
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <29495f1d050710211862c4e543@mail.gmail.com>
-References: <20050710.144910.15269860.davem@davemloft.net>
-	<42D1A039.9090807@pobox.com>
-	<29495f1d050710211862c4e543@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 11 Jul 2005 01:03:37 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:14266 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262236AbVGKFDg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 01:03:36 -0400
+Date: Mon, 11 Jul 2005 07:03:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PREEMPT_RT and latency_trace
+Message-ID: <20050711050303.GA13190@elte.hu>
+References: <1120826951.6225.167.camel@ibiza.btsn.frna.bull.fr>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1120826951.6225.167.camel@ibiza.btsn.frna.bull.fr>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Date: Sun, 10 Jul 2005 21:18:15 -0700
 
-> A quick question here regarding the possibility of one logical change
-> for all of drivers/. Does that hold true for *any* logical change?
+* Serge Noiraud <serge.noiraud@bull.net> wrote:
+
+> Hi,
 > 
-> Intuitively, I would say no. My biggest concern with that is there are
-> many Maintainers listed for particular SCSI drivers, e.g., as well as
-> one for the SCSI subsystem. If those individual driver maintainers'
-> files are being modified, should they be CC'ed, or is the big patch
-> just sent to the SCSI maintainer (in this example)? I just want to
-> make sure the correct patch-chain is respected.
+> I have a big dilemna on one machine :
+> I run a task with RT priority which make a loop to mesure the system
+> perturbation.
+> It works well except on  one machine.
+> On a multi-cpu, If I run the program on cpu 1, I get 23us. It's OK.
+> If I run the same program on cpu 0, I get 17373us !
 
-Please just use common sense.  It depends upon how intrusive the
-change is.  In most cases, the driver author's have to learn to
-"let go" and let these general cleanups happen.  The onus is on
-them to follow upstream when the submit new changes of their own.
+could you try the -51-24 (or later) kernel, does it have any better 
+latencies? It has a PI fix that fixes the recent priority leakage 
+observed on SMP systems. The priority leakage can lead to excessive 
+delays in RT apps.
 
-Some examples:
-
-1) Deleting superfluous header file.
-
-   Just do a clean sweep.
-
-2) Adding a new argument to an existing interface.
-
-   Just do a clean sweep.
-
-3) Transitioning drivers over to a new exception handling mechanism.
-
-   Probably want to do submit a patch for driver at a time.  You
-   should be doing more a few of these driver conversions at a time
-   anyways, so no risk of patch bombing.
-
-4) Straight forward transformations, for example hiding data
-   structure member access behind a function or macro.
-
-   Just do a clean sweep in large chunks.
-
-Again, use common sense.  If you're just crossing your "T"'s and
-dotting your "i"'s, don't spam everyone with a thousand patches
-for such a cleanup.
-
+	Ingo

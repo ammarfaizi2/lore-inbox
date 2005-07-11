@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVGKXBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262828AbVGKWM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262296AbVGKXBA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 19:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVGKW7A
+	id S262828AbVGKWM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 18:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVGKWMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 18:59:00 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:48878 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262207AbVGKW6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 18:58:18 -0400
-Message-ID: <42D2F983.1060105@namesys.com>
-Date: Mon, 11 Jul 2005 15:58:11 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stefan Smietanowski <stesmi@stesmi.com>
-CC: David Masover <ninja@slaphack.com>, Hubert Chan <hubert@uhoreg.ca>,
-       Ross Biro <ross.biro@gmail.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
-       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
-       Nate Diller <ndiller@namesys.com>
-Subject: Re: reiser4 plugins
-References: <hubert@uhoreg.ca>	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>	<8783be6605062914341bcff7cb@mail.gmail.com>	<878y0svj1h.fsf@evinrude.uhoreg.ca> <42C4F97B.1080803@slaphack.com> <87ll4lynky.fsf@evinrude.uhoreg.ca> <42CB0328.3070706@namesys.com> <42CB07EB.4000605@slaphack.com> <42CB0ED7.8070501@namesys.com> <42CB1128.6000000@slaphack.com> <42CB1C20.3030204@namesys.com> <42CB22A6.40306@namesys.com> <42CBE426.9080106@slaphack.com> <42D1F06C.9010905@stesmi.com> <42D2DB99.9050307@slaphack.com> <42D2DCA0.1040106@stesmi.com>
-In-Reply-To: <42D2DCA0.1040106@stesmi.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Jul 2005 18:12:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:58076 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262828AbVGKWDt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 18:03:49 -0400
+Cc: jan@mind.be
+Subject: [PATCH] I2C: Documentation fix
+In-Reply-To: <11211193781619@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 11 Jul 2005 15:02:58 -0700
+Message-Id: <11211193783332@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Smietanowski wrote:
+[PATCH] I2C: Documentation fix
 
->
-> I think "..." and ".meta" both serve as a logical delimiter. However
-> some programs implement their own "..." which would make it clash with
-> them. Naturally if some program created a directory called .meta we're
-> equally screwed.
+Fix documentation to match code in include/linux/i2c-dev.h
 
-I chose '....' (four dots) because it clashes with less, not three dots.
+Signed-off-by: Jan Veldeman <jan@mind.be>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+commit a68e2f4895070f3a449bfe5ae1174b73cc900642
+tree 76f3e9e4da1f261687b51aad6c8be3534788e63f
+parent 61f5809d3ebce9d5433b8696048e91405b681023
+author Jan Veldeman <jan@mind.be> Fri, 01 Jul 2005 16:20:24 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 11 Jul 2005 14:10:37 -0700
+
+ Documentation/i2c/dev-interface |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
+--- a/Documentation/i2c/dev-interface
++++ b/Documentation/i2c/dev-interface
+@@ -97,10 +97,10 @@ ioctl(file,I2C_PEC,long select)
+ ioctl(file,I2C_FUNCS,unsigned long *funcs)
+   Gets the adapter functionality and puts it in *funcs.
+ 
+-ioctl(file,I2C_RDWR,struct i2c_ioctl_rdwr_data *msgset)
++ioctl(file,I2C_RDWR,struct i2c_rdwr_ioctl_data *msgset)
+ 
+   Do combined read/write transaction without stop in between.
+-  The argument is a pointer to a struct i2c_ioctl_rdwr_data {
++  The argument is a pointer to a struct i2c_rdwr_ioctl_data {
+ 
+       struct i2c_msg *msgs;  /* ptr to array of simple messages */
+       int nmsgs;             /* number of messages to exchange */
+

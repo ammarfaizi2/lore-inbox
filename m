@@ -1,94 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVGKMt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVGKMuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVGKMt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 08:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVGKMt0
+	id S261660AbVGKMuu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 08:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVGKMuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 08:49:26 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:44218 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S261657AbVGKMtZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 08:49:25 -0400
-Subject: Re: [PATCH] Apple USB Touchpad driver (new)
-From: Stelian Pop <stelian@popies.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Frank Arnold <frank@scirocco-5v-turbo.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Andrew Morton <akpm@osdl.org>, Peter Osterlund <petero2@telia.com>
-In-Reply-To: <20050711112121.GA24345@ucw.cz>
-References: <20050708101731.GM18608@sd291.sivit.org>
-	 <1120821481.5065.2.camel@localhost>
-	 <20050708121005.GN18608@sd291.sivit.org> <20050709191357.GA2244@ucw.cz>
-	 <m33bqnr3y9.fsf@telia.com> <20050710120425.GC3018@ucw.cz>
-	 <m3y88e9ozu.fsf@telia.com>
-	 <1121078371.12621.36.camel@localhost.localdomain>
-	 <20050711110024.GA23333@ucw.cz>
-	 <1121080115.12627.44.camel@localhost.localdomain>
-	 <20050711112121.GA24345@ucw.cz>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 11 Jul 2005 14:47:53 +0200
-Message-Id: <1121086073.5021.16.camel@localhost.localdomain>
+	Mon, 11 Jul 2005 08:50:50 -0400
+Received: from rhodium.liacs.nl ([132.229.131.16]:50148 "EHLO rhodium.liacs.nl")
+	by vger.kernel.org with ESMTP id S261660AbVGKMuo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 08:50:44 -0400
+Date: Mon, 11 Jul 2005 14:48:44 +0200
+From: Lennert Buytenhek <buytenh+lkml@liacs.nl>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       "David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
+       matthew@wil.cx, grundler@parisc-linux.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, greg@kroah.com, ambx1@neo.rr.com
+Cc: byjac@matfyz.cz, herbertb@cs.vu.nl
+Subject: Re: [patch 2.6.13-rc2] pci: restore BAR values from pci_set_power_state for D3hot->D0
+Message-ID: <20050711144844.A16143@tin.liacs.nl>
+References: <20050708095104.A612@den.park.msu.ru> <20050707.233530.85417983.davem@davemloft.net> <20050708110358.A8491@jurassic.park.msu.ru> <20050708.003333.28789082.davem@davemloft.net> <20050708122043.A8779@jurassic.park.msu.ru> <20050708183452.GB13445@tuxdriver.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050708183452.GB13445@tuxdriver.com>; from linville@tuxdriver.com on Fri, Jul 08, 2005 at 02:34:56PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le lundi 11 juillet 2005 à 13:21 +0200, Vojtech Pavlik a écrit :
-> On Mon, Jul 11, 2005 at 01:08:35PM +0200, Stelian Pop wrote:
-> 
-> > Possible. The 'fuzz' parameter in input core serves too many usages
-> > ihmo. Let me try removing the quick motion compensation and see...
-> 
-> It was designed for joysticks and works very well for them. Usefulness
-> for other device types may vary. And I'll gladly accept patches to
-> improve it.
+On Fri, Jul 08, 2005 at 02:34:56PM -0400, John W. Linville wrote:
 
-Ok, I understand now what is happenning, but I'm not sure how to solve
-the problem. As I suspected, it is caused by 'fuzz' being a bit abused
-by the input core.
+> Some PCI devices lose all configuration (including BARs) when
+> transitioning from D3hot->D0.  This leaves such a device in an
+> inaccessible state.  The patch below causes the BARs to be restored
+> when enabling such a device, so that its driver will be able to
+> access it.
 
-The fuzz parameter in the input core is used today to say:
-	* any change in the -fuzz/2 / +fuzz/2 range is ignored
-	* any change in the -fuzz / +fuzz range is smoothed using x_old * 3 +
-x) / 4;
-	* any change in the -fuzz*2 / +fuzz/2 range is smoothed using x_old
-+x) / 2;
+It might be useful to have this functionality exported to outside of
+the generic PCI code.
 
-My driver needs to ignore changes in the -8 / +8 range (that's why I set
-FUZZ to 16 in the first place), but it needs to smooth the movement when
-much larger changes occur (I would need to set FUZZ to 64 for smoothing
-to work correctly here).
+There are a number of PCI boards that have their reset logic wired
+up wrong and lose their config space info (BARs) when you reset them.
+The Radisys ENP2611 PCI board is a good example -- it has its reset
+logic wired in such a way that if you reset the (ARM-based) CPU on
+the board, it also causes the 21555 nontransparent PCI bridge on the
+board to be reset, which makes it lose all its primary config space
+info (BARs, etc.)  The IXP1200 CPU-based PCI cards (now obsolete)
+used to suffer from the same issue.
 
-How to make it work ? Obviously I could implement either fuzz
-elimination or smoothing in the driver, and leave the other
-transformation to the input core (today it is the smoothing which is in
-the driver, but doing it the other way around would result in much less
-code).
+This is currently worked around in the driver, which caches all BAR
+values when the module is first loaded, and detects when the card is
+reset and then writes back all BARs manually.
 
-The other (proper ?) solution would be to change the input core and
-separate fuzz and smoothing. This would however require an API addition,
-and I'm not sure you want to do that. If you do, I could work on a patch
-implementing an inputdev->abssmooth[] table, etc).
 
-> > I thought the hardware is capable of calculating real pressure...
-> 
-> Since the sensor is just a multi-layer PCB with a clever trace layout,
-> it can't.
-> 
-> > > > I don't think this value is reliable enough to be reported to the
-> > > > userspace as ABS_PRESSURE...
-> > > 
-> > > I believe it'd still be more useful than a two-value (0 and 100) output.
-> > 
-> > Ok, I'll do it.
-> 
-> Thanks. Should I wait for that or apply the patch you just sent?
-
-Well, it depends on what we do with smoothing.
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
-
+--L

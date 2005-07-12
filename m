@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVGLShZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVGLSkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbVGLShZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 14:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVGLShY
+	id S262030AbVGLSkP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 14:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVGLSj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 14:37:24 -0400
-Received: from taxbrain.com ([64.162.14.3]:24282 "EHLO petzent.com")
-	by vger.kernel.org with ESMTP id S262074AbVGLShH (ORCPT
+	Tue, 12 Jul 2005 14:39:59 -0400
+Received: from [192.94.73.30] ([192.94.73.30]:31201 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S262030AbVGLSjS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 14:37:07 -0400
-Message-ID: <02ad01c58710$ab9851c0$4b010059@petzent.com>
-From: "karl malbrain" <karl@petzent.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6.9: serial_core: uart_open
-Date: Tue, 12 Jul 2005 11:36:51 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-Spam-Processed: petzent.com, Tue, 12 Jul 2005 11:33:10 -0700
-	(not processed: message from valid local sender)
-X-Return-Path: karl@petzent.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: petzent.com, Tue, 12 Jul 2005 11:33:14 -0700
+	Tue, 12 Jul 2005 14:39:18 -0400
+From: Jim Nance <jlnance@sdf.lonestar.org>
+Date: Tue, 12 Jul 2005 18:38:59 +0000
+To: Peter Staubach <staubach@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel header policy
+Message-ID: <20050712183859.GA21230@SDF.LONESTAR.ORG>
+References: <200507120206.j6C26kGY017571@laptop11.inf.utfsm.cl> <42D3C51D.3020703@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42D3C51D.3020703@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The uart_open code loops waiting for CD to be asserted (whenever CLOCAL 
-is not set).  The bottom of the loop contains the following code:
+On Tue, Jul 12, 2005 at 09:26:53AM -0400, Peter Staubach wrote:
 
-up(&state->sem);
-schedule();
-down(&state->sem);
+> I must admit a little confusion here.  Clearly, kernel header files are
+> used at the user level.  The kernel and user level applications must share
+> definitions for a great many things.
 
-if( signal_pending(current) )
-   break;
+Perhaps a little history would help.  In the beginning, the kernel was
+written with the intention that userland would be including the headers.
+And libc did include the kernel headers.
 
-When I issue an open("/dev/ttyS1", O_RDWR) from a terminal session on 
-the console, the system seems to come to a stop in this loop until the 
-process is killed.  I suspect that the scheduler is choosing this process
-to run again because of an elevated console priority of some sort.
- 
-Is there a kernel mechanism to put a process to sleep until awakened by 
-an event to replace this looping behaviour?
- 
-Thanks, karl malbrain, malbrain-at-yahoo-dot-com
+This did provide an effective way to get new kernel features to show
+up in userland, but it created all sorts of other problems.  Eventually
+it was decided/decreed that userland would NOT include kernel headers.
+Instead, libc would provide a set of headers which would either be
+compatable, or would marshel data into the form the kernel wanted.
 
+I don't remember exactly when this was done, but I believe it was
+some time in the late 90s.  It's been this way a while now.
 
+Thanks,
 
+Jim
+
+-- 
+jlnance@sdf.lonestar.org
+SDF Public Access UNIX System - http://sdf.lonestar.org

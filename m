@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbVGLWpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVGLWpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbVGLWpe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 18:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVGLWnl
+	id S262335AbVGLWpg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 18:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbVGLWne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 18:43:41 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:20266 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261828AbVGLWlO (ORCPT
+	Tue, 12 Jul 2005 18:43:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4573 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262305AbVGLWla (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 18:41:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=tYNtdGigoFdcI9IJLWJzK2KcMwyjeXq7P1D0Zm+QvJgWkUwSainoWCuzzfs67ODxz8eP5D1gm2J7Zii0UVxiKZM9UoTBTEwfW2B/BjwONlsd/3LWQgLlWohaxJfZHoKlFPx52czHSTBGe4pqHl66cYJRmgnvzEUiEd0u/sBpNAk=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>, Tom Duffy <tduffy@sun.com>
-Subject: Re: [PATCH 3/27] Add MAD helper functions
-Date: Wed, 13 Jul 2005 02:48:07 +0400
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-References: <1121203934.14638.27.camel@duffman> <20050712221725.GB14316@mellanox.co.il>
-In-Reply-To: <20050712221725.GB14316@mellanox.co.il>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 12 Jul 2005 18:41:30 -0400
+Date: Tue, 12 Jul 2005 15:38:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hal Rosenstock <halr@voltaire.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org, rolandd@cisco.com
+Subject: Re: [PATCH 0/29v2] InfiniBand core update
+Message-Id: <20050712153859.7b757c4a.akpm@osdl.org>
+In-Reply-To: <1121206549.4382.10.camel@hal.voltaire.com>
+References: <1121110249.4389.4984.camel@hal.voltaire.com>
+	<20050711170548.31605e23.akpm@osdl.org>
+	<1121136330.4389.5093.camel@hal.voltaire.com>
+	<20050711201117.72539977.akpm@osdl.org>
+	<1121206549.4382.10.camel@hal.voltaire.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507130248.08387.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 July 2005 02:17, Michael S. Tsirkin wrote:
-> Quoting r. Tom Duffy <tduffy@sun.com>:
-> > These seem to be mostly coming from cpu_to_be*() and be*_to_cpu().  Is
-> > there a good rule of thumb for fixing these warnings?
+Hal Rosenstock <halr@voltaire.com> wrote:
+>
+> On Mon, 2005-07-11 at 23:11, Andrew Morton wrote:
+> > Well I was asking.  Do you guys think that this material is appropriate to
+> > and safe enough for 2.6.13?
 > 
-> Yes.
-> Use attributes like __be32 and friends appropriately.
+> I used your versions of the patches (Tom's ucm one is needed and you
+> added that). I also back ported the trailing whitespace elimination
+> changes.
+> 
+> I just completed a regression test including uCM, CM, RMPP, OpenSM,
+> IPoIB and it looks good to me.
+> 
 
-ITYM types. ;-)
+OK, well the timing of a merge is mainly up to you guys, especially as the
+subsystem is pretty raw and you're the only people who use it ;)
 
-Tom, see, for example, drivers/infiniband/core/sysfs.c:
-----------------------------------------------------------------------------
-   313          in_mad->mad_hdr.attr_id       = cpu_to_be16(0x12); /* PortCounters */
-----------------------------------------------------------------------------
-drivers/infiniband/core/sysfs.c:313:32: warning: incorrect type in assignment (different base types)
-drivers/infiniband/core/sysfs.c:313:32:    expected unsigned short [unsigned] [usertype] attr_id
-drivers/infiniband/core/sysfs.c:313:32:    got restricted unsigned short [usertype] [force] <noident>
-----------------------------------------------------------------------------
-Grepping for attr_id in drivers/infiniband/ shows that:
-1) in_mad->attr_id is set to IB_SMP_ATTR_NODE_INFO (network order)
-2) mad->mad_hdr.attr_id is compared with IB_SMP_ATTR_PORT_INFO (network order)
-3) *->mad_hdr.attr_id is set to big-endian value
+Two things from a quick scan:
 
-All this suggests that struct ib_mad_hdr::attr_id should be __be16 instead of
-u16. So, if attr_id is really something big-endian (infiniband people should
-know), convert it. If not (unlikely) all those cpu_to_be16() and htons() are
-bogus.
+a) In many places the patch does
 
-HO-WE-VER, be careful and don't blindly shut up sparse. Its warnings exist to
-uncover real bugs.
+	if (p)
+		kfree(p);
+
+   But kfree(0) is permitted.  The cleanup police will be after you at
+   some stage - it'd be best to fix those things up immediately.
+
+b) The patch exports a ton of symbols to non-GPL modules:
+
++EXPORT_SYMBOL(ib_create_ah_from_wc);
++EXPORT_SYMBOL(ib_modify_mad);
++EXPORT_SYMBOL(ib_create_send_mad);
++EXPORT_SYMBOL(ib_free_send_mad);
++EXPORT_SYMBOL(ib_coalesce_recv_mad);
++EXPORT_SYMBOL(ib_sa_service_rec_query);
++EXPORT_SYMBOL(ib_create_cm_id);
++EXPORT_SYMBOL(ib_destroy_cm_id);
++EXPORT_SYMBOL(ib_cm_listen);
++EXPORT_SYMBOL(ib_send_cm_req);
++EXPORT_SYMBOL(ib_send_cm_rep);
++EXPORT_SYMBOL(ib_send_cm_rtu);
++EXPORT_SYMBOL(ib_send_cm_dreq);
++EXPORT_SYMBOL(ib_send_cm_drep);
++EXPORT_SYMBOL(ib_send_cm_rej);
++EXPORT_SYMBOL(ib_send_cm_mra);
++EXPORT_SYMBOL(ib_send_cm_lap);
++EXPORT_SYMBOL(ib_send_cm_apr);
++EXPORT_SYMBOL(ib_send_cm_sidr_req);
++EXPORT_SYMBOL(ib_send_cm_sidr_rep);
++EXPORT_SYMBOL(ib_cm_establish);
++EXPORT_SYMBOL(ib_cm_init_qp_attr);
+
+   Why?

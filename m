@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbVGLUo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbVGLUok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbVGLUo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 16:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVGLUmt
+	id S262391AbVGLUok (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 16:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVGLUoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 16:42:49 -0400
-Received: from totor.bouissou.net ([82.67.27.165]:54182 "EHLO
-	totor.bouissou.net") by vger.kernel.org with ESMTP id S261945AbVGLUkz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 16:40:55 -0400
-From: Michel Bouissou <michel@bouissou.net>
-Organization: Me, Myself and I
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
-Date: Tue, 12 Jul 2005 22:40:53 +0200
-User-Agent: KMail/1.7.2
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0507121440020.6281-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0507121440020.6281-100000@iolanthe.rowland.org>
+	Tue, 12 Jul 2005 16:44:32 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:5097 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262397AbVGLUoP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 16:44:15 -0400
+Message-ID: <42D42B91.3080608@us.ibm.com>
+Date: Tue, 12 Jul 2005 13:44:01 -0700
+From: Vara Prasad <prasadav@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+CC: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
+       richardj_moore@uk.ibm.com
+Subject: Re: Merging relayfs?
+References: <17107.6290.734560.231978@tut.ibm.com> <Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl> <17107.57046.817407.562018@tut.ibm.com> <Pine.BSO.4.62.0507121731290.6919@rudy.mif.pg.gda.pl> <17107.61271.924455.965538@tut.ibm.com> <Pine.BSO.4.62.0507121840260.6919@rudy.mif.pg.gda.pl> <17107.64629.717907.706682@tut.ibm.com> <Pine.BSO.4.62.0507121935500.6919@rudy.mif.pg.gda.pl> <17108.1906.628755.613285@tut.ibm.com> <Pine.BSO.4.62.0507122026520.6919@rudy.mif.pg.gda.pl> <17108.5721.202275.377020@tut.ibm.com> <Pine.BSO.4.62.0507122127300.6919@rudy.mif.pg.gda.pl>
+In-Reply-To: <Pine.BSO.4.62.0507122127300.6919@rudy.mif.pg.gda.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200507122240.53390@totor.bouissou.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Mardi 12 Juillet 2005 20:57, Alan Stern a écrit :
-> On the other hand, _something_ was generating an interrupt request that
-> got mapped to IRQ 21 by the hardware.  And these requests do seem to be
-> associated with USB activity.  Maybe the EHCI controller is responsible?
-> One of your postings showed both uhci_hcd:usb2 and ehci_hcd:usb4 mapped to
-> IRQ 11.  That could indicate a shared signal line, which is currently
-> being mapped incorrectly.
+Tomasz K³oczko wrote:
+
+> On Tue, 12 Jul 2005, Tom Zanussi wrote:
+> [..]
 >
-> You can test this a couple of ways.  The easiest is to rmmod ehci_hcd, or
-> prevent it from being loaded in the first place, by renaming
-> /lib/modules/.../drivers/usb/host/ehci_hcd.ko so that modprobe can't find
-> it.  Also your BIOS may offer the option of disabling USB 2.0 support
-> entirely.  Try doing this under the kernel that has the test patch
-> installed.
+>> > This is much more simpler and much better for control (also from 
+>> point of
+>> > view caching bugs in agregator code -> also from point of view kernel
+>> > stability).
+>> >
+>> > Also .. probably some code for handle i.e. counters cen be the same as
+>> > existing code in current kernel.
+>> > Probably some "atomic" (and/or simpler) agregators can be usefull 
+>> in other
+>> > places in kernel for collecting some data during all time when system
+>> > works .. so code for handle this can be reused in non-ocasinal
+>> > tracing/measuring.
+>> > And again: all without things like relayfs.
+>>
+>> Well, you should check out the sytemtap project.  It's basically a
+>> DTrace clone which is already doing these kinds of things with
+>> kprobes, and it's using relayfs...
+>
+>
+> Probaly by this it will be harder to say "KProbes it is Solaris DTrace
+> clone".
+>
+I have not looked at Dtrace code but based on their USENIX paper looks 
+like we can not call Systemtap as Dtrace clone without a buffering 
+scheme like relayfs.
 
-I've tested as you suggest :
+> kloczek
 
-- Disabled USB 2.0 in BIOS
 
-- Renamed ehci_hcd.ko so that modprobe can't find it
 
-- Booted the test-patched kernel with same options as previously, MOUSE 
-UNPLUGGED.
-
-- After boot "cat /proc/interrupts" shows "0" count for IRQ 21
-
-- Nothing special isn't logged anymore in dmesg or /var/log/messages.
-
-- Plugging / unplugging the mouse or other devices doesn't cause anything 
-visible to happen. Nothing gets logged, IRQ 21 counter stays at 0. I could as 
-well not have done it ;-)
-
-> Without ehci_hcd loaded, the EHCI controller should not generate any
-> interrupt requests.  If your problem then goes away, and plugging or
-> unplugging the mouse doesn't cause anything unusual to happen, that will
-> be a pretty clear indication.
-
-Well, so that's a pretty clear indication, but surely clearer to you than to 
-me ;-)
-
-So, what's up, doc ? ;-))
-
--- 
-Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E

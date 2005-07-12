@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVGLTpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVGLTvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbVGLTpN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 15:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbVGLTnn
+	id S262314AbVGLTvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 15:51:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVGLTvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 15:43:43 -0400
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:31556 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S262349AbVGLTmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 15:42:21 -0400
-Date: Tue, 12 Jul 2005 15:42:20 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: [PATCH/URL] reiserfs: reformat code with Lindent
-Message-ID: <20050712194220.GA28973@locomotive.unixthugs.org>
+	Tue, 12 Jul 2005 15:51:24 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48903 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262314AbVGLTvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 15:51:24 -0400
+Date: Tue, 12 Jul 2005 21:51:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: len.brown@intel.com
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] enable ACPI_HOTPLUG_CPU automatically if HOTPLUG_CPU=y
+Message-ID: <20050712195120.GH4034@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Linux 2.6.5-7.151-smp (i686)
-X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
-X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- The ReiserFS code is a mix of a number of different coding styles, sometimes
- different even from line-to-line. Since the code has been relatively stable
- for quite some time and there are few outstanding patches to be applied, it
- is time to reformat the code to conform to the Linux style standard outlined
- in Documentation/CodingStyle.
+Does the combination
+- HOTPLUG_CPU=y
+- ACPI_PROCESSOR=y
+- ACPI_HOTPLUG_CPU=n
+make any sense?
 
- This patch contains the result of running scripts/Lindent against
- fs/reiserfs/*.c and include/linux/reiserfs_*.h. There are places where the
- code can be made to look better, but I'd rather keep those patches separate
- so that there isn't a subtle by-hand hand accident in the middle of a huge
- patch. To be clear: This patch is reformatting *only*.
 
- A number of patches may follow that continue to make the code more consistent
- with the Linux coding style.
+If not, please apply this patch.
 
- Hans wasn't particularly enthusiastic about these patches, but said he
- wouldn't really oppose them either.
 
- Due to the size of this patch (1.5M), I've posted it at:
- ftp://ftp.suse.com/pub/people/jeffm/reiserfs/kernel-v2.6/cleanups/2.6.13-rc2/01-reiserfs-lindent.diff
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
- -Jeff
+--- linux-2.6.13-rc2-mm2-full/drivers/acpi/Kconfig.old	2005-07-12 21:45:41.000000000 +0200
++++ linux-2.6.13-rc2-mm2-full/drivers/acpi/Kconfig	2005-07-12 21:46:04.000000000 +0200
+@@ -153,12 +153,10 @@
+ 	  support it.
+ 
+ config ACPI_HOTPLUG_CPU
+-	bool "Processor Hotplug (EXPERIMENTAL)"
+-	depends on ACPI_PROCESSOR && HOTPLUG_CPU && EXPERIMENTAL
++	bool
++	depends on ACPI_PROCESSOR && HOTPLUG_CPU
+ 	select ACPI_CONTAINER
+-	default n
+-	 ---help---
+-	 Select this option if your platform support physical CPU hotplug.
++	default y
+ 
+ config ACPI_THERMAL
+ 	tristate "Thermal Zone"
 
--- 
-Jeff Mahoney
-SuSE Labs

@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbVGLXaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVGLXiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbVGLXaN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 19:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbVGLXaN
+	id S262359AbVGLXiF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 19:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVGLXiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 19:30:13 -0400
-Received: from delta.securenet-server.net ([72.9.248.26]:64395 "EHLO
-	delta.securenet-server.net") by vger.kernel.org with ESMTP
-	id S262444AbVGLXaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 19:30:04 -0400
-Message-ID: <42D4526E.2040409@machinehasnoagenda.com>
-Date: Wed, 13 Jul 2005 09:29:50 +1000
-From: "Shayne O'Connor" <forums@machinehasnoagenda.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+	Tue, 12 Jul 2005 19:38:05 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:42878 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262359AbVGLXhx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 19:37:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=h6pPBFcBtTp2M9ytiBZf+4Ob2QRCVkLc6MFxnDJBr6L1aD5mf3lhK9vE6+O+5AmQAHfKcuknHp3qAOrCZlKH2Zz2iWsaNtyu89g/vcsRJQEprNBcCKwY+u1ZHR0J0MmBnu8cG9KdMCRpo14CQkGnP/RQmfnDyZ8lv6ZH/DY6XaU=
+Message-ID: <42D45438.6040409@gmail.com>
+Date: Tue, 12 Jul 2005 19:37:28 -0400
+From: Keenan Pepper <keenanpepper@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: A list for linux audio users <linux-audio-user@music.columbia.edu>
-CC: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [linux-audio-user] Problems appling realtime preempt patch to
- 2.6.12
-References: <42D38C00.1040800@telus.net>	<42D3C152.2010602@machinehasnoagenda.com>	<42D420B9.5070401@telus.net> <1121200732.10580.19.camel@mindpipe> <42D42F9A.40806@telus.net>
-In-Reply-To: <42D42F9A.40806@telus.net>
+To: Lee Revell <rlrevell@joe-job.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: realtime-preempt + reiser4?
+References: <42D4201A.9050303@gmail.com> <1121198723.10580.10.camel@mindpipe>
+In-Reply-To: <1121198723.10580.10.camel@mindpipe>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-PopBeforeSMTPSenders: forums@machinehasnoagenda.com,machine@machinehasnoagenda.com,shunichi@machinehasnoagenda.com
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - delta.securenet-server.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - machinehasnoagenda.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Iain Duncan wrote:
->>>> yeah, i got this as well ... hasn't seemed to have any noticeable 
->>>> effects, though.
->>>
->>>
->>> Huh? Does that mean the kernel image is built anyway? I was under the 
->>> impression that it meant it didn't finish compiling? Am I confused?
->>
->>
->>
->> If the error was in building a module that you don't use, then it would
->> be harmless.  This seems to be the case.
-> 
-> 
-> Ah, excuse my ignorance please, but does that mean the rest *did* build, 
-> or I need to somehow comment out building that module and do it again? 
-> And if so, how would I do that? In the kernel makefile?
-> 
+Lee Revell wrote:
+> Maybe you could apply the broken out reiser4 patches from -mm and the
+> realtime preempt patches.  Testing with PREEMPT_DESKTOP and latency
+> tracing enabled will tell you whether reiser4 has any latency hot spots.
 
-hmmm ... when i built mine, i didn't get that message until doing:
+I'm trying this now and it's not exactly trivial; the patches conflict 
+in some places so I had to fix by hand. Now I've got it almost compiled 
+but it says:
 
-sudo make modules_install
+fs/built-in.o: In function `kcond_wait':
+: undefined reference to `there_is_no_init_MUTEX_LOCKED_for_RT_semaphores'
+fs/built-in.o: In function `kcond_timedwait':
+: undefined reference to `there_is_no_init_MUTEX_LOCKED_for_RT_semaphores'
 
-... it went through the process of installing the modules, and then - 
-the very last line - it gave me:
+I naively changed these two calls from
 
-> : undefined reference to `there_is_no_init_MUTEX_LOCKED_for_RT_semaphores' 
+init_MUTEX_LOCKED(&name);
 
-and it also gave me the same deal when doing:
+to
 
-sudo make install.
+init_MUTEX(&name);
+down(&name);
 
-so, unless it compiled all the drivers/modules *before* exiting with 
-error, i would try to find out the driver/module that is failing to 
-compile, assess whether you need it or not, and try again (using "make 
-gconfig").
+but I'm not sure if that's right. I guess I'll see when I try to boot it!
 
-
-shayne
+Keenan

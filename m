@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVGLMi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVGLMkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbVGLMi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVGLMi2
+	id S261402AbVGLMkx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVGLMig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:38:28 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:42459 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261306AbVGLMgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:36:38 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 7/12] s390: fba dasd i/o errors.
-Date: Tue, 12 Jul 2005 15:36:19 +0300
-User-Agent: KMail/1.5.4
-Cc: akpm@osdl.org, Horst Hummel <horst.hummel@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-References: <OF4C6CD4B3.003279A6-ON4225703C.0039E4A7-4225703C.003A3B95@de.ibm.com>
-In-Reply-To: <OF4C6CD4B3.003279A6-ON4225703C.0039E4A7-4225703C.003A3B95@de.ibm.com>
+	Tue, 12 Jul 2005 08:38:36 -0400
+Received: from gort.metaparadigm.com ([203.117.131.12]:27313 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S261402AbVGLMgP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 08:36:15 -0400
+Message-ID: <42D3B937.6030504@metaparadigm.com>
+Date: Tue, 12 Jul 2005 20:36:07 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: Mariusz Gniazdowski <refuse@wp.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: I have centrino laptop with no freq/voltage tables in BIOS
+References: <20050711141202.GA3735@mordor.lan>
+In-Reply-To: <20050711141202.GA3735@mordor.lan>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507121536.19848.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 July 2005 13:36, Martin Schwidefsky wrote:
-> > > @@ -354,6 +354,8 @@ dasd_fba_build_cp(struct dasd_device * d
-> > >          }
-> > >          cqr->device = device;
-> > >          cqr->expires = 5 * 60 * HZ;         /* 5 minutes */
-> > > +        cqr->retries = 32;
-> >
-> > 2..4 maybe, but 32? This isn't tiny by any account.
-> 
-> Are you arguing the use of the adjective "tiny" or the technical
-> aspects of using 32 as the number of retries for dasd fba?
-> In the dasd driver we use a retry count of 255 as "standard", so
-> 32 is indeed much smaller than that. If you can call it tiny,
-> well who cares??
+Mariusz Gniazdowski wrote:
 
-I meant that 32 retries is too many. Retries tend to multiply.
-If OS does N retries per failed attempt and disk drive does M
-attempts per attempt, you end up with N*M retries.
-Add a few 'retrying' layers, and you have a 'I cannot umount
-this fscking scratched CDROM, maybe tomorrow' type disaster.
+>Hi.
+>I have centrino laptop with no built-in frequency/voltage pairs in
+>BIOS/ACPI. I have found this thread:
+>
+>http://lkml.org/lkml/2005/7/6/101
+>
+>  
+>
+If you read the thread more closely you'll become aware that the static
+table approach is not really practicle. There is no way to find out at
+runtime what voltage variant of Dothan chip your machine has
+(VID#A,VID#B,VID# or VID#D). I became aware of that myself after
+creating a static table patch (which I can send you offlist if you wish
+although you risk running your chip at the wrong voltage unless you know
+which variant of Dothan chip your manufacturer has used).
 
-It's better to err to the smaller number of attempts.
---
-vda
-
+~mc

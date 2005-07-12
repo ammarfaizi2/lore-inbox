@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVGLWR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVGLWVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbVGLWR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 18:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbVGLWRL
+	id S262298AbVGLWVx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 18:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVGLWTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 18:17:11 -0400
-Received: from [194.90.237.34] ([194.90.237.34]:42146 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262028AbVGLWQh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 18:16:37 -0400
-Date: Wed, 13 Jul 2005 01:17:25 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Tom Duffy <tduffy@sun.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: Re: [PATCH 3/27] Add MAD helper functions
-Message-ID: <20050712221725.GB14316@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <1121203934.14638.27.camel@duffman>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Jul 2005 18:19:30 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:24821 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262399AbVGLWSd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 18:18:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=qBN4p1q2DW+KzsQTBfwnO72SSpNMtppmWQt2rYnZnvn6TPUv6t1Ge0eHQWnABqp4I4fQeJvzFbFSvnkpNF01au14xtuDX7HMe9wsAzSevdWBTBZWFlP91yl/uEBLZnmWb7rw+7UHCmB1l/O/qRQZWeGxRiyzJEJc6Q63M0O68tk=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Subject: Re: [PATCH] Runtime fix for intermodule.c
+Date: Wed, 13 Jul 2005 02:25:31 +0400
+User-Agent: KMail/1.8.1
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+References: <20050712213920.GA9714@physik.fu-berlin.de>
+In-Reply-To: <20050712213920.GA9714@physik.fu-berlin.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1121203934.14638.27.camel@duffman>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200507130225.31840.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Tom Duffy <tduffy@sun.com>:
-> These seem to be mostly coming from cpu_to_be*() and be*_to_cpu().  Is
-> there a good rule of thumb for fixing these warnings?
+On Wednesday 13 July 2005 01:39, Adrian Glaubitz wrote:
+> This little patch adds the missing function declaration
+> of the deprecatated function call inter_module_get
+> to the header file include/linux/module.h and the
+> necessary EXPORT_SYMBOL to kernel/intermodule.c. Without
+> the declaration and the EXPORT_SYMBOL any module that requires
+> the inter_module_get call will fail upon loading
+> since the symbol inter_module_get cannot be resolved,
+> applying this patch will make those modules work again.
 
-Yes.
-Use attributes like __be32 and friends appropriately.
+> Affected modules are for example the ltmodem drivers
+> version 8.31a8 for lucent chipsets, they won't
+> work without the fix.
 
--- 
-MST
+Just to be sure I read what I read: you are asking for reexport of a function
+that was officially deprecated 9 months ago on the grounds that said reexport
+would be useful for a crappy [1] proprietary module?
+
+[1] Semi-randomly freezing serial mouse after loading.

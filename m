@@ -1,74 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVGLOLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVGLON2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVGLOLt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 10:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVGLOLs
+	id S261526AbVGLON2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 10:13:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVGLON1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 10:11:48 -0400
-Received: from [24.24.2.56] ([24.24.2.56]:55474 "EHLO ms-smtp-02.nyroc.rr.com")
-	by vger.kernel.org with ESMTP id S261556AbVGLOL1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 10:11:27 -0400
-Subject: Re: "scheduling while atomic" ?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Mateusz Berezecki <mateuszb@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <42D3CEEC.90603@gmail.com>
-References: <42D3C37C.6040401@gmail.com>
-	 <1121175049.6917.19.camel@localhost.localdomain> <42D3CEEC.90603@gmail.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 12 Jul 2005 10:11:11 -0400
-Message-Id: <1121177471.6917.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Jul 2005 10:13:27 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:16035 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261556AbVGLOMI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 10:12:08 -0400
+Date: Tue, 12 Jul 2005 10:12:05 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Michel Bouissou <michel@bouissou.net>
+cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
+In-Reply-To: <200507120954.59522@totor.bouissou.net>
+Message-ID: <Pine.LNX.4.44L0.0507121004080.4996-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 16:08 +0200, Mateusz Berezecki wrote:
+On Tue, 12 Jul 2005, Michel Bouissou wrote:
 
-> Sorry for not being too precise. Yes, your assumptions were correct ;-)
-> I grab a lock using
+> > To try and help pin things down, tomorrow (i.e., Tuesday) I'll send you a
+> > test patch to completely disable the UHCI controllers, leaving them awake
+> > and idle, not generating interrupts.  If you still get those spurious
+> > IRQs, they will have to come from somewhere else.  (Assuming you can
+> > devote server time to this sort of testing...)
 > 
-> spin_lock(&ieee->lock);
-> 
-> and release it using
-> 
-> spin_unlock(&ieee->lock);
-> 
-> there is quite a lot of debugging printk's inbetween. Can this be a cause ?
-> 
+> I'll try my best, although I will have little time for playing with this until 
+> the end of this week, and will be on travel next week. But if you send me a 
+> test patch, I'll try my best to test it.
 
-No.
+Okay, the patch (for 2.6.12) is below.  It does several things:
 
-You previous showed the following output:
+	Prevents the system from reading the port status registers,
+	so the computer won't know when any devices are plugged in.
 
-scheduling while atomic: insmod/0x00000001/12692
- [<c03e7352>] schedule+0x632/0x640
- [<c0119bb1>] __wake_up_common+0x41/0x70
- [<c03e74df>] wait_for_completion+0x8f/0xf0
- [<c0119b50>] default_wake_function+0x0/0x20
- [<c0119b50>] default_wake_function+0x0/0x20
- [<c012e2dd>] queue_work+0x8d/0xa0
- [<c012e070>] __call_usermodehelper+0x0/0x70
- [<c012e1a5>] call_usermodehelper_keys+0xc5/0xd0
- [<c012e070>] __call_usermodehelper+0x0/0x70
- [<c020c028>] sprintf+0x28/0x30
- [<c020955d>] kobject_hotplug+0x29d/0x310
- [<c019fc6e>] sysfs_create_link+0x3e/0x60
- [<c028b601>] class_device_add+0x161/0x1e0
- [<c036f38e>] netdev_register_sysfs+0x3e/0x100
- [<c03650db>] netdev_run_todo+0x1eb/0x220
- [<c0364dce>] register_netdev+0x5e/0x90
+	Makes the system think there always is a device plugged in,
+	so it will never automatically suspend the controllers.
 
-I assume that you call register_netdev in your module. Since this was
-running insmod, this is probably called from the module_init. So what
-reason do you have a lock from beginning to end?  Looking at this, you
-can't call register_netdev while holding a spin_lock since it looks like
-it will schedule.  So the fix is to release whatever spin lock that you
-have before calling register_netdev.
+	Leaves all the interrupt-enable bits turned off, so the
+	controllers won't ever generate an interrupt request.
 
--- Steve
+	Prints a message to the system log every time the interrupt
+	handler is called.
 
+In case it's not already clear, when you install this patch the UHCI 
+controllers will not be useable.
+
+Alan Stern
+
+
+Index: linux-2.6.12/drivers/usb/host/uhci-hub.c
+===================================================================
+--- linux-2.6.12.orig/drivers/usb/host/uhci-hub.c
++++ linux-2.6.12/drivers/usb/host/uhci-hub.c
+@@ -38,6 +38,7 @@ static int uhci_hub_status_data(struct u
+ 	struct uhci_hcd *uhci = hcd_to_uhci(hcd);
+ 	int port;
+ 
++	return 0;
+ 	*buf = 0;
+ 	for (port = 0; port < uhci->rh_numports; ++port) {
+ 		if ((inw(uhci->io_addr + USBPORTSC1 + port * 2) & RWC_BITS) ||
+@@ -154,6 +155,7 @@ static int uhci_hub_control(struct usb_h
+ 		if (to_pci_dev(hcd->self.controller)->vendor ==
+ 				PCI_VENDOR_ID_VIA)
+ 			status ^= USBPORTSC_OC;
++		status = 0;
+ 
+ 		/* UHCI doesn't support C_RESET (always false) */
+ 		wPortChange = lstatus = 0;
+Index: linux-2.6.12/drivers/usb/host/uhci-hcd.c
+===================================================================
+--- linux-2.6.12.orig/drivers/usb/host/uhci-hcd.c
++++ linux-2.6.12/drivers/usb/host/uhci-hcd.c
+@@ -169,6 +169,7 @@ static irqreturn_t uhci_irq(struct usb_h
+ 	 * "HC Halted" status bit is persistent: it is RO, not R/WC.
+ 	 */
+ 	status = inw(io_addr + USBSTS);
++	dev_info(uhci_dev(uhci), "IRQ, status = %x\n", status);
+ 	if (!(status & ~USBSTS_HCH))	/* shared interrupt, not mine */
+ 		return IRQ_NONE;
+ 	outw(status, io_addr + USBSTS);		/* Clear it */
+@@ -282,6 +283,7 @@ static int ports_active(struct uhci_hcd 
+ 	int connection = 0;
+ 	int i;
+ 
++	return 1;
+ 	for (i = 0; i < uhci->rh_numports; i++)
+ 		connection |= (inw(io_addr + USBPORTSC1 + i * 2) & USBPORTSC_CCS);
+ 
+@@ -389,8 +391,10 @@ static int start_hc(struct uhci_hcd *uhc
+ 	/* Turn on PIRQ and all interrupts */
+ 	pci_write_config_word(to_pci_dev(uhci_dev(uhci)), USBLEGSUP,
+ 			USBLEGSUP_DEFAULT);
++#if 0
+ 	outw(USBINTR_TIMEOUT | USBINTR_RESUME | USBINTR_IOC | USBINTR_SP,
+ 		io_addr + USBINTR);
++#endif
+ 
+ 	/* Start at frame 0 */
+ 	outw(0, io_addr + USBFRNUM);
+@@ -757,8 +761,10 @@ static int uhci_resume(struct usb_hcd *h
+ 				0);
+ 		outw(uhci->frame_number, uhci->io_addr + USBFRNUM);
+ 		outl(uhci->fl->dma_handle, uhci->io_addr + USBFLBASEADD);
++#if 0
+ 		outw(USBINTR_TIMEOUT | USBINTR_RESUME | USBINTR_IOC |
+ 				USBINTR_SP, uhci->io_addr + USBINTR);
++#endif
+ 		uhci->resume_detect = 1;
+ 		pci_write_config_word(to_pci_dev(uhci_dev(uhci)), USBLEGSUP,
+ 				USBLEGSUP_DEFAULT);
 

@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVGLVs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVGLVeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbVGLVs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 17:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbVGLVs5
+	id S262432AbVGLVeF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 17:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVGLVeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 17:48:57 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:19600 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262472AbVGLVqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 17:46:30 -0400
-Subject: Re: [patch] suspend: update documentation
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: randy_dunlap <rdunlap@xenotime.net>
-Cc: Pavel Machek <pavel@ucw.cz>, akpm@zip.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050712102407.0fce8b7c.rdunlap@xenotime.net>
-References: <20050712090510.GG1854@elf.ucw.cz>
-	 <20050712102407.0fce8b7c.rdunlap@xenotime.net>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1121204890.13869.175.camel@localhost>
+	Tue, 12 Jul 2005 17:34:00 -0400
+Received: from nwkea-mail-2.sun.com ([192.18.42.14]:46586 "EHLO
+	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
+	id S262432AbVGLVcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 17:32:25 -0400
+Subject: Re: [openib-general] Re: [PATCH 3/27] Add MAD helper functions
+From: Tom Duffy <tduffy@sun.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
+       Hal Rosenstock <halr@voltaire.com>
+In-Reply-To: <200507112238.27856.adobriyan@gmail.com>
+References: <1121089079.4389.4511.camel@hal.voltaire.com>
+	 <200507111839.41807.adobriyan@gmail.com> <42D2B1F1.7000408@sun.com>
+	 <200507112238.27856.adobriyan@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-g0BWh50xghtjubrI/v2O"
+Date: Tue, 12 Jul 2005 14:32:14 -0700
+Message-Id: <1121203934.14638.27.camel@duffman>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 13 Jul 2005 07:48:10 +1000
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.2 (2.2.2-11.fc5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Wed, 2005-07-13 at 03:24, randy_dunlap wrote:
-> On Tue, 12 Jul 2005 11:05:10 +0200 Pavel Machek wrote:
-> 
-> | Update suspend documentation.
-> | 
-> | Signed-off-by: Pavel Machek <pavel@suse.cz>
-> | 
-> | ---
-> | 
-> | diff --git a/Documentation/power/swsusp.txt b/Documentation/power/swsusp.txt
-> | --- a/Documentation/power/swsusp.txt
-> | +++ b/Documentation/power/swsusp.txt
-> | @@ -318,3 +318,10 @@ As a rule of thumb use encrypted swap to
-> |  system is shut down or suspended. Additionally use the encrypted
-> |  suspend image to prevent sensitive data from being stolen after
-> |  resume.
-> | +
-> | +Q: Why we cannot suspend to a swap file?
-> 
-> Q: Why can't we suspend to a swap file?
-> or
-> Q: Why can we not suspend to a swap file?
-> 
-> | +
-> | +A: Because accessing swap file needs the filesystem mounted, and
-> | +filesystem might do something wrong (like replaying the journal)
-> | +during mount. [Probably could be solved by modifying every filesystem
-> | +to support some kind of "really read-only!" option. Patches welcome.]
+--=-g0BWh50xghtjubrI/v2O
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This is wrong. Suspend2 has supported writing to a swap file for a long
-time (since 1.0), without requiring the filesystem to be mounted when
-resuming. We just need to store the bdev and block numbers in the image
-header.
+On Mon, 2005-07-11 at 22:38 +0400, Alexey Dobriyan wrote:
+> $ make allmodconfig >/dev/null
+> $ make C=3D2 CHECK=3D"sparse -Wbitwise" drivers/infiniband/ 2>&1 | tee ..=
+/W_infiniband
+> 	[snip]
+> $ grep -c "warning: " ../W_infiniband
+> 430
 
-Regards,
+These seem to be mostly coming from cpu_to_be*() and be*_to_cpu().  Is
+there a good rule of thumb for fixing these warnings?
 
-Nigel
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
+Thanks,
 
+-tduffy
+
+--=-g0BWh50xghtjubrI/v2O
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC1DbedY502zjzwbwRAiFOAJ46YN78c3tfENRRN9XakEmgA8+Z3gCZAW4C
+931Z28Yzsn/dCj3Co34L8FY=
+=bwJO
+-----END PGP SIGNATURE-----
+
+--=-g0BWh50xghtjubrI/v2O--

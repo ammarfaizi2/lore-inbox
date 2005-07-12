@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVGLK6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVGLLFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbVGLK6F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 06:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVGLK6F
+	id S261322AbVGLLFO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 07:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVGLLFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 06:58:05 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32182 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261320AbVGLK6E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 06:58:04 -0400
-Date: Tue, 12 Jul 2005 12:57:54 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [5/48] Suspend2 2.1.9.8 for 2.6.12: 350-workthreads.patch
-Message-ID: <20050712105754.GA23947@elf.ucw.cz>
-References: <11206164393426@foobar.com> <112061643920@foobar.com> <20050710230441.GC513@infradead.org> <1121150400.13869.22.camel@localhost>
+	Tue, 12 Jul 2005 07:05:14 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11536 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261322AbVGLLFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 07:05:13 -0400
+Date: Tue, 12 Jul 2005 13:05:05 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dwmw2@infradead.org
+Subject: Re: 2.6.13-rc2-mm2
+Message-ID: <20050712110505.GF28243@stusta.de>
+References: <20050712021724.13b2297a.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1121150400.13869.22.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <20050712021724.13b2297a.akpm@osdl.org>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Although it's not mentioned in the changelog, it seems the MTD GIT tree 
+was dropped.
 
-> > Again, why do you think you need this?
-> 
-> 1. If something should be wrong with the freezer, it forms part of a
-> safety net that stops your data on disk being trashed.
+I noticed this because a compile error that was fixed in -mm1 is back.
 
-> 2. Separating out threads doing syncing from threads submitting I/O
-> makes the refrigerator much more reliable, even under extreme load.
+cu
+Adrian
 
-This seems to be red herring. Sometimes sync took way too long (like
-hours) with older kernels and reiserfs, but I believe that has been
-fixed. If not, we need to fix it, anyway; no need to work around it in
-suspend2.
-								Pavel
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

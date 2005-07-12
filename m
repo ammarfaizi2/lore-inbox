@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVGLPNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVGLPSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVGLPNg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 11:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVGLPLh
+	id S261552AbVGLPSN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 11:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVGLPSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 11:11:37 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:61840 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261502AbVGLPKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 11:10:17 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Chris Friesen <cfriesen@nortel.com>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
-In-Reply-To: <15890000.1121180902@[10.10.2.4]>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	 <20050708214908.GA31225@taniwha.stupidest.org>
-	 <20050708145953.0b2d8030.akpm@osdl.org>
-	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
-	 <20050709203920.394e970d.diegocg@gmail.com>
-	 <1120934466.6488.77.camel@mindpipe>  <176640000.1121107087@flay>
-	 <1121113532.2383.6.camel@mindpipe>  <42D2D912.3090505@nortel.com>
-	 <1121128260.2632.12.camel@mindpipe>  <165840000.1121141256@[10.10.2.4]>
-	 <1121141602.2632.31.camel@mindpipe>  <188690000.1121142633@[10.10.2.4]>
-	 <1121178300.2632.51.camel@mindpipe>  <14170000.1121180207@[10.10.2.4]>
-	 <1121180403.2632.59.camel@mindpipe>  <15890000.1121180902@[10.10.2.4]>
-Content-Type: text/plain
-Date: Tue, 12 Jul 2005 11:10:13 -0400
-Message-Id: <1121181014.2632.67.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+	Tue, 12 Jul 2005 11:18:02 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:50160 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261572AbVGLPRA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 11:17:00 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17107.57046.817407.562018@tut.ibm.com>
+Date: Tue, 12 Jul 2005 10:16:38 -0500
+To: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Cc: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
+       richardj_moore@uk.ibm.com
+Subject: Re: Merging relayfs?
+In-Reply-To: <Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl>
+References: <17107.6290.734560.231978@tut.ibm.com>
+	<Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl>
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 08:08 -0700, Martin J. Bligh wrote:
-> Well, looking forward, you'll have sub-HZ timers, so none of this will
-> matter. Actually, looking at the above, 150 seems perfectly reasonable
-> to me, but 300 seems to be close enough. I'll run some numbers on both.
-> 
-> >From your above email, I'm more convinced than ever that lowering HZ is
-> the right thing to do ...
+=?ISO-8859-2?Q?Tomasz_K=B3oczko?= writes:
+ > On Mon, 11 Jul 2005, Tom Zanussi wrote:
+ > 
+ > >
+ > > Hi Andrew, can you please merge relayfs?  It provides a low-overhead
+ > > logging and buffering capability, which does not currently exist in
+ > > the kernel.
+ > >
+ > > relayfs key features:
+ > >
+ > > - Extremely efficient high-speed logging/buffering
+ > 
+ > Usualy/for now relayfs is used as base infrastructure for variuos
+ > debuging/measuring.
+ > IMO storing raw data and transfer them to user space it is wrong way.
+ > Why ? Becase i adds very big overhead for memory nad storage.
+ > Big .. compare to in situ storing partialy analyzed data in conters
+ > and other like it is in DTrace.
+ > 
 
-Which we can live with of course, I just wanted to make sure people were
-aware of the multimedia side of the argument.
+But isn't it supposed to be a good thing to keep analysis out of the
+kernel if possible?  And many things can't be aggregated, such as the
+detailed sequence of events in a trace.  Anyway, it doesn't have to be
+an 'all or nothing' thing.  For some applications it may make sense to
+do some amount of filtering and aggregation in the kernel.  AFAICS
+DTrace takes this to the extreme and does everything in the kernel,
+and IIRC it can't easily be made to general system tracing along the
+lines of LTT, for instance.
 
-Lee
+ > IMO much better will be add base/template set of functions for use in 
+ > KProbes probes which will come with KProbes code as base tool set. It will 
+ > allow cut transfered data size from megabites/gigabyutes to hundret 
+ > bytes/kilo bytes, make debuging/measuring more smooth without additional 
+ > latency for transfer data outside kernel space.
+
+The systemtap project is using kprobes along these lines.
+
+Tom
+
+
 

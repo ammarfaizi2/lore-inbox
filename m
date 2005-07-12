@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVGLNEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVGLNFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVGLNEN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 09:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVGLNEN
+	id S261317AbVGLNFV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 09:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVGLNFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 12 Jul 2005 09:05:21 -0400
+Received: from alog0200.analogic.com ([208.224.220.215]:19657 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261317AbVGLNEN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 12 Jul 2005 09:04:13 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:64174 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261199AbVGLNEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 09:04:11 -0400
-Subject: Re: Merging relayfs?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
-       richardj_moore@uk.ibm.com
-In-Reply-To: <20050712022537.GA26128@infradead.org>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	 <20050712022537.GA26128@infradead.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 12 Jul 2005 09:03:24 -0400
-Message-Id: <1121173404.6917.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Date: Tue, 12 Jul 2005 09:02:42 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i386: Selectable Frequency of the Timer Interrupt
+In-Reply-To: <Pine.LNX.4.61.0507121448240.5529@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.61.0507120857001.2868@chaos.analogic.com>
+References: <Pine.LNX.4.61.0507121448240.5529@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 03:25 +0100, Christoph Hellwig wrote:
-> On Mon, Jul 11, 2005 at 08:10:42PM -0500, Tom Zanussi wrote:
-> > 
-> > Hi Andrew, can you please merge relayfs?  It provides a low-overhead
-> > logging and buffering capability, which does not currently exist in
-> > the kernel.
-> 
-> While the code is pretty nicely in shape it seems rather pointless to
-> merge until an actual user goes with it.
-> 
+On Tue, 12 Jul 2005, Jan Engelhardt wrote:
 
-I have to also say that this is an exception.  How many people out there
-have written a variant of relayfs to do debugging?  It is about time
-that there's a buffer in the kernel that can be written to and later
-retrieved to debug things like the scheduler that printk in all its
-forms just doesn't cut it.
+> Hi,
+>
+>
+> Vojtech Pavlik @ Tue, 12 Jul 2005 14:10:08 +0200 wrote:
+> (http://lkml.org/lkml/2005/7/12/122)
+>
+>> On Mon, Jul 11, 2005 at 05:38:05PM -0700, George Anzinger wrote:
+>>> HZ  	TICK RATE	jiffie(ns)	second(ns)	 error (ppbillion)
+>>>  100	 1193180	10000000	1000000000	       0
+>
+>> The PIT crystal runs at 14.3181818 MHz (CGA dotclock, found on ISA, ...)
+>> and is divided by 12 to get PIT tick rate
+>> 	14.3181818 MHz / 12 = 1193182 Hz
+>
+> What exactly is the frequency of the PIT? Many internet resources say 1193180
+> (including the original post), some say 1193181, and you say 1193182 Hz.
+> Which one is correct? (Ignoring temperature for now..)
+>
 
-I've been working with Tom to get my logdev debugging tool to use
-relayfs as a back end.  This allows for showing output that shows
-exactly what's going on inside the kernel. It keeps the latest data
-around and when/if the kernel crashes, it shows all the events that lead
-up to the crash.  Well, it doesn't automatically show what has happened,
-but you can put print like statements anywhere in any context and the
-latest will be dumped on command or a NMI/panic/oops or whatever.
+The original specification was based upon the NTSC color subcarrier
+frequency of 3.579545. The dotclock is 4 times this:
 
-Once relayfs is added, we need to make a buffer that can be written to
-from multiple CPUS.  I understand that Tom got complaints that the
-buffers were not orignally lockless, and different CPUs would have their
-own buffers.  But this really hurts trying to debug race conditions on
-SMP machines, since you don't get the interleaved output of what's going
-on.  God I need to get KCSP working, and not worry about race conditions
-anymore! :-)
+ 	3.579745 * 4 = 14.31818000
 
--- Steve
+You can type 3.579545 into google and see it's used practically
+everywhere as the magic number that started it all ;^) The
+crooked-earth society uses this for PI (just kidding).
 
 
+> IMO 1193181 could be, because it matches the almost-magical number 0x1234DD.
+>
+>
+> Jan Engelhardt
+> -- 
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

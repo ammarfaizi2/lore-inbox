@@ -1,190 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVGLKN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVGLKSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVGLKN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 06:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVGLKN4
+	id S261301AbVGLKSf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 06:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVGLKSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 06:13:56 -0400
-Received: from ms004msg.fastwebnet.it ([213.140.2.58]:18615 "EHLO
-	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S261282AbVGLKNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 06:13:55 -0400
-Date: Tue, 12 Jul 2005 12:10:34 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Lack of Documentation about SA_RESTART...
-Message-ID: <20050712121034.3f0e84c8@localhost>
-In-Reply-To: <20050712103811.0087a7e3@localhost>
-References: <20050711123237.787dfcde@localhost>
-	<20050711143427.GC14529@thunk.org>
-	<20050712103811.0087a7e3@localhost>
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
+	Tue, 12 Jul 2005 06:18:34 -0400
+Received: from nproxy.gmail.com ([64.233.182.202]:41962 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261301AbVGLKSe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 06:18:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Vn2tTKw1w/SbA/1vY21WlzoseCmHFWcNZmKsImFll2x5kUhKZpKBhM4MWRfRg0co3dJY4lvUYpm9ZwOCTzfM2hktW4UyO53McWmX7w7eyf4UyUu4YKzoXX/l8s7Je9Aily/XpYmBubW/XcUw1fql0sAvVU0gaWgUSWDRgkRupAo=
+Message-ID: <6278d22205071203185a50a104@mail.gmail.com>
+Date: Tue, 12 Jul 2005 11:18:32 +0100
+From: Daniel J Blueman <daniel.blueman@gmail.com>
+Reply-To: Daniel J Blueman <daniel.blueman@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with more than 8 AMD Opteron Cores per System
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Tue__12_Jul_2005_12_10_34_+0200_/wqGGXCRzc93jbxu"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Multipart_Tue__12_Jul_2005_12_10_34_+0200_/wqGGXCRzc93jbxu
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I find the ondemand governor works as expected with 2.6.12 on my
+Athlon64 Winchester [1]; as soon as I bzip2 a file, processor freq is
+pinned at 1.8GHz and drops to 1GHz when idle.
 
-On Tue, 12 Jul 2005 10:38:11 +0200
-Paolo Ornati <ornati@fastwebnet.it> wrote:
+--- [1]
 
-> The particular case you analized (blocking connect interrupted by a
-> SA_RESTART signal) is interesting... and since SUSV3 says
-> 	"but the connection request shall not be aborted, and the
-> 	connection shall be established asynchronously" (with select()
-> 	or poll()...)
-> both for EINPROGRESS and EINTR, I think it's quite stupit to
-> automatically restart it and then return EALREADY.
+$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 31
+model name      : AMD Athlon(tm) 64 Processor 3000+
+stepping        : 0
+cpu MHz         : 1004.646
+cache size      : 512 KB
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext
+fxsr_opt lm 3dnowext 3dnow
+bogomips        : 1988.83
+TLB size        : 1024 4K pages
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 40 bits physical, 48 bits virtual
+power management: ts fid vid ttp
+
+Oliver Weihe wrote:
+> Hello,
 > 
-> The logically correct behaviur with blocking connect interrupted and
-> then restarted should be to continue the blocking wait... IHMO.
-
-it seems that Linux is doing the Right Thing... see the attached
-program...
-
-$ make
-gcc -O2 -Wall -o conntest connect_test.c
-
-
-FROM ANOTHER CONSOLE: this is needed to block connect()...
-# iptables -A OUTPUT -p tcp --dport 3500 -m state --state NEW -j DROP
-
-
-$ ./conntest WITHOUT_SA_RESTART
-connect(): errno = 4		# EINTR, as expected
-Cannot setup client!
-
-
-$ ./conntest	# connect is restarted after SIGALRM, and then it blocks again
-
-
-FROM ANOTHER CONSOLE:
-# iptables -D OUTPUT -p tcp --dport 3500 -m state --state NEW -j DROP
-
-
-and then "conntest" (thanks to TCP protocol retries) will terminate.
-
-
-
-:-)
-
--- 
-	Paolo Ornati
-	Linux 2.6.12.2 on x86_64
-
---Multipart_Tue__12_Jul_2005_12_10_34_+0200_/wqGGXCRzc93jbxu
-Content-Type: text/x-csrc; name=connect_test.c
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=connect_test.c
-
-#include <stdio.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netinet/tcp.h>
-#include <signal.h>
-#include <unistd.h> 
-
-void sighandler(int sig)
-{
-	/* nothing :) */
-}
-
-int setup_alarm_handler(int flags)
-{
-	struct sigaction sa = {
-		.sa_handler = &sighandler,
-		.sa_flags = flags
-	};
-	return sigaction(SIGALRM, &sa, NULL);
-}
-
-int setup_server(int port)
-{
-	int sock;
-	struct sockaddr_in sa = {
-		.sin_family = AF_INET,
-		.sin_port = htons(port),
-		.sin_addr.s_addr = htonl(INADDR_ANY)
-	};
-
-	if ((sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-		goto error;
-	if (bind(sock, (struct sockaddr*)&sa, sizeof(sa)) < 0)
-		goto error_clean;
-	if (listen(sock, 16) < 0)
-		goto error_clean;
-	return sock;
-
- error_clean:
-	close(sock);
- error:
-	return -1;
-}
-
-int setup_client(const char *server, int port)
-{
-	int sock;
-	struct sockaddr_in sa = {
-		.sin_family = AF_INET,
-		.sin_port = htons(port),
-		.sin_addr.s_addr = inet_addr(server)
-	};
-
-	if ((sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-		goto error;
-	if (connect(sock, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
-		printf("connect(): errno = %d\n", errno);
-		goto error_clean;
-	}
-	return sock;
-
- error_clean:
-	close(sock);
- error:
-	return -1;
-}
-
-int main(int argc, char *argv[])
-{
-	int server, client;
-	int flags = SA_RESTART;
-
-	if (argc > 1)
-		flags = 0;
-
-	if (setup_alarm_handler(flags))
-		return 1;
-	
-	server = setup_server(3500);
-	if (server < 0) {
-		printf("Cannot setup server!\n");
-		return 1;
-	}
-	alarm(1);
-	client = setup_client("127.0.0.1", 3500);
-	if (client < 0) {
-		printf("Cannot setup client!\n");
-		return 1;
-	}
-	printf("Ok!\n");
-	return 0;
-}
-
---Multipart_Tue__12_Jul_2005_12_10_34_+0200_/wqGGXCRzc93jbxu
-Content-Type: application/octet-stream; name=Makefile
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=Makefile
-
-Y29ubnRlc3Q6IGNvbm5lY3RfdGVzdC5jCglnY2MgLU8yIC1XYWxsIC1vICRAICQ8Cg==
-
---Multipart_Tue__12_Jul_2005_12_10_34_+0200_/wqGGXCRzc93jbxu--
+> I've two Iwill 8way Opteron equipped with 8 Opteron 875 CPUs each.
+> (In the past we build some systems with singlecore CPUs and they went
+> very well)
+> 
+> The Problem now is that the machines crash during boot when maxcpus is
+> greater than 8.
+> 2.6.12-rc4 works well with maxcpus=8, with 9 or more it freezes after
+> "Testing NMI Watchdog... OK"
+> 
+> 2.6.12-rc5 and above have more problems even with maxcpus=4 or less very
+> early during booting.
+> 
+> 2.6.13-X crashes later during boot (from 2 to 16 cores it's the same
+> behavior)
+> 
+> The last I can so on the console (kernel 2.6.13-rc2-git4, maxcpus=2..16)
+> is:
+> 
+> NET: Registered protocol family 1
+> Using IPI Shortcut mode
+> int3: 0000 [1] SMP
+> CPU4
+> Modules linked in:
+> Freeing unused kernel memory: 212k freed
+> Pid: 0, comm: swapper Not tainted 2.6.13-rc2-git4-default
+> RIP: 0010:[<ffffffff8050fc00>]
+> 
+> After that the machines are totally freezed.
+> 
+> With maxcpus=1 all (tested) versions >=2.6.12-rc3 are able to boot.
+> 
+> Any hints/ideas/what ever?
+> 
+> Regards,
+>    Oliver Weihe
+> 
+> P.S. if you answer CC me ;)
+___
+Daniel J Blueman

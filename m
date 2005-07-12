@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVGLKYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVGLK0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVGLKYA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 06:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVGLKWR
+	id S261328AbVGLK0c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 06:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVGLKYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 06:22:17 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:2751 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S261311AbVGLKWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 06:22:06 -0400
-To: ncunningham@cyclades.com
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [3/48] Suspend2 2.1.9.8 for 2.6.12: 301-proc-acpi-sleep-activate-hook.patch
-In-Reply-To: <1121162866.13869.142.camel@localhost>
-References: <11206164393426@foobar.com> <11206164393081@foobar.com> <20050710230347.GB513@infradead.org> <20050710230347.GB513@infradead.org> <1121150703.13869.27.camel@localhost> <E1DsHMp-00062f-00@chiark.greenend.org.uk> <E1DsHMp-00062f-00@chiark.greenend.org.uk> <1121162866.13869.142.camel@localhost>
-Date: Tue, 12 Jul 2005 11:22:03 +0100
-Message-Id: <E1DsHtr-0001ly-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Tue, 12 Jul 2005 06:24:07 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:57295 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261311AbVGLKXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 06:23:53 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
+       horst.hummel@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 7/12] s390: fba dasd i/o errors.
+Date: Tue, 12 Jul 2005 13:22:09 +0300
+User-Agent: KMail/1.5.4
+References: <20050711163625.GG10822@localhost.localdomain>
+In-Reply-To: <20050711163625.GG10822@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507121322.09610.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@cyclades.com> wrote:
-> On Tue, 2005-07-12 at 19:47, Matthew Garrett wrote:
->> In general, the kernel does very little to prevent users from shooting
->> themselves in the foot (or even chainsawing off their arms). We can do
->> these checks in userspace rather than adding more kernel code.
+On Monday 11 July 2005 19:36, Martin Schwidefsky wrote:
+> [patch 7/12] s390: fba dasd i/o errors.
 > 
-> Just because the kernel does very little, that doesn't mean it should.
-> Particularly for something like suspend to disk, where it's not just a
-> matter of an oops but of potential hard disk corruption, this is
-> important.
+> From: Horst Hummel <horst.hummel@de.ibm.com>
+> 
+> The FBA discipline does not use retries for failed requests. A request
+> fails after the first unsuccessful start attempt. There are some rare
+> conditions (e.g. CIO path recovery) in which the start of an i/o on
+> a fba device can fail. A tiny amount of retries is therefore
+> reasonable.
+> 
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> diffstat:
+>  drivers/s390/block/dasd_fba.c |    4 +++-
+>  1 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff -urpN linux-2.6/drivers/s390/block/dasd_fba.c linux-2.6-patched/drivers/s390/block/dasd_fba.c
+> --- linux-2.6/drivers/s390/block/dasd_fba.c	2005-06-17 21:48:29.000000000 +0200
+> +++ linux-2.6-patched/drivers/s390/block/dasd_fba.c	2005-07-11 17:37:46.000000000 +0200
+> @@ -4,7 +4,7 @@
+>   * Bugreports.to..: <Linux390@de.ibm.com>
+>   * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
+>   *
+> - * $Revision: 1.39 $
+> + * $Revision: 1.40 $
+>   */
+>  
+>  #include <linux/config.h>
+> @@ -354,6 +354,8 @@ dasd_fba_build_cp(struct dasd_device * d
+>  	}
+>  	cqr->device = device;
+>  	cqr->expires = 5 * 60 * HZ;	/* 5 minutes */
+> +	cqr->retries = 32;
 
-The kernel isn't there to protect people. It's there to provide
-functionality.
- 
-> If I could do it in userspace, I would. The trouble is, the userspace
-> app may not be there to tell the user what is happening, and this might
-> be part of the problem.
+2..4 maybe, but 32? This isn't tiny by any account.
 
-You're suggesting that users who are technically competent to compile
-their own kernel and write their own initrd scripts are unable to deal
-with checking whether or not a filesystem is mounted? You don't need an
-application to do that, it's a simple matter of shell scripting. And, in
-almost every case, if something is a simple matter of shell scripting it
-shouldn't be in the kernel.
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+> +	cqr->buildclk = get_clock();
+>  	cqr->status = DASD_CQR_FILLED;
+>  	return cqr;
+>  }
+

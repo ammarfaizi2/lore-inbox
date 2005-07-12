@@ -1,81 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVGLKyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVGLK6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVGLKyY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 06:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVGLKyY
+	id S261320AbVGLK6F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 06:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVGLK6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 06:54:24 -0400
-Received: from nproxy.gmail.com ([64.233.182.206]:5018 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261290AbVGLKyW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 06:54:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Lg5LZfOMukxwBSFRxWdsvhI9Qh4MIMZ763+e2dw9/FWxKp+gsgjwUEA7UPaG6r8I19LNa2B3cTpmflVJvoe5ksYEqoLebYwG654K6NPuMMV6V4HoGjQDirCXPvWL3PhvQBqGvqYbFJWtsZVQbQgDiCJXPc0h9BUJiSe70a38BHQ=
-Message-ID: <6278d2220507120354724648b3@mail.gmail.com>
-Date: Tue, 12 Jul 2005 11:54:21 +0100
-From: Daniel J Blueman <daniel.blueman@gmail.com>
-Reply-To: Daniel J Blueman <daniel.blueman@gmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with more than 8 AMD Opteron Cores per System
-In-Reply-To: <6278d22205071203185a50a104@mail.gmail.com>
+	Tue, 12 Jul 2005 06:58:05 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32182 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261320AbVGLK6E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 06:58:04 -0400
+Date: Tue, 12 Jul 2005 12:57:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Nigel Cunningham <nigel@suspend2.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [5/48] Suspend2 2.1.9.8 for 2.6.12: 350-workthreads.patch
+Message-ID: <20050712105754.GA23947@elf.ucw.cz>
+References: <11206164393426@foobar.com> <112061643920@foobar.com> <20050710230441.GC513@infradead.org> <1121150400.13869.22.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <6278d22205071203185a50a104@mail.gmail.com>
+In-Reply-To: <1121150400.13869.22.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ensure your BIOS supports the stepping of the Opterons you have. Eg, if
-you have the Iwill H8501, BIOS v1.8 [1] covers all the current
-steppings. You may even encounter problems if you mix different
-steppings.
+Hi!
 
---- [1]
+> > Again, why do you think you need this?
+> 
+> 1. If something should be wrong with the freezer, it forms part of a
+> safety net that stops your data on disk being trashed.
 
-http://www.iwill.net/product_2s.asp?p_id=90&tp=BIOS
+> 2. Separating out threads doing syncing from threads submitting I/O
+> makes the refrigerator much more reliable, even under extreme load.
 
-Oliver Weihe wrote:
-> Hello,
->
-> I've two Iwill 8way Opteron equipped with 8 Opteron 875 CPUs each.
-> (In the past we build some systems with singlecore CPUs and they went
-> very well)
->
-> The Problem now is that the machines crash during boot when maxcpus is
-> greater than 8.
-> 2.6.12-rc4 works well with maxcpus=8, with 9 or more it freezes after
-> "Testing NMI Watchdog... OK"
->
-> 2.6.12-rc5 and above have more problems even with maxcpus=4 or less very
-> early during booting.
->
-> 2.6.13-X crashes later during boot (from 2 to 16 cores it's the same
-> behavior)
->
-> The last I can so on the console (kernel 2.6.13-rc2-git4, maxcpus=2..16)
-> is:
->
-> NET: Registered protocol family 1
-> Using IPI Shortcut mode
-> int3: 0000 [1] SMP
-> CPU4
-> Modules linked in:
-> Freeing unused kernel memory: 212k freed
-> Pid: 0, comm: swapper Not tainted 2.6.13-rc2-git4-default
-> RIP: 0010:[<ffffffff8050fc00>]
->
-> After that the machines are totally freezed.
->
-> With maxcpus=1 all (tested) versions >=2.6.12-rc3 are able to boot.
->
-> Any hints/ideas/what ever?
->
-> Regards,
->    Oliver Weihe
->
-> P.S. if you answer CC me ;)
-___
-Daniel J Blueman
+This seems to be red herring. Sometimes sync took way too long (like
+hours) with older kernels and reiserfs, but I believe that has been
+fixed. If not, we need to fix it, anyway; no need to work around it in
+suspend2.
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

@@ -1,137 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVGLHN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVGLHRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbVGLHN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 03:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVGLHN7
+	id S261202AbVGLHRK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 03:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVGLHRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 03:13:59 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:58778 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261221AbVGLHN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 03:13:58 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
-Subject: Re: kernel guide to space
-Date: Tue, 12 Jul 2005 10:12:39 +0300
-User-Agent: KMail/1.5.4
-References: <20050711145616.GA22936@mellanox.co.il>
-In-Reply-To: <20050711145616.GA22936@mellanox.co.il>
+	Tue, 12 Jul 2005 03:17:10 -0400
+Received: from relay.felk.cvut.cz ([147.32.80.7]:37638 "EHLO
+	relay.felk.cvut.cz") by vger.kernel.org with ESMTP id S261202AbVGLHRJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 03:17:09 -0400
+Date: Tue, 12 Jul 2005 09:16:52 +0200
+From: Hamera Erik <HAMERAE@cs.felk.cvut.cz>
+To: Pavel Machek <pavel@ucw.cz>
+CC: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: arm: how to operate leds on zaurus?
+In-Reply-To: <20050711195059.GA2219@elf.ucw.cz>
+Message-ID: <Pine.VMS.3.91-2(vms).1050712090739.8264C-100000@cs.felk.cvut.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507121012.39215.vda@ilport.com.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-FELK-MailScanner: Found to be clean
+X-FELK-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.9, required 5,
+	autolearn=not spam, BAYES_00 -4.90)
+X-FELK-MailScanner-From: hamerae@cs.felk.cvut.cz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 3c. * in types
-> 	Leave space between name and * in types.
-> 	Multiple * dont need additional space between them.
+> > > 2.6.12-rc5 (and newer) does not boot on sharp zaurus sl-5500. It
+> > > blinks with green led, fast; what does it mean? I'd like to verify if
+> > > it at least reaches .c code in setup.c. I inserted this code at
+> > > begining of setup.c:674...
+> > > 
+> > > #define locomo_writel(val,addr) ({ *(volatile u16 *)(addr) = (val); })
+> > > #define LOCOMO_LPT_TOFH         0x80
+> > > #define LOCOMO_LED              0xe8
+> > > #define LOCOMO_LPT0             0x00
+> > > 
+> > >       locomo_writel(LOCOMO_LPT_TOFH, LOCOMO_LPT0 + LOCOMO_LED);
+> > > 
+> > > ...but that does not seem to do a trick -- it only breaks the boot :-(
+> > 
+> > Basically because you do not have access to IO during the early boot.
+> > The easiest debugging solution is to enable CONFIG_DEBUG_LL and
+> > throw a printascii(printk_buf) into printk.c, after vscnprintf.
+> > That might get you some boot messages through the serial port (if
+> > it's implemented it correctly.)
 > 
-> 	struct foo **bar;
+> I'm afraid I do not have serial cable :-(. I'll try to get one [erik,
+> do you have one you don't need?], but zaurus has "little" nonstandard
+> connector.
 
-unless you declare a fuction:
+I am sorry, I sold my SL-5500 before a few days. For build serial 
+cable you need: connector, two negator gates (CMOS 4011, 74HCT00 ...), 
+MAX232 (RS232 voltage level convertor) and DB9 serial connector. Circuit 
+is a bit strange, because Zaurus have inverted TxD and RxD signals.
+All parts I can buy in .cz without problems, only connector I can't.
 
-int*
-function_style_for_easy_grep(...)
-{
-	...
-}
+Yokotashi
 
-I like this style because I can grep for ^function_style_for_easy_grep
-and quickly find function def.
-
-int
-*function_style_for_easy_grep(...) ..
-
-would make it harder.
-
-> 3e. sizeof
-> 	space after the operator
-> 	sizeof a
-
-I use sizeof(a) always (both for sizeof(type) and sizeof(expr)).
-
-> 3i. if/else/do/while/for/switch
-> 	space between if/else/do/while and following/preceeding
-> 	statements/expressions, if any:
 > 
-> 	if (a) {
-> 	} else {
-> 	}
+> Would code above work if executed later?
+> 								Pavel
+> -- 
+> teflon -- maybe it is a trademark, but it should not be.
 > 
-> 	do {
-> 	} while (b);
-
-What's wrong with if(expr) ? Rationale?
-
-> 4c. Breaking long lines
-> 		Descendants are always substantially shorter than the parent
-> 		and are placed substantially to the right.
-> 			Documentation/CodingStyle
-> 
-> 	Descendant must be indented at least to the level of the innermost
-> 	compound expression in the parent. All descendants at the same level
-> 	are indented the same.
-> 	if (foobar(.................................) + barbar * foobar(bar +
-> 				     					foo *
-> 									oof)) {
-> 	}
-
-Avoid this. If needed, use a temporary. Save a few brain cells of poor reader.
- 
-> 6. One-line statement does not need a {} block, so dont put it into one
-> 	if (foo)
-> 		bar;
-
-Disagree. Common case of hard-to-notice bug:
-
-	if(foo)
-		bar()
-...after some time code evolves into:
-	if(foo)
-		/*
-		 * Wee need to barify it, or else pagecache gets foobar'ed
-		 */
-		bar();
-...after some more time:
-	if(foo)
-		/*
-		 * Wee need to barify it, or else pagecache gets foobar'ed.
-		 * Also we need to bazify it.
-		 */
-		bar();
-		baz();
-
-Thus we may be better to slighty encourage use of {}s even if they are
-not needed:
-
-	if(foo) {
-		bar();
-	}
- 
-> 9a. Integer types
-> 	Use unsigned long if you have to fit a pointer into integer.
-
-This is a porting nightmare waiting to happen.
-Why dont we have ptr_t instead? 
-
-> 	long long is at least 64 bit wide on all platforms.
-
-hugeint or hugeint_t
-
-And also irqflags_t for spinlock_irqsave(&lock, flags),
-jiffies_t for jiffies.
- 
-> 9b. typedef
-> 	Using typedefs to hide the data type is generally discouraged.
-> 	typedefs to function types are ok, since these can get very long.
-> 
-> typedef struct foo *(foo_bar_handler)(struct foo *first, struct bar *second,
-> 				      struct foobar* thirsd);
-
-? did you mean struct foo (*foo_bar_handler)(... or  struct foo* foo_bar_handler(...
---
-vda
-

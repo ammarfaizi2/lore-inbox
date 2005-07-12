@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVGLCjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVGLCxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbVGLCjl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 22:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVGLCjk
+	id S261907AbVGLCxR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 22:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbVGLCxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 22:39:40 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12974 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261841AbVGLCiA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 22:38:00 -0400
-Date: Tue, 12 Jul 2005 03:37:57 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Thomas Heinz <thomasheinz@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SCSI DVD-RAM partitions
-Message-ID: <20050712023757.GG26128@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Thomas Heinz <thomasheinz@gmx.net>, linux-kernel@vger.kernel.org
-References: <42CFC3EF.2090804@gmx.net>
+	Mon, 11 Jul 2005 22:53:17 -0400
+Received: from mailgw.voltaire.com ([212.143.27.70]:21714 "EHLO
+	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262201AbVGLCxO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 22:53:14 -0400
+Subject: Re: [PATCH 0/29v2] InfiniBand core update
+From: Hal Rosenstock <halr@voltaire.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
+       Roland Dreier <rolandd@cisco.com>
+In-Reply-To: <20050711170548.31605e23.akpm@osdl.org>
+References: <1121110249.4389.4984.camel@hal.voltaire.com>
+	 <20050711170548.31605e23.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1121136330.4389.5093.camel@hal.voltaire.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42CFC3EF.2090804@gmx.net>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Jul 2005 22:45:31 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 09, 2005 at 02:32:47PM +0200, Thomas Heinz wrote:
-> Is it possible to make the DVD-RAM partitions available as device
-> nodes (or at least directly mountable without the losetup hack)?
-> One solution would be to make the device available as /dev/sdX and
-> /dev/srX. Is that possible?
+On Mon, 2005-07-11 at 20:05, Andrew Morton wrote:
+> Hal Rosenstock <halr@voltaire.com> wrote:
+> >
+> > This is version 2 of a patch series to get the Infiniband core up to
+> > date.
+> 
+> Well that was interesting.
+> 
+> - All the patches had mangled headers:
+> 
+> -- linux-2.6.13-rc2-mm1-16/...
+> +++ linux-2.6.13-rc2-mm1-17/...
+> 
+>   instead of
+> 
+> --- linux-2.6.13-rc2-mm1-16/...
+> +++ linux-2.6.13-rc2-mm1-17/...
 
-While adding support for partitions on sr is trivial it has a huge
-drawback: it's chaning the dev_t space by using up device numbers
-for partitions, so /dev/sr0 ff will have different device numbers
-with that change applied.  I have an old patch that's supposed to
-enable support for partitioned scsi removable devices at
-http://rechner.lst.de/~hch/hacks/sr-parts.diff, I'm not sure it
-actually ever worked (but you should get the basic idea from it)
+Not sure how that happened.
+
+>   Which I fixed up.
+
+Thanks.
+
+> - The second patch didn't apply.  I fixed that too.
+
+Not sure how this was broken. Thanks for fixing this.
+
+> - The patches add lots of trailing whitespace.  I habitually trim that
+>   off, figuring that any downstream merging hassle which that causes is
+>   just punishment ;)
+
+I'll work on merging this back downstream :-(
+
+> Please check that it all landed OK in the next -mm.
+
+Will do.
+
+> I've hung on to Tom Duffy's patch pending a test compilation.
+> 
+> I'll tentatively consider this material to be not-for-2.6.13?
+
+Presuming that "this material" refers to the patch to add the kernel CM
+implementation, if kernel CM does not make 2.6.13, then user CM should
+not either as it is dependent on it.
+
+-- Hal
 

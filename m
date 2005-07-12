@@ -1,89 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbVGLUM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVGLUPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262449AbVGLUM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 16:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVGLUMh
+	id S262333AbVGLUPl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 16:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVGLUPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 16:12:37 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:14216 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262481AbVGLULo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 16:11:44 -0400
-Date: Tue, 12 Jul 2005 22:11:21 +0200
-To: Peter Osterlund <petero2@telia.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: synaptics touchpad not recognized by Xorg X server with recent -mm kernels
-Message-ID: <20050712201121.GA5587@gamma.logic.tuwien.ac.at>
-References: <20050712172504.GD24820@gamma.logic.tuwien.ac.at> <m3fyujq5cf.fsf@telia.com>
+	Tue, 12 Jul 2005 16:15:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57270 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262333AbVGLUPf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 16:15:35 -0400
+Date: Tue, 12 Jul 2005 13:15:19 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Tomasz Lemiech <szpajder@staszic.waw.pl>
+Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org, len.brown@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12.2 acpi_register_gsi() patch causes problems on Asus A7V333 motherboard
+Message-ID: <20050712201519.GB19052@shell0.pdx.osdl.net>
+References: <Pine.LNX.4.63.0507121940170.11987@boss.staszic.waw.pl> <20050712182007.GX19052@shell0.pdx.osdl.net> <Pine.LNX.4.63.0507122153110.24219@boss.staszic.waw.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <m3fyujq5cf.fsf@telia.com>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+In-Reply-To: <Pine.LNX.4.63.0507122153110.24219@boss.staszic.waw.pl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Die, 12 Jul 2005, Peter Osterlund wrote:
-> What's the output from "cat /proc/bus/input/devices"?
+* Tomasz Lemiech (szpajder@staszic.waw.pl) wrote:
+> On Tue, 12 Jul 2005, Chris Wright wrote:
+> 
+> >>- 2.6.12.2 with acpi_register_gsi() one-line fix works without problems
+> 
+> My apologies - I meant: "_without_ acpi_register_gsi() one-line fix". That 
+> is, _reverting_
+> http://www.kernel.org/git/?p=linux/kernel/git/gregkh/linux-2.6.12.y.git;a=commit;h=1ef0867a529b222b8ff659d68140df8d5d6a45f2
+> from 2.6.12.2 fixes the problem.
 
-good (rc1-mm1)
-$ cat /proc/bus/input/devices 
-I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
-N: Name="AT Translated Set 2 keyboard"
-P: Phys=isa0060/serio0/input0
-H: Handlers=kbd event0 
-B: EV=120013 
-B: KEY=4 f2000000 3802078 f870f401 f2ffffdf ffefffff ffffffff ffffffff 
-B: MSC=10 
-B: LED=7 
+Can you verify that the patch below (w/out reverting that patch, apply
+on top of) fixes it for you?
 
-I: Bus=0011 Vendor=0002 Product=0007 Version=0000
-N: Name="SynPS/2 Synaptics TouchPad"
-P: Phys=isa0060/serio1/input0
-H: Handlers=mouse0 event1 
-B: EV=b 
-B: KEY=6420 0 7000f 0 0 0 0 0 0 0 0 
-B: ABS=11000003 
+thanks,
+-chris
+--
 
-I: Bus=0000 Vendor=0000 Product=0000 Version=0000
-N: Name=""
-P: Phys=
-H: Handlers=kbd event2 
-B: EV=3 
-B: KEY=ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff 
+---
 
-bad (rc2-mm2)
-$ cat /proc/bus/input/devices 
-I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
-N: Name="AT Translated Set 2 keyboard"
-P: Phys=isa0060/serio0/input0
-H: Handlers=kbd event0 
-B: EV=120013 
-B: KEY=4 f2000000 3802078 f870f401 f2ffffdf ffefffff ffffffff ffffffff 
-B: MSC=10 
-B: LED=7 
+ drivers/acpi/pci_irq.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-I: Bus=0011 Vendor=0002 Product=0007 Version=0000
-N: Name="SynPS/2 Synaptics TouchPad"
-P: Phys=isa0060/serio1/input0
-H: Handlers=mouse0 event1 
-B: EV=b 
-B: KEY=6420 0 7000f 0 0 0 0 0 0 0 0 
-B: ABS=11000003 
+diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
+--- a/drivers/acpi/pci_irq.c
++++ b/drivers/acpi/pci_irq.c
+@@ -433,7 +433,7 @@ acpi_pci_irq_enable (
+ 		printk(KERN_WARNING PREFIX "PCI Interrupt %s[%c]: no GSI",
+ 			pci_name(dev), ('A' + pin));
+ 		/* Interrupt Line values above 0xF are forbidden */
+-		if (dev->irq >= 0 && (dev->irq <= 0xF)) {
++		if (dev->irq > 0 && (dev->irq <= 0xF)) {
+ 			printk(" - using IRQ %d\n", dev->irq);
+ 			acpi_register_gsi(dev->irq, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW);
+ 			return_VALUE(0);
 
-Best wishes
 
-Norbert
-
--------------------------------------------------------------------------------
-Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-SNITTERFIELD (n.)
-Office noticeboard on which snitters (q.v.), cards saying 'You don't
-have to be mad to work here, but if you are it helps !!!' and slightly
-smutty postcards from Ibiza get pinned up by snitterbies (q.v.)
-			--- Douglas Adams, The Meaning of Liff

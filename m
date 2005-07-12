@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVGLC5K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVGLDGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbVGLC5K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 22:57:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVGLC5J
+	id S261841AbVGLDGN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 23:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVGLDGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 22:57:09 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:28376 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261906AbVGLC4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 22:56:03 -0400
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <200507111538.22551.s0348365@sms.ed.ac.uk>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk>
-	 <20050711141232.GA16586@elte.hu> <20050711141622.GA17327@elte.hu>
-	 <200507111538.22551.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain
-Date: Mon, 11 Jul 2005 22:56:00 -0400
-Message-Id: <1121136960.2632.26.camel@mindpipe>
+	Mon, 11 Jul 2005 23:06:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:21927 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261841AbVGLDGM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 23:06:12 -0400
+Date: Mon, 11 Jul 2005 20:05:56 -0700
+From: Greg KH <greg@kroah.com>
+To: Tom Zanussi <zanussi@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, karim@opersys.com,
+       varap@us.ibm.com, richardj_moore@uk.ibm.com
+Subject: Re: Merging relayfs?
+Message-ID: <20050712030555.GA1487@kroah.com>
+References: <17107.6290.734560.231978@tut.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17107.6290.734560.231978@tut.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 15:38 +0100, Alistair John Strachan wrote:
-> I realise 4KSTACKS is a considerable rework of the IRQ handler, etc. and 
-> probably even more heavily modified by rt-preempt, but is there nothing else 
-> that can be tested before a serial console run?
+On Mon, Jul 11, 2005 at 08:10:42PM -0500, Tom Zanussi wrote:
 > 
+> Hi Andrew, can you please merge relayfs?  It provides a low-overhead
+> logging and buffering capability, which does not currently exist in
+> the kernel.
+> 
+> relayfs key features:
+> 
+> - Extremely efficient high-speed logging/buffering
+> - Simple mechanism for user-space data retrieval
+> - Very short write path
+> - Can be used in any context, including interrupt context
+> - No runtime resource allocation
+> - Doesn't do a kmalloc for each "packet"
+> - No need for end-recipient
+> - Data may remain buffered whether it is consumed or not
+> - Data committed to disk in bulk, not per "packet"
+> - Can be used in circular-buffer mode for flight-recording
 
-Well, netconsole is a lot quicker to set up than serial, but AIUI can
-fail in some cases where serial console succeeds.
+What ever happened to exporting the relayfs file ops, and just using
+debugfs as your controlling fs instead?  As all of the possible users
+fall under the "debug" type of kernel feature, it makes more sense to
+confine users to that fs, right?
 
-Lee 
+thanks,
 
+greg k-h

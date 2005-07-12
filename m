@@ -1,47 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVGLMkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVGLMnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbVGLMkx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVGLMig
+	id S261175AbVGLMnO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVGLMk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:38:36 -0400
-Received: from gort.metaparadigm.com ([203.117.131.12]:27313 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id S261402AbVGLMgP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:36:15 -0400
-Message-ID: <42D3B937.6030504@metaparadigm.com>
-Date: Tue, 12 Jul 2005 20:36:07 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Tue, 12 Jul 2005 08:40:59 -0400
+Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:24256 "EHLO
+	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261175AbVGLMk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 08:40:26 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Date: Tue, 12 Jul 2005 22:39:00 +1000
+User-Agent: KMail/1.8.1
+Cc: Vojtech Pavlik <vojtech@suse.cz>, George Anzinger <george@mvista.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Lee Revell <rlrevell@joe-job.com>, Diego Calleja <diegocg@gmail.com>,
+       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org, torvalds@osdl.org,
+       christoph@lameter.org
+References: <200506231828.j5NISlCe020350@hera.kernel.org> <42D310ED.2000407@mvista.com> <20050712121008.GA7804@ucw.cz>
+In-Reply-To: <20050712121008.GA7804@ucw.cz>
 MIME-Version: 1.0
-To: Mariusz Gniazdowski <refuse@wp.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: I have centrino laptop with no freq/voltage tables in BIOS
-References: <20050711141202.GA3735@mordor.lan>
-In-Reply-To: <20050711141202.GA3735@mordor.lan>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-2
+Content-Type: multipart/signed;
+  boundary="nextPart1318028.KjK24rTyLV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200507122239.03559.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mariusz Gniazdowski wrote:
+--nextPart1318028.KjK24rTyLV
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
->Hi.
->I have centrino laptop with no built-in frequency/voltage pairs in
->BIOS/ACPI. I have found this thread:
+On Tue, 12 Jul 2005 22:10, Vojtech Pavlik wrote:
+> The PIT crystal runs at 14.3181818 MHz (CGA dotclock, found on ISA, ...)
+> and is divided by 12 to get PIT tick rate
 >
->http://lkml.org/lkml/2005/7/6/101
+> 	14.3181818 MHz / 12 =3D 1193182 Hz
 >
->  
+> The reality is that the crystal is usually off by 50-100 ppm from the
+> standard value, depending on temperature.
 >
-If you read the thread more closely you'll become aware that the static
-table approach is not really practicle. There is no way to find out at
-runtime what voltage variant of Dothan chip your machine has
-(VID#A,VID#B,VID# or VID#D). I became aware of that myself after
-creating a static table patch (which I can send you offlist if you wish
-although you risk running your chip at the wrong voltage unless you know
-which variant of Dothan chip your manufacturer has used).
+>     HZ   ticks/jiffie  1 second      error (ppm)
+> ---------------------------------------------------
+>    100      11932      1.000015238      15.2
+>    200       5966      1.000015238      15.2
+>    250       4773      1.000057143      57.1
+>    300       3977      0.999931429     -68.6
+>    333       3583      0.999964114     -35.9
+>    500       2386      0.999847619    -152.4
+>   1000       1193      0.999847619    -152.4
+>
+> Some HZ values indeed fit the tick frequency better than others, up to
+> 333 the error is lost in the physical error of the crystal, for 500 and
+> 1000, it definitely is larger, and thus noticeable.
+>
+> Some (less round and nice) values of HZ would fit even better:
+>
+>     HZ   ticks/jiffie  1 second      error (ppm)
+> ---------------------------------------------------
+>     82      14551      1.000000152       0.2
 
-~mc
+
+Most interesting... Would 838 Hz be a much better choice than 1000 then?=20
+(apart from the ugliness).
+
+Cheers,
+COn
+
+--nextPart1318028.KjK24rTyLV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC07nnZUg7+tp6mRURAldYAJ4g6Av2YKAJFUUwRz3YIIAIYcdlBQCcC5WX
+gK/c+dQKRbK2ldfnJrnYigI=
+=tSrw
+-----END PGP SIGNATURE-----
+
+--nextPart1318028.KjK24rTyLV--

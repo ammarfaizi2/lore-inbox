@@ -1,98 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVGLMQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVGLMUC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261377AbVGLMQL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVGLMNt
+	id S261404AbVGLMUC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:20:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVGLMSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:13:49 -0400
-Received: from nproxy.gmail.com ([64.233.182.196]:65355 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261377AbVGLMNC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:13:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FSPqv7+IDwKwpz+OMd72LgexfIyXr5x2QKJA2SA8/O7eGN9E8GJJOYC34bBjnC6HD3w2y4rb5VrEphuCQETOMNCH8L2f44jL+PkTnirGtFXSFLlpl8aPL/hIc1UETJVykrXxY+VIYf2o3IJilb6PjJnvXfzW1p+vHW1d0UIz/wg=
-Message-ID: <4ad99e05050712051341cf6e3@mail.gmail.com>
-Date: Tue, 12 Jul 2005 14:13:01 +0200
-From: Lars Roland <lroland@gmail.com>
-Reply-To: Lars Roland <lroland@gmail.com>
-To: Rob Mueller <robm@fastmail.fm>
-Subject: Re: 2.6.12.2 dies after 24 hours
-Cc: linux-kernel@vger.kernel.org, Bron Gondwana <brong@fastmail.fm>,
-       Jeremy Howard <jhoward@fastmail.fm>
-In-Reply-To: <021801c586d7$5ebf4090$7c00a8c0@ROBMHP>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 12 Jul 2005 08:18:33 -0400
+Received: from warden3-p.diginsite.com ([208.147.64.186]:43905 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S261385AbVGLMRP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 08:17:15 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+X-X-Sender: dlang@dlang.diginsite.com
+Date: Tue, 12 Jul 2005 05:17:09 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
+In-Reply-To: <200507122202.39988.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.62.0507120507430.9200@qynat.qvtvafvgr.pbz>
+References: <200507122110.43967.kernel@kolivas.org>
+ <Pine.LNX.4.62.0507120446450.9200@qynat.qvtvafvgr.pbz>
+ <200507122202.39988.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Content-Disposition: inline
-References: <01dd01c586c3$cdd525d0$7c00a8c0@ROBMHP>
-	 <4ad99e05050712024319bc7ada@mail.gmail.com>
-	 <021801c586d7$5ebf4090$7c00a8c0@ROBMHP>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/12/05, Rob Mueller <robm@fastmail.fm> wrote:
-> Here's the /proc/interrupts dump:
-> 
->            CPU0       CPU1       CPU2       CPU3
->   0:   11524000          0          0          0    IO-APIC-edge  timer
->   1:          8          0          0          0    IO-APIC-edge  i8042
->   5:          0          0          0          0   IO-APIC-level  acpi
->  14:         13          0          0          0    IO-APIC-edge  ide0
->  16:          2          0          0          0   IO-APIC-level  ibmasm0
->  20:    2978604          0    2338027          0   IO-APIC-level  eth0
->  22:    1321957          0          0          0   IO-APIC-level  ips
->  24:     581291          0          0          0   IO-APIC-level  pci-umem
->  29:     257154          0          0          0   IO-APIC-level  eth1
-> NMI:          0          0          0          0
-> LOC:   11524185   11524201   11524194   11524121
-> ERR:          0
-> MIS:          0
-
-Looks fine to me
+On Tue, 12 Jul 2005, Con Kolivas wrote:
 
 > 
-> I'm not sure about IRQ balancing sorry. How do I tell? The entire boot
-> process output is here:
-> 
-> http://robm.fastmail.fm/kernel/t7/bootdmesg.txt
-> 
-> And the config is here:
-> 
-> http://robm.fastmail.fm/kernel/t7/config.txt
+> On Tue, 12 Jul 2005 21:57, David Lang wrote:
+>> this looks very interesting, however one thing that looks odd to me in
+>> this is the thought of comparing the results for significantly different
+>> hardware.
+>>
+>> for some of the loads you really are going to be independant of the speed
+>> of the hardware (burn, compile, etc will use whatever you have) however
+>> for others (X, audio, video) saying that they take a specific percentage
+>> of the cpu doesn't seem right.
+>>
+>> if I have a 400MHz cpu each of these will take a much larger percentage of
+>> the cpu to get the job done then if I have a 4GHz cpu for example.
+>>
+>> for audio and video this would seem to be a fairly simple scaleing factor
+>> (or just doing a fixed amount of work rather then a fixed percentage of
+>> the CPU worth of work), however for X it is probably much more complicated
+>> (is the X load really linearly random in how much work it does, or is it
+>> weighted towards small amounts with occasional large amounts hitting? I
+>> would guess that at least beyond a certin point the liklyhood of that much
+>> work being needed would be lower)
+>
+> Actually I don't disagree. What I mean by hardware changes is more along the
+> lines of changing the hard disk type in the same setup. That's what I mean by
+> careful with the benchmarking. Taking the results from an athlon XP and
+> comparing it to an altix is silly for example.
+>
 
-You have irq balancing, the line 
+however if you defined these loads in terms of the amount of work (number 
+of loops) rather then percentage of the CPU I think you would be pretty 
+close (especially if there was a way to tweak these for a test if needed). 
+This sort of testing would be especially useful for low-end/embedded 
+applications.
 
-CONFIG_IRQBALANCE=y
+for example a series 1 DirectTv tivo manages to write two program streams 
+to disk while reading and viewing a third, all on a 75MHz PPC with 64M of 
+ram (on a tweaked 2.1 kernel) you are pretty close to being able to 
+simulate this load
 
-in your config file confirms it - I am not completely sure that it is
-the root of the problem but when I experienced the problem I changed
-two things: my acpi code and irq balancing and one of then made the
-difference, I am just to lazy to check which one it is (also it is
-production servers so I cannot do whatever I want).
+which brings up another possible config option/test case, changing the 
+read/write tests to try to do X MB/sec rather then the max possible speed 
+(probably defaulting to max if nothing is specified)
 
+thanks again for working to define a good test case
 
-> Our boot doesn't pass any special parameters, just choosing the deadline
-> elevator...
-> 
-> image=/boot/bzImage-2.6.12.2
->   label=linux-2.6.12.2
->   append="elevator=deadline"
->   read-only
->   root=/dev/sda2
-
-I use the same io scheduler so that should not be a problem. I have
-uploaded my config file - it works on ibm 335/336 servers, and a quick
-look at your boot msg seams to indicate that your server have some of
-the same hardware - note however that I load ide/scsi/filesystem stuff
-as modules so you will need to build a initrd to use my config.
-
-the config is here
-
-http://randompage.org/static/kernel.conf
+David Lang
 
 
-
---
-Lars
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

@@ -1,77 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVGLCxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVGLC4C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbVGLCxR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 22:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbVGLCxR
+	id S261899AbVGLC4C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 22:56:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVGLC4C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 22:53:17 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:21714 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S262201AbVGLCxO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 22:53:14 -0400
-Subject: Re: [PATCH 0/29v2] InfiniBand core update
-From: Hal Rosenstock <halr@voltaire.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       Roland Dreier <rolandd@cisco.com>
-In-Reply-To: <20050711170548.31605e23.akpm@osdl.org>
-References: <1121110249.4389.4984.camel@hal.voltaire.com>
-	 <20050711170548.31605e23.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1121136330.4389.5093.camel@hal.voltaire.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 22:45:31 -0400
+	Mon, 11 Jul 2005 22:56:02 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:27898 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261899AbVGLCz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 22:55:59 -0400
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: How to find if BIOS has already enabled the device
+Date: Mon, 11 Jul 2005 22:55:07 -0400
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200507112255.08080.kernel-stuff@comcast.net>
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 20:05, Andrew Morton wrote:
-> Hal Rosenstock <halr@voltaire.com> wrote:
-> >
-> > This is version 2 of a patch series to get the Infiniband core up to
-> > date.
-> 
-> Well that was interesting.
-> 
-> - All the patches had mangled headers:
-> 
-> -- linux-2.6.13-rc2-mm1-16/...
-> +++ linux-2.6.13-rc2-mm1-17/...
-> 
->   instead of
-> 
-> --- linux-2.6.13-rc2-mm1-16/...
-> +++ linux-2.6.13-rc2-mm1-17/...
+> On Sad, 2005-05-28 at 14:57, Parag Warudkar wrote:
+> > This current problem of Hang-On-Boot if USB drive is attached does not 
+happen 
+> > with Windows - so it is some sort of additional (unnecessary?) thing which 
+> > Linux does and the BIOS doesn't like.  (Like re-enabling the controller 
+even 
+> > if BIOS has already enabled it or some such.)
 
-Not sure how that happened.
+> > Alan Cox wrote:
+> Provide dmesg output and we might be able to guess. The first obvious
+> candidate would be the BIOS refusing to do a handover if it booted from
+> USB disk.
 
->   Which I fixed up.
+Hi Alan
 
-Thanks.
+Sorry for digging this out so late - (Quick recap - My machine hangs for 
+couple minutes on boot if USB storage disk is attached - hang occurs in 
+pci_enable_device).
 
-> - The second patch didn't apply.  I fixed that too.
+I have filed a bug to track this one - 
+http://bugme.osdl.org/show_bug.cgi?id=4711
 
-Not sure how this was broken. Thanks for fixing this.
+Further analysis points towards  wrong/differing IRQ assigments being the 
+cause of this hang. I observed that when the machine hangs, the IRQ 
+assignment looks like -
 
-> - The patches add lots of trailing whitespace.  I habitually trim that
->   off, figuring that any downstream merging hassle which that causes is
->   just punishment ;)
+18:        379   IO-APIC-level  eth0   
+ 19:          3   IO-APIC-level  ohci1394   
+ 20:       1439   IO-APIC-level  ohci_hcd, NVidia nForce3 Modem   
+ 21:          0   IO-APIC-level  ohci_hcd, NVidia nForce3   
+ 22:      12884   IO-APIC-level  ehci_hcd   
 
-I'll work on merging this back downstream :-(
+And when it does NOT hang it looks like -
+16:          3   IO-APIC-level  ohci1394   
+ 18:      49277   IO-APIC-level  nvidia   
+ 19:       1753   IO-APIC-level  eth0   
+ 20:       6253   IO-APIC-level  ohci_hcd   
+ 21:        646   IO-APIC-level  ohci_hcd, NVidia nForce3   
+ 22:       2225   IO-APIC-level  ehci_hcd, NVidia nForce3 Modem   
 
-> Please check that it all landed OK in the next -mm.
+Seems to me like the OHCI controller doesn't like to be assigned IRQ 19. Is 
+this difference in IRQ assignment normal or is it a bug somewhere? 
 
-Will do.
-
-> I've hung on to Tom Duffy's patch pending a test compilation.
-> 
-> I'll tentatively consider this material to be not-for-2.6.13?
-
-Presuming that "this material" refers to the patch to add the kernel CM
-implementation, if kernel CM does not make 2.6.13, then user CM should
-not either as it is dependent on it.
-
--- Hal
-
+Parag

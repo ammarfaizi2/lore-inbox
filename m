@@ -1,99 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVGLRbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVGLReb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbVGLRbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 13:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVGLRa5
+	id S261560AbVGLReb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 13:34:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVGLRea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 13:30:57 -0400
-Received: from vsmtp1alice.tin.it ([212.216.176.144]:1968 "EHLO
-	vsmtp1alice.tin.it") by vger.kernel.org with ESMTP id S261780AbVGLR2q
+	Tue, 12 Jul 2005 13:34:30 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:29349 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261560AbVGLRe3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 13:28:46 -0400
-Message-ID: <42D3FD10.7050707@inwind.it>
-Date: Tue, 12 Jul 2005 19:25:36 +0200
-From: federico <xaero@inwind.it>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050515)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [update] Re: [PATCH] ability to change SysRq scancode
-References: <42D03731.9060809@inwind.it>
-In-Reply-To: <42D03731.9060809@inwind.it>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------090604060504030408050108"
+	Tue, 12 Jul 2005 13:34:29 -0400
+Date: Tue, 12 Jul 2005 19:37:21 +0200
+From: DervishD <lkml@dervishd.net>
+To: Konstantin Kudin <konstantin_kudin@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fdisk: What do plus signs after "Blocks" mean?
+Message-ID: <20050712173721.GA325@DervishD>
+Mail-Followup-To: Konstantin Kudin <konstantin_kudin@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20050712163514.42322.qmail@web52013.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050712163514.42322.qmail@web52013.mail.yahoo.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090604060504030408050108
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+    Hi Konstantin :)
 
-federico ha scritto:
+ * Konstantin Kudin <konstantin_kudin@yahoo.com> dixit:
+>  Can anyone enlighten me what the pluses mean?
 
->i release this patch because my keyboard ("Mitsumi Electric Apple
->Extended USB Keyboard" Bus=0003 Vendor=05ac Product=0205 Version=0122)
->doesn't have a PrintScr key, so cannot send the right scancode, and
->KEY_SYSRQ needs to be modified.
->
->i hope that i've done in the right way ;)
->it's tested by me, and it's working, yeah i'm pressing the SAK with F13 :P
->  
->
+    It is commented in the README.fdisk file in util-linux
+distribution: the '+' flag means that the partition has an odd number
+of sectors. That means that you can waste a sector at the end of the
+partition, and it's very common for the first partition in the disk
+if it ends on a cylinder boundary and cylinders have an even number
+of sectors, due to the MBR.
 
-fixed some typos in Kconfig and cleaned up the code.
+    Harmless.
 
-this should be that last release of this patch.
-it's tested and working (it's nothing else a simple one-line hack)
+> Also, if a partition loses pluses after "Blocks", would that
+> destroy a RAID array?
 
-if someone wants to try please report results :)
-ciao!
-Federico
+    I don't have any idea :? To reproduce a '+' in a partition, you
+probably have to specify partition size in sectors (or kilobytes,
+whatever fits you better) and make it odd, honoring exactly the
+number of sectors that partition had (before the parttable was
+destroyed by our dear friend XP).
 
+    It's a good idea to have a copy of the partition table around, if
+it is not simple (the one you had is NOT simple).
 
---------------090604060504030408050108
-Content-Type: text/x-patch;
- name="sysrq_keycode_r5.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sysrq_keycode_r5.patch"
+    Hope that helps.
 
-diff -uprN linux.orig/drivers/char/keyboard.c linux/drivers/char/keyboard.c
---- linux.orig/drivers/char/keyboard.c	2005-07-09 21:47:50.000000000 +0200
-+++ linux/drivers/char/keyboard.c	2005-07-10 14:42:34.000000000 +0200
-@@ -1081,7 +1087,7 @@ static void kbd_keycode(unsigned int key
- 				printk(KERN_WARNING "keyboard.c: can't emulate rawmode for keycode %d\n", keycode);
- 
- #ifdef CONFIG_MAGIC_SYSRQ	       /* Handle the SysRq Hack */
--	if (keycode == KEY_SYSRQ && (sysrq_down || (down == 1 && sysrq_alt))) {
-+	if (keycode == CONFIG_MAGIC_SYSRQ_KEYCODE && (sysrq_down || (down == 1 && sysrq_alt))) {
- 		sysrq_down = down;
- 		return;
- 	}
-diff -uprN linux.orig/lib/Kconfig.debug linux/lib/Kconfig.debug
---- linux.orig/lib/Kconfig.debug	2005-07-09 21:47:22.000000000 +0200
-+++ linux/lib/Kconfig.debug	2005-07-09 21:50:44.000000000 +0200
-@@ -28,6 +28,16 @@ config MAGIC_SYSRQ
- 	  send a BREAK and then within 5 seconds a command keypress. The
- 	  keys are documented in <file:Documentation/sysrq.txt>. Don't say Y
- 	  unless you really know what this hack does.
-+	  
-+config MAGIC_SYSRQ_KEYCODE
-+	int
-+	prompt "Change SysRq key-code" if MAGIC_SYSRQ
-+	default 99
-+	depends on MAGIC_SYSRQ
-+	help
-+	  If your keyboard doesn't have a SysRq key (also labeled PrintScr),
-+	  you can specify another keycode which should act as SysRq.
-+	  Default is 99 (KEY_SYSRQ).
-+	  You can find this number using programs like evtest, or (maybe)
-+	  showkey.
- 
- config LOG_BUF_SHIFT
- 	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)" if DEBUG_KERNEL
+    Raúl Núñez de Arenas Coronado
 
-
---------------090604060504030408050108--
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

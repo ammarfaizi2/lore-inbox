@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVGLO2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVGLO2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVGLO2o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 10:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVGLO0v
+	id S261463AbVGLO2p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 10:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVGLO0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 10:26:51 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:7566 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261458AbVGLOZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 10:25:01 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Chris Friesen <cfriesen@nortel.com>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
-In-Reply-To: <188690000.1121142633@[10.10.2.4]>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	 <20050708214908.GA31225@taniwha.stupidest.org>
-	 <20050708145953.0b2d8030.akpm@osdl.org>
-	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
-	 <20050709203920.394e970d.diegocg@gmail.com>
-	 <1120934466.6488.77.camel@mindpipe>  <176640000.1121107087@flay>
-	 <1121113532.2383.6.camel@mindpipe>  <42D2D912.3090505@nortel.com>
-	 <1121128260.2632.12.camel@mindpipe>  <165840000.1121141256@[10.10.2.4]>
-	 <1121141602.2632.31.camel@mindpipe>  <188690000.1121142633@[10.10.2.4]>
+	Tue, 12 Jul 2005 10:26:43 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:32758 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261463AbVGLOZo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 10:25:44 -0400
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050712140251.GB18296@elte.hu>
+References: <200507121223.10704.annabellesgarden@yahoo.de>
+	 <20050712140251.GB18296@elte.hu>
 Content-Type: text/plain
-Date: Tue, 12 Jul 2005 10:24:59 -0400
-Message-Id: <1121178300.2632.51.camel@mindpipe>
+Date: Tue, 12 Jul 2005 07:25:38 -0700
+Message-Id: <1121178339.10199.8.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 21:30 -0700, Martin J. Bligh wrote:
-> Exactly what problems
-> *does* it cause (in visible effect, not "timers are less granular").
-> Jittery audio/video? How much worse is it?
+On Tue, 2005-07-12 at 16:02 +0200, Ingo Molnar wrote:
+> * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+> 
+> > Hi Ingo
+> > 
+> > I've refined io_apic.c a little more:
+> 
+> great. I've applied these changes and have released the -28 patch. (note 
+> that the last chunk of your patch was malformed, have applied it by 
+> hand.)
+> 
+> i'm wondering what your thoughts are about IOAPIC_POSTFLUSH - i had to 
+> turn it on unconditionally again, to get rid of spurious interrupts and 
+> outright interrupt storms (and resulting lockups) on some systems.  
+> IOAPIC_POSTFLUSH is now causing much of the IO-APIC related IRQ handling 
+> overhead.
 
-Yes, exactly.  Say you need to deliver a frame of audio or video every
-5ms.  You have a rendering thread and a display thread that communicate
-via FIFOs.  The main thread waits in select() for the next frame to
-complete rendering or for the deadline to expire.  That's next to
-impossible with HZ=100, because the best you can do is the deadline
-+-10ms.  With HZ=1000 it's no problem.
+I observed a situation on a dual xeon where IOAPIC_POSTFLUSH , if on,
+would actually cause spurious interrupts. It was odd cause it's suppose
+to stop them .. If there was a lot of interrupt traffic on one IRQ , it
+would cause interrupt traffic on another IRQ. This would result in
+"nobody cared" messages , and the storming IRQ line would get shutdown.
 
-Lee
+This would only happen in PREEMPT_RT .
+
+Daniel
 

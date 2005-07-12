@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVGLSkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVGLSng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbVGLSkP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 14:40:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVGLSj7
+	id S261547AbVGLSng (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 14:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVGLSng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 14:39:59 -0400
-Received: from [192.94.73.30] ([192.94.73.30]:31201 "EHLO sdf.lonestar.org")
-	by vger.kernel.org with ESMTP id S262030AbVGLSjS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 14:39:18 -0400
-From: Jim Nance <jlnance@sdf.lonestar.org>
-Date: Tue, 12 Jul 2005 18:38:59 +0000
-To: Peter Staubach <staubach@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel header policy
-Message-ID: <20050712183859.GA21230@SDF.LONESTAR.ORG>
-References: <200507120206.j6C26kGY017571@laptop11.inf.utfsm.cl> <42D3C51D.3020703@redhat.com>
+	Tue, 12 Jul 2005 14:43:36 -0400
+Received: from bay20-f5.bay20.hotmail.com ([64.4.54.94]:48111 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261547AbVGLSnf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 14:43:35 -0400
+Message-ID: <BAY20-F541636D2F7D98F4F9531FC4DF0@phx.gbl>
+X-Originating-IP: [128.252.233.247]
+X-Originating-Email: [jonschindler@hotmail.com]
+In-Reply-To: <2112561.1121094204768.SLOX.WebMail.wwwrun@exchange.deltacomputer.de>
+From: "Jon Schindler" <jonschindler@hotmail.com>
+To: o.weihe@deltacomputer.de, linux-kernel@vger.kernel.org
+Subject: Re: USB storage does not work with 3GB of RAM, but does with 2G of RAM
+Date: Tue, 12 Jul 2005 14:43:33 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42D3C51D.3020703@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 12 Jul 2005 18:43:35.0052 (UTC) FILETIME=[9BF314C0:01C58711]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 09:26:53AM -0400, Peter Staubach wrote:
+I tried this last night and enabling the OS2 memory hole in the bios doesn't 
+work.  That's the only memory hole option available.  If I were more savvy 
+with the kernel memory layout, I might try passing it a set of memmap 
+options, but I'm not very familiar with what address spaces I need to set up 
+for the kernel or how much space they need, or if there are any rules 
+concerning what goes where.  (i.e. the difference between reserved, ACPI, 
+etc.)
 
-> I must admit a little confusion here.  Clearly, kernel header files are
-> used at the user level.  The kernel and user level applications must share
-> definitions for a great many things.
+Thanks anyway for the suggestion,
 
-Perhaps a little history would help.  In the beginning, the kernel was
-written with the intention that userland would be including the headers.
-And libc did include the kernel headers.
+Jon
 
-This did provide an effective way to get new kernel features to show
-up in userland, but it created all sorts of other problems.  Eventually
-it was decided/decreed that userland would NOT include kernel headers.
-Instead, libc would provide a set of headers which would either be
-compatable, or would marshel data into the form the kernel wanted.
+>From: Oliver Weihe <o.weihe@deltacomputer.de>
+>To: linux-kernel@vger.kernel.org
+>Subject: Re: USB storage does not work with 3GB of RAM, but does with 2G of 
+>RAM
+>Date: Mon, 11 Jul 2005 17:03:24 +0200 (CEST)
+>
+>Tried different settings for "Soft-/Hardware Memory Hole" in BIOS?
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-I don't remember exactly when this was done, but I believe it was
-some time in the late 90s.  It's been this way a while now.
 
-Thanks,
-
-Jim
-
--- 
-jlnance@sdf.lonestar.org
-SDF Public Access UNIX System - http://sdf.lonestar.org

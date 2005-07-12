@@ -1,86 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVGLSLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVGLSNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbVGLSLp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 14:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVGLSLp
+	id S261904AbVGLSNP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 14:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVGLSNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 14:11:45 -0400
-Received: from zproxy.gmail.com ([64.233.162.205]:62367 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261892AbVGLSLm (ORCPT
+	Tue, 12 Jul 2005 14:13:14 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:7854 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261904AbVGLSNJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 14:11:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=AckVYq3ylb22wqd4q553Si7Fq4kNBqpTQilInbQM4rS2YmZDS6W8QAQ5/PPisdSVxcJiBMEwi9C7QDZau8nlUxTTRy5KryG6ZDibk1wwddtGzHpntPFjbk5XUgAGVOaHHPM51xyFjYbfOqJmB2oSAKl7cJGh3NwLKugqVZ6iaYA=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Michael Krufky <mkrufky@m1k.net>
-Subject: Re: [PATCH -rc2-mm2] BUG FIX - v4l broken hybrid dvb inclusion
-Date: Tue, 12 Jul 2005 22:18:38 +0400
-User-Agent: KMail/1.8.1
-Cc: Andrew Morton <akpm@osdl.org>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       linux-kernel@vger.kernel.org, video4linux-list@redhat.com
-References: <42D3DC5A.3010807@m1k.net> <200507122107.51907.adobriyan@gmail.com> <42D3FBA4.3050501@m1k.net>
-In-Reply-To: <42D3FBA4.3050501@m1k.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Jul 2005 14:13:09 -0400
+Date: Tue, 12 Jul 2005 20:13:15 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Stelian Pop <stelian@popies.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Peter Osterlund <petero2@telia.com>,
+       Johannes Berg <johannes@sipsolutions.net>,
+       Frank Arnold <frank@scirocco-5v-turbo.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Apple USB Touchpad driver (new)
+Message-ID: <20050712181315.GB1456@ucw.cz>
+References: <20050710120425.GC3018@ucw.cz> <m3y88e9ozu.fsf@telia.com> <1121078371.12621.36.camel@localhost.localdomain> <20050711110024.GA23333@ucw.cz> <1121080115.12627.44.camel@localhost.localdomain> <20050711112121.GA24345@ucw.cz> <1121159126.4656.14.camel@localhost.localdomain> <d120d5000507120713646089ee@mail.gmail.com> <1121178794.4648.31.camel@localhost.localdomain> <d120d5000507120747692ffc7@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200507122218.38508.adobriyan@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <d120d5000507120747692ffc7@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 July 2005 21:19, Michael Krufky wrote:
-> Alexey Dobriyan wrote:
-> >On Tuesday 12 July 2005 19:06, Michael Krufky wrote:
-> >  
-> >
-> >>v4l-saa7134-hybrid-dvb.patch
-> >>v4l-cx88-update.patch
-> >>
-> >>The specific change that caused this problem is:
-> >>
-> >>- Let Kconfig decide whether to include frontend-specific code.
-> >>
-> >>I had tested this change against 2.6.13-rc2-mm1, and it worked perfectly as
-> >>expected, but it caused problems in today's 2.6.13-rc2-mm2 release.  For
-> >>some reason, the symbols don't get set properly.
-> >>    
-> >>
-> >What symbols? What error messages do you see?
-> >
-> Alexey-
+On Tue, Jul 12, 2005 at 09:47:16AM -0500, Dmitry Torokhov wrote:
+> On 7/12/05, Stelian Pop <stelian@popies.net> wrote:
+> > Le mardi 12 juillet 2005 ? 09:13 -0500, Dmitry Torokhov a écrit :
+> > > Hi,
+> > >
+> > > On 7/12/05, Stelian Pop <stelian@popies.net> wrote:
+> > > >
+> > > > +       dev->input.id.bustype = BUS_USB;
+> > > > +       dev->input.id.vendor = id->idVendor;
+> > > > +       dev->input.id.product = id->idProduct;
+> > > > +       dev->input.id.version = ATP_DRIVER_VERSION;
+> > > > +
+> > >
+> > > Why don't we do what most of the other input devices and get version
+> > > from the device too?
+> > 
+> > I guess we could, there is not much use for a local driver version
+> > anyway.
+> > 
+> > > Actually we have this in input tree:
+> > >
+> > > static inline void
+> > > usb_to_input_id(const struct usb_device *dev, struct input_id *id)
+> > 
+> > This cleans up a lot of code indeed. Too bad this is not upstream yet...
+> > 
 > 
-> Maybe symbols was the wrong terminology... What I meant was the 
-> CONFIG_DVB_LGDT3302 , etc flags
-> 
-> Previous patch removed the #define's that you see below... This should 
-> have worked, since these should be set instead from kconfig, but it 
-> didn't work as expected (even though the modules ARE selected by 
-> kconfig),
+> It is in -mm (it is coming from git-input patch).
+ 
+Stelian, can you please update the patch to use usb_to_input_id()? It'll
+go through -mm first, anyway, so there shouldn't be any issue with
+Linus's kernels not having that function yet.
 
-Strange... I did allyesconfig and preprocessed source shows lgdt3302.h,
-or51132.h et al. are included. What's your .config?
-
-> and the #ifdef's return false.... (I don't know why it worked  
-> in my test against 2.6.13-rc2-mm1, but it doesn't work in -mm2, and it 
-> must be fixed) Breaks all hybrid v4l/dvb boards.
-> 
-> >>--- linux-2.6.13-rc2-mm2.orig/drivers/media/video/cx88/cx88-dvb.c
-> >>+++ linux/drivers/media/video/cx88/cx88-dvb.c
-> >>    
-> >>
-> >>+#define CONFIG_DVB_MT352 1
-> >>+#define CONFIG_DVB_CX22702 1
-> >>+#define CONFIG_DVB_OR51132 1
-> >>+#define CONFIG_DVB_LGDT3302 1
-> >>    
-> >>
-> >>--- linux-2.6.13-rc2-mm2.orig/drivers/media/video/saa7134/saa7134-dvb.c
-> >>+++ linux/drivers/media/video/saa7134/saa7134-dvb.c
-> >>    
-> >>
-> >>+#define CONFIG_DVB_MT352 1
-> >>+#define CONFIG_DVB_TDA1004X 1
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,57 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVGLLJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVGLLMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVGLLJj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 07:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVGLLJj
+	id S261176AbVGLLMI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 07:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVGLLJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 07:09:39 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44302 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261333AbVGLLIb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 07:08:31 -0400
-Date: Tue, 12 Jul 2005 12:08:25 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: david-b@pacbell.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6.13-git] 8250 tweaks
-Message-ID: <20050712120825.E28413@flint.arm.linux.org.uk>
-Mail-Followup-To: david-b@pacbell.net, linux-kernel@vger.kernel.org
-References: <200507111922.04800.david-b@pacbell.net> <20050712081943.B25543@flint.arm.linux.org.uk> <20050712102512.A7F30BF3C9@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+	Tue, 12 Jul 2005 07:09:43 -0400
+Received: from nproxy.gmail.com ([64.233.182.201]:16030 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261334AbVGLLH5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 07:07:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=prGrGG4JtTNHjzKkZkBYtwWwtLD+R/yfsUknf3vLmDPCqbw0qsFDTYCI2QRcH75FM3mOg+LUCBXjLkpacIdKsd7niL17OaE1t/dWre5nGpJVNI3E1RFtA5Y673L7/ZXb9NeNvi/shHRkDwVxjCnrqEK5EcJ/qDuEE4TPqeyGIBM=
+Message-ID: <6278d22205071204073a6de1a2@mail.gmail.com>
+Date: Tue, 12 Jul 2005 12:07:56 +0100
+From: Daniel J Blueman <daniel.blueman@gmail.com>
+Reply-To: Daniel J Blueman <daniel.blueman@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ondemand cpufreq ineffective in 2.6.12 ?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050712102512.A7F30BF3C9@adsl-69-107-32-110.dsl.pltn13.pacbell.net>; from david-b@pacbell.net on Tue, Jul 12, 2005 at 03:25:12AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 03:25:12AM -0700, david-b@pacbell.net wrote:
-> > Date: Tue, 12 Jul 2005 08:19:43 +0100
-> > From: Russell King <rmk+lkml@arm.linux.org.uk>
-> >
-> > On Mon, Jul 11, 2005 at 07:22:04PM -0700, David Brownell wrote:
-> > > and stop
-> > > whining about certain non-errors (details in the patch comments).
-> >
-> > Please explain what the whining is (details were missing from the
-> > patch comments).
+I find the ondemand governor works as expected with 2.6.12 on my
+Athlon64 Winchester [1]; as soon as I bzip2 a file, processor freq is
+pinned at 1.8GHz and drops to 1GHz when idle.
+
+--- [1]
+
+$ cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 31
+model name      : AMD Athlon(tm) 64 Processor 3000+
+stepping        : 0
+cpu MHz         : 1004.646
+cache size      : 512 KB
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext
+fxsr_opt lm 3dnowext 3dnow
+bogomips        : 1988.83
+TLB size        : 1024 4K pages
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 40 bits physical, 48 bits virtual
+power management: ts fid vid ttp
+
+Ken Moffat wrote:
+> Hi,
 > 
-> The kernel "recently" started issuing the second and third messages
-> after initializing the serial port on for example an OSK board:
+>  I've been using the ondemand governor on athlon64 winchesters for a few
+> weeks.  I've just noticed that in 2.6.12 the frequency is not
+> increasing under load, it remains at the lowest frequency.  This seems
+> to be down to something in 2.6.12-rc6, but I've seen at least one report
+> since then that ondemand works fine.  Anybody else seeing this problem ?
 > 
->     ttyS0 at MMIO 0xfffb0000 (irq = 46) is a ST16654
->     serial8250 serial8250.0: unable to register port at index 1 (IO0 MEM0 IRQ47): -28
->     serial8250 serial8250.0: unable to register port at index 2 (IO0 MEM0 IRQ15): -28
-
-Thanks, that's exactly what I wanted to know.
-
--28 is -ENOSPC which means that you've run out of available serial devices
-to register these others.
-
-If you wish to have three ports in an plat_serial8250_port array, you'll
-need to ensure that CONFIG_SERIAL_8250_NR_UARTS is set to at least 3.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+>  Testcase: boot (my bootscripts set the governor to ondemand), set the
+> governor to ondemand, performance, powersave and untar a nice big
+> bzip2'd tarball (gcc-3.4.1) from an nfs mount. All using the config from
+> 2.6.11.9 and defaults for new options.
+> 
+> kernel		2.6.11.9	2.6.12-rc5	2.6.12-rc6	2.6.12
+> 
+> ondemand	20.8 sec	21.3 sec	33.9 sec	34.1 sec
+> performance	21.3 sec	22.0 sec	22.6 sec	20.1 sec
+> powersave	32.4 sec	33.1 sec	33.6 sec	33.9 sec
+> 
+> I don't have confidence that the numbers are more repeatable than +/- 2
+> seconds on this, they just illustrate that ondemand used to give a
+> similar time to performance, but now doesn't.  Other intermediate and
+> later tests have been omitted for clarity, but 2.6.12.2 does show the
+> same problem.
+> 
+> Since 2.6.12-rc6, 'ondemand' appears to be still accepted (the echo to
+> scaling_governor returns 0, and the displayed frequency drops back if
+> I try going from performance to ondemand).
+> 
+> When ondemand appears to work properly, /proc/cpuinfo shows the speed
+> jumping to 2 GHz, then falling back to 1.8 after the untar ends, then
+> back to 1.0 GHz.  In the problem cases, the speed remains at 1GHz.
+> 
+> As far as I can see, nothing untoward shows in the logs.  Any
+> suggestions, please ?
+> 
+> Ken
+___
+Daniel J Blueman

@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVGLH1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVGLHqC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVGLH1i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 03:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVGLHZQ
+	id S261227AbVGLHqC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 03:46:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVGLHqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 03:25:16 -0400
-Received: from main.gmane.org ([80.91.229.2]:43959 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261227AbVGLHYo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 03:24:44 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alexander Fieroch <fieroch@web.de>
-Subject: Re: [SOLVED ??] Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
-Date: Tue, 12 Jul 2005 09:24:16 +0200
-Message-ID: <42D37020.5060004@web.de>
-References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C49@USRV-EXCH4.na.uis.unisys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 12 Jul 2005 03:46:02 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:42902 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261227AbVGLHp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 03:45:59 -0400
+Message-ID: <42D37535.40406@namesys.com>
+Date: Tue, 12 Jul 2005 00:45:57 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: David Masover <ninja@slaphack.com>,
+       Stefan Smietanowski <stesmi@stesmi.com>, Hubert Chan <hubert@uhoreg.ca>,
+       Ross Biro <ross.biro@gmail.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: reiser4 plugins
+References: <hubert@uhoreg.ca>	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>	<8783be6605062914341bcff7cb@mail.gmail.com>	<878y0svj1h.fsf@evinrude.uhoreg.ca>	<42C4F97B.1080803@slaphack.com>	<87ll4lynky.fsf@evinrude.uhoreg.ca>	<42CB0328.3070706@namesys.com>	<42CB07EB.4000605@slaphack.com>	<42CB0ED7.8070501@namesys.com>	<42CB1128.6000000@slaphack.com>	<42CB1C20.3030204@namesys.com>	<42CB22A6.40306@namesys.com>	<42CBE426.9080106@slaphack.com>	<42D1F06C.9010905@stesmi.com>	<42D2DB99.9050307@slaphack.com> <17107.28428.30907.184223@cse.unsw.edu.au>
+In-Reply-To: <17107.28428.30907.184223@cse.unsw.edu.au>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
-X-Accept-Language: de-de, en-us, en
-In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C49@USRV-EXCH4.na.uis.unisys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Protasevich, Natalie wrote:
->>>You can also try adding the "usb-handoff" kernel parameter to your 
->>>boot command line.
->>
-> Alexander, should you try this option? (Just in case if you haven't noticed this thread)...
+Neil Brown wrote:
 
-Hm, no. All errors still occur. :-(
+>
+>
+>Maybe it is worth repeating Al Viro's suggestion at this point.  I
+>don't have a reference but the idea was basically that if you open
+>"/foo" and get filedescriptor N, then
+>   /proc/self/fds/N-meta
+>is a directory which contains all the meta stuff for "/foo".
+>Then it is trivial to get the 'meta' stuff given a filedescriptor and
+>if you have a pathname, you can always get yourself a filedescriptor.
+>  
+>
+This sound like it might be cute, but filedescriptors are too heavy
+weight for stat data accesses in quantity.
 
-Regards,
-Alexander
+In general, the whole file handle paradigm is too heavy for lightweight
+files.
 
+Hans

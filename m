@@ -1,72 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVGLPD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVGLPIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbVGLPD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 11:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVGLPBM
+	id S261530AbVGLPIv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 11:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVGLPIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 11:01:12 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:25744 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261493AbVGLPAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 11:00:04 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Chris Friesen <cfriesen@nortel.com>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
-In-Reply-To: <14170000.1121180207@[10.10.2.4]>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	 <20050708214908.GA31225@taniwha.stupidest.org>
-	 <20050708145953.0b2d8030.akpm@osdl.org>
-	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
-	 <20050709203920.394e970d.diegocg@gmail.com>
-	 <1120934466.6488.77.camel@mindpipe>  <176640000.1121107087@flay>
-	 <1121113532.2383.6.camel@mindpipe>  <42D2D912.3090505@nortel.com>
-	 <1121128260.2632.12.camel@mindpipe>  <165840000.1121141256@[10.10.2.4]>
-	 <1121141602.2632.31.camel@mindpipe>  <188690000.1121142633@[10.10.2.4]>
-	 <1121178300.2632.51.camel@mindpipe>  <14170000.1121180207@[10.10.2.4]>
-Content-Type: text/plain
-Date: Tue, 12 Jul 2005 11:00:02 -0400
-Message-Id: <1121180403.2632.59.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Jul 2005 11:08:50 -0400
+Received: from kirby.webscope.com ([204.141.84.57]:49370 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S261475AbVGLPGr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 11:06:47 -0400
+Message-ID: <42D3DC5A.3010807@m1k.net>
+Date: Tue, 12 Jul 2005 11:06:02 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       linux-kernel@vger.kernel.org,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+Subject: [PATCH -rc2-mm2] BUG FIX - v4l broken hybrid dvb inclusion
+Content-Type: multipart/mixed;
+ boundary="------------080304040009010900040308"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 07:56 -0700, Martin J. Bligh wrote:
-> --Lee Revell <rlrevell@joe-job.com> wrote (on Tuesday, July 12, 2005 10:24:59 -0400):
-> 
-> > On Mon, 2005-07-11 at 21:30 -0700, Martin J. Bligh wrote:
-> >> Exactly what problems
-> >> *does* it cause (in visible effect, not "timers are less granular").
-> >> Jittery audio/video? How much worse is it?
-> > 
-> > Yes, exactly.  Say you need to deliver a frame of audio or video every
-> > 5ms. 
-> 
-> Ummm. that's a 200HZ refresh rate, is it not? That seems unreasonable 
-> (to a lay-person, as far as video goes).
-> 
+This is a multi-part message in MIME format.
+--------------080304040009010900040308
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Seems unreasonable now but things like HDTV actually have much tighter
-constraints than this.  And frame times this small are quite often used
-for audio, which admittedly is less affected by HZ because those devices
-generate their own interrupts.
+There was a change made in 2.6.13-rc2-mm2 within both of the following 
+patches:
 
-> > You have a rendering thread and a display thread that communicate
-> > via FIFOs.  The main thread waits in select() for the next frame to
-> > complete rendering or for the deadline to expire.  That's next to
-> > impossible with HZ=100, because the best you can do is the deadline
-> > +-10ms.  With HZ=1000 it's no problem.
-> 
-> So if we have a 50HZ refresh rate, and a HZ rate of 250 or 300, it'll
-> work fine then, right? I know that's actually some error in the timers,
-> so it may be 2 or 3 ticks, not 1, but if we're running HZ at 5 or 6
-> times the frequency of video, presumably that'd still work fine?
+v4l-saa7134-hybrid-dvb.patch
+v4l-cx88-update.patch
 
-Yes, for PAL/NTSC, but it's nice to be forward looking...
+The specific change that caused this problem is:
 
-Lee
+- Let Kconfig decide whether to include frontend-specific code.
+
+I had tested this change against 2.6.13-rc2-mm1, and it worked perfectly as expected, but it caused problems in today's 2.6.13-rc2-mm2 release.  For some reason, the symbols don't get set properly.  The following patch corrects this problem and restores previous behavior.  We will eventually have to remove these symbols alltogether when we find a better solution, but this will fix the bug until then.
+
+
+
+
+
+--------------080304040009010900040308
+Content-Type: text/plain;
+ name="v4l-broken-hybrid-dvb-inclusion-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="v4l-broken-hybrid-dvb-inclusion-fix.patch"
+
+Always include dvb frontend code for hybrid cx88 and saa7134 boards.
+
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+ cx88/cx88-dvb.c       |    5 +++++
+ saa7134/saa7134-dvb.c |    3 +++
+ 2 files changed, 8 insertions(+)
+
+diff -upr linux-2.6.13-rc2-mm2.orig/drivers/media/video/cx88/cx88-dvb.c linux/drivers/media/video/cx88/cx88-dvb.c
+--- linux-2.6.13-rc2-mm2.orig/drivers/media/video/cx88/cx88-dvb.c	2005-07-12 08:56:58.000000000 +0000
++++ linux/drivers/media/video/cx88/cx88-dvb.c	2005-07-12 09:01:13.000000000 +0000
+@@ -30,6 +30,11 @@
+ #include <linux/file.h>
+ #include <linux/suspend.h>
+ 
++#define CONFIG_DVB_MT352 1
++#define CONFIG_DVB_CX22702 1
++#define CONFIG_DVB_OR51132 1
++#define CONFIG_DVB_LGDT3302 1
++
+ #include "cx88.h"
+ #include "dvb-pll.h"
+ 
+diff -upr linux-2.6.13-rc2-mm2.orig/drivers/media/video/saa7134/saa7134-dvb.c linux/drivers/media/video/saa7134/saa7134-dvb.c
+--- linux-2.6.13-rc2-mm2.orig/drivers/media/video/saa7134/saa7134-dvb.c	2005-07-12 08:56:59.000000000 +0000
++++ linux/drivers/media/video/saa7134/saa7134-dvb.c	2005-07-12 09:01:55.000000000 +0000
+@@ -30,6 +30,9 @@
+ #include <linux/kthread.h>
+ #include <linux/suspend.h>
+ 
++#define CONFIG_DVB_MT352 1
++#define CONFIG_DVB_TDA1004X 1
++
+ #include "saa7134-reg.h"
+ #include "saa7134.h"
+ 
+
+--------------080304040009010900040308--
 

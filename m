@@ -1,92 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVGLVeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbVGLVjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262495AbVGLVeX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 17:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVGLVeL
+	id S262496AbVGLVjN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 17:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVGLVg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 17:34:11 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:2699 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262491AbVGLVd6 (ORCPT
+	Tue, 12 Jul 2005 17:36:29 -0400
+Received: from animx.eu.org ([216.98.75.249]:13717 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S262422AbVGLVgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 17:33:58 -0400
-Date: Tue, 12 Jul 2005 14:34:26 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: shemminger@osdl.org, dipankar@in.ibm.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: PREEMPT/PREEMPT_RT question
-Message-ID: <20050712213426.GD1323@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050712163031.GA1323@us.ibm.com> <1121187924.6917.75.camel@localhost.localdomain> <20050712192832.GB1323@us.ibm.com> <1121198657.3548.11.camel@localhost.localdomain>
+	Tue, 12 Jul 2005 17:36:21 -0400
+Date: Tue, 12 Jul 2005 17:53:32 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: Swap partition vs swap file
+Message-ID: <20050712215332.GA31021@animx.eu.org>
+Mail-Followup-To: Helge Hafting <helge.hafting@aitel.hist.no>,
+	Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
+References: <20050710014559.GA15844@animx.eu.org> <E1DrRLL-00017G-00@calista.eckenfels.6bone.ka-ip.net> <20050710125438.GA17784@animx.eu.org> <42D253B5.20101@aitel.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1121198657.3548.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <42D253B5.20101@aitel.hist.no>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 04:04:17PM -0400, Steven Rostedt wrote:
-> On Tue, 2005-07-12 at 12:28 -0700, Paul E. McKenney wrote:
-> > > 
-> > > So is there a difference on UP between x.counter++ and atomic_inc(&x)?
-> > 
-> > On x86, you are right.  The full list of architectures that are atomic
-> > only in SMP are i386 (as you noted), parisc, sparc, and x86_64.
-> > 
-> > The architectures that appear to always be atomic are: alpha, ia64, m32r
-> > (but unfamiliar with this one), mips, ppc, ppc64, s390 (I think...),
-> > and sparc64.  Most of these architectures need to disable interrupts
-> > to provide "universal" atomic_inc() semantics in UP kernels, due to
-> > their RISC-style atomic instructions.  
-> > 
-> > The following architectures avoid the issue entirely by refusing to
-> > support SMP: arm, arm26, cris, frv, h8300, m68k, m68knommu, sh, sh64,
-> > and v850.  Many of them disable interrupts in their atomic_inc()
-> > implementations.
-> > 
-> > The advantage of smp_atomic_inc() is that architectures could dispense
-> > with interrupt disabling.  The disadvantage is that it is yet another
-> > contribution to Linux's combinatorial explosion of primitives.
-> > 
-> > For the moment, I will grit my teeth and keep atomic_inc() and atomic_dec().
-> > 
-> > Other thoughts?
-> 
-> How did I know that you would mention mips and the like :-)
-> 
-> Yeah, mips has the crazy Load Linked and Store Conditional crap, so it
-> is a little more complex than the simple add one.  And I think PPC does
-> too, although it has been a while since I've used them.  And older mips
-> don't have the LL SC command so the only option is to turn off
-> interrupts (of course those that don't have the LL and SC are not SMP
-> compatible).  So, I will admit that having a smp_atomic_inc might be
-> nice. I was just being a narrow minded x86 hacker ;-)
+Helge Hafting wrote:
+> Wakko Warner wrote:
+> You don't need to zero out swapfiles. You can fill them with anything,
+> even /dev/urandom.  Zero-filling may be faster though.  A swapfile
+> is not zero the second time you use it - then it contains leftovers
+> from last time.
 
-I am sure that LL/SC seemed like a good idea at the time.  ;-)
+I understand this part.
 
-To be fair, LL/SC does allow allow some things to be done more easily
-than with cmpxchg, since it allows you to tell that the value changed
-even if it later changed back.  Helps with some linked-list operations.
+> >So are you saying that if I create a swap partition it's best to use dd to
+> >zero it out before mkswap?  If no, then why would a file be different?  I
+> >know there's no documented way to create a file of given size without
+> >writing content.  I saw windows grow a pagefile several meg in less than a
+> >second so I'm sure that it doesn't zero out the space first.
+>
+> Linux doesn't grow swapfiles at all.  It uses what's there at mkswap time.
+> You can make new ones of course - manually.
 
-> > > Yep interrupts are threads in CONFIG_PREEMPT_RT.  I guess you could also
-> > > just use local_irq_save with spin_lock, since now local_irq_save no
-> > > longer disables interrupts in PREEMPT_RT.
-> > 
-> > By this you mean the following?
-> > 
-> > 	local_irq_save(flags);
-> > 	_raw_spin_lock(&mylock);
-> > 
-> > 	/* critical section */
-> > 
-> > 	_raw_spin_unlock(&mylock);
-> > 	local_irq_restore(flags);
-> 
-> Yeah, that on PREEMP_RT would not turn off interrupts but just stops
-> preemption. This is fine as long as the mylock is not used in any
-> SA_NODELAY interrupt.
+And this part.  I've never known linux to grow the swap file.  I did try the
+sparse one a long time ago.  Of course it didn't work.
 
-Cool!  Is the scheduling-clock interrupt an SA_NODELAY interrupt?
+> >As far as portable, we're talking about linux, portability is not an issue
+> >in this case.  I myself don't use swap files (or partitions), however, 
+> >there
+> >was a project I recall that would dynamically add/remove swap as needed. 
+> >Creating a file of 20-50mb quickly would have been beneficial.
+>
+> You can create 50M quickly - even if it actually have to be written.  If
+> you can't, don't use that device for swap. 
 
-							Thanx, Paul
+Not all systems can create 50mb in a short time.  Especially when the
+system/device is under load.  Not all systems have multiple disks either.
+
+> Ability to allocate some blocks without actually writing to them is nice 
+> for this
+> purpose, but current linux filesystems doesn't have an api for doing that.
+> The necessary changes would touch all existing writeable filesystems, and
+> that is a lot of work for very little gain.  As they say, you don't 
+> create swapfiles
+> all that often.  The time saved on swapfile creation might take a long 
+> time to
+> make up for the time spent on making, auditing and supporting those
+> changes.
+
+I hadn't considered this "portability" so I didn't understand at that
+point.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

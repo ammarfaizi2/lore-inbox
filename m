@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVGLUen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVGLUk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVGLUen (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 16:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVGLUeg
+	id S262390AbVGLUk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 16:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVGLUjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 16:34:36 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:21659 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S262389AbVGLUcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 16:32:39 -0400
-Subject: RE: [PATCH 22/82] remove linux/version.h from
-	drivers/message/fus	ion
-From: Tom Duffy <tduffy@sun.com>
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-Cc: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <91888D455306F94EBD4D168954A9457C030A908F@nacos172.co.lsil.com>
-References: <91888D455306F94EBD4D168954A9457C030A908F@nacos172.co.lsil.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D9D1/BBQJYs+1EOwjco8"
-Date: Tue, 12 Jul 2005 13:30:20 -0700
-Message-Id: <1121200220.13708.17.camel@duffman>
+	Tue, 12 Jul 2005 16:39:55 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20232 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262390AbVGLU1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 16:27:44 -0400
+Date: Tue, 12 Jul 2005 22:27:40 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jgarzik@pobox.com, jkmaline@cc.hut.fi, hostap@shmoo.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [-mm patch] net/ieee80211/: remove pci.h #include's
+Message-ID: <20050712202740.GL4034@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-11.fc5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was wondering why editing pci.h triggered the rebuild of three files 
+under net/, and as far as I can see, there's no reason for these three 
+files to #include pci.h .
 
---=-D9D1/BBQJYs+1EOwjco8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-On Sun, 2005-07-10 at 18:15 -0600, Moore, Eric Dean wrote:
-> I'd rather you not kill linux_compat.h file.
-> I use this file for compatibility of driver source=20
-> across various kernel versions.  I provide our
-> customers with driver builds containing single source=20
-> which needs to compile in kernels 2.6.5( e.g. SLES9),
-> 2.6.8 (e.g. RHEL4), and 2.6.11 ( e.g. SuSE 9.3 Pro).
+---
 
-It is the general policy that the source in the latest linux kernel only
-supports that kernel.  You can certainly keep a compat header for your
-customers, but what is in kernel.org should be clean for that version of
-the kernel.
+This patch was already sent on:
+- 3 Jul 2005
+- 30 May 2005
+- 1 May 2005
 
-> If you look at our 3.02.18 driver source I submitted to SuSE
-> for SLES9 SP2, you will see this file is about 3K bytes of
-> compatibility. =20
+ net/ieee80211/ieee80211_module.c |    1 -
+ net/ieee80211/ieee80211_rx.c     |    1 -
+ net/ieee80211/ieee80211_tx.c     |    1 -
+ 3 files changed, 3 deletions(-)
 
-Is the 3.02.18 code generally available now?  Can it be cleaned up for
-submission to 2.6.13?
+--- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_module.c.old	2005-04-30 23:23:14.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_module.c	2005-04-30 23:23:18.000000000 +0200
+@@ -40,7 +40,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+-#include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
+ #include <linux/slab.h>
+--- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_tx.c.old	2005-04-30 23:23:25.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_tx.c	2005-04-30 23:23:32.000000000 +0200
+@@ -33,7 +33,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+-#include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
+ #include <linux/slab.h>
+--- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_rx.c.old	2005-04-30 23:23:42.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_rx.c	2005-04-30 23:23:46.000000000 +0200
+@@ -23,7 +23,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+-#include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
+ #include <linux/slab.h>
 
--tduffy
-
---=-D9D1/BBQJYs+1EOwjco8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC1ChcdY502zjzwbwRAjz7AJ498j2j8RknLzTTZEKRfp9g4K4xowCdGJ0x
-H768BjFZFV5UKmU7uLMr9cs=
-=vmnQ
------END PGP SIGNATURE-----
-
---=-D9D1/BBQJYs+1EOwjco8--

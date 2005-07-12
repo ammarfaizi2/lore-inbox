@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVGKOrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVGLAdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbVGKOrN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVGKOpE
+	id S262325AbVGLAdj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 20:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVGLAb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:45:04 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:61830 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261893AbVGKOnx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:43:53 -0400
-Date: Mon, 11 Jul 2005 16:43:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050711144328.GA18244@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050711141232.GA16586@elte.hu> <20050711141622.GA17327@elte.hu> <200507111538.22551.s0348365@sms.ed.ac.uk>
+	Mon, 11 Jul 2005 20:31:27 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:31697 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262293AbVGLAbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 20:31:04 -0400
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Diego Calleja <diegocg@gmail.com>,
+       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
+In-Reply-To: <42D2D912.3090505@nortel.com>
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	 <20050708214908.GA31225@taniwha.stupidest.org>
+	 <20050708145953.0b2d8030.akpm@osdl.org>
+	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
+	 <20050709203920.394e970d.diegocg@gmail.com>
+	 <1120934466.6488.77.camel@mindpipe>  <176640000.1121107087@flay>
+	 <1121113532.2383.6.camel@mindpipe>  <42D2D912.3090505@nortel.com>
+Content-Type: text/plain
+Date: Mon, 11 Jul 2005 20:30:59 -0400
+Message-Id: <1121128260.2632.12.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507111538.22551.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-
-> It's annoying that this is so readily reproducible here, yet almost 
-> impossible to debug, and clearly a sideaffect of 4KSTACKS.. without it 
-> actually being a stack overflow.
+On Mon, 2005-07-11 at 14:39 -0600, Chris Friesen wrote:
+> Lee Revell wrote:
 > 
-> I realise 4KSTACKS is a considerable rework of the IRQ handler, etc.  
-> and probably even more heavily modified by rt-preempt, but is there 
-> nothing else that can be tested before a serial console run?
+> > Tickless + sub HZ timers is a win for everyone, the multimedia people
+> > get better latency, and the laptop people get to run longer.
+> 
+> IIRC it's not a win for many systems.  Throughput goes down due to timer 
+> manipulation overhead.
 
-4K stacks never really caused any trouble under PREEMPT_RT (or any other 
-kernel i tried). It's not that complex either.
+Makes sense.  Anyway, this whole thread has been pretty hand wavey, I
+propose that until we see some numbers from the HZ=250 advocates, we
+leave the default alone.
 
-one useful thing could be to give me exact instructions on how to set up 
-an openvpn network similar to yours, and what kind of workload to 
-generate. Maybe i can reproduce it here.
+Lee
 
-	Ingo

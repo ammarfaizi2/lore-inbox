@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVGLM1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVGLM3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVGLM1N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVGLMYo
+	id S261385AbVGLM3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVGLM1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:24:44 -0400
-Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:6300 "EHLO
-	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261385AbVGLMYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:24:01 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: David Lang <david.lang@digitalinsight.com>
-Subject: Re: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
-Date: Tue, 12 Jul 2005 22:23:44 +1000
-User-Agent: KMail/1.8.1
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>
-References: <200507122110.43967.kernel@kolivas.org> <200507122202.39988.kernel@kolivas.org> <Pine.LNX.4.62.0507120507430.9200@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0507120507430.9200@qynat.qvtvafvgr.pbz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2798036.Tb0N4Oca5x";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200507122223.46997.kernel@kolivas.org>
+	Tue, 12 Jul 2005 08:27:18 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:13073 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261306AbVGLMZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 08:25:24 -0400
+Date: Tue, 12 Jul 2005 14:25:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: mchehab@brturbo.com.br, video4linux-list@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: saa7134 card no longer working
+Message-ID: <20050712122522.GB4034@stusta.de>
+References: <20050710165839.GQ28243@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050710165839.GQ28243@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2798036.Tb0N4Oca5x
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+FYI:
+This problem is fixed in 2.6.13-rc2-mm2.
 
-On Tue, 12 Jul 2005 22:17, David Lang wrote:
-> which brings up another possible config option/test case, changing the
-> read/write tests to try to do X MB/sec rather then the max possible speed
-> (probably defaulting to max if nothing is specified)
 
-That's a good idea. I was planning on adding a configurable cpu%/interval=20
-benchmark as well so configurable read/write is a logical addition.=20
-
-> thanks again for working to define a good test case
-
-You're welcome, and thanks for feedback.
-
-Cheers,
-Con
-
---nextPart2798036.Tb0N4Oca5x
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC07ZSZUg7+tp6mRURAubZAKCBsriVQOnVh80MuPOxsua3cuUYbQCeKoBS
-hFvpMfQPFGrEGZ+uizkS1dw=
-=WC9W
------END PGP SIGNATURE-----
-
---nextPart2798036.Tb0N4Oca5x--
+On Sun, Jul 10, 2005 at 06:58:39PM +0200, Adrian Bunk wrote:
+> Hi,
+> 
+> I observed the following problem with a Tevion MD 9717 card:
+> 
+> It works in 2.6.12-rc6-mm1, but AFAIR this was the last kernel where it 
+> worked, in more recent kernels (including 2.6.13-rc2-mm1) tvtime only 
+> says "no signal".
+> 
+> dmesg output with 2.6.12-rc6-mm1:
+> saa7134[0]: found at 0000:00:0a.0, rev: 1, irq: 6, latency: 32, mmio: 0xcfffcc00
+> saa7134[0]: subsystem: 1131:0000, board: Tevion MD 9717 [card=6,insmod option]
+> saa7134[0]: board init: gpio is 100a0
+> saa7134[0]: Huh, no eeprom present (err=-5)?
+> saa7134[0]: registered device video0 [v4l2]
+> saa7134[0]: registered device vbi0
+> saa7134[0]: registered device radio0
+> tuner 4-0060: chip found @ 0xc0 (saa7134[0])
+> tuner 4-0060: type set to 5 (Philips PAL_BG (FI1216 and compatibles))
+> 
+> In 2.6.13-rc2-mm1 there's an additional line
+> tuner 4-0060: All bytes are equal. It is not a TEA5767
+> 
+> I'm always saying "saa7134.card=6" at the kernel command line since I 
+> got a "no eeprom present" message from the driver without this.
+> 
+> The card is working with 2.6.12-rc6-mm1, but during running, I 
+> occasionally get the following message in the syslog:
+> saa7134[0]/audio: audio carrier scan failed, using 5.500 MHz [last detected]
+> 
+> cu
+> Adrian

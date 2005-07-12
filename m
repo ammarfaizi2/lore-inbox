@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVGKTt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVGLAVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262466AbVGKTt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 15:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVGKTsP
+	id S262306AbVGLAVK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 20:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262277AbVGLAVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 15:48:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35087 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262255AbVGKTpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 15:45:43 -0400
-Date: Mon, 11 Jul 2005 20:45:34 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: arm: how to operate leds on zaurus?
-Message-ID: <20050711204534.C1540@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>, lenz@cs.wisc.edu,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20050711193454.GA2210@elf.ucw.cz>
+	Mon, 11 Jul 2005 20:21:09 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50609 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262294AbVGLAU3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 20:20:29 -0400
+Date: Mon, 11 Jul 2005 17:20:12 -0700
+From: Greg KH <greg@kroah.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] Use device_for_each_child() to unregister devices in scsi_remove_target().
+Message-ID: <20050712002011.GA9331@kroah.com>
+References: <11193083662356@kroah.com> <11193083663269@kroah.com> <20050706003850.GA11542@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050711193454.GA2210@elf.ucw.cz>; from pavel@ucw.cz on Mon, Jul 11, 2005 at 09:34:54PM +0200
+In-Reply-To: <20050706003850.GA11542@us.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 11, 2005 at 09:34:54PM +0200, Pavel Machek wrote:
-> Hi!
+On Tue, Jul 05, 2005 at 05:38:50PM -0700, Patrick Mansfield wrote:
+> Hi Greg / Patrick -
 > 
-> 2.6.12-rc5 (and newer) does not boot on sharp zaurus sl-5500. It
-> blinks with green led, fast; what does it mean? I'd like to verify if
-> it at least reaches .c code in setup.c. I inserted this code at
-> begining of setup.c:674...
+> I'm getting an oops with current (pulled today) 2.6 git, the
+> device_for_each_child() does not seem to be deletion safe.
 > 
-> #define locomo_writel(val,addr) ({ *(volatile u16 *)(addr) = (val); })
-> #define LOCOMO_LPT_TOFH         0x80
-> #define LOCOMO_LED              0xe8
-> #define LOCOMO_LPT0             0x00
-> 
->       locomo_writel(LOCOMO_LPT_TOFH, LOCOMO_LPT0 + LOCOMO_LED);
-> 
-> ...but that does not seem to do a trick -- it only breaks the boot :-(
+> We hold the klist in place via the n_ref, but the kobj (in the struct
+> device for the struct scsi_target) containing it is freed when the
+> kref->refcount goes to zero.
 
-Basically because you do not have access to IO during the early boot.
-The easiest debugging solution is to enable CONFIG_DEBUG_LL and
-throw a printascii(printk_buf) into printk.c, after vscnprintf.
-That might get you some boot messages through the serial port (if
-it's implemented it correctly.)
+But we grab a reference to that object right before we call
+device_for_each_child(), right?  Or am I missing something here?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+thanks,
+
+greg k-h

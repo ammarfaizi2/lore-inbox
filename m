@@ -1,84 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVGLBvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVGLByJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVGLBvC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 21:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVGLBsn
+	id S261392AbVGLByJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 21:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVGLByJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 21:48:43 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:42636 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S261693AbVGLBrq (ORCPT
+	Mon, 11 Jul 2005 21:54:09 -0400
+Received: from mx1.rowland.org ([192.131.102.7]:8198 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S261392AbVGLByI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 21:47:46 -0400
-Date: Mon, 11 Jul 2005 21:48:45 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Wendy Cheng <wcheng@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add ENOSYS into sys_io_cancel
-Message-ID: <20050712014845.GA11916@kvack.org>
-References: <42D2C34C.4040406@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42D2C34C.4040406@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 11 Jul 2005 21:54:08 -0400
+Date: Mon, 11 Jul 2005 21:54:07 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Michel Bouissou <michel@bouissou.net>
+cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [SOLVED ??] Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
+In-Reply-To: <200507112334.30680@totor.bouissou.net>
+Message-ID: <Pine.LNX.4.44L0.0507112142420.7520-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Wendy,
+On Mon, 11 Jul 2005, Michel Bouissou wrote:
 
-Two things: your patch needs to be properly signed off on.  Read 
-Documentation/SubmittingPatches for a description of what that entials.  
-Secondly, your patch adds whitespace on the end of the else.  Aside 
-from that, the printk should be removed -- just replace it with the 
-ret = -ENOSYS.
-
-Also, please cc linux-aio@kvack.org on future aio patches.  Cheers,
-
-		-ben 
-
-On Mon, Jul 11, 2005 at 03:06:52PM -0400, Wendy Cheng wrote:
-> Previously sent via private mail that doesn't seem to go thru - resend 
-> via office mailer.
+> Le Lundi 11 Juillet 2005 23:21, Alan Stern a écrit :
+> > Don't jump to hasty conclusions.  Problems like this are often caused by
+> > unrelated things that you wouldn't suspect at first.
 > 
-> Note that other than few exceptions, most of the current filesystem 
-> and/or drivers do not have aio cancel specifically defined 
-> (kiob->ki_cancel field is mostly NULL). However, sys_io_cancel system 
-> call universally sets return code to -EGAIN. This gives applications a 
-> wrong impression that this call is implemented but just never works. We 
-> have customer inquires about this issue.
-> 
-> Upload a trivial patch to address this confusion.
-> 
-> -- Wendy
-> 
-> 
+> I know... Been working with computers for... Uh... 25 years ?
 
-> --- linux-2.6.12/fs/aio.c	2005-06-17 15:48:29.000000000 -0400
-> +++ linux/fs/aio.c	2005-07-10 12:48:14.000000000 -0400
-> @@ -1641,8 +1641,9 @@ asmlinkage long sys_io_cancel(aio_contex
->  		cancel = kiocb->ki_cancel;
->  		kiocb->ki_users ++;
->  		kiocbSetCancelled(kiocb);
-> -	} else
-> +	} else 
->  		cancel = NULL;
-> +	 
->  	spin_unlock_irq(&ctx->ctx_lock);
->  
->  	if (NULL != cancel) {
-> @@ -1659,8 +1660,10 @@ asmlinkage long sys_io_cancel(aio_contex
->  			if (copy_to_user(result, &tmp, sizeof(tmp)))
->  				ret = -EFAULT;
->  		}
-> -	} else
-> +	} else {
-> +		ret = -ENOSYS;
->  		printk(KERN_DEBUG "iocb has no cancel operation\n");
-> +	} 
->  
->  	put_ioctx(ctx);
->  
+35 years for me...  My, how the time flies!
 
+> I don't believe the hardware is broken, as it's been running for more than 2 
+> years 100% stable with a 24/7/365 uptime. And with me plugging and unplugging 
+> USB devices...
+> 
+> Never had a single problem of the kind with any 2.4.x kernel. Get those 
+> problems only with 2.6.x kernels, and, in 2.6.12, only when UP IO-APIC is 
+> enabled (which ran perfectly good in 2.4).
+> 
+> So the problem is circled to 2.6 kernel, uhci_hcd and UP IO-APIC.
 
--- 
-"Time is what keeps everything from happening all at once." -- John Wheeler
+Don't rule out the hardware too quickly.  2.4 and 2.6 manage the UHCI
+controllers in different ways.  In particular, the usb-uhci driver in 2.4
+does not suspend the controller when no devices are attached, whereas
+uhci-hcd in 2.6 does.  (So does the "alternate" uhci driver in 2.4.)  I
+recently handled a bug report -- from another Frenchman -- where it turned
+out that his UHCI hardware instantly crashed the entire system whenever
+it resumed from the suspended state!
+
+To try and help pin things down, tomorrow (i.e., Tuesday) I'll send you a
+test patch to completely disable the UHCI controllers, leaving them awake
+and idle, not generating interrupts.  If you still get those spurious
+IRQs, they will have to come from somewhere else.  (Assuming you can
+devote server time to this sort of testing...)
+
+And of course, if the spurious IRQs stop then we'll know where to probe 
+further.
+
+Alan Stern
+

@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVGLCN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVGLCRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbVGLCN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 22:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVGLCN0
+	id S261760AbVGLCRK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 22:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVGLCRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 22:13:26 -0400
-Received: from tomts13-srv.bellnexxia.net ([209.226.175.34]:34246 "EHLO
-	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261754AbVGLCNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 22:13:25 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Eric St-Laurent <ericstl34@sympatico.ca>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       azarah@nosferatu.za.org, cw@f00f.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, christoph@lameter.org
-In-Reply-To: <1121090939.3177.30.camel@laptopd505.fenrus.org>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	 <20050708214908.GA31225@taniwha.stupidest.org>
-	 <20050708145953.0b2d8030.akpm@osdl.org>
-	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
-	 <1120933916.3176.57.camel@laptopd505.fenrus.org>
-	 <1120934163.6488.72.camel@mindpipe> <20050709121212.7539a048.akpm@osdl.org>
-	 <1120936561.6488.84.camel@mindpipe>
-	 <1121088186.7407.61.camel@localhost.localdomain>
-	 <20050711140510.GB14529@thunk.org>
-	 <1121090939.3177.30.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Mon, 11 Jul 2005 22:13:27 -0400
-Message-Id: <1121134407.20969.1.camel@orbiter>
+	Mon, 11 Jul 2005 22:17:09 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:62140 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261760AbVGLCRI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 22:17:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ARG1iqGCtcHOm+RiW9VAeba9hlrWbtM6HO1gOVznUSwhXxKb6CIc2+ERnQqanV9TWLfMiYvX8YEElOxZyTEwMFkGT78rz3WuwAu3zRrC/5LHBpKCwExvn0jws8+xvFw03orV52dJASh6Cg5AAExb1wMw7Elz8NrgJKqAhBfMLDY=
+Message-ID: <21d7e9970507111917105fda41@mail.gmail.com>
+Date: Tue, 12 Jul 2005 12:17:08 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Merging relayfs?
+Cc: Tom Zanussi <zanussi@us.ibm.com>, linux-kernel@vger.kernel.org,
+       karim@opersys.com, varap@us.ibm.com, richardj_moore@uk.ibm.com
+In-Reply-To: <20050711184558.6346e77c.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <17107.6290.734560.231978@tut.ibm.com>
+	 <20050711184558.6346e77c.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 16:08 +0200, Arjan van de Ven wrote:
-
-> Alan: you worked on this before, where did you end up with ?
+> >
+> > Hi Andrew, can you please merge relayfs?
 > 
+> I guess so.  Would you have time to prepare a list of existing and planned
+> applications?
 
-The last patch i've seen is 1 year old.
+I have a plan to use it for something that no-one knows about yet..
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0407.3/0643.html
+I was going to use it for doing a DRM packet debug logger... to try
+and trace hangs in the system, using printk doesn't really help as
+guess what it slows the machine down so much that your races don't
+happen... I wrote some basic code for this already.. and I'm hoping to
+use some work time to get it finished at some stage...
 
-Eric St-Laurent
-
-
+Dave.

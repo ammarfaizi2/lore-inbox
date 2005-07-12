@@ -1,69 +1,305 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVGLL0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVGLLcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVGLL0z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 07:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVGLL0y
+	id S261339AbVGLLcH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 07:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVGLLcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 07:26:54 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31177 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261336AbVGLLZx (ORCPT
+	Tue, 12 Jul 2005 07:32:07 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27052 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261339AbVGLLcF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 07:25:53 -0400
-Date: Tue, 12 Jul 2005 13:25:42 +0200
+	Tue, 12 Jul 2005 07:32:05 -0400
+Date: Tue, 12 Jul 2005 13:31:55 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [5/48] Suspend2 2.1.9.8 for 2.6.12: 350-workthreads.patch
-Message-ID: <20050712112542.GM1854@elf.ucw.cz>
-References: <11206164393426@foobar.com> <112061643920@foobar.com> <20050710230441.GC513@infradead.org> <1121150400.13869.22.camel@localhost> <20050712105754.GA23947@elf.ucw.cz> <1121166456.13869.165.camel@localhost> <20050712111516.GL1854@elf.ucw.cz> <1121167515.13869.168.camel@localhost>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: [patch] pm_message_t vs. u32 confusion: warnings fixed
+Message-ID: <20050712113155.GO1854@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1121167515.13869.168.camel@localhost>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > > > Again, why do you think you need this?
-> > > > > 
-> > > > > 1. If something should be wrong with the freezer, it forms part of a
-> > > > > safety net that stops your data on disk being trashed.
-> > > > 
-> > > > > 2. Separating out threads doing syncing from threads submitting I/O
-> > > > > makes the refrigerator much more reliable, even under extreme load.
-> > > > 
-> > > > This seems to be red herring. Sometimes sync took way too long (like
-> > > > hours) with older kernels and reiserfs, but I believe that has been
-> > > > fixed. If not, we need to fix it, anyway; no need to work around it in
-> > > > suspend2.
-> > > 
-> > > Are you considering races such as the case where one process is
-> > > submitting I/O (say dd) while another is trying to sync? Even if sync
-> > > does return sooner (presumably because it only syncs writes submitted
-> > > before the sync), there will still be dirty data after the sync
-> > > completes. And if we start another sync thread, it will suffer the same
-> > > problem. The only solution is to stop I/O being submitted, then sync.
-> > > But having stopped I/O being submitted, we need to still have the
-> > > threads the process the I/O (possibly userspace ones) unfrozen. Hence we
-> > > need to differentiate 'syncthreads'.
-> > 
-> > OTOH: this is only critical for "niceness", not for
-> > correctness. Calling sync() before suspend is simply nice thing to do,
-> > but it is not required in any way. If someone is doing long dd, tough,
-> > they are going to loose some data if wakeup fails. It is no worse than
-> > sudden poweroff.
-> 
-> How can you say it's only required for niceness one minute, then admit
-> it might result in data loss the next?
+Fix some more u32 vs. pm_message_t confusion. These were causing
+"only" warnings. I decided to remove some debug prints instead of
+"fixing" them; they used to print constant "3" so I do not think it
+was *that* usefull.
 
-It will result in data loss *if resume fails*. But failing resume
-*always* causes data in running programs to be lost, so I do not see
-that as a problem.
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+
+---
+author <pavel@amd.(none)> Tue, 12 Jul 2005 13:23:50 +0200
+committer <pavel@amd.(none)> Tue, 12 Jul 2005 13:23:50 +0200
+
+ arch/i386/kernel/cpu/mtrr/main.c              |    2 +-
+ drivers/media/video/bttv-driver.c             |    1 -
+ drivers/media/video/msp3400.c                 |    4 ++--
+ drivers/media/video/tda9887.c                 |    2 +-
+ drivers/media/video/tuner-core.c              |    2 +-
+ drivers/net/bnx2.c                            |   18 +++++++++---------
+ drivers/net/e1000/e1000_main.c                |   16 +++++++---------
+ drivers/net/wireless/orinoco_pci.c            |    2 --
+ drivers/net/wireless/prism54/islpci_hotplug.c |    2 --
+ drivers/video/s1d13xxxfb.c                    |    2 +-
+ drivers/video/savagefb*
+ 10 files changed, 22 insertions(+), 29 deletions(-)
+
+diff --git a/arch/i386/kernel/cpu/mtrr/main.c b/arch/i386/kernel/cpu/mtrr/main.c
+--- a/arch/i386/kernel/cpu/mtrr/main.c
++++ b/arch/i386/kernel/cpu/mtrr/main.c
+@@ -561,7 +561,7 @@ struct mtrr_value {
+ 
+ static struct mtrr_value * mtrr_state;
+ 
+-static int mtrr_save(struct sys_device * sysdev, u32 state)
++static int mtrr_save(struct sys_device * sysdev, pm_message_t state)
+ {
+ 	int i;
+ 	int size = num_var_ranges * sizeof(struct mtrr_value);
+diff --git a/drivers/media/video/bttv-driver.c b/drivers/media/video/bttv-driver.c
+--- a/drivers/media/video/bttv-driver.c
++++ b/drivers/media/video/bttv-driver.c
+@@ -4043,7 +4043,6 @@ static int bttv_suspend(struct pci_dev *
+ 	struct bttv_buffer_set idle;
+ 	unsigned long flags;
+ 
+-	dprintk("bttv%d: suspend %d\n", btv->c.nr, state);
+ 
+ 	/* stop dma + irqs */
+ 	spin_lock_irqsave(&btv->s_lock,flags);
+diff --git a/drivers/media/video/msp3400.c b/drivers/media/video/msp3400.c
+--- a/drivers/media/video/msp3400.c
++++ b/drivers/media/video/msp3400.c
+@@ -1431,7 +1431,7 @@ static int msp_detach(struct i2c_client 
+ static int msp_probe(struct i2c_adapter *adap);
+ static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg);
+ 
+-static int msp_suspend(struct device * dev, u32 state, u32 level);
++static int msp_suspend(struct device * dev, pm_message_t state, u32 level);
+ static int msp_resume(struct device * dev, u32 level);
+ 
+ static void msp_wake_thread(struct i2c_client *client);
+@@ -1836,7 +1836,7 @@ static int msp_command(struct i2c_client
+ 	return 0;
+ }
+ 
+-static int msp_suspend(struct device * dev, u32 state, u32 level)
++static int msp_suspend(struct device * dev, pm_message_t state, u32 level)
+ {
+ 	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
+ 
+diff --git a/drivers/media/video/tda9887.c b/drivers/media/video/tda9887.c
+--- a/drivers/media/video/tda9887.c
++++ b/drivers/media/video/tda9887.c
+@@ -769,7 +769,7 @@ tda9887_command(struct i2c_client *clien
+ 	return 0;
+ }
+ 
+-static int tda9887_suspend(struct device * dev, u32 state, u32 level)
++static int tda9887_suspend(struct device * dev, pm_message_t state, u32 level)
+ {
+ 	dprintk("tda9887: suspend\n");
+ 	return 0;
+diff --git a/drivers/media/video/tuner-core.c b/drivers/media/video/tuner-core.c
+--- a/drivers/media/video/tuner-core.c
++++ b/drivers/media/video/tuner-core.c
+@@ -540,7 +540,7 @@ tuner_command(struct i2c_client *client,
+ 	return 0;
+ }
+ 
+-static int tuner_suspend(struct device * dev, u32 state, u32 level)
++static int tuner_suspend(struct device * dev, pm_message_t state, u32 level)
+ {
+ 	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
+ 	struct tuner *t = i2c_get_clientdata(c);
+diff --git a/drivers/net/bnx2.c b/drivers/net/bnx2.c
+--- a/drivers/net/bnx2.c
++++ b/drivers/net/bnx2.c
+@@ -1998,14 +1998,14 @@ bnx2_init_cpus(struct bnx2 *bp)
+ }
+ 
+ static int
+-bnx2_set_power_state(struct bnx2 *bp, int state)
++bnx2_set_power_state(struct bnx2 *bp, pci_power_t state)
+ {
+ 	u16 pmcsr;
+ 
+ 	pci_read_config_word(bp->pdev, bp->pm_cap + PCI_PM_CTRL, &pmcsr);
+ 
+ 	switch (state) {
+-	case 0: {
++	case PCI_D0: {
+ 		u32 val;
+ 
+ 		pci_write_config_word(bp->pdev, bp->pm_cap + PCI_PM_CTRL,
+@@ -2026,7 +2026,7 @@ bnx2_set_power_state(struct bnx2 *bp, in
+ 		REG_WR(bp, BNX2_RPM_CONFIG, val);
+ 		break;
+ 	}
+-	case 3: {
++	case PCI_D3hot: {
+ 		int i;
+ 		u32 val, wol_msg;
+ 
+@@ -3877,7 +3877,7 @@ bnx2_open(struct net_device *dev)
+ 	struct bnx2 *bp = dev->priv;
+ 	int rc;
+ 
+-	bnx2_set_power_state(bp, 0);
++	bnx2_set_power_state(bp, PCI_D0);
+ 	bnx2_disable_int(bp);
+ 
+ 	rc = bnx2_alloc_mem(bp);
+@@ -4190,7 +4190,7 @@ bnx2_close(struct net_device *dev)
+ 	bnx2_free_mem(bp);
+ 	bp->link_up = 0;
+ 	netif_carrier_off(bp->dev);
+-	bnx2_set_power_state(bp, 3);
++	bnx2_set_power_state(bp, PCI_D3hot);
+ 	return 0;
+ }
+ 
+@@ -5192,7 +5192,7 @@ bnx2_init_board(struct pci_dev *pdev, st
+ 			       BNX2_PCICFG_MISC_CONFIG_REG_WINDOW_ENA |
+ 			       BNX2_PCICFG_MISC_CONFIG_TARGET_MB_WORD_SWAP);
+ 
+-	bnx2_set_power_state(bp, 0);
++	bnx2_set_power_state(bp, PCI_D0);
+ 
+ 	bp->chip_id = REG_RD(bp, BNX2_MISC_ID);
+ 
+@@ -5466,7 +5466,7 @@ bnx2_remove_one(struct pci_dev *pdev)
+ }
+ 
+ static int
+-bnx2_suspend(struct pci_dev *pdev, u32 state)
++bnx2_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	struct bnx2 *bp = dev->priv;
+@@ -5484,7 +5484,7 @@ bnx2_suspend(struct pci_dev *pdev, u32 s
+ 		reset_code = BNX2_DRV_MSG_CODE_SUSPEND_NO_WOL;
+ 	bnx2_reset_chip(bp, reset_code);
+ 	bnx2_free_skbs(bp);
+-	bnx2_set_power_state(bp, state);
++	bnx2_set_power_state(bp, pci_choose_state(pdev, state));
+ 	return 0;
+ }
+ 
+@@ -5497,7 +5497,7 @@ bnx2_resume(struct pci_dev *pdev)
+ 	if (!netif_running(dev))
+ 		return 0;
+ 
+-	bnx2_set_power_state(bp, 0);
++	bnx2_set_power_state(bp, PCI_D0);
+ 	netif_device_attach(dev);
+ 	bnx2_init_nic(bp);
+ 	bnx2_netif_start(bp);
+diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
+--- a/drivers/net/e1000/e1000_main.c
++++ b/drivers/net/e1000/e1000_main.c
+@@ -163,7 +163,7 @@ static void e1000_vlan_rx_kill_vid(struc
+ static void e1000_restore_vlan(struct e1000_adapter *adapter);
+ 
+ static int e1000_notify_reboot(struct notifier_block *, unsigned long event, void *ptr);
+-static int e1000_suspend(struct pci_dev *pdev, uint32_t state);
++static int e1000_suspend(struct pci_dev *pdev, pm_message_t state);
+ #ifdef CONFIG_PM
+ static int e1000_resume(struct pci_dev *pdev);
+ #endif
+@@ -3662,14 +3662,14 @@ e1000_notify_reboot(struct notifier_bloc
+ 	case SYS_POWER_OFF:
+ 		while((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev))) {
+ 			if(pci_dev_driver(pdev) == &e1000_driver)
+-				e1000_suspend(pdev, 3);
++				e1000_suspend(pdev, PMSG_SUSPEND);
+ 		}
+ 	}
+ 	return NOTIFY_DONE;
+ }
+ 
+ static int
+-e1000_suspend(struct pci_dev *pdev, uint32_t state)
++e1000_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+ 	struct net_device *netdev = pci_get_drvdata(pdev);
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
+@@ -3753,9 +3753,7 @@ e1000_suspend(struct pci_dev *pdev, uint
+ 	}
+ 
+ 	pci_disable_device(pdev);
+-
+-	state = (state > 0) ? 3 : 0;
+-	pci_set_power_state(pdev, state);
++	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+ 
+ 	return 0;
+ }
+@@ -3768,13 +3766,13 @@ e1000_resume(struct pci_dev *pdev)
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
+ 	uint32_t manc, ret_val, swsm;
+ 
+-	pci_set_power_state(pdev, 0);
++	pci_set_power_state(pdev, PCI_D0);
+ 	pci_restore_state(pdev);
+ 	ret_val = pci_enable_device(pdev);
+ 	pci_set_master(pdev);
+ 
+-	pci_enable_wake(pdev, 3, 0);
+-	pci_enable_wake(pdev, 4, 0); /* 4 == D3 cold */
++	pci_enable_wake(pdev, PCI_D3hot, 0);
++	pci_enable_wake(pdev, PCI_D3cold, 0);
+ 
+ 	e1000_reset(adapter);
+ 	E1000_WRITE_REG(&adapter->hw, WUS, ~0);
+diff --git a/drivers/net/wireless/orinoco_pci.c b/drivers/net/wireless/orinoco_pci.c
+--- a/drivers/net/wireless/orinoco_pci.c
++++ b/drivers/net/wireless/orinoco_pci.c
+@@ -301,8 +301,6 @@ static int orinoco_pci_suspend(struct pc
+ 	unsigned long flags;
+ 	int err;
+ 	
+-	printk(KERN_DEBUG "%s: Orinoco-PCI entering sleep mode (state=%d)\n",
+-	       dev->name, state);
+ 
+ 	err = orinoco_lock(priv, &flags);
+ 	if (err) {
+diff --git a/drivers/net/wireless/prism54/islpci_hotplug.c b/drivers/net/wireless/prism54/islpci_hotplug.c
+--- a/drivers/net/wireless/prism54/islpci_hotplug.c
++++ b/drivers/net/wireless/prism54/islpci_hotplug.c
+@@ -267,8 +267,6 @@ prism54_suspend(struct pci_dev *pdev, pm
+ 	islpci_private *priv = ndev ? netdev_priv(ndev) : NULL;
+ 	BUG_ON(!priv);
+ 
+-	printk(KERN_NOTICE "%s: got suspend request (state %d)\n",
+-	       ndev->name, state);
+ 
+ 	pci_save_state(pdev);
+ 
+diff --git a/drivers/video/s1d13xxxfb.c b/drivers/video/s1d13xxxfb.c
+--- a/drivers/video/s1d13xxxfb.c
++++ b/drivers/video/s1d13xxxfb.c
+@@ -655,7 +655,7 @@ bail:
+ }
+ 
+ #ifdef CONFIG_PM
+-static int s1d13xxxfb_suspend(struct device *dev, u32 state, u32 level)
++static int s1d13xxxfb_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	struct fb_info *info = dev_get_drvdata(dev);
+ 	struct s1d13xxxfb_par *s1dfb = info->par;
+--- a/drivers/video/savage/savagefb_driver.c
++++ b/drivers/video/savage/savagefb_driver.c
+@@ -2110,7 +2110,6 @@ static int savagefb_suspend (struct pci_
+ 	struct savagefb_par *par = (struct savagefb_par *)info->par;
+ 
+ 	DBG("savagefb_suspend");
+-	printk(KERN_DEBUG "state: %u\n", state);
+ 
+ 	acquire_console_sem();
+ 	fb_set_suspend(info, pci_choose_state(dev, state));
+

@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVGLJOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVGLJRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVGLJOp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 05:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVGLJMs
+	id S261271AbVGLJRO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 05:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVGLJOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 05:12:48 -0400
-Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:16033
-	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
-	id S261278AbVGLJMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 05:12:25 -0400
-Message-ID: <42D3896B.4070806@ev-en.org>
-Date: Tue, 12 Jul 2005 10:12:11 +0100
-From: Baruch Even <baruch@ev-en.org>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       karim@opersys.com, varap@us.ibm.com, richardj_moore@uk.ibm.com,
-       rostedt@goodmis.org, prasadav@us.ibm.com
-Subject: Re: Merging relayfs?
-References: <17107.6290.734560.231978@tut.ibm.com>	<20050711184558.6346e77c.akpm@osdl.org> <17107.10600.661157.164699@tut.ibm.com>
-In-Reply-To: <17107.10600.661157.164699@tut.ibm.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Jul 2005 05:14:48 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51094 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261271AbVGLJOI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 05:14:08 -0400
+Date: Tue, 12 Jul 2005 11:14:00 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch] Fix GDT loading during resume from suspend-to-RAM
+Message-ID: <20050712091400.GI1854@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Zanussi wrote:
-> Andrew Morton writes:
->  > Tom Zanussi <zanussi@us.ibm.com> wrote:
->  > >
->  > > Hi Andrew, can you please merge relayfs?
->  > 
->  > I guess so.  Would you have time to prepare a list of existing and planned
->  > applications?
-> 
-> I've also added a couple of people to the cc: list that I've consulted
-> with in getting their applications to use relayfs, one of which is the
-> logdev debugging device recently posted to LKML.
+Fix GDT loading during resume from suspend-to-RAM.
 
-I'm using relayfs during my development work to log the current TCP
-stack parameters and timing information. There is no reason that I can
-see to merge this into the kernel, but it's very useful for my
-development work.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-I'd like to see relayfs merged.
+---
+commit 523c9470749c558e002f3041f5af620acf7f3e0c
+tree 92b643196cbaa89fa54ff141bc94fee8664009b3
+parent 79b675b6cc9268d178b3c0a2af2e4f944c5fdf9b
+author <pavel@amd.(none)> Tue, 12 Jul 2005 11:13:30 +0200
+committer <pavel@amd.(none)> Tue, 12 Jul 2005 11:13:30 +0200
 
-Baruch
+ arch/i386/kernel/acpi/wakeup.S |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/i386/kernel/acpi/wakeup.S b/arch/i386/kernel/acpi/wakeup.S
+--- a/arch/i386/kernel/acpi/wakeup.S
++++ b/arch/i386/kernel/acpi/wakeup.S
+@@ -74,8 +74,9 @@ wakeup_code:
+ 	movw	%ax,%fs
+ 	movw	$0x0e00 + 'i', %fs:(0x12)
+ 	
+-	# need a gdt
+-	lgdt	real_save_gdt - wakeup_code
++	# need a gdt -- use lgdtl to force 32-bit operands, in case
++	# the GDT is located past 16 megabytes
++	lgdtl	real_save_gdt - wakeup_code
+ 
+ 	movl	real_save_cr0 - wakeup_code, %eax
+ 	movl	%eax, %cr0
+
+-- 
+teflon -- maybe it is a trademark, but it should not be.

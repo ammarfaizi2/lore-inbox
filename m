@@ -1,58 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVGLV0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVGLV3B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVGLV0v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 17:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVGLV0s
+	id S262451AbVGLV3B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 17:29:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVGLV25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 17:26:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54489 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262445AbVGLVY5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 17:24:57 -0400
-Date: Tue, 12 Jul 2005 22:24:49 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: laurent.riffard@free.fr, linux-kernel@vger.kernel.org,
-       Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-Subject: [PATCH] device-mapper: Fix target suspension oops.
-Message-ID: <20050712212449.GK12337@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, laurent.riffard@free.fr,
-	linux-kernel@vger.kernel.org,
-	Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-References: <20050712021724.13b2297a.akpm@osdl.org> <42D41177.9020300@free.fr> <20050712204751.GB12341@agk.surrey.redhat.com> <20050712140248.3cdcb9b8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050712140248.3cdcb9b8.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 12 Jul 2005 17:28:57 -0400
+Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:53123 "EHLO
+	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262444AbVGLV1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 17:27:12 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: ondemand cpufreq ineffective in 2.6.12 ?
+Date: Wed, 13 Jul 2005 07:26:50 +1000
+User-Agent: KMail/1.8.1
+Cc: Eric Piel <Eric.Piel@lifl.fr>, Ken Moffat <ken@kenmoffat.uklinux.net>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0507111702410.2222@ppg_penguin.kenmoffat.uklinux.net> <200507122152.26106.kernel@kolivas.org> <1121180244.2632.55.camel@mindpipe>
+In-Reply-To: <1121180244.2632.55.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1242368.t6GhPaKmzn";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507130726.52654.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This section got lost while refactoring the 'Fix deadlocks in core' set 
-of patches I sent yesterday.  Without it, you'll have problems
-activating any device-mapper devices.
+--nextPart1242368.t6GhPaKmzn
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-The NULL detection is moved inside the functions instead of every 
-caller having to do it.
+On Wed, 13 Jul 2005 00:57, Lee Revell wrote:
+> On Tue, 2005-07-12 at 21:52 +1000, Con Kolivas wrote:
+> > > Well, it's just the default settings of the kernel which has changed.
+> > > If you want the old behaviour, you can use (with your admin hat): echo
+> > > 1 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/ignore_nice IMHO it
+> > > seems quite fair, if you have a process nice'd to 10 it probably means
+> > > you are not in a hurry.
+> >
+> > That's not necessarily true. Most people use 'nice' to have the cpu bou=
+nd
+> > task not affect their foreground applications, _not_ because they don't
+> > care how long they take.
+>
+> But the scheduler should do this on its own!
 
---- drivers/md/dm-table.c	2005-07-12 22:10:20.000000000 +0100
-+++ /data/kernels/pm-2612udm1/source/drivers/md/dm-table.c	2005-07-06 18:52:18.000000000 +0100
-@@ -869,11 +869,17 @@
- 
- void dm_table_presuspend_targets(struct dm_table *t)
- {
-+	if (!t)
-+		return;
-+
- 	return suspend_targets(t, 0);
- }
- 
- void dm_table_postsuspend_targets(struct dm_table *t)
- {
-+	if (!t)
-+		return;
-+
- 	return suspend_targets(t, 1);
- }
- 
+That is a most unusual thing to tell the person who tuned the crap out of t=
+he=20
+2.6 scheduler so that it would do this.
+
+> If people are having to=20
+> renice kernel compiles to maintain decent interactive performance (and
+> yes, I have to do the same thing sometimes) the scheduler is BROKEN,
+> period.
+
+Two tasks being the same nice level still implies they should receive the s=
+ame=20
+proportion of cpu. Anything else breaks the implied fairness of nice levels=
+=2E=20
+Whether you agree with this approach or not, it is expected. No, cpu=20
+distribution is never _perfectly_ split 50/50 when nice levels are the same=
+=20
+but we try our best to do so while maintaining interactivity.=20
+
+A more useful argument would be that you'd like to have two sets of nice=20
+levels - one perhaps called latnice implying which tasks you want latency=20
+critical but still want to have the same cpu and one called cpunice which=20
+affects the amount of cpu but not the latency. Some would like complete=20
+control over both nices while others want the scheduler to do everything fo=
+r=20
+them. Either way, you want a compile to be both latnice and cpunice. Our=20
+current nice is both latnice and cpunice, and if nice levels are equal the=
+=20
+scheduler does a heck of a lot of its own latnice based on behaviour. It's=
+=20
+not perfect and nothing ever is.=20
+
+Cheers,
+Con
+
+--nextPart1242368.t6GhPaKmzn
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC1DWcZUg7+tp6mRURAp9bAJ9p71j+lmbbF2rtDEAYzXQhFthT+QCfYm/F
+mQXmRYNPdHFadTZtbyQ0NUY=
+=UOUM
+-----END PGP SIGNATURE-----
+
+--nextPart1242368.t6GhPaKmzn--

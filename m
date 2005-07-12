@@ -1,68 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVGLMWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVGLMYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVGLMWk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVGLMUH
+	id S261406AbVGLMYl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVGLL5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:20:07 -0400
-Received: from alog0200.analogic.com ([208.224.220.215]:7090 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261371AbVGLMTd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:19:33 -0400
-Date: Tue, 12 Jul 2005 08:17:02 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Patrick McHardy <kaber@trash.net>
-cc: Denis Vlasenko <vda@ilport.com.ua>, sander@humilis.net,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
-Subject: Re: kernel guide to space
-In-Reply-To: <42D3AFA1.2090203@trash.net>
-Message-ID: <Pine.LNX.4.61.0507120809200.2712@chaos.analogic.com>
-References: <20050711145616.GA22936@mellanox.co.il> <20050711153447.GA19848@favonius>
- <200507120952.04279.vda@ilport.com.ua> <42D3AFA1.2090203@trash.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 12 Jul 2005 07:57:31 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:52844 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261371AbVGLL4X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 07:56:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=gN1X/jPE9r5PQsH82fGqUtGG/+AV/dTn1NzdpjXBcbJ9I/5M5pAFi2UiyJ309a70pb3yyJS/l23OnWoCDT1B3I3NOqWrExlNxslm+ag7Ik7B4MBd4RcRSQPenp+BAIzPxcuxm49OJ+TEsFuNPZUtQy8ZJdolLzCFhEU2jubWsDY=
+Message-ID: <1ba727770507120455789aaf0a@mail.gmail.com>
+Date: Tue, 12 Jul 2005 17:25:20 +0530
+From: Amrut Joshi <amrut.joshi@gmail.com>
+Reply-To: Amrut Joshi <amrut.joshi@gmail.com>
+To: linux-scsi@vger.kernel.org
+Subject: Re: SCSI luns
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1121168331.3171.21.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_10928_30197528.1121169320825"
+References: <1ba727770507120422562d525d@mail.gmail.com>
+	 <1121168331.3171.21.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jul 2005, Patrick McHardy wrote:
+------=_Part_10928_30197528.1121169320825
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Denis Vlasenko wrote:
->> text with 8-char tabs:
->>
->> struct s {
->>         int n;          /* comment */
->>         unsigned int u; /* comment */
->> };
->>
->> Same text viewed with tabs set to 4-char width:
->>
->> struct s {
->>     int n;      /* comment */
->>     unsigned int u; /* comment */
->> };
->>
->> Comments are not aligned anymore
->
-> Best rule IMO is to use tabs for indentation and spaces for alignment.
-> This way tab size can be changed without breaking alignment.
+Hi,
 
-Or just disallow tabs altogether. At Analogic we had several hundred
-thousand lines of imaging code from various engineers around the world.
-They would set their tabs so everything looked fine on their computers.
-On other computers, it looked like hell so engineers who had to
-merge code spent hundreds of wasted hours lining up the code. The
-"cleanup" work never stopped! That was until, we made a rule that
-all code would be run through a filter that would remove tabs and
-substitute spaces (of the width the writer intended). No code that
-is released contains even a single tab anymode.
+On 7/12/05, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Tue, 2005-07-12 at 16:52 +0530, Amrut Joshi wrote:
+> > Hi,
+> >
+> > Currently linux scsi subsystem doesnt store the 8-byte luns which are
+> > recieved in REPORT_LUNS reply. This information is forver lost once
+> > the scan is over. In my LDD  I need this information. Currently I have
+> > to snoop REPORT_LUNS reply, do scsilun_to_int for all the luns and
+>=20
+> which LDD is this? Is it ready for merging into the linux kernel yet?
+>=20
 
-The files are larger of course, but even lap-tops have gigabyte
-drives now-days and the duplicate spaces give compression utilities
-something to do.
+It will be ready for submission in a couple of months. The design (and
+implementation) would be simplified if these changes are accepted. Any
+thoughts?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Sorry for the garbled patch. Attaching it again.=20
+
+Please CC me on the replies.
+
+Thanks,
+-Amrut!
+
+------=_Part_10928_30197528.1121169320825
+Content-Type: application/octet-stream; name="patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch"
+
+LS0tIGRyaXZlcnMvc2NzaS9zY3NpX3NjYW4uYy5vcmlnCTIwMDUtMDYtMzAgMDQ6MzA6NTMuMDAw
+MDAwMDAwICswNTMwCisrKyBkcml2ZXJzL3Njc2kvc2NzaV9zY2FuLmMJMjAwNS0wNy0xMiAxNjox
+OTo0OC41MzM3ODg1MjggKzA1MzAKQEAgLTExNzAsNiArMTE3MCw3IEBACiAJCQkJICAgICAgICIg
+YWJvcnRlZFxuIiwgZGV2bmFtZSwgbHVuKTsKIAkJCQlicmVhazsKIAkJCX0KKyAgICAgICAgICAg
+ICAgICAgICAgICAgIG1lbWNweShzZGV2LT5sdW5fYWRkcmVzcywgbHVucCwgc2l6ZW9mKHNkZXYt
+Pmx1bl9hZGRyZXNzKSk7CiAJCX0KIAl9CiAKLS0tIGluY2x1ZGUvc2NzaS9zY3NpX2RldmljZS5o
+Lm9yaWcJMjAwNS0wNi0zMCAwNDozMDo1My4wMDAwMDAwMDAgKzA1MzAKKysrIGluY2x1ZGUvc2Nz
+aS9zY3NpX2RldmljZS5oCTIwMDUtMDctMTIgMTY6MTk6NDguNTM0Nzg4Mzc2ICswNTMwCkBAIC01
+OCw2ICs1OCw4IEBACiAJCQkJCSAgIGNvdWxkIGFsbCBiZSBmcm9tIHRoZSBzYW1lIGV2ZW50LiAq
+LwogCiAJdW5zaWduZWQgaW50IGlkLCBsdW4sIGNoYW5uZWw7CisgICAgICAgIHN0cnVjdCBzY3Np
+X2x1biBsdW5fYWRkcmVzczsgICAgLyogc2NzaSBhZGRyZXNzIHJldHVybmVkIGJ5IFJFUE9SVF9M
+VU5TCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICogdXNhYmxlIG9u
+bHkgaWYgc2Rldi0+c2NzaV9sdW4gPj0gU0NTSV8zICovCiAKIAl1bnNpZ25lZCBpbnQgbWFudWZh
+Y3R1cmVyOwkvKiBNYW51ZmFjdHVyZXIgb2YgZGV2aWNlLCBmb3IgdXNpbmcgCiAJCQkJCSAqIHZl
+bmRvci1zcGVjaWZpYyBjbWQncyAqLwo=
+------=_Part_10928_30197528.1121169320825--

@@ -1,82 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVGLQ13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVGLQ33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261487AbVGLQ13 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 12:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVGLQZV
+	id S261574AbVGLQ33 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 12:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVGLQ1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 12:25:21 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:61885 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261574AbVGLQYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 12:24:06 -0400
-Subject: Re: Merging relayfs?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: Jason Baron <jbaron@redhat.com>, richardj_moore@uk.ibm.com,
-       varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <17107.60140.948145.153144@tut.ibm.com>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	 <Pine.LNX.4.61.0507121050390.25408@dhcp83-105.boston.redhat.com>
-	 <1121183607.6917.47.camel@localhost.localdomain>
-	 <17107.60140.948145.153144@tut.ibm.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 12 Jul 2005 12:23:13 -0400
-Message-Id: <1121185393.6917.59.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 12 Jul 2005 12:27:34 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:53161 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261548AbVGLQ1U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 12:27:20 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17107.61271.924455.965538@tut.ibm.com>
+Date: Tue, 12 Jul 2005 11:27:03 -0500
+To: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Cc: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
+       richardj_moore@uk.ibm.com
+Subject: Re: Merging relayfs?
+In-Reply-To: <Pine.BSO.4.62.0507121731290.6919@rudy.mif.pg.gda.pl>
+References: <17107.6290.734560.231978@tut.ibm.com>
+	<Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl>
+	<17107.57046.817407.562018@tut.ibm.com>
+	<Pine.BSO.4.62.0507121731290.6919@rudy.mif.pg.gda.pl>
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 11:08 -0500, Tom Zanussi wrote:
-> Steven Rostedt writes:
->  > On Tue, 2005-07-12 at 10:58 -0400, Jason Baron wrote:
->  > > On Mon, 11 Jul 2005, Tom Zanussi wrote:
->  > 
->  > > One concern I had regarding relayfs, which was raised previously, was 
->  > > regarding its use of vmap, 
->  > > http://marc.theaimsgroup.com/?l=linux-kernel&m=110755199913216&w=2 On x86, 
->  > > the vmap space is at a premium, and this space is reserved over the entire 
->  > > lifetime of a 'channel'. Is the use of vmap really critical for 
->  > > performance?
->  > 
->  > I believe that (Tom correct me if I'm wrong) the use of vmap was to
->  > allocate a large buffer without risking failing to allocate. Since the
->  > buffer does not need to be in continuous pages. If this is a problem,
->  > maybe Tom can use my buffer method to make a buffer :-)
->  > 
-> 
-> The main reason we use vmap is so that from the kernel side we have a
-> nice contiguous address range to log to even though the the pages
-> aren't actually contiguous.
+=?ISO-8859-2?Q?Tomasz_K=B3oczko?= writes:
+ > On Tue, 12 Jul 2005, Tom Zanussi wrote:
+ > 
+ > > =?ISO-8859-2?Q?Tomasz_K=B3oczko?= writes:
+ > > > On Mon, 11 Jul 2005, Tom Zanussi wrote:
+ > > >
+ > > > >
+ > > > > Hi Andrew, can you please merge relayfs?  It provides a low-overhead
+ > > > > logging and buffering capability, which does not currently exist in
+ > > > > the kernel.
+ > > > >
+ > > > > relayfs key features:
+ > > > >
+ > > > > - Extremely efficient high-speed logging/buffering
+ > > >
+ > > > Usualy/for now relayfs is used as base infrastructure for variuos
+ > > > debuging/measuring.
+ > > > IMO storing raw data and transfer them to user space it is wrong way.
+ > > > Why ? Becase i adds very big overhead for memory nad storage.
+ > > > Big .. compare to in situ storing partialy analyzed data in conters
+ > > > and other like it is in DTrace.
+ > > >
+ > >
+ > > But isn't it supposed to be a good thing to keep analysis out of the
+ > > kernel if possible?
+ > 
+ > As long as you try for example measure (?) .. not.
+ > 
+ > > And many things can't be aggregated, such as the detailed sequence of 
+ > > events in a trace.
+ > 
+ > DTrace real examples shows something completly diffret.
+ > MANY things (if not ~almost all) can be kept only in aggregated form 
+ > during experiments.
 
-That's what I meant, but you said it better :-)
+But you can also do the aggregation in user space if you have a cheap
+way of getting it there, as we've shown with some of the examples.
+Why do you need it in the kernel?  And what do you do when you need to
+know the exact sequence of events, especially if you don't really know
+what you're looking for?
 
-> 
->  > See http://www.kihontech.com/logdev where my logdev debugging tool that
->  > allocates separate pages and uses an accounting system instead of the
->  > more efficient vmalloc to keep the data in the pages together. I'm
->  > currently working with Tom to get this to use relayfs as the back end.
->  > But here you can take a look at how the buffering works and it doesn't
->  > waste up vmalloc.
-> 
-> It might be worthwhile to try out different alternatives and compare
-> them, but I'm pretty sure we won't be able to beat what's already in
-> relayfs.  The question is I guess, how much slower would be
-> acceptable?
+ > 
+ > > Anyway, it doesn't have to be
+ > > an 'all or nothing' thing.  For some applications it may make sense to
+ > > do some amount of filtering and aggregation in the kernel.  AFAICS
+ > > DTrace takes this to the extreme and does everything in the kernel,
+ > > and IIRC it can't easily be made to general system tracing along the
+ > > lines of LTT, for instance.
+ > 
+ > Try measure number of dysk I/O operation without touching storage for 
+ > store raw data. What you need ? only one counter (few bytes) instead of huge 
+ > amount of memeory for buffer and store logs. Try measure something like
+ > scheduler with possible small system distruption.
 
-I totally agree that the vmalloc way is faster, but I would also argue
-that the accounting to handle the separate pages would not even be
-noticeable with the time it takes to do the actual copying into the
-buffer.  So if the accounting adds 3ns on top of 500ns to complete, I
-don't think people will mind.
+Most of the time the data is just being buffered and only when the
+buffer is full is it written to disk, as one write.  If that's too
+disruptive, then maybe you do need to do some aggregation in the kernel,
+but it sounds like a special case.
 
-I haven't looked too much into the workings of relayfs (I let you handle
-that ;-) so I don't really know the impact it would have to use
-something like logdev's buffering system.
+As for measuring the sheduler, I know that people have used it for
+that e.g. Steven Rostedt's logdev device, which he uses to trace
+problems in the RT kernel.
 
--- Steve
+Tom
 
 

@@ -1,83 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVGLVmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262473AbVGLVn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262507AbVGLVmG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 17:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVGLVj2
+	id S262473AbVGLVn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 17:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbVGLVjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 17:39:28 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:17357 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S262486AbVGLVhz
+	Tue, 12 Jul 2005 17:39:23 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:40677 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262491AbVGLVim
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 17:37:55 -0400
-Date: Tue, 12 Jul 2005 17:37:53 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Michel Bouissou <michel@bouissou.net>
-cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
-In-Reply-To: <200507122240.53390@totor.bouissou.net>
-Message-ID: <Pine.LNX.4.44L0.0507121730590.4764-100000@iolanthe.rowland.org>
+	Tue, 12 Jul 2005 17:38:42 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17108.14426.607378.262959@tut.ibm.com>
+Date: Tue, 12 Jul 2005 16:38:34 -0500
+To: Tom Zanussi <zanussi@us.ibm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Jason Baron <jbaron@redhat.com>,
+       richardj_moore@uk.ibm.com, varap@us.ibm.com, karim@opersys.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Merging relayfs?
+In-Reply-To: <17107.63309.475838.635711@tut.ibm.com>
+References: <17107.6290.734560.231978@tut.ibm.com>
+	<Pine.LNX.4.61.0507121050390.25408@dhcp83-105.boston.redhat.com>
+	<1121183607.6917.47.camel@localhost.localdomain>
+	<17107.60140.948145.153144@tut.ibm.com>
+	<1121185393.6917.59.camel@localhost.localdomain>
+	<17107.61864.621401.440354@tut.ibm.com>
+	<1121186981.6917.67.camel@localhost.localdomain>
+	<17107.63309.475838.635711@tut.ibm.com>
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jul 2005, Michel Bouissou wrote:
+Tom Zanussi writes:
+ > Steven Rostedt writes:
+ >  > On Tue, 2005-07-12 at 11:36 -0500, Tom Zanussi wrote:
+ >  > 
+ >  > >  > 
+ >  > >  > I totally agree that the vmalloc way is faster, but I would also argue
+ >  > >  > that the accounting to handle the separate pages would not even be
+ >  > >  > noticeable with the time it takes to do the actual copying into the
+ >  > >  > buffer.  So if the accounting adds 3ns on top of 500ns to complete, I
+ >  > >  > don't think people will mind.
+ >  > > 
+ >  > > OK, it sounds like something to experiment with - I can play around
+ >  > > with it, and later submit a patch to remove vmap if it works out.
+ >  > > Does that sound like a good idea?
+ >  > 
+ >  > Sounds good to me, since different approaches to a problem are always
+ >  > good, since it allows for comparing the plusses and minuses.  Not sure
+ >  > if you want to take a crack using my ring buffers, but although they are
+ >  > quite confusing, they have been fully tested, since I haven't changed
+ >  > the ring buffer for a few years (although logdev itself has gone
+ > through
+ > 
+ > I was thinking of something simpler, like just using the page array we
+ > already have in relayfs, but not vmap'ing it and instead writing to
+ > the current page, detecting when to split a record, moving on to the
+ > next page, etc. and seeing how it compares with the vmap version.
+ > 
 
-> I've tested as you suggest :
-> 
-> - Disabled USB 2.0 in BIOS
-> 
-> - Renamed ehci_hcd.ko so that modprobe can't find it
-> 
-> - Booted the test-patched kernel with same options as previously, MOUSE 
-> UNPLUGGED.
-> 
-> - After boot "cat /proc/interrupts" shows "0" count for IRQ 21
-> 
-> - Nothing special isn't logged anymore in dmesg or /var/log/messages.
-> 
-> - Plugging / unplugging the mouse or other devices doesn't cause anything 
-> visible to happen. Nothing gets logged, IRQ 21 counter stays at 0. I could as 
-> well not have done it ;-)
-> 
-> > Without ehci_hcd loaded, the EHCI controller should not generate any
-> > interrupt requests.  If your problem then goes away, and plugging or
-> > unplugging the mouse doesn't cause anything unusual to happen, that will
-> > be a pretty clear indication.
-> 
-> Well, so that's a pretty clear indication, but surely clearer to you than to 
-> me ;-)
-> 
-> So, what's up, doc ? ;-))
+Just a clarification - I didn't mean to ignore your ring buffers - it
+would be good to try both, I think...
 
-Then it's definite.  The EHCI controller is issuing interrupt requests on
-IRQ 21, but its driver is registered on a different IRQ.  Hence the
-interrupts aren't getting handled correctly.
+Tom
 
-So probably the usb_handoff parameter won't be needed.  And if you leave 
-USB 2.0 disabled in the BIOS then there's no need to hide ehci_hcd.ko, as 
-it won't get loaded anyway.  You should be able to remove the test patch 
-and resume normal operations.
-
-
-On Tue, 12 Jul 2005, Protasevich, Natalie wrote:
-
-> I suspect that some device is actually on the IRQ 21, and that's how its 
-> IO-APIC line is set up. Later on, its driver tries to assign different
-> IRQ, due to some discrepancy, and the handler gets registered on say IRQ
-> 11, and to a wrong pin, so the actual interrupts go unattended. If this
-> what's happening, the trace will hopefully tell the story. I suggest to
-> boot with "apic=debug" and also perhaps with "pci=routeirq" and collect
-> the trace. You can attach the part up to the point when it reports usb
-> devices set up.
-
-At this point I can leave it up to the two of you.  Now that we know which
-is the offending device, it should be easy to find out why the IRQ
-assignments go wrong.  That certainly needs to be fixed, even though
-Michel's problem appears to be solved.
-
-Alan Stern
 

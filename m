@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVGLQLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVGLQUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVGLQLa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 12:11:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVGLQI7
+	id S261538AbVGLQUe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 12:20:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVGLQSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 12:08:59 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:21202 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261550AbVGLQIV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 12:08:21 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Tue, 12 Jul 2005 12:18:38 -0400
+Received: from relay01.pair.com ([209.68.5.15]:63503 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S261544AbVGLQQ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 12:16:56 -0400
+X-pair-Authenticated: 209.68.2.107
+Message-ID: <42D3ECF3.9050001@cybsft.com>
+Date: Tue, 12 Jul 2005 11:16:51 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@elte.hu>
+CC: Daniel Walker <dwalker@mvista.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+References: <200507121223.10704.annabellesgarden@yahoo.de> <20050712140251.GB18296@elte.hu> <1121178339.10199.8.camel@c-67-188-6-232.hsd1.ca.comcast.net> <20050712142828.GA20798@elte.hu> <42D3D7ED.7000805@cybsft.com> <20050712160150.GA23943@elte.hu>
+In-Reply-To: <20050712160150.GA23943@elte.hu>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17107.60140.948145.153144@tut.ibm.com>
-Date: Tue, 12 Jul 2005 11:08:12 -0500
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Jason Baron <jbaron@redhat.com>, richardj_moore@uk.ibm.com,
-       varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: Merging relayfs?
-In-Reply-To: <1121183607.6917.47.camel@localhost.localdomain>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	<Pine.LNX.4.61.0507121050390.25408@dhcp83-105.boston.redhat.com>
-	<1121183607.6917.47.camel@localhost.localdomain>
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt writes:
- > On Tue, 2005-07-12 at 10:58 -0400, Jason Baron wrote:
- > > On Mon, 11 Jul 2005, Tom Zanussi wrote:
- > 
- > > One concern I had regarding relayfs, which was raised previously, was 
- > > regarding its use of vmap, 
- > > http://marc.theaimsgroup.com/?l=linux-kernel&m=110755199913216&w=2 On x86, 
- > > the vmap space is at a premium, and this space is reserved over the entire 
- > > lifetime of a 'channel'. Is the use of vmap really critical for 
- > > performance?
- > 
- > I believe that (Tom correct me if I'm wrong) the use of vmap was to
- > allocate a large buffer without risking failing to allocate. Since the
- > buffer does not need to be in continuous pages. If this is a problem,
- > maybe Tom can use my buffer method to make a buffer :-)
- > 
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+> 
+>>Ingo Molnar wrote:
+>>
+>>>* Daniel Walker <dwalker@mvista.com> wrote:
+>>>
+>>>
+>>>
+>>>>I observed a situation on a dual xeon where IOAPIC_POSTFLUSH , if on, 
+>>>>would actually cause spurious interrupts. It was odd cause it's 
+>>>>suppose to stop them .. If there was a lot of interrupt traffic on one 
+>>>>IRQ , it would cause interrupt traffic on another IRQ. This would 
+>>>>result in "nobody cared" messages , and the storming IRQ line would 
+>>>>get shutdown.
+>>>>
+>>>>This would only happen in PREEMPT_RT .
+>>>
+>>>
+>>>does it happen with the latest kernel too? There were a couple of things 
+>>>broken in the IOAPIC code in various earlier versions.
+>>>
+>>>	Ingo
+>>
+>>Is this why I have been able to boot the latest versions without the 
+>>noapic option (and without noticeable keyboard repeat problems) or has 
+>>it just been dumb luck?
+> 
+> 
+> yes, i think it's related - the IO-APIC code is now more robust than 
+> ever, and that's why any known-broken system would be important to 
+> re-check.
+> 
+> 	Ingo
+> 
 
-The main reason we use vmap is so that from the kernel side we have a
-nice contiguous address range to log to even though the the pages
-aren't actually contiguous.
+Well I have booted -27 a couple of times and -28 once now without 
+supplying the noapic boot option and I haven't seen any of the keyboard 
+repeat problems that I reported late last week. This was on my dual 2.6 
+Xeon w/HT. I have never seen this behavior on any of my older systems. 
+Because of the fact that the problem showed up sporadically, I can't say 
+for sure that it is gone. However, so far so good. I will report any 
+changes that I see.
 
- > See http://www.kihontech.com/logdev where my logdev debugging tool that
- > allocates separate pages and uses an accounting system instead of the
- > more efficient vmalloc to keep the data in the pages together. I'm
- > currently working with Tom to get this to use relayfs as the back end.
- > But here you can take a look at how the buffering works and it doesn't
- > waste up vmalloc.
-
-It might be worthwhile to try out different alternatives and compare
-them, but I'm pretty sure we won't be able to beat what's already in
-relayfs.  The question is I guess, how much slower would be
-acceptable?
-
-Tom
-
-
+-- 
+    kr

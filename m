@@ -1,54 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVGKOKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVGLBOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbVGKOKF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVGKOHc
+	id S261851AbVGLBOW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 21:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVGLBMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:07:32 -0400
-Received: from thunk.org ([69.25.196.29]:53398 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261755AbVGKOGb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:06:31 -0400
-Date: Mon, 11 Jul 2005 10:05:10 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       arjan@infradead.org, azarah@nosferatu.za.org, cw@f00f.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, christoph@lameter.org
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Message-ID: <20050711140510.GB14529@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-	arjan@infradead.org, azarah@nosferatu.za.org, cw@f00f.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	torvalds@osdl.org, christoph@lameter.org
-References: <200506231828.j5NISlCe020350@hera.kernel.org> <20050708214908.GA31225@taniwha.stupidest.org> <20050708145953.0b2d8030.akpm@osdl.org> <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe> <1120933916.3176.57.camel@laptopd505.fenrus.org> <1120934163.6488.72.camel@mindpipe> <20050709121212.7539a048.akpm@osdl.org> <1120936561.6488.84.camel@mindpipe> <1121088186.7407.61.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 11 Jul 2005 21:12:30 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:20438 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261840AbVGLBKq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 21:10:46 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121088186.7407.61.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17107.6290.734560.231978@tut.ibm.com>
+Date: Mon, 11 Jul 2005 20:10:42 -0500
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
+       richardj_moore@uk.ibm.com
+Subject: Merging relayfs?
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 11, 2005 at 02:23:08PM +0100, Alan Cox wrote:
-> > > Because some machines exhibit appreciable latency in entering low power
-> > > state via ACPI, and 1000Hz reduces their battery life.  By about half,
-> > > iirc.
-> > > 
-> > Then the owners of such machines can use HZ=250 and leave the default
-> > alone.  Why should everyone have to bear the cost?
-> 
-> They need 100 really it seems, 250-500 have no real effect and on the
-> Dell I tried 250 didn't stop the wild clock slew from the APM bios
-> either. I played with this a fair bit on a couple of laptops. I've not
-> seen anything > 20% saving however so I've no idea who/why someone saw
-> 50%
 
-The real answer here is for the tickless patches to cleaned up to the
-point where they can be merged, and then we won't waste battery power
-entering the timer interrupt in the first place.  :-)
+Hi Andrew, can you please merge relayfs?  It provides a low-overhead
+logging and buffering capability, which does not currently exist in
+the kernel.
 
-						- Ted
+relayfs key features:
+
+- Extremely efficient high-speed logging/buffering
+- Simple mechanism for user-space data retrieval
+- Very short write path
+- Can be used in any context, including interrupt context
+- No runtime resource allocation
+- Doesn't do a kmalloc for each "packet"
+- No need for end-recipient
+- Data may remain buffered whether it is consumed or not
+- Data committed to disk in bulk, not per "packet"
+- Can be used in circular-buffer mode for flight-recording
+
+The relayfs code has been in -mm for more than three months following
+the extensive review that took place on LKML at the beginning of the
+year, at which time we addressed all of the issues people had.  Since
+then only a few minor patches to the original codebase have been
+needed, most of which were sent to us by users; we'd like to thank
+those who took the time to send patches or point out problems.
+
+The code in the -mm tree has also been pounded on very heavily through
+normal use and testing, and we haven't seen any problems with it - it
+appears to be very stable.
+
+We've also tried to make it as easy as possible for people to create
+'quick and dirty' (or more substantial) kernel logging applications.
+Included is a link to an example that demonstrates how useful this can
+be.  In a nutshell, it uses relayfs logging functions to track
+kmalloc/kfree and detect memory leaks.  The only thing it does in the
+kernel is to log a small binary record for each kmalloc and kfree.
+The data is then post-processed in user space with a simple Perl
+script.  You can see an example of the output and the example itself
+here:
+
+    http://relayfs.sourceforge.net/examples.html#kleak
+
+
+Last but not least, it's still small (40k worth of source),
+self-contained and unobtrusive to the rest of the kernel.
+
+In summary, relayfs is very stable, is useful to current users and
+with inclusion, would be useful to many others.  If you can think of
+anything we've overlooked or should work on to get relayfs to the
+point of inclusion, please let us know.
+
+Thanks,
+
+Tom Zanussi
+Karim Yaghmour
+
+

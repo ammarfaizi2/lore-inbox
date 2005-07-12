@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVGLOiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVGLOkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbVGLOiN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 10:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVGLOiI
+	id S261458AbVGLOkj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 10:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVGLOiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 10:38:08 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:15050 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S261458AbVGLOg2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 10:36:28 -0400
-Subject: Re: [PATCH] Apple USB Touchpad driver (new)
-From: Stelian Pop <stelian@popies.net>
-To: dtor_core@ameritech.net
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <petero2@telia.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Frank Arnold <frank@scirocco-5v-turbo.de>
-In-Reply-To: <d120d5000507120713646089ee@mail.gmail.com>
-References: <20050708101731.GM18608@sd291.sivit.org>
-	 <20050709191357.GA2244@ucw.cz> <m33bqnr3y9.fsf@telia.com>
-	 <20050710120425.GC3018@ucw.cz> <m3y88e9ozu.fsf@telia.com>
-	 <1121078371.12621.36.camel@localhost.localdomain>
-	 <20050711110024.GA23333@ucw.cz>
-	 <1121080115.12627.44.camel@localhost.localdomain>
-	 <20050711112121.GA24345@ucw.cz>
-	 <1121159126.4656.14.camel@localhost.localdomain>
-	 <d120d5000507120713646089ee@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 12 Jul 2005 16:33:13 +0200
-Message-Id: <1121178794.4648.31.camel@localhost.localdomain>
+	Tue, 12 Jul 2005 10:38:14 -0400
+Received: from mail.ccur.com ([208.248.32.212]:23943 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S261466AbVGLOhM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 10:37:12 -0400
+Subject: Re: Merging relayfs?
+From: Steve Rotolo <steve.rotolo@ccur.com>
+To: Greg KH <greg@kroah.com>
+Cc: Karim Yaghmour <karim@opersys.com>, Tom Zanussi <zanussi@us.ibm.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, varap@us.ibm.com,
+       richardj_moore@uk.ibm.com
+In-Reply-To: <20050712052333.GA11614@kroah.com>
+References: <17107.6290.734560.231978@tut.ibm.com>
+	 <20050712030555.GA1487@kroah.com> <42D3331F.8020705@opersys.com>
+	 <20050712032424.GA1742@kroah.com> <42D33E99.7030101@opersys.com>
+	 <20050712043056.GC2363@kroah.com> <42D349C9.3060805@opersys.com>
+	 <20050712052333.GA11614@kroah.com>
+Content-Type: text/plain
+Organization: Concurrent Computer Corporation
+Message-Id: <1121179018.1438.14.camel@whiz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Tue, 12 Jul 2005 10:36:58 -0400
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Jul 2005 14:37:12.0439 (UTC) FILETIME=[30D35870:01C586EF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 12 juillet 2005 à 09:13 -0500, Dmitry Torokhov a écrit :
-> Hi,
+On Tue, 2005-07-12 at 01:23, Greg KH wrote:
+> And you _are_ doing kernel debugging and tracing with ltt, what's wrong
+> with admitting that?
 > 
-> On 7/12/05, Stelian Pop <stelian@popies.net> wrote:
-> >
-> > +       dev->input.id.bustype = BUS_USB;
-> > +       dev->input.id.vendor = id->idVendor;
-> > +       dev->input.id.product = id->idProduct;
-> > +       dev->input.id.version = ATP_DRIVER_VERSION;
-> > +
-> 
-> Why don't we do what most of the other input devices and get version
-> from the device too? 
 
-I guess we could, there is not much use for a local driver version
-anyway.
+Hi.  I think that viewing tracing tools like LTT and systemtap as
+strictly kernel debug tools is very short-sighted.  With a good
+post-processing tool, tracing is very useful to application developers
+who can benefit by visualizing the interaction between user-level tasks
+and the OS as well as the synchronization of multiple tasks/threads.
 
-> Actually we have this in input tree:
-> 
-> static inline void
-> usb_to_input_id(const struct usb_device *dev, struct input_id *id)
+IOW, tracing is in many ways an _application_ debug tool, not a _kernel_
+debug tool.  And application developers usually do not want to run a
+debug kernel.
 
-This cleans up a lot of code indeed. Too bad this is not upstream yet...
+I would like to see relayfs merged.
 
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>
+Steve Rotolo
+<steve.rotolo@ccur.com>
 

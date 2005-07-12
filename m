@@ -1,79 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVGLMGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVGLMEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbVGLMGh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVGLME0
+	id S261410AbVGLMEU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVGLMCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:04:26 -0400
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:49126 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261412AbVGLMCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:02:55 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: David Lang <david.lang@digitalinsight.com>
-Subject: Re: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
-Date: Tue, 12 Jul 2005 22:02:36 +1000
-User-Agent: KMail/1.8.1
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>
-References: <200507122110.43967.kernel@kolivas.org> <Pine.LNX.4.62.0507120446450.9200@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0507120446450.9200@qynat.qvtvafvgr.pbz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart20022987.GAklf6gvqH";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200507122202.39988.kernel@kolivas.org>
+	Tue, 12 Jul 2005 08:02:25 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16659 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261377AbVGLMBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 08:01:23 -0400
+Date: Tue, 12 Jul 2005 13:01:19 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: david-b@pacbell.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.13-git] 8250 tweaks
+Message-ID: <20050712130119.A30358@flint.arm.linux.org.uk>
+Mail-Followup-To: david-b@pacbell.net, linux-kernel@vger.kernel.org
+References: <200507111922.04800.david-b@pacbell.net> <20050712081943.B25543@flint.arm.linux.org.uk> <20050712102512.A7F30BF3C9@adsl-69-107-32-110.dsl.pltn13.pacbell.net> <20050712120825.E28413@flint.arm.linux.org.uk> <20050712113212.0C90EBF3D5@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050712113212.0C90EBF3D5@adsl-69-107-32-110.dsl.pltn13.pacbell.net>; from david-b@pacbell.net on Tue, Jul 12, 2005 at 04:32:12AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart20022987.GAklf6gvqH
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, Jul 12, 2005 at 04:32:12AM -0700, david-b@pacbell.net wrote:
+> > >     ttyS0 at MMIO 0xfffb0000 (irq = 46) is a ST16654
+> > >     serial8250 serial8250.0: unable to register port at index 1 (IO0 MEM0 IRQ47): -28
+> > >     serial8250 serial8250.0: unable to register port at index 2 (IO0 MEM0 IRQ15): -28
+> >
+> > Thanks, that's exactly what I wanted to know.
+> >
+> > -28 is -ENOSPC which means that you've run out of available serial devices
+> > to register these others.
+> 
+> The idea is _not_ to register them on boards that only have a
+> single RS232 connector.  The fix was just having the 8250 code
+> understand that it should only register ports that are real.
 
-On Tue, 12 Jul 2005 21:57, David Lang wrote:
-> this looks very interesting, however one thing that looks odd to me in
-> this is the thought of comparing the results for significantly different
-> hardware.
->
-> for some of the loads you really are going to be independant of the speed
-> of the hardware (burn, compile, etc will use whatever you have) however
-> for others (X, audio, video) saying that they take a specific percentage
-> of the cpu doesn't seem right.
->
-> if I have a 400MHz cpu each of these will take a much larger percentage of
-> the cpu to get the job done then if I have a 4GHz cpu for example.
->
-> for audio and video this would seem to be a fairly simple scaleing factor
-> (or just doing a fixed amount of work rather then a fixed percentage of
-> the CPU worth of work), however for X it is probably much more complicated
-> (is the X load really linearly random in how much work it does, or is it
-> weighted towards small amounts with occasional large amounts hitting? I
-> would guess that at least beyond a certin point the liklyhood of that much
-> work being needed would be lower)
+The tty code doesn't work like that.  You must know how many ports
+you want right from the start.  You can't dynamically add new ports
+to an already registered driver without first unregistering all the
+existing ports, unregistering the driver, adjusting the number of
+ports, reregistering the driver and all the ports.
 
-Actually I don't disagree. What I mean by hardware changes is more along th=
-e=20
-lines of changing the hard disk type in the same setup. That's what I mean =
-by=20
-careful with the benchmarking. Taking the results from an athlon XP and=20
-comparing it to an altix is silly for example.
+If you've got one already open, your only option in that case is to
+ignore any attempt to add new ports.
 
-Cheers,
-Con
+Obviously this is not acceptable.  So please don't try to dictate
+what serial should do.  It does things the way it does them to work
+around other bits of the kernel which are lacking in various ways.
 
---nextPart20022987.GAklf6gvqH
-Content-Type: application/pgp-signature
+> > If you wish to have three ports in an plat_serial8250_port array, you'll
+> > need to ensure that CONFIG_SERIAL_8250_NR_UARTS is set to at least 3.
+> 
+> That is, there's no third way which (a) doesn't waste that memory,
+> and (b) doesn't produce annoying messages about non-error cases?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Correct.
 
-iD8DBQBC07FfZUg7+tp6mRURAtKjAJ4/CF/BC9bWj/Xd8bZAYs9Eftm/lQCfZvCY
-fh4E/zl0E0jWyXbkEE/uItw=
-=QOr9
------END PGP SIGNATURE-----
+> ISTR that having NR_UARTS bigger just produced different messages...
 
---nextPart20022987.GAklf6gvqH--
+Which were?
+
+It works for me on my platforms here, and everyone else on x86.  I
+even had a situation where I had NR_UARTS set to 64 but only one
+registered... which also worked fine with no extraneous kernel
+messages.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

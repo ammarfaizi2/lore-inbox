@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVGLTd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVGLTdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbVGLTd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 15:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbVGLTbg
+	id S262275AbVGLTdg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 15:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVGLTdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 15:31:36 -0400
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:42546 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S262320AbVGLT3R
+	Tue, 12 Jul 2005 15:33:32 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:11166 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S262320AbVGLTcf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 15:29:17 -0400
-Date: Tue, 12 Jul 2005 21:29:12 +0200 (CEST)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: Tom Zanussi <zanussi@us.ibm.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, karim@opersys.com,
-       varap@us.ibm.com, richardj_moore@uk.ibm.com, prasadav@us.ibm.com
-Subject: Re: Merging relayfs?
-In-Reply-To: <17108.5721.202275.377020@tut.ibm.com>
-Message-ID: <Pine.BSO.4.62.0507122127300.6919@rudy.mif.pg.gda.pl>
-References: <17107.6290.734560.231978@tut.ibm.com>
- <Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl> <17107.57046.817407.562018@tut.ibm.com>
- <Pine.BSO.4.62.0507121731290.6919@rudy.mif.pg.gda.pl> <17107.61271.924455.965538@tut.ibm.com>
- <Pine.BSO.4.62.0507121840260.6919@rudy.mif.pg.gda.pl> <17107.64629.717907.706682@tut.ibm.com>
- <Pine.BSO.4.62.0507121935500.6919@rudy.mif.pg.gda.pl> <17108.1906.628755.613285@tut.ibm.com>
- <Pine.BSO.4.62.0507122026520.6919@rudy.mif.pg.gda.pl> <17108.5721.202275.377020@tut.ibm.com>
+	Tue, 12 Jul 2005 15:32:35 -0400
+From: Jeremy Maitin-Shepard <jbms@cmu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux On-Demand Network Access (LODNA)
+References: <20050712160720.36388.qmail@web54403.mail.yahoo.com>
+	<42D41096.4000209@namesys.com>
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-1: winter into spring
+Date: Tue, 12 Jul 2005 15:32:40 -0400
+In-Reply-To: <42D41096.4000209@namesys.com> (Hans Reiser's message of "Tue, 12
+	Jul 2005 11:48:54 -0700")
+Message-ID: <87oe976crr.fsf@jbms.ath.cx>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-264080367-1121196552=:6919"
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+I believe he is suggesting the addition of an sshfs, ftpfs, webdavfs,
+etc. to the kernel, and allowing unprivileged users to mount these
+filesystems.  (As a side note, I find it somewhat peculiar that he
+includes smbfs in an example, since that is already implemented in the
+kernel.)  Although he refers to possible implementation of these
+facilities as reiserfs 4 plugins, it would seem far more straightforward
+and useful to implement them as separate filesystems.  In fact, many of
+these facilities already exist as filesystems for Linux.  For instance,
+there is an sshfs program for FUSE, and FUSE already provides the
+unprivileged mounting support mentioned in the proposal.
 
---0-264080367-1121196552=:6919
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
-
-On Tue, 12 Jul 2005, Tom Zanussi wrote:
-[..]
-> > This is much more simpler and much better for control (also from point of
-> > view caching bugs in agregator code -> also from point of view kernel
-> > stability).
-> >
-> > Also .. probably some code for handle i.e. counters cen be the same as
-> > existing code in current kernel.
-> > Probably some "atomic" (and/or simpler) agregators can be usefull in other
-> > places in kernel for collecting some data during all time when system
-> > works .. so code for handle this can be reused in non-ocasinal
-> > tracing/measuring.
-> > And again: all without things like relayfs.
->
-> Well, you should check out the sytemtap project.  It's basically a
-> DTrace clone which is already doing these kinds of things with
-> kprobes, and it's using relayfs...
-
-Probaly by this it will be harder to say "KProbes it is Solaris DTrace
-clone".
-
-kloczek
 -- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---0-264080367-1121196552=:6919--
+Jeremy Maitin-Shepard

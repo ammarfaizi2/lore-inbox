@@ -1,103 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVGLNwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVGLNyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbVGLNwa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 09:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVGLNwR
+	id S261455AbVGLNyc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 09:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVGLNy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 09:52:17 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:49573 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S261168AbVGLNvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 09:51:10 -0400
-Message-Id: <1121176268.15213.238283120@webmail.messagingengine.com>
-X-Sasl-Enc: UDZecOGs4g4Oy4NJYcAm2kdh2zgUz3YYxJKlwy4KVx0b 1121176268
-From: "Bron Gondwana" <brong@fastmail.fm>
-To: "Lars Roland" <lroland@gmail.com>, "Rob Mueller" <robm@fastmail.fm>
-Cc: linux-kernel@vger.kernel.org, "Jeremy Howard" <jhoward@fastmail.fm>
-Content-Transfer-Encoding: 7bit
-Content-Type: multipart/mixed; boundary="_----------=_1121176268152130"; charset="iso-8859-1"
-MIME-Version: 1.0
-X-Mailer: MIME::Lite 1.5  (F2.73; T1.001; A1.64; B3.05; Q3.03)
-References: <01dd01c586c3$cdd525d0$7c00a8c0@ROBMHP>
-   <4ad99e05050712024319bc7ada@mail.gmail.com>
-   <021801c586d7$5ebf4090$7c00a8c0@ROBMHP>
-   <4ad99e05050712051341cf6e3@mail.gmail.com>
-Subject: Re: 2.6.12.2 dies after 24 hours
-In-Reply-To: <4ad99e05050712051341cf6e3@mail.gmail.com>
-Date: Tue, 12 Jul 2005 23:51:08 +1000
+	Tue, 12 Jul 2005 09:54:28 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:31677 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261337AbVGLNyI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 09:54:08 -0400
+Date: Tue, 12 Jul 2005 15:53:25 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Weston <weston@sysex.net>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@infradead.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Message-ID: <20050712135325.GA18296@elte.hu>
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507081938.27815.s0348365@sms.ed.ac.uk> <20050708194827.GA22536@elte.hu> <200507082145.08877.s0348365@sms.ed.ac.uk> <20050709124105.GB4665@elte.hu> <20050709130557.GA5763@elte.hu> <Pine.LNX.4.58.0507111359400.13011@echo.lysdexia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0507111359400.13011@echo.lysdexia.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---_----------=_1121176268152130
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0
-X-Mailer: MIME::Lite 1.5  (F2.73; T1.001; A1.64; B3.05; Q3.03)
-Date: Tue, 12 Jul 2005 13:51:08 UT
+* William Weston <weston@sysex.net> wrote:
 
-
-On Tue, 12 Jul 2005 14:13:01 +0200, "Lars Roland" <lroland@gmail.com>
-said:
-> You have irq balancing, the line 
+> On Sat, 9 Jul 2005, Ingo Molnar wrote:
 > 
-> CONFIG_IRQBALANCE=y
+> > this patch reduces ip_setsockopt's stack footprint from 572 bytes to 164 
+> > bytes. (Note: needs review and testing as i could not excercise this 
+> > multicast codepath.)
 > 
-> in your config file confirms it - I am not completely sure that it is
-> the root of the problem but when I experienced the problem I changed
-> two things: my acpi code and irq balancing and one of then made the
-> difference, I am just to lazy to check which one it is (also it is
-> production servers so I cannot do whatever I want).
+> This patch breaks multicast source group joins.  Here's the fix:
 
-Our ACPI looked very similar to yours, so I've disabled IRQBALANCE.
+ouch - indeed, thanks.
 
-We'll be rebooting the server during a less busy time to try the new
-kernel, so not for about 12 hours or so.
-
-> >   append="elevator=deadline"
->
-> I use the same io scheduler so that should not be a problem. I have
-> uploaded my config file - it works on ibm 335/336 servers, and a quick
-> look at your boot msg seams to indicate that your server have some of
-> the same hardware - note however that I load ide/scsi/filesystem stuff
-> as modules so you will need to build a initrd to use my config.
-> 
-> the config is here
-> 
-> http://randompage.org/static/kernel.conf
-
-Great, thanks for that.  I've had a look through and I think the
-IRQBALANCE issue is the most likely cause.
-
-We're also applying the attached patch.  There's a bug in reiserfs that
-gets tickled by our huge MMAP usage (it's amazing what really busy
-Cyrus daemons can do to a server, ouch).  It's fixed in generic_write,
-so we take the few percent performance hit for something that doesn't
-break!
-
-Bron.
--- 
-  Bron Gondwana
-  brong@fastmail.fm
-
-
---_----------=_1121176268152130
-Content-Disposition: attachment; filename="patch-2.6.12.2-reiserfix.bz2"
-Content-Transfer-Encoding: base64
-Content-Type: application/octet-stream; name="patch-2.6.12.2-reiserfix.bz2"
-MIME-Version: 1.0
-X-Mailer: MIME::Lite 1.5  (F2.73; T1.001; A1.64; B3.05; Q3.03)
-Date: Tue, 12 Jul 2005 13:51:08 UT
-
-QlpoOTFBWSZTWfKiO3gAAGtfgGIwQG/7XGI1BYCfrd7yMADspDU0p5qg3qho
-9EbUxAD0mmgB6hgNAaAADTQaAaANAlCNEp+lP0p6TT9UYgNNAA0xPSNA4AqI
-0ISE2e+S1BFEADWqDtMlzKaLikwH6qtte4jx59X679dsr4Uq+/qKiwnaWcwJ
-SyBYi6AYC4KA8FVgfXAsbIqsDWF+EZuo4oODESAstlyNGYwHraeRj7M8yVgp
-ussGCFkLS20g5wPKxeT7LxUIl45CcOHiJ6xCvne3ptDfIRgzNt+eagihnEeB
-W/lUStAhObKMyOGXSLKPYYBDdu1URONyccQKiY2nmsrjYr9GOEsyB1apAEyg
-IMZP/i7kinChIeVEdvA=
-
---_----------=_1121176268152130--
-
+	Ingo

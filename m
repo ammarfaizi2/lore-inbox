@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVGLOPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVGLOSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261527AbVGLOPc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 10:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVGLONh
+	id S261519AbVGLOSV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 10:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVGLOSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 10:13:37 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:2830 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261544AbVGLONV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 10:13:21 -0400
+	Tue, 12 Jul 2005 10:18:12 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:21884 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261477AbVGLOQq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 10:16:46 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=og6jjDCIwSUxO9yGrz2irHThQTj2sZ63s0i5W8PbW04M6zz2OAjs6Rbh8x5fdpCeYsJR4gPKI38zy0OE/HGwfkFi4Ehe0RShGjRGr6tl/zJj1LoDLoWfWE1FKYRGYT4oSwS/B3SR34Q8Y1QpbQcpD+ZabpkAKtSrqUSLJyPMY7Y=
-Message-ID: <d120d5000507120713646089ee@mail.gmail.com>
-Date: Tue, 12 Jul 2005 09:13:16 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Stelian Pop <stelian@popies.net>
-Subject: Re: [PATCH] Apple USB Touchpad driver (new)
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <petero2@telia.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Frank Arnold <frank@scirocco-5v-turbo.de>
-In-Reply-To: <1121159126.4656.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050708101731.GM18608@sd291.sivit.org>
-	 <20050709191357.GA2244@ucw.cz> <m33bqnr3y9.fsf@telia.com>
-	 <20050710120425.GC3018@ucw.cz> <m3y88e9ozu.fsf@telia.com>
-	 <1121078371.12621.36.camel@localhost.localdomain>
-	 <20050711110024.GA23333@ucw.cz>
-	 <1121080115.12627.44.camel@localhost.localdomain>
-	 <20050711112121.GA24345@ucw.cz>
-	 <1121159126.4656.14.camel@localhost.localdomain>
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=RJg6cStpilJUCV0iaYnoHJL6ztJXW+L8PIa63Smk6/kGqqI6s7fPx9gLMt/GrFlWgBt810R50oTRSzrl9VsBPOkclbI4sCu5kzKoVcQVu6SAqm4I0TpbLrRbSe8DnJ2PBQe+qHDpNvcrNMPxq+f6vH6wvCTm0poKkHTIiAGyLYs=
+Message-ID: <42D3D20E.4010306@gmail.com>
+Date: Tue, 12 Jul 2005 16:22:06 +0200
+From: Mateusz Berezecki <mateuszb@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050704)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: "scheduling while atomic" ?
+References: <42D3C37C.6040401@gmail.com>	 <1121175049.6917.19.camel@localhost.localdomain> <42D3CEEC.90603@gmail.com> <1121177471.6917.24.camel@localhost.localdomain>
+In-Reply-To: <1121177471.6917.24.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Steven Rostedt wrote:
 
-On 7/12/05, Stelian Pop <stelian@popies.net> wrote:
+>I assume that you call register_netdev in your module. Since this was
+>running insmod, this is probably called from the module_init. So what
+>reason do you have a lock from beginning to end?  Looking at this, you
+>can't call register_netdev while holding a spin_lock since it looks like
+>it will schedule.  So the fix is to release whatever spin lock that you
+>have before calling register_netdev.
+>  
 >
-> +       dev->input.id.bustype = BUS_USB;
-> +       dev->input.id.vendor = id->idVendor;
-> +       dev->input.id.product = id->idProduct;
-> +       dev->input.id.version = ATP_DRIVER_VERSION;
-> +
+Thank you for your help. This actually works ;-)
 
-Why don't we do what most of the other input devices and get version
-from the device too? Actually we have this in input tree:
-
-static inline void
-usb_to_input_id(const struct usb_device *dev, struct input_id *id)
-{
-        id->bustype = BUS_USB;
-        id->vendor = le16_to_cpu(dev->descriptor.idVendor);
-        id->product = le16_to_cpu(dev->descriptor.idProduct);
-        id->version = le16_to_cpu(dev->descriptor.bcdDevice);
-}
-
--- 
-Dmitry
+--mb

@@ -1,75 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVGLP7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVGLQBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbVGLP7O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 11:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVGLP7M
+	id S261516AbVGLQBo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 12:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVGLQBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 11:59:12 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:23033 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261489AbVGLP7E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 11:59:04 -0400
-Message-ID: <42D3E852.5060704@mvista.com>
-Date: Tue, 12 Jul 2005 08:57:06 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Tue, 12 Jul 2005 12:01:43 -0400
+Received: from posti5.jyu.fi ([130.234.4.34]:49895 "EHLO posti5.jyu.fi")
+	by vger.kernel.org with ESMTP id S261516AbVGLQBO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 12:01:14 -0400
+Date: Tue, 12 Jul 2005 19:00:37 +0300 (EEST)
+From: Tero Roponen <teanropo@cc.jyu.fi>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, gregkh@suse.de, jonsmirl@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [SOLVED] Re: 2.6.13-rc2 hangs at boot
+In-Reply-To: <20050712174119.A31613@jurassic.park.msu.ru>
+Message-ID: <Pine.GSO.4.58.0507121856050.27617@tukki.cc.jyu.fi>
+References: <200507081354.j68Ds02b020296@harpo.it.uu.se>
+ <20050712174119.A31613@jurassic.park.msu.ru>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Lee Revell <rlrevell@joe-job.com>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org, torvalds@osdl.org,
-       christoph@lameter.org
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-References: <200506231828.j5NISlCe020350@hera.kernel.org> <20050712121008.GA7804@ucw.cz> <200507122239.03559.kernel@kolivas.org> <200507122253.03212.kernel@kolivas.org>
-In-Reply-To: <200507122253.03212.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Checked: by miltrassassin
+	at posti5.jyu.fi; Tue, 12 Jul 2005 19:00:39 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Tue, 12 Jul 2005 22:39, Con Kolivas wrote:
-> 
->>On Tue, 12 Jul 2005 22:10, Vojtech Pavlik wrote:
->>
->>>The PIT crystal runs at 14.3181818 MHz (CGA dotclock, found on ISA, ...)
->>>and is divided by 12 to get PIT tick rate
->>>
->>>	14.3181818 MHz / 12 = 1193182 Hz
+On Tue, 12 Jul 2005, Ivan Kokshaysky wrote:
 
-Yes, but the current code uses 1193180.  Wonder why that is...
+> On Fri, Jul 08, 2005 at 03:54:00PM +0200, Mikael Pettersson wrote:
+> > Same here: 2.6.13-rc2 vanilla and 2.6.13-rc2 + patch #2 above both hang,
+> > but 2.6.13-rc2 + patch #1 boots fine.
+>
+> I suspect that those larger (4K) cardbus IO windows are clashing with
+> some legacy IO ports. If so, this could be avoided by setting ISAEN
+> bridge control bit.
+> It would be interesting to see whether the patch below works or not...
+>
+> Ivan.
 
->>>
->>>The reality is that the crystal is usually off by 50-100 ppm from the
->>>standard value, depending on temperature.
->>>
->>>    HZ   ticks/jiffie  1 second      error (ppm)
->>>---------------------------------------------------
->>>   100      11932      1.000015238      15.2
->>>   200       5966      1.000015238      15.2
->>>   250       4773      1.000057143      57.1
->>>   300       3977      0.999931429     -68.6
->>>   333       3583      0.999964114     -35.9
->>>   500       2386      0.999847619    -152.4
->>>  1000       1193      0.999847619    -152.4
+Hi,
 
-If we are following the standard and trying to set up a timer, the 1 second time 
-MUST be >= 1 second.  Thus the values for 300 and above in this table don't fly. 
-  If we are trying to keep system time, well we do just fine at that by using 
-the actual value of the jiffie (NOT 1/HZ) when we update time (one of the 
-reasons for going to nanoseconds in xtime).  The observable thing the user sees 
-is best seen by setting up an itimer to repeat every second.  Then you will see 
-the drift AND it will be against the system clock which itself is quite accurate 
-(the 50-100ppm you mention), even without ntp.  And the error really is in the 
-range of 848ppm for HZ=1000 BECAUSE we need to follow the standard.  You can 
-easily see this with the current 2.6 kernel.  We even have a bug report on it:
+I tried 2.6.13-rc2-git5 with your patch.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=3289
-~
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+First I forgot to install modules and it booted fine.
+Then I did a 'sudo make modules_install' and rebooted. It hang.
+
+It seems that everything is fine until some module
+loads and does something.
+
+-
+Tero Roponen
+
+ps.
+
+In 2.6.12 lsmod gives me this:
+
+Module                  Size  Used by
+xirc2ps_cs             15728  1
+pcmcia                 21416  5 xirc2ps_cs
+sunrpc                128132  1
+binfmt_misc             9352  1
+yenta_socket           20360  3
+rsrc_nonstatic         11488  1 yenta_socket
+pcmcia_core            44280  4
+xirc2ps_cs,pcmcia,yenta_socket,rsrc_nonstatic
+snd_cs4236             13700  0
+snd_opl3_lib            9152  1 snd_cs4236
+snd_hwdep               7104  1 snd_opl3_lib
+snd_cs4236_lib         15008  1 snd_cs4236
+snd_mpu401_uart         6048  1 snd_cs4236
+snd_rawmidi            20832  1 snd_mpu401_uart
+snd_cs4231_lib         23808  2 snd_cs4236,snd_cs4236_lib
+snd_seq_oss            33088  0
+snd_seq_midi_event      6496  1 snd_seq_oss
+snd_seq                50416  4 snd_seq_oss,snd_seq_midi_event
+snd_seq_device          6892  4
+snd_opl3_lib,snd_rawmidi,snd_seq_oss,snd_seq
+snd_pcm_oss            50400  0
+snd_mixer_oss          17696  1 snd_pcm_oss
+snd_pcm                85096  3 snd_cs4236_lib,snd_cs4231_lib,snd_pcm_oss
+snd_timer              21924  4
+snd_opl3_lib,snd_cs4231_lib,snd_seq,snd_pcm
+snd                    48388  14
+snd_cs4236,snd_opl3_lib,snd_hwdep,snd_cs4236_lib,snd_mpu401_uart,snd_rawmidi,snd_cs4231_lib,snd_seq_oss,snd_seq,snd_seq_device,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_timer
+soundcore               7456  1 snd
+snd_page_alloc          7556  2 snd_cs4231_lib,snd_pcm
+floppy                 54772  0
+ide_cd                 38436  0
+cdrom                  38272  1 ide_cd
+evdev                   7456  0
+
+

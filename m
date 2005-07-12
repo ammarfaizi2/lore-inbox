@@ -1,100 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVGLL7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVGLL7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVGLL7s (ORCPT <rfc822;willy@w.ods.org>);
+	id S261375AbVGLL7s (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 12 Jul 2005 07:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVGLL7f
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVGLL7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 07:59:35 -0400
-Received: from p54A0B88C.dip0.t-ipconnect.de ([84.160.184.140]:10750 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261375AbVGLL6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 07:58:34 -0400
-Message-ID: <42D3B063.3000207@trash.net>
-Date: Tue, 12 Jul 2005 13:58:27 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: de-DE, de, en-us, en
+	Tue, 12 Jul 2005 07:59:40 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:23012 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S261373AbVGLL5k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 07:57:40 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+X-X-Sender: dlang@dlang.diginsite.com
+Date: Tue, 12 Jul 2005 04:57:31 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
+In-Reply-To: <200507122110.43967.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.62.0507120446450.9200@qynat.qvtvafvgr.pbz>
+References: <200507122110.43967.kernel@kolivas.org>
 MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: Re: 2.6.12 netfilter: local packets marked as invalid
-References: <42CE86B5.2080705@gentoo.org> <42CE8E96.1040905@trash.net> <42CEA5E4.40009@gentoo.org>
-In-Reply-To: <42CEA5E4.40009@gentoo.org>
-Content-Type: multipart/mixed;
- boundary="------------090905010801020102090306"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090905010801020102090306
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+this looks very interesting, however one thing that looks odd to me in 
+this is the thought of comparing the results for significantly different 
+hardware.
 
-Daniel Drake wrote:
-> You'll have to forgive my lack of netfilter knowledge, I set up my firewall
-> ages ago and haven't really touched it since :)
+for some of the loads you really are going to be independant of the speed 
+of the hardware (burn, compile, etc will use whatever you have) however 
+for others (X, audio, video) saying that they take a specific percentage 
+of the cpu doesn't seem right.
 
-We decided to revert the responsible change because it caused problems
-in other areas as well. This patch should fix your problem.
+if I have a 400MHz cpu each of these will take a much larger percentage of 
+the cpu to get the job done then if I have a 4GHz cpu for example.
 
+for audio and video this would seem to be a fairly simple scaleing factor 
+(or just doing a fixed amount of work rather then a fixed percentage of 
+the CPU worth of work), however for X it is probably much more complicated 
+(is the X load really linearly random in how much work it does, or is it 
+weighted towards small amounts with occasional large amounts hitting? I 
+would guess that at least beyond a certin point the liklyhood of that much 
+work being needed would be lower)
 
---------------090905010801020102090306
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="x"
+David Lang
 
-W05FVEZJTFRFUl06IFJldmVydCBuZl9yZXNldCBjaGFuZ2UKClJldmVydCB0aGUgbmZfcmVz
-ZXQgY2hhbmdlIHRoYXQgY2F1c2VkIHNvIG11Y2ggdHJvdWJsZSwgZHJvcCBjb25udHJhY2sK
-cmVmZXJlbmNlcyBtYW51YWxseSBiZWZvcmUgcGFja2V0cyBhcmUgcXVldWVkIHRvIHBhY2tl
-dCBzb2NrZXRzLgoKU2lnbmVkLW9mZi1ieTogUGhpbCBPZXN0ZXIgPGtlcm5lbEBsaW51eGFj
-ZS5jb20+ClNpZ25lZC1vZmYtYnk6IFBhdHJpY2sgTWNIYXJkeSA8a2FiZXJAdHJhc2gubmV0
-PgoKLS0tCmNvbW1pdCBjNjRlOWZhZmZmZDIwMzg4NmY2YzU3MTQ5ODAzZjE4MjRmZWJkOWJi
-CnRyZWUgNDBhOTBhYjE0MjdjMjVmN2EzNjEwOWVhYmQxYTUzYjBhOGYxNDRiZQpwYXJlbnQg
-OWZkNzNiZWQwNmViNWNmMzA5ZTBjYjVjZGYzMjQ5YTU0ZmQzZmYyMgphdXRob3IgUGhpbCBP
-ZXN0ZXIgPGtlcm5lbEBsaW51eGFjZS5jb20+IE1vbiwgMTEgSnVsIDIwMDUgMDI6MDQ6MDgK
-Y29tbWl0dGVyIFBhdHJpY2sgTWNIYXJkeSA8a2FiZXJAdHJhc2gubmV0PiBNb24sIDExIEp1
-bCAyMDA1IDAyOjA0OjA4CgogbmV0L2lwdjQvaXBfb3V0cHV0LmMgICAgICAgICAgICAgICAg
-ICAgICAgICAgfCAgICA5IC0tLS0tLS0tLQogbmV0L2lwdjQvbmV0ZmlsdGVyL2lwX2Nvbm50
-cmFja19zdGFuZGFsb25lLmMgfCAgICA3ICsrKysrKysKIG5ldC9wYWNrZXQvYWZfcGFja2V0
-LmMgICAgICAgICAgICAgICAgICAgICAgIHwgICAgNiArKysrKysKIDMgZmlsZXMgY2hhbmdl
-ZCwgMTMgaW5zZXJ0aW9ucygrKSwgOSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9uZXQv
-aXB2NC9pcF9vdXRwdXQuYyBiL25ldC9pcHY0L2lwX291dHB1dC5jCi0tLSBhL25ldC9pcHY0
-L2lwX291dHB1dC5jCisrKyBiL25ldC9pcHY0L2lwX291dHB1dC5jCkBAIC0xMDcsNyArMTA3
-LDYgQEAgc3RhdGljIGludCBpcF9kZXZfbG9vcGJhY2tfeG1pdChzdHJ1Y3QgcwogCW5ld3Nr
-Yi0+cGt0X3R5cGUgPSBQQUNLRVRfTE9PUEJBQ0s7CiAJbmV3c2tiLT5pcF9zdW1tZWQgPSBD
-SEVDS1NVTV9VTk5FQ0VTU0FSWTsKIAlCVUdfVFJBUChuZXdza2ItPmRzdCk7Ci0JbmZfcmVz
-ZXQobmV3c2tiKTsKIAluZXRpZl9yeChuZXdza2IpOwogCXJldHVybiAwOwogfQpAQCAtMTg4
-LDE0ICsxODcsNiBAQCBzdGF0aWMgaW5saW5lIGludCBpcF9maW5pc2hfb3V0cHV0MihzdHJ1
-CiAJCXNrYiA9IHNrYjI7CiAJfQogCi0jaWZkZWYgQ09ORklHX0JSSURHRV9ORVRGSUxURVIK
-LQkvKiBicmlkZ2UtbmV0ZmlsdGVyIGRlZmVycyBjYWxsaW5nIHNvbWUgSVAgaG9va3MgdG8g
-dGhlIGJyaWRnZSBsYXllcgotCSAqIGFuZCBzdGlsbCBuZWVkcyB0aGUgY29ubnRyYWNrIHJl
-ZmVyZW5jZS4KLQkgKi8KLQlpZiAoc2tiLT5uZl9icmlkZ2UgPT0gTlVMTCkKLSNlbmRpZgot
-CQluZl9yZXNldChza2IpOwotCiAJaWYgKGhoKSB7CiAJCWludCBoaF9hbGVuOwogCmRpZmYg
-LS1naXQgYS9uZXQvaXB2NC9uZXRmaWx0ZXIvaXBfY29ubnRyYWNrX3N0YW5kYWxvbmUuYyBi
-L25ldC9pcHY0L25ldGZpbHRlci9pcF9jb25udHJhY2tfc3RhbmRhbG9uZS5jCi0tLSBhL25l
-dC9pcHY0L25ldGZpbHRlci9pcF9jb25udHJhY2tfc3RhbmRhbG9uZS5jCisrKyBiL25ldC9p
-cHY0L25ldGZpbHRlci9pcF9jb25udHJhY2tfc3RhbmRhbG9uZS5jCkBAIC00MzIsNiArNDMy
-LDEzIEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgaXBfY29ubnRyYWNrX2RlZnJhZygKIAkJCQkg
-ICAgICAgIGNvbnN0IHN0cnVjdCBuZXRfZGV2aWNlICpvdXQsCiAJCQkJICAgICAgICBpbnQg
-KCpva2ZuKShzdHJ1Y3Qgc2tfYnVmZiAqKSkKIHsKKyNpZiAhZGVmaW5lZChDT05GSUdfSVBf
-TkZfTkFUKSAmJiAhZGVmaW5lZChDT05GSUdfSVBfTkZfTkFUX01PRFVMRSkKKwkvKiBQcmV2
-aW91c2x5IHNlZW4gKGxvb3BiYWNrKT8gIElnbm9yZS4gIERvIHRoaXMgYmVmb3JlCisgICAg
-ICAgICAgIGZyYWdtZW50IGNoZWNrLiAqLworCWlmICgoKnBza2IpLT5uZmN0KQorCQlyZXR1
-cm4gTkZfQUNDRVBUOworI2VuZGlmCisKIAkvKiBHYXRoZXIgZnJhZ21lbnRzLiAqLwogCWlm
-ICgoKnBza2IpLT5uaC5pcGgtPmZyYWdfb2ZmICYgaHRvbnMoSVBfTUZ8SVBfT0ZGU0VUKSkg
-ewogCQkqcHNrYiA9IGlwX2N0X2dhdGhlcl9mcmFncygqcHNrYiwKZGlmZiAtLWdpdCBhL25l
-dC9wYWNrZXQvYWZfcGFja2V0LmMgYi9uZXQvcGFja2V0L2FmX3BhY2tldC5jCi0tLSBhL25l
-dC9wYWNrZXQvYWZfcGFja2V0LmMKKysrIGIvbmV0L3BhY2tldC9hZl9wYWNrZXQuYwpAQCAt
-Mjc0LDYgKzI3NCw5IEBAIHN0YXRpYyBpbnQgcGFja2V0X3Jjdl9zcGt0KHN0cnVjdCBza19i
-dWYKIAlkc3RfcmVsZWFzZShza2ItPmRzdCk7CiAJc2tiLT5kc3QgPSBOVUxMOwogCisJLyog
-ZHJvcCBjb25udHJhY2sgcmVmZXJlbmNlICovCisJbmZfcmVzZXQoc2tiKTsKKwogCXNwa3Qg
-PSAoc3RydWN0IHNvY2thZGRyX3BrdCopc2tiLT5jYjsKIAogCXNrYl9wdXNoKHNrYiwgc2ti
-LT5kYXRhLXNrYi0+bWFjLnJhdyk7CkBAIC01MTcsNiArNTIwLDkgQEAgc3RhdGljIGludCBw
-YWNrZXRfcmN2KHN0cnVjdCBza19idWZmICpzawogCWRzdF9yZWxlYXNlKHNrYi0+ZHN0KTsK
-IAlza2ItPmRzdCA9IE5VTEw7CiAKKwkvKiBkcm9wIGNvbm50cmFjayByZWZlcmVuY2UgKi8K
-KwluZl9yZXNldChza2IpOworCiAJc3Bpbl9sb2NrKCZzay0+c2tfcmVjZWl2ZV9xdWV1ZS5s
-b2NrKTsKIAlwby0+c3RhdHMudHBfcGFja2V0cysrOwogCV9fc2tiX3F1ZXVlX3RhaWwoJnNr
-LT5za19yZWNlaXZlX3F1ZXVlLCBza2IpOwo=
---------------090905010801020102090306--
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

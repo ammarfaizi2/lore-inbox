@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVGLNFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVGLNOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVGLNFV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 09:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVGLNFV
+	id S261388AbVGLNOi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 09:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVGLNOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 09:05:21 -0400
-Received: from alog0200.analogic.com ([208.224.220.215]:19657 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261317AbVGLNEN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 09:04:13 -0400
-Date: Tue, 12 Jul 2005 09:02:42 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i386: Selectable Frequency of the Timer Interrupt
-In-Reply-To: <Pine.LNX.4.61.0507121448240.5529@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0507120857001.2868@chaos.analogic.com>
-References: <Pine.LNX.4.61.0507121448240.5529@yvahk01.tjqt.qr>
+	Tue, 12 Jul 2005 09:14:38 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:7046 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261388AbVGLNOh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 09:14:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=d5z+ps6fsugqwLt+E+b7FSOsJneL7NhIX1m4VvfzhF6UUNxAspwPSfg1f6nuaTzckn2Q1zEX16quzWVCIfF+7lZpEQ4NbcTFI6K7gBuYUPtV1xoRganVsfWl9nBYHPSjKxbiDf+hCW8ViFR3ept/cRbR8uaaltVclcYemXcRgA4=
+Message-ID: <42D3C37C.6040401@gmail.com>
+Date: Tue, 12 Jul 2005 15:19:56 +0200
+From: Mateusz Berezecki <mateuszb@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050704)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: "scheduling while atomic" ? 
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jul 2005, Jan Engelhardt wrote:
+Hi LKML,
 
-> Hi,
->
->
-> Vojtech Pavlik @ Tue, 12 Jul 2005 14:10:08 +0200 wrote:
-> (http://lkml.org/lkml/2005/7/12/122)
->
->> On Mon, Jul 11, 2005 at 05:38:05PM -0700, George Anzinger wrote:
->>> HZ  	TICK RATE	jiffie(ns)	second(ns)	 error (ppbillion)
->>>  100	 1193180	10000000	1000000000	       0
->
->> The PIT crystal runs at 14.3181818 MHz (CGA dotclock, found on ISA, ...)
->> and is divided by 12 to get PIT tick rate
->> 	14.3181818 MHz / 12 = 1193182 Hz
->
-> What exactly is the frequency of the PIT? Many internet resources say 1193180
-> (including the original post), some say 1193181, and you say 1193182 Hz.
-> Which one is correct? (Ignoring temperature for now..)
->
+What does the message saying "scheduling while atomic" mean?
 
-The original specification was based upon the NTSC color subcarrier
-frequency of 3.579545. The dotclock is 4 times this:
+The kernel prints a stack backtrace after this message appears so I
+suppose this is
+not a good behaviour. I am finishing an open source driver, and I need
+to do all of this
+locking stuff, etc. and this really makes me wonder what I am doing wrong.
 
- 	3.579745 * 4 = 14.31818000
+here is some part of a backtrace...
 
-You can type 3.579545 into google and see it's used practically
-everywhere as the magic number that started it all ;^) The
-crooked-earth society uses this for PI (just kidding).
+scheduling while atomic: insmod/0x00000001/12692
+ [<c03e7352>] schedule+0x632/0x640
+ [<c0119bb1>] __wake_up_common+0x41/0x70
+ [<c03e74df>] wait_for_completion+0x8f/0xf0
+ [<c0119b50>] default_wake_function+0x0/0x20
+ [<c0119b50>] default_wake_function+0x0/0x20
+ [<c012e2dd>] queue_work+0x8d/0xa0
+ [<c012e070>] __call_usermodehelper+0x0/0x70
+ [<c012e1a5>] call_usermodehelper_keys+0xc5/0xd0
+ [<c012e070>] __call_usermodehelper+0x0/0x70
+ [<c020c028>] sprintf+0x28/0x30
+ [<c020955d>] kobject_hotplug+0x29d/0x310
+ [<c019fc6e>] sysfs_create_link+0x3e/0x60
+ [<c028b601>] class_device_add+0x161/0x1e0
+ [<c036f38e>] netdev_register_sysfs+0x3e/0x100
+ [<c03650db>] netdev_run_todo+0x1eb/0x220
+ [<c0364dce>] register_netdev+0x5e/0x90
+
+I enable a lock at the beginning of device attach routine
+and I disable it at the end. Whats wrong with it?
 
 
-> IMO 1193181 could be, because it matches the almost-magical number 0x1234DD.
->
->
-> Jan Engelhardt
-> -- 
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+regards
+Mateusz

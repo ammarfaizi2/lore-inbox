@@ -1,71 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVGKOMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVGLBM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbVGKOMS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVGKOKT
+	id S261895AbVGLBM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 21:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVGLBJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:10:19 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:62100 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261710AbVGKOJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:09:18 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
-       Andrew Morton <akpm@osdl.org>, azarah@nosferatu.za.org, cw@f00f.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, christoph@lameter.org
-In-Reply-To: <20050711140510.GB14529@thunk.org>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	 <20050708214908.GA31225@taniwha.stupidest.org>
-	 <20050708145953.0b2d8030.akpm@osdl.org>
-	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
-	 <1120933916.3176.57.camel@laptopd505.fenrus.org>
-	 <1120934163.6488.72.camel@mindpipe> <20050709121212.7539a048.akpm@osdl.org>
-	 <1120936561.6488.84.camel@mindpipe>
-	 <1121088186.7407.61.camel@localhost.localdomain>
-	 <20050711140510.GB14529@thunk.org>
-Content-Type: text/plain
-Date: Mon, 11 Jul 2005 16:08:59 +0200
-Message-Id: <1121090939.3177.30.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 11 Jul 2005 21:09:55 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:42685 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S261895AbVGLBHb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 21:07:31 -0400
+Message-ID: <33703.127.0.0.1.1121130438.squirrel@localhost>
+In-Reply-To: <20050711193454.GA2210@elf.ucw.cz>
+References: <20050711193454.GA2210@elf.ucw.cz>
+Date: Mon, 11 Jul 2005 20:07:18 -0500 (CDT)
+Subject: Re: arm: how to operate leds on zaurus?
+From: "John Lenz" <lenz@cs.wisc.edu>
+To: "Pavel Machek" <pavel@ucw.cz>
+Cc: "kernel list" <linux-kernel@vger.kernel.org>,
+       "Russell King" <rmk+lkml@arm.linux.org.uk>
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, July 11, 2005 2:34 pm, Pavel Machek said:
+> Hi!
+>
+> 2.6.12-rc5 (and newer) does not boot on sharp zaurus sl-5500. It
+> blinks with green led, fast; what does it mean? I'd like to verify if
+> it at least reaches .c code in setup.c. I inserted this code at
+> begining of setup.c:674...
+>
+> #define locomo_writel(val,addr) ({ *(volatile u16 *)(addr) = (val); })
+> #define LOCOMO_LPT_TOFH         0x80
+> #define LOCOMO_LED              0xe8
+> #define LOCOMO_LPT0             0x00
+>
+>       locomo_writel(LOCOMO_LPT_TOFH, LOCOMO_LPT0 + LOCOMO_LED);
+>
+> ...but that does not seem to do a trick -- it only breaks the boot :-(
+> (do I need to add some kind of IO_BASE?).
+> 								Pavel
 
-> The real answer here is for the tickless patches to cleaned up to the
-> point where they can be merged, and then we won't waste battery power
-> entering the timer interrupt in the first place.  :-)
+No, that won't work.
 
-one big step forward for that is to have a
+As Russell said, there are problems accessing memory before the io maps
+have been set up correctly.  You can see the patch
+http://www.cs.wisc.edu/~lenz/zaurus/files/2.6.12-rc5/lenz-03-leds-2.6.12-rc5.patch
+need scroll near the bottom in file locomo.c to see how the led gets set. 
+You won't actually be able to know where in memory that space is mapped
+because we call ioremap, and won't be able to access the locomo stuff
+until device_initcall.
 
-mod_timer_relative() and add_timer_relative()
+WARNING: Horrible hack!  Ugly, ugly, ugly!  First read and understand the
+warning at
+http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2002-January/006730.html
 
-which 
-1) take a relative delay as argument (and thus kill 99% of the jiffies
-use in the kernel right there and then)
-2) takes it in miliseconds, killing 99% of all the HZ conversions/uses
-3) takes a "accuracy" argument
+Having said that, either before the MMU has been activated or before the
+ioremap() has been called, it is sometimes possible to access the LEDs at
+the physical addresses they are located at.  This may or may not work,
+might not always work, etc... but it can help as a last resort.  On the
+SL5500, the physical address of the start of the locomo chip is
+0x40000000, and the leds are at an offset of 0xe8, so something like
+volatile u16 *led = (volatile u16 *)0x400000e8;
+*led = 0x80;
+As the above email says, this is not guarenteed to work at all, will fail
+at some point in the boot process, but is something you can try.
 
-3) is tricky I guess, it's designed for cases that are like "I want a
-timer 1 second from now, but it's ok to be also at 1.5 seconds if that
-suits you better". Those cases are far less rare than you might think at
-first, most watchdog kind things are of this type. This accuracy thing
-will allow the kernel to save many wakeups by grouping them I suspect.
+That said, I am aware that recent kernel versions have broken the boot on
+collie, but haven't looked at the problem in detail (i.e. tried doing a
+binary search between known working versions and broken ones to see the
+patch that introduced the problem).  I have been working on the SL5600
+recently.
 
-Alan: you worked on this before, where did you end up with ?
+John
 

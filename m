@@ -1,100 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVGLIYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVGLI3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVGLIYz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 04:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVGLIYz
+	id S261246AbVGLI3E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 04:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVGLI3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 04:24:55 -0400
-Received: from totor.bouissou.net ([82.67.27.165]:60099 "EHLO
-	totor.bouissou.net") by vger.kernel.org with ESMTP id S261256AbVGLIYt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 04:24:49 -0400
-From: Michel Bouissou <michel@bouissou.net>
-Organization: Me, Myself and I
-To: evms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: MD-RAID + EVMS parallel / sequential resync issue
-Date: Tue, 12 Jul 2005 10:24:45 +0200
-User-Agent: KMail/1.7.2
-Cc: mingo@redhat.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 12 Jul 2005 04:29:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13517 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261246AbVGLI3D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 04:29:03 -0400
+Date: Tue, 12 Jul 2005 01:25:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bas Vermeulen <bvermeul@blackstar.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc2 (git followed) unable to boot with initrd
+Message-Id: <20050712012508.3c5fbb19.akpm@osdl.org>
+In-Reply-To: <1121092944.6432.4.camel@laptop.blackstar.nl>
+References: <1121092944.6432.4.camel@laptop.blackstar.nl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507121024.45358@totor.bouissou.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Bas Vermeulen <bvermeul@blackstar.nl> wrote:
+>
+> I am currently unable to boot 2.6.13-rc2. I've got a working 2.6.13-rc1
+>  whose .config I use to compile 2.6.13-rc2. I'm attaching the failed boot
+>  log to this message. I'm booting with the same options as 2.6.13-rc1.
+> 
+>  If anyone knows how to get it working again, I'd be grateful.
+> ...
+> VFS: Cannot open root device "LABEL=/" or unknown-block(0,0)
+> ...
 
-(The reported problem has been noticed on several machines, with different 
-hardware, and different 2.6.x kernels, up to 2.6.12)
-
-I use EVMS with MD-RAID based storage, usually buiding several RAID-sets out 
-of partitions from the same physical disks, for example (just an example):
-
-1 MD RAID-1 set for a /boot made with 2 partitions out of 2 disks
-
-1 MD RAID-1 set for a / (root fs) made with 2 partitions out of the 2 same 
-disks
-
-1 MD RAID-1 set for a swap made with 2 partitions out of the 2 same disks
-
-1 MD RAID-1 set for a LVM containg different other volumes made with 2 
-partitions out of the 2 same disks
-
-Using EVMS, the RAID-sets are actually built from dm-managed devices.
-
-
-Using a 2.4 series kernel, I noticed the following :
----------------------------------------------------------------
-
-1/ When starting RAID-sets, MD usually issued a warning such as:
-
-<< md1: WARNING: [dev fe:01] appears to be on the same physical disk as [dev 
-fe:00]. True protection against single-disk failure might be compromised. >>
-
-The dm devices were actually NOT on the same physical disk, so this warning 
-was of no consequences.
-
-2/ When RAID-sets went ouf of sync and had to resync, MD resynced them one at 
-a time, each in turn, which was a correct behaviour.
-
-
-Using a 2.6 series kernel, I noticed the following :
----------------------------------------------------------------
-
-1/ When starting RAID-sets, MD doesn't complain about devices "being on the 
-same physical disks" anymore.
-
-2/ When RAID-sets get ouf of sync and have to resync, MD now resyncs them all 
-in parallel, at the same time, which results in resyncing several RAID-sets 
-made from the same disks at the same time.
-
-=> This seems to slow down resyncing very much for all RAIDs, and also 
-probably causes huge disks arms/heads movements (my ears tell me about 
-this ;-)
-
-
-Regarding resync speed, even when one single RAID-array is resyncing :
-
-With 2.4 kernel : With a mostly idle system, RAID resync speed usually goes as 
-high as /proc/sys/dev/raid/speed_limit_max allows, unless other system 
-activity slows it down.
-
-With 2.6 kernel : Even with a mostly idle system, RAID resync speed seems to 
-always stick to /proc/sys/dev/raid/speed_limit_min, and never goes much 
-higher.
-
-So it seems that the behaviour of the 2.4 MD regarding this is much closer to 
-what is desired, compared to the behaviour of the 2.6 kernels. (Comparison 
-done on the same system with the same overall configuration and activity).
-
-Any idea about how this could be improved ?
-
-(Please copy me on answers, as I'm not subscribed to the linux-kernel ML)
-
-Cheers.
-
--- 
-Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E
+This normally has a simple cause: it didn't find any disks, or a filesystem
+driver is missing.  Check your .config carefully and if that seems OK,
+generate the -rc1 and -rc2 dmesg and diff them, send us the result.

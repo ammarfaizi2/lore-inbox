@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbVGLWCQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVGLUvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262442AbVGLWCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 18:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbVGLWCE
+	id S262415AbVGLUvd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 16:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVGLUtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 18:02:04 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:11960 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262414AbVGLWB5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 18:01:57 -0400
-Message-ID: <42D43DC6.70004@namesys.com>
-Date: Tue, 12 Jul 2005 15:01:42 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Tue, 12 Jul 2005 16:49:19 -0400
+Received: from web52001.mail.yahoo.com ([206.190.48.84]:3242 "HELO
+	web52001.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262409AbVGLUs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 16:48:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=Z14SzRckjbD1loh/ELHkiwzMkOPOrvmFnCZAY/LhiYCIwhNhDQARl4qCj9dhhxdvmIvpUkDYoPEdwfPA5zxd+eNAlBGO1OS3RRZeCOyVc4/DOmt/c8PO1ryPT9EP87OLwOZv3mKP3av7sOUOaKs+TRKsVPXOfZZQgqm7NhM7VBI=  ;
+Message-ID: <20050712204822.84567.qmail@web52001.mail.yahoo.com>
+Date: Tue, 12 Jul 2005 13:48:22 -0700 (PDT)
+From: Konstantin Kudin <konstantin_kudin@yahoo.com>
+Subject: Re: fdisk: What do plus signs after "Blocks" mean? 
+To: Horst von Brand <vonbrand@inf.utfsm.cl>, lkml@dervishd.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200507122019.j6CKJwxe021850@laptop11.inf.utfsm.cl>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Keenan Pepper <keenanpepper@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: realtime-preempt + reiser4?
-References: <42D4201A.9050303@gmail.com> <1121198723.10580.10.camel@mindpipe>
-In-Reply-To: <1121198723.10580.10.camel@mindpipe>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
 
->On Tue, 2005-07-12 at 15:55 -0400, Keenan Pepper wrote:
->  
->
->>Ingo Molnar's realtime-preempt patches used to be based on the -mm 
->>kernels, but now they appear to be based on the mainline kernels, so 
->>they don't support reiser4 (at least until reiser4 is merged into 
->>mainline, which is looking uncertain as I understand it).
->>    
->>
->
->It's not uncertain, the reiser4 people just have to address the issues
->that were raised on LKML before it will be merged, just like everyone
->else.
->  
->
-Maybe tomorrow the changes will compile.....  they have been written.....
+
+--- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+
+ Guys, thanks a lot for the explanations!
+
+ Actually, it seems like one can backup information on ALL partitions
+by using the command "sfdisk -dx /dev/hdX". Supposedly, it reads not
+only primary but also extended partitions. "sfdisk -x /dev/hdX" should
+be then able to write whatever is known back to the disk.
+
+ Konstantin
+
+
+
+> DervishD <lkml@dervishd.net> wrote:
+> 
+> [...]
+> 
+> >     It's a good idea to have a copy of the partition table around,
+> if
+> > it is not simple (the one you had is NOT simple).
+> 
+> Be careful. What you'll get out of backing up the partition table is
+> /only/
+> the primary partitions, the others are handled by a weird russian
+> doll of
+> partitions-inside-partitions. AFAIR, the details were in the LILO
+> docu.
+> -- 
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

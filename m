@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVGLMpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVGLMs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVGLMpc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVGLMpc
+	id S261365AbVGLMs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVGLMs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:45:32 -0400
-Received: from alog0200.analogic.com ([208.224.220.215]:37596 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261336AbVGLMp3
+	Tue, 12 Jul 2005 08:48:57 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:727 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S261365AbVGLMs4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:45:29 -0400
-Date: Tue, 12 Jul 2005 08:43:56 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: "Mark Williams (MWP)" <mwp@internode.on.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Cannot fix unresolved module symbols
-In-Reply-To: <20050712123113.GA8265@linux.comp>
-Message-ID: <Pine.LNX.4.61.0507120840560.2712@chaos.analogic.com>
-References: <20050712123113.GA8265@linux.comp>
+	Tue, 12 Jul 2005 08:48:56 -0400
+Message-ID: <42D3BDDA.3050905@aitel.hist.no>
+Date: Tue, 12 Jul 2005 14:55:54 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: subramanyam yenugonda <subramanyamy@yahoo.co.in>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: opening the framebuffer device
+References: <20050711114712.95478.qmail@web8406.mail.in.yahoo.com>
+In-Reply-To: <20050711114712.95478.qmail@web8406.mail.in.yahoo.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jul 2005, Mark Williams (MWP) wrote:
+subramanyam yenugonda wrote:
 
-> Greetings all,
+>Hi All!
 >
-> First, im using 2.6.12 with version 3.1 of module-install-utils and GCC 4.0.1.
+>How to open the frame buffer device if user has
+>multiple monitors on single video card.
 >
-> I simply cannot get kernel modules to install.
+>Thanks in advance.
+>~YSM
+>  
 >
-> Building the kernel and modules works perfecty, no errors.
->
-> But on running "make modules_install" i get:
->
-> depmod: QM_MODULES: Function not implemented
->  INSTALL drivers/net/wireless/atmel.ko
-> if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map
-> 2.6.12; fi
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.6.12/kernel/drivers/net/wireless/atmel.ko
-> depmod:         __netdev_watchdog_up
-> depmod:         preempt_schedule
-> depmod:         _mmx_memcpy
-> depmod:         eth_type_trans
-> depmod:         param_get_charp
-> depmod:         __kfree_skb
-> depmod:         alloc_skb
-> ........ and many more
->
-> Ive had this problem since i started using 2.6.x, and have always compiled
-> drivers into the kernel to avoid it. But now i do need to get this fixed so i
-> can get ndiswrapper working.
->
-> Does anyone know what could be wrong?
->
-> Thanks.
+You open the _correct_ framebuffer device.
+Linux support multiple framebuffer devices, e.g.
+/dev/fb0  /dev/fb1 /dev/fb2 ...
 
-> depmod: QM_MODULES: Function not implemented
-           ^^^^^^^^^^^^^^^
-The hint: Upgrade your modules tools. (module-init-tools-3.2.tar.gz)
+The matrox G550 support this, set the correct kernel config options
+and you get both /dev/fb0 and /dev/fb1 (for the second head.)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+This is the way to go if you want _independent_ monitors.
+
+Some other drivers create a large framebuffer that spans several
+monitors - ideal for the common case of one big desktop spread
+across several monitors.  In those cases, you open /dev/fb0,
+and find the different monitor bitmaps at different offsets inside that 
+file.
+
+Helge Hafting

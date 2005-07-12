@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVGLOAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVGLOBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVGLOAs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 10:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVGLOAs
+	id S261431AbVGLOBv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 10:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVGLOBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 10:00:48 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21262 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261337AbVGLOAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 10:00:46 -0400
-Date: Tue, 12 Jul 2005 15:00:40 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: david-b@pacbell.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6.13-git] 8250 tweaks
-Message-ID: <20050712150040.B30358@flint.arm.linux.org.uk>
-Mail-Followup-To: david-b@pacbell.net, linux-kernel@vger.kernel.org
-References: <200507111922.04800.david-b@pacbell.net> <20050712081943.B25543@flint.arm.linux.org.uk> <20050712102512.A7F30BF3C9@adsl-69-107-32-110.dsl.pltn13.pacbell.net> <20050712120825.E28413@flint.arm.linux.org.uk> <20050712113212.0C90EBF3D5@adsl-69-107-32-110.dsl.pltn13.pacbell.net> <20050712130119.A30358@flint.arm.linux.org.uk> <20050712133043.976AC85E6C@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050712133043.976AC85E6C@adsl-69-107-32-110.dsl.pltn13.pacbell.net>; from david-b@pacbell.net on Tue, Jul 12, 2005 at 06:30:43AM -0700
+	Tue, 12 Jul 2005 10:01:51 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:28287 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S261434AbVGLOBT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 10:01:19 -0400
+Date: Tue, 12 Jul 2005 16:01:16 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Tom Zanussi <zanussi@us.ibm.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, karim@opersys.com,
+       varap@us.ibm.com, richardj_moore@uk.ibm.com
+Subject: Re: Merging relayfs?
+In-Reply-To: <17107.6290.734560.231978@tut.ibm.com>
+Message-ID: <Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl>
+References: <17107.6290.734560.231978@tut.ibm.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-908360741-1121176876=:6919"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 06:30:43AM -0700, david-b@pacbell.net wrote:
-> > > ISTR that having NR_UARTS bigger just produced different messages...
-> >
-> > Which were?
-> 
-> Error code 22 instead of 28, as I recall.  And as I said, the
-> appearance of any (bogus error) message is a "recent" change.
-> Two months ago, there were no messages at all.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-We now have multiple 8250 platform devices.  I'm sure folk would
-want to know if one of their serial ports fails to register.  Hence
-the message.  It's not bogus!
+--0-908360741-1121176876=:6919
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-22 is EINVAL, which will occur if uartclk is zero, or if the port was
-trying to be registered was already registered (not possible.)
+On Mon, 11 Jul 2005, Tom Zanussi wrote:
 
-So, you're asking the driver to register a port with zero MMIO, IO and
-clock values...  Ok, you're asking the driver to do something that is
-invalid.  Sounds like its the platform code which is doing the bogus
-things.
+>
+> Hi Andrew, can you please merge relayfs?  It provides a low-overhead
+> logging and buffering capability, which does not currently exist in
+> the kernel.
+>
+> relayfs key features:
+>
+> - Extremely efficient high-speed logging/buffering
 
-I don't see why you can't just pass those that you want and no more.
-Either build the table dynamically with just the ports that you want
-listed and the rest completely zeroed, or register several platform
-devices, one for each port.
+Usualy/for now relayfs is used as base infrastructure for variuos
+debuging/measuring.
+IMO storing raw data and transfer them to user space it is wrong way.
+Why ? Becase i adds very big overhead for memory nad storage.
+Big .. compare to in situ storing partialy analyzed data in conters
+and other like it is in DTrace.
 
-You don't need any special hacks in the 8250 driver to "support" this.
+IMO much better will be add base/template set of functions for use in 
+KProbes probes which will come with KProbes code as base tool set. It will 
+allow cut transfered data size from megabites/gigabyutes to hundret 
+bytes/kilo bytes, make debuging/measuring more smooth without additional 
+latency for transfer data outside kernel space.
 
+It will be good not reinvent wheel in wrong way if in working implemtation 
+like DTrace it work more than well.
+
+Yes, maybe it will be good have something like relayfs for some other 
+tasks but for debuging/measuring better will be IMO use other way which 
+will not use this technik.
+
+kloczek
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-908360741-1121176876=:6919--

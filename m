@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbVGLRYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVGLR0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbVGLRYR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 13:24:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVGLRYE
+	id S261757AbVGLR0d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 13:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVGLRYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 13:24:04 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:34705 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261709AbVGLRXN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 13:23:13 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Jul 2005 13:24:23 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:50125 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261709AbVGLRYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 13:24:16 -0400
+Date: Tue, 12 Jul 2005 10:24:07 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [patch] suspend: update documentation
+Message-Id: <20050712102407.0fce8b7c.rdunlap@xenotime.net>
+In-Reply-To: <20050712090510.GG1854@elf.ucw.cz>
+References: <20050712090510.GG1854@elf.ucw.cz>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17107.64629.717907.706682@tut.ibm.com>
-Date: Tue, 12 Jul 2005 12:23:01 -0500
-To: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Cc: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
-       richardj_moore@uk.ibm.com, prasadav@us.ibm.com
-Subject: Re: Merging relayfs?
-In-Reply-To: <Pine.BSO.4.62.0507121840260.6919@rudy.mif.pg.gda.pl>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	<Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl>
-	<17107.57046.817407.562018@tut.ibm.com>
-	<Pine.BSO.4.62.0507121731290.6919@rudy.mif.pg.gda.pl>
-	<17107.61271.924455.965538@tut.ibm.com>
-	<Pine.BSO.4.62.0507121840260.6919@rudy.mif.pg.gda.pl>
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=?ISO-8859-2?Q?Tomasz_K=B3oczko?= writes:
- > On Tue, 12 Jul 2005, Tom Zanussi wrote:
-[...]
- > >
- > > Most of the time the data is just being buffered and only when the
- > > buffer is full is it written to disk, as one write.  If that's too
- > > disruptive, then maybe you do need to do some aggregation in the kernel,
- > > but it sounds like a special case.
- > 
- > OK .. "so you can say better is stop flushing buffers on measure which 
- > wil take day or more" ? :_)
- > Some DTrace probes/technik are specialy prepared for long or evel very 
- > long time experiment wich will only prodyce few lines results on end of 
- > experiment.
- > Look at DTrace documentation for speculative tracing:
- > http://docs.sun.com/app/docs/doc/817-6223/6mlkidli7?a=view
- > 
+On Tue, 12 Jul 2005 11:05:10 +0200 Pavel Machek wrote:
 
-It's also possible to do long-running 'experiments' using relayfs, and
-never write anything at all to disk.  Here's an example prototype I
-did using a Perl interpreter embedded in the user space event-reading
-loop:
+| Update suspend documentation.
+| 
+| Signed-off-by: Pavel Machek <pavel@suse.cz>
+| 
+| ---
+| 
+| diff --git a/Documentation/power/swsusp.txt b/Documentation/power/swsusp.txt
+| --- a/Documentation/power/swsusp.txt
+| +++ b/Documentation/power/swsusp.txt
+| @@ -318,3 +318,10 @@ As a rule of thumb use encrypted swap to
+|  system is shut down or suspended. Additionally use the encrypted
+|  suspend image to prevent sensitive data from being stolen after
+|  resume.
+| +
+| +Q: Why we cannot suspend to a swap file?
 
-http://www.listserv.shafik.org/pipermail/ltt-dev/2004-August/000649.html
+Q: Why can't we suspend to a swap file?
+or
+Q: Why can we not suspend to a swap file?
 
- > Some experiments do not have deterinistic time and must be finished after 
- > i. e. "occasional failing". What if it will take so long so you will fill 
- > all avalaible storage in relayfs way ?
- > OK, never mind .. you have discontinued storage. Using kind speculative 
- > tracing way I'll have result *just after* "occasional failing" and you 
- > will start parse data stored using relayfs.
+| +
+| +A: Because accessing swap file needs the filesystem mounted, and
+| +filesystem might do something wrong (like replaying the journal)
+| +during mount. [Probably could be solved by modifying every filesystem
+| +to support some kind of "really read-only!" option. Patches welcome.]
+| diff --git a/Documentation/power/video.txt b/Documentation/power/video.txt
+| --- a/Documentation/power/video.txt
+| +++ b/Documentation/power/video.txt
+| @@ -46,6 +46,12 @@ There are a few types of systems where v
+|    POSTing bios works. Ole Rohne has patch to do just that at
+|    http://dev.gentoo.org/~marineam/patch-radeonfb-2.6.11-rc2-mm2.
+|  
+| +(8) on some systems, you can use the video_post utility mentioned here:
+| +  http://bugzilla.kernel.org/show_bug.cgi?id=3670. Do echo 3 > /sys/power/state
 
-As in the example above, you don't necessary need to fill any
-available storage.  You can also use relayfs in 'circular-buffer'
-mode, which would capture a buffer full of events up the point of your
-failure.  Sounds like speculative tracing to me.
+That attachment is weird for me.  It downloads as "attachment.cgi", but
+it's a tar.gz file.  :(        (using firefox if it matters)
 
-Tom
+| +  && /usr/sbin/video_post - which will initialize the display in console mode.
+| +  If  you are in X, you can switch to a virtual terminal and back to X using
+| +  CTRL+ALT+F1 - CTRL+ALT+F7 to get the display working in graphical mode again.
 
 
+---
+~Randy

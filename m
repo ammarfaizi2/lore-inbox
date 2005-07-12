@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbVGLE4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbVGLE6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbVGLE4V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 00:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbVGLE4V
+	id S262369AbVGLE6f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 00:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbVGLE6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 00:56:21 -0400
-Received: from hera.kernel.org ([209.128.68.125]:22733 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262361AbVGLE4P (ORCPT
+	Tue, 12 Jul 2005 00:58:33 -0400
+Received: from hera.kernel.org ([209.128.68.125]:36813 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262367AbVGLE61 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 00:56:15 -0400
+	Tue, 12 Jul 2005 00:58:27 -0400
 To: linux-kernel@vger.kernel.org
 From: hpa@zytor.com (H. Peter Anvin)
 Subject: Re: zImage on 2.6?
-Date: Tue, 12 Jul 2005 04:55:57 +0000 (UTC)
+Date: Tue, 12 Jul 2005 04:58:06 +0000 (UTC)
 Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <davigt$8e6$1@terminus.zytor.com>
-References: <20050503223148.GF12199@animx.eu.org> <Pine.LNX.4.44.0505032026360.1510-100000@sleekfreak.ath.cx>
+Message-ID: <daviku$8g4$1@terminus.zytor.com>
+References: <20050503012951.GA10459@animx.eu.org> <20050502193503.20e6ac6e.rddunlap@osdl.org> <20050503104503.GA11123@animx.eu.org> <m3k6mg5fly.fsf@defiant.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1121144157 8647 127.0.0.1 (12 Jul 2005 04:55:57 GMT)
+X-Trace: terminus.zytor.com 1121144286 8709 127.0.0.1 (12 Jul 2005 04:58:06 GMT)
 X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 12 Jul 2005 04:55:57 +0000 (UTC)
+NNTP-Posting-Date: Tue, 12 Jul 2005 04:58:06 +0000 (UTC)
 X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0505032026360.1510-100000@sleekfreak.ath.cx>
-By author:    shogunx <shogunx@sleekfreak.ath.cx>
+Followup to:  <m3k6mg5fly.fsf@defiant.localdomain>
+By author:    Krzysztof Halasa <khc@pm.waw.pl>
 In newsgroup: linux.dev.kernel
 >
-> On Tue, 3 May 2005, Wakko Warner wrote:
+> Wakko Warner <wakko@animx.eu.org> writes:
 > 
-> On an interesting side note, when running linux on IBM rs/6000, which is
-> a ppc64 machine, one must use a zImage kernel dd'ed into a small PReP
-> partition to boot the machine... bzImage kernels will not work.
+> > x86.  Does zImage work on other arches?  (I've only ever dealt with alpha
+> > and sparc other than x86)
 > 
+> Sure, ARM for example. 2 MB is not a problem.
 
-zImage/bzImage probably means something completely different on ppc.
+That's a completely different meaning of zImage then.  The x86 boot
+protocol (also used on x86-64) only allows 504K for zImage.
+
+For x86, zImage is so dead it's not even funny.  I tried to remove it
+a few years ago but people complained.
 
 	-hpa

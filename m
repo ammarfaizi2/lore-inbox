@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVGLRDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVGLRDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVGLRDP (ORCPT <rfc822;willy@w.ods.org>);
+	id S261653AbVGLRDP (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 12 Jul 2005 13:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVGLRDG
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVGLRC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 13:03:06 -0400
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:42366 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S261587AbVGLRBo
+	Tue, 12 Jul 2005 13:02:58 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:38596 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261653AbVGLRBL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 13:01:44 -0400
-Date: Tue, 12 Jul 2005 19:01:42 +0200 (CEST)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: Tom Zanussi <zanussi@us.ibm.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, karim@opersys.com,
-       varap@us.ibm.com, richardj_moore@uk.ibm.com
-Subject: Re: Merging relayfs?
-In-Reply-To: <17107.61271.924455.965538@tut.ibm.com>
-Message-ID: <Pine.BSO.4.62.0507121840260.6919@rudy.mif.pg.gda.pl>
-References: <17107.6290.734560.231978@tut.ibm.com>
- <Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl> <17107.57046.817407.562018@tut.ibm.com>
- <Pine.BSO.4.62.0507121731290.6919@rudy.mif.pg.gda.pl> <17107.61271.924455.965538@tut.ibm.com>
+	Tue, 12 Jul 2005 13:01:11 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-1183889908-1121187702=:6919"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17107.63309.475838.635711@tut.ibm.com>
+Date: Tue, 12 Jul 2005 12:01:01 -0500
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Tom Zanussi <zanussi@us.ibm.com>, Jason Baron <jbaron@redhat.com>,
+       richardj_moore@uk.ibm.com, varap@us.ibm.com, karim@opersys.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Merging relayfs?
+In-Reply-To: <1121186981.6917.67.camel@localhost.localdomain>
+References: <17107.6290.734560.231978@tut.ibm.com>
+	<Pine.LNX.4.61.0507121050390.25408@dhcp83-105.boston.redhat.com>
+	<1121183607.6917.47.camel@localhost.localdomain>
+	<17107.60140.948145.153144@tut.ibm.com>
+	<1121185393.6917.59.camel@localhost.localdomain>
+	<17107.61864.621401.440354@tut.ibm.com>
+	<1121186981.6917.67.camel@localhost.localdomain>
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Steven Rostedt writes:
+ > On Tue, 2005-07-12 at 11:36 -0500, Tom Zanussi wrote:
+ > 
+ > >  > 
+ > >  > I totally agree that the vmalloc way is faster, but I would also argue
+ > >  > that the accounting to handle the separate pages would not even be
+ > >  > noticeable with the time it takes to do the actual copying into the
+ > >  > buffer.  So if the accounting adds 3ns on top of 500ns to complete, I
+ > >  > don't think people will mind.
+ > > 
+ > > OK, it sounds like something to experiment with - I can play around
+ > > with it, and later submit a patch to remove vmap if it works out.
+ > > Does that sound like a good idea?
+ > 
+ > Sounds good to me, since different approaches to a problem are always
+ > good, since it allows for comparing the plusses and minuses.  Not sure
+ > if you want to take a crack using my ring buffers, but although they are
+ > quite confusing, they have been fully tested, since I haven't changed
+ > the ring buffer for a few years (although logdev itself has gone
+through
 
---0-1183889908-1121187702=:6919
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+I was thinking of something simpler, like just using the page array we
+already have in relayfs, but not vmap'ing it and instead writing to
+the current page, detecting when to split a record, moving on to the
+next page, etc. and seeing how it compares with the vmap version.
 
-On Tue, 12 Jul 2005, Tom Zanussi wrote:
-[..]
-> > DTrace real examples shows something completly diffret.
-> > MANY things (if not ~almost all) can be kept only in aggregated form
-> > during experiments.
->
-> But you can also do the aggregation in user space if you have a cheap
-> way of getting it there, as we've shown with some of the examples.
+Tom
 
-Sorry but real life examples shows that store chunk of 
-data in agregator is less expensive than context switch neccessary for 
-store data or time neccasy for send and handle signal from buffer like 
-"I'm full! let me out of here ..".
 
-[..]
-> > store raw data. What you need ? only one counter (few bytes) instead of huge
-> > amount of memeory for buffer and store logs. Try measure something like
-> > scheduler with possible small system distruption.
->
-> Most of the time the data is just being buffered and only when the
-> buffer is full is it written to disk, as one write.  If that's too
-> disruptive, then maybe you do need to do some aggregation in the kernel,
-> but it sounds like a special case.
-
-OK .. "so you can say better is stop flushing buffers on measure which 
-wil take day or more" ? :_)
-Some DTrace probes/technik are specialy prepared for long or evel very 
-long time experiment wich will only prodyce few lines results on end of 
-experiment.
-Look at DTrace documentation for speculative tracing:
-http://docs.sun.com/app/docs/doc/817-6223/6mlkidli7?a=view
-
-Some experiments do not have deterinistic time and must be finished after 
-i. e. "occasional failing". What if it will take so long so you will fill 
-all avalaible storage in relayfs way ?
-OK, never mind .. you have discontinued storage. Using kind speculative 
-tracing way I'll have result *just after* "occasional failing" and you 
-will start parse data stored using relayfs.
-
-kloczek
--- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---0-1183889908-1121187702=:6919--

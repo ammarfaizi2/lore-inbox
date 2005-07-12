@@ -1,50 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVGLJg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVGLJlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbVGLJg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 05:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVGLJeL
+	id S261279AbVGLJlf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 05:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVGLJcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 05:34:11 -0400
-Received: from gwbw.xs4all.nl ([213.84.100.200]:14557 "EHLO
-	laptop.blackstar.nl") by vger.kernel.org with ESMTP id S261297AbVGLJdZ
+	Tue, 12 Jul 2005 05:32:09 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:11662 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261294AbVGLJbc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 05:33:25 -0400
-Subject: Re: 2.6.13-rc2 (git followed) unable to boot with initrd
-From: Bas Vermeulen <bvermeul@blackstar.nl>
+	Tue, 12 Jul 2005 05:31:32 -0400
+Message-Id: <20050712005934.981758000@abc>
+Date: Tue, 12 Jul 2005 02:59:35 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050712012508.3c5fbb19.akpm@osdl.org>
-References: <1121092944.6432.4.camel@laptop.blackstar.nl>
-	 <20050712012508.3c5fbb19.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 12 Jul 2005 11:33:18 +0200
-Message-Id: <1121160799.5109.1.camel@laptop.blackstar.nl>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-14.WB1) 
-Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 84.189.244.201
+Subject: [DVB patch 0/3] a few DVB bug fixes
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 01:25 -0700, Andrew Morton wrote:
-> Bas Vermeulen <bvermeul@blackstar.nl> wrote:
-> >
-> > I am currently unable to boot 2.6.13-rc2. I've got a working 2.6.13-rc1
-> >  whose .config I use to compile 2.6.13-rc2. I'm attaching the failed boot
-> >  log to this message. I'm booting with the same options as 2.6.13-rc1.
-> > 
-> >  If anyone knows how to get it working again, I'd be grateful.
-> > ...
-> > VFS: Cannot open root device "LABEL=/" or unknown-block(0,0)
-> > ...
-> 
-> This normally has a simple cause: it didn't find any disks, or a filesystem
-> driver is missing.  Check your .config carefully and if that seems OK,
-> generate the -rc1 and -rc2 dmesg and diff them, send us the result.
+Hi Andrew,
 
-Just rebuilt -rc2 from tarball and patch, and that is working fine. So
-it's probably my cogito/git screwing up. I'll download that again, and
-try some more.
+here are a few small DVB bug fixes. Please apply.
 
--- 
-Bas Vermeulen <bvermeul@blackstar.nl>
+Thanks,
+Johannes
 

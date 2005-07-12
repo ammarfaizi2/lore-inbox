@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVGLTlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVGLTpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbVGLTlM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 15:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVGLTip
+	id S262324AbVGLTpN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 15:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbVGLTnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 15:38:45 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:63125 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262335AbVGLThg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 15:37:36 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: kernel guide to space
-To: Denis Vlasenko <vda@ilport.com.ua>, sander@humilis.net,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 12 Jul 2005 21:36:47 +0200
-References: <4p851-3Tl-11@gated-at.bofh.it> <4p8HK-4he-19@gated-at.bofh.it> <4pmUD-7gx-37@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DsQYh-0000jo-UP@be1.lrz>
+	Tue, 12 Jul 2005 15:43:43 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:31556 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S262349AbVGLTmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 15:42:21 -0400
+Date: Tue, 12 Jul 2005 15:42:20 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: [PATCH/URL] reiserfs: reformat code with Lindent
+Message-ID: <20050712194220.GA28973@locomotive.unixthugs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.5-7.151-smp (i686)
+X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
+X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@ilport.com.ua> wrote:
+ The ReiserFS code is a mix of a number of different coding styles, sometimes
+ different even from line-to-line. Since the code has been relatively stable
+ for quite some time and there are few outstanding patches to be applied, it
+ is time to reformat the code to conform to the Linux style standard outlined
+ in Documentation/CodingStyle.
 
-> text with 8-char tabs:
-> 
-> struct s {
->         int n;          /* comment */
->         unsigned int u; /* comment */
-> };
-> 
-> Same text viewed with tabs set to 4-char width:
-> 
-> struct s {
->     int n;      /* comment */
->     unsigned int u; /* comment */
-> };
-> 
-> Comments are not aligned anymore
+ This patch contains the result of running scripts/Lindent against
+ fs/reiserfs/*.c and include/linux/reiserfs_*.h. There are places where the
+ code can be made to look better, but I'd rather keep those patches separate
+ so that there isn't a subtle by-hand hand accident in the middle of a huge
+ patch. To be clear: This patch is reformatting *only*.
 
-That's why you SHOULD NOT use tabs for aligning, but for indenting.
+ A number of patches may follow that continue to make the code more consistent
+ with the Linux coding style.
+
+ Hans wasn't particularly enthusiastic about these patches, but said he
+ wouldn't really oppose them either.
+
+ Due to the size of this patch (1.5M), I've posted it at:
+ ftp://ftp.suse.com/pub/people/jeffm/reiserfs/kernel-v2.6/cleanups/2.6.13-rc2/01-reiserfs-lindent.diff
+
+ -Jeff
+
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Jeff Mahoney
+SuSE Labs

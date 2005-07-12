@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVGLHVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVGLHXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVGLHVl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 03:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVGLHVl
+	id S261238AbVGLHXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 03:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVGLHWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 03:21:41 -0400
-Received: from waste.org ([216.27.176.166]:63675 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261242AbVGLHVe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 03:21:34 -0400
-Date: Tue, 12 Jul 2005 00:21:31 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: mercurial@selenic.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Mercurial SCM v0.6b released
-Message-ID: <20050712072131.GQ12006@waste.org>
+	Tue, 12 Jul 2005 03:22:01 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42252 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261227AbVGLHVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 03:21:40 -0400
+Date: Tue, 12 Jul 2005 08:21:34 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+       Hamera Erik <HAMERAE@cs.felk.cvut.cz>
+Subject: Re: arm: how to operate leds on zaurus?
+Message-ID: <20050712082134.C25543@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>, lenz@cs.wisc.edu,
+	kernel list <linux-kernel@vger.kernel.org>,
+	Hamera Erik <HAMERAE@cs.felk.cvut.cz>
+References: <20050711193454.GA2210@elf.ucw.cz> <20050711204534.C1540@flint.arm.linux.org.uk> <20050711195059.GA2219@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050711195059.GA2219@elf.ucw.cz>; from pavel@ucw.cz on Mon, Jul 11, 2005 at 09:50:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mercurial is a clean, scalable, distributed SCM designed to meet the
-needs of large projects like the Linux kernel.
+On Mon, Jul 11, 2005 at 09:50:59PM +0200, Pavel Machek wrote:
+> I'm afraid I do not have serial cable :-(. I'll try to get one [erik,
+> do you have one you don't need?], but zaurus has "little" nonstandard
+> connector.
+> 
+> Would code above work if executed later?
 
-It's only been two weeks since the last release, but development has
-been rapid and I've gotten numerous requests to push out a new
-release. You can download it at:
-
- http://selenic.com/mercurial/release/mercurial-0.6b.tar.gz
-
-A Linux kernel repository synced with Linus' tree and with history
-back to 2.4.0 is available at:
-
- http://www.kernel.org/hg/
-
-More information available at:
-
- http://selenic.com/mercurial/
-
-What's new:
-
-improved ui
- new clone command replaces mkdir+init+pull+update
- new revert command
- add range support and -p option to log to show patches
- tags command now supports local tags
- improved push and pull
- better exception and signal handling
- improved option parsing
- support for user-defined hooks (aka triggers)
-performance updates
- even faster import of large sets of patches
- faster delta generation
- faster annotate
- faster status and ignore
-improved web interface
- more conformant and compatible HTML output
- built-in RSS feeds
- better tags handling
- fast multiple keyword search
-portability work
- support for Windows is nearly complete
- should easily compile and install on any modern UNIX
- comes with RPM spec file and script
-and more
- doc and help updates
- improved test suite
- numerous bug fixes and cleanups
-
-Many thanks to all the people that contributed to this release with
-code and testing!
+If done after the IO mappings are setup.  That will be after
+paging_init() has been called.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

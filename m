@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVGLQup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVGLQxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVGLQup (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 12:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVGLQup
+	id S261580AbVGLQxV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 12:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVGLQxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 12:50:45 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:20622 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261611AbVGLQuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 12:50:00 -0400
-Subject: Re: Merging relayfs?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: Jason Baron <jbaron@redhat.com>, richardj_moore@uk.ibm.com,
-       varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <17107.61864.621401.440354@tut.ibm.com>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	 <Pine.LNX.4.61.0507121050390.25408@dhcp83-105.boston.redhat.com>
-	 <1121183607.6917.47.camel@localhost.localdomain>
-	 <17107.60140.948145.153144@tut.ibm.com>
-	 <1121185393.6917.59.camel@localhost.localdomain>
-	 <17107.61864.621401.440354@tut.ibm.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 12 Jul 2005 12:49:41 -0400
-Message-Id: <1121186981.6917.67.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 12 Jul 2005 12:53:06 -0400
+Received: from smtp3.brturbo.com.br ([200.199.201.164]:3305 "EHLO
+	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S261580AbVGLQvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 12:51:47 -0400
+Message-ID: <42D3F502.9040209@brturbo.com.br>
+Date: Tue, 12 Jul 2005 13:51:14 -0300
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: pt-br, pt, es, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org
+Subject: [Fwd: [PATCH 0/82] changing CONFIG_LOCALVERSION rebuilds too much,
+ for no good reason.]
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 11:36 -0500, Tom Zanussi wrote:
+Andrew,
 
->  > 
->  > I totally agree that the vmalloc way is faster, but I would also argue
->  > that the accounting to handle the separate pages would not even be
->  > noticeable with the time it takes to do the actual copying into the
->  > buffer.  So if the accounting adds 3ns on top of 500ns to complete, I
->  > don't think people will mind.
-> 
-> OK, it sounds like something to experiment with - I can play around
-> with it, and later submit a patch to remove vmap if it works out.
-> Does that sound like a good idea?
+	Do you intend to apply Olaf's patchsets to eliminate linux/version.h?
+Some of them will not apply, because, at -mm2, KERNEL_VERSION isn't used
+anymore.
 
-Sounds good to me, since different approaches to a problem are always
-good, since it allows for comparing the plusses and minuses.  Not sure
-if you want to take a crack using my ring buffers, but although they are
-quite confusing, they have been fully tested, since I haven't changed
-the ring buffer for a few years (although logdev itself has gone through
-several changes).  I use the logdev device on a daily basis to debug
-almost every kernel I ever touch.  When working with a new kernel, the
-first thing I do is usually add my logdev patch.
+	Maybe I can generate a patchset for V4L eliminating version.h, if you
+want, against latest version.
 
-Note to all:  The patch I posted is not the same patch that I usually
-use (although the ring buffers _are_ the same), since I add stuff that
-is usually more specific to what I do. So if something is broken with
-it, I would greatly appreciate it if someone lets me know.
+Mauro.
 
-Thanks,
+-------- Original Message --------
+Date: Sun, 10 Jul 2005 19:35:08 +0000
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 
--- Steve
+
+The following series of patches removes almost all inclusions
+of linux/version.h. The 3 #defines are unused in most of the touched files.
+
+A few drivers use the simple KERNEL_VERSION(a,b,c) macro, which is
+unfortunatly
+in linux/version.h. This define moved to linux/utsname.h
+
+There are also lots of #ifdef for long obsolete kernels, this will go as
+well.
+
+
+quilt vi `find * -type f -name "*.[ch]"|xargs grep -El
+'(UTS_RELEASE|LINUX_VERSION_CODE|KERNEL_VERSION|linux/version.h)'|grep
+-Ev '(/(boot|coda|drm)/|~$)'`
+
+search pattern:
+/UTS_RELEASE|LINUX_VERSION_CODE|KERNEL_VERSION|linux/(utsname|version).h
+
+PS: I hope my script is working ok.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 

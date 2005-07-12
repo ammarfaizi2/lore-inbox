@@ -1,78 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbVGLEdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbVGLEgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262354AbVGLEdk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 00:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVGLEbo
+	id S262346AbVGLEgk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 00:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVGLEdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 00:31:44 -0400
-Received: from mail.kroah.org ([69.55.234.183]:43997 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262340AbVGLEbM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 00:31:12 -0400
-Date: Mon, 11 Jul 2005 21:27:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: Karim Yaghmour <karim@opersys.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, varap@us.ibm.com,
-       richardj_moore@uk.ibm.com
-Subject: Re: Merging relayfs?
-Message-ID: <20050712042717.GB2363@kroah.com>
-References: <17107.6290.734560.231978@tut.ibm.com> <20050712030555.GA1487@kroah.com> <42D3331F.8020705@opersys.com> <20050712032424.GA1742@kroah.com> <17107.16181.300398.8599@tut.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17107.16181.300398.8599@tut.ibm.com>
-User-Agent: Mutt/1.5.8i
+	Tue, 12 Jul 2005 00:33:50 -0400
+Received: from smtp3.oregonstate.edu ([128.193.0.12]:57275 "EHLO
+	smtp3.oregonstate.edu") by vger.kernel.org with ESMTP
+	id S262351AbVGLEd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 00:33:27 -0400
+Message-ID: <42D347F3.9090705@engr.orst.edu>
+Date: Mon, 11 Jul 2005 21:32:51 -0700
+From: Micheal Marineau <marineam@engr.orst.edu>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050525)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][help?] Radeonfb acpi resume
+References: <42D19EE1.90809@engr.orst.edu> <42D19FEE.1040306@engr.orst.edu> <20050711151156.GA2001@elf.ucw.cz> <42D2BF5D.2030703@engr.orst.edu> <20050711185604.GA1997@elf.ucw.cz>
+In-Reply-To: <20050711185604.GA1997@elf.ucw.cz>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig46E933B9318C715ACDF51801"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 11, 2005 at 10:55:33PM -0500, Tom Zanussi wrote:
-> Greg KH writes:
->  > On Mon, Jul 11, 2005 at 11:03:59PM -0400, Karim Yaghmour wrote:
->  > > 
->  > > Greg KH wrote:
->  > > > What ever happened to exporting the relayfs file ops, and just using
->  > > > debugfs as your controlling fs instead?  As all of the possible users
->  > > > fall under the "debug" type of kernel feature, it makes more sense to
->  > > > confine users to that fs, right?
->  > > 
->  > > Actually, like we discussed the last time this surfaced, there are far
->  > > more users for relayfs than just debugging.
->  > 
->  > Based on the proposed users of this fs, I don't see any.  What ones are
->  > you saying are not "debug" type operations?  And yes, I consider LTT a
->  > "debug" type operation :)
->  > 
->  > The best part of this, is it gives distros and users a consistant place
->  > to mount the fs, and to know where this kind of thing shows up in the fs
->  > namespace.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig46E933B9318C715ACDF51801
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Pavel Machek wrote:
+> Hi!
 > 
-> Makes sense, and I don't see a problem with getting rid of the fs part
-> of relayfs and letting debugfs take over that role, if debugfs were
-> there for all potential users.  It doesn't sound like it would satisfy
-> users like LTT and systemtap though, who expect to be available at all
-> times even on production systems, which wouldn't be the case unless
-> the distros always shipped with debugfs enabled.
-
-They will, the overhead of adding debugfs support is _very_ tiny, only:
- $ size fs/debugfs/built-in.o 
-   text    data     bss     dec     hex filename
-   2257     788       8    3053     bed fs/debugfs/built-in.o
-
-So I do not see why you should not just drop your fs part.
-
->  > > What we settled on was having relayfs export its file ops so that
->  > > indeed debugfs users could use it to log things in conjunction with
->  > > debugfs.
->  > 
->  > Last I looked, this was not possible.  Has this changed in the latest
->  > version?
 > 
-> The file operations are all exported, but I haven't actually tried to
-> use relayfs files in debugfs.  Is there something more needed?
+>>>>Aww crap, thunderbird screwed up the white space...
+>>>>
+>>>>A usable version of the patch is attached, or here is a link:
+>>>>http://dev.gentoo.org/~marineam/files/patch-radeonfb-2.6.12
+>>>
+>>>
+>>>Wrong indentation in acpi_vgapost; I remember there was better patch
+>>>to fix this out there.
+>>
+>>Ok, I'll go through and fix any coding style problems.  I've only seen
+>>older versions of this same patch, but if there is a better way I'd love
+>>to hear it.  I'll google around a little more just in case.
+> 
+> 
+> It *was* version of the same patch, but it had codingstyle fixed, IIRC.
 
-Shouldn't be.  Try it to make sure though :)
+Ok, thats an easy fix then :-)
+> 
+> 
+>>>Anyway, are you sure machine you have can't be fixed by any methods
+>>>listed in Doc*/power/video.txt? I guess they are preferable to
+>>>acpi_vgapost...
+>>
+>>Actually, this is one of the metholds listed in video.txt. Take a look
+>>at #7 ;-).  I just tried acpi_sleep=s3_bios to see what that does, but
+>>just caused an instant reboot on resume.  The only other solutions that
+>>works is to disable the frame buffer and use X or some other app to do
+>>the job as listed in #5 and #6, but something in kernel like this patch
+>>is required to be able to use the framebuffer.
+> 
+> 
+> I'd say that disabling framebuffer and going #5 or #6 is still
+> prefered, but given nice patch, I'll probably accept it. Oh, and do
+> note that (7) is listed near just one notebook.
+> 
+> 								Pavel
 
-thanks,
+Well, before the patch is ever concidered for the mainline I think
+the issue with acquire_console_sem() causing the resume process to
+stop and wait for a key press would have to be addressed.
 
-greg k-h
+This option could be listed for more notebooks with radeon cards,
+for example mine is an Dell Inspiron 8500.
+
+
+-- 
+Michael Marineau
+marineam@engr.orst.edu
+Oregon State University
+
+--------------enig46E933B9318C715ACDF51801
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFC00gOiP+LossGzjARAuvyAKDNQ6sMULjkWXD6J5QudM7cbc4TiwCfY7u6
+AaaVz+Wot7c+wWbiqytXJVQ=
+=CrkZ
+-----END PGP SIGNATURE-----
+
+--------------enig46E933B9318C715ACDF51801--

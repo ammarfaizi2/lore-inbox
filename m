@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbVGLDMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVGLDMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262277AbVGLDMl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 23:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVGLDMg
+	id S261965AbVGLDMo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 23:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVGLDMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 23:12:36 -0400
-Received: from mail.kroah.org ([69.55.234.183]:31913 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261984AbVGLDKH (ORCPT
+	Mon, 11 Jul 2005 23:12:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51854 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262184AbVGLDMC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 23:10:07 -0400
-Date: Mon, 11 Jul 2005 20:09:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Joe Sevy <jmsevy@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: usb mass storage bug
-Message-ID: <20050712030958.GC1487@kroah.com>
-References: <20050711203047.39437.qmail@web33113.mail.mud.yahoo.com>
+	Mon, 11 Jul 2005 23:12:02 -0400
+Date: Mon, 11 Jul 2005 20:11:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hal Rosenstock <halr@voltaire.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org, rolandd@cisco.com
+Subject: Re: [PATCH 0/29v2] InfiniBand core update
+Message-Id: <20050711201117.72539977.akpm@osdl.org>
+In-Reply-To: <1121136330.4389.5093.camel@hal.voltaire.com>
+References: <1121110249.4389.4984.camel@hal.voltaire.com>
+	<20050711170548.31605e23.akpm@osdl.org>
+	<1121136330.4389.5093.camel@hal.voltaire.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050711203047.39437.qmail@web33113.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 11, 2005 at 01:30:47PM -0700, Joe Sevy wrote:
-> Sorry, no logs or dmesg to report; just performance.
-> Using kernel 2.6.12: USB flash drive (san-disk cruzer
-> micro) Copy FROM drive is normal and quick; copy TO
-> drive is amazingly slow. (30 minutes for 50K file).
-> Used same configuration as for 2.6.11.11. Cured by
-> going back to old kernel.
+Hal Rosenstock <halr@voltaire.com> wrote:
+>
+> > I'll tentatively consider this material to be not-for-2.6.13?
+> 
+>  Presuming that "this material" refers to the patch to add the kernel CM
+>  implementation, if kernel CM does not make 2.6.13, then user CM should
+>  not either as it is dependent on it.
 
-Are you using CONFIG_UB or CONFIG_USB_STORAGE?
+Well I was asking.  Do you guys think that this material is appropriate to
+and safe enough for 2.6.13?
 
-Also, linux-usb-devel is the better place for this if you have a more
-detailed report.
-
-thanks,
-
-greg k-h
+What are "user CM" and "kernel CM"?

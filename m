@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVGLOBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVGLOEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbVGLOBv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 10:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVGLOBv
+	id S261459AbVGLOEH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 10:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVGLOEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 10:01:51 -0400
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:28287 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S261434AbVGLOBT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 10:01:19 -0400
-Date: Tue, 12 Jul 2005 16:01:16 +0200 (CEST)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: Tom Zanussi <zanussi@us.ibm.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, karim@opersys.com,
-       varap@us.ibm.com, richardj_moore@uk.ibm.com
-Subject: Re: Merging relayfs?
-In-Reply-To: <17107.6290.734560.231978@tut.ibm.com>
-Message-ID: <Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl>
-References: <17107.6290.734560.231978@tut.ibm.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-908360741-1121176876=:6919"
+	Tue, 12 Jul 2005 10:04:06 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:4585 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261459AbVGLODk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 10:03:40 -0400
+Date: Tue, 12 Jul 2005 16:02:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+Message-ID: <20050712140251.GB18296@elte.hu>
+References: <200507121223.10704.annabellesgarden@yahoo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507121223.10704.annabellesgarden@yahoo.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
 
---0-908360741-1121176876=:6919
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
 
-On Mon, 11 Jul 2005, Tom Zanussi wrote:
+> Hi Ingo
+> 
+> I've refined io_apic.c a little more:
 
->
-> Hi Andrew, can you please merge relayfs?  It provides a low-overhead
-> logging and buffering capability, which does not currently exist in
-> the kernel.
->
-> relayfs key features:
->
-> - Extremely efficient high-speed logging/buffering
+great. I've applied these changes and have released the -28 patch. (note 
+that the last chunk of your patch was malformed, have applied it by 
+hand.)
 
-Usualy/for now relayfs is used as base infrastructure for variuos
-debuging/measuring.
-IMO storing raw data and transfer them to user space it is wrong way.
-Why ? Becase i adds very big overhead for memory nad storage.
-Big .. compare to in situ storing partialy analyzed data in conters
-and other like it is in DTrace.
+i'm wondering what your thoughts are about IOAPIC_POSTFLUSH - i had to 
+turn it on unconditionally again, to get rid of spurious interrupts and 
+outright interrupt storms (and resulting lockups) on some systems.  
+IOAPIC_POSTFLUSH is now causing much of the IO-APIC related IRQ handling 
+overhead.
 
-IMO much better will be add base/template set of functions for use in 
-KProbes probes which will come with KProbes code as base tool set. It will 
-allow cut transfered data size from megabites/gigabyutes to hundret 
-bytes/kilo bytes, make debuging/measuring more smooth without additional 
-latency for transfer data outside kernel space.
-
-It will be good not reinvent wheel in wrong way if in working implemtation 
-like DTrace it work more than well.
-
-Yes, maybe it will be good have something like relayfs for some other 
-tasks but for debuging/measuring better will be IMO use other way which 
-will not use this technik.
-
-kloczek
--- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---0-908360741-1121176876=:6919--
+	Ingo

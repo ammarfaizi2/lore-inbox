@@ -1,79 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbVGLVAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVGLVAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbVGLVAw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 17:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbVGLVAp
+	id S262419AbVGLVAd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 17:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVGLU6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 17:00:45 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:11689 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262400AbVGLU6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 16:58:48 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: "Kjetil Svalastog Matheussen <k.s.matheussen@notam02.no>" 
-	<k.s.matheussen@notam02.no>,
-       Chris Friesen <cfriesen@nortel.com>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
-In-Reply-To: <188690000.1121142633@[10.10.2.4]>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	 <20050708214908.GA31225@taniwha.stupidest.org>
-	 <20050708145953.0b2d8030.akpm@osdl.org>
-	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
-	 <20050709203920.394e970d.diegocg@gmail.com>
-	 <1120934466.6488.77.camel@mindpipe>  <176640000.1121107087@flay>
-	 <1121113532.2383.6.camel@mindpipe>  <42D2D912.3090505@nortel.com>
-	 <1121128260.2632.12.camel@mindpipe>  <165840000.1121141256@[10.10.2.4]>
-	 <1121141602.2632.31.camel@mindpipe>  <188690000.1121142633@[10.10.2.4]>
-Content-Type: text/plain
-Date: Tue, 12 Jul 2005 16:58:44 -0400
-Message-Id: <1121201925.10580.24.camel@mindpipe>
+	Tue, 12 Jul 2005 16:58:31 -0400
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:19888 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S262419AbVGLU5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 16:57:50 -0400
+Subject: RE: [PATCH 22/82] remove linux/version.h from
+	drivers/message/fus		ion
+From: Tom Duffy <tduffy@sun.com>
+To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
+Cc: linux-scsi@vger.kernel.org, James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Olaf Hering <olh@suse.de>
+In-Reply-To: <91888D455306F94EBD4D168954A9457C03157047@nacos172.co.lsil.com>
+References: <91888D455306F94EBD4D168954A9457C03157047@nacos172.co.lsil.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kHYV7kTTU/6ZjhVLm4Gi"
+Date: Tue, 12 Jul 2005 13:56:33 -0700
+Message-Id: <1121201793.14638.10.camel@duffman>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.2 (2.2.2-11.fc5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 21:30 -0700, Martin J. Bligh wrote:
-> Some sort of comprimise has to be struck for now, until we get sub-HZ
-> timers. I'd prefer 100, personally (I had that set as default in my tree
-> for a long time). Some people would prefer 1000 or even more, maybe.
-> 250/300 seems like a reasonable comprimise to me. Exactly what problems
-> *does* it cause (in visible effect, not "timers are less granular").
-> Jittery audio/video? How much worse is it?
 
-OK, here's a real world example, taken straight from the linux-audio-dev
-list today.
+--=-kHYV7kTTU/6ZjhVLm4Gi
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Lee
+On Tue, 2005-07-12 at 14:50 -0600, Moore, Eric Dean wrote:
+> The 3.02.18 driver and the driver in kernel tree are totally different
+> drivers.
+> One thing is 3.02.18 has SAS support, and the kernel tree doesn't.    Id
+> wish
+> kernel folks would take our SAS drivers.
 
-Lee Revell <rlrevell@joe-job.com> :
-> On Tue, 2005-07-12 at 20:57 +0200, Kjetil Svalastog Matheussen wrote:
->> E-radium has been tested with both the 2.4 kernel and the 2.6 kernel
->> and with a ~1GhZ machine and a ~2ghz machine. (A 2.4 kernel with a
->> 100hz resolution timer will proably not work very nice though.)
->
-> Can you please explain why 100HZ would be a problem for your app?  Right
-> now the kernel people are trying to change the default HZ for 2.6 to
-> 250.  I have told them that this is insane but they seem inclined to do
-> it anyway.
->
+Is there a patch that applies cleanly to 2.6.13-rc2?  I would like that
+as a starting point, at least.
 
-The program use poll to sleep. If the resolution of the kernel is 100Hz,
-there would sometimes be a too long delay of up to 10ms (and probably beyond)
-before the program is woken up,  and before a midi message is sent,
-which can cause music to stutter.
+I noticed that the 3.02.18 drivers have a bunch of compile warnings on
+the latest kernel.  It won't even link against mm.
 
-Simple as that. :-)
+make -C /build1/tduffy/openib-work/build/mm/x86_64/ M=3D/build1/tduffy/open=
+ib-work/mptlinux-3.02.18/fusion modules
+make[1]: Entering directory `/build1/tduffy/openib-work/build/mm/x86_64'
+make -C /build1/tduffy/openib-work/linux-2.6.13-rc-mm O=3D/build1/tduffy/op=
+enib-work/build/mm/x86_64 modules
+  CC [M]  /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptbase.o
+  CC [M]  /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptscsih.o
+/build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptscsih.c: In function =
+=E2=80=98mptscsih_probe=E2=80=99:
+/build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptscsih.c:1195: warning=
+: implicit declaration of function =E2=80=98scsi_set_device=E2=80=99
+/build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptscsih.c: At top level=
+:
+/build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptscsih.c:3815: warning=
+: initialization from incompatible pointer type
+  CC [M]  /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptlan.o
+  CC [M]  /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptctl.o
+/build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptctl.c: In function =
+=E2=80=98mptctl_init=E2=80=99:
+/build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptctl.c:3735: warning: =
+implicit declaration of function =E2=80=98register_ioctl32_conversion=E2=80=
+=99
+/build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptctl.c:3856: warning: =
+implicit declaration of function =E2=80=98unregister_ioctl32_conversion=E2=
+=80=99
+/build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptctl.c: In function =
+=E2=80=98mptctl_do_mpt_command=E2=80=99:
+/build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptctl.c:2007: warning: =
+=E2=80=98bufIn.len=E2=80=99 may be used uninitialized in this function
+/build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptctl.c:2008: warning: =
+=E2=80=98bufOut.len=E2=80=99 may be used uninitialized in this function
+  Building modules, stage 2.
+  MODPOST
+*** Warning: "scsi_set_device" [/build1/tduffy/openib-work/mptlinux-3.02.18=
+/fusion/mptscsih.ko] undefined!
+*** Warning: "unregister_ioctl32_conversion" [/build1/tduffy/openib-work/mp=
+tlinux-3.02.18/fusion/mptctl.ko] undefined!
+*** Warning: "register_ioctl32_conversion" [/build1/tduffy/openib-work/mptl=
+inux-3.02.18/fusion/mptctl.ko] undefined!
+  CC      /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptbase.mod.o
+  LD [M]  /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptbase.ko
+  CC      /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptctl.mod.o
+  LD [M]  /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptctl.ko
+  CC      /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptlan.mod.o
+  LD [M]  /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptlan.ko
+  CC      /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptscsih.mod.o
+  LD [M]  /build1/tduffy/openib-work/mptlinux-3.02.18/fusion/mptscsih.ko
+make[1]: Leaving directory `/build1/tduffy/openib-work/build/mm/x86_64'
 
-> If you can provide more examples of apps that would be broken by this
-> change maybe we can convince them not to change it.
->
 
-Hmm, mplayer I guess...
-Don't know how muse, rosegarden, seq24 etc. handles timing...
-But all midi-sequencers that doesn't use /dev/rtc could suffer. (?)
+--=-kHYV7kTTU/6ZjhVLm4Gi
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQBC1C6BdY502zjzwbwRAkZXAJoCrAuWYnSJgx6SPq/rHJeZM/+7NQCfVrmz
+gTonHQqmRP5nQG4H3rlyCtw=
+=2/hx
+-----END PGP SIGNATURE-----
+
+--=-kHYV7kTTU/6ZjhVLm4Gi--

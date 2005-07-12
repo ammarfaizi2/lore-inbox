@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVGLLuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVGLLwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVGLLuI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 07:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVGLLsN
+	id S261369AbVGLLwp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 07:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVGLLuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 07:48:13 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:4260 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S261359AbVGLLqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 07:46:34 -0400
-X-Sasl-enc: hvz62E2OPz0LfHMwfqKDsGMF7BkJm25z/msr+SrIJJvK 1121168790
-Message-ID: <021801c586d7$5ebf4090$7c00a8c0@ROBMHP>
-From: "Rob Mueller" <robm@fastmail.fm>
-To: "Lars Roland" <lroland@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>, "Bron Gondwana" <brong@fastmail.fm>,
-       "Jeremy Howard" <jhoward@fastmail.fm>
-References: <01dd01c586c3$cdd525d0$7c00a8c0@ROBMHP> <4ad99e05050712024319bc7ada@mail.gmail.com>
-Subject: Re: 2.6.12.2 dies after 24 hours
-Date: Tue, 12 Jul 2005 21:46:30 +1000
+	Tue, 12 Jul 2005 07:50:12 -0400
+Received: from reserv6.univ-lille1.fr ([193.49.225.20]:682 "EHLO
+	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
+	id S261363AbVGLLtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 07:49:39 -0400
+Message-ID: <42D3AE47.7070208@lifl.fr>
+Date: Tue, 12 Jul 2005 13:49:27 +0200
+From: Eric Piel <Eric.Piel@lifl.fr>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+To: Ken Moffat <ken@kenmoffat.uklinux.net>
+CC: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: ondemand cpufreq ineffective in 2.6.12 ?
+References: <Pine.LNX.4.58.0507111702410.2222@ppg_penguin.kenmoffat.uklinux.net> <Pine.LNX.4.58.0507112044001.3450@ppg_penguin.kenmoffat.uklinux.net> <200507120755.03110.kernel@kolivas.org> <42D3782F.7070104@lifl.fr> <Pine.LNX.4.58.0507121131001.7702@ppg_penguin.kenmoffat.uklinux.net> <Pine.LNX.4.58.0507121203450.7944@ppg_penguin.kenmoffat.uklinux.net>
+In-Reply-To: <Pine.LNX.4.58.0507121203450.7944@ppg_penguin.kenmoffat.uklinux.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-USTL-MailScanner-Information: Please contact the ISP for more information
+X-USTL-MailScanner: Found to be clean
+X-MailScanner-From: eric.piel@lifl.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+07/12/2005 01:11 PM, Ken Moffat wrote/a écrit:
+> On Tue, 12 Jul 2005, Ken Moffat wrote:
+> 
+> 
+>> I was going to say that niceness didn't affect what I was doing, but
+>>I've just rerun it [ in 2.6.11.9 ] and I see that tar and bzip2 show up
+>>with a niceness of 10.  I'm starting to feel a bit out of my depth here
+> 
+> 
+> OK, Con was right, and I didn't initially make the connection.
+> 
+>  In 2.6.11, untarring a .tar.bz2 causes tar and bzip2 to run with a
+> niceness of 10, but everything is fine.
+> 
+>  In 2.6.12, ondemand _only_ has an effect for me in this example if I
+> put on my admin hat and renice the bzip2 process (tried 0, that works) -
+> renicing the tar process has no effect (obviously, that part doesn't
+> push the processor).
+> 
+> So, from a user's point of view it's broken.
+Well, it's just the default settings of the kernel which has changed. If 
+you want the old behaviour, you can use (with your admin hat):
+echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/ignore_nice
+IMHO it seems quite fair, if you have a process nice'd to 10 it probably 
+means you are not in a hurry.
 
-> > We recently tried upgrading one of the machines to the latest kernel
-> > (2.6.12.2) and it's died after about 24 hours. It seemed to end up in 
-> > some
-> > weird state where we could ssh into it, and some commands worked (eg 
-> > uptime)
-> > but process list related commands (ps) would just freeze up into an
-> > unkillable state and we'd have to close the seesion and ssh in again.
->
-> I experienced the exact same thing on a IBM 335 - in my case I had
-> messed up with the ACPI setup. Could you paste the output from
-> /proc/interupts also is your kernel running with IRQ balancing ?.
+Just by couriosity, I wonder how your processes are automatically 
+reniced to 10 ?
 
-Here's the /proc/interrupts dump:
 
-           CPU0       CPU1       CPU2       CPU3
-  0:   11524000          0          0          0    IO-APIC-edge  timer
-  1:          8          0          0          0    IO-APIC-edge  i8042
-  5:          0          0          0          0   IO-APIC-level  acpi
- 14:         13          0          0          0    IO-APIC-edge  ide0
- 16:          2          0          0          0   IO-APIC-level  ibmasm0
- 20:    2978604          0    2338027          0   IO-APIC-level  eth0
- 22:    1321957          0          0          0   IO-APIC-level  ips
- 24:     581291          0          0          0   IO-APIC-level  pci-umem
- 29:     257154          0          0          0   IO-APIC-level  eth1
-NMI:          0          0          0          0
-LOC:   11524185   11524201   11524194   11524121
-ERR:          0
-MIS:          0
-
-I'm not sure about IRQ balancing sorry. How do I tell? The entire boot 
-process output is here:
-
-http://robm.fastmail.fm/kernel/t7/bootdmesg.txt
-
-And the config is here:
-
-http://robm.fastmail.fm/kernel/t7/config.txt
-
-Does that help?
-
-Our boot doesn't pass any special parameters, just choosing the deadline 
-elevator...
-
-image=/boot/bzImage-2.6.12.2
-  label=linux-2.6.12.2
-  append="elevator=deadline"
-  read-only
-  root=/dev/sda2
-
-Thanks for your help!
-
-Rob
-
+Eric

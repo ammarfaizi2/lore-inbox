@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVGLXI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVGLWwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262483AbVGLXI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 19:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbVGLXGX
+	id S262192AbVGLWwG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 18:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVGLWtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 19:06:23 -0400
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:29347 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S262483AbVGLXFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 19:05:44 -0400
-Date: Tue, 12 Jul 2005 17:05:39 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, sct@redhat.com,
-       linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: [2.6 patch] fs/jbd/: possible cleanups
-Message-ID: <20050712230539.GX5335@schatzie.adilger.int>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>, sct@redhat.com,
-	linux-kernel@vger.kernel.org, ext3-users@redhat.com
-References: <20050712202742.GM4034@stusta.de> <20050712223243.GW5335@schatzie.adilger.int> <20050712224353.GN4034@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050712224353.GN4034@stusta.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Tue, 12 Jul 2005 18:49:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12511 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262321AbVGLWtg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 18:49:36 -0400
+Date: Tue, 12 Jul 2005 15:49:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Mahoney <jeffm@suse.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: [PATCH/URL] reiserfs: reformat code with Lindent
+In-Reply-To: <20050712194220.GA28973@locomotive.unixthugs.org>
+Message-ID: <Pine.LNX.4.58.0507121546160.17536@g5.osdl.org>
+References: <20050712194220.GA28973@locomotive.unixthugs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 13, 2005  00:43 +0200, Adrian Bunk wrote:
-> On Tue, Jul 12, 2005 at 04:32:44PM -0600, Andreas Dilger wrote:
-> > I don't mind removing this function, but it shouldn't be put inside #ifdef
-> > JBD_DEBUG, as that would remove the check from the compiler-parsed code
-> > and defeat the purpose of the check.
+
+
+On Tue, 12 Jul 2005, Jeff Mahoney wrote:
 > 
-> That's not what my patch is doing.
-> 
-> journal_init() is not inside an #ifdef JBD_DEBUG.
+>  This patch contains the result of running scripts/Lindent against
+>  fs/reiserfs/*.c and include/linux/reiserfs_*.h.
 
-My bad.  You didn't generate diff with -p (which I normally do and is
-incredibly useful when reviewing patches) and I saw "write_jbd_debug()"
-above and my brain went on autopilot assuming the code had moved into
-that function.  Objection withdrawn.
+That can't be true. It isn't actually following the Lindent rules. It has 
+that braindamaged "put the type on a separate line" thing for function 
+declarations, making a "grep" not show the type. That's very much against 
+the Linux coding style.
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+So either your "indent" is broken, or you've used something else than 
+Lindent.
 
+Also, if it's a pure indentation change with no other changes, I'd almost 
+prefer it as a script, not a patch.  That way it's obvious to everybody 
+that it's just doing indentation.
+
+		Linus

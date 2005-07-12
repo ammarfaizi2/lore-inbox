@@ -1,87 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVGLMnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVGLMpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbVGLMnO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVGLMk7
+	id S261336AbVGLMpc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVGLMpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:40:59 -0400
-Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:24256 "EHLO
-	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261175AbVGLMk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:40:26 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Date: Tue, 12 Jul 2005 22:39:00 +1000
-User-Agent: KMail/1.8.1
-Cc: Vojtech Pavlik <vojtech@suse.cz>, George Anzinger <george@mvista.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Lee Revell <rlrevell@joe-job.com>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org, torvalds@osdl.org,
-       christoph@lameter.org
-References: <200506231828.j5NISlCe020350@hera.kernel.org> <42D310ED.2000407@mvista.com> <20050712121008.GA7804@ucw.cz>
-In-Reply-To: <20050712121008.GA7804@ucw.cz>
+	Tue, 12 Jul 2005 08:45:32 -0400
+Received: from alog0200.analogic.com ([208.224.220.215]:37596 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261336AbVGLMp3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 08:45:29 -0400
+Date: Tue, 12 Jul 2005 08:43:56 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: "Mark Williams (MWP)" <mwp@internode.on.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Cannot fix unresolved module symbols
+In-Reply-To: <20050712123113.GA8265@linux.comp>
+Message-ID: <Pine.LNX.4.61.0507120840560.2712@chaos.analogic.com>
+References: <20050712123113.GA8265@linux.comp>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1318028.KjK24rTyLV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200507122239.03559.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1318028.KjK24rTyLV
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 12 Jul 2005, Mark Williams (MWP) wrote:
 
-On Tue, 12 Jul 2005 22:10, Vojtech Pavlik wrote:
-> The PIT crystal runs at 14.3181818 MHz (CGA dotclock, found on ISA, ...)
-> and is divided by 12 to get PIT tick rate
+> Greetings all,
 >
-> 	14.3181818 MHz / 12 =3D 1193182 Hz
+> First, im using 2.6.12 with version 3.1 of module-install-utils and GCC 4.0.1.
 >
-> The reality is that the crystal is usually off by 50-100 ppm from the
-> standard value, depending on temperature.
+> I simply cannot get kernel modules to install.
 >
->     HZ   ticks/jiffie  1 second      error (ppm)
-> ---------------------------------------------------
->    100      11932      1.000015238      15.2
->    200       5966      1.000015238      15.2
->    250       4773      1.000057143      57.1
->    300       3977      0.999931429     -68.6
->    333       3583      0.999964114     -35.9
->    500       2386      0.999847619    -152.4
->   1000       1193      0.999847619    -152.4
+> Building the kernel and modules works perfecty, no errors.
 >
-> Some HZ values indeed fit the tick frequency better than others, up to
-> 333 the error is lost in the physical error of the crystal, for 500 and
-> 1000, it definitely is larger, and thus noticeable.
+> But on running "make modules_install" i get:
 >
-> Some (less round and nice) values of HZ would fit even better:
+> depmod: QM_MODULES: Function not implemented
+>  INSTALL drivers/net/wireless/atmel.ko
+> if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map
+> 2.6.12; fi
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.6.12/kernel/drivers/net/wireless/atmel.ko
+> depmod:         __netdev_watchdog_up
+> depmod:         preempt_schedule
+> depmod:         _mmx_memcpy
+> depmod:         eth_type_trans
+> depmod:         param_get_charp
+> depmod:         __kfree_skb
+> depmod:         alloc_skb
+> ........ and many more
 >
->     HZ   ticks/jiffie  1 second      error (ppm)
-> ---------------------------------------------------
->     82      14551      1.000000152       0.2
+> Ive had this problem since i started using 2.6.x, and have always compiled
+> drivers into the kernel to avoid it. But now i do need to get this fixed so i
+> can get ndiswrapper working.
+>
+> Does anyone know what could be wrong?
+>
+> Thanks.
 
-
-Most interesting... Would 838 Hz be a much better choice than 1000 then?=20
-(apart from the ugliness).
+> depmod: QM_MODULES: Function not implemented
+           ^^^^^^^^^^^^^^^
+The hint: Upgrade your modules tools. (module-init-tools-3.2.tar.gz)
 
 Cheers,
-COn
-
---nextPart1318028.KjK24rTyLV
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC07nnZUg7+tp6mRURAldYAJ4g6Av2YKAJFUUwRz3YIIAIYcdlBQCcC5WX
-gK/c+dQKRbK2ldfnJrnYigI=
-=tSrw
------END PGP SIGNATURE-----
-
---nextPart1318028.KjK24rTyLV--
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

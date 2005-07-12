@@ -1,81 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVGLBOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVGLBQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbVGLBOW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 21:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVGLBMa
+	id S261878AbVGLBQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 21:16:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVGLBQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 21:12:30 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:20438 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261840AbVGLBKq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 21:10:46 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Mon, 11 Jul 2005 21:16:53 -0400
+Received: from cicero0.cybercity.dk ([212.242.40.52]:30471 "EHLO
+	cicero0.cybercity.dk") by vger.kernel.org with ESMTP
+	id S261878AbVGLBQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 21:16:31 -0400
+Message-ID: <42D31A06.2000608@molgaard.org>
+Date: Tue, 12 Jul 2005 03:16:54 +0200
+From: =?ISO-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17107.6290.734560.231978@tut.ibm.com>
-Date: Mon, 11 Jul 2005 20:10:42 -0500
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
-       richardj_moore@uk.ibm.com
-Subject: Merging relayfs?
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PS/2 mouse not working
+References: <42D31136.90208@molgaard.org>
+In-Reply-To: <42D31136.90208@molgaard.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sune Mølgaard wrote:
+> I have tried compiling psmouse as module and loading it, and I have 
+> tried compiling it into kernel. I have also chosen to have a /dev/psaux, 
+> that doesn't get any input either. Mouse seems to get detected, as per 
+> this snippet from dmesg:
 
-Hi Andrew, can you please merge relayfs?  It provides a low-overhead
-logging and buffering capability, which does not currently exist in
-the kernel.
+Oh yeah. I also tried an usb -> PS/2 converter on my current mouse to 
+rule out a faulty mause. Same result...
 
-relayfs key features:
+/Sune
 
-- Extremely efficient high-speed logging/buffering
-- Simple mechanism for user-space data retrieval
-- Very short write path
-- Can be used in any context, including interrupt context
-- No runtime resource allocation
-- Doesn't do a kmalloc for each "packet"
-- No need for end-recipient
-- Data may remain buffered whether it is consumed or not
-- Data committed to disk in bulk, not per "packet"
-- Can be used in circular-buffer mode for flight-recording
-
-The relayfs code has been in -mm for more than three months following
-the extensive review that took place on LKML at the beginning of the
-year, at which time we addressed all of the issues people had.  Since
-then only a few minor patches to the original codebase have been
-needed, most of which were sent to us by users; we'd like to thank
-those who took the time to send patches or point out problems.
-
-The code in the -mm tree has also been pounded on very heavily through
-normal use and testing, and we haven't seen any problems with it - it
-appears to be very stable.
-
-We've also tried to make it as easy as possible for people to create
-'quick and dirty' (or more substantial) kernel logging applications.
-Included is a link to an example that demonstrates how useful this can
-be.  In a nutshell, it uses relayfs logging functions to track
-kmalloc/kfree and detect memory leaks.  The only thing it does in the
-kernel is to log a small binary record for each kmalloc and kfree.
-The data is then post-processed in user space with a simple Perl
-script.  You can see an example of the output and the example itself
-here:
-
-    http://relayfs.sourceforge.net/examples.html#kleak
-
-
-Last but not least, it's still small (40k worth of source),
-self-contained and unobtrusive to the rest of the kernel.
-
-In summary, relayfs is very stable, is useful to current users and
-with inclusion, would be useful to many others.  If you can think of
-anything we've overlooked or should work on to get relayfs to the
-point of inclusion, please let us know.
-
-Thanks,
-
-Tom Zanussi
-Karim Yaghmour
-
-
+-- 
+The tolerance of liberty can be maintained until complete federal and
+state control by Catholics has been accomplished.
+- Bishop O'Connor, Pittsburgh

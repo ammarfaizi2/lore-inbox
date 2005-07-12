@@ -1,83 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVGLWpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVGLWsD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbVGLWpg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 18:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbVGLWne
+	id S262427AbVGLWsD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 18:48:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVGLWpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 18:43:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4573 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262305AbVGLWla (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 18:41:30 -0400
-Date: Tue, 12 Jul 2005 15:38:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hal Rosenstock <halr@voltaire.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org, rolandd@cisco.com
-Subject: Re: [PATCH 0/29v2] InfiniBand core update
-Message-Id: <20050712153859.7b757c4a.akpm@osdl.org>
-In-Reply-To: <1121206549.4382.10.camel@hal.voltaire.com>
-References: <1121110249.4389.4984.camel@hal.voltaire.com>
-	<20050711170548.31605e23.akpm@osdl.org>
-	<1121136330.4389.5093.camel@hal.voltaire.com>
-	<20050711201117.72539977.akpm@osdl.org>
-	<1121206549.4382.10.camel@hal.voltaire.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 12 Jul 2005 18:45:41 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:60425 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261828AbVGLWn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 18:43:56 -0400
+Date: Wed, 13 Jul 2005 00:43:53 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, sct@redhat.com,
+       linux-kernel@vger.kernel.org, ext3-users@redhat.com
+Subject: Re: [2.6 patch] fs/jbd/: possible cleanups
+Message-ID: <20050712224353.GN4034@stusta.de>
+References: <20050712202742.GM4034@stusta.de> <20050712223243.GW5335@schatzie.adilger.int>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050712223243.GW5335@schatzie.adilger.int>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hal Rosenstock <halr@voltaire.com> wrote:
->
-> On Mon, 2005-07-11 at 23:11, Andrew Morton wrote:
-> > Well I was asking.  Do you guys think that this material is appropriate to
-> > and safe enough for 2.6.13?
+On Tue, Jul 12, 2005 at 04:32:44PM -0600, Andreas Dilger wrote:
+> On Jul 12, 2005  22:27 +0200, Adrian Bunk wrote:
+>...
+> > - journal.c: remove the unused global function __journal_internal_check
+> >              and move the check to journal_init
 > 
-> I used your versions of the patches (Tom's ucm one is needed and you
-> added that). I also back ported the trailing whitespace elimination
-> changes.
+> I don't mind removing this function, but it shouldn't be put inside #ifdef
+> JBD_DEBUG, as that would remove the check from the compiler-parsed code
+> and defeat the purpose of the check.
+
+???
+
+That's not what my patch is doing.
+
+journal_init() is not inside an #ifdef JBD_DEBUG.
+
+>...
+> > - remove the following unneeded EXPORT_SYMBOL's:
+> >   - journal.c: journal_check_used_features
 > 
-> I just completed a regression test including uCM, CM, RMPP, OpenSM,
-> IPoIB and it looks good to me.
-> 
+> Should be kept for API completeness.
+>...
 
-OK, well the timing of a merge is mainly up to you guys, especially as the
-subsystem is pretty raw and you're the only people who use it ;)
+The function itself isn't removed.
 
-Two things from a quick scan:
+Does it really has to stay exported or isn't it enough to re-export it 
+when a user appears?
 
-a) In many places the patch does
+> Cheers, Andreas
 
-	if (p)
-		kfree(p);
+cu
+Adrian
 
-   But kfree(0) is permitted.  The cleanup police will be after you at
-   some stage - it'd be best to fix those things up immediately.
+-- 
 
-b) The patch exports a ton of symbols to non-GPL modules:
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-+EXPORT_SYMBOL(ib_create_ah_from_wc);
-+EXPORT_SYMBOL(ib_modify_mad);
-+EXPORT_SYMBOL(ib_create_send_mad);
-+EXPORT_SYMBOL(ib_free_send_mad);
-+EXPORT_SYMBOL(ib_coalesce_recv_mad);
-+EXPORT_SYMBOL(ib_sa_service_rec_query);
-+EXPORT_SYMBOL(ib_create_cm_id);
-+EXPORT_SYMBOL(ib_destroy_cm_id);
-+EXPORT_SYMBOL(ib_cm_listen);
-+EXPORT_SYMBOL(ib_send_cm_req);
-+EXPORT_SYMBOL(ib_send_cm_rep);
-+EXPORT_SYMBOL(ib_send_cm_rtu);
-+EXPORT_SYMBOL(ib_send_cm_dreq);
-+EXPORT_SYMBOL(ib_send_cm_drep);
-+EXPORT_SYMBOL(ib_send_cm_rej);
-+EXPORT_SYMBOL(ib_send_cm_mra);
-+EXPORT_SYMBOL(ib_send_cm_lap);
-+EXPORT_SYMBOL(ib_send_cm_apr);
-+EXPORT_SYMBOL(ib_send_cm_sidr_req);
-+EXPORT_SYMBOL(ib_send_cm_sidr_rep);
-+EXPORT_SYMBOL(ib_cm_establish);
-+EXPORT_SYMBOL(ib_cm_init_qp_attr);
-
-   Why?

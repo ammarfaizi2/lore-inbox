@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVGLTik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVGLTlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbVGLTik (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 15:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVGLTbV
+	id S262327AbVGLTlM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 15:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVGLTip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 15:31:21 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:30627 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262327AbVGLTah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 15:30:37 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Chris Friesen <cfriesen@nortel.com>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
-In-Reply-To: <15890000.1121180902@[10.10.2.4]>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	 <20050708214908.GA31225@taniwha.stupidest.org>
-	 <20050708145953.0b2d8030.akpm@osdl.org>
-	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
-	 <20050709203920.394e970d.diegocg@gmail.com>
-	 <1120934466.6488.77.camel@mindpipe>  <176640000.1121107087@flay>
-	 <1121113532.2383.6.camel@mindpipe>  <42D2D912.3090505@nortel.com>
-	 <1121128260.2632.12.camel@mindpipe>  <165840000.1121141256@[10.10.2.4]>
-	 <1121141602.2632.31.camel@mindpipe>  <188690000.1121142633@[10.10.2.4]>
-	 <1121178300.2632.51.camel@mindpipe>  <14170000.1121180207@[10.10.2.4]>
-	 <1121180403.2632.59.camel@mindpipe>  <15890000.1121180902@[10.10.2.4]>
-Content-Type: text/plain
-Date: Tue, 12 Jul 2005 15:30:33 -0400
-Message-Id: <1121196633.10580.5.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Jul 2005 15:38:45 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:63125 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262335AbVGLThg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 15:37:36 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: kernel guide to space
+To: Denis Vlasenko <vda@ilport.com.ua>, sander@humilis.net,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 12 Jul 2005 21:36:47 +0200
+References: <4p851-3Tl-11@gated-at.bofh.it> <4p8HK-4he-19@gated-at.bofh.it> <4pmUD-7gx-37@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DsQYh-0000jo-UP@be1.lrz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 08:08 -0700, Martin J. Bligh wrote:
-> Well, looking forward, you'll have sub-HZ timers, so none of this will
-> matter. Actually, looking at the above, 150 seems perfectly reasonable
-> to me, but 300 seems to be close enough. I'll run some numbers on
-> both.
+Denis Vlasenko <vda@ilport.com.ua> wrote:
+
+> text with 8-char tabs:
 > 
-> From your above email, I'm more convinced than ever that lowering HZ
-> is the right thing to do ...
+> struct s {
+>         int n;          /* comment */
+>         unsigned int u; /* comment */
+> };
+> 
+> Same text viewed with tabs set to 4-char width:
+> 
+> struct s {
+>     int n;      /* comment */
+>     unsigned int u; /* comment */
+> };
+> 
+> Comments are not aligned anymore
 
-Another example is sending MIDI clock.  This is not possible at HZ=100
-as the jitter is too much for external devices to lock on to.
-
-Lee
-
+That's why you SHOULD NOT use tabs for aligning, but for indenting.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

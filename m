@@ -1,90 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVGLVoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262426AbVGLVs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVGLVoR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 17:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVGLVoG
+	id S262426AbVGLVs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 17:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262475AbVGLVst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 17:44:06 -0400
-Received: from zs04.physik.fu-berlin.de ([160.45.35.155]:21651 "EHLO
-	zs04.physik.fu-berlin.de") by vger.kernel.org with ESMTP
-	id S262373AbVGLVjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 17:39:25 -0400
-Date: Tue, 12 Jul 2005 23:39:20 +0200
-To: rusty@rustcorp.com.au
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH] Runtime fix for intermodule.c
-Message-ID: <20050712213920.GA9714@physik.fu-berlin.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="MGYHOYXEY6WxJCY8"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-X-Scanned: No viruses found.
-X-Spam-Report: No (score -5.9)
-        -3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-Scan-Signature: 01656a33c131dbe46878302be211cf9e
+	Tue, 12 Jul 2005 17:48:49 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:25249 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S262426AbVGLVsb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 17:48:31 -0400
+Message-ID: <42D43AA3.9040000@free.fr>
+Date: Tue, 12 Jul 2005 23:48:19 +0200
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.8) Gecko/20050511
+X-Accept-Language: fr-fr, fr, en
+MIME-Version: 1.0
+To: Alasdair G Kergon <agk@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+Subject: Re: [PATCH] device-mapper: Fix target suspension oops.
+References: <20050712021724.13b2297a.akpm@osdl.org> <42D41177.9020300@free.fr> <20050712204751.GB12341@agk.surrey.redhat.com> <20050712140248.3cdcb9b8.akpm@osdl.org> <20050712212449.GK12337@agk.surrey.redhat.com>
+In-Reply-To: <20050712212449.GK12337@agk.surrey.redhat.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigE2C8265E9E72EE75CD15EBF6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---MGYHOYXEY6WxJCY8
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigE2C8265E9E72EE75CD15EBF6
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hello Rusty,
-
-As it seeems that you are the maintainer of the module
-related code in the Linux kernel, I send these
-two small patches to you:
-
-This little patch adds the missing function declaration
-of the deprecatated function call inter_module_get
-to the header file include/linux/module.h and the
-necessary EXPORT_SYMBOL to kernel/intermodule.c. Without
-the declaration and the EXPORT_SYMBOL any module that requires
-the inter_module_get call will fail upon loading
-since the symbol inter_module_get cannot be resolved,
-applying this patch will make those modules work again.
-
-Kernel version is 2.6.12.1
-
-Affected modules are for example the ltmodem drivers
-version 8.31a8 for lucent chipsets, they won't
-work without the fix.
-
-Regards,
-
-Adrian Glaubitz
-(glaubitz@physik.fu-berlin.de)
+Content-Transfer-Encoding: 7bit
 
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="intermodule.c.diff"
+Le 12.07.2005 23:24, Alasdair G Kergon wrote:
+> This section got lost while refactoring the 'Fix deadlocks in core' set
+> of patches I sent yesterday.  Without it, you'll have problems
+> activating any device-mapper devices.
+>
+> The NULL detection is moved inside the functions instead of every
+> caller having to do it.
+>
+> --- drivers/md/dm-table.c	2005-07-12 22:10:20.000000000 +0100
+> +++ /data/kernels/pm-2612udm1/source/drivers/md/dm-table.c	2005-07-06 18:52:18.000000000 +0100
+> @@ -869,11 +869,17 @@
+>
+>  void dm_table_presuspend_targets(struct dm_table *t)
+>  {
+> +	if (!t)
+> +		return;
+> +
+>  	return suspend_targets(t, 0);
+>  }
+>
+>  void dm_table_postsuspend_targets(struct dm_table *t)
+>  {
+> +	if (!t)
+> +		return;
+> +
+>  	return suspend_targets(t, 1);
+>  }
+>
 
---- kernel/intermodule.c.orig	2005-07-12 23:19:29.000000000 +0200
-+++ kernel/intermodule.c	2005-07-12 23:19:58.000000000 +0200
-@@ -180,3 +180,4 @@ EXPORT_SYMBOL(inter_module_register);
- EXPORT_SYMBOL(inter_module_unregister);
- EXPORT_SYMBOL(inter_module_get_request);
- EXPORT_SYMBOL(inter_module_put);
-+EXPORT_SYMBOL(inter_module_get);
+Ok, it seems that it works well now.
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="module.h.diff"
+[root@antares ~]# cat /proc/version
+Linux version 2.6.13-rc2-mm2 (laurent@antares.localdomain) (gcc version 3.4.3 (Mandrakelinux 10.2 3.4.3-7mdk)) #104 Tue Jul 12 19:16:28 CEST 2005
+[root@antares ~]# dmsetup table
+vglinux1-lvhome: 0 7340032 linear 3:4 4604288
+vglinux1-lvhome: 7340032 1048576 linear 3:4 14655872
+vglinux1-lvtmp: 0 106496 linear 3:4 13238656
+vglinux1-lvusr: 0 4194304 linear 3:4 409984
+vglinux1-lvusr: 4194304 212992 linear 3:4 11944320
+vglinux1-lvusr: 4407296 835584 linear 3:4 12403072
+vglinux1-lvvar: 0 409600 linear 3:4 384
+vglinux1-lvvar: 409600 245760 linear 3:4 12157312
+crypt-swap2: 0 1590434 crypt aes-cbc-plain ad79bd09a98d3bf601bf15bb7cedd656ecd42fc1eb5c48822148de23ab724aad 0 3:71 0
+crypt-swap1: 0 128457 crypt aes-cbc-plain 800d0c169e6e1b9dece5bfc645dfe08d61fd2d8a18f578c14501988cbf31590d 0 3:5 0
+vglinux1-test: 0 1310720 linear 3:4 13345152
+crypt-tmp: 0 106496 crypt aes-cbc-plain d3de9d10862e89107374542c0cedb569c16d637262f5537f2c96bfc20eb2c1c1 0 254:3 0
 
---- include/linux/module.h.orig	2005-07-12 22:58:20.000000000 +0200
-+++ include/linux/module.h	2005-07-12 22:31:45.000000000 +0200
-@@ -566,5 +566,6 @@ extern void __deprecated inter_module_un
- extern const void * __deprecated inter_module_get_request(const char *,
- 		const char *);
- extern void __deprecated inter_module_put(const char *);
-+extern const void * __deprecated inter_module_get(const char *);
- 
- #endif /* _LINUX_MODULE_H */
 
---MGYHOYXEY6WxJCY8--
+Thank you for your quickness, Alasdair.
+--
+laurent
+
+--------------enigE2C8265E9E72EE75CD15EBF6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFC1DqrUqUFrirTu6IRAuDuAJ98ba/LwaFcbMQxFfTDD2JS+4e9+ACaA+G+
++5zqlQkgCeScZX8VDlfLWrk=
+=BXv3
+-----END PGP SIGNATURE-----
+
+--------------enigE2C8265E9E72EE75CD15EBF6--

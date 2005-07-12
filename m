@@ -1,115 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVGKOhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVGLAsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbVGKOhz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 10:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVGKOf2
+	id S262181AbVGLAsi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 20:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVGLAqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 10:35:28 -0400
-Received: from mailgw.voltaire.com ([212.143.27.70]:46278 "EHLO
-	mailgw.voltaire.com") by vger.kernel.org with ESMTP id S261553AbVGKOel
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 10:34:41 -0400
-Subject: [PATCH 15/27] Fix a couple of MAD code paths
-From: Hal Rosenstock <halr@voltaire.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+	Mon, 11 Jul 2005 20:46:30 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:9938 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262181AbVGLApx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 20:45:53 -0400
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Diego Calleja <diegocg@gmail.com>, azarah@nosferatu.za.org, akpm@osdl.org,
+       cw@f00f.org, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       christoph@lameter.org
+In-Reply-To: <176640000.1121107087@flay>
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	 <20050708214908.GA31225@taniwha.stupidest.org>
+	 <20050708145953.0b2d8030.akpm@osdl.org>
+	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
+	 <20050709203920.394e970d.diegocg@gmail.com>
+	 <1120934466.6488.77.camel@mindpipe>  <176640000.1121107087@flay>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1121089129.4389.4535.camel@hal.voltaire.com>
+Date: Mon, 11 Jul 2005 20:45:51 -0400
+Message-Id: <1121129151.2632.17.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2005 10:27:06 -0400
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixed locking to handle error posting MAD send work requests. 
-Fixed handling canceling a MAD with an active work request.
+On Mon, 2005-07-11 at 11:38 -0700, Martin J. Bligh wrote:
+> >> Lots of people have switched from 2.4 to 2.6 (100 Hz to 1000 Hz) with no impact in
+> >> stability, AFAIK. (I only remember some weird warning about HZ with debian woody's
+> >> ps).
+> >> 
+> > 
+> > Yes, that's called "progress" so no one complained.  Going back is
+> > called a "regression".  People don't like those as much.
+> 
+> That's a very subjective viewpoint. Realize that this is a balancing
+> act between latency and overhead ... and you're firmly only looking
+> at one side of the argument, instead of taking a comprimise in the
+> middle ...
 
-Signed-off-by: Sean Hefty <sean.hefty@intel.com>
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
+I won't deny this for a second, I'm 100% arguing from the POV of one of
+Alan's 'multimedia weenies'.  I do think that if you propose a big
+change the burden of proof is on you to justify it, ideally with some
+hard numbers.
 
-This patch depends on patch 14/27.
-
--- 
- mad.c |   28 ++++++++++++++--
- 1 files changed, 14 insertions(+), 14 deletions(-)
-diff -uprN linux-2.6.13-rc2-mm1/drivers/infiniband14/core/mad.c linux-2.6.13-rc2-mm1/drivers/infiniband15/core/mad.c
--- linux-2.6.13-rc2-mm1/drivers/infiniband14/core/mad.c	2005-07-09 18:19:51.000000000 -0400
-+++ linux-2.6.13-rc2-mm1/drivers/infiniband15/core/mad.c	2005-07-09 18:24:43.000000000 -0400
-@@ -841,6 +841,7 @@ static int ib_send_mad(struct ib_mad_sen
- {
- 	struct ib_mad_qp_info *qp_info;
- 	struct ib_send_wr *bad_send_wr;
-+	struct list_head *list;
- 	unsigned long flags;
- 	int ret;
- 
-@@ -850,22 +851,20 @@ static int ib_send_mad(struct ib_mad_sen
- 	mad_send_wr->mad_list.mad_queue = &qp_info->send_queue;
- 
- 	spin_lock_irqsave(&qp_info->send_queue.lock, flags);
--	if (qp_info->send_queue.count++ < qp_info->send_queue.max_active) {
--		list_add_tail(&mad_send_wr->mad_list.list,
--			      &qp_info->send_queue.list);
--		spin_unlock_irqrestore(&qp_info->send_queue.lock, flags);
-+	if (qp_info->send_queue.count < qp_info->send_queue.max_active) {
- 		ret = ib_post_send(mad_send_wr->mad_agent_priv->agent.qp,
- 				   &mad_send_wr->send_wr, &bad_send_wr);
--		if (ret) {
--			printk(KERN_ERR PFX "ib_post_send failed: %d\n", ret);
--			dequeue_mad(&mad_send_wr->mad_list);
--		}
-+		list = &qp_info->send_queue.list;
- 	} else {
--		list_add_tail(&mad_send_wr->mad_list.list,
--			      &qp_info->overflow_list);
--		spin_unlock_irqrestore(&qp_info->send_queue.lock, flags);
- 		ret = 0;
-+		list = &qp_info->overflow_list;
- 	}
-+
-+	if (!ret) {
-+		qp_info->send_queue.count++;
-+		list_add_tail(&mad_send_wr->mad_list.list, list);
-+	}
-+	spin_unlock_irqrestore(&qp_info->send_queue.lock, flags);
- 	return ret;
- }
- 
-@@ -2023,8 +2022,7 @@ static void cancel_mads(struct ib_mad_ag
- }
- 
- static struct ib_mad_send_wr_private*
--find_send_by_wr_id(struct ib_mad_agent_private *mad_agent_priv,
--		   u64 wr_id)
-+find_send_by_wr_id(struct ib_mad_agent_private *mad_agent_priv, u64 wr_id)
- {
- 	struct ib_mad_send_wr_private *mad_send_wr;
- 
-@@ -2047,6 +2045,7 @@ int ib_modify_mad(struct ib_mad_agent *m
- 	struct ib_mad_agent_private *mad_agent_priv;
- 	struct ib_mad_send_wr_private *mad_send_wr;
- 	unsigned long flags;
-+	int active;
- 
- 	mad_agent_priv = container_of(mad_agent, struct ib_mad_agent_private,
- 				      agent);
-@@ -2057,13 +2056,14 @@ int ib_modify_mad(struct ib_mad_agent *m
- 		return -EINVAL;
- 	}
- 
-+	active = (!mad_send_wr->timeout || mad_send_wr->refcount > 1);
- 	if (!timeout_ms) {
- 		mad_send_wr->status = IB_WC_WR_FLUSH_ERR;
- 		mad_send_wr->refcount -= (mad_send_wr->timeout > 0);
- 	}
- 
- 	mad_send_wr->send_wr.wr.ud.timeout_ms = timeout_ms;
--	if (!mad_send_wr->timeout || mad_send_wr->refcount > 1)
-+	if (active)
- 		mad_send_wr->timeout = msecs_to_jiffies(timeout_ms);
- 	else
- 		ib_reset_mad_timeout(mad_send_wr, timeout_ms);
-
+Lee
 

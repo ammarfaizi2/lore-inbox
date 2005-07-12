@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVGLJ0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVGLJa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbVGLJ0y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 05:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVGLJ0y
+	id S261280AbVGLJa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 05:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVGLJa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 05:26:54 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:24230 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S261283AbVGLJ0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 05:26:32 -0400
-X-Sasl-enc: w7dl03FYDEbKHy25QMJATzsd2wFpmFPOcuG8XJlydJI+ 1121160386
-Message-ID: <01dd01c586c3$cdd525d0$7c00a8c0@ROBMHP>
-From: "Rob Mueller" <robm@fastmail.fm>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Bron Gondwana" <brong@fastmail.fm>, "Jeremy Howard" <jhoward@fastmail.fm>
-Subject: 2.6.12.2 dies after 24 hours
-Date: Tue, 12 Jul 2005 19:26:29 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Tue, 12 Jul 2005 05:30:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18652 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261280AbVGLJa5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 05:30:57 -0400
+Date: Tue, 12 Jul 2005 02:30:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
+Subject: Re: [patch] Fix GDT loading during resume from suspend-to-RAM
+Message-Id: <20050712023013.42b52651.akpm@osdl.org>
+In-Reply-To: <20050712091400.GI1854@elf.ucw.cz>
+References: <20050712091400.GI1854@elf.ucw.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As background, we've been using a relatively old kernel (2.6.4-mm2) on some 
-IBM x235 machines with 6G of RAM, umem cards, and serveraid storage. These 
-machines are under continuous heavy-ish load, load avg between about 1 and 
-5, with between 2500-3500 procs at all times, with several largish ReiserFS 
-partitions and have been running *really* well with >250 days uptime on one 
-machine.
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Fix GDT loading during resume from suspend-to-RAM.
+> 
 
-We recently tried upgrading one of the machines to the latest kernel 
-(2.6.12.2) and it's died after about 24 hours. It seemed to end up in some 
-weird state where we could ssh into it, and some commands worked (eg uptime) 
-but process list related commands (ps) would just freeze up into an 
-unkillable state and we'd have to close the seesion and ssh in again.
+This change is already in Len's acpi tree.  Len, can you merge it for
+2.6.13 please?
 
-I did manage to get a full sysrq-t dump. I've placed it, a kernel config 
-dump, and a dmesg boot dump here:
 
-http://robm.fastmail.fm/kernel/t7/
-
-Hope this provides some useful data to track down the problem.
-
-Rob
-
-PS. Yes, I know this is a non-PAE kernel on a 6G machine so 2G was unused. 
-This was a mistake in this case, but it still doesn't explain the crash...
-
+> 
+> ---
+> commit 523c9470749c558e002f3041f5af620acf7f3e0c
+> tree 92b643196cbaa89fa54ff141bc94fee8664009b3
+> parent 79b675b6cc9268d178b3c0a2af2e4f944c5fdf9b
+> author <pavel@amd.(none)> Tue, 12 Jul 2005 11:13:30 +0200
+> committer <pavel@amd.(none)> Tue, 12 Jul 2005 11:13:30 +0200
+> 
+>  arch/i386/kernel/acpi/wakeup.S |    5 +++--
+>  1 files changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/i386/kernel/acpi/wakeup.S b/arch/i386/kernel/acpi/wakeup.S
+> --- a/arch/i386/kernel/acpi/wakeup.S
+> +++ b/arch/i386/kernel/acpi/wakeup.S
+> @@ -74,8 +74,9 @@ wakeup_code:
+>  	movw	%ax,%fs
+>  	movw	$0x0e00 + 'i', %fs:(0x12)
+>  	
+> -	# need a gdt
+> -	lgdt	real_save_gdt - wakeup_code
+> +	# need a gdt -- use lgdtl to force 32-bit operands, in case
+> +	# the GDT is located past 16 megabytes
+> +	lgdtl	real_save_gdt - wakeup_code
+>  
+>  	movl	real_save_cr0 - wakeup_code, %eax
+>  	movl	%eax, %cr0
+> 
+> -- 
+> teflon -- maybe it is a trademark, but it should not be.

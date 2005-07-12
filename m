@@ -1,119 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVGLRKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVGLRUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVGLRKz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 13:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVGLRIK
+	id S261291AbVGLRUF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 13:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVGLRUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 13:08:10 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:19645 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261704AbVGLRGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 13:06:13 -0400
-Subject: Re: PREEMPT/PREEMPT_RT question
-From: Steven Rostedt <rostedt@goodmis.org>
-To: paulmck@us.ibm.com
-Cc: shemminger@osdl.org, dipankar@in.ibm.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050712163031.GA1323@us.ibm.com>
-References: <20050712163031.GA1323@us.ibm.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 12 Jul 2005 13:05:24 -0400
-Message-Id: <1121187924.6917.75.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 12 Jul 2005 13:20:05 -0400
+Received: from kirby.webscope.com ([204.141.84.57]:48103 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S261291AbVGLRUC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 13:20:02 -0400
+Message-ID: <42D3FBA4.3050501@m1k.net>
+Date: Tue, 12 Jul 2005 13:19:32 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alexey Dobriyan <adobriyan@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       linux-kernel@vger.kernel.org, video4linux-list@redhat.com
+Subject: Re: [PATCH -rc2-mm2] BUG FIX - v4l broken hybrid dvb inclusion
+References: <42D3DC5A.3010807@m1k.net> <200507122107.51907.adobriyan@gmail.com>
+In-Reply-To: <200507122107.51907.adobriyan@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 09:30 -0700, Paul E. McKenney wrote:
-> Hello!
-> 
-> OK, counter-flip RCU actually survives a pair of overnight runs on
-> CONFIG_PREEMPT running on 4-CPU machines, and also survives five
-> kernbenches and an LTP on another 4-CPU machine.  (Overnight-run script
-> later in this message, FWIW.)
-> 
-> So, time to get serious about a bit of code cleanup:
-> 
-> o	The heavyweight atomic operations in rcu_read_lock() and
-> 	rcu_read_unlock() are not needed in UP kernels, since
-> 	interrupts are disabled.
-> 
-> 	Is there already something like smp_atomic_inc() and
-> 	smp_atomic_dec() that generate atomic_inc()/atomic_dec() in
-> 	SMP kernels, but ++/-- in UP kernels?  If not, any reasons
-> 	not to add them, for example, as follows?
-> 
-> 		#ifdef CONFIG_SMP
-> 		#define smp_atomic_inc(v) atomic_inc(v)
-> 		#define smp_atomic_dec(v) atomic_dec(v)
-> 		#else /* #ifdef CONFIG_SMP */
-> 		#define smp_atomic_inc(v) ((v)++)
-> 		#define smp_atomic_dec(v) ((v)++)
-> 		#endif /* #else #ifdef CONFIG_SMP */
+Alexey Dobriyan wrote:
 
-What's the problem with atomic_inc?  At least on x86, atomic inc is
-defined as:
+>On Tuesday 12 July 2005 19:06, Michael Krufky wrote:
+>  
+>
+>>v4l-saa7134-hybrid-dvb.patch
+>>v4l-cx88-update.patch
+>>
+>>The specific change that caused this problem is:
+>>
+>>- Let Kconfig decide whether to include frontend-specific code.
+>>
+>>I had tested this change against 2.6.13-rc2-mm1, and it worked perfectly as
+>>expected, but it caused problems in today's 2.6.13-rc2-mm2 release.  For
+>>some reason, the symbols don't get set properly.
+>>    
+>>
+>What symbols? What error messages do you see?
+>
+Alexey-
 
-static __inline__ void atomic_inc(atomic_t *v)
-{
-	__asm__ __volatile__(
-		LOCK "incl %0"
-		:"=m" (v->counter)
-		:"m" (v->counter));
-}
+Maybe symbols was the wrong terminology... What I meant was the 
+CONFIG_DVB_LGDT3302 , etc flags
 
-With LOCK defined as:
+Previous patch removed the #define's that you see below... This should 
+have worked, since these should be set instead from kconfig, but it 
+didn't work as expected (even though the modules ARE selected by 
+kconfig), and the #ifdef's return false.... (I don't know why it worked 
+in my test against 2.6.13-rc2-mm1, but it doesn't work in -mm2, and it 
+must be fixed) Breaks all hybrid v4l/dvb boards.
 
-#ifdef CONFIG_SMP
-#define LOCK "lock ; "
-#else
-#define LOCK ""
-#endif
+>>--- linux-2.6.13-rc2-mm2.orig/drivers/media/video/cx88/cx88-dvb.c
+>>+++ linux/drivers/media/video/cx88/cx88-dvb.c
+>>    
+>>
+>>+#define CONFIG_DVB_MT352 1
+>>+#define CONFIG_DVB_CX22702 1
+>>+#define CONFIG_DVB_OR51132 1
+>>+#define CONFIG_DVB_LGDT3302 1
+>>    
+>>
+>>--- linux-2.6.13-rc2-mm2.orig/drivers/media/video/saa7134/saa7134-dvb.c
+>>+++ linux/drivers/media/video/saa7134/saa7134-dvb.c
+>>    
+>>
+>>+#define CONFIG_DVB_MT352 1
+>>+#define CONFIG_DVB_TDA1004X 1
+>>    
+>>
+>
+>Looks band-aidly.
+>  
+>
+Yes, it does LOOK like a band-aid, but this is actually only reverting a 
+previous change.  I admit that something better needs to be done.  Gerd 
+Korr says to remove the #ifdef's alltogether.  Instead, I just returned 
+the #define's .....  We can remove the #ifdef's in a future patch, but I 
+want to discuss this with the other v4l developers before I would make a 
+change like that.  THIS patch, however, is safe to apply, and I've 
+already committed it into video4linux cvs.
 
-So is there a difference on UP between x.counter++ and atomic_inc(&x)?
+Andrew, please apply this and don't merge the 
+[v4l-saa7134-hybrid-dvb.patch & v4l-cx88-update.patch] patches to Linus' 
+tree without this patch as well.
 
-> 	Since interrupts must be disabled for these to be safe,
-> 	my guess is that I should define them locally in rcupdate.c.
-> 	If there turns out to be a general need for them, they can
-> 	be moved somewhere more public.
-> 
-> 	Objections?
-> 
-> o	In order to get things to work in both CONFIG_PREEMPT and
-> 	CONFIG_PREEMPT_RT, I ended up using the following:
-> 
-> 		#ifdef CONFIG_PREEMPT_RT
-> 
-> 		#define rcu_spinlock_t _raw_spinlock_t
-> 		#define rcu_spin_lock(l, f) _raw_spin_lock(l)
-> 		#define rcu_spin_trylock(l, f) _raw_spin_trylock(l)
-> 		#define rcu_spin_unlock(l, f) _raw_spin_unlock(l)
-> 		#define RCU_SPIN_LOCK_UNLOCKED RAW_SPIN_LOCK_UNLOCKED
-> 
-> 		#else /* #ifdef CONFIG_PREEMPT_RT */
-> 
-> 		#define rcu_spinlock_t spinlock_t
-> 		#define rcu_spin_lock(l, f) spin_lock_irqsave(l, f)
-> 		#define rcu_spin_trylock(l, f) spin_trylock_irqsave(l, f)
-> 		#define rcu_spin_unlock(l, f) spin_unlock_irqrestore(l, f)
-> 		#define RCU_SPIN_LOCK_UNLOCKED SPIN_LOCK_UNLOCKED
-> 
-> 		#endif /* #else #ifdef CONFIG_PREEMPT_RT */
-> 
-> 	Then using rcu_spin_lock() &c everywhere.  The problem is
-> 	that (as near as I can tell) the only way to prevent interrupts 
-> 	from running on the current CPU in CONFIG_PREEMPT kernels is
-> 	to use the _irq spinlock primitives, but _raw_spin_lock() does
-> 	the job in CONFIG_PREEMPT_RT (since interrupts are run in process
-> 	context, right).  I could use _irq in both, but that would
-> 	unnecessarily degrade interrupt latency in CONFIG_PREEMPT_RT.
+Thank you.
 
-Yep interrupts are threads in CONFIG_PREEMPT_RT.  I guess you could also
-just use local_irq_save with spin_lock, since now local_irq_save no
-longer disables interrupts in PREEMPT_RT.
-
--- Steve
+-- 
+Michael Krufky
 
 

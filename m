@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVGLRvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVGLRyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVGLRvr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 13:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVGLRvr
+	id S261785AbVGLRyV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 13:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVGLRyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 13:51:47 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:11171 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261790AbVGLRvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 13:51:06 -0400
-Subject: Re: SCSI luns
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Amrut Joshi <amrut.joshi@gmail.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1121168331.3171.21.camel@laptopd505.fenrus.org>
-References: <1ba727770507120422562d525d@mail.gmail.com>
-	 <1121168331.3171.21.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Tue, 12 Jul 2005 12:17:53 -0400
-Message-Id: <1121185078.4825.17.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Jul 2005 13:54:08 -0400
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:46222 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S261827AbVGLRxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 13:53:39 -0400
+To: Norbert Preining <preining@logic.at>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: synaptics touchpad not recognized by Xorg X server with recent -mm kernels
+References: <20050712172504.GD24820@gamma.logic.tuwien.ac.at>
+From: Peter Osterlund <petero2@telia.com>
+Date: 12 Jul 2005 19:52:48 +0200
+In-Reply-To: <20050712172504.GD24820@gamma.logic.tuwien.ac.at>
+Message-ID: <m3fyujq5cf.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for redirecting to the correct list.
+Norbert Preining <preining@logic.at> writes:
 
-On Tue, 2005-07-12 at 13:38 +0200, Arjan van de Ven wrote:
-> On Tue, 2005-07-12 at 16:52 +0530, Amrut Joshi wrote:
-> > Currently linux scsi subsystem doesnt store the 8-byte luns which are
-> > recieved in REPORT_LUNS reply. This information is forver lost once
-> > the scan is over. In my LDD  I need this information. Currently I have
-> > to snoop REPORT_LUNS reply, do scsilun_to_int for all the luns and
+> Hello Peter, hi Andrew!
+> 
+> Since 2.6.13-rc2-mm1 my X does not find my synaptics touchpad driver.
+> 
+> With kernel 2.6.13-rc2-mm2 (same with rc2-mm1) I get from the kernel:
+> 
+> Synaptics Touchpad, model: 1, fw: 5.8, id: 0x9d48b1, caps: 0x904713/0x4006
+> input: SynPS/2 Synaptics TouchPad on isa0060/serio1
+> 
+> and Xorg.0.log gives:
+> 
+> (II) Synaptics touchpad driver version 0.14.2
+> touchpad no synaptics event device found (checked 10 nodes)
+> touchpad The evdev kernel module seems to be missing
 
-Our current transformation routine scsilun_to_int is bijective as long
-as the original scsi_lun doesn't overrun 32 bits (which it might well do
-one day).
+What's the output from "cat /proc/bus/input/devices"?
 
-Why can't you simply do this by transforming back the lun?
-
-In general, I'm not in favour of adding redundant information to the
-device structure, so if you can demonstrate we overrun our allotted 32
-bits, the solution is probably to take lun up to u64 and still do the
-back transform (the alternative being to substitute lun with it's
-structural equivalen which would entail a lot of pain throught the SCSI
-subsytem).
-
-James
-
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

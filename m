@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVGLOWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVGLO2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbVGLOWu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 10:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVGLOWe
+	id S261468AbVGLO2o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 10:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVGLO0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 10:22:34 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:60813 "HELO
+	Tue, 12 Jul 2005 10:26:51 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:7566 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261454AbVGLOVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 10:21:33 -0400
+	id S261458AbVGLOZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 10:25:01 -0400
 Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
 From: Lee Revell <rlrevell@joe-job.com>
 To: "Martin J. Bligh" <mbligh@mbligh.org>
@@ -26,8 +26,8 @@ References: <200506231828.j5NISlCe020350@hera.kernel.org>
 	 <1121128260.2632.12.camel@mindpipe>  <165840000.1121141256@[10.10.2.4]>
 	 <1121141602.2632.31.camel@mindpipe>  <188690000.1121142633@[10.10.2.4]>
 Content-Type: text/plain
-Date: Tue, 12 Jul 2005 10:21:31 -0400
-Message-Id: <1121178091.2632.47.camel@mindpipe>
+Date: Tue, 12 Jul 2005 10:24:59 -0400
+Message-Id: <1121178300.2632.51.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
@@ -35,22 +35,16 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Mon, 2005-07-11 at 21:30 -0700, Martin J. Bligh wrote:
-> Look back in the thread. It made kernel compiles about 5% faster on a
-> fairly large box. I think the SGI people did it originally because it
-> caused them even larger problems.
-> 
+> Exactly what problems
+> *does* it cause (in visible effect, not "timers are less granular").
+> Jittery audio/video? How much worse is it?
 
-Right, I saw those, but you don't expect to change the default HZ based
-on that one test, do you?  How about some numbers for a regular desktop?
-
-> I'm not saying their aren't arguments on both sides ... there are. I
-> just agree with you there's a lot of hand-waving going on ... but
-> probably not agreeing as to who it's coming from ;-)
-> 
-
-Well, I think the burden of proof is on those who are proposing radical
-changes, IOW I don't think I should be required to produce any numbers
-to justify the status quo.
+Yes, exactly.  Say you need to deliver a frame of audio or video every
+5ms.  You have a rendering thread and a display thread that communicate
+via FIFOs.  The main thread waits in select() for the next frame to
+complete rendering or for the deadline to expire.  That's next to
+impossible with HZ=100, because the best you can do is the deadline
++-10ms.  With HZ=1000 it's no problem.
 
 Lee
 

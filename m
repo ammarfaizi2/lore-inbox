@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVGLOkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVGLOnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbVGLOkj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 10:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVGLOiO
+	id S261501AbVGLOnW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 10:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVGLOkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 10:38:14 -0400
-Received: from mail.ccur.com ([208.248.32.212]:23943 "EHLO flmx.iccur.com")
-	by vger.kernel.org with ESMTP id S261466AbVGLOhM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 10:37:12 -0400
-Subject: Re: Merging relayfs?
-From: Steve Rotolo <steve.rotolo@ccur.com>
-To: Greg KH <greg@kroah.com>
-Cc: Karim Yaghmour <karim@opersys.com>, Tom Zanussi <zanussi@us.ibm.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, varap@us.ibm.com,
-       richardj_moore@uk.ibm.com
-In-Reply-To: <20050712052333.GA11614@kroah.com>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	 <20050712030555.GA1487@kroah.com> <42D3331F.8020705@opersys.com>
-	 <20050712032424.GA1742@kroah.com> <42D33E99.7030101@opersys.com>
-	 <20050712043056.GC2363@kroah.com> <42D349C9.3060805@opersys.com>
-	 <20050712052333.GA11614@kroah.com>
-Content-Type: text/plain
-Organization: Concurrent Computer Corporation
-Message-Id: <1121179018.1438.14.camel@whiz>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Tue, 12 Jul 2005 10:36:58 -0400
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Jul 2005 14:37:12.0439 (UTC) FILETIME=[30D35870:01C586EF]
+	Tue, 12 Jul 2005 10:40:45 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:11699 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S261491AbVGLOkb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 10:40:31 -0400
+In-Reply-To: <20050712143620.GA4880@infradead.org>
+Subject: Re: [patch] s390: fadvise hint values.
+To: Christoph Hellwig <hch@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
+Message-ID: <OFBE89090B.2C1DA2DF-ON4225703C.00506327-4225703C.00509BC7@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Tue, 12 Jul 2005 16:40:27 +0200
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 12/07/2005 16:40:27
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 01:23, Greg KH wrote:
-> And you _are_ doing kernel debugging and tracing with ltt, what's wrong
-> with admitting that?
-> 
+> > Patch is attached, what do you think ?
+>
+> I'd rather fix the kernel and do some symbol versioning magic in
+> glibc.  After all it's their stupidity that caused all these problems.
 
-Hi.  I think that viewing tracing tools like LTT and systemtap as
-strictly kernel debug tools is very short-sighted.  With a good
-post-processing tool, tracing is very useful to application developers
-who can benefit by visualizing the interaction between user-level tasks
-and the OS as well as the synchronization of multiple tasks/threads.
+Well I was my stupidity that I copied the wrong fcntl.h file for s390-64.
+The fcntl.h glibc header for alpha contained the "wrong" values and since
+day 1 of the s390-64 port it has been 6 and 7 for us as well.
 
-IOW, tracing is in many ways an _application_ debug tool, not a _kernel_
-debug tool.  And application developers usually do not want to run a
-debug kernel.
+If we decide to fix the kernel we don't need to do anything in the glibc.
 
-I would like to see relayfs merged.
+blue skies,
+   Martin
 
--- 
-Steve Rotolo
-<steve.rotolo@ccur.com>
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
 

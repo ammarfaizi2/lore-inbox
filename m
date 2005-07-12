@@ -1,64 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVGLMQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVGLMQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVGLMQK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVGLMNz
+	id S261377AbVGLMQL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:16:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVGLMNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:13:55 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2065 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261376AbVGLMMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:12:25 -0400
-Date: Tue, 12 Jul 2005 14:12:24 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc2-mm2
-Message-ID: <20050712121224.GA4034@stusta.de>
-References: <20050712021724.13b2297a.akpm@osdl.org> <20050712110505.GF28243@stusta.de> <1121169709.27264.146.camel@hades.cambridge.redhat.com>
+	Tue, 12 Jul 2005 08:13:49 -0400
+Received: from nproxy.gmail.com ([64.233.182.196]:65355 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261377AbVGLMNC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 08:13:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FSPqv7+IDwKwpz+OMd72LgexfIyXr5x2QKJA2SA8/O7eGN9E8GJJOYC34bBjnC6HD3w2y4rb5VrEphuCQETOMNCH8L2f44jL+PkTnirGtFXSFLlpl8aPL/hIc1UETJVykrXxY+VIYf2o3IJilb6PjJnvXfzW1p+vHW1d0UIz/wg=
+Message-ID: <4ad99e05050712051341cf6e3@mail.gmail.com>
+Date: Tue, 12 Jul 2005 14:13:01 +0200
+From: Lars Roland <lroland@gmail.com>
+Reply-To: Lars Roland <lroland@gmail.com>
+To: Rob Mueller <robm@fastmail.fm>
+Subject: Re: 2.6.12.2 dies after 24 hours
+Cc: linux-kernel@vger.kernel.org, Bron Gondwana <brong@fastmail.fm>,
+       Jeremy Howard <jhoward@fastmail.fm>
+In-Reply-To: <021801c586d7$5ebf4090$7c00a8c0@ROBMHP>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1121169709.27264.146.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.5.9i
+References: <01dd01c586c3$cdd525d0$7c00a8c0@ROBMHP>
+	 <4ad99e05050712024319bc7ada@mail.gmail.com>
+	 <021801c586d7$5ebf4090$7c00a8c0@ROBMHP>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 01:01:48PM +0100, David Woodhouse wrote:
-> On Tue, 2005-07-12 at 13:05 +0200, Adrian Bunk wrote:
-> > Although it's not mentioned in the changelog, it seems the MTD GIT
-> > tree was dropped.
-> > 
-> > I noticed this because a compile error that was fixed in -mm1 is back.
+On 7/12/05, Rob Mueller <robm@fastmail.fm> wrote:
+> Here's the /proc/interrupts dump:
 > 
-> What error? The MTD GIT tree is presumably absent from -mm because it
-> was pulled into Linus' tree last night.
+>            CPU0       CPU1       CPU2       CPU3
+>   0:   11524000          0          0          0    IO-APIC-edge  timer
+>   1:          8          0          0          0    IO-APIC-edge  i8042
+>   5:          0          0          0          0   IO-APIC-level  acpi
+>  14:         13          0          0          0    IO-APIC-edge  ide0
+>  16:          2          0          0          0   IO-APIC-level  ibmasm0
+>  20:    2978604          0    2338027          0   IO-APIC-level  eth0
+>  22:    1321957          0          0          0   IO-APIC-level  ips
+>  24:     581291          0          0          0   IO-APIC-level  pci-umem
+>  29:     257154          0          0          0   IO-APIC-level  eth1
+> NMI:          0          0          0          0
+> LOC:   11524185   11524201   11524194   11524121
+> ERR:          0
+> MIS:          0
 
-<--  snip  -->
+Looks fine to me
 
-...
-  CC      drivers/mtd/chips/cfi_probe.o
-In file included from drivers/mtd/chips/cfi_probe.c:18:
-include/linux/mtd/xip.h:68:25: error: asm/mtd-xip.h: No such file or directory
-include/linux/mtd/xip.h:72:2: warning: #warning "missing IRQ and timer primitives for XIP MTD support"
-include/linux/mtd/xip.h:73:2: warning: #warning "some of the XIP MTD support code will be disabled"
-include/linux/mtd/xip.h:74:2: warning: #warning "your system will therefore be unresponsive when writing or erasing flash"
-{standard input}: Assembler messages:
-{standard input}:5: Warning: ignoring changed section attributes for .data
-make[3]: *** [drivers/mtd/chips/cfi_probe.o] Error 1
-...
+> 
+> I'm not sure about IRQ balancing sorry. How do I tell? The entire boot
+> process output is here:
+> 
+> http://robm.fastmail.fm/kernel/t7/bootdmesg.txt
+> 
+> And the config is here:
+> 
+> http://robm.fastmail.fm/kernel/t7/config.txt
 
-<--  snip  -->
+You have irq balancing, the line 
 
-> dwmw2
+CONFIG_IRQBALANCE=y
 
-cu
-Adrian
+in your config file confirms it - I am not completely sure that it is
+the root of the problem but when I experienced the problem I changed
+two things: my acpi code and irq balancing and one of then made the
+difference, I am just to lazy to check which one it is (also it is
+production servers so I cannot do whatever I want).
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> Our boot doesn't pass any special parameters, just choosing the deadline
+> elevator...
+> 
+> image=/boot/bzImage-2.6.12.2
+>   label=linux-2.6.12.2
+>   append="elevator=deadline"
+>   read-only
+>   root=/dev/sda2
 
+I use the same io scheduler so that should not be a problem. I have
+uploaded my config file - it works on ibm 335/336 servers, and a quick
+look at your boot msg seams to indicate that your server have some of
+the same hardware - note however that I load ide/scsi/filesystem stuff
+as modules so you will need to build a initrd to use my config.
+
+the config is here
+
+http://randompage.org/static/kernel.conf
+
+
+
+--
+Lars

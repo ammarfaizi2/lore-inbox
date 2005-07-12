@@ -1,48 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVGLTdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVGLTij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbVGLTdg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 15:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVGLTdc
+	id S262347AbVGLTij (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 15:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbVGLTfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 15:33:32 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.82]:11166 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S262320AbVGLTcf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 15:32:35 -0400
-From: Jeremy Maitin-Shepard <jbms@cmu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux On-Demand Network Access (LODNA)
-References: <20050712160720.36388.qmail@web54403.mail.yahoo.com>
-	<42D41096.4000209@namesys.com>
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-1: winter into spring
-Date: Tue, 12 Jul 2005 15:32:40 -0400
-In-Reply-To: <42D41096.4000209@namesys.com> (Hans Reiser's message of "Tue, 12
-	Jul 2005 11:48:54 -0700")
-Message-ID: <87oe976crr.fsf@jbms.ath.cx>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Tue, 12 Jul 2005 15:35:54 -0400
+Received: from pop.gmx.net ([213.165.64.20]:42410 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262347AbVGLTeQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 15:34:16 -0400
+X-Authenticated: #17142692
+Message-ID: <42D41B24.50208@gmx.de>
+Date: Tue, 12 Jul 2005 21:33:56 +0200
+From: thomas schorpp <t.schorpp@gmx.de>
+Reply-To: t.schorpp@gmx.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: de, en-us
 MIME-Version: 1.0
-Content-Type: text/plain
+To: linux-kernel@vger.kernel.org
+CC: linux-dvb-maintainer@linuxtv.org, linux-dvb@linuxtv.org
+Subject: [PATCH][DVB][2.6.12]Siemens DVB-C PCI: SAA7113 Analog Module Extension:
+ Fix missing Video (CVBS+Y/C) Inputs in AV711X V4L driver
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe he is suggesting the addition of an sshfs, ftpfs, webdavfs,
-etc. to the kernel, and allowing unprivileged users to mount these
-filesystems.  (As a side note, I find it somewhat peculiar that he
-includes smbfs in an example, since that is already implemented in the
-kernel.)  Although he refers to possible implementation of these
-facilities as reiserfs 4 plugins, it would seem far more straightforward
-and useful to implement them as separate filesystems.  In fact, many of
-these facilities already exist as filesystems for Linux.  For instance,
-there is an sshfs program for FUSE, and FUSE already provides the
-unprivileged mounting support mentioned in the proposal.
+hello,
 
--- 
-Jeremy Maitin-Shepard
+this patch enables the before not implemented video inputs of the
+SAA7113 Analog Cable Extension Module of that "classic" dvb-c card
+listed:
+
+http://www.vdr-wiki.de/wiki/index.php/DVB-C_full-featured-Karten#Fujitsu-Siemens_DVB-C
+
+- tested O.K. with original Siemens PCI Card + CI + Analog Module
+- tested O.K. with xawtv (latest 3.xx release at this time)
+- tested O.K. with gnomemeeting (v4l1 only)
+- tested O.K. with tvtime 0.9x (NOT OK if tuner is accessed! be careful)
+- not tested the Y/C input configuration, is guessed from datasheet.
+
+signed-off-by: t.schorpp@gmx.de
+
+y
+tom
+
+--- linux-2.6.12/drivers/media/dvb/ttpci/av7110_v4l.c	2005-06-17
+21:48:29.000000000 +0200
++++ linux-2.6.12/drivers/media/dvb/ttpci/av7110_v4l.c	2005-07-11
+01:43:18.000000000 +0200
+@@ -70,7 +70,7 @@
+ 	return 0;
+ }
+
+-static struct v4l2_input inputs[2] = {
++static struct v4l2_input inputs[4] = {
+ 	{
+ 		.index		= 0,
+ 		.name		= "DVB",
+@@ -87,6 +87,22 @@
+ 		.tuner		= 0,
+ 		.std		= V4L2_STD_PAL_BG|V4L2_STD_NTSC_M,
+ 		.status		= 0,
++	}, {
++		.index		= 2,
++		.name		= "Video",
++		.type		= V4L2_INPUT_TYPE_CAMERA,
++		.audioset	= 0,
++		.tuner		= 0,
++		.std		= V4L2_STD_PAL_BG|V4L2_STD_NTSC_M,
++		.status		= 0,
++	}, {
++		.index		= 3,
++		.name		= "Y/C",
++		.type		= V4L2_INPUT_TYPE_CAMERA,
++		.audioset	= 0,
++		.tuner		= 0,
++		.std		= V4L2_STD_PAL_BG|V4L2_STD_NTSC_M,
++		.status		= 0,
+ 	}
+ };
+
+@@ -212,11 +228,17 @@
+ 	}
+
+ 	if (0 != av7110->current_input) {
++		
++		dprintk(1, "switching to analog TV: \n");
+ 		adswitch = 1;
+ 		source = SAA7146_HPS_SOURCE_PORT_B;
+ 		sync = SAA7146_HPS_SYNC_PORT_B;
+ 		memcpy(standard, analog_standard, sizeof(struct saa7146_standard) * 2);
+-		dprintk(1, "switching to analog TV\n");
++		
++		switch (av7110->current_input) {
++		case 1:
++		{
++		dprintk(1, "switching SAA7113 to Analog Tuner Input.\n");
+ 		msp_writereg(av7110, MSP_WR_DSP, 0x0008, 0x0000); // loudspeaker source
+ 		msp_writereg(av7110, MSP_WR_DSP, 0x0009, 0x0000); // headphone source
+ 		msp_writereg(av7110, MSP_WR_DSP, 0x000a, 0x0000); // SCART 1 source
+@@ -231,6 +253,37 @@
+ 			saa7146_setgpio(dev, 1, SAA7146_GPIO_OUTHI); // TDA9198 pin9(STD)
+ 			saa7146_setgpio(dev, 3, SAA7146_GPIO_OUTHI); // TDA9198 pin30(VIF)
+ 		}
++		
++		if (i2c_writereg(av7110, 0x48, 0x02, 0xd0) != 1) {
++			dprintk(1, "saa7113 write failed @ card %d", av7110->dvb_adapter.num);
++		}
++		break;
++		}
++				
++		case 2:
++		{
++		if (i2c_writereg(av7110, 0x48, 0x02, 0xd2) != 1) {
++			dprintk(1, "saa7113 write failed @ card %d", av7110->dvb_adapter.num);
++		}
++		dprintk(1, "switching SAA7113 to Video AV CVBS Input.\n");
++		break;
++		}		
++		
++		case 3:
++		{
++		if (i2c_writereg(av7110, 0x48, 0x02, 0xd9) != 1) {
++			dprintk(1, "saa7113 write failed @ card %d", av7110->dvb_adapter.num);
++		}
++		dprintk(1, "switching SAA7113 to Video AV Y/C Input.\n");
++		break;
++		}		
++		
++		default:
++		{
++		dprintk(1, "switching SAA7113 to Input: AV7110: SAA7113: invalid
+input.\n");
++		}		
++		}
++				
+ 	} else {
+ 		adswitch = 0;
+ 		source = SAA7146_HPS_SOURCE_PORT_A;
+@@ -406,7 +459,7 @@
+ 		dprintk(2, "VIDIOC_ENUMINPUT: %d\n", i->index);
+
+ 		if (av7110->analog_tuner_flags) {
+-			if (i->index < 0 || i->index >= 2)
++			if (i->index < 0 || i->index >= 4)
+ 				return -EINVAL;
+ 		} else {
+ 			if (i->index != 0)
+@@ -433,7 +486,7 @@
+ 		if (!av7110->analog_tuner_flags)
+ 			return 0;
+
+-		if (input < 0 || input >= 2)
++		if (input < 0 || input >= 4)
+ 			return -EINVAL;
+
+
+
+

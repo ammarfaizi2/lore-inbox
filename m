@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVGLNmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVGLNng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbVGLNmA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 09:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVGLNcM
+	id S261425AbVGLNng (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 09:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVGLNmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 09:32:12 -0400
-Received: from spc2-brig1-3-0-cust232.asfd.broadband.ntl.com ([82.1.142.232]:46019
-	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
-	id S261431AbVGLNav convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 09:30:51 -0400
-Date: Tue, 12 Jul 2005 14:30:51 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Eric Piel <Eric.Piel@lifl.fr>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-Subject: Re: ondemand cpufreq ineffective in 2.6.12 ?
-In-Reply-To: <42D3AE47.7070208@lifl.fr>
-Message-ID: <Pine.LNX.4.58.0507121430070.8664@ppg_penguin.kenmoffat.uklinux.net>
-References: <Pine.LNX.4.58.0507111702410.2222@ppg_penguin.kenmoffat.uklinux.net>
- <Pine.LNX.4.58.0507112044001.3450@ppg_penguin.kenmoffat.uklinux.net>
- <200507120755.03110.kernel@kolivas.org> <42D3782F.7070104@lifl.fr>
- <Pine.LNX.4.58.0507121131001.7702@ppg_penguin.kenmoffat.uklinux.net>
- <Pine.LNX.4.58.0507121203450.7944@ppg_penguin.kenmoffat.uklinux.net>
- <42D3AE47.7070208@lifl.fr>
+	Tue, 12 Jul 2005 09:42:14 -0400
+Received: from titan.solar.com.br ([200.199.212.42]:27290 "HELO
+	titan.solar.com.br") by vger.kernel.org with SMTP id S261435AbVGLNkd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 09:40:33 -0400
+Message-ID: <42D3C6C4.3030808@ztec.com.br>
+Date: Tue, 12 Jul 2005 10:33:56 -0300
+From: sauro <sauro@ztec.com.br>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: STDOUT to shell command
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jul 2005, Eric Piel wrote:
+Greetings.
 
->
-> Just by couriosity, I wonder how your processes are automatically
-> reniced to 10 ?
->
+I have an application that throuws some debug on STDOUT. Then, all of a 
+sudden, some characters miss and the debug messages in STDOUT start to 
+be treated as if they were shell commands! I read that in Linux, there's 
+a non-printable character that "tells" STDOUT to handle its data as 
+commands, but I'm not sure...
+Has anyone faced this behavior before? Is it "normal"?
 
- In my case, running from an xterm.
+Thanks in advance
 
-Ken
 -- 
- das eine Mal als Tragödie, das andere Mal als Farce
+Sauro Salomoni
+
+Engineer
+Ztec
+www.ztec.com.br
 

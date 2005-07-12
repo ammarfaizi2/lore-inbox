@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVGLDV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVGLDYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbVGLDV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 23:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVGLDTP
+	id S262213AbVGLDYm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 23:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVGLDYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 23:19:15 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:38634 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262213AbVGLDRv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 23:17:51 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       rmk+serial@arm.linux.org.uk
-Subject: [patch 2.6.13-git] 8250 tweaks
-Date: Mon, 11 Jul 2005 19:22:04 -0700
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Mly0ChnRM10s0ss"
-Message-Id: <200507111922.04800.david-b@pacbell.net>
+	Mon, 11 Jul 2005 23:24:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:20659 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262213AbVGLDYk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 23:24:40 -0400
+Date: Mon, 11 Jul 2005 20:24:24 -0700
+From: Greg KH <greg@kroah.com>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, varap@us.ibm.com,
+       richardj_moore@uk.ibm.com
+Subject: Re: Merging relayfs?
+Message-ID: <20050712032424.GA1742@kroah.com>
+References: <17107.6290.734560.231978@tut.ibm.com> <20050712030555.GA1487@kroah.com> <42D3331F.8020705@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42D3331F.8020705@opersys.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_Mly0ChnRM10s0ss
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, Jul 11, 2005 at 11:03:59PM -0400, Karim Yaghmour wrote:
+> 
+> Greg KH wrote:
+> > What ever happened to exporting the relayfs file ops, and just using
+> > debugfs as your controlling fs instead?  As all of the possible users
+> > fall under the "debug" type of kernel feature, it makes more sense to
+> > confine users to that fs, right?
+> 
+> Actually, like we discussed the last time this surfaced, there are far
+> more users for relayfs than just debugging.
 
-Two small changes:  make the IRQ name less generic, and stop
-whining about certain non-errors (details in the patch comments).
-Please merge.
+Based on the proposed users of this fs, I don't see any.  What ones are
+you saying are not "debug" type operations?  And yes, I consider LTT a
+"debug" type operation :)
 
-- Dave
+The best part of this, is it gives distros and users a consistant place
+to mount the fs, and to know where this kind of thing shows up in the fs
+namespace.
 
+> What we settled on was having relayfs export its file ops so that
+> indeed debugfs users could use it to log things in conjunction with
+> debugfs.
 
---Boundary-00=_Mly0ChnRM10s0ss
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="8250.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="8250.patch"
+Last I looked, this was not possible.  Has this changed in the latest
+version?
 
-Make the 8250 UART driver register its IRQ using a label that's more
-appropriate ... it's an 8250 UART, not one of dozens of other kind of
-serial link (I2C, SPI, USB, McBSP, I2S, non-8250 UART, USART, SSP,
-MicroWire, PS/2 kbd/mouse/touchpad, MCSI, HDQ/1-Wire, ... etc).
+thanks,
 
-Also, make it stop whining when one of the platform serial ports has
-been disabled, e.g. because a given board doesn't wire it out.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
---- o26.orig/drivers/serial/8250.c	2005-07-11 18:41:03.000000000 -0700
-+++ o26/drivers/serial/8250.c	2005-07-11 18:58:26.000000000 -0700
-@@ -1317,7 +1317,7 @@ static int serial_link_irq_chain(struct 
- 		spin_unlock_irq(&i->lock);
- 
- 		ret = request_irq(up->port.irq, serial8250_interrupt,
--				  irq_flags, "serial", i);
-+				  irq_flags, "uart_8250", i);
- 		if (ret < 0)
- 			serial_do_unlink(i, up);
- 	}
-@@ -2331,6 +2331,8 @@ static int __devinit serial8250_probe(st
- 	memset(&port, 0, sizeof(struct uart_port));
- 
- 	for (i = 0; p && p->flags != 0; p++, i++) {
-+		if (!p->iobase && !p->membase)
-+			continue;
- 		port.iobase	= p->iobase;
- 		port.membase	= p->membase;
- 		port.irq	= p->irq;
-
---Boundary-00=_Mly0ChnRM10s0ss--
+greg k-h

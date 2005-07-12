@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVGLGqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVGLGxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVGLGqp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 02:46:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVGLGqp
+	id S261217AbVGLGxL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 02:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVGLGxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 02:46:45 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:36026 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261196AbVGLGqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 02:46:43 -0400
-Subject: Re: [PATCH] [13/48] Suspend2 2.1.9.8 for 2.6.12:
-	403-debug-pagealloc-support.patch
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050710230239.GA513@infradead.org>
-References: <11206164393426@foobar.com> <1120616440281@foobar.com>
-	 <20050710230239.GA513@infradead.org>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1121150906.13869.32.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 12 Jul 2005 16:48:26 +1000
+	Tue, 12 Jul 2005 02:53:11 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:41119 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261217AbVGLGxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 02:53:10 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: sander@humilis.net, "Michael S. Tsirkin" <mst@mellanox.co.il>
+Subject: Re: kernel guide to space
+Date: Tue, 12 Jul 2005 09:52:04 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <20050711145616.GA22936@mellanox.co.il> <20050711153447.GA19848@favonius>
+In-Reply-To: <20050711153447.GA19848@favonius>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507120952.04279.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Monday 11 July 2005 18:34, Sander wrote:
+> Michael S. Tsirkin wrote (ao):
+> > 	Use tabs, not spaces, for indentation. Tabs should be 8
+> > 	characters wide.
+> 
+> A tab is a tab. The editor/viewer can be configured to show 2, 3, 4, 8,
+> any amount of characters, right?
 
-On Mon, 2005-07-11 at 09:02, Christoph Hellwig wrote:
-> this is missing a description.  But I don't think that one is gonna help, we're
-> not gonna add truckloads of crap just to print a warning when a user shoots himself
-> in his foot.
+text with 8-char tabs:
 
-I would like to improve this so we actually check the mount time for the
-filesystems, but this was a simpler intermediate step.
+struct s {
+        int n;          /* comment */
+        unsigned int u; /* comment */
+};
 
-It may seem superfluous to you, but Suspend2 has over 12,000 users, and
-not all of them are expert users. Not everyone gets it right first time.
+Same text viewed with tabs set to 4-char width:
 
-Regards,
+struct s {
+    int n;      /* comment */
+    unsigned int u; /* comment */
+};
 
-Nigel 
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
+Comments are not aligned anymore
+--
+vda
 

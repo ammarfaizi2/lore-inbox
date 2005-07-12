@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVGLMfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVGLMi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVGLMfg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVGLMdi
+	id S261306AbVGLMi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVGLMi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:33:38 -0400
-Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:9484 "EHLO
-	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
-	id S261412AbVGLMbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:31:31 -0400
-Date: Tue, 12 Jul 2005 22:01:13 +0930
-From: "Mark Williams (MWP)" <mwp@internode.on.net>
-To: linux-kernel@vger.kernel.org
-Subject: Cannot fix unresolved module symbols
-Message-ID: <20050712123113.GA8265@linux.comp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Jul 2005 08:38:28 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:42459 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261306AbVGLMgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 08:36:38 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 7/12] s390: fba dasd i/o errors.
+Date: Tue, 12 Jul 2005 15:36:19 +0300
+User-Agent: KMail/1.5.4
+Cc: akpm@osdl.org, Horst Hummel <horst.hummel@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+References: <OF4C6CD4B3.003279A6-ON4225703C.0039E4A7-4225703C.003A3B95@de.ibm.com>
+In-Reply-To: <OF4C6CD4B3.003279A6-ON4225703C.0039E4A7-4225703C.003A3B95@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Message-Id: <200507121536.19848.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all,
+On Tuesday 12 July 2005 13:36, Martin Schwidefsky wrote:
+> > > @@ -354,6 +354,8 @@ dasd_fba_build_cp(struct dasd_device * d
+> > >          }
+> > >          cqr->device = device;
+> > >          cqr->expires = 5 * 60 * HZ;         /* 5 minutes */
+> > > +        cqr->retries = 32;
+> >
+> > 2..4 maybe, but 32? This isn't tiny by any account.
+> 
+> Are you arguing the use of the adjective "tiny" or the technical
+> aspects of using 32 as the number of retries for dasd fba?
+> In the dasd driver we use a retry count of 255 as "standard", so
+> 32 is indeed much smaller than that. If you can call it tiny,
+> well who cares??
 
-First, im using 2.6.12 with version 3.1 of module-install-utils and GCC 4.0.1.
+I meant that 32 retries is too many. Retries tend to multiply.
+If OS does N retries per failed attempt and disk drive does M
+attempts per attempt, you end up with N*M retries.
+Add a few 'retrying' layers, and you have a 'I cannot umount
+this fscking scratched CDROM, maybe tomorrow' type disaster.
 
-I simply cannot get kernel modules to install.
+It's better to err to the smaller number of attempts.
+--
+vda
 
-Building the kernel and modules works perfecty, no errors.
-
-But on running "make modules_install" i get:
-
-depmod: QM_MODULES: Function not implemented
-  INSTALL drivers/net/wireless/atmel.ko
-if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map
-2.6.12; fi
-depmod: *** Unresolved symbols in
-/lib/modules/2.6.12/kernel/drivers/net/wireless/atmel.ko
-depmod:         __netdev_watchdog_up
-depmod:         preempt_schedule
-depmod:         _mmx_memcpy
-depmod:         eth_type_trans
-depmod:         param_get_charp
-depmod:         __kfree_skb
-depmod:         alloc_skb
-........ and many more
-
-Ive had this problem since i started using 2.6.x, and have always compiled
-drivers into the kernel to avoid it. But now i do need to get this fixed so i
-can get ndiswrapper working.
-
-Does anyone know what could be wrong?
-
-Thanks.

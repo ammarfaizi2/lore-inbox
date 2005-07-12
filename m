@@ -1,78 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVGLPzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVGLP5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbVGLPzI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 11:55:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVGLPzH
+	id S261475AbVGLP5d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 11:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVGLP5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 11:55:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15570 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261472AbVGLPzA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 11:55:00 -0400
-Message-ID: <42D3E69B.7090704@redhat.com>
-Date: Tue, 12 Jul 2005 11:49:47 -0400
-From: Wendy Cheng <wcheng@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-CC: linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: [PATCH] Add ENOSYS into sys_io_cancel
-References: <42D2C34C.4040406@redhat.com> <20050712014845.GA11916@kvack.org>
-In-Reply-To: <20050712014845.GA11916@kvack.org>
-Content-Type: multipart/mixed;
- boundary="------------010604070806010003040607"
+	Tue, 12 Jul 2005 11:57:32 -0400
+Received: from blackbird.sr71.net ([64.146.134.44]:5858 "EHLO
+	blackbird.sr71.net") by vger.kernel.org with ESMTP id S261475AbVGLPzy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 11:55:54 -0400
+Subject: Re: [Hdaps-devel] Re: [ltp] IBM HDAPS Someone interested?
+	(Userspace accelerometer viewer)
+From: Dave Hansen <dave@sr71.net>
+To: Daniel Willmann <d.willmann@tu-bs.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Paul Sladen <thinkpad@paul.sladen.org>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
+       linux-thinkpad@linux-thinkpad.org,
+       Eric Piel <Eric.Piel@tremplin-utc.net>, borislav@users.sourceforge.net,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>
+In-Reply-To: <20050711220911.00da2396@elara.orbit.homelinux.net>
+References: <Pine.LNX.4.21.0507111011170.25721-100000@starsky.19inch.net>
+	 <1121092015.7407.68.camel@localhost.localdomain>
+	 <20050711220911.00da2396@elara.orbit.homelinux.net>
+Content-Type: text/plain
+Date: Tue, 12 Jul 2005 08:55:33 -0700
+Message-Id: <1121183733.8317.17.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010604070806010003040607
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 2005-07-11 at 22:09 +0200, Daniel Willmann wrote: 
+> I have implemented an absolute input driver (aka joystick) on the
+> basis of Dave's 0.02 version of the driver. I attached the diff to this
+> mail or just get it from:
+> http://thebe.orbit.homelinux.net/~alphaone/ibm_hdaps_joystick.tar.gz
 
-Benjamin LaHaise wrote:
+Thanks for doing this.  A few comments below.
 
->Also, please cc linux-aio@kvack.org on future aio patches.  
+> +static u16 lastx = 0, lasty = 0;
+> 
+> 
+> +static void ibm_hdaps_joystick_poll(unsigned long unused)
+>  {
+> -       int movex, movey;
+> +       int posx, posy;
+>         struct hdaps_accel_data accel_data;
 >  
->
-Didn't realize the patch was sent to linux-kernel (that I don't 
-subscribe) instead of linux-aio - revised patch attached. Thanks for the 
-help .... Wendy
+>         accelerometer_read(&accel_data);
+> -       movex = restx - accel_data.x_accel;
+> -       movey = resty - accel_data.y_accel;
+> -       if (abs(movex) > ibm_hdaps_mousedev_fuzz)
+> -               input_report_rel(&hdaps_idev, REL_Y, movex);
+> -       if (abs(movey) > ibm_hdaps_mousedev_fuzz)
+> -               input_report_rel(&hdaps_idev, REL_X, movey);
+> +       posx = accel_data.x_accel;
+> +       posy = accel_data.y_accel;
+> +
+> +       if (ibm_hdaps_joystick_reversex) 
+> +               posy = hdaps_idev.absmax[ABS_X] + (hdaps_idev.absmin[ABS_X] - posy);
+> +       if (ibm_hdaps_joystick_reversey)
+> +               posx = hdaps_idev.absmax[ABS_Y] + (hdaps_idev.absmin[ABS_Y] - posx);
 
->On Mon, Jul 11, 2005 at 03:06:52PM -0400, Wendy Cheng wrote:
->
->Note that other than few exceptions, most of the current filesystem 
->and/or drivers do not have aio cancel specifically defined 
->(kiob->ki_cancel field is mostly NULL). However, sys_io_cancel system 
->call universally sets return code to -EGAIN. This gives applications a 
->wrong impression that this call is implemented but just never works. We 
->have customer inquires about this issue.
->
->Upload a trivial patch to address this confusion.
->
->  
->
+I'm not sure this is a good idea to do in the driver.  Reversing the
+movement like this is something that surely should be going into the
+input layer.  It might even be there already.
 
+> +       if (abs(posx-lastx) > 0)
+> +               input_report_abs(&hdaps_idev, ABS_Y, posx);
+> +       if (abs(posy-lasty) > 0)
+> +               input_report_abs(&hdaps_idev, ABS_X, posy);
 
---------------010604070806010003040607
-Content-Type: text/plain;
- name="aio.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="aio.patch"
+Why do you suppress the events like this?  I think this is done inside
+of the input layer already.  What happens if you don't do this?
 
-Signed-off-by: S. Wendy Cheng <wcheng@redhat.com>
+> +       if (ibm_hdaps_joystick_registered)
+> +       {
+> +               snprintf(buf, 256, "enabled\n");
+> +       }
+> +       else
+> +               snprintf(buf, 256, "disabled\n");
 
---- linux-2.6.12/fs/aio.c	2005-06-17 15:48:29.000000000 -0400
-+++ linux/fs/aio.c	2005-07-12 11:26:08.503256160 -0400
-@@ -1660,7 +1660,7 @@ asmlinkage long sys_io_cancel(aio_contex
- 				ret = -EFAULT;
- 		}
- 	} else
--		printk(KERN_DEBUG "iocb has no cancel operation\n");
-+		ret = -ENOSYS;
- 
- 	put_ioctx(ctx);
- 
+Please follow the coding style that Jesper and I have been working with:
 
---------------010604070806010003040607--
+        if () {
+        	foo();
+        } else {
+        	bar();
+        } 
+
+> +static ssize_t
+> +hdaps_joystick_enable_store(struct device *dev, const char * buf, size_t count)
+> +{
+> +       if ((strncmp(buf, "1", 1) == 0)&&(!ibm_hdaps_joystick_registered))
+> +       {
+> +               ibm_hdaps_joystick_enable();
+> +       }
+> +       else if ((strncmp(buf, "0", 1) == 0)&&(ibm_hdaps_joystick_registered))
+> +       {
+> +               ibm_hdaps_joystick_disable();
+> +       }
+> +       return count;
+> +}
+
+I think this makes the sysfs interface a bit counter-intuitive.  The
+"cat joystick_enable" shows "enabled" or "disabled", but you have to
+echo "0" and "1" into it to get it to do what you want.
+
+> +hdaps_joystick_fuzzx_store(struct device *dev, const char * buf,
+> size_t count)
+>  {
+> -       if (!calibrated)
+> +       uint16_t temp;
+> +       if (ibm_hdaps_joystick_registered)
+>                 return -EINVAL;
+> +       if (sscanf(buf, "%hu", &temp) == 1)
+> +       {
+> +               hdaps_idev.absfuzz[ABS_X] = temp;
+> +       }
+> +       return count;
+> +}
+
+Since that fuzz variable is actually part of the input layer, we should
+probably have a conversation with the input people to see if they want a
+generic, adjustable fuzz for all ABS input devices, instead of
+duplicating it in a bunch of drivers.
+
+BTW, I don't think there's a need for a different fuzzx and fuzzy.
+
+-- Dave
+

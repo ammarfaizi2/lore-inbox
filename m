@@ -1,47 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVGLUKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbVGLUM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbVGLUKG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 16:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVGLUKB
+	id S262449AbVGLUM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 16:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVGLUMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 16:10:01 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:65189 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262360AbVGLUJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 16:09:07 -0400
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050711150711.GA19290@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk>
-	 <20050709155704.GA14535@elte.hu> <200507091704.12368.s0348365@sms.ed.ac.uk>
-	 <200507111455.45105.s0348365@sms.ed.ac.uk> <20050711141232.GA16586@elte.hu>
-	 <20050711141622.GA17327@elte.hu>  <20050711150711.GA19290@elte.hu>
-Content-Type: text/plain
-Date: Tue, 12 Jul 2005 16:09:05 -0400
-Message-Id: <1121198946.10580.13.camel@mindpipe>
+	Tue, 12 Jul 2005 16:12:37 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:14216 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S262481AbVGLULo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 16:11:44 -0400
+Date: Tue, 12 Jul 2005 22:11:21 +0200
+To: Peter Osterlund <petero2@telia.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: synaptics touchpad not recognized by Xorg X server with recent -mm kernels
+Message-ID: <20050712201121.GA5587@gamma.logic.tuwien.ac.at>
+References: <20050712172504.GD24820@gamma.logic.tuwien.ac.at> <m3fyujq5cf.fsf@telia.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <m3fyujq5cf.fsf@telia.com>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 17:07 +0200, Ingo Molnar wrote:
-> I've uploaded -27 with the fix - but it should 
-> only confirm that it's not a stack overflow.
+On Die, 12 Jul 2005, Peter Osterlund wrote:
+> What's the output from "cat /proc/bus/input/devices"?
 
-V0.7.51-28 does not compile:
+good (rc1-mm1)
+$ cat /proc/bus/input/devices 
+I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+H: Handlers=kbd event0 
+B: EV=120013 
+B: KEY=4 f2000000 3802078 f870f401 f2ffffdf ffefffff ffffffff ffffffff 
+B: MSC=10 
+B: LED=7 
 
-  CC [M]  sound/oss/emu10k1/midi.o
-sound/oss/emu10k1/midi.c:48: error: syntax error before '__attribute__'
-sound/oss/emu10k1/midi.c:48: error: syntax error before ')' token
+I: Bus=0011 Vendor=0002 Product=0007 Version=0000
+N: Name="SynPS/2 Synaptics TouchPad"
+P: Phys=isa0060/serio1/input0
+H: Handlers=mouse0 event1 
+B: EV=b 
+B: KEY=6420 0 7000f 0 0 0 0 0 0 0 0 
+B: ABS=11000003 
 
-Here's the offending line:
+I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+N: Name=""
+P: Phys=
+H: Handlers=kbd event2 
+B: EV=3 
+B: KEY=ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff 
 
-    48 static DEFINE_SPINLOCK(midi_spinlock __attribute((unused)));
+bad (rc2-mm2)
+$ cat /proc/bus/input/devices 
+I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+H: Handlers=kbd event0 
+B: EV=120013 
+B: KEY=4 f2000000 3802078 f870f401 f2ffffdf ffefffff ffffffff ffffffff 
+B: MSC=10 
+B: LED=7 
 
-Lee
+I: Bus=0011 Vendor=0002 Product=0007 Version=0000
+N: Name="SynPS/2 Synaptics TouchPad"
+P: Phys=isa0060/serio1/input0
+H: Handlers=mouse0 event1 
+B: EV=b 
+B: KEY=6420 0 7000f 0 0 0 0 0 0 0 0 
+B: ABS=11000003 
 
+Best wishes
 
+Norbert
+
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+SNITTERFIELD (n.)
+Office noticeboard on which snitters (q.v.), cards saying 'You don't
+have to be mad to work here, but if you are it helps !!!' and slightly
+smutty postcards from Ibiza get pinned up by snitterbies (q.v.)
+			--- Douglas Adams, The Meaning of Liff

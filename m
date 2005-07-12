@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbVGLUWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbVGLUYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262392AbVGLUWr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 16:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVGLUWY
+	id S262383AbVGLUYu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 16:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVGLUYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 16:22:24 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:5086 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262363AbVGLUUG (ORCPT
+	Tue, 12 Jul 2005 16:24:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33204 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262381AbVGLUYo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 16:20:06 -0400
-Message-Id: <200507122019.j6CKJwxe021850@laptop11.inf.utfsm.cl>
-To: Konstantin Kudin <konstantin_kudin@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: fdisk: What do plus signs after "Blocks" mean? 
-In-Reply-To: Message from DervishD <lkml@dervishd.net> 
-   of "Tue, 12 Jul 2005 19:37:21 +0200." <20050712173721.GA325@DervishD> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 12 Jul 2005 16:19:58 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 12 Jul 2005 16:20:03 -0400 (CLT)
+	Tue, 12 Jul 2005 16:24:44 -0400
+Date: Tue, 12 Jul 2005 21:24:36 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc2-mm2
+Message-ID: <20050712202436.GA12341@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Felipe Alfaro Solana <felipe.alfaro@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050712021724.13b2297a.akpm@osdl.org> <6f6293f10507121116363ff57c@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6f6293f10507121116363ff57c@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD <lkml@dervishd.net> wrote:
+On Tue, Jul 12, 2005 at 08:16:14PM +0200, Felipe Alfaro Solana wrote:
+> I'm seeing this oops with 2.6.13-rc2-mm2:
+ 
+> EIP is at suspend_targets+0x6/0x47 [dm_mod]
 
-[...]
+> Doesn't happen with 2.6.13-rc2-mm1, however.
 
->     It's a good idea to have a copy of the partition table around, if
-> it is not simple (the one you had is NOT simple).
+What's your device-mapper/lvm configuration and what 'lvm' command
+did you run to trigger this?
 
-Be careful. What you'll get out of backing up the partition table is /only/
-the primary partitions, the others are handled by a weird russian doll of
-partitions-inside-partitions. AFAIR, the details were in the LILO docu.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+  'dmsetup info -c'
+  'dmsetup table'
+  'lvs --segments -o+devices -a'
+
+Alasdair
+

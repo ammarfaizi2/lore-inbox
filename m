@@ -1,83 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVGLMUC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVGLMWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVGLMUC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 08:20:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVGLMSd
+	id S261371AbVGLMWk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 08:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVGLMUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 08:18:33 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:43905 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S261385AbVGLMRP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 08:17:15 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Tue, 12 Jul 2005 05:17:09 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
-In-Reply-To: <200507122202.39988.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.62.0507120507430.9200@qynat.qvtvafvgr.pbz>
-References: <200507122110.43967.kernel@kolivas.org>
- <Pine.LNX.4.62.0507120446450.9200@qynat.qvtvafvgr.pbz>
- <200507122202.39988.kernel@kolivas.org>
+	Tue, 12 Jul 2005 08:20:07 -0400
+Received: from alog0200.analogic.com ([208.224.220.215]:7090 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261371AbVGLMTd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 08:19:33 -0400
+Date: Tue, 12 Jul 2005 08:17:02 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Patrick McHardy <kaber@trash.net>
+cc: Denis Vlasenko <vda@ilport.com.ua>, sander@humilis.net,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space
+In-Reply-To: <42D3AFA1.2090203@trash.net>
+Message-ID: <Pine.LNX.4.61.0507120809200.2712@chaos.analogic.com>
+References: <20050711145616.GA22936@mellanox.co.il> <20050711153447.GA19848@favonius>
+ <200507120952.04279.vda@ilport.com.ua> <42D3AFA1.2090203@trash.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jul 2005, Con Kolivas wrote:
+On Tue, 12 Jul 2005, Patrick McHardy wrote:
 
-> 
-> On Tue, 12 Jul 2005 21:57, David Lang wrote:
->> this looks very interesting, however one thing that looks odd to me in
->> this is the thought of comparing the results for significantly different
->> hardware.
+> Denis Vlasenko wrote:
+>> text with 8-char tabs:
 >>
->> for some of the loads you really are going to be independant of the speed
->> of the hardware (burn, compile, etc will use whatever you have) however
->> for others (X, audio, video) saying that they take a specific percentage
->> of the cpu doesn't seem right.
+>> struct s {
+>>         int n;          /* comment */
+>>         unsigned int u; /* comment */
+>> };
 >>
->> if I have a 400MHz cpu each of these will take a much larger percentage of
->> the cpu to get the job done then if I have a 4GHz cpu for example.
+>> Same text viewed with tabs set to 4-char width:
 >>
->> for audio and video this would seem to be a fairly simple scaleing factor
->> (or just doing a fixed amount of work rather then a fixed percentage of
->> the CPU worth of work), however for X it is probably much more complicated
->> (is the X load really linearly random in how much work it does, or is it
->> weighted towards small amounts with occasional large amounts hitting? I
->> would guess that at least beyond a certin point the liklyhood of that much
->> work being needed would be lower)
+>> struct s {
+>>     int n;      /* comment */
+>>     unsigned int u; /* comment */
+>> };
+>>
+>> Comments are not aligned anymore
 >
-> Actually I don't disagree. What I mean by hardware changes is more along the
-> lines of changing the hard disk type in the same setup. That's what I mean by
-> careful with the benchmarking. Taking the results from an athlon XP and
-> comparing it to an altix is silly for example.
->
+> Best rule IMO is to use tabs for indentation and spaces for alignment.
+> This way tab size can be changed without breaking alignment.
 
-however if you defined these loads in terms of the amount of work (number 
-of loops) rather then percentage of the CPU I think you would be pretty 
-close (especially if there was a way to tweak these for a test if needed). 
-This sort of testing would be especially useful for low-end/embedded 
-applications.
+Or just disallow tabs altogether. At Analogic we had several hundred
+thousand lines of imaging code from various engineers around the world.
+They would set their tabs so everything looked fine on their computers.
+On other computers, it looked like hell so engineers who had to
+merge code spent hundreds of wasted hours lining up the code. The
+"cleanup" work never stopped! That was until, we made a rule that
+all code would be run through a filter that would remove tabs and
+substitute spaces (of the width the writer intended). No code that
+is released contains even a single tab anymode.
 
-for example a series 1 DirectTv tivo manages to write two program streams 
-to disk while reading and viewing a third, all on a 75MHz PPC with 64M of 
-ram (on a tweaked 2.1 kernel) you are pretty close to being able to 
-simulate this load
+The files are larger of course, but even lap-tops have gigabyte
+drives now-days and the duplicate spaces give compression utilities
+something to do.
 
-which brings up another possible config option/test case, changing the 
-read/write tests to try to do X MB/sec rather then the max possible speed 
-(probably defaulting to max if nothing is specified)
-
-thanks again for working to define a good test case
-
-David Lang
-
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

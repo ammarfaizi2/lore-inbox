@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVGLVDF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVGLV0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbVGLVDF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 17:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVGLVAi
+	id S262453AbVGLV0v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 17:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVGLV0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 17:00:38 -0400
-Received: from mailhub248.itcs.purdue.edu ([128.210.5.248]:62614 "EHLO
-	mailhub248.itcs.purdue.edu") by vger.kernel.org with ESMTP
-	id S262427AbVGLVAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 17:00:23 -0400
-Message-ID: <42D42FA0.4060802@purdue.edu>
-Date: Tue, 12 Jul 2005 16:01:20 -0500
-From: Chase Douglas <cndougla@purdue.edu>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050630)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sysfs and configuration of a driver
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075
-X-PerlMx-Virus-Scanned: Yes
+	Tue, 12 Jul 2005 17:26:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54489 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262445AbVGLVY5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 17:24:57 -0400
+Date: Tue, 12 Jul 2005 22:24:49 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: laurent.riffard@free.fr, linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+Subject: [PATCH] device-mapper: Fix target suspension oops.
+Message-ID: <20050712212449.GK12337@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, laurent.riffard@free.fr,
+	linux-kernel@vger.kernel.org,
+	Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+References: <20050712021724.13b2297a.akpm@osdl.org> <42D41177.9020300@free.fr> <20050712204751.GB12341@agk.surrey.redhat.com> <20050712140248.3cdcb9b8.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050712140248.3cdcb9b8.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to update the ati_remote module so that it is configurable
-without having to change the source and recompile. I'm rather new to
-kernel module development and was wondering how I should go about
-creating an interface for configuration. My current implementation
-creates a device node for configuration. When you read from it, it dumps
-key bindings for the remote. When you write to it, you can change the
-key bindings like this:
+This section got lost while refactoring the 'Fix deadlocks in core' set 
+of patches I sent yesterday.  Without it, you'll have problems
+activating any device-mapper devices.
 
-echo "play KIND_FILTERED 207" > /dev/ati_remote
+The NULL detection is moved inside the functions instead of every 
+caller having to do it.
 
-Which would change the play button on the remote to send the KEY_PLAY
-(207 in linux/input.h) button instead of what was previously configured.
-This works alright, but it seems to me that this should be handled in
-sysfs. I was thinking that since hardly anyone would have more than one
-remote, there should be one interface that would configure any remote
-that is plugged into the computer. It should be permanent in my opinion
-so I thought it should go somewhere in /sys/module/ati_remote/.
-
-Would this be a good way of configuring the remote? If it is, how can I
-create a sysfs file in the module directory and not the actual usb
-device directory?
-
-If this isn't a good way, how should it be done?
-
-Also, how could a permanent configuration be achieved so that if you
-reboot the computer or re-modprobe the driver, your previous mappings
-are still intact?
-
-Thank you
-
-P.S.: Please CC me to your responses
-
-
+--- drivers/md/dm-table.c	2005-07-12 22:10:20.000000000 +0100
++++ /data/kernels/pm-2612udm1/source/drivers/md/dm-table.c	2005-07-06 18:52:18.000000000 +0100
+@@ -869,11 +869,17 @@
+ 
+ void dm_table_presuspend_targets(struct dm_table *t)
+ {
++	if (!t)
++		return;
++
+ 	return suspend_targets(t, 0);
+ }
+ 
+ void dm_table_postsuspend_targets(struct dm_table *t)
+ {
++	if (!t)
++		return;
++
+ 	return suspend_targets(t, 1);
+ }
+ 

@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVGLJT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVGLJ0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbVGLJT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 05:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVGLJRT
+	id S261283AbVGLJ0y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 05:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVGLJ0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 05:17:19 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49673 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261290AbVGLJPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 05:15:07 -0400
-Date: Tue, 12 Jul 2005 10:14:59 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Brownell <david-b@pacbell.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.6.13-git] 8250 tweaks
-Message-ID: <20050712101459.B28413@flint.arm.linux.org.uk>
-Mail-Followup-To: David Brownell <david-b@pacbell.net>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200507111922.04800.david-b@pacbell.net> <20050712081943.B25543@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050712081943.B25543@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Tue, Jul 12, 2005 at 08:19:43AM +0100
+	Tue, 12 Jul 2005 05:26:54 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:24230 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S261283AbVGLJ0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 05:26:32 -0400
+X-Sasl-enc: w7dl03FYDEbKHy25QMJATzsd2wFpmFPOcuG8XJlydJI+ 1121160386
+Message-ID: <01dd01c586c3$cdd525d0$7c00a8c0@ROBMHP>
+From: "Rob Mueller" <robm@fastmail.fm>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Bron Gondwana" <brong@fastmail.fm>, "Jeremy Howard" <jhoward@fastmail.fm>
+Subject: 2.6.12.2 dies after 24 hours
+Date: Tue, 12 Jul 2005 19:26:29 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 08:19:43AM +0100, Russell King wrote:
-> On Mon, Jul 11, 2005 at 07:22:04PM -0700, David Brownell wrote:
-> > and stop
-> > whining about certain non-errors (details in the patch comments).
-> 
-> Please explain what the whining is (details were missing from the
-> patch comments).
+As background, we've been using a relatively old kernel (2.6.4-mm2) on some 
+IBM x235 machines with 6G of RAM, umem cards, and serveraid storage. These 
+machines are under continuous heavy-ish load, load avg between about 1 and 
+5, with between 2500-3500 procs at all times, with several largish ReiserFS 
+partitions and have been running *really* well with >250 days uptime on one 
+machine.
 
-Exasperated sigh.
+We recently tried upgrading one of the machines to the latest kernel 
+(2.6.12.2) and it's died after about 24 hours. It seemed to end up in some 
+weird state where we could ssh into it, and some commands worked (eg uptime) 
+but process list related commands (ps) would just freeze up into an 
+unkillable state and we'd have to close the seesion and ssh in again.
 
-Just in case someone thinks I'm being bloody stupid and didn't read the
-patch (as discovered via a private mail), I'd like the _whining_ expanded
-upon (eg, what is the message) and not the reasons why.
+I did manage to get a full sysrq-t dump. I've placed it, a kernel config 
+dump, and a dmesg boot dump here:
 
-I though it would have been obvious but it seems that it isn't...
+http://robm.fastmail.fm/kernel/t7/
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Hope this provides some useful data to track down the problem.
+
+Rob
+
+PS. Yes, I know this is a non-PAE kernel on a 6G machine so 2G was unused. 
+This was a mistake in this case, but it still doesn't explain the crash...
+

@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVGLEhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVGLEqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262343AbVGLEhH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 00:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbVGLEgo
+	id S262337AbVGLEqh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 00:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVGLEqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 00:36:44 -0400
-Received: from cantor.suse.de ([195.135.220.2]:49314 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262362AbVGLEgL (ORCPT
+	Tue, 12 Jul 2005 00:46:37 -0400
+Received: from opersys.com ([64.40.108.71]:21264 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262337AbVGLEqg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 00:36:11 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Merging relayfs?
-References: <17107.6290.734560.231978@tut.ibm.com.suse.lists.linux.kernel>
-	<20050712022537.GA26128@infradead.org.suse.lists.linux.kernel>
-	<20050711193409.043ecb14.akpm@osdl.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 12 Jul 2005 06:36:09 +0200
-In-Reply-To: <20050711193409.043ecb14.akpm@osdl.org.suse.lists.linux.kernel>
-Message-ID: <p73ll4c3akm.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 12 Jul 2005 00:46:36 -0400
+Message-ID: <42D349C9.3060805@opersys.com>
+Date: Tue, 12 Jul 2005 00:40:41 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, varap@us.ibm.com,
+       richardj_moore@uk.ibm.com
+Subject: Re: Merging relayfs?
+References: <17107.6290.734560.231978@tut.ibm.com> <20050712030555.GA1487@kroah.com> <42D3331F.8020705@opersys.com> <20050712032424.GA1742@kroah.com> <42D33E99.7030101@opersys.com> <20050712043056.GC2363@kroah.com>
+In-Reply-To: <20050712043056.GC2363@kroah.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
 
-> Christoph Hellwig <hch@infradead.org> wrote:
-> >
-> > On Mon, Jul 11, 2005 at 08:10:42PM -0500, Tom Zanussi wrote:
-> > > 
-> > > Hi Andrew, can you please merge relayfs?  It provides a low-overhead
-> > > logging and buffering capability, which does not currently exist in
-> > > the kernel.
-> > 
-> > While the code is pretty nicely in shape it seems rather pointless to
-> > merge until an actual user goes with it.
-> 
-> Ordinarily I'd agree.  But this is a bit like kprobes - it's a funny thing
-> which other kernel features rely upon, but those features are often ad-hoc
-> and aren't intended for merging.
+Greg KH wrote:
+> The path/filename dictates how it is used, so putting relayfs type files
+> in debugfs is just fine.  debugfs allows any types of files to be there.
+...
+> New trees in / are not LSB compliant, hence the reason for writing
+> securityfs to get rid of /selinux and other LSM filesystems that were
+> starting to sprout up.
+...
+> But that's exactly what debugfs is for, to allow data to be dumped out
+> of the kernel for different usages.
+...
+> Ok, have a better name for it?  It's simple and easy to understand.
 
-Yes, it's a special case because it's useful for custom debugging
-hacks. I would be in favour of merging it.
+It also carries with it the stigma of "kernel debugging", which I just
+don't see production system maintainers liking very much.
 
--Andi
+So tell you what, how about if we merged what's in debugfs into relayfs
+instead? We'll still end up with one filesystem, but we'll have a more
+inocuous name. After all, if debugfs is indeed for dumping data from the
+kernel to user-space for different usages, then relaying is what it's
+actually doing, right?
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

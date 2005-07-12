@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbVGLXlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVGLXnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262479AbVGLXlb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 19:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVGLXla
+	id S262489AbVGLXnp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 19:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVGLXln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 19:41:30 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:26267 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S262479AbVGLXlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 19:41:16 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: David Masover <ninja@slaphack.com>
-Date: Wed, 13 Jul 2005 09:40:26 +1000
+	Tue, 12 Jul 2005 19:41:43 -0400
+Received: from unused.mind.net ([69.9.134.98]:42450 "EHLO echo.lysdexia.org")
+	by vger.kernel.org with ESMTP id S262457AbVGLXkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 19:40:49 -0400
+Date: Tue, 12 Jul 2005 16:39:58 -0700 (PDT)
+From: William Weston <weston@sysex.net>
+X-X-Sender: weston@echo.lysdexia.org
+To: Daniel Walker <dwalker@mvista.com>
+cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: RT and XFS
+In-Reply-To: <1121209293.26644.8.camel@dhcp153.mvista.com>
+Message-ID: <Pine.LNX.4.58.0507121630150.21776@echo.lysdexia.org>
+References: <1121209293.26644.8.camel@dhcp153.mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17108.21738.774180.21984@cse.unsw.edu.au>
-Cc: Stefan Smietanowski <stesmi@stesmi.com>, Hans Reiser <reiser@namesys.com>,
-       Hubert Chan <hubert@uhoreg.ca>, Ross Biro <ross.biro@gmail.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
-       Lincoln Dale <ltd@cisco.com>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
-       Nate Diller <ndiller@namesys.com>
-Subject: Re: reiser4 plugins
-In-Reply-To: message from David Masover on Tuesday July 12
-References: <hubert@uhoreg.ca>
-	<200506290509.j5T595I6010576@laptop11.inf.utfsm.cl>
-	<87hdfgvqvl.fsf@evinrude.uhoreg.ca>
-	<8783be6605062914341bcff7cb@mail.gmail.com>
-	<878y0svj1h.fsf@evinrude.uhoreg.ca>
-	<42C4F97B.1080803@slaphack.com>
-	<87ll4lynky.fsf@evinrude.uhoreg.ca>
-	<42CB0328.3070706@namesys.com>
-	<42CB07EB.4000605@slaphack.com>
-	<42CB0ED7.8070501@namesys.com>
-	<42CB1128.6000000@slaphack.com>
-	<42CB1C20.3030204@namesys.com>
-	<42CB22A6.40306@namesys.com>
-	<42CBE426.9080106@slaphack.com>
-	<42D1F06C.9010905@stesmi.com>
-	<42D2DB99.9050307@slaphack.com>
-	<17107.28428.30907.184223@cse.unsw.edu.au>
-	<42D44EA9.7030700@slaphack.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-X-CSE-Spam-Checker-Version: SpamAssassin 3.0.2 (2004-11-16) on 
-	note.orchestra.cse.unsw.EDU.AU
-X-CSE-Spam-Level: 
-X-CSE-Spam-Status: No, score=-4.5 required=5.0 tests=ALL_TRUSTED,BAYES_00 
-	autolearn=ham version=3.0.2
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday July 12, ninja@slaphack.com wrote:
-> > 
-> > Maybe it is worth repeating Al Viro's suggestion at this point.  I
-> > don't have a reference but the idea was basically that if you open
-> > "/foo" and get filedescriptor N, then
-> >    /proc/self/fds/N-meta
+On Tue, 12 Jul 2005, Daniel Walker wrote:
+
+> Is there something so odd about the XFS locking, that it can't use the
+> rt_lock ?
 > 
-> How am I supposed to get there with a shell script?
+> 
+> --- linux.orig/fs/xfs/linux-2.6/mrlock.h
+> +++ linux/fs/xfs/linux-2.6/mrlock.h
+> @@ -37,12 +37,12 @@
+>  enum { MR_NONE, MR_ACCESS, MR_UPDATE };
+>  
+>  typedef struct {
+> -	struct rw_semaphore	mr_lock;
+> -	int			mr_writer;
+> +	struct compat_rw_semaphore	mr_lock;
+> +	int				mr_writer;
+>  } mrlock_t;
 
+BTW, what's the difference between rw_semaphore and compat_rw_semaphore?  
+Or between semaphore and compat_semaphore?  I ran into a similar issue
+(needing compat_semaphore) with the IVTV drivers.  The following is a
+portion of my patch to get IVTV running under RT (the other portions are
+just compile-time semantics):
 
-function get_meta() 
-{
-   var=$1
-   file=$2
-   meta=$3
-   val=`cat /proc/self/fd/3-meta/$meta < $file`
-   eval var=\$val
-}
+--- ivtv-0.2.0-rc3k.orig/driver/msp3400.c       2004-11-19 08:21:04.000000000 -0800
++++ ivtv-0.2.0-rc3k/driver/msp3400.c    2005-06-22 17:26:24.000000000 
+-0700
+@@ -115,7 +115,7 @@
+ 	struct task_struct  *thread;
+ 	wait_queue_head_t    wq;
+ 
+-	struct semaphore    *notify;
++	struct compat_semaphore *notify;
+ 	int                  active,restart,rmmod;
+ 
+ 	int                  watch_stereo;
 
-then
-   get_meta varname /home/foo/bar username
-
-will read the 'username' meta-file of 'home/foo/bar' and place it in
-varname.
-
-Is that what you wanted?
-
-NeilBrown
+--ww

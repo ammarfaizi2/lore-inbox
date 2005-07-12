@@ -1,35 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVGLQLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVGLQLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbVGLQLb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 12:11:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVGLQJG
+	id S261537AbVGLQLa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 12:11:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVGLQI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 12:09:06 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:16044 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S261548AbVGLQIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 12:08:05 -0400
-Date: Tue, 12 Jul 2005 20:07:42 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Tero Roponen <teanropo@cc.jyu.fi>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, gregkh@suse.de, jonsmirl@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [SOLVED] Re: 2.6.13-rc2 hangs at boot
-Message-ID: <20050712200742.A13716@jurassic.park.msu.ru>
-References: <200507081354.j68Ds02b020296@harpo.it.uu.se> <20050712174119.A31613@jurassic.park.msu.ru> <Pine.GSO.4.58.0507121856050.27617@tukki.cc.jyu.fi>
-Mime-Version: 1.0
+	Tue, 12 Jul 2005 12:08:59 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:21202 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261550AbVGLQIV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 12:08:21 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.58.0507121856050.27617@tukki.cc.jyu.fi>; from teanropo@cc.jyu.fi on Tue, Jul 12, 2005 at 07:00:37PM +0300
+Content-Transfer-Encoding: 7bit
+Message-ID: <17107.60140.948145.153144@tut.ibm.com>
+Date: Tue, 12 Jul 2005 11:08:12 -0500
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Jason Baron <jbaron@redhat.com>, richardj_moore@uk.ibm.com,
+       varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: Merging relayfs?
+In-Reply-To: <1121183607.6917.47.camel@localhost.localdomain>
+References: <17107.6290.734560.231978@tut.ibm.com>
+	<Pine.LNX.4.61.0507121050390.25408@dhcp83-105.boston.redhat.com>
+	<1121183607.6917.47.camel@localhost.localdomain>
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 07:00:37PM +0300, Tero Roponen wrote:
-> It seems that everything is fine until some module
-> loads and does something.
+Steven Rostedt writes:
+ > On Tue, 2005-07-12 at 10:58 -0400, Jason Baron wrote:
+ > > On Mon, 11 Jul 2005, Tom Zanussi wrote:
+ > 
+ > > One concern I had regarding relayfs, which was raised previously, was 
+ > > regarding its use of vmap, 
+ > > http://marc.theaimsgroup.com/?l=linux-kernel&m=110755199913216&w=2 On x86, 
+ > > the vmap space is at a premium, and this space is reserved over the entire 
+ > > lifetime of a 'channel'. Is the use of vmap really critical for 
+ > > performance?
+ > 
+ > I believe that (Tom correct me if I'm wrong) the use of vmap was to
+ > allocate a large buffer without risking failing to allocate. Since the
+ > buffer does not need to be in continuous pages. If this is a problem,
+ > maybe Tom can use my buffer method to make a buffer :-)
+ > 
 
-What does your /proc/ioports say under 2.6.12 with all modules
-loaded?
+The main reason we use vmap is so that from the kernel side we have a
+nice contiguous address range to log to even though the the pages
+aren't actually contiguous.
 
-Ivan.
+ > See http://www.kihontech.com/logdev where my logdev debugging tool that
+ > allocates separate pages and uses an accounting system instead of the
+ > more efficient vmalloc to keep the data in the pages together. I'm
+ > currently working with Tom to get this to use relayfs as the back end.
+ > But here you can take a look at how the buffering works and it doesn't
+ > waste up vmalloc.
+
+It might be worthwhile to try out different alternatives and compare
+them, but I'm pretty sure we won't be able to beat what's already in
+relayfs.  The question is I guess, how much slower would be
+acceptable?
+
+Tom
+
+

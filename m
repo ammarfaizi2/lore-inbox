@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVGLG5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVGLG7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVGLG5S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 02:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVGLG5S
+	id S261236AbVGLG7U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 02:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVGLG7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 02:57:18 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:52145 "EHLO
+	Tue, 12 Jul 2005 02:59:20 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:40371 "EHLO
 	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261212AbVGLG4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 02:56:17 -0400
-Subject: Re: [PATCH] [44/48] Suspend2 2.1.9.8 for 2.6.12: 620-userui.patch
+	id S261238AbVGLG5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 02:57:49 -0400
+Subject: Re: [PATCH] [42/48] Suspend2 2.1.9.8 for 2.6.12: 618-core.patch
 From: Nigel Cunningham <ncunningham@cyclades.com>
 Reply-To: ncunningham@cyclades.com
 To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050710182214.GJ10904@elf.ucw.cz>
-References: <11206164393426@foobar.com> <1120616444451@foobar.com>
-	 <20050710182214.GJ10904@elf.ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050710182106.GI10904@elf.ucw.cz>
+References: <11206164393426@foobar.com> <11206164443244@foobar.com>
+	 <20050710182106.GI10904@elf.ucw.cz>
 Content-Type: text/plain
 Organization: Cycades
-Message-Id: <1121151481.13869.39.camel@localhost>
+Message-Id: <1121151572.13869.42.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 12 Jul 2005 16:58:01 +1000
+Date: Tue, 12 Jul 2005 16:59:33 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi.
 
-On Mon, 2005-07-11 at 04:22, Pavel Machek wrote:
-> On St 06-07-05 12:20:44, Nigel Cunningham wrote:
-> > diff -ruNp 621-swsusp-tidy.patch-old/kernel/power/swsusp.c 621-swsusp-tidy.patch-new/kernel/power/swsusp.c
-> > --- 621-swsusp-tidy.patch-old/kernel/power/swsusp.c	2005-06-20 11:47:31.000000000 +1000
-> > +++ 621-swsusp-tidy.patch-new/kernel/power/swsusp.c	2005-07-04 23:14:19.000000000 +1000
-> > @@ -36,6 +36,8 @@
-> >   * For TODOs,FIXMEs also look in Documentation/power/swsusp.txt
-> >   */
-> >  
-> > +#define KERNEL_POWER_SWSUSP_C
+On Mon, 2005-07-11 at 04:21, Pavel Machek wrote:
+> Hi!
 > 
-> Headers that change depending on #define's are considered evil......
+> Have you seen Christoph's recent fixes to refrigerator? You probably
+> have same problems..... And he wanted to move refrigerator to sched/
+> and make it more generic for page migration, too... what about using
+> it, too? ;-).
 
-Fixed. Thanks!
+Yeah. I'm using them already. I must say though that I don't think
+sched.h is necessarily the best place for the refrigerator defines. Any
+change to those functions and you have to recompile most of the kernel.
+Is a refrigerator.h an idea?
+
+Regards,
 
 Nigel
 -- 

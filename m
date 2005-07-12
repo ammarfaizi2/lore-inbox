@@ -1,77 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbVGLVjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVGLVmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262496AbVGLVjN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 17:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVGLVg3
+	id S262507AbVGLVmG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 17:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVGLVj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 17:36:29 -0400
-Received: from animx.eu.org ([216.98.75.249]:13717 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S262422AbVGLVgV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 17:36:21 -0400
-Date: Tue, 12 Jul 2005 17:53:32 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: Swap partition vs swap file
-Message-ID: <20050712215332.GA31021@animx.eu.org>
-Mail-Followup-To: Helge Hafting <helge.hafting@aitel.hist.no>,
-	Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
-References: <20050710014559.GA15844@animx.eu.org> <E1DrRLL-00017G-00@calista.eckenfels.6bone.ka-ip.net> <20050710125438.GA17784@animx.eu.org> <42D253B5.20101@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42D253B5.20101@aitel.hist.no>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 12 Jul 2005 17:39:28 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:17357 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S262486AbVGLVhz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 17:37:55 -0400
+Date: Tue, 12 Jul 2005 17:37:53 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Michel Bouissou <michel@bouissou.net>
+cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6.12 + IO-APIC + uhci_hcd = Trouble
+In-Reply-To: <200507122240.53390@totor.bouissou.net>
+Message-ID: <Pine.LNX.4.44L0.0507121730590.4764-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> Wakko Warner wrote:
-> You don't need to zero out swapfiles. You can fill them with anything,
-> even /dev/urandom.  Zero-filling may be faster though.  A swapfile
-> is not zero the second time you use it - then it contains leftovers
-> from last time.
+On Tue, 12 Jul 2005, Michel Bouissou wrote:
 
-I understand this part.
+> I've tested as you suggest :
+> 
+> - Disabled USB 2.0 in BIOS
+> 
+> - Renamed ehci_hcd.ko so that modprobe can't find it
+> 
+> - Booted the test-patched kernel with same options as previously, MOUSE 
+> UNPLUGGED.
+> 
+> - After boot "cat /proc/interrupts" shows "0" count for IRQ 21
+> 
+> - Nothing special isn't logged anymore in dmesg or /var/log/messages.
+> 
+> - Plugging / unplugging the mouse or other devices doesn't cause anything 
+> visible to happen. Nothing gets logged, IRQ 21 counter stays at 0. I could as 
+> well not have done it ;-)
+> 
+> > Without ehci_hcd loaded, the EHCI controller should not generate any
+> > interrupt requests.  If your problem then goes away, and plugging or
+> > unplugging the mouse doesn't cause anything unusual to happen, that will
+> > be a pretty clear indication.
+> 
+> Well, so that's a pretty clear indication, but surely clearer to you than to 
+> me ;-)
+> 
+> So, what's up, doc ? ;-))
 
-> >So are you saying that if I create a swap partition it's best to use dd to
-> >zero it out before mkswap?  If no, then why would a file be different?  I
-> >know there's no documented way to create a file of given size without
-> >writing content.  I saw windows grow a pagefile several meg in less than a
-> >second so I'm sure that it doesn't zero out the space first.
->
-> Linux doesn't grow swapfiles at all.  It uses what's there at mkswap time.
-> You can make new ones of course - manually.
+Then it's definite.  The EHCI controller is issuing interrupt requests on
+IRQ 21, but its driver is registered on a different IRQ.  Hence the
+interrupts aren't getting handled correctly.
 
-And this part.  I've never known linux to grow the swap file.  I did try the
-sparse one a long time ago.  Of course it didn't work.
+So probably the usb_handoff parameter won't be needed.  And if you leave 
+USB 2.0 disabled in the BIOS then there's no need to hide ehci_hcd.ko, as 
+it won't get loaded anyway.  You should be able to remove the test patch 
+and resume normal operations.
 
-> >As far as portable, we're talking about linux, portability is not an issue
-> >in this case.  I myself don't use swap files (or partitions), however, 
-> >there
-> >was a project I recall that would dynamically add/remove swap as needed. 
-> >Creating a file of 20-50mb quickly would have been beneficial.
->
-> You can create 50M quickly - even if it actually have to be written.  If
-> you can't, don't use that device for swap. 
 
-Not all systems can create 50mb in a short time.  Especially when the
-system/device is under load.  Not all systems have multiple disks either.
+On Tue, 12 Jul 2005, Protasevich, Natalie wrote:
 
-> Ability to allocate some blocks without actually writing to them is nice 
-> for this
-> purpose, but current linux filesystems doesn't have an api for doing that.
-> The necessary changes would touch all existing writeable filesystems, and
-> that is a lot of work for very little gain.  As they say, you don't 
-> create swapfiles
-> all that often.  The time saved on swapfile creation might take a long 
-> time to
-> make up for the time spent on making, auditing and supporting those
-> changes.
+> I suspect that some device is actually on the IRQ 21, and that's how its 
+> IO-APIC line is set up. Later on, its driver tries to assign different
+> IRQ, due to some discrepancy, and the handler gets registered on say IRQ
+> 11, and to a wrong pin, so the actual interrupts go unattended. If this
+> what's happening, the trace will hopefully tell the story. I suggest to
+> boot with "apic=debug" and also perhaps with "pci=routeirq" and collect
+> the trace. You can attach the part up to the point when it reports usb
+> devices set up.
 
-I hadn't considered this "portability" so I didn't understand at that
-point.
+At this point I can leave it up to the two of you.  Now that we know which
+is the offending device, it should be easy to find out why the IRQ
+assignments go wrong.  That certainly needs to be fixed, even though
+Michel's problem appears to be solved.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Alan Stern
+

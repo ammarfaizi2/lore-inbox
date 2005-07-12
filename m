@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVGLOsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVGLOtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVGLOsF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 10:48:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVGLOrs
+	id S261478AbVGLOtf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 10:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVGLOsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 10:47:48 -0400
-Received: from relay03.pair.com ([209.68.5.17]:26119 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S261493AbVGLOrL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 10:47:11 -0400
-X-pair-Authenticated: 209.68.2.107
-Message-ID: <42D3D7ED.7000805@cybsft.com>
-Date: Tue, 12 Jul 2005 09:47:09 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Daniel Walker <dwalker@mvista.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-References: <200507121223.10704.annabellesgarden@yahoo.de> <20050712140251.GB18296@elte.hu> <1121178339.10199.8.camel@c-67-188-6-232.hsd1.ca.comcast.net> <20050712142828.GA20798@elte.hu>
-In-Reply-To: <20050712142828.GA20798@elte.hu>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Jul 2005 10:48:05 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:25615 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261510AbVGLOrn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 10:47:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=S4xB0bhh4kJFKZ2+6h8Qlr9l9LuHtBBqSdEBsLsc0lHoefcMoz6+aQXnPDHOS/Ty/18/wj8nF1Tl1RPfTWhEOawccQukuVqH3cHb+vnszjKZSsCNE70rScgamzE1lRzaQbf04U2mlqzUdBKvX58RvOxfGoQf5Wd+vdrV9dQpTms=
+Message-ID: <d120d5000507120747692ffc7@mail.gmail.com>
+Date: Tue, 12 Jul 2005 09:47:16 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Stelian Pop <stelian@popies.net>
+Subject: Re: [PATCH] Apple USB Touchpad driver (new)
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <petero2@telia.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Johannes Berg <johannes@sipsolutions.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Frank Arnold <frank@scirocco-5v-turbo.de>
+In-Reply-To: <1121178794.4648.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <20050708101731.GM18608@sd291.sivit.org>
+	 <20050710120425.GC3018@ucw.cz> <m3y88e9ozu.fsf@telia.com>
+	 <1121078371.12621.36.camel@localhost.localdomain>
+	 <20050711110024.GA23333@ucw.cz>
+	 <1121080115.12627.44.camel@localhost.localdomain>
+	 <20050711112121.GA24345@ucw.cz>
+	 <1121159126.4656.14.camel@localhost.localdomain>
+	 <d120d5000507120713646089ee@mail.gmail.com>
+	 <1121178794.4648.31.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Daniel Walker <dwalker@mvista.com> wrote:
+On 7/12/05, Stelian Pop <stelian@popies.net> wrote:
+> Le mardi 12 juillet 2005 à 09:13 -0500, Dmitry Torokhov a écrit :
+> > Hi,
+> >
+> > On 7/12/05, Stelian Pop <stelian@popies.net> wrote:
+> > >
+> > > +       dev->input.id.bustype = BUS_USB;
+> > > +       dev->input.id.vendor = id->idVendor;
+> > > +       dev->input.id.product = id->idProduct;
+> > > +       dev->input.id.version = ATP_DRIVER_VERSION;
+> > > +
+> >
+> > Why don't we do what most of the other input devices and get version
+> > from the device too?
 > 
+> I guess we could, there is not much use for a local driver version
+> anyway.
 > 
->>I observed a situation on a dual xeon where IOAPIC_POSTFLUSH , if on, 
->>would actually cause spurious interrupts. It was odd cause it's 
->>suppose to stop them .. If there was a lot of interrupt traffic on one 
->>IRQ , it would cause interrupt traffic on another IRQ. This would 
->>result in "nobody cared" messages , and the storming IRQ line would 
->>get shutdown.
->>
->>This would only happen in PREEMPT_RT .
+> > Actually we have this in input tree:
+> >
+> > static inline void
+> > usb_to_input_id(const struct usb_device *dev, struct input_id *id)
 > 
+> This cleans up a lot of code indeed. Too bad this is not upstream yet...
 > 
-> does it happen with the latest kernel too? There were a couple of things 
-> broken in the IOAPIC code in various earlier versions.
-> 
-> 	Ingo
 
-Is this why I have been able to boot the latest versions without the 
-noapic option (and without noticeable keyboard repeat problems) or has 
-it just been dumb luck?
+It is in -mm (it is coming from git-input patch).
 
 -- 
-    kr
+Dmitry

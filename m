@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVGLWwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVGLW4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262305AbVGLWwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 18:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVGLWwL
+	id S262423AbVGLW4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 18:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbVGLWyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 18:52:11 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52437 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262305AbVGLWvj (ORCPT
+	Tue, 12 Jul 2005 18:54:18 -0400
+Received: from mail.kroah.org ([69.55.234.183]:53978 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262465AbVGLWwg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 18:51:39 -0400
-Date: Wed, 13 Jul 2005 00:51:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: randy_dunlap <rdunlap@xenotime.net>, akpm@zip.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] suspend: update documentation
-Message-ID: <20050712225126.GC2184@elf.ucw.cz>
-References: <20050712090510.GG1854@elf.ucw.cz> <20050712102407.0fce8b7c.rdunlap@xenotime.net> <1121204890.13869.175.camel@localhost>
+	Tue, 12 Jul 2005 18:52:36 -0400
+Date: Tue, 12 Jul 2005 15:52:25 -0700
+From: Greg KH <greg@kroah.com>
+To: rajatj@noida.hcltech.com
+Cc: linux-kernel@vger.kernel.org, linux-newbie@vger.kernel.org,
+       rajatxjain@yahoo.com
+Subject: Re: Problem while inserting pciehp (PCI Express Hot-plug) driver
+Message-ID: <20050712225225.GA29690@kroah.com>
+References: <1e2adab705071202015fb9aa50@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1121204890.13869.175.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1e2adab705071202015fb9aa50@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > | Update suspend documentation.
-> > | 
-> > | Signed-off-by: Pavel Machek <pavel@suse.cz>
-> > | 
-> > | ---
-> > | 
-> > | diff --git a/Documentation/power/swsusp.txt b/Documentation/power/swsusp.txt
-> > | --- a/Documentation/power/swsusp.txt
-> > | +++ b/Documentation/power/swsusp.txt
-> > | @@ -318,3 +318,10 @@ As a rule of thumb use encrypted swap to
-> > |  system is shut down or suspended. Additionally use the encrypted
-> > |  suspend image to prevent sensitive data from being stolen after
-> > |  resume.
-> > | +
-> > | +Q: Why we cannot suspend to a swap file?
-> > 
-> > Q: Why can't we suspend to a swap file?
-> > or
-> > Q: Why can we not suspend to a swap file?
-> > 
-> > | +
-> > | +A: Because accessing swap file needs the filesystem mounted, and
-> > | +filesystem might do something wrong (like replaying the journal)
-> > | +during mount. [Probably could be solved by modifying every filesystem
-> > | +to support some kind of "really read-only!" option. Patches welcome.]
+On Tue, Jul 12, 2005 at 06:01:22PM +0900, Rajat Jain wrote:
+> Hi,
 > 
-> This is wrong. Suspend2 has supported writing to a swap file for a long
-> time (since 1.0), without requiring the filesystem to be mounted when
-> resuming. We just need to store the bdev and block numbers in the image
-> header.
+> I'm trying to use the PCI Express Hot-Plug Controller driver
+> (pciehp.ko) with Kernel 2.6 so that I can get hot-plug events whenever
+> I add a card to my PCI Express slot.
+> 
+> I built the driver as a module, and am trying to load it manually
+> using modprobe. However, when trying to insert, I'm getting the
+> following error:
+> 
+> pciehp: acpi_pciehprm:\_SB.PCI0 _OSC fails=0x5
+> pciehp: Both _OSC and OSHP methods do not exist
+> FATAL: Error inserting pciehp
+> (/lib/modules/2.6.9-5.18AXcustom-hotplug/kernel/drivers/pci/hotplug/pciehp.ko):
+> No such device
 
-Uh, and then you pass something like resume=/dev/hda5@BLOCKID on
-command line? Okay, that could work.
+Your bios does not support pci express hotplug.  Are you sure you have
+pci express hotplug hardware in your system?  If so, contact your bios
+vendor to get an updated version.
 
-Does this look fair?
+Good luck,
 
-Q: Why can't we suspend to a swap file?
-
-A: Because accessing swap file needs the filesystem mounted, and
-filesystem might do something wrong (like replaying the journal)
-during mount.
-
-There are few ways to get that fixed:
-
-1) Probably could be solved by modifying every filesystem to support
-some kind of "really read-only!" option. Patches welcome.
-
-2) suspend2 gets around that by storing absolute positions in on-disk
-image, with resume parameter pointing directly to suspend header.
-
-
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+greg k-h

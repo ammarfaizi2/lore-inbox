@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVGLAdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVGLAjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVGLAdj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Jul 2005 20:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVGLAb1
+	id S262294AbVGLAjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Jul 2005 20:39:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbVGLAjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Jul 2005 20:31:27 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:31697 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262293AbVGLAbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Jul 2005 20:31:04 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, christoph@lameter.org
-In-Reply-To: <42D2D912.3090505@nortel.com>
-References: <200506231828.j5NISlCe020350@hera.kernel.org>
-	 <20050708214908.GA31225@taniwha.stupidest.org>
-	 <20050708145953.0b2d8030.akpm@osdl.org>
-	 <1120928891.17184.10.camel@lycan.lan> <1120932991.6488.64.camel@mindpipe>
-	 <20050709203920.394e970d.diegocg@gmail.com>
-	 <1120934466.6488.77.camel@mindpipe>  <176640000.1121107087@flay>
-	 <1121113532.2383.6.camel@mindpipe>  <42D2D912.3090505@nortel.com>
-Content-Type: text/plain
-Date: Mon, 11 Jul 2005 20:30:59 -0400
-Message-Id: <1121128260.2632.12.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Jul 2005 20:39:16 -0400
+Received: from cicero1.cybercity.dk ([212.242.40.4]:25863 "EHLO
+	cicero1.cybercity.dk") by vger.kernel.org with ESMTP
+	id S262294AbVGLAiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Jul 2005 20:38:55 -0400
+Message-ID: <42D31136.90208@molgaard.org>
+Date: Tue, 12 Jul 2005 02:39:18 +0200
+From: =?ISO-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: PS/2 mouse not working
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-11 at 14:39 -0600, Chris Friesen wrote:
-> Lee Revell wrote:
-> 
-> > Tickless + sub HZ timers is a win for everyone, the multimedia people
-> > get better latency, and the laptop people get to run longer.
-> 
-> IIRC it's not a win for many systems.  Throughput goes down due to timer 
-> manipulation overhead.
+Hi all.
 
-Makes sense.  Anyway, this whole thread has been pretty hand wavey, I
-propose that until we see some numbers from the HZ=250 advocates, we
-leave the default alone.
+I can't seem to get a new PS/2 mouse to give any input on 2.6.11.6. I 
+have tried creating /dev/input/{mouse0,mouse1} apart from 
+/dev/input/mice as per numbers in Documentation/devices.txt, and cat 
+<device> gives no output when wiggling the mouse.
 
-Lee
+I have tried compiling psmouse as module and loading it, and I have 
+tried compiling it into kernel. I have also chosen to have a /dev/psaux, 
+that doesn't get any input either. Mouse seems to get detected, as per 
+this snippet from dmesg:
 
+...
+mice: PS/2 mouse device common for all mice
+...
+input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+...
+
+Best regards,
+
+Sune Mølgaard
+
+-- 
+Quitting vi is the most important command of that editor, and should be 
+bound to something easy to type and available in all modes, for example 
+the space bar.
+- Per Abrahamsen

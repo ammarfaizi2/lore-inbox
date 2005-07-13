@@ -1,105 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVGMI6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVGMJHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVGMI6a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 04:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVGMI6a
+	id S261546AbVGMJHT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 05:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVGMJHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 04:58:30 -0400
-Received: from [213.211.174.11] ([213.211.174.11]:7875 "EHLO
-	waterstof.hillenius.net") by vger.kernel.org with ESMTP
-	id S261361AbVGMI6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 04:58:30 -0400
-To: Frank Sorenson <frank@tuxrocks.com>
-Cc: hdaps-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Updating hard disk firmware & parking hard disk
-References: <20050707171434.90546.qmail@web32604.mail.mud.yahoo.com>
-	<42CD7E0C.3060101@tuxrocks.com>
-From: Gijs Hillenius <gijs@hillenius.net>
-Organization: Responsible
-X-Operating-System: Debian GNU/Linux Sid
-X-GPGP-Fingerprint: 0D0B 9C67 0520 3B27 A91C  369B 7154 1B0A 04CF 3929
-Date: Wed, 13 Jul 2005 10:58:19 +0200
-In-Reply-To: <42CD7E0C.3060101@tuxrocks.com> (Frank Sorenson's message of "Thu, 07 Jul 2005 13:10:04 -0600")
-Message-ID: <878y0bozf8.fsf@hillenius.net>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 13 Jul 2005 05:07:19 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:6371 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S261546AbVGMJHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 05:07:17 -0400
+Message-ID: <42D4D9BB.7010701@gwdg.de>
+Date: Wed, 13 Jul 2005 11:07:07 +0200
+From: Christian Boehme <Christian.Boehme@gwdg.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Kernel BUG at objrmap:325 in 2.6.5-7.151-smp (SuSE, x86_64)
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+X-AUTH-Id: cboehme1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Frank Sorenson writes:
+We often see the following kernel-bug in our logs:
 
-     > Martin Knoblauch wrote:
-    >> Download is simple, just don't use the "IBM Download
-    >> Manager". Main problem is that one needs a bootable floopy
-    >> drive and "the other OS" to create a bootable floppy. It would
-    >> be great if IBM could provide floppy images for use with "dd"
-    >> for the poor Linux users.
+kernel: Kernel BUG at objrmap:325
+kernel: invalid operand: 0000 [1] SMP
+kernel: CPU 0
+kernel: Pid: 4752, comm: mhd3d.opteron Tainted: G  U (2.6.5-7.151-smp SLES9_SP1_BRANCH-200503181131210000)
+kernel: RIP: 0010:[<ffffffff8017d1de>] <ffffffff8017d1de>{page_add_rmap+334}
+kernel: RSP: 0000:00000103e68d5db8  EFLAGS: 00010246
+kernel: RAX: 000000000100806d RBX: 0000010007cefc48 RCX: 0000000000000000
+kernel: RDX: ffffffff80596340 RSI: 00000101fb0d9d90 RDI: 0000010007cefc48
+kernel: RBP: 00000000000165ae R08: 0000000000000000 R09: 000000000043c300
+kernel: R10: 000000000d9b0b10 R11: 0000000000000002 R12: 00000101fb0d9d90
+kernel: R13: 0000000000000003 R14: 00000103f0947800 R15: 000000000043c300
+kernel: FS:  0000002a961864c0(0000) GS:ffffffff80554200(0000) knlGS:0000000000000000
+kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+kernel: CR2: 000000000043c300 CR3: 0000000000101000 CR4: 00000000000006e0
+kernel: Process mhd3d.opteron (pid: 4752, threadinfo 00000103e68d4000, task 00000101fb6e8c40)
+kernel: Stack: 0000000000000246 ffffffff801740db 00000103e5028800 0000010231caf010
+kernel:        0000000100000000 00000101fb0d9d90 00000103ea3b01e0 0000000000000000
+kernel:        000000000043c300 00000103f0947800
+kernel: Call Trace:<ffffffff801740db>{do_no_page+2987} <ffffffff801758a5>{handle_mm_fault+405}
+kernel:        <ffffffff80122554>{do_page_fault+468} <ffffffff801477c1>{sys_rt_sigaction+113}
+kernel:        <ffffffff80111041>{error_exit+0}
+kernel:
+kernel: Code: 0f 0b 10 ec 37 80 ff ff ff ff 45 01 8b 07 a9 00 80 00 00 75
+kernel: RIP <ffffffff8017d1de>{page_add_rmap+334} RSP <00000103e68d5db8>
 
-     > You may be able to use this process to avoid using either a
-     > floppy drive or "the other OS":
-
-     > 1) Download the appropriate firmware exe from
-     > http://www-306.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-41008
-     > (in my case, this looks like fwhd3313.exe)
-
-     > 2) Find a freedos disk image (I used one that came with
-     > biosdisk - http://linux.dell.com/biosdisk/)
-
-     > 3) Create a disk image for the firmware executable: cp
-     > /usr/share/biosdisk/dosdisk.img /tmp/fwdisk1.img mount -oloop
-     > /tmp/fwtemp.img /mnt/tmp cp fwhd3313.exe /mnt/tmp umount
-     > /mnt/tmp
-
-     > 4) Create a blank disk image for the extracted contents: dd
-     > if=/dev/zero of=/boot/fwdisk.img bs=1474560 count=1
-
-     > 5) Run qemu to extract files and write the disk image: qemu
-     > -fda /tmp/fwtemp.img -fdb /boot/fwdisk.img A:\>fwhd3313 ...
-     > exit qemu
-
-     > 6) Set up grub to boot the new disk image (requires memdisk
-     > from syslinux - http://syslinux.zytor.com/): $EDITOR
-     > /boot/grub/grub.conf title IBM Hard Drive Firmware update
-     > kernel /memdisk initrd=/fwdisk.img floppy
-
-     > 7) Reboot and select the "IBM Hard Drive Firmware update"
-     > option
-
-
-     > It allowed me to run the firmware update program, however it
-     > didn't believe my drive needed updating, so I haven't even
-     > successfully tried the entire process.  Please let me know if
-     > it works for you.
-
-     > DISCLAIMER: I also provide no guarantees.  Hopefully your hard
-     > disk won't fly off the spindle or anything else bad.  If it
-     > does, blame someone else.
-
-Hi Frank,
-
-FYI I succesfully used your above method to update the firmware
-for the IC25N040ATMR04-0 hard disk that came with my Thinkpad R51. 
-
-Before the update hdparm -i /dev/hda
-Model=IC25N040ATMR04-0, FwRev=MO2OAD4A
-
-and after the update
-Model=IC25N040ATMR04-0, FwRev=MO2OADEA
-
-So, thanks!
-
-however, the firmware update did not solve the 'head not park'
-issue. :-(
-
-sudo ./park /dev/hda
-head not parked 4c
-
+The bug always hits the same user-compiled executable,
+always at the time the daily cron-jobs are run, so there
+seems to be a dependency on another process. The process
+4752 is part of an MPI-parallel application, and another
+instance of it runs on the same node with PID 4751. Interestingly
+after this bug the /proc/4751 dir (i.e., the one of the instance
+not cited in the bug) is inaccessible. Thanks for any help
+with this issue!
 
 Regards
 
-Gijs
+Christian Boehme
 
 -- 
-Is it weird in here, or is it just me?
-		-- Steven Wright
+Dr. Christian Boehme
+GWDG                            Private:
+Am Fassberg                     Wilhelm-Raabe-Str. 15
+37077 Göttingen                 37083 Göttingen
+email: Christian.Boehme@gwdg.de ChristianBoehme@web.de
+phone: +49 (0)551 201-1839      +49 (0)551 3077000
+fax:   +49 (0)551 201-2150      +49 (0)551 3077077
+

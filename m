@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVGMSEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbVGMSIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbVGMSEz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 14:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVGMSDe
+	id S261995AbVGMSIw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 14:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVGMSFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:03:34 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:13036 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S261539AbVGMSA2 (ORCPT
+	Wed, 13 Jul 2005 14:05:14 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:7854 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S261318AbVGMSDc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:00:28 -0400
-Subject: [patch 2/9] uml: workaround host bug in "TT mode vs. NPTL link fix"
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Wed, 13 Jul 2005 20:02:15 +0200
-Message-Id: <20050713180216.01CA921E732@zion.home.lan>
+	Wed, 13 Jul 2005 14:03:32 -0400
+Subject: Re: serial: 8250 fails to detect Exar XR16L2551 correctly
+From: Alex Williamson <alex.williamson@hp.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: David Vrabel <dvrabel@arcom.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1121274296.4334.58.camel@tdi>
+References: <42CA96FC.9000708@arcom.com>
+	 <20050706195740.A28758@flint.arm.linux.org.uk> <42CD2C16.1070308@arcom.com>
+	 <1121108408.28557.71.camel@tdi>
+	 <20050711204646.D1540@flint.arm.linux.org.uk>
+	 <1121112057.28557.91.camel@tdi>
+	 <20050711211706.E1540@flint.arm.linux.org.uk>
+	 <1121116677.28557.104.camel@tdi>  <1121274296.4334.58.camel@tdi>
+Content-Type: text/plain
+Organization: LOSL
+Date: Wed, 13 Jul 2005 12:03:49 -0600
+Message-Id: <1121277829.4334.76.camel@tdi>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-07-13 at 11:04 -0600, Alex Williamson wrote:
+> Just trying to make sure that there's not a latent bug that we enable
+> a bad sleep mode when the UART is being used for the console.
 
-A big bug has been diagnosed on hosts running the SKAS patch and built with
-CONFIG_REGPARM, due to some missing prevent_tail_call().
+   Yes, this is the problem.  When a UART is specified as the console
+using "console=uart,...", the console index is not initialized.  This
+causes the uart_console() check to mis-identify the port and we enable
+sleep mode when we don't intend to do so.  Not sure how to fix it yet,
+but I assume we need to go back through after the serial ports are
+enumerated, and un-suspend the console port.  David, would you mind
+trying this on the XR16L255x part? (ie. don't use console=ttyS, use
+console=uart,...)  Thanks,
 
-On these hosts, this workaround is needed to avoid triggering that bug,
-because "to" is kept by GCC only in EBX, which is corrupted at the return of
-mmap2().
+	Alex
+-- 
+Alex Williamson                             HP Linux & Open Source Lab
 
-Since to trigger this bug int 0x80 must be used when doing the call, it rarely
-manifests itself, so I'd prefer to get this merged to workaround that host
-bug, since it should cause no functional change. Still, you might prefer to
-drop it, I'll leave this to you.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.git-broken-paolo/arch/um/sys-i386/unmap.c   |    2 +-
- linux-2.6.git-broken-paolo/arch/um/sys-x86_64/unmap.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN arch/um/sys-i386/unmap.c~uml-fix-link-tt-mode-against-nptl arch/um/sys-i386/unmap.c
---- linux-2.6.git-broken/arch/um/sys-i386/unmap.c~uml-fix-link-tt-mode-against-nptl	2005-07-13 19:37:10.000000000 +0200
-+++ linux-2.6.git-broken-paolo/arch/um/sys-i386/unmap.c	2005-07-13 19:37:32.000000000 +0200
-@@ -15,7 +15,7 @@ int switcheroo(int fd, int prot, void *f
- 	if(munmap(to, size) < 0){
- 		return(-1);
- 	}
--	if(mmap2(to, size, prot, MAP_SHARED | MAP_FIXED, fd, 0) != to){
-+	if(mmap2(to, size, prot, MAP_SHARED | MAP_FIXED, fd, 0) == (void*) -1 ){
- 		return(-1);
- 	}
- 	if(munmap(from, size) < 0){
-diff -puN arch/um/sys-x86_64/unmap.c~uml-fix-link-tt-mode-against-nptl arch/um/sys-x86_64/unmap.c
---- linux-2.6.git-broken/arch/um/sys-x86_64/unmap.c~uml-fix-link-tt-mode-against-nptl	2005-07-13 19:37:10.000000000 +0200
-+++ linux-2.6.git-broken-paolo/arch/um/sys-x86_64/unmap.c	2005-07-13 19:37:32.000000000 +0200
-@@ -15,7 +15,7 @@ int switcheroo(int fd, int prot, void *f
- 	if(munmap(to, size) < 0){
- 		return(-1);
- 	}
--	if(mmap(to, size, prot, MAP_SHARED | MAP_FIXED, fd, 0) != to){
-+	if(mmap(to, size, prot, MAP_SHARED | MAP_FIXED, fd, 0) == (void*) -1){
- 		return(-1);
- 	}
- 	if(munmap(from, size) < 0){
-_

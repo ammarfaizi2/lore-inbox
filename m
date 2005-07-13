@@ -1,141 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVGMSas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVGMS2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbVGMSas (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 14:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVGMS2v
+	id S261927AbVGMS2q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 14:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVGMS0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:28:51 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:2727 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261483AbVGMS14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:27:56 -0400
-Date: Wed, 13 Jul 2005 13:27:29 -0500
-From: serue@us.ibm.com
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Michael Halcrow <mhalcrow@us.ibm.com>,
-       David Safford <safford@watson.ibm.com>,
-       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
-Message-ID: <20050713182729.GA26392@vino.hallyn.com>
-References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com> <1121092828.12334.94.camel@moss-spartans.epoch.ncsc.mil> <20050713163941.GB2824@serge.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050713163941.GB2824@serge.austin.ibm.com>
-User-Agent: Mutt/1.5.8i
+	Wed, 13 Jul 2005 14:26:09 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:50085 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261927AbVGMSYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 14:24:53 -0400
+Message-ID: <42D55C75.4010307@namesys.com>
+Date: Wed, 13 Jul 2005 11:24:53 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Staubach <staubach@redhat.com>
+CC: "Vlad C." <vladc6@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux On-Demand Network Access (LODNA)
+References: <20050712234425.55899.qmail@web54409.mail.yahoo.com> <42D5340A.7060002@redhat.com>
+In-Reply-To: <42D5340A.7060002@redhat.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen points out listsecurity results should simply be separated by
-the \0 which modules already append.  New patch appended.
+Peter Staubach wrote:
 
-Thanks, Stephen.
+> Vlad C. wrote:
+>
+>> --- Hans Reiser <reiser@namesys.com> wrote:
+>>  
+>>
+>>> Please treat at greater length how your proposal
+>>> differs from NFS.
+>>>   
+>>
+>>
+>> I think NFS is not flexible enough because:
+>>
+>> 1) NFS requires synchronization of passwd files or
+>> NIS/LDAP to authenticate users (which themselves
+>> require root access on both server and client to
+>> install)
+>> 2) NFS by definition understands only its own network
+>> protocol.
+>> 3) NFS requires root privileges on the client to
+>> mount. I'm not aware of a way to let normal users
+>> mount an NFS partition other than listing it in the
+>> client's fstab and adding the 'users' option... but
+>> then changing fstab still requires root access.
+>> 4) Users have to contact their sysadmin every time
+>> they want to mount a different partition, a different
+>> subdirectory of the same partition, or if they want to
+>> change the local mountpoint, all because the partition
+>> and mountpoint are hard-coded in fstab.
+>>
+>> On the other hand, I envision the following:
+>>
+>
+> Please keep in mind that these are restrictions of the current NFS
+> implementation and are not inherent in an NFS solution.
+>
+> The implied need for flexibility is being addressed by NFSv4 and the
+> ability to understand multiple versions of protocols and multiple
+> protocols is already resident in the system.  We could do some work
+> to make it more transparent if desired, but it already works.
+>
+>    Thanx...
+>
+>       ps
+>
+>
+Peter, do you agree with his point that mounting should be something
+ordinary users can do on mountpoints they have write permission for?
 
--serge
+Do you agree that a systematic review of user friendliness would help
+NFS?  Do you think that NFS should look at SFS and consider adopting
+some of its features?
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
---
- stacker.c |   78 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---
- 1 files changed, 75 insertions(+), 3 deletions(-)
-
-Index: linux-2.6.13-rc3/security/stacker.c
-===================================================================
---- linux-2.6.13-rc3.orig/security/stacker.c	2005-07-13 15:37:29.000000000 -0500
-+++ linux-2.6.13-rc3/security/stacker.c	2005-07-13 18:08:03.000000000 -0500
-@@ -569,19 +569,91 @@ static int stacker_inode_removexattr (st
- 	RETURN_ERROR_IF_ANY_ERROR(inode_removexattr,inode_removexattr(dentry,name));
- }
- 
-+/*
-+ * inode_getsecurity: We loop through all modules until one does not return
-+ * -EOPNOTSUPP.
-+ * Note that if some LSM returns -EPERM, stacker assumes the LSM knows what
-+ * it's doing.  If you don't want to control the name, then return
-+ * -EOPNOTSUPP!
-+ */
- static int stacker_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
- {
--	RETURN_ERROR_IF_ANY_ERROR(inode_getsecurity,inode_getsecurity(inode,name,buffer,size));
-+	struct module_entry *m;
-+	int ret = -EOPNOTSUPP;
-+
-+	rcu_read_lock();
-+	stack_for_each_entry(m, &stacked_modules, lsm_list) {
-+		if (!m->module_operations.inode_getsecurity)
-+			continue;
-+		rcu_read_unlock();
-+		ret = m->module_operations.inode_getsecurity(inode,name,buffer,size);
-+		rcu_read_lock();
-+		if (ret != -EOPNOTSUPP)
-+			break;
-+	}
-+	rcu_read_unlock();
-+
-+	return ret;
- }
- 
-+/*
-+ * inode_setsecurity: We loop through all modules until one does not return
-+ * -EOPNOTSUPP.
-+ * Note that if some LSM returns -EPERM, stacker assumes the LSM knows what
-+ * it's doing.  If you don't want to control the name, then return
-+ * -EOPNOTSUPP!
-+ */
- static int stacker_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
- {
--	RETURN_ERROR_IF_ANY_ERROR(inode_setsecurity,inode_setsecurity(inode,name,value,size,flags));
-+	struct module_entry *m;
-+	int ret = -EOPNOTSUPP;
-+
-+	rcu_read_lock();
-+	stack_for_each_entry(m, &stacked_modules, lsm_list) {
-+		if (!m->module_operations.inode_setsecurity)
-+			continue;
-+		rcu_read_unlock();
-+		ret = m->module_operations.inode_setsecurity(inode, name,
-+						value, size, flags);
-+		rcu_read_lock();
-+		if (ret != -EOPNOTSUPP)
-+			break;
-+	}
-+	rcu_read_unlock();
-+
-+	return ret;
- }
- 
-+/*
-+ * inode_listsecurity: We loop through all modules appending to buffer, and return
-+ * the \0-separated list of security names defined for this inode.
-+ */
- static int stacker_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size)
- {
--	RETURN_ERROR_IF_ANY_ERROR(inode_listsecurity,inode_listsecurity(inode,buffer, buffer_size));
-+	int ret = 0;
-+	struct module_entry *m;
-+
-+	rcu_read_lock();
-+	stack_for_each_entry(m, &stacked_modules, lsm_list) {
-+		int thislen;
-+
-+		if (!m->module_operations.inode_listsecurity)
-+			continue;
-+		rcu_read_unlock();
-+		thislen = m->module_operations.inode_listsecurity(inode,
-+				buffer+ret, buffer_size-ret);
-+		rcu_read_lock();
-+		if (thislen < 0)
-+			continue;
-+		ret += thislen;
-+		if (ret >= buffer_size) {
-+			ret = -ERANGE;
-+			break;
-+		}
-+	}
-+	rcu_read_unlock();
-+
-+	return ret;
- }
- 
- static int stacker_file_permission (struct file *file, int mask)
+Hans

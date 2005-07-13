@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVGMReO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVGMRj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbVGMReO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 13:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVGMRcd
+	id S262126AbVGMRj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 13:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVGMRhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:32:33 -0400
-Received: from mta04.mail.t-online.hu ([195.228.240.57]:23545 "EHLO
-	mta04.mail.t-online.hu") by vger.kernel.org with ESMTP
-	id S261931AbVGMRbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:31:24 -0400
-Subject: [PATCH 17/19] Kconfig I18N: xconfig: symbol fix
-From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Massimo Maiurana <maiurana@inwind.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       KernelFR <kernelfr@traduc.org>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-In-Reply-To: <1121273456.2975.3.camel@spirit>
-References: <1121273456.2975.3.camel@spirit>
+	Wed, 13 Jul 2005 13:37:43 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:62644 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261995AbVGMRek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 13:34:40 -0400
+Subject: RE: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
+From: Lee Revell <rlrevell@joe-job.com>
+To: szonyi calin <caszonyi@yahoo.com>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>, caszonyi@rdslink.ro
+In-Reply-To: <20050713112710.60204.qmail@web52902.mail.yahoo.com>
+References: <20050713112710.60204.qmail@web52902.mail.yahoo.com>
 Content-Type: text/plain
-Date: Wed, 13 Jul 2005 19:31:23 +0200
-Message-Id: <1121275883.2975.47.camel@spirit>
+Date: Wed, 13 Jul 2005 13:34:37 -0400
+Message-Id: <1121276077.4435.50.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-07-13 at 13:27 +0200, szonyi calin wrote:
+> I have the following problem with audio:
+> Xmms is running with threads for audio and spectrum
+> analyzer(OpenGL).
+> The audio eats 5% cpu, the spectrum analyzer about 80 %. The
+> problem is that sometimes the spectrum analyzer is eating all of
+> the cpu while the audio is skipping. Xmms is version 1.2.10
+> kernel is vanilla, latest "stable" version 2.6.12, suid root.
+> 
+> Does your benchmark simultes this kind of behaviour ? 
 
-I18N support for symbol names are unnecessary.
+That's just a broken app, the kernel can't do anything about it.  XMMS
+should not be running the spectrum analyzer thread at such a high
+priority as to interfere with the audio thread.
 
-Signed-off-by: Egry Gabor <gaboregry@t-online.hu>
----
-
- scripts/kconfig/qconf.cc |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN scripts/kconfig/qconf.cc~kconfig-i18n-17-qconfig-symbol-fix scripts/kconfig/qconf.cc
---- linux-2.6.13-rc3-i18n-kconfig/scripts/kconfig/qconf.cc~kconfig-i18n-17-qconfig-symbol-fix	2005-07-13 18:32:19.000000000 +0200
-+++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/kconfig/qconf.cc	2005-07-13 18:32:19.000000000 +0200
-@@ -1038,12 +1038,12 @@ void ConfigMainWindow::setHelp(QListView
- 			head += "</b></big>";
- 			if (sym->name) {
- 				head += " (";
--				head += print_filter(_(sym->name));
-+				head += print_filter(sym->name);
- 				head += ")";
- 			}
- 		} else if (sym->name) {
- 			head += "<big><b>";
--			head += print_filter(_(sym->name));
-+			head += print_filter(sym->name);
- 			head += "</b></big>";
- 		}
- 		head += "<br><br>";
-_
-
+Lee
 

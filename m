@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbVGMLi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVGMLum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262744AbVGMLi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 07:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbVGMLi1
+	id S262612AbVGMLum (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 07:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVGMLum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 07:38:27 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53663 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262744AbVGMLiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 07:38:17 -0400
-Subject: Re: Runtime fix for intermodule.c
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0507131255130.14635@yvahk01.tjqt.qr>
-References: <20050712213920.GA9714@physik.fu-berlin.de>
-	 <20050712220705.GA12906@infradead.org>
-	 <Pine.LNX.4.61.0507131255130.14635@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Wed, 13 Jul 2005 13:38:09 +0200
-Message-Id: <1121254689.3959.17.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Wed, 13 Jul 2005 07:50:42 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:14886 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S262612AbVGMLuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 07:50:40 -0400
+Message-ID: <42D50033.9040009@gentoo.org>
+Date: Wed, 13 Jul 2005 12:51:15 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050710)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hamish Marson <hamish@travellingkiwi.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: SysKonnect ethernet support for Asus A8VE Deluxe Motherboard?
+References: <42D3FDF5.4090501@travellingkiwi.com>
+In-Reply-To: <42D3FDF5.4090501@travellingkiwi.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-13 at 12:56 +0200, Jan Engelhardt wrote:
-> >> since the symbol inter_module_get cannot be resolved,
-> >> applying this patch will make those modules work again.
-> >
-> >There's a reason you shouldn't use it, and because of that it's
-> >not exported.
-> 
-> Oh BTW, while we're at it: With what should I replace inter_module_get? I'm 
-> maintaining an "ancient-sufficient" nvidia driver for myself that uses it in 
-> one or two places.
+Hamish Marson wrote:
+> I just installed Gentoo distribution on a new PC for a friend who's
+> new to Linux, and discovered that although SysKonnect kindly provide
+> full source code drivers for their various products on their website,
+> that even the latest released kernel sources (i.e. 2.6.12) still don't
+> support the device on this motherboard (Along with a whole host of
+> other PCI id's that appear in the syskonnect sources).
 
-if it does that to talk to agp you have to remove it since the agp side
-of things isn't there anymore since several kernel releases.
+Gentoo 2.6.12 kernels provide the skge driver which supports this hardware (I
+believe). skge will be included in mainline 2.6.13.
 
+> I've logged a bug on gentoo.org about it, but thought I'd ask, if
+> there's any reason that the syskonnect (sk98lin) drivers are so back
+> leve in the kernel sources when syskonnect seem to have published the
+> drivers for so many more of their devices in source...
 
+The driver updates that syskonnect released are ugly and have been rejected by
+the network driver maintainers. skge was written as a response to this.
+
+The very latest sk98lin updates add support for the new Yukon-II PCI-express
+adapters. These are not supported by skge -- the Yukon-II is very different
+and will eventually be supported by a separate driver. The techniques which
+sk98lin uses to support two vastly different network chipsets (yukon/yukon-II)
+in the same driver are generally not accepted in the kernel.
+
+Daniel

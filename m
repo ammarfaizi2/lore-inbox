@@ -1,74 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbVGMRgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVGMRxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbVGMRgz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 13:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVGMReY
+	id S262158AbVGMRxk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 13:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVGMRvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:34:24 -0400
-Received: from mta02.mail.t-online.hu ([195.228.240.51]:7405 "EHLO
-	mta02.mail.t-online.hu") by vger.kernel.org with ESMTP
-	id S262064AbVGMRdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:33:06 -0400
-Subject: [PATCH 18/19] Kconfig I18N: LKC: whitespace removing
-From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Massimo Maiurana <maiurana@inwind.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       KernelFR <kernelfr@traduc.org>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-In-Reply-To: <1121273456.2975.3.camel@spirit>
-References: <1121273456.2975.3.camel@spirit>
+	Wed, 13 Jul 2005 13:51:11 -0400
+Received: from loon.tech9.net ([69.20.54.92]:15759 "EHLO loon.tech9.net")
+	by vger.kernel.org with ESMTP id S261919AbVGMRtN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 13:49:13 -0400
+Subject: [patch 3/3] inotify: misc cleanup
+From: Robert Love <rlove@rlove.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Wed, 13 Jul 2005 19:33:04 +0200
-Message-Id: <1121275984.2975.49.camel@spirit>
+Date: Wed, 13 Jul 2005 13:48:59 -0400
+Message-Id: <1121276939.6384.29.camel@betsy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
-This patch removes unnecessary whitespaces from end of help 
-lines of Kconfig files. The size of .po files will smaller. 
-This is a compatibility fix with TLKTP's .po files.
+Real simple, basic cleanup.
 
-Signed-off-by: Egry Gabor <gaboregry@t-online.hu>
----
+Please, apply.
 
- scripts/kconfig/zconf.l |   13 ++++++++++++-
- 1 files changed, 12 insertions(+), 1 deletion(-)
+	Robert Love
 
-diff -puN scripts/kconfig/zconf.l~kconfig-i18n-18-whitespace-fix scripts/kconfig/zconf.l
---- linux-2.6.13-rc3-i18n-kconfig/scripts/kconfig/zconf.l~kconfig-i18n-18-whitespace-fix	2005-07-13 18:32:20.000000000 +0200
-+++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/kconfig/zconf.l	2005-07-13 18:32:20.000000000 +0200
-@@ -57,6 +57,17 @@ void append_string(const char *str, int 
- 	*text_ptr = 0;
+
+Signed-off-by: Robert Love <rml@novell.com>
+
+ fs/inotify.c          |    9 +++------
+ include/linux/sched.h |    2 +-
+ kernel/user.c         |    2 +-
+ 3 files changed, 5 insertions(+), 8 deletions(-)
+
+diff -urN linux-inotify/fs/inotify.c linux/fs/inotify.c
+--- linux-inotify/fs/inotify.c	2005-07-13 11:26:02.000000000 -0400
++++ linux/fs/inotify.c	2005-07-13 11:41:25.000000000 -0400
+@@ -29,8 +29,6 @@
+ #include <linux/mount.h>
+ #include <linux/namei.h>
+ #include <linux/poll.h>
+-#include <linux/device.h>
+-#include <linux/miscdevice.h>
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/writeback.h>
+@@ -936,7 +934,7 @@
+ 
+ 	dev = filp->private_data;
+ 
+-	ret = find_inode ((const char __user*)path, &nd);
++	ret = find_inode((const char __user*) path, &nd);
+ 	if (ret)
+ 		goto fput_and_out;
+ 
+@@ -993,8 +991,9 @@
+ 	if (!filp)
+ 		return -EBADF;
+ 	dev = filp->private_data;
+-	ret = inotify_ignore (dev, wd);
++	ret = inotify_ignore(dev, wd);
+ 	fput(filp);
++
+ 	return ret;
  }
  
-+void append_helpstring(const char *str, int size)
-+{
-+	while (size) {
-+		if ((str[size-1] != ' ') && (str[size-1] != '\t'))
-+			break;
-+		size--;
-+	}
-+
-+	append_string (str, size);
-+}
-+
- void alloc_string(const char *str, int size)
- {
- 	text = malloc(size + 1);
-@@ -225,7 +236,7 @@ n	[A-Za-z0-9_]
- 		append_string("\n", 1);
- 	}
- 	[^ \t\n].* {
--		append_string(yytext, yyleng);
-+		append_helpstring(yytext, yyleng);
- 		if (!first_ts)
- 			first_ts = last_ts;
- 	}
-_
+@@ -1034,8 +1033,6 @@
+ 					 sizeof(struct inotify_kernel_event),
+ 					 0, SLAB_PANIC, NULL, NULL);
+ 
+-	printk(KERN_INFO "inotify syscall\n");
+-
+ 	return 0;
+ }
+ 
 
 

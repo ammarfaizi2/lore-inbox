@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262780AbVGMUwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262718AbVGMUtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262780AbVGMUwO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 16:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbVGMUwJ
+	id S262718AbVGMUtm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 16:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVGMUsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 16:52:09 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:37611 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262443AbVGMUuX convert rfc822-to-8bit
+	Wed, 13 Jul 2005 16:48:43 -0400
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:749 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S262768AbVGMUDg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 16:50:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=J0TmmwMKMPa9t8ODBuu+JP8TtcvPctgE3GAjIFVIec0xrpQRqftRMOUdFlPTdUC2OUsXiSBcogsIQDlZCZE1tCmK1ensSujD0HupohZybeRYntvP9PuF95CmPT0CEmtM0vwUGFdsjzjjmUYIZXbEJl8XfsvFCosZd9L5eGG5CsM=
-Message-ID: <658687d305071313494faeb53f@mail.gmail.com>
-Date: Wed, 13 Jul 2005 22:49:26 +0200
-From: Rafi Kosot <rafi972@gmail.com>
-Reply-To: Rafi Kosot <rafi972@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Aliased interfaces and binded sockets
+	Wed, 13 Jul 2005 16:03:36 -0400
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: dtor_core@ameritech.net, Lee Revell <rlrevell@joe-job.com>,
+       Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       David Lang <david.lang@digitalinsight.com>,
+       Bill Davidsen <davidsen@tmr.com>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Diego Calleja <diegocg@gmail.com>, azarah@nosferatu.za.org,
+       akpm@osdl.org, cw@f00f.org, christoph@lameter.com
+In-Reply-To: <341450000.1121283227@flay>
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	 <200507122239.03559.kernel@kolivas.org>
+	 <200507122253.03212.kernel@kolivas.org> <42D3E852.5060704@mvista.com>
+	 <20050712162740.GA8938@ucw.cz> <42D540C2.9060201@tmr.com>
+	 <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
+	 <20050713184227.GB2072@ucw.cz>
+	 <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org>
+	 <1121282025.4435.70.camel@mindpipe>
+	 <d120d50005071312322b5d4bff@mail.gmail.com>  <341450000.1121283227@flay>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1121284955.4999.501.camel@cmn37.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 Jul 2005 13:02:35 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a few aliased interfaces defined on my eth device (eth0:0,
-eth0:1, etc.) each alias has a different ip address.
-I noticed, that when binding a socket to an ip address (with port=0 -
-"don't care"), for outgoing connection, the port number allocated to
-the different ip address are distinct (i.e. no overlap). More than
-that - when the number of connection exceeds ~60K (in total over all
-the aliased interfaces) I get an error EADDRINUSE, though on each one
-of the aliased interfaces the number of connections is less than
-10,000. It seems like all the aliased interfaces are actually
-considered as a single interface!
-I looked for the problem in inet section of the kernel, specifically
-the function tcp_v4_get_port(..), which is responsible for port
-allocation when binding with port=0. Ss far as I understand the ports
-are allocated regardless of the interface involved. In other words -
-only 64K tcp enpoints are possible, over all interfaces. Is this true?
-Has someone noticed the phenomena? Is it possible to bind more than
-64K ports over different aliased interfaces?
-(Just for the record, I used ulimit -n 128000 so there's no ulimit
-problem here).
+On Wed, 2005-07-13 at 12:33, Martin J. Bligh wrote:
+> --On Wednesday, July 13, 2005 14:32:02 -0500 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > Hi,
+> > 
+> > On 7/13/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> >> On Wed, 2005-07-13 at 12:10 -0700, Linus Torvalds wrote:
+> >> > So we should aim for a HZ value that makes it easy to convert to and from
+> >> > the standard user-space interface formats. 100Hz, 250Hz and 1000Hz are all
+> >> > good values for that reason. 864 is not.
+> >> 
+> >> How about 500?  This might be good enough to solve the MIDI problem.
+> >> 
+> > 
+> > I would expect number of laptop users significatly outnumber ones
+> > driving MIDI so as a default entry 250 makes more sense IMHO.
+> 
+> Could someone actually test it, rather than randomly guessing? ;-)
 
-thanks, Rafi
+A Midi NoteOn command (ie: the equivalent of pressing a note on a
+musical keyboard) transmitted through a physical Midi interface is
+around 1 millisecond long with no running status, or 0.64 msec long with
+running status going on (that means one note in between other note
+on's)[*]. 
+
+Scheduling of midi output should rely on a timing source that has a
+better timing resolution than that. So, HZ=1000 let's us sort of
+correctly schedule note-on (and similar sized events). It already
+introduces jitter in two byte critical messages like MTC (Midi Time
+code) Quarter Frame messages.
+
+-- Fernando
+
+[*] basic midi bit rate is 31250, one midi byte is 10 bits long,
+commands can be one, two, three or more bytes long. Midi commands are
+made of one status byte and optional data bytes, the status byte can be
+ommited on multibyte messages for consecutive messages that are of the
+same type (called "running status"). Real time commands such as Midi
+Clock can be sent at any time, even in the middle of an already ongoing
+midi message. 
+
+

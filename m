@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262757AbVGMUmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbVGMUoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262757AbVGMUmN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 16:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbVGMUmA
+	id S262791AbVGMUoO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 16:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVGMUjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 16:42:00 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:9607 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262757AbVGMUkQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 16:40:16 -0400
-Subject: Re: supporting functions missing from inotify patch
-From: Robert Love <rml@novell.com>
-To: Steve French <smfltc@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1121286081.5555.73.camel@stevef95.austin.ibm.com>
-References: <1121286081.5555.73.camel@stevef95.austin.ibm.com>
-Content-Type: text/plain
-Date: Wed, 13 Jul 2005 16:39:49 -0400
-Message-Id: <1121287189.6384.57.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Jul 2005 16:39:23 -0400
+Received: from quechua.inka.de ([193.197.184.2]:21993 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262794AbVGMUiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 16:38:10 -0400
+From: "Andreas Jellinghaus [c]" <aj@dungeon.inka.de>
+Subject: Re: initramfs [u]
+To: linux-kernel@vger.kernel.org
+Mail-Copies-To: aj@dungeon.inka.de
+Date: Wed, 13 Jul 2005 22:38:26 +0200
+References: <200507131206.44537.vacant2005@o2.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20050713203801.57A4E20E93@dungeon.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-13 at 15:21 -0500, Steve French wrote:
+Jacek Jab?o?ski wrote:
+> Do You know any tool to create initramfs (not initrd)?
 
-> I did not think that inotify_add_watch called dir_notify.  I don't see a path in which 
-> calls to add a new inotify watch end up in a call to fcntl_dirnotify or file->dir_notify 
-> This is for the case in which an app only calls inotify ioctl - ie does not [also] do a call 
-> to dnotify. 
+that is very easy:
+create a directory tree with everything you want in it
+(for example ld.so, a libc, some applications and
+config files and scripts and device files and whatever)
+and then use cpio to pack the files and directories
+into a cpio archive. gzip if you want.
 
-No, you are right, they do not, right now.
+cpio has several formats, be sure to choose the right
+one. more information in 
 
-Is dir_notify suitable for inotify and your uses?  In the 10 months of
-inotify development, I had hoped that a remote filesystem developer
-would add support so we could test it.  But there is no rush to get this
-hook added, so its okay.
+Documentation/early-userspace/*
 
-The problem with dir_notify is that the args parameter is dnotify flags.
-Those don't map directly to inotify flags.
+btw: most people want initrd/initramfs etc. with some
+small libc (klibc, dietlibc etc.). But normal libcs
+works very fine as well. I have some initramfs that
+are build from a few dozend debian packages. the result
+is a few hundred mb big (uncompressed), but that is ok
+as I can load and boot it via network and it works
+great and has all the normal linux tools in it.
 
-What I'd like is
+also see the klibc mailing list, there have been several
+discussions about initramfs and I posted example code
+there I think. so look at the archives, too.
 
-	(a) a patch adding the requisite inotify hook (really, 4 lines)
-	(b) a filesystem successfully using the hook
-
-> Without such a call - an app that does your new ioctl to add a watch on a file or directory will
-> not cause the network/cluster fs to turn on notification on the server since the watch
-> will be not seen by the client filesystem.
-
-It is a system call, now.  ;-)
-
-> OK - you exported a common underlying function
-> 	inotify_inode_queue_event
-> under the inline functions which the network/cluster fs would call to notify of remote changes.
-> That makes sense. I had missed that.
-
-Nod.
-
-	Robert Love
-
-
+Regards, Andreas

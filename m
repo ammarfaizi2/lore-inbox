@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbVGMPdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVGMPkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262681AbVGMPdn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 11:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbVGMPdn
+	id S262668AbVGMPkO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 11:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbVGMPkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 11:33:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53217 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262681AbVGMPdl (ORCPT
+	Wed, 13 Jul 2005 11:40:14 -0400
+Received: from relay03.pair.com ([209.68.5.17]:34318 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S262668AbVGMPkM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 11:33:41 -0400
-Message-ID: <42D5340A.7060002@redhat.com>
-Date: Wed, 13 Jul 2005 11:32:26 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
-X-Accept-Language: en-us, en
+	Wed, 13 Jul 2005 11:40:12 -0400
+X-pair-Authenticated: 24.126.76.52
+Message-ID: <42D533B0.5090400@kegel.com>
+Date: Wed, 13 Jul 2005 08:30:56 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/4.0 (compatible;MSIE 5.5; Windows 98)
+X-Accept-Language: en, de-de
 MIME-Version: 1.0
-To: "Vlad C." <vladc6@yahoo.com>
-CC: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux On-Demand Network Access (LODNA)
-References: <20050712234425.55899.qmail@web54409.mail.yahoo.com>
-In-Reply-To: <20050712234425.55899.qmail@web54409.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Dan Kegel <dank@kegel.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_ALPHA_GENERIC problem with gcc-4.1
+References: <42D27DAA.3040202@kegel.com>
+In-Reply-To: <42D27DAA.3040202@kegel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vlad C. wrote:
+Dan Kegel wrote:
+> I've been doing builds of linux-2.6.11 as a sanity check
+> for new versions of gcc, and a problem just popped up
+> in arch/alpha/Makefile (see 
+> http://gcc.gnu.org/ml/gcc/2005-07/msg00397.html)
 
->--- Hans Reiser <reiser@namesys.com> wrote:
->  
->
->>Please treat at greater length how your proposal
->>differs from NFS.
->>    
->>
->
->I think NFS is not flexible enough because:
->
->1) NFS requires synchronization of passwd files or
->NIS/LDAP to authenticate users (which themselves
->require root access on both server and client to
->install)
->2) NFS by definition understands only its own network
->protocol.
->3) NFS requires root privileges on the client to
->mount. I'm not aware of a way to let normal users
->mount an NFS partition other than listing it in the
->client's fstab and adding the 'users' option... but
->then changing fstab still requires root access.
->4) Users have to contact their sysadmin every time
->they want to mount a different partition, a different
->subdirectory of the same partition, or if they want to
->change the local mountpoint, all because the partition
->and mountpoint are hard-coded in fstab.
->
->On the other hand, I envision the following:
->
+Never mind.  rth kindly explained to me that
+it's a gcc or binutils problem.
+The alpha kernel compiles in instructions
+for ev6 machines even when building for generic/ev5,
+and then uses them at runtime only if it
+detects that it's safe.
+- Dan
 
-Please keep in mind that these are restrictions of the current NFS
-implementation and are not inherent in an NFS solution.
-
-The implied need for flexibility is being addressed by NFSv4 and the
-ability to understand multiple versions of protocols and multiple
-protocols is already resident in the system.  We could do some work
-to make it more transparent if desired, but it already works.
-
-    Thanx...
-
-       ps
+-- 
+Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html

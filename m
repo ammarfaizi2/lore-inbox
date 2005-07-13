@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVGMRzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVGMR6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVGMRzo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 13:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVGMRxz
+	id S261525AbVGMR6p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 13:58:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVGMRzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:53:55 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:54697 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262155AbVGMRwD (ORCPT
+	Wed, 13 Jul 2005 13:55:50 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9633 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262205AbVGMRxl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:52:03 -0400
-Message-Id: <200507131751.j6DHpkBE016946@laptop11.inf.utfsm.cl>
-To: Nicholas Hans Simmonds <nhstux@gmail.com>
-cc: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org,
-       "Andrew G. Morgan" <morgan@transmeta.com>,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH] Filesystem capabilities support 
-In-Reply-To: Message from Nicholas Hans Simmonds <nhstux@gmail.com> 
-   of "Wed, 13 Jul 2005 07:29:55 +0100." <20050713062955.GA1609@laptop> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Wed, 13 Jul 2005 13:51:46 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 13 Jul 2005 13:51:47 -0400 (CLT)
+	Wed, 13 Jul 2005 13:53:41 -0400
+Date: Wed, 13 Jul 2005 10:52:16 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-os@analogic.com, kaber@trash.net, vda@ilport.com.ua,
+       sander@humilis.net, mst@mellanox.co.il, linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space
+Message-Id: <20050713105216.08c1d359.pj@sgi.com>
+In-Reply-To: <1121275324.4435.41.camel@mindpipe>
+References: <20050711145616.GA22936@mellanox.co.il>
+	<20050711153447.GA19848@favonius>
+	<200507120952.04279.vda@ilport.com.ua>
+	<42D3AFA1.2090203@trash.net>
+	<Pine.LNX.4.61.0507120809200.2712@chaos.analogic.com>
+	<20050712235804.0b994a78.pj@sgi.com>
+	<1121275324.4435.41.camel@mindpipe>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.6.4; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas Hans Simmonds <nhstux@gmail.com> wrote:
-> Sorry, my earlier reply seems to have gotten lost somewhere. I've been
-> pondering this issue for some time and am still not sure what's the best
-> answer. I've attached a small patch which handles this by detecting byte
-> swapping of the version code. I'm not convinced it's necessary but
-> shouldn't hurt.
-> 
-> diff --git a/security/commoncap.c b/security/commoncap.c
-> --- a/security/commoncap.c
-> +++ b/security/commoncap.c
-> @@ -153,6 +153,15 @@ int cap_bprm_set_security (struct linux_
->  	down(&bprm_dentry->d_inode->i_sem);
->  	ret = bprm_getxattr(bprm_dentry,XATTR_CAP_SET,&caps,sizeof(caps));
->  	if(ret == sizeof(caps)) {
-> +		if(caps.version = swab32(_LINUX_CAPABILITY_VERSION)) {
-                                ^
-				|
-				+-- Surely wrong?!
+Lee wrote:
+> I don't think there's a strict 80 column rule anymore.  It's 2005...
 
-> +			swab32s(&caps.version);
-> +			swab32s(&caps.effective);
-> +			swab32s(&caps.mask_effective);
-> +			swab32s(&caps.permitted);
-> +			swab32s(&caps.mask_permitted);
-> +			swab32s(&caps.inheritable);
-> +			swab32s(&caps.mask_inheritable);
-> +		}
->  		if(caps.version == _LINUX_CAPABILITY_VERSION) {
->  			cap_t(bprm->cap_effective) &= caps.mask_effective;
->  			cap_t(bprm->cap_effective) |= caps.effective;
+Look back through the lkml archives.  One will find repeated requests
+to keep code within 80 columns.  It maybe 2005, but this is the kernel.
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

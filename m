@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVGMTdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbVGMVBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262576AbVGMTdo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 15:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVGMTbk
+	id S262720AbVGMVBg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 17:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbVGMU7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 15:31:40 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:2052 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S262617AbVGMTKp (ORCPT
+	Wed, 13 Jul 2005 16:59:09 -0400
+Received: from mail.kroah.org ([69.55.234.183]:38067 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262769AbVGMU5g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 15:10:45 -0400
-Date: Wed, 13 Jul 2005 15:09:27 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Greg KH <gregkh@suse.de>
-Cc: kjhall@us.ibm.com, bjorn.helgaas@hp.com, tpmdd-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [06/11] tpm breaks 8139cp
-Message-ID: <20050713190924.GA19577@tuxdriver.com>
-Mail-Followup-To: Greg KH <gregkh@suse.de>, kjhall@us.ibm.com,
-	bjorn.helgaas@hp.com, tpmdd-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org, stable@kernel.org,
-	Justin Forbes <jmforbes@linuxtx.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Theodore Ts'o <tytso@mit.edu>,
-	"Randy.Dunlap" <rdunlap@xenotime.net>,
-	Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-	akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-References: <20050713184130.GA9330@kroah.com> <20050713184341.GH9330@kroah.com>
+	Wed, 13 Jul 2005 16:57:36 -0400
+Date: Wed, 13 Jul 2005 13:53:16 -0700
+From: Greg KH <greg@kroah.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb mass storage bug
+Message-ID: <20050713205316.GA16238@kroah.com>
+References: <20050711203047.39437.qmail@web33113.mail.mud.yahoo.com> <mailman.1121138161.21500.linux-kernel2news@redhat.com> <20050712225013.2e66d0fc.zaitcev@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050713184341.GH9330@kroah.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050712225013.2e66d0fc.zaitcev@redhat.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 11:43:41AM -0700, Greg KH wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
+On Tue, Jul 12, 2005 at 10:50:13PM -0700, Pete Zaitcev wrote:
+> On Mon, 11 Jul 2005 20:09:58 -0700, Greg KH <greg@kroah.com> wrote:
+> > On Mon, Jul 11, 2005 at 01:30:47PM -0700, Joe Sevy wrote:
+> > > Sorry, no logs or dmesg to report; just performance.
+> > > Using kernel 2.6.12: USB flash drive (san-disk cruzer
+> > > micro) Copy FROM drive is normal and quick; copy TO
+> > > drive is amazingly slow. (30 minutes for 50K file).
+> > > Used same configuration as for 2.6.11.11. Cured by
+> > > going back to old kernel.
+> > 
+> > Are you using CONFIG_UB or CONFIG_USB_STORAGE?
 > 
-> ------------------
-> 
-> A problem was reported that the tpm driver was interfereing with
-> networking on the 8139 chipset.  The tpm driver was using a hard coded
+> Please, Greg. I knew that someone will try to implicate ub here, but you?
 
-ACK...this looks very similar to a patch I got from Kylene for fixing
-this same issue when it showed-up in FC4.
+Heh, sorry, I didn't really pay attention for the time ammounts, only
+that he reported things slower.
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+You are right, ub isn't _that_ slow at all, I use it all the time on
+some of my devices just fine.
+
+thanks,
+
+greg k-h

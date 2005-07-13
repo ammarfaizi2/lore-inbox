@@ -1,125 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbVGMEvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVGMEzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbVGMEvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 00:51:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVGMEvX
+	id S262571AbVGMEzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 00:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbVGMEzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 00:51:23 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:62858 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262577AbVGMEvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 00:51:21 -0400
-Date: Tue, 12 Jul 2005 21:51:02 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       prasanna@in.ibm.com
-Subject: Re: [PATCH]Kprobes IA64 - Fix race when break hits and kprobe not found
-Message-ID: <20050712215101.A9616@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20050712185230.A8528@unix-os.sc.intel.com> <20050712190231.789da83c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050712190231.789da83c.akpm@osdl.org>; from akpm@osdl.org on Tue, Jul 12, 2005 at 07:02:31PM -0700
+	Wed, 13 Jul 2005 00:55:25 -0400
+Received: from web32011.mail.mud.yahoo.com ([68.142.207.108]:2921 "HELO
+	web32011.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S262571AbVGMEzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 00:55:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=V1yPtcmJlSw55WmK2RBrKip+rYEMV918MRxaWQwyXPtspcuMnfVYEw67QdstZx/VWCUuT/ZhRYaI38fCfexmjiffEHh9mwwTUkf90Pt+xKRDhg+8Vjbii2NwRsvLi7d5smUGfiBa/2Ac5SwM2vEKJonZTWvQ7DNaCjAk20IXTec=  ;
+Message-ID: <20050713045522.99423.qmail@web32011.mail.mud.yahoo.com>
+Date: Tue, 12 Jul 2005 21:55:22 -0700 (PDT)
+From: Sam Song <samlinuxkernel@yahoo.com>
+Subject: Re: [patch 2.6.13-git] 8250 tweaks
+To: Russell King <rmk+lkml@arm.linux.org.uk>, david-b@pacbell.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050712130119.A30358@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 07:02:31PM -0700, Andrew Morton wrote:
-> Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
-> >
-> > This patch applies on top of  "Prasanna S Panchamukhi's" recent postings
-> >  Kprobes: Prevent possible race condition ia64 changes
-> 
-> I am not aware of such a patch.  Your patch hit a reject when I tried to
-> apply it to Linus's tree.  So I don't know what's going on..
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+[snip]
+> It works for me on my platforms here, and everyone
+> else on x86. I even had a situation where I had
+> NR_UARTS set to 64 but only one registered... which 
+> also worked fine with no extraneous kernel messages.
 
-Andrew,
-	This should apply cleanly ontop of Linus's tree.
+But seems not functional on PowerPC platform. I used
+a MPC8241 which has a DURT inside to try the git tree
+8250.c and got the following result:
 
-----------------------------------------------------------
-This patch addresses a potential race condition for a case where
-Kprobe has been removed right after another CPU has taken
-a break hit.
+u-boot=> run kt
+Please enter 'kernel-test':uImage-26-13
+TFTP from server 192.168.57.200; our IP address is
+192.168.57.243
+Filename 'uImage-26-13'.
+Load address: 0x1200000
+Loading: ###########################################
+        
+####################################################
+done
+Bytes transferred = 858760 (d1a88 hex)
+## Booting image at 01200000 ...
+   Image Name:   Linux-2.6.13-rc1
+   Image Type:   PowerPC Linux Kernel Image (gzip
+compressed)
+   Data Size:    858696 Bytes = 838.6 kB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Uncompressing Kernel Image ... OK
+## Loading RAMDisk Image at ff950000 ...
+   Image Name:   Ramdisk ttyS1
+   Image Type:   PowerPC Linux RAMDisk Image (gzip
+compressed)
+   Data Size:    1478758 Bytes =  1.4 MB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Loading Ramdisk to 03dde000, end 03f47066 ... OK
+Linux version 2.6.13-rc1 (root@sam.shu.org) (gcc
+version 3.2.2 20030217 (Yellow Dog Linux 3.0 3.2.2-5
+......
+Built 1 zonelists
+Kernel command line: console=ttyS1,115200
+root=/dev/ram0 rw ramdisk_size=200000
+ip=192.168.57.243:192.168.57.200:::8241:eth1
+OpenPIC Version 1.2 (1 CPUs and 7 IRQ sources) at 
+fdf40000
+OpenPIC timer frequency is 100.000000 MHz
+PID hash table entries: 512 (order: 9, 8192 bytes)
+time_init: decrementer frequency = 25.000000 MHz
+Dentry cache hash table entries: 16384 (order: 4,
+65536 bytes)
+Inode-cache hash table entries: 8192 (order: 3, 32768
+bytes)
+Memory: 61268k available (1548k kernel code, 388k
+data, 104k init, 0k highmem)
+Mount-cache hash table entries: 512
+checking if image is initramfs...it isn't (no cpio
+magic); looks like an initrd
+Freeing initrd memory: 1444k freed
+NET: Registered protocol family 16
+PCI: Probing PCI hardware
+PCI: Cannot allocate resource region 1 of device
+0000:00:00.0
+VFS: Disk quotas dquot_6.5.1
+Dquot-cache hash table entries: 1024 (order 0, 4096 
+bytes)
+Installing knfsd (copyright (C) 1996 
+okir@monad.swb.de).
+Serial: 8250/16550 driver $Revision: 1.90 $ 2 ports,
+IRQ sharing disabled
+ttyS0 at MMIO 0x0 (irq = 5) is a 16550A
+ttyS1 at MMIO 0x0 (irq = 6) is a 16550A
+serial8250 serial8250.0: unable to register port at
+index 0 (IO0 MEMfdf04500 IRQ25): -22
+serial8250 serial8250.0: unable to register port at
+index 1 (IO0 MEMfdf04600 IRQ26): -22
+io scheduler noop registered
+RAMDISK driver initialized: 16 RAM disks of 200000K
+size 1024 blocksize
+PPP generic driver version 2.4.2
+PPP Deflate Compression module registered
+PPP BSD Compression module registered
+......
+TCP reno registered
+TCP bic registered
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+IP-Config: Device `eth0' not found.
+RAMDISK: Compressed image found at block 0
+VFS: Mounted root (ext2 filesystem).
+Freeing unused kernel memory: 104k init
+serial console detected.  Disabling virtual terminals.
+### Application running ...
 
-The way this is addressed here is when the CPU that has taken a break hit
-does not find its corresponding kprobe, then we check to see if the
-original instruction got replaced with other than break. If it got
-replaced with other than break instruction, then we continue to execute
-from the replaced instruction, else if we find that it is still a break, then
-we let the kernel handle this, as this might be the break instruction inserted by
-other than kprobe(may be kernel debugger).
+BusyBox v0.60.1 (2002.10.24-04:52+0000) Built-in 
+shell (msh)
+Enter 'help' for a list of built-in commands.
 
-This patch applies on top of  "Prasanna S Panchamukhi's" recent postings
-Kprobes: Prevent possible race condition ia64 changes
+# cat /proc/interrupts
+           CPU0
+  6:         39   OpenPIC   Level     serial
+BAD:          3
 
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-=======================================================================
- arch/ia64/kernel/kprobes.c |   45 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 45 insertions(+)
+The whining is a little bit different from david's.
+ttyS1 conosle was a workable one but ttyS1 didn't 
+register right??? After applied David's patch, it 
+became normal as before like 2.6.12-rc2 did. 
 
-Index: linux-2.6.13-rc2-mm2/arch/ia64/kernel/kprobes.c
-===================================================================
---- linux-2.6.13-rc2-mm2.orig/arch/ia64/kernel/kprobes.c
-+++ linux-2.6.13-rc2-mm2/arch/ia64/kernel/kprobes.c
-@@ -545,6 +545,38 @@ static void prepare_ss(struct kprobe *p,
- 	ia64_psr(regs)->ss = 1;
- }
- 
-+static int is_ia64_break_inst(struct pt_regs *regs)
-+{
-+	unsigned int slot = ia64_psr(regs)->ri;
-+	unsigned int template, major_opcode;
-+	unsigned long kprobe_inst;
-+	unsigned long *kprobe_addr = (unsigned long *)regs->cr_iip;
-+	bundle_t bundle;
-+
-+	memcpy(&bundle, kprobe_addr, sizeof(bundle_t));
-+	template = bundle.quad0.template;
-+
-+	/* Move to slot 2, if bundle is MLX type and kprobe slot is 1 */
-+ 	if (slot == 1 && bundle_encoding[template][1] == L)
-+   		slot++;
-+
-+	/* Get Kprobe probe instruction at given slot*/
-+	get_kprobe_inst(&bundle, slot, &kprobe_inst, &major_opcode);
-+
-+ 	/* For break instruction,
-+ 	 * Bits 37:40 Major opcode to be zero
-+	 * Bits 27:32 X6 to be zero
-+	 * Bits 32:35 X3 to be zero
-+	 */
-+	if (major_opcode || ((kprobe_inst >> 27) & 0x1FF) ) {
-+		/* Not a break instruction */
-+		return 0;
-+	}
-+
-+ 	/* Is a break instruction */
-+	return 1;
-+}
-+
- static int pre_kprobes_handler(struct die_args *args)
- {
- 	struct kprobe *p;
-@@ -592,6 +624,19 @@ static int pre_kprobes_handler(struct di
- 	p = get_kprobe(addr);
- 	if (!p) {
- 		unlock_kprobes();
-+		if (!is_ia64_break_inst(regs)) {
-+			/*
-+			 * The breakpoint instruction was removed right
-+			 * after we hit it.  Another cpu has removed
-+			 * either a probepoint or a debugger breakpoint
-+			 * at this address.  In either case, no further
-+			 * handling of this interrupt is appropriate.
-+			 */
-+			ret = 1;
-+
-+		}
-+
-+		/* Not one of our break, let kernel handle it */
- 		goto no_kprobe;
- 	}
- 
+So my puzzle comes to know why ttyS1 cannot register
+right even it works well.
+
+TTA,
+
+Sam
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

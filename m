@@ -1,83 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVGMRXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbVGMXny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVGMRXj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 13:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVGMRVd
+	id S262826AbVGMXny (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 19:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVGMXki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:21:33 -0400
-Received: from mta02.mail.t-online.hu ([195.228.240.51]:29942 "EHLO
-	mta02.mail.t-online.hu") by vger.kernel.org with ESMTP
-	id S261166AbVGMRSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:18:37 -0400
-Subject: [PATCH 8/19] Kconfig I18N: gconfig: GUI
-From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Massimo Maiurana <maiurana@inwind.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       KernelFR <kernelfr@traduc.org>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-In-Reply-To: <1121273456.2975.3.camel@spirit>
-References: <1121273456.2975.3.camel@spirit>
-Content-Type: text/plain
-Date: Wed, 13 Jul 2005 19:18:29 +0200
-Message-Id: <1121275109.2975.27.camel@spirit>
+	Wed, 13 Jul 2005 19:40:38 -0400
+Received: from florence.buici.com ([206.124.142.26]:15542 "HELO
+	florence.buici.com") by vger.kernel.org with SMTP id S262829AbVGMXi4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 19:38:56 -0400
+Date: Wed, 13 Jul 2005 16:38:54 -0700
+From: Marc Singer <elf@buici.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space
+Message-ID: <20050713233854.GA32560@buici.com>
+References: <20050711145616.GA22936@mellanox.co.il> <20050711153447.GA19848@favonius> <200507120952.04279.vda@ilport.com.ua> <42D3AFA1.2090203@trash.net> <Pine.LNX.4.61.0507120809200.2712@chaos.analogic.com> <20050712235804.0b994a78.pj@sgi.com> <1121275324.4435.41.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1121275324.4435.41.camel@mindpipe>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 13, 2005 at 01:22:04PM -0400, Lee Revell wrote:
+> On Tue, 2005-07-12 at 23:58 -0700, Paul Jackson wrote:
+> > Dick Johnson wrote:
+> > > Or just disallow tabs altogether. At Analogic we ...
+> > 
+> > This is the Linux kernel, not Analogic.
+> > 
+> > We use tabs for indentation.  You can set the number
+> > of physical spaces per tab however you want in your
+> > editor, but it had better look good (and stay within
+> > 80 columns)
+> 
+> I don't think there's a strict 80 column rule anymore.  It's 2005...
 
-I18N support for menu and toolbar.
-
-Signed-off-by: Egry Gabor <gaboregry@t-online.hu>
----
-
- scripts/kconfig/Makefile    |    7 +++++--
- scripts/kconfig/POTFILES.in |    1 +
- 2 files changed, 6 insertions(+), 2 deletions(-)
-
-diff -puN scripts/kconfig/POTFILES.in~kconfig-i18n-08-gconfig-gui scripts/kconfig/POTFILES.in
---- linux-2.6.13-rc3-i18n-kconfig/scripts/kconfig/POTFILES.in~kconfig-i18n-08-gconfig-gui	2005-07-13 18:32:17.000000000 +0200
-+++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/kconfig/POTFILES.in	2005-07-13 18:32:17.000000000 +0200
-@@ -10,4 +10,5 @@ scripts/kconfig/mconf.c
- scripts/kconfig/conf.c
- scripts/kconfig/confdata.c
- scripts/kconfig/gconf.c
-+scripts/kconfig/gconf.glade.h
- scripts/kconfig/qconf.cc
-diff -puN scripts/kconfig/Makefile~kconfig-i18n-08-gconfig-gui scripts/kconfig/Makefile
---- linux-2.6.13-rc3-i18n-kconfig/scripts/kconfig/Makefile~kconfig-i18n-08-gconfig-gui	2005-07-13 18:32:17.000000000 +0200
-+++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/kconfig/Makefile	2005-07-13 18:32:17.000000000 +0200
-@@ -29,7 +29,7 @@ silentoldconfig: $(obj)/conf
- 	$(Q)sh $(obj)/set_locale.sh
- 	$< -s arch/$(ARCH)/Kconfig
- 
--update-po-config: $(obj)/kxgettext
-+update-po-config: $(obj)/kxgettext $(obj)/gconf.glade.h
- 	xgettext --default-domain=linux \
-           --add-comments --keyword=_ --keyword=N_ \
-           --files-from=scripts/kconfig/POTFILES.in \
-@@ -108,7 +108,8 @@ gconf-objs	:= gconf.o kconfig_load.o zco
- endif
- 
- clean-files	:= lkc_defs.h qconf.moc .tmp_qtcheck \
--		   .tmp_gtkcheck zconf.tab.c zconf.tab.h lex.zconf.c
-+		   .tmp_gtkcheck zconf.tab.c zconf.tab.h lex.zconf.c \
-+		   gconf.glade.h
- 
- # generated files seem to need this to find local include files
- HOSTCFLAGS_lex.zconf.o	:= -I$(src)
-@@ -201,6 +202,8 @@ $(obj)/%.moc: $(src)/%.h
- $(obj)/lkc_defs.h: $(src)/lkc_proto.h
- 	sed < $< > $@ 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
- 
-+$(obj)/gconf.glade.h: $(obj)/gconf.glade
-+	intltool-extract --type=gettext/glade $(obj)/gconf.glade
- 
- ###
- # The following requires flex/bison
-_
-
+Think again.  There are a lot of people who use 80 column windows so
+that we can see two code windows side-by-side.
 

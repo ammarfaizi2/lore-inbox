@@ -1,36 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVGMVfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262313AbVGMVfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbVGMVfv (ORCPT <rfc822;willy@w.ods.org>);
+	id S262313AbVGMVfv (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 13 Jul 2005 17:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVGMVeE
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVGMVeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 17:34:04 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:44651 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262804AbVGMVbH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 17:31:07 -0400
-Date: Wed, 13 Jul 2005 23:18:59 +0000
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Lindent: ignore .indent.pro
-Message-ID: <20050713231859.GA28514@mars.ravnborg.org>
-References: <20050713155542.GA4264@locomotive.unixthugs.org>
+	Wed, 13 Jul 2005 17:34:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22150 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262351AbVGMVbN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 17:31:13 -0400
+Date: Wed, 13 Jul 2005 14:31:07 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: usb mass storage bug
+Message-Id: <20050713143107.5af22149.zaitcev@redhat.com>
+In-Reply-To: <20050713205316.GA16238@kroah.com>
+References: <20050711203047.39437.qmail@web33113.mail.mud.yahoo.com>
+	<mailman.1121138161.21500.linux-kernel2news@redhat.com>
+	<20050712225013.2e66d0fc.zaitcev@redhat.com>
+	<20050713205316.GA16238@kroah.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050713155542.GA4264@locomotive.unixthugs.org>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 11:55:42AM -0400, Jeff Mahoney wrote:
-> 
->  When I recently submitted a Lindent patch, it turned out that my .indent.pro
->  options were also applied to the tree. This patch directs indent(1) to ignore
->  the .indent.pro directives and only use options specified on the command
->  line.
-Applied,
+On Wed, 13 Jul 2005 13:53:16 -0700, Greg KH <greg@kroah.com> wrote:
 
-	Sam
+> You are right, ub isn't _that_ slow at all, I use it all the time on
+> some of my devices just fine.
+
+Ub actually gets terribly slow when partition size is odd (for both
+reading and writing). I even have a patch for it, but it's yucky.
+Here's the original discussion:
+ http://groups-beta.google.com/group/linux.kernel/browse_frm/thread/f11b7721d7ed6d1f&hl=en
+
+-- Pete

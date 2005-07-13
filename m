@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVGMPkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262950AbVGMPll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262668AbVGMPkO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 11:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbVGMPkO
+	id S262950AbVGMPll (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 11:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbVGMPlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 11:40:14 -0400
-Received: from relay03.pair.com ([209.68.5.17]:34318 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S262668AbVGMPkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 11:40:12 -0400
-X-pair-Authenticated: 24.126.76.52
-Message-ID: <42D533B0.5090400@kegel.com>
-Date: Wed, 13 Jul 2005 08:30:56 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible;MSIE 5.5; Windows 98)
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Dan Kegel <dank@kegel.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_ALPHA_GENERIC problem with gcc-4.1
-References: <42D27DAA.3040202@kegel.com>
-In-Reply-To: <42D27DAA.3040202@kegel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Jul 2005 11:41:40 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:8248 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262950AbVGMPlH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 11:41:07 -0400
+Date: Wed, 13 Jul 2005 17:29:05 +0000
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kbuild-Packaging: Create tarballs
+Message-ID: <20050713172905.GB8860@mars.ravnborg.org>
+References: <20050524092737.GQ2417@lug-owl.de> <20050713170931.GA8860@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050713170931.GA8860@mars.ravnborg.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel wrote:
-> I've been doing builds of linux-2.6.11 as a sanity check
-> for new versions of gcc, and a problem just popped up
-> in arch/alpha/Makefile (see 
-> http://gcc.gnu.org/ml/gcc/2005-07/msg00397.html)
+On Wed, Jul 13, 2005 at 05:09:31PM +0000, Sam Ravnborg wrote:
+> On Tue, May 24, 2005 at 11:27:37AM +0200, Jan-Benedict Glaw wrote:
+> > Hi Sam!
+> > 
+> > I propose this patch for ./scripts/packag/ .  It adds tarball packaging,
+> > which I prefer for distribution. Also one of the two blanks after @echo
+> > is removed. One seems to be enough :)
+> 
+> Applied after fixing MIME damage.
+Hmm, that was my MTA that did it when I saved the patch.
 
-Never mind.  rth kindly explained to me that
-it's a gcc or binutils problem.
-The alpha kernel compiles in instructions
-for ev6 machines even when building for generic/ev5,
-and then uses them at runtime only if it
-detects that it's safe.
-- Dan
-
--- 
-Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html
+	Sam

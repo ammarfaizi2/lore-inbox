@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262695AbVGMQcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262685AbVGMQec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262695AbVGMQcz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 12:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbVGMQag
+	id S262685AbVGMQec (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 12:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbVGMQec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 12:30:36 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:21180 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262961AbVGMQ3K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 12:29:10 -0400
-Date: Wed, 13 Jul 2005 18:28:58 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: dtor_core@ameritech.net
-cc: Dmitry Torokhov <dtor@mail.ru>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Amiga joystick typo (was: Re: Input: fix open/close
- races in joystick drivers - add a semaphore)
-In-Reply-To: <d120d50005071307116fed5f0e@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0507131827190.27234@numbat.sonytel.be>
-References: <200506280052.j5S0qDQT010792@hera.kernel.org> 
- <Pine.LNX.4.62.0507131254590.5536@anakin> <d120d50005071307116fed5f0e@mail.gmail.com>
+	Wed, 13 Jul 2005 12:34:32 -0400
+Received: from web32110.mail.mud.yahoo.com ([68.142.207.124]:59299 "HELO
+	web32110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S262685AbVGMQe1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 12:34:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=MpjPcaXY4rdAwCuz6yuX0aiUU0K4ZUGJPEmTdJmnVbvlILx2PGJOcLdf8cjU0s1XTSoODAWir682ew1JhpjTHTHBPV+xC75DqBnXqLQQbHcEMkYtXin3nsS+2A3EqOhnfeXbf2uPvKsPRUxUwOTylaNJg46EspW4DSgAPI/8500=  ;
+Message-ID: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>
+Date: Wed, 13 Jul 2005 09:34:24 -0700 (PDT)
+From: Vinay Venkataraghavan <raghavanvinay@yahoo.com>
+Subject: Open source firewalls
+To: linux-crypto@nl.linux.org
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jul 2005, Dmitry Torokhov wrote:
-> On 7/13/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > On Mon, 27 Jun 2005, Linux Kernel Mailing List wrote:
-> > > tree 11d80109ddc2f61de6a75a37941346100a67a0d1
-> > > parent af246041277674854383cf91b8f0b01217b521e8
-> > > author Dmitry Torokhov <dtor_core@ameritech.net> Sun, 29 May 2005 12:29:52 -0500
-> > > committer Dmitry Torokhov <dtor_core@ameritech.net> Sun, 29 May 2005 12:29:52 -0500
-> > >
-> > > Input: fix open/close races in joystick drivers - add a semaphore
-> > >        to the ones that register more than one input device.
-> > >
-> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> > >
-> > >  drivers/input/joystick/amijoy.c     |   29 ++++++++++++++++-------------
-> > 
-> > This patch broke compilation of amijoy. Trivial fix below.
-> > 
-> 
-> Sorry about that. Question - if I were to build a cross-compiler for
-> amiga what arch is that? Right now I am "compiling" for i386 and hope
-> that I will catch some real errors in between complaints about missing
-> include files and definitions...
+Hello,
 
-That's either m68k for original Amigas, or ppc for Amigas equipped with an APUS
-(Amiga Power Up System) CPU upgrade card.
+I have implemented an bare bones Intrusion detection
+system that currently detects scans like open, bouce,
+half open etc and a host of other tcp scans.
 
-Unfortunately both of them are broken in the main tree. For m68k, our tree is
-at http://linux-m68k-cvs.ubb.ca/.
+I would like to develop this into a full blown IDS
+which is capable of detecting buffer overflow attacks,
+sql injection etc. 
 
-Gr{oetje,eeting}s,
+I know how to implement buffer overflow attacks. But
+how would an intrusion detection system detect a
+buffer overflow attack. My question is at the layer
+that the intrusion detection system operates, how will
+it know that a particular string for exmaple is liable
+to overflow a vulnerable buffer. 
 
-						Geert
+Are there other open source firewall implementations
+other than snort?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+I would apprecitate it if you could let me know.
+Thanks,
+Vinay
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Find what you need with new enhanced search. 
+http://info.mail.yahoo.com/mail_250

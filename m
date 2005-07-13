@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262402AbVGMASX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVGMAUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262402AbVGMASX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 20:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVGMASV
+	id S262530AbVGMAUz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 20:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbVGMAUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 20:18:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35207 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262409AbVGMAQV (ORCPT
+	Tue, 12 Jul 2005 20:20:54 -0400
+Received: from gate.crashing.org ([63.228.1.57]:1988 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262258AbVGMAUs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 20:16:21 -0400
-Date: Tue, 12 Jul 2005 17:16:08 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Chris Wright <chrisw@osdl.org>, "David S. Miller" <davem@davemloft.net>,
-       dsd@gentoo.org, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 netfilter: local packets marked as invalid
-Message-ID: <20050713001608.GE19052@shell0.pdx.osdl.net>
-References: <42CE8E96.1040905@trash.net> <42CEA5E4.40009@gentoo.org> <42D3B063.3000207@trash.net> <20050712.115835.42775885.davem@davemloft.net> <20050712191945.GL9153@shell0.pdx.osdl.net> <42D44A45.3040301@trash.net>
+	Tue, 12 Jul 2005 20:20:48 -0400
+Subject: Re: [PATCH 2.6.13-rc1 03/10] IOCHK interface for I/O error
+	handling/detecting
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
+       long <tlnguyen@snoqualmie.dp.intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+In-Reply-To: <20050712195120.GE26607@austin.ibm.com>
+References: <42CB63B2.6000505@jp.fujitsu.com>
+	 <42CB664E.1050003@jp.fujitsu.com>  <20050712195120.GE26607@austin.ibm.com>
+Content-Type: text/plain
+Date: Wed, 13 Jul 2005 10:18:57 +1000
+Message-Id: <1121213938.31924.406.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42D44A45.3040301@trash.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Patrick McHardy (kaber@trash.net) wrote:
-> Chris Wright wrote:
-> >* David S. Miller (davem@davemloft.net) wrote:
-> >
-> >>Now the question is what to do about the 2.6.12.x stable
-> >>tree.  I think we put the offending change there, now we
-> >>need to revert it there too.  Patrick, could you push this
-> >>patch to stable@kernel.org so we can resolve that too?
-> >
-> >There's the first fix in the queue, I can either drop that one, or
-> >patch on top of it.  Dropping what's in the queue[1] is fine for me.
-> >Below's the backport that Daniel sent over this morning (which applies
-> >if I drop what's in the queue).  Patrick, does that look ok?  I didn't
-> >queue this change yet, as I'd prefer it came either from you or with you
-> >Cc'd so you can ack it.
-> >
-> >[1] 
-> >http://www.kernel.org/git/?p=linux/kernel/git/chrisw/stable-queue.git;a=blob;h=77843604cf9af8cf5458d97eb56d5346e6d380b3;hb=9aaf5aa7c4e4b8309997d2b433bf7464280799eb;f=queue/netfilter-connection-tracking.patch
-> 
-> Daniel's patch is fine, thanks.
-> 
-> ACKed-by: Patrick McHardy <kaber@trash.net>
 
-Great, thanks.
--chris
+> Are you assuming that a device driver will use an iochk_read() for
+> every DMA operation? for every MMIO to the card?  
+> 
+> For high performance devices, it seems to me that this will cause
+> a rather large performance burden, especially if its envisioned that
+> all architectures will do something similar.
+> 
+> My concern is that (at least on ppc64) the call pci_read_config_word()
+> requires a call into "firmware" aka "BIOS", which takes thousands upon
+> thousands of cpu cycles.  There are hundreds of cycles of gratuitous
+> crud just to get into the firmware, and then lord-knows-what the
+> firmware does while its in there; probably doing all sorts of crazy
+> math to compute bus addresses and other arcane things.  I would imagine
+> that most architectures, includig ia64, are similar.
+> 
+> Thus, one wouldn't want to perform an iochk_read() in this way unless
+> one was already pretty sure that an error had already occured ... 
+> 
+> Am I misunderstanding something?
+
+I would expect pSeries not to use the "default" error checking (that
+tests the status register) but rather use EEH.
+
+Ben.
+
+

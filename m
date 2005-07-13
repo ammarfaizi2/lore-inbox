@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVGMGVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVGMG0C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbVGMGVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 02:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVGMGVQ
+	id S262509AbVGMG0C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 02:26:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVGMG0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 02:21:16 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65039 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262407AbVGMGVP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 02:21:15 -0400
-Date: Wed, 13 Jul 2005 07:21:11 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.13-rc3
-Message-ID: <20050713072111.C19871@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0507122157070.17536@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0507122157070.17536@g5.osdl.org>; from torvalds@osdl.org on Tue, Jul 12, 2005 at 10:05:00PM -0700
+	Wed, 13 Jul 2005 02:26:02 -0400
+Received: from port49.ds1-van.adsl.cybercity.dk ([212.242.141.114]:3906 "EHLO
+	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
+	id S262471AbVGMGZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 02:25:59 -0400
+To: davem@davemloft.net, linux-kernel@vger.kernel.org,
+       sparclinux@vger.kernel.org
+Subject: [PATCH] modpost needs to cope with new glibc elf header on sparc (resend - my MTA did eat the previous one apparently)
+Message-Id: <20050713062549.1ED325032@trider-g7.fabbione.net>
+Date: Wed, 13 Jul 2005 08:25:49 +0200 (CEST)
+From: fabbione@fabbione.net (Fabio Massimo Di Nitto)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 10:05:00PM -0700, Linus Torvalds wrote:
->  it's _really_ -rc3 this time, never mind the confusion with the commit 
-> message last time (when the Makefile clearly said -rc2, but my over-eager 
-> fingers had typed in a commit message saying -rc3).
-> 
-> There's a bit more changes here than I would like, but I'm putting my foot 
-> down now. Not only are a lot of people going to be gone next week for LKS 
-> and OLS, but we've gotten enough stuff for 2.6.13, and we need to calm 
-> down.
+Hi everybody,
+  recently a change in the glibc elf.h header has been introduced causing
+modpost to spawn tons of warnings (like the one below) building the kernel on sparc:
 
-What does this mean as far as my broken repositories thanks to your
-broken git?  If there's going to be a break in all kernel development
-for kernel summit/OLS, I would like to see -rc4 with my changes in
-beforehand, as compensation for giving me such a hard time with git
-repositories.
+[SNIP]
+*** Warning: "current_thread_info_reg" [net/sunrpc/auth_gss/auth_rpcgss.ko] undefined!
+*** Warning: "" [net/sunrpc/auth_gss/auth_rpcgss.ko] undefined!
+*** Warning: "" [net/sunrpc/auth_gss/auth_rpcgss.ko] undefined!
+[SNIP]
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Ben Collins discovered that the STT_REGISTERED did change and that this change
+needs to be propagated to modpost.
+
+-#define STT_REGISTER   13              /* Global register reserved to app. */
++#define STT_SPARC_REGISTER     13      /* Global register reserved to app. */
+
+I did and tested this simple patch to maintain compatibility with newer (>= 2.3.4)
+and older (<= 2.3.2) glibc.
+
+Please apply.
+
+Signed-off-by: Fabio M. Di Nitto <fabbione@fabbione.net>
+
+Cheers
+Fabio
+
+diff -urNad --exclude=CVS --exclude=.svn ./scripts/mod/modpost.c /usr/src/dpatchtemp/dpep-work.EcxGXN/linux-source-2.6.12-2.6.12/scripts/mod/modpost.c
+--- ./scripts/mod/modpost.c	2005-06-17 21:48:29.000000000 +0200
++++ /usr/src/dpatchtemp/dpep-work.EcxGXN/linux-source-2.6.12-2.6.12/scripts/mod/modpost.c	2005-06-30 09:29:54.000000000 +0200
+@@ -359,11 +359,16 @@
+ 		/* ignore __this_module, it will be resolved shortly */
+ 		if (strcmp(symname, MODULE_SYMBOL_PREFIX "__this_module") == 0)
+ 			break;
+-#ifdef STT_REGISTER
++/* cope with newer glibc (2.3.4 or higher) STT_ definition in elf.h */
++#if defined(STT_REGISTER) || defined(STT_SPARC_REGISTER)
++/* add compatibility with older glibc */
++#ifndef STT_SPARC_REGISTER
++#define STT_SPARC_REGISTER STT_REGISTER
++#endif
+ 		if (info->hdr->e_machine == EM_SPARC ||
+ 		    info->hdr->e_machine == EM_SPARCV9) {
+ 			/* Ignore register directives. */
+-			if (ELF_ST_TYPE(sym->st_info) == STT_REGISTER)
++			if (ELF_ST_TYPE(sym->st_info) == STT_SPARC_REGISTER)
+ 				break;
+ 		}
+ #endif

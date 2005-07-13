@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVGMU2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262750AbVGMU0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbVGMU2y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 16:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVGMU05
+	id S262750AbVGMU0w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 16:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbVGMUYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 16:26:57 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:22970 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262718AbVGMUZP (ORCPT
+	Wed, 13 Jul 2005 16:24:19 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:54790 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S262758AbVGMUWn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 16:25:15 -0400
-Subject: Re: supporting functions missing from inotify patch
-From: Steve French <smfltc@us.ibm.com>
-To: linux-kernel@vger.kernel.org, rml@novell.com
-Content-Type: text/plain
-Organization: IBM - Linux Technology Center
-Message-Id: <1121286081.5555.73.camel@stevef95.austin.ibm.com>
+	Wed, 13 Jul 2005 16:22:43 -0400
+Date: Wed, 13 Jul 2005 13:30:58 -0700
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: paulmck@us.ibm.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       dipankar@in.ibm.com, shemminger@osdl.org, rusty@au1.ibm.com
+Subject: Re: [RFC] RCU and CONFIG_PREEMPT_RT progress, part 3
+Message-ID: <20050713203058.GA27292@nietzsche.lynx.com>
+References: <20050713184800.GA1983@us.ibm.com> <1121281598.25810.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 13 Jul 2005 15:21:21 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1121281598.25810.14.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I don't see an inode operation for registering inotify events in the fs
->> (there is a file operation for dir_notify to register its events).  In
->> create_watch in fs/inotify.c I expected to see something like:
->Why not use the existing dir_notify method?  No point in adding another.
+On Wed, Jul 13, 2005 at 03:06:38PM -0400, Steven Rostedt wrote:
+> > 3.	Since SPIN_LOCK_UNLOCKED now takes the lock itself as an
+> > 	argument, what is the best way to initialize per-CPU
+> > 	locks?  An explicit initialization function, or is there
+> > 	some way that I am missing to make an initializer?
+> 
+> Ouch, I just notice that (been using an older version for some time). 
+> 
+> Ingo, is this to force the initialization of the lists instead of at
+> runtime?
 
-I did not think that inotify_add_watch called dir_notify.  I don't see a path in which 
-calls to add a new inotify watch end up in a call to fcntl_dirnotify or file->dir_notify 
-This is for the case in which an app only calls inotify ioctl - ie does not [also] do a call 
-to dnotify. 
+ANSI C99 is missing a concept of "self" during auto-intialization. The
+explicit passing of the lvalue is needed so that it can be propagated
+downward to other macros in the initialization structure. list_head
+initialization is one of those things if I remember correctly.
 
-Without such a call - an app that does your new ioctl to add a watch on a file or directory will
-not cause the network/cluster fs to turn on notification on the server since the watch
-will be not seen by the client filesystem.
-
->> I also don't see exports for 
->> 	fsnotify_access
->> 	fsnotify_modify
->> 
->> Without these exports, network and cluster filesystems can't notify the
->> local system about changes.
->>
->Eh?
->
->They are in <linux/fsnotify.h>.
-
-OK - you exported a common underlying function
-	inotify_inode_queue_event
-under the inline functions which the network/cluster fs would call to notify of remote changes.
-That makes sense. I had missed that.
-
-
+bill
 

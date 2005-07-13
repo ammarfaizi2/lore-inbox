@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbVGMKw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbVGMKzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbVGMKw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 06:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbVGMKuQ
+	id S262626AbVGMKzL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 06:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbVGMKxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 06:50:16 -0400
-Received: from mail.charite.de ([160.45.207.131]:59082 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S262773AbVGMKsw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 06:48:52 -0400
-Date: Wed, 13 Jul 2005 12:48:49 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Current kexec status?
-Message-ID: <20050713104848.GJ4561@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.9i
+	Wed, 13 Jul 2005 06:53:05 -0400
+Received: from web32003.mail.mud.yahoo.com ([68.142.207.100]:24926 "HELO
+	web32003.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S262626AbVGMKvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 06:51:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=NlH0xF723maAYYkunbedsjCkeYCk/d2iHdpvVL85oUZCtJCWbXYz6r6CTvgH4v0aOYqw6pOWDzwclmXZr9fg8Iv51te5DUZOWqPK7Q4UkEAXx/PTlZczo8yyzbDLZ+B8jcwt2nmK8byg/Op8DZGRtnFreP4EGzlB87p0KrM6+5k=  ;
+Message-ID: <20050713105127.59527.qmail@web32003.mail.mud.yahoo.com>
+Date: Wed, 13 Jul 2005 03:51:26 -0700 (PDT)
+From: Sam Song <samlinuxkernel@yahoo.com>
+Subject: Re: [patch 2.6.13-git] 8250 tweaks
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: david-b@pacbell.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20050713071245.B19871@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to experiment with kexec and my 2.6.13-rc3 kernel. I'm able to
---load the kernel, but on --exec in /etc/init.d/reboot (I replaced the
-reboot command in there), the machine freezes.
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> However, if you merely lifted the later 8250.c and
+> put it into a previous kernel (which looks like the 
+> case), there's other changes in addition which are 
+> required.
 
-I'm using kexec-tools-1.101, are there any more patches needed?
+Good catch. I tried 2.6.13-rc1 and the newest version
+2.6.13-rc3 on the same target[MPC8241]. The whining 
+remained the same. 
 
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+Thanks,
+
+Sam
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Find what you need with new enhanced search. 
+http://info.mail.yahoo.com/mail_250

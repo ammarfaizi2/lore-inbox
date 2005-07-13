@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbVGMQZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVGMQ2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbVGMQZh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 12:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbVGMQXi
+	id S262691AbVGMQ2W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 12:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbVGMQ2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 12:23:38 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:17594 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262694AbVGMQX3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 12:23:29 -0400
-Message-ID: <42D53FF6.2020200@namesys.com>
-Date: Wed, 13 Jul 2005 20:23:18 +0400
-From: "Vladimir V. Saveliev" <vs@namesys.com>
-Organization: Namesys
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040804
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Keenan Pepper <keenanpepper@gmail.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: realtime-preempt + reiser4?
-References: <42D4201A.9050303@gmail.com>	 <1121198723.10580.10.camel@mindpipe>  <42D45438.6040409@gmail.com> <1121213099.3548.39.camel@localhost.localdomain>
-In-Reply-To: <1121213099.3548.39.camel@localhost.localdomain>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Jul 2005 12:28:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32130 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262691AbVGMQ0t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 12:26:49 -0400
+Date: Wed, 13 Jul 2005 09:26:32 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: Chris Wright <chrisw@osdl.org>, stable@kernel.org, jdike@addtoit.com,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [stable] [patch 1/1] uml: fix TT mode by reverting "use fork instead of clone"
+Message-ID: <20050713162632.GL19052@shell0.pdx.osdl.net>
+References: <20050712172838.271E8D9A84@zion.home.lan> <20050712185023.GY19052@shell0.pdx.osdl.net> <200507131533.00817.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507131533.00817.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+* Blaisorblade (blaisorblade@yahoo.it) wrote:
+> On Tuesday 12 July 2005 20:50, Chris Wright wrote:
+> > * blaisorblade@yahoo.it (blaisorblade@yahoo.it) wrote:
+> > > For now there's not yet a fix for this patch, so for now the best thing
+> > > is to drop it (which was widely reported to give a working kernel).
+> > 
+> > And upstream will leave this in, working to real fix?
+> 
+> Preferably yes, but this depends on whether the fix is found. Otherwise this 
+> exact patch will be merged upstream too.
 
-Steven Rostedt wrote:
-> On Tue, 2005-07-12 at 19:37 -0400, Keenan Pepper wrote:
-> 
-> 
->>I naively changed these two calls from
->>
->>init_MUTEX_LOCKED(&name);
->>
->>to
->>
->>init_MUTEX(&name);
->>down(&name);
->>
->>but I'm not sure if that's right. I guess I'll see when I try to boot it!
-> 
-> 
-> No, since it probably wont be "uped" by the same process.  So what you
-> want to do is change the definition of name from semaphore to
-> compat_semaphore, and keep it as init_MUTEX_LOCKED.  And please send
-> patches to Ingo (I've included him on CC).  Also include Ingo on all RT
-> related issues, since he is the one maintaining the patch.
-> 
-
-ftp://ftp.namesys.com/pub/reiser4-for-2.6/2.6.12/reiser4-for-2.6.12-realtime-preempt-2.6.12-final-V0.7.51-29.patch.gz
-It applies to 2.6.12 + http://people.redhat.com/mingo/realtime-preempt/older/realtime-preempt-2.6.12-final-V0.7.51-29
+OK, thanks, queued to -stable.
+-chris

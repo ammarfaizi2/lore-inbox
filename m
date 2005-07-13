@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVGMG0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVGMGbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262509AbVGMG0C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 02:26:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVGMG0C
+	id S262505AbVGMGbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 02:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbVGMGbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 02:26:02 -0400
-Received: from port49.ds1-van.adsl.cybercity.dk ([212.242.141.114]:3906 "EHLO
-	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
-	id S262471AbVGMGZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 02:25:59 -0400
-To: davem@davemloft.net, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org
-Subject: [PATCH] modpost needs to cope with new glibc elf header on sparc (resend - my MTA did eat the previous one apparently)
-Message-Id: <20050713062549.1ED325032@trider-g7.fabbione.net>
-Date: Wed, 13 Jul 2005 08:25:49 +0200 (CEST)
-From: fabbione@fabbione.net (Fabio Massimo Di Nitto)
+	Wed, 13 Jul 2005 02:31:16 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:11412 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262505AbVGMGbP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 02:31:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=h7QrAR6vIjuR3bNSjtniPzJa8U5/4/zUhkYbilRP1UoAB2o17dO9d+kwYw6xuYtNR2qFVUBY5elimAqdoyZkIDULEFzTLfRubpyUOOC+nlw+xOWSSLutK9XIwVIc8PUAFsbxz8Lza6gHXydQeIml+syC1M6CMzzCAPs1lzpZquo=
+Date: Wed, 13 Jul 2005 07:29:55 +0100
+From: Nicholas Hans Simmonds <nhstux@gmail.com>
+To: Nathan Scott <nathans@sgi.com>
+Cc: linux-kernel@vger.kernel.org, "Andrew G. Morgan" <morgan@transmeta.com>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] Filesystem capabilities support
+Message-ID: <20050713062955.GA1609@laptop>
+References: <20050702214108.GA755@laptop> <20050706045652.GB1773@frodo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050706045652.GB1773@frodo>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
-  recently a change in the glibc elf.h header has been introduced causing
-modpost to spawn tons of warnings (like the one below) building the kernel on sparc:
+On Wed, Jul 06, 2005 at 02:56:52PM +1000, Nathan Scott wrote:
+> Hi Nicholas,
+> 
+> On Sat, Jul 02, 2005 at 10:41:08PM +0100, Nicholas Hans Simmonds wrote:
+> > This is a simple attempt at providing capability support through extended
+> > attributes.
+> > ...
+> > +#define XATTR_CAP_SET XATTR_SECURITY_PREFIX "cap_set"
+> > ...
+> > +	ret = bprm_getxattr(bprm_dentry,XATTR_CAP_SET,&caps,sizeof(caps));
+> > +	if(ret == sizeof(caps)) {
+> > +		if(caps.version == _LINUX_CAPABILITY_VERSION) {
+> > +			cap_t(bprm->cap_effective) &= caps.mask_effective;
+> > ...
+> 
+> Since this is being stored on-disk, you may want to consider
+> endianness issues.  I guess for binaries this isn't really a
+> problem (since they're unlikely to be run on other platforms),
+> though perhaps it is for shell scripts and the like.  Storing
+> values in native endianness poses problems for backup/restore
+> programs, NFS, etc.
+> 
+> IIRC, the other LSM security attribute values are stored as
+> ASCII strings on-disk to avoid this sort of issue.
+> 
+> cheers.
+> 
 
-[SNIP]
-*** Warning: "current_thread_info_reg" [net/sunrpc/auth_gss/auth_rpcgss.ko] undefined!
-*** Warning: "" [net/sunrpc/auth_gss/auth_rpcgss.ko] undefined!
-*** Warning: "" [net/sunrpc/auth_gss/auth_rpcgss.ko] undefined!
-[SNIP]
+Sorry, my earlier reply seems to have gotten lost somewhere. I've been
+pondering this issue for some time and am still not sure what's the best
+answer. I've attached a small patch which handles this by detecting byte
+swapping of the version code. I'm not convinced it's necessary but
+shouldn't hurt.
 
-Ben Collins discovered that the STT_REGISTERED did change and that this change
-needs to be propagated to modpost.
-
--#define STT_REGISTER   13              /* Global register reserved to app. */
-+#define STT_SPARC_REGISTER     13      /* Global register reserved to app. */
-
-I did and tested this simple patch to maintain compatibility with newer (>= 2.3.4)
-and older (<= 2.3.2) glibc.
-
-Please apply.
-
-Signed-off-by: Fabio M. Di Nitto <fabbione@fabbione.net>
-
-Cheers
-Fabio
-
-diff -urNad --exclude=CVS --exclude=.svn ./scripts/mod/modpost.c /usr/src/dpatchtemp/dpep-work.EcxGXN/linux-source-2.6.12-2.6.12/scripts/mod/modpost.c
---- ./scripts/mod/modpost.c	2005-06-17 21:48:29.000000000 +0200
-+++ /usr/src/dpatchtemp/dpep-work.EcxGXN/linux-source-2.6.12-2.6.12/scripts/mod/modpost.c	2005-06-30 09:29:54.000000000 +0200
-@@ -359,11 +359,16 @@
- 		/* ignore __this_module, it will be resolved shortly */
- 		if (strcmp(symname, MODULE_SYMBOL_PREFIX "__this_module") == 0)
- 			break;
--#ifdef STT_REGISTER
-+/* cope with newer glibc (2.3.4 or higher) STT_ definition in elf.h */
-+#if defined(STT_REGISTER) || defined(STT_SPARC_REGISTER)
-+/* add compatibility with older glibc */
-+#ifndef STT_SPARC_REGISTER
-+#define STT_SPARC_REGISTER STT_REGISTER
-+#endif
- 		if (info->hdr->e_machine == EM_SPARC ||
- 		    info->hdr->e_machine == EM_SPARCV9) {
- 			/* Ignore register directives. */
--			if (ELF_ST_TYPE(sym->st_info) == STT_REGISTER)
-+			if (ELF_ST_TYPE(sym->st_info) == STT_SPARC_REGISTER)
- 				break;
- 		}
- #endif
+diff --git a/security/commoncap.c b/security/commoncap.c
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -153,6 +153,15 @@ int cap_bprm_set_security (struct linux_
+ 	down(&bprm_dentry->d_inode->i_sem);
+ 	ret = bprm_getxattr(bprm_dentry,XATTR_CAP_SET,&caps,sizeof(caps));
+ 	if(ret == sizeof(caps)) {
++		if(caps.version = swab32(_LINUX_CAPABILITY_VERSION)) {
++			swab32s(&caps.version);
++			swab32s(&caps.effective);
++			swab32s(&caps.mask_effective);
++			swab32s(&caps.permitted);
++			swab32s(&caps.mask_permitted);
++			swab32s(&caps.inheritable);
++			swab32s(&caps.mask_inheritable);
++		}
+ 		if(caps.version == _LINUX_CAPABILITY_VERSION) {
+ 			cap_t(bprm->cap_effective) &= caps.mask_effective;
+ 			cap_t(bprm->cap_effective) |= caps.effective;

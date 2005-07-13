@@ -1,34 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVGMTjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVGMTdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbVGMTjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 15:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbVGMTgT
+	id S262576AbVGMTdo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 15:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVGMTbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 15:36:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18369 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262460AbVGMTgE (ORCPT
+	Wed, 13 Jul 2005 15:31:40 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:2052 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262617AbVGMTKp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 15:36:04 -0400
-Date: Wed, 13 Jul 2005 12:34:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
-Subject: Re: 2.6.13-rc2-mm2 -- include/linux/mtd/xip.h:68:25: error:
- asm/mtd-xip.h: No such file or directory
-Message-Id: <20050713123434.3f607f0a.akpm@osdl.org>
-In-Reply-To: <a44ae5cd05071308224b39aad5@mail.gmail.com>
-References: <a44ae5cd05071308224b39aad5@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 13 Jul 2005 15:10:45 -0400
+Date: Wed, 13 Jul 2005 15:09:27 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Greg KH <gregkh@suse.de>
+Cc: kjhall@us.ibm.com, bjorn.helgaas@hp.com, tpmdd-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [06/11] tpm breaks 8139cp
+Message-ID: <20050713190924.GA19577@tuxdriver.com>
+Mail-Followup-To: Greg KH <gregkh@suse.de>, kjhall@us.ibm.com,
+	bjorn.helgaas@hp.com, tpmdd-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org, stable@kernel.org,
+	Justin Forbes <jmforbes@linuxtx.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>,
+	"Randy.Dunlap" <rdunlap@xenotime.net>,
+	Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+	akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+References: <20050713184130.GA9330@kroah.com> <20050713184341.GH9330@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050713184341.GH9330@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane <miles.lane@gmail.com> wrote:
->
-> In file included from drivers/mtd/chips/cfi_probe.c:18:
-> include/linux/mtd/xip.h:68:25: error: asm/mtd-xip.h: No such file or directory
+On Wed, Jul 13, 2005 at 11:43:41AM -0700, Greg KH wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
+> 
+> ------------------
+> 
+> A problem was reported that the tpm driver was interfereing with
+> networking on the 8139 chipset.  The tpm driver was using a hard coded
 
+ACK...this looks very similar to a patch I got from Kylene for fixing
+this same issue when it showed-up in FC4.
 
-I assume MTD_CFI should depend on ARM?
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

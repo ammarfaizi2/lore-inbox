@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbVGMWJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262830AbVGMWqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262804AbVGMWJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 18:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVGMWGX
+	id S262830AbVGMWqm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 18:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbVGMWn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 18:06:23 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:13185 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262799AbVGMWFd convert rfc822-to-8bit
+	Wed, 13 Jul 2005 18:43:59 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:12978 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262779AbVGMWms
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 18:05:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=IN89xVIKezvd+pLMyO4wGDdwSBm6iw57rk3SP9Z0yZy7pT034FhVmVm6NAQYge7ZvLVulDkLLKwWMrEFbu6T0N5HWN9k77eqhSITSP1j1yS3bCtNS2NWA7fYQgBNW0h7orYa8l5ykikMjBcr2IwCoXzYjiu/FY1JIlfjHrgdfWA=
-Message-ID: <3b0ffc1f050713150527c7c649@mail.gmail.com>
-Date: Wed, 13 Jul 2005 18:05:30 -0400
-From: Kevin Radloff <radsaq@gmail.com>
-Reply-To: Kevin Radloff <radsaq@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Followup on 2.6.13-rc3 ACPI processor C-state regression
+	Wed, 13 Jul 2005 18:42:48 -0400
+Date: Wed, 13 Jul 2005 17:42:44 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
+       long <tlnguyen@snoqualmie.dp.intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+Subject: Re: [PATCH 2.6.13-rc1 03/10] IOCHK interface for I/O error handling/detecting
+Message-ID: <20050713224244.GM26607@austin.ibm.com>
+References: <42CB63B2.6000505@jp.fujitsu.com> <42CB664E.1050003@jp.fujitsu.com> <20050712195120.GE26607@austin.ibm.com> <1121213938.31924.406.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1121213938.31924.406.camel@gaston>
+User-Agent: Mutt/1.5.9i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously, I had said that in 2.6.13-rc3, C2/C3 capabilities were not
-detected on my Fujitsu Lifebook P7010D. I found that in the merge at:
+Hi,
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff;h=893b074e3d1a48a4390cf84b4c1a10ef6be2460c;hp=c9d671cf7857dbc7101e99d469fa24eed711ac60;hb=5028770a42e7bc4d15791a44c28f0ad539323807;f=drivers/acpi/processor_idle.c
+Yes, but ...
 
-.. in the section at (please forgive my destruction of the formatting) ...
+On Wed, Jul 13, 2005 at 10:18:57AM +1000, Benjamin Herrenschmidt was heard to remark:
+> 
+> > Are you assuming that a device driver will use an iochk_read() for
+> > every DMA operation? for every MMIO to the card?  
+> > 
+> > For high performance devices, it seems to me that this will cause
+> > a rather large performance burden, especially if its envisioned that
+> > all architectures will do something similar.
+> > 
+> > My concern is that (at least on ppc64) the call pci_read_config_word()
+> > requires a call into "firmware" aka "BIOS", which takes thousands upon
+> > thousands of cpu cycles.  There are hundreds of cycles of gratuitous
+> > crud just to get into the firmware, and then lord-knows-what the
+> > firmware does while its in there; probably doing all sorts of crazy
+> > math to compute bus addresses and other arcane things.  I would imagine
+> > that most architectures, includig ia64, are similar.
+> > 
+> > Thus, one wouldn't want to perform an iochk_read() in this way unless
+> > one was already pretty sure that an error had already occured ... 
+> > 
+> > Am I misunderstanding something?
+> 
+> I would expect pSeries not to use the "default" error checking (that
+> tests the status register) but rather use EEH.
 
-@@ -787,10 +843,7 @@ static int acpi_processor_get_power_info
-         if ((result) || (acpi_processor_power_verify(pr) < 2)) {
-             result = acpi_processor_get_power_info_fadt(pr);
-             if (result)
--                return_VALUE(result);
--
--            if (acpi_processor_power_verify(pr) < 2)
--                return_VALUE(-ENODEV);
-+               result = acpi_processor_get_power_info_default_c1(pr);
-         }
 
-.. a call to acpi_processor_power_verify() is removed, which breaks
-detection of C2/C3 capabilities if the above
-acpi_processor_get_power_info_cst() failed. It it had succeeded (and
-returned 0), then acpi_processor_power_verify() is called in the
-conditional statement, which will set the valid flags for C2/C3. But
-if it fails, like on my laptop, then the valid flags will never be
-set, despite the fact that the acpi_processor_get_power_info_fadt()
-function finds the necessary info for a subsequent
-acpi_processor_power_verify() call to succeed.
+OK, it wasn't clear to me if every possible case of the "detected parity
+error" bit being set on the pci adapter is converted into an EEH error.
+I had the impression that the adapter can set the bit, but not signal a 
+#PERR, adn thus have no EEH event.   I am investigating this now.
 
-I don't know what exactly the proper fix here is (with the
-introduction of the acpi_processor_get_power_info_default_c1()
-function, that is), but simply reversing this part of the patch fixes
-detection of C2/C3 on my laptop.
+If a given device driver is expecting iochk_read() to catch this situation, 
+then we'd be screwed.
 
-Please CC me with any followups, as I'm not on the list.
-
--- 
-Kevin 'radsaq' Radloff
-radsaq@gmail.com
-http://saqataq.us/
+--linas

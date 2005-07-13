@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVGMTdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbVGMTgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbVGMTdo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 15:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbVGMSte
+	id S262434AbVGMTgP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 15:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbVGMTdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:49:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65159 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262340AbVGMSsX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:48:23 -0400
-Message-ID: <42D561AB.3060002@redhat.com>
-Date: Wed, 13 Jul 2005 14:47:07 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: "Vlad C." <vladc6@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux On-Demand Network Access (LODNA)
-References: <20050712234425.55899.qmail@web54409.mail.yahoo.com> <42D5340A.7060002@redhat.com> <42D55C75.4010307@namesys.com>
-In-Reply-To: <42D55C75.4010307@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Jul 2005 15:33:50 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:1878 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262566AbVGMTcG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 15:32:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QaQ6AULAQOS2mKKRjYMp/xMWpLqlSYEpFs6XqVjRQ14fVCft/4HFMUigO4gv2xyW0jNGvOlwhoRB1Rv2r6tGHUdc0NMWjq9+9LLTmJv7iovXalO8Uc4kTeRgEmaaIPVk34LGWfqw8vZQeQEshNzHONZPeWWWn5lupGHY1i73gLk=
+Message-ID: <d120d50005071312322b5d4bff@mail.gmail.com>
+Date: Wed, 13 Jul 2005 14:32:02 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       David Lang <david.lang@digitalinsight.com>,
+       Bill Davidsen <davidsen@tmr.com>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Diego Calleja <diegocg@gmail.com>, azarah@nosferatu.za.org,
+       akpm@osdl.org, cw@f00f.org, christoph@lameter.com
+In-Reply-To: <1121282025.4435.70.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	 <200507122239.03559.kernel@kolivas.org>
+	 <200507122253.03212.kernel@kolivas.org> <42D3E852.5060704@mvista.com>
+	 <20050712162740.GA8938@ucw.cz> <42D540C2.9060201@tmr.com>
+	 <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
+	 <20050713184227.GB2072@ucw.cz>
+	 <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org>
+	 <1121282025.4435.70.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
+Hi,
 
->Peter, do you agree with his point that mounting should be something
->ordinary users can do on mountpoints they have write permission for?
+On 7/13/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Wed, 2005-07-13 at 12:10 -0700, Linus Torvalds wrote:
+> > So we should aim for a HZ value that makes it easy to convert to and from
+> > the standard user-space interface formats. 100Hz, 250Hz and 1000Hz are all
+> > good values for that reason. 864 is not.
+> 
+> How about 500?  This might be good enough to solve the MIDI problem.
 >
->Do you agree that a systematic review of user friendliness would help
->NFS?  Do you think that NFS should look at SFS and consider adopting
->some of its features?
->
 
-I think that connecting to required data could be more easily done than
-currently. I don't know about allowing file systems to be mounted without
-some form of control or resource utilization controls however.
-
-I do agree that the entire user experience associated with using and trying
-to administrate an NFS network could stand a good, long, hard look.
-
-Traditional tools such as the automounter were nice 15 years ago, but have
-not evolved with the world, nor have the rest of the system tools for
-monitoring and managing NFS clients and servers.
-
-I could definitely envision better ways to handle things.  In the past,
-many of the arguments against making things better were security related.
-There has been strong (relative term) security available to NFS 
-implementations
-since 1997, but many vendors have not implemented it and many customers 
-found
-it difficult to deploy because the underlying tools were very difficult to
-deploy.  Many of the vendors are now implementing the security 
-framework, but
-more work is required on the underlying security mechanisms, making them
-easier to deploy.
-
-With proper security, usable monitoring and management tools, and flexible
-resource controls, then I wouldn't see why NFS mounts should be anything
-special.
-
-    Thanx...
-
-       ps
+I would expect number of laptop users significatly outnumber ones
+driving MIDI so as a default entry 250 makes more sense IMHO.
+ 
+-- 
+Dmitry

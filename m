@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262642AbVGMNFC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262812AbVGMNLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262642AbVGMNFC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 09:05:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVGMNFC
+	id S262812AbVGMNLW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 09:11:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbVGMNLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 09:05:02 -0400
-Received: from web33309.mail.mud.yahoo.com ([68.142.206.124]:26754 "HELO
-	web33309.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S262642AbVGMNFA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 09:05:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=i85cgt9ERnwbusxTM3SrIJKWKtWip9QuIOHC5DwAvG1nw1l5R9N4OD01lXpmWQ3ecHVfaVruFTSjcEVDidqrFqkKz909X2Tu+J518K0vwc99Fdy/oE69tBFiNmVzO1phjAWpjI2FQZ3hxCwUsQhY/WS0QafadHw/T3q0492u6WA=  ;
-Message-ID: <20050713130455.47865.qmail@web33309.mail.mud.yahoo.com>
-Date: Wed, 13 Jul 2005 06:04:55 -0700 (PDT)
-From: li nux <lnxluv@yahoo.com>
-Subject: Oprofile: patch for Call-graph on AMD64
-To: linux <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 13 Jul 2005 09:11:22 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:3976 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S262909AbVGMNLV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 09:11:21 -0400
+From: Paul Slootman <paul+nospam@wurtel.net>
+Subject: Re: [Hdaps-devel] Re: Updating hard disk firmware & parking hard
+ disk
+Date: Wed, 13 Jul 2005 13:11:20 +0000 (UTC)
+Organization: Wurtelization
+Message-ID: <db33tn$bq5$1@news.cistron.nl>
+References: <20050707171434.90546.qmail@web32604.mail.mud.yahoo.com> <Pine.LNX.4.61.0507131208540.14635@yvahk01.tjqt.qr> <42D4EB21.1060305@grimmer.com> <Pine.LNX.4.61.0507131259480.14635@yvahk01.tjqt.qr>
+X-Trace: ncc1701.cistron.net 1121260280 12101 83.68.3.130 (13 Jul 2005 13:11:20 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is oprofile patch available for call-graph support on
-AMD64 ?
-http://oprofile.sourceforge.net/patches/ has only for
-IA64 and x86.
-What is the status of progress on AMD64 with respect
-to this.
+Jan Engelhardt  <jengelh@linux01.gwdg.de> wrote:
+>
+>What's the gain in parking the head manually if it's done anyway when the disk 
+>spins down (for whatever reason)?
 
-Thanks.
+It seems you're completely missing the whole point of this discussion,
+which was how to implement the hard disk active protection system that
+IBM offers under windows for its laptops, that will park the disk when
+it detects that e.g. the laptop is falling off a table.
 
 
-		
-__________________________________ 
-Yahoo! Mail 
-Stay connected, organized, and protected. Take the tour: 
-http://tour.mail.yahoo.com/mailtour.html 
+Paul Slootman
 

@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVGMB3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbVGMBbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbVGMB3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 21:29:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbVGMB3X
+	id S262458AbVGMBbk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 21:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbVGMBbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 21:29:23 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:59560 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262189AbVGMB2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 21:28:10 -0400
-Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: William Weston <weston@sysex.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <1121217531.26266.15.camel@mindpipe>
-References: <200506281927.43959.annabellesgarden@yahoo.de>
-	 <200506301952.22022.annabellesgarden@yahoo.de>
-	 <20050630205029.GB1824@elte.hu>
-	 <200507010027.33079.annabellesgarden@yahoo.de>
-	 <20050701071850.GA18926@elte.hu>
-	 <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org>
-	 <1120269723.12256.11.camel@mindpipe>
-	 <Pine.LNX.4.58.0507040042220.31967@echo.lysdexia.org>
-	 <20050704111648.GA11073@elte.hu>  <1121217531.26266.15.camel@mindpipe>
-Content-Type: text/plain
-Date: Tue, 12 Jul 2005 21:28:07 -0400
-Message-Id: <1121218088.4435.0.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+	Tue, 12 Jul 2005 21:31:40 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:8121 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262471AbVGMBa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 21:30:29 -0400
+Message-ID: <42D46F58.4070900@jp.fujitsu.com>
+Date: Wed, 13 Jul 2005 10:33:12 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linas Vepstas <linas@austin.ibm.com>
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       long <tlnguyen@snoqualmie.dp.intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+Subject: Re: [PATCH 2.6.13-rc1 03/10] IOCHK interface for I/O error handling/detecting
+References: <42CB63B2.6000505@jp.fujitsu.com> <42CB664E.1050003@jp.fujitsu.com> <20050712195120.GE26607@austin.ibm.com>
+In-Reply-To: <20050712195120.GE26607@austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 21:18 -0400, Lee Revell wrote:
-> On Mon, 2005-07-04 at 13:16 +0200, Ingo Molnar wrote:
-> > i'd first suggest to try the latest kernel, before changing your X 
-> > config - i think the bug might have been fixed meanwhile.
-> 
-> I have found that heavy network traffic really kills the interactive
-> performance.  In the top excerpt below, gtk-gnutella is generating about
-> 320KB/sec of traffic.
-> 
-> These priorities do not look right:
+Linas Vepstas wrote:
+> Thus, one wouldn't want to perform an iochk_read() in this way unless
+> one was already pretty sure that an error had already occured ... 
 
-Never mind, I just rediscovered the RT priority leakage bug.
+If another kind of I/O error detecting system finds a error before
+performing iochk_read(), it can prevents coming iochk_read() from
+spending such crazy cycles in have_error() by marking cookie->error.
 
-Lee
+ >> int iochk_read(iocookie *cookie)
+ >>  {
+ >> +	if (cookie->error || have_error(cookie->dev))
+
+Isn't it enough?
+
+And as Ben said, it seems that ppc64 can have its own special iochk_*,
+unless calling pci_read_config_word() ;-)
+
+Thanks,
+H.Seto
 

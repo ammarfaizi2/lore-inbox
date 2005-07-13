@@ -1,35 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVGMCEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbVGMCUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbVGMCEn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 22:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVGMCEn
+	id S262905AbVGMCUI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 22:20:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbVGMCUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 22:04:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61340 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262612AbVGMCEl (ORCPT
+	Tue, 12 Jul 2005 22:20:08 -0400
+Received: from main.gmane.org ([80.91.229.2]:61120 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262905AbVGMCUG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 22:04:41 -0400
-Date: Tue, 12 Jul 2005 19:02:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       prasanna@in.ibm.com
-Subject: Re: [PATCH]Kprobes IA64 - Fix race when break hits and kprobe not
- found
-Message-Id: <20050712190231.789da83c.akpm@osdl.org>
-In-Reply-To: <20050712185230.A8528@unix-os.sc.intel.com>
-References: <20050712185230.A8528@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 12 Jul 2005 22:20:06 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Anssi Hannula <anssi.hannula@mbnet.fi>
+Subject: Re: segmentation fault in TOP command
+Date: Wed, 13 Jul 2005 05:07:05 +0300
+Message-ID: <42D47749.8000200@mbnet.fi>
+References: <dau69d$vit$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsl-tregw3mdf.dial.inet.fi
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+In-Reply-To: <dau69d$vit$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
->
-> This patch applies on top of  "Prasanna S Panchamukhi's" recent postings
->  Kprobes: Prevent possible race condition ia64 changes
+Jose Barroca wrote:
+> 
+> This one had an interesting output: there was indication of an error
+> happening some 197 days ago. I could decipher the remaining info.
 
-I am not aware of such a patch.  Your patch hit a reject when I tried to
-apply it to Linus's tree.  So I don't know what's going on..
+This is probably not related.
+
+ > Also,
+> the REALLOACTED_SECTOR_CT has a very high number, though it is labelled
+> "PRE_FAIL".
+> 
+
+But this is; Reallocated sector count above zero indicates a failing 
+harddrive.
+More information here:
+http://smartmontools.sourceforge.net/BadBlockHowTo.txt
+
+If the count is "very high", I think you should get a new harddrive.
+
+-- 
+Anssi Hannula
+

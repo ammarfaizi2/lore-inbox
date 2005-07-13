@@ -1,82 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVGMBp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVGMBws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262484AbVGMBp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 21:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVGMBp7
+	id S262445AbVGMBws (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 21:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVGMBws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 21:45:59 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:48789 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262484AbVGMBpy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 21:45:54 -0400
-Date: Tue, 12 Jul 2005 18:46:27 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: shemminger@osdl.org, dipankar@in.ibm.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: PREEMPT/PREEMPT_RT question
-Message-ID: <20050713014627.GF1323@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050712163031.GA1323@us.ibm.com> <1121187924.6917.75.camel@localhost.localdomain> <20050712192832.GB1323@us.ibm.com> <1121198657.3548.11.camel@localhost.localdomain> <20050712213426.GD1323@us.ibm.com> <1121212035.3548.34.camel@localhost.localdomain>
+	Tue, 12 Jul 2005 21:52:48 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:14479 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262445AbVGMBwi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 21:52:38 -0400
+Date: Tue, 12 Jul 2005 18:52:30 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: akpm@osdl.org
+Cc: anil.s.keshavamurthy@intel.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux IA64 <linux-ia64@vger.kernel.org>, prasanna@in.ibm.com
+Subject: [PATCH]Kprobes IA64 - Fix race when break hits and kprobe not found
+Message-ID: <20050712185230.A8528@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1121212035.3548.34.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 07:47:15PM -0400, Steven Rostedt wrote:
-> On Tue, 2005-07-12 at 14:34 -0700, Paul E. McKenney wrote:
-> > > Yeah, mips has the crazy Load Linked and Store Conditional crap, so it
-> > > is a little more complex than the simple add one.  And I think PPC does
-> > > too, although it has been a while since I've used them.  And older mips
-> > > don't have the LL SC command so the only option is to turn off
-> > > interrupts (of course those that don't have the LL and SC are not SMP
-> > > compatible).  So, I will admit that having a smp_atomic_inc might be
-> > > nice. I was just being a narrow minded x86 hacker ;-)
-> > 
-> > I am sure that LL/SC seemed like a good idea at the time.  ;-)
-> > 
-> > To be fair, LL/SC does allow allow some things to be done more easily
-> > than with cmpxchg, since it allows you to tell that the value changed
-> > even if it later changed back.  Helps with some linked-list operations.
-> 
-> I was being a little harsh in my statements.  I didn't really mind the
-> LL and SC but a true atomic inc would have been nice.  I actually had to
-> port Linux to a MIPS board once that didn't have the LL or SC, and that
-> was even more painful.
+This patch addresses a potential race condition for a case where
+Kprobe has been removed right after another CPU has taken
+a break hit.
 
-I could believe that!
+The way this is addressed here is when the CPU that has taken a break hit
+does not find its corresponding kprobe, then we check to see if the
+original instruction got replaced with other than break. If it got
+replaced with other than break instruction, then we continue to execute
+from the replaced instruction, else if we find that it is still a break, then
+we let the kernel handle this, as this might be the break instruction inserted by
+other than kprobe(may be kernel debugger).
 
-> > > > > Yep interrupts are threads in CONFIG_PREEMPT_RT.  I guess you could also
-> > > > > just use local_irq_save with spin_lock, since now local_irq_save no
-> > > > > longer disables interrupts in PREEMPT_RT.
-> > > > 
-> > > > By this you mean the following?
-> > > > 
-> > > > 	local_irq_save(flags);
-> > > > 	_raw_spin_lock(&mylock);
-> > > > 
-> > > > 	/* critical section */
-> > > > 
-> > > > 	_raw_spin_unlock(&mylock);
-> > > > 	local_irq_restore(flags);
-> > > 
-> > > Yeah, that on PREEMP_RT would not turn off interrupts but just stops
-> > > preemption. This is fine as long as the mylock is not used in any
-> > > SA_NODELAY interrupt.
-> > 
-> > Cool!  Is the scheduling-clock interrupt an SA_NODELAY interrupt?
-> 
-> If you are talking about scheduler_tick, then yes, it is called by the
-> timer interrupt which is a SA_NODELAY interrupt.  If you don't want to
-> get interrupted by the timer interrupt, then you will need to disable
-> interrupts for both. Since currently, the timer interrupt is the only
-> true hard interrupt in the PREEMPT_RT and that may not change.
+This patch applies on top of  "Prasanna S Panchamukhi's" recent postings
+Kprobes: Prevent possible race condition ia64 changes
 
-OK, so if I take a spinlock in something invoked from scheduler_tick(),
-then any other acquisitions of that spinlock must disable hardware
-interrupts, right?
+Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+=======================================================================
+ arch/ia64/kernel/kprobes.c |   45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 45 insertions(+)
 
-							Thanx, Paul
+Index: linux-2.6.13-rc1-mm1-systemtap/arch/ia64/kernel/kprobes.c
+===================================================================
+--- linux-2.6.13-rc1-mm1-systemtap.orig/arch/ia64/kernel/kprobes.c
++++ linux-2.6.13-rc1-mm1-systemtap/arch/ia64/kernel/kprobes.c
+@@ -554,6 +554,38 @@ static void __kprobes prepare_ss(struct 
+ 	ia64_psr(regs)->ss = 1;
+ }
+ 
++static int __kprobes is_ia64_break_inst(struct pt_regs *regs)
++{
++	unsigned int slot = ia64_psr(regs)->ri;
++	unsigned int template, major_opcode;
++	unsigned long kprobe_inst;
++	unsigned long *kprobe_addr = (unsigned long *)regs->cr_iip;
++	bundle_t bundle;
++
++	memcpy(&bundle, kprobe_addr, sizeof(bundle_t));
++	template = bundle.quad0.template;
++
++	/* Move to slot 2, if bundle is MLX type and kprobe slot is 1 */
++	if (slot == 1 && bundle_encoding[template][1] == L)
++  		slot++;
++
++	/* Get Kprobe probe instruction at given slot*/
++	get_kprobe_inst(&bundle, slot, &kprobe_inst, &major_opcode);
++
++	/* For break instruction,
++	 * Bits 37:40 Major opcode to be zero
++	 * Bits 27:32 X6 to be zero
++	 * Bits 32:35 X3 to be zero
++	 */
++	if (major_opcode || ((kprobe_inst >> 27) & 0x1FF) ) {
++		/* Not a break instruction */
++		return 0;
++	}
++
++	/* Is a break instruction */
++	return 1;
++}
++
+ static int __kprobes pre_kprobes_handler(struct die_args *args)
+ {
+ 	struct kprobe *p;
+@@ -601,6 +633,19 @@ static int __kprobes pre_kprobes_handler
+ 	p = get_kprobe(addr);
+ 	if (!p) {
+ 		unlock_kprobes();
++		if (!is_ia64_break_inst(regs)) {
++			/*
++			 * The breakpoint instruction was removed right
++			 * after we hit it.  Another cpu has removed
++			 * either a probepoint or a debugger breakpoint
++			 * at this address.  In either case, no further
++			 * handling of this interrupt is appropriate.
++			 */
++			ret = 1;
++
++		}
++
++		/* Not one of our break, let kernel handle it */
+ 		goto no_kprobe;
+ 	}
+ 

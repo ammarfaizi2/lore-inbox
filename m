@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVGMB1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVGMB3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbVGMB1x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 21:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVGMB1x
+	id S262189AbVGMB3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 21:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbVGMB3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 21:27:53 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:6582 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S261946AbVGMB1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 21:27:48 -0400
-X-Sasl-enc: 0aBpaHYSjh8o3p+scQWUZmbr72GIiuLDyWmbS64zGBAA 1121218050
-Message-ID: <03e601c5874a$12613fa0$7c00a8c0@ROBMHP>
-From: "Rob Mueller" <robm@fastmail.fm>
-To: "Chris Mason" <mason@suse.com>
-Cc: <akpm@osdl.org>, "Lars Roland" <lroland@gmail.com>,
-       "Bron Gondwana" <brong@fastmail.fm>, <linux-kernel@vger.kernel.org>,
-       "Vladimir Saveliev" <vs@namesys.com>,
-       "Jeremy Howard" <jhoward@fastmail.fm>
-References: <01dd01c586c3$cdd525d0$7c00a8c0@ROBMHP> <200507122042.11397.mason@suse.com> <03b601c58744$ee69e390$7c00a8c0@ROBMHP> <200507122103.10159.mason@suse.com>
-Subject: Re: 2.6.12.2 dies after 24 hours
-Date: Wed, 13 Jul 2005 11:27:39 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Tue, 12 Jul 2005 21:29:23 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:59560 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262189AbVGMB2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 21:28:10 -0400
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: William Weston <weston@sysex.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1121217531.26266.15.camel@mindpipe>
+References: <200506281927.43959.annabellesgarden@yahoo.de>
+	 <200506301952.22022.annabellesgarden@yahoo.de>
+	 <20050630205029.GB1824@elte.hu>
+	 <200507010027.33079.annabellesgarden@yahoo.de>
+	 <20050701071850.GA18926@elte.hu>
+	 <Pine.LNX.4.58.0507011739550.27619@echo.lysdexia.org>
+	 <1120269723.12256.11.camel@mindpipe>
+	 <Pine.LNX.4.58.0507040042220.31967@echo.lysdexia.org>
+	 <20050704111648.GA11073@elte.hu>  <1121217531.26266.15.camel@mindpipe>
+Content-Type: text/plain
+Date: Tue, 12 Jul 2005 21:28:07 -0400
+Message-Id: <1121218088.4435.0.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-07-12 at 21:18 -0400, Lee Revell wrote:
+> On Mon, 2005-07-04 at 13:16 +0200, Ingo Molnar wrote:
+> > i'd first suggest to try the latest kernel, before changing your X 
+> > config - i think the bug might have been fixed meanwhile.
+> 
+> I have found that heavy network traffic really kills the interactive
+> performance.  In the top excerpt below, gtk-gnutella is generating about
+> 320KB/sec of traffic.
+> 
+> These priorities do not look right:
 
-> Sorry for the confusion, you're hitting the other mmap_sem -> transaction 
-> lock
-> problem.  This one should be solvable with an iget so we make sure not to 
-> do
-> the final unlink until after the mmap sem is dropped.
->
-> Lets see what I can do...
+Never mind, I just rediscovered the RT priority leakage bug.
 
-Oh dang.
-
-I thought this last crash after upgrading to 2.6.12.2 was due to the IRQ 
-BALANCE issue Lars suggested, but you're saying that it's actually a whole 
-different bug, though similar to the previous "prepare_write ... 
-copy_from_user ... commit_write" lock problem?
-
-Is this something new between 2.6.4-mm2 and 2.6.12.2? Or would it have 
-always been present, just for some reason we're hitting it in 2.6.12 now but 
-weren't hitting it in 2.6.4?
-
-I feel we're moving backwards... :(
-
-Rob
+Lee
 

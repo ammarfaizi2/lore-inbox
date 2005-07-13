@@ -1,88 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVGMR3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVGMRZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVGMR3s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 13:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVGMR21
+	id S261601AbVGMRZp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 13:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVGMRXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:28:27 -0400
-Received: from mta01.mail.t-online.hu ([195.228.240.50]:58833 "EHLO
-	mta01.mail.t-online.hu") by vger.kernel.org with ESMTP
-	id S261326AbVGMR0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:26:12 -0400
-Subject: [PATCH 13/19] Kconfig I18N: menuconfig: answering
-From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Massimo Maiurana <maiurana@inwind.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       KernelFR <kernelfr@traduc.org>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-In-Reply-To: <1121273456.2975.3.camel@spirit>
-References: <1121273456.2975.3.camel@spirit>
+	Wed, 13 Jul 2005 13:23:43 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:27571 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261601AbVGMRWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 13:22:05 -0400
+Subject: Re: kernel guide to space
+From: Lee Revell <rlrevell@joe-job.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-os@analogic.com, kaber@trash.net, vda@ilport.com.ua,
+       sander@humilis.net, mst@mellanox.co.il, linux-kernel@vger.kernel.org
+In-Reply-To: <20050712235804.0b994a78.pj@sgi.com>
+References: <20050711145616.GA22936@mellanox.co.il>
+	 <20050711153447.GA19848@favonius> <200507120952.04279.vda@ilport.com.ua>
+	 <42D3AFA1.2090203@trash.net>
+	 <Pine.LNX.4.61.0507120809200.2712@chaos.analogic.com>
+	 <20050712235804.0b994a78.pj@sgi.com>
 Content-Type: text/plain
-Date: Wed, 13 Jul 2005 19:26:09 +0200
-Message-Id: <1121275570.2975.38.camel@spirit>
+Date: Wed, 13 Jul 2005 13:22:04 -0400
+Message-Id: <1121275324.4435.41.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-07-12 at 23:58 -0700, Paul Jackson wrote:
+> Dick Johnson wrote:
+> > Or just disallow tabs altogether. At Analogic we ...
+> 
+> This is the Linux kernel, not Analogic.
+> 
+> We use tabs for indentation.  You can set the number
+> of physical spaces per tab however you want in your
+> editor, but it had better look good (and stay within
+> 80 columns)
 
-I18N support for answering in menuconfig. This patch is useful for 
-non-latin based languages.
+I don't think there's a strict 80 column rule anymore.  It's 2005...
 
-Signed-off-by: Egry Gabor <gaboregry@t-online.hu>
----
-
- scripts/kconfig/mconf.c |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
-
-diff -puN scripts/kconfig/mconf.c~kconfig-i18n-13-menuconfig-key scripts/kconfig/mconf.c
---- linux-2.6.13-rc3-i18n-kconfig/scripts/kconfig/mconf.c~kconfig-i18n-13-menuconfig-key	2005-07-13 18:32:19.000000000 +0200
-+++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/kconfig/mconf.c	2005-07-13 18:36:44.000000000 +0200
-@@ -564,7 +564,7 @@ static void build_conf(struct menu *menu
- 	struct menu *child;
- 	int type, tmp, doint = 2;
- 	tristate val;
--	char ch;
-+	const char *ch;
- 
- 	if (!menu_is_visible(menu))
- 		return;
-@@ -622,11 +622,11 @@ static void build_conf(struct menu *menu
- 				break;
- 			case S_TRISTATE:
- 				switch (val) {
--				case yes: ch = '*'; break;
--				case mod: ch = 'M'; break;
--				default:  ch = ' '; break;
-+				case yes: ch = "*"; break;
-+				case mod: ch = _("M"); break;
-+				default:  ch = " "; break;
- 				}
--				cprint1("<%c>", ch);
-+				cprint1("<%s>", ch);
- 				break;
- 			}
- 		} else {
-@@ -673,12 +673,12 @@ static void build_conf(struct menu *menu
- 			case S_TRISTATE:
- 				cprint("t%p", menu);
- 				switch (val) {
--				case yes: ch = '*'; break;
--				case mod: ch = 'M'; break;
--				default:  ch = ' '; break;
-+				case yes: ch = "*"; break;
-+				case mod: ch = _("M"); break;
-+				default:  ch = " "; break;
- 				}
- 				if (sym_is_changable(sym))
--					cprint1("<%c>", ch);
-+					cprint1("<%s>", ch);
- 				else
- 					cprint1("---");
- 				break;
-_
-
+Lee
 

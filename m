@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbVGMT6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVGMUBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbVGMT6r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 15:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVGMT5L
+	id S262735AbVGMUBj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 16:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVGMUB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 15:57:11 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:57412 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262729AbVGMTzw
+	Wed, 13 Jul 2005 16:01:26 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:45835 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262748AbVGMT70
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 15:55:52 -0400
-Date: Wed, 13 Jul 2005 21:43:37 +0000
+	Wed, 13 Jul 2005 15:59:26 -0400
+Date: Wed, 13 Jul 2005 21:47:03 +0000
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Ian Campbell <ijc@hellion.org.uk>
-Cc: kai@germaschewski.name, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Allow cscope to index multiple architectures
-Message-ID: <20050713214337.GC16374@mars.ravnborg.org>
-References: <1119522355.2995.23.camel@icampbell-debian>
+To: Karl Hegbloom <hegbloom@pdx.edu>
+Cc: Kai Germaschewski <kai@germaschewski.name>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH Makefile, Make 'cscope -q' play well with cscope.el
+Message-ID: <20050713214703.GD16374@mars.ravnborg.org>
+References: <87br62hjjc.fsf@journeyhawk.karlheg.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1119522355.2995.23.camel@icampbell-debian>
+In-Reply-To: <87br62hjjc.fsf@journeyhawk.karlheg.net>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 23, 2005 at 11:25:54AM +0100, Ian Campbell wrote:
-> Hi,
+On Sun, Jun 19, 2005 at 12:50:47AM -0700, Karl Hegbloom wrote:
+> LinuxVersion: 2.6-git 2005/06/19
 > 
-> I have a single source tree which I cross compile for a couple of
-> different architectures using ARHC=foo O=blah etc.
+> I tried the Linux Makefile 'make cscope' target, and found that the
+> generated database is not compatible with 'cscope.el' under XEmacs.
+> The thing is that 'cscope.el' does not allow setting the command line
+> options to the 'cscope' commands it runs, and it errors with a message
+> about the options not matching the ones used to generate the index.
 > 
-> The existing cscope target is very handy but only indexes the current
-> $(ARCH), which is a pain since inevitably I'm interested in the other
-> one at any given time ;-). This patch allows me to pass a list of
-> architectures for cscope to index. e.g.
-> 	make ALLSOURCE_ARCHS="i386 arm" cscope
+> It turns out the cscope designers already thought of this.  The
+> options can be written into the "cscope.files".  The included patch
+> moves the "-q" and "-k" options from the 'cmd_cscope' to the
+> 'cmd_cscope-file', echoing them into the top of the files listing.
 > 
-> This change also works for etags etc, and I presume it is just as useful
-> there.
+> Now the index is generated with the "-q" option, and when 'cscope.el'
+> performs it's search, it uses that argument as well.  Lookups are fast
+> and everyone is happy.
 
-I cannot see how it will index i386 if I do not specify ALLSOURCES_ARCHS
-(and I am running on a i386).
+Applied - thanks.
 
 	Sam

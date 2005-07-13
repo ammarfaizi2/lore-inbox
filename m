@@ -1,37 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbVGMK6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVGMLAE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262615AbVGMK6O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 06:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbVGMK6C
+	id S262737AbVGMLAE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 07:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbVGMK6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 06:58:02 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:12748 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262615AbVGMK4U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 06:56:20 -0400
-Date: Wed, 13 Jul 2005 12:56:16 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Runtime fix for intermodule.c
-In-Reply-To: <20050712220705.GA12906@infradead.org>
-Message-ID: <Pine.LNX.4.61.0507131255130.14635@yvahk01.tjqt.qr>
-References: <20050712213920.GA9714@physik.fu-berlin.de> <20050712220705.GA12906@infradead.org>
+	Wed, 13 Jul 2005 06:58:15 -0400
+Received: from amsfep11-int.chello.nl ([213.46.243.19]:51756 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262631AbVGMK4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 06:56:45 -0400
+Date: Wed, 13 Jul 2005 12:56:42 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Dmitry Torokhov <dtor@mail.ru>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Amiga joystick typo (was: Re: Input: fix open/close races
+ in joystick drivers - add a semaphore)
+In-Reply-To: <200506280052.j5S0qDQT010792@hera.kernel.org>
+Message-ID: <Pine.LNX.4.62.0507131254590.5536@anakin>
+References: <200506280052.j5S0qDQT010792@hera.kernel.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> since the symbol inter_module_get cannot be resolved,
->> applying this patch will make those modules work again.
->
->There's a reason you shouldn't use it, and because of that it's
->not exported.
+On Mon, 27 Jun 2005, Linux Kernel Mailing List wrote:
+> tree 11d80109ddc2f61de6a75a37941346100a67a0d1
+> parent af246041277674854383cf91b8f0b01217b521e8
+> author Dmitry Torokhov <dtor_core@ameritech.net> Sun, 29 May 2005 12:29:52 -0500
+> committer Dmitry Torokhov <dtor_core@ameritech.net> Sun, 29 May 2005 12:29:52 -0500
+> 
+> Input: fix open/close races in joystick drivers - add a semaphore
+>        to the ones that register more than one input device.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> 
+>  drivers/input/joystick/amijoy.c     |   29 ++++++++++++++++-------------
 
-Oh BTW, while we're at it: With what should I replace inter_module_get? I'm 
-maintaining an "ancient-sufficient" nvidia driver for myself that uses it in 
-one or two places.
+This patch broke compilation of amijoy. Trivial fix below.
 
+Amiga joystick: Fix typo introduced by fixing the open/close races in
+2.6.13-rc1
 
-Jan Engelhardt
--- 
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+
+--- linux-2.6.13-rc1/drivers/input/joystick/amijoy.c	2005-06-29 22:15:20.000000000 +0200
++++ linux-m68k-2.6.13-rc1/drivers/input/joystick/amijoy.c	2005-07-12 13:20:20.000000000 +0200
+@@ -105,7 +105,7 @@ out:
+ 
+ static void amijoy_close(struct input_dev *dev)
+ {
+-	down(&amijoysem);
++	down(&amijoy_sem);
+ 	if (!--amijoy_used)
+ 		free_irq(IRQ_AMIGA_VERTB, amijoy_interrupt);
+ 	up(&amijoy_sem);
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

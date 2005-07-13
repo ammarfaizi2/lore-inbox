@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVGMQuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVGMQuH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbVGMQuG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 12:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVGMQsV
+	id S261223AbVGMQuH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 12:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVGMQsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 12:48:21 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:34773
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261293AbVGMQrQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 12:47:16 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: "'Vinay Venkataraghavan'" <raghavanvinay@yahoo.com>,
-       <linux-crypto@nl.linux.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Open source firewalls
-Date: Wed, 13 Jul 2005 10:47:10 -0600
-Message-ID: <014b01c587ca$83a77320$a20cc60a@amer.sykes.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Wed, 13 Jul 2005 12:48:09 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:54190 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261223AbVGMQq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 12:46:59 -0400
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+From: Lee Revell <rlrevell@joe-job.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Diego Calleja <diegocg@gmail.com>, azarah@nosferatu.za.org,
+       akpm@osdl.org, cw@f00f.org, torvalds@osdl.org, christoph@lameter.org
+In-Reply-To: <42D540C2.9060201@tmr.com>
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	 <20050712121008.GA7804@ucw.cz> <200507122239.03559.kernel@kolivas.org>
+	 <200507122253.03212.kernel@kolivas.org> <42D3E852.5060704@mvista.com>
+	 <20050712162740.GA8938@ucw.cz>  <42D540C2.9060201@tmr.com>
+Content-Type: text/plain
+Date: Wed, 13 Jul 2005 12:46:57 -0400
+Message-Id: <1121273217.4435.29.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-07-13 at 12:26 -0400, Bill Davidsen wrote:
+> >  
+> > Going to HZ=864 would fix this problem. It would likely cause other
+> > problems in places that expect 1/HZ to be a sane number, though.
+> > 
+> But if you are going to an "odd" value, would 1381 would be a better 
+> choice, given the interest in minimizing latency currently evident?
 
-> Are there other open source firewall implementations
-> other than snort?
->
-> I would apprecitate it if you could let me know.
-> Thanks,
-> Vinay
->
+No, I think 864 is quite good enough.  1381 seems overkill even for
+multimedia, people who need that can use the RTC anyway.
 
-I might be wrong and this might be a stupid answer but... How about
-iptables?
-iptables blocks everything incomind, allows, deny and forwards, so I think
-that is what you want?
-
-.Alejandro
+Lee
 

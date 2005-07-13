@@ -1,49 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVGMR2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVGMReN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbVGMR2K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 13:28:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVGMRZv
+	id S261896AbVGMReN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 13:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVGMRch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:25:51 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:26107 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S261693AbVGMRYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:24:41 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Lee Revell <rlrevell@joe-job.com>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org, torvalds@osdl.org,
-       christoph@lameter.org
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Wed, 13 Jul 2005 10:24:10 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-In-Reply-To: <42D540C2.9060201@tmr.com>
-Message-ID: <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
-References: <200506231828.j5NISlCe020350@hera.kernel.org> <20050712121008.GA7804@ucw.cz>
- <200507122239.03559.kernel@kolivas.org> <200507122253.03212.kernel@kolivas.org>
- <42D3E852.5060704@mvista.com> <20050712162740.GA8938@ucw.cz> <42D540C2.9060201@tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 13 Jul 2005 13:32:37 -0400
+Received: from mta01.mail.t-online.hu ([195.228.240.50]:17859 "EHLO
+	mta01.mail.t-online.hu") by vger.kernel.org with ESMTP
+	id S261704AbVGMRaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 13:30:39 -0400
+Subject: [PATCH 16/19] Kconfig I18n: xconfig: answering
+From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Massimo Maiurana <maiurana@inwind.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       KernelFR <kernelfr@traduc.org>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+In-Reply-To: <1121273456.2975.3.camel@spirit>
+References: <1121273456.2975.3.camel@spirit>
+Content-Type: text/plain
+Date: Wed, 13 Jul 2005 19:30:01 +0200
+Message-Id: <1121275801.2975.45.camel@spirit>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jul 2005, Bill Davidsen wrote:
 
-> How serious is the 1/HZ = sane problem, and more to the point how many 
-> programs get the HZ value with a system call as opposed to including a header 
-> or building it in? I know some of my older programs use header files, that 
-> was part of the planning for the future even before 2.5 started. At the time 
-> I didn't expect to have to use the system call.
+I18N support for answering in xconfig. This patch useful for non-latin based languages.
 
-in binary 1/100 or 1/1000 are not sane values to start with so I don't 
-think that that this is likly to be that critical (remembering that the 
-kernel doesn't do floating point math)
+Signed-off-by: Egry Gabor <gaboregry@t-online.hu>
 
-David Lang
+---
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+ scripts/kconfig/qconf.cc |   40 +++++++++++++++++++---------------------
+ 1 files changed, 19 insertions(+), 21 deletions(-)
+
+diff -puN scripts/kconfig/qconf.cc~kconfig-i18n-16-qconfig-key-i18n scripts/kconfig/qconf.cc
+--- linux-2.6.13-rc3-i18n-kconfig/scripts/kconfig/qconf.cc~kconfig-i18n-16-qconfig-key-i18n	2005-07-13 18:32:19.000000000 +0200
++++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/kconfig/qconf.cc	2005-07-13 18:36:39.000000000 +0200
+@@ -224,7 +224,7 @@ void ConfigItem::updateMenu(void)
+ 	switch (type) {
+ 	case S_BOOLEAN:
+ 	case S_TRISTATE:
+-		char ch;
++		const char *ch;
+ 
+ 		if (!sym_is_changable(sym) && !list->showAll) {
+ 			setPixmap(promptColIdx, 0);
+@@ -240,21 +240,21 @@ void ConfigItem::updateMenu(void)
+ 				setPixmap(promptColIdx, list->choiceYesPix);
+ 			else
+ 				setPixmap(promptColIdx, list->symbolYesPix);
+-			setText(yesColIdx, "Y");
+-			ch = 'Y';
++			setText(yesColIdx, _("Y"));
++			ch = _("Y");
+ 			break;
+ 		case mod:
+ 			setPixmap(promptColIdx, list->symbolModPix);
+-			setText(modColIdx, "M");
+-			ch = 'M';
++			setText(modColIdx, _("M"));
++			ch = _("M");
+ 			break;
+ 		default:
+ 			if (sym_is_choice_value(sym) && type == S_BOOLEAN)
+ 				setPixmap(promptColIdx, list->choiceNoPix);
+ 			else
+ 				setPixmap(promptColIdx, list->symbolNoPix);
+-			setText(noColIdx, "N");
+-			ch = 'N';
++			setText(noColIdx, _("N"));
++			ch = _("N");
+ 			break;
+ 		}
+ 		if (expr != no)
+@@ -264,7 +264,7 @@ void ConfigItem::updateMenu(void)
+ 		if (expr != yes)
+ 			setText(yesColIdx, sym_tristate_within_range(sym, yes) ? "_" : 0);
+ 
+-		setText(dataColIdx, QChar(ch));
++		setText(dataColIdx, ch);
+ 		break;
+ 	case S_INT:
+ 	case S_HEX:
+@@ -431,9 +431,9 @@ void ConfigList::reinit(void)
+ 	if (showName)
+ 		addColumn(nameColIdx, _("Name"));
+ 	if (showRange) {
+-		addColumn(noColIdx, "N");
+-		addColumn(modColIdx, "M");
+-		addColumn(yesColIdx, "Y");
++		addColumn(noColIdx, _("N"));
++		addColumn(modColIdx, _("M"));
++		addColumn(yesColIdx, _("Y"));
+ 	}
+ 	if (showData)
+ 		addColumn(dataColIdx, _("Value"));
+@@ -641,17 +641,15 @@ void ConfigList::keyPressEvent(QKeyEvent
+ 	case Key_Space:
+ 		changeValue(item);
+ 		break;
+-	case Key_N:
+-		setValue(item, no);
+-		break;
+-	case Key_M:
+-		setValue(item, mod);
+-		break;
+-	case Key_Y:
+-		setValue(item, yes);
+-		break;
+ 	default:
+-		Parent::keyPressEvent(ev);
++		if ((ev->text() == _("y")) || (ev->text() == _("Y")))
++			setValue(item, yes);
++		else if ((ev->text() == _("m")) || (ev->text() == _("M")))
++			setValue(item, mod);
++		else if ((ev->text() == _("n")) || (ev->text() == _("N")))
++			setValue(item, no);
++		else
++			Parent::keyPressEvent(ev);
+ 		return;
+ 	}
+ 	ev->accept();
+_
+
+

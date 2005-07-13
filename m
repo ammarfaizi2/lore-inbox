@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbVGMSJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVGMSIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbVGMSJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 14:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVGMSI6
+	id S262215AbVGMSIt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 14:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261995AbVGMSFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:08:58 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:59321 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262152AbVGMSFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:05:49 -0400
-Subject: Re: Linux v2.6.13-rc3
-From: Lee Revell <rlrevell@joe-job.com>
+	Wed, 13 Jul 2005 14:05:05 -0400
+Received: from mta01.mail.t-online.hu ([195.228.240.50]:978 "EHLO
+	mta01.mail.t-online.hu") by vger.kernel.org with ESMTP
+	id S261539AbVGMSDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 14:03:40 -0400
+Subject: Re: [PATCH 0/19] Kconfig I18N completion
+From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0507131045530.17536@g5.osdl.org>
-References: <Pine.LNX.4.58.0507122157070.17536@g5.osdl.org>
-	 <1121275893.4435.47.camel@mindpipe>
-	 <Pine.LNX.4.58.0507131045530.17536@g5.osdl.org>
-Content-Type: text/plain
-Date: Wed, 13 Jul 2005 14:05:48 -0400
-Message-Id: <1121277948.4435.57.camel@mindpipe>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       Massimo Maiurana <maiurana@inwind.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       KernelFR <kernelfr@traduc.org>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+In-Reply-To: <Pine.LNX.4.58.0507131038560.17536@g5.osdl.org>
+References: <1121273456.2975.3.camel@spirit>
+	 <Pine.LNX.4.58.0507131038560.17536@g5.osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 13 Jul 2005 20:03:38 +0200
+Message-Id: <1121277818.2975.68.camel@spirit>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-13 at 10:51 -0700, Linus Torvalds wrote:
-> 
-> On Wed, 13 Jul 2005, Lee Revell wrote:
-> 
-> > On Tue, 2005-07-12 at 22:05 -0700, Linus Torvalds wrote:
-> > > I think the shortlog speaks for itself.
+On Wed, 13 Jul 2005, Linus Torvalds wrote:
+> On Wed, 13 Jul 2005, Egry Gábor wrote:
 > > 
-> > HZ still defaults to 250.  As was explained in another thread, this will
-> > break apps like MIDI sequencers and won't really save much battery
-> > power.
+> > The following patches complete the "Kconfig I18N support" patch by
+> > Arnaldo. 
 > 
-> Stop bothering with this, I've seen the thread, and no, I disagree totally 
-> with "as explained in another thread". That's simply not true.
+> No, I really don't want this.
 > 
-> The only thing that is true is that 100Hz is too low for some use, and 
-> 1000Hz is too high for some uses. NOBODY has shown that 250Hz isn't good 
-> enough, there's only been people whining and complaining and saying it 
-> might not be.
+> I was told that the whole point of Arnaldo's work was that the actual po 
+> files etc wouldn't need to be with the kernel, and could be a separate 
+> package, maintained separately. Now I'm seeing patches that seem to make 
+> that a lie.
 
-OK, point taken, I'm done with this issue as far as LKML is concerned.
-Anyone who wants to discuss this further can come over to the
-linux-audio-dev list.
+Hmm, what .po files do you say about? I didn't send the translations of
+Kconfig files. Unfortunetly Arnaldo's patch is incomplete. If you like
+the unfinished things please drop my patches.
 
-Lee
+Gabor
+
 

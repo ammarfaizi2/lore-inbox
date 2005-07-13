@@ -1,70 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVGMRzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVGMRxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVGMRzn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 13:55:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVGMRxo
+	id S262214AbVGMRxj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 13:53:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVGMRvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:53:44 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:53007 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261995AbVGMRvI
+	Wed, 13 Jul 2005 13:51:04 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:7814 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261995AbVGMRtu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:51:08 -0400
-Message-ID: <42D55562.3060908@tmr.com>
-Date: Wed, 13 Jul 2005 13:54:42 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
-References: <200507122110.43967.kernel@kolivas.org>	<Pine.LNX.4.62.0507120446450.9200@qynat.qvtvafvgr.pbz> <200507122202.39988.kernel@kolivas.org>
-In-Reply-To: <200507122202.39988.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 13 Jul 2005 13:49:50 -0400
+Subject: [patch 3/3] inotify: misc cleanup
+From: Robert Love <rml@novell.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 13 Jul 2005 13:49:23 -0400
+Message-Id: <1121276963.6384.30.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Tue, 12 Jul 2005 21:57, David Lang wrote:
-> 
->>this looks very interesting, however one thing that looks odd to me in
->>this is the thought of comparing the results for significantly different
->>hardware.
->>
->>for some of the loads you really are going to be independant of the speed
->>of the hardware (burn, compile, etc will use whatever you have) however
->>for others (X, audio, video) saying that they take a specific percentage
->>of the cpu doesn't seem right.
->>
->>if I have a 400MHz cpu each of these will take a much larger percentage of
->>the cpu to get the job done then if I have a 4GHz cpu for example.
->>
->>for audio and video this would seem to be a fairly simple scaleing factor
->>(or just doing a fixed amount of work rather then a fixed percentage of
->>the CPU worth of work), however for X it is probably much more complicated
->>(is the X load really linearly random in how much work it does, or is it
->>weighted towards small amounts with occasional large amounts hitting? I
->>would guess that at least beyond a certin point the liklyhood of that much
->>work being needed would be lower)
-> 
-> 
-> Actually I don't disagree. What I mean by hardware changes is more along the 
-> lines of changing the hard disk type in the same setup. That's what I mean by 
-> careful with the benchmarking. Taking the results from an athlon XP and 
-> comparing it to an altix is silly for example.
+Linus,
 
-I'm going to cautiously disagree. If the CPU needed was scaled so it 
-represented a fixed number of cycles (operations, work units) then the 
-effect of faster CPU would be shown. And the total power of all attached 
-CPUs should be taken into account, using HT or SMP does have an effect 
-of feel.
+Real simple, basic cleanup.
 
-Disk tests should be at a fixed rate, not all you can do. That's NOT 
-realistic.
+Please, apply.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+	Robert Love
+
+
+Signed-off-by: Robert Love <rml@novell.com>
+
+ fs/inotify.c          |    9 +++------
+ include/linux/sched.h |    2 +-
+ kernel/user.c         |    2 +-
+ 3 files changed, 5 insertions(+), 8 deletions(-)
+
+diff -urN linux-inotify/fs/inotify.c linux/fs/inotify.c
+--- linux-inotify/fs/inotify.c	2005-07-13 11:26:02.000000000 -0400
++++ linux/fs/inotify.c	2005-07-13 11:41:25.000000000 -0400
+@@ -29,8 +29,6 @@
+ #include <linux/mount.h>
+ #include <linux/namei.h>
+ #include <linux/poll.h>
+-#include <linux/device.h>
+-#include <linux/miscdevice.h>
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/writeback.h>
+@@ -936,7 +934,7 @@
+ 
+ 	dev = filp->private_data;
+ 
+-	ret = find_inode ((const char __user*)path, &nd);
++	ret = find_inode((const char __user*) path, &nd);
+ 	if (ret)
+ 		goto fput_and_out;
+ 
+@@ -993,8 +991,9 @@
+ 	if (!filp)
+ 		return -EBADF;
+ 	dev = filp->private_data;
+-	ret = inotify_ignore (dev, wd);
++	ret = inotify_ignore(dev, wd);
+ 	fput(filp);
++
+ 	return ret;
+ }
+ 
+@@ -1034,8 +1033,6 @@
+ 					 sizeof(struct inotify_kernel_event),
+ 					 0, SLAB_PANIC, NULL, NULL);
+ 
+-	printk(KERN_INFO "inotify syscall\n");
+-
+ 	return 0;
+ }
+ 
+
+

@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262733AbVGMTWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVGMTKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262733AbVGMTWY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 15:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbVGMTWV
+	id S262542AbVGMTKq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 15:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVGMTIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 15:22:21 -0400
-Received: from port49.ds1-van.adsl.cybercity.dk ([212.242.141.114]:60777 "EHLO
-	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
-	id S262703AbVGMTVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 15:21:08 -0400
-Message-ID: <42D56993.2040102@fabbione.net>
-Date: Wed, 13 Jul 2005 21:20:51 +0200
-From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: davem@davemloft.net, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org
-Subject: Re: [PATCH] modpost needs to cope with new glibc elf header on sparc
- (resend - my MTA did eat the previous one apparently)
-References: <20050713062549.1ED325032@trider-g7.fabbione.net> <20050713170655.GA8197@mars.ravnborg.org>
-In-Reply-To: <20050713170655.GA8197@mars.ravnborg.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 13 Jul 2005 15:08:20 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:34748 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262493AbVGMTHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 15:07:41 -0400
+Subject: Re: [RFC] RCU and CONFIG_PREEMPT_RT progress, part 3
+From: Steven Rostedt <rostedt@goodmis.org>
+To: paulmck@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, dipankar@in.ibm.com,
+       shemminger@osdl.org, rusty@au1.ibm.com
+In-Reply-To: <20050713184800.GA1983@us.ibm.com>
+References: <20050713184800.GA1983@us.ibm.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 13 Jul 2005 15:06:38 -0400
+Message-Id: <1121281598.25810.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
->>Hi everybody,
->>  recently a change in the glibc elf.h header has been introduced causing
->>modpost to spawn tons of warnings (like the one below) building the kernel on sparc:
->>
+On Wed, 2005-07-13 at 11:48 -0700, Paul E. McKenney wrote:
+> Hello!
 > 
-> Applied.
+> Ported to CONFIG_PREEMPT_RT, and it actually boots!  Running tests,
+
+Good! :)
+
+> working thus far.  But thought I would post the patch and get feedback
+> in the meantime, since I am not sure that my approach is correct.
+> The questions:
 > 
+> 1.	Is use of spin_trylock() and spin_unlock() in hardirq code
+> 	(e.g., rcu_check_callbacks() and callees) a Bad Thing?
+> 	Seems to result in boot-time hangs when I try it, and switching
+> 	to _raw_spin_trylock() and _raw_spin_unlock() seems to work
+> 	better.  But I don't see why the other primitives hang --
+> 	after all, you can call wakeup functions in irq context in
+> 	stock kernels...
 
-Thanks
-
-> You need to reread SubmittingPatches:
-
-I will..
+I never use _raw_spin_*.  I just declare the lock as a raw_spinlock_t
+and the macro's determine to use them instead.  So I just keep the
+spin_lock in the code. Or do you mean that you get problems using the
+spin_locks when the code is already defined as raw_spinlock_t?
 
 > 
->>diff -urNad --exclude=CVS --exclude=.svn ./scripts/mod/modpost.c /usr/src/dpatchtemp/dpep-work.EcxGXN/linux-source-2.6.12-2.6.12/scripts/mod/modpost.c
->>--- ./scripts/mod/modpost.c	2005-06-17 21:48:29.000000000 +0200
->>+++ /usr/src/dpatchtemp/dpep-work.EcxGXN/linux-source-2.6.12-2.6.12/scripts/mod/modpost.c	2005-06-30 09:29:54.000000000 +0200
+> 2.	Is _raw_spin_lock_irqsave() intended for general use?  Its
+> 	API differs from that of spin_lock_irqsave(), so am wondering
+> 	if it is internal-use-only or something.  I currently
+> 	use it from process context to acquire locks shared with
+> 	rcu_check_callbacks().
+
+I would assume not, but Ingo would be better at answering this.
+
 > 
-> 
-> This does not apply with patch -p1. I fixed it manually.
+> 3.	Since SPIN_LOCK_UNLOCKED now takes the lock itself as an
+> 	argument, what is the best way to initialize per-CPU
+> 	locks?  An explicit initialization function, or is there
+> 	some way that I am missing to make an initializer?
 
-.. but it does here...
+Ouch, I just notice that (been using an older version for some time). 
 
-fabbione@gordian:/usr/src/wartydevel/kernel/breezy/linux-source-2.6.12-2.6.12$ patch -p1 <
-debian/patches/scripts-mod-modpost_deal-with-new-glibc.dpatch
-patching file scripts/mod/modpost.c
-fabbione@gordian:/usr/src/wartydevel/kernel/breezy/linux-source-2.6.12-2.6.12$ patch -Rp1 <
-debian/patches/scripts-mod-modpost_deal-with-new-glibc.dpatch
-patching file scripts/mod/modpost.c
-fabbione@gordian:/usr/src/wartydevel/kernel/breezy/linux-source-2.6.12-2.6.12$
+Ingo, is this to force the initialization of the lists instead of at
+runtime?
 
-Thanks a lot.
-Fabio
 
--- 
-no signature file found.
+-- Steve
+
+

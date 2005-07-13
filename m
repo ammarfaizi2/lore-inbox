@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbVGMMXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbVGMMYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262552AbVGMMXE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 08:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVGMMXE
+	id S262581AbVGMMYO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 08:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVGMMYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 08:23:04 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:20709 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262552AbVGMMXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 08:23:03 -0400
-Date: Wed, 13 Jul 2005 08:29:27 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-In-reply-to: <20050713103930.GA16776@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Chuck Harding <charding@llnl.gov>,
-       karsten wiese <annabellesgarden@yahoo.de>
-Message-id: <200507130829.27990.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200507061257.36738.s0348365@sms.ed.ac.uk>
- <Pine.LNX.4.63.0507121331480.9097@ghostwheel.llnl.gov>
- <20050713103930.GA16776@elte.hu>
-User-Agent: KMail/1.7
+	Wed, 13 Jul 2005 08:24:14 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:21961 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262581AbVGMMXH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 08:23:07 -0400
+Date: Wed, 13 Jul 2005 17:52:57 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: Current kexec status?
+Message-ID: <20050713122257.GA29477@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20050713104848.GJ4561@charite.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050713104848.GJ4561@charite.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 July 2005 06:39, Ingo Molnar wrote:
->* Chuck Harding <charding@llnl.gov> wrote:
->> > CC [M]  sound/oss/emu10k1/midi.o
->> >sound/oss/emu10k1/midi.c:48: error: syntax error before
->> > '__attribute__' sound/oss/emu10k1/midi.c:48: error: syntax error
->> > before ')' token
->> >
->> >Here's the offending line:
->> >
->> >   48 static DEFINE_SPINLOCK(midi_spinlock
->> > __attribute((unused)));
->> >
->> >Lee
->>
->> I got it to compile but it won't boot - it hangs right after the
->> 'Uncompressing Linux... OK, booting the kernel' - I'm using
->> .config from 51-27 (attached)
->
->and -51-27 worked just fine? I've uploaded -29 with the -28 io-apic
->changes undone (will re-apply them once Karsten has figured out
-> what's wrong).
->
-> Ingo
->-
+On Wed, Jul 13, 2005 at 12:48:49PM +0200, Ralf Hildebrandt wrote:
+> I want to experiment with kexec and my 2.6.13-rc3 kernel. I'm able to
+> --load the kernel, but on --exec in /etc/init.d/reboot (I replaced the
+> reboot command in there), the machine freezes.
 
-27 and 28 both worked in mode 4 here Ingo, except of course for 
-tvtime.  I built a 28 in mode 3 last night but haven't rebooted to it 
-yet.  I don't have an sblive in this box either.
+Can you give more details like
+- Which distro release you are running.
+- Exactly what changes did you do to /etc/init.d/reboot and what steps
+did you follow to load the kernel (command line options).
+- What do you see on screen? Did the new kernel start booting at all.
+- Would be nice if I can get serial console output.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+> 
+> I'm using kexec-tools-1.101, are there any more patches needed?
+> 
+
+For normal kexec, no. You don't need any more patches.
+
+Thanks
+Vivek
+

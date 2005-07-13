@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVGMWJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVGMWYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVGMWJV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 18:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVGMSny
+	id S262224AbVGMWYE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 18:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVGMWJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:43:54 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:187 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S262219AbVGMSmM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:42:12 -0400
-Date: Wed, 13 Jul 2005 20:42:27 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Lee Revell <rlrevell@joe-job.com>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org, torvalds@osdl.org,
-       christoph@lameter.org
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Message-ID: <20050713184227.GB2072@ucw.cz>
-References: <200506231828.j5NISlCe020350@hera.kernel.org> <20050712121008.GA7804@ucw.cz> <200507122239.03559.kernel@kolivas.org> <200507122253.03212.kernel@kolivas.org> <42D3E852.5060704@mvista.com> <20050712162740.GA8938@ucw.cz> <42D540C2.9060201@tmr.com> <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
+	Wed, 13 Jul 2005 18:09:24 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:58573 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262717AbVGMWHF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 18:07:05 -0400
+Date: Thu, 14 Jul 2005 00:01:23 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Greg KH <gregkh@suse.de>
+Cc: ralf@linux-mips.org, netdev@vger.kernel.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [05/11] SMP fix for 6pack driver
+Message-ID: <20050713220123.GA3292@electric-eye.fr.zoreil.com>
+References: <20050713184130.GA9330@kroah.com> <20050713184331.GG9330@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050713184331.GG9330@kroah.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 10:24:10AM -0700, David Lang wrote:
-
-> >How serious is the 1/HZ = sane problem, and more to the point how many 
-> >programs get the HZ value with a system call as opposed to including a 
-> >header or building it in? I know some of my older programs use header 
-> >files, that was part of the planning for the future even before 2.5 
-> >started. At the time I didn't expect to have to use the system call.
+Greg KH <gregkh@suse.de> :
+> -stable review patch.  If anyone has any objections, please let us know.
 > 
-> in binary 1/100 or 1/1000 are not sane values to start with so I don't 
-> think that that this is likly to be that critical (remembering that the 
-> kernel doesn't do floating point math)
- 
-No, but 1/1000Hz = 1000000ns, while 1/864Hz = 1157407.407ns. If you have
-a counter that counts the ticks in nanoseconds (xtime ...), the first
-will be exact, the second will be accumulating an error.
+> ------------------
+> 
+> 
+> Drivers really only work well in SMP if they actually can be selected.
+> This is a leftover from the time when the 6pack drive only used to be
+> a bitrotten variant of the slip driver.
 
-It's a tradeoff.
+Is the guideline above from 28/04/2005 obsoleted ?
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+ - It must fix a problem that causes a build error (but not for things
+   marked CONFIG_BROKEN), an oops, a hang, data corruption, a real
+   security issue, or some "oh, that's not good" issue.  In short,
+   something critical.
+
+--
+Ueimor

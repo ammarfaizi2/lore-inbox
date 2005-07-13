@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVGMVdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbVGMVyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbVGMVdz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 17:33:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbVGMVa5
+	id S262678AbVGMVyv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 17:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVGMSpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 17:30:57 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:5850 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262775AbVGMVa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 17:30:26 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
-       dtor_core@ameritech.net, torvalds@osdl.org, vojtech@suse.cz,
-       david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, mbligh@mbligh.org, diegocg@gmail.com,
-       azarah@nosferatu.za.org, christoph@lameter.com
-In-Reply-To: <20050713211650.GA12127@taniwha.stupidest.org>
-References: <42D3E852.5060704@mvista.com> <20050712162740.GA8938@ucw.cz>
-	 <42D540C2.9060201@tmr.com>
-	 <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
-	 <20050713184227.GB2072@ucw.cz>
-	 <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org>
-	 <1121282025.4435.70.camel@mindpipe>
-	 <d120d50005071312322b5d4bff@mail.gmail.com>
-	 <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-Content-Type: text/plain
-Date: Wed, 13 Jul 2005 17:30:24 -0400
-Message-Id: <1121290224.4435.109.camel@mindpipe>
+	Wed, 13 Jul 2005 14:45:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:17379 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262313AbVGMSow (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 14:44:52 -0400
+Date: Wed, 13 Jul 2005 11:43:57 -0700
+From: Greg KH <gregkh@suse.de>
+To: kambarov@berkeley.edu
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: [08/11] coverity: tty_ldisc_ref return null check
+Message-ID: <20050713184357.GJ9330@kroah.com>
+References: <20050713184130.GA9330@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050713184130.GA9330@kroah.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-13 at 14:16 -0700, Chris Wedgwood wrote:
->    (1) ACPI/SMM suckage in laptops
+-stable review patch.  If anyone has any objections, please let us know.
 
-Anything that loses ticks at 1000HZ is unsuitable for serious multimedia
-use anyway, so I think this part of the argument isn't as important.
-Also, I don't know that anyone has a list of machines with these
-ACPI/SMM bugs.
+------------------
 
-Lee
+From: KAMBAROV, ZAUR <kambarov@berkeley.edu>
 
+We add a check of the return value of tty_ldisc_ref(), which
+is checked 7 out of 8 times, e.g.:
+
+149  		ld = tty_ldisc_ref(tty);
+150  		if (ld != NULL) {
+151  			if (ld->set_termios)
+152  				(ld->set_termios)(tty, &old_termios);
+153  			tty_ldisc_deref(ld);
+154  		}
+
+This defect was found automatically by Coverity Prevent, a static analysis
+tool.
+
+(akpm: presumably `ld' is never NULL.  Oh well)
+
+Signed-off-by: Zaur Kambarov <zkambarov@coverity.com>
+Acked-by: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/char/tty_ioctl.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.12.2.orig/drivers/char/tty_ioctl.c	2005-06-17 12:48:29.000000000 -0700
++++ linux-2.6.12.2/drivers/char/tty_ioctl.c	2005-07-13 10:56:39.000000000 -0700
+@@ -476,11 +476,11 @@
+ 			ld = tty_ldisc_ref(tty);
+ 			switch (arg) {
+ 			case TCIFLUSH:
+-				if (ld->flush_buffer)
++				if (ld && ld->flush_buffer)
+ 					ld->flush_buffer(tty);
+ 				break;
+ 			case TCIOFLUSH:
+-				if (ld->flush_buffer)
++				if (ld && ld->flush_buffer)
+ 					ld->flush_buffer(tty);
+ 				/* fall through */
+ 			case TCOFLUSH:

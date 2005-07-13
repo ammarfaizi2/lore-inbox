@@ -1,55 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbVGMLOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbVGML1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbVGMLOb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 07:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVGMLNn
+	id S262616AbVGML1P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 07:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVGML1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 07:13:43 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:48332 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262687AbVGMLCk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 07:02:40 -0400
-Date: Wed, 13 Jul 2005 13:02:25 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Lenz Grimmer <lenz@grimmer.com>
-cc: Gijs Hillenius <gijs@hillenius.net>, Frank Sorenson <frank@tuxrocks.com>,
-       hdaps-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Hdaps-devel] Re: Updating hard disk firmware & parking hard
- disk
-In-Reply-To: <42D4EB21.1060305@grimmer.com>
-Message-ID: <Pine.LNX.4.61.0507131259480.14635@yvahk01.tjqt.qr>
-References: <20050707171434.90546.qmail@web32604.mail.mud.yahoo.com>
- <42CD7E0C.3060101@tuxrocks.com> <878y0bozf8.fsf@hillenius.net>
- <Pine.LNX.4.61.0507131208540.14635@yvahk01.tjqt.qr> <42D4EB21.1060305@grimmer.com>
+	Wed, 13 Jul 2005 07:27:15 -0400
+Received: from web52902.mail.yahoo.com ([206.190.49.12]:16988 "HELO
+	web52902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262616AbVGML1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 07:27:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=r/q9zrj97YWOS2v8hRTxi9J0/XPsI56w93ZP+0+uIH+mU9UBdEzuaJdqVaCRTlUPEvCdyFWoDeTXcXrdkfD2+oTwaApE1wUz1EvfiMH7zawCFOCb3mZHIzxDsxfJ0V9THL8Y/leYRVBjt+v69BnRahLD+gVocQnod+q9reVSJso=  ;
+Message-ID: <20050713112710.60204.qmail@web52902.mail.yahoo.com>
+Date: Wed, 13 Jul 2005 13:27:09 +0200 (CEST)
+From: szonyi calin <caszonyi@yahoo.com>
+Subject: RE: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
+To: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: ck list <ck@vds.kolivas.org>, caszonyi@rdslink.ro
+In-Reply-To: <200507122110.43967.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->> Head parking while the system running is almost useless, since sooner or 
->> later, someone's going to write/read something.
+--- Con Kolivas <kernel@kolivas.org> a écrit :
+
+> 	Interbench - The Linux Interactivity Benchmark v0.20
+> 
+> http://interbench.kolivas.org
+> 
+> direct download link:
+> http://ck.kolivas.org/apps/interbench/interbench-0.20.tar.bz2
+> 
 >
->Correct, that's why we're discussing to freeze the request queue as well.
+[snip]
+ 
+> Audio:
+> Audio is simulated as a thread that tries to run at 50ms
+> intervals that then
+> requires 5% cpu. This behaviour ignores any caching that would
+> normally be 
+> done by well designed audio applications, but has been seen as
+> the interval 
+> used to write to audio cards by a popular linux audio player.
+> It also ignores 
+> any of the effects of different audio drivers and audio cards.
+> Audio can also 
+> be run as a real time SCHED_FIFO task.
+> 
 
-Sounds good (esp. for laptops/notebooks, which should preferably run "on RAM" 
-as long as possible)
+I have the following problem with audio:
+Xmms is running with threads for audio and spectrum
+analyzer(OpenGL).
+The audio eats 5% cpu, the spectrum analyzer about 80 %. The
+problem is that sometimes the spectrum analyzer is eating all of
+the cpu while the audio is skipping. Xmms is version 1.2.10
+kernel is vanilla, latest "stable" version 2.6.12, suid root.
 
->But it suffers from the same fate - as soon as the disk receives a new
->request, it will spin up again.
+Does your benchmark simultes this kind of behaviour ? 
+ 
 
-In case of the SUSE bootscripts (and possibly others), some flush barriers are 
-engaged, then the disk is spun down and immediately after the poweroff 
-happens.
+> 
+> Cheers,
+> Con Kolivas
+> 
 
->So there is no gain, except that just
->parking the head without spinning down the spindle can be performed much
->faster.
-
-What's the gain in parking the head manually if it's done anyway when the disk 
-spins down (for whatever reason)?
+I'll give it a try
+Thanks
+Calin
 
 
+--
+A mouse is a device used to point at 
+the xterm you want to type in.
+Kim Alm on a.s.r.
 
-Jan Engelhardt
--- 
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

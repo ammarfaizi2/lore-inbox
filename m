@@ -1,109 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbVGMOl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbVGMOqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262653AbVGMOl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 10:41:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVGMOl7
+	id S262657AbVGMOqp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 10:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVGMOqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 10:41:59 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:5527 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262653AbVGMOl4 (ORCPT
+	Wed, 13 Jul 2005 10:46:45 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:51163 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262657AbVGMOqo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 10:41:56 -0400
-To: torvalds@osdl.org
-Subject: [git pull] jfs update
+	Wed, 13 Jul 2005 10:46:44 -0400
+Date: Wed, 13 Jul 2005 16:45:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <20050713144149.6E10282C74@kleikamp.dyn.webahead.ibm.com>
-Date: Wed, 13 Jul 2005 09:41:49 -0500 (CDT)
-From: shaggy@austin.ibm.com (Dave Kleikamp)
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Message-ID: <20050713144551.GA26067@elte.hu>
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <200507111538.22551.s0348365@sms.ed.ac.uk> <20050711144328.GA18244@elte.hu> <200507111650.33187.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507111650.33187.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
 
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git/HEAD-for-linus
+* Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
 
-This will update the following files:
+> Ours links to a company server with a consumer grade 1Mbit ADSL 
+> connection, and transferring just about anything at 110K/s causes the 
+> kernel to crash within about 10 seconds.
+> 
+> I wish you the best of luck with getting this going, and I apologise 
+> in advance for the poor instructions.
 
- fs/jfs/jfs_dmap.c    |  298 +-------------------------------------------
- fs/jfs/jfs_dtree.c   |  199 -----------------------------
- fs/jfs/jfs_dtree.h   |    7 -
- fs/jfs/jfs_imap.c    |  105 ---------------
- fs/jfs/jfs_unicode.c |    7 -
- fs/jfs/jfs_xtree.c   |  340 ---------------------------------------------------
- fs/jfs/jfs_xtree.h   |    6 
- fs/jfs/xattr.c       |    6 
- 8 files changed, 15 insertions(+), 953 deletions(-)
+it worked upon the first try, and indeed my testbox crashed within 10 
+seconds:
 
-through these ChangeSets:
+ BUG: Unable to handle kernel NULL pointer dereference
+ BUG: Unable to handle kernel NULL pointer dereference at virtual address 00000006
+  printing eip:
+ 00000006
+ *pde = 00000000
+ Oops: 0000 [#1]
+ PREEMPT
+ Modules linked in:
+ CPU:    0
+ EIP:    0060:[<00000006>]    Not tainted VLI
+ EFLAGS: 00010286   (2.6.12-RT-V0.7.51-30-debug)
+ EIP is at 0x6
+ eax: c057fef8   ebx: c0614340   ecx: c04490b8   edx: 00000001
+ esi: c057ff34   edi: c0135d52   ebp: c057ff54   esp: c057ff3c
+ ds: 007b   es: 007b   ss: 0068   preempt: 20000002
 
-commit 59192ed9e7aa81b06a1803661419f7261afca1ad
-tree 31f592365ad2ecf5eb606de10290da502fc7eb74
-parent 6211502d7ee9e515e4458d0c0ebfbb70553dc7de
-author Ian Dall <ian@beware.dropbear.id.au> Wed, 13 Jul 2005 09:15:18 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Wed, 13 Jul 2005 09:15:18 -0500
+it was enough to "ssh 10.0.0.1" from the client, and typing "yes" would 
+trigger the crash very soon.
 
-    JFS: Need to be root to create files with security context
-    
-    It turns out this is due to some inverted logic in xattr.c
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+thanks for the instructions - now i can start debugging this :-)
 
-commit 6211502d7ee9e515e4458d0c0ebfbb70553dc7de
-tree 24ab6b567f793f8dd1c1e3458769290df2bf8f52
-parent f7f24758ac98a506770bc5910d33567610fa3403
-author Dave Kleikamp <shaggy@austin.ibm.com> Wed, 13 Jul 2005 09:07:53 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Wed, 13 Jul 2005 09:07:53 -0500
-
-    JFS: Allow security.* xattrs to be set on symlinks
-    
-    All of the different xattr namespaces have different rules.
-    user.* and ACL's are not allowed on symlinks, and since these were the
-    first xattrs implemented, I assumed there was no need to support xattrs
-    on symlinks.  This one-line patch should fix it.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-commit f7f24758ac98a506770bc5910d33567610fa3403
-tree ff7fad3d01bf9dc2e2e54b908f9fca4891e1ee72
-parent b38a3ab3d1bb0dc3288f73903d4dc4672b5cd2d0
-parent c32511e2718618f0b53479eb36e07439aa363a74
-author Dave Kleikamp <shaggy@austin.ibm.com> Wed, 13 Jul 2005 08:57:38 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Wed, 13 Jul 2005 08:57:38 -0500
-
-    Merge with /home/shaggy/git/linus-clean/
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-commit b38a3ab3d1bb0dc3288f73903d4dc4672b5cd2d0
-tree 31d017dd1f9f4a8ca3e80d25d110c64ae82d4aae
-parent f5f287738bddf38ec9ca79344f00dab675e1bbf5
-author Dave Kleikamp <shaggy@austin.ibm.com> Mon, 27 Jun 2005 15:35:37 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Mon, 27 Jun 2005 15:35:37 -0500
-
-    JFS: Code cleanup - getting rid of never-used debug code
-    
-    I'm finally getting around to cleaning out debug code that I've never used.
-    There has always been code ifdef'ed out by _JFS_DEBUG_DMAP, _JFS_DEBUG_IMAP,
-    _JFS_DEBUG_DTREE, and _JFS_DEBUG_XTREE, which I have personally never used,
-    and I doubt that anyone has since the design stage back in OS/2.  There is
-    also a function, xtGather, that has never been used, and I don't know why it
-    was ever there.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-commit f5f287738bddf38ec9ca79344f00dab675e1bbf5
-tree c8144a3906f6904f7cf18c4520976c79a1e15b0a
-parent a8ad86f2dc46356f87be1327dabc18bdbda32f50
-author Sonny Rao <sonny@burdell.org> Thu, 23 Jun 2005 16:57:56 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Thu, 23 Jun 2005 16:57:56 -0500
-
-    JFS: performance patch
-    
-    Basically, we saw a large amount of time spent in the
-    jfs_strfromUCS_le() function, mispredicting the branch inside the
-    loop, so I just added some unlikely modifiers to the if statements to
-    re-ordered the code.  Again, these simple changes provided > 2 % on
-    spec-sfs, so please consider it for inclusion.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
+	Ingo

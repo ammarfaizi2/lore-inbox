@@ -1,108 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVGMXfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVGMRZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVGMXfv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 19:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbVGMXdz
+	id S261583AbVGMRZo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 13:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVGMRXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 19:33:55 -0400
-Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:31573 "HELO
-	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262341AbVGMXcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 19:32:45 -0400
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: hdaps-devel@lists.sourceforge.net
-Subject: Re: [Hdaps-devel] Updating hard disk firmware & parking hard disk
-Date: Wed, 13 Jul 2005 19:32:35 -0400
-User-Agent: KMail/1.8.1
-Cc: Gijs Hillenius <gijs@hillenius.net>, Frank Sorenson <frank@tuxrocks.com>,
-       linux-kernel@vger.kernel.org
-References: <20050707171434.90546.qmail@web32604.mail.mud.yahoo.com> <42CD7E0C.3060101@tuxrocks.com> <878y0bozf8.fsf@hillenius.net>
-In-Reply-To: <878y0bozf8.fsf@hillenius.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 13 Jul 2005 13:23:53 -0400
+Received: from mta02.mail.t-online.hu ([195.228.240.51]:34243 "EHLO
+	mta02.mail.t-online.hu") by vger.kernel.org with ESMTP
+	id S261750AbVGMRVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 13:21:50 -0400
+Subject: [PATCH 10/19] Kconfig I18N: gconfig: missing macros
+From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Massimo Maiurana <maiurana@inwind.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       KernelFR <kernelfr@traduc.org>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+In-Reply-To: <1121273456.2975.3.camel@spirit>
+References: <1121273456.2975.3.camel@spirit>
+Content-Type: text/plain
+Date: Wed, 13 Jul 2005 19:21:47 +0200
+Message-Id: <1121275307.2975.32.camel@spirit>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507131932.35560.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Perhaps you also need to flash the BIOS and or Embedded Controller firmware?
+Supplementing missing macros.
 
-Shawn.
+Signed-off-by: Egry Gabor <gaboregry@t-online.hu>
+---
 
-On July 13, 2005 04:58, Gijs Hillenius wrote:
-> >>>>> Frank Sorenson writes:
->      > Martin Knoblauch wrote:
->      >
->     >> Download is simple, just don't use the "IBM Download
->     >> Manager". Main problem is that one needs a bootable floopy
->     >> drive and "the other OS" to create a bootable floppy. It would
->     >> be great if IBM could provide floppy images for use with "dd"
->     >> for the poor Linux users.
->     >>
->      > You may be able to use this process to avoid using either a
->      > floppy drive or "the other OS":
->      >
->      > 1) Download the appropriate firmware exe from
->      > http://www-306.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-
->      >41008 (in my case, this looks like fwhd3313.exe)
->      >
->      > 2) Find a freedos disk image (I used one that came with
->      > biosdisk - http://linux.dell.com/biosdisk/)
->      >
->      > 3) Create a disk image for the firmware executable: cp
->      > /usr/share/biosdisk/dosdisk.img /tmp/fwdisk1.img mount -oloop
->      > /tmp/fwtemp.img /mnt/tmp cp fwhd3313.exe /mnt/tmp umount
->      > /mnt/tmp
->      >
->      > 4) Create a blank disk image for the extracted contents: dd
->      > if=/dev/zero of=/boot/fwdisk.img bs=1474560 count=1
->      >
->      > 5) Run qemu to extract files and write the disk image: qemu
->      > -fda /tmp/fwtemp.img -fdb /boot/fwdisk.img A:\>fwhd3313 ...
->      > exit qemu
->      >
->      > 6) Set up grub to boot the new disk image (requires memdisk
->      > from syslinux - http://syslinux.zytor.com/): $EDITOR
->      > /boot/grub/grub.conf title IBM Hard Drive Firmware update
->      > kernel /memdisk initrd=/fwdisk.img floppy
->      >
->      > 7) Reboot and select the "IBM Hard Drive Firmware update"
->      > option
->      >
->      >
->      > It allowed me to run the firmware update program, however it
->      > didn't believe my drive needed updating, so I haven't even
->      > successfully tried the entire process.  Please let me know if
->      > it works for you.
->      >
->      > DISCLAIMER: I also provide no guarantees.  Hopefully your hard
->      > disk won't fly off the spindle or anything else bad.  If it
->      > does, blame someone else.
->
-> Hi Frank,
->
-> FYI I succesfully used your above method to update the firmware
-> for the IC25N040ATMR04-0 hard disk that came with my Thinkpad R51.
->
-> Before the update hdparm -i /dev/hda
-> Model=IC25N040ATMR04-0, FwRev=MO2OAD4A
->
-> and after the update
-> Model=IC25N040ATMR04-0, FwRev=MO2OADEA
->
-> So, thanks!
->
-> however, the firmware update did not solve the 'head not park'
-> issue. :-(
->
-> sudo ./park /dev/hda
-> head not parked 4c
->
->
-> Regards
->
-> Gijs
+ scripts/kconfig/gconf.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -puN scripts/kconfig/gconf.c~kconfig-i18n-10-gconfig-missing scripts/kconfig/gconf.c
+--- linux-2.6.13-rc3-i18n-kconfig/scripts/kconfig/gconf.c~kconfig-i18n-10-gconfig-missing	2005-07-13 18:32:18.000000000 +0200
++++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/kconfig/gconf.c	2005-07-13 18:36:49.000000000 +0200
+@@ -464,7 +464,7 @@ static void text_insert_help(struct menu
+ {
+ 	GtkTextBuffer *buffer;
+ 	GtkTextIter start, end;
+-	const char *prompt = menu_get_prompt(menu);
++	const char *prompt = _(menu_get_prompt(menu));
+ 	gchar *name;
+ 	const char *help = _(nohelp_text);
+ 
+@@ -1188,7 +1188,7 @@ static gchar **fill_row(struct menu *men
+ 	bzero(row, sizeof(row));
+ 
+ 	row[COL_OPTION] =
+-	    g_strdup_printf("%s %s", menu_get_prompt(menu),
++	    g_strdup_printf("%s %s", _(menu_get_prompt(menu)),
+ 			    sym ? (sym->
+ 				   flags & SYMBOL_NEW ? _("(NEW)") : "") :
+ 			    "");
+@@ -1240,7 +1240,7 @@ static gchar **fill_row(struct menu *men
+ 
+ 		if (def_menu)
+ 			row[COL_VALUE] =
+-			    g_strdup(menu_get_prompt(def_menu));
++			    g_strdup(_(menu_get_prompt(def_menu)));
+ 	}
+ 	if(sym->flags & SYMBOL_CHOICEVAL)
+ 		row[COL_BTNRAD] = GINT_TO_POINTER(TRUE);
+_
+
+

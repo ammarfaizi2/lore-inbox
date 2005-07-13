@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVGMO2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbVGMOez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262658AbVGMO2u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 10:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVGMO2u
+	id S262666AbVGMOez (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 10:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVGMOez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 10:28:50 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:15086 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262658AbVGMO2p (ORCPT
+	Wed, 13 Jul 2005 10:34:55 -0400
+Received: from fbxmetz.linbox.com ([81.56.128.63]:60615 "EHLO xiii.metz")
+	by vger.kernel.org with ESMTP id S262666AbVGMOey (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 10:28:45 -0400
-Date: Wed, 13 Jul 2005 07:29:18 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread, take 2
-Message-ID: <20050713142918.GA1304@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050711145552.GA1489@us.ibm.com> <1121098272.7050.13.camel@c-67-188-6-232.hsd1.ca.comcast.net> <20050711164322.GD1304@us.ibm.com> <1121100589.7050.24.camel@c-67-188-6-232.hsd1.ca.comcast.net> <20050711171910.GE1304@us.ibm.com> <1121102728.7050.29.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121102728.7050.29.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 13 Jul 2005 10:34:54 -0400
+Message-ID: <42D5268B.7050108@linbox.com>
+Date: Wed, 13 Jul 2005 16:34:51 +0200
+From: Ludovic Drolez <ludovic.drolez@linbox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.12: yukon2 nics still not supported...
+References: <Pine.LNX.4.44.0307211749400.6905-100000@phoenix.infradead.org> <3F378FC3.1020507@freealter.com>
+In-Reply-To: <3F378FC3.1020507@freealter.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 11, 2005 at 10:25:28AM -0700, Daniel Walker wrote:
-> On Mon, 2005-07-11 at 10:19 -0700, Paul E. McKenney wrote:
-> 
-> > OK, interesting point, though this would apply only to interrupt latency,
-> > not to scheduling latency or to latency for any other system services,
-> > right?
-> 
-> Only for interrupt latency, that I know of. 
-> 
-> > Do you believe that the 50-us delay measured by Kristian and Karim was
-> > due to APM or due to hardware (as Karim suspected)?  If the latter,
-> > any guesses as to the cause of the holdup?  50 us is a -really- long
-> > time for ~100 instructions on today's hardware, even if each instruction
-> > misses the cache!
-> 
-> There are ~100 interrupt off critical sections. Those sections can be
-> variable numbers of instructions. I would imagine that whatever maximum
-> latency that Kristian and Karim found is the maximum for their hardware.
+Hi !
 
-Does your ~100-instruction estimate include scheduler_tick() interrupt?
->From another thread, I gather that it runs with hardware interrupts
-disabled.
+I recently had to boot a brand new system using a Marvel Yukon2 NIC (sk98lin) 
+driver which is not supported by the latest kernel (pci ids = 11ab:4361).
 
-						Thanx, Paul
+So I compiled the GPLed driver available from Syskonnect, 
+http://www.syskonnect.com/syskonnect/support/driver/d0102_driver.html, which 
+works perfectly.
+
+So, I wonder why the sk98lin driver is not up to date in the 2.6.x kernels ?
+
+Cheers,
+
+-- 
+Ludovic DROLEZ                              Linbox / Free&ALter Soft
+www.linbox.com www.linbox.org

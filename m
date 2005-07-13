@@ -1,90 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVGMRj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVGMRj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbVGMRj3 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261922AbVGMRj3 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 13 Jul 2005 13:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVGMRh3
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbVGMRhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:37:29 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:61970 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261994AbVGMRfB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:35:01 -0400
-Date: Wed, 13 Jul 2005 13:34:21 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Adam Belay <ambx1@neo.rr.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com,
-       grundler@parisc-linux.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       rmk+lkml@arm.linux.org.uk, matthew@wil.cx,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [patch 2.6.13-rc2] pci: restore BAR values from pci_set_power_state for D3hot->D0
-Message-ID: <20050713173417.GA21547@tuxdriver.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-pm@lists.osdl.org,
-	linux-kernel@vger.kernel.org, greg@kroah.com,
-	grundler@parisc-linux.org, linux-pci@atrey.karlin.mff.cuni.cz,
-	rmk+lkml@arm.linux.org.uk, matthew@wil.cx,
-	"David S. Miller" <davem@davemloft.net>
-References: <20050708095104.A612@den.park.msu.ru> <20050707.233530.85417983.davem@davemloft.net> <20050708110358.A8491@jurassic.park.msu.ru> <20050708.003333.28789082.davem@davemloft.net> <20050708122043.A8779@jurassic.park.msu.ru> <20050708183452.GB13445@tuxdriver.com> <20050712022855.GA3689@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050712022855.GA3689@neo.rr.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 13 Jul 2005 13:37:37 -0400
+Received: from silver.veritas.com ([143.127.12.111]:29313 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S261922AbVGMRfA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 13:35:00 -0400
+Date: Wed, 13 Jul 2005 18:36:20 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: David Howells <dhowells@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 2/3] fix page-becoming-writable vm_page_prot
+In-Reply-To: <Pine.LNX.4.61.0507131831100.5735@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0507131834230.5735@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0507131831100.5735@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 13 Jul 2005 17:34:53.0628 (UTC) FILETIME=[2DCD6FC0:01C587D1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 11, 2005 at 10:28:55PM -0400, Adam Belay wrote:
-> On Fri, Jul 08, 2005 at 02:34:56PM -0400, John W. Linville wrote:
+The do_wp_page page_mkwrite breakage went unnoticed because do_no_page
+was as usual giving write permission to the pte in handling a read fault
+on a shared writable mapping, thus sneaking around page_mkwrite.
 
-> > Some firmware leaves devices in D3hot after a (re)boot.  Most drivers
-> > call pci_enable_device very early, so devices left in D3hot that lose
-> > configuration during the D3hot->D0 transition will be inaccessible to
-> > their drivers.
-> 
-> Also, I think there is a possibility of only enabling boot devices for ACPI
-> S4.  However, for the reboot case, we're not restoring anything.  Instead new
-> resource assignments are being made.  Doesn't the PCI subsystem already
-> handle this?
+It could likewise be evaded by do_file_page->populate->install_page.  And
+if those were to write protect the pte, mprotect back and forth could be
+used to reinstate write permission without going through page_mkwrite.
 
-I'm not sure I understand you...the kernel doesn't actually make the
-assignments, relying on the BIOS to do so...am I wrong?
+No explicit change to those: deal with it by using the vm_page_prot
+of a private mapping on any shared mapping which has a page_mkwrite.
 
-So, if the BIOS leaves a device in D3hot, it will loose it's
-BIOS-assigned resources when it transitions to D0 in pci_enable_device.
-The point of this patch is to restore those BAR assignments so that
-the device's registers will be accessible to the driver.  The driver
-remains blissfully unaware of the D3hot->D0 issue.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-> >   * pci_set_power_state - Set the power state of a PCI device
-> >   * @dev: PCI device to be suspended
-> >   * @state: PCI power state (D0, D1, D2, D3hot, D3cold) we're entering
-> > @@ -239,7 +270,7 @@ pci_find_parent_resource(const struct pc
-> >  int
-> >  pci_set_power_state(struct pci_dev *dev, pci_power_t state)
-> >  {
-> 
-> Couldn't this be in pci_restore_state() instead?  I was thinking it would
-> (in part) replace the ugly dword reads we have now.  They include many
-> registers we don't need to touch.  I wonder if we'll need pci_save_state()
-> at all or if we can derive all the information from the pci_dev.  I'll have
-> to look into it further.
+ mm/mmap.c     |    9 +++++++--
+ mm/mprotect.c |    8 ++++++--
+ 2 files changed, 13 insertions(+), 4 deletions(-)
+
+--- 2.6.13-rc2-mm2/mm/mmap.c	2005-07-07 12:33:21.000000000 +0100
++++ linux/mm/mmap.c	2005-07-11 20:01:28.000000000 +0100
+@@ -1051,7 +1051,8 @@ munmap_back:
+ 	vma->vm_start = addr;
+ 	vma->vm_end = addr + len;
+ 	vma->vm_flags = vm_flags;
+-	vma->vm_page_prot = protection_map[vm_flags & 0x0f];
++	vma->vm_page_prot = protection_map[vm_flags &
++				(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)];
+ 	vma->vm_pgoff = pgoff;
  
-Currently pci_restore_state is only useful if there is a preceding
-pci_save_state.  While this commonly occurs in the ->resume routines,
-most drivers don't do any such thing (i.e. either save or restore) in
-the ->probe routines.  This is likely because it only makes sense to
-do so if you know about the D3hot->D0 issue; in that case, we would
-be back to replicating code in any number of drivers.  I think we
-agree that should be avoided.
-
-> Also we need a way to restore specific PCI capabilities.
-
-If you are asking for additional patches (or more changes to this one)
-then you'll have to be more specific.  I don't know what you want here.
-
-Thanks,
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+ 	if (file) {
+@@ -1074,6 +1075,9 @@ munmap_back:
+ 		if (error)
+ 			goto free_vma;
+ 	}
++	if (vma->vm_ops && vma->vm_ops->page_mkwrite)
++		vma->vm_page_prot = protection_map[vm_flags &
++					(VM_READ|VM_WRITE|VM_EXEC)];
+ 
+ 	/* We set VM_ACCOUNT in a shared mapping's vm_flags, to inform
+ 	 * shmem_zero_setup (perhaps called through /dev/zero's ->mmap)
+@@ -1910,7 +1914,8 @@ unsigned long do_brk(unsigned long addr,
+ 	vma->vm_end = addr + len;
+ 	vma->vm_pgoff = pgoff;
+ 	vma->vm_flags = flags;
+-	vma->vm_page_prot = protection_map[flags & 0x0f];
++	vma->vm_page_prot = protection_map[flags &
++				(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)];
+ 	vma_link(mm, vma, prev, rb_link, rb_parent);
+ out:
+ 	mm->total_vm += len >> PAGE_SHIFT;
+--- 2.6.13-rc2-mm2/mm/mprotect.c	2005-06-17 20:48:29.000000000 +0100
++++ linux/mm/mprotect.c	2005-07-11 20:01:28.000000000 +0100
+@@ -107,6 +107,7 @@ mprotect_fixup(struct vm_area_struct *vm
+ 	unsigned long oldflags = vma->vm_flags;
+ 	long nrpages = (end - start) >> PAGE_SHIFT;
+ 	unsigned long charged = 0;
++	unsigned int mask;
+ 	pgprot_t newprot;
+ 	pgoff_t pgoff;
+ 	int error;
+@@ -133,8 +134,6 @@ mprotect_fixup(struct vm_area_struct *vm
+ 		}
+ 	}
+ 
+-	newprot = protection_map[newflags & 0xf];
+-
+ 	/*
+ 	 * First try to merge with previous and/or next vma.
+ 	 */
+@@ -161,6 +160,11 @@ mprotect_fixup(struct vm_area_struct *vm
+ 	}
+ 
+ success:
++	mask = VM_READ|VM_WRITE|VM_EXEC|VM_SHARED;
++	if (vma->vm_ops && vma->vm_ops->page_mkwrite)
++		mask &= ~VM_SHARED;
++	newprot = protection_map[newflags & mask];
++
+ 	/*
+ 	 * vm_flags and vm_page_prot are protected by the mmap_sem
+ 	 * held in write mode.

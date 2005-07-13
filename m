@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbVGMFrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262595AbVGMFuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262596AbVGMFrP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 01:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVGMFrO
+	id S262595AbVGMFuS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 01:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbVGMFuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 01:47:14 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:53401 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262596AbVGMFrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 01:47:08 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: 7eggert@gmx.de, Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>,
-       sander@humilis.net, "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel guide to space
-Date: Wed, 13 Jul 2005 08:46:36 +0300
-User-Agent: KMail/1.5.4
-References: <4p851-3Tl-11@gated-at.bofh.it> <4pmUD-7gx-37@gated-at.bofh.it> <E1DsQYh-0000jo-UP@be1.lrz>
-In-Reply-To: <E1DsQYh-0000jo-UP@be1.lrz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Wed, 13 Jul 2005 01:50:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16867 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262595AbVGMFuP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 01:50:15 -0400
+Date: Tue, 12 Jul 2005 22:50:13 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb mass storage bug
+Message-Id: <20050712225013.2e66d0fc.zaitcev@redhat.com>
+In-Reply-To: <mailman.1121138161.21500.linux-kernel2news@redhat.com>
+References: <20050711203047.39437.qmail@web33113.mail.mud.yahoo.com>
+	<mailman.1121138161.21500.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507130846.36128.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 July 2005 22:36, Bodo Eggert wrote:
-> Denis Vlasenko <vda@ilport.com.ua> wrote:
+On Mon, 11 Jul 2005 20:09:58 -0700, Greg KH <greg@kroah.com> wrote:
+> On Mon, Jul 11, 2005 at 01:30:47PM -0700, Joe Sevy wrote:
+> > Sorry, no logs or dmesg to report; just performance.
+> > Using kernel 2.6.12: USB flash drive (san-disk cruzer
+> > micro) Copy FROM drive is normal and quick; copy TO
+> > drive is amazingly slow. (30 minutes for 50K file).
+> > Used same configuration as for 2.6.11.11. Cured by
+> > going back to old kernel.
 > 
-> > text with 8-char tabs:
-> > 
-> > struct s {
-> >         int n;          /* comment */
-> >         unsigned int u; /* comment */
-> > };
-> > 
-> > Same text viewed with tabs set to 4-char width:
-> > 
-> > struct s {
-> >     int n;      /* comment */
-> >     unsigned int u; /* comment */
-> > };
-> > 
-> > Comments are not aligned anymore
-> 
-> That's why you SHOULD NOT use tabs for aligning, but for indenting.
+> Are you using CONFIG_UB or CONFIG_USB_STORAGE?
 
-Doesn't work either: 8-char tabs:
+Please, Greg. I knew that someone will try to implicate ub here, but you?
+Consider two things:
+ #1 Joe's kernel reads and writes and sharply different speeds,
+    while ub is uniformly slow
+ #2 It's a regression in 2.6.12
 
-		int i;  /* comment */
-	};
-	int j;          /* comment */
-
-4-char tabs:
-
-	int i;  /* comment */
-    };
-    int j;          /* comment */
-
-So we can either ban tabs altogether (unlikely) or agree
-that pi is ~= 3.1415926535897932384626433832795028841971693993751058209749
-and tab is strictly 8 chars.
---
-vda
-
+-- Pete

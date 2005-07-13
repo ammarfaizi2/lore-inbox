@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVGMSIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVGMSDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbVGMSIt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 14:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261995AbVGMSFF
+	id S261691AbVGMSDb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 14:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVGMSDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:05:05 -0400
-Received: from mta01.mail.t-online.hu ([195.228.240.50]:978 "EHLO
-	mta01.mail.t-online.hu") by vger.kernel.org with ESMTP
-	id S261539AbVGMSDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:03:40 -0400
-Subject: Re: [PATCH 0/19] Kconfig I18N completion
-From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       Massimo Maiurana <maiurana@inwind.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       KernelFR <kernelfr@traduc.org>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-In-Reply-To: <Pine.LNX.4.58.0507131038560.17536@g5.osdl.org>
-References: <1121273456.2975.3.camel@spirit>
-	 <Pine.LNX.4.58.0507131038560.17536@g5.osdl.org>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 13 Jul 2005 20:03:38 +0200
-Message-Id: <1121277818.2975.68.camel@spirit>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 8bit
+	Wed, 13 Jul 2005 14:03:18 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:16108 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S261360AbVGMSAd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 14:00:33 -0400
+Subject: [patch 8/9] uml - hostfs : unuse ROOT_DEV 
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
+       hch@infradead.org
+From: blaisorblade@yahoo.it
+Date: Wed, 13 Jul 2005 20:02:38 +0200
+Message-Id: <20050713180239.2C99021E742@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jul 2005, Linus Torvalds wrote:
-> On Wed, 13 Jul 2005, Egry Gábor wrote:
-> > 
-> > The following patches complete the "Kconfig I18N support" patch by
-> > Arnaldo. 
-> 
-> No, I really don't want this.
-> 
-> I was told that the whole point of Arnaldo's work was that the actual po 
-> files etc wouldn't need to be with the kernel, and could be a separate 
-> package, maintained separately. Now I'm seeing patches that seem to make 
-> that a lie.
 
-Hmm, what .po files do you say about? I didn't send the translations of
-Kconfig files. Unfortunetly Arnaldo's patch is incomplete. If you like
-the unfinished things please drop my patches.
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+CC: Christoph Hellwig <hch@infradead.org>
 
-Gabor
+Minimal patch removing uses of ROOT_DEV; next patch unexports it. I've opposed
+this, but I've planned to reintroduce the functionality without using
+ROOT_DEV.
 
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
+ linux-2.6.git-broken-paolo/fs/hostfs/hostfs_kern.c |    9 ---------
+ 1 files changed, 9 deletions(-)
+
+diff -puN fs/hostfs/hostfs_kern.c~uml-hostfs-remove-root_dev-simple fs/hostfs/hostfs_kern.c
+--- linux-2.6.git-broken/fs/hostfs/hostfs_kern.c~uml-hostfs-remove-root_dev-simple	2005-07-13 19:58:18.000000000 +0200
++++ linux-2.6.git-broken-paolo/fs/hostfs/hostfs_kern.c	2005-07-13 19:58:18.000000000 +0200
+@@ -15,7 +15,6 @@
+ #include <linux/pagemap.h>
+ #include <linux/blkdev.h>
+ #include <linux/list.h>
+-#include <linux/root_dev.h>
+ #include <linux/statfs.h>
+ #include <linux/kdev_t.h>
+ #include <asm/uaccess.h>
+@@ -160,8 +159,6 @@ static int read_name(struct inode *ino, 
+ 	ino->i_size = i_size;
+ 	ino->i_blksize = i_blksize;
+ 	ino->i_blocks = i_blocks;
+-	if((ino->i_sb->s_dev == ROOT_DEV) && (ino->i_uid == getuid()))
+-		ino->i_uid = 0;
+ 	return(0);
+ }
+ 
+@@ -841,16 +838,10 @@ int hostfs_setattr(struct dentry *dentry
+ 		attrs.ia_mode = attr->ia_mode;
+ 	}
+ 	if(attr->ia_valid & ATTR_UID){
+-		if((dentry->d_inode->i_sb->s_dev == ROOT_DEV) &&
+-		   (attr->ia_uid == 0))
+-			attr->ia_uid = getuid();
+ 		attrs.ia_valid |= HOSTFS_ATTR_UID;
+ 		attrs.ia_uid = attr->ia_uid;
+ 	}
+ 	if(attr->ia_valid & ATTR_GID){
+-		if((dentry->d_inode->i_sb->s_dev == ROOT_DEV) &&
+-		   (attr->ia_gid == 0))
+-			attr->ia_gid = getgid();
+ 		attrs.ia_valid |= HOSTFS_ATTR_GID;
+ 		attrs.ia_gid = attr->ia_gid;
+ 	}
+_

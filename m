@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVGNAOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbVGMX7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbVGNAOB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 20:14:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbVGNALs
+	id S262838AbVGMX7E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 19:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbVGMX5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 20:11:48 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:7897 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262779AbVGNAKf (ORCPT
+	Wed, 13 Jul 2005 19:57:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39576 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262779AbVGMXnZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 20:10:35 -0400
-Date: Thu, 14 Jul 2005 02:10:25 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: =?UTF-8?Q?Egry_G=E1bor?= <gaboregry@t-online.hu>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Massimo Maiurana <maiurana@inwind.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       KernelFR <kernelfr@traduc.org>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Subject: Re: [PATCH 4/19] Kconfig I18N: lxdialog: multibyte character support
-In-Reply-To: <1121274694.2975.18.camel@spirit>
-Message-ID: <Pine.LNX.4.61.0507140207170.3728@scrub.home>
-References: <1121273456.2975.3.camel@spirit> <1121274694.2975.18.camel@spirit>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811837-794139641-1121299825=:3728"
+	Wed, 13 Jul 2005 19:43:25 -0400
+Subject: [rfc patch 2/2] direct-io: remove address alignment check
+From: Daniel McNeil <daniel@osdl.org>
+To: "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Jul 2005 16:43:21 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+This patch relaxes the direct i/o alignment check so that user addresses
+do not have to be a multiple of the device block size.
 
----1463811837-794139641-1121299825=:3728
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+I've done some preliminary testing and it mostly works on an ext3
+file system on a ide disk.  I have seen trouble when the user address
+is on an odd byte boundary.  Sometimes the data is read back incorrectly
+on read and sometimes I get these kernel error messages:
+	hda: dma_timer_expiry: dma status == 0x60
+	hda: DMA timeout retry
+	hda: timeout waiting for DMA
+	hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+	ide: failed opcode was: unknown
+	hda: drive not ready for command
 
-Hi,
+Doing direct-io with user addresses on even, non-512 boundaries appears
+to be working correctly.
 
-On Wed, 13 Jul 2005, Egry G=E1bor wrote:
+Any additional testing and/or comments welcome.
 
-> UTF-8 support for lxdialog with wchar. The installed wide ncurses=20
-> (ncursesw) is optional because some languages (ex. English, Italian)=20
-> and ISO 8859-xx charsets don't require this patch.
+Signed-off-by: Daniel McNeil <daniel@osdl.org>
 
-This is ugly, this just adds lots of #ifdefs with practically duplicated=20
-code. Please use some wrapper functions/macros.
+--- linux-2.6.12.orig/fs/direct-io.c	2005-06-28 16:39:39.000000000 -0700
++++ linux-2.6.12/fs/direct-io.c	2005-06-28 16:39:59.000000000 -0700
+@@ -1147,7 +1147,9 @@ __blockdev_direct_IO(int rw, struct kioc
+ 			goto out;
+ 	}
+ 
+-	/* Check the memory alignment.  Blocks cannot straddle pages */
++	/*
++	 * Check the i/o.  It must be a multiple of device block size.
++	 */
+ 	for (seg = 0; seg < nr_segs; seg++) {
+ 		addr = (unsigned long)iov[seg].iov_base;
+ 		size = iov[seg].iov_len;
+@@ -1156,7 +1158,7 @@ __blockdev_direct_IO(int rw, struct kioc
+ 			if (bdev)
+ 				 blkbits = bdev_blkbits;
+ 			blocksize_mask = (1 << blkbits) - 1;
+-			if ((addr & blocksize_mask) || (size & blocksize_mask))
++			if (size & blocksize_mask)
+ 				goto out;
+ 		}
+ 	}
 
-bye, Roman
----1463811837-794139641-1121299825=:3728--
+

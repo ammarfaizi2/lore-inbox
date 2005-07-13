@@ -1,81 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVGMSDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVGMS2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbVGMSDK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 14:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVGMSDE
+	id S261318AbVGMS2q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 14:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVGMS0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:03:04 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:19436 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S261867AbVGMSAf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:00:35 -0400
-Subject: [patch 4/9] uml: gcc 2.95 fix and Makefile cleanup
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
-       raphael.bossek@gmx.de
-From: blaisorblade@yahoo.it
-Date: Wed, 13 Jul 2005 20:02:24 +0200
-Message-Id: <20050713180224.8FD9A21E736@zion.home.lan>
+	Wed, 13 Jul 2005 14:26:16 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:58431 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262226AbVGMSYA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 14:24:00 -0400
+Date: Wed, 13 Jul 2005 20:11:47 +0000
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Egry G?bor <gaboregry@t-online.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>, Massimo Maiurana <maiurana@inwind.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       KernelFR <kernelfr@traduc.org>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Subject: Re: [PATCH 0/19] Kconfig I18N completion
+Message-ID: <20050713201147.GA23746@mars.ravnborg.org>
+References: <1121273456.2975.3.camel@spirit> <Pine.LNX.4.58.0507131038560.17536@g5.osdl.org> <1121277818.2975.68.camel@spirit>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1121277818.2975.68.camel@spirit>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 13, 2005 at 08:03:38PM +0200, Egry G?bor wrote:
+> On Wed, 13 Jul 2005, Linus Torvalds wrote:
+> > On Wed, 13 Jul 2005, Egry G??bor wrote:
+> > > 
+> > > The following patches complete the "Kconfig I18N support" patch by
+> > > Arnaldo. 
+> > 
+> > No, I really don't want this.
+> > 
+> > I was told that the whole point of Arnaldo's work was that the actual po 
+> > files etc wouldn't need to be with the kernel, and could be a separate 
+> > package, maintained separately. Now I'm seeing patches that seem to make 
+> > that a lie.
+> 
+> Hmm, what .po files do you say about?
+Patch 19/19 contains a .po file.
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-CC: Raphael Bossek <raphael.bossek@gmx.de>
-
- 1) Cleanup an ugly hyper-nested code in Makefile (now only the arith.
- expression is passed through the host bash).
-
- 2) Fix a problem with GCC 2.95: according to a report from Raphael Bossek,
-  .remap_data : { arch/um/sys-SUBARCH/unmap_fin.o (.data .bss) }
- is expanded into:
-  .remap_data : { arch/um/sys-i386 /unmap_fin.o (.data .bss) }
-
-(because I didn't use ## to join the two tokens), thus stopping linking. Pass
-the whole path from the Makefile as a simple and nice fix.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.git-broken-paolo/arch/um/Makefile         |    9 +++++----
- linux-2.6.git-broken-paolo/arch/um/kernel/uml.lds.S |    4 ++--
- 2 files changed, 7 insertions(+), 6 deletions(-)
-
-diff -puN arch/um/Makefile~uml-cleanup-Makefile-a-bit arch/um/Makefile
---- linux-2.6.git-broken/arch/um/Makefile~uml-cleanup-Makefile-a-bit	2005-07-13 19:41:17.000000000 +0200
-+++ linux-2.6.git-broken-paolo/arch/um/Makefile	2005-07-13 19:41:17.000000000 +0200
-@@ -116,13 +116,14 @@ CONFIG_KERNEL_STACK_ORDER ?= 2
- STACK_SIZE := $(shell echo $$[ 4096 * (1 << $(CONFIG_KERNEL_STACK_ORDER)) ] )
- 
- ifndef START
--  START = $$(($(TOP_ADDR) - $(SIZE)))
-+  START = $(shell echo $$[ $(TOP_ADDR) - $(SIZE) ] )
- endif
- 
--CPPFLAGS_vmlinux.lds = $(shell echo -U$(SUBARCH) \
-+CPPFLAGS_vmlinux.lds = -U$(SUBARCH) \
- 	-DSTART=$(START) -DELF_ARCH=$(ELF_ARCH) \
--	-DELF_FORMAT=\"$(ELF_FORMAT)\" $(CPP_MODE-y) \
--	-DKERNEL_STACK_SIZE=$(STACK_SIZE) -DSUBARCH=$(SUBARCH))
-+	-DELF_FORMAT="$(ELF_FORMAT)" $(CPP_MODE-y) \
-+	-DKERNEL_STACK_SIZE=$(STACK_SIZE) \
-+	-DUNMAP_PATH=arch/um/sys-$(SUBARCH)/unmap_fin.o
- 
- #The wrappers will select whether using "malloc" or the kernel allocator.
- LINK_WRAPS = -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc
-diff -puN arch/um/kernel/uml.lds.S~uml-cleanup-Makefile-a-bit arch/um/kernel/uml.lds.S
---- linux-2.6.git-broken/arch/um/kernel/uml.lds.S~uml-cleanup-Makefile-a-bit	2005-07-13 19:41:17.000000000 +0200
-+++ linux-2.6.git-broken-paolo/arch/um/kernel/uml.lds.S	2005-07-13 19:41:17.000000000 +0200
-@@ -16,8 +16,8 @@ SECTIONS
-   __binary_start = .;
- 
- #ifdef MODE_TT
--  .remap_data : { arch/um/sys-SUBARCH/unmap_fin.o (.data .bss) }
--  .remap : { arch/um/sys-SUBARCH/unmap_fin.o (.text) }
-+  .remap_data : { UNMAP_PATH (.data .bss) }
-+  .remap : { UNMAP_PATH (.text) }
- 
-   . = ALIGN(4096);		/* Init code and data */
- #endif
-_
+	Sam

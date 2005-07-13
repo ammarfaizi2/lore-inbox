@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVGMRQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVGMRVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVGMRQe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 13:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVGMROS
+	id S261620AbVGMRVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 13:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVGMRSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:14:18 -0400
-Received: from mta03.mail.t-online.hu ([195.228.240.56]:21743 "EHLO
+	Wed, 13 Jul 2005 13:18:40 -0400
+Received: from mta03.mail.t-online.hu ([195.228.240.56]:50678 "EHLO
 	mta03.mail.t-online.hu") by vger.kernel.org with ESMTP
-	id S261289AbVGMRNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:13:12 -0400
-Subject: [PATCH 5/19] Kconfig I18N: lxdialog: answering
+	id S261326AbVGMRRH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 13:17:07 -0400
+Subject: [PATCH 7/19] Kconfig I18N: gconfig
 From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Roman Zippel <zippel@linux-m68k.org>,
@@ -20,8 +20,8 @@ Cc: Roman Zippel <zippel@linux-m68k.org>,
 In-Reply-To: <1121273456.2975.3.camel@spirit>
 References: <1121273456.2975.3.camel@spirit>
 Content-Type: text/plain
-Date: Wed, 13 Jul 2005 19:13:09 +0200
-Message-Id: <1121274790.2975.20.camel@spirit>
+Date: Wed, 13 Jul 2005 19:17:04 +0200
+Message-Id: <1121275024.2975.25.camel@spirit>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
@@ -29,122 +29,134 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I18N support for answering in lxdialog. This patch is useful for 
-non-latin based languages.
+Full I18N support for gconf.c .
 
 Signed-off-by: Egry Gabor <gaboregry@t-online.hu>
 ---
 
- scripts/lxdialog/menubox.c |   33 ++++++++++++++++++++++++++++++++-
- scripts/lxdialog/yesno.c   |   33 +++++++++++++++++++++++++++++++--
- 2 files changed, 63 insertions(+), 3 deletions(-)
+ scripts/kconfig/gconf.c |   58 ++++++++++++++++++++++++------------------------
+ 1 files changed, 29 insertions(+), 29 deletions(-)
 
-diff -puN scripts/lxdialog/yesno.c~kconfig-i18n-05-lxdialog-key scripts/lxdialog/yesno.c
---- linux-2.6.13-rc3-i18n-kconfig/scripts/lxdialog/yesno.c~kconfig-i18n-05-lxdialog-key	2005-07-13 18:32:17.000000000 +0200
-+++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/lxdialog/yesno.c	2005-07-13 18:32:17.000000000 +0200
-@@ -43,10 +43,12 @@ print_buttons(WINDOW *dialog, int height
- int
- dialog_yesno (const char *title, const char *prompt, int height, int width)
- {
--    int i, x, y, key = 0, button = 0;
-+    int i, x, y, key = 0, answer = 0, button = 0;
-     WINDOW *dialog;
- #ifdef USE_WIDE_CURSES
--    wchar_t *wtitle;
-+    wchar_t *wtitle, *yes, *Yes, *no, *No;
-+#else /* USE_WIDE_CURSES */
-+    const char *yes, *Yes, *no, *No;
- #endif /* USE_WIDE_CURSES */
+diff -puN scripts/kconfig/gconf.c~kconfig-i18n-07-gconfig-i18n scripts/kconfig/gconf.c
+--- linux-2.6.13-rc3-i18n-kconfig/scripts/kconfig/gconf.c~kconfig-i18n-07-gconfig-i18n	2005-07-13 18:32:17.000000000 +0200
++++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/kconfig/gconf.c	2005-07-13 18:36:52.000000000 +0200
+@@ -87,19 +87,19 @@ const char *dbg_print_stype(int val)
+ 	bzero(buf, 256);
  
-     /* center dialog box on screen */
-@@ -107,6 +109,33 @@ dialog_yesno (const char *title, const c
+ 	if (val == S_UNKNOWN)
+-		strcpy(buf, "unknown");
++		strcpy(buf, _("unknown"));
+ 	if (val == S_BOOLEAN)
+-		strcpy(buf, "boolean");
++		strcpy(buf, _("boolean"));
+ 	if (val == S_TRISTATE)
+-		strcpy(buf, "tristate");
++		strcpy(buf, _("tristate"));
+ 	if (val == S_INT)
+-		strcpy(buf, "int");
++		strcpy(buf, _("int"));
+ 	if (val == S_HEX)
+-		strcpy(buf, "hex");
++		strcpy(buf, _("hex"));
+ 	if (val == S_STRING)
+-		strcpy(buf, "string");
++		strcpy(buf, _("string"));
+ 	if (val == S_OTHER)
+-		strcpy(buf, "other");
++		strcpy(buf, _("other"));
  
-     while (key != ESC) {
- 	key = wgetch (dialog);
-+#ifdef USE_WIDE_CURSES
-+	yes = to_wchar (_("y"));
-+	Yes = to_wchar (_("Y"));
-+	no = to_wchar (_("n"));
-+	No = to_wchar (_("N"));
-+#else /* USE_WIDE_CURSES */
-+	yes = _("y");
-+	Yes = _("Y");
-+	no = _("n");
-+	No = _("N");
-+#endif /* USE_WIDE_CURSES */
-+	if (yes && (yes[0] == key))
-+	    answer = 'y';
-+	if (Yes && (Yes[0] == key))
-+	    answer = 'Y';
-+	if (no && (no[0] == key))
-+	    answer = 'n';
-+	if (No && (No[0] == key))
-+	    answer = 'N';
-+#ifdef USE_WIDE_CURSES
-+	free (yes);
-+	free (Yes);
-+	free (no);
-+	free (No);
-+#endif /* USE_WIDE_CURSES */
-+	if (answer)
-+	    key = answer;
- 	switch (key) {
- 	case 'Y':
- 	case 'y':
-diff -puN scripts/lxdialog/menubox.c~kconfig-i18n-05-lxdialog-key scripts/lxdialog/menubox.c
---- linux-2.6.13-rc3-i18n-kconfig/scripts/lxdialog/menubox.c~kconfig-i18n-05-lxdialog-key	2005-07-13 18:32:17.000000000 +0200
-+++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/lxdialog/menubox.c	2005-07-13 18:32:17.000000000 +0200
-@@ -189,10 +189,14 @@ dialog_menu (const char *title, const ch
- {
-     int i, j, x, y, box_x, box_y;
-     int key = 0, button = 0, scroll = 0, choice = 0, first_item = 0, max_choice;
-+    int answer = 0;
-     WINDOW *dialog, *menu;
-     FILE *f;
- #ifdef USE_WIDE_CURSES
-     wchar_t *wtitle, *witems, *witem2, *wcurrent;
-+    wchar_t *yes, *Yes, *no, *No;
-+#else /* USE_WIDE_CURSES */
-+    const char *yes, *Yes, *no, *No;
- #endif /* USE_WIDE_CURSES */
+ #ifdef DEBUG
+ 	printf("%s", buf);
+@@ -115,33 +115,33 @@ const char *dbg_print_flags(int val)
+ 	bzero(buf, 256);
  
-     max_choice = MIN (menu_height, item_no);
-@@ -541,7 +545,34 @@ dialog_menu (const char *title, const ch
- 	    continue;		/* wait for another key press */
-         }
+ 	if (val & SYMBOL_YES)
+-		strcat(buf, "yes/");
++		strcat(buf, _("yes/"));
+ 	if (val & SYMBOL_MOD)
+-		strcat(buf, "mod/");
++		strcat(buf, _("mod/"));
+ 	if (val & SYMBOL_NO)
+-		strcat(buf, "no/");
++		strcat(buf, _("no/"));
+ 	if (val & SYMBOL_CONST)
+-		strcat(buf, "const/");
++		strcat(buf, _("const/"));
+ 	if (val & SYMBOL_CHECK)
+-		strcat(buf, "check/");
++		strcat(buf, _("check/"));
+ 	if (val & SYMBOL_CHOICE)
+-		strcat(buf, "choice/");
++		strcat(buf, _("choice/"));
+ 	if (val & SYMBOL_CHOICEVAL)
+-		strcat(buf, "choiceval/");
++		strcat(buf, _("choiceval/"));
+ 	if (val & SYMBOL_PRINTED)
+-		strcat(buf, "printed/");
++		strcat(buf, _("printed/"));
+ 	if (val & SYMBOL_VALID)
+-		strcat(buf, "valid/");
++		strcat(buf, _("valid/"));
+ 	if (val & SYMBOL_OPTIONAL)
+-		strcat(buf, "optional/");
++		strcat(buf, _("optional/"));
+ 	if (val & SYMBOL_WRITE)
+-		strcat(buf, "write/");
++		strcat(buf, _("write/"));
+ 	if (val & SYMBOL_CHANGED)
+-		strcat(buf, "changed/");
++		strcat(buf, _("changed/"));
+ 	if (val & SYMBOL_NEW)
+-		strcat(buf, "new/");
++		strcat(buf, _("new/"));
+ 	if (val & SYMBOL_AUTO)
+-		strcat(buf, "auto/");
++		strcat(buf, _("auto/"));
  
--	switch (key) {
-+#ifdef USE_WIDE_CURSES
-+	yes = to_wchar (_("y"));
-+	Yes = to_wchar (_("Y"));
-+	no = to_wchar (_("n"));
-+	No = to_wchar (_("N"));
-+#else /* USE_WIDE_CURSES */
-+	yes = _("y");
-+	Yes = _("Y");
-+	no = _("n");
-+	No = _("N");
-+#endif /* USE_WIDE_CURSES */
-+	if (yes && (yes[0] == key))
-+	    answer = 'y';
-+	if (Yes && (Yes[0] == key))
-+	    answer = 'Y';
-+	if (no && (no[0] == key))
-+	    answer = 'n';
-+	if (No && (No[0] == key))
-+	    answer = 'N';
-+#ifdef USE_WIDE_CURSES
-+        free (yes);
-+        free (Yes);
-+        free (no);
-+        free (No);
-+#endif /* USE_WIDE_CURSES */
-+	if (answer)
-+	    key = answer;
-+    	switch (key) {
- 	case KEY_LEFT:
- 	case TAB:
- 	case KEY_RIGHT:
+ 	buf[strlen(buf) - 1] = '\0';
+ #ifdef DEBUG
+@@ -158,17 +158,17 @@ const char *dbg_print_ptype(int val)
+ 	bzero(buf, 256);
+ 
+ 	if (val == P_UNKNOWN)
+-		strcpy(buf, "unknown");
++		strcpy(buf, _("unknown"));
+ 	if (val == P_PROMPT)
+-		strcpy(buf, "prompt");
++		strcpy(buf, _("prompt"));
+ 	if (val == P_COMMENT)
+-		strcpy(buf, "comment");
++		strcpy(buf, _("comment"));
+ 	if (val == P_MENU)
+-		strcpy(buf, "menu");
++		strcpy(buf, _("menu"));
+ 	if (val == P_DEFAULT)
+-		strcpy(buf, "default");
++		strcpy(buf, _("default"));
+ 	if (val == P_CHOICE)
+-		strcpy(buf, "choice");
++		strcpy(buf, _("choice"));
+ 
+ #ifdef DEBUG
+ 	printf("%s", buf);
+@@ -1190,7 +1190,7 @@ static gchar **fill_row(struct menu *men
+ 	row[COL_OPTION] =
+ 	    g_strdup_printf("%s %s", menu_get_prompt(menu),
+ 			    sym ? (sym->
+-				   flags & SYMBOL_NEW ? "(NEW)" : "") :
++				   flags & SYMBOL_NEW ? _("(NEW)") : "") :
+ 			    "");
+ 
+ 	if (show_all && !menu_is_visible(menu))
+@@ -1614,7 +1614,7 @@ int main(int ac, char *av[])
+ 			break;
+ 		case 'h':
+ 		case '?':
+-			printf("%s <config>\n", av[0]);
++			printf(_("%s <config>\n"), av[0]);
+ 			exit(0);
+ 		}
+ 		name = av[2];
 _
 
 

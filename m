@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262783AbVGMVaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262775AbVGMVd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262783AbVGMVaw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 17:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262607AbVGMVQv
+	id S262775AbVGMVd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 17:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbVGMVbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 17:16:51 -0400
-Received: from mail.kroah.org ([69.55.234.183]:11236 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262351AbVGMSpd (ORCPT
+	Wed, 13 Jul 2005 17:31:10 -0400
+Received: from dvhart.com ([64.146.134.43]:58038 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S262351AbVGMV3H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:45:33 -0400
-Date: Wed, 13 Jul 2005 11:41:41 -0700
-From: Greg KH <gregkh@suse.de>
-To: alexn@telia.com, len.brown@intel.com, acpi-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: [01/11] If ACPI doesn't find an irq listed, don't accept 0 as a valid PCI irq.
-Message-ID: <20050713184140.GB9330@kroah.com>
-Mime-Version: 1.0
+	Wed, 13 Jul 2005 17:29:07 -0400
+Date: Wed, 13 Jul 2005 14:29:02 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, "Brown, Len" <len.brown@intel.com>,
+       dtor_core@ameritech.net, torvalds@osdl.org, vojtech@suse.cz,
+       david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
+       linux-kernel@vger.kernel.org, diegocg@gmail.com,
+       azarah@nosferatu.za.org, christoph@lameter.com
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Message-ID: <368700000.1121290141@flay>
+In-Reply-To: <20050713211650.GA12127@taniwha.stupidest.org>
+References: <42D3E852.5060704@mvista.com> <20050712162740.GA8938@ucw.cz> <42D540C2.9060201@tmr.com> <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz> <20050713184227.GB2072@ucw.cz> <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org> <1121282025.4435.70.camel@mindpipe> <d120d50005071312322b5d4bff@mail.gmail.com> <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org> <20050713211650.GA12127@taniwha.stupidest.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+>> Len Brown, a year ago: "The bottom line number to laptop users is
+>> battery lifetime.  Just today somebody complained to me that Windows
+>> gets twice the battery life that Linux does."
+> 
+> It seems the motivation for lower HZ is really:
+> 
+>    (1) ACPI/SMM suckage in laptops
+> 
+>    (2) NUMA systems with *horrible* remote memory latencies
 
-------------------
+It makes a difference on more normal SMP systems as well, just not as
+much. See earlier in the thread. The NUMA system I used as an example
+was actually a newer one with something like a 4:1 ratio, not an older
+one with 20:1 or so. I have a feeling it's more to do with the number
+of procs and the scheduler being invoked more than it is really to do
+with NUMA ratios.
+ 
+It seems people are agreed we want sub-HZ timers, and eventually go
+to tickless ... the question is more what to do in the meantime.
 
-If ACPI doesn't find an irq listed, don't accept 0 as a valid PCI irq.
-That zero just means that nothing else found any irq information either.
+M.
 
-Fixes http://bugme.osdl.org/show_bug.cgi?id=4824
-
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/acpi/pci_irq.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.12.2.orig/drivers/acpi/pci_irq.c	2005-07-13 10:53:01.000000000 -0700
-+++ linux-2.6.12.2/drivers/acpi/pci_irq.c	2005-07-13 10:56:30.000000000 -0700
-@@ -433,7 +433,7 @@
- 		printk(KERN_WARNING PREFIX "PCI Interrupt %s[%c]: no GSI",
- 			pci_name(dev), ('A' + pin));
- 		/* Interrupt Line values above 0xF are forbidden */
--		if (dev->irq >= 0 && (dev->irq <= 0xF)) {
-+		if (dev->irq > 0 && (dev->irq <= 0xF)) {
- 			printk(" - using IRQ %d\n", dev->irq);
- 			acpi_register_gsi(dev->irq, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW);
- 			return_VALUE(0);

@@ -1,95 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVGML5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262795AbVGMMKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbVGML5F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 07:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbVGML5E
+	id S262795AbVGMMKf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 08:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVGMMKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 07:57:04 -0400
-Received: from nijmegen.renzel.net ([195.243.213.130]:15821 "EHLO
-	mx1.renzel.net") by vger.kernel.org with ESMTP id S262788AbVGML47
+	Wed, 13 Jul 2005 08:10:35 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:52916 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262795AbVGMMKc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 07:56:59 -0400
-From: Mws <mws@twisted-brains.org>
-To: Daniel Drake <dsd@gentoo.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SysKonnect ethernet support for Asus A8VE Deluxe Motherboard?
-User-Agent: KMail/1.8.1
-References: <42D3FDF5.4090501@travellingkiwi.com> <42D50033.9040009@gentoo.org>
-In-Reply-To: <42D50033.9040009@gentoo.org>
-MIME-Version: 1.0
-Date: Wed, 13 Jul 2005 13:57:11 +0200
-Content-Type: multipart/signed;
-  boundary="nextPart1227648.Nt4HjROqG0";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200507131357.16969.mws@twisted-brains.org>
+	Wed, 13 Jul 2005 08:10:32 -0400
+Date: Wed, 13 Jul 2005 14:13:13 +0200
+From: DervishD <lkml@dervishd.net>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Konstantin Kudin <konstantin_kudin@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: fdisk: What do plus signs after "Blocks" mean?
+Message-ID: <20050713121313.GB58@DervishD>
+Mail-Followup-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Konstantin Kudin <konstantin_kudin@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20050712173721.GA325@DervishD> <200507122019.j6CKJwxe021850@laptop11.inf.utfsm.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200507122019.j6CKJwxe021850@laptop11.inf.utfsm.cl>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1227648.Nt4HjROqG0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+    Hi Horst :)
 
-On Wednesday 13 July 2005 13:51, you wrote:
-> Hamish Marson wrote:
-> > I just installed Gentoo distribution on a new PC for a friend who's
-> > new to Linux, and discovered that although SysKonnect kindly provide
-> > full source code drivers for their various products on their website,
-> > that even the latest released kernel sources (i.e. 2.6.12) still don't
-> > support the device on this motherboard (Along with a whole host of
-> > other PCI id's that appear in the syskonnect sources).
->=20
-> Gentoo 2.6.12 kernels provide the skge driver which supports this hardwar=
-e (I
-> believe). skge will be included in mainline 2.6.13.
->=20
-> > I've logged a bug on gentoo.org about it, but thought I'd ask, if
-> > there's any reason that the syskonnect (sk98lin) drivers are so back
-> > leve in the kernel sources when syskonnect seem to have published the
-> > drivers for so many more of their devices in source...
->=20
-> The driver updates that syskonnect released are ugly and have been reject=
-ed by
-> the network driver maintainers. skge was written as a response to this.
->=20
-> The very latest sk98lin updates add support for the new Yukon-II PCI-expr=
-ess
-> adapters. These are not supported by skge -- the Yukon-II is very differe=
-nt
-> and will eventually be supported by a separate driver. The techniques whi=
-ch
-> sk98lin uses to support two vastly different network chipsets (yukon/yuko=
-n-II)
-> in the same driver are generally not accepted in the kernel.
+ * Horst von Brand <vonbrand@inf.utfsm.cl> dixit:
+> DervishD <lkml@dervishd.net> wrote:
+> >     It's a good idea to have a copy of the partition table around, if
+> > it is not simple (the one you had is NOT simple).
+> Be careful. What you'll get out of backing up the partition table is /only/
+> the primary partitions, the others are handled by a weird russian doll of
+> partitions-inside-partitions. AFAIR, the details were in the LILO docu.
 
-but they have one advantage for now. they do work.
+    Note that I didn't suggest to backup or have a copy of the MBR,
+but of the partition table, the FULL partition table (that includes
+the secondary partitions and the like. Once a disk is fully
+partitioned, a couple of 'dd' commands do the trick even for
+extended partitions.
 
-i am using them for about 9 months now including upgrades.
+    It's a mess, anyway :( 
 
-regards
-marcel
+    Raúl Núñez de Arenas Coronado
 
->=20
-> Daniel
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
-
---nextPart1227648.Nt4HjROqG0
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC1QGcPpA+SyJsko8RArU2AKCDb92uHlMPo789rNcUCepRQcPY+ACdHlUF
-XCJV9RL3EEvv1zJwR5+log8=
-=RNif
------END PGP SIGNATURE-----
-
---nextPart1227648.Nt4HjROqG0--
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

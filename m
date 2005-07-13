@@ -1,46 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVGMBEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbVGMBSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbVGMBEY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 21:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbVGMBEW
+	id S262525AbVGMBSm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 21:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVGMBSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 21:04:22 -0400
-Received: from mx2.suse.de ([195.135.220.15]:30181 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262589AbVGMBDN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 21:03:13 -0400
-From: Chris Mason <mason@suse.com>
-To: "Rob Mueller" <robm@fastmail.fm>
-Subject: Re: 2.6.12.2 dies after 24 hours
-Date: Tue, 12 Jul 2005 21:03:09 -0400
-User-Agent: KMail/1.8
-Cc: akpm@osdl.org, "Lars Roland" <lroland@gmail.com>,
-       "Bron Gondwana" <brong@fastmail.fm>, linux-kernel@vger.kernel.org,
-       "Vladimir Saveliev" <vs@namesys.com>,
-       "Jeremy Howard" <jhoward@fastmail.fm>
-References: <01dd01c586c3$cdd525d0$7c00a8c0@ROBMHP> <200507122042.11397.mason@suse.com> <03b601c58744$ee69e390$7c00a8c0@ROBMHP>
-In-Reply-To: <03b601c58744$ee69e390$7c00a8c0@ROBMHP>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 12 Jul 2005 21:18:42 -0400
+Received: from chello062178225197.14.15.tuwien.teleweb.at ([62.178.225.197]:33520
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262525AbVGMBSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 21:18:41 -0400
+Subject: System call registration mess?
+From: Wieland Gmeiner <e8607062@student.tuwien.ac.at>
+Reply-To: e8607062@student.tuwien.ac.at
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Wieland Gmeiner <e8607062@student.tuwien.ac.at>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507122103.10159.mason@suse.com>
+Date: Wed, 13 Jul 2005 03:18:32 +0200
+Message-Id: <1121217512.17472.93.camel@w2>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 July 2005 20:50, Rob Mueller wrote:
+I want to register a new system call and notice that on several
+architectures there is some inconsistency between the system call table
+and unistd.h, e.g. (2.6.13-rc2):
 
->
-> Are you saying that if you mount with noatime *and* use your new patch it
-> will fix the problem?
->
-> What about the 2 threads linked to. Did those end up getting anywhere?
+in arch/arm/kernel/calls.S:
+...
+/* 310 */       .long   sys_request_key
+                .long   sys_keyctl
+                .long   sys_semtimedop
+__syscall_end:
+...
 
-Sorry for the confusion, you're hitting the other mmap_sem -> transaction lock 
-problem.  This one should be solvable with an iget so we make sure not to do 
-the final unlink until after the mmap sem is dropped.
+and in include/asm-arm/unistd.h:
+...
+#define __NR_request_key                (__NR_SYSCALL_BASE+310)
+#define __NR_keyctl                     (__NR_SYSCALL_BASE+311)
 
-Lets see what I can do...
+#if 0 /* reserved for un-muxing ipc */
+#define __NR_semtimedop                 (__NR_SYSCALL_BASE+312)
+#endif
 
--chris
+#define __NR_vserver                    (__NR_SYSCALL_BASE+313)
+
+/*
+ * The following SWIs are ARM private.
+ */
+#define __ARM_NR_BASE                   (__NR_SYSCALL_BASE+0x0f0000)
+...
+
+
+So it seems that sys_vserver is not declared in the system call table.
+Is there any reason for this inconsistency or is this a bug and should
+be fixed? If second, should there be something like
+.long       sys_ni_syscall           /* reserved for vserver */
+ or
+.long       sys_vserver
+in the syscall table?
+
+Similar inconsistencies can be found in other architecture subtrees,
+e.g. in arm26:
+
+arch/arm26/kernel/calls.S:
+...
+/* 235 */       .long   sys_removexattr
+                .long   sys_lremovexattr
+                .long   sys_fremovexattr
+                .long   sys_tkill
+__syscall_end:
+...
+
+in include/asm-arm26/unistd.h there is a whole bunch of calls that are
+not registered in the system call table:
+
+#define __NR_tkill                      (__NR_SYSCALL_BASE+238)
+#define __NR_sendfile64                 (__NR_SYSCALL_BASE+239)
+#define __NR_futex                      (__NR_SYSCALL_BASE+240)
+...
+#define __NR_mq_notify                  (__NR_SYSCALL_BASE+278)
+#define __NR_mq_getsetattr              (__NR_SYSCALL_BASE+279)
+#define __NR_waitid                     (__NR_SYSCALL_BASE+280)
+
+Should they all get filled up with sys_ni_syscall definitions or with 
+their corresponding entries so I can enter my own syscall at the bottom
+with correct numbering or what is the proper way to register a new 
+syscall in these cases?
+
+Thanks,
+Wieland
+

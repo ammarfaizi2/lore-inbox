@@ -1,44 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVGMTuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVGMTuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262403AbVGMTuQ (ORCPT <rfc822;willy@w.ods.org>);
+	id S262712AbVGMTuQ (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 13 Jul 2005 15:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVGMTs5
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbVGMTsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 15:48:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:970 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262403AbVGMTpk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 15:45:40 -0400
-Date: Wed, 13 Jul 2005 21:45:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Chuck Harding <charding@llnl.gov>
-Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>,
-       karsten wiese <annabellesgarden@yahoo.de>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050713194507.GA5493@elte.hu>
-References: <200507091704.12368.s0348365@sms.ed.ac.uk> <200507111455.45105.s0348365@sms.ed.ac.uk> <20050711141232.GA16586@elte.hu> <20050711141622.GA17327@elte.hu> <20050711150711.GA19290@elte.hu> <1121198946.10580.13.camel@mindpipe> <Pine.LNX.4.63.0507121331480.9097@ghostwheel.llnl.gov> <20050713103930.GA16776@elte.hu> <42D51EAF.2070603@cybsft.com> <Pine.LNX.4.63.0507131228280.6886@ghostwheel.llnl.gov>
+	Wed, 13 Jul 2005 15:48:52 -0400
+Received: from [84.77.111.123] ([84.77.111.123]:22967 "EHLO
+	dardhal.24x7linux.com") by vger.kernel.org with ESMTP
+	id S262711AbVGMTpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 15:45:42 -0400
+Date: Wed, 13 Jul 2005 21:45:40 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Len Brown <len.brown@intel.com>,
+       acpi-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux v2.6.13-rc3
+Message-ID: <20050713194540.GC29529@localhost>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	"Rafael J. Wysocki" <rjw@sisk.pl>, Len Brown <len.brown@intel.com>,
+	acpi-devel@lists.sourceforge.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <Pine.LNX.4.58.0507122157070.17536@g5.osdl.org> <200507131259.04855.rjw@sisk.pl> <Pine.LNX.4.58.0507131145310.17536@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eRtJSFbw+EEWtPj3"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0507131228280.6886@ghostwheel.llnl.gov>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.58.0507131145310.17536@g5.osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Chuck Harding <charding@llnl.gov> wrote:
+--eRtJSFbw+EEWtPj3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I missed getting -51-29 but just booted up -51-30 and all is well. 
-> Thanks. Just out of curiosity, what was changed between -51-28, 29, 
-> and 30?
+On Wednesday, 13 July 2005, at 11:53:08 -0700,
+Linus Torvalds wrote:
 
--51-29 had new IO-APIC optimizations - and i reverted them in -51-30.
+> Len, ACPI people - can we fix this regression, please?
+>=20
+> Rafael even pinpoints exactly which patches are causing the problem, so=
+=20
+> why didn't they get reverted before sending them off to me?
+>=20
+> Grumble. I don't like being sent known-bad patches when we're trying to=
+=20
+> calm things down.
+>=20
+Also related to ACPI, a patch went in recently that prevents some boxes (at
+least mine) to power off properly via ACPI. The patch is:
+http://www.kernel.org/git/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
+commitdif
+f;h=3Dcee5dab4856f51c5cad3aecc630ad0a4d2217a85
 
-	Ingo
+As the commit log says, this was somewhat expected. I sent a message a
+couple of days ago both to the list and to Eric W. Biederman, with no
+response so far. Message Subject: is:
+[2.6.12-git8] ACPI shutdown fails to power off machine
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D112094139204799&w=3D2
+
+Greetings,
+
+--=20
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.13-rc2)
+
+
+--eRtJSFbw+EEWtPj3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC1W9kao1/w/yPYI0RAjzUAJoC1fqYNqjEa9DzjjdyvELkDdUWQgCgg/MH
+9awrCGEqA4SqGfkH9fXBQXc=
+=r8FG
+-----END PGP SIGNATURE-----
+
+--eRtJSFbw+EEWtPj3--

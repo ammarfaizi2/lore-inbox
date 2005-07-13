@@ -1,74 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVGMRJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVGMX7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVGMRJX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 13:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVGMRGq
+	id S261849AbVGMX7G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 19:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVGMX46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:06:46 -0400
-Received: from vhost12.digitarus.com ([84.234.16.61]:14743 "EHLO
-	vhost12.digitarus.com") by vger.kernel.org with ESMTP
-	id S261289AbVGMREy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:04:54 -0400
-X-ClientAddr: 212.126.40.83
-Message-ID: <42D549B4.1010406@wiggly.org>
-Date: Wed, 13 Jul 2005 18:04:52 +0100
-From: Nigel Rantor <wiggly@wiggly.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Wed, 13 Jul 2005 19:56:58 -0400
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:39067 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261804AbVGMXzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 19:55:45 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Date: Thu, 14 Jul 2005 09:54:51 +1000
+User-Agent: KMail/1.8.1
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       David Lang <david.lang@digitalinsight.com>,
+       Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Lee Revell <rlrevell@joe-job.com>, Diego Calleja <diegocg@gmail.com>,
+       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
+       christoph@lameter.com
+References: <200506231828.j5NISlCe020350@hera.kernel.org> <20050713184227.GB2072@ucw.cz> <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org>
 MIME-Version: 1.0
-To: Vinay Venkataraghavan <raghavanvinay@yahoo.com>
-CC: linux-crypto@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: Open source firewalls
-References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>
-In-Reply-To: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart2780014.8CMe5b2oIU";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Digitarus-vhost12-MailScanner-Information: Please contact Digitarus for more information
-X-Digitarus-vhost12-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-MailScanner-From: wiggly@wiggly.org
+Message-Id: <200507140954.54444.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vinay Venkataraghavan wrote:
-> Hello,
+--nextPart2780014.8CMe5b2oIU
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Hello, *devil's advocate hat on*
+On Thu, 14 Jul 2005 05:10, Linus Torvalds wrote:
+> On Wed, 13 Jul 2005, Vojtech Pavlik wrote:
+> > No, but 1/1000Hz =3D 1000000ns, while 1/864Hz =3D 1157407.407ns. If you=
+ have
+> > a counter that counts the ticks in nanoseconds (xtime ...), the first
+> > will be exact, the second will be accumulating an error.
+>
+> It's not even that we have a counter like that, it's the simple fact that
+> we have a standard interface to user space that is based on milli-, micro-
+> and nanoseconds.
+>
+> (For "poll()", "struct timeval" and "struct timespec" respectively).
+>
+> It's totally pointless saying that we can do 864 Hz "exactly", when the
+> fact is that all the timeouts we ever get from user space aren't in that
+> format. So the only thing that matters is how close to a millisecond we
+> can get, not how close to some random number.
 
-> I have implemented an bare bones Intrusion detection
-> system that currently detects scans like open, bouce,
-> half open etc and a host of other tcp scans.
+That may be the case but when I've measured the actual delay of schedule=20
+timeout when using nanosleep from userspace, the average at 1000Hz was 1.4m=
+s=20
++/- 1.5 sd . When we're expecting a sleep of "up to 1ms" we're getting 50%=
+=20
+longer than the longest expected. Purely mathematically the accuracy of=20
+changing HZ from 1000 -> 864 will not bring with it any significant change =
+to=20
+the accuracy. This can easily be measured as well to confirm.=20
 
-As an aside, why, we have snort?
-
-> I would like to develop this into a full blown IDS
-> which is capable of detecting buffer overflow attacks,
-> sql injection etc. 
-> 
-> I know how to implement buffer overflow attacks. But
-> how would an intrusion detection system detect a
-> buffer overflow attack. My question is at the layer
-> that the intrusion detection system operates, how will
-> it know that a particular string for exmaple is liable
-> to overflow a vulnerable buffer. 
-
-Erm, if you know how some buffer overflow attacks work then surely the 
-answer is "it depends on the application". To tell if an application is 
-vulnerable you would have to audit it in some manner. Either by checking 
-the source or doing some black-box testing on it.
-
-Even if you did have a great big database of apps and had identifed 
-which of them had possible vulnerabilities it would be easier to simply 
-fix them rather than get an external system to disallow such inputs.
-
-And not forgetting that you would have to have some way for your IDS to 
-tell what app was running behind a specific port. Thought about that yet?
-
-> Are there other open source firewall implementations
-> other than snort?
-
-Snort isn't a firewall. Don't mix apples and oranges. Snort is an IDS. 
-The current de-facto "firewall" for linux is the iptables suite.
+Using schedule timeout as an argument against it doesn't hold for me.=20
+Vojtech's comment of :
+> "No, but 1/1000Hz =3D 1000000ns, while 1/864Hz =3D 1157407.407ns. If you =
+have a=20
+> counter that counts the ticks in nanoseconds (xtime ...), the first will =
+be=20
+> exact, the second will be accumulating an error."=20
+is probably the most valid argument against such a funky number.=20
 
 Cheers,
+Con
 
-   n
+--nextPart2780014.8CMe5b2oIU
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC1anOZUg7+tp6mRURAtONAJ452bI76wL8pFacy6cgyEt+BUcJYACggWMN
+mHtUnXMVo15eyIg/81zFM3A=
+=FQrD
+-----END PGP SIGNATURE-----
+
+--nextPart2780014.8CMe5b2oIU--

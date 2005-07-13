@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbVGMOBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262644AbVGMOLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262591AbVGMOBX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 10:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVGMOBX
+	id S262644AbVGMOLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 10:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVGMOLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 10:01:23 -0400
-Received: from relay00.pair.com ([209.68.1.20]:2573 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S262591AbVGMOBW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 10:01:22 -0400
-X-pair-Authenticated: 209.68.2.107
-Message-ID: <42D51EAF.2070603@cybsft.com>
-Date: Wed, 13 Jul 2005 09:01:19 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Chuck Harding <charding@llnl.gov>,
-       Linux Kernel Discussion List <linux-kernel@vger.kernel.org>,
-       karsten wiese <annabellesgarden@yahoo.de>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050709155704.GA14535@elte.hu> <200507091704.12368.s0348365@sms.ed.ac.uk> <200507111455.45105.s0348365@sms.ed.ac.uk> <20050711141232.GA16586@elte.hu> <20050711141622.GA17327@elte.hu> <20050711150711.GA19290@elte.hu> <1121198946.10580.13.camel@mindpipe> <Pine.LNX.4.63.0507121331480.9097@ghostwheel.llnl.gov> <20050713103930.GA16776@elte.hu>
-In-Reply-To: <20050713103930.GA16776@elte.hu>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Jul 2005 10:11:08 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:50589 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262644AbVGMOLI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 10:11:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CMWIq2frNBMNaH/VjNabv5R/vwGon4dWgrZnVzemkbXV03HRRt9xrC0EhQa2RrvCLHzG1G4LqH4wFtguvMwvwOKxJT9pDHH7mL20FD9Zm3DII+Z5fm8b5lIHXYJLhtCTKd/gHuPJj+wwJpkfmORCyimFFxXZYLAer4x6oTOklY8=
+Message-ID: <d120d50005071307116fed5f0e@mail.gmail.com>
+Date: Wed, 13 Jul 2005 09:11:07 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] Amiga joystick typo (was: Re: Input: fix open/close races in joystick drivers - add a semaphore)
+Cc: Dmitry Torokhov <dtor@mail.ru>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0507131254590.5536@anakin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200506280052.j5S0qDQT010792@hera.kernel.org>
+	 <Pine.LNX.4.62.0507131254590.5536@anakin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Chuck Harding <charding@llnl.gov> wrote:
+On 7/13/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> On Mon, 27 Jun 2005, Linux Kernel Mailing List wrote:
+> > tree 11d80109ddc2f61de6a75a37941346100a67a0d1
+> > parent af246041277674854383cf91b8f0b01217b521e8
+> > author Dmitry Torokhov <dtor_core@ameritech.net> Sun, 29 May 2005 12:29:52 -0500
+> > committer Dmitry Torokhov <dtor_core@ameritech.net> Sun, 29 May 2005 12:29:52 -0500
+> >
+> > Input: fix open/close races in joystick drivers - add a semaphore
+> >        to the ones that register more than one input device.
+> >
+> > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> >
+> >  drivers/input/joystick/amijoy.c     |   29 ++++++++++++++++-------------
 > 
+> This patch broke compilation of amijoy. Trivial fix below.
 > 
->>>CC [M]  sound/oss/emu10k1/midi.o
->>>sound/oss/emu10k1/midi.c:48: error: syntax error before '__attribute__'
->>>sound/oss/emu10k1/midi.c:48: error: syntax error before ')' token
->>>
->>>Here's the offending line:
->>>
->>>  48 static DEFINE_SPINLOCK(midi_spinlock __attribute((unused)));
->>>
->>>Lee
->>>
->>
->>I got it to compile but it won't boot - it hangs right after the
->>'Uncompressing Linux... OK, booting the kernel' - I'm using .config
->>from 51-27 (attached)
-> 
-> 
-> and -51-27 worked just fine? I've uploaded -29 with the -28 io-apic 
-> changes undone (will re-apply them once Karsten has figured out what's 
-> wrong).
-> 
-> 	Ingo
 
-I too had the same problem booting -51-28 on my older SMP system at 
-home. -51-29 just booted fine.
-
+Sorry about that. Question - if I were to build a cross-compiler for
+amiga what arch is that? Right now I am "compiling" for i386 and hope
+that I will catch some real errors in between complaints about missing
+include files and definitions...
 
 -- 
-    kr
+Dmitry

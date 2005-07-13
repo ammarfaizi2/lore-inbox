@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVGMJRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVGMJ3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVGMJRA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 05:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVGMJRA
+	id S261493AbVGMJ3D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 05:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVGMJ3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 05:17:00 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:6297 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261497AbVGMJQ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 05:16:59 -0400
-Subject: Re: Kernel BUG at objrmap:325 in 2.6.5-7.151-smp (SuSE, x86_64)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Christian Boehme <Christian.Boehme@gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42D4D9BB.7010701@gwdg.de>
-References: <42D4D9BB.7010701@gwdg.de>
-Content-Type: text/plain
-Date: Wed, 13 Jul 2005 11:16:49 +0200
-Message-Id: <1121246209.3959.7.camel@laptopd505.fenrus.org>
+	Wed, 13 Jul 2005 05:29:02 -0400
+Received: from nproxy.gmail.com ([64.233.182.207]:46060 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261493AbVGMJ3B convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 05:29:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ju1HZXXsSnGhCninvb7THjJ1Tvh4ngHRyn+vZ2PzBzhE+WPc7vgyf3StYaWCbho+TE5lOYTIRT4rY9euRFvtR67MgYXgrqUDcSa4Sw32wec2MMN/QBvWsarbG3pzKVLO6lqL/B1enLXcCRHV2YC1TxDuZasEfJEwEWwiQZ7gyTI=
+Message-ID: <6f6293f1050713022916435dd0@mail.gmail.com>
+Date: Wed, 13 Jul 2005 11:29:00 +0200
+From: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+Reply-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+To: Alasdair G Kergon <agk@redhat.com>,
+       Felipe Alfaro Solana <felipe.alfaro@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc2-mm2
+In-Reply-To: <20050712202436.GA12341@agk.surrey.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050712021724.13b2297a.akpm@osdl.org>
+	 <6f6293f10507121116363ff57c@mail.gmail.com>
+	 <20050712202436.GA12341@agk.surrey.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-13 at 11:07 +0200, Christian Boehme wrote:
-> We often see the following kernel-bug in our logs:
+> What's your device-mapper/lvm configuration and what 'lvm' command
+> did you run to trigger this?
 
-you really should call SuSE support for this... after all that's what
-you're paying them for ;)
+Nothing special... it happens while booting Fedora Core 4.
 
+>   'dmsetup info -c'
+>   'dmsetup table'
+>   'lvs --segments -o+devices -a'
 
-> 
-> kernel: Kernel BUG at objrmap:325
-> kernel: invalid operand: 0000 [1] SMP
-> kernel: CPU 0
-> kernel: Pid: 4752, comm: mhd3d.opteron Tainted: G  U (2.6.5-7.151-smp SLES9_SP1_BRANCH-200503181131210000)
+# cat /etc/fstab
+/dev/VolGroup00/Root    /                       ext3    defaults        1 1
+/dev/VolGroup00/Home    /home                   ext3    nodev           1 2
+/dev/VolGroup00/Swap     none                   swap    defaults        0 0
 
-which modules do you use ?
+# dmsetup info -c
+Name             Maj Min Stat Open Targ Event  UUID
+VolGroup00-Home  253   2 L--w    1    1      0
+pooZ0kfkAXH04Jai0ih2M1YtE1FNgI2xdn8wPAEh3ROBTzYw6gG7qEnYMDn5hfeR
+VolGroup00-Swap  253   1 L--w    1    1      0
+pooZ0kfkAXH04Jai0ih2M1YtE1FNgI2x1ITYve4bdfV53jjNMWTa3w24BBFFLI3t
+VolGroup00-Root  253   0 L--w    1    1      0
+pooZ0kfkAXH04Jai0ih2M1YtE1FNgI2x7HHDn3Iw4wxcQNBHO0gEDMoe7Nta2xv0
 
+# dmsetup table
+VolGroup00-Home: 0 190414848 linear 3:2 42008960
+VolGroup00-Swap: 0 1048576 linear 3:2 40960384
+VolGroup00-Root: 0 40960000 linear 3:2 384
 
+# lvs --segments -o+devices -a
+  LV   VG         Attr   #Str Type   SSize   Devices         
+  Home VolGroup00 -wi-ao    1 linear  90.80G /dev/hda2(5128) 
+  Root VolGroup00 -wi-ao    1 linear  19.53G /dev/hda2(0)    
+  Swap VolGroup00 -wi-ao    1 linear 512.00M /dev/hda2(5000)

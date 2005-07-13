@@ -1,973 +1,1396 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVGMFFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbVGMFJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262560AbVGMFFK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 01:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVGMFFJ
+	id S262561AbVGMFJf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 01:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVGMFJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 01:05:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3263 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262560AbVGMFFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 01:05:05 -0400
-Date: Tue, 12 Jul 2005 22:05:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux v2.6.13-rc3
-Message-ID: <Pine.LNX.4.58.0507122157070.17536@g5.osdl.org>
+	Wed, 13 Jul 2005 01:09:35 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:59559 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262561AbVGMFJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 01:09:33 -0400
+Message-ID: <42D4A2AD.1080803@t-online.de>
+Date: Wed, 13 Jul 2005 07:12:13 +0200
+From: Michael Berger <mikeb1@t-online.de>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.6.12-rc2 git current oopses
+Content-Type: multipart/mixed;
+ boundary="------------020904020901040300040603"
+X-ID: E3Tl1EZAZeKuJ6G9d-yO7sPmVgSdRdZAC1eSJKnkM345c17MMizgcM
+X-TOI-MSGID: 467c2c87-9930-4220-ad49-928cef21bdde
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Yes,
- it's _really_ -rc3 this time, never mind the confusion with the commit 
-message last time (when the Makefile clearly said -rc2, but my over-eager 
-fingers had typed in a commit message saying -rc3).
-
-There's a bit more changes here than I would like, but I'm putting my foot 
-down now. Not only are a lot of people going to be gone next week for LKS 
-and OLS, but we've gotten enough stuff for 2.6.13, and we need to calm 
-down.
-
-Admittedly the diff looks a bit bigger than it really conceptually is, 
-partly due to the hwmon drivers moving around, partly due to re-indenting 
-reiserfs. No real changes, but huge diffs in both cases.
-
-I think the shortlog speaks for itself.
-
-			Linus
-
-----
-Adrian Bunk:
-  Documentation/kernel-parameters.txt: fix a typo
-  IBM_ASM Kconfig corrections
-  [ACPI] fix potential NULL dereference in acpi/video.c
-  I2C: SENSORS_ATXP1 must select I2C_SENSOR
-  dvb: ttusb-dec: kfree cleanup
-  FRV: Add defconfig
-  [CRYPTO] Make crypto_alg_lookup static
-
-Alasdair G Kergon:
-  device-mapper snapshots: Handle origin extension
-  device-mapper: Fix dm_swap_table error cases
-  device-mapper multipath: Fix pg initialisation races
-  device-mapper multipath: Avoid possible suspension deadlock
-  device-mapper multipath: Flush workqueue when destroying
-  device-mapper multipath: Barriers not supported
-  device-mapper: dm-raid1: Limit bios to size of mirror region
-
-Albert Herranz:
-  kexec-ppc: fix for ksysfs crash_notes
-
-Alexey Dobriyan:
-  [NET]: __be'ify *_type_trans()
-  [SCTP]: __nocast annotations
-  propagate __nocast annotations
-
-Alexey Kuznetsov:
-  [IPV4]: Apply sysctl_icmp_echo_ignore_broadcasts to ICMP_TIMESTAMP as well.
-
-Alexey Starikovskiy:
-  [ACPI] ACPI poweroff fix
-  [ACPI] Allow simultaneous Fixed Feature and Control Method buttons
-
-Allan Stirling:
-  dvb: Twinhan DST: frontend polarization fix
-
-Andreas Gruenbacher:
-  ext3 xattr: Don't write to the in-inode xattr space of reserved inodes
-  acl kconfig cleanup
-
-Andreas Oberritter:
-  dvb: add Pluto2 driver
-
-Andreas Steinmetz:
-  [CRYPTO] Add x86_64 asm AES
-
-Andrew de Quincey:
-  dvb: ttpci: support for new TT DVB-T-CI
-  dvb: ttpci: add support for Technotrend/Hauppauge DVB-S SE
-  dvb: frontend: remove unused I2C ids
-  dvb: core: add workaround for tuning problem
-
-Andrew Hodgson:
-  dvb: usb: A800 rc and timeout fixes
-
-Andrew Morton:
-  tlb.h warning fix
-  alpha: pgprot_uncached() comment
-  x86_64: section alignment fix
-  name_to_dev_t warning fix
-  [SPARC64]: Fix SMP build failure.
-  USB: net2280 warning fix
-  USB: khubd: use kthread API
-  [ACPI] fix debug-mode build warning in acpi/hotkey.c
-  [ACPI] fix build warning
-  alpha(): pgprot_noncached
-  i2o: config-osm build fix
-  iounmap debugging
-
-Andrew Victor:
-  [JFFS2] Use a single config option for write buffer support
-  [JFFS2] Add support for JFFS2-on-Dataflash devices.
-  [JFFS2] Core changes required to support JFFS2-on-Dataflash devices.
-
-Anssi Hannula:
-  dvb: add missing release_firmware() calls
-
-Anton Blanchard:
-  ppc64: silence perfmon exception warnings
-  ppc64: fix compile warning
-  ppc64: idle fixups
-  ppc64: pSeries idle fixups
-  ppc64: iSeries idle fixups
-  ppc64: remove duplicate syscall reservation
-  ppc64: add ioprio syscalls
-  ppc64: sys_ppc32.c cleanups
-  move ioprio syscalls into syscalls.h
-  ppc64: Turn runlatch on in exception entry
-  ppc64: Fix runlatch code to work on pseries machines
-  ppc64: use c99 initialisers in cputable code
-  mm: quieten OOM killer noise
-
-Arnd Bergmann:
-  xtensa: remove old syscalls
-
-Artem B. Bityuckiy:
-  bugfix: two read_inode() calls without clear_inode() call between
-  Merge with rsync://fileserver/linux
-  [JFFS2] Simplify the tree insert code.
-  [JFFS2] Kill GC thread before cleanup
-  [JFFS2] Suppress annoying debug messages
-  [JFFS2] Fix NOR only compile
-  [JFFS2] Fix race in garbage collector
-  [JFFS2] Add KERN_DEBUG level to printks
-  [JFFS2] Fix race problems with wbuf.
-  [MTD] NAND: Use arrays of needed size instead of constant-sized.
-  [JFFS2] Prevent deadlock when flushing write buffer
-  [JFFS2] Forbid to free inode_cache objects if its nlink isn't zero.
-  [JFFS2] Improve garbage collector block selection
-  [MTD] NAND nandsim: Use NAND_SKIP_BBT option
-  [JFFS2] Use function to manipulate superblock dirty flag
-  [JFFS2] Add symlink caching support.
-  [JFFS2] Fix NOR specific scan BUG 
-  [MTD] Fix unregister_mtd_user() public function documentation.
-  [JFFS2] Fix node lookup
-  [MTD] NAND: Fix bad block table scan for small page devices
-  [MTD] NAND: Read only OOB bytes during bad block scan
-  [MTD] NAND: Allow operation without bad block table
-
-Ashok Raj:
-  [ACPI] Evaluate CPEI Processor Override flag
-
-Ben Collins:
-  Sync up ieee-1394
-
-Ben Dooks:
-  [MTD] NAND s3c2410: Add missing NULL pointer check
-  [MTD] NAND: s3c24xx updates
-  [MTD] NAND s3c2410: Simplify command handling
-  [MTD] plat-ram: removed extraneous debugging code
-  [MTD] NAND: Fixed unused loop variable
-  [MTD] Fixed signed 1bit bitfield
-  [MTD] Sparse fixes
-  [MTD] Update BAST driver configuration
-  [MTD] Add SST 39VF1601 (MPF+) ID
-  [MTD] Fixup probing logic for single 16bit devices
-  [MTD] Platform RAM Driver
-  [MTD] bast-flash partitions fixup
-
-Benjamin Herrenschmidt:
-  ppc64: Add new PHY to sungem
-
-Benjamin LaHaise:
-  uml: tlb flushing fix
-
-Bernard Blackham:
-  pm: fix u32 vs. pm_message_t confusion in cpufreq
-
-Bob Picco:
-  Documentation
-
-bob.picco:
-  [IA64] memory-less-nodes repost
-
-Bodo Stroesser:
-  uml: Proper clone support for skas0
-
-Brian King:
-  cdev: cdev_put oops
-
-brian@murphy.dk:
-  USB: fix usb reference count bug in cdc-acm driver
-  USB: export usb_get_intf() and usb_put_intf()
-
-Catalin Marinas:
-  ARM: 2789/1: Enable access to both CP10 and CP11 on ARMv6
-
-Chris Wright:
-  Add MAINTAINERS entry for audit subsystem
-
-Chris Zankel:
-  xtensa: remove old syscalls
-
-Christoph Lameter:
-  mostly_read data section
-  Fix broken kmalloc_node in rc1/rc2
-
-Christophe Lucas:
-  dvb: ttpci: kj printk fix
-  dvb: saa7146: kj pci_module_init cleanup
-
-Coywolf Qi Hunt:
-  [MTD] mtdchar: Return the real error code when create_class() failed
-
-Dag Arne Osvik:
-  [CRYPTO] Add faster DES code from Dag Arne Osvik
-
-Dan Brown:
-  [MTD] DiskOnChip: Add some comments
-  [MTD] DiskOnChip: Fix compile w/o CONFIG_MTD_PARTITIONS.
-  [MTD] DiskOnChip: Prevent problems with existing filesystems
-  [MTD] NAND: Fix reading of autoplaced OOB when there are multiple free sections.
-  [MTD] DiskOnChip: Fix (?) free OOB array info.
-  [MTD] NAND: Fix missing NULL pointer check
-  [MTD] DiskOnChip: Scan the entire device for Media Headers.  
-
-Dave Airlie:
-  drm: fix stupid missing semicolon.
-  drm: add 32/64 support for MGA/R128/i915
-  drm: wrap config.h include in a ifdef KERNEL
-  drm: misc cleanup
-  drm: use kcalloc now that it is available..
-  drm: ctx release can happen before dev->ctxlist is allocated
-  drm: fix minor issues caused by core conversion
-  Merge ../linux-2.6/
-  drm: Add via unichrome support
-
-Dave Jones:
-  aacraid: swapped kmalloc args.
-  Fix up non-NUMA breakage in mmzone.h
-  Clean up numa defines in mmzone.h
-  Fix bt87x.c build problem for real
-
-David A. Marlin:
-  [MTD] rtc_from4 error status check, disable virtual erase blocks
-  [MTD] NAND Add optional ECC status check callback
-  [MTD] NAND use symbols instead of literals
-  [MTD] Renesas AG-AND device recovery
-  [MTD] NAND workaround for AG-AND disturb issue. AG-AND recovery
-  [MTD] NAND extended commands, badb block table autorefresh 
-
-David Howells:
-  Keys: Base keyring size on key pointer not key struct
-
-David L Stevens:
-  [IPV4]: fix IPv4 leave-group group matching
-  [IPV4]: (INCLUDE,empty)/leave-group equivalence for full-state MSF APIs & errno fix
-  [IPV4]: multicast API "join" issues
-  [IPV4]: multicast API "join" issues
-  [IPV4]: multicast API "join" issues
-
-David S. Miller:
-  [NETLINK]: Reserve NETLINK_NETFILTER.
-  [SPARC64]: Add missing asm-sparc64/seccomp.h file.
-  [SPARC64]: Add syscall auditing support.
-  [SPARC64]: Pass regs and entry/exit boolean to syscall_trace()
-  [SPARC64]: Add SECCOMP support.
-  [SPARC64]: Kill ancient and unused SYSCALL_TRACING debugging code.
-  [SPARC64]: Add __read_mostly support.
-  [SPARC]: Add ioprio system call support.
-  [SCTP]: Use struct list_head for chunk lists, not sk_buff_head.
-  [IPV6]: Fix warning in ip6_mc_msfilter.
-  [SPARC64]: Support CONFIG_HZ
-  [NET]: Transform skb_queue_len() binary tests into skb_queue_empty()
-  [SPARC64]: Typo in dtlb_backend.S, _PAGE_SZ4M --> _PAGE_SZ4MB
-
-David Shaohua Li:
-  [ACPI] quiet dmesg related to ACPI PM of PCI devices
-  [ACPI] PNPACPI vs sound IRQ
-  [ACPI] pci_set_power_state() now calls
-  [ACPI] PCI can now get suspend state from firmware
-  [ACPI] Bind ACPI and PCI devices
-  [ACPI] Bind PCI devices with ACPI devices
-  [ACPI] S3 Suspend to RAM: fix driver suspend/resume methods
-  [ACPI] S3 Suspend to RAM: interrupt resume fix
-  [ACPI] Suspend to RAM fix
-
-David Vrabel:
-  [MTD] Remove Elan-104NC
-
-David Woodhouse:
-  [MTD] Remove MODULE_DEVICE_TABLE() for ICHx flash driver
-  [JFFS2] Remove compatibilty cruft for ancient kernels
-  [JFFS2] Optimise jffs2_add_tn_to_list 
-  [JFFS2] Fix inode allocation race
-  [JFFS2] Prevent ino cache removal for inodes in use
-  [JFFS2] Remove NAND dependencies for NOR FLASH
-
-david-b@pacbell.net:
-  USB: another cdc descriptor
-  USB: fix ohci merge glitch
-  USB: ohci-omap pm updates
-  USB: omap_udc tweaks
-  I2C: minor I2C doc cleanups
-  I2C: minor TPS6501x cleanups
-
-Deepak Saxena:
-  ARM: 2796/1: Fix ARMv5[TEJ] check in MMU initalization
-  ARM: 2792/1: IXP4xx iomap API implementation
-
-Denis Vlasenko:
-  I2C: Coding style cleanups to via686a
-
-Dmitry Torokhov:
-  [ACPI] Enable EC Burst Mode
-
-Domen Puncer:
-  [MTD] Kernel Janitor fixes.
-
-Dominik Brodowski:
-  yenta: allocate resource fixes
-  yenta: same resources in same structs
-  pcmcia: Documentation update
-  yenta: fix parent resource determination
-  pcmcia: fix pcmcia-cs compilation
-  yenta: don't depend on CardBus
-  pcmcia: update MAINTAINERS entry
-  pcmcia: remove references to pcmcia/version.h
-  pcmcia: reduce client_handle_t usage
-  pcmcia: remove client_t usage
-  pcmcia: move event handler
-  pcmcia: deprecate ioctl
-
-Dr. Werner Fink:
-  dvb: ttpci: fix AUDUIO_CONTINUE ioctl
-
-Duncan Sands:
-  USB ATM: fix line resync logic
-  USB ATM: robustify poll throttling
-  USB ATM: line speed measured in Kb not Kib
-
-Eddie C. Dost:
-  [SPARC64]: Fix enable_dma() in asm-sparc64/parport.h
-  [DVB]: Do not include <linux/irq.h> from drivers.
-  [SPARC64]: Fix set_intr_affinity()
-  [SPARC]: Fix "Eddie C. Dost" e-mail address
-
-Eric W. Biedermann:
-  [MTD] CFI-0002 - Improve error checking
-
-Estelle Hammache:
-  [JFFS2] Prevent deadlock during write buffer recovery
-  [JFFS2] Code cleanup 
-  [JFFS2] Fix refile of blocks due to write failure. 
-  [JFFS2] Fix block refiling
-  [JFFS2] Fix write buffer retry case
-
-Evgeniy Polyakov:
-  w1: fix CRC calculation on bigendian platforms.
-
-Gavin Hamill:
-  dvb: ttpci: add support for Hauppauge/TT DVB-C budget
-
-Geert Uytterhoeven:
-  mm/filemap_xip.c compilation fix
-
-George Anzinger:
-  kbuild: build TAGS problem with O=
-
-Greg KH:
-  Fix bt87x.c build problem
-
-Greg Kroah-Hartman:
-  USB: fix ftdi_sio compiler warnings
-  USB: add bMaxPacketSize0 attribute to sysfs
-  cleanup: remove unnecessary initializer on static pointers
-  PCI: fix !CONFIG_HOTPLUG pci build problem
-
-H. J. Lu:
-  [IA64] Fix a typo in arch/ia64/kernel/entry.S
-
-Hartmut Hackmann:
-  dvb: frontend: tda1004x: support tda827x tuners
-  dvb: frontend: bcm3510: fix firmware version check
-  dvb: frontend: tda1004x update
-
-Herbert Valerio Riedel:
-  [MTD] FTL Fix missing pointer assignment
-
-Herbert Xu:
-  [CRYPTO] Remove unused iv field from context structure
-  [CRYPTO] Update IV correctly for Padlock CBC encryption
-  [CRYPTO] Handle unaligned iv from encrypt_iv/decrypt_iv
-  [CRYPTO] Ensure cit_iv is aligned correctly
-  [PADLOCK] Implement multi-block operations
-  [PADLOCK] Move fast path work into aes_set_key and upper layer
-  [CRYPTO] Add alignmask for low-level cipher implementations
-  [CRYPTO] Add support for low-level multi-block operations
-  [CRYPTO] Add plumbing for multi-block operations
-
-Hirokazu Takata:
-  m32r: framebuffer device support
-
-Hugh Dickins:
-  lower VM_DONTCOPY total_vm
-
-Ian Abbott:
-  USB ftdi_sio: remove redundant TIOCMBIS and TIOCMBIC code
-  USB ftdi_sio: reduce device id table clutter
-
-Ian Campbell:
-  USB: gadget/ether build fixes.
-  USB: gadget/ether fixes
-  pcmcia: fix i82365 request_region double usage
-
-Ian Kent:
-  autofs4: mistake in debug print
-
-Ingo Molnar:
-  cond_resched(): fix bogus might_sleep() warning
-
-Ivan Kokshaysky:
-  yet another fix for setup-bus.c/x86 merge
-
-Jack Steiner:
-  [IA64] - Disable tiocx driver on non-SN systems
-
-Jan Kara:
-  ext2: fix mount options parting
-  ext3: fix options parsing
-
-Jan Veldeman:
-  I2C: Documentation fix
-
-Jarkko Lavinen:
-  [MTD] NAND: Fix the broken dynamic array allocations
-
-Jean Delvare:
-  I2C: Move hwmon drivers (3/3)
-  I2C: Move hwmon drivers (2/3)
-  I2C: Move hwmon drivers (1/3)
-  I2C: Clarify the usage of i2c-dev.h
-  I2C: drop bogus eeprom comment
-  I2C: m41t00: fix incorrect kfree
-  I2C: max6875 Kconfig update
-  I2C: max6875 documentation update
-  I2C: New max6875 driver may corrupt EEPROMs
-  I2C: Strip trailing whitespace from strings
-
-Jeff Dike:
-  uml: skas0 - separate kernel address space on stock hosts
-  uml: kill some useless vmalloc tlb flushing
-
-Jeff Mahoney:
-  reiserfs: fix up case where indent misreads the code
-  openfirmware: implement hotplug for macio devices
-  openfirmware: add sysfs nodes for open firmware devices
-  openfirmware: generate device table for userspace
-
-Jesper Juhl:
-  [NET]: Trivial spelling fix patch for net/Kconfig
-  [CRYPTO] Add null short circuit to crypto_free_tfm
-  [CRYPTO] Don't check for NULL before kfree()
-
-Jesse Barnes:
-  [ACPI] cleanup: delete !IA64_SGI_SN from acpi/Kconfig
-
-Jesse Millan:
-  put_compat_shminfo() warning fix
-
-Joern Engel:
-  [MTD] Fix commandline parser alignement
-  [MTD] mtdram: Quick cleanup of the driver:
-  [MTD] phram: Allow short reads.  
-  [MTD] block2mtd: Remove copyright. Fix offset calculation
-  [MTD] Use after free, found by the Coverity tool
-
-Johannes Stezenbach:
-  dvb: dst: printk -> dprintk
-  dvb: dvb-usb: support Artect T1 with broken USB ids
-  dvb: ttpci: cleanup indentation + whitespace
-  dvb: ttpci: error handling fix
-  dvb: ttpci: budget-av / tu1216 fix for QAM128
-  dvb: ttpci: fix bug in timeout handling
-  dvb: DVB update
-  dvb: frontend: l64781: improve tuning
-  dvb: remove obsolete skystar2 driver
-
-Jonas Holmberg:
-  [MTD] amd_flash: Fix chip ID clash
-
-Josh Boyer:
-  [MTD] slram driver cleanup
-
-Julian Anastasov:
-  [IPVS]: Add and reorder bh locks after moving to keventd.
-
-Julian Scheel:
-  dvb: fix kobject names (no slashes)
-
-KAMBAROV, ZAUR:
-  USB: coverity: (desc->bitmap)[] overrun fix
-  coverity: sunrpc/xprt task null check
-  coverity: fs/locks.c flp null check
-  coverity: fix fbsysfs null pointer check
-
-Keiichiro Tokunaga:
-  [ACPI] hotplug Processor consideration in acpi_bus_add()
-  [ACPI] update CONFIG_ACPI_CONTAINER Kconfig help
-
-Keith Owens:
-  [IA64] restore_sigcontext is not preempt safe
-  [IA64] Make ia64 die() preempt safe
-
-Kenji Kaneshige:
-  [IA64] assign_irq_vector() should not panic
-
-Kyungmin Park:
-  [MTD] NAND: Early Manufacturer ID lookup
-
-Len Brown:
-  [ACPI] merge acpi-2.6.12 branch into latest Linux 2.6.13-rc...
-  [ACPI] increase MAX_IO_APICS to 64 on i386
-  [ACPI] fix merge error that broke CONFIG_ACPI_DEBUG=y build
-  [ACPI] Deprecate /proc/acpi/sleep in favor of /sys/power/state
-  [ACPI] gut acpi_pci_choose_state() to avoid conflict
-  [ACPI] CONFIG_ACPI now depends on CONFIG_PM
-
-Lennert Buytenhek:
-  ARM: 2795/1: update ixp2000 defconfigs
-  ARM: 2793/1: platform serial support for ixp2000
-  [MTD] ixp2000: Remove port setting code
-
-Linus Torvalds:
-  Linux 2.6.13-rc3
-  reiserfs: run scripts/Lindent on reiserfs code
-  Merge master.kernel.org:/.../lenb/linux-2.6
-  Merge master.kernel.org:/.../gregkh/i2c-2.6
-  Merge master.kernel.org:/.../davem/sparc-2.6
-  Merge master.kernel.org:/.../davem/net-2.6
-  Merge master.kernel.org:/.../davem/sparc-2.6
-  Merge master.kernel.org:/.../aegl/linux-2.6
-  Merge master.kernel.org:/.../tglx/mtd-2.6
-  Merge master.kernel.org:/.../davem/sparc-2.6
-  Merge master.kernel.org:~rmk/linux-2.6-arm.git
-  Merge head 'drm-fixes' of master.kernel.org:/.../airlied/drm-2.6
-  Merge head 'drm-3264' of master.kernel.org:/.../airlied/drm-2.6
-  Merge head 'drm-via' of master.kernel.org:/.../airlied/drm-2.6
-  Merge master.kernel.org:/.../davem/sparc-2.6
-  Merge master.kernel.org:/.../aegl/linux-2.6
-  Merge master.kernel.org:/.../davem/sparc-2.6
-  Merge rsync://rsync.kernel.org/.../davem/net-2.6
-  Merge master.kernel.org:/home/rmk/linux-2.6-arm
-  ieee1394: fix broken signed char assumption.
-
-Luca Risolia:
-  USB: SN9C10x driver updates
-
-Luming Yu:
-  [ACPI] EC GPE-disabled issue
-  [ACPI] fix EC access width
-  [ACPI] generic Hot Key support
-
-Mac Michaels:
-  dvb: frontend: add driver for LGDT3302
-
-Maciej W. Rozycki:
-  [MTD] ms02-nv: Fix 64bit operation
-
-Manu Abraham:
-  dvb: Twinhan DST: frontend fixes
-
-Marcelo Tosatti:
-  remove completly bogus comment inside __alloc_pages() try_to_free_pages handling
-  print order information when OOM killing
-
-Mark Fasheh:
-  export generic_drop_inode() to modules
-
-Mark M. Hoffman:
-  i2c: make better use of IDR in i2c-core
-
-Martin Loschwitz:
-  dvb: cinergyT2: endianness fix for raw remote-control keys
-
-Matt Mackall:
-  quiet ide-cd warning
-
-Matthieu Castet:
-  [ACPI] PNPACPI parse error
-
-Mauro Carvalho Chehab:
-  v4l: TV EEPROM
-  v4l: tuner-3026 - replace obsolete ioctl value
-  v4l: SAA7134 Update
-  v4l: MXB fix to correct tuner ioctl
-  v4l: drivers/media/video/Kconfig
-  v4l: I2C Tuner
-  v4l: I2C Miscelaneous
-  v4l: I2C Infrared Remote Control
-  v4l: I2C BT832
-  v4l: Documentation
-  v4l: SAA7134 hybrid DVB
-  v4l: CX88 Update
-  v4l: BTTV update
-  v4l: BTTV input
-  v4l: cx88 update
-
-Michael Downey:
-  USB: add driver for Keyspan Digital Remote
-
-Michael Ellerman:
-  ppc64: Be consistent about printing which idle loop we're using
-  ppc64: Remove obsolete idle_setup()
-  ppc64: Fixup platforms for new ppc_md.idle
-  ppc64: Move pSeries idle functions into pSeries_setup.c
-  ppc64: Move iSeries_idle() into iSeries_setup.c
-  ppc64: Make idle_loop a ppc_md function
-
-Michael Hund:
-  USB: add ldusb driver
-  USB: add LD devices to hid blacklist
-
-Michael Krufky:
-  v4l: broken hybrid dvb inclusion
-  dvb: LGDT3302 QAM256 initialization fix
-  v4l: LGDT3302 read status fix
-  v4l: add DVB support for DViCO FusionHDTV3 Gold-T
-  v4l: add TerraTec Cinergy 1400 DVB-T
-  v4l: add DVB support for DViCO FusionHDTV3 Gold-Q
-  v4l: cx88 hue offset fix
-
-Michael Paxton:
-  dvb: usb: vp7045 IR map fix
-
-Miklos Szeredi:
-  __wait_on_freeing_inode fix
-  namespace: rename _mntput to mntput_no_expire
-  namespace: rename mnt_fslink to mnt_expire
-  dcookies.c: use proper refcounting functions
-  set mnt_namespace in the correct place
-  namespace.c: fix mnt_namespace zeroing for expired mounts
-  namespace.c: fix expiring of detached mount
-  namespace.c: split mark_mounts_for_expiry()
-  namespace.c: cleanup in mark_mounts_for_expiry()
-  namespace.c: fix race in mark_mounts_for_expiry()
-  namespace.c: fix mnt_namespace clearing
-
-Miles Bader:
-  v850: Update mmu.h header to match implementation changes
-  v850: Update checksum.h to match changed function signatures
-
-Milton Miller:
-  hvc_console: Use hvc_get_chars in hvsi code
-  hvc_console: Separate the NUL character filtering from get_hvc_chars
-  hvc_console: Register ops when setting up hvc_console
-  hvc_console: Separate hvc_console and vio code 2
-  hvc_console: Separate hvc_console and vio code
-  hvc_console: Add some sanity checks
-  hvc_console: Statically initialize the vtermnos array
-  hvc_console: remove num_vterms and some dead code
-  hvc_console: Add missing include
-  hvc_console: Unregister the console in the exit routine.
-  hvc_console: MAGIC_SYSRQ should only be on console channel
-  hvc_console: Dont always kick the poll thread in interrupt
-  hvc_console: Match vio and console devices using vterm numbers
-  hvc_console: Rearrange code
-
-NeilBrown:
-  nfsd4: fix fh_expire_type
-  nfsd4: check lock type against openmode.
-  nfsd4: clean up nfs4_preprocess_seqid_op
-  nfsd4: clarify close_lru handling
-  nfsd4: renew lease on seqid modifying operations
-  nfsd4: return better error on io incompatible with open mode
-  nfsd4: always update stateid on open
-  nfsd4: relax new lock seqid check
-  nfsd4: seqid comments
-  nfsd4: fix open_reclaim seqid
-  nfsd4: comment indentation
-  nfsd4: stop overusing RECLAIM_BAD
-  nfsd4: ERR_GRACE should bump seqid on lock
-  nfsd4: ERR_GRACE should bump seqid on open
-  nfsd4: fix release_lockowner
-  nfsd4: prevent multiple unlinks of recovery directories
-  nfsd4: lookup_one_len takes i_sem
-  nfsd4: fix sync'ing of recovery directory
-  nfsd4: reboot recovery fix
-
-Nick Piggin:
-  page_uptodate locking scalability
-
-Nickolai Zeldovich:
-  [ACPI] S3 resume -- use lgdtl, not lgdt
-
-Nico Pitre:
-  [MTD] Add mapping driver for Intel PXA27x Mainstone board flash.
-
-Nicolas Pitre:
-  [MTD] CFI flash locking reorg for XIP
-  [MTD] Fix OTP for top-parameter devices
-  [MTD] Reset file position when switching OTP mode
-  [MTD] Add reboot notifier to Intel NOR flash driver
-  [MTD] cfi_cmdset_0001: Fix state after sync
-  [MTD] Make OTP actually work.
-  [MTD] Quiet unused variable warning
-  [MTD] Unabuse file-f_mode for OTP purpose
-  [MTD] User interface to Protection Registers
-  [MTD] Support for protection register support on Intel FLASH chips
-  [MTD] Add OTP basisc
-
-Nicolas S. Dade:
-  [MTD] NAND: Add Hynix to manufacturer list
-
-Nishanth Aravamudan:
-  xtensa: use ssleep() instead of schedule_timeout()
-  [IA64] use msleep_interruptible() instead of schedule_timeout
-
-Olaf Hering:
-  MAINTAINERS: irda-users@lists.sourceforge.net is subscribers only
-  [IA64] remove linux/version.h include from arch/ia64
-  ppc64: vdso32: fix link errors after recent toolchain changes
-
-Olaf Kirch:
-  [IPV4]: Prevent oops when printing martian source
-
-Olav Kongas:
-  USB: Fix kmalloc's flags type in USB
-  USB: isp116x-hcd cleanup
-
-Oliver Endriss:
-  dvb: ttpci: fix timeout handling to be save with PREEMPT
-  dvb: ttpci: make av7110_fe_lock_fix() retryable
-
-Panagiotis Issaris:
-  [ACPI] check for kmalloc failure in toshiba_acpi.c
-
-Paolo 'Blaisorblade' Giarrusso:
-  uml:remove user_constants.h on clean
-  uml: remove winch sem
-  uml: restore hppfs support
-
-Patrick Boettcher:
-  dvb: usb: fix some typos
-  dvb: usb: README update
-  dvb: usb: add supprt for WideView WT-220U
-  dvb: usb/pci: correct syntax of driver name fields
-  dvb: usb: dont use HZ for timeouts
-  dvb: usb: IR input fixes
-  dvb: usb: fix WideView USB ids
-  dvb: usb: add vp7045 IR keymap
-  dvb: usb Kconfig help text update
-  dvb: usb doc update
-  dvb: usb: digitv memcpy fix
-  dvb: usb: add VideoWalker DVB-T USB ids
-  dvb: usb: cxusb DVB-T fixes
-  dvb: usb: dvb_usb_properties init fix
-  dvb: usb: digitv-usb fixes
-  dvb: frontend: add ALPS TDED4 PLL
-  dvb: usb: add module parm to disable remote control polling
-  dvb: usb: support Medion hybrid USB2.0 DVB-T/analogue box
-  dvb: frontend: add FMD1216ME PLL
-  dvb: usb: add isochronous streaming method
-  dvb: usb: fix ADSTech Instant TV DVB-T USB2.0 support
-  dvb: flexcop: woraround irq stop problem
-  dvb: flexcop: add big endian register definitions
-  dvb: frontend: cx22702: support for cxusb
-
-Paulo Marques:
-  [ACPI] fix kmalloc size bug in acpi/video.c
-
-Pavel Machek:
-  video doc: one more system where video works with S3
-  pm: clean up process.c
-  swsusp: fix error handling
-  pm: Fix resume from initrd
-  pm: more u32 vs. pm_message_t fixes
-
-Pavel Roskin:
-  pcmcia: remove client services version (fix)
-  pcmcia: remove client services version
-
-Pete Popov:
-  [MTD] Replace all the Au1x mapping drivers with a simplified single driver
-
-Pete Zaitcev:
-  USB: Patch to make usbmon to print control setup packets
-
-Peter Beutner:
-  dvb: core: dmxdev cleanups
-  dvb: core: demux error handling fix
-  dvb: core: fix race condition in FE_READ_STATUS ioctl
-
-Phil Dibowitz:
-  USB Storage: Remove unneeded SC/P
-
-Phil Oester:
-  [NETFILTER]: Revert nf_reset change
-
-Prarit Bhargava:
-  [IA64] hotplug/ia64: SN Hotplug Driver - PREEMPT/pcibus_info fix
-  [IA64] hotplug/ia64: SN Hotplug Driver - SN Hotplug Driver code
-  [IA64] hotplug/ia64: SN Hotplug Driver - new SN PROM version code
-  [IA64] hotplug/ia64: SN Hotplug Driver - pci_find_next_bus export
-  [IA64] hotplug/ia64: SN Hotplug Driver: moving of header files
-  [IA64] hotplug/ia64: SN Hotplug Driver: SN IRQ Fixes
-
-Randy Dunlap:
-  hardirq uses preempt
-
-Richard Purdie:
-  [MTD] sharpsl-flash: Correct error paths
-  [MTD] Add support for more SharpSL machines and fix missing mapping init
-  [MTD] NAND SharpSL fix default partition size
-
-Robert Love:
-  inotify
-
-Robert Moore:
-  ACPICA 20050408 from Bob Moore
-
-Roland Dreier:
-  IB uverbs: add documentation file
-  IB uverbs: add mthca user QP support
-  IB uverbs: add mthca user CQ support
-  IB uverbs: add mthca user MR support
-  IB uverbs: add mthca user PD support
-  IB uverbs: add mthca mmap support
-  IB uverbs: add mthca user context support
-  IB uverbs: add mthca user doorbell record support
-  IB uverbs: add mthca ABI header
-  IB uverbs: hook up Kconfig/Makefile
-  IB uverbs: memory pinning implementation
-  IB uverbs: core implementation
-  IB uverbs: add user verbs ABI header
-  IB uverbs: update mthca for new API
-  IB uverbs: update kernel midlayer for new API
-  IB uverbs: core API extensions
-
-Roland McGrath:
-  reset real_timer target on exec leader change
-
-Roman Zippel:
-  tty output lossage fix
-
-Russell King:
-  yenta: no CardBus if IRQ fails
-  [MTD] Fix MTD device probing
-
-Sam Ravnborg:
-  [NET]: move config options out to individual protocols
-  [NET]: add a top-level Networking menu to *config
-  kbuild: build a single module using 'make dir/module.ko'
-
-Sean Young:
-  [MTD] Use correct major number for INFTL
-
-Shaohua Li:
-  MTRR suspend/resume cleanup
-
-Stefan Sorensen:
-  ARM: 2790/1: Properly terminate plat_serial8250_port arrays on ixdp425 and
-
-Steffen Motzer:
-  dvb: dst: fix tuning problem
-
-Stephen Rothwell:
-  remove asm-xtensa/ipc.h
-
-Thomas Gleixner:
-  [MTD] XIP cleanup
-  [MTD] NAND: Remove unmaintained tx49xx board drivers
-  [MTD] NAND: sharpsl.c set correct file permissions
-  [MTD] cfi_cmdset_0002: Remove bogus include
-  [MTD] NAND: Add ST chip IDs. 
-  [MTD] NAND: Change exports to _GPL
-  [MTD] NAND: Fix broken bad block table scan
-  [MTD] NAND: Reorganize chip locking
-  Merge with rsync://fileserver/linux
-  [MTD] Fix it really
-  [MTD] map.h Use the correct macro and fix the resulting compiler warning
-  [MTD] Make map_word_ff ware of the flash buswidth
-  [MTD] cfi_cmdset_0002: Fix broken status check
-  Merge with rsync://rsync.kernel.org/.../torvalds/linux-2.6.git
-  [JFFS2] Whitespace cleanup. Fix missing debug message
-  [JFFS2] Fix crosscompile
-  [JFFS2] Fix cleanup in case of GC-Task not started
-  [JFFS2] Convert thread start semaphore to completion
-  [MTD] NAND: Honour autoplacement schemes supplied by the caller
-  [MTD] Fix broken user ABI
-  [MTD] NAND: Move the NULL check into the calling function
-  [MTD] NAND: Fix oob available calculation
-  [MTD] plat-ram: Make it usable on non ARM platforms
-  [MTD] block2mtd: Fix incompatible pointer type
-  [MTD] cfi_cmdset_0001: Fix compiler warnings
-  [MTD] Fix typo in Kconfig
-  [MTD] cfi_cmdset_0001: Fix the buggy status check. 
-  [MTD] Add the reverse operation of cfi_build_cmd()
-  [MTD] NAND: Use cond_resched instead of msleep
-  [MTD] NAND: Check command timeout
-  [MTD] DiskOnChip: Wait for the command to finish.
-  [MTD] NAND: Skip bad block table scan on request
-  [MTD] DiskOnChip: big endian fix for NFTL devices
-  [MTD] DiskOnChip code cleanup
-  [MTD] DiskOnChip use CONFIG_ options instead of random symbols
-  [MTD] NAND replace yield
-
-Thomas Winischhofer:
-  USB: SiS USB Makefile fixes
-
-Todd Poynor:
-  ARM: 2791/1: Add CRCs for aliased ARM symbols
-  [MTD] NOR flash map driver for TI OMAP boards.
-  [MTD] mtdchar.c: Replace DEVFS by udev
-  [MTD] XIP for AMD CFI flash.
-  [MTD] CFI DEBUG_LOCK_BITS fixes for Intel NOR flash:
-  [MTD] Avoid compile warnings for Intel CFI flash without OTP support.
-  [MTD] cfi_cmdset_0001: Skip delay if Instant Block Locking is set
-  [JFFS2] Avoid warning for empty filesystems
-
-Tommy Christensen:
-  [VLAN]: Fix early vlan adding leads to not functional device
-
-Tony Lindgren:
-  ARM: 2803/1: OMAP update 11/11: Add cpufreq support
-  ARM: 2805/1: OMAP update 10/11: Update H2 defconfig
-  ARM: 2804/1: OMAP update 9/11: Update OMAP arch files
-  ARM: 2802/1: OMAP update 8/11: Update OMAP arch files
-  ARM: 2812/1: OMAP update 7c/11: Move arch-omap to plat-omap
-  ARM: 2809/1: OMAP update 7b/11: Move arch-omap to plat-omap
-  ARM: 2807/1: OMAP update 7a/11: Move arch-omap to plat-omap
-  ARM: 2801/1: OMAP update 6/11: Split OMAP1 common code into id, io and serial
-  ARM: 2806/1: OMAP update 5/11: Move board files into mach-omap1 directory
-  ARM: 2799/1: OMAP update 4/11: Move OMAP1 LED code into mach-omap1 directory
-  ARM: 2800/1: OMAP update 3/11: Move OMAP1 core code into mach-omap1 directory
-  ARM: 2798/1: OMAP update 2/11: Change ARM Kconfig to support omap1 and omap2
-  ARM: 2797/1: OMAP update 1/11: Update include files
-
-Tony Luck:
-  Auto merge with /home/aegl/GIT/linus
-  Auto merge with /home/aegl/GIT/linus
-  [IA64] fix generic/up builds
-  Auto merge with /home/aegl/GIT/linus
-
-Uwe Bugla:
-  fix for Documentation/dvb/bt8xx.txt?=
-
-Venkatesh Pallipadi:
-  [ACPI] enable C2 and C3 idle power states on SMP
-  [ACPI] fix C1 patch for IA64
-  [ACPI] update /proc/acpi/processor/*/power even if only C1 support
-
-Victor Fusco:
-  [NET]: Fix sparse warnings
-
-Wolfgang Rohdewald:
-  dvb: ttpci: more error handling for firmware communication
-  dvb: ttpci: fix error handling for firmware communication
-
-Yoichi Yuasa:
-  TB0219: add PCI IRQ initialization
-
+This is a multi-part message in MIME format.
+--------------020904020901040300040603
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Dear LKML
+
+I would like to report following oops which occurs with Kernel
+2.6.12-rc2 git current (bd4c625c061c2a38568d0add3478f59172455159) at bootup:
+
+Odin kernel: Unable to handle kernel paging request at virtual address
+0000851b
+Odin kernel:  printing eip:
+Odin kernel: dd215065
+Odin kernel: *pde = 00000000
+Odin kernel: Oops: 0000 [#1]
+Odin kernel: Modules linked in: ipt_REJECT ipt_state ip_conntrack
+iptable_filter ip_tables binfmt_misc uhci_hcd ehci_hcd snd_ens1371
+snd_rawmidi snd_ac97_codec snd_seq_dummy snd_seq_oss snd_seq_midi_event
+snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd
+soundcore snd_page_alloc ide_cd cdrom usbcore
+Odin kernel: CPU:    0
+Odin kernel: EIP:    0060:[<dd215065>]    Not tainted VLI
+Odin kernel: EFLAGS: 00010a93   (2.6.13-rc2-git)
+Odin kernel: EIP is at 0xdd215065
+Odin kernel: eax: c0151585   ebx: c0182ab0   ecx: 08110be0   edx: 00001000
+Odin kernel: esi: dd14dfc3   edi: c0182af0   ebp: edcb8511   esp: dd14df88
+Odin kernel: ds: 007b   es: 007b   ss: 0068
+Odin kernel: Process udev (pid: 1476, threadinfo=dd14c000 task=defc15c0)
+Odin kernel: Stack: dd14dfa4 dfea9600 fffffff7 00000003 dd14c000
+c01518d1 dd14dfa4 00000000
+Odin kernel:        00000000 00000000 00000003 08110be0 c0102b0b
+00000003 08110be0 00001000
+Odin kernel:        08110be0 00000003 080594d0 00000003 0000007b
+c010007b 00000003 ffffe410
+Odin kernel: Call Trace:
+Odin kernel:  [<c01518d1>] sys_read+0x41/0x70
+Odin kernel:  [<c0102b0b>] sysenter_past_esp+0x54/0x75
+Odin kernel: Code: 6f 6c 6f 67 69 6e 0a 64 61 65 6d 6f 6e 3a 78 3a 32 3a
+32 3a 64 61 65 6d 6f 6e 3a 2f 73 62 69 6e 3a 2f 73 62 69 6e 2f 6e 6f 6c
+6f <67> 69 6e 0a 61 64 6d 3a 78 3a 33 3a 34 3a 61 64 6d 3a 2f 76 61
+
+This oops is now feeling my syslog:
+
+Odin kernel: invalid operand: 0000 [#10]
+Odin kernel: Modules linked in: radeon drm ipt_REJECT ipt_state
+ip_conntrack iptable_filter ip_tables binfmt_misc uhci_hcd ehci_hcd
+snd_ens1371 snd_rawmidi snd_ac97_codec snd_seq_dummy snd_seq_oss
+snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss
+snd_pcm snd_timer snd soundcore snd_page_alloc ide_cd cdrom usbcore
+Odin kernel: CPU:    0
+Odin kernel: EIP:    0060:[<c023bd1e>]    Not tainted VLI
+Odin kernel: EFLAGS: 00010286   (2.6.13-rc2-git)
+Odin kernel: EIP is at class_device_attr_show+0x1e/0x30
+Odin kernel: eax: 00000006   ebx: dd8e776c   ecx: e0a25820   edx: 00000000
+Odin kernel: esi: dbefe000   edi: dd8e7774   ebp: decb7500   esp: dc6b7f4c
+Odin kernel: ds: 007b   es: 007b   ss: 0068
+Odin kernel: Process udev (pid: 1692, threadinfo=dc6b6000 task=df9f60c0)
+Odin kernel: Stack: dd923120 c034c1b4 c0182973 dd923120 dc5e1ec0
+00001000 dd923134 c0182aeb
+Odin kernel:        c015a253 08110be0 dc5e1ec0 c0182ab0 00001000
+08110be0 c01515eb dc6b7fa4
+Odin kernel:        dc5e1ec0 fffffff7 00000003 dc6b6000 c01518d1
+dc6b7fa4 00000000 00000000
+Odin kernel: Call Trace:
+Odin kernel:  [<c0182973>] fill_read_buffer+0x33/0x80
+Odin kernel:  [<c0182aeb>] sysfs_read_file+0x3b/0x80
+Odin kernel:  [<c015a253>] sys_stat64+0x23/0x30
+Odin kernel:  [<c0182ab0>] sysfs_read_file+0x0/0x80
+Odin kernel:  [<c01515eb>] vfs_read+0x9b/0x110
+Odin kernel:  [<c01518d1>] sys_read+0x41/0x70
+Odin kernel:  [<c0102b0b>] sysenter_past_esp+0x54/0x75
+Odin kernel: Code: 90 90 90 90 90 90 90 90 90 90 90 90 90 83 ec 08 89 1c
+24 8d 58 f8 31 c0 89 74 24 04 89 ce 8b 4a 0c 85 c9 74 06 89 f2 89 d8 ff
+d1 <ff> ff ff ff 74 24 04 83 c4 08 c3 8d b4 26 00 00 00 00 83 ec 0c
+
+Here are some system information and attached you will find the config
+file for this kernel.
+ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux Odin.local 2.6.13-rc2-mm2 #1 Tue Jul 12 20:13:09 CEST 2005 i686
+i686 i386 GNU/Linux
+
+Gnu C                  4.0.0
+Gnu make               3.80
+binutils               2.15.94.0.2.2
+util-linux             2.12p
+mount                  2.12p
+module-init-tools      3.1
+e2fsprogs              1.37
+reiserfsprogs          line
+reiser4progs           line
+xfsprogs               2.6.13
+pcmcia-cs              3.2.8
+quota-tools            3.12.
+PPP                    2.4.2
+nfs-utils              1.0.7
+Linux C Library        2.3.5
+Dynamic linker (ldd)   2.3.5
+Procps                 3.2.5
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.2.1
+udev                   058
+Modules Loaded         radeon drm ipt_REJECT ipt_state ip_conntrack
+iptable_filter ip_tables binfmt_misc uhci_hcd ehci_hcd snd_ens1371
+snd_rawmidi snd_ac97_codec snd_seq_dummy snd_seq_oss snd_seq_midi_event
+snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd
+soundcore snd_page_alloc ide_cd cdrom usbcore
+
+-- Michael Berger
+
+
+
+
+--------------020904020901040300040603
+Content-Type: text/plain;
+ name="CONFIG-OOPS"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="CONFIG-OOPS"
+
+#
+# Automatically generated make config: don't edit
+# Linux kernel version: 2.6.13-rc2-git
+# Wed Jul 13 06:18:09 2005
+#
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+
+#
+# General setup
+#
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+# CONFIG_BSD_PROCESS_ACCT_V3 is not set
+CONFIG_SYSCTL=y
+CONFIG_AUDIT=y
+CONFIG_AUDITSYSCALL=y
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+# CONFIG_IKCONFIG is not set
+CONFIG_EMBEDDED=y
+CONFIG_KALLSYMS=y
+# CONFIG_KALLSYMS_EXTRA_PASS is not set
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+# CONFIG_TINY_SHMEM is not set
+CONFIG_BASE_SMALL=0
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+# CONFIG_MODVERSIONS is not set
+# CONFIG_MODULE_SRCVERSION_ALL is not set
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+CONFIG_X86_PC=y
+# CONFIG_X86_ELAN is not set
+# CONFIG_X86_VOYAGER is not set
+# CONFIG_X86_NUMAQ is not set
+# CONFIG_X86_SUMMIT is not set
+# CONFIG_X86_BIGSMP is not set
+# CONFIG_X86_VISWS is not set
+# CONFIG_X86_GENERICARCH is not set
+# CONFIG_X86_ES7000 is not set
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMII is not set
+CONFIG_MPENTIUMIII=y
+# CONFIG_MPENTIUMM is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MK8 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MEFFICEON is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MGEODEGX1 is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+# CONFIG_X86_GENERIC is not set
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+# CONFIG_SMP is not set
+CONFIG_PREEMPT_NONE=y
+# CONFIG_PREEMPT_VOLUNTARY is not set
+# CONFIG_PREEMPT is not set
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+# CONFIG_X86_MCE_NONFATAL is not set
+# CONFIG_X86_MCE_P4THERMAL is not set
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_X86_REBOOTFIXUPS is not set
+# CONFIG_MICROCODE is not set
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+
+#
+# Firmware Drivers
+#
+# CONFIG_EDD is not set
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+# CONFIG_DISCONTIGMEM_MANUAL is not set
+# CONFIG_SPARSEMEM_MANUAL is not set
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+CONFIG_REGPARM=y
+# CONFIG_SECCOMP is not set
+# CONFIG_HZ_100 is not set
+# CONFIG_HZ_250 is not set
+CONFIG_HZ_1000=y
+CONFIG_HZ=1000
+CONFIG_PHYSICAL_START=0x100000
+# CONFIG_KEXEC is not set
+
+#
+# Power management options (ACPI, APM)
+#
+# CONFIG_PM is not set
+
+#
+# CPU Frequency scaling
+#
+# CONFIG_CPU_FREQ is not set
+
+#
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+#
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GOMMCONFIG is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+# CONFIG_PCIEPORTBUS is not set
+# CONFIG_PCI_MSI is not set
+# CONFIG_PCI_LEGACY_PROC is not set
+CONFIG_PCI_NAMES=y
+CONFIG_ISA_DMA_API=y
+# CONFIG_ISA is not set
+# CONFIG_MCA is not set
+# CONFIG_SCx200 is not set
+
+#
+# PCCARD (PCMCIA/CardBus) support
+#
+# CONFIG_PCCARD is not set
+
+#
+# PCI Hotplug Support
+#
+# CONFIG_HOTPLUG_PCI is not set
+
+#
+# Executable file formats
+#
+CONFIG_BINFMT_ELF=y
+# CONFIG_BINFMT_AOUT is not set
+CONFIG_BINFMT_MISC=m
+
+#
+# Networking
+#
+CONFIG_NET=y
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_XFRM=y
+# CONFIG_XFRM_USER is not set
+# CONFIG_NET_KEY is not set
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+CONFIG_IP_FIB_HASH=y
+# CONFIG_IP_PNP is not set
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+# CONFIG_NET_IPGRE_BROADCAST is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+CONFIG_SYN_COOKIES=y
+# CONFIG_INET_AH is not set
+# CONFIG_INET_ESP is not set
+# CONFIG_INET_IPCOMP is not set
+CONFIG_INET_TUNNEL=m
+CONFIG_IP_TCPDIAG=y
+# CONFIG_IP_TCPDIAG_IPV6 is not set
+# CONFIG_TCP_CONG_ADVANCED is not set
+CONFIG_TCP_CONG_BIC=y
+
+#
+# IP: Virtual Server Configuration
+#
+# CONFIG_IP_VS is not set
+# CONFIG_IPV6 is not set
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+# CONFIG_IP_NF_CT_ACCT is not set
+# CONFIG_IP_NF_CONNTRACK_MARK is not set
+# CONFIG_IP_NF_CT_PROTO_SCTP is not set
+CONFIG_IP_NF_FTP=m
+# CONFIG_IP_NF_IRC is not set
+# CONFIG_IP_NF_TFTP is not set
+# CONFIG_IP_NF_AMANDA is not set
+# CONFIG_IP_NF_QUEUE is not set
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+# CONFIG_IP_NF_MATCH_HELPER is not set
+CONFIG_IP_NF_MATCH_STATE=m
+# CONFIG_IP_NF_MATCH_CONNTRACK is not set
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_MATCH_ADDRTYPE=m
+CONFIG_IP_NF_MATCH_REALM=m
+# CONFIG_IP_NF_MATCH_SCTP is not set
+# CONFIG_IP_NF_MATCH_COMMENT is not set
+# CONFIG_IP_NF_MATCH_HASHLIMIT is not set
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_LOG=m
+# CONFIG_IP_NF_TARGET_ULOG is not set
+# CONFIG_IP_NF_TARGET_TCPMSS is not set
+# CONFIG_IP_NF_NAT is not set
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_CLASSIFY=m
+CONFIG_IP_NF_RAW=m
+# CONFIG_IP_NF_TARGET_NOTRACK is not set
+# CONFIG_IP_NF_ARPTABLES is not set
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP_SCTP is not set
+# CONFIG_ATM is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_DECNET is not set
+# CONFIG_LLC2 is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_SCHED is not set
+CONFIG_NET_CLS_ROUTE=y
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+# CONFIG_NETPOLL is not set
+# CONFIG_NET_POLL_CONTROLLER is not set
+# CONFIG_HAMRADIO is not set
+# CONFIG_IRDA is not set
+# CONFIG_BT is not set
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+CONFIG_STANDALONE=y
+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
+# CONFIG_FW_LOADER is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+# CONFIG_PARPORT_SERIAL is not set
+# CONFIG_PARPORT_PC_FIFO is not set
+# CONFIG_PARPORT_PC_SUPERIO is not set
+# CONFIG_PARPORT_GSC is not set
+CONFIG_PARPORT_1284=y
+
+#
+# Plug and Play support
+#
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+# CONFIG_BLK_DEV_COW_COMMON is not set
+CONFIG_BLK_DEV_LOOP=y
+# CONFIG_BLK_DEV_CRYPTOLOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_SX8 is not set
+# CONFIG_BLK_DEV_UB is not set
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=16384
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_INITRAMFS_SOURCE=""
+# CONFIG_LBD is not set
+# CONFIG_CDROM_PKTCDVD is not set
+
+#
+# IO Schedulers
+#
+CONFIG_IOSCHED_NOOP=y
+# CONFIG_IOSCHED_AS is not set
+# CONFIG_IOSCHED_DEADLINE is not set
+CONFIG_IOSCHED_CFQ=y
+# CONFIG_ATA_OVER_ETH is not set
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_IDE_SATA is not set
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+
+#
+# IDE chipset support/bugfixes
+#
+# CONFIG_IDE_GENERIC is not set
+# CONFIG_BLK_DEV_CMD640 is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_GENERIC is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_BLK_DEV_ATIIXP is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_TRIFLEX is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5520 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_SC1200 is not set
+CONFIG_BLK_DEV_PIIX=y
+# CONFIG_BLK_DEV_IT821X is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_ARM is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# SCSI device support
+#
+CONFIG_SCSI=m
+CONFIG_SCSI_PROC_FS=y
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=m
+# CONFIG_CHR_DEV_ST is not set
+# CONFIG_CHR_DEV_OSST is not set
+# CONFIG_BLK_DEV_SR is not set
+# CONFIG_CHR_DEV_SG is not set
+# CONFIG_CHR_DEV_SCH is not set
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+# CONFIG_SCSI_MULTI_LUN is not set
+# CONFIG_SCSI_CONSTANTS is not set
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI Transport Attributes
+#
+# CONFIG_SCSI_SPI_ATTRS is not set
+# CONFIG_SCSI_FC_ATTRS is not set
+# CONFIG_SCSI_ISCSI_ATTRS is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_3W_9XXX is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AACRAID is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+# CONFIG_SCSI_AIC79XX is not set
+# CONFIG_SCSI_DPT_I2O is not set
+# CONFIG_MEGARAID_NEWGEN is not set
+# CONFIG_MEGARAID_LEGACY is not set
+# CONFIG_SCSI_SATA is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_PPA is not set
+# CONFIG_SCSI_IMM is not set
+# CONFIG_SCSI_SYM53C8XX_2 is not set
+# CONFIG_SCSI_IPR is not set
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_QLOGIC_1280 is not set
+CONFIG_SCSI_QLA2XXX=m
+# CONFIG_SCSI_QLA21XX is not set
+# CONFIG_SCSI_QLA22XX is not set
+# CONFIG_SCSI_QLA2300 is not set
+# CONFIG_SCSI_QLA2322 is not set
+# CONFIG_SCSI_QLA6312 is not set
+# CONFIG_SCSI_LPFC is not set
+# CONFIG_SCSI_DC395x is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_NSP32 is not set
+# CONFIG_SCSI_DEBUG is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_SPI is not set
+# CONFIG_FUSION_FC is not set
+
+#
+# IEEE 1394 (FireWire) support
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNGEM is not set
+# CONFIG_NET_VENDOR_3COM is not set
+
+#
+# Tulip family network device support
+#
+# CONFIG_NET_TULIP is not set
+# CONFIG_HP100 is not set
+CONFIG_NET_PCI=y
+# CONFIG_PCNET32 is not set
+# CONFIG_AMD8111_ETH is not set
+# CONFIG_ADAPTEC_STARFIRE is not set
+# CONFIG_B44 is not set
+# CONFIG_FORCEDETH is not set
+# CONFIG_DGRS is not set
+# CONFIG_EEPRO100 is not set
+# CONFIG_E100 is not set
+# CONFIG_FEALNX is not set
+CONFIG_NATSEMI=y
+# CONFIG_NE2K_PCI is not set
+# CONFIG_8139CP is not set
+# CONFIG_8139TOO is not set
+# CONFIG_SIS900 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_SUNDANCE is not set
+# CONFIG_TLAN is not set
+# CONFIG_VIA_RHINE is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_E1000 is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_R8169 is not set
+# CONFIG_SKGE is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_VIA_VELOCITY is not set
+# CONFIG_TIGON3 is not set
+# CONFIG_BNX2 is not set
+
+#
+# Ethernet (10000 Mbit)
+#
+# CONFIG_IXGB is not set
+# CONFIG_S2IO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+CONFIG_PPP=m
+# CONFIG_PPP_MULTILINK is not set
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+# CONFIG_SLIP is not set
+# CONFIG_NET_FC is not set
+# CONFIG_SHAPER is not set
+# CONFIG_NETCONSOLE is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_LKKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+# CONFIG_MOUSE_SERIAL is not set
+# CONFIG_MOUSE_VSXXXAA is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+# CONFIG_INPUT_MISC is not set
+
+#
+# Hardware I/O ports
+#
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PARKBD is not set
+# CONFIG_SERIO_PCIPS2 is not set
+CONFIG_SERIO_LIBPS2=y
+# CONFIG_SERIO_RAW is not set
+# CONFIG_GAMEPORT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+CONFIG_SERIAL_8250=y
+# CONFIG_SERIAL_8250_CONSOLE is not set
+CONFIG_SERIAL_8250_NR_UARTS=4
+# CONFIG_SERIAL_8250_EXTENDED is not set
+
+#
+# Non-8250 serial port support
+#
+CONFIG_SERIAL_CORE=y
+# CONFIG_SERIAL_JSM is not set
+CONFIG_UNIX98_PTYS=y
+# CONFIG_LEGACY_PTYS is not set
+CONFIG_PRINTER=m
+# CONFIG_LP_CONSOLE is not set
+# CONFIG_PPDEV is not set
+# CONFIG_TIPAR is not set
+
+#
+# IPMI
+#
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_HW_RANDOM is not set
+# CONFIG_NVRAM is not set
+CONFIG_RTC=y
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+# CONFIG_SONYPI is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+CONFIG_AGP=y
+# CONFIG_AGP_ALI is not set
+# CONFIG_AGP_ATI is not set
+# CONFIG_AGP_AMD is not set
+# CONFIG_AGP_AMD64 is not set
+CONFIG_AGP_INTEL=y
+# CONFIG_AGP_NVIDIA is not set
+# CONFIG_AGP_SIS is not set
+# CONFIG_AGP_SWORKS is not set
+# CONFIG_AGP_VIA is not set
+# CONFIG_AGP_EFFICEON is not set
+CONFIG_DRM=m
+# CONFIG_DRM_TDFX is not set
+# CONFIG_DRM_R128 is not set
+CONFIG_DRM_RADEON=m
+# CONFIG_DRM_I810 is not set
+# CONFIG_DRM_I830 is not set
+# CONFIG_DRM_I915 is not set
+# CONFIG_DRM_MGA is not set
+# CONFIG_DRM_SIS is not set
+# CONFIG_DRM_VIA is not set
+# CONFIG_MWAVE is not set
+# CONFIG_RAW_DRIVER is not set
+# CONFIG_HANGCHECK_TIMER is not set
+
+#
+# TPM devices
+#
+# CONFIG_TCG_TPM is not set
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+# CONFIG_I2C_SENSOR is not set
+
+#
+# Dallas's 1-wire bus
+#
+# CONFIG_W1 is not set
+
+#
+# Hardware Monitoring support
+#
+# CONFIG_HWMON is not set
+
+#
+# Misc devices
+#
+# CONFIG_IBM_ASM is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# Digital Video Broadcasting Devices
+#
+# CONFIG_DVB is not set
+
+#
+# Graphics support
+#
+# CONFIG_FB is not set
+# CONFIG_VIDEO_SELECT is not set
+
+#
+# Console display driver support
+#
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+
+#
+# Advanced Linux Sound Architecture
+#
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_HWDEP=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+# CONFIG_SND_VERBOSE_PRINTK is not set
+# CONFIG_SND_DEBUG is not set
+
+#
+# Generic devices
+#
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_DUMMY=m
+CONFIG_SND_VIRMIDI=m
+CONFIG_SND_MTPAV=m
+CONFIG_SND_SERIAL_U16550=m
+CONFIG_SND_MPU401=m
+
+#
+# PCI devices
+#
+CONFIG_SND_AC97_CODEC=m
+# CONFIG_SND_ALI5451 is not set
+# CONFIG_SND_ATIIXP is not set
+# CONFIG_SND_ATIIXP_MODEM is not set
+# CONFIG_SND_AU8810 is not set
+# CONFIG_SND_AU8820 is not set
+# CONFIG_SND_AU8830 is not set
+# CONFIG_SND_AZT3328 is not set
+# CONFIG_SND_BT87X is not set
+# CONFIG_SND_CS46XX is not set
+# CONFIG_SND_CS4281 is not set
+CONFIG_SND_EMU10K1=m
+# CONFIG_SND_EMU10K1X is not set
+# CONFIG_SND_CA0106 is not set
+# CONFIG_SND_KORG1212 is not set
+# CONFIG_SND_MIXART is not set
+# CONFIG_SND_NM256 is not set
+# CONFIG_SND_RME32 is not set
+# CONFIG_SND_RME96 is not set
+# CONFIG_SND_RME9652 is not set
+# CONFIG_SND_HDSP is not set
+# CONFIG_SND_HDSPM is not set
+# CONFIG_SND_TRIDENT is not set
+# CONFIG_SND_YMFPCI is not set
+# CONFIG_SND_ALS4000 is not set
+# CONFIG_SND_CMIPCI is not set
+# CONFIG_SND_ENS1370 is not set
+CONFIG_SND_ENS1371=m
+# CONFIG_SND_ES1938 is not set
+# CONFIG_SND_ES1968 is not set
+# CONFIG_SND_MAESTRO3 is not set
+# CONFIG_SND_FM801 is not set
+# CONFIG_SND_ICE1712 is not set
+# CONFIG_SND_ICE1724 is not set
+# CONFIG_SND_INTEL8X0 is not set
+# CONFIG_SND_INTEL8X0M is not set
+# CONFIG_SND_SONICVIBES is not set
+# CONFIG_SND_VIA82XX is not set
+# CONFIG_SND_VIA82XX_MODEM is not set
+# CONFIG_SND_VX222 is not set
+# CONFIG_SND_HDA_INTEL is not set
+
+#
+# USB devices
+#
+# CONFIG_SND_USB_AUDIO is not set
+# CONFIG_SND_USB_USX2Y is not set
+
+#
+# Open Sound System
+#
+# CONFIG_SOUND_PRIME is not set
+
+#
+# USB support
+#
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB=m
+# CONFIG_USB_DEBUG is not set
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+# CONFIG_USB_DYNAMIC_MINORS is not set
+# CONFIG_USB_OTG is not set
+
+#
+# USB Host Controller Drivers
+#
+CONFIG_USB_EHCI_HCD=m
+# CONFIG_USB_EHCI_SPLIT_ISO is not set
+# CONFIG_USB_EHCI_ROOT_HUB_TT is not set
+# CONFIG_USB_ISP116X_HCD is not set
+# CONFIG_USB_OHCI_HCD is not set
+CONFIG_USB_UHCI_HCD=m
+# CONFIG_USB_SL811_HCD is not set
+
+#
+# USB Device Class drivers
+#
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_BLUETOOTH_TTY is not set
+# CONFIG_USB_MIDI is not set
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+
+#
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+#
+CONFIG_USB_STORAGE=m
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_DATAFAB is not set
+# CONFIG_USB_STORAGE_FREECOM is not set
+# CONFIG_USB_STORAGE_ISD200 is not set
+# CONFIG_USB_STORAGE_DPCM is not set
+# CONFIG_USB_STORAGE_USBAT is not set
+# CONFIG_USB_STORAGE_SDDR09 is not set
+# CONFIG_USB_STORAGE_SDDR55 is not set
+# CONFIG_USB_STORAGE_JUMPSHOT is not set
+
+#
+# USB Input Devices
+#
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+# CONFIG_HID_FF is not set
+# CONFIG_USB_HIDDEV is not set
+
+#
+# USB HID Boot Protocol drivers
+#
+# CONFIG_USB_KBD is not set
+# CONFIG_USB_MOUSE is not set
+# CONFIG_USB_AIPTEK is not set
+# CONFIG_USB_WACOM is not set
+# CONFIG_USB_ACECAD is not set
+# CONFIG_USB_KBTAB is not set
+# CONFIG_USB_POWERMATE is not set
+# CONFIG_USB_MTOUCH is not set
+# CONFIG_USB_ITMTOUCH is not set
+# CONFIG_USB_EGALAX is not set
+# CONFIG_USB_XPAD is not set
+# CONFIG_USB_ATI_REMOTE is not set
+# CONFIG_USB_KEYSPAN_REMOTE is not set
+
+#
+# USB Imaging devices
+#
+# CONFIG_USB_MDC800 is not set
+# CONFIG_USB_MICROTEK is not set
+
+#
+# USB Multimedia devices
+#
+# CONFIG_USB_DABUSB is not set
+
+#
+# Video4Linux support is needed for USB Multimedia device support
+#
+
+#
+# USB Network Adapters
+#
+# CONFIG_USB_CATC is not set
+# CONFIG_USB_KAWETH is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_RTL8150 is not set
+# CONFIG_USB_USBNET is not set
+# CONFIG_USB_MON is not set
+
+#
+# USB port drivers
+#
+# CONFIG_USB_USS720 is not set
+
+#
+# USB Serial Converter support
+#
+# CONFIG_USB_SERIAL is not set
+
+#
+# USB Miscellaneous drivers
+#
+# CONFIG_USB_EMI62 is not set
+# CONFIG_USB_EMI26 is not set
+# CONFIG_USB_AUERSWALD is not set
+# CONFIG_USB_RIO500 is not set
+# CONFIG_USB_LEGOTOWER is not set
+# CONFIG_USB_LCD is not set
+# CONFIG_USB_LED is not set
+# CONFIG_USB_CYTHERM is not set
+# CONFIG_USB_PHIDGETKIT is not set
+# CONFIG_USB_PHIDGETSERVO is not set
+# CONFIG_USB_IDMOUSE is not set
+# CONFIG_USB_SISUSBVGA is not set
+# CONFIG_USB_LD is not set
+# CONFIG_USB_TEST is not set
+
+#
+# USB DSL modem support
+#
+
+#
+# USB Gadget Support
+#
+# CONFIG_USB_GADGET is not set
+
+#
+# MMC/SD Card support
+#
+# CONFIG_MMC is not set
+
+#
+# InfiniBand support
+#
+# CONFIG_INFINIBAND is not set
+
+#
+# SN Devices
+#
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+# CONFIG_EXT2_FS_XIP is not set
+# CONFIG_EXT3_FS is not set
+# CONFIG_JBD is not set
+CONFIG_FS_MBCACHE=y
+# CONFIG_REISERFS_FS is not set
+# CONFIG_JFS_FS is not set
+CONFIG_FS_POSIX_ACL=y
+
+#
+# XFS support
+#
+CONFIG_XFS_FS=y
+# CONFIG_XFS_RT is not set
+CONFIG_XFS_QUOTA=y
+CONFIG_XFS_SECURITY=y
+CONFIG_XFS_POSIX_ACL=y
+# CONFIG_MINIX_FS is not set
+# CONFIG_ROMFS_FS is not set
+# CONFIG_QUOTA is not set
+CONFIG_QUOTACTL=y
+CONFIG_DNOTIFY=y
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+# CONFIG_ZISOFS is not set
+CONFIG_UDF_FS=m
+CONFIG_UDF_NLS=y
+
+#
+# DOS/FAT/NT Filesystems
+#
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_DEVPTS_FS_XATTR=y
+CONFIG_DEVPTS_FS_SECURITY=y
+CONFIG_TMPFS=y
+# CONFIG_TMPFS_XATTR is not set
+# CONFIG_HUGETLBFS is not set
+# CONFIG_HUGETLB_PAGE is not set
+CONFIG_RAMFS=y
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_HFSPLUS_FS is not set
+# CONFIG_BEFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+# CONFIG_NFS_FS is not set
+# CONFIG_NFSD is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_CIFS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_CODA_FS is not set
+# CONFIG_AFS_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+CONFIG_NLS_CODEPAGE_1250=m
+# CONFIG_NLS_CODEPAGE_1251 is not set
+CONFIG_NLS_ASCII=m
+CONFIG_NLS_ISO8859_1=m
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_KOI8_R=m
+# CONFIG_NLS_KOI8_U is not set
+CONFIG_NLS_UTF8=m
+
+#
+# Profiling support
+#
+# CONFIG_PROFILING is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_PRINTK_TIME is not set
+# CONFIG_DEBUG_KERNEL is not set
+CONFIG_LOG_BUF_SHIFT=14
+# CONFIG_DEBUG_BUGVERBOSE is not set
+CONFIG_EARLY_PRINTK=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+
+#
+# Security options
+#
+# CONFIG_KEYS is not set
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+# CONFIG_CRYPTO is not set
+
+#
+# Hardware crypto devices
+#
+
+#
+# Library routines
+#
+CONFIG_CRC_CCITT=m
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_BIOS_REBOOT=y
+
+
+--------------020904020901040300040603--

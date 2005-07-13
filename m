@@ -1,64 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVGMAdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVGMAe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbVGMAdS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 20:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVGMAdS
+	id S262412AbVGMAe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 20:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262512AbVGMAe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 20:33:18 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:44429 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262321AbVGMAdQ (ORCPT
+	Tue, 12 Jul 2005 20:34:27 -0400
+Received: from gate.crashing.org ([63.228.1.57]:8900 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262412AbVGMAeW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 20:33:16 -0400
-Date: Wed, 13 Jul 2005 10:25:56 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: mingo@elte.hu, Daniel Walker <dwalker@mvista.com>
+	Tue, 12 Jul 2005 20:34:22 -0400
+Subject: Re: [PATCH][help?] Radeonfb acpi resume
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Micheal Marineau <marineam@engr.orst.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RT and XFS
-Message-ID: <20050713002556.GA980@frodo>
-References: <1121209293.26644.8.camel@dhcp153.mvista.com>
+In-Reply-To: <42D19EE1.90809@engr.orst.edu>
+References: <42D19EE1.90809@engr.orst.edu>
+Content-Type: text/plain
+Date: Wed, 13 Jul 2005 10:32:47 +1000
+Message-Id: <1121214768.31924.412.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121209293.26644.8.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.5.3i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 04:01:32PM -0700, Daniel Walker wrote:
+On Sun, 2005-07-10 at 15:19 -0700, Micheal Marineau wrote:
+> I've been forward porting this patch for a while now and need
+> some input on it. You can see the last time someone posted it
+> to the list here:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0410.0/0600.html
 > 
-> Is there something so odd about the XFS locking, that it can't use the
-> rt_lock ?
+> The big issue mentioned in that thread, that it reqires a key
+> press during the resume process to keep going still exists and
+> I have been unable to understand why.  The issue is in radeon_pm.c
+> in this block that follows the last hunk of the diff:
+> 
+>         if (rinfo->no_schedule) {
+>                 if (try_acquire_console_sem())
+>                         return 0;
+>         } else
+>                 acquire_console_sem();
+> 
+> Specificly it's acquire_console_sem(); where the resume stops waiting
+> for a key press.  What could be stopping things?
 
-Not that I know of - XFS does use the downgrade_write interface,
-whose use isn't overly common in the rest of the kernel... maybe
-that has caused some confusion, dunno.
+I don't see any reason for that. That definitely shouldn't happen.
 
-> --- linux.orig/fs/xfs/linux-2.6/mrlock.h
-> +++ linux/fs/xfs/linux-2.6/mrlock.h
-> @@ -37,12 +37,12 @@
->  enum { MR_NONE, MR_ACCESS, MR_UPDATE };
->  
->  typedef struct {
-> -	struct rw_semaphore	mr_lock;
-> -	int			mr_writer;
-> +	struct compat_rw_semaphore	mr_lock;
-> +	int				mr_writer;
->  } mrlock_t;
+   .../...
 
-The XFS code is also written such that it just releases a mrlock
-without tracking whether it had it for access/update in the end
-(end lock state is not necessarily how it started out, since it
-may have downgraded the lock at some point, or it may not have).
-Its a non-trivial change to track that state within XFS itself,
-so the above mr_writer field in XFS's mrlock wrapper tracks that
-state alongside the rw_semaphore.  It would prefer to be getting
-that out of the rw_semaphore itself, alot, but there's not any
-mechanism for doing so (its not a particularly nice API change
-either, really, for the generic locking code).  I guess that may
-have been another reason for the above change in the RT patch, I
-don't know all the details there.
+> diff -ru linux-2.6.12.orig/drivers/video/aty/radeon_pm.c
+> linux-2.6.12/drivers/video/aty/radeon_pm.c
+> --- linux-2.6.12.orig/drivers/video/aty/radeon_pm.c	2005-06-17
+> 12:48:29.000000000 -0700
+> +++ linux-2.6.12/drivers/video/aty/radeon_pm.c	2005-07-03
+> 19:55:36.000000000 -0700
+> @@ -2606,10 +2606,13 @@
+> 
+>   done:
+>  	pdev->dev.power.power_state = state;
+> +	pci_save_state (pdev);
+> 
+>  	return 0;
+>  }
 
-cheers.
+Hrm... radeonfb already saves the config space elsewhere. Note that it
+could maybe be converted to pci_save_state() / pci_restore_state() but
+currently, I do my own as I use that for "testing" if the card is still
+in it's previous state or was shut down. (I could probably use the
+content of a register instead, like CLK_PIN_CNTL)
 
--- 
-Nathan
+> +extern void acpi_vgapost (unsigned long slot);
+> +
+>  int radeonfb_pci_resume(struct pci_dev *pdev)
+>  {
+>          struct fb_info *info = pci_get_drvdata(pdev);
+> @@ -2619,6 +2622,12 @@
+>  	if (pdev->dev.power.power_state == 0)
+>  		return 0;
+> 
+> +	if (pdev->dev.power.power_state != 4)
+> +	{
+> +		pci_restore_state (pdev);
+> +		acpi_vgapost (pdev->devfn);
+> +	}
+> +
+>  	if (rinfo->no_schedule) {
+>  		if (try_acquire_console_sem())
+>  			return 0;
+
+The above will probably blow up anything that is not an x86 with ACPI.
+Besides there is already a mecanism in that file for calling functions
+for re-posting cards (since I have code to explicitely re-post rv280 and
+rv350 mobility on macs), you should hook into that existing mecanism
+when you detect ACPI.
+
+Ben.
+ 
+

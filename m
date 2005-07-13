@@ -1,99 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVGMWJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262300AbVGMWb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbVGMWJT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 18:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVGMSpF
+	id S262300AbVGMWb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 18:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262779AbVGMW3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:45:05 -0400
-Received: from mail.kroah.org ([69.55.234.183]:21219 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262319AbVGMSoy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:44:54 -0400
-Date: Wed, 13 Jul 2005 11:42:32 -0700
-From: Greg KH <gregkh@suse.de>
-To: benh@kernel.crashing.org, johnstul@us.ibm.com, trini@kernel.crashing.org
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: [03/11] ppc32: stop misusing ntps time_offset value
-Message-ID: <20050713184232.GD9330@kroah.com>
-References: <20050713184130.GA9330@kroah.com>
-Mime-Version: 1.0
+	Wed, 13 Jul 2005 18:29:23 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:26809 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S262799AbVGMWXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 18:23:54 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Paul Slootman <paul+nospam@wurtel.net>
+Date: Thu, 14 Jul 2005 08:23:32 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050713184130.GA9330@kroah.com>
-User-Agent: Mutt/1.5.8i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17109.37988.800325.47795@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Oops when running mkreiserfs on large (9TB) raid0 set on AMD64 SMP
+In-Reply-To: message from Paul Slootman on Wednesday July 13
+References: <20050713084152.GA5765@wurtel.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-CSE-Spam-Checker-Version: SpamAssassin 3.0.2 (2004-11-16) on 
+	tone.orchestra.cse.unsw.EDU.AU
+X-CSE-Spam-Level: 
+X-CSE-Spam-Status: No, score=-4.5 required=5.0 tests=ALL_TRUSTED,BAYES_00 
+	autolearn=ham version=3.0.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+On Wednesday July 13, paul+nospam@wurtel.net wrote:
+> After having installed a base system (Debian) on our shiny new AMD64 SMP
+> system, with 2 x 3ware 9000 SATA controllers for a total of 24 disks
+> (excluding the 2 connected to the motherboard), I wanted as a "quick"
+> test to put them all in a raid0 and put a reiserfs on it (just to see
+> the 'df' output :-). It all went OK up to the mkreiserfs, when an Oops
+> happened,.....
+....
+> Output from kern.log:
+> 
+> Aug  9 20:08:37 localhost kernel: raid0: done.
+> Aug  9 20:08:37 localhost kernel: raid0 : md_size is 9374734848 blocks.
+> Aug  9 20:08:37 localhost kernel: raid0 : conf->hash_spacing is 9374734848 blocks.
+> Aug  9 20:08:37 localhost kernel: raid0 : nb_zone is 12.
+> Aug  9 20:08:37 localhost kernel: raid0 : Allocating 96 bytes for hash.
+> Aug  9 20:09:18 localhost kernel: Unable to handle kernel NULL pointer dereference at 0000000000000028 RIP:
+> Aug  9 20:09:18 localhost kernel: <ffffffff8808eb98>{:raid0:raid0_make_request+472}
 
-------------------
+Looks like the problem is at:
+		sector_div(x, (unsigned long)conf->hash_spacing);
+		zone = conf->hash_table[x];
 
-From: john stultz <johnstul@us.ibm.com>
+I had (naively) assumed that sector_div divided a "sector_t" by an
+"unsigned long".  This is partly based on the code in
+include/linux/blkdev.h:
 
-As part of my timeofday rework, I've been looking at the NTP code and I
-noticed that the PPC architecture is apparently misusing the NTP's
-time_offset (it is a terrible name!) value as some form of timezone offset.
+#ifdef CONFIG_LBD
+# include <asm/div64.h>
+# define sector_div(a, b) do_div(a, b)
+#else
+# define sector_div(n, b)( \
+{ \
+	int _res; \
+	_res = (n) % (b); \
+	(n) /= (b); \
+	_res; \
+} \
+)
+#endif 
 
-This could cause problems when time_offset changed by the NTP code.  This
-patch changes the PPC code so it uses a more clear local variable:
-timezone_offset.
+which suggests (to me) that on a 64bit arch, anything that the
+compiler copes with it OK.
 
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-Acked-by: Tom Rini <trini@kernel.crashing.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- arch/ppc/kernel/time.c |   13 ++++++++-----
- 1 files changed, 8 insertions(+), 5 deletions(-)
+However, CONFIG_LBD is defined for x86-64, and asm/div64.h includes
+asm-generic/div64.h which says:
 
---- linux-2.6.12.2.orig/arch/ppc/kernel/time.c	2005-06-17 12:48:29.000000000 -0700
-+++ linux-2.6.12.2/arch/ppc/kernel/time.c	2005-07-13 10:56:23.000000000 -0700
-@@ -89,6 +89,9 @@
- 
- extern unsigned long wall_jiffies;
- 
-+/* used for timezone offset */
-+static long timezone_offset;
-+
- DEFINE_SPINLOCK(rtc_lock);
- 
- EXPORT_SYMBOL(rtc_lock);
-@@ -170,7 +173,7 @@
- 		     xtime.tv_sec - last_rtc_update >= 659 &&
- 		     abs((xtime.tv_nsec / 1000) - (1000000-1000000/HZ)) < 500000/HZ &&
- 		     jiffies - wall_jiffies == 1) {
--		  	if (ppc_md.set_rtc_time(xtime.tv_sec+1 + time_offset) == 0)
-+		  	if (ppc_md.set_rtc_time(xtime.tv_sec+1 + timezone_offset) == 0)
- 				last_rtc_update = xtime.tv_sec+1;
- 			else
- 				/* Try again one minute later */
-@@ -286,7 +289,7 @@
- 	unsigned old_stamp, stamp, elapsed;
- 
-         if (ppc_md.time_init != NULL)
--                time_offset = ppc_md.time_init();
-+                timezone_offset = ppc_md.time_init();
- 
- 	if (__USE_RTC()) {
- 		/* 601 processor: dec counts down by 128 every 128ns */
-@@ -331,10 +334,10 @@
- 	set_dec(tb_ticks_per_jiffy);
- 
- 	/* If platform provided a timezone (pmac), we correct the time */
--        if (time_offset) {
--		sys_tz.tz_minuteswest = -time_offset / 60;
-+        if (timezone_offset) {
-+		sys_tz.tz_minuteswest = -timezone_offset / 60;
- 		sys_tz.tz_dsttime = 0;
--		xtime.tv_sec -= time_offset;
-+		xtime.tv_sec -= timezone_offset;
-         }
-         set_normalized_timespec(&wall_to_monotonic,
-                                 -xtime.tv_sec, -xtime.tv_nsec);
+#if BITS_PER_LONG == 64
+
+# define do_div(n,base) ({					\
+	uint32_t __base = (base);				\
+	uint32_t __rem;						\
+	__rem = ((uint64_t)(n)) % __base;			\
+	(n) = ((uint64_t)(n)) / __base;				\
+	__rem;							\
+ })
+
+
+which is a significantly different macro and suggests that the divisor
+must be 32 bit.
+
+A bit more documentation and a bit less code duplication would go a
+long way here.
+(and WHY do we have uint32_t, u32, and __u32 all actively used in the
+kernel???)
+
+Anyway, the following patch, if it compiles, might changed the
+behaviour of raid0 -- possibly even improve it :-)
+
+Thanks for the report.
+
+Success/failure reports of this patch would be most welcome.
+
+NeilBrown
+--
+Fix raid0's attempt to divide by 64bit numbers
+
+Apparently sector_div is only guaranteed to work with a 32bit divisor,
+even on 64bit architectures.  So allow for this in raid0.
+
+Signed-off-by: Neil Brown <neilb@cse.unsw.edu.au>
+
+### Diffstat output
+ ./drivers/md/raid0.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+diff ./drivers/md/raid0.c~current~ ./drivers/md/raid0.c
+--- ./drivers/md/raid0.c~current~	2005-07-14 08:18:48.000000000 +1000
++++ ./drivers/md/raid0.c	2005-07-14 08:18:53.000000000 +1000
+@@ -314,16 +314,16 @@ static int raid0_run (mddev_t *mddev)
+ 		sector_t space = conf->hash_spacing;
+ 		int round;
+ 		conf->preshift = 0;
+-		if (sizeof(sector_t) > sizeof(unsigned long)) {
++		if (sizeof(sector_t) > sizeof(u32)) {
+ 			/*shift down space and s so that sector_div will work */
+-			while (space > (sector_t) (~(unsigned long)0)) {
++			while (space > (sector_t) (~(u32)0)) {
+ 				s >>= 1;
+ 				space >>= 1;
+ 				s += 1; /* force round-up */
+ 				conf->preshift++;
+ 			}
+ 		}
+-		round = sector_div(s, (unsigned long)space) ? 1 : 0;
++		round = sector_div(s, (u32)space) ? 1 : 0;
+ 		nb_zone = s + round;
+ 	}
+ 	printk("raid0 : nb_zone is %d.\n", nb_zone);
+@@ -443,7 +443,7 @@ static int raid0_make_request (request_q
+ 		volatile
+ #endif
+ 		sector_t x = block >> conf->preshift;
+-		sector_div(x, (unsigned long)conf->hash_spacing);
++		sector_div(x, (u32)conf->hash_spacing);
+ 		zone = conf->hash_table[x];
+ 	}
+  

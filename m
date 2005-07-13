@@ -1,48 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVGMS2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVGMSas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbVGMS2q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 14:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVGMS0Q
+	id S261483AbVGMSas (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 14:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVGMS2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:26:16 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:58431 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262226AbVGMSYA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:24:00 -0400
-Date: Wed, 13 Jul 2005 20:11:47 +0000
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Egry G?bor <gaboregry@t-online.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Andrew Morton <akpm@osdl.org>, Massimo Maiurana <maiurana@inwind.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       KernelFR <kernelfr@traduc.org>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Subject: Re: [PATCH 0/19] Kconfig I18N completion
-Message-ID: <20050713201147.GA23746@mars.ravnborg.org>
-References: <1121273456.2975.3.camel@spirit> <Pine.LNX.4.58.0507131038560.17536@g5.osdl.org> <1121277818.2975.68.camel@spirit>
+	Wed, 13 Jul 2005 14:28:51 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:2727 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261483AbVGMS14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 14:27:56 -0400
+Date: Wed, 13 Jul 2005 13:27:29 -0500
+From: serue@us.ibm.com
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
+       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Michael Halcrow <mhalcrow@us.ibm.com>,
+       David Safford <safford@watson.ibm.com>,
+       Reiner Sailer <sailer@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [patch 5/12] lsm stacking v0.2: actual stacker module
+Message-ID: <20050713182729.GA26392@vino.hallyn.com>
+References: <20050630194458.GA23439@serge.austin.ibm.com> <20050630195043.GE23538@serge.austin.ibm.com> <1121092828.12334.94.camel@moss-spartans.epoch.ncsc.mil> <20050713163941.GB2824@serge.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1121277818.2975.68.camel@spirit>
+In-Reply-To: <20050713163941.GB2824@serge.austin.ibm.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 08:03:38PM +0200, Egry G?bor wrote:
-> On Wed, 13 Jul 2005, Linus Torvalds wrote:
-> > On Wed, 13 Jul 2005, Egry G??bor wrote:
-> > > 
-> > > The following patches complete the "Kconfig I18N support" patch by
-> > > Arnaldo. 
-> > 
-> > No, I really don't want this.
-> > 
-> > I was told that the whole point of Arnaldo's work was that the actual po 
-> > files etc wouldn't need to be with the kernel, and could be a separate 
-> > package, maintained separately. Now I'm seeing patches that seem to make 
-> > that a lie.
-> 
-> Hmm, what .po files do you say about?
-Patch 19/19 contains a .po file.
+Stephen points out listsecurity results should simply be separated by
+the \0 which modules already append.  New patch appended.
 
-	Sam
+Thanks, Stephen.
+
+-serge
+
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+--
+ stacker.c |   78 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 75 insertions(+), 3 deletions(-)
+
+Index: linux-2.6.13-rc3/security/stacker.c
+===================================================================
+--- linux-2.6.13-rc3.orig/security/stacker.c	2005-07-13 15:37:29.000000000 -0500
++++ linux-2.6.13-rc3/security/stacker.c	2005-07-13 18:08:03.000000000 -0500
+@@ -569,19 +569,91 @@ static int stacker_inode_removexattr (st
+ 	RETURN_ERROR_IF_ANY_ERROR(inode_removexattr,inode_removexattr(dentry,name));
+ }
+ 
++/*
++ * inode_getsecurity: We loop through all modules until one does not return
++ * -EOPNOTSUPP.
++ * Note that if some LSM returns -EPERM, stacker assumes the LSM knows what
++ * it's doing.  If you don't want to control the name, then return
++ * -EOPNOTSUPP!
++ */
+ static int stacker_inode_getsecurity(struct inode *inode, const char *name, void *buffer, size_t size)
+ {
+-	RETURN_ERROR_IF_ANY_ERROR(inode_getsecurity,inode_getsecurity(inode,name,buffer,size));
++	struct module_entry *m;
++	int ret = -EOPNOTSUPP;
++
++	rcu_read_lock();
++	stack_for_each_entry(m, &stacked_modules, lsm_list) {
++		if (!m->module_operations.inode_getsecurity)
++			continue;
++		rcu_read_unlock();
++		ret = m->module_operations.inode_getsecurity(inode,name,buffer,size);
++		rcu_read_lock();
++		if (ret != -EOPNOTSUPP)
++			break;
++	}
++	rcu_read_unlock();
++
++	return ret;
+ }
+ 
++/*
++ * inode_setsecurity: We loop through all modules until one does not return
++ * -EOPNOTSUPP.
++ * Note that if some LSM returns -EPERM, stacker assumes the LSM knows what
++ * it's doing.  If you don't want to control the name, then return
++ * -EOPNOTSUPP!
++ */
+ static int stacker_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
+ {
+-	RETURN_ERROR_IF_ANY_ERROR(inode_setsecurity,inode_setsecurity(inode,name,value,size,flags));
++	struct module_entry *m;
++	int ret = -EOPNOTSUPP;
++
++	rcu_read_lock();
++	stack_for_each_entry(m, &stacked_modules, lsm_list) {
++		if (!m->module_operations.inode_setsecurity)
++			continue;
++		rcu_read_unlock();
++		ret = m->module_operations.inode_setsecurity(inode, name,
++						value, size, flags);
++		rcu_read_lock();
++		if (ret != -EOPNOTSUPP)
++			break;
++	}
++	rcu_read_unlock();
++
++	return ret;
+ }
+ 
++/*
++ * inode_listsecurity: We loop through all modules appending to buffer, and return
++ * the \0-separated list of security names defined for this inode.
++ */
+ static int stacker_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size)
+ {
+-	RETURN_ERROR_IF_ANY_ERROR(inode_listsecurity,inode_listsecurity(inode,buffer, buffer_size));
++	int ret = 0;
++	struct module_entry *m;
++
++	rcu_read_lock();
++	stack_for_each_entry(m, &stacked_modules, lsm_list) {
++		int thislen;
++
++		if (!m->module_operations.inode_listsecurity)
++			continue;
++		rcu_read_unlock();
++		thislen = m->module_operations.inode_listsecurity(inode,
++				buffer+ret, buffer_size-ret);
++		rcu_read_lock();
++		if (thislen < 0)
++			continue;
++		ret += thislen;
++		if (ret >= buffer_size) {
++			ret = -ERANGE;
++			break;
++		}
++	}
++	rcu_read_unlock();
++
++	return ret;
+ }
+ 
+ static int stacker_file_permission (struct file *file, int mask)

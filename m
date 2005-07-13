@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVGMPMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbVGMPTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262682AbVGMPMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 11:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVGMPMQ
+	id S262841AbVGMPTI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 11:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVGMPTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 11:12:16 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:29591 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262674AbVGMPMN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 11:12:13 -0400
-Message-ID: <91888D455306F94EBD4D168954A9457C03157442@nacos172.co.lsil.com>
-From: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-To: Christoph Hellwig <hch@infradead.org>, Matt Domsch <Matt_Domsch@dell.com>
-Cc: "Moore, Eric Dean" <Eric.Moore@lsil.com>, Olaf Hering <olh@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-scsi@vger.kernel.org
-Subject: RE: [PATCH 22/82] remove linux/version.h from drivers/message/fus
-	 ion
-Date: Wed, 13 Jul 2005 09:11:26 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2658.27)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 13 Jul 2005 11:19:08 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:812 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262680AbVGMPTG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 11:19:06 -0400
+Date: Wed, 13 Jul 2005 17:06:55 +0000
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Fabio Massimo Di Nitto <fabbione@fabbione.net>
+Cc: davem@davemloft.net, linux-kernel@vger.kernel.org,
+       sparclinux@vger.kernel.org
+Subject: Re: [PATCH] modpost needs to cope with new glibc elf header on sparc (resend - my MTA did eat the previous one apparently)
+Message-ID: <20050713170655.GA8197@mars.ravnborg.org>
+References: <20050713062549.1ED325032@trider-g7.fabbione.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050713062549.1ED325032@trider-g7.fabbione.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, July 13, 2005 8:38 AM, Christoph Hellwig wrote:
+> Hi everybody,
+>   recently a change in the glibc elf.h header has been introduced causing
+> modpost to spawn tons of warnings (like the one below) building the kernel on sparc:
 > 
-> > In general, this construct:
-> > 
-> > > > -#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,6))
-> > > > -static int inline scsi_device_online(struct scsi_device *sdev)
-> > > > -{
-> > > > -	return sdev->online;
-> > > > -}
-> > > > -#endif
-> > 
-> > is better tested as:
-> > 
-> > #ifndef scsi_device_inline
-> > static int inline scsi_device_online(struct scsi_device *sdev)
-> > {
-> >     return sdev->online;
-> > }
-> > #endif
-> 
-> Even better fusion should stop using this function because doing so
-> is broken.. We tried that long ago but it got stuck somewhere.
->
+Applied.
 
-Christoph - We have already fixed the problem long ago; e.g.
-remember when you asked me to kill the timers from the eh threads.  
-Thus in todays drivers you will not find scsi_device_online called anywhere
-in 
-the fusion drivers.
+You need to reread SubmittingPatches:
+> diff -urNad --exclude=CVS --exclude=.svn ./scripts/mod/modpost.c /usr/src/dpatchtemp/dpep-work.EcxGXN/linux-source-2.6.12-2.6.12/scripts/mod/modpost.c
+> --- ./scripts/mod/modpost.c	2005-06-17 21:48:29.000000000 +0200
+> +++ /usr/src/dpatchtemp/dpep-work.EcxGXN/linux-source-2.6.12-2.6.12/scripts/mod/modpost.c	2005-06-30 09:29:54.000000000 +0200
 
-I only objected to killing the linux_compat.h file because its being used
-in our internal supported drivers, and it makes it easier upgrade path
-for maintaining mainstream drivers if that was left behind in the kernel
-tree.
-However everybody has ambushed me on this stance, so go ahead and kill it.
-We'll manage fine without it.
+This does not apply with patch -p1. I fixed it manually.
 
-Eric Moore
-
+	Sam

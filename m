@@ -1,63 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262945AbVGMPnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262671AbVGMPw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbVGMPnt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 11:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbVGMPlp
+	id S262671AbVGMPw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 11:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbVGMPw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 11:41:45 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:14064 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262945AbVGMPkw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 11:40:52 -0400
-Date: Wed, 13 Jul 2005 08:41:25 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: shemminger@osdl.org, dipankar@in.ibm.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: PREEMPT/PREEMPT_RT question
-Message-ID: <20050713154124.GD1304@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050712163031.GA1323@us.ibm.com> <1121187924.6917.75.camel@localhost.localdomain> <20050712192832.GB1323@us.ibm.com> <1121198657.3548.11.camel@localhost.localdomain> <20050712213426.GD1323@us.ibm.com> <1121212035.3548.34.camel@localhost.localdomain> <20050713014627.GF1323@us.ibm.com> <1121226890.3548.44.camel@localhost.localdomain>
+	Wed, 13 Jul 2005 11:52:59 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:56449 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S262671AbVGMPww (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 11:52:52 -0400
+Message-ID: <42D538D4.7050803@drzeus.cx>
+Date: Wed, 13 Jul 2005 17:52:52 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121226890.3548.44.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-20268-1121269971-0001-2"
+To: Russell King <rmk+lkml@arm.linux.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] MMC host class
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 11:54:50PM -0400, Steven Rostedt wrote:
-> On Tue, 2005-07-12 at 18:46 -0700, Paul E. McKenney wrote:
-> 
-> > > If you are talking about scheduler_tick, then yes, it is called by the
-> > > timer interrupt which is a SA_NODELAY interrupt.  If you don't want to
-> > > get interrupted by the timer interrupt, then you will need to disable
-> > > interrupts for both. Since currently, the timer interrupt is the only
-> > > true hard interrupt in the PREEMPT_RT and that may not change.
-> > 
-> > OK, so if I take a spinlock in something invoked from scheduler_tick(),
-> > then any other acquisitions of that spinlock must disable hardware
-> > interrupts, right?
-> 
-> Yes, otherwise you could have a local CPU deadlock on a SMP machine. And
-> I would also say the same is true for any lock that is grabbed by the
-> timer interrupt or one of the functions it calls.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-OK, I do indeed have critical sections spanning rcu_check_callbacks()
-and process-level code.  Since rcu_check_callbacks() is called from
-account_user_vtime() and update_process_times(), both of which call
-scheduler_tick(), looks like I need to disable hardware interrupts.
+--=_hermes.drzeus.cx-20268-1121269971-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-Looks to me like I need to use _raw_spin_lock() and
-_raw_spin_unlock() from within rcu_check_callbacks(), but to instead
-use _raw_spin_lock_irqsave() and _raw_spin_lock_irqrestore() outside of
-rcu_check_callbacks() for locks acquired within rcu_check_callbacks().
+Create a mmc_host class to allow enumeration of MMC host controllers
+even though they have no card(s) inserted.
 
-Of course, for fliplock, which is only acquired conditionally from
-a rcu_check_callbacks() callee, I can just use spin_trylock() and
-spin_unlock().  Though _raw_spin_lock()/_raw_spin_unlock() might be
-faster?
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
 
-No -wonder- I have been seeing hangs in CONFIG_PREEMPT_RT!!!  ;-)
+(This will also allow cards to be enumerated by being able to find the
+hosts.)
 
-						Thanx, Paul
+--=_hermes.drzeus.cx-20268-1121269971-0001-2
+Content-Type: text/x-patch; name="mmc-class.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mmc-class.patch"
+
+Index: linux-wbsd/drivers/mmc/mmc.h
+===================================================================
+--- linux-wbsd/drivers/mmc/mmc.h	(revision 134)
++++ linux-wbsd/drivers/mmc/mmc.h	(working copy)
+@@ -13,4 +13,6 @@
+ void mmc_init_card(struct mmc_card *card, struct mmc_host *host);
+ int mmc_register_card(struct mmc_card *card);
+ void mmc_remove_card(struct mmc_card *card);
++int mmc_register_host(struct mmc_host *host);
++void mmc_unregister_host(struct mmc_host *host);
+ #endif
+Index: linux-wbsd/drivers/mmc/mmc_sysfs.c
+===================================================================
+--- linux-wbsd/drivers/mmc/mmc_sysfs.c	(revision 153)
++++ linux-wbsd/drivers/mmc/mmc_sysfs.c	(working copy)
+@@ -20,6 +20,7 @@
+ 
+ #define dev_to_mmc_card(d)	container_of(d, struct mmc_card, dev)
+ #define to_mmc_driver(d)	container_of(d, struct mmc_driver, drv)
++#define cls_to_mmc_host(d)	container_of(d, struct mmc_host, class_dev)
+ 
+ #define MMC_ATTR(name, fmt, args...)					\
+ static ssize_t mmc_##name##_show (struct device *dev, char *buf)	\
+@@ -224,14 +225,51 @@
+ 	put_device(&card->dev);
+ }
+ 
++static void mmc_host_class_dev_release(struct class_device *dev)
++{
++}
++
++static struct class mmc_host_class = {
++	.name =		"mmc_host",
++	.release =	&mmc_host_class_dev_release,
++};
++
++/*
++ * Internal function. Register a new MMC host with the MMC class.
++ */
++int mmc_register_host(struct mmc_host *host)
++{
++	host->class_dev.dev = host->dev;
++	host->class_dev.class = &mmc_host_class;
++	strlcpy(host->class_dev.class_id, host->host_name, BUS_ID_SIZE);
++
++	return class_device_register(&host->class_dev);
++}
++
++/*
++ * Internal function. Unregister a MMC host with the MMC class.
++ */
++void mmc_unregister_host(struct mmc_host *host)
++{
++	class_device_unregister(&host->class_dev);
++}
+ 
+ static int __init mmc_init(void)
+ {
+-	return bus_register(&mmc_bus_type);
++	int retval;
++	
++	retval = bus_register(&mmc_bus_type);
++	if (retval)
++		return retval;
++	retval = class_register(&mmc_host_class);
++	if (retval)
++		return retval;
++	return 0;
+ }
+ 
+ static void __exit mmc_exit(void)
+ {
++	class_unregister(&mmc_host_class);
+ 	bus_unregister(&mmc_bus_type);
+ }
+ 
+Index: linux-wbsd/drivers/mmc/mmc.c
+===================================================================
+--- linux-wbsd/drivers/mmc/mmc.c	(revision 153)
++++ linux-wbsd/drivers/mmc/mmc.c	(working copy)
+@@ -1196,6 +1196,8 @@
+ 	snprintf(host->host_name, sizeof(host->host_name),
+ 		 "mmc%d", host_num++);
+ 
++	mmc_register_host(host);
++	
+ 	mmc_power_off(host);
+ 	mmc_detect_change(host);
+ 
+@@ -1220,6 +1222,8 @@
+ 
+ 		mmc_remove_card(card);
+ 	}
++	
++	mmc_unregister_host(host);
+ 
+ 	mmc_power_off(host);
+ }
+Index: linux-wbsd/include/linux/mmc/host.h
+===================================================================
+--- linux-wbsd/include/linux/mmc/host.h	(revision 153)
++++ linux-wbsd/include/linux/mmc/host.h	(working copy)
+@@ -69,6 +69,7 @@
+ 
+ struct mmc_host {
+ 	struct device		*dev;
++	struct class_device	class_dev;
+ 	struct mmc_host_ops	*ops;
+ 	unsigned int		f_min;
+ 	unsigned int		f_max;
+
+--=_hermes.drzeus.cx-20268-1121269971-0001-2--

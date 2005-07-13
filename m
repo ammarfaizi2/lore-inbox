@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVGMLAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262608AbVGMLD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbVGMLAE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 07:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbVGMK6P
+	id S262608AbVGMLD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 07:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbVGMLAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 06:58:15 -0400
-Received: from amsfep11-int.chello.nl ([213.46.243.19]:51756 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262631AbVGMK4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 06:56:45 -0400
-Date: Wed, 13 Jul 2005 12:56:42 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Dmitry Torokhov <dtor@mail.ru>, Linus Torvalds <torvalds@osdl.org>,
+	Wed, 13 Jul 2005 07:00:23 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:29637 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262687AbVGMK7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 06:59:01 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux v2.6.13-rc3
+Date: Wed, 13 Jul 2005 12:59:04 +0200
+User-Agent: KMail/1.8.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Amiga joystick typo (was: Re: Input: fix open/close races
- in joystick drivers - add a semaphore)
-In-Reply-To: <200506280052.j5S0qDQT010792@hera.kernel.org>
-Message-ID: <Pine.LNX.4.62.0507131254590.5536@anakin>
-References: <200506280052.j5S0qDQT010792@hera.kernel.org>
+References: <Pine.LNX.4.58.0507122157070.17536@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0507122157070.17536@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507131259.04855.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jun 2005, Linux Kernel Mailing List wrote:
-> tree 11d80109ddc2f61de6a75a37941346100a67a0d1
-> parent af246041277674854383cf91b8f0b01217b521e8
-> author Dmitry Torokhov <dtor_core@ameritech.net> Sun, 29 May 2005 12:29:52 -0500
-> committer Dmitry Torokhov <dtor_core@ameritech.net> Sun, 29 May 2005 12:29:52 -0500
+Hi,
+
+On Wednesday, 13 of July 2005 07:05, Linus Torvalds wrote:
 > 
-> Input: fix open/close races in joystick drivers - add a semaphore
->        to the ones that register more than one input device.
+> Yes,
+>  it's _really_ -rc3 this time, never mind the confusion with the commit 
+> message last time (when the Makefile clearly said -rc2, but my over-eager 
+> fingers had typed in a commit message saying -rc3).
 > 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> 
->  drivers/input/joystick/amijoy.c     |   29 ++++++++++++++++-------------
+> There's a bit more changes here than I would like, but I'm putting my foot 
+> down now. Not only are a lot of people going to be gone next week for LKS 
+> and OLS, but we've gotten enough stuff for 2.6.13, and we need to calm 
+> down.
 
-This patch broke compilation of amijoy. Trivial fix below.
+FYI, on my box (Asus L5D, Athlon 64 + nForce3, 64-bit kernel) there are two
+regressions wrt -rc2 related to ACPI.  First, the battery monitor does not work
+(http://bugzilla.kernel.org/show_bug.cgi?id=4665)
+and second, the box hangs solid during resume from disk if IO-APIC is not used
+(http://bugzilla.kernel.org/show_bug.cgi?id=4416).
 
-Amiga joystick: Fix typo introduced by fixing the open/close races in
-2.6.13-rc1
+The problems have been known for quite some time and remain unresolved,
+but apparently they have made it to mainline nevertheless.  I understand
+nobody else has reported them, but I also know of some people who run
+Linux on the same hardware and 2.6.13 will not work for them if these
+issues are present in it.
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Greets,
+Rafael
 
---- linux-2.6.13-rc1/drivers/input/joystick/amijoy.c	2005-06-29 22:15:20.000000000 +0200
-+++ linux-m68k-2.6.13-rc1/drivers/input/joystick/amijoy.c	2005-07-12 13:20:20.000000000 +0200
-@@ -105,7 +105,7 @@ out:
- 
- static void amijoy_close(struct input_dev *dev)
- {
--	down(&amijoysem);
-+	down(&amijoy_sem);
- 	if (!--amijoy_used)
- 		free_irq(IRQ_AMIGA_VERTB, amijoy_interrupt);
- 	up(&amijoy_sem);
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

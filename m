@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVGMWS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVGMWJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262848AbVGMWS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 18:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbVGMWS5
+	id S261314AbVGMWJV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 18:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVGMSny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 18:18:57 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:202 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262873AbVGMWR4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 18:17:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FPqT4Vv5EbcCmjri63wjSYFKw+jqoTbvrBV4vG6slwUvjoHsEXLR/TqxF1JEsDFd4okZCe+JlQjRGlWuHrPYqrcepshw0SuyWodlFualFFRjxr5/yl+mmyI0TCLcISxkkdazSWWfUOtUNlG/iZZ7hFxJU5Vw/CKFbCSvVIOF1lE=
-Message-ID: <9e4733910507131516522d8e07@mail.gmail.com>
-Date: Wed, 13 Jul 2005 18:16:59 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Bridge changes and lost console on 2.6.13-rc3
-Cc: linux-kernel@vger.kernel.org, ink@jurassic.park.msu.ru
-In-Reply-To: <20050713140644.16812c32.akpm@osdl.org>
+	Wed, 13 Jul 2005 14:43:54 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:187 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262219AbVGMSmM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 14:42:12 -0400
+Date: Wed, 13 Jul 2005 20:42:27 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Lee Revell <rlrevell@joe-job.com>, Diego Calleja <diegocg@gmail.com>,
+       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org, torvalds@osdl.org,
+       christoph@lameter.org
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Message-ID: <20050713184227.GB2072@ucw.cz>
+References: <200506231828.j5NISlCe020350@hera.kernel.org> <20050712121008.GA7804@ucw.cz> <200507122239.03559.kernel@kolivas.org> <200507122253.03212.kernel@kolivas.org> <42D3E852.5060704@mvista.com> <20050712162740.GA8938@ucw.cz> <42D540C2.9060201@tmr.com> <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9e4733910507130952372a5bd@mail.gmail.com>
-	 <20050713140644.16812c32.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/13/05, Andrew Morton <akpm@osdl.org> wrote:
-> Can you please do a `dmesg > foo', then compare that with the 2.6.13-rc2
-> dmesg output, send us a summary of what changed?
+On Wed, Jul 13, 2005 at 10:24:10AM -0700, David Lang wrote:
 
-It failed the same way under rc2.  See this thread: "2.6.13-rc2 hangs at boot".
-The difference is that now I know in my case it is not a hang, the
-system is still there, I just lost the console.
+> >How serious is the 1/HZ = sane problem, and more to the point how many 
+> >programs get the HZ value with a system call as opposed to including a 
+> >header or building it in? I know some of my older programs use header 
+> >files, that was part of the planning for the future even before 2.5 
+> >started. At the time I didn't expect to have to use the system call.
+> 
+> in binary 1/100 or 1/1000 are not sane values to start with so I don't 
+> think that that this is likly to be that critical (remembering that the 
+> kernel doesn't do floating point math)
+ 
+No, but 1/1000Hz = 1000000ns, while 1/864Hz = 1157407.407ns. If you have
+a counter that counts the ticks in nanoseconds (xtime ...), the first
+will be exact, the second will be accumulating an error.
 
-This is the problem patch:
-Author: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Date: Wed, 15 Jun 2005 14:59:27 +0000 (+0400)
-Source: http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=299de0343c7d18448a69c635378342e9214b14af
-
- [PATCH] PCI: pci_assign_unassigned_resources() on x86
-
+It's a tradeoff.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Vojtech Pavlik
+SuSE Labs, SuSE CR

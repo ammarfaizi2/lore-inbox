@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVGMRZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVGMRZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVGMRZp (ORCPT <rfc822;willy@w.ods.org>);
+	id S261561AbVGMRZp (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 13 Jul 2005 13:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVGMRXn
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVGMRXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 13:23:43 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:27571 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261601AbVGMRWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 13:22:05 -0400
-Subject: Re: kernel guide to space
-From: Lee Revell <rlrevell@joe-job.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-os@analogic.com, kaber@trash.net, vda@ilport.com.ua,
-       sander@humilis.net, mst@mellanox.co.il, linux-kernel@vger.kernel.org
-In-Reply-To: <20050712235804.0b994a78.pj@sgi.com>
-References: <20050711145616.GA22936@mellanox.co.il>
-	 <20050711153447.GA19848@favonius> <200507120952.04279.vda@ilport.com.ua>
-	 <42D3AFA1.2090203@trash.net>
-	 <Pine.LNX.4.61.0507120809200.2712@chaos.analogic.com>
-	 <20050712235804.0b994a78.pj@sgi.com>
+	Wed, 13 Jul 2005 13:23:48 -0400
+Received: from mta04.mail.t-online.hu ([195.228.240.57]:9152 "EHLO
+	mta04.mail.t-online.hu") by vger.kernel.org with ESMTP
+	id S261561AbVGMRXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 13:23:09 -0400
+Subject: [PATCH 11/19] Kconfig I18N: gconfig: symbol fix
+From: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Massimo Maiurana <maiurana@inwind.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       KernelFR <kernelfr@traduc.org>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+In-Reply-To: <1121273456.2975.3.camel@spirit>
+References: <1121273456.2975.3.camel@spirit>
 Content-Type: text/plain
-Date: Wed, 13 Jul 2005 13:22:04 -0400
-Message-Id: <1121275324.4435.41.camel@mindpipe>
+Date: Wed, 13 Jul 2005 19:23:07 +0200
+Message-Id: <1121275388.2975.34.camel@spirit>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-12 at 23:58 -0700, Paul Jackson wrote:
-> Dick Johnson wrote:
-> > Or just disallow tabs altogether. At Analogic we ...
-> 
-> This is the Linux kernel, not Analogic.
-> 
-> We use tabs for indentation.  You can set the number
-> of physical spaces per tab however you want in your
-> editor, but it had better look good (and stay within
-> 80 columns)
 
-I don't think there's a strict 80 column rule anymore.  It's 2005...
+I18N support for symbol names are unnecessary.
 
-Lee
+Signed-off-by: Egry Gabor <gaboregry@t-online.hu>
+---
+
+ scripts/kconfig/gconf.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN scripts/kconfig/gconf.c~kconfig-i18n-11-gconfig-symbol-fix scripts/kconfig/gconf.c
+--- linux-2.6.13-rc3-i18n-kconfig/scripts/kconfig/gconf.c~kconfig-i18n-11-gconfig-symbol-fix	2005-07-13 18:32:18.000000000 +0200
++++ linux-2.6.13-rc3-i18n-kconfig-gabaman/scripts/kconfig/gconf.c	2005-07-13 18:32:18.000000000 +0200
+@@ -474,7 +474,7 @@ static void text_insert_help(struct menu
+ 		help = _(menu->sym->help);
+ 
+ 	if (menu->sym && menu->sym->name)
+-		name = g_strdup_printf(_(menu->sym->name));
++		name = g_strdup_printf(menu->sym->name);
+ 	else
+ 		name = g_strdup("");
+ 
+_
+
 

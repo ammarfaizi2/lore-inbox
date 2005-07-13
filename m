@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262672AbVGMOyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVGMPEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262672AbVGMOyv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 10:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbVGMOyu
+	id S262673AbVGMPEh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 11:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbVGMPEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 10:54:50 -0400
-Received: from wproxy.gmail.com ([64.233.184.192]:37466 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262672AbVGMOyt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 10:54:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OlIhYUkmZnXEvZmizMWa2WruwnObLedeFoReF2klTf6CRLIiXKs8qsHEP0yzjpLilSuxVVu0insk/taB2/g0JBwiAuHC4y/3ezGeEe+vSd6TM8APyHk1zGNMLY8921ChLKFcLNOC4Oty0zqSVl1DAYgFkZqrVoj08XYbwBCHtYg=
-Message-ID: <a44ae5cd05071307546d3f8f9e@mail.gmail.com>
-Date: Wed, 13 Jul 2005 09:54:10 -0500
-From: Miles Lane <miles.lane@gmail.com>
-Reply-To: Miles Lane <miles.lane@gmail.com>
-To: Dave Airlie <airlied@gmail.com>
-Subject: Re: OOPS in 2.6.13-rc1-mm1 -- EIP is at sysfs_release+0x49/0xb0
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <21d7e99705071300173ae0c39b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <a44ae5cd05070301417531fac2@mail.gmail.com>
-	 <21d7e9970507070331107831c6@mail.gmail.com>
-	 <1121055986.10029.9.camel@localhost.localdomain>
-	 <21d7e99705071300173ae0c39b@mail.gmail.com>
+	Wed, 13 Jul 2005 11:04:37 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:61926 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262673AbVGMPEg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 11:04:36 -0400
+Message-ID: <42D52D77.3030706@us.ibm.com>
+Date: Wed, 13 Jul 2005 08:04:23 -0700
+From: Vara Prasad <prasadav@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+CC: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
+       richardj_moore@uk.ibm.com
+Subject: Re: Merging relayfs?
+References: <17107.6290.734560.231978@tut.ibm.com> <Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl> <17107.57046.817407.562018@tut.ibm.com> <Pine.BSO.4.62.0507121731290.6919@rudy.mif.pg.gda.pl> <17107.61271.924455.965538@tut.ibm.com> <Pine.BSO.4.62.0507121840260.6919@rudy.mif.pg.gda.pl> <17107.64629.717907.706682@tut.ibm.com> <Pine.BSO.4.62.0507121935500.6919@rudy.mif.pg.gda.pl> <42D42FE1.3080600@us.ibm.com> <Pine.BSO.4.62.0507131437200.6919@rudy.mif.pg.gda.pl>
+In-Reply-To: <Pine.BSO.4.62.0507131437200.6919@rudy.mif.pg.gda.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/13/05, Dave Airlie <airlied@gmail.com> wrote:
-> > Thanks Dave,
-> >
-> > I switched to the i915 kernel driver and still got the OOPS.
-> > I also continue to get the overlapping mtrr message.  I am currently
-> > testing 2.6.13-rc2-git3.  I have tried to run strace with hald, but
-> > cannot reproduce the problem this way.  I am not sure I am invoking the
-> > command corrently.  I have written to the hal developers, but have not
-> > received a response yet.  Here's the current output:
-> >
-> 
-> Can you try and see if you apply the patch from
-> 
-> http://lkml.org/lkml/2005/7/8/257
-> 
-> It should apply to your kernel.. I cannot get this to happen on my
-> system... the mtrr overlaps are just vesafb setting up the mtrrs, you
-> might try without vesafb...
+Tomasz K³oczko wrote:
 
-I will try booting without vesafb enabled.
+> On Tue, 12 Jul 2005, Vara Prasad wrote:
+>
+>> Tomasz K³oczko wrote:
+>>
+>>> On Tue, 12 Jul 2005, Tom Zanussi wrote:
+>>>
+>>>> =?ISO-8859-2?Q?Tomasz_K=B3oczko?= writes:
+>>>> > On Tue, 12 Jul 2005, Tom Zanussi wrote:
+>>>> [...]
+>>>>
+>>>> >
+>>>> > OK .. "so you can say better is stop flushing buffers on measure 
+>>>> which
+>>>> > wil take day or more" ? :_)
+>>>> > Some DTrace probes/technik are specialy prepared for long or evel 
+>>>> very
+>>>> > long time experiment wich will only prodyce few lines results on 
+>>>> end of
+>>>> > experiment.
+>>>> > Look at DTrace documentation for speculative tracing:
+>>>> > http://docs.sun.com/app/docs/doc/817-6223/6mlkidli7?a=view
+>>>
+>>
+>> How do you propose to implement speculative tracing without a buffer 
+>> to hold the data, when data needs to stay in the kernel for a while 
+>> before we decide to commit or discard?
+>
+>
+> Buffering some data inside kernel space and buffering with 
+> infrastructure for transfer to user space this are two diffrent things.
+>
+> kloczek
 
-I get an error building with the patch applied to 2.6.13-rc2-git3:
+O.K, looks like you are agreeing that we need a buffering mechanism in 
+the kernel to implement speculative tracing, right. Once we have the 
+buffering mechanism we need to create an efficient API for producers of 
+the data to write to that buffering scheme. To my knowledge there is no 
+such generic buffering mechanism already in the kernel, Relayfs 
+implements that buffering scheme and an efficient API to write to it.  
+Isn't that a good reason to have Relayfs merged?
 
-arch/i386/kernel/built-in.o(.text+0x4010): In function `die':
-arch/i386/kernel/traps.c:343: undefined reference to `last_sysfs_name'
-make: *** [.tmp_vmlinux1] Error 1
+Once the data in the buffer is decided to be committed you need a 
+mechanism to get that data from the kernel to userspace. If you don't 
+like Relayfs transfer mechanism, what do you suggest using?
 
-Thanks,
-         Miles

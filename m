@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262811AbVGMMMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbVGMMXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262811AbVGMMMD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 08:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVGMMMC
+	id S262552AbVGMMXE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 08:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVGMMXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 08:12:02 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:58036 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262811AbVGMML5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 08:11:57 -0400
-Date: Wed, 13 Jul 2005 14:14:43 +0200
-From: DervishD <lkml@dervishd.net>
-To: Konstantin Kudin <konstantin_kudin@yahoo.com>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
-Subject: Re: fdisk: What do plus signs after "Blocks" mean?
-Message-ID: <20050713121443.GC58@DervishD>
-Mail-Followup-To: Konstantin Kudin <konstantin_kudin@yahoo.com>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	linux-kernel@vger.kernel.org
-References: <200507122019.j6CKJwxe021850@laptop11.inf.utfsm.cl> <20050712204822.84567.qmail@web52001.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050712204822.84567.qmail@web52001.mail.yahoo.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 13 Jul 2005 08:23:04 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:20709 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262552AbVGMMXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 08:23:03 -0400
+Date: Wed, 13 Jul 2005 08:29:27 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+In-reply-to: <20050713103930.GA16776@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, Chuck Harding <charding@llnl.gov>,
+       karsten wiese <annabellesgarden@yahoo.de>
+Message-id: <200507130829.27990.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200507061257.36738.s0348365@sms.ed.ac.uk>
+ <Pine.LNX.4.63.0507121331480.9097@ghostwheel.llnl.gov>
+ <20050713103930.GA16776@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Konstantin :)
+On Wednesday 13 July 2005 06:39, Ingo Molnar wrote:
+>* Chuck Harding <charding@llnl.gov> wrote:
+>> > CC [M]  sound/oss/emu10k1/midi.o
+>> >sound/oss/emu10k1/midi.c:48: error: syntax error before
+>> > '__attribute__' sound/oss/emu10k1/midi.c:48: error: syntax error
+>> > before ')' token
+>> >
+>> >Here's the offending line:
+>> >
+>> >   48 static DEFINE_SPINLOCK(midi_spinlock
+>> > __attribute((unused)));
+>> >
+>> >Lee
+>>
+>> I got it to compile but it won't boot - it hangs right after the
+>> 'Uncompressing Linux... OK, booting the kernel' - I'm using
+>> .config from 51-27 (attached)
+>
+>and -51-27 worked just fine? I've uploaded -29 with the -28 io-apic
+>changes undone (will re-apply them once Karsten has figured out
+> what's wrong).
+>
+> Ingo
+>-
 
- * Konstantin Kudin <konstantin_kudin@yahoo.com> dixit:
->  Actually, it seems like one can backup information on ALL partitions
-> by using the command "sfdisk -dx /dev/hdX". Supposedly, it reads not
-> only primary but also extended partitions. "sfdisk -x /dev/hdX" should
-> be then able to write whatever is known back to the disk.
-
-    Cool! A long time has passed since I used sfdisk, but I used it
-for manually re-reading partition tables and the like :)
-
-    Raúl Núñez de Arenas Coronado
+27 and 28 both worked in mode 4 here Ingo, except of course for 
+tvtime.  I built a 28 in mode 3 last night but haven't rebooted to it 
+yet.  I don't have an sblive in this box either.
 
 -- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to...
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

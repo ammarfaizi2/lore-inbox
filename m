@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVGMD1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVGMDzD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVGMD1K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 23:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbVGMD1K
+	id S262538AbVGMDzD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 23:55:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVGMDzD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 23:27:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12203 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261945AbVGMD1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 23:27:08 -0400
-Date: Tue, 12 Jul 2005 20:26:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Mahoney <jeffm@suse.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: [PATCH/SCRIPT] reiserfs: run scripts/Lindent on reiserfs code
-In-Reply-To: <20050712232412.GA9669@locomotive.unixthugs.org>
-Message-ID: <Pine.LNX.4.58.0507122022530.17536@g5.osdl.org>
-References: <20050712232412.GA9669@locomotive.unixthugs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 12 Jul 2005 23:55:03 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:36297 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262538AbVGMDzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 23:55:01 -0400
+Subject: Re: PREEMPT/PREEMPT_RT question
+From: Steven Rostedt <rostedt@goodmis.org>
+To: paulmck@us.ibm.com
+Cc: shemminger@osdl.org, dipankar@in.ibm.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050713014627.GF1323@us.ibm.com>
+References: <20050712163031.GA1323@us.ibm.com>
+	 <1121187924.6917.75.camel@localhost.localdomain>
+	 <20050712192832.GB1323@us.ibm.com>
+	 <1121198657.3548.11.camel@localhost.localdomain>
+	 <20050712213426.GD1323@us.ibm.com>
+	 <1121212035.3548.34.camel@localhost.localdomain>
+	 <20050713014627.GF1323@us.ibm.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 12 Jul 2005 23:54:50 -0400
+Message-Id: <1121226890.3548.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-07-12 at 18:46 -0700, Paul E. McKenney wrote:
 
-
-On Tue, 12 Jul 2005, Jeff Mahoney wrote:
+> > If you are talking about scheduler_tick, then yes, it is called by the
+> > timer interrupt which is a SA_NODELAY interrupt.  If you don't want to
+> > get interrupted by the timer interrupt, then you will need to disable
+> > interrupts for both. Since currently, the timer interrupt is the only
+> > true hard interrupt in the PREEMPT_RT and that may not change.
 > 
-> scripts/Lindent fs/reiserfs/*.c include/linux/reiserfs_*.h
+> OK, so if I take a spinlock in something invoked from scheduler_tick(),
+> then any other acquisitions of that spinlock must disable hardware
+> interrupts, right?
 
-Ok, applied. You should check that you got the same results I did, and 
-feel free to send further cleanup patches. Sometimes "indent" does some 
-silly things.
+Yes, otherwise you could have a local CPU deadlock on a SMP machine. And
+I would also say the same is true for any lock that is grabbed by the
+timer interrupt or one of the functions it calls.
 
-		Linus
+-- Steve
+
+

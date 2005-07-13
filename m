@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262918AbVGMCQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbVGMCmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262918AbVGMCQv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Jul 2005 22:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbVGMCQv
+	id S262914AbVGMCmW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Jul 2005 22:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbVGMCmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Jul 2005 22:16:51 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:1160 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S262825AbVGMCQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Jul 2005 22:16:50 -0400
-X-IronPort-AV: i="3.94,192,1118034000"; 
-   d="scan'208"; a="265591444:sNHT16959324"
-Date: Tue, 12 Jul 2005 21:16:48 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-Cc: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 22/82] remove linux/version.h from drivers/message/fus ion
-Message-ID: <20050713021648.GA23118@lists.us.dell.com>
-References: <91888D455306F94EBD4D168954A9457C030A908F@nacos172.co.lsil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <91888D455306F94EBD4D168954A9457C030A908F@nacos172.co.lsil.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 12 Jul 2005 22:42:22 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:20450 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262914AbVGMCmV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Jul 2005 22:42:21 -0400
+Message-Id: <200507130209.j6D29TB1004476@laptop11.inf.utfsm.cl>
+To: David Masover <ninja@slaphack.com>
+cc: Hans Reiser <reiser@namesys.com>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Stefan Smietanowski <stesmi@stesmi.com>, Hubert Chan <hubert@uhoreg.ca>,
+       Ross Biro <ross.biro@gmail.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Valdis.Kletnieks@vt.edu, Lincoln Dale <ltd@cisco.com>,
+       Gregory Maxwell <gmaxwell@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>,
+       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: reiser4 plugins 
+In-Reply-To: Message from David Masover <ninja@slaphack.com> 
+   of "Tue, 12 Jul 2005 18:22:38 EST." <42D450BE.70404@slaphack.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 12 Jul 2005 22:09:29 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric, I have to have a similar compat file for the IPMI drivers
-backported onto RHEL3, RHEL4, and SLES9.  They aren't in mainline of
-course, but each OS has a slightly different copy for its needs, so my
-DKMS packages carry it.
+David Masover <ninja@slaphack.com> wrote:
+> Hans Reiser wrote:
+> > Horst von Brand wrote:
+> >>Hans Reiser <reiser@namesys.com> wrote:
+> >>>Stefan Smietanowski wrote:
 
-In general, this construct:
+[...]
 
-> > -#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,6))
-> > -static int inline scsi_device_online(struct scsi_device *sdev)
-> > -{
-> > -	return sdev->online;
-> > -}
-> > -#endif
+> > Better to spend one's mind looking for bugs instead of this issue.....
+> 
+> .....if bugs were seen as such a big deal.
 
-is better tested as:
+> I think it's far easier to get into the kernel with something
+> ludicrously buggy than something which actually changes fundamental
+> behavior.
 
-#ifndef scsi_device_inline
-static int inline scsi_device_online(struct scsi_device *sdev)
-{
-    return sdev->online;
-}
-#endif
 
-when you can.  It cleanly eliminates the version test, and tests for
-exactly what you're looking for - is this function defined.
+Wonder why....
 
-Thanks,
-Matt
+[Fixing bugs in the $FOO driver or the $BAR filesystem is /easy/, fixing
+ bugs in "fundamental behaviour changes" is /extremely hard/.]
 
+>            That is, you can put in an FS which actually corrupts data
+> (such as the old NTFS write support), so long as it doesn't break POSIX,
+> or cause other weird restrictions like "No files named 'metas'"
+
+Because that kind of problems are isolated. If you introduce a change that
+affects /all/ filesystems, and that change later on has unfixable bugs, or
+fundamental design issues, it is /a lot/ of work.
+
+> Now, if we can decide that we don't care about being in the vanilla
+> kernel, then we can just call it ".metas" or "lost+found" or whatever
+> and get to work on bug fixes and other much-needed features such as a
+> repacker.
+
+Great!
 -- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

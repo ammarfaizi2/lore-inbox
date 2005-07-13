@@ -1,50 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262805AbVGMKse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbVGMKw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbVGMKse (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 06:48:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbVGMKpp
+	id S262902AbVGMKw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 06:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbVGMKuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 06:45:45 -0400
-Received: from moutng.kundenserver.de ([212.227.126.190]:53755 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262612AbVGMKoD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 06:44:03 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: =?iso-8859-1?Q?Real-Time_Preemption_Patch_-RT-2=2E6=2E12-final-V0=2E7=2E51-28_fails_to_compile_on_x86_64?=
-From: =?iso-8859-1?Q?Steve_Wooding?= <steve_wooding@keysounds.co.uk>
-Message-Id: <30280207$112125056942d4ed094ea249.34070914@config22.schlund.de>
-X-Binford: 6100 (more power)
-X-Originating-From: 30280207
-X-Mailer: Webmail
-X-Routing: UK
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Jul 2005 06:50:16 -0400
+Received: from mail.charite.de ([160.45.207.131]:59082 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S262773AbVGMKsw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 06:48:52 -0400
+Date: Wed, 13 Jul 2005 12:48:49 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Current kexec status?
+Message-ID: <20050713104848.GJ4561@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Date: Wed, 13 Jul 2005 12:42:01 +0200
-X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.149
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I want to experiment with kexec and my 2.6.13-rc3 kernel. I'm able to
+--load the kernel, but on --exec in /etc/init.d/reboot (I replaced the
+reboot command in there), the machine freezes.
 
-Hi,
+I'm using kexec-tools-1.101, are there any more patches needed?
 
-I've been trying to get the latest RT preempt patch to compile on the
-x86_64 platform. Previous posts have helped me get passed the errors
-I've encountered, but I've just come up against a new one. I'm using
-the config that I have previously posted, except now I have
-CONFIG_PREEMPT_RT set instead of CONFIG_PREEMPT_VOLUNTARY.
-
-I now get the following error:
-
-arch/x86_64/kernel/smpboot.c:191: error: section of 'tsc_sync_lock'
-conflicts with previous declaration
-
-I have patched the vanilla 2.6.12 kernel with
-realtime-preempt-2.6.12-final-V0.7.51-28 patch file.
-
-Let me know if any other info would help.
-
-Cheers,
-
-Steve Wooding.
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

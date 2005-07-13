@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbVGMUTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262776AbVGMU0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbVGMUTh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 16:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbVGMUTa
+	id S262776AbVGMU0x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 16:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVGMUYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 16:19:30 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:3714 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262787AbVGMUST (ORCPT
+	Wed, 13 Jul 2005 16:24:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:42399 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262776AbVGMUXV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 16:18:19 -0400
-Date: Wed, 13 Jul 2005 13:18:44 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, dipankar@in.ibm.com,
-       shemminger@osdl.org, rusty@au1.ibm.com
-Subject: Re: [RFC] RCU and CONFIG_PREEMPT_RT progress, part 3
-Message-ID: <20050713201844.GE1304@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050713184800.GA1983@us.ibm.com> <1121281598.25810.14.camel@localhost.localdomain>
+	Wed, 13 Jul 2005 16:23:21 -0400
+Date: Wed, 13 Jul 2005 13:19:06 -0700
+From: Greg KH <greg@kroah.com>
+To: Doug Warzecha <Douglas_Warzecha@dell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] char: Add Dell Systems Management Base driver
+Message-ID: <20050713201906.GB15573@kroah.com>
+References: <20050706001333.GA3569@sysman-doug.us.dell.com> <20050706041702.GA10253@kroah.com> <20050706155734.GA4271@sysman-doug.us.dell.com> <20050706160737.GC13115@kroah.com> <20050713005716.GA15298@sysman-doug.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1121281598.25810.14.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050713005716.GA15298@sysman-doug.us.dell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 03:06:38PM -0400, Steven Rostedt wrote:
-> On Wed, 2005-07-13 at 11:48 -0700, Paul E. McKenney wrote:
-> > Hello!
+On Tue, Jul 12, 2005 at 07:57:16PM -0500, Doug Warzecha wrote:
+> On Wed, Jul 06, 2005 at 11:07:37AM -0500, Greg KH wrote:
+> >    On Wed, Jul 06, 2005 at 10:57:35AM -0500, Doug Warzecha wrote:
+> >    > On Tue, Jul 05, 2005 at 11:17:03PM -0500, Greg KH wrote:
+> >    > >
+> >    > >    I'm sure I commented on this driver already, yet, I never got a
+> >    response
+> >    > >    and the code is not changed.  Is there some reason for this? 
+> >    That's a
+> >    > >    sure way to prevent your patch from ever being applied...
+> >    >
+> >    > This is the first comment on the release function.  The code has been
+> >    > changing in response to comments from you and others.  We'll continue
+> >    > to make changes as needed.
 > > 
-> > Ported to CONFIG_PREEMPT_RT, and it actually boots!  Running tests,
-> 
-> Good! :)
-
-Hey, it even passed the touch-test (five kernbenches and an LTP).  Now
-to start the torture tests...
-
-> > working thus far.  But thought I would post the patch and get feedback
-> > in the meantime, since I am not sure that my approach is correct.
-> > The questions:
+> >    You never responded to those questions though, so determining if the
+> >    code was changed is difficult.  And I still see you using ioctls, which,
+> >    if I remember, was what I asked about.
 > > 
-> > 1.	Is use of spin_trylock() and spin_unlock() in hardirq code
-> > 	(e.g., rcu_check_callbacks() and callees) a Bad Thing?
-> > 	Seems to result in boot-time hangs when I try it, and switching
-> > 	to _raw_spin_trylock() and _raw_spin_unlock() seems to work
-> > 	better.  But I don't see why the other primitives hang --
-> > 	after all, you can call wakeup functions in irq context in
-> > 	stock kernels...
 > 
-> I never use _raw_spin_*.  I just declare the lock as a raw_spinlock_t
-> and the macro's determine to use them instead.  So I just keep the
-> spin_lock in the code. Or do you mean that you get problems using the
-> spin_locks when the code is already defined as raw_spinlock_t?
+> The dcdbas driver has been shipping outside of the kernel tree for
+> some time now in support of the systems listed in the source and is
+> expected to support the listed systems for some time to come.  The
+> driver has always used ioctls for Dell systems management software to
+> communicate with it.
 
-Wasn't aware of this possibility, will try it.  Thanks for the tip!
+Well, your code has always been wrong then :)
 
-> > 2.	Is _raw_spin_lock_irqsave() intended for general use?  Its
-> > 	API differs from that of spin_lock_irqsave(), so am wondering
-> > 	if it is internal-use-only or something.  I currently
-> > 	use it from process context to acquire locks shared with
-> > 	rcu_check_callbacks().
+> The systems that are supported by the driver are
+> older Dell PowerEdge systems which contain Dell proprietary hardware
+> systems management interfaces.  The latest shipping PowerEdge systems
+> support the standard IPMI hardware systems management interface which
+> can be accessed by the in-kernel standard IPMI driver (which uses
+> ioctls).  Future PowerEdge systems are expected to support the IPMI
+> systems management interface as well.
+
+Then only support the "new" interface for newer systems.
+
+> Even though the dcdbas driver is not expected to be needed for future
+> PowerEdge systems, we would like to make it easier for Dell customers
+> to run Dell systems management software with the latest kernel on the
+> systems supported by the dcdbas driver by making the driver available
+> in the kernel tree.  We would like to do that without impacting the
+> existing Dell systems management software for the older systems so
+> that we can focus our resources on the newer systems.
 > 
-> I would assume not, but Ingo would be better at answering this.
+> Is it an absolute "must" that this driver not use ioctls?
 
-Seems to work, FWIW.  ;-)
+Yes.  Sorry.
 
-						Thanx, Paul
+thanks,
+
+greg k-h

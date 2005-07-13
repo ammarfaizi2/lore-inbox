@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262830AbVGMWqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVGMRzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262830AbVGMWqm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 18:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbVGMWn7
+	id S261495AbVGMRzn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 13:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVGMRxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 18:43:59 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:12978 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262779AbVGMWms
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 18:42:48 -0400
-Date: Wed, 13 Jul 2005 17:42:44 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
-       long <tlnguyen@snoqualmie.dp.intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: Re: [PATCH 2.6.13-rc1 03/10] IOCHK interface for I/O error handling/detecting
-Message-ID: <20050713224244.GM26607@austin.ibm.com>
-References: <42CB63B2.6000505@jp.fujitsu.com> <42CB664E.1050003@jp.fujitsu.com> <20050712195120.GE26607@austin.ibm.com> <1121213938.31924.406.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121213938.31924.406.camel@gaston>
-User-Agent: Mutt/1.5.9i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Wed, 13 Jul 2005 13:53:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20386 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261919AbVGMRv4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 13:51:56 -0400
+Date: Wed, 13 Jul 2005 10:51:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.13-rc3
+In-Reply-To: <1121275893.4435.47.camel@mindpipe>
+Message-ID: <Pine.LNX.4.58.0507131045530.17536@g5.osdl.org>
+References: <Pine.LNX.4.58.0507122157070.17536@g5.osdl.org>
+ <1121275893.4435.47.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Yes, but ...
 
-On Wed, Jul 13, 2005 at 10:18:57AM +1000, Benjamin Herrenschmidt was heard to remark:
+On Wed, 13 Jul 2005, Lee Revell wrote:
+
+> On Tue, 2005-07-12 at 22:05 -0700, Linus Torvalds wrote:
+> > I think the shortlog speaks for itself.
 > 
-> > Are you assuming that a device driver will use an iochk_read() for
-> > every DMA operation? for every MMIO to the card?  
-> > 
-> > For high performance devices, it seems to me that this will cause
-> > a rather large performance burden, especially if its envisioned that
-> > all architectures will do something similar.
-> > 
-> > My concern is that (at least on ppc64) the call pci_read_config_word()
-> > requires a call into "firmware" aka "BIOS", which takes thousands upon
-> > thousands of cpu cycles.  There are hundreds of cycles of gratuitous
-> > crud just to get into the firmware, and then lord-knows-what the
-> > firmware does while its in there; probably doing all sorts of crazy
-> > math to compute bus addresses and other arcane things.  I would imagine
-> > that most architectures, includig ia64, are similar.
-> > 
-> > Thus, one wouldn't want to perform an iochk_read() in this way unless
-> > one was already pretty sure that an error had already occured ... 
-> > 
-> > Am I misunderstanding something?
-> 
-> I would expect pSeries not to use the "default" error checking (that
-> tests the status register) but rather use EEH.
+> HZ still defaults to 250.  As was explained in another thread, this will
+> break apps like MIDI sequencers and won't really save much battery
+> power.
 
+Stop bothering with this, I've seen the thread, and no, I disagree totally 
+with "as explained in another thread". That's simply not true.
 
-OK, it wasn't clear to me if every possible case of the "detected parity
-error" bit being set on the pci adapter is converted into an EEH error.
-I had the impression that the adapter can set the bit, but not signal a 
-#PERR, adn thus have no EEH event.   I am investigating this now.
+The only thing that is true is that 100Hz is too low for some use, and 
+1000Hz is too high for some uses. NOBODY has shown that 250Hz isn't good 
+enough, there's only been people whining and complaining and saying it 
+might not be.
 
-If a given device driver is expecting iochk_read() to catch this situation, 
-then we'd be screwed.
+The fact is, engineering is about finding something that works "well 
+enough". If _you_ think that 1000Hz is the right answer, then _you_ select 
+that. But if you cannot accept the fact that other people are of a 
+different opinion, then why would anybody want to discuss the issue with 
+you?
 
---linas
+This is a fundamental fact of engineering (and, in fact, pretty much any 
+other area in life): 
+
+	If you cannot accept that other people have other aims and 
+	needs than than you, then why are you talking to other people in 
+	the first place?
+
+So get on with your lives. Realize that there is no "perfect" value for 
+HZ. 250 right now is somewhere reasonable, and for the extreme ends you 
+can always chose your own. Don't try to force your ideas on others.
+
+And btw, the next time somebody complains about HZ, I want HARD DATA. I 
+don't want whining. Stop cc'ing me in you don't have a real datapoint, and 
+if you cannot accept that other people have _other_ real datapoints.
+
+		Linus

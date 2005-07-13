@@ -1,90 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbVGML1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262631AbVGML2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262616AbVGML1P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 07:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVGML1P
+	id S262631AbVGML2q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 07:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbVGML2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 13 Jul 2005 07:28:46 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19209 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262631AbVGML1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 13 Jul 2005 07:27:15 -0400
-Received: from web52902.mail.yahoo.com ([206.190.49.12]:16988 "HELO
-	web52902.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262616AbVGML1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 07:27:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=r/q9zrj97YWOS2v8hRTxi9J0/XPsI56w93ZP+0+uIH+mU9UBdEzuaJdqVaCRTlUPEvCdyFWoDeTXcXrdkfD2+oTwaApE1wUz1EvfiMH7zawCFOCb3mZHIzxDsxfJ0V9THL8Y/leYRVBjt+v69BnRahLD+gVocQnod+q9reVSJso=  ;
-Message-ID: <20050713112710.60204.qmail@web52902.mail.yahoo.com>
-Date: Wed, 13 Jul 2005 13:27:09 +0200 (CEST)
-From: szonyi calin <caszonyi@yahoo.com>
-Subject: RE: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
-To: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: ck list <ck@vds.kolivas.org>, caszonyi@rdslink.ro
-In-Reply-To: <200507122110.43967.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Date: Wed, 13 Jul 2005 12:27:01 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, vacant2005@o2.pl,
+       linux-kernel@vger.kernel.org
+Subject: Re: system.map
+Message-ID: <20050713122701.A6791@flint.arm.linux.org.uk>
+Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Arjan van de Ven <arjan@infradead.org>, vacant2005@o2.pl,
+	linux-kernel@vger.kernel.org
+References: <200507121834.50084.vacant2005@o2.pl> <Pine.LNX.4.61.0507131220360.14635@yvahk01.tjqt.qr> <1121252168.3959.13.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0507131302550.14635@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61.0507131302550.14635@yvahk01.tjqt.qr>; from jengelh@linux01.gwdg.de on Wed, Jul 13, 2005 at 01:04:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Con Kolivas <kernel@kolivas.org> a écrit :
-
-> 	Interbench - The Linux Interactivity Benchmark v0.20
+On Wed, Jul 13, 2005 at 01:04:38PM +0200, Jan Engelhardt wrote:
+> >> >Jul 11 12:18:48 localhost kernel: Inspecting /boot/System.map
+> >> >Jul 11 12:18:48 localhost kernel: Loaded 28063 symbols from /boot/System.map.
+> >> >Jul 11 12:18:48 localhost kernel: Symbols match kernel version 2.6.12.
+> >> >Jul 11 12:18:48 localhost kernel: No module symbols loaded - kernel modules 
+> >> >notenabled.
+> >
+> >so whatever is spewing that is something else, but not the kernel.
 > 
-> http://interbench.kolivas.org
-> 
-> direct download link:
-> http://ck.kolivas.org/apps/interbench/interbench-0.20.tar.bz2
-> 
->
-[snip]
- 
-> Audio:
-> Audio is simulated as a thread that tries to run at 50ms
-> intervals that then
-> requires 5% cpu. This behaviour ignores any caching that would
-> normally be 
-> done by well designed audio applications, but has been seen as
-> the interval 
-> used to write to audio cards by a popular linux audio player.
-> It also ignores 
-> any of the effects of different audio drivers and audio cards.
-> Audio can also 
-> be run as a real time SCHED_FIFO task.
-> 
+> These four messages are the first four ones that appear after the boot loader 
+> set EIP to the kernel entry point. The first four printks, if you want so. And 
+> apparently, the first four appearing in dmesg, obviously.
 
-I have the following problem with audio:
-Xmms is running with threads for audio and spectrum
-analyzer(OpenGL).
-The audio eats 5% cpu, the spectrum analyzer about 80 %. The
-problem is that sometimes the spectrum analyzer is eating all of
-the cpu while the audio is skipping. Xmms is version 1.2.10
-kernel is vanilla, latest "stable" version 2.6.12, suid root.
+They have absolutely nothing to do with the kernel, nor printk.
+They're to do with klogd, the process which reads kernel messages and
+writes them via a socket to syslogd.
 
-Does your benchmark simultes this kind of behaviour ? 
- 
+If klogd is started with out -x, it will want to read the System.map
+file and do the broken lookup of things it thinks are addresses in
+kernel messages.  This is not recommended practice.  For kernels with
+kallsyms enabled, klogd should be started with -x.
 
-> 
-> Cheers,
-> Con Kolivas
-> 
+After your kernel has booted, login and run dmesg.  You'll notice that
+the first 4 lines are not as you expect.
 
-I'll give it a try
-Thanks
-Calin
-
-
---
-A mouse is a device used to point at 
-the xterm you want to type in.
-Kim Alm on a.s.r.
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
-Téléchargez cette version sur http://fr.messenger.yahoo.com
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

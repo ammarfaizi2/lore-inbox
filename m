@@ -1,127 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVGMSDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVGMSDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbVGMSDa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 14:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVGMSDY
+	id S261867AbVGMSDM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 14:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVGMSC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:03:24 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:15084 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S261545AbVGMSAd (ORCPT
+	Wed, 13 Jul 2005 14:02:59 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:20716 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S262198AbVGMSAh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:00:33 -0400
-Subject: [patch 6/9] uml: reintroduce pcap support
+	Wed, 13 Jul 2005 14:00:37 -0400
+Subject: [patch 7/9] uml: allow building as 32-bit binary on 64bit host
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Wed, 13 Jul 2005 20:02:31 +0200
-Message-Id: <20050713180232.149E721E743@zion.home.lan>
+Date: Wed, 13 Jul 2005 20:02:35 +0200
+Message-Id: <20050713180235.CF8A021E746@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The pcap support was not working because of some linking problems (expressing
-the construct in Kbuild was a bit difficult) and because there was no user
-request. Now that this has come back, here's the support.
+This patch makes the command:
 
-This has been tested and works on both 32 and 64-bit hosts, even when
-"cross-"building 32-bit binaries.
+make ARCH=um SUBARCH=i386
+
+work on x86_64 hosts (with support for building 32-bit binaries). This is
+especially needed since 64-bit UMLs don't support 32-bit emulation for guest
+binaries, currently. This has been tested in all possible cases and works.
+
+Only exception is that I've built but not tested a 64-bit binary, because I
+hadn't a 64-bit filesystem available.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-broken-paolo/arch/um/Kconfig_net      |    2 +-
- linux-2.6.git-broken-paolo/arch/um/Makefile         |   14 +++++++++-----
- linux-2.6.git-broken-paolo/arch/um/drivers/Makefile |   17 ++++++++++++++---
- 3 files changed, 24 insertions(+), 9 deletions(-)
+ linux-2.6.git-broken-paolo/arch/um/Makefile               |   11 +----
+ linux-2.6.git-broken-paolo/arch/um/Makefile-i386          |   30 +++++++++-----
+ linux-2.6.git-broken-paolo/arch/um/Makefile-x86_64        |    6 +-
+ linux-2.6.git-broken-paolo/arch/um/scripts/Makefile.unmap |    4 -
+ 4 files changed, 31 insertions(+), 20 deletions(-)
 
-diff -puN arch/um/drivers/Makefile~uml-reallow-pcap arch/um/drivers/Makefile
---- linux-2.6.git-broken/arch/um/drivers/Makefile~uml-reallow-pcap	2005-07-13 19:43:05.000000000 +0200
-+++ linux-2.6.git-broken-paolo/arch/um/drivers/Makefile	2005-07-13 19:43:30.000000000 +0200
-@@ -10,7 +10,6 @@ slip-objs := slip_kern.o slip_user.o
- slirp-objs := slirp_kern.o slirp_user.o
- daemon-objs := daemon_kern.o daemon_user.o
- mcast-objs := mcast_kern.o mcast_user.o
--#pcap-objs := pcap_kern.o pcap_user.o $(PCAP)
- net-objs := net_kern.o net_user.o
- mconsole-objs := mconsole_kern.o mconsole_user.o
- hostaudio-objs := hostaudio_kern.o
-@@ -18,6 +17,17 @@ ubd-objs := ubd_kern.o ubd_user.o
- port-objs := port_kern.o port_user.o
- harddog-objs := harddog_kern.o harddog_user.o
+diff -puN arch/um/Makefile-i386~uml-build-on-64bit-host arch/um/Makefile-i386
+--- linux-2.6.git-broken/arch/um/Makefile-i386~uml-build-on-64bit-host	2005-07-13 19:46:33.000000000 +0200
++++ linux-2.6.git-broken-paolo/arch/um/Makefile-i386	2005-07-13 19:46:33.000000000 +0200
+@@ -1,4 +1,4 @@
+-SUBARCH_CORE := arch/um/sys-i386/ arch/i386/crypto/
++core-y += arch/um/sys-i386/ arch/i386/crypto/
  
-+LDFLAGS_pcap.o := -r $(shell $(CC) $(CFLAGS) -print-file-name=libpcap.a)
+ TOP_ADDR := $(CONFIG_TOP_ADDR)
+ 
+@@ -8,21 +8,33 @@ ifeq ($(CONFIG_MODE_SKAS),y)
+   endif
+ endif
+ 
++LDFLAGS			+= -m elf_i386
++ELF_ARCH		:= $(SUBARCH)
++ELF_FORMAT 		:= elf32-$(SUBARCH)
++OBJCOPYFLAGS  		:= -O binary -R .note -R .comment -S
 +
-+$(obj)/pcap.o: $(obj)/pcap_kern.o $(obj)/pcap_user.o
-+	$(LD) -r -dp -o $@ $^ $(LDFLAGS) $(LDFLAGS_pcap.o)
-+#XXX: The call below does not work because the flags are added before the
-+# object name, so nothing from the library gets linked.
-+#$(call if_changed,ld)
++ifeq ("$(origin SUBARCH)", "command line")
++ifneq ("$(shell uname -m | sed -e s/i.86/i386/)", "$(SUBARCH)")
++CFLAGS			+= $(call cc-option,-m32)
++USER_CFLAGS		+= $(call cc-option,-m32)
++HOSTCFLAGS		+= $(call cc-option,-m32)
++HOSTLDFLAGS		+= $(call cc-option,-m32)
++AFLAGS			+= $(call cc-option,-m32)
++LINK-y			+= $(call cc-option,-m32)
++UML_OBJCOPYFLAGS	+= -F $(ELF_FORMAT)
 +
-+# When the above is fixed, don't forget to add this too!
-+#targets := $(obj)/pcap.o
++export LDFLAGS HOSTCFLAGS HOSTLDFLAGS UML_OBJCOPYFLAGS
++endif
++endif
 +
- obj-y := stdio_console.o fd.o chan_kern.o chan_user.o line.o
- obj-$(CONFIG_SSL) += ssl.o
- obj-$(CONFIG_STDERR_CONSOLE) += stderr_console.o
-@@ -26,7 +36,7 @@ obj-$(CONFIG_UML_NET_SLIP) += slip.o sli
- obj-$(CONFIG_UML_NET_SLIRP) += slirp.o slip_common.o
- obj-$(CONFIG_UML_NET_DAEMON) += daemon.o 
- obj-$(CONFIG_UML_NET_MCAST) += mcast.o 
--#obj-$(CONFIG_UML_NET_PCAP) += pcap.o $(PCAP)
-+obj-$(CONFIG_UML_NET_PCAP) += pcap.o
- obj-$(CONFIG_UML_NET) += net.o 
- obj-$(CONFIG_MCONSOLE) += mconsole.o
- obj-$(CONFIG_MMAPPER) += mmapper_kern.o 
-@@ -41,6 +51,7 @@ obj-$(CONFIG_UML_WATCHDOG) += harddog.o
- obj-$(CONFIG_BLK_DEV_COW_COMMON) += cow_user.o
- obj-$(CONFIG_UML_RANDOM) += random.o
+ CFLAGS += -U__$(SUBARCH)__ -U$(SUBARCH)
+-ARCH_USER_CFLAGS :=
  
--USER_OBJS := fd.o null.o pty.o tty.o xterm.o slip_common.o
-+# pcap_user.o must be added explicitly.
-+USER_OBJS := fd.o null.o pty.o tty.o xterm.o slip_common.o pcap_user.o
+ ifneq ($(CONFIG_GPROF),y)
+ ARCH_CFLAGS += -DUM_FASTCALL
+ endif
  
- include arch/um/scripts/Makefile.rules
-diff -puN arch/um/Kconfig_net~uml-reallow-pcap arch/um/Kconfig_net
---- linux-2.6.git-broken/arch/um/Kconfig_net~uml-reallow-pcap	2005-07-13 19:43:05.000000000 +0200
-+++ linux-2.6.git-broken-paolo/arch/um/Kconfig_net	2005-07-13 19:43:05.000000000 +0200
-@@ -135,7 +135,7 @@ config UML_NET_MCAST
+-ELF_ARCH := $(SUBARCH)
+-ELF_FORMAT := elf32-$(SUBARCH)
+-
+-OBJCOPYFLAGS  := -O binary -R .note -R .comment -S
+-
+ SYS_UTIL_DIR	:= $(ARCH_DIR)/sys-i386/util
+-
+-SYS_HEADERS := $(SYS_DIR)/sc.h $(SYS_DIR)/thread.h
++SYS_HEADERS	:= $(SYS_DIR)/sc.h $(SYS_DIR)/thread.h
  
- config UML_NET_PCAP
- 	bool "pcap transport"
--	depends on UML_NET && BROKEN
-+	depends on UML_NET && EXPERIMENTAL
- 	help
- 	The pcap transport makes a pcap packet stream on the host look
- 	like an ethernet device inside UML.  This is useful for making 
-diff -puN arch/um/Makefile~uml-reallow-pcap arch/um/Makefile
---- linux-2.6.git-broken/arch/um/Makefile~uml-reallow-pcap	2005-07-13 19:43:05.000000000 +0200
-+++ linux-2.6.git-broken-paolo/arch/um/Makefile	2005-07-13 19:43:05.000000000 +0200
-@@ -56,17 +56,21 @@ include $(srctree)/$(ARCH_DIR)/Makefile-
- core-y += $(SUBARCH_CORE)
- libs-y += $(SUBARCH_LIBS)
+ prepare: $(SYS_HEADERS)
  
--# -Derrno=kernel_errno - This turns all kernel references to errno into
--# kernel_errno to separate them from the libc errno.  This allows -fno-common
--# in CFLAGS.  Otherwise, it would cause ld to complain about the two different
--# errnos.
-+# -Dvmap=kernel_vmap affects everything, and prevents anything from
-+# referencing the libpcap.o symbol so named.
+diff -puN arch/um/Makefile~uml-build-on-64bit-host arch/um/Makefile
+--- linux-2.6.git-broken/arch/um/Makefile~uml-build-on-64bit-host	2005-07-13 19:46:33.000000000 +0200
++++ linux-2.6.git-broken-paolo/arch/um/Makefile	2005-07-13 19:46:33.000000000 +0200
+@@ -51,11 +51,6 @@ MRPROPER_DIRS	+= $(ARCH_DIR)/include2
+ endif
+ SYS_DIR		:= $(ARCH_DIR)/include/sysdep-$(SUBARCH)
  
- CFLAGS += $(CFLAGS-y) -D__arch_um__ -DSUBARCH=\"$(SUBARCH)\" \
--	$(ARCH_INCLUDE) $(MODE_INCLUDE)
-+	$(ARCH_INCLUDE) $(MODE_INCLUDE) -Dvmap=kernel_vmap
+-include $(srctree)/$(ARCH_DIR)/Makefile-$(SUBARCH)
+-
+-core-y += $(SUBARCH_CORE)
+-libs-y += $(SUBARCH_LIBS)
+-
+ # -Dvmap=kernel_vmap affects everything, and prevents anything from
+ # referencing the libpcap.o symbol so named.
+ 
+@@ -64,7 +59,7 @@ CFLAGS += $(CFLAGS-y) -D__arch_um__ -DSU
  
  USER_CFLAGS := $(patsubst -I%,,$(CFLAGS))
  USER_CFLAGS := $(patsubst -D__KERNEL__,,$(USER_CFLAGS)) $(ARCH_INCLUDE) \
- 	$(MODE_INCLUDE) $(ARCH_USER_CFLAGS)
-+
-+# -Derrno=kernel_errno - This turns all kernel references to errno into
-+# kernel_errno to separate them from the libc errno.  This allows -fno-common
-+# in CFLAGS.  Otherwise, it would cause ld to complain about the two different
-+# errnos.
-+
+-	$(MODE_INCLUDE) $(ARCH_USER_CFLAGS)
++	$(MODE_INCLUDE)
+ 
+ # -Derrno=kernel_errno - This turns all kernel references to errno into
+ # kernel_errno to separate them from the libc errno.  This allows -fno-common
+@@ -74,6 +69,8 @@ USER_CFLAGS := $(patsubst -D__KERNEL__,,
  CFLAGS += -Derrno=kernel_errno -Dsigprocmask=kernel_sigprocmask
  CFLAGS += $(call cc-option,-fno-unit-at-a-time,)
  
++include $(srctree)/$(ARCH_DIR)/Makefile-$(SUBARCH)
++
+ #This will adjust *FLAGS accordingly to the platform.
+ include $(srctree)/$(ARCH_DIR)/Makefile-os-$(OS)
+ 
+@@ -132,7 +129,7 @@ CPPFLAGS_vmlinux.lds = -U$(SUBARCH) \
+ #The wrappers will select whether using "malloc" or the kernel allocator.
+ LINK_WRAPS = -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc
+ 
+-CFLAGS_vmlinux = $(LINK-y) $(LINK_WRAPS)
++CFLAGS_vmlinux := $(LINK-y) $(LINK_WRAPS)
+ define cmd_vmlinux__
+ 	$(CC) $(CFLAGS_vmlinux) -o $@ \
+ 	-Wl,-T,$(vmlinux-lds) $(vmlinux-init) \
+diff -puN arch/um/Makefile-x86_64~uml-build-on-64bit-host arch/um/Makefile-x86_64
+--- linux-2.6.git-broken/arch/um/Makefile-x86_64~uml-build-on-64bit-host	2005-07-13 19:46:33.000000000 +0200
++++ linux-2.6.git-broken-paolo/arch/um/Makefile-x86_64	2005-07-13 19:46:33.000000000 +0200
+@@ -1,11 +1,13 @@
+ # Copyright 2003 - 2004 Pathscale, Inc
+ # Released under the GPL
+ 
+-SUBARCH_LIBS := arch/um/sys-x86_64/
++libs-y += arch/um/sys-x86_64/
+ START := 0x60000000
+ 
++#We #undef __x86_64__ for kernelspace, not for userspace where
++#it's needed for headers to work!
+ CFLAGS += -U__$(SUBARCH)__ -fno-builtin
+-ARCH_USER_CFLAGS := -D__x86_64__
++USER_CFLAGS += -fno-builtin
+ 
+ ELF_ARCH := i386:x86-64
+ ELF_FORMAT := elf64-x86-64
+diff -puN arch/um/scripts/Makefile.unmap~uml-build-on-64bit-host arch/um/scripts/Makefile.unmap
+--- linux-2.6.git-broken/arch/um/scripts/Makefile.unmap~uml-build-on-64bit-host	2005-07-13 19:46:33.000000000 +0200
++++ linux-2.6.git-broken-paolo/arch/um/scripts/Makefile.unmap	2005-07-13 19:46:33.000000000 +0200
+@@ -12,8 +12,8 @@ $(obj)/unmap.o: _c_flags = $(call unprof
+ 
+ quiet_cmd_wrapld = LD      $@
+ define cmd_wrapld
+-	$(LD) -r -o $(obj)/unmap_tmp.o $< $(shell $(CC) -print-file-name=libc.a); \
+-	$(OBJCOPY) $(obj)/unmap_tmp.o $@ -G switcheroo
++	$(LD) $(LDFLAGS) -r -o $(obj)/unmap_tmp.o $< $(shell $(CC) $(CFLAGS) -print-file-name=libc.a); \
++	$(OBJCOPY) $(UML_OBJCOPYFLAGS) $(obj)/unmap_tmp.o $@ -G switcheroo
+ endef
+ 
+ $(obj)/unmap_fin.o : $(obj)/unmap.o FORCE
 _

@@ -1,52 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbVGMUoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbVGMTsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262791AbVGMUoO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 16:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVGMUjX
+	id S262724AbVGMTsq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 15:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbVGMTng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 16:39:23 -0400
-Received: from quechua.inka.de ([193.197.184.2]:21993 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S262794AbVGMUiK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 16:38:10 -0400
-From: "Andreas Jellinghaus [c]" <aj@dungeon.inka.de>
-Subject: Re: initramfs [u]
-To: linux-kernel@vger.kernel.org
-Mail-Copies-To: aj@dungeon.inka.de
-Date: Wed, 13 Jul 2005 22:38:26 +0200
-References: <200507131206.44537.vacant2005@o2.pl>
-MIME-Version: 1.0
+	Wed, 13 Jul 2005 15:43:36 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:22202 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262378AbVGMTmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 15:42:20 -0400
+Date: Wed, 13 Jul 2005 12:42:15 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: airlied@gmail.com, linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
+Subject: Re: OOPS in 2.6.13-rc1-mm1 -- EIP is at sysfs_release+0x49/0xb0
+Message-Id: <20050713124215.77a6a6a1.rdunlap@xenotime.net>
+In-Reply-To: <a44ae5cd05071307546d3f8f9e@mail.gmail.com>
+References: <a44ae5cd05070301417531fac2@mail.gmail.com>
+	<21d7e9970507070331107831c6@mail.gmail.com>
+	<1121055986.10029.9.camel@localhost.localdomain>
+	<21d7e99705071300173ae0c39b@mail.gmail.com>
+	<a44ae5cd05071307546d3f8f9e@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20050713203801.57A4E20E93@dungeon.inka.de>
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jacek Jab?o?ski wrote:
-> Do You know any tool to create initramfs (not initrd)?
+On Wed, 13 Jul 2005 09:54:10 -0500 Miles Lane wrote:
 
-that is very easy:
-create a directory tree with everything you want in it
-(for example ld.so, a libc, some applications and
-config files and scripts and device files and whatever)
-and then use cpio to pack the files and directories
-into a cpio archive. gzip if you want.
+> On 7/13/05, Dave Airlie <airlied@gmail.com> wrote:
+> > > Thanks Dave,
+> > >
+> > > I switched to the i915 kernel driver and still got the OOPS.
+> > > I also continue to get the overlapping mtrr message.  I am currently
+> > > testing 2.6.13-rc2-git3.  I have tried to run strace with hald, but
+> > > cannot reproduce the problem this way.  I am not sure I am invoking the
+> > > command corrently.  I have written to the hal developers, but have not
+> > > received a response yet.  Here's the current output:
+> > >
+> > 
+> > Can you try and see if you apply the patch from
+> > 
+> > http://lkml.org/lkml/2005/7/8/257
+> > 
+> > It should apply to your kernel.. I cannot get this to happen on my
+> > system... the mtrr overlaps are just vesafb setting up the mtrrs, you
+> > might try without vesafb...
+> 
+> I will try booting without vesafb enabled.
+> 
+> I get an error building with the patch applied to 2.6.13-rc2-git3:
+> 
+> arch/i386/kernel/built-in.o(.text+0x4010): In function `die':
+> arch/i386/kernel/traps.c:343: undefined reference to `last_sysfs_name'
+> make: *** [.tmp_vmlinux1] Error 1
 
-cpio has several formats, be sure to choose the right
-one. more information in 
+Miles,
+Here is an updated version of the patch that builds for me.
+(uses last_sysfs_file instead of last_sysfs_name)
 
-Documentation/early-userspace/*
+---
+~Randy
 
-btw: most people want initrd/initramfs etc. with some
-small libc (klibc, dietlibc etc.). But normal libcs
-works very fine as well. I have some initramfs that
-are build from a few dozend debian packages. the result
-is a few hundred mb big (uncompressed), but that is ok
-as I can load and boot it via network and it works
-great and has all the normal linux tools in it.
 
-also see the klibc mailing list, there have been several
-discussions about initramfs and I posted example code
-there I think. so look at the archives, too.
 
-Regards, Andreas
+Track and print last_sysfs_file on oops.
+---
+
+ arch/i386/kernel/traps.c |    6 ++++++
+ fs/sysfs/file.c          |    7 +++++++
+ 2 files changed, 13 insertions(+)
+
+diff -Naurp linux-2613-rc1-mm1/arch/i386/kernel/traps.c~last_sysfs_file linux-2613-rc1-mm1/arch/i386/kernel/traps.c
+--- linux-2613-rc1-mm1/arch/i386/kernel/traps.c~last_sysfs_file	2005-07-13 12:28:25.000000000 -0700
++++ linux-2613-rc1-mm1/arch/i386/kernel/traps.c	2005-07-13 12:38:41.000000000 -0700
+@@ -370,6 +370,12 @@ void die(const char * str, struct pt_reg
+ #endif
+ 		if (nl)
+ 			printk("\n");
++		{
++			extern char last_sysfs_file[];
++
++			printk(KERN_ALERT "last sysfs file: %s\n",
++					last_sysfs_file);
++		}
+ #ifdef CONFIG_KGDB
+ 	/* This is about the only place we want to go to kgdb even if in
+ 	 * user mode.  But we must go in via a trap so within kgdb we will
+diff -Naurp linux-2613-rc1-mm1/fs/sysfs/file.c~last_sysfs_file linux-2613-rc1-mm1/fs/sysfs/file.c
+--- linux-2613-rc1-mm1/fs/sysfs/file.c~last_sysfs_file	2005-07-13 12:13:35.000000000 -0700
++++ linux-2613-rc1-mm1/fs/sysfs/file.c	2005-07-13 12:26:26.000000000 -0700
+@@ -6,6 +6,8 @@
+ #include <linux/fsnotify.h>
+ #include <linux/kobject.h>
+ #include <linux/namei.h>
++#include <linux/limits.h>
++
+ #include <asm/uaccess.h>
+ #include <asm/semaphore.h>
+ 
+@@ -324,8 +326,13 @@ static int check_perm(struct inode * ino
+ 	return error;
+ }
+ 
++char last_sysfs_file[PATH_MAX];
++
+ static int sysfs_open_file(struct inode * inode, struct file * filp)
+ {
++	d_path(filp->f_dentry, sysfs_mount, last_sysfs_file,
++			sizeof(last_sysfs_file));
++
+ 	return check_perm(inode,filp);
+ }
+ 

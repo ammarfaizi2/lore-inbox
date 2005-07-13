@@ -1,40 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVGMFpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbVGMFrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbVGMFpL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 01:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVGMFpL
+	id S262596AbVGMFrP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 01:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVGMFrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 01:45:11 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:25638 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262592AbVGMFpJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 01:45:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=AenTMvYNvpg7bloc6R2ysDz8gF/H+o0ZOg4o9LGvO4ePFz8i0dp0ADAg1wAsTCl1OC/n2T6Xr8sssAVimEjBr7M2btLiz/RrWg4WdvL5KfH3XGNqHTXgaKSDC/2S5GMTtS5zw8E2sPLG/P64zVUy1fjp3gZsHRy2QacIzmhUKIk=
-Message-ID: <cd9967e205071222456d542c39@mail.gmail.com>
-Date: Wed, 13 Jul 2005 01:45:08 -0400
-From: Talal jaafar <talal.jaafar@gmail.com>
-Reply-To: Talal jaafar <talal.jaafar@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: SSH/RSH Support for 2.6.12-2
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 13 Jul 2005 01:47:14 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:53401 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262596AbVGMFrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 01:47:08 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: 7eggert@gmx.de, Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>,
+       sander@humilis.net, "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space
+Date: Wed, 13 Jul 2005 08:46:36 +0300
+User-Agent: KMail/1.5.4
+References: <4p851-3Tl-11@gated-at.bofh.it> <4pmUD-7gx-37@gated-at.bofh.it> <E1DsQYh-0000jo-UP@be1.lrz>
+In-Reply-To: <E1DsQYh-0000jo-UP@be1.lrz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200507130846.36128.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi All,
+On Tuesday 12 July 2005 22:36, Bodo Eggert wrote:
+> Denis Vlasenko <vda@ilport.com.ua> wrote:
+> 
+> > text with 8-char tabs:
+> > 
+> > struct s {
+> >         int n;          /* comment */
+> >         unsigned int u; /* comment */
+> > };
+> > 
+> > Same text viewed with tabs set to 4-char width:
+> > 
+> > struct s {
+> >     int n;      /* comment */
+> >     unsigned int u; /* comment */
+> > };
+> > 
+> > Comments are not aligned anymore
+> 
+> That's why you SHOULD NOT use tabs for aligning, but for indenting.
 
-    I have recently downloaded the latest stable version of 2.6.12
-(2.6.12-2) and I am trying to use either "ssh" or "rsh" to communicate
-with another machine. However, I keep getting "Permission Denied", and
-from the /var/log/message  it seems that the kernel has some security
-enabled that prevents outside communications.  Any help in regard to
-this issue would be appreciated?
+Doesn't work either: 8-char tabs:
 
-Thanks,
+		int i;  /* comment */
+	};
+	int j;          /* comment */
 
- Talal
+4-char tabs:
+
+	int i;  /* comment */
+    };
+    int j;          /* comment */
+
+So we can either ban tabs altogether (unlikely) or agree
+that pi is ~= 3.1415926535897932384626433832795028841971693993751058209749
+and tab is strictly 8 chars.
+--
+vda
+

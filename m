@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVGMVBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbVGMTdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbVGMVBf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 17:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVGMU7P
+	id S262646AbVGMTdl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 15:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262607AbVGMTKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 16:59:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61895 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262713AbVGMTrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 15:47:49 -0400
-Subject: Re: 2.6.13-rc2-mm2 -- include/linux/mtd/xip.h:68:25: error:
-	asm/mtd-xip.h: No such file or directory
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: tglx@linutronix.de, Miles Lane <miles.lane@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050713123434.3f607f0a.akpm@osdl.org>
-References: <a44ae5cd05071308224b39aad5@mail.gmail.com>
-	 <20050713123434.3f607f0a.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 13 Jul 2005 20:46:25 +0100
-Message-Id: <1121283986.12224.66.camel@localhost.localdomain>
+	Wed, 13 Jul 2005 15:10:42 -0400
+Received: from mx.wurtel.net ([195.64.88.114]:50958 "EHLO mx.wurtel.net")
+	by vger.kernel.org with ESMTP id S262576AbVGMTKd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 15:10:33 -0400
+Date: Wed, 13 Jul 2005 21:10:13 +0200
+From: Paul Slootman <paul+nospam@wurtel.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Hdaps-devel] Re: Updating hard disk firmware & parking hard disk
+Message-ID: <20050713191013.GA16799@wurtel.net>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050707171434.90546.qmail@web32604.mail.mud.yahoo.com> <Pine.LNX.4.61.0507131208540.14635@yvahk01.tjqt.qr> <42D4EB21.1060305@grimmer.com> <Pine.LNX.4.61.0507131259480.14635@yvahk01.tjqt.qr> <db33tn$bq5$1@news.cistron.nl> <42D56759.5090301@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42D56759.5090301@tmr.com>
+User-Agent: Mutt/1.5.6i
+X-Scanner: exiscan *1DsmcY-0006ay-00*s7UvoT5FhYA*Wurtel
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-13 at 12:34 -0700, Andrew Morton wrote:
-> I assume MTD_CFI should depend on ARM?
+On Wed 13 Jul 2005, Bill Davidsen wrote:
+> Paul Slootman wrote:
+> >Jan Engelhardt  <jengelh@linux01.gwdg.de> wrote:
+> >
+> >>What's the gain in parking the head manually if it's done anyway when the 
+> >>disk spins down (for whatever reason)?
+> >
+> >
+> >It seems you're completely missing the whole point of this discussion,
+> >which was how to implement the hard disk active protection system that
+> >IBM offers under windows for its laptops, that will park the disk when
+> >it detects that e.g. the laptop is falling off a table.
+> 
+> Does that imply that we have software to detect falling off a table?
 
-I believe it already does, in the git tree. Thomas asked Linus to pull
-from that only about an hour ago.
+Progress is indeed being made, according to what I've been reading on
+l-k.
 
--- 
-dwmw2
 
+Paul Slootman

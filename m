@@ -1,102 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVGMNiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVGMNru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262643AbVGMNiW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 09:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbVGMNiW
+	id S262638AbVGMNru (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 09:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVGMNru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 09:38:22 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:9132 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262643AbVGMNiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 09:38:16 -0400
-Subject: [PATCH] fix subarchitecture EXPORT_SYMBOL breakage caused by
-	i386_ksym reduction
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 13 Jul 2005 09:38:05 -0400
-Message-Id: <1121261886.5049.7.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Jul 2005 09:47:50 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:57507 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S262638AbVGMNre
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 09:47:34 -0400
+Date: Wed, 13 Jul 2005 15:47:30 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Vara Prasad <prasadav@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       akpm@osdl.org
+Subject: Re: Merging relayfs?
+In-Reply-To: <42D498AF.5070401@us.ibm.com>
+Message-ID: <Pine.BSO.4.62.0507131440480.6919@rudy.mif.pg.gda.pl>
+References: <17107.6290.734560.231978@tut.ibm.com>
+ <Pine.BSO.4.62.0507121544450.6919@rudy.mif.pg.gda.pl> <17107.57046.817407.562018@tut.ibm.com>
+ <Pine.BSO.4.62.0507121731290.6919@rudy.mif.pg.gda.pl> <17107.61271.924455.965538@tut.ibm.com>
+ <Pine.BSO.4.62.0507121840260.6919@rudy.mif.pg.gda.pl> <42D498AF.5070401@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-2053870955-1121262011=:6919"
+Content-ID: <Pine.BSO.4.62.0507131540430.6919@rudy.mif.pg.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-[PATCH] Remove i386_ksyms.c, almost
+--0-2053870955-1121262011=:6919
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-2; FORMAT=flowed
+Content-Transfer-Encoding: 8BIT
+Content-ID: <Pine.BSO.4.62.0507131540431.6919@rudy.mif.pg.gda.pl>
 
-made files like smp.c do their own EXPORT_SYMBOLS.  This means that all
-subarchitectures that override these symbols now have to do the exports
-themselves.  This patch adds the exports for voyager (which is the most
-affected since it has a separate smp harness).  However, someone should
-audit all the other subarchitectures to see if any others got broken.
+On Tue, 12 Jul 2005, Vara Prasad wrote:
+[..]
+> O.K, Tomasz your point is we can do aggregation in the kernel and cut down 
+> the amount of data that needs to be sent out from the kernel hence we don't 
+> need an efficient, low overhead mechanism like relayfs to get the data out of 
+> the kernel. Having relayfs doesn't prevent someone in aggregating the data in 
+> the kernel, so it is not an argument for not including relayfs in the kernel 
+> when it fills the need for those who needs raw data.
 
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+Of course you are right and (look again) this is what I told in first mail 
+in this thread :)
 
-diff --git a/arch/i386/mach-voyager/voyager_basic.c b/arch/i386/mach-voyager/voyager_basic.c
---- a/arch/i386/mach-voyager/voyager_basic.c
-+++ b/arch/i386/mach-voyager/voyager_basic.c
-@@ -36,6 +36,7 @@
-  * Power off function, if any
-  */
- void (*pm_power_off)(void);
-+EXPORT_SYMBOL(pm_power_off);
- 
- int voyager_level = 0;
- 
-diff --git a/arch/i386/mach-voyager/voyager_smp.c b/arch/i386/mach-voyager/voyager_smp.c
---- a/arch/i386/mach-voyager/voyager_smp.c
-+++ b/arch/i386/mach-voyager/voyager_smp.c
-@@ -10,6 +10,7 @@
-  * the voyager hal to provide the functionality
-  */
- #include <linux/config.h>
-+#include <linux/module.h>
- #include <linux/mm.h>
- #include <linux/kernel_stat.h>
- #include <linux/delay.h>
-@@ -40,6 +41,7 @@ static unsigned long cpu_irq_affinity[NR
- /* per CPU data structure (for /proc/cpuinfo et al), visible externally
-  * indexed physically */
- struct cpuinfo_x86 cpu_data[NR_CPUS] __cacheline_aligned;
-+EXPORT_SYMBOL(cpu_data);
- 
- /* physical ID of the CPU used to boot the system */
- unsigned char boot_cpu_id;
-@@ -72,6 +74,7 @@ static volatile unsigned long smp_invali
- /* Bitmask of currently online CPUs - used by setup.c for
-    /proc/cpuinfo, visible externally but still physical */
- cpumask_t cpu_online_map = CPU_MASK_NONE;
-+EXPORT_SYMBOL(cpu_online_map);
- 
- /* Bitmask of CPUs present in the system - exported by i386_syms.c, used
-  * by scheduler but indexed physically */
-@@ -238,6 +241,7 @@ static cpumask_t smp_commenced_mask = CP
- /* This is for the new dynamic CPU boot code */
- cpumask_t cpu_callin_map = CPU_MASK_NONE;
- cpumask_t cpu_callout_map = CPU_MASK_NONE;
-+EXPORT_SYMBOL(cpu_callout_map);
- 
- /* The per processor IRQ masks (these are usually kept in sync) */
- static __u16 vic_irq_mask[NR_CPUS] __cacheline_aligned;
-@@ -978,6 +982,7 @@ void flush_tlb_page(struct vm_area_struc
- 
- 	preempt_enable();
- }
-+EXPORT_SYMBOL(flush_tlb_page);
- 
- /* enable the requested IRQs */
- static void
-@@ -1109,6 +1114,7 @@ smp_call_function (void (*func) (void *i
- 
- 	return 0;
- }
-+EXPORT_SYMBOL(smp_call_function);
- 
- /* Sorry about the name.  In an APIC based system, the APICs
-  * themselves are programmed to send a timer interrupt.  This is used
+> I am part of a team working on systemtap where we are are developing a tool
+> similar to Dtrace that does some aggregation where appropriate but nothing 
+> like fancy statistics etc. We use relayfs in our systemtap project and  based 
+> on my reading of Dtrace paper they use exactly similar to relayfs buffering 
+> mechanism as well.
 
+If I can suggest something about order prepare some feactures:
 
+1) prepare base infrastructure for counters,
+
+this "tool" will take very small amount of data and can be performad
+by very small pieces of binary codes. Even this will allow perform some
+*very* interesting experinments on existing kernel code.
+And after above:
+
+2) prepare base infrastructure for association tables of couters (for
+    collecting data for example about I/O operations or other two or more
+    arguments operations),
+3) prepare user space tool with some kind of language which will allow
+    hanging ptrobes with aboove tho (simple counters and association tables
+    of couters)
+4) base functions for measure time (with KProbes overhead and without) and
+    store them in couters and association tables,
+
+All above base "tools" for above will take small or medium amount of data 
+and can be performad small or medium pieces of binary codes. And after 
+above:
+
+5) prepare infrastrucrute for probes which will store data in diffrent
+    containers depending on initiator process and/or thread (and maybe in
+    next etap also will be good have something more common which will
+    depend on stack path),
+6) prepare base functions for tracing stack paths (counting them and store
+    in association tables),
+7) make some kind of study where is it will be good compute something
+    more complicated like base "speculative probes" (lookin on
+    working DTrace probably answer in this point will be "yes").
+
+All to this moment will not require relayfs because amount of transfered
+data will be _very low_.
+Details of above will be probably different (I have only some very 
+common knowledge about DTrace implementations details and some avarange 
+about using dtrace tool) but I want count/pint *only* feactutres which 
+will not require using relayfs.
+
+And *after finish above* will be much easier perform some kind of study 
+about "is relayfs is still neccessary ?" and *if* answer will be still 
+"YES" try to integrate neccessary patches (or maybe something other .. 
+maybe better adjusted to all non-above cases). Also add something like 
+relayfs at this moment _will not require_ changes in existing code (if 
+will require changes will be very small but maybe will ollow reduce 
+existin now relayfs (?)).
+
+But if you will build all infrastructure even for simple couters on 
+relayfs fundament it will be (IMO) badly/incorrectly designed .. and using
+even simple couters will introduce to high overhead for system.
+
+*NOT using realyfs* if it is not neccessary for possibly big amout 
+of feactures future KProbes IMO in this case is *fundamental*.
+
+To time where this base not requiring relayfs feactures will not be
+integrated in kernel code better IMO will be stop merging relayfs.
+
+> There are tools like itrace and Intel has one (i forgot the name) they would 
+> like to get the raw data into user space and do all kinds of  fancy 
+> statistical analysis, visualization etc. Their value add is the analysis of 
+> the data. I am sure you are not suggesting pushing capabilities of those 
+> tools to the kernel, right.
+
+I don't know any thing about this tool (can you sent URL?) but please ..
+dont't be fool and do not try as first prepare something eye candy :)
+Rest this area for other developers and focus on fundaments :)
+
+regards
+
+kloczek
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-2053870955-1121262011=:6919--

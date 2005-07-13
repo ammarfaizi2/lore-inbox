@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbVGMSIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbVGMSJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261995AbVGMSIw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 14:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVGMSFO
+	id S262152AbVGMSJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 14:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVGMSI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:05:14 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:7854 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S261318AbVGMSDc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:03:32 -0400
-Subject: Re: serial: 8250 fails to detect Exar XR16L2551 correctly
-From: Alex Williamson <alex.williamson@hp.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: David Vrabel <dvrabel@arcom.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1121274296.4334.58.camel@tdi>
-References: <42CA96FC.9000708@arcom.com>
-	 <20050706195740.A28758@flint.arm.linux.org.uk> <42CD2C16.1070308@arcom.com>
-	 <1121108408.28557.71.camel@tdi>
-	 <20050711204646.D1540@flint.arm.linux.org.uk>
-	 <1121112057.28557.91.camel@tdi>
-	 <20050711211706.E1540@flint.arm.linux.org.uk>
-	 <1121116677.28557.104.camel@tdi>  <1121274296.4334.58.camel@tdi>
+	Wed, 13 Jul 2005 14:08:58 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:59321 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262152AbVGMSFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 14:05:49 -0400
+Subject: Re: Linux v2.6.13-rc3
+From: Lee Revell <rlrevell@joe-job.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0507131045530.17536@g5.osdl.org>
+References: <Pine.LNX.4.58.0507122157070.17536@g5.osdl.org>
+	 <1121275893.4435.47.camel@mindpipe>
+	 <Pine.LNX.4.58.0507131045530.17536@g5.osdl.org>
 Content-Type: text/plain
-Organization: LOSL
-Date: Wed, 13 Jul 2005 12:03:49 -0600
-Message-Id: <1121277829.4334.76.camel@tdi>
+Date: Wed, 13 Jul 2005 14:05:48 -0400
+Message-Id: <1121277948.4435.57.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-13 at 11:04 -0600, Alex Williamson wrote:
-> Just trying to make sure that there's not a latent bug that we enable
-> a bad sleep mode when the UART is being used for the console.
+On Wed, 2005-07-13 at 10:51 -0700, Linus Torvalds wrote:
+> 
+> On Wed, 13 Jul 2005, Lee Revell wrote:
+> 
+> > On Tue, 2005-07-12 at 22:05 -0700, Linus Torvalds wrote:
+> > > I think the shortlog speaks for itself.
+> > 
+> > HZ still defaults to 250.  As was explained in another thread, this will
+> > break apps like MIDI sequencers and won't really save much battery
+> > power.
+> 
+> Stop bothering with this, I've seen the thread, and no, I disagree totally 
+> with "as explained in another thread". That's simply not true.
+> 
+> The only thing that is true is that 100Hz is too low for some use, and 
+> 1000Hz is too high for some uses. NOBODY has shown that 250Hz isn't good 
+> enough, there's only been people whining and complaining and saying it 
+> might not be.
 
-   Yes, this is the problem.  When a UART is specified as the console
-using "console=uart,...", the console index is not initialized.  This
-causes the uart_console() check to mis-identify the port and we enable
-sleep mode when we don't intend to do so.  Not sure how to fix it yet,
-but I assume we need to go back through after the serial ports are
-enumerated, and un-suspend the console port.  David, would you mind
-trying this on the XR16L255x part? (ie. don't use console=ttyS, use
-console=uart,...)  Thanks,
+OK, point taken, I'm done with this issue as far as LKML is concerned.
+Anyone who wants to discuss this further can come over to the
+linux-audio-dev list.
 
-	Alex
--- 
-Alex Williamson                             HP Linux & Open Source Lab
+Lee
 

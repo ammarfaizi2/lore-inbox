@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVGMSkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbVGMSkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbVGMSkW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 14:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVGMSiC
+	id S262239AbVGMSkV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 14:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVGMSiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:38:02 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:64698 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S262222AbVGMShy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:37:54 -0400
-Date: Wed, 13 Jul 2005 20:38:04 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Thomas Sailer <sailer@sailer.dynip.lugs.ch>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: Synaptics probe problem on Acer Travelmate 3004WTMi
-Message-ID: <20050713183804.GA2072@ucw.cz>
-References: <1121275408.3583.35.camel@playstation2.hb9jnx.ampr.org> <d120d500050713103222aa9c91@mail.gmail.com>
+	Wed, 13 Jul 2005 14:38:08 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:19106 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262239AbVGMSgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 14:36:32 -0400
+Date: Wed, 13 Jul 2005 11:36:24 -0700
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rajesh Shah <rajesh.shah@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Use read_timer_tsc only when CPU has TSC
+Message-ID: <20050713113624.A18452@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d500050713103222aa9c91@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 12:32:27PM -0500, Dmitry Torokhov wrote:
-> On 7/13/05, Thomas Sailer <sailer@sailer.dynip.lugs.ch> wrote:
-> > Hi Vojtech,
-> > 
-> > I've got a problem with my Acer Travelmate 3004WTMi Laptop: vanilla 2.6
-> > does not detect the synaptics touchpad.
-> > 
-> > The problem lies within psmouse_probe: after the PSMOUSE_CMD_GETID
-> > command, param[0] contains 0xfa, and not one of the expected values. If
-> > I just ignore this and continue, the synaptics pad is detected and
-> > everything works ok.
-> > 
-> 
-> Hi,
-> 
-> Could you please provide us with debug dmesg - just boot with
-> i8042.debug on kernel command line.
- 
-Also try the usual options ("i8042.nomux=1" and "usb-handoff"). One or
-both may make the problem disappear.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+
+Only use read_timer_tsc only when CPU has TSC. Thanks to Andrea for 
+pointing this out. Should not be issue on any platforms as all
+recent systems that has HPET also has CPUs that supports TSC. The patch is
+still required for correctness.
+
+Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+
+diff -purN  linux-2.6.13-rc1/arch/i386/kernel/timers/timer_hpet.c.org linux-2.6.13-rc1/arch/i386/kernel/timers/timer_hpet.c
+--- linux-2.6.13-rc1/arch/i386/kernel/timers/timer_hpet.c.org	2005-07-13 08:12:11.846794648 -0700
++++ linux-2.6.13-rc1/arch/i386/kernel/timers/timer_hpet.c	2005-07-13 08:17:25.055179736 -0700
+@@ -136,6 +136,8 @@ static void delay_hpet(unsigned long loo
+ 	} while ((hpet_end - hpet_start) < (loops));
+ }
+ 
++static struct timer_opts timer_hpet;
++
+ static int __init init_hpet(char* override)
+ {
+ 	unsigned long result, remain;
+@@ -163,6 +165,8 @@ static int __init init_hpet(char* overri
+ 			}
+ 			set_cyc2ns_scale(cpu_khz/1000);
+ 		}
++		/* set this only when cpu_has_tsc */
++		timer_hpet.read_timer = read_timer_tsc;
+ 	}
+ 
+ 	/*
+@@ -186,7 +190,6 @@ static struct timer_opts timer_hpet = {
+ 	.get_offset =		get_offset_hpet,
+ 	.monotonic_clock =	monotonic_clock_hpet,
+ 	.delay = 		delay_hpet,
+-	.read_timer = 		read_timer_tsc,
+ };
+ 
+ struct init_timer_opts __initdata timer_hpet_init = {

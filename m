@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbVGMS6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVGMS4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbVGMS6x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 14:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVGMS6k
+	id S262304AbVGMS4h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 14:56:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbVGMSyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 14:58:40 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:50586 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262417AbVGMS6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 14:58:11 -0400
-Date: Wed, 13 Jul 2005 11:58:05 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: roms@tilp.info, linux-kernel@vger.kernel.org
-Subject: Re: dependency bug in gconfig?
-Message-Id: <20050713115805.3d613c1e.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.61.0507131353090.3728@scrub.home>
-References: <20050712214647.447fdaf0.rdunlap@xenotime.net>
-	<Pine.LNX.4.61.0507131353090.3728@scrub.home>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 13 Jul 2005 14:54:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21175 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262397AbVGMSxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 14:53:18 -0400
+Date: Wed, 13 Jul 2005 11:53:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>, Len Brown <len.brown@intel.com>
+cc: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux v2.6.13-rc3
+In-Reply-To: <200507131259.04855.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.58.0507131145310.17536@g5.osdl.org>
+References: <Pine.LNX.4.58.0507122157070.17536@g5.osdl.org>
+ <200507131259.04855.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jul 2005 13:54:56 +0200 (CEST) Roman Zippel wrote:
 
+Len, ACPI people - can we fix this regression, please?
+
+Rafael even pinpoints exactly which patches are causing the problem, so 
+why didn't they get reverted before sending them off to me?
+
+Grumble. I don't like being sent known-bad patches when we're trying to 
+calm things down.
+
+		Linus
+
+
+On Wed, 13 Jul 2005, Rafael J. Wysocki wrote:
+>
 > Hi,
 > 
-> On Tue, 12 Jul 2005, randy_dunlap wrote:
+> On Wednesday, 13 of July 2005 07:05, Linus Torvalds wrote:
+> > 
+> > Yes,
+> >  it's _really_ -rc3 this time, never mind the confusion with the commit 
+> > message last time (when the Makefile clearly said -rc2, but my over-eager 
+> > fingers had typed in a commit message saying -rc3).
+> > 
+> > There's a bit more changes here than I would like, but I'm putting my foot 
+> > down now. Not only are a lot of people going to be gone next week for LKS 
+> > and OLS, but we've gotten enough stuff for 2.6.13, and we need to calm 
+> > down.
 > 
-> > This appears to be a dependency bug in gconfig to me.
-> > 
-> > If I enable NETCONSOLE to y, NETPOLL becomes y.  (OK)
-> > If I then disable NETCONSOLE to n, NETPOLL remains y.
-> > 
-> > If I enable NETCONSOLE to m, NETPOLL remains n.  Why is that?
-> > 
-> > config NETPOLL
-> > 	def_bool NETCONSOLE
-> > 
-> > Should this cause NETCONSOLE to track NETPOLL?
+> FYI, on my box (Asus L5D, Athlon 64 + nForce3, 64-bit kernel) there are two
+> regressions wrt -rc2 related to ACPI.  First, the battery monitor does not work
+> (http://bugzilla.kernel.org/show_bug.cgi?id=4665)
+> and second, the box hangs solid during resume from disk if IO-APIC is not used
+> (http://bugzilla.kernel.org/show_bug.cgi?id=4416).
 > 
-> It should (although it doesn't show it immediately).
-> Did you compare the saved config files?
-
-If I disable NETCONSOLE but NETPOLL is still presented as enabled,
-and then save and exit gconfig, both NETCONOLE and NETPOLL are
-disabled in the .config file, as it should be, so it appears (to me)
-to just be a presentation problem in gconfig.
-
----
-~Randy
+> The problems have been known for quite some time and remain unresolved,
+> but apparently they have made it to mainline nevertheless.  I understand
+> nobody else has reported them, but I also know of some people who run
+> Linux on the same hardware and 2.6.13 will not work for them if these
+> issues are present in it.
+> 
+> Greets,
+> Rafael
+> 
+> 
+> -- 
+> - Would you tell me, please, which way I ought to go from here?
+> - That depends a good deal on where you want to get to.
+> 		-- Lewis Carroll "Alice's Adventures in Wonderland"
+> 

@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVGMUbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbVGMU25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262749AbVGMUbp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 16:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262780AbVGMU3C
+	id S262755AbVGMU25 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 16:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVGMU1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 16:29:02 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:2311 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S262758AbVGMU10 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 16:27:26 -0400
-Date: Wed, 13 Jul 2005 13:35:54 -0700
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, dipankar@in.ibm.com,
-       rostedt@goodmis.org, shemminger@osdl.org, rusty@au1.ibm.com
-Subject: Re: [RFC] RCU and CONFIG_PREEMPT_RT progress, part 3
-Message-ID: <20050713203554.GB27292@nietzsche.lynx.com>
-References: <20050713184800.GA1983@us.ibm.com>
+	Wed, 13 Jul 2005 16:27:05 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:17105 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262758AbVGMUYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 16:24:24 -0400
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+From: Lee Revell <rlrevell@joe-job.com>
+To: dtor_core@ameritech.net
+Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       David Lang <david.lang@digitalinsight.com>,
+       Bill Davidsen <davidsen@tmr.com>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Diego Calleja <diegocg@gmail.com>, azarah@nosferatu.za.org,
+       akpm@osdl.org, cw@f00f.org, christoph@lameter.com
+In-Reply-To: <d120d50005071312322b5d4bff@mail.gmail.com>
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	 <200507122239.03559.kernel@kolivas.org>
+	 <200507122253.03212.kernel@kolivas.org> <42D3E852.5060704@mvista.com>
+	 <20050712162740.GA8938@ucw.cz> <42D540C2.9060201@tmr.com>
+	 <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
+	 <20050713184227.GB2072@ucw.cz>
+	 <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org>
+	 <1121282025.4435.70.camel@mindpipe>
+	 <d120d50005071312322b5d4bff@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 13 Jul 2005 16:24:18 -0400
+Message-Id: <1121286258.4435.98.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050713184800.GA1983@us.ibm.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 11:48:01AM -0700, Paul E. McKenney wrote:
-> 1.	Is use of spin_trylock() and spin_unlock() in hardirq code
-> 	(e.g., rcu_check_callbacks() and callees) a Bad Thing?
-> 	Seems to result in boot-time hangs when I try it, and switching
-> 	to _raw_spin_trylock() and _raw_spin_unlock() seems to work
-> 	better.  But I don't see why the other primitives hang --
-> 	after all, you can call wakeup functions in irq context in
-> 	stock kernels...
+On Wed, 2005-07-13 at 14:32 -0500, Dmitry Torokhov wrote:
+> Hi,
+> 
+> On 7/13/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> > On Wed, 2005-07-13 at 12:10 -0700, Linus Torvalds wrote:
+> > > So we should aim for a HZ value that makes it easy to convert to and from
+> > > the standard user-space interface formats. 100Hz, 250Hz and 1000Hz are all
+> > > good values for that reason. 864 is not.
+> > 
+> > How about 500?  This might be good enough to solve the MIDI problem.
+> >
+> 
+> I would expect number of laptop users significatly outnumber ones
+> driving MIDI so as a default entry 250 makes more sense IMHO.
+>  
 
-The implementation of "printk" does funky stuff like this so I'm assuming it's
-sort of acceptable.
+Alan tested it and said that 250HZ does not save much power anyway.
 
-Some of those function bypass latency tracing and preemption violation checks.
-Don't see a reason why you should be touching those functions unless you're
-going to modify implementation of spinlocks directly. Just use
-spinlock_t/raw_spinlock_t to take advantage of the type parametrics in Ingo's
-spinlock code to determine which lock you're using and you should be fine.
-
-bill
+Lee
 

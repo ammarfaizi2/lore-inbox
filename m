@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbVGMGxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262548AbVGMG6y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262535AbVGMGxy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 02:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVGMGxy
+	id S262548AbVGMG6y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 02:58:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbVGMG6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 02:53:54 -0400
-Received: from ns2.suse.de ([195.135.220.15]:62611 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262535AbVGMGxx (ORCPT
+	Wed, 13 Jul 2005 02:58:54 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:31930 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262548AbVGMG6x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 02:53:53 -0400
-Date: Wed, 13 Jul 2005 08:53:51 +0200
-From: Olaf Hering <olh@suse.de>
-To: Talal jaafar <talal.jaafar@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SSH/RSH Support for 2.6.12-2
-Message-ID: <20050713065351.GA11745@suse.de>
-Reply-To: linux-kernel@vger.kernel.org
-References: <cd9967e205071222456d542c39@mail.gmail.com>
+	Wed, 13 Jul 2005 02:58:53 -0400
+Date: Tue, 12 Jul 2005 23:58:04 -0700
+From: Paul Jackson <pj@sgi.com>
+To: linux-os@analogic.com
+Cc: kaber@trash.net, vda@ilport.com.ua, sander@humilis.net, mst@mellanox.co.il,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space
+Message-Id: <20050712235804.0b994a78.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.61.0507120809200.2712@chaos.analogic.com>
+References: <20050711145616.GA22936@mellanox.co.il>
+	<20050711153447.GA19848@favonius>
+	<200507120952.04279.vda@ilport.com.ua>
+	<42D3AFA1.2090203@trash.net>
+	<Pine.LNX.4.61.0507120809200.2712@chaos.analogic.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.6.4; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <cd9967e205071222456d542c39@mail.gmail.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Jul 13, Talal jaafar wrote:
+Dick Johnson wrote:
+> Or just disallow tabs altogether. At Analogic we ...
 
-> hi All,
-> 
->     I have recently downloaded the latest stable version of 2.6.12
-> (2.6.12-2) and I am trying to use either "ssh" or "rsh" to communicate
-> with another machine. However, I keep getting "Permission Denied", and
-> from the /var/log/message  it seems that the kernel has some security
-> enabled that prevents outside communications.  Any help in regard to
-> this issue would be appreciated?
+This is the Linux kernel, not Analogic.
 
-update udev package or give more details about your setup.
+We use tabs for indentation.  You can set the number
+of physical spaces per tab however you want in your
+editor, but it had better look good (and stay within
+80 columns) when the rest of us use 8 spaces per tab.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

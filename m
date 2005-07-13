@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVGMK56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbVGMLOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbVGMK56 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 06:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbVGMK55
+	id S262620AbVGMLOb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 07:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVGMLNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 06:57:57 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:56248 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262581AbVGMK4K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 06:56:10 -0400
-Date: Wed, 13 Jul 2005 16:26:03 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Bharata B Rao <bharata@in.ibm.com>
-Cc: "Moore, Eric Dean" <Eric.Moore@lsil.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Wade, Roy" <Roy.Wade@lsil.com>, fastboot@lists.osdl.org
-Subject: Re: [BUG] Fusion MPT Base Driver initialization failure with kdum p
-Message-ID: <20050713105603.GC29375@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <91888D455306F94EBD4D168954A9457C030A9D9C@nacos172.co.lsil.com> <1121250903.10622.28.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121250903.10622.28.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 13 Jul 2005 07:13:43 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:48332 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262687AbVGMLCk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 07:02:40 -0400
+Date: Wed, 13 Jul 2005 13:02:25 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Lenz Grimmer <lenz@grimmer.com>
+cc: Gijs Hillenius <gijs@hillenius.net>, Frank Sorenson <frank@tuxrocks.com>,
+       hdaps-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Hdaps-devel] Re: Updating hard disk firmware & parking hard
+ disk
+In-Reply-To: <42D4EB21.1060305@grimmer.com>
+Message-ID: <Pine.LNX.4.61.0507131259480.14635@yvahk01.tjqt.qr>
+References: <20050707171434.90546.qmail@web32604.mail.mud.yahoo.com>
+ <42CD7E0C.3060101@tuxrocks.com> <878y0bozf8.fsf@hillenius.net>
+ <Pine.LNX.4.61.0507131208540.14635@yvahk01.tjqt.qr> <42D4EB21.1060305@grimmer.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 04:05:03PM +0530, Bharata B Rao wrote:
-> On Tue, 2005-07-12 at 12:15 -0600, Moore, Eric Dean wrote:
-> > I've seen the report. I need more info from Bharata on how
-> > to reproduce. Perhaps you can send me email offline which
-> > provides specific instructions to how to configure kdump,
-> > how to capture the dump, and what you did to crash your system.
-> 
-> This is how I could reproduce this bug:
-> (http://bugzilla.kernel.org/show_bug.cgi?id=4870)
-> 
-> - Configure the 1st kernel to take a kdump and run 4 instances of LTP on
-> it (I used `runltp -p -l logfile -t 12h -x 4)
-> - After a few hours, the 1st kernel crashes which results in the booting
-> of the 2nd kernel (the kernel which captures kdump). While this is
-> booting, mptbase driver fails during initialization leading to the panic
-> of the 2nd kernel.
 
-I had also faced this problem and I had simply used Alt-Sysrq-c to force
-kexec on panic. As mentioned in the report below the problem goes away
-if mpt driver is compiled with MPT_DEBUG_IRQ support. 
+>> Head parking while the system running is almost useless, since sooner or 
+>> later, someone's going to write/read something.
+>
+>Correct, that's why we're discussing to freeze the request queue as well.
 
-In kdump environment, device might not be in a reset state while driver is
-initializing in second kernel. Hence we probably need two things from the 
-driver to be able to successfully initialize over kdump.
+Sounds good (esp. for laptops/notebooks, which should preferably run "on RAM" 
+as long as possible)
 
-- Reset the underlying device before enabling the interrupts.
-- In interrupt handler, make sure the interrupt belongs to the driver 
-  before processing it further.  (Shared interrupt lines) 
+>But it suffers from the same fate - as soon as the disk receives a new
+>request, it will spin up again.
 
-Thanks
-Vivek
+In case of the SUSE bootscripts (and possibly others), some flush barriers are 
+engaged, then the disk is spun down and immediately after the poweroff 
+happens.
+
+>So there is no gain, except that just
+>parking the head without spinning down the spindle can be performed much
+>faster.
+
+What's the gain in parking the head manually if it's done anyway when the disk 
+spins down (for whatever reason)?
+
+
+
+Jan Engelhardt
+-- 

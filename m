@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262973AbVGNKD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262976AbVGNKF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262973AbVGNKD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 06:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbVGNKD5
+	id S262976AbVGNKF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 06:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbVGNKF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 06:03:57 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:49344 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262973AbVGNKD4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 06:03:56 -0400
-Date: Thu, 14 Jul 2005 12:03:35 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Egry =?ISO-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>
-cc: Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       Massimo Maiurana <maiurana@inwind.it>,
+	Thu, 14 Jul 2005 06:05:29 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:61961 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262976AbVGNKEK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 06:04:10 -0400
+Date: Thu, 14 Jul 2005 11:04:13 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       David Lang <david.lang@digitalinsight.com>,
+       Bill Davidsen <davidsen@tmr.com>, Con Kolivas <kernel@kolivas.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       KernelFR <kernelfr@traduc.org>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Subject: Re: [PATCH 0/19] Kconfig I18N completion
-In-Reply-To: <1121280104.2975.84.camel@spirit>
-Message-ID: <Pine.LNX.4.61.0507141200190.18072@yvahk01.tjqt.qr>
-References: <1121273456.2975.3.camel@spirit>  <Pine.LNX.4.58.0507131038560.17536@g5.osdl.org>
-  <1121277818.2975.68.camel@spirit>  <20050713201147.GA23746@mars.ravnborg.org>
- <1121280104.2975.84.camel@spirit>
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Lee Revell <rlrevell@joe-job.com>, Diego Calleja <diegocg@gmail.com>,
+       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
+       christoph@lameter.com
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+In-Reply-To: <20050713195349.GE26172@kvack.org>
+Message-ID: <Pine.LNX.4.61L.0507141058030.31857@blysk.ds.pg.gda.pl>
+References: <200507122239.03559.kernel@kolivas.org> <200507122253.03212.kernel@kolivas.org>
+ <42D3E852.5060704@mvista.com> <20050712162740.GA8938@ucw.cz> <42D540C2.9060201@tmr.com>
+ <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz> <20050713184227.GB2072@ucw.cz>
+ <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org> <20050713193540.GD26172@kvack.org>
+ <20050713194115.GA2272@ucw.cz> <20050713195349.GE26172@kvack.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Patch 19/19 contains a .po file.
->
->Yes, the patch 19/19 contains the translation of configuration...
->I see Linus doesn't want the huge language files in kernel source.
->But what is Linus opinion about this little .po file?
+On Wed, 13 Jul 2005, Benjamin LaHaise wrote:
 
-What is little? Given that there's 'roughly' 119 languages (find 
-/usr/share/locale -type d -maxdepth 1 | wc -l), you'd surely reconsider if 
-adding 119 23KB files, if it was considered "small".
+> That's one thing I truely dislike about the current timer code.  If we 
+> could program the RTC interrupt to come into the system as an NMI (iirc 
+> oprofile already has code to do this), we could get much better TSC 
+> interpolation since we would be sampling the TSC at a much smaller, less 
+> variable offset, which can only be a good thing.
 
-As I perceive it, the policy is: no PO files in mainline at all. I'm fine with 
-that.
+ And we'd get a lot more crashes on broken systems that do not handle NMIs 
+in the SMM -- this is the very reason the NMI watchdog is disabled these 
+days by default.  A whole lot of systems simply cannot handle NMIs 
+happening randomly.
 
-Keeping the translations in sync with the mainline Kconfig help texts/etc. is 
-also not an easy task unless you got a lot of time to spare.
+ Programming an I/O APIC to deliver the RTC interrupt (or any other that's 
+edge-triggered) as an NMI is itself trivial (we can do this for the PIT 
+for the NMI watchdog already).
 
-
-Jan Engelhardt
--- 
+  Maciej

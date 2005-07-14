@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVGNNuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbVGNNvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVGNNuu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 09:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbVGNNut
+	id S263019AbVGNNvy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 09:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbVGNNvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 09:50:49 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:40659 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261396AbVGNNur convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 09:50:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kNJ2AwyGlG338hbwHhQmymMYQqriCfC5aq1muszLzz6aJdTNDMPb592M/mJeQC8vv2A0r912c3th9j7jJDVlnMDwDeG2u3Pzg1lhHyEERyXRYQBIjdRUeuC2A5qzJs0Kel1IMucEgG6p6wA7OyeyPgm0BGOTmTYbOEa0rmwq1H8=
-Message-ID: <60868aed050714065047e3aaec@mail.gmail.com>
-Date: Thu, 14 Jul 2005 16:50:01 +0300
-From: Yura Pakhuchiy <pakhuchiy@gmail.com>
-Reply-To: Yura Pakhuchiy <pakhuchiy@gmail.com>
-To: Nathan Scott <nathans@sgi.com>
-Subject: Re: XFS corruption on move from xscale to i686
-Cc: linux-xfs@oss.sgi.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, tibor@altlinux.ru, pakhuchiy@iptel.by
-In-Reply-To: <20050714012048.GB937@frodo>
+	Thu, 14 Jul 2005 09:51:54 -0400
+Received: from host.atlantavirtual.com ([209.239.35.47]:711 "EHLO
+	host.atlantavirtual.com") by vger.kernel.org with ESMTP
+	id S263019AbVGNNvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 09:51:17 -0400
+Subject: Re: fdisk: What do plus signs after "Blocks" mean?
+From: kernel <kernel@crazytrain.com>
+Reply-To: kernel@crazytrain.com
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Konstantin Kudin <konstantin_kudin@yahoo.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, lkml@dervishd.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0507131222300.14635@yvahk01.tjqt.qr>
+References: <20050712204822.84567.qmail@web52001.mail.yahoo.com>
+	 <Pine.LNX.4.61.0507131222300.14635@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Message-Id: <1121349002.3718.11.camel@crazytrain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1120756552.5298.10.camel@pc299.sam-solutions.net>
-	 <20050708042146.GA1679@frodo>
-	 <60868aed0507130822c2e9e97@mail.gmail.com>
-	 <20050714012048.GB937@frodo>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 14 Jul 2005 09:50:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/7/14, Nathan Scott <nathans@sgi.com>:
-> On Wed, Jul 13, 2005 at 06:22:28PM +0300, Yura Pakhuchiy wrote:
-> > I found patch by Greg Ungreger to fix this problem, but why it's still
-> > not in mainline? Or it's a gcc problem and should be fixed by gcc folks?
+I always thought;
+
+First 446 bytes are boot code and all
+Next 64 bytes are for 4 partition records, 16 bytes each
+Last 2 bytes are signature 
+
+?
+
+-fd
+
+
+On Wed, 2005-07-13 at 06:24, Jan Engelhardt wrote:
+> > Guys, thanks a lot for the explanations!
+> >
+> > Actually, it seems like one can backup information on ALL partitions
+> >by using the command "sfdisk -dx /dev/hdX". Supposedly, it reads not
+> >only primary but also extended partitions. "sfdisk -x /dev/hdX" should
+> >be then able to write whatever is known back to the disk.
 > 
-> Yes, IIRC the patch was incorrect for other platforms, and it sure
-> looked like an arm-specific gcc problem (this was ages back, so
-> perhaps its fixed by now).
+> MBR size is 448 bytes, the rest is "the partition table", with space for four 
+> entries. If one wants more, then s/he creates a [primary] partition, tagging 
+> it "extended", and the "extended partiton table" is within that primary 
+> partition. So yes, by dd'ing /dev/hdX, you get everything. Including "lost 
+> sectors" if you dd it back to a bigger HD.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-AFAIR gcc-3.4.3 was released after this conversation take place at linux-xfs,
-maybe add something like this:
-
-#ifdef XSCALE
-    /* We need this because some gcc versions for xscale are broken. */
-    [patched version here]
-#else
-    [original version here]
-#endif
-
-Best regards,
-        Yura

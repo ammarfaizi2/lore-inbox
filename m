@@ -1,48 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262887AbVGNE0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262898AbVGNEbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262887AbVGNE0u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 00:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbVGNE0u
+	id S262898AbVGNEbx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 00:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbVGNEbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 00:26:50 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:19979 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262887AbVGNE0r convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 00:26:47 -0400
+	Thu, 14 Jul 2005 00:31:53 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:17745 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262898AbVGNEbw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 00:31:52 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RU8r73IfbYNhLUoRamFdDU6w+t/15F45Pl8GKWKeNUYZnvhECVxLNxFGGsCRsHkTadqO3B3E9e/2dIUIV2JumIS8ak26N5/zXzDoj28dVHVSXzRtiTiou8+kJATTrXpgXV/KKFGrr2RzleFHMYQQLghRPj5OwK8JjkfFMJ8F5xM=
-Message-ID: <9e4733910507132125af9835@mail.gmail.com>
-Date: Thu, 14 Jul 2005 00:25:45 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Dave Airlie <airlied@gmail.com>
-Subject: Re: moving DRM header files
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <21d7e99705071321044c216db4@mail.gmail.com>
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=OsPRA0lJ5iOhpXoN4ncNaNVRfODT+I098nELqXHRm1gN68kG9u8JOki7Bg96XBy2+7GkunjsKfFjtGwUILJlTZUM2UX3wiD0/ocG5xwK72x8Y9X4c+dcCzpswZNclDNcq9wCQ0/qjyb4SWOgPB4IKh6oi7S+QvWJdyPyIIZ1glw=
+Date: Thu, 14 Jul 2005 05:29:34 +0100
+From: Nicholas Hans Simmonds <nhstux@gmail.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org,
+       "Andrew G. Morgan" <morgan@transmeta.com>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] Filesystem capabilities support
+Message-ID: <20050714042934.GA25447@laptop>
+References: <20050713062955.GA1609@laptop> <200507131751.j6DHpkBE016946@laptop11.inf.utfsm.cl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <21d7e99705071321044c216db4@mail.gmail.com>
+In-Reply-To: <200507131751.j6DHpkBE016946@laptop11.inf.utfsm.cl>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/14/05, Dave Airlie <airlied@gmail.com> wrote:
-> Hi,
-> I'd like to move the interface DRM header files (drm.h and *_drm.h)
-> somewhere more useful and also more "user-space" visible, (i.e. so
-> kernel-headers could start picking them up.)
+On Wed, Jul 13, 2005 at 01:51:46PM -0400, Horst von Brand wrote:
+> Nicholas Hans Simmonds <nhstux@gmail.com> wrote:
+> > Sorry, my earlier reply seems to have gotten lost somewhere. I've been
+> > pondering this issue for some time and am still not sure what's the best
+> > answer. I've attached a small patch which handles this by detecting byte
+> > swapping of the version code. I'm not convinced it's necessary but
+> > shouldn't hurt.
+> > 
+> > diff --git a/security/commoncap.c b/security/commoncap.c
+> > --- a/security/commoncap.c
+> > +++ b/security/commoncap.c
+> > @@ -153,6 +153,15 @@ int cap_bprm_set_security (struct linux_
+> >  	down(&bprm_dentry->d_inode->i_sem);
+> >  	ret = bprm_getxattr(bprm_dentry,XATTR_CAP_SET,&caps,sizeof(caps));
+> >  	if(ret == sizeof(caps)) {
+> > +		if(caps.version = swab32(_LINUX_CAPABILITY_VERSION)) {
+>                               ^
+> 				|
+> 				+-- Surely wrong?!
 > 
-> I'm thinking include/linux/drm/
-> but include/linux would also be possible.
-> 
-> Any suggestions or ideas?
 
-If you're in a mood to move things, how about moving drivers/char/drm
-to drivers/video/drm.
+True, just noticed that. Amazing how even the simplest patches provide
+such ample opportunity to shoot oneself in the foot.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> > +			swab32s(&caps.version);
+> > +			swab32s(&caps.effective);
+> > +			swab32s(&caps.mask_effective);
+> > +			swab32s(&caps.permitted);
+> > +			swab32s(&caps.mask_permitted);
+> > +			swab32s(&caps.inheritable);
+> > +			swab32s(&caps.mask_inheritable);
+> > +		}
+> >  		if(caps.version == _LINUX_CAPABILITY_VERSION) {
+> >  			cap_t(bprm->cap_effective) &= caps.mask_effective;
+> >  			cap_t(bprm->cap_effective) |= caps.effective;
+> -- 
+> Dr. Horst H. von Brand                   User #22616 counter.li.org
+> Departamento de Informatica                     Fono: +56 32 654431
+> Universidad Tecnica Federico Santa Maria              +56 32 654239
+> Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+
+Other than this, what are the general thoughts about this method as
+opposed to just using a well defined byte order?
+
+Thanks,
+
+Nicholas

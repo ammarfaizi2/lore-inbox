@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVGNOh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVGNOit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261415AbVGNOh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 10:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVGNOh2
+	id S261426AbVGNOit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 10:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVGNOit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 10:37:28 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:41358 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261415AbVGNOhZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 10:37:25 -0400
-Date: Thu, 14 Jul 2005 10:36:47 -0400
-From: Michal Ostrowski <mostrows@watson.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] rocket.c: Fix ldisc ref count handling
-Message-ID: <20050714103647.71dc433f@brick.watson.ibm.com>
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-T: tytso@mit.edu
+	Thu, 14 Jul 2005 10:38:49 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62596 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261418AbVGNOij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 10:38:39 -0400
+Date: Thu, 14 Jul 2005 15:38:30 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Yura Pakhuchiy <pakhuchiy@gmail.com>
+Cc: Nathan Scott <nathans@sgi.com>, linux-xfs@oss.sgi.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       tibor@altlinux.ru, pakhuchiy@iptel.by
+Subject: Re: XFS corruption on move from xscale to i686
+Message-ID: <20050714143830.GA17842@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Yura Pakhuchiy <pakhuchiy@gmail.com>,
+	Nathan Scott <nathans@sgi.com>, linux-xfs@oss.sgi.com,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	tibor@altlinux.ru, pakhuchiy@iptel.by
+References: <1120756552.5298.10.camel@pc299.sam-solutions.net> <20050708042146.GA1679@frodo> <60868aed0507130822c2e9e97@mail.gmail.com> <20050714012048.GB937@frodo> <60868aed050714065047e3aaec@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary=Signature_Thu__14_Jul_2005_10_36_47_-0400_nkGmpsO9ak_YCoCi;
- protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <60868aed050714065047e3aaec@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Thu__14_Jul_2005_10_36_47_-0400_nkGmpsO9ak_YCoCi
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Thu, Jul 14, 2005 at 04:50:01PM +0300, Yura Pakhuchiy wrote:
+> 2005/7/14, Nathan Scott <nathans@sgi.com>:
+> > On Wed, Jul 13, 2005 at 06:22:28PM +0300, Yura Pakhuchiy wrote:
+> > > I found patch by Greg Ungreger to fix this problem, but why it's still
+> > > not in mainline? Or it's a gcc problem and should be fixed by gcc folks?
+> > 
+> > Yes, IIRC the patch was incorrect for other platforms, and it sure
+> > looked like an arm-specific gcc problem (this was ages back, so
+> > perhaps its fixed by now).
+> 
+> AFAIR gcc-3.4.3 was released after this conversation take place at linux-xfs,
+> maybe add something like this:
+> 
+> #ifdef XSCALE
+>     /* We need this because some gcc versions for xscale are broken. */
+>     [patched version here]
+> #else
+>     [original version here]
+> #endif
 
-If bailing out because there is nothing to receive in rp_do_receive(),
-tty_ldisc_deref is not called.  Failure to do so increases the ref count=20
-and causes release_dev() to hang since it can't get the ref count to 0.
+no, just fix your compiler or let the gcc folks do it.  Did anyone of
+the arm folks ever open a PR at the gcc bugzilla with a reproduced
+testcase?  You're never get your compiler fixed with that attitude.
 
----
-
-Signed-off-by: Michal Ostrowski <mostrows@watson.ibm.com>
-
- drivers/char/rocket.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/char/rocket.c b/drivers/char/rocket.c
---- a/drivers/char/rocket.c
-+++ b/drivers/char/rocket.c
-@@ -355,7 +355,7 @@ static void rp_do_receive(struct r_port=20
- 		ToRecv =3D space;
-=20
- 	if (ToRecv <=3D 0)
--		return;
-+		goto done;
-=20
- 	/*
- 	 * if status indicates there are errored characters in the
-@@ -437,6 +437,7 @@ static void rp_do_receive(struct r_port=20
- 	}
- 	/*  Push the data up to the tty layer */
- 	ld->receive_buf(tty, tty->flip.char_buf, tty->flip.flag_buf, count);
-+ done:
- 	tty_ldisc_deref(ld);
- }
-=20
-
---Signature_Thu__14_Jul_2005_10_36_47_-0400_nkGmpsO9ak_YCoCi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFC1nh/DMDCqU5zPMARAr9FAJ0WoEZcIiq9stwRf4g9TMwNTu/lHgCdHZ/+
-uEgBJK1jhjoWvmvQFf4dnt8=
-=gjDq
------END PGP SIGNATURE-----
-
---Signature_Thu__14_Jul_2005_10_36_47_-0400_nkGmpsO9ak_YCoCi--

@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263164AbVGNW44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263173AbVGNXAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263164AbVGNW44 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 18:56:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVGNWyq
+	id S263173AbVGNXAA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 19:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbVGNW7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 18:54:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27319 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263164AbVGNWxn (ORCPT
+	Thu, 14 Jul 2005 18:59:53 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:25259 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S263170AbVGNWwy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 18:53:43 -0400
-Date: Thu, 14 Jul 2005 15:52:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, radsaq@gmail.com,
-       rajesh.shah@intel.com
-Subject: Re: [PATCH] Fix the recent C-state with FADT regression
-Message-Id: <20050714155251.41f50a1f.akpm@osdl.org>
-In-Reply-To: <20050714093025.A1694@unix-os.sc.intel.com>
-References: <20050714093025.A1694@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Jul 2005 18:52:54 -0400
+Message-Id: <42D6ECED.7070504@khandalf.com>
+Date: Fri, 15 Jul 2005 00:53:33 +0200
+From: "Brian O'Mahoney" <omb@khandalf.com>
+Reply-To: omb@bluewin.ch
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: rvk@prodmail.net, linux-kernel@vger.kernel.org
+Subject: Re: Buffer Over-runs, was Open source firewalls
+References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>
+    <42D63AD0.6060609@aitel.hist.no> <42D63D4A.2050607@prodmail.net>
+    <42D658A8.4040009@aitel.hist.no> <42D658A9.7050706@prodmail.net>
+In-Reply-To: <42D658A9.7050706@prodmail.net>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Md5-Body: 737aa6586687fdbcd4ee6b3d773d1505
+X-Transmit-Date: Friday, 15 Jul 2005 0:53:46 +0200
+X-Message-Uid: 0000b49cec9dcff7000000020000000042d6ecfa000206dd00000001000bc861
+Replyto: omb@bluewin.ch
+X-Sender-Postmaster: Postmaster@84-73-132-32.dclient.hispeed.ch.
+Read-Receipt-To: omb@bluewin.ch
+X-DCC-spamcheck-01.tornado.cablecom.ch-Metrics: smtp-05.tornado.cablecom.ch 32700; Body=1
+	Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Venkatesh Pallipadi <venkatesh.pallipadi@intel.com> wrote:
->
-> 
-> 
-> Attached patch fixes the recent C-state based on FADT regression reported by
-> Kevin.
-> 
-> Please apply.
-> 
-> Thanks,
-> Venki
-> 
-> 
-> Fix the regression with c1_default_handler on some systems where C-states come
-> from FADT.
-> 
-> Thanks to Kevin Radloff for identifying the issue and also root causing on 
-> exact line of code that is causing the issue.
-> 
-> Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-> 
-> diff -purN  linux-2.6.13-rc1-mm1//drivers/acpi/processor_idle.c.org linux-2.6.13-rc1-mm1//drivers/acpi/processor_idle.c
-> --- linux-2.6.13-rc1-mm1//drivers/acpi/processor_idle.c.org	2005-07-14 23:19:45.038854688 -0700
-> +++ linux-2.6.13-rc1-mm1//drivers/acpi/processor_idle.c	2005-07-14 23:21:47.292269344 -0700
-> @@ -881,7 +881,7 @@ static int acpi_processor_get_power_info
->  	result = acpi_processor_get_power_info_cst(pr);
->  	if ((result) || (acpi_processor_power_verify(pr) < 2)) {
->  		result = acpi_processor_get_power_info_fadt(pr);
-> -		if (result)
-> +		if ((result) || (acpi_processor_power_verify(pr) < 2))
->  			result = acpi_processor_get_power_info_default_c1(pr);
->  	}
->
+First there are endless ways of stopping DAMAGE from buffer
+over-runs, from code that accepts user data, eg extend buffer, dont
+use dangerous strxxx functions .... so while you can move
+stuff to proxies, and that has been done extensively e.g.
+for sendmail it is a cop-out, far better fix the application;
 
-It turns out I've had this in my tree since July 6 (from Jindrich
-Makovicka), sent to Len on July 9.  Maybe he's merged it somewhere already.
+Next, while all buffer over runs are very bad it is only those
+that stamp on the stack, overwriting the return address stored
+there and implanting viral code to be executed, that are truely
+__EVIL__.
 
-I have seven acpi patches here, some of which have been in -mm for a very
-long time.  I'll resend them all.  Could someone please promptly ack them for
-2.6.13 or merge them somewhere or nack the things?
+To do that you need to know a lot of things, the architecture
+ie executing x86 code on a ppc will get you no-where, you must
+know, and be able to debug your mal-ware against a stable
+target, and this is why the _VERY_ slowly patched Windoze is
+so vulnerable, and finally you really need to know the stack
+base, top of stack, normally growing downward, and ... be able
+to actually run code out of the stack space;
 
-Thanks.
+and if any one of these conditions are not true, eg I compiled
+sendmail with a newer GCC, stack is not executable, ...
+
+the exploit just fails or crashes an app and then you go after
+why?
+
+but your system is not compromised.
+
+One final point, in practice, you get lots of unwanted packets
+off the internet, and in general you do not want them on your
+internal net, both for performance and security reasons, if you
+drop them on your router or firewall then you dont need to
+worry if the remote app is mal-ware.
+
+-- 
+mit freundlichen Grüßen, Brian.
+

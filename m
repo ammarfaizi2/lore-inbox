@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262785AbVGNWYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbVGNW1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262785AbVGNWYk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 18:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVGNWXf
+	id S262873AbVGNW1c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 18:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbVGNWZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 18:23:35 -0400
-Received: from coderock.org ([193.77.147.115]:46753 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262492AbVGNWVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 18:21:03 -0400
-Message-Id: <20050714222057.196354000@homer>
-Date: Fri, 15 Jul 2005 00:20:57 +0200
-From: domen@coderock.org
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, Christophe Lucas <clucas@rotomalug.org>,
-       domen@coderock.org
-Subject: [patch 1/2] block/cpqarray: Audit return code of create_proc_*
-Content-Disposition: inline; filename=return_code-drivers_block_cpqarray
+	Thu, 14 Jul 2005 18:25:15 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:18923 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262822AbVGNWYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 18:24:49 -0400
+Message-Id: <200507142224.j6EMOjg06251@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [announce] linux kernel performance project launch at sourceforge.net
+Date: Thu, 14 Jul 2005 15:24:45 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcWIweuM0QQ0upfhTgCH2+XOVrpxowAACOuw
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <p73y889kp5w.fsf@bragg.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christophe Lucas <clucas@rotomalug.org>
+ak@suse.de wrote on Thursday, July 14, 2005 3:18 PM
+> "Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
+> > I'm pleased to announce that we have established a linux kernel
+> > performance project, hosted at sourceforge.net:
+> > 
+> > http://kernel-perf.sourceforge.net
+> 
+> That's very cool. Thanks a lot.
+
+Thank you.
 
 
-Audit return of create_proc_* functions.
+> Would it be possible to add 2.4.30 numbers and perhaps one or two 
+> distro kernels (let's say RHEL3/4, SLES8/9) to the graphs 
+> as data points for comparison? These are all very tuned
+> kernels and would show where mainline is worse than them.
 
-Signed-off-by: Christophe Lucas <clucas@rotomalug.org>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
- cpqarray.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
+We did have a distro kernel in the graph originally and later decided
+to go with pure mainline kernels for consistency.  We will see what we
+can do to add them in the future.
 
-Index: quilt/drivers/block/cpqarray.c
-===================================================================
---- quilt.orig/drivers/block/cpqarray.c
-+++ quilt/drivers/block/cpqarray.c
-@@ -212,13 +212,18 @@ static struct proc_dir_entry *proc_array
-  */
- static void __init ida_procinit(int i)
- {
-+	struct proc_dir_entry *ent;
-+
- 	if (proc_array == NULL) {
- 		proc_array = proc_mkdir("cpqarray", proc_root_driver);
- 		if (!proc_array) return;
- 	}
- 
--	create_proc_read_entry(hba[i]->devname, 0, proc_array,
-+	ent = create_proc_read_entry(hba[i]->devname, 0, proc_array,
- 			       ida_proc_get_info, hba[i]);
-+	if (!ent)
-+		printk(KERN_WARNING 
-+			"cpqarray: Unable to create /proc entry.\n");
- }
- 
- /*
 
---
+> Also how did you run netperf? Locally or to some other machine? 
+> Perhaps that should be documented.
+
+Yes, that was netperf, running locally.  Thanks for the suggestion, I
+will document that appropriately.
+
+
+> Some oprofile listings from a few of the test runs would be also nice.
+
+That is in the works.  We will upload profile data.  I'm having problem
+with oprofile on some versions of kernel and that is being investigated
+right now.
+
+- Ken
+

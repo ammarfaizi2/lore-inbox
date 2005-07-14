@@ -1,88 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbVGNKKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVGNKSJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262989AbVGNKKx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 06:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbVGNKIc
+	id S261479AbVGNKSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 06:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262979AbVGNKSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 06:08:32 -0400
-Received: from BTNL-TN-DSL-static-006.0.144.59.touchtelindia.net ([59.144.0.6]:18817
-	"EHLO mail.prodmail.net") by vger.kernel.org with ESMTP
-	id S262979AbVGNKIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 06:08:13 -0400
-Message-ID: <42D63916.7000007@prodmail.net>
-Date: Thu, 14 Jul 2005 15:36:14 +0530
-From: RVK <rvk@prodmail.net>
-Reply-To: rvk@prodmail.net
-Organization: GSEC1
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Thu, 14 Jul 2005 06:18:09 -0400
+Received: from web25805.mail.ukl.yahoo.com ([217.12.10.190]:31866 "HELO
+	web25805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261479AbVGNKSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 06:18:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.es;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=VCwznV9wTHwAn9ZzqmjOIqlKlY2RhtfQvea8tpXHBE3sC5HXrbmtVk7mlMJhVyMF9blPnJ/AoO/XHuRVp7mr6Kfg0xLTSOE3EMCt3xReGSKWRxlJKY7cQ22jDHlAkCcNUzUwqmoqflJnQ6NHoh8nvmGCfjmH4T8X6KpN9noaveA=  ;
+Message-ID: <20050714101807.74323.qmail@web25805.mail.ukl.yahoo.com>
+Date: Thu, 14 Jul 2005 12:18:07 +0200 (CEST)
+From: Albert Herranz <albert_herranz@yahoo.es>
+Subject: Re: console remains blanked
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0507141134060.18072@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Thread_Id
-References: <4mfcK-UT-25@gated-at.bofh.it> <4mUJ1-5ZG-23@gated-at.bofh.it>	 <42CB465E.6080104@shaw.ca>  <42D5F934.6000603@prodmail.net> <1121327103.3967.14.camel@laptopd505.fenrus.org>
-In-Reply-To: <1121327103.3967.14.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+Hi,
 
->On Thu, 2005-07-14 at 11:03 +0530, RVK wrote:
->  
->
->>Robert Hancock wrote:
->>
->>    
->>
->>>RVK wrote:
->>>
->>>      
->>>
->>>>Can anyone suggest me how to get the threadId using 2.6.x kernels.
->>>>pthread_self() does not work and returns some -ve integer.
->>>>        
->>>>
->>>What do you mean, negative integer? It's not an integer, it's a
->>>pthread_t, you're not even supposed to look at it..
->>>      
->>>
->>What is pthread_t inturn defined to ? pthread_self for 2.4.x thread
->>libraries return +ve number(as u have a objection me calling it as
->>integer :-))
->>    
->>
->
->it doesn't return a number it returns a pointer ;) or a floating point
->number. You don't know :)
->
->what it returns is a *cookie*. A cookie that you can only use to pass
->back to various pthread functions.
->
->  
->
-Hahaha......common. Please clarify following....
-SYNOPSIS
-       #include <pthread.h>
+ --- Jan Engelhardt <jengelh@linux01.gwdg.de>
+escribió:
+> The console is unblanked when you hit a key (or
+> probably move a mouse too), 
+> not when some application outputs something on
+> stdout/stderr/etc.
 
-       pthread_t pthread_self(void);
+Before 2.6.12-rc2, the console was unblanked by just
+writing to the console.
+For keyboardless and mouseless systems (which is my
+case, embedded) this new behaviour is a bit annoying.
 
-DESCRIPTION
-       pthread_self return the thread identifier for the calling thread.
+> Which kernel versions have this patch? I'm on
+> 2.6.13-rc1 and have no problems 
+> with unblanking.
 
-bits/pthreadtypes.h:150:typedef unsigned long int pthread_t;
+I have this problem since 2.6.12-rc2.
+If I add back the patch hunk specified in my original
+message, the blanking behaviour changes to that
+present in pre-2.6.12-rc2 kernels.
 
-rvk
+I just would like to know if this new behaviour is
+just intentional and makes sense to everyone (except
+me :-)
 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->.
->
->  
->
+Thanks for your feedback,
+Albert
 
+
+
+		
+______________________________________________ 
+Renovamos el Correo Yahoo! 
+Nuevos servicios, más seguridad 
+http://correo.yahoo.es

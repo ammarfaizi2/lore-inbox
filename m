@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263128AbVGNTnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263119AbVGNTia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263128AbVGNTnf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 15:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbVGNTn3
+	id S263119AbVGNTia (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 15:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbVGNTfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 15:43:29 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:29583 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263115AbVGNTmK
+	Thu, 14 Jul 2005 15:35:54 -0400
+Received: from oban.u-picardie.fr ([193.49.184.8]:26434 "EHLO
+	mailx.u-picardie.fr") by vger.kernel.org with ESMTP id S261700AbVGNTew
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 15:42:10 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: john stultz <johnstul@us.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Lee Revell <rlrevell@joe-job.com>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       Len Brown <len.brown@intel.com>, dtor_core@ameritech.net,
-       david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
-       lkml <linux-kernel@vger.kernel.org>, mbligh@mbligh.org,
-       diegocg@gmail.com, azarah@nosferatu.za.org, christoph@lameter.com
-In-Reply-To: <1121360561.3967.55.camel@laptopd505.fenrus.org>
-References: <d120d50005071312322b5d4bff@mail.gmail.com>
-	 <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org>
-	 <20050714005106.GA16085@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org>
-	 <1121304825.4435.126.camel@mindpipe>
-	 <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
-	 <1121326938.3967.12.camel@laptopd505.fenrus.org>
-	 <20050714121340.GA1072@ucw.cz>
-	 <Pine.LNX.4.58.0507140933150.19183@g5.osdl.org>
-	 <1121360561.3967.55.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Thu, 14 Jul 2005 12:42:02 -0700
-Message-Id: <1121370122.7673.161.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Jul 2005 15:34:52 -0400
+Message-ID: <1121369685.42d6be556505f@webmail.u-picardie.fr>
+Date: Thu, 14 Jul 2005 21:34:45 +0200
+From: FyD <fyd@u-picardie.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with kernel 2.6.11
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.6
+X-Originating-IP: 137.131.252.204
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 19:02 +0200, Arjan van de Ven wrote:
-> On Thu, 2005-07-14 at 09:37 -0700, Linus Torvalds wrote:
-> > just doesn't realize that the latter is a bit more complicated exactly 
-> > because the latter is a hell of a lot more POWERFUL. Trying to get rid of 
-> > jiffies for some religious reason is _stupid_.
-> 
-> I have nothing religious against jiffies per se. My argument however is
-> that with a few simple, relative interfaces *in addition* to an absolute
-> interface, almost all drivers suddenly are isolated from jiffies and HZ
-> because they simply don't care. Because they really DON'T care about
-> absolute time. At all. 
+Dear All,
 
-We'll I'd probably put it as: "they do care about absolute time, but
-they do not care about ticks or timer interrupt frequency"
+I have a problem with a program named Gaussian (http://www.gaussian.com)
+(versions g98 or g03) and FC 4.0 (default kernel 2.6.11): I am used to take
+Gaussian binaries compiled on the RedHat 9.0 version, and used them on FC 2.0
+or FC 3.0. If I try to do so, on FC 4.0. (with the default kernel) Gaussian
+stops (both g98 and g03 versions) with the following error message:
 
-thanks
--john
+[fyd@localhost ~]$ g98 < toto-g98.com> toto-g98.log
+[fyd@localhost ~]$ g03 < toto-g03.com> toto-g03.log
+Erroneous write during file extend. write 208 instead of 4096
+Probably out of disk space.
+Write error in NtrExt1: No such file or directory
 
+And obviously, I do _not_ have any problem of space and no NFS server on my
+machine...
+
+Now if I compile and use the kernel 2.6.12, this message dispears and the
+program Gaussian g98 works fine, but I still have problems with the version g03
+which stops without providing any message...
+
+>From my tests, it seems to be a problem relative to the kernel. Being not a
+programmer, it is difficult for me to imagine the problem, and even to describe
+it...
+
+Any idea what could be the problem ? Any suggestions about options I should
+use/not_use in the kernel, or about a specific kernel 2.6 version I should use
+?
+
+Thank you, best regards, Francois
+
+PS Please add my email address in CC since I did not register...
 

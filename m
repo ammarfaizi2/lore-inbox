@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVGNKjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262977AbVGNKmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbVGNKjn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 06:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVGNKjn
+	id S262977AbVGNKmi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 06:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbVGNKmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 06:39:43 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:51189 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S261615AbVGNKjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 06:39:37 -0400
-Subject: Re: Thread_Id
-From: Ian Campbell <ijc@hellion.org.uk>
-To: rvk@prodmail.net
-Cc: Arjan van de Ven <arjan@infradead.org>, Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42D63916.7000007@prodmail.net>
-References: <4mfcK-UT-25@gated-at.bofh.it> <4mUJ1-5ZG-23@gated-at.bofh.it>
-	 <42CB465E.6080104@shaw.ca>  <42D5F934.6000603@prodmail.net>
-	 <1121327103.3967.14.camel@laptopd505.fenrus.org>
-	 <42D63916.7000007@prodmail.net>
-Content-Type: text/plain
-Date: Thu, 14 Jul 2005 11:39:27 +0100
-Message-Id: <1121337567.18265.26.camel@icampbell-debian>
+	Thu, 14 Jul 2005 06:42:38 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54289 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262977AbVGNKmg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 06:42:36 -0400
+Date: Thu, 14 Jul 2005 11:42:20 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Sam Song <samlinuxkernel@yahoo.com>
+Cc: mgreer@mvista.com, david-b@pacbell.net, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.13-git] 8250 tweaks
+Message-ID: <20050714114220.C31383@flint.arm.linux.org.uk>
+Mail-Followup-To: Sam Song <samlinuxkernel@yahoo.com>, mgreer@mvista.com,
+	david-b@pacbell.net, linux-kernel@vger.kernel.org
+References: <20050713134837.B6791@flint.arm.linux.org.uk> <20050714071202.88368.qmail@web32007.mail.mud.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050714071202.88368.qmail@web32007.mail.mud.yahoo.com>; from samlinuxkernel@yahoo.com on Thu, Jul 14, 2005 at 12:12:02AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 15:36 +0530, RVK wrote:
+On Thu, Jul 14, 2005 at 12:12:02AM -0700, Sam Song wrote:
+> It turned out the conflict of uart init definition 
+> like MPC10X_UART0_IRQ in ../syslib/mpc10x_common.c 
+> and SERIAL_PORT_DFNS in ../platform/sandpoint.h. By
+> now, only MPC10X_UART0_IRQ stuff is needed. 
+> SERIAL_PORT_DFNS should be omitted. 
 
-> bits/pthreadtypes.h:150:typedef unsigned long int pthread_t;
+Oh dear, it seems that I missed a load of fixups then.  I only
+scanned include/asm-* for SERIAL_PORT_DFNS - and I stupidly
+thought that PPC this "platform" directory would be in include/asm-ppc.
 
-That's an implementation detail which you cannot determine any
-information from.
+> Seems it's time for me to stand with Russell:-)
 
-What Arjan is saying is that pthread_t is a cookie -- this means that
-you cannot interpret it in any way, it is just a "thing" which you can
-pass back to the API, that pthread_t happens to be typedef'd to unsigned
-long int is irrelevant.  
+Well, in this case, the "whinging" resulted in finding a _real_ bug
+and locating why your ports weren't being found.  So I guess it's
+good for something.
 
-Ian.
+Can you mail me a diff of the changes you made to
+arch/ppc/platforms/sandpoint.h please?  If that file is being used
+it seems that you actually have 4 ports defined in total.  However,
+I'm a little confused because the sandpoint.h defines don't seem to
+match your original dmesg output.
 
 -- 
-Ian Campbell
-Current Noise: Nile - Annihilation Of The Wicked
-
-Don't tell me what you dreamed last night for I've been reading Freud.
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263018AbVGNNyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbVGNNyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263018AbVGNNyM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 09:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263027AbVGNNyK
+	id S263027AbVGNNyN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 09:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263029AbVGNNyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 09:54:10 -0400
-Received: from BTNL-TN-DSL-static-006.0.144.59.touchtelindia.net ([59.144.0.6]:25985
-	"EHLO mail.prodmail.net") by vger.kernel.org with ESMTP
-	id S263018AbVGNNwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 09:52:05 -0400
-Message-ID: <42D66D80.1070106@prodmail.net>
-Date: Thu, 14 Jul 2005 19:19:52 +0530
-From: RVK <rvk@prodmail.net>
-Reply-To: rvk@prodmail.net
-Organization: GSEC1
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jakub Jelinek <jakub@redhat.com>
-CC: Arjan van de Ven <arjan@infradead.org>, Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Thread_Id
-References: <4mfcK-UT-25@gated-at.bofh.it> <4mUJ1-5ZG-23@gated-at.bofh.it> <42CB465E.6080104@shaw.ca> <42D5F934.6000603@prodmail.net> <1121327103.3967.14.camel@laptopd505.fenrus.org> <42D63916.7000007@prodmail.net> <1121337052.3967.25.camel@laptopd505.fenrus.org> <42D64A85.7020305@prodmail.net> <1121343943.3967.32.camel@laptopd505.fenrus.org> <20050714123917.GE4884@devserv.devel.redhat.com>
-In-Reply-To: <20050714123917.GE4884@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Jul 2005 09:54:04 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12302 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263027AbVGNNxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 09:53:36 -0400
+Date: Thu, 14 Jul 2005 14:53:27 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Jon Smirl <jonsmirl@gmail.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6] remove PCI_BRIDGE_CTL_VGA handling from setup-bus.c
+Message-ID: <20050714145327.B7314@flint.arm.linux.org.uk>
+Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+	Jon Smirl <jonsmirl@gmail.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+	linux-kernel@vger.kernel.org
+References: <20050714155344.A27478@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050714155344.A27478@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Thu, Jul 14, 2005 at 03:53:44PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 14, 2005 at 03:53:44PM +0400, Ivan Kokshaysky wrote:
+> The setup-bus code doesn't work correctly for configurations
+> with more than one display adapter in the same PCI domain.
+> This stuff actually is a leftover of an early 2.4 PCI setup code
+> and apparently it stopped working after some "bridge_ctl" changes.
+> So the best thing we can do is just to remove it and rely on the fact
+> that any firmware *has* to configure VGA port forwarding for the boot
+> display device properly.
 
-Jakub Jelinek wrote:
+What happens when there is no firmware?
 
->On Thu, Jul 14, 2005 at 02:25:43PM +0200, Arjan van de Ven wrote:
->  
->
->>pure luck. NPTL threading uses it to store a pointer to per thread info
->>structure; other threading (linuxthreads) may have stored a pid there to
->>identify the internal thread. nptl is 2.6 only so you might have
->>switched implementation of threading when you switched kernels.
->>    
->>
->
->Actually, in linuxthreads what pthread_self () returned has the first slot
->in its internal threads array (up to max number of supported threads)
->that was unused at thread creation time in the low order bits and sequence
->number of thread creation in its high order bits.
->So unless you are using yet another threading library (I thought NGPT
->is dead for years...), the claim that you get the same numbers from
->gettid() syscall under NPTL as pthread_self () gives you under LinuxThreads
->is simply not true.  And you certainly shouldn't be using gettid ()
->syscall in NPTL, as it is just an implementation detail that there is
->a 1:1 mapping between NPTL threads and kernel threads.  It can change
->at any time.
->
->  
->
-Which ever is the implementation its expected to be backward compatible. 
-Especially thread libraries. As lot of applications using that.
+I'm sure this code would not have been added had there not been a reason
+for it.  Do we know why it was added?
 
-rvk
-
->	Jakub
->
->  
->
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

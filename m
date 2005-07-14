@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbVGNX4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262880AbVGNX6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262769AbVGNX4a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 19:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVGNXyT
+	id S262880AbVGNX6r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 19:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbVGNX6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 19:54:19 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:14277 "HELO
+	Thu, 14 Jul 2005 19:58:46 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:51397 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262769AbVGNXxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 19:53:03 -0400
+	id S262880AbVGNX5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 19:57:13 -0400
 Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
 From: Lee Revell <rlrevell@joe-job.com>
 To: Linus Torvalds <torvalds@osdl.org>
@@ -36,8 +36,8 @@ References: <d120d50005071312322b5d4bff@mail.gmail.com>
 	 <1121384499.4535.82.camel@mindpipe>
 	 <Pine.LNX.4.58.0507141648070.19183@g5.osdl.org>
 Content-Type: text/plain
-Date: Thu, 14 Jul 2005 19:53:04 -0400
-Message-Id: <1121385185.4535.89.camel@mindpipe>
+Date: Thu, 14 Jul 2005 19:57:14 -0400
+Message-Id: <1121385435.4535.93.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
@@ -45,13 +45,24 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Thu, 2005-07-14 at 16:49 -0700, Linus Torvalds wrote:
-> YOUR argument is "nobody else matters, only I do".
 > 
-> MY argument is that this is a case of give and take. 
+> On Thu, 14 Jul 2005, Lee Revell wrote:
+> > 
+> > And I'm incredibly frustrated by this insistence on hard data when it's
+> > completely obvious to anyone who knows the first thing about MIDI that
+> > HZ=250 will fail in situations where HZ=1000 succeeds.
+> 
+> Ok, guys. How many people have this MIDI thing?
 
-I wouldn't say that.  I do agree with you that HZ=1000 for everyone is
-problematic, I just feel that a reasonable compromise is CONFIG_HZ with
-the default left at 1000.
+>  How many of you can't be 
+> bothered to set the default to suit your usage?
+
+Very few, and even fewer, respectively.  But, we'd still like to be able
+to use the same kernel image as everyone else if possible.
+
+I guess we'll have to deal with it until a variable tick solution is
+ready.
 
 Lee
+
 

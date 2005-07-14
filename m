@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263133AbVGNUJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263138AbVGNULy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263133AbVGNUJU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 16:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbVGNUGo
+	id S263138AbVGNULy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 16:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVGNUJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 16:06:44 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12170 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263133AbVGNUEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 16:04:15 -0400
-Date: Thu, 14 Jul 2005 21:04:08 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Eric Van Hensbergen <ericvh@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, rminnich@lanl.gov,
-       linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net
-Subject: Re: (v9fs) -mm -> 2.6.13 merge status
-Message-ID: <20050714200408.GA23092@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Eric Van Hensbergen <ericvh@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, rminnich@lanl.gov,
-	linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net
-References: <20050620235458.5b437274.akpm@osdl.org> <20050627201944.GA22629@infradead.org> <a4e6962a050713112363010124@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a4e6962a050713112363010124@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 14 Jul 2005 16:09:35 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:58022 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263126AbVGNUH1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 16:07:27 -0400
+Message-Id: <200507142007.j6EK7Iax030363@laptop11.inf.utfsm.cl>
+To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+cc: Mikhail Kshevetskiy <kl@laska.dorms.spbu.ru>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: eepro100/e100 broken in 2.6.13-rc3 
+In-Reply-To: Message from Jesse Brandeburg <jesse.brandeburg@gmail.com> 
+   of "Wed, 13 Jul 2005 23:28:15 MST." <4807377b05071323286963bf3a@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Thu, 14 Jul 2005 16:07:18 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Thu, 14 Jul 2005 16:07:19 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 01:23:24PM -0500, Eric Van Hensbergen wrote:
-> Sorry I didn't get to these quicker - was on vacation and basically
-> off-line for the past week and a half.  I've made 90% of the changes
-> suggested and committed them to my git tree, I'll combine the changes
-> into a single patch and then split them by file-group before sending
+Jesse Brandeburg <jesse.brandeburg@gmail.com> wrote:
+> On 7/13/05, Mikhail Kshevetskiy <kl@laska.dorms.spbu.ru> wrote:
+> > symptom
+> > =======
+> > modprobe e100
+> > ifconfig eth0 <ip> netmask <netmask>
+> > 
+> > result:
+> > =======
+> > SIOCADDRT: Network is unreachable
+> > 
+> > There were no such error in 2.6.13-rc2
 
-normally we prefer a patch per actual change, not per file so the
-description fits.  Given that all these are pretty trivial fixes one
-patch would have done it aswell, though.
+> odd, both e100 and eepro100 are broken?  This might indicate something
+> wierd with the pci layer.  Don't know what might cause the Network is
+> unreachable...
 
-With these changes the code is fine for mainline in my opinion.
-
+It works fine here... latest .git from yesterday.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

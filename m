@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263036AbVGNOtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263030AbVGNOy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263036AbVGNOtY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 10:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVGNOtY
+	id S263030AbVGNOy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 10:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263037AbVGNOy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 10:49:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:188 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261464AbVGNOtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 10:49:22 -0400
-Date: Thu, 14 Jul 2005 15:49:19 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Yura Pakhuchiy <pakhuchiy@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Nathan Scott <nathans@sgi.com>,
-       linux-xfs@oss.sgi.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, tibor@altlinux.ru
-Subject: Re: XFS corruption on move from xscale to i686
-Message-ID: <20050714144919.GB17842@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Yura Pakhuchiy <pakhuchiy@gmail.com>,
-	Nathan Scott <nathans@sgi.com>, linux-xfs@oss.sgi.com,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	tibor@altlinux.ru
-References: <1120756552.5298.10.camel@pc299.sam-solutions.net> <20050708042146.GA1679@frodo> <60868aed0507130822c2e9e97@mail.gmail.com> <20050714012048.GB937@frodo> <60868aed050714065047e3aaec@mail.gmail.com> <20050714143830.GA17842@infradead.org> <60868aed050714074550e0adcf@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 14 Jul 2005 10:54:58 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:56470 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263030AbVGNOy5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 10:54:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=MPwyEPl5WiLlu3BiWdczSmJACd5+sAGgPzM2BHLYstqcFiiWV1wkvJk5XtILgSpgfA5kXNxG+UO5YLTqQvklUMEYSSOEfAFgOv8Ckzxdi5ssBLu/4BOxBML7WFz4nSKcBzl770NwLCEDPu8OFfuGaATpAG7xo0lccncGM2bW2oA=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] visws: reexport pm_power_off
+Date: Thu, 14 Jul 2005 19:01:59 +0400
+User-Agent: KMail/1.8.1
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+References: <1121261886.5049.7.camel@mulgrave>
+In-Reply-To: <1121261886.5049.7.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <60868aed050714074550e0adcf@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200507141901.59358.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 14, 2005 at 05:45:15PM +0300, Yura Pakhuchiy wrote:
-> Yes, but a lof of people use older versions of compilers and suffer
-> from this bug.
-> I personally was very unhappy when lost my data.
+On Wednesday 13 July 2005 17:38, James Bottomley wrote:
+> [PATCH] Remove i386_ksyms.c, almost
+> 
+> made files like smp.c do their own EXPORT_SYMBOLS.  This means that all
+> subarchitectures that override these symbols now have to do the exports
+> themselves.  This patch adds the exports for voyager (which is the most
+> affected since it has a separate smp harness).  However, someone should
+> audit all the other subarchitectures to see if any others got broken.
 
-then host the patch somewhere and make sure to apply it.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
+ arch/i386/mach-visws/reboot.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+--- linux-vanilla/arch/i386/mach-visws/reboot.c	2005-07-13 19:45:59.000000000 +0400
++++ linux-visws/arch/i386/mach-visws/reboot.c	2005-07-14 18:53:23.000000000 +0400
+@@ -7,6 +7,7 @@
+ #include "piix4.h"
+ 
+ void (*pm_power_off)(void);
++EXPORT_SYMBOL(pm_power_off);
+ 
+ void machine_restart(char * __unused)
+ {

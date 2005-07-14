@@ -1,553 +1,306 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263031AbVGNOWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbVGNOZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263031AbVGNOWS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 10:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVGNOWR
+	id S263028AbVGNOZj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 10:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263034AbVGNOZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 10:22:17 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:17642 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263033AbVGNOVb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 10:21:31 -0400
-Date: Thu, 14 Jul 2005 09:21:07 -0500
-From: serue@us.ibm.com
-To: lkml <linux-kernel@vger.kernel.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       "David A. Wheeler" <dwheeler@ida.org>, Tony Jones <tonyj@immunix.com>
-Subject: rcu-refcount stacker performance
-Message-ID: <20050714142107.GA20984@serge.austin.ibm.com>
-Mime-Version: 1.0
+	Thu, 14 Jul 2005 10:25:39 -0400
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:14815 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S263028AbVGNOZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 10:25:35 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       "Kjetil Svalastog Matheussen <k.s.matheussen@notam02.no>" 
+	<k.s.matheussen@notam02.no>,
+       Chris Friesen <cfriesen@nortel.com>, Diego Calleja <diegocg@gmail.com>,
+       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       christoph@lameter.org
+Subject: Re: High irq load (Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt)
+References: <200506231828.j5NISlCe020350@hera.kernel.org>
+	<20050708214908.GA31225@taniwha.stupidest.org>
+	<20050708145953.0b2d8030.akpm@osdl.org>
+	<1120928891.17184.10.camel@lycan.lan>
+	<1120932991.6488.64.camel@mindpipe>
+	<20050709203920.394e970d.diegocg@gmail.com>
+	<1120934466.6488.77.camel@mindpipe> <176640000.1121107087@flay>
+	<1121113532.2383.6.camel@mindpipe> <42D2D912.3090505@nortel.com>
+	<1121128260.2632.12.camel@mindpipe> <165840000.1121141256@[10.10.2.4]>
+	<1121141602.2632.31.camel@mindpipe> <188690000.1121142633@[10.10.2.4]>
+	<1121201925.10580.24.camel@mindpipe> <278570000.1121206956@flay>
+	<Pine.LNX.4.61.0507131237130.14635@yvahk01.tjqt.qr>
+	<Pine.LNX.4.58.0507131128100.17536@g5.osdl.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 14 Jul 2005 16:25:12 +0200
+In-Reply-To: <Pine.LNX.4.58.0507131128100.17536@g5.osdl.org>
+Message-ID: <m3zmsppirb.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On July 8 I sent out a patch which re-implemented the rcu-refcounting
-of the LSM list in stacker for the sake of supporting safe security
-module unloading.  (patch reattached here for convenience)  Here are
-some performance results with and without that patch.  Tests were run
-on a 16-way ppc64 machine.  Dbench was run 50 times, and kernbench
-and reaim were run 10 times, and intervals are 95% confidence half-
-intervals.
+Linus Torvalds <torvalds@osdl.org> writes:
 
-These results seem pretty poor.  I'm now wondering whether this is
-really necessary.  David Wheeler's original stacker had an option
-of simply waiting a while after a module was taken out of the list
-of active modules before freeing the modules.  Something like that
-is of course one option.  I'm hoping we can also take advantage of
-some already known module state info to be a little less coarse
-about it.  For instance, sys_delete_module() sets m->state to
-MODULE_STATE_GOING before calling mod->exit().  If in place of
-doing atomic_inc(&m->use), stacker skipped the m->hook() if
-m->state!=MODULE_STATE_LIVE, then it may be safe to assume that
-any m->hook() should be finished before sys_delete_module() gets
-to free_module(mod).  This seems to require adding a struct
-module argument to security/security:mod_reg_security() so an LSM
-can pass itself along.
+> On Wed, 13 Jul 2005, Jan Engelhardt wrote:
+> > 
+> > No, some kernel code causes a triple-fault-and-reboot when the HZ is >=
+> > 10KHz. Maybe the highest possible value is 8192 Hz, not sure.
+> 
+> Can you post the triple-fault message? It really shouldn't triple-fault, 
+> although it _will_ obviously spend all time just doing timer interrupts, 
+> so it shouldn't get much (if any) real work done either.
+...
+> There should be no conceptual "highest possible HZ", although there are 
+> certainly obvious practical limits to it (both on the timer hw itself, and 
+> just the fact that at some point we'll spend all time on the timer 
+> interrupt and won't get anything done..)
 
-So I'll try that next.  Hopefully by avoiding the potential cache
-line bounces which atomic_inc(&m->use) bring, this should provide
-far better performance.
+HZ=10000 appears to work fine here after some hacks to avoid
+over/underflows in integer arithmetics. gkrellm reports about 3-4% CPU
+usage when the system is idle, on a 3.07 GHz P4.
 
-thanks,
--serge
+---
 
-Dbench (throughput, larger is better)
---------------------------------------------
-plain stacker:    1531.448400 +/- 15.791116
-stacker with rcu: 1408.056200 +/- 12.597277
+ Makefile                                    |    2 +-
+ arch/i386/kernel/cpu/proc.c                 |    6 ++++++
+ fs/nfsd/nfssvc.c                            |    2 +-
+ include/linux/jiffies.h                     |    6 ++++++
+ include/linux/nfsd/stats.h                  |    4 ++++
+ include/linux/timex.h                       |    2 +-
+ include/net/tcp.h                           |   12 +++++++++---
+ init/calibrate.c                            |   21 +++++++++++++++++++++
+ kernel/Kconfig.hz                           |    6 ++++++
+ kernel/timer.c                              |    4 ++--
+ net/ipv4/netfilter/ip_conntrack_proto_tcp.c |    2 +-
+ 11 files changed, 58 insertions(+), 9 deletions(-)
 
-Kernbench (runtime, smaller is better)
---------------------------------------------
-plain stacker:    52.341000  +/- 0.184995
-stacker with rcu: 53.722000 +/- 0.161473
-
-Reaim (numjobs, larger is better) (gnuplot-friendly format)
-plain stacker:
-----------------------------------------------------------
-Numforked   jobs/minute         95% CI
-1           106662.857000     5354.267865
-3           301628.571000     6297.121934
-5           488142.858000     16031.685536
-7           673200.000000     23994.030784
-9           852428.570000     31485.607271
-11          961714.290000     0.000000
-13          1108157.144000    27287.525982
-15          1171178.571000    49790.796869
-
-Reaim (numjobs, larger is better) (gnuplot-friendly format)
-plain stacker:
-----------------------------------------------------------
-Numforked   jobs/minute         95% CI
-1           100542.857000     2099.040645
-3           266657.139000     6297.121934
-5           398892.858000     12023.765252
-7           467670.000000     14911.383385
-9           418648.352000     11665.751441
-11          396825.000000     8700.115252
-13          357480.912000     7567.947838
-15          337571.428000     2332.267703
-
-Patch:
-
-Index: linux-2.6.12/security/stacker.c
-===================================================================
---- linux-2.6.12.orig/security/stacker.c	2005-07-08 13:43:15.000000000 -0500
-+++ linux-2.6.12/security/stacker.c	2005-07-08 16:21:54.000000000 -0500
-@@ -33,13 +33,13 @@
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 13
+-EXTRAVERSION =-rc3
++EXTRAVERSION =-rc3-test
+ NAME=Woozy Numbat
  
- struct module_entry {
- 	struct list_head lsm_list;  /* list of active lsms */
--	struct list_head all_lsms; /* list of all lsms */
- 	char *module_name;
- 	int namelen;
- 	struct security_operations module_operations;
-+	struct rcu_head m_rcu;
-+	atomic_t use;
- };
- static struct list_head stacked_modules;  /* list of stacked modules */
--static struct list_head all_modules;  /* list of all modules, including freed */
+ # *DOCUMENTATION*
+diff --git a/arch/i386/kernel/cpu/proc.c b/arch/i386/kernel/cpu/proc.c
+--- a/arch/i386/kernel/cpu/proc.c
++++ b/arch/i386/kernel/cpu/proc.c
+@@ -128,9 +128,15 @@ static int show_cpuinfo(struct seq_file 
+ 		     x86_cap_flags[i] != NULL )
+ 			seq_printf(m, " %s", x86_cap_flags[i]);
  
- static short sysfsfiles_registered;
++#if HZ <= 5000
+ 	seq_printf(m, "\nbogomips\t: %lu.%02lu\n\n",
+ 		     c->loops_per_jiffy/(500000/HZ),
+ 		     (c->loops_per_jiffy/(5000/HZ)) % 100);
++#else
++	seq_printf(m, "\nbogomips\t: %lu.%02lu\n\n",
++		     c->loops_per_jiffy/(500000/HZ),
++		     (c->loops_per_jiffy*(HZ/5000)) % 100);
++#endif
  
-@@ -84,6 +84,32 @@ MODULE_PARM_DESC(debug, "Debug enabled o
-  * We return as soon as an error is returned.
-  */
- 
-+static inline void stacker_free_module(struct module_entry *m)
-+{
-+	kfree(m->module_name);
-+	kfree(m);
-+}
-+
-+/*
-+ * Version of stacker_free_module called from call_rcu
-+ */
-+static void free_mod_fromrcu(struct rcu_head *head)
-+{
-+	struct module_entry *m;
-+
-+	m = container_of(head, struct module_entry, m_rcu);
-+	stacker_free_module(m);
-+}
-+
-+static void stacker_del_module(struct rcu_head *head)
-+{
-+	struct module_entry *m;
-+	
-+	m = container_of(head, struct module_entry, m_rcu);
-+	if (atomic_dec_and_test(&m->use))
-+		stacker_free_module(m);
-+}
-+
- #define stack_for_each_entry(pos, head, member)				\
- 	for (pos = list_entry((head)->next, typeof(*pos), member);	\
- 		&pos->member != (head);					\
-@@ -93,16 +119,27 @@ MODULE_PARM_DESC(debug, "Debug enabled o
- /* to make this safe for module deletion, we would need to
-  * add a reference count to m as we had before
-  */
-+/*
-+ * XXX We can't quite do this - we delete the module before we grab
-+ * m->next?
-+ * We could just do a call_rcu.  Then the call_rcu happens in same
-+ * rcu cycle has dereference, so module won't be deleted until the
-+ * next cycle.
-+ * That's what I'm going to do.
-+ */
- #define RETURN_ERROR_IF_ANY_ERROR(BASE_FUNC, FUNC_WITH_ARGS) do { \
- 	int result = 0; \
- 	struct module_entry *m; \
- 	rcu_read_lock(); \
- 	stack_for_each_entry(m, &stacked_modules, lsm_list) { \
--		if (!m->module_operations.BASE_FUNC) \
--			continue; \
--		rcu_read_unlock(); \
--		result = m->module_operations.FUNC_WITH_ARGS; \
--		rcu_read_lock(); \
-+		if (m->module_operations.BASE_FUNC) { \
-+			atomic_inc(&m->use); \
-+			rcu_read_unlock(); \
-+			result = m->module_operations.FUNC_WITH_ARGS; \
-+			rcu_read_lock(); \
-+			if (unlikely(atomic_dec_and_test(&m->use))) \
-+				call_rcu(&m->m_rcu, free_mod_fromrcu); \
-+		} \
- 		if (result) \
- 			break; \
- 	} \
-@@ -116,9 +153,12 @@ MODULE_PARM_DESC(debug, "Debug enabled o
- 	rcu_read_lock(); \
- 	stack_for_each_entry(m, &stacked_modules, lsm_list) { \
- 		if (m->module_operations.BASE_FUNC) { \
-+			atomic_inc(&m->use); \
- 			rcu_read_unlock(); \
- 			m->module_operations.FUNC_WITH_ARGS; \
- 			rcu_read_lock(); \
-+			if (unlikely(atomic_dec_and_test(&m->use))) \
-+				call_rcu(&m->m_rcu, free_mod_fromrcu); \
- 		} \
- 	} \
- 	rcu_read_unlock(); \
-@@ -129,38 +169,47 @@ MODULE_PARM_DESC(debug, "Debug enabled o
- 	rcu_read_lock(); \
- 	stack_for_each_entry(m, &stacked_modules, lsm_list ) { \
- 		if (m->module_operations.BASE_FREE) { \
-+			atomic_inc(&m->use); \
- 			rcu_read_unlock(); \
- 			m->module_operations.FREE_WITH_ARGS; \
- 			rcu_read_lock(); \
-+			if (unlikely(atomic_dec_and_test(&m->use))) \
-+				call_rcu(&m->m_rcu, free_mod_fromrcu); \
- 		} \
- 	} \
- 	rcu_read_unlock(); \
- } while (0)
- 
- #define ALLOC_SECURITY(BASE_FUNC,FUNC_WITH_ARGS,BASE_FREE,FREE_WITH_ARGS) do { \
--	int result; \
-+	int result = 0; \
- 	struct module_entry *m, *m2; \
- 	rcu_read_lock(); \
- 	stack_for_each_entry(m, &stacked_modules, lsm_list) { \
--		if (!m->module_operations.BASE_FUNC) \
--			continue; \
--		rcu_read_unlock(); \
--		result = m->module_operations.FUNC_WITH_ARGS; \
--		rcu_read_lock(); \
-+		if (m->module_operations.BASE_FUNC) { \
-+			atomic_inc(&m->use); \
-+			rcu_read_unlock(); \
-+			result = m->module_operations.FUNC_WITH_ARGS; \
-+			rcu_read_lock(); \
-+			if (unlikely(atomic_dec_and_test(&m->use))) \
-+				call_rcu(&m->m_rcu, free_mod_fromrcu); \
-+		} \
- 		if (result) \
- 			goto bad; \
- 	} \
- 	rcu_read_unlock(); \
- 	return 0; \
- bad: \
--	stack_for_each_entry(m2, &all_modules, all_lsms) { \
-+	stack_for_each_entry(m2, &stacked_modules, lsm_list) { \
- 		if (m == m2) \
- 			break; \
- 		if (!m2->module_operations.BASE_FREE) \
- 			continue; \
-+		atomic_inc(&m2->use); \
- 		rcu_read_unlock(); \
- 		m2->module_operations.FREE_WITH_ARGS; \
- 		rcu_read_lock(); \
-+		if (unlikely(atomic_dec_and_test(&m2->use))) \
-+			call_rcu(&m2->m_rcu, free_mod_fromrcu); \
- 	} \
- 	rcu_read_unlock(); \
- 	return result; \
-@@ -251,10 +300,16 @@ static int stacker_vm_enough_memory(long
- 
- 	rcu_read_lock();
- 	stack_for_each_entry(m, &stacked_modules, lsm_list) {
--		if (!m->module_operations.vm_enough_memory)
-+		if (!m->module_operations.vm_enough_memory) {
- 			continue;
-+		}
-+		atomic_inc(&m->use);
- 		rcu_read_unlock();
- 		result = m->module_operations.vm_enough_memory(pages);
-+		rcu_read_lock();
-+		if (unlikely(atomic_dec_and_test(&m->use)))
-+			stacker_free_module(m);
-+		rcu_read_unlock();
- 		return result;
- 	}
- 	rcu_read_unlock();
-@@ -281,9 +336,12 @@ static int stacker_netlink_send (struct 
- 		if (!m->module_operations.netlink_send)
- 			continue;
- 		NETLINK_CB(skb).eff_cap = ~0;
-+		atomic_inc(&m->use);
- 		rcu_read_unlock();
- 		result = m->module_operations.netlink_send(sk, skb);
- 		rcu_read_lock();
-+		if (unlikely(atomic_dec_and_test(&m->use)))
-+			call_rcu(&m->m_rcu, free_mod_fromrcu);
- 		tmpcap &= NETLINK_CB(skb).eff_cap;
- 		if (result)
- 			break;
-@@ -987,33 +1045,42 @@ stacker_getprocattr(struct task_struct *
- 	stack_for_each_entry(m, &stacked_modules, lsm_list) {
- 		if (!m->module_operations.getprocattr)
- 			continue;
-+		atomic_inc(&m->use);
- 		rcu_read_unlock();
- 		ret = m->module_operations.getprocattr(p, name,
- 					value+len, size-len);
- 		rcu_read_lock();
--		if (ret == -EINVAL)
--			continue;
--		found_noneinval = 1;
--		if (ret < 0) {
-+		if (ret > 0) {
-+			found_noneinval = 1;
-+			len += ret;
-+			if (len+m->namelen+4 < size) {
-+				char *v = value;
-+				if (v[len-1]=='\n')
-+					len--;
-+				len += sprintf(value+len, " (%s)\n",
-+							m->module_name);
-+			}
-+		} else if (ret != -EINVAL) {
-+			found_noneinval = 1;
- 			memset(value, 0, len);
- 			len = ret;
-+		} else
-+			ret = 0;
-+
-+		if (unlikely(atomic_dec_and_test(&m->use)))
-+			call_rcu(&m->m_rcu, free_mod_fromrcu);
-+
-+		if (ret < 0)
- 			break;
--		}
--		if (ret == 0)
--			continue;
--		len += ret;
--		if (len+m->namelen+4 < size) {
--			char *v = value;
--			if (v[len-1]=='\n')
--				len--;
--			len += sprintf(value+len, " (%s)\n", m->module_name);
--		}
- 	}
- 	rcu_read_unlock();
- 
- 	return found_noneinval ? len : -EINVAL;
- }
- 
-+/*
-+ * find an lsm by name.  If found, increment its use count and return it
-+ */
- static struct module_entry *
- find_active_lsm(const char *name, int len)
- {
-@@ -1022,6 +1089,7 @@ find_active_lsm(const char *name, int le
- 	rcu_read_lock();
- 	stack_for_each_entry(m, &stacked_modules, lsm_list) {
- 		if (m->namelen == len && !strncmp(m->module_name, name, len)) {
-+			atomic_inc(&m->use);
- 			ret = m;
- 			break;
- 		}
-@@ -1043,6 +1111,7 @@ stacker_setprocattr(struct task_struct *
- 	char *realv = (char *)value;
- 	size_t dsize = size;
- 	int loc = 0, end_data = size;
-+	int ret, free_module = 0;
- 
- 	if (list_empty(&stacked_modules))
- 		return -EINVAL;
-@@ -1063,7 +1132,7 @@ stacker_setprocattr(struct task_struct *
- 	callm = find_active_lsm(realv+loc+1, dsize-loc-1);
- 	if (!callm)
- 		goto call;
--
-+	free_module = 1;
- 
- 	loc--;
- 	while (loc && realv[loc]==' ')
-@@ -1074,8 +1143,14 @@ call:
- 	if (!callm || !callm->module_operations.setprocattr)
- 		return -EINVAL;
- 
--	return callm->module_operations.setprocattr(p, name, value, end_data) +
-+	ret = callm->module_operations.setprocattr(p, name, value, end_data) +
- 			(size-end_data);
-+
-+	if (free_module && atomic_dec_and_test(&callm->use))
-+		stacker_free_module(callm);
-+
-+	return ret;
-+
- }
- 
- /*
-@@ -1116,15 +1191,15 @@ static int stacker_register (const char 
- 	new_module_entry->module_name = new_module_name;
- 	new_module_entry->namelen = namelen;
- 
-+	atomic_set(&new_module_entry->use, 1);
-+
- 	INIT_LIST_HEAD(&new_module_entry->lsm_list);
--	INIT_LIST_HEAD(&new_module_entry->all_lsms);
- 
- 	rcu_read_lock();
- 	if (!modules_registered) {
- 		modules_registered++;
- 		list_del_rcu(&default_module.lsm_list);
- 	}
--	list_add_tail_rcu(&new_module_entry->all_lsms, &all_modules);
- 	list_add_tail_rcu(&new_module_entry->lsm_list, &stacked_modules);
- 	if (strcmp(name, "selinux") == 0)
- 		selinux_module = new_module_entry;
-@@ -1141,16 +1216,60 @@ out:
- }
- 
- /*
-- * Currently this version of stacker does not allow for module
-- * unregistering.
-- * Easy way to allow for this is using rcu ref counting like an older
-- * version of stacker did.
-- * Another way would be to force stacker_unregister to sleep between
-- * removing the module from all_modules and free_modules and unloading it.
-+ * find_lsm_module_by_name:
-+ * Find a module by name.  Used by stacker_unregister.  Called with
-+ * stacker spinlock held.
-+ */
-+static struct module_entry *
-+find_lsm_with_namelen(const char *name, int len)
-+{
-+	struct module_entry *m, *ret = NULL;
-+
-+	rcu_read_lock();
-+	list_for_each_entry_rcu(m, &stacked_modules, lsm_list) {
-+		atomic_inc(&m->use);
-+		rcu_read_unlock();
-+		if (m->namelen == len && !strncmp(m->module_name, name, len))
-+			ret = m;
-+		rcu_read_lock();
-+		if (unlikely(atomic_dec_and_test(&m->use)))
-+			call_rcu(&m->m_rcu, free_mod_fromrcu);
-+		if (ret)
-+			break;
-+	}
-+	rcu_read_unlock();
-+
-+	return ret;
-+}
-+
-+/*
-  */
- static int stacker_unregister (const char *name, struct security_operations *ops)
- {
--	return -EPERM;
-+	struct module_entry *m;
-+	int len = strnlen(name, MAX_MODULE_NAME_LEN);
-+	int ret = 0;
-+
-+	spin_lock(&stacker_lock);
-+	m = find_lsm_with_namelen(name, len);
-+
-+	if (!m) {
-+		printk(KERN_INFO "%s: could not find module %s.\n",
-+				__FUNCTION__, name);
-+		ret = -ENOENT;
-+		goto out;
-+	}
-+
-+	list_del_rcu(&m->lsm_list);
-+
-+	if (strcmp(m->module_name, "selinux") == 0)
-+		selinux_module = NULL;
-+	call_rcu(&m->m_rcu, stacker_del_module);
-+
-+out:
-+	spin_unlock(&stacker_lock);
-+
-+	return ret;
- }
- 
- static struct security_operations stacker_ops = {
-@@ -1407,57 +1526,6 @@ static struct stacker_attribute stacker_
- 	.show = listmodules_read,
- };
- 
--/* respond to a request to unload a module */
--static ssize_t stacker_unload_write (struct stacker_kobj *obj, const char *name,
--					size_t count)
--{
--	struct module_entry *m;
--	int len = strnlen(name, MAX_MODULE_NAME_LEN);
--	int ret = count;
--
--	if (!capable(CAP_SYS_ADMIN))
--		return -EPERM;
--
--	if (count <= 0)
--		return -EINVAL;
--
--	if (!modules_registered)
--		return -EINVAL;
--
--	spin_lock(&stacker_lock);
--	m = find_active_lsm(name, len);
--
--	if (!m) {
--		printk(KERN_INFO "%s: could not find module %s.\n",
--			__FUNCTION__, name);
--		ret = -ENOENT;
--		goto out;
--	}
--
--	if (strcmp(m->module_name, "selinux") == 0)
--		selinux_module = NULL;
--
--	rcu_read_lock();
--	list_del_rcu(&m->lsm_list);
--	if (list_empty(&stacked_modules)) {
--		INIT_LIST_HEAD(&default_module.lsm_list);
--		list_add_tail_rcu(&default_module.lsm_list, &stacked_modules);
--		modules_registered = 0;
--	}
--	rcu_read_unlock();
--
--out:
--	spin_unlock(&stacker_lock);
--
--	return ret;
--}
--
--static struct stacker_attribute stacker_attr_unload = {
--	.attr = {.name = "unload", .mode = S_IFREG | S_IRUGO | S_IWUSR},
--	.store = stacker_unload_write,
--};
--
--
- /* stop responding to sysfs */
- static ssize_t stop_responding_write (struct stacker_kobj *obj,
- 					const char *buff, size_t count)
-@@ -1483,7 +1551,6 @@ static void unregister_sysfs_files(void)
- 	sysfs_remove_file(kobj, &stacker_attr_lockdown.attr);
- 	sysfs_remove_file(kobj, &stacker_attr_listmodules.attr);
- 	sysfs_remove_file(kobj, &stacker_attr_stop_responding.attr);
--	sysfs_remove_file(kobj, &stacker_attr_unload.attr);
- 
- 	sysfsfiles_registered = 0;
- }
-@@ -1506,8 +1573,6 @@ static int register_sysfs_files(void)
- 			&stacker_attr_listmodules.attr);
- 	sysfs_create_file(&stacker_subsys.kset.kobj,
- 			&stacker_attr_stop_responding.attr);
--	sysfs_create_file(&stacker_subsys.kset.kobj,
--			&stacker_attr_unload.attr);
- 	sysfsfiles_registered = 1;
- 	stacker_dbg("sysfs files registered\n");
  	return 0;
-@@ -1524,13 +1589,13 @@ static int __init stacker_init (void)
- 	sysfsfiles_registered = 0;
+ }
+diff --git a/fs/nfsd/nfssvc.c b/fs/nfsd/nfssvc.c
+--- a/fs/nfsd/nfssvc.c
++++ b/fs/nfsd/nfssvc.c
+@@ -160,7 +160,7 @@ update_thread_usage(int busy_threads)
+ 	decile = busy_threads*10/nfsdstats.th_cnt;
+ 	if (decile>0 && decile <= 10) {
+ 		diff = nfsd_last_call - prev_call;
+-		if ( (nfsdstats.th_usage[decile-1] += diff) >= NFSD_USAGE_WRAP)
++		if ( (nfsdstats.th_usage[decile-1] += diff) >= NFSD_USAGE_WRAP) 
+ 			nfsdstats.th_usage[decile-1] -= NFSD_USAGE_WRAP;
+ 		if (decile == 10)
+ 			nfsdstats.th_fullcnt++;
+diff --git a/include/linux/jiffies.h b/include/linux/jiffies.h
+--- a/include/linux/jiffies.h
++++ b/include/linux/jiffies.h
+@@ -38,6 +38,12 @@
+ # define SHIFT_HZ	9
+ #elif HZ >= 768 && HZ < 1536
+ # define SHIFT_HZ	10
++#elif HZ >= 1536 && HZ < 3072
++# define SHIFT_HZ	11
++#elif HZ >= 3072 && HZ < 6144
++# define SHIFT_HZ	12
++#elif HZ >= 6144 && HZ < 12288
++# define SHIFT_HZ	13
+ #else
+ # error You lose.
+ #endif
+diff --git a/include/linux/nfsd/stats.h b/include/linux/nfsd/stats.h
+--- a/include/linux/nfsd/stats.h
++++ b/include/linux/nfsd/stats.h
+@@ -30,7 +30,11 @@ struct nfsd_stats {
+ };
  
- 	INIT_LIST_HEAD(&stacked_modules);
--	INIT_LIST_HEAD(&all_modules);
- 	spin_lock_init(&stacker_lock);
- 	default_module.module_name = DEFAULT_MODULE_NAME;
- 	default_module.namelen = strlen(DEFAULT_MODULE_NAME);
- 	memcpy(&default_module.module_operations, &dummy_security_ops,
- 			sizeof(struct security_operations));
- 	INIT_LIST_HEAD(&default_module.lsm_list);
-+	atomic_set(&default_module.use, 1);
- 	list_add_tail(&default_module.lsm_list, &stacked_modules);
+ /* thread usage wraps very million seconds (approx one fortnight) */
++#if HZ < 2048
+ #define	NFSD_USAGE_WRAP	(HZ*1000000)
++#else
++#define	NFSD_USAGE_WRAP	(2048*1000000)
++#endif
  
- 	if (register_security (&stacker_ops)) {
+ #ifdef __KERNEL__
+ 
+diff --git a/include/linux/timex.h b/include/linux/timex.h
+--- a/include/linux/timex.h
++++ b/include/linux/timex.h
+@@ -90,7 +90,7 @@
+  *
+  * FINENSEC is 1 ns in SHIFT_UPDATE units of the time_phase variable.
+  */
+-#define SHIFT_SCALE 22		/* phase scale (shift) */
++#define SHIFT_SCALE 25		/* phase scale (shift) */
+ #define SHIFT_UPDATE (SHIFT_KG + MAXTC) /* time offset scale (shift) */
+ #define SHIFT_USEC 16		/* frequency offset scale (shift) */
+ #define FINENSEC (1L << (SHIFT_SCALE - 10)) /* ~1 ns in phase units */
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -486,8 +486,8 @@ static __inline__ int tcp_sk_listen_hash
+    so that we select tick to get range about 4 seconds.
+  */
+ 
+-#if HZ <= 16 || HZ > 4096
+-# error Unsupported: HZ <= 16 or HZ > 4096
++#if HZ <= 16
++# error Unsupported: HZ <= 16
+ #elif HZ <= 32
+ # define TCP_TW_RECYCLE_TICK (5+2-TCP_TW_RECYCLE_SLOTS_LOG)
+ #elif HZ <= 64
+@@ -502,8 +502,14 @@ static __inline__ int tcp_sk_listen_hash
+ # define TCP_TW_RECYCLE_TICK (10+2-TCP_TW_RECYCLE_SLOTS_LOG)
+ #elif HZ <= 2048
+ # define TCP_TW_RECYCLE_TICK (11+2-TCP_TW_RECYCLE_SLOTS_LOG)
+-#else
++#elif HZ <= 4096
+ # define TCP_TW_RECYCLE_TICK (12+2-TCP_TW_RECYCLE_SLOTS_LOG)
++#elif HZ <= 8192
++# define TCP_TW_RECYCLE_TICK (13+2-TCP_TW_RECYCLE_SLOTS_LOG)
++#elif HZ <= 16384
++# define TCP_TW_RECYCLE_TICK (14+2-TCP_TW_RECYCLE_SLOTS_LOG)
++#else
++# error Unsupported: HZ > 16384
+ #endif
+ /*
+  *	TCP option
+diff --git a/init/calibrate.c b/init/calibrate.c
+--- a/init/calibrate.c
++++ b/init/calibrate.c
+@@ -119,16 +119,30 @@ void __devinit calibrate_delay(void)
+ 
+ 	if (preset_lpj) {
+ 		loops_per_jiffy = preset_lpj;
++#if HZ <= 5000
+ 		printk("Calibrating delay loop (skipped)... "
+ 			"%lu.%02lu BogoMIPS preset\n",
+ 			loops_per_jiffy/(500000/HZ),
+ 			(loops_per_jiffy/(5000/HZ)) % 100);
++#else
++		printk("Calibrating delay loop (skipped)... "
++			"%lu.%02lu BogoMIPS preset\n",
++			loops_per_jiffy/(500000/HZ),
++			(loops_per_jiffy*(HZ/5000)) % 100);
++#endif
+ 	} else if ((loops_per_jiffy = calibrate_delay_direct()) != 0) {
+ 		printk("Calibrating delay using timer specific routine.. ");
++#if HZ <= 5000
+ 		printk("%lu.%02lu BogoMIPS (lpj=%lu)\n",
+ 			loops_per_jiffy/(500000/HZ),
+ 			(loops_per_jiffy/(5000/HZ)) % 100,
+ 			loops_per_jiffy);
++#else
++		printk("%lu.%02lu BogoMIPS (lpj=%lu)\n",
++			loops_per_jiffy/(500000/HZ),
++			(loops_per_jiffy*(HZ/5000)) % 100,
++			loops_per_jiffy);
++#endif
+ 	} else {
+ 		loops_per_jiffy = (1<<12);
+ 
+@@ -164,10 +178,17 @@ void __devinit calibrate_delay(void)
+ 		}
+ 
+ 		/* Round the value and print it */
++#if HZ <= 5000
+ 		printk("%lu.%02lu BogoMIPS (lpj=%lu)\n",
+ 			loops_per_jiffy/(500000/HZ),
+ 			(loops_per_jiffy/(5000/HZ)) % 100,
+ 			loops_per_jiffy);
++#else
++		printk("%lu.%02lu BogoMIPS (lpj=%lu)\n",
++			loops_per_jiffy/(500000/HZ),
++			(loops_per_jiffy*(HZ/5000)) % 100,
++			loops_per_jiffy);
++#endif
+ 	}
+ 
+ }
+diff --git a/kernel/Kconfig.hz b/kernel/Kconfig.hz
+--- a/kernel/Kconfig.hz
++++ b/kernel/Kconfig.hz
+@@ -36,6 +36,11 @@ choice
+ 	 1000 HZ is the preferred choice for desktop systems and other
+ 	 systems requiring fast interactive responses to events.
+ 
++	config HZ_10000
++		bool "10000 HZ"
++	help
++	 10000 HZ is for testing only.
++
+ endchoice
+ 
+ config HZ
+@@ -43,4 +48,5 @@ config HZ
+ 	default 100 if HZ_100
+ 	default 250 if HZ_250
+ 	default 1000 if HZ_1000
++	default 10000 if HZ_10000
+ 
+diff --git a/kernel/timer.c b/kernel/timer.c
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -710,7 +710,7 @@ static void second_overflow(void)
+ 	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
+ 	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
+ 	time_offset += ltemp;
+-	time_adj = -ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
++	time_adj = -ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE); 
+     } else {
+ 	ltemp = time_offset;
+ 	if (!(time_status & STA_FLL))
+@@ -718,7 +718,7 @@ static void second_overflow(void)
+ 	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
+ 	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
+ 	time_offset -= ltemp;
+-	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
++	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE); 
+     }
+ 
+     /*
+diff --git a/net/ipv4/netfilter/ip_conntrack_proto_tcp.c b/net/ipv4/netfilter/ip_conntrack_proto_tcp.c
+--- a/net/ipv4/netfilter/ip_conntrack_proto_tcp.c
++++ b/net/ipv4/netfilter/ip_conntrack_proto_tcp.c
+@@ -87,7 +87,7 @@ static const char *tcp_conntrack_names[]
+ 
+ unsigned long ip_ct_tcp_timeout_syn_sent =      2 MINS;
+ unsigned long ip_ct_tcp_timeout_syn_recv =     60 SECS;
+-unsigned long ip_ct_tcp_timeout_established =   5 DAYS;
++unsigned long ip_ct_tcp_timeout_established =   2 DAYS;
+ unsigned long ip_ct_tcp_timeout_fin_wait =      2 MINS;
+ unsigned long ip_ct_tcp_timeout_close_wait =   60 SECS;
+ unsigned long ip_ct_tcp_timeout_last_ack =     30 SECS;
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

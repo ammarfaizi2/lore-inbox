@@ -1,82 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbVGNRyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262823AbVGNR7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbVGNRyt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 13:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbVGNRyt
+	id S262823AbVGNR7G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 13:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbVGNR7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 13:54:49 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:11337 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S262721AbVGNRys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 13:54:48 -0400
-Date: Thu, 14 Jul 2005 10:54:47 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: Stefan Seyfried <seife@suse.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: resuming swsusp twice
-Message-ID: <20050714175447.GA16651@hexapodia.org>
-References: <20050713185955.GB12668@hexapodia.org> <42D67D84.2020306@suse.de>
+	Thu, 14 Jul 2005 13:59:06 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:65478 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262823AbVGNR7F convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 13:59:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=UVoV/Pc2YiP50cygnzGZpuj/XTipuYFNQXoH7lRRa4oGNTCDsq/rjj4+kTbJ2EPRaByP1h4h0k1HxbuzwYYEeuUI+g6ISYUCwkmer9wRknuioM59uO/TChlGhFtvL/czBR8ynCMCoVNTfxt6opnV1YwKOJpv7TwCudin3THPAJo=
+Message-ID: <2ea3fae10507141058c476927@mail.gmail.com>
+Date: Thu, 14 Jul 2005 10:58:16 -0700
+From: yhlu <yinghailu@gmail.com>
+Reply-To: yhlu <yinghailu@gmail.com>
+To: "Ronald G. Minnich" <rminnich@lanl.gov>,
+       Stefan Reinauer <stepan@openbios.org>
+Subject: NUMA support for dual core Opteron
+Cc: LinuxBIOS <linuxbios@openbios.org>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42D67D84.2020306@suse.de>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 14, 2005 at 04:58:12PM +0200, Stefan Seyfried wrote:
-> Andy Isaacson wrote:
-> > Yesterday I booted my laptop to 2.6.13-rc2-mm1, suspended to swsusp,
-> > and
-[snip]
-> > and got a panic along the lines of "Unable to find swap space, try
->
-> a panic? it should only be an error message, but the machine should
-> still be alive.
+Someone mentioned that NUMA support for dual core opteron need acpi
+support in LinuxBIOS.
 
-Well, the console was left on the swsusp VT (guess that's not suprising)
-and I was hurrying to catch the train, so I didn't investigate, I just
-held down the power button for 5 seconds.
+there may be some other solution for that.
+1. PowerPC already support dual core and it should support NUMA, So
+the Open Firmware must have some NUMA entry definition.
+Can we make x86-64 kernel support OpenFirmware interface so we can use
+OpenBIOS as payload of LinuxBIOS.
+2. enable acpi and add the NUMA entries into it, the Linux Kernel will be happy.
+3. If we are trying to use ADLO to load Windows/Solaris/FreeBSD, We
+need to pass related acpi info to ADLO....
 
-> > swapon -a".  Unfortunately I was in a hurry and didn't record the
-> > error
-> > messages.  I powered off, then a few minutes later powered on again.
->
-> Powered off hard or "shutdown -h now"?
+Solution 1 will be ideal one, and can make Solaris for X86-64 use
+OpenFirmware interface too.....
 
-Hard.  It's a Thinkpad X40 with ACPI, so I hold down the power button
-for a few seconds to power off.
+which one is better?
 
-> > At this point, it resumed *to the swsusp state from yesterday*!
-[snip severe ext3 damage]
-> > It's extremely unfortunate that there is *any* failure mode in
-> > swsusp
-> > that can result in this behavior.
->
-> I of course won't say that this cannot happen, but by design, the
-> swsusp
-> signature is invalidated even before reading the image, so
-> theoretically
-> it should not happen.
-
-Yes, I'd seen that happen on earlier swsusps, so I was quite suprised
-when it blew up like this.
-
-Perhaps the image should be more rigorously checked?  I'm wishing that
-it would verify that the header and the image matched, after it finishes
-reading the image.  For example, computing the hash
-
-MD5(header || image)     (|| denotes "concatenate" in crypto pseudocode.)
-
-and storing that hash in a final trailing block.  Additionally, of
-course, as soon as the resume has read the image it should overwrite the
-header; and the header should include jiffies or something along those
-lines to ensure that it won't accidentally have the same contents as the
-previous image's header.
-
-The hash doesn't have to be MD5; even a CRC should suffice I think...
-
--andy
+YH

@@ -1,74 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262835AbVGNAau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVGNAds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262835AbVGNAau (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 20:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbVGNAat
+	id S262806AbVGNAds (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 20:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVGNAdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 20:30:49 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:41196 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262852AbVGNAaR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 20:30:17 -0400
-Date: Thu, 14 Jul 2005 10:22:46 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>,
-       Steve Lord <lord@xfs.org>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: RT and XFS
-Message-ID: <20050714002246.GA937@frodo>
-References: <1121209293.26644.8.camel@dhcp153.mvista.com> <20050713002556.GA980@frodo> <20050713064739.GD12661@elte.hu> <1121273158.13259.9.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 13 Jul 2005 20:33:40 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:22667 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S262806AbVGNAb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 20:31:59 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Bill Davidsen <davidsen@tmr.com>, ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+X-X-Sender: dlang@dlang.diginsite.com
+Date: Wed, 13 Jul 2005 17:31:40 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
+In-Reply-To: <200507141021.55020.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.62.0507131726390.11024@qynat.qvtvafvgr.pbz>
+References: <200507122110.43967.kernel@kolivas.org> <200507122202.39988.kernel@kolivas.org>
+ <42D55562.3060908@tmr.com> <200507141021.55020.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1121273158.13259.9.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Thu, 14 Jul 2005, Con Kolivas wrote:
 
-On Wed, Jul 13, 2005 at 09:45:58AM -0700, Daniel Walker wrote:
-> On Wed, 2005-07-13 at 08:47 +0200, Ingo Molnar wrote:
-> > 
-> > downgrade_write() wasnt the main problem - the main problem was that for 
-> > PREEMPT_RT i implemented 'strict' semaphores, which are not identical to 
-> > vanilla kernel semaphores. The thing that seemed to impact XFS the most 
-> > is the 'acquirer thread has to release the lock' rule of strict 
-> > semaphores.  Both the XFS logging code and the XFS IO completion code 
-> > seems to release locks in a different context from where the acquire 
-> > happened. It's of course valid upstream behavior, but without these 
-> > extra rules it's hard to do sane priority inheritance. (who do you boost 
-> > if you dont really know who 'owns' the lock?) It might make sense to 
-> > introduce some sort of sem_pass_to(new_owner) interface? For now i 
-> > introduced a compat type, which lets those semaphores fall back to the 
-> > vanilla implementation.
+> On Thu, 14 Jul 2005 03:54, Bill Davidsen wrote:
+>> Con Kolivas wrote:
+>>> On Tue, 12 Jul 2005 21:57, David Lang wrote:
+>>>> for audio and video this would seem to be a fairly simple scaleing factor
+>>>> (or just doing a fixed amount of work rather then a fixed percentage of
+>>>> the CPU worth of work), however for X it is probably much more
+>>>> complicated (is the X load really linearly random in how much work it
+>>>> does, or is it weighted towards small amounts with occasional large
+>>>> amounts hitting? I would guess that at least beyond a certin point the
+>>>> liklyhood of that much work being needed would be lower)
+>>>
+>>> Actually I don't disagree. What I mean by hardware changes is more along
+>>> the lines of changing the hard disk type in the same setup. That's what I
+>>> mean by careful with the benchmarking. Taking the results from an athlon
+>>> XP and comparing it to an altix is silly for example.
+>>
+>> I'm going to cautiously disagree. If the CPU needed was scaled so it
+>> represented a fixed number of cycles (operations, work units) then the
+>> effect of faster CPU would be shown. And the total power of all attached
+>> CPUs should be taken into account, using HT or SMP does have an effect
+>> of feel.
+>
+> That is rather hard to do because each architecture's interpretation of fixed
+> number of cycles is different and this doesn't represent their speed in the
+> real world. The calculation when interbench is first run to see how many
+> "loops per ms" took quite a bit of effort to find just how many loops each
+> different cpu would do per ms and then find a way to make that not change
+> through compiler optimised code. The "loops per ms" parameter did not end up
+> being proportional to cpu Mhz except on the same cpu type.
 
-Hmm, I'm not aware of anywhere in XFS where we do that.  From talking
-to some colleagues here, they're claiming that we can't be doing that
-since it'd trip an assert in the IRIX mrlock code.
+right, but the amount of cpu required to do a specific task will also vary 
+significantly between CPU families for the same task as well. as long as 
+the loops don't get optimized away by the compiler I think you can setup 
+some loops to do the same work on each CPU, even if they take 
+significantly different amounts of time (as an off-the-wall, obviously 
+untested example you could make your 'loop' be a calculation of Pi and for 
+the 'audio' test you compute the first 100 digits, for the video test you 
+compute the first 1000 digits, and for the X test you compute a random 
+number of digits between 10 and 10000)
 
-> There's a lot of code like this in there .. I've seen some that down()
-> in process contex, and up() in interrupt contex which is weird .. But
-> those aren't major features, just little drivers. XFS is pretty major
-> feature.
-> 
-> Nathan, does XFS need this property or could we convert it to
-> synchronize the locking (with ease?)?
-
-I'm not yet sure in what situations we are doing this, so can't
-really say.  It'd be interesting to see an implementation of the
-downgrade_write functionality and then a specific case where the
-above locking behaviour happens ... and I'd then be able to say
-how tricky that would be to resolve.
-
-Steve, are you aware of situations where we unlock in a different 
-thread to where we acquired the lock?  It'd surprise me, as we're
-holding these things for as short a time as possible - afaict the
-transactions always ilock, copy delta to iclog, pin, and unlock,
-no?  (all in the same thread).  I can't see the iolock being used
-in this way anywhere either... you?
-
-cheers.
+David Lang
 
 -- 
-Nathan
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

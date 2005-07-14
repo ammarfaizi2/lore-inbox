@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263116AbVGNTue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263123AbVGNTxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263116AbVGNTue (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 15:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbVGNTu1
+	id S263123AbVGNTxI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 15:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263133AbVGNTw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 15:50:27 -0400
-Received: from smtp-4.llnl.gov ([128.115.41.84]:44688 "EHLO smtp-4.llnl.gov")
-	by vger.kernel.org with ESMTP id S261707AbVGNTtj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 15:49:39 -0400
-Date: Thu, 14 Jul 2005 12:49:37 -0700 (PDT)
-From: Chuck Harding <charding@llnl.gov>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-In-reply-to: <200507141450.42837.annabellesgarden@yahoo.de>
-To: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.63.0507141049410.9398@ghostwheel.llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Pine/4.62 (X11; U; Linux i686; en-US; rv:2.6.11-rc2-mm1)
-References: <200507061257.36738.s0348365@sms.ed.ac.uk>
- <20050713103930.GA16776@elte.hu> <42D51EAF.2070603@cybsft.com>
- <200507141450.42837.annabellesgarden@yahoo.de>
+	Thu, 14 Jul 2005 15:52:58 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:13761 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263123AbVGNTvd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 15:51:33 -0400
+Date: Thu, 14 Jul 2005 20:51:32 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: ericvh@gmail.com
+Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13-rc2-mm2 7/7] v9fs: debug and support routines (2.0.2)
+Message-ID: <20050714195132.GB22576@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, ericvh@gmail.com,
+	linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
+	akpm@osdl.org, linux-fsdevel@vger.kernel.org
+References: <200507141830.j6EIUue1020761@ms-smtp-02-eri0.texas.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507141830.j6EIUue1020761@ms-smtp-02-eri0.texas.rr.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Jul 2005, Karsten Wiese wrote:
+On Sun, Jul 17, 2005 at 08:53:59AM -0500, ericvh@gmail.com wrote:
+> This is part [7/7] of the v9fs-2.0.2 patch against Linux 2.6.13-rc2-mm2.
+> 
+> This part of the patch contains debug and other misc routine changes related
+> to hch's comments.
 
-> Have I corrected the other path of ioapic early initialization, which had lacked
-> virtual-address setup before ioapic_data[ioapic] was to be filled in -51-28?
-> Please test attached patch on top of -51-29 or later.
-> Also on Systems that liked -51-28.
->
->    thanks, Karsten
->
+Here a few if( instead if ( formatting sneaked in.
 
-I applied your patch on top of -51-30 and all is well. I am applied it on top 
-of -51-29 just for the heck of it and it's working well too, FWIW.
-
--- 
-Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
-Senior Computer Associate         ICCD            Fax: 925-423-6961
-Lawrence Livermore National Laboratory      Computation Directorate
-Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
------------------- http://tinyurl.com/5w5ey -----------------------
--- Too bad stupidity isn't painful. --

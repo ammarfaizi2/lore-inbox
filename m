@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVGNNNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVGNNSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVGNNNo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 09:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVGNNNo
+	id S261362AbVGNNSO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 09:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVGNNSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 09:13:44 -0400
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:56029 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S261372AbVGNNNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 09:13:43 -0400
-Subject: [PATCH] mb_cache_shrink() frees unexpected caches
-From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@zip.com.au>
-Content-Type: text/plain
-Date: Thu, 14 Jul 2005 22:07:24 +0900
-Message-Id: <1121346444.4282.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Jul 2005 09:18:14 -0400
+Received: from ns2.suse.de ([195.135.220.15]:46558 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261362AbVGNNSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 09:18:12 -0400
+To: Daniel McNeil <daniel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [rfc patch 2/2] direct-io: remove address alignment check
+References: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 14 Jul 2005 15:18:11 +0200
+In-Reply-To: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net.suse.lists.linux.kernel>
+Message-ID: <p73hdex5xws.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mb_cache_shrink() tries to free all sort of mbcache in the lru list.
+Daniel McNeil <daniel@osdl.org> writes:
 
-All user of mb_cache_shrink() are ext2/ext3 xattr.
+> This patch relaxes the direct i/o alignment check so that user addresses
+> do not have to be a multiple of the device block size.
 
-Signed-off-by: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+The original reason for this limit was that lots of drivers
+(not only IDE) explode when you give them odd sizes. Sometimes
+it is even worse.
 
---- 2.6-rc/fs/mbcache.c.orig	2005-07-14 20:40:34.000000000 +0900
-+++ 2.6-rc/fs/mbcache.c	2005-07-14 20:43:42.000000000 +0900
-@@ -329,7 +329,7 @@ mb_cache_shrink(struct mb_cache *cache, 
- 	list_for_each_safe(l, ltmp, &mb_cache_lru_list) {
- 		struct mb_cache_entry *ce =
- 			list_entry(l, struct mb_cache_entry, e_lru_list);
--		if (ce->e_bdev == bdev) {
-+		if (ce->e_cache == cache && ce->e_bdev == bdev) {
- 			list_move_tail(&ce->e_lru_list, &free_list);
- 			__mb_cache_entry_unhash(ce);
- 		}
+I doubt all of them have been fixed.
 
+Very risky change.
 
+-Andi

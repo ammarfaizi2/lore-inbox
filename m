@@ -1,87 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbVGNK0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263004AbVGNKbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbVGNK0u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 06:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbVGNK0u
+	id S263004AbVGNKbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 06:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbVGNKbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 06:26:50 -0400
-Received: from BTNL-TN-DSL-static-006.0.144.59.touchtelindia.net ([59.144.0.6]:19841
-	"EHLO mail.prodmail.net") by vger.kernel.org with ESMTP
-	id S263001AbVGNK0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 06:26:00 -0400
-Message-ID: <42D63D4A.2050607@prodmail.net>
-Date: Thu, 14 Jul 2005 15:54:10 +0530
-From: RVK <rvk@prodmail.net>
-Reply-To: rvk@prodmail.net
-Organization: GSEC1
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-CC: Vinay Venkataraghavan <raghavanvinay@yahoo.com>, linux-crypto@nl.linux.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Open source firewalls
-References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com> <42D63AD0.6060609@aitel.hist.no>
-In-Reply-To: <42D63AD0.6060609@aitel.hist.no>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Thu, 14 Jul 2005 06:31:09 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:28561 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263004AbVGNKbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 06:31:07 -0400
+Subject: Re: Thread_Id
+From: Arjan van de Ven <arjan@infradead.org>
+To: rvk@prodmail.net
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <42D63916.7000007@prodmail.net>
+References: <4mfcK-UT-25@gated-at.bofh.it> <4mUJ1-5ZG-23@gated-at.bofh.it>
+	 <42CB465E.6080104@shaw.ca>  <42D5F934.6000603@prodmail.net>
+	 <1121327103.3967.14.camel@laptopd505.fenrus.org>
+	 <42D63916.7000007@prodmail.net>
+Content-Type: text/plain
+Date: Thu, 14 Jul 2005 12:30:52 +0200
+Message-Id: <1121337052.3967.25.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think buffer overflow has anything to do with transparent proxy. 
-Transparent proxying is just doing some protocol filtering. Still the 
-proxy code may have some buffer overflows. The best way is first to try 
-avoiding any buffer overflows and take programming precautions. Other 
-way is to chroot the services, if running it on a firewall. There are 
-various mechanisms which can be used like bounding the memory region it 
-self. Stack Randomisation and Canary based approaches can also avoid any 
-buffer overflow attacks.
-IDS runs on L7, best example is snort. Its not possible for IDS to 
-detect these attacks accurately.
+On Thu, 2005-07-14 at 15:36 +0530, RVK wrote:
 
-rvk
+> >
+> >it doesn't return a number it returns a pointer ;) or a floating point
+> >number. You don't know :)
+> >
+> >what it returns is a *cookie*. A cookie that you can only use to pass
+> >back to various pthread functions.
+> >
+> >  
+> >
+> Hahaha......common. Please clarify following....
 
-Helge Hafting wrote:
+I'm missing the joke
 
-> Vinay Venkataraghavan wrote:
->
->> I know how to implement buffer overflow attacks. But
->> how would an intrusion detection system detect a
->> buffer overflow attack.
->>
-> Buffer overflow attacks vary, but have one thing in common.  The
-> overflow string is much longer than what's usual for the app/protocol in
-> question.  It may also contain illegal characters, but be careful -
-> non-english users use plenty of valid non-ascii characters in filenames,
-> passwords and so on.
->
-> The way to do this is to implement a transparent proxy module for every
-> protocol you want to do overflow prevention for.  Collect the strings
-> transmitted, pass them on after validating them.  Or reset the
-> connection when one gets "too long".  For example, you may want to
-> limit POP usernames to whatever the maximum username length is
-> on your system.  But make such things configurable, others may
-> want longer usernames than you.
->
->> My question is at the layer
->> that the intrusion detection system operates, how will
->> it know that a particular string for exmaple is liable
->> to overflow a vulnerable buffer.
->>
->>
->>
-> It can't know of course, but it can suspect that 1000-character
-> usernames, passwords or filenames is foul play and reset the
-> connection.  Or 10k URL's . . .
->
-> Helge Hafting
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> .
->
+> SYNOPSIS
+>        #include <pthread.h>
+> 
+>        pthread_t pthread_self(void);
+> 
+> DESCRIPTION
+>        pthread_self return the thread identifier for the calling thread.
+
+*identifier*.
+It doesn't give a meaning beyond that, and if you look at other pthread
+manpages (say pthread_join) it just wants that identifier back. If you
+want to attach meaning to a thread identifier, please come up with a
+manpage/standard that actually defines the meaning of it.
+
+> 
+> bits/pthreadtypes.h:150:typedef unsigned long int pthread_t;
+
+and here you 
+1) look at implementation details of your specific threading
+implementation and 
+2) you prove that your analysis is wrong since the implementation you
+look at defines it as *unsigned* so it can't be negative. So what your
+app does is clearly wrong even within the implementation you look at.
+
+
+Other implementations are allowed to use different types for this. In
+fact, I'd be surprised if NPTL and LinuxThreads would have the same
+type... (they'll have the same size for ABI compat reasons of course,
+but type... not so sure).
+
+
 

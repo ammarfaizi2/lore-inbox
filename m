@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263037AbVGNO4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263038AbVGNO7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbVGNO4r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 10:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbVGNO4r
+	id S263038AbVGNO7B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 10:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVGNO7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 10:56:47 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:31466 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263037AbVGNOzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 10:55:41 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
-       vojtech@suse.cz, david.lang@digitalinsight.com, davidsen@tmr.com,
-       kernel@kolivas.org, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
-       diegocg@gmail.com, azarah@nosferatu.za.org, christoph@lameter.com
-In-Reply-To: <20050714083843.GA4851@elte.hu>
-References: <1121282025.4435.70.camel@mindpipe>
-	 <d120d50005071312322b5d4bff@mail.gmail.com>
-	 <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org>
-	 <20050714005106.GA16085@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org>
-	 <1121304825.4435.126.camel@mindpipe>
-	 <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
-	 <20050714083843.GA4851@elte.hu>
-Content-Type: text/plain
-Date: Thu, 14 Jul 2005 10:55:40 -0400
-Message-Id: <1121352941.4535.15.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Jul 2005 10:59:01 -0400
+Received: from ns.suse.de ([195.135.220.2]:2259 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S263039AbVGNO5p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 10:57:45 -0400
+Message-ID: <42D67D84.2020306@suse.de>
+Date: Thu, 14 Jul 2005 16:58:12 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322 Thunderbird/1.0.2 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: resuming swsusp twice
+References: <20050713185955.GB12668@hexapodia.org>
+In-Reply-To: <20050713185955.GB12668@hexapodia.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 10:38 +0200, Ingo Molnar wrote:
->  - there are real-time applications (robotic environments: fast rotating
->    tools, media and mobile/phone applications, etc.) that want 10
->    usecs precision. If such users increased HZ to 100,000 or even
->    1000,000, the current timer implementation would start to creek: e.g.
->    jiffies on 32-bit systems would wrap around in 11 hours or 1.1 hours.
->    (To solve this cleanly, pretty much the only solution seems to be to
->    increase the timeout to a 64 bit value. A non-issue for 64-bit
->    systems, that's why i think we could eventually look at this 
->    possibility, once all the other problems are hashed out.)
+Andy Isaacson wrote:
+> Yesterday I booted my laptop to 2.6.13-rc2-mm1, suspended to swsusp, and
+> then resumed.  It ran fine overnight, including a fair amount of IO
+> (running firefox, rsyncing ~/Mail/archive from my mail server, hg pull,
+> etc).  This morning I did a swsusp:
 > 
+> 	echo shutdown > /sys/power/disk
+> 	echo disk > /sys/power/state
+> 
+> and got a panic along the lines of "Unable to find swap space, try
 
-Those types of systems will not be 64 bit for many, many years, if
-ever...
+a panic? it should only be an error message, but the machine should
+still be alive.
 
-Lee
+> swapon -a".  Unfortunately I was in a hurry and didn't record the error
+> messages.  I powered off, then a few minutes later powered on again.
 
+Powered off hard or "shutdown -h now"?
+
+> At this point, it resumed *to the swsusp state from yesterday*!
+> As soon as I realized what had happened, I powered off (not
+> shutdown) and rebooted.
+
+Good.
+
+> On the next boot it did not find a swsusp signature and booted normally;
+> ext3 did a normal recovery and seemed OK, but I was suspicious and did a
+> fsck -f, which revealed a lot of damage; most of the damage seemed to be
+
+this is expected in this case, unfortunately.
+
+> in the hg repo which had been pulled from www.kernel.org/hg/.
+> 
+> It's extremely unfortunate that there is *any* failure mode in swsusp
+> that can result in this behavior.
+
+I of course won't say that this cannot happen, but by design, the swsusp
+signature is invalidated even before reading the image, so theoretically
+it should not happen.
+
+> I will try to reproduce, but I'm curious if anyone else has seen this.
+
+i have not seen anything like that, but i am not always running the
+latest & greatest kernel.
+-- 
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

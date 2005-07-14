@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVGNQ0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVGNQ3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbVGNQ0z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 12:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVGNQ0y
+	id S262198AbVGNQ3G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 12:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVGNQ3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 12:26:54 -0400
-Received: from 37.195.62.64.in-arpa.com ([64.62.195.37]:2829 "EHLO
-	bniemczyk.is-a-geek.com") by vger.kernel.org with ESMTP
-	id S262205AbVGNQ0h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 12:26:37 -0400
-Subject: Re: About a change to the implementation of spin lock in 2.6.12
-	kernel.
-From: Brandon Niemczyk <brandon@snprogramming.com>
-Reply-To: brandon@snprogramming.com
-To: multisyncfe991@hotmail.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <BAY108-DAV7F3CC1BA8D84C5323469193D10@phx.gbl>
-References: <BAY108-DAV14071EF16A4482FB4B691593D10@phx.gbl>
-	 <20050714051653.GP8907@alpha.home.local>
-	 <BAY108-DAV7F3CC1BA8D84C5323469193D10@phx.gbl>
-Content-Type: text/plain
-Organization: SN Programming
-Date: Thu, 14 Jul 2005 12:26:38 -0400
-Message-Id: <1121358399.4685.9.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2nb1 
+	Thu, 14 Jul 2005 12:29:00 -0400
+Received: from mail.cipsoft.com ([62.146.47.42]:16353 "EHLO mail.cipsoft.com")
+	by vger.kernel.org with ESMTP id S261822AbVGNQ1L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 12:27:11 -0400
+Message-ID: <42D69255.2060900@cipsoft.com>
+Date: Thu, 14 Jul 2005 18:27:01 +0200
+From: Thoralf Will <thoralf@cipsoft.com>
+Organization: CipSoft GmbH
+User-Agent: Mozilla Thunderbird 1.0.2-1.4.1.centos4 (X11/20050323)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: pc_keyb: controller jammed (0xA7)
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 09:21 -0700, multisyncfe991@hotmail.com wrote:
-> Hi Willy,
-> 
-> I think at least I can remove the LOCK instruction when the lock is already 
-> held by someone else and enter the spinning wait directly, right?
-If the lock is already held by someone else, the cpu is just going to
-burn cycles until it's not. So why do you care?
+Hello,
 
--- 
-Brandon Niemczyk
+I didn't find any useful answer anywhere so far, hope it's ok to ask here.
+I'm currently trying to get a 2.4.31 up and running on an IBM
+BladeCenter HS20/8843. (base system is a stripped down RH9)
 
+When booting the kernel the console is spammmed with:
+   pc_keyb: controller jammed (0xA7)
+But it seems there are no further consequences and the keyboard is
+working. The only answer I've found is "disable usb legacy" in the BIOS
+but that's no solution for me because there is no option to disable usb
+legacy support and it wouldn't make any sense anyway because the
+keyboard is an usb-device, so I really do need support for usb.
+
+Is there a workaround? Is this an already known bug? Anything wrong on
+my side?
+
+
+Thanks,
+Thoralf

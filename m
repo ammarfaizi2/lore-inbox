@@ -1,60 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262969AbVGNKI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbVGNKKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262969AbVGNKI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 06:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbVGNKI0
+	id S262989AbVGNKKx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 06:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbVGNKIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 06:08:26 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:64730 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S262969AbVGNKGd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 06:06:33 -0400
-Message-ID: <42D63AD0.6060609@aitel.hist.no>
-Date: Thu, 14 Jul 2005 12:13:36 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+	Thu, 14 Jul 2005 06:08:32 -0400
+Received: from BTNL-TN-DSL-static-006.0.144.59.touchtelindia.net ([59.144.0.6]:18817
+	"EHLO mail.prodmail.net") by vger.kernel.org with ESMTP
+	id S262979AbVGNKIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 06:08:13 -0400
+Message-ID: <42D63916.7000007@prodmail.net>
+Date: Thu, 14 Jul 2005 15:36:14 +0530
+From: RVK <rvk@prodmail.net>
+Reply-To: rvk@prodmail.net
+Organization: GSEC1
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Vinay Venkataraghavan <raghavanvinay@yahoo.com>
-CC: linux-crypto@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: Open source firewalls
-References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>
-In-Reply-To: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Thread_Id
+References: <4mfcK-UT-25@gated-at.bofh.it> <4mUJ1-5ZG-23@gated-at.bofh.it>	 <42CB465E.6080104@shaw.ca>  <42D5F934.6000603@prodmail.net> <1121327103.3967.14.camel@laptopd505.fenrus.org>
+In-Reply-To: <1121327103.3967.14.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vinay Venkataraghavan wrote:
+Arjan van de Ven wrote:
 
->I know how to implement buffer overflow attacks. But
->how would an intrusion detection system detect a
->buffer overflow attack. 
+>On Thu, 2005-07-14 at 11:03 +0530, RVK wrote:
+>  
 >
-Buffer overflow attacks vary, but have one thing in common.  The 
-overflow string is much longer than what's usual for the app/protocol in 
-question.  It may also contain illegal characters, but be careful - 
-non-english users use plenty of valid non-ascii characters in filenames,
-passwords and so on.
-
-The way to do this is to implement a transparent proxy module for every 
-protocol you want to do overflow prevention for.  Collect the strings
-transmitted, pass them on after validating them.  Or reset the 
-connection when one gets "too long".  For example, you may want to
-limit POP usernames to whatever the maximum username length is
-on your system.  But make such things configurable, others may
-want longer usernames than you.
-
->My question is at the layer
->that the intrusion detection system operates, how will
->it know that a particular string for exmaple is liable
->to overflow a vulnerable buffer. 
+>>Robert Hancock wrote:
+>>
+>>    
+>>
+>>>RVK wrote:
+>>>
+>>>      
+>>>
+>>>>Can anyone suggest me how to get the threadId using 2.6.x kernels.
+>>>>pthread_self() does not work and returns some -ve integer.
+>>>>        
+>>>>
+>>>What do you mean, negative integer? It's not an integer, it's a
+>>>pthread_t, you're not even supposed to look at it..
+>>>      
+>>>
+>>What is pthread_t inturn defined to ? pthread_self for 2.4.x thread
+>>libraries return +ve number(as u have a objection me calling it as
+>>integer :-))
+>>    
+>>
+>
+>it doesn't return a number it returns a pointer ;) or a floating point
+>number. You don't know :)
+>
+>what it returns is a *cookie*. A cookie that you can only use to pass
+>back to various pthread functions.
 >
 >  
 >
-It can't know of course, but it can suspect that 1000-character
-usernames, passwords or filenames is foul play and reset the
-connection.  Or 10k URL's . . .
+Hahaha......common. Please clarify following....
+SYNOPSIS
+       #include <pthread.h>
 
-Helge Hafting
+       pthread_t pthread_self(void);
+
+DESCRIPTION
+       pthread_self return the thread identifier for the calling thread.
+
+bits/pthreadtypes.h:150:typedef unsigned long int pthread_t;
+
+rvk
+
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>.
+>
+>  
+>
 

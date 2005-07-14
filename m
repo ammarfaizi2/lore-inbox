@@ -1,185 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVGNWBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVGNWH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbVGNWBF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 18:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVGNWBA
+	id S262703AbVGNWH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 18:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbVGNWHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 18:01:00 -0400
-Received: from coderock.org ([193.77.147.115]:15009 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S263140AbVGNVod (ORCPT
+	Thu, 14 Jul 2005 18:07:32 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:59341 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262551AbVGNWFW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 17:44:33 -0400
-Message-Id: <20050714214407.139374000@homer>
-Date: Thu, 14 Jul 2005 23:44:02 +0200
-From: domen@coderock.org
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
-       domen@coderock.org
-Subject: [patch 4/5] telephony/ixj: use msleep() instead of schedule_timeout()
-Content-Disposition: inline; filename=msleep-drivers_telephony_ixj
+	Thu, 14 Jul 2005 18:05:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=oNHfzr33Qq8qUV0a7nc7GPNJhJBrdu9MMdfO1hG7Iqv4CwmsOL781BQol0uPusgsi9135RW4CF1//nfn3fbJx77mEc+zIQ2v7qFJjdyAq1MydIa4kpS+oapLrLX9EAN32JPab8Gze/1HiJSe0yCvbj0LeGPj233nlpZW8OJVqUU=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Eric Van Hensbergen <ericvh@gmail.com>
+Subject: Re: (v9fs) -mm -> 2.6.13 merge status
+Date: Fri, 15 Jul 2005 02:12:00 +0400
+User-Agent: KMail/1.8.1
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       rminnich@lanl.gov, linux-kernel@vger.kernel.org,
+       v9fs-developer@lists.sourceforge.net
+References: <20050620235458.5b437274.akpm@osdl.org> <a4e6962a050713112363010124@mail.gmail.com> <20050714200408.GA23092@infradead.org>
+In-Reply-To: <20050714200408.GA23092@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507150212.00515.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nishanth Aravamudan <nacc@us.ibm.com>
+On Friday 15 July 2005 00:04, Christoph Hellwig wrote:
+> normally we prefer a patch per actual change, not per file so the
+> description fits.  Given that all these are pretty trivial fixes one
+> patch would have done it aswell, though.
+> 
+> With these changes the code is fine for mainline in my opinion.
 
+Can I make one more nitpicking comment?
 
-Replace schedule_timeout() with msleep() to
-guarantee the task delays as expected.
+All these functions can use cpu_to_le*() and le*_to_cpu().
 
-Patch is compile-tested.
+> --- /dev/null
+> +++ 25-akpm/fs/9p/conv.c
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
+> +static inline void buf_put_int16(struct cbuf *buf, u16 val)
+> +{
+> +	buf_check_sizev(buf, 2);
+> +
+> +	buf->p[0] = val;
+> +	buf->p[1] = val >> 8;
+> +	buf->p += 2;
+> +}
+> +
+> +static inline void buf_put_int32(struct cbuf *buf, u32 val)
+> +{
+> +	buf_check_sizev(buf, 4);
+> +
+> +	buf->p[0] = val;
+> +	buf->p[1] = val >> 8;
+> +	buf->p[2] = val >> 16;
+> +	buf->p[3] = val >> 24;
+> +	buf->p += 4;
+> +}
+> +
+> +static inline void buf_put_int64(struct cbuf *buf, u64 val)
+> +{
+> +	buf_check_sizev(buf, 8);
+> +
+> +	buf->p[0] = val;
+> +	buf->p[1] = val >> 8;
+> +	buf->p[2] = val >> 16;
+> +	buf->p[3] = val >> 24;
+> +	buf->p[4] = val >> 32;
+> +	buf->p[5] = val >> 40;
+> +	buf->p[6] = val >> 48;
+> +	buf->p[7] = val >> 56;
+> +	buf->p += 8;
+> +}
 
----
- ixj.c |   62 ++++++++++----------------------------------------------------
- 1 files changed, 10 insertions(+), 52 deletions(-)
-
-Index: quilt/drivers/telephony/ixj.c
-===================================================================
---- quilt.orig/drivers/telephony/ixj.c
-+++ quilt/drivers/telephony/ixj.c
-@@ -774,10 +774,7 @@ static int ixj_wink(IXJ *j)
- 	j->pots_winkstart = jiffies;
- 	SLIC_SetState(PLD_SLIC_STATE_OC, j);
- 
--	while (time_before(jiffies, j->pots_winkstart + j->winktime)) {
--		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(1);
--	}
-+	msleep(jiffies_to_msecs(j->winktime));
- 
- 	SLIC_SetState(slicnow, j);
- 	return 0;
-@@ -1912,7 +1909,6 @@ static int ixj_pcmcia_cable_check(IXJ *j
- 
- static int ixj_hookstate(IXJ *j)
- {
--	unsigned long det;
- 	int fOffHook = 0;
- 
- 	switch (j->cardtype) {
-@@ -1943,11 +1939,7 @@ static int ixj_hookstate(IXJ *j)
- 			    j->pld_slicr.bits.state == PLD_SLIC_STATE_STANDBY) {
- 				if (j->flags.ringing || j->flags.cringing) {
- 					if (!in_interrupt()) {
--						det = jiffies + (hertz / 50);
--						while (time_before(jiffies, det)) {
--							set_current_state(TASK_INTERRUPTIBLE);
--							schedule_timeout(1);
--						}
-+						msleep(20);
- 					}
- 					SLIC_GetState(j);
- 					if (j->pld_slicr.bits.state == PLD_SLIC_STATE_RINGING) {
-@@ -2062,7 +2054,7 @@ static void ixj_ring_start(IXJ *j)
- static int ixj_ring(IXJ *j)
- {
- 	char cntr;
--	unsigned long jif, det;
-+	unsigned long jif;
- 
- 	j->flags.ringing = 1;
- 	if (ixj_hookstate(j) & 1) {
-@@ -2070,7 +2062,6 @@ static int ixj_ring(IXJ *j)
- 		j->flags.ringing = 0;
- 		return 1;
- 	}
--	det = 0;
- 	for (cntr = 0; cntr < j->maxrings; cntr++) {
- 		jif = jiffies + (1 * hertz);
- 		ixj_ring_on(j);
-@@ -2089,13 +2080,7 @@ static int ixj_ring(IXJ *j)
- 		ixj_ring_off(j);
- 		while (time_before(jiffies, jif)) {
- 			if (ixj_hookstate(j) & 1) {
--				det = jiffies + (hertz / 100);
--				while (time_before(jiffies, det)) {
--					set_current_state(TASK_INTERRUPTIBLE);
--					schedule_timeout(1);
--					if (signal_pending(current))
--						break;
--				}
-+				msleep(10);
- 				if (ixj_hookstate(j) & 1) {
- 					j->flags.ringing = 0;
- 					return 1;
-@@ -6694,8 +6679,6 @@ static struct file_operations ixj_fops =
- 
- static int ixj_linetest(IXJ *j)
- {
--	unsigned long jifwait;
--
- 	j->flags.pstncheck = 1;	/* Testing */
- 	j->flags.pstn_present = 0; /* Assume the line is not there */
- 
-@@ -6726,11 +6709,7 @@ static int ixj_linetest(IXJ *j)
- 
- 		outb_p(j->pld_scrw.byte, j->XILINXbase);
- 		daa_set_mode(j, SOP_PU_CONVERSATION);
--		jifwait = jiffies + hertz;
--		while (time_before(jiffies, jifwait)) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(1);
--		}
-+		msleep(1000);
- 		daa_int_read(j);
- 		daa_set_mode(j, SOP_PU_RESET);
- 		if (j->m_DAAShadowRegs.XOP_REGS.XOP.xr0.bitreg.VDD_OK) {
-@@ -6750,11 +6729,7 @@ static int ixj_linetest(IXJ *j)
- 	j->pld_slicw.bits.rly3 = 0;
- 	outb_p(j->pld_slicw.byte, j->XILINXbase + 0x01);
- 	daa_set_mode(j, SOP_PU_CONVERSATION);
--	jifwait = jiffies + hertz;
--	while (time_before(jiffies, jifwait)) {
--		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(1);
--	}
-+	msleep(1000);
- 	daa_int_read(j);
- 	daa_set_mode(j, SOP_PU_RESET);
- 	if (j->m_DAAShadowRegs.XOP_REGS.XOP.xr0.bitreg.VDD_OK) {
-@@ -6783,7 +6758,6 @@ static int ixj_linetest(IXJ *j)
- static int ixj_selfprobe(IXJ *j)
- {
- 	unsigned short cmd;
--	unsigned long jif;
- 	int cnt;
- 	BYTES bytes;
- 
-@@ -6933,29 +6907,13 @@ static int ixj_selfprobe(IXJ *j)
- 	} else {
- 		if (j->cardtype == QTI_LINEJACK) {
- 			LED_SetState(0x1, j);
--			jif = jiffies + (hertz / 10);
--			while (time_before(jiffies, jif)) {
--				set_current_state(TASK_INTERRUPTIBLE);
--				schedule_timeout(1);
--			}
-+			msleep(100);
- 			LED_SetState(0x2, j);
--			jif = jiffies + (hertz / 10);
--			while (time_before(jiffies, jif)) {
--				set_current_state(TASK_INTERRUPTIBLE);
--				schedule_timeout(1);
--			}
-+			msleep(100);
- 			LED_SetState(0x4, j);
--			jif = jiffies + (hertz / 10);
--			while (time_before(jiffies, jif)) {
--				set_current_state(TASK_INTERRUPTIBLE);
--				schedule_timeout(1);
--			}
-+			msleep(100);
- 			LED_SetState(0x8, j);
--			jif = jiffies + (hertz / 10);
--			while (time_before(jiffies, jif)) {
--				set_current_state(TASK_INTERRUPTIBLE);
--				schedule_timeout(1);
--			}
-+			msleep(100);
- 			LED_SetState(0x0, j);
- 			daa_get_version(j);
- 			if (ixjdebug & 0x0002)
-
---
+> +static inline u16 buf_get_int16(struct cbuf *buf)
+> +{
+> +	u16 ret = 0;
+> +
+> +	buf_check_size(buf, 2);
+> +	ret = buf->p[0] | (buf->p[1] << 8);
+> +
+> +	buf->p += 2;
+> +
+> +	return ret;
+> +}
+> +
+> +static inline u32 buf_get_int32(struct cbuf *buf)
+> +{
+> +	u32 ret = 0;
+> +
+> +	buf_check_size(buf, 4);
+> +	ret =
+> +	    buf->p[0] | (buf->p[1] << 8) | (buf->p[2] << 16) | (buf->
+> +								p[3] << 24);
+> +
+> +	buf->p += 4;
+> +
+> +	return ret;
+> +}
+> +
+> +static inline u64 buf_get_int64(struct cbuf *buf)
+> +{
+> +	u64 ret = 0;
+> +
+> +	buf_check_size(buf, 8);
+> +	ret = (u64) buf->p[0] | ((u64) buf->p[1] << 8) |
+> +	    ((u64) buf->p[2] << 16) | ((u64) buf->p[3] << 24) |
+> +	    ((u64) buf->p[4] << 32) | ((u64) buf->p[5] << 40) |
+> +	    ((u64) buf->p[6] << 48) | ((u64) buf->p[7] << 56);
+> +
+> +	buf->p += 8;
+> +
+> +	return ret;
+> +}

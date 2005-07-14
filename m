@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVGNWNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVGNWQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbVGNWNa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 18:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVGNWN1
+	id S261746AbVGNWQE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 18:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVGNWQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 18:13:27 -0400
-Received: from coderock.org ([193.77.147.115]:13217 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S263150AbVGNVoY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 17:44:24 -0400
-Message-Id: <20050714214402.975215000@homer>
-Date: Thu, 14 Jul 2005 23:44:01 +0200
-From: domen@coderock.org
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Victor Fusco <victor@cetuc.puc-rio.br>,
-       domen@coderock.org
-Subject: [patch 3/5] dmapool: Fix "nocast type" warnings
-Content-Disposition: inline; filename=sparse-drivers_base_dmapool
+	Thu, 14 Jul 2005 18:16:04 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:41782 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261746AbVGNWPe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 18:15:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k9QtDM9GvKQqbCkEpbmj5sEAmNjbRiOvtMLG3CAjn6hmgEwjAbvBrhgVIc5XnWWDbp7vvSnE9DPDCGLfsmykuCU8H+k7sndxWpQOMI6ixYHHcq6eS1GdgKKhSTVh1Miii5OFSdE/i5r9rPDdgDB1rxSqn45JwuZEyhWaUQ2A1oc=
+Message-ID: <a4e6962a0507141515bb0b30f@mail.gmail.com>
+Date: Thu, 14 Jul 2005 17:15:33 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: (v9fs) -mm -> 2.6.13 merge status
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       rminnich@lanl.gov, linux-kernel@vger.kernel.org,
+       v9fs-developer@lists.sourceforge.net
+In-Reply-To: <200507150212.00515.adobriyan@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050620235458.5b437274.akpm@osdl.org>
+	 <a4e6962a050713112363010124@mail.gmail.com>
+	 <20050714200408.GA23092@infradead.org>
+	 <200507150212.00515.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Victor Fusco <victor@cetuc.puc-rio.br>
+On 7/14/05, Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> On Friday 15 July 2005 00:04, Christoph Hellwig wrote:
+> > normally we prefer a patch per actual change, not per file so the
+> > description fits.  Given that all these are pretty trivial fixes one
+> > patch would have done it aswell, though.
+> >
+> > With these changes the code is fine for mainline in my opinion.
+> 
+> Can I make one more nitpicking comment?
+> 
+> All these functions can use cpu_to_le*() and le*_to_cpu().
+> 
 
+I need to rethink some parts of conv.c, I'll incorporate your
+suggestion during the rework.  Thanks Alexey.
 
-Fix the sparse warning "implicit cast to nocast type"
-
-File/Subsystem:drivers/base/dmapool
-
-Signed-off-by: Victor Fusco <victor@cetuc.puc-rio.br>
-Signed-off-by: Domen Puncer <domen@coderock.org>
-
---
-
----
- drivers/base/dmapool.c  |    3 ++-
- include/linux/dmapool.h |    3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
-
-Index: quilt/drivers/base/dmapool.c
-===================================================================
---- quilt.orig/drivers/base/dmapool.c
-+++ quilt/drivers/base/dmapool.c
-@@ -262,7 +262,8 @@ dma_pool_destroy (struct dma_pool *pool)
-  * If such a memory block can't be allocated, null is returned.
-  */
- void *
--dma_pool_alloc (struct dma_pool *pool, int mem_flags, dma_addr_t *handle)
-+dma_pool_alloc (struct dma_pool *pool, unsigned int __nocast mem_flags,
-+		dma_addr_t *handle)
- {
- 	unsigned long		flags;
- 	struct dma_page		*page;
-Index: quilt/include/linux/dmapool.h
-===================================================================
---- quilt.orig/include/linux/dmapool.h
-+++ quilt/include/linux/dmapool.h
-@@ -19,7 +19,8 @@ struct dma_pool *dma_pool_create(const c
- 
- void dma_pool_destroy(struct dma_pool *pool);
- 
--void *dma_pool_alloc(struct dma_pool *pool, int mem_flags, dma_addr_t *handle);
-+void *dma_pool_alloc(struct dma_pool *pool, unsigned int __nocast mem_flags,
-+		     dma_addr_t *handle);
- 
- void dma_pool_free(struct dma_pool *pool, void *vaddr, dma_addr_t addr);
- 
-
---
+         -eric

@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262912AbVGNFfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVGNFxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbVGNFfH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 01:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbVGNFfH
+	id S262312AbVGNFxO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 01:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbVGNFxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 01:35:07 -0400
-Received: from BTNL-TN-DSL-static-006.0.144.59.touchtelindia.net ([59.144.0.6]:16001
-	"EHLO mail.prodmail.net") by vger.kernel.org with ESMTP
-	id S262915AbVGNFfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 01:35:02 -0400
-Message-ID: <42D5F934.6000603@prodmail.net>
-Date: Thu, 14 Jul 2005 11:03:40 +0530
-From: RVK <rvk@prodmail.net>
-Reply-To: rvk@prodmail.net
-Organization: GSEC1
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Thread_Id
-References: <4mfcK-UT-25@gated-at.bofh.it> <4mUJ1-5ZG-23@gated-at.bofh.it> <42CB465E.6080104@shaw.ca>
-In-Reply-To: <42CB465E.6080104@shaw.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Jul 2005 01:53:14 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:8583 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262312AbVGNFxN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 01:53:13 -0400
+Date: Thu, 14 Jul 2005 11:23:02 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>
+Subject: Re: Current kexec status?
+Message-ID: <20050714055301.GA4133@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20050713104848.GJ4561@charite.de> <20050713122257.GA29477@in.ibm.com> <20050713123239.GT4561@charite.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050713123239.GT4561@charite.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
+On Wed, Jul 13, 2005 at 02:32:39PM +0200, Ralf Hildebrandt wrote:
+> * Vivek Goyal <vgoyal@in.ibm.com>:
+> 
+> > Can you give more details like
+> > - Which distro release you are running.
+> 
+> Debian unstable; since it has no kexec-tools, I built those from source.
+> 
+> > - Exactly what changes did you do to /etc/init.d/reboot and what steps
+> > did you follow to load the kernel (command line options).
+> 
+> /etc/init.d/reboot:
+> ===================
+> 
+> echo -n "Rebooting... "
+> #reboot -d -f -i
+> /usr/local/sbin/kexec -f --exec --debug
+> 
+> Loading the Kernel in /etc/init.d/umountfs, before umount'ing /boot:
+> ====================================================================
+> 
+> echo -n "Loading kernel for kexec()..."
+> /usr/local/sbin/kexec --load /vmlinuz
+> echo "done."
+> 
 
-> RVK wrote:
->
->> Can anyone suggest me how to get the threadId using 2.6.x kernels.
->> pthread_self() does not work and returns some -ve integer.
->
->
-> What do you mean, negative integer? It's not an integer, it's a
-> pthread_t, you're not even supposed to look at it..
+Please copy all the mails related to kexec and kdump problems to
+fastboot mailing list also (fastboot@lists.osdl.org).
 
-What is pthread_t inturn defined to ? pthread_self for 2.4.x thread 
-libraries return +ve number(as u have a objection me calling it as 
-integer :-))
+Instead of modifying reboot scripts, first can you try following simple 
+steps from shell.
 
-Raghu
+1. Load the kernel.
+#kexec -l <kernel-image> --append=<boot time options>
 
->
-> -- 
-> Robert Hancock      Saskatoon, SK, Canada
-> To email, remove "nospam" from hancockr@nospamshaw.ca
-> Home Page: http://www.roberthancock.com/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> .
->
+2. Drop to run level 3 
+# init 3
 
+3. Exec into second kernel
+# kexec -e
+
+
+Thanks
+Vivek

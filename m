@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVGNT0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVGNT0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVGNT0t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 15:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVGNT0t
+	id S261592AbVGNT0u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 15:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbVGNTWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 15:26:49 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:28855 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261488AbVGNTYQ convert rfc822-to-8bit (ORCPT
+	Thu, 14 Jul 2005 15:22:08 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:64954 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261695AbVGNTU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 15:24:16 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.13-rc3 ACPI regression and hang on x86-64
-Date: Thu, 14 Jul 2005 15:23:52 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30040CF75E@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.13-rc3 ACPI regression and hang on x86-64
-Thread-Index: AcWIX/22mzsZVhMMTPOlyirUCP62gAAR56qg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Mikael Pettersson" <mikpe@csd.uu.se>, "Yu, Luming" <luming.yu@intel.com>
-Cc: <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 14 Jul 2005 19:23:55.0729 (UTC) FILETIME=[939C9410:01C588A9]
+	Thu, 14 Jul 2005 15:20:28 -0400
+Date: Thu, 14 Jul 2005 12:19:48 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] char/vt: fix compile failure (typo)
+Message-ID: <20050714191948.GB28100@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.13-rc2 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->acpi_ec-0217 [04] acpi_ec_leave_burst_mo: ------->status fail
->
->on the console, and then the machine is hung hard.
+From: Nishanth Aravamudan <nacc@us.ibm.com>
 
-2.6.13-rc3 x86_64 failed, but 
-2.6.13-rc2 x86_64 worked
+Description: The mod_timer() statement mistakenly has a comma at the end
+of the line instead of a semicolon.
 
-And both of these revisions in the i386 kernel still work?
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
->+evxfevnt-0203 [07] acpi_enable_event     : Could not enable
-power_button
->event
->+ evxface-0157 [06] acpi_install_fixed_eve: Could not enable fixed
-event.
->+acpi_button-0224 [05] acpi_button_add       : Error installing notify
->handler
->+ACPI: Power Button (CM) [PWRB]
+---
 
+ vt.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-We're toast at this point, even before the EC message.
-
-Looks like this failure was reported here
-http://bugzilla.kernel.org/show_bug.cgi?id=4534
-and is assigned to Luming.
-
-Is it possible for you to test the latest ACPI patch?
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/
-2.6.13/
-
-Also, it would be good to confirm the same failure exists with
-CONFIG_ACPI_DEBUG=n.
-
-thanks,
--Len
-
+diff -urpN 2.6.13-rc3/drivers/char/vt.c 2.6.13-rc3-timer/drivers/char/vt.c
+--- 2.6.13-rc3/drivers/char/vt.c	2005-07-14 12:02:08.000000000 -0700
++++ 2.6.13-rc3-timer/drivers/char/vt.c	2005-07-14 12:02:21.000000000 -0700
+@@ -2796,7 +2796,7 @@ void do_blank_screen(int entering_gfx)
+ 		return;
+ 
+ 	if (vesa_off_interval) {
+-		blank_state = blank_vesa_wait,
++		blank_state = blank_vesa_wait;
+ 		mod_timer(&console_timer, jiffies + vesa_off_interval);
+ 	}
+ 

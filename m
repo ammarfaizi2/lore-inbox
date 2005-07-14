@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVGNNTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVGNN04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbVGNNTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 09:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbVGNNTZ
+	id S261378AbVGNN04 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 09:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVGNN04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 09:19:25 -0400
-Received: from wproxy.gmail.com ([64.233.184.192]:27164 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261370AbVGNNS0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 09:18:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Qk3ZRT6+FKvNO1aMuI6RU1oeCaTMiVNOF35yKtswPkoZREpX2EU21qonK476gcGIPj42rmjNG6EJfqi/3gq3IMpwbg+TH2fnr8+W5Ju7CQ/Shcw0p0dR55dHxddPyJ7PVQBQbXeLm+Ss+lHStlkLXHz5NQf0Ad+0/ueJXSTBaSs=
-Message-ID: <9e47339105071406177dc4dad6@mail.gmail.com>
-Date: Thu, 14 Jul 2005 09:17:39 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Dave Airlie <airlied@gmail.com>
-Subject: Re: moving DRM header files
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <21d7e9970507132209e7ac477@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <21d7e99705071321044c216db4@mail.gmail.com>
-	 <9e4733910507132125af9835@mail.gmail.com>
-	 <21d7e9970507132209e7ac477@mail.gmail.com>
+	Thu, 14 Jul 2005 09:26:56 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:22749 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261378AbVGNN0z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 09:26:55 -0400
+Date: Thu, 14 Jul 2005 15:26:29 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: Christoph Hellwig <hch@infradead.org>, zanussi@us.ibm.com,
+       linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
+       richardj_moore@uk.ibm.com
+Subject: Re: Merging relayfs?
+In-Reply-To: <20050711193409.043ecb14.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0507131809120.3743@scrub.home>
+References: <17107.6290.734560.231978@tut.ibm.com> <20050712022537.GA26128@infradead.org>
+ <20050711193409.043ecb14.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/14/05, Dave Airlie <airlied@gmail.com> wrote:
-> > > I'm thinking include/linux/drm/
-> > > but include/linux would also be possible.
-> > >
-> > > Any suggestions or ideas?
-> >
-> > If you're in a mood to move things, how about moving drivers/char/drm
-> > to drivers/video/drm.
+Hi,
+
+On Mon, 11 Jul 2005, Andrew Morton wrote:
+
+> > > Hi Andrew, can you please merge relayfs?  It provides a low-overhead
+> > > logging and buffering capability, which does not currently exist in
+> > > the kernel.
+> > 
+> > While the code is pretty nicely in shape it seems rather pointless to
+> > merge until an actual user goes with it.
 > 
-> But that has little point beyond aesthetics... moving the header files
-> is for a reason that I want them to start appearing in userspace
-> includeable places.. as part of the cleanup for libdrm..
-> 
-> Moving c files internally in the kernel provides no real benefit over
-> not moving them..
+> Ordinarily I'd agree.  But this is a bit like kprobes - it's a funny thing
+> which other kernel features rely upon, but those features are often ad-hoc
+> and aren't intended for merging.
 
-When you start merging DRM and fbdev you will be able to use relative
-paths that are closer together.  For example #include
-"../char/drm/drmP.h" versus "#include "drm/drmP.h" for internal
-headers.
+I agree with Christoph, I'd like to see a small (and useful) example 
+included, which can be used as reference. relayfs client still need some 
+code of their own to communicate with user space. If I look at the example 
+code I'm not really sure netlink is a good way to go as control channel.
+kprobes has a rather simple interface, relayfs is more complex and I think 
+it's a good idea to provide some sane and complete example code to copy 
+from.
 
-DRM and fbdev need to be moved next to each other in kconfig too if
-they start depending on each other. It if hard to figure out that a
-video option might not be visible because the char/drm/option is not
-turned on.
+Looking through the patch there are still a few areas I'm concerned about:
+- the usage of atomic_t look a little silly, there is only a single 
+writer and probably needs some cache line optimisations
+- I would prefer "unsigned int" over just "unsigned"
+- the padding/commit arrays can be easily managed by the client
+- overwrite mode can be implemented via the buffer switch callback
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+In general I'm not against merging, but I have a few ideas for further 
+cleanups/optimisations and it really would help to have some useful 
+example code (e.g. a _simple_ event tracer).
+
+bye, Roman

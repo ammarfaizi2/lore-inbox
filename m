@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263030AbVGNOy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263037AbVGNO4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263030AbVGNOy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 10:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263037AbVGNOy6
+	id S263037AbVGNO4r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 10:56:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbVGNO4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 10:54:58 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:56470 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263030AbVGNOy5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 10:54:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=MPwyEPl5WiLlu3BiWdczSmJACd5+sAGgPzM2BHLYstqcFiiWV1wkvJk5XtILgSpgfA5kXNxG+UO5YLTqQvklUMEYSSOEfAFgOv8Ckzxdi5ssBLu/4BOxBML7WFz4nSKcBzl770NwLCEDPu8OFfuGaATpAG7xo0lccncGM2bW2oA=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] visws: reexport pm_power_off
-Date: Thu, 14 Jul 2005 19:01:59 +0400
-User-Agent: KMail/1.8.1
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-References: <1121261886.5049.7.camel@mulgrave>
-In-Reply-To: <1121261886.5049.7.camel@mulgrave>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 14 Jul 2005 10:56:47 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:31466 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263037AbVGNOzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 10:55:41 -0400
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
+       vojtech@suse.cz, david.lang@digitalinsight.com, davidsen@tmr.com,
+       kernel@kolivas.org, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
+       diegocg@gmail.com, azarah@nosferatu.za.org, christoph@lameter.com
+In-Reply-To: <20050714083843.GA4851@elte.hu>
+References: <1121282025.4435.70.camel@mindpipe>
+	 <d120d50005071312322b5d4bff@mail.gmail.com>
+	 <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
+	 <20050713211650.GA12127@taniwha.stupidest.org>
+	 <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org>
+	 <20050714005106.GA16085@taniwha.stupidest.org>
+	 <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org>
+	 <1121304825.4435.126.camel@mindpipe>
+	 <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
+	 <20050714083843.GA4851@elte.hu>
+Content-Type: text/plain
+Date: Thu, 14 Jul 2005 10:55:40 -0400
+Message-Id: <1121352941.4535.15.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507141901.59358.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 July 2005 17:38, James Bottomley wrote:
-> [PATCH] Remove i386_ksyms.c, almost
+On Thu, 2005-07-14 at 10:38 +0200, Ingo Molnar wrote:
+>  - there are real-time applications (robotic environments: fast rotating
+>    tools, media and mobile/phone applications, etc.) that want 10
+>    usecs precision. If such users increased HZ to 100,000 or even
+>    1000,000, the current timer implementation would start to creek: e.g.
+>    jiffies on 32-bit systems would wrap around in 11 hours or 1.1 hours.
+>    (To solve this cleanly, pretty much the only solution seems to be to
+>    increase the timeout to a 64 bit value. A non-issue for 64-bit
+>    systems, that's why i think we could eventually look at this 
+>    possibility, once all the other problems are hashed out.)
 > 
-> made files like smp.c do their own EXPORT_SYMBOLS.  This means that all
-> subarchitectures that override these symbols now have to do the exports
-> themselves.  This patch adds the exports for voyager (which is the most
-> affected since it has a separate smp harness).  However, someone should
-> audit all the other subarchitectures to see if any others got broken.
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Those types of systems will not be 64 bit for many, many years, if
+ever...
 
- arch/i386/mach-visws/reboot.c |    1 +
- 1 files changed, 1 insertion(+)
+Lee
 
---- linux-vanilla/arch/i386/mach-visws/reboot.c	2005-07-13 19:45:59.000000000 +0400
-+++ linux-visws/arch/i386/mach-visws/reboot.c	2005-07-14 18:53:23.000000000 +0400
-@@ -7,6 +7,7 @@
- #include "piix4.h"
- 
- void (*pm_power_off)(void);
-+EXPORT_SYMBOL(pm_power_off);
- 
- void machine_restart(char * __unused)
- {

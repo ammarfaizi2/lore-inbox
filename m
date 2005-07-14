@@ -1,436 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262965AbVGNJJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262966AbVGNJJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262965AbVGNJJd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 05:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbVGNJH1
+	id S262966AbVGNJJc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 05:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbVGNJHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 05:07:27 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:6537 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262965AbVGNJFb
+	Thu, 14 Jul 2005 05:07:32 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:7561 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262966AbVGNJFb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 14 Jul 2005 05:05:31 -0400
-Subject: [RFC][PATCH] device registration cleanups [3/9]
+Subject: [RFC][PATCH] Add PCI<->PCI bridge driver [4/9]
 From: Adam Belay <abelay@novell.com>
 To: linux-kernel@vger.kernel.org
 Cc: greg@kroah.com
 Content-Type: text/plain
-Date: Thu, 14 Jul 2005 04:55:15 -0400
-Message-Id: <1121331316.3398.91.camel@localhost.localdomain>
+Date: Thu, 14 Jul 2005 04:55:19 -0400
+Message-Id: <1121331319.3398.92.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch moves all device registration related functions to
-bus/device.c.
+This patch adds a basic PCI<->PCI bridge driver that utilizes the new
+PCI bus class API.
 
 Signed-off-by: Adam Belay <abelay@novell.com>
 
---- a/drivers/pci/bus/device.c	1969-12-31 19:00:00.000000000 -0500
-+++ b/drivers/pci/bus/device.c	2005-07-12 01:32:41.000000000 -0400
-@@ -0,0 +1,187 @@
+--- a/drivers/pci/bus/pci-bridge.c	1969-12-31 19:00:00.000000000 -0500
++++ b/drivers/pci/bus/pci-bridge.c	2005-07-08 02:18:43.000000000 -0400
+@@ -0,0 +1,165 @@
 +/*
-+ * device.c - PCI device registration
++ * pci-bridge.c - a generic PCI bus driver for PCI<->PCI bridges
++ *
 + */
 +
-+#include <linux/module.h>
-+#include <linux/kernel.h>
 +#include <linux/pci.h>
 +#include <linux/init.h>
++#include <linux/module.h>
 +
-+#include "../pci.h" 
++static struct pci_device_id ppb_id_tbl[] = {
++	{ PCI_DEVICE_CLASS(PCI_CLASS_BRIDGE_PCI << 8, 0xffff00) },
++	{ 0 },
++};
 +
-+/**
-+ * add a single device
-+ * @dev: device to add
-+ *
-+ * This adds a single pci device to the global
-+ * device list and adds sysfs and procfs entries
-+ */
-+void __devinit pci_bus_add_device(struct pci_dev *dev)
-+{
-+	device_add(&dev->dev);
-+
-+	spin_lock(&pci_bus_lock);
-+	list_add_tail(&dev->global_list, &pci_devices);
-+	spin_unlock(&pci_bus_lock);
-+
-+	pci_proc_attach_device(dev);
-+	pci_create_sysfs_dev_files(dev);
-+}
-+
-+EXPORT_SYMBOL_GPL(pci_bus_add_device);
++MODULE_DEVICE_TABLE(pci, ppb_id_tbl);
 +
 +/**
-+ * pci_bus_add_devices - insert newly discovered PCI devices
-+ * @bus: bus to check for new devices
-+ *
-+ * Add newly discovered PCI devices (which are on the bus->devices
-+ * list) to the global PCI device list, add the sysfs and procfs
-+ * entries.  Where a bridge is found, add the discovered bus to
-+ * the parents list of child buses, and recurse (breadth-first
-+ * to be compatible with 2.4)
-+ *
-+ * Call hotplug for each new devices.
++ * ppb_create_bus - allocates a bus and fills in basic information
++ * @dev: the pci bridge device
 + */
-+void __devinit pci_bus_add_devices(struct pci_bus *bus)
-+{
-+	struct pci_dev *dev;
-+
-+	list_for_each_entry(dev, &bus->devices, bus_list) {
-+		/*
-+		 * Skip already-present devices (which are on the
-+		 * global device list.)
-+		 */
-+		if (!list_empty(&dev->global_list))
-+			continue;
-+		pci_bus_add_device(dev);
-+	}
-+
-+	list_for_each_entry(dev, &bus->devices, bus_list) {
-+
-+		BUG_ON(list_empty(&dev->global_list));
-+
-+		/*
-+		 * If there is an unattached subordinate bus, attach
-+		 * it and then scan for unattached PCI devices.
-+		 */
-+		if (dev->subordinate) {
-+			if (list_empty(&dev->subordinate->node)) {
-+				spin_lock(&pci_bus_lock);
-+				list_add_tail(&dev->subordinate->node,
-+					      &dev->bus->children);
-+				spin_unlock(&pci_bus_lock);
-+			} 
-+			pci_bus_add_devices(dev->subordinate);
-+
-+			sysfs_create_link(&dev->subordinate->class_dev.kobj, &dev->dev.kobj, "bridge");
-+		}
-+	}
-+}
-+
-+EXPORT_SYMBOL(pci_bus_add_devices);
-+
-+static void pci_free_resources(struct pci_dev *dev)
++static struct pci_bus * ppb_create_bus(struct pci_dev *dev)
 +{
 +	int i;
++	struct pci_bus *bus = pci_alloc_bus();
 +
-+ 	msi_remove_pci_irq_vectors(dev);
++	if (!bus)
++		return NULL;
 +
-+	pci_cleanup_rom(dev);
-+	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
-+		struct resource *res = dev->resource + i;
-+		if (res->parent)
-+			release_resource(res);
-+	}
-+}
++	bus->parent = dev->bus;
++	bus->bridge = &dev->dev;
++	bus->ops = bus->parent->ops;
++	bus->sysdata = bus->parent->sysdata;
++	bus->bridge = get_device(&dev->dev);
 +
-+static void pci_destroy_dev(struct pci_dev *dev)
-+{
-+	if (!list_empty(&dev->global_list)) {
-+		pci_proc_detach_device(dev);
-+		pci_remove_sysfs_dev_files(dev);
-+		device_unregister(&dev->dev);
-+		spin_lock(&pci_bus_lock);
-+		list_del(&dev->global_list);
-+		dev->global_list.next = dev->global_list.prev = NULL;
-+		spin_unlock(&pci_bus_lock);
++	/* Set up default resource pointers and names.. */
++	for (i = 0; i < 4; i++) {
++		bus->resource[i] = &dev->resource[PCI_BRIDGE_RESOURCES+i];
++		bus->resource[i]->name = bus->name;
 +	}
 +
-+	/* Remove the device from the device lists, and prevent any further
-+	 * list accesses from this device */
-+	spin_lock(&pci_bus_lock);
-+	list_del(&dev->bus_list);
-+	dev->bus_list.next = dev->bus_list.prev = NULL;
-+	spin_unlock(&pci_bus_lock);
-+
-+	pci_free_resources(dev);
-+	pci_dev_put(dev);
++	return bus;
 +}
 +
 +/**
-+ * pci_remove_device_safe - remove an unused hotplug device
-+ * @dev: the device to remove
++ * ppb_detect_bus - creates a bus and reads configuration space data
++ * @dev: the pci bridge device
 + *
-+ * Delete the device structure from the device lists and 
-+ * notify userspace (/sbin/hotplug), but only if the device
-+ * in question is not being used by a driver.
-+ * Returns 0 on success.
++ * This function will do some verification to ensure we should drive this
++ * bridge.
 + */
-+int pci_remove_device_safe(struct pci_dev *dev)
++static struct pci_bus * ppb_detect_bus(struct pci_dev *dev)
 +{
-+	if (pci_dev_driver(dev))
-+		return -EBUSY;
-+	pci_destroy_dev(dev);
++	struct pci_bus *bus;
++	u32 buses;
++	u16 bctl;
++	unsigned int busnr;
++
++	pci_read_config_dword(dev, PCI_PRIMARY_BUS, &buses);
++	busnr = (buses >> 8) & 0xFF;
++
++	/*
++	 * FIXME: This driver currently doesn't support bridges that haven't
++	 * been configured by the BIOS.
++	 */
++	if (!(buses & 0xffff00)) {
++		printk(KERN_INFO "PCI: Unable to drive bus %04x:%02x\n",
++				pci_domain_nr(dev->bus), busnr);
++		return NULL;
++	}
++
++	/*
++	 * If we already got to this bus through a different bridge,
++	 * ignore it.  This can happen with the i450NX chipset.
++	 */
++	if (pci_find_bus(pci_domain_nr(dev->bus), busnr)) {
++		printk(KERN_INFO "PCI: Bus %04x:%02x already known\n",
++				pci_domain_nr(dev->bus), busnr);
++		return NULL;
++	}
++
++	bus = ppb_create_bus(dev);
++	if (!bus)
++		return NULL;
++
++	/* Disable MasterAbortMode during probing to avoid reporting
++	 * of bus errors (in some architectures)
++	 */ 
++	pci_read_config_word(dev, PCI_BRIDGE_CONTROL, &bctl);
++	pci_write_config_word(dev, PCI_BRIDGE_CONTROL,
++			      bctl & ~PCI_BRIDGE_CTL_MASTER_ABORT);
++
++	bus->number = bus->secondary = busnr;
++	bus->primary = buses & 0xFF;
++	bus->subordinate = (buses >> 16) & 0xFF;
++	bus->bridge_ctl = bctl;
++
++	return bus;
++}
++
++/**
++ * ppb_detect_children - detects and registers child devices
++ * @bus: pci bus
++ */
++static void ppb_detect_children(struct pci_bus *bus)
++{
++	unsigned int devfn;
++
++	/* Go find them, Rover! */
++	for (devfn = 0; devfn < 0x100; devfn += 8)
++		pci_scan_slot(bus, devfn);
++
++	pcibios_fixup_bus(bus);
++	pci_bus_add_devices(bus);
++}
++
++static int ppb_probe(struct pci_dev *dev, const struct pci_device_id *id)
++{
++	int err;
++	struct pci_bus *bus;
++
++	if (dev->hdr_type != PCI_HEADER_TYPE_BRIDGE)
++		return -ENODEV;
++
++	bus = ppb_detect_bus(dev);
++	if (!bus)
++		return -ENODEV;
++
++	err = pci_add_bus(bus);
++	if (err)
++		goto out;
++
++	dev->subordinate = bus;
++	ppb_detect_children(bus);
 +	return 0;
++
++out:
++	kfree(bus);
++	return err;
 +}
 +
-+EXPORT_SYMBOL(pci_remove_device_safe);
-+
-+/**
-+ * pci_remove_bus_device - remove a PCI device and any children
-+ * @dev: the device to remove
-+ *
-+ * Remove a PCI device from the device lists, informing the drivers
-+ * that the device has been removed.  We also remove any subordinate
-+ * buses and children in a depth-first manner.
-+ *
-+ * For each device we remove, delete the device structure from the
-+ * device lists, remove the /proc entry, and notify userspace
-+ * (/sbin/hotplug).
-+ */
-+void pci_remove_bus_device(struct pci_dev *dev)
++static void ppb_remove(struct pci_dev *dev)
 +{
-+	if (dev->subordinate) {
-+		struct pci_bus *b = dev->subordinate;
-+
-+		pci_remove_behind_bridge(dev);
-+		pci_remove_bus(b);
-+		dev->subordinate = NULL;
-+	}
-+
-+	pci_destroy_dev(dev);
++	pci_remove_behind_bridge(dev);
++	pci_remove_bus(dev->subordinate);
 +}
 +
-+EXPORT_SYMBOL(pci_remove_bus_device);
++static struct pci_driver ppb_driver = {
++	.name		= "pci-bridge",
++	.id_table	= ppb_id_tbl,
++	.probe		= ppb_probe,
++	.remove		= ppb_remove,
++};
 +
-+/**
-+ * pci_remove_behind_bridge - remove all devices behind a PCI bridge
-+ * @dev: PCI bridge device
-+ *
-+ * Remove all devices on the bus, except for the parent bridge.
-+ * This also removes any child buses, and any devices they may
-+ * contain in a depth-first manner.
-+ */
-+void pci_remove_behind_bridge(struct pci_dev *dev)
++static int __init ppb_init(void)
 +{
-+	struct list_head *l, *n;
-+
-+	if (dev->subordinate) {
-+		list_for_each_safe(l, n, &dev->subordinate->devices) {
-+			struct pci_dev *dev = pci_dev_b(l);
-+
-+			pci_remove_bus_device(dev);
-+		}
-+	}
++	return pci_register_driver(&ppb_driver);
 +}
 +
-+EXPORT_SYMBOL(pci_remove_behind_bridge);
---- a/drivers/pci/bus/Makefile	2005-07-12 00:59:58.000000000 -0400
-+++ b/drivers/pci/bus/Makefile	2005-07-12 01:09:47.000000000 -0400
++static void __exit ppb_exit(void)
++{
++	pci_unregister_driver(&ppb_driver);
++}
++
++module_init(ppb_init);
++module_exit(ppb_exit);
+--- a/drivers/pci/bus/Makefile	2005-07-07 22:22:49.000000000 -0400
++++ b/drivers/pci/bus/Makefile	2005-07-08 02:16:39.000000000 -0400
 @@ -2,4 +2,4 @@
  # Makefile for the PCI device detection
  #
  
--obj-y :=  bus.o config.o probe.o
-+obj-y :=  bus.o config.o device.o probe.o
---- a/drivers/pci/bus.c	2005-07-08 17:06:19.000000000 -0400
-+++ b/drivers/pci/bus.c	2005-07-12 01:28:22.000000000 -0400
-@@ -68,73 +68,6 @@
- 	return ret;
- }
- 
--/**
-- * add a single device
-- * @dev: device to add
-- *
-- * This adds a single pci device to the global
-- * device list and adds sysfs and procfs entries
-- */
--void __devinit pci_bus_add_device(struct pci_dev *dev)
--{
--	device_add(&dev->dev);
--
--	spin_lock(&pci_bus_lock);
--	list_add_tail(&dev->global_list, &pci_devices);
--	spin_unlock(&pci_bus_lock);
--
--	pci_proc_attach_device(dev);
--	pci_create_sysfs_dev_files(dev);
--}
--
--/**
-- * pci_bus_add_devices - insert newly discovered PCI devices
-- * @bus: bus to check for new devices
-- *
-- * Add newly discovered PCI devices (which are on the bus->devices
-- * list) to the global PCI device list, add the sysfs and procfs
-- * entries.  Where a bridge is found, add the discovered bus to
-- * the parents list of child buses, and recurse (breadth-first
-- * to be compatible with 2.4)
-- *
-- * Call hotplug for each new devices.
-- */
--void __devinit pci_bus_add_devices(struct pci_bus *bus)
--{
--	struct pci_dev *dev;
--
--	list_for_each_entry(dev, &bus->devices, bus_list) {
--		/*
--		 * Skip already-present devices (which are on the
--		 * global device list.)
--		 */
--		if (!list_empty(&dev->global_list))
--			continue;
--		pci_bus_add_device(dev);
--	}
--
--	list_for_each_entry(dev, &bus->devices, bus_list) {
--
--		BUG_ON(list_empty(&dev->global_list));
--
--		/*
--		 * If there is an unattached subordinate bus, attach
--		 * it and then scan for unattached PCI devices.
--		 */
--		if (dev->subordinate) {
--		       if (list_empty(&dev->subordinate->node)) {
--			       spin_lock(&pci_bus_lock);
--			       list_add_tail(&dev->subordinate->node,
--					       &dev->bus->children);
--			       spin_unlock(&pci_bus_lock);
--		       }
--			pci_bus_add_devices(dev->subordinate);
--
--			sysfs_create_link(&dev->subordinate->class_dev.kobj, &dev->dev.kobj, "bridge");
--		}
--	}
--}
--
- void pci_enable_bridges(struct pci_bus *bus)
- {
- 	struct pci_dev *dev;
-@@ -149,6 +82,4 @@
- }
- 
- EXPORT_SYMBOL(pci_bus_alloc_resource);
--EXPORT_SYMBOL_GPL(pci_bus_add_device);
--EXPORT_SYMBOL(pci_bus_add_devices);
- EXPORT_SYMBOL(pci_enable_bridges);
---- a/drivers/pci/Makefile	2005-07-12 00:59:58.000000000 -0400
-+++ b/drivers/pci/Makefile	2005-07-12 01:09:47.000000000 -0400
-@@ -2,8 +2,8 @@
- # Makefile for the PCI bus specific drivers.
- #
- 
--obj-y		+= access.o bus.o remove.o pci.o quirks.o names.o \
--		   pci-driver.o search.o pci-sysfs.o rom.o bus/
-+obj-y		+= access.o bus.o pci.o quirks.o names.o pci-driver.o \
-+		   search.o pci-sysfs.o rom.o bus/
- 
- obj-$(CONFIG_PROC_FS) += proc.o
- 
---- a/drivers/pci/remove.c	2005-07-12 01:08:20.000000000 -0400
-+++ b/drivers/pci/remove.c	1969-12-31 19:00:00.000000000 -0500
-@@ -1,108 +0,0 @@
--#include <linux/pci.h>
--#include <linux/module.h>
--#include "pci.h"
--
--static void pci_free_resources(struct pci_dev *dev)
--{
--	int i;
--
-- 	msi_remove_pci_irq_vectors(dev);
--
--	pci_cleanup_rom(dev);
--	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
--		struct resource *res = dev->resource + i;
--		if (res->parent)
--			release_resource(res);
--	}
--}
--
--static void pci_destroy_dev(struct pci_dev *dev)
--{
--	if (!list_empty(&dev->global_list)) {
--		pci_proc_detach_device(dev);
--		pci_remove_sysfs_dev_files(dev);
--		device_unregister(&dev->dev);
--		spin_lock(&pci_bus_lock);
--		list_del(&dev->global_list);
--		dev->global_list.next = dev->global_list.prev = NULL;
--		spin_unlock(&pci_bus_lock);
--	}
--
--	/* Remove the device from the device lists, and prevent any further
--	 * list accesses from this device */
--	spin_lock(&pci_bus_lock);
--	list_del(&dev->bus_list);
--	dev->bus_list.next = dev->bus_list.prev = NULL;
--	spin_unlock(&pci_bus_lock);
--
--	pci_free_resources(dev);
--	pci_dev_put(dev);
--}
--
--/**
-- * pci_remove_device_safe - remove an unused hotplug device
-- * @dev: the device to remove
-- *
-- * Delete the device structure from the device lists and 
-- * notify userspace (/sbin/hotplug), but only if the device
-- * in question is not being used by a driver.
-- * Returns 0 on success.
-- */
--int pci_remove_device_safe(struct pci_dev *dev)
--{
--	if (pci_dev_driver(dev))
--		return -EBUSY;
--	pci_destroy_dev(dev);
--	return 0;
--}
--EXPORT_SYMBOL(pci_remove_device_safe);
--
--
--/**
-- * pci_remove_bus_device - remove a PCI device and any children
-- * @dev: the device to remove
-- *
-- * Remove a PCI device from the device lists, informing the drivers
-- * that the device has been removed.  We also remove any subordinate
-- * buses and children in a depth-first manner.
-- *
-- * For each device we remove, delete the device structure from the
-- * device lists, remove the /proc entry, and notify userspace
-- * (/sbin/hotplug).
-- */
--void pci_remove_bus_device(struct pci_dev *dev)
--{
--	if (dev->subordinate) {
--		struct pci_bus *b = dev->subordinate;
--
--		pci_remove_behind_bridge(dev);
--		pci_remove_bus(b);
--		dev->subordinate = NULL;
--	}
--
--	pci_destroy_dev(dev);
--}
--
--/**
-- * pci_remove_behind_bridge - remove all devices behind a PCI bridge
-- * @dev: PCI bridge device
-- *
-- * Remove all devices on the bus, except for the parent bridge.
-- * This also removes any child buses, and any devices they may
-- * contain in a depth-first manner.
-- */
--void pci_remove_behind_bridge(struct pci_dev *dev)
--{
--	struct list_head *l, *n;
--
--	if (dev->subordinate) {
--		list_for_each_safe(l, n, &dev->subordinate->devices) {
--			struct pci_dev *dev = pci_dev_b(l);
--
--			pci_remove_bus_device(dev);
--		}
--	}
--}
--
--EXPORT_SYMBOL(pci_remove_bus_device);
--EXPORT_SYMBOL(pci_remove_behind_bridge);
+-obj-y :=  bus.o config.o device.o probe.o
++obj-y :=  bus.o config.o device.o probe.o pci-bridge.o
 
 

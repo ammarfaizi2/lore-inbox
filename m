@@ -1,91 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263166AbVGNWis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263168AbVGNWjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbVGNWis (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 18:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVGNWgQ
+	id S263168AbVGNWjY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 18:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVGNWiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 18:36:16 -0400
-Received: from taxbrain.com ([64.162.14.3]:9523 "EHLO petzent.com")
-	by vger.kernel.org with ESMTP id S263164AbVGNWfR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 18:35:17 -0400
-From: "karl malbrain" <karl@petzent.com>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.9: serial_core: uart_open
-Date: Thu, 14 Jul 2005 15:35:07 -0700
-Message-ID: <NDBBKFNEMLJBNHKPPFILEEAJCEAA.karl@petzent.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
-In-Reply-To: <20050714195717.B10410@flint.arm.linux.org.uk>
-X-Spam-Processed: petzent.com, Thu, 14 Jul 2005 15:31:22 -0700
-	(not processed: message from valid local sender)
-X-Return-Path: karl@petzent.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: petzent.com, Thu, 14 Jul 2005 15:31:27 -0700
+	Thu, 14 Jul 2005 18:38:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:3200 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263168AbVGNWiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 18:38:08 -0400
+Date: Thu, 14 Jul 2005 23:38:07 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add security_task_post_setgid
+Message-ID: <20050714223807.GA25671@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0507142339570.3256@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0507142339570.3256@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Russell King
-> Sent: Thursday, July 14, 2005 11:57 AM
-> To: karl malbrain
-> Cc: Linux-Kernel@Vger. Kernel. Org
-> Subject: Re: 2.6.9: serial_core: uart_open
->
->
-> On Thu, Jul 14, 2005 at 10:16:23AM -0700, karl malbrain wrote:
-> > I'd love to do a ps listing for you, but, except for the mouse,
-> the system
-> > is completely unresponsive after issuing the blocking open("/dev/ttyS1",
-> > O_RDRW).
-> >
-> > Telnet is dead; the console will respond to the mouse, but the
-> only thing I
-> > can do is close the xterm window and thereby kill the process.
-> I can launch
-> > a new xterm window from the menu using the mouse, but the new
-> window is dead
-> > and has no cursor nor bash prompt.
-> >
-> > The clock on the display is being updated.  After several hours
-> the system
-> > reboots on its own.
-> >
-> > I recall from my DOS days that 8250/16550 programming requires that the
-> > specific IIR source be responded to, or the chip will immediately
-> > turn-around with another interrupt.  It doesn't look like 8250.c is
-> > organized to respond directly to the modem-status-change value
-> in IIR which
-> > requires reading MSR to reset.
->
-> Well, at this point interrupts are enabled, and _are_ handled.  The
-> only thing we use the IIR for is to answer the question "did this
-> device say it had an interrupt?"
->
-> If it did, we unconditionally read the MSR without fail.
->
-> So, I've no idea what so ever about what's going on here.  I don't
-> understand why your system is behaving the way it is.  Therefore,
-> I don't think we can progress this any further, sorry.
+On Thu, Jul 14, 2005 at 11:42:46PM +0200, Jan Engelhardt wrote:
+> Hi,
+> 
+> 
+> the following patch adds a post_setgid() security hook, and necessary dummy 
+> funcs.
 
-AT LAST I HAVE SOME DATA!!!
-
-The problem is that ALL SYSTEM CALLS to open "/dev/tty" are blocking!! even
-with O_NDELAY set and even from completely disjoint sessions.  I discovered
-this via issuing "strace sh".  That's why the new xterm windows froze.
-
-The original process doing the open("/dev/ttyS1", O_RDWR) is listed in the
-ps aux listing as status S+.
-
-Hope this helps.... karl m
-
-
+... and why exactly would we want these?
 

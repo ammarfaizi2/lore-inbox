@@ -1,88 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263039AbVGNPBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263047AbVGNPDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263039AbVGNPBp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 11:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbVGNPBp
+	id S263047AbVGNPDg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 11:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263046AbVGNPDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 11:01:45 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:11765 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263044AbVGNPBi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 11:01:38 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Thu, 14 Jul 2005 11:03:36 -0400
+Received: from graphe.net ([209.204.138.32]:43915 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S263047AbVGNPC7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 11:02:59 -0400
+Date: Thu, 14 Jul 2005 08:02:21 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
+       vojtech@suse.cz, david.lang@digitalinsight.com, davidsen@tmr.com,
+       kernel@kolivas.org, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
+       diegocg@gmail.com, azarah@nosferatu.za.org
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+In-Reply-To: <1121352941.4535.15.camel@mindpipe>
+Message-ID: <Pine.LNX.4.62.0507140757200.31521@graphe.net>
+References: <1121282025.4435.70.camel@mindpipe>  <d120d50005071312322b5d4bff@mail.gmail.com>
+  <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
+  <20050713211650.GA12127@taniwha.stupidest.org> 
+ <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org> 
+ <20050714005106.GA16085@taniwha.stupidest.org> 
+ <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org> 
+ <1121304825.4435.126.camel@mindpipe>  <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
+  <20050714083843.GA4851@elte.hu> <1121352941.4535.15.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17110.32325.532858.79690@tut.ibm.com>
-Date: Thu, 14 Jul 2005 10:01:25 -0500
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       zanussi@us.ibm.com, linux-kernel@vger.kernel.org, karim@opersys.com,
-       varap@us.ibm.com, richardj_moore@uk.ibm.com
-Subject: Re: Merging relayfs?
-In-Reply-To: <Pine.LNX.4.61.0507131809120.3743@scrub.home>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	<20050712022537.GA26128@infradead.org>
-	<20050711193409.043ecb14.akpm@osdl.org>
-	<Pine.LNX.4.61.0507131809120.3743@scrub.home>
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel writes:
- > Hi,
- > 
- > On Mon, 11 Jul 2005, Andrew Morton wrote:
- > 
- > > > > Hi Andrew, can you please merge relayfs?  It provides a low-overhead
- > > > > logging and buffering capability, which does not currently exist in
- > > > > the kernel.
- > > > 
- > > > While the code is pretty nicely in shape it seems rather pointless to
- > > > merge until an actual user goes with it.
- > > 
- > > Ordinarily I'd agree.  But this is a bit like kprobes - it's a funny thing
- > > which other kernel features rely upon, but those features are often ad-hoc
- > > and aren't intended for merging.
- > 
- > I agree with Christoph, I'd like to see a small (and useful) example 
- > included, which can be used as reference. relayfs client still need some 
- > code of their own to communicate with user space. If I look at the example 
- > code I'm not really sure netlink is a good way to go as control channel.
- > kprobes has a rather simple interface, relayfs is more complex and I think 
- > it's a good idea to provide some sane and complete example code to copy 
- > from.
- > 
+On Thu, 14 Jul 2005, Lee Revell wrote:
 
-The netlink control channel seems to work very well, but I can
-certainly change the examples to use something different.  Could you
-suggest something?
+> On Thu, 2005-07-14 at 10:38 +0200, Ingo Molnar wrote:
+> >  - there are real-time applications (robotic environments: fast rotating
+> >    tools, media and mobile/phone applications, etc.) that want 10
+> >    usecs precision. If such users increased HZ to 100,000 or even
+> >    1000,000, the current timer implementation would start to creek: e.g.
+> >    jiffies on 32-bit systems would wrap around in 11 hours or 1.1 hours.
+> >    (To solve this cleanly, pretty much the only solution seems to be to
+> >    increase the timeout to a 64 bit value. A non-issue for 64-bit
+> >    systems, that's why i think we could eventually look at this 
+> >    possibility, once all the other problems are hashed out.)
+> > 
+> 
+> Those types of systems will not be 64 bit for many, many years, if
+> ever...
 
- > Looking through the patch there are still a few areas I'm concerned about:
- > - the usage of atomic_t look a little silly, there is only a single 
- > writer and probably needs some cache line optimisations
+Linux can already provide a response time within < 3 usecs from user space 
+using f.e. the Altix RTC driver which can generate an interrupt that then 
+sends a signal to an application. The Altix RTC clock is supported via POSIX
+timer syscalls and can be accessed using CLOCK_SGI_CYCLE. This has been 
+available in Linux since last fall and events can be specified with 50 
+nanoseconds accurary.
 
-The only things that are atomic are the counts of produced and
-consumed buffers and these are only ever updated or read in the slow
-buffer-switch path.  They're atomic because if they weren't, wouldn't
-it be possible for the client to read an unfinished value if the
-producer was in the middle of updating it?
+Other clock sources like  HPET could do the same if someone would be 
+willing to provide the hookup to the posix layer.
 
- > - I would prefer "unsigned int" over just "unsigned"
- > - the padding/commit arrays can be easily managed by the client
-
-Yes, I can move them out and update the examples to reflect that, but
-I thought that if this was something that most clients would need to
-do, it made some sense to keep it in relayfs and avoid duplication in
-the clients.
-
- > - overwrite mode can be implemented via the buffer switch callback
-
-The buffer switch callback is already where this is handled, unless
-you're thinking of something else - one of the first checks in the
-buffer switch is relay_buf_full(), which always returns 0 if the
-buffer is in overwrite mode.
-
-Tom
-
-
+I doubt that increasing the timer frequency is the way to go to solve 
+these issues. HZ should be as low as possible and we should strive for a 
+tickless system.

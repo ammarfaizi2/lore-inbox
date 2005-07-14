@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbVGNNvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263018AbVGNNyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbVGNNvy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 09:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbVGNNvy
+	id S263018AbVGNNyM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 09:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263027AbVGNNyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 09:51:54 -0400
-Received: from host.atlantavirtual.com ([209.239.35.47]:711 "EHLO
-	host.atlantavirtual.com") by vger.kernel.org with ESMTP
-	id S263019AbVGNNvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 09:51:17 -0400
-Subject: Re: fdisk: What do plus signs after "Blocks" mean?
-From: kernel <kernel@crazytrain.com>
-Reply-To: kernel@crazytrain.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Konstantin Kudin <konstantin_kudin@yahoo.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, lkml@dervishd.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0507131222300.14635@yvahk01.tjqt.qr>
-References: <20050712204822.84567.qmail@web52001.mail.yahoo.com>
-	 <Pine.LNX.4.61.0507131222300.14635@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Message-Id: <1121349002.3718.11.camel@crazytrain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 14 Jul 2005 09:50:02 -0400
+	Thu, 14 Jul 2005 09:54:10 -0400
+Received: from BTNL-TN-DSL-static-006.0.144.59.touchtelindia.net ([59.144.0.6]:25985
+	"EHLO mail.prodmail.net") by vger.kernel.org with ESMTP
+	id S263018AbVGNNwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 09:52:05 -0400
+Message-ID: <42D66D80.1070106@prodmail.net>
+Date: Thu, 14 Jul 2005 19:19:52 +0530
+From: RVK <rvk@prodmail.net>
+Reply-To: rvk@prodmail.net
+Organization: GSEC1
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jakub Jelinek <jakub@redhat.com>
+CC: Arjan van de Ven <arjan@infradead.org>, Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Thread_Id
+References: <4mfcK-UT-25@gated-at.bofh.it> <4mUJ1-5ZG-23@gated-at.bofh.it> <42CB465E.6080104@shaw.ca> <42D5F934.6000603@prodmail.net> <1121327103.3967.14.camel@laptopd505.fenrus.org> <42D63916.7000007@prodmail.net> <1121337052.3967.25.camel@laptopd505.fenrus.org> <42D64A85.7020305@prodmail.net> <1121343943.3967.32.camel@laptopd505.fenrus.org> <20050714123917.GE4884@devserv.devel.redhat.com>
+In-Reply-To: <20050714123917.GE4884@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I always thought;
 
-First 446 bytes are boot code and all
-Next 64 bytes are for 4 partition records, 16 bytes each
-Last 2 bytes are signature 
+Jakub Jelinek wrote:
 
-?
+>On Thu, Jul 14, 2005 at 02:25:43PM +0200, Arjan van de Ven wrote:
+>  
+>
+>>pure luck. NPTL threading uses it to store a pointer to per thread info
+>>structure; other threading (linuxthreads) may have stored a pid there to
+>>identify the internal thread. nptl is 2.6 only so you might have
+>>switched implementation of threading when you switched kernels.
+>>    
+>>
+>
+>Actually, in linuxthreads what pthread_self () returned has the first slot
+>in its internal threads array (up to max number of supported threads)
+>that was unused at thread creation time in the low order bits and sequence
+>number of thread creation in its high order bits.
+>So unless you are using yet another threading library (I thought NGPT
+>is dead for years...), the claim that you get the same numbers from
+>gettid() syscall under NPTL as pthread_self () gives you under LinuxThreads
+>is simply not true.  And you certainly shouldn't be using gettid ()
+>syscall in NPTL, as it is just an implementation detail that there is
+>a 1:1 mapping between NPTL threads and kernel threads.  It can change
+>at any time.
+>
+>  
+>
+Which ever is the implementation its expected to be backward compatible. 
+Especially thread libraries. As lot of applications using that.
 
--fd
+rvk
 
-
-On Wed, 2005-07-13 at 06:24, Jan Engelhardt wrote:
-> > Guys, thanks a lot for the explanations!
-> >
-> > Actually, it seems like one can backup information on ALL partitions
-> >by using the command "sfdisk -dx /dev/hdX". Supposedly, it reads not
-> >only primary but also extended partitions. "sfdisk -x /dev/hdX" should
-> >be then able to write whatever is known back to the disk.
-> 
-> MBR size is 448 bytes, the rest is "the partition table", with space for four 
-> entries. If one wants more, then s/he creates a [primary] partition, tagging 
-> it "extended", and the "extended partiton table" is within that primary 
-> partition. So yes, by dd'ing /dev/hdX, you get everything. Including "lost 
-> sectors" if you dd it back to a bigger HD.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>	Jakub
+>
+>  
+>
 

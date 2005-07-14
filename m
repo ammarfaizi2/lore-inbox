@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262953AbVGNIEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262954AbVGNIIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbVGNIEa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 04:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbVGNIEa
+	id S262954AbVGNIIW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 04:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbVGNIIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 04:04:30 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:30226 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262953AbVGNIE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 04:04:29 -0400
-To: jengelh@linux01.gwdg.de
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.61.0507132213450.23970@yvahk01.tjqt.qr> (message from
-	Jan Engelhardt on Wed, 13 Jul 2005 22:17:39 +0200 (MEST))
-Subject: Re: [PATCH] Fuse chardevice number
-References: <Pine.LNX.4.61.0507132213450.23970@yvahk01.tjqt.qr>
-Message-Id: <E1Dsyhe-0005A9-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 14 Jul 2005 10:04:18 +0200
+	Thu, 14 Jul 2005 04:08:22 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:35550 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262962AbVGNIII (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 04:08:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=F4QNutG3F6LshaX9NkAxylW7opdiKPcWRIf4KfoWqgfoQOpS8fMZdZFo3qSNNGBsrwlJOHwWHhq4tNoPZs7wtyp0scx/HqZlx0orVDQElUL6lDccm4j6Q1SrQtdW/1V9vN3zJ0u8J1TyoiOPkGQz6UuE+Y9FrHNw3aHQJsiXb28=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Marc Haber <mh+usenetspam200516@zugschlus.de>
+Subject: Re: 2.6.12.2 tg3 driver doesn't ARP on 8021q 802.1q dot1q VLAN interfaces?
+Date: Thu, 14 Jul 2005 12:15:11 +0400
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <dat3kv$rpq$1@sea.gmane.org>
+In-Reply-To: <dat3kv$rpq$1@sea.gmane.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507141215.11934.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  /** The major number of the fuse character device */
-> -#define FUSE_MAJOR 10
-> +#define FUSE_MAJOR MISC_MAJOR
+On Monday 11 July 2005 10:29, Marc Haber wrote:
+> After rebooting, the VLANs on the Intel-based interfaces worked fine, while
+> the tg3-based interfaces didn't answer to tagged ARP requests. The untagged
+> VLAN on the tg3-based interfaces was fine as well. When tcpdumping the
+> subinterfaces, I saw all traffic on the network, and especially the
+> incoming ARP requests, but no ARP replies went out.
 
-OK, this makes some sense.
+I've filed a bug at kernel bugzilla so your report won't be lost.
+See http://bugme.osdl.org/show_bug.cgi?id=4883
 
->  /** The minor number of the fuse character device */
-> -#define FUSE_MINOR 229
-> +#define FUSE_MINOR MISC_DYNAMIC_MINOR
-
-Why?
-
-FUSE has an allocated fix minor.  Dynamic minor is much harder to
-handle with legacy /dev (not udev).
-
-Thanks,
-Miklos
+You can register at http://bugme.osdl.org/createaccount.cgi and add yourself
+to CC list.

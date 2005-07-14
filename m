@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263051AbVGNQJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVGNQLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263051AbVGNQJA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 12:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbVGNQJA
+	id S261485AbVGNQLY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 12:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbVGNQJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 12:09:00 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:43201 "EHLO
+	Thu, 14 Jul 2005 12:09:06 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:43457 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263051AbVGNQIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 12:08:49 -0400
-Date: Thu, 14 Jul 2005 17:08:35 +0100
+	id S263046AbVGNQIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 12:08:48 -0400
+Date: Thu, 14 Jul 2005 17:08:38 +0100
 From: Christoph Hellwig <hch@infradead.org>
 To: Daniel Walker <dwalker@mvista.com>
 Cc: Ingo Molnar <mingo@elte.hu>, Dave Chinner <dgc@sgi.com>, greg@kroah.com,
        Nathan Scott <nathans@sgi.com>, Steve Lord <lord@xfs.org>,
        linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
 Subject: Re: RT and XFS
-Message-ID: <20050714160835.GA19229@infradead.org>
+Message-ID: <20050714160838.GB19229@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>,
 	Dave Chinner <dgc@sgi.com>, greg@kroah.com,
@@ -34,6 +34,23 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Thu, Jul 14, 2005 at 08:56:58AM -0700, Daniel Walker wrote:
+> On Thu, 2005-07-14 at 07:23 +0200, Ingo Molnar wrote:
+> > * Daniel Walker <dwalker@mvista.com> wrote:
+> > 
+> > > > The whole point of using a semaphore in the pagebuf is because there
+> > > > is no tracking of who "owns" the lock so we can actually release it
+> > > > in a different context. Semaphores were invented for this purpose,
+> > > > and we use them in the way they were intended. ;)
+> > > 
+> > > Where is the that semaphore spec, is that posix ?  There is a new 
+> > > construct called "complete" that is good for this type of stuff too. 
+> > > No owner needed , just something running, and something waiting till 
+> > > it completes.
+> > 
+> > wrt. posix, we dont really care about that for kernel-internal 
+> > primitives like struct semaphore. So whether it's posix or not has no 
+> > relevance.
+> 
 > This reminds me of Documentation/stable_api_nonsense.txt . That no one
 > should really be dependent on a particular kernel API doing a particular
 > thing. The kernel is play dough for the kernel hacker (as it should be),
@@ -42,8 +59,12 @@ On Thu, Jul 14, 2005 at 08:56:58AM -0700, Daniel Walker wrote:
 > So we can change whatever we want, and make no excuses, as long as we
 > fix the rest of the kernel to work with our change. That seems pretty
 > sensible , because Linux should be an evolution. 
-
-Daniel, get a fucking clue.  Read some CS 101 literature on what a semaphore
-is defined to be.  If you want PI singing dancing blinking christmas tree
-locking primites call them a mutex, but not a semaphore.
-
+> 
+> Daniel
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+---end quoted text---

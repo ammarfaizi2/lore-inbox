@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVGNNqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVGNNuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVGNNqL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 09:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVGNNqL
+	id S261396AbVGNNuu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 09:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbVGNNut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 09:46:11 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60684 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261383AbVGNNqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 09:46:09 -0400
-Date: Thu, 14 Jul 2005 14:46:04 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alex Williamson <alex.williamson@hp.com>
-Cc: David Vrabel <dvrabel@arcom.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: serial: 8250 fails to detect Exar XR16L2551 correctly
-Message-ID: <20050714144604.A7314@flint.arm.linux.org.uk>
-Mail-Followup-To: Alex Williamson <alex.williamson@hp.com>,
-	David Vrabel <dvrabel@arcom.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <42CA96FC.9000708@arcom.com> <20050706195740.A28758@flint.arm.linux.org.uk> <42CD2C16.1070308@arcom.com> <1121108408.28557.71.camel@tdi> <20050711204646.D1540@flint.arm.linux.org.uk> <1121112057.28557.91.camel@tdi> <20050711211706.E1540@flint.arm.linux.org.uk> <1121116677.28557.104.camel@tdi> <1121274296.4334.58.camel@tdi>
+	Thu, 14 Jul 2005 09:50:49 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:40659 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261396AbVGNNur convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 09:50:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kNJ2AwyGlG338hbwHhQmymMYQqriCfC5aq1muszLzz6aJdTNDMPb592M/mJeQC8vv2A0r912c3th9j7jJDVlnMDwDeG2u3Pzg1lhHyEERyXRYQBIjdRUeuC2A5qzJs0Kel1IMucEgG6p6wA7OyeyPgm0BGOTmTYbOEa0rmwq1H8=
+Message-ID: <60868aed050714065047e3aaec@mail.gmail.com>
+Date: Thu, 14 Jul 2005 16:50:01 +0300
+From: Yura Pakhuchiy <pakhuchiy@gmail.com>
+Reply-To: Yura Pakhuchiy <pakhuchiy@gmail.com>
+To: Nathan Scott <nathans@sgi.com>
+Subject: Re: XFS corruption on move from xscale to i686
+Cc: linux-xfs@oss.sgi.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, tibor@altlinux.ru, pakhuchiy@iptel.by
+In-Reply-To: <20050714012048.GB937@frodo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1121274296.4334.58.camel@tdi>; from alex.williamson@hp.com on Wed, Jul 13, 2005 at 11:04:56AM -0600
+References: <1120756552.5298.10.camel@pc299.sam-solutions.net>
+	 <20050708042146.GA1679@frodo>
+	 <60868aed0507130822c2e9e97@mail.gmail.com>
+	 <20050714012048.GB937@frodo>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 11:04:56AM -0600, Alex Williamson wrote:
-> On Mon, 2005-07-11 at 15:17 -0600, Alex Williamson wrote:
-> >    No, I think this is a problem with the broken A2 UARTs getting
-> > confused in serial8250_set_sleep().  If I remove either UART_CAP_SLEEP
-> > or UART_CAP_EFR from the capabilities list for this UART, it behaves
-> > normally.  Also, just commenting out the UART_CAP_EFR chunks of
-> > set_sleep make it behave.  I'll ping Exar for more data.  Thanks,
+2005/7/14, Nathan Scott <nathans@sgi.com>:
+> On Wed, Jul 13, 2005 at 06:22:28PM +0300, Yura Pakhuchiy wrote:
+> > I found patch by Greg Ungreger to fix this problem, but why it's still
+> > not in mainline? Or it's a gcc problem and should be fixed by gcc folks?
 > 
-> Hi Russell,
-> 
->    I don't know enough about the extended UART programming model, but I
-> notice that when UART_CAP_EFR and UART_CAP_SLEEP are set on a UART, we
-> set the UART_IERX_SLEEP bit in the UART_IER immediately after it's found
-> and configured.
+> Yes, IIRC the patch was incorrect for other platforms, and it sure
+> looked like an arm-specific gcc problem (this was ages back, so
+> perhaps its fixed by now).
 
-Ah, I see what's happening.  We're detecting the port and doing the
-autoconfig.  Then we're checking to see if it's the console, and if
-not putting it into low power mode.
+AFAIR gcc-3.4.3 was released after this conversation take place at linux-xfs,
+maybe add something like this:
 
-Then we try to register the console, which may result in this UART
-becoming a console.  So now we have a console which is in low power
-mode.  Bad bad bad.  No cookie for the serial layer today.
+#ifdef XSCALE
+    /* We need this because some gcc versions for xscale are broken. */
+    [patched version here]
+#else
+    [original version here]
+#endif
 
-> Are there known working configs where a UART w/ EFR and SLEEP are
-> able to be used as a serial console?
-
-No idea - I'm completely reliant on other folk to report problems
-with the 8250 driver with their random versions of UARTs which are
-out in the field.  I only have 16450, 16550A and 16750 UARTs here.
-
-Hmm, I need to consider killing register_serial() and the associated
-code in serial_core.c earlier so I can sanely fix this problem.  I
-think it's time to give the remaining register_serial() users an
-extra push... I haven't seen _any_ activity from the remaining users,
-so I might have to take the attitude that "if they don't care, I don't
-care about breaking their code" which would be rather shameful as far
-as the users go.  (but hey, user pressure might wake up the maintainers.)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Best regards,
+        Yura

@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262999AbVGNJ6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262991AbVGNKBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262999AbVGNJ6P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 05:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbVGNJ6P
+	id S262991AbVGNKBg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 06:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbVGNKBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 05:58:15 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:28432 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S262998AbVGNJ6K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 05:58:10 -0400
-Message-ID: <42D6372E.1020201@cantab.net>
-Date: Thu, 14 Jul 2005 10:58:06 +0100
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc2-mm2
-References: <200507131733_MC3-1-A464-F432@compuserve.com>
-In-Reply-To: <200507131733_MC3-1-A464-F432@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Jul 2005 10:08:57.0406 (UTC) FILETIME=[0C43B5E0:01C5885C]
+	Thu, 14 Jul 2005 06:01:36 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:6161 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262991AbVGNKBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 06:01:35 -0400
+To: jengelh@linux01.gwdg.de
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <Pine.LNX.4.61.0507141145181.18072@yvahk01.tjqt.qr> (message from
+	Jan Engelhardt on Thu, 14 Jul 2005 11:48:48 +0200 (MEST))
+Subject: Re: [PATCH] Fuse chardevice number
+References: <Pine.LNX.4.61.0507132213450.23970@yvahk01.tjqt.qr>
+ <E1Dsyhe-0005A9-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.61.0507141145181.18072@yvahk01.tjqt.qr>
+Message-Id: <E1Dt0Wu-0005LO-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 14 Jul 2005 12:01:20 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
->    Looks like Quilt is adding the space during push/pop operations.  Only the
-> lines it has touched in the series file have the trailing space.
+> >>  /** The minor number of the fuse character device */
+> >> -#define FUSE_MINOR 229
+> >> +#define FUSE_MINOR MISC_DYNAMIC_MINOR
+> >
+> >FUSE has an allocated fix minor.  Dynamic minor is much harder to
+> >handle with legacy /dev (not udev).
+> 
+> How many users of 2.6.13 and up really do not have/run udev? [Please don't 
+> send too many responses]
 
-Quilt versions prior to 0.39 would add a trailing space to the series
-file entry when doing a quilt refresh with the default -p1 patch level.
+Don't be afraid, 2.6.13 is not yet released.  So the number of users
+of udev under 2.6.13 is exactly zero ;)
 
-David Vrabel
+> A module option could be added to specify an explicit minor.
+
+That's just making it more complicated without any gain. An assigned
+device number (if it exsist) is exactly as good as a dynamic.
+
+Miklos
+

@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVGNRct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVGNRsC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVGNRct (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 13:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVGNRch
+	id S261639AbVGNRsC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 13:48:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVGNRsC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 13:32:37 -0400
-Received: from mailfe08.swip.net ([212.247.154.225]:21890 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262799AbVGNRaU (ORCPT
+	Thu, 14 Jul 2005 13:48:02 -0400
+Received: from [212.76.87.160] ([212.76.87.160]:8964 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S261639AbVGNRsA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 13:30:20 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: Kernel Bug Report
-From: Alexander Nyberg <alexn@telia.com>
-To: vandep01@student.ucr.edu
-Cc: linux-kernel@vger.kernel.org, ruschein@infomine.ucr.edu
-In-Reply-To: <30a258ac.1bd5021b.81be400@smh.ucr.edu>
-References: <30a258ac.1bd5021b.81be400@smh.ucr.edu>
-Content-Type: text/plain
-Date: Thu, 14 Jul 2005 19:30:11 +0200
-Message-Id: <1121362211.2043.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Thu, 14 Jul 2005 13:48:00 -0400
+Message-Id: <200507141742.UAA06527@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'Linus Torvalds'" <torvalds@osdl.org>
+Cc: "'Vojtech Pavlik'" <vojtech@suse.cz>,
+       "'Lee Revell'" <rlrevell@joe-job.com>,
+       "'dean gaudet'" <dean-list-linux-kernel@arctic.org>,
+       "'Chris Wedgwood'" <cw@f00f.org>, "'Andrew Morton'" <akpm@osdl.org>,
+       "'Brown, Len'" <len.brown@intel.com>, <dtor_core@ameritech.net>,
+       <david.lang@digitalinsight.com>, <davidsen@tmr.com>,
+       <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>,
+       <mbligh@mbligh.org>, <diegocg@gmail.com>, <azarah@nosferatu.za.org>,
+       <christoph@lameter.com>
+Subject: RE: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Date: Thu, 14 Jul 2005 20:42:17 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <1121360561.3967.55.camel@laptopd505.fenrus.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Thread-Index: AcWIlxyHOEWTrWupRN6jc/yJPupHwwAA9dHQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor 2005-07-14 klockan 10:10 -0700 skrev Paul Vander Griend:
-> System:
-> Motherboard = Tyan K8WE
-> Processor = 2x Opteron 250
-> Memory = 8GB ECC Registered
+On Thu, 2005-07-14 at 09:37 -0700, Linus Torvalds wrote:
+>
+> There's absolutely nothing wrong with "jiffies", and anybody who 
+> thinks that
 > 
-> On all of the recent release candidates except for
-> 2.6.13-rc2-git2 the kernel panics while booting. These
-> versions include 2.6.13-rc2-git* (* != 2 ) and 2.6.13-rc3.
+> 	msleep(20);
 > 
-> I also want to mention that I am using gcc 3.3.5 on debian and
-> that during compilation there are 3 messages at the end that
-> say an assertion has failed IE (LD: assertion failed).
+> is fundamentally better than
+>
+> 	timeout = jiffies + HZ/50;
+>
 
-Those are harmless
-
-> It looks like it panics during a mem_cpy but I know its
-> difficult to tell just by the output.
-> 
-> I get a code: f3 a4 c3 66 66 66 90 66 66 66 90 66 66 66 90 66
-> 
-> The problem appears very reproducable so I can provide more
-> information upon request.
-
-What does the rest of the panic say? There should be text above this
-that tells where the panic occured and why. Can you please send that
-here?
+What's wrong with structured programming?
 

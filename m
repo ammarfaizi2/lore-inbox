@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262926AbVGNG3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262866AbVGNGbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262926AbVGNG3O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 02:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbVGNG3O
+	id S262866AbVGNGbD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 02:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbVGNGbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 02:29:14 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:63643 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262866AbVGNG3M convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 02:29:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=De3A+u7JW0njuLKPbAkBztYdQnF8hmrh7hlMnqheR41Gy31RNN0AeL3H6jLwUgO5RY713xu+wBmUxrOGGIyNA8MudeBr0N5fe10fGZAToD5wTcOxzwvA0RBNOV/YW7mqtBjDu134Q3xKLC6M/rMWi0m3YEpJvbSZUFzK5u3Qjvg=
-Message-ID: <4807377b05071323286963bf3a@mail.gmail.com>
-Date: Wed, 13 Jul 2005 23:28:15 -0700
-From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-Reply-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-To: Mikhail Kshevetskiy <kl@laska.dorms.spbu.ru>
-Subject: Re: eepro100/e100 broken in 2.6.13-rc3
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20050714034954.52947263@laska>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050714034954.52947263@laska>
+	Thu, 14 Jul 2005 02:31:03 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:31385 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S262866AbVGNGa5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 02:30:57 -0400
+Message-ID: <42D6069E.1040208@gentoo.org>
+Date: Thu, 14 Jul 2005 07:30:54 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050710)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ludovic Drolez <ludovic.drolez@linbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12: yukon2 nics still not supported...
+References: <Pine.LNX.4.44.0307211749400.6905-100000@phoenix.infradead.org> <3F378FC3.1020507@freealter.com> <42D5268B.7050108@linbox.com>
+In-Reply-To: <42D5268B.7050108@linbox.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/13/05, Mikhail Kshevetskiy <kl@laska.dorms.spbu.ru> wrote:
-> symptom
-> =======
-> modprobe e100
-> ifconfig eth0 <ip> netmask <netmask>
+Ludovic Drolez wrote:
+> I recently had to boot a brand new system using a Marvel Yukon2 NIC
+> (sk98lin) driver which is not supported by the latest kernel (pci ids =
+> 11ab:4361).
 > 
-> result:
-> =======
-> SIOCADDRT: Network is unreachable
+> So I compiled the GPLed driver available from Syskonnect,
+> http://www.syskonnect.com/syskonnect/support/driver/d0102_driver.html,
+> which works perfectly.
 > 
-> There were no such error in 2.6.13-rc2
+> So, I wonder why the sk98lin driver is not up to date in the 2.6.x
+> kernels ?
 
-odd, both e100 and eepro100 are broken?  This might indicate something
-wierd with the pci layer.  Don't know what might cause the Network is
-unreachable...
+The recent updates to sk98lin do not adhere to Linux coding standards so have
+been rejected by the network driver maintainers.
 
-please send lspci -vvv of the e100 device in question and any output from dmesg
+Most of sk98lin has been reimplemented as the skge driver, to be included in
+2.6.13. This driver covers the original yukon cards.
 
-added netdev in case someone has an idea there.
+In time, another new driver will be written for the yukon-II range. To assist,
+you could write to the linux-netdev mailing list, offering to test any new
+drivers once they go into development.
+
+Daniel

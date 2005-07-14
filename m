@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262777AbVGNXow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVGNXuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262777AbVGNXow (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 19:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVGNXov
+	id S261720AbVGNXuI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 19:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVGNXuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 19:44:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19911 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262777AbVGNXou (ORCPT
+	Thu, 14 Jul 2005 19:50:08 -0400
+Received: from taxbrain.com ([64.162.14.3]:64053 "EHLO petzent.com")
+	by vger.kernel.org with ESMTP id S261720AbVGNXuG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 19:44:50 -0400
-Subject: Re: [rfc patch 2/2] direct-io: remove address alignment check
-From: Daniel McNeil <daniel@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1121382983.6755.87.camel@dyn9047017102.beaverton.ibm.com>
-References: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net>
-	 <1121382983.6755.87.camel@dyn9047017102.beaverton.ibm.com>
-Content-Type: text/plain
-Message-Id: <1121384672.6025.81.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 14 Jul 2005 16:44:33 -0700
+	Thu, 14 Jul 2005 19:50:06 -0400
+From: "karl malbrain" <karl@petzent.com>
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.6.9 chrdev_open: serial_core: uart_open
+Date: Thu, 14 Jul 2005 16:50:00 -0700
+Message-ID: <NDBBKFNEMLJBNHKPPFILMEAJCEAA.karl@petzent.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
+In-Reply-To: <20050714195717.B10410@flint.arm.linux.org.uk>
+X-Spam-Processed: petzent.com, Thu, 14 Jul 2005 16:46:14 -0700
+	(not processed: message from valid local sender)
+X-Return-Path: karl@petzent.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: petzent.com, Thu, 14 Jul 2005 16:46:16 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 16:16, Badari Pulavarty wrote:
-> How does your patch ensures that we meet the driver alignment
-> restrictions ? Like you said, you need atleast "even" byte alignment
-> for IDE etc..
-> 
-> And also, are there any restrictions on how much the "minimum" IO
-> size has to be ? I mean, can I read "1" byte ? I guess you are
-> not relaxing it (yet)..
-> 
+chrdev_open issues a lock_kernel() before calling uart_open.
 
-This patch does not change the i/o size requirements -- they
-must be a multiple of device block size (usually 512).
+It would appear that servicing the blocking open request uart_open goes to
+sleep with the kernel locked.  Would this shut down subsequent access to
+opening "/dev/tty"???
 
-It only relaxes the address alignment restriction.  I do not
-know what the driver alignment restrictions are.  Without the
-1st patch, it was impossible to relax the address space
-check and have direct-io generate the correct i/o's to submit.
+karl m
 
-This 2nd patch, is just for testing and generating feedback
-to find out what the address alignment issues are.  Then
-we can decide how to proceed.
 
-Did you look over the 1st patch?  Comments?
-
-Thanks,
-
-Daniel
- 
 

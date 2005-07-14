@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262880AbVGNX6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262813AbVGOAAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262880AbVGNX6r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 19:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbVGNX6q
+	id S262813AbVGOAAV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 20:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbVGNX65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 19:58:46 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:51397 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262880AbVGNX5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 19:57:13 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
-       david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, mbligh@mbligh.org, diegocg@gmail.com,
-       azarah@nosferatu.za.org, christoph@lameter.com
-In-Reply-To: <Pine.LNX.4.58.0507141648070.19183@g5.osdl.org>
-References: <d120d50005071312322b5d4bff@mail.gmail.com>
-	 <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org>
-	 <20050714005106.GA16085@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org>
-	 <1121304825.4435.126.camel@mindpipe>
-	 <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
-	 <1121326938.3967.12.camel@laptopd505.fenrus.org>
-	 <20050714121340.GA1072@ucw.cz>
-	 <Pine.LNX.4.58.0507140933150.19183@g5.osdl.org>
-	 <1121383050.4535.73.camel@mindpipe>
-	 <Pine.LNX.4.58.0507141623490.19183@g5.osdl.org>
-	 <1121384499.4535.82.camel@mindpipe>
-	 <Pine.LNX.4.58.0507141648070.19183@g5.osdl.org>
-Content-Type: text/plain
-Date: Thu, 14 Jul 2005 19:57:14 -0400
-Message-Id: <1121385435.4535.93.camel@mindpipe>
+	Thu, 14 Jul 2005 19:58:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51913 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262813AbVGNX4p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 19:56:45 -0400
+Date: Thu, 14 Jul 2005 16:55:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mark Gross <mgross@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why is 2.6.12.2 less stable on my laptop than 2.6.10?
+Message-Id: <20050714165551.1ff54dd3.akpm@osdl.org>
+In-Reply-To: <200507140912.22532.mgross@linux.intel.com>
+References: <200507140912.22532.mgross@linux.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 16:49 -0700, Linus Torvalds wrote:
-> 
-> On Thu, 14 Jul 2005, Lee Revell wrote:
-> > 
-> > And I'm incredibly frustrated by this insistence on hard data when it's
-> > completely obvious to anyone who knows the first thing about MIDI that
-> > HZ=250 will fail in situations where HZ=1000 succeeds.
-> 
-> Ok, guys. How many people have this MIDI thing?
+Mark Gross <mgross@linux.intel.com> wrote:
+>
+> I know this is a broken record, but the development process within the LKML 
+>  isn't resulting in more stable and better code.  Some process change could be 
+>  a good thing.
 
->  How many of you can't be 
-> bothered to set the default to suit your usage?
+We rely upon people (such as mgross@linux.intel.com!) to send bug reports.
 
-Very few, and even fewer, respectively.  But, we'd still like to be able
-to use the same kernel image as everyone else if possible.
+>  Why does my alps mouse pad have to stop working every time I test a new 
+>  "STABLE" kernel?  
 
-I guess we'll have to deal with it until a variable tick solution is
-ready.
+The alps driver is always broken.  Seems to be a feature.
 
-Lee
+Please test 2.6.13-rc3 and if it also fails send a comprehensive bug report
+to Dmitry Torokhov <dtor_core@ameritech.net> and Vojtech Pavlik
+<vojtech@suse.cz>
 
+>  Why does swsup have to start hanging on shut and startup down randomly?
 
+swsusp also is a problematic feature.  You appear to have chosen two of the
+very most problematic parts of the kernel (you missed ACPI) and then
+generalised them to the whole.  That isn't valid.
+
+Please test 2.6.13-rc3 and if it also fails send a comprehensive bug report
+to Pavel Machek <pavel@ucw.cz>

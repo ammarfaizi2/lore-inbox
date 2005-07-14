@@ -1,127 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262664AbVGNRwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbVGNRyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262664AbVGNRwz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 13:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVGNRwz
+	id S262721AbVGNRyt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 13:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbVGNRyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 13:52:55 -0400
-Received: from longwood.cs.ucf.edu ([132.170.108.1]:15764 "EHLO
-	longwood.cs.ucf.edu") by vger.kernel.org with ESMTP id S262664AbVGNRwy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 13:52:54 -0400
-Message-ID: <42D6A677.6040307@vaevictus.net>
-Date: Thu, 14 Jul 2005 13:52:55 -0400
-From: Nathan Mahon <lkml.org@vaevictus.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Orinoco_plx woes on 2.6.13
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Jul 2005 13:54:49 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:11337 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S262721AbVGNRys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 13:54:48 -0400
+Date: Thu, 14 Jul 2005 10:54:47 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: Stefan Seyfried <seife@suse.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: resuming swsusp twice
+Message-ID: <20050714175447.GA16651@hexapodia.org>
+References: <20050713185955.GB12668@hexapodia.org> <42D67D84.2020306@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42D67D84.2020306@suse.de>
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use a Belkin F5D6020 wifi card, (version one), and a belkin f5d6000 pci adapter for it.  A while ago, it was working flawlessly, though I
-didn't use it that much after the wife's laptop died.
-I've rolled through some kernel upgrades... and it appears my wifi does not work anymore.
-here's the technical stuff:
-
-I was still using 2.4 when it was working for sure, but I can't verify that it wasn't ever working on 2.6.
-under 2.6.11, i noticed the problem, I couldn't bring the interface up.
-dmesg produced similar results (to 2.6.13 i have now), but iirc, the
-iwconfig didn't make it look like the card was working at all.  I rolled
-to 2.6.13, and things improved only slightly.
-
-Now, with 2.6.13, I get a successful modprobe orinoco_plx:
-
-
->> auron root # dmesg
->> orinoco_plx 0.15rc2 (Pavel Roskin <proski@gnu.org>, David Gibson 
->> <hermes@gibson.dropbear.id.au>, Daniel Barlow <dan@telent.net>)
->> PCI: Found IRQ 9 for device 0000:00:0a.0
->> orinoco_plx: Detected Orinoco/Prism2 PLX device at 0000:00:0a.0 irq:9, 
->> io addr:0x2c00
->> orinoco_plx: CIS: 01:03:00:00:FF:17:04:67:5A:08:FF:1D:05:01:67:5A:
->> eth2: Hardware identity 8002:0000:0001:0000
->> eth2: Station identity  001f:0003:0000:0008
->> eth2: Firmware determined as Intersil 0.8.3
->> eth2: Ad-hoc demo mode supported
->> eth2: IEEE standard IBSS ad-hoc mode supported
->> eth2: WEP supported, 104-bit key
->> eth2: MAC address 00:30:BD:63:21:11
->> eth2: Station name "Prism  I"
->> eth2: ready
->  
+On Thu, Jul 14, 2005 at 04:58:12PM +0200, Stefan Seyfried wrote:
+> Andy Isaacson wrote:
+> > Yesterday I booted my laptop to 2.6.13-rc2-mm1, suspended to swsusp,
+> > and
+[snip]
+> > and got a panic along the lines of "Unable to find swap space, try
 >
+> a panic? it should only be an error message, but the machine should
+> still be alive.
 
-and at this point, iwconfig looks like the card is behaving somewhat:
+Well, the console was left on the swsusp VT (guess that's not suprising)
+and I was hurrying to catch the train, so I didn't investigate, I just
+held down the power button for 5 seconds.
 
-
->> auron root # iwconfig eth2
->> eth2      IEEE 802.11b  ESSID:""  Nickname:"Prism  I"
->>           Mode:Managed  Frequency:2.462 GHz  Access Point: 
->> 00:00:00:00:00:00
->>           Bit Rate:11 Mb/s   Sensitivity:1/3
->>           Retry min limit:8   RTS thr:off   Fragment thr:off
->>           Encryption key:off
->>           Power Management:off
->>           Link Quality=0/92  Signal level=134/153  Noise level=134/153
->>           Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
->>           Tx excessive retries:0  Invalid misc:0   Missed beacon:0
->  
+> > swapon -a".  Unfortunately I was in a hurry and didn't record the
+> > error
+> > messages.  I powered off, then a few minutes later powered on again.
 >
+> Powered off hard or "shutdown -h now"?
 
-dmesg hasn't changed at this point.
-however, ifconfig breaks it:
-auron root # ifconfig eth2 10.5.6.1 netmask 255.255.255.0 broadcast
-10.5.6.255
+Hard.  It's a Thinkpad X40 with ACPI, so I hold down the power button
+for a few seconds to power off.
 
-
->> SIOCSIFFLAGS: No such device
->  
+> > At this point, it resumed *to the swsusp state from yesterday*!
+[snip severe ext3 damage]
+> > It's extremely unfortunate that there is *any* failure mode in
+> > swsusp
+> > that can result in this behavior.
 >
+> I of course won't say that this cannot happen, but by design, the
+> swsusp
+> signature is invalidated even before reading the image, so
+> theoretically
+> it should not happen.
 
-and dmesg now says this:
+Yes, I'd seen that happen on earlier swsusps, so I was quite suprised
+when it blew up like this.
 
+Perhaps the image should be more rigorously checked?  I'm wishing that
+it would verify that the header and the image matched, after it finishes
+reading the image.  For example, computing the hash
 
->> hermes @ 00012c00: Card removed while waiting for command 0x0f38 
->> completion.
->> eth2: Error -19 configuring card
->  
->
+MD5(header || image)     (|| denotes "concatenate" in crypto pseudocode.)
 
-and if i retry the ifconfig, i get a different error and a different
-dmesg result:
+and storing that hash in a final trailing block.  Additionally, of
+course, as soon as the resume has read the image it should overwrite the
+header; and the header should include jiffies or something along those
+lines to ensure that it won't accidentally have the same contents as the
+previous image's header.
 
+The hash doesn't have to be MD5; even a CRC should suffice I think...
 
->> SIOCSIFFLAGS: Connection timed out
->  
->
-
->> eth2: Error -110 setting MAC address
->> eth2: Error -110 configuring card
->  
->
-
-
-Just to state the implied, I'm *not* removing the card, and rmmod'ing the orinico_plx driver and re-modprobing it will produce consistantly the same errors.
-
-Thanks,
-Nathan Mahon
-
-
-System: old amd k6-2 333mhz box with 256mb ram
-Distro: gentoo
-Kernel config: http://www.vaevictus.net/2.6.13_config.txt
-First Post: so flame me if necessary. :D
-
-
-
-
-
-
-
-
-
-
+-andy

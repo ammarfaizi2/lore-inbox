@@ -1,122 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262946AbVGNIjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbVGNJFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262946AbVGNIjE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 04:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbVGNIjE
+	id S262960AbVGNJFY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 05:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbVGNJFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 04:39:04 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:64167 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262946AbVGNIjC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 04:39:02 -0400
-Date: Thu, 14 Jul 2005 10:38:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
-       vojtech@suse.cz, david.lang@digitalinsight.com, davidsen@tmr.com,
-       kernel@kolivas.org, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
-       diegocg@gmail.com, azarah@nosferatu.za.org, christoph@lameter.com
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Message-ID: <20050714083843.GA4851@elte.hu>
-References: <1121282025.4435.70.camel@mindpipe> <d120d50005071312322b5d4bff@mail.gmail.com> <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org> <20050713211650.GA12127@taniwha.stupidest.org> <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org> <20050714005106.GA16085@taniwha.stupidest.org> <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org> <1121304825.4435.126.camel@mindpipe> <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
+	Thu, 14 Jul 2005 05:05:24 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:3721 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262960AbVGNJFW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 05:05:22 -0400
+Subject: [RFC][PATCH] PCI bus class driver rewrite for 2.6.13-rc2 [0/9]
+From: Adam Belay <abelay@novell.com>
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com
+Content-Type: text/plain
+Date: Thu, 14 Jul 2005 04:54:56 -0400
+Message-Id: <1121331296.3398.88.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+I'm in the process of overhauling some aspects of the PCI subsystem.
+This patch series is a rewrite of the PCI probing and detection code.
+It creates a well defined PCI bus class API and allows a standard PCI
+driver to bind to PCI bridge devices.  This results in the following:
 
-> I suspect that it is impractical to reprogram the PIT on a very fine 
-> granularity.
+* cleaner code
+* improved driver core support
+* the option of adding new PCI bridge drivers
+* better power management
 
-yes - reprogramming the PIT can take up to 10 usecs even on recent PCs.  
-(in fact the cost is pretty much system-independent due to PIO.) On 
-modern, PIT-less timesources (e.g. HPET) it can be faster.
+Example from sysfs:
+(/sys/bus/pci/drivers)
+|-- pci-bridge
+|   |-- 0000:00:1e.0 -> ../../../../devices/pci0000:00/0000:00:1e.0
+|   |-- bind
+|   |-- new_id
+|   `-- unbind
 
-> Btw, if somebody really gets excited about all this, let me say (once 
-> again) what I think might be an acceptable situation.
-> 
-> First off, I'm _not_ a believer in "sub-HZ ticks". Quite the reverse. 
-> I think we should have HZ be some high value, but we would _slow_down_ 
-> the tick when not needed, and count by 2's, 3's or even 10's when 
-> there's not a lot going on.
+Summary:
+ drivers/pci/Makefile         |   10
+ drivers/pci/bus.c            |   69 ---
+ drivers/pci/bus/Makefile     |    9
+ drivers/pci/bus/bus.c        |  144 ++++++
+ drivers/pci/bus/bus.h        |    5
+ drivers/pci/bus/config.c     |  466 ++++++++++++++++++++
+ drivers/pci/bus/device.c     |  187 ++++++++
+ drivers/pci/bus/pci-bridge.c |  206 ++++++++-
+ drivers/pci/bus/probe.c      |  512 +++++++++++++++++++++-
+ drivers/pci/probe.c          |  971 -------------------------------------------
+ drivers/pci/remove.c         |  122 -----
+ include/linux/pci.h          |    4
+ 12 files changed, 1501 insertions(+), 1204 deletions(-)
 
-i think that would be an acceptable solution for high-precision timers, 
-as long as two other problems are solved too:
+For these changes to be fully effective, the following code (some of
+which was broken by these changes) will need to be fixed:
 
- - there are real-time applications (robotic environments: fast rotating
-   tools, media and mobile/phone applications, etc.) that want 10
-   usecs precision. If such users increased HZ to 100,000 or even
-   1000,000, the current timer implementation would start to creek: e.g.
-   jiffies on 32-bit systems would wrap around in 11 hours or 1.1 hours.
-   (To solve this cleanly, pretty much the only solution seems to be to
-   increase the timeout to a 64 bit value. A non-issue for 64-bit
-   systems, that's why i think we could eventually look at this 
-   possibility, once all the other problems are hashed out.)
+1.) PCI resource management and bus numbers
+- We need to utilize ACPI provided PCI root bridge resource information.
+- Lazy allocation should be used for device resource assignments.
+- The PCI bus resource assignment API needs to be refined.
+- We need smarter bus number assignment algorithms that maintain BIOS
+configuration when possible.
 
- - at very high HZ values the clustering of e.g. network timers is lost, 
-   creating an artificially high number of timer interrupts. So likely 
-   we'd still need some way to 'blur' timeouts and to round e.g. network 
-   timers to the next 1 msec or 500 usecs boundary, to cluster up timers 
-   for bulk processing. But in any case, such a solution does not sound 
-   nearly as messy as the sub-jiffies method.
+2.) PCI Hotplug
+- Hotplug drivers should use PCI subsystem resource assignment and
+configuration code whenever possible (e.g. the recent changes to ACPI
+PCI hotplug were a step in the right direction).
+- I have some changes planned for device registration.
 
-if the 'high precision' uses are not addressed [*] i fear the whole HRT 
-game starts again: embedded folks trying to standardize on Linux for 
-everything [**] will want HRT timers and will do addons and sub-jiffy 
-approaches [***], and will push for inclusion. I think we could as well 
-solve this whole problem area by making ridiculously high HZ values 
-practical too!
+3.) ACPI
+- The new probing code breaks _PRT handling.
+- We need to register ACPI devices in the /sys/devices tree so we can
+bind to the root bridge device.
 
-	Ingo
+4.) Platform Specific PCI support
+- I'd like to improve the "pcibios" API.
 
-[*]  there's also a third problem: timer prioritization. It's not 
-     necessarily a problem the upstream kernel should care about, but 
-     it's a problem for things that try to offer hard-real-time, like 
-     PREEMPT_RT: HRT timers need to be prioritizable. If e.g. the system 
-     is soaked handling network timers, it should still be possible for 
-     that single mega-important HRT timer to run and wake up the 
-     mega-high-priority RT task that will preempt all network activity 
-     within 10 usecs worst-case. The sub-jiffies approach does this 
-     prioritization in a natural way, because there HRT timers are 
-     separate, so the prioritization of them is easy. With the grand 
-     unified 'big HZ' scheme the HRT folks would have to implement a 
-     mechanism to split off highprio timers from the stream of normal 
-     timers. ]
+5.) PCMCIA/Cardbus
+- This needs to use the new PCI bus class driver.
 
-[**] having high precision is also a perception and uniformity of 
-     platform issue: most embedded developers will find 500 usecs 
-     precision good enough for most uses, but it does not 'sound' good 
-     enough, and there's no easy way out either. So _if_ there's the 
-     occasional need for higher precision they'll have no easy solution 
-     for Linux, and this prevents them from standardizing on Linux for 
-    _everything_.
+I'm currently working on these issues.
+
+I look forward to any comments or suggestions.
+
+Cheers,
+Adam
 
 
-[***]
-   a side-thought about sub-jiffies: the biggest conceptual problem 
-   the sub-jiffy method has is the sorting needed when timers move from 
-   the jiffy bucket into the HRT list which doesnt scale - but this is 
-   really a HRT-timers-internal problem.  It could be further improved 
-   by e.g.  dividing the last jiffy up into say 10 usec buckets - with a 
-   1msec jiffy clock that's 100 buckets, and having a bitmap to see 
-   which bucket is active. Then the 'get the next timer' act becomes a 
-   matter of searching the bitmap for the next bit set - at pretty much 
-   constant overhead. Even a 1 usec precision would mean only 1000 
-   buckets for the last jiffy, with 1000 bits (128 bytes) to search, 
-   still quite ok. But, in any case, it would be nice to avoid the 
-   "conceptual dualness" of the HRT patch.

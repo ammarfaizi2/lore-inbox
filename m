@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVGNFxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbVGNGUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbVGNFxO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 01:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbVGNFxO
+	id S262661AbVGNGUL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 02:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262921AbVGNGUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 01:53:14 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:8583 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262312AbVGNFxN (ORCPT
+	Thu, 14 Jul 2005 02:20:11 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:43840 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262661AbVGNGUJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 01:53:13 -0400
-Date: Thu, 14 Jul 2005 11:23:02 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>
-Subject: Re: Current kexec status?
-Message-ID: <20050714055301.GA4133@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20050713104848.GJ4561@charite.de> <20050713122257.GA29477@in.ibm.com> <20050713123239.GT4561@charite.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050713123239.GT4561@charite.de>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 14 Jul 2005 02:20:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=PTikbOfZ1h4IURqi9rJCYPnpX+c91vxbDMjTJ+H8rBOZbzpNHuZKd9xIo/Agtpd1N77c7EkrwW++hWcPLHhuh9VmJmGx5UyEZ+SZJa9k07Uw6V2DdgaRd3P/Vvw9ypXsUYf7nu/6LsCBHkUMIxU2M06TDVMKM5D/UTfVZry1PyY=
+Message-ID: <42D60417.9080407@gmail.com>
+Date: Thu, 14 Jul 2005 02:20:07 -0400
+From: Keenan Pepper <keenanpepper@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Vladimir V. Saveliev" <vs@namesys.com>
+CC: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: realtime-preempt + reiser4?
+References: <42D4201A.9050303@gmail.com>	 <1121198723.10580.10.camel@mindpipe>  <42D45438.6040409@gmail.com> <1121213099.3548.39.camel@localhost.localdomain> <42D53FF6.2020200@namesys.com>
+In-Reply-To: <42D53FF6.2020200@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 02:32:39PM +0200, Ralf Hildebrandt wrote:
-> * Vivek Goyal <vgoyal@in.ibm.com>:
+Vladimir V. Saveliev wrote:
 > 
-> > Can you give more details like
-> > - Which distro release you are running.
+> ftp://ftp.namesys.com/pub/reiser4-for-2.6/2.6.12/reiser4-for-2.6.12-realtime-preempt-2.6.12-final-V0.7.51-29.patch.gz 
 > 
-> Debian unstable; since it has no kexec-tools, I built those from source.
-> 
-> > - Exactly what changes did you do to /etc/init.d/reboot and what steps
-> > did you follow to load the kernel (command line options).
-> 
-> /etc/init.d/reboot:
-> ===================
-> 
-> echo -n "Rebooting... "
-> #reboot -d -f -i
-> /usr/local/sbin/kexec -f --exec --debug
-> 
-> Loading the Kernel in /etc/init.d/umountfs, before umount'ing /boot:
-> ====================================================================
-> 
-> echo -n "Loading kernel for kexec()..."
-> /usr/local/sbin/kexec --load /vmlinuz
-> echo "done."
-> 
+> It applies to 2.6.12 + 
+> http://people.redhat.com/mingo/realtime-preempt/older/realtime-preempt-2.6.12-final-V0.7.51-29 
 
-Please copy all the mails related to kexec and kdump problems to
-fastboot mailing list also (fastboot@lists.osdl.org).
-
-Instead of modifying reboot scripts, first can you try following simple 
-steps from shell.
-
-1. Load the kernel.
-#kexec -l <kernel-image> --append=<boot time options>
-
-2. Drop to run level 3 
-# init 3
-
-3. Exec into second kernel
-# kexec -e
-
-
-Thanks
-Vivek
+Ah, this is just what I was looking for. Should have thought to search 
+namesys.com.

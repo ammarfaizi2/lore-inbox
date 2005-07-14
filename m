@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbVGNXH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262935AbVGNXKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbVGNXH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 19:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbVGNXFT
+	id S262935AbVGNXKf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 19:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbVGNXKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 19:05:19 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:4553 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S262692AbVGNXEE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 19:04:04 -0400
-X-ORBL: [63.202.173.158]
-Date: Thu, 14 Jul 2005 16:03:45 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, john stultz <johnstul@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Lee Revell <rlrevell@joe-job.com>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
-       dtor_core@ameritech.net, david.lang@digitalinsight.com,
-       davidsen@tmr.com, kernel@kolivas.org,
-       lkml <linux-kernel@vger.kernel.org>, mbligh@mbligh.org,
-       diegocg@gmail.com, azarah@nosferatu.za.org
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Message-ID: <20050714230345.GA26213@taniwha.stupidest.org>
-References: <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org> <1121304825.4435.126.camel@mindpipe> <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org> <1121326938.3967.12.camel@laptopd505.fenrus.org> <20050714121340.GA1072@ucw.cz> <Pine.LNX.4.58.0507140933150.19183@g5.osdl.org> <1121360561.3967.55.camel@laptopd505.fenrus.org> <1121370122.7673.161.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0507141307060.19183@g5.osdl.org> <Pine.LNX.4.62.0507141340001.17567@graphe.net>
+	Thu, 14 Jul 2005 19:10:35 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:52912 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S262639AbVGNXIo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 19:08:44 -0400
+Date: Fri, 15 Jul 2005 03:08:47 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [patch 2.6] remove PCI_BRIDGE_CTL_VGA handling from setup-bus.c
+Message-ID: <20050715030847.D613@den.park.msu.ru>
+References: <20050714155344.A27478@jurassic.park.msu.ru> <20050714145327.B7314@flint.arm.linux.org.uk> <9e47339105071407073f07bed7@mail.gmail.com> <20050715014611.B613@den.park.msu.ru> <9e47339105071415392ef2eb2e@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0507141340001.17567@graphe.net>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9e47339105071415392ef2eb2e@mail.gmail.com>; from jonsmirl@gmail.com on Thu, Jul 14, 2005 at 06:39:43PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 14, 2005 at 01:41:44PM -0700, Christoph Lameter wrote:
+On Thu, Jul 14, 2005 at 06:39:43PM -0400, Jon Smirl wrote:
+> I had the wrong define, this is the one I was thinking of IORESOURCE_BUS_HAS_VGA
 
-> AFAIK John simply wants to change jiffies to count in nanoseconds
-> since bootup and then call it "clock_monotonic".
+Oh, I definitely agree about that one. It's been unused for a couple of
+years, at least. Let's kill it, please.
 
-Clocks and counter drift so calling it <prefix>seconds would be
-misleading.  It would really only be good for approximate timing.
-
-I think call it something arbitrary and work towards have a separate
-mechanism for time of day (which could end up being much more
-expensive to use but less frrequently needed).
-
-> One 64 bit value no splitting into seconds and nanoseconds anymore.
-
-Using a 64-bit value is a pain on some (many?) 32-bit CPUs.
+Ivan.

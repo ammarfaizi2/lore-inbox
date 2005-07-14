@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbVGNEX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262887AbVGNE0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbVGNEX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 00:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbVGNEX4
+	id S262887AbVGNE0u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 00:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbVGNE0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 00:23:56 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:25570 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262896AbVGNEXz convert rfc822-to-8bit
+	Thu, 14 Jul 2005 00:26:50 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:19979 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262887AbVGNE0r convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 00:23:55 -0400
+	Thu, 14 Jul 2005 00:26:47 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=p0knM8eP+loqGwXdO+vVhGEvAN0DIVys7sEAweD+iijVge4sr6EeclG3eiLBNZCwM39sAWVbf0CeacBXqoFw4rEeP4G8QWn+QsSHJTGgNvYY47AJF0fIiHPZnl+uyzhZ3the+B516OWPE6aOp3pvxDt9O2tlRhgAc9MUj/d0rEY=
-Message-ID: <9e47339105071321224adff661@mail.gmail.com>
-Date: Thu, 14 Jul 2005 00:22:59 -0400
+        b=RU8r73IfbYNhLUoRamFdDU6w+t/15F45Pl8GKWKeNUYZnvhECVxLNxFGGsCRsHkTadqO3B3E9e/2dIUIV2JumIS8ak26N5/zXzDoj28dVHVSXzRtiTiou8+kJATTrXpgXV/KKFGrr2RzleFHMYQQLghRPj5OwK8JjkfFMJ8F5xM=
+Message-ID: <9e4733910507132125af9835@mail.gmail.com>
+Date: Thu, 14 Jul 2005 00:25:45 -0400
 From: Jon Smirl <jonsmirl@gmail.com>
 Reply-To: Jon Smirl <jonsmirl@gmail.com>
 To: Dave Airlie <airlied@gmail.com>
@@ -40,10 +40,8 @@ On 7/14/05, Dave Airlie <airlied@gmail.com> wrote:
 > 
 > Any suggestions or ideas?
 
-There is also include/linux/video
-
-The duplicate defines need to get cleaned out of xf86drm.h or this is
-going to get real confusing.
+If you're in a mood to move things, how about moving drivers/char/drm
+to drivers/video/drm.
 
 -- 
 Jon Smirl

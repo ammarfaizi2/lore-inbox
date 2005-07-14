@@ -1,51 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVGNRsC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262664AbVGNRwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbVGNRsC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 13:48:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVGNRsC
+	id S262664AbVGNRwz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 13:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVGNRwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 13:48:02 -0400
-Received: from [212.76.87.160] ([212.76.87.160]:8964 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S261639AbVGNRsA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 13:48:00 -0400
-Message-Id: <200507141742.UAA06527@raad.intranet>
-From: "Al Boldi" <a1426z@gawab.com>
-To: "'Arjan van de Ven'" <arjan@infradead.org>,
-       "'Linus Torvalds'" <torvalds@osdl.org>
-Cc: "'Vojtech Pavlik'" <vojtech@suse.cz>,
-       "'Lee Revell'" <rlrevell@joe-job.com>,
-       "'dean gaudet'" <dean-list-linux-kernel@arctic.org>,
-       "'Chris Wedgwood'" <cw@f00f.org>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Brown, Len'" <len.brown@intel.com>, <dtor_core@ameritech.net>,
-       <david.lang@digitalinsight.com>, <davidsen@tmr.com>,
-       <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>,
-       <mbligh@mbligh.org>, <diegocg@gmail.com>, <azarah@nosferatu.za.org>,
-       <christoph@lameter.com>
-Subject: RE: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Date: Thu, 14 Jul 2005 20:42:17 +0300
+	Thu, 14 Jul 2005 13:52:55 -0400
+Received: from longwood.cs.ucf.edu ([132.170.108.1]:15764 "EHLO
+	longwood.cs.ucf.edu") by vger.kernel.org with ESMTP id S262664AbVGNRwy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 13:52:54 -0400
+Message-ID: <42D6A677.6040307@vaevictus.net>
+Date: Thu, 14 Jul 2005 13:52:55 -0400
+From: Nathan Mahon <lkml.org@vaevictus.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: Orinoco_plx woes on 2.6.13
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <1121360561.3967.55.camel@laptopd505.fenrus.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Thread-Index: AcWIlxyHOEWTrWupRN6jc/yJPupHwwAA9dHQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 09:37 -0700, Linus Torvalds wrote:
->
-> There's absolutely nothing wrong with "jiffies", and anybody who 
-> thinks that
-> 
-> 	msleep(20);
-> 
-> is fundamentally better than
->
-> 	timeout = jiffies + HZ/50;
+I use a Belkin F5D6020 wifi card, (version one), and a belkin f5d6000 pci adapter for it.  A while ago, it was working flawlessly, though I
+didn't use it that much after the wife's laptop died.
+I've rolled through some kernel upgrades... and it appears my wifi does not work anymore.
+here's the technical stuff:
+
+I was still using 2.4 when it was working for sure, but I can't verify that it wasn't ever working on 2.6.
+under 2.6.11, i noticed the problem, I couldn't bring the interface up.
+dmesg produced similar results (to 2.6.13 i have now), but iirc, the
+iwconfig didn't make it look like the card was working at all.  I rolled
+to 2.6.13, and things improved only slightly.
+
+Now, with 2.6.13, I get a successful modprobe orinoco_plx:
+
+
+>> auron root # dmesg
+>> orinoco_plx 0.15rc2 (Pavel Roskin <proski@gnu.org>, David Gibson 
+>> <hermes@gibson.dropbear.id.au>, Daniel Barlow <dan@telent.net>)
+>> PCI: Found IRQ 9 for device 0000:00:0a.0
+>> orinoco_plx: Detected Orinoco/Prism2 PLX device at 0000:00:0a.0 irq:9, 
+>> io addr:0x2c00
+>> orinoco_plx: CIS: 01:03:00:00:FF:17:04:67:5A:08:FF:1D:05:01:67:5A:
+>> eth2: Hardware identity 8002:0000:0001:0000
+>> eth2: Station identity  001f:0003:0000:0008
+>> eth2: Firmware determined as Intersil 0.8.3
+>> eth2: Ad-hoc demo mode supported
+>> eth2: IEEE standard IBSS ad-hoc mode supported
+>> eth2: WEP supported, 104-bit key
+>> eth2: MAC address 00:30:BD:63:21:11
+>> eth2: Station name "Prism  I"
+>> eth2: ready
+>  
 >
 
-What's wrong with structured programming?
+and at this point, iwconfig looks like the card is behaving somewhat:
+
+
+>> auron root # iwconfig eth2
+>> eth2      IEEE 802.11b  ESSID:""  Nickname:"Prism  I"
+>>           Mode:Managed  Frequency:2.462 GHz  Access Point: 
+>> 00:00:00:00:00:00
+>>           Bit Rate:11 Mb/s   Sensitivity:1/3
+>>           Retry min limit:8   RTS thr:off   Fragment thr:off
+>>           Encryption key:off
+>>           Power Management:off
+>>           Link Quality=0/92  Signal level=134/153  Noise level=134/153
+>>           Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+>>           Tx excessive retries:0  Invalid misc:0   Missed beacon:0
+>  
+>
+
+dmesg hasn't changed at this point.
+however, ifconfig breaks it:
+auron root # ifconfig eth2 10.5.6.1 netmask 255.255.255.0 broadcast
+10.5.6.255
+
+
+>> SIOCSIFFLAGS: No such device
+>  
+>
+
+and dmesg now says this:
+
+
+>> hermes @ 00012c00: Card removed while waiting for command 0x0f38 
+>> completion.
+>> eth2: Error -19 configuring card
+>  
+>
+
+and if i retry the ifconfig, i get a different error and a different
+dmesg result:
+
+
+>> SIOCSIFFLAGS: Connection timed out
+>  
+>
+
+>> eth2: Error -110 setting MAC address
+>> eth2: Error -110 configuring card
+>  
+>
+
+
+Just to state the implied, I'm *not* removing the card, and rmmod'ing the orinico_plx driver and re-modprobing it will produce consistantly the same errors.
+
+Thanks,
+Nathan Mahon
+
+
+System: old amd k6-2 333mhz box with 256mb ram
+Distro: gentoo
+Kernel config: http://www.vaevictus.net/2.6.13_config.txt
+First Post: so flame me if necessary. :D
+
+
+
+
+
+
+
+
+
 

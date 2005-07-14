@@ -1,123 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVGNWH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVGNWNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262703AbVGNWH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 18:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbVGNWHc
+	id S261421AbVGNWNa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 18:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVGNWN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 18:07:32 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:59341 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262551AbVGNWFW (ORCPT
+	Thu, 14 Jul 2005 18:13:27 -0400
+Received: from coderock.org ([193.77.147.115]:13217 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S263150AbVGNVoY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 18:05:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=oNHfzr33Qq8qUV0a7nc7GPNJhJBrdu9MMdfO1hG7Iqv4CwmsOL781BQol0uPusgsi9135RW4CF1//nfn3fbJx77mEc+zIQ2v7qFJjdyAq1MydIa4kpS+oapLrLX9EAN32JPab8Gze/1HiJSe0yCvbj0LeGPj233nlpZW8OJVqUU=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Eric Van Hensbergen <ericvh@gmail.com>
-Subject: Re: (v9fs) -mm -> 2.6.13 merge status
-Date: Fri, 15 Jul 2005 02:12:00 +0400
-User-Agent: KMail/1.8.1
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       rminnich@lanl.gov, linux-kernel@vger.kernel.org,
-       v9fs-developer@lists.sourceforge.net
-References: <20050620235458.5b437274.akpm@osdl.org> <a4e6962a050713112363010124@mail.gmail.com> <20050714200408.GA23092@infradead.org>
-In-Reply-To: <20050714200408.GA23092@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507150212.00515.adobriyan@gmail.com>
+	Thu, 14 Jul 2005 17:44:24 -0400
+Message-Id: <20050714214402.975215000@homer>
+Date: Thu, 14 Jul 2005 23:44:01 +0200
+From: domen@coderock.org
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Victor Fusco <victor@cetuc.puc-rio.br>,
+       domen@coderock.org
+Subject: [patch 3/5] dmapool: Fix "nocast type" warnings
+Content-Disposition: inline; filename=sparse-drivers_base_dmapool
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 July 2005 00:04, Christoph Hellwig wrote:
-> normally we prefer a patch per actual change, not per file so the
-> description fits.  Given that all these are pretty trivial fixes one
-> patch would have done it aswell, though.
-> 
-> With these changes the code is fine for mainline in my opinion.
+From: Victor Fusco <victor@cetuc.puc-rio.br>
 
-Can I make one more nitpicking comment?
 
-All these functions can use cpu_to_le*() and le*_to_cpu().
+Fix the sparse warning "implicit cast to nocast type"
 
-> --- /dev/null
-> +++ 25-akpm/fs/9p/conv.c
+File/Subsystem:drivers/base/dmapool
 
-> +static inline void buf_put_int16(struct cbuf *buf, u16 val)
-> +{
-> +	buf_check_sizev(buf, 2);
-> +
-> +	buf->p[0] = val;
-> +	buf->p[1] = val >> 8;
-> +	buf->p += 2;
-> +}
-> +
-> +static inline void buf_put_int32(struct cbuf *buf, u32 val)
-> +{
-> +	buf_check_sizev(buf, 4);
-> +
-> +	buf->p[0] = val;
-> +	buf->p[1] = val >> 8;
-> +	buf->p[2] = val >> 16;
-> +	buf->p[3] = val >> 24;
-> +	buf->p += 4;
-> +}
-> +
-> +static inline void buf_put_int64(struct cbuf *buf, u64 val)
-> +{
-> +	buf_check_sizev(buf, 8);
-> +
-> +	buf->p[0] = val;
-> +	buf->p[1] = val >> 8;
-> +	buf->p[2] = val >> 16;
-> +	buf->p[3] = val >> 24;
-> +	buf->p[4] = val >> 32;
-> +	buf->p[5] = val >> 40;
-> +	buf->p[6] = val >> 48;
-> +	buf->p[7] = val >> 56;
-> +	buf->p += 8;
-> +}
+Signed-off-by: Victor Fusco <victor@cetuc.puc-rio.br>
+Signed-off-by: Domen Puncer <domen@coderock.org>
 
-> +static inline u16 buf_get_int16(struct cbuf *buf)
-> +{
-> +	u16 ret = 0;
-> +
-> +	buf_check_size(buf, 2);
-> +	ret = buf->p[0] | (buf->p[1] << 8);
-> +
-> +	buf->p += 2;
-> +
-> +	return ret;
-> +}
-> +
-> +static inline u32 buf_get_int32(struct cbuf *buf)
-> +{
-> +	u32 ret = 0;
-> +
-> +	buf_check_size(buf, 4);
-> +	ret =
-> +	    buf->p[0] | (buf->p[1] << 8) | (buf->p[2] << 16) | (buf->
-> +								p[3] << 24);
-> +
-> +	buf->p += 4;
-> +
-> +	return ret;
-> +}
-> +
-> +static inline u64 buf_get_int64(struct cbuf *buf)
-> +{
-> +	u64 ret = 0;
-> +
-> +	buf_check_size(buf, 8);
-> +	ret = (u64) buf->p[0] | ((u64) buf->p[1] << 8) |
-> +	    ((u64) buf->p[2] << 16) | ((u64) buf->p[3] << 24) |
-> +	    ((u64) buf->p[4] << 32) | ((u64) buf->p[5] << 40) |
-> +	    ((u64) buf->p[6] << 48) | ((u64) buf->p[7] << 56);
-> +
-> +	buf->p += 8;
-> +
-> +	return ret;
-> +}
+--
+
+---
+ drivers/base/dmapool.c  |    3 ++-
+ include/linux/dmapool.h |    3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+Index: quilt/drivers/base/dmapool.c
+===================================================================
+--- quilt.orig/drivers/base/dmapool.c
++++ quilt/drivers/base/dmapool.c
+@@ -262,7 +262,8 @@ dma_pool_destroy (struct dma_pool *pool)
+  * If such a memory block can't be allocated, null is returned.
+  */
+ void *
+-dma_pool_alloc (struct dma_pool *pool, int mem_flags, dma_addr_t *handle)
++dma_pool_alloc (struct dma_pool *pool, unsigned int __nocast mem_flags,
++		dma_addr_t *handle)
+ {
+ 	unsigned long		flags;
+ 	struct dma_page		*page;
+Index: quilt/include/linux/dmapool.h
+===================================================================
+--- quilt.orig/include/linux/dmapool.h
++++ quilt/include/linux/dmapool.h
+@@ -19,7 +19,8 @@ struct dma_pool *dma_pool_create(const c
+ 
+ void dma_pool_destroy(struct dma_pool *pool);
+ 
+-void *dma_pool_alloc(struct dma_pool *pool, int mem_flags, dma_addr_t *handle);
++void *dma_pool_alloc(struct dma_pool *pool, unsigned int __nocast mem_flags,
++		     dma_addr_t *handle);
+ 
+ void dma_pool_free(struct dma_pool *pool, void *vaddr, dma_addr_t addr);
+ 
+
+--

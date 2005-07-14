@@ -1,128 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263064AbVGNV3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVGNVhI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263064AbVGNV3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 17:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbVGNV3Q
+	id S261730AbVGNVhI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 17:37:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVGNVhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 17:29:16 -0400
-Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:2012 "EHLO
-	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S263056AbVGNV3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 17:29:14 -0400
-Message-Id: <200507142128.j6ELSvRh029126@ms-smtp-05-eri0.texas.rr.com>
-From: ericvh@gmail.com
-Date: Sun, 17 Jul 2005 11:51:59 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.13-rc2-mm2] v9fs: fix problems spotted in previous patchset (2.0.2)
-Cc: v9fs-developer@lists.sourceforge.net, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org
+	Thu, 14 Jul 2005 17:37:07 -0400
+Received: from fmr14.intel.com ([192.55.52.68]:34734 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261730AbVGNVhE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 17:37:04 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Date: Thu, 14 Jul 2005 17:35:33 -0400
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30040CF924@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Thread-Index: AcWIWmDchQJij/LWQViSUIBmjHKYUAAYKwdA
+From: "Brown, Len" <len.brown@intel.com>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>,
+       "Lee Revell" <rlrevell@joe-job.com>
+Cc: "dean gaudet" <dean-list-linux-kernel@arctic.org>,
+       "Chris Wedgwood" <cw@f00f.org>, "Andrew Morton" <akpm@osdl.org>,
+       <dtor_core@ameritech.net>, <torvalds@osdl.org>, <vojtech@suse.cz>,
+       <david.lang@digitalinsight.com>, <davidsen@tmr.com>,
+       <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>,
+       <mbligh@mbligh.org>, <diegocg@gmail.com>, <azarah@nosferatu.za.org>,
+       <christoph@lameter.com>
+X-OriginalArrivalTime: 14 Jul 2005 21:35:35.0691 (UTC) FILETIME=[F85B1DB0:01C588BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix formating errors and a memory leak that crept in the
-previous round of revisions to v9fs.  These will be reincorperated 
-into the patchset and resent to akpm.
+>Of course using APIC internal timers is generally the best idea on SMP,
+>but they may have had reasons to avoid them (it's not an ISA interrupt,
+so
+>it could have been simply out of question in the initial design).
 
-Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
+Best?  No.
 
----
-commit 22d785a22895513c6ab67dfa53c25b8b833fe235
-tree 88822e96e339bf071d63576c87a15ddc7f4419b6
-parent fe7cd649688d12dfaeeef2c594d131584c488dcd
-author Eric Van Hensbergen <ericvh@gmail.com> Thu, 14 Jul 2005 16:22:29 -0500
-committer Eric Van Hensbergen <ericvh@gmail.com> Thu, 14 Jul 2005 16:22:29 -0500
+Local APIC timers are based on a clock which on many processors will
+STOP when the processor enters power saving idle states, such as C3.
+So the LAPIC timer will not accurately reflect how much time
+has passed across entry/exit from idle.
 
- fs/9p/fid.c       |    2 +-
- fs/9p/mux.c       |    6 +++---
- fs/9p/vfs_file.c  |    5 +++--
- fs/9p/vfs_inode.c |    6 +++---
- 4 files changed, 10 insertions(+), 9 deletions(-)
+True, this has not been an issue on SMP, since there have not been
+SMP systems shipping with C3, but as you know soon everything
+interesting will be SMP...
 
-diff --git a/fs/9p/fid.c b/fs/9p/fid.c
---- a/fs/9p/fid.c
-+++ b/fs/9p/fid.c
-@@ -206,7 +206,7 @@ struct v9fs_fid *v9fs_fid_lookup(struct 
- 			/* TODO: take advantage of multiwalk */
- 
- 			fidnum = v9fs_get_idpool(&v9ses->fidpool);
--			if(fidnum < 0) {
-+			if (fidnum < 0) {
- 				dprintk(DEBUG_ERROR,
- 					"could not get a new fid num\n");
- 				return return_fid;
-diff --git a/fs/9p/mux.c b/fs/9p/mux.c
---- a/fs/9p/mux.c
-+++ b/fs/9p/mux.c
-@@ -262,7 +262,7 @@ v9fs_mux_rpc(struct v9fs_session_info *v
- 	ret = v9fs_send(v9ses, &req);
- 
- 	if (ret < 0) {
--		if(tcall->id != TVERSION)
-+		if (tcall->id != TVERSION)
- 			v9fs_put_idpool(tid, &v9ses->tidpool);
- 		dprintk(DEBUG_MUX, "error %d\n", ret);
- 		return ret;
-@@ -313,7 +313,7 @@ v9fs_mux_rpc(struct v9fs_session_info *v
- 	}
- 
-       release_req:
--	if(tcall->id != TVERSION)
-+	if (tcall->id != TVERSION)
- 		v9fs_put_idpool(tid, &v9ses->tidpool);
- 	if (rcall)
- 		*rcall = fcall;
-@@ -345,7 +345,7 @@ static int v9fs_recvproc(void *data)
- 		req = rptr = rreq = NULL;
- 
- 		rcall = kmalloc(v9ses->maxdata + V9FS_IOHDRSZ, GFP_KERNEL);
--		if(!rcall) {
-+		if (!rcall) {
- 			eprintk(KERN_ERR, "no memory for buffers\n");
- 			break;
- 		}
-diff --git a/fs/9p/vfs_file.c b/fs/9p/vfs_file.c
---- a/fs/9p/vfs_file.c
-+++ b/fs/9p/vfs_file.c
-@@ -381,9 +381,10 @@ v9fs_file_write(struct file *filp, const
- 	ret = copy_from_user(buffer, data, count);
- 	if (ret) {
- 		dprintk(DEBUG_ERROR, "Problem copying from user\n");
--		return -EFAULT;
--	} else
-+		ret = -EFAULT;
-+	} else {
- 		ret = v9fs_write(filp, buffer, count, offset);
-+	}
- 
- 	kfree(buffer);
- 
-diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -666,7 +666,7 @@ v9fs_vfs_rename(struct inode *old_dir, s
- 
- 	dprintk(DEBUG_VFS, "\n");
- 
--	if(!mistat)
-+	if (!mistat)
- 		return -ENOMEM;
- 
- 	if ((!oldfid) || (!olddirfid) || (!newdirfid)) {
-@@ -934,7 +934,7 @@ v9fs_vfs_symlink(struct inode *dir, stru
- 	dprintk(DEBUG_VFS, " %lu,%s,%s\n", dir->i_ino, dentry->d_name.name,
- 		symname);
- 
--	if(!mistat)
-+	if (!mistat)
- 		return -ENOMEM;
- 
- 	if (!v9ses->extended) {
-@@ -1217,7 +1217,7 @@ v9fs_vfs_mknod(struct inode *dir, struct
- 	dprintk(DEBUG_VFS, " %lu,%s mode: %x MAJOR: %u MINOR: %u\n", dir->i_ino,
- 		dentry->d_name.name, mode, MAJOR(rdev), MINOR(rdev));
- 
--	if(!mistat)
-+	if (!mistat)
- 		return -ENOMEM;
- 
- 	if (!new_valid_dev(rdev)) {
+-Len
+

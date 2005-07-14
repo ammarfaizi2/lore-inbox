@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVGNOlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVGNOqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVGNOlT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 10:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVGNOlK
+	id S261416AbVGNOqG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 10:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVGNOqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 10:41:10 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:35077 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S261182AbVGNOkX
+	Thu, 14 Jul 2005 10:46:06 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:41711 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261416AbVGNOqF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 10:40:23 -0400
-Message-ID: <42D67954.70101@arcom.com>
-Date: Thu, 14 Jul 2005 15:40:20 +0100
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alex Williamson <alex.williamson@hp.com>
-CC: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: serial: 8250 fails to detect Exar XR16L2551 correctly
-References: <42CA96FC.9000708@arcom.com>	 <20050706195740.A28758@flint.arm.linux.org.uk> <42CD2C16.1070308@arcom.com>	 <1121108408.28557.71.camel@tdi>	 <20050711204646.D1540@flint.arm.linux.org.uk>	 <1121112057.28557.91.camel@tdi>	 <20050711211706.E1540@flint.arm.linux.org.uk>	 <1121116677.28557.104.camel@tdi>  <1121274296.4334.58.camel@tdi> <1121277829.4334.76.camel@tdi>
-In-Reply-To: <1121277829.4334.76.camel@tdi>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Jul 2005 14:51:11.0156 (UTC) FILETIME=[7990E740:01C58883]
+	Thu, 14 Jul 2005 10:46:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=r3FzwxfGcaZ8dL6qbrzI1AtldyXEdZeiUCmBywzeXqOD/ZHG61Gn7rSe8hq2h4dfnydpRrekMbPAZ1VFDZ7p+mo7rcyKAeVxhsiXUIQIDmSqAwRqtK1eJkolZpzzRZg+ondvjm595vnv+7PO64Q/vFC1fHy2tc1TbnBqTduXNXg=
+Message-ID: <60868aed050714074550e0adcf@mail.gmail.com>
+Date: Thu, 14 Jul 2005 17:45:15 +0300
+From: Yura Pakhuchiy <pakhuchiy@gmail.com>
+Reply-To: Yura Pakhuchiy <pakhuchiy@gmail.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: XFS corruption on move from xscale to i686
+Cc: Nathan Scott <nathans@sgi.com>, linux-xfs@oss.sgi.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       tibor@altlinux.ru
+In-Reply-To: <20050714143830.GA17842@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1120756552.5298.10.camel@pc299.sam-solutions.net>
+	 <20050708042146.GA1679@frodo>
+	 <60868aed0507130822c2e9e97@mail.gmail.com>
+	 <20050714012048.GB937@frodo>
+	 <60868aed050714065047e3aaec@mail.gmail.com>
+	 <20050714143830.GA17842@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Williamson wrote:
+2005/7/14, Christoph Hellwig <hch@infradead.org>:
+> On Thu, Jul 14, 2005 at 04:50:01PM +0300, Yura Pakhuchiy wrote:
+> > 2005/7/14, Nathan Scott <nathans@sgi.com>:
+> > > On Wed, Jul 13, 2005 at 06:22:28PM +0300, Yura Pakhuchiy wrote:
+> > > > I found patch by Greg Ungreger to fix this problem, but why it's still
+> > > > not in mainline? Or it's a gcc problem and should be fixed by gcc folks?
+> > >
+> > > Yes, IIRC the patch was incorrect for other platforms, and it sure
+> > > looked like an arm-specific gcc problem (this was ages back, so
+> > > perhaps its fixed by now).
+> >
+> > AFAIR gcc-3.4.3 was released after this conversation take place at linux-xfs,
+> > maybe add something like this:
+> >
+> > #ifdef XSCALE
+> >     /* We need this because some gcc versions for xscale are broken. */
+> >     [patched version here]
+> > #else
+> >     [original version here]
+> > #endif
 > 
-> David, would you mind
-> trying this on the XR16L255x part? (ie. don't use console=ttyS, use
-> console=uart,...)  Thanks,
+> no, just fix your compiler or let the gcc folks do it.  Did anyone of
+> the arm folks ever open a PR at the gcc bugzilla with a reproduced
+> testcase?  You're never get your compiler fixed with that attitude.
 
-I wasn't even aware you could do this...
+Yes, but a lof of people use older versions of compilers and suffer
+from this bug.
+I personally was very unhappy when lost my data.
 
-These are the serial ports I have:
-
-ttyS0 at MMIO 0xc8000000 (irq = 15) is a XScale   IXP425 internal
-ttyS1 at MMIO 0xc8001000 (irq = 13) is a XScale     "       "
-ttyS2 at MMIO 0x53000000 (irq = 21) is a XR16550  XR16L2551
-ttyS3 at MMIO 0x53000008 (irq = 21) is a XR16550      "
-
-I tried console=uart,mmio,0x53000000,115200 and my board didn't print
-anything to the console and the boot failed somewhere before starting
-network (I don't know exactly where or why since I couldn't see any
-messages).  Using console=ttyS2,115200 works fine.
-
-What's 8250_early.c for anyway?  console=ttyS... has always worked fine
-for me.
-
-David Vrabel
--- 
-David Vrabel, Design Engineer
-
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
+Best regards,
+        Yura

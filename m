@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263173AbVGNXAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262949AbVGNXDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbVGNXAA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 19:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbVGNW7x
+	id S262949AbVGNXDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 19:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVGNWSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 18:59:53 -0400
-Received: from mxout.hispeed.ch ([62.2.95.247]:25259 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S263170AbVGNWwy (ORCPT
+	Thu, 14 Jul 2005 18:18:15 -0400
+Received: from ns2.suse.de ([195.135.220.15]:14552 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262566AbVGNWSH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 18:52:54 -0400
-Message-Id: <42D6ECED.7070504@khandalf.com>
-Date: Fri, 15 Jul 2005 00:53:33 +0200
-From: "Brian O'Mahoney" <omb@khandalf.com>
-Reply-To: omb@bluewin.ch
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Thu, 14 Jul 2005 18:18:07 -0400
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [announce] linux kernel performance project launch at sourceforge.net
+References: <200507142021.j6EKLPg04710@unix-os.sc.intel.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 15 Jul 2005 00:18:03 +0200
+In-Reply-To: <200507142021.j6EKLPg04710@unix-os.sc.intel.com.suse.lists.linux.kernel>
+Message-ID: <p73y889kp5w.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: rvk@prodmail.net, linux-kernel@vger.kernel.org
-Subject: Re: Buffer Over-runs, was Open source firewalls
-References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>
-    <42D63AD0.6060609@aitel.hist.no> <42D63D4A.2050607@prodmail.net>
-    <42D658A8.4040009@aitel.hist.no> <42D658A9.7050706@prodmail.net>
-In-Reply-To: <42D658A9.7050706@prodmail.net>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Md5-Body: 737aa6586687fdbcd4ee6b3d773d1505
-X-Transmit-Date: Friday, 15 Jul 2005 0:53:46 +0200
-X-Message-Uid: 0000b49cec9dcff7000000020000000042d6ecfa000206dd00000001000bc861
-Replyto: omb@bluewin.ch
-X-Sender-Postmaster: Postmaster@84-73-132-32.dclient.hispeed.ch.
-Read-Receipt-To: omb@bluewin.ch
-X-DCC-spamcheck-01.tornado.cablecom.ch-Metrics: smtp-05.tornado.cablecom.ch 32700; Body=1
-	Fuz1=1 Fuz2=1
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First there are endless ways of stopping DAMAGE from buffer
-over-runs, from code that accepts user data, eg extend buffer, dont
-use dangerous strxxx functions .... so while you can move
-stuff to proxies, and that has been done extensively e.g.
-for sendmail it is a cop-out, far better fix the application;
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
 
-Next, while all buffer over runs are very bad it is only those
-that stamp on the stack, overwriting the return address stored
-there and implanting viral code to be executed, that are truely
-__EVIL__.
+> I'm pleased to announce that we have established a linux kernel
+> performance project, hosted at sourceforge.net:
+> 
+> http://kernel-perf.sourceforge.net
 
-To do that you need to know a lot of things, the architecture
-ie executing x86 code on a ppc will get you no-where, you must
-know, and be able to debug your mal-ware against a stable
-target, and this is why the _VERY_ slowly patched Windoze is
-so vulnerable, and finally you really need to know the stack
-base, top of stack, normally growing downward, and ... be able
-to actually run code out of the stack space;
+That's very cool. Thanks a lot.
 
-and if any one of these conditions are not true, eg I compiled
-sendmail with a newer GCC, stack is not executable, ...
+Would it be possible to add 2.4.30 numbers and perhaps one or two 
+distro kernels (let's say RHEL3/4, SLES8/9) to the graphs 
+as data points for comparison? These are all very tuned
+kernels and would show where mainline is worse than them.
 
-the exploit just fails or crashes an app and then you go after
-why?
+Also how did you run netperf? Locally or to some other machine? 
+Perhaps that should be documented.
 
-but your system is not compromised.
+Some oprofile listings from a few of the test runs would be also nice.
 
-One final point, in practice, you get lots of unwanted packets
-off the internet, and in general you do not want them on your
-internal net, both for performance and security reasons, if you
-drop them on your router or firewall then you dont need to
-worry if the remote app is mal-ware.
-
--- 
-mit freundlichen Grüßen, Brian.
-
+-Andi

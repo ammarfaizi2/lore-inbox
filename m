@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263069AbVGNSXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263075AbVGNS3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263069AbVGNSXe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 14:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbVGNSXe
+	id S263075AbVGNS3u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 14:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbVGNS3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 14:23:34 -0400
-Received: from cantor.suse.de ([195.135.220.2]:29836 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S263069AbVGNSXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 14:23:30 -0400
-Date: Thu, 14 Jul 2005 20:23:25 +0200
-From: Andi Kleen <ak@suse.de>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc patch 2/2] direct-io: remove address alignment check
-Message-ID: <20050714182325.GI23737@wotan.suse.de>
-References: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net.suse.lists.linux.kernel> <p73hdex5xws.fsf@bragg.suse.de> <1121356952.6025.33.camel@ibm-c.pdx.osdl.net>
+	Thu, 14 Jul 2005 14:29:50 -0400
+Received: from mailwasher.lanl.gov ([192.65.95.54]:46233 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S263075AbVGNS3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 14:29:50 -0400
+Subject: Re: [LinuxBIOS] NUMA support for dual core Opteron
+From: Li-Ta Lo <ollie@lanl.gov>
+To: yhlu <yinghailu@gmail.com>
+Cc: "Ronald G. Minnich" <rminnich@lanl.gov>,
+       Stefan Reinauer <stepan@openbios.org>, discuss@x86-64.org,
+       LinuxBIOS <linuxbios@openbios.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <2ea3fae10507141058c476927@mail.gmail.com>
+References: <2ea3fae10507141058c476927@mail.gmail.com>
+Content-Type: text/plain
+Organization: Los Alamos National Lab
+Date: Thu, 14 Jul 2005 12:29:46 -0600
+Message-Id: <1121365786.3317.6.camel@logarithm.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121356952.6025.33.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.1.128075
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That is exactly why I made this a separate patch, so that we
-> can test and find out where the problems are and work to fix
-> them.
-
-That's pretty hard because there are a lot of block drivers.
-
-And might not very nice for people's data.
-
+On Thu, 2005-07-14 at 10:58 -0700, yhlu wrote:
+> Someone mentioned that NUMA support for dual core opteron need acpi
+> support in LinuxBIOS.
 > 
-> Are there problems only with odd sizes, or do drivers have problems
-> with non-512 sizes?
+> there may be some other solution for that.
+> 1. PowerPC already support dual core and it should support NUMA, So
+> the Open Firmware must have some NUMA entry definition.
+> Can we make x86-64 kernel support OpenFirmware interface so we can use
+> OpenBIOS as payload of LinuxBIOS.
+> 2. enable acpi and add the NUMA entries into it, the Linux Kernel will be happy.
+> 3. If we are trying to use ADLO to load Windows/Solaris/FreeBSD, We
+> need to pass related acpi info to ADLO....
+> 
+> Solution 1 will be ideal one, and can make Solaris for X86-64 use
+> OpenFirmware interface too.....
+> 
+> which one is better?
+> 
 
-I believe they have problems with non 512 sizes (and probably alignments) 
-too.
 
--Andi
+AFIAK, for x86_64 kernel, it will try to read NUMA configuration from
+HW directory. We don't have to export any ACPI table.
+
+-- 
+Li-Ta Lo <ollie@lanl.gov>
+Los Alamos National Lab
 

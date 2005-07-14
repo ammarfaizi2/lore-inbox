@@ -1,58 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262992AbVGNJ4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262999AbVGNJ6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262992AbVGNJ4x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 05:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbVGNJ4x
+	id S262999AbVGNJ6P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 05:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbVGNJ6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 05:56:53 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:52493 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262992AbVGNJ4w
+	Thu, 14 Jul 2005 05:58:15 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:28432 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S262998AbVGNJ6K
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 05:56:52 -0400
-Date: Thu, 14 Jul 2005 10:56:52 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
-       torvalds@osdl.org, vojtech@suse.cz, david.lang@digitalinsight.com,
-       davidsen@tmr.com, kernel@kolivas.org, linux-kernel@vger.kernel.org,
-       mbligh@mbligh.org, diegocg@gmail.com, azarah@nosferatu.za.org,
-       christoph@lameter.com
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-In-Reply-To: <1121306904.4435.132.camel@mindpipe>
-Message-ID: <Pine.LNX.4.61L.0507141050060.31857@blysk.ds.pg.gda.pl>
-References: <42D540C2.9060201@tmr.com>  <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
-  <20050713184227.GB2072@ucw.cz>  <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org>
-  <1121282025.4435.70.camel@mindpipe>  <d120d50005071312322b5d4bff@mail.gmail.com>
-  <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
-  <20050713211650.GA12127@taniwha.stupidest.org> 
- <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org> 
- <20050714005106.GA16085@taniwha.stupidest.org> 
- <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org> <1121306904.4435.132.camel@mindpipe>
+	Thu, 14 Jul 2005 05:58:10 -0400
+Message-ID: <42D6372E.1020201@cantab.net>
+Date: Thu, 14 Jul 2005 10:58:06 +0100
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chuck Ebbert <76306.1226@compuserve.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc2-mm2
+References: <200507131733_MC3-1-A464-F432@compuserve.com>
+In-Reply-To: <200507131733_MC3-1-A464-F432@compuserve.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Jul 2005 10:08:57.0406 (UTC) FILETIME=[0C43B5E0:01C5885C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jul 2005, Lee Revell wrote:
+Chuck Ebbert wrote:
+>    Looks like Quilt is adding the space during push/pop operations.  Only the
+> lines it has touched in the series file have the trailing space.
 
-> Did anyone else find this strange:
-> 
-> "The RTC is used in periodic mode to provide the system profiling
-> interrupt on uni-processor systems and the clock interrupt on
-> multi-processor systems."
-> 
-> We just take NR_CPUS * HZ timer interrupts per second, what's the
-> advantage of using the RTC?
+Quilt versions prior to 0.39 would add a trailing space to the series
+file entry when doing a quilt refresh with the default -p1 patch level.
 
- It tends to work in the APIC mode all the time (with all systems), unlike 
-the PIT which has "interesting" routing problems with its IRQ0, which 
-you've probably already noticed.  Have a look at all the hassle in 
-check_timer() if you want to double-check it.
-
- Of course using APIC internal timers is generally the best idea on SMP, 
-but they may have had reasons to avoid them (it's not an ISA interrupt, so 
-it could have been simply out of question in the initial design).
-
-  Maciej
+David Vrabel

@@ -1,76 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVGNAds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262829AbVGNApw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262806AbVGNAds (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 20:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVGNAdk
+	id S262829AbVGNApw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 20:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbVGNApw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 20:33:40 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:22667 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S262806AbVGNAb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 20:31:59 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Wed, 13 Jul 2005 17:31:40 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
-In-Reply-To: <200507141021.55020.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.62.0507131726390.11024@qynat.qvtvafvgr.pbz>
-References: <200507122110.43967.kernel@kolivas.org> <200507122202.39988.kernel@kolivas.org>
- <42D55562.3060908@tmr.com> <200507141021.55020.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 13 Jul 2005 20:45:52 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53931 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262829AbVGNApu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 20:45:50 -0400
+Date: Thu, 14 Jul 2005 02:45:41 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch 01/04] swsusp: fix printks and cleanups
+Message-ID: <20050714004541.GA7836@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Jul 2005, Con Kolivas wrote:
+From: Pavel Machek <pavel@ucw.cz>
 
-> On Thu, 14 Jul 2005 03:54, Bill Davidsen wrote:
->> Con Kolivas wrote:
->>> On Tue, 12 Jul 2005 21:57, David Lang wrote:
->>>> for audio and video this would seem to be a fairly simple scaleing factor
->>>> (or just doing a fixed amount of work rather then a fixed percentage of
->>>> the CPU worth of work), however for X it is probably much more
->>>> complicated (is the X load really linearly random in how much work it
->>>> does, or is it weighted towards small amounts with occasional large
->>>> amounts hitting? I would guess that at least beyond a certin point the
->>>> liklyhood of that much work being needed would be lower)
->>>
->>> Actually I don't disagree. What I mean by hardware changes is more along
->>> the lines of changing the hard disk type in the same setup. That's what I
->>> mean by careful with the benchmarking. Taking the results from an athlon
->>> XP and comparing it to an altix is silly for example.
->>
->> I'm going to cautiously disagree. If the CPU needed was scaled so it
->> represented a fixed number of cycles (operations, work units) then the
->> effect of faster CPU would be shown. And the total power of all attached
->> CPUs should be taken into account, using HT or SMP does have an effect
->> of feel.
->
-> That is rather hard to do because each architecture's interpretation of fixed
-> number of cycles is different and this doesn't represent their speed in the
-> real world. The calculation when interbench is first run to see how many
-> "loops per ms" took quite a bit of effort to find just how many loops each
-> different cpu would do per ms and then find a way to make that not change
-> through compiler optimised code. The "loops per ms" parameter did not end up
-> being proportional to cpu Mhz except on the same cpu type.
+Fix error printing in swsusp.c: add loglevels and add very usefull error
+information.  Trivial cleanup for disk.c.
 
-right, but the amount of cpu required to do a specific task will also vary 
-significantly between CPU families for the same task as well. as long as 
-the loops don't get optimized away by the compiler I think you can setup 
-some loops to do the same work on each CPU, even if they take 
-significantly different amounts of time (as an off-the-wall, obviously 
-untested example you could make your 'loop' be a calculation of Pi and for 
-the 'audio' test you compute the first 100 digits, for the video test you 
-compute the first 1000 digits, and for the X test you compute a random 
-number of digits between 10 and 10000)
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-David Lang
+ kernel/power/disk.c   |    8 ++------
+ kernel/power/swsusp.c |    3 ++-
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+diff -puN kernel/power/disk.c~swsusp-fix-printks-and-cleanups kernel/power/disk.c
+--- devel/kernel/power/disk.c~swsusp-fix-printks-and-cleanups	2005-07-12 02:14:51.000000000 -0700
++++ devel-akpm/kernel/power/disk.c	2005-07-12 02:14:51.000000000 -0700
+@@ -52,21 +52,17 @@ static void power_down(suspend_disk_meth
+ 	unsigned long flags;
+ 	int error = 0;
+ 
++	device_shutdown();
++	local_irq_save(flags);
+ 	switch(mode) {
+ 	case PM_DISK_PLATFORM:
+-		device_shutdown();
+-		local_irq_save(flags);
+ 		error = pm_ops->enter(PM_SUSPEND_DISK);
+ 		break;
+ 	case PM_DISK_SHUTDOWN:
+ 		printk("Powering off system\n");
+-		device_shutdown();
+-		local_irq_save(flags);
+ 		machine_power_off();
+ 		break;
+ 	case PM_DISK_REBOOT:
+-		device_shutdown();
+-		local_irq_save(flags);
+ 		machine_restart(NULL);
+ 		break;
+ 	}
+diff -puN kernel/power/swsusp.c~swsusp-fix-printks-and-cleanups kernel/power/swsusp.c
+--- devel/kernel/power/swsusp.c~swsusp-fix-printks-and-cleanups	2005-07-12 02:14:51.000000000 -0700
++++ devel-akpm/kernel/power/swsusp.c	2005-07-12 02:14:51.000000000 -0700
+@@ -886,6 +886,7 @@ int swsusp_suspend(void)
+ 	 * at resume time, and evil weirdness ensues.
+ 	 */
+ 	if ((error = device_power_down(PMSG_FREEZE))) {
++		printk(KERN_ERR "Some devices failed to power down, aborting suspend\n");
+ 		local_irq_enable();
+ 		return error;
+ 	}
+@@ -899,7 +900,7 @@ int swsusp_suspend(void)
+ 
+ 	save_processor_state();
+ 	if ((error = swsusp_arch_suspend()))
+-		printk("Error %d suspending\n", error);
++		printk(KERN_ERR "Error %d suspending\n", error);
+ 	/* Restore control flow magically appears here */
+ 	restore_processor_state();
+ 	BUG_ON (nr_copy_pages_check != nr_copy_pages);
+_
+

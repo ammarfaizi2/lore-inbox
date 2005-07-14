@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262986AbVGNJmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262987AbVGNJpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262986AbVGNJmH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 05:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbVGNJmH
+	id S262987AbVGNJpx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 05:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbVGNJpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 05:42:07 -0400
-Received: from mx.wurtel.net ([195.64.88.114]:32274 "EHLO mx.wurtel.net")
-	by vger.kernel.org with ESMTP id S262986AbVGNJmG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 05:42:06 -0400
-Date: Thu, 14 Jul 2005 11:41:45 +0200
-From: Paul Slootman <paul+nospam@wurtel.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Oops when running mkreiserfs on large (9TB) raid0 set on AMD64 SMP
-Message-ID: <20050714094145.GB383@wurtel.net>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	linux-kernel@vger.kernel.org
-References: <20050713084152.GA5765@wurtel.net> <17109.37988.800325.47795@cse.unsw.edu.au>
+	Thu, 14 Jul 2005 05:45:53 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:62080 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262987AbVGNJpv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 05:45:51 -0400
+Date: Thu, 14 Jul 2005 11:48:23 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Message-ID: <20050714094823.GB3399@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200507131733_MC3-1-A464-F432@compuserve.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17109.37988.800325.47795@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.6i
-X-Scanner: exiscan *1Dt0Dx-0007nK-00*.knaV9hxzAw*Wurtel
+In-Reply-To: <200507131733_MC3-1-A464-F432@compuserve.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: 84.189.241.250
+Subject: Re: 2.6.13-rc2-mm2
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 14 Jul 2005, Neil Brown wrote:
-> > Aug  9 20:09:18 localhost kernel: <ffffffff8808eb98>{:raid0:raid0_make_request+472}
+On Wed, Jul 13, 2005 at 05:29:32PM -0400, Chuck Ebbert wrote:
+> On Wed, 13 Jul 2005 at 00:23:42 -0700, Andrew Morton wrote:
 > 
-> Looks like the problem is at:
-> 		sector_div(x, (unsigned long)conf->hash_spacing);
-> 		zone = conf->hash_table[x];
-[...]
-> Anyway, the following patch, if it compiles, might changed the
-> behaviour of raid0 -- possibly even improve it :-)
+> >>    ...and BTW why does every line in the series file have a trailing space?
+> >
+> > Not in my copy of
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc2/2.6.13-rc2-mm2/patch-series
+> > ?
 > 
-> Thanks for the report.
 > 
-> Success/failure reports of this patch would be most welcome.
+>   Looks like Quilt is adding the space during push/pop operations.  Only the
+> lines it has touched in the series file have the trailing space.
 
-Thanks for the quick fix. I just tried it again with your patch,
-and now it works fine!
+Nope. For me quilt leaves a trailing space if I add patches with -p0
+to the series file and then do a "quilt refresh -p1".
 
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/md11             8.8T   33M  8.8T   1% /mnt
-
-Very nice... :)
-
-
-Paul Slootman
+Johannes

@@ -1,181 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262938AbVGNHMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbVGNH1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262938AbVGNHMI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 03:12:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbVGNHMI
+	id S262941AbVGNH1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 03:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262940AbVGNH1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 03:12:08 -0400
-Received: from web32007.mail.mud.yahoo.com ([68.142.207.104]:63910 "HELO
-	web32007.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S262938AbVGNHMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 03:12:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=rKXA8zcp9YAPoyxt5RbJG5Ki1gVYA+sSdK3cbbfBUSv1IdAF7VucALUFoUkS6MqD6zb3zUUrnP+19rEiX5o4OPxwkRxrxOecguJxDgowElFC9IK26QHnzXq+7UjPwDq8nEYa54S5+wtH7wiU4aF/SSEqpsfl3YzQ5Twci9fsXcw=  ;
-Message-ID: <20050714071202.88368.qmail@web32007.mail.mud.yahoo.com>
-Date: Thu, 14 Jul 2005 00:12:02 -0700 (PDT)
-From: Sam Song <samlinuxkernel@yahoo.com>
-Subject: Re: [patch 2.6.13-git] 8250 tweaks
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: mgreer@mvista.com, david-b@pacbell.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20050713134837.B6791@flint.arm.linux.org.uk>
+	Thu, 14 Jul 2005 03:27:15 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:21223 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S262939AbVGNH1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 03:27:13 -0400
+From: Grant Coady <x0x0x@dodo.com.au>
+To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+Cc: Mikhail Kshevetskiy <kl@laska.dorms.spbu.ru>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: eepro100/e100 broken in 2.6.13-rc3
+Date: Thu, 14 Jul 2005 17:26:59 +1000
+Organization: www.scatter.mine.nu
+Message-ID: <5p4cd190d9l39tcvt28j69p84747u1crfb@4ax.com>
+References: <20050714034954.52947263@laska> <4807377b05071323286963bf3a@mail.gmail.com>
+In-Reply-To: <4807377b05071323286963bf3a@mail.gmail.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> v. whining
-> 
->     1. To utter a plaintive, high-pitched,
-> protracted sound, as in pain,
->        fear, supplication, or complaint.
->     2. To complain or protest in a childish fashion.
->     3. To produce a sustained noise of relatively
-> high pitch: jet engines
->        whining.
-> 
-> The kernel isn't doing any of those.
+On Wed, 13 Jul 2005 23:28:15 -0700, Jesse Brandeburg <jesse.brandeburg@gmail.com> wrote:
 
-Oops, I misused this word. Thanks for your correction.
- 
-> Anyway, you're going to have to help me out a lot -
+>On 7/13/05, Mikhail Kshevetskiy <kl@laska.dorms.spbu.ru> wrote:
+>> symptom
+>> =======
+>> modprobe e100
+>> ifconfig eth0 <ip> netmask <netmask>
+>> 
+>> result:
+>> =======
+>> SIOCADDRT: Network is unreachable
+>> 
+>> There were no such error in 2.6.13-rc2
+>
+peetoo:~$ uname -r
+2.6.13-rc3-a
+peetoo:~$ lspci
+00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+00:07.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00:0d.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] (rev 08)
+00:0e.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] (rev 08)
+00:0f.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC AGP (rev 7a)
+peetoo:~$ lsmod
+Module                  Size  Used by
+adm9240                16056  0
+i2c_sensor              2816  1 adm9240
+radio_aztech            4316  0
+nfsd                   92296  5
+exportfs                4576  1 nfsd
+tulip                  42496  0
+e100                   30656  0
+usb_storage            30276  0
+peetoo:~$ ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:90:27:58:EC:6F
+          inet addr:192.168.1.24  Bcast:192.168.1.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:3454075 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1759340 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:826224238 (787.9 Mb)  TX bytes:99642515 (95.0 Mb)
 
-I'd love to:-)
+eth1      Link encap:Ethernet  HWaddr 00:04:AC:F3:4B:84
+          inet addr:192.168.3.24  Bcast:192.168.3.255  Mask:255.255.255.0
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
 
-> Also, having the contents of /sys/devices/platform
-> or /sys/bus/platform/* would be useful.
-> 
-> For some reason, it appears that the serial driver
-> is being asked to register two serial ports at MMIO 
-> address 0, from one platform device,
-> which it apparantly detects as being present.  I
-> suspect these are coming from some table included 
-> via asm-ppc/serial.h, but where that
-> is I've no idea.
-> 
-> It's then asked to add two more ports from the
-> serial8250.0 device, which doesn't exist.  These 
-> come from a platform device in arch/ppc.
-> Again, where these come from I don't know.
+eth2      Link encap:Ethernet  HWaddr 00:00:E8:4A:A0:C8
+          inet addr:192.168.4.24  Bcast:192.168.4.255  Mask:255.255.255.0
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+          Interrupt:5 Base address:0x8000
 
-It doesn't matter. Your notes is good enough to put
-me the right direction to find out the bug in my 
-platform.
+Not broken here :)
+--Grant.
 
-> So.  The serial driver is being asked to create
-> _four_ ports.  It's created two, but can't create 
-> the other two, failing with error -22.
-> 22 is EINVAL, which means there was something wrong
-> with what was requested.  That generally points to 
-> uartclk being zero, which would
-> be a bug in the PPC architecture code.  You can
-> confirm this by applying this patch:
-
-Sure. The uartclk printed zero. Your simple patch
-did a good help. Then I tracked down to the _four_
-port registering and finally picked out the "bug".
-
-It turned out the conflict of uart init definition 
-like MPC10X_UART0_IRQ in ../syslib/mpc10x_common.c 
-and SERIAL_PORT_DFNS in ../platform/sandpoint.h. By
-now, only MPC10X_UART0_IRQ stuff is needed. 
-SERIAL_PORT_DFNS should be omitted. 
-
-Seems it's time for me to stand with Russell:-)
-
-I must confess that I am a stupid guy on kernel 
-programming. The result on PPC side, I mean sandpoint
-board, still needs Mark's confirmation.
-
-Following is the bug-fixed boot log on a custom
-8241 board. 
-
-Loading kernel ......
-Linux version 2.6.13-rc3 (root@sam.acs.net) (gcc
-version 3.2.2 20030217 (Yellow Dog Linux 3.0 3.2.2-
-......
-Based on the Freescale Sandpoint Development System
-Built 1 zonelists
-Kernel command line: console=ttyS1,115200 
-root=/dev/nfs rw
-nfsroot=192.168.57.200:/opt/eldk3/ppc_82xx 
-ip=192.168.57.243:192.1OpenPIC
-Version 1.2 (1 CPUs and 11 IRQ sources) at fdf40000
-OpenPIC timer frequency is 100.000000 MHz
-PID hash table entries: 512 (order: 9, 8192 bytes)
-time_init: decrementer frequency = 25.000000 MHz
-Dentry cache hash table entries: 16384 (order: 4, 
-65536 bytes)
-Inode-cache hash table entries: 8192 (order: 3, 32768 
-bytes)
-Memory: 62848k available (1572k kernel code, 388k 
-data, 104k init, 0k highmem)
-Mount-cache hash table entries: 512
-NET: Registered protocol family 16
-PCI: Probing PCI hardware
-PCI: Cannot allocate resource region 1 of device 
-0000:00:00.0
-inotify syscall
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 1024 (order 0, 4096
-bytes)
-Installing knfsd (copyright (C) 1996
-okir@monad.swb.de).
-Serial: 8250/16550 driver $Revision: 1.90 $ 2 ports,
-IRQ sharing disabled
-ttyS0 at MMIO 0xfdf04500 (irq = 9) is a 16550A
-ttyS1 at MMIO 0xfdf04600 (irq = 10) is a 16550A
-io scheduler noop registered
-RAMDISK driver initialized: 16 RAM disks of 4096K size
-1024 blocksize
-PPP generic driver version 2.4.2
-PPP Deflate Compression module registered
-PPP BSD Compression module registered
-......
-IP-Config: Guessing netmask 255.255.255.0
-IP-Config: Complete:
-      device=eth0, addr=192.168.57.243,
-mask=255.255.255.0,
-gw=255.255.255.255,
-     host=8241, domain=, nis-domain=(none),
-     bootserver=192.168.57.200,
-rootserver=192.168.57.200, rootpath=
-Looking up port of RPC 100003/2 on 192.168.57.200
-Looking up port of RPC 100005/1 on 192.168.57.200
-VFS: Mounted root (nfs filesystem).
-Freeing unused kernel memory: 104k init
-INIT: version 2.84 booting
-        Welcome to DENX Embedded Linux Environment
-        Press 'I' to enter interactive startup.
-Building the cache [  OK  ]
-Mounting proc filesystem:  [  OK  ]
-Configuring kernel parameters:  [  OK  ]
-......
-Mounting NFS filesystems:  [  OK  ]
-Mounting other filesystems:  [  OK  ]
-Starting xinetd: [  OK  ]
-
-8241 login: root
-Last login: Wed Dec 31 19:00:33 on console
-bash-2.05b# ls
-bash-2.05b# cd /
-bash-2.05b# ls
-bin   dev  images  lib    mnt   root  tmp  var
-boot  etc  proc  sbin  usr
-bash-2.05b# cat /proc/interrupts
-           CPU0
-  0:      18707   OpenPIC   Level     eth0
- 10:        258   OpenPIC   Level     serial
-BAD:         14
-
-Thanks for your time,
-
-Sam
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

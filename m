@@ -1,212 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVGNBL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVGNBMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbVGNBL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Jul 2005 21:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVGNBL2
+	id S261588AbVGNBMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Jul 2005 21:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVGNBMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Jul 2005 21:11:28 -0400
-Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:63675 "HELO
-	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261330AbVGNBL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Jul 2005 21:11:27 -0400
-Subject: Re: [patch] inotify.
-From: John McCutchan <ttb@tentacle.dhs.org>
-Reply-To: ttb@tentacle.dhs.org
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@lst.de>, arnd@arndb.de, zab@zabbo.net,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <17109.45314.321015.352024@cse.unsw.edu.au>
-References: <1118855899.3949.21.camel@betsy> <42B1BC4B.3010804@zabbo.net>
-	 <1118946334.3949.63.camel@betsy> <200506171907.39940.arnd@arndb.de>
-	 <20050617175605.GB1981@tentacle.dhs.org>
-	 <20050617143334.41a31707.akpm@osdl.org> <1119044430.7280.22.camel@phantasy>
-	 <1119052357.7280.24.camel@phantasy>
-	 <17079.25741.91251.232880@cse.unsw.edu.au>
-	 <1119320137.17767.10.camel@vertex>
-	 <17079.31644.985407.988980@cse.unsw.edu.au>
-	 <1119369327.3949.251.camel@betsy>
-	 <17109.45314.321015.352024@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Wed, 13 Jul 2005 21:11:34 -0700
-Message-Id: <1121314295.8731.16.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Jul 2005 21:12:16 -0400
+Received: from science.horizon.com ([192.35.100.1]:48709 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S261588AbVGNBMM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Jul 2005 21:12:12 -0400
+Date: 14 Jul 2005 01:12:08 -0000
+Message-ID: <20050714011208.22598.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 10:25 +1000, Neil Brown wrote:
-> On Tuesday June 21, rml@novell.com wrote:
-> > On Tue, 2005-06-21 at 12:29 +1000, Neil Brown wrote:
-> > 
-> > > There may well be other good arguments against 'fd's, but I'm trying
-> > > to point out that this isn't one of them, and so shouldn't appear in
-> > > this part of the FAQ.
-> > 
-> > You raise a good point, although one could argue that raising the fd
-> > limit is not necessarily feasible.
-> > 
-> > There are other good arguments.  With a single fd, there is a single
-> > item to block on, which is mapped to a single queue of events.  The
-> > single fd returns all watch events and also any potential out-of-band
-> > data.  If every fd was a separate watch,
-> > 
-> > 	- There would be no way to get event ordering.  Events on file
-> > 	  foo and file bar would pop poll() on both fd's, but there
-> > 	  would be no way to tell which happened first.  A single queue
-> > 	  trivially gives you ordering.
+>> I don't think there's a strict 80 column rule anymore.  It's 2005...
+
+> Think again.  There are a lot of people who use 80 column windows so
+> that we can see two code windows side-by-side.
+
+Agreed.  If you're having trouble with width, it's a sign that the code
+needs to be refactored.
+
+Also, my personal rule is if that a source file exceeds 1000 lines, start
+looking for a way to split it.  It can go longer (indeed, there is little
+reason to split the fs/nls/nls_cp9??.c files), but 
+(I will refrain from discussing drivers/scsi/advansys.c)
+
+
+
+Comments on the rest of the thread:
+
+> 3a. Binary operators
+>	+ - / * %
+>	== !=  > < >= <= && || 
+>	& | ^ << >> 
+>	= *= /= %= += -= <<= >>= &= ^= |=
+>
+>	spaces around the operator
+>	a + b
+
+Generally, yes, and if you violate this, take the spaces out around the
+tightest-binding operators first!
+
+
+>> I like this style because I can grep for ^function_style_for_easy_grep
+>> and quickly find function def.
+
+> That's a pretty bad argument, since most functions aren't declared
+> that way, and there are much better source code navigational tools,
+> like cscope and ctags.
+
+Well, I use that style for everything I write, for exactly that reason,
+so it's fairly popular.  Yes, there are lots of tools, but it's convenient
+not to need them.
+
+Also, definition argument lists can be a little longer than declaration
+argument lists (due to the presence of argument names and possible
+const qualifiers), so an extra place to break the line helps.
+
+And it provides a place to put the handy GCC __attribute__(()) extensions...
+
+static unsigned __attribute__((nonnull, pure))
+is_condition_true(struct hairy *p, unsigned priority)
+{
+...
+}
+
+Finally, if you are burdened with long argument names, a shorter fixed prefix
+makes it easier to align the arguments.  To pick a real-world example:
+
+static sctp_disposition_t sctp_sf_do_5_2_6_stale(const struct sctp_endpoint *ep,
+                                                 const struct sctp_association *
+asoc,
+                                                 const sctp_subtype_t type,
+                                                 void *arg,
+                                                 sctp_cmd_seq_t *commands)
+I prefer to write
+
+static sctp_disposition_t
+sctp_sf_do_5_2_6_stale(const struct sctp_endpoint *ep,
+                       const struct sctp_association *asoc,
+                       const sctp_subtype_t type,
+                       void *arg,
+                       sctp_cmd_seq_t *commands)
+Although in extreme cases, it's usually best to just to:
+static sctp_disposition_t
+sctp_sf_do_5_2_6_stale_bug_workaround(
+	const struct sctp_endpoint *ep,
+	const struct sctp_association *asoc,
+	const sctp_subtype_t type,
+	void *arg,
+	sctp_cmd_seq_t *commands)
+
+
+>> 3e. sizeof
+>> 	space after the operator
+>> 	sizeof a
+
+> I use sizeof(a) always (both for sizeof(type) and sizeof(expr)).
+
+You can, but I prefer not to.  Still, it behaves a lot "like a function",
+so it's not too wrong.  In fact, I'll usually avoid the sizeof(type)
+version entirely.  It's often clearer to replace, e.g.
+	char buffer[sizeof(struct sctp_errhdr)+sizeof(union sctp_addr_param)];
+with
+	char buffer[sizeof *errhdr + sizeof *addrparm];
+which (if you look at the code in sctp_sf_send_restart_abort), actually
+reflects what's going on better.
+
+
+What really gets my goat is
+	return(0);
+
+return *is not a function*.  Stop making it look syntactically like one!
+That should be written
+	return 0;
+
+>> 3i. if/else/do/while/for/switch
+>> 	space between if/else/do/while and following/preceeding
+>> 	statements/expressions, if any:
+>> 
+>> 	if (a) {
+>> 	} else {
+>> 	}
+>> 
+>> 	do {
+>> 	} while (b);
+
+> What's wrong with if(expr) ? Rationale?
+
+- It's less visually distinct from a function call.
+- The space makes the keyword (important things, keywords) stand out more
+  and makes it easier to pick out of a mass of code.
+- (Subjective) it balances the space in the trailing ") {" better.
+
+This matches my personal style.
+
+>> 6. One-line statement does not need a {} block, so dont put it into one
+>> 	if (foo)
+>> 		bar;
+
+> Disagree. Common case of hard-to-notice bug:
+>
+>	if(foo)
+>		bar()
+>...after some time code evolves into:
+>	if(foo)
+>		/*
+>		 * We need to barify it, or else pagecache gets FUBAR'ed
+>		 */
+>		bar();
+
+The braces should have been added then.  They are okay to omit when the
+body contains one physical line of text, but my rule is that a comment or
+broken expression requires braces:
+
+	if (foo) {
+		/* We need to barify it, or else pagecache gets FUBAR'ed */
+		bar();
+	}
+
+	if (foo) {
+		bar(p->foo[hash(garply) % LARGEPRIME]->head,
+		    flags & ~(FLAG_FOO | FLAG_BAR | FLAG_BAZ | FLAG_QUUX));
+	}
+
+> Thus we may be better to slighty encourage use of {}s even if they are
+> not needed:
+>
+>	if(foo) {
+>		bar();
+>	}
+
+It's not horrible to include them, but it reduces clutter sometimes to
+leave them out.
+
+
+>>	if (foobar(.................................) + barbar * foobar(bar +
+>>	                                                                foo *
+>>	                                                                oof)) {
+>>	}
 > 
-> "first"? Two processes on two processors modify two files both in the
-> same timeslice.  Which changed "first" ?
-
-Yeah, you're right, when we are dealing with a tiny time slice on an SMP
-system, you can't really tell which came first. But this isn't the case
-we are trying to solve. We are trying to make things work on a larger
-(but still relatively small) time scale. Consider mv a b; mv b c; mv a
-c; If we had seperate event queues for a,b, and c, we would have no
-straight forward way to determine what order those events happened in.
-
-> Timestamps is a well-proven mechanism for determining ordering, and
-> your current 'cookie' is very far from a timestamp (or sequence-stamp,
-> which would be as good).
-
-The cookie is never used as a way of determining order.
-
+> Ugh, that's as ugly as it can get... Something like below is much
+> easier to read...
 > 
-> 
-> > 	- We'd have to maintain n fd's and n internal queues with state,
-> > 	  versus just one.  It is a lot messier in the kernel.
-> 
-> You don't maintain just one queue. You maintain one per open of
-> /dev/inotify.  So it is n vs m, not n vs 1.
-> 
-> > 	- User-space developers prefer the current API.  The Beagle
-> > 	  guys, for example, love it.  Trust me, I asked.  It is not
-> > 	  a surprise: Who'd want to manage and block on 1000 fd's?
-> 
-> But they still need to track 1000s of 'wd's.  I'm sure the right
-> library support would make any reasonable kernel interface easy to use
-> for application developers.
-> 
+>	if (foobar(.................................) +
+>	    barbar * foobar(bar + foo * oof)) {
+>	}
 
-Keeping track of a wd consists of mapping the wd to a structure. Keeping
-track of fds mean: mapping the fd to a structure, and for every loop:
+Strongly agreed!  If you have to break an expression, do it at the lowest
+precedence point possible!
+ 
+> Even easier is
+>	if (foobar(.................................)
+>	    + barbar * foobar(bar + foo * oof)) {
+>	}
+>
+> Since a statement cannot start with binary operators
+> and as such we are SURE that there must have been something before.
 
-add all the fd's to FD_SET
-select on fd's
-check EACH fd if it has events to be read.
+I don't tend to do this, but I see the merit.  However, C uses a number
+of operators (+ - * &) in both unary and binary forms, so it's
+not always unambiguous.
 
-and when app exists, close all fd's.
+In such cases, I'll usually move the brace onto its own line to make the
+end of the condition clearer:
 
-This is obviously a no go.
+	if (foobar(.................................) +
+	    barbar * foobar(bar + foo * oof))
+	{
+	}
 
-> > 	- No way to get out of band data.
-> 
-> Not sure what you mean here.. Maybe IN_Q_OVERFLOW...
-> 
-> I first thought you might mean the filenames for directory events, but
-> then thought maybe not.  However while I was thinking this I also
-> thought that your inotify_event structure doesn't seem to be designed
-> for extension.
-> I recall you saying earlier that you had rejected requests for
-> byte-range information about read/write, but that it could be open for
-> reconsideration after inotify was well established in the kernel.
-> Suppose you were to give in and provide such support, how would it
-> appear in inotify_event? 
-> 
-> I would have put the "len" at the start of the packet and have it give
-> the length of the whole packet.  Then 'mask' would list both the
-> events and the accompanying fields.  One bit to say "cookie is
-> present" (it currently is very rarely meaningful, but always present),
-> one bit for 'name is present' (I'm not sure how you are currently
-> meant to tell if the name should be considered or not. maybe you have
-> to know if 'wd' refers to a directory). Other bits for 'byterange is
-> present', 'pid is present', 'uid is present', ....
-> 
+Of course, better yet is to use a temporary or something to shrink
+the condition down to a sane size, but sometimes you just need
 
-You raise a good point here. No apps currently using inotify expect it
-to be 100% stable, so now is the time to fix this.
-
-
-> > 	- 1024 is still too low.  ;-)
-> > 
-> > When you talk about designing a file change notification system that
-> > scales to 1000s of directories, juggling 1000s of fd's just does not
-> > seem the right interface.  It is too heavy.
-> > 
-> 
-> So I FINALLY asked myself the question "Why does he want 1000s of directories"
-> and I come up with the answer "he probably doesn't".
-> 
-> What I suspect you really want to handle is a few objects where each
-> object is either a file, a directory, or a directory tree.
-> 1000's of directories sounds to me like you really want to monitor all
-> the directories in a directory tree.  But you don't even actually want
-> that.  You really want to watch all the files in all the directories
-> in a directory tree (do tell me if I'm wrong).
-> 
-> Suppose you were to arrange that whenever a dentry is created or
-> walked: if the parent has an inotify_watch attached with a IN_RECURSE
-> flag, then an appropriate inotify_watch was attached to the child
-> (unless already present).  It would be attached in such a way that it
-> didn't hold a reference to the inode and so the inode could still be
-> discarded when inactive.
-> 
-
-An inotify_watch has to map back to the inotify context that created it.
-Where would the events for this inotify context go? Not to mention the
-over head.
-
-> This would (with a bit more work) allow you to get events for
-> everything in a directory tree off just one filedescriptor.
-> 
-
-So say I create the initial watch at '/' with the recursive flag set,
-then something happens in /home/user/xxxxx/yyyyyy/zzzzzz/dddddd/ for the
-sake of the argument, lets say a file is being downloaded call foo.
-
-Each time foo is written to, the kernel needs to traverse up the
-directory tree to build the full path name, allocate the memory for the
-event and queue it up.
-
-The over head in constructing the full path name is unacceptable, and
-the memory needs of this approach would get huge, especially if the
-watcher didn't bother to read events from the queue.
-
-For recursive watching to happen, you either need to walk down the
-directory tree at the time of watch creation, or walk up the directory
-tree for each event. Take your pick. Neither seems acceptable to me.
-
-> You would need to be careful about allowing for sub-trees to be
-> renamed out of the main tree, but I don't see that as insurmountable. 
-> 
-> This approach has the benefit that you don't lock 1000's of inodes
-> into memory when you aren't really interested in them.
-> 
-
-Yeah, you just waste tons of time constructing full path names and waste
-lots of memory saving those names around until the events are read.
-
-
-> 
-> One last little nit: The name "inotify" suggests to me that it is an
-> inode-based notification scheme rather than a directory-entry-based
-> notification scheme.  However if I'm watching a directory and one of
-> the files is changed though a hardlink to a different directory, or
-> via NFS, then I may not see the change.  I realise this is not really
-> fixable.  I assume it is/will be mentioned in the relevant
-> documentation.
-> 
-
-This will be added to the Documentation.
-
-> 
-> NeilBrown
-> 
-> 
-> PS I just noticed inotify.h spell writable as writtable :-)
-
-Thanks.
-
-
+	if (messy_condition_one &&
+	    messy_condition_two &&
+	    messy_condition_three)
+	{
+	}

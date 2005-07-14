@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263119AbVGNTia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263016AbVGNTdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263119AbVGNTia (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 15:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbVGNTfy
+	id S263016AbVGNTdu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 15:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbVGNTba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 15:35:54 -0400
-Received: from oban.u-picardie.fr ([193.49.184.8]:26434 "EHLO
-	mailx.u-picardie.fr") by vger.kernel.org with ESMTP id S261700AbVGNTew
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 15:34:52 -0400
-Message-ID: <1121369685.42d6be556505f@webmail.u-picardie.fr>
-Date: Thu, 14 Jul 2005 21:34:45 +0200
-From: FyD <fyd@u-picardie.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with kernel 2.6.11
+	Thu, 14 Jul 2005 15:31:30 -0400
+Received: from taxbrain.com ([64.162.14.3]:43565 "EHLO petzent.com")
+	by vger.kernel.org with ESMTP id S263077AbVGNTa5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 15:30:57 -0400
+From: "karl malbrain" <karl@petzent.com>
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.6.9: serial_core: uart_open
+Date: Thu, 14 Jul 2005 12:30:48 -0700
+Message-ID: <NDBBKFNEMLJBNHKPPFILOEAICEAA.karl@petzent.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.6
-X-Originating-IP: 137.131.252.204
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
+In-Reply-To: <20050714195717.B10410@flint.arm.linux.org.uk>
+X-Spam-Processed: petzent.com, Thu, 14 Jul 2005 12:27:02 -0700
+	(not processed: message from valid local sender)
+X-Return-Path: karl@petzent.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: petzent.com, Thu, 14 Jul 2005 12:27:05 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+> -----Original Message-----
+> From: Russell King [mailto:rmk@arm.linux.org.uk]On Behalf Of Russell
+> King
+> Sent: Thursday, July 14, 2005 11:57 AM
+> To: karl malbrain
+> Cc: Linux-Kernel@Vger. Kernel. Org
+> Subject: Re: 2.6.9: serial_core: uart_open
+>
+>
+> On Thu, Jul 14, 2005 at 10:16:23AM -0700, karl malbrain wrote:
+> > I'd love to do a ps listing for you, but, except for the mouse,
+> the system
+> > is completely unresponsive after issuing the blocking open("/dev/ttyS1",
+> > O_RDRW).
+> >
+> > Telnet is dead; the console will respond to the mouse, but the
+> only thing I
+> > can do is close the xterm window and thereby kill the process.
+> I can launch
+> > a new xterm window from the menu using the mouse, but the new
+> window is dead
+> > and has no cursor nor bash prompt.
+> >
+> > The clock on the display is being updated.  After several hours
+> the system
+> > reboots on its own.
+> >
+> > I recall from my DOS days that 8250/16550 programming requires that the
+> > specific IIR source be responded to, or the chip will immediately
+> > turn-around with another interrupt.  It doesn't look like 8250.c is
+> > organized to respond directly to the modem-status-change value
+> in IIR which
+> > requires reading MSR to reset.
+>
+> Well, at this point interrupts are enabled, and _are_ handled.  The
+> only thing we use the IIR for is to answer the question "did this
+> device say it had an interrupt?"
+>
+> If it did, we unconditionally read the MSR without fail.
+>
+> So, I've no idea what so ever about what's going on here.  I don't
+> understand why your system is behaving the way it is.  Therefore,
+> I don't think we can progress this any further, sorry.
 
-I have a problem with a program named Gaussian (http://www.gaussian.com)
-(versions g98 or g03) and FC 4.0 (default kernel 2.6.11): I am used to take
-Gaussian binaries compiled on the RedHat 9.0 version, and used them on FC 2.0
-or FC 3.0. If I try to do so, on FC 4.0. (with the default kernel) Gaussian
-stops (both g98 and g03 versions) with the following error message:
+There is some code inserted at the top of the main receive_chars loop in
+8250.c that examines  tty->flip.count and returns without reading UART_RX
+under the condition that tty->flip.count is not reset after a call to
+tty->flip.work.func.  This would leave the chip RX IIR unserviced and
+subject another interrupt request.  Is it possible that this is the cause of
+the problem?
 
-[fyd@localhost ~]$ g98 < toto-g98.com> toto-g98.log
-[fyd@localhost ~]$ g03 < toto-g03.com> toto-g03.log
-Erroneous write during file extend. write 208 instead of 4096
-Probably out of disk space.
-Write error in NtrExt1: No such file or directory
+karl m
 
-And obviously, I do _not_ have any problem of space and no NFS server on my
-machine...
+Thanks, karl m
 
-Now if I compile and use the kernel 2.6.12, this message dispears and the
-program Gaussian g98 works fine, but I still have problems with the version g03
-which stops without providing any message...
 
->From my tests, it seems to be a problem relative to the kernel. Being not a
-programmer, it is difficult for me to imagine the problem, and even to describe
-it...
-
-Any idea what could be the problem ? Any suggestions about options I should
-use/not_use in the kernel, or about a specific kernel 2.6 version I should use
-?
-
-Thank you, best regards, Francois
-
-PS Please add my email address in CC since I did not register...
 

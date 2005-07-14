@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVGNEKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbVGNEX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262890AbVGNEKl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 00:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbVGNEKk
+	id S262896AbVGNEX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 00:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbVGNEX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 00:10:40 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21230 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262896AbVGNEKh
+	Thu, 14 Jul 2005 00:23:56 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:25570 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262896AbVGNEXz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 00:10:37 -0400
-Subject: Re: RT and XFS
-From: Daniel Walker <dwalker@mvista.com>
-To: Dave Chinner <dgc@sgi.com>
-Cc: Nathan Scott <nathans@sgi.com>, Ingo Molnar <mingo@elte.hu>,
-       Steve Lord <lord@xfs.org>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-In-Reply-To: <20050714135023.E241419@melbourne.sgi.com>
-References: <1121209293.26644.8.camel@dhcp153.mvista.com>
-	 <20050713002556.GA980@frodo> <20050713064739.GD12661@elte.hu>
-	 <1121273158.13259.9.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <20050714002246.GA937@frodo>  <20050714135023.E241419@melbourne.sgi.com>
-Content-Type: text/plain
-Date: Wed, 13 Jul 2005 21:10:26 -0700
-Message-Id: <1121314226.14816.18.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	Thu, 14 Jul 2005 00:23:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=p0knM8eP+loqGwXdO+vVhGEvAN0DIVys7sEAweD+iijVge4sr6EeclG3eiLBNZCwM39sAWVbf0CeacBXqoFw4rEeP4G8QWn+QsSHJTGgNvYY47AJF0fIiHPZnl+uyzhZ3the+B516OWPE6aOp3pvxDt9O2tlRhgAc9MUj/d0rEY=
+Message-ID: <9e47339105071321224adff661@mail.gmail.com>
+Date: Thu, 14 Jul 2005 00:22:59 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Dave Airlie <airlied@gmail.com>
+Subject: Re: moving DRM header files
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <21d7e99705071321044c216db4@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <21d7e99705071321044c216db4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 13:50 +1000, Dave Chinner wrote:
-> Now that I've read the thread, I see it's not mrlocks that is the
-> issue with unlocking in a different context - it's semaphores.
+On 7/14/05, Dave Airlie <airlied@gmail.com> wrote:
+> Hi,
+> I'd like to move the interface DRM header files (drm.h and *_drm.h)
+> somewhere more useful and also more "user-space" visible, (i.e. so
+> kernel-headers could start picking them up.)
 > 
-> All the pagebuf synchronisation is done with a semaphore because
-> it's held across the I/O and it's _most definitely_ released in a
-> different context when doing async I/O. Just about all metadata I/O
-> is async because once the transaction has been logged to disk we
-> don't need to write these buffers out synchronously. Not to mention
-> the log I/O completion unlocks the buffers in a transaction in a
-> different context as well.
+> I'm thinking include/linux/drm/
+> but include/linux would also be possible.
 > 
-> The whole point of using a semaphore in the pagebuf is because there
-> is no tracking of who "owns" the lock so we can actually release it
-> in a different context. Semaphores were invented for this purpose,
-> and we use them in the way they were intended. ;)
+> Any suggestions or ideas?
 
-Where is the that semaphore spec, is that posix ?  There is a new
-construct called "complete" that is good for this type of stuff too. No
-owner needed , just something running, and something waiting till it
-completes.
+There is also include/linux/video
 
-> Realistically, I seriously doubt the need for any sort of rt changes
-> to these semaphores. They can be held for indeterminant periods of
-> time potentially across multiple disk I/Os (e.g. when held locked in
-> a transaction that requires more metadata to be read in from disk to
-> make progress).  Hence there is no really no point in making them RT
-> aware because if you end up waiting on one of them you can forget
-> about pretty much any RT guarantee that you've ever given....
+The duplicate defines need to get cleaned out of xf86drm.h or this is
+going to get real confusing.
 
-PI is always good, cause it allows the tracking of what is high
-priority , and what is not . 
-
-Daniel
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

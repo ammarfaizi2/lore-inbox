@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262823AbVGNR7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbVGNSDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262823AbVGNR7G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 13:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbVGNR7G
+	id S262842AbVGNSDH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 14:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262857AbVGNSDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 13:59:06 -0400
-Received: from wproxy.gmail.com ([64.233.184.192]:65478 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262823AbVGNR7F convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 13:59:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=UVoV/Pc2YiP50cygnzGZpuj/XTipuYFNQXoH7lRRa4oGNTCDsq/rjj4+kTbJ2EPRaByP1h4h0k1HxbuzwYYEeuUI+g6ISYUCwkmer9wRknuioM59uO/TChlGhFtvL/czBR8ynCMCoVNTfxt6opnV1YwKOJpv7TwCudin3THPAJo=
-Message-ID: <2ea3fae10507141058c476927@mail.gmail.com>
-Date: Thu, 14 Jul 2005 10:58:16 -0700
-From: yhlu <yinghailu@gmail.com>
-Reply-To: yhlu <yinghailu@gmail.com>
-To: "Ronald G. Minnich" <rminnich@lanl.gov>,
-       Stefan Reinauer <stepan@openbios.org>
-Subject: NUMA support for dual core Opteron
-Cc: LinuxBIOS <linuxbios@openbios.org>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
+	Thu, 14 Jul 2005 14:03:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31699 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262842AbVGNSCm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 14:02:42 -0400
+Date: Thu, 14 Jul 2005 11:00:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: arjan@infradead.org, torvalds@osdl.org, rlrevell@joe-job.com,
+       dean-list-linux-kernel@arctic.org, cw@f00f.org, len.brown@intel.com,
+       dtor_core@ameritech.net, david.lang@digitalinsight.com,
+       davidsen@tmr.com, kernel@kolivas.org, linux-kernel@vger.kernel.org,
+       mbligh@mbligh.org, diegocg@gmail.com, azarah@nosferatu.za.org,
+       christoph@lameter.com
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Message-Id: <20050714110059.42244b64.akpm@osdl.org>
+In-Reply-To: <20050714121340.GA1072@ucw.cz>
+References: <d120d50005071312322b5d4bff@mail.gmail.com>
+	<1121286258.4435.98.camel@mindpipe>
+	<20050713134857.354e697c.akpm@osdl.org>
+	<20050713211650.GA12127@taniwha.stupidest.org>
+	<Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org>
+	<20050714005106.GA16085@taniwha.stupidest.org>
+	<Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org>
+	<1121304825.4435.126.camel@mindpipe>
+	<Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
+	<1121326938.3967.12.camel@laptopd505.fenrus.org>
+	<20050714121340.GA1072@ucw.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Someone mentioned that NUMA support for dual core opteron need acpi
-support in LinuxBIOS.
+Vojtech Pavlik <vojtech@suse.cz> wrote:
+>
+> A note on the relaive timer API: There needs to be a way to say
+>  "x milliseconds from the time this timer should have triggered" instead
+>  of "x milliseconds from now", to avoid skew in timers that try to be
+>  strictly periodic.
 
-there may be some other solution for that.
-1. PowerPC already support dual core and it should support NUMA, So
-the Open Firmware must have some NUMA entry definition.
-Can we make x86-64 kernel support OpenFirmware interface so we can use
-OpenBIOS as payload of LinuxBIOS.
-2. enable acpi and add the NUMA entries into it, the Linux Kernel will be happy.
-3. If we are trying to use ADLO to load Windows/Solaris/FreeBSD, We
-need to pass related acpi info to ADLO....
+	mod_timer(timer, timer->expires + N) ?
 
-Solution 1 will be ideal one, and can make Solaris for X86-64 use
-OpenFirmware interface too.....
-
-which one is better?
-
-YH
+(add_timer() will treat a negative `expires' as "right now", so we'll dtrt
+if the time now has overrun (timer->expires + N))

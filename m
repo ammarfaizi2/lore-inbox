@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbVGNGUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262926AbVGNG3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbVGNGUL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 02:20:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262921AbVGNGUL
+	id S262926AbVGNG3O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 02:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbVGNG3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 02:20:11 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:43840 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262661AbVGNGUJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 02:20:09 -0400
+	Thu, 14 Jul 2005 02:29:14 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:63643 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262866AbVGNG3M convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 02:29:12 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=PTikbOfZ1h4IURqi9rJCYPnpX+c91vxbDMjTJ+H8rBOZbzpNHuZKd9xIo/Agtpd1N77c7EkrwW++hWcPLHhuh9VmJmGx5UyEZ+SZJa9k07Uw6V2DdgaRd3P/Vvw9ypXsUYf7nu/6LsCBHkUMIxU2M06TDVMKM5D/UTfVZry1PyY=
-Message-ID: <42D60417.9080407@gmail.com>
-Date: Thu, 14 Jul 2005 02:20:07 -0400
-From: Keenan Pepper <keenanpepper@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-CC: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: realtime-preempt + reiser4?
-References: <42D4201A.9050303@gmail.com>	 <1121198723.10580.10.camel@mindpipe>  <42D45438.6040409@gmail.com> <1121213099.3548.39.camel@localhost.localdomain> <42D53FF6.2020200@namesys.com>
-In-Reply-To: <42D53FF6.2020200@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=De3A+u7JW0njuLKPbAkBztYdQnF8hmrh7hlMnqheR41Gy31RNN0AeL3H6jLwUgO5RY713xu+wBmUxrOGGIyNA8MudeBr0N5fe10fGZAToD5wTcOxzwvA0RBNOV/YW7mqtBjDu134Q3xKLC6M/rMWi0m3YEpJvbSZUFzK5u3Qjvg=
+Message-ID: <4807377b05071323286963bf3a@mail.gmail.com>
+Date: Wed, 13 Jul 2005 23:28:15 -0700
+From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+Reply-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+To: Mikhail Kshevetskiy <kl@laska.dorms.spbu.ru>
+Subject: Re: eepro100/e100 broken in 2.6.13-rc3
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20050714034954.52947263@laska>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050714034954.52947263@laska>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir V. Saveliev wrote:
+On 7/13/05, Mikhail Kshevetskiy <kl@laska.dorms.spbu.ru> wrote:
+> symptom
+> =======
+> modprobe e100
+> ifconfig eth0 <ip> netmask <netmask>
 > 
-> ftp://ftp.namesys.com/pub/reiser4-for-2.6/2.6.12/reiser4-for-2.6.12-realtime-preempt-2.6.12-final-V0.7.51-29.patch.gz 
+> result:
+> =======
+> SIOCADDRT: Network is unreachable
 > 
-> It applies to 2.6.12 + 
-> http://people.redhat.com/mingo/realtime-preempt/older/realtime-preempt-2.6.12-final-V0.7.51-29 
+> There were no such error in 2.6.13-rc2
 
-Ah, this is just what I was looking for. Should have thought to search 
-namesys.com.
+odd, both e100 and eepro100 are broken?  This might indicate something
+wierd with the pci layer.  Don't know what might cause the Network is
+unreachable...
+
+please send lspci -vvv of the e100 device in question and any output from dmesg
+
+added netdev in case someone has an idea there.

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263058AbVGNVTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVGNVVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263058AbVGNVTW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 17:19:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbVGNVTV
+	id S261728AbVGNVVm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 17:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbVGNVVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 17:19:21 -0400
-Received: from khc.piap.pl ([195.187.100.11]:3588 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S263058AbVGNVTU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 17:19:20 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       David Lang <david.lang@digitalinsight.com>,
-       Bill Davidsen <davidsen@tmr.com>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Lee Revell <rlrevell@joe-job.com>, Diego Calleja <diegocg@gmail.com>,
-       azarah@nosferatu.za.org, akpm@osdl.org, cw@f00f.org,
-       christoph@lameter.com
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-References: <20050712121008.GA7804@ucw.cz>
-	<200507122239.03559.kernel@kolivas.org>
-	<200507122253.03212.kernel@kolivas.org> <42D3E852.5060704@mvista.com>
-	<20050712162740.GA8938@ucw.cz> <42D540C2.9060201@tmr.com>
-	<Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
-	<20050713184227.GB2072@ucw.cz>
-	<Pine.LNX.4.58.0507131203300.17536@g5.osdl.org>
-	<m34qaxlm57.fsf@defiant.localdomain> <20050714121950.GB1072@ucw.cz>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 14 Jul 2005 23:19:14 +0200
-In-Reply-To: <20050714121950.GB1072@ucw.cz> (Vojtech Pavlik's message of
- "Thu, 14 Jul 2005 14:19:50 +0200")
-Message-ID: <m3irzdytkd.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 14 Jul 2005 17:21:42 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12992 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261728AbVGNVVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 17:21:40 -0400
+Date: Thu, 14 Jul 2005 23:04:30 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Doug Warzecha <Douglas_Warzecha@dell.com>
+Cc: Chris Wedgwood <cw@f00f.org>, rdunlap@xenotime.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] char: Add Dell Systems Management Base driver
+Message-ID: <20050714210429.GA659@openzaurus.ucw.cz>
+References: <20050706001333.GA3569@sysman-doug.us.dell.com> <20050706005320.GA23709@taniwha.stupidest.org> <20050712231729.GA15062@sysman-doug.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050712231729.GA15062@sysman-doug.us.dell.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
+Hi!
 
-> HPETs have a fixed frequency (usually 14.31818 MHz, but that depends
-> on the manufacturer).
->
->> - 64-bit "match timer" (i.e., a register in the counter which fires IRQ
->>   when it matches the counter value)
->
-> That's implemented in the HPET hardware.
+Please use enter key every 70 chars or so...
 
-Interesting. So it could theoretically work. Unless the machine in
-question lacks HPET.
+> >    > This patch adds the Dell Systems Management Base driver.
+> > 
+> >    You keep posting this driver without explaining/showing how it's used.
+> >    Could you perhaps give some more details here please?
+> 
+> Here's some more information on the driver and the systems that it supports.  Because the hardware interfaces on those systems and the Dell systems management software that access the interfaces are proprietary, I can't provide specifications for the interfaces or source code for the software.
+> 
+
+So... instead of providing nice & standard interface, you invent very ugly interface
+that allows your usermode app to band on SMI directly -- because you don't want
+to tell us how to drive SMI.
+
+No, sorry. Provide something with standard interface (like lm_sensors use). You'll have to
+tell us how to control the hardware. Its temperature sensor; I don't see how that is worh calling
+"proprietary"...
+				Pavel
 -- 
-Krzysztof Halasa
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

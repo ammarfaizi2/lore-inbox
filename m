@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVGNRKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVGNRLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVGNRKr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 13:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVGNRKr
+	id S262274AbVGNRLp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 13:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVGNRLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 13:10:47 -0400
-Received: from sentinel.ucr.edu ([138.23.226.228]:25677 "EHLO sentinel.ucr.edu")
-	by vger.kernel.org with ESMTP id S261604AbVGNRKp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 13:10:45 -0400
-Date: Thu, 14 Jul 2005 10:10:39 -0700
-From: Paul Vander Griend <vandep01@student.ucr.edu>
-Subject: Kernel Bug Report
-To: linux-kernel@vger.kernel.org
-Cc: ruschein@infomine.ucr.edu
-Reply-To: vandep01@student.ucr.edu
-X-Mailer: Mirapoint Webmail Direct 3.5.6-GR
-MIME-Version: 1.0
-Message-Id: <30a258ac.1bd5021b.81be400@smh.ucr.edu>
+	Thu, 14 Jul 2005 13:11:44 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:34923 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261564AbVGNRLX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 13:11:23 -0400
+Date: Thu, 14 Jul 2005 18:53:25 +0000
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Dave Airlie <airlied@gmail.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: moving DRM header files
+Message-ID: <20050714185325.GA8791@mars.ravnborg.org>
+References: <21d7e99705071321044c216db4@mail.gmail.com> <9e4733910507132125af9835@mail.gmail.com> <21d7e9970507132209e7ac477@mail.gmail.com> <9e47339105071406177dc4dad6@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Junkmail-Status: score=15/65, host=sentinel.ucr.edu
+Content-Disposition: inline
+In-Reply-To: <9e47339105071406177dc4dad6@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> When you start merging DRM and fbdev you will be able to use relative
+> paths that are closer together.  For example #include
+> "../char/drm/drmP.h" versus "#include "drm/drmP.h" for internal
+> headers.
 
-System:
-Motherboard = Tyan K8WE
-Processor = 2x Opteron 250
-Memory = 8GB ECC Registered
+No. Using relative include paths is not good. I will most probarly
+not work with make O=.
 
-On all of the recent release candidates except for
-2.6.13-rc2-git2 the kernel panics while booting. These
-versions include 2.6.13-rc2-git* (* != 2 ) and 2.6.13-rc3.
-
-I also want to mention that I am using gcc 3.3.5 on debian and
-that during compilation there are 3 messages at the end that
-say an assertion has failed IE (LD: assertion failed).
-
-It looks like it panics during a mem_cpy but I know its
-difficult to tell just by the output.
-
-I get a code: f3 a4 c3 66 66 66 90 66 66 66 90 66 66 66 90 66
-
-The problem appears very reproducable so I can provide more
-information upon request.
-
-My .config is avaible upon request.
-
--Paul
+	Sam

@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263153AbVGNVr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVGNV4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263153AbVGNVr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 17:47:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbVGNVrP
+	id S261380AbVGNV4J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 17:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbVGNVoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 17:47:15 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:44976 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S263153AbVGNVqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 17:46:07 -0400
-Date: Fri, 15 Jul 2005 01:46:11 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [patch 2.6] remove PCI_BRIDGE_CTL_VGA handling from setup-bus.c
-Message-ID: <20050715014611.B613@den.park.msu.ru>
-References: <20050714155344.A27478@jurassic.park.msu.ru> <20050714145327.B7314@flint.arm.linux.org.uk> <9e47339105071407073f07bed7@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9e47339105071407073f07bed7@mail.gmail.com>; from jonsmirl@gmail.com on Thu, Jul 14, 2005 at 10:07:34AM -0400
+	Thu, 14 Jul 2005 17:44:37 -0400
+Received: from coderock.org ([193.77.147.115]:60064 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S263136AbVGNVnS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 17:43:18 -0400
+Message-Id: <20050714214248.726446000@homer>
+Date: Thu, 14 Jul 2005 23:42:49 +0200
+From: domen@coderock.org
+To: clemens@endorphin.org
+Cc: linux-kernel@vger.kernel.org, Victor Fusco <victor@cetuc.puc-rio.br>,
+       domen@coderock.org
+Subject: [patch 1/1] dm-crypt: Fix "nocast type" warnings
+Content-Disposition: inline; filename=sparse-drivers_md_dm-crypt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 14, 2005 at 10:07:34AM -0400, Jon Smirl wrote:
-> I'm don't think it has ever been working in the 2.6 series. If you are
-> getting rid of it get rid of the #define PCI_BRIDGE_CTL_VGA in pci.h
-> too since this code was the only user.
+From: Victor Fusco <victor@cetuc.puc-rio.br>
 
-No. The PCI_BRIDGE_CTL_VGA is not something artificial, it just describes
-some well defined hardware bit in the p2p bridge config header, so anyone
-working on VGA switching API will have to use it.
 
-> This code is part of VGA arbitration which BenH is addressing with a
-> more globally comprehensive patch. Ben's code will probably replace
-> it.
+Fix the sparse warning "implicit cast to nocast type"
 
-Yes, I've heard Ben is working on this, but I've yet to see the code. ;-)
-Any pointers?
+File/Subsystem:drivers/md/dm-crypt.c
 
-Ivan.
+Signed-off-by: Victor Fusco <victor@cetuc.puc-rio.br>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+
+--
+
+---
+ dm-crypt.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: quilt/drivers/md/dm-crypt.c
+===================================================================
+--- quilt.orig/drivers/md/dm-crypt.c
++++ quilt/drivers/md/dm-crypt.c
+@@ -330,7 +330,7 @@ crypt_alloc_buffer(struct crypt_config *
+ {
+ 	struct bio *bio;
+ 	unsigned int nr_iovecs = (size + PAGE_SIZE - 1) >> PAGE_SHIFT;
+-	int gfp_mask = GFP_NOIO | __GFP_HIGHMEM;
++	unsigned int gfp_mask = GFP_NOIO | __GFP_HIGHMEM;
+ 	unsigned int i;
+ 
+ 	/*
+
+--

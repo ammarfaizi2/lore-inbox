@@ -1,101 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVGOIYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263237AbVGOI3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVGOIYB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 04:24:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbVGOIYB
+	id S263237AbVGOI3y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 04:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbVGOI3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 04:24:01 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:56732 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261875AbVGOIXy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 04:23:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=GE5wiYMyrgDakaH1Nv9c1pNxmXKrs6F8vR4SE1URbexmaqwH4DbgUHxdjBazoHTKArM5ALz+3xbSg42eyW2gzIVTME/LI8n3KbdtaNBYeUROdjAdH7xQY9VW7W1IBDxlH7E5D/ljDA2SbPcwih2r7K2VRVp/AYfNPUJFyA4ebCg=
-Message-ID: <42D77293.3050900@gmail.com>
-Date: Fri, 15 Jul 2005 17:23:47 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+	Fri, 15 Jul 2005 04:29:54 -0400
+Received: from BTNL-TN-DSL-static-006.0.144.59.touchtelindia.net ([59.144.0.6]:64129
+	"EHLO mail.prodmail.net") by vger.kernel.org with ESMTP
+	id S263237AbVGOI3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 04:29:53 -0400
+Message-ID: <42D7734D.9070204@prodmail.net>
+Date: Fri, 15 Jul 2005 13:56:53 +0530
+From: RVK <rvk@prodmail.net>
+Reply-To: rvk@prodmail.net
+Organization: GSEC1
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Daniel McNeil <daniel@osdl.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc patch 2/2] direct-io: remove address alignment check
-References: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net> <42D70318.1000304@gmail.com> <42D74724.8000703@us.ibm.com>
-In-Reply-To: <42D74724.8000703@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Arjan van de Ven <arjan@infradead.org>
+CC: omb@bluewin.ch, linux-kernel@vger.kernel.org
+Subject: Re: Buffer Over-runs, was Open source firewalls
+References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>	 <42D63AD0.6060609@aitel.hist.no> <42D63D4A.2050607@prodmail.net>	 <42D658A8.4040009@aitel.hist.no> <42D658A9.7050706@prodmail.net>	 <42D6ECED.7070504@khandalf.com>  <42D75A93.5010904@prodmail.net> <1121410260.3179.3.camel@laptopd505.fenrus.org>
+In-Reply-To: <1121410260.3179.3.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
-> Tejun Heo wrote:
-> 
->> Daniel McNeil wrote:
->>
->>> This patch relaxes the direct i/o alignment check so that user addresses
->>> do not have to be a multiple of the device block size.
->>>
->>> I've done some preliminary testing and it mostly works on an ext3
->>> file system on a ide disk.  I have seen trouble when the user address
->>> is on an odd byte boundary.  Sometimes the data is read back incorrectly
->>> on read and sometimes I get these kernel error messages:
->>>     hda: dma_timer_expiry: dma status == 0x60
->>>     hda: DMA timeout retry
->>>     hda: timeout waiting for DMA
->>>     hda: status error: status=0x58 { DriveReady SeekComplete 
->>> DataRequest }
->>>     ide: failed opcode was: unknown
->>>     hda: drive not ready for command
->>>
->>> Doing direct-io with user addresses on even, non-512 boundaries appears
->>> to be working correctly.
->>>
->>> Any additional testing and/or comments welcome.
->>>
->>
->>  Hi, Daniel.
->>
->>  I don't think the change is a good idea.  We may be able to relax 
->> alignment contraints on some hardware to certain levels, but IMHO it 
->> will be very difficult to verify.  All internal block IO code follows 
->> strict block boundary alignment.  And as raw IOs (especially unaligned 
->> ones) aren't very common operations, they won't get tested much.  Then 
->> when some rare (probably not an open source one) application uses it 
->> on some rare buggy hardware, it may cause *very* strange things.
->>
->>  Also, I don't think it will improve application programmer's 
->> convenience.  As each hardware employs different DMA alignemnt, we 
->> need to implement a way to export the alignment to user space and 
->> enforce it.   So, in the end, user application must do aligned 
->> allocation accordingly.  Just following block boundary will be easier.
->>
->>  I don't know why you wanna relax the alignment requirement, but 
->> wouldn't it be easier to just write/use block-aligned allocator for 
->> such buffers?  It will even make the program more portable.
->>
-> 
-> I can imagine a reason for relaxing the alignment. I keep getting asked
-> whether we can do "O_DIRECT mount option".  Database folks wants to
-> make sure all the access to files in a given filesystem are O_DIRECT
-> (whether they are accessing or some random program like ftp, scp, cp
-> are acessing them). This was mainly to ensure that buffered accesses to
-> the file doesn't polute the pagecache (while database is using O_DIRECT
-> access). Seems like a logical request, but not easy to do :(
-> 
-> Thanks,
-> Badari
+Arjan van de Ven wrote:
 
-  I don't know much about VM, but, if that's necessary, I think that 
-limiting pagecache size per mounted fs (or by some other applicable 
-category) is easier/more complete approach.  After all, you cannot mmap 
-w/ O_DIRECT and many programs (gcc, ld come to mind) mmap large part of 
-their memory usage.
+>On Fri, 2005-07-15 at 12:11 +0530, RVK wrote:
+>
+>  
+>
+>>Even in the presence of non-executable stack, Linux Torvalds explains
+>>that "It's really easy. You do something like this: 1) overflow the
+>>buffer on the stack, so that the return value is overwritten by a
+>>pointer to the system() library function. 2) the next four bytes are
+>>crap (a "return pointer" for the system call, which you don't care
+>>about) 3) the next four bytes are a pointer to some random place in the
+>>shared library again that contains the string "/bin/sh" (and yes, just
+>>do a strings on the thing and you'll find it). Voila. You didn't have to
+>>write any code, the only thing you needed to know was where the library
+>>is loaded by default. And yes, it's library-specific, but hey, you just
+>>select one specific commonly used version to crash. Suddenly you have a
+>>root shell on the system. So it's not only doable, it's fairly trivial
+>>to do. In short, anybody who thinks that the non-executable stack gives
+>>them any real security is very very much living in a dream world. It may
+>>catch a few attacks for old binaries that have security problems, but
+>>the basic problem is that the binaries allow you to overwrite their
+>>stacks. And if they allow that, then they allow the above exploit. It
+>>probably takes all of five lines of changes to some existing exploit,
+>>and some random program to find out where in the address space the
+>>shared libraries tend to be loaded."
+>>    
+>>
+>
+>except this is no longer true really ;)
+>
+>randomisation for example makes this a lot harder to do.
+>gcc level tricks to prevent buffer overflows are widely in use nowadays
+>too (FORTIFY_SOURCE and -fstack-protector). The combination of this all
+>makes it a LOT harder to actually exploit a buffer overflow on, say, a
+>distribution like Fedora Core 4.
+>
+>
+>  
+>
+Still is very new....not every one can immediately start using gcc 4.
 
-  Thanks.
+rvk
 
--- 
-tejun
+>>rvk
+>>
+>>    
+>>
+>>>but your system is not compromised.
+>>>
+>>>One final point, in practice, you get lots of unwanted packets
+>>>off the internet, and in general you do not want them on your
+>>>internal net, both for performance and security reasons, if you
+>>>drop them on your router or firewall then you dont need to
+>>>worry if the remote app is mal-ware.
+>>>
+>>>--
+>>>mit freundlichen Grüßen, Brian.
+>>>
+>>>.
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>    
+>>
+>.
+>
+>  
+>
+

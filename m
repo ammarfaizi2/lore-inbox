@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263327AbVGOQJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVGOQNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263327AbVGOQJq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 12:09:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263326AbVGOQJp
+	id S261957AbVGOQNG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 12:13:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVGOQNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 12:09:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8908 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263327AbVGOQJd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 12:09:33 -0400
-Date: Fri, 15 Jul 2005 09:08:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Andrew Morton <akpm@osdl.org>, Jan Blunck <j.blunck@tu-harburg.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] generic_file_sendpage
-In-Reply-To: <Pine.LNX.4.61.0507151511220.21786@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.58.0507150904110.19183@g5.osdl.org>
-References: <42D79468.3050808@tu-harburg.de> <20050715040611.05907f4a.akpm@osdl.org>
- <20050715112255.GC2721@wohnheim.fh-wedel.de> <Pine.LNX.4.61.0507151511220.21786@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 15 Jul 2005 12:13:06 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:23753 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261957AbVGOQND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 12:13:03 -0400
+Subject: Re: [OT] high precision hardware (was Re: [PATCH] i386: Selectable
+	Frequency of the Timer Interrupt)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Paul Jakma <paul@clubi.ie>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>,
+       dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
+       vojtech@suse.cz, david.lang@digitalinsight.com, davidsen@tmr.com,
+       kernel@kolivas.org, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
+       diegocg@gmail.com, azarah@nosferatu.za.org
+In-Reply-To: <Pine.LNX.4.62.0507150855220.1986@graphe.net>
+References: <1121282025.4435.70.camel@mindpipe>
+	 <d120d50005071312322b5d4bff@mail.gmail.com>
+	 <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
+	 <20050713211650.GA12127@taniwha.stupidest.org>
+	 <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org>
+	 <20050714005106.GA16085@taniwha.stupidest.org>
+	 <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org>
+	 <1121304825.4435.126.camel@mindpipe>
+	 <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
+	 <20050714083843.GA4851@elte.hu> <1121352941.4535.15.camel@mindpipe>
+	 <Pine.LNX.4.62.0507140757200.31521@graphe.net>
+	 <Pine.LNX.4.63.0507151227240.31084@sheen.jakma.org>
+	 <Pine.LNX.4.62.0507150855220.1986@graphe.net>
+Content-Type: text/plain
+Date: Fri, 15 Jul 2005 12:13:08 -0400
+Message-Id: <1121443988.12420.13.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 15 Jul 2005, Jan Engelhardt wrote:
->
-> >> I don't know if we want to add this feature, really.  It's such a
-> >> specialised thing.
-> >
-> >With union mount and cowlink, there are two users already.  cp(1)
-> >could use it as well, even if the improvement is quite minimal.
+On Fri, 2005-07-15 at 08:57 -0700, Christoph Lameter wrote:
+> Try HPET which is pretty standard these days.
 > 
-> FTP PUT could use this too - currently, only FTPGETs can use sendfile because 
-> the target had to be a socket.
-> (With FTP PUT, the src is a sock, dst is a filedescriptor.)
 
-No, FTP PUT _cannot_ use it, exactly because sendfile() can't do anything 
-but file sources (and not even all file sources - it can only do regular 
-filesystems that use the page cache).
+Really?  None of my machines have it.  I suspect lots of "embeddable"
+systems don't either.
 
-This is why I want to get rid of sendfile(). It's a fundamentally broken
-interface. Really. In contrast, the pipe buffers _can_ be used for direct
-socket->file interfaces.
+Lee
 
-Now, even pipe buffers obviously won't actually be really "zero-copy":
-you'll end up needing one copy to align the result, since the incoming
-network packets will obviously not be nice page-sized and page-aligned
-things. But they won't need the "copy to user space" and "copy back from
-user space into kernel space", so it will be a question of _minimal_ copy
-(and avoiding unnecessary user space VM work).
-
-			Linus

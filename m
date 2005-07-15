@@ -1,68 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263286AbVGOLYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263271AbVGOL3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263286AbVGOLYF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 07:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVGOLWZ
+	id S263271AbVGOL3b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 07:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVGOL31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 07:22:25 -0400
-Received: from BTNL-TN-DSL-static-006.0.144.59.touchtelindia.net ([59.144.0.6]:11651
-	"EHLO mail.prodmail.net") by vger.kernel.org with ESMTP
-	id S263289AbVGOLTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 07:19:54 -0400
-Message-ID: <42D79B3D.7080108@prodmail.net>
-Date: Fri, 15 Jul 2005 16:47:17 +0530
-From: RVK <rvk@prodmail.net>
-Reply-To: rvk@prodmail.net
-Organization: GSEC1
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: omb@bluewin.ch, linux-kernel@vger.kernel.org
-Subject: Re: Buffer Over-runs, was Open source firewalls
-References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>	 <42D63AD0.6060609@aitel.hist.no> <42D63D4A.2050607@prodmail.net>	 <42D658A8.4040009@aitel.hist.no> <42D658A9.7050706@prodmail.net>	 <42D6ECED.7070504@khandalf.com>  <42D75A93.5010904@prodmail.net>	 <1121410260.3179.3.camel@laptopd505.fenrus.org>	 <42D7734D.9070204@prodmail.net> <1121417215.3179.7.camel@laptopd505.fenrus.org>
-In-Reply-To: <1121417215.3179.7.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 15 Jul 2005 07:29:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23473 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263293AbVGOL1w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 07:27:52 -0400
+Subject: Inotify patch missed arch/x86_64/ia32/sys_ia32.c
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@suse.de>, David Woodhouse <dwmw2@redhat.com>,
+       Stephen Tweedie <sct@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1121426860.1909.52.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 15 Jul 2005 12:27:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+Hi,
 
->On Fri, 2005-07-15 at 13:56 +0530, RVK wrote:
->  
->
->>>except this is no longer true really ;)
->>>
->>>randomisation for example makes this a lot harder to do.
->>>gcc level tricks to prevent buffer overflows are widely in use nowadays
->>>too (FORTIFY_SOURCE and -fstack-protector). The combination of this all
->>>makes it a LOT harder to actually exploit a buffer overflow on, say, a
->>>distribution like Fedora Core 4.
->>>
->>>
->>>
->>>
->>>      
->>>
->>Still is very new....not every one can immediately start using gcc 4.
->>    
->>
->
->it;s also available for gcc 3.4 as patch (and included in FC3 and RHEL4
->for example)
->
->so it's new? so what? doesn't make it less true that it nowadays is a
->lot harder to exploit such bugs on recent distros.
->
->  
->
-How about using ProPolice etc ?
+The inotify patch just added a line
 
-rvk
++				fsnotify_open(f->f_dentry);
 
->.
->
->  
->
+to sys_open, but it missed the x86_64 compatibility sys32_open()
+equivalent in arch/x86_64/ia32/sys_ia32.c.
+
+Andi, perhaps it's time to factor out the guts of sys_open from the flag
+munging to keep as much of that code as common as possible, and avoid
+this sort of maintenance problem in the future?
+
+--Stephen
 

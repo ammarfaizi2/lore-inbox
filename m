@@ -1,40 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263340AbVGORyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263349AbVGORzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263340AbVGORyY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 13:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbVGORyY
+	id S263349AbVGORzs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 13:55:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbVGORzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 13:54:24 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:18702 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263340AbVGORyW
+	Fri, 15 Jul 2005 13:55:48 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:41106 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263349AbVGORyv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 13:54:22 -0400
-Date: Fri, 15 Jul 2005 18:54:30 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: Andi Kleen <ak@suse.de>, "Brown, Len" <len.brown@intel.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, vojtech@suse.cz,
-       christoph@lameter.com
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-In-Reply-To: <20050715102349.A15791@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.61L.0507151848440.15977@blysk.ds.pg.gda.pl>
-References: <F7DC2337C7631D4386A2DF6E8FB22B300410F46A@hdsmsx401.amr.corp.intel.com.suse.lists.linux.kernel>
- <p73y8889f4v.fsf@bragg.suse.de> <20050715102349.A15791@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 15 Jul 2005 13:54:51 -0400
+Subject: Re: [rfc patch 2/2] direct-io: remove address alignment check
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Daniel McNeil <daniel@osdl.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42D77293.3050900@gmail.com>
+References: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net>
+	 <42D70318.1000304@gmail.com> <42D74724.8000703@us.ibm.com>
+	 <42D77293.3050900@gmail.com>
+Content-Type: text/plain
+Date: Fri, 15 Jul 2005 10:54:39 -0700
+Message-Id: <1121450079.6755.96.camel@dyn9047017102.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Jul 2005, Venkatesh Pallipadi wrote:
+On Fri, 2005-07-15 at 17:23 +0900, Tejun Heo wrote:
+> Badari Pulavarty wrote:
+...
+> >>  I don't know why you wanna relax the alignment requirement, but 
+> >> wouldn't it be easier to just write/use block-aligned allocator for 
+> >> such buffers?  It will even make the program more portable.
+> >>
+> > 
+> > I can imagine a reason for relaxing the alignment. I keep getting asked
+> > whether we can do "O_DIRECT mount option".  Database folks wants to
+> > make sure all the access to files in a given filesystem are O_DIRECT
+> > (whether they are accessing or some random program like ftp, scp, cp
+> > are acessing them). This was mainly to ensure that buffered accesses to
+> > the file doesn't polute the pagecache (while database is using O_DIRECT
+> > access). Seems like a logical request, but not easy to do :(
+> > 
+> > Thanks,
+> > Badari
+> 
+>   I don't know much about VM, but, if that's necessary, I think that 
+> limiting pagecache size per mounted fs (or by some other applicable 
+> category) is easier/more complete approach.  After all, you cannot mmap 
+> w/ O_DIRECT and many programs (gcc, ld come to mind) mmap large part of 
+> their memory usage.
 
-> I wouldn't say it is totally impossible. There are ways in which Linux can work
-> without a reliable Local APIC timer. One option being - make one CPU that gets 
-> the external timer interrupt multicast an IPI to all the other CPUs that
-> wants to get periodic timer interrupt.
+I agree. I guess for mmap()ed access we can kick it back to buffered
+mode.
 
- That's like scratching your left ear with your right hand -- broadcasting 
-that external timer interrupt in the first place is more straightforward.  
-If you want to exclude CPUs from the list of receivers, just use the 
-logical destination mode appropriately.
+I don't think limiting pagecache use per filesystem is an acceptable
+option. In fact, database folks exactly want this -  to limit the
+pagecache use by filesystems - but I don't think its right thing to do,
+so I am trying to propose mount O_DIRECT as an alternative (if its
+feasible).
 
-  Maciej
+Thanks,
+Badari
+

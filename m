@@ -1,29 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVGPNvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVGPNuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVGPNvl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 09:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVGPNvk
+	id S261598AbVGPNuV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 09:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVGPNuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 09:51:40 -0400
-Received: from cpu2485.adsl.bellglobal.com ([207.236.16.208]:53483 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261614AbVGPNvI (ORCPT
+	Sat, 16 Jul 2005 09:50:21 -0400
+Received: from cpu2485.adsl.bellglobal.com ([207.236.16.208]:29163 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261598AbVGPNuT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 09:51:08 -0400
-Date: Fri, 15 Jul 2005 17:41:34 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, "Brown, Len" <len.brown@intel.com>,
-       dtor_core@ameritech.net, torvalds@osdl.org, vojtech@suse.cz,
-       david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, mbligh@mbligh.org, diegocg@gmail.com,
-       azarah@nosferatu.za.org, cw@f00f.org, christoph@lameter.com
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Message-ID: <20050715154134.GA1776@elf.ucw.cz>
-References: <42D3E852.5060704@mvista.com> <20050712162740.GA8938@ucw.cz> <42D540C2.9060201@tmr.com> <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz> <20050713184227.GB2072@ucw.cz> <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org> <1121282025.4435.70.camel@mindpipe> <d120d50005071312322b5d4bff@mail.gmail.com> <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
+	Sat, 16 Jul 2005 09:50:19 -0400
+Date: Fri, 15 Jul 2005 10:33:07 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: resuming swsusp twice
+Message-ID: <20050715083307.GA1772@elf.ucw.cz>
+References: <20050713185955.GB12668@hexapodia.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050713134857.354e697c.akpm@osdl.org>
+In-Reply-To: <20050713185955.GB12668@hexapodia.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -31,25 +27,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Alan tested it and said that 250HZ does not save much power anyway.
+> Yesterday I booted my laptop to 2.6.13-rc2-mm1, suspended to swsusp, and
+> then resumed.  It ran fine overnight, including a fair amount of IO
+> (running firefox, rsyncing ~/Mail/archive from my mail server, hg pull,
+> etc).  This morning I did a swsusp:
 > 
-> Len Brown, a year ago: "The bottom line number to laptop users is battery
-> lifetime.  Just today somebody complained to me that Windows gets twice the
-> battery life that Linux does."
+> 	echo shutdown > /sys/power/disk
+> 	echo disk > /sys/power/state
 > 
-> And "Maybe I can get Andy Grover over in the moble lab to get some time on
-> that fancy power measurement setup they have...
+> and got a panic along the lines of "Unable to find swap space, try
+> swapon -a".  Unfortunately I was in a hurry and didn't record the error
+> messages.  I powered off, then a few minutes later powered on again.
 > 
-> "My expectation is if we want to beat the competition, we'll want the
-> ability to go *under* 100Hz."
-> 
-> But then, power consumption of the display should preponderate, so it's not
-> clear.
-> 
-> Len, any updates on the relationship between HZ and power consumption?
+> At this point, it resumed *to the swsusp state from yesterday*!
+> As soon as I realized what had happened, I powered off (not
+> shutdown) and rebooted.
 
-Last time I checked, HZ=100 to HZ=1000 difference was about 1W, about
-twice as much as disk spinning up vs. disk spinned down.
+Bad, very bad.
+
+> On the next boot it did not find a swsusp signature and booted normally;
+> ext3 did a normal recovery and seemed OK, but I was suspicious and did a
+> fsck -f, which revealed a lot of damage; most of the damage seemed to be
+> in the hg repo which had been pulled from www.kernel.org/hg/.
+
+You should not let ext3 do journal replay. At that point, hopefully
+damage will be slightly better. 
+
+> It's extremely unfortunate that there is *any* failure mode in swsusp
+> that can result in this behavior.
+
+Well, I've never seen that one before...
 								Pavel
 -- 
 teflon -- maybe it is a trademark, but it should not be.

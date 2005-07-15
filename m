@@ -1,37 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263194AbVGODHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263212AbVGODKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263194AbVGODHN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 23:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbVGODFW
+	id S263212AbVGODKN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 23:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263193AbVGODKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 23:05:22 -0400
-Received: from mail.suse.de ([195.135.220.2]:732 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S263185AbVGODFT (ORCPT
+	Thu, 14 Jul 2005 23:10:12 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:48027 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S263199AbVGODKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 23:05:19 -0400
-Date: Fri, 15 Jul 2005 05:05:18 +0200
-From: Andi Kleen <ak@suse.de>
-To: yhlu <yinghailu@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, "Ronald G. Minnich" <rminnich@lanl.gov>,
-       Stefan Reinauer <stepan@openbios.org>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: NUMA support for dual core Opteron
-Message-ID: <20050715030518.GS23737@wotan.suse.de>
-References: <2ea3fae10507141058c476927@mail.gmail.com> <Pine.LNX.4.58.0507141259170.22630@enigma.lanl.gov> <20050714190929.GL23619@wotan.suse.de> <2ea3fae1050714194649c66d7e@mail.gmail.com>
+	Thu, 14 Jul 2005 23:10:07 -0400
+Date: Fri, 15 Jul 2005 13:09:33 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: ppc64-dev@ozlabs.org, anton@samba.org
+Subject: RFC: IOMMU bypass
+Message-Id: <20050715130933.492ac904.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2ea3fae1050714194649c66d7e@mail.gmail.com>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__15_Jul_2005_13_09_33_+1000_lhGdeSRhtOrbsAyZ"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 14, 2005 at 07:46:49PM -0700, yhlu wrote:
-> p.s. can you use powernow when acpi is disabled?
+--Signature=_Fri__15_Jul_2005_13_09_33_+1000_lhGdeSRhtOrbsAyZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Only on uniprocessor machines.
+Hi all,
 
-> p.s.s  Is powerpc64 support ACPI? or ACPI is only can be used by x86?
+We (Anton Blanchard and others) have been trying to figure out the best
+(or any) way to allow for IOMMU bypass when setting up DMA mappings on
+particular devices.  Our current idea is to hang a structure of pointers
+to DMA mapping operations off the struct device and inherit it from the
+device's parent.  This would allow for per-bus (rather than per-bus_type)
+mapping operations and also allow a driver to override the bus's
+operations for a particular device.
 
-powerpc64 uses openfirmware, not ACPI.
+Does this make sense?  Comments (hopefully consructive) please.
 
--Andi
+Is there a better/simpler/more sensible way to do this?
+
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Fri__15_Jul_2005_13_09_33_+1000_lhGdeSRhtOrbsAyZ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC1yj2FdBgD/zoJvwRAgMTAJ0btOq2iCBeK5uji9vrozhPekPVJwCbBV66
+wXW0lpYsIaL1CIRvKQCzmIs=
+=jBlQ
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__15_Jul_2005_13_09_33_+1000_lhGdeSRhtOrbsAyZ--

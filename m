@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVGORTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVGORXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVGORTj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 13:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVGORTj
+	id S261962AbVGORXr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 13:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263323AbVGORXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 13:19:39 -0400
-Received: from mail.cipsoft.com ([62.146.47.42]:35812 "EHLO mail.cipsoft.com")
-	by vger.kernel.org with ESMTP id S261918AbVGORTh (ORCPT
+	Fri, 15 Jul 2005 13:23:47 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:18668 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261962AbVGORXr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 13:19:37 -0400
-Message-ID: <42D7F026.90400@cipsoft.com>
-Date: Fri, 15 Jul 2005 19:19:34 +0200
-From: Thoralf Will <thoralf@cipsoft.com>
-Organization: CipSoft GmbH
-User-Agent: Mozilla Thunderbird 1.0.2-1.4.1.centos4 (X11/20050323)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: pc_keyb: controller jammed (0xA7)
-References: <mailman.1121358841.8002.linux-kernel2news@redhat.com> <20050714182101.640137d8.zaitcev@redhat.com>
-In-Reply-To: <20050714182101.640137d8.zaitcev@redhat.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Jul 2005 13:23:47 -0400
+Date: Fri, 15 Jul 2005 19:23:46 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Bob Tracy <rct@gherkin.frus.com>
+Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 vs. /sbin/cardmgr
+Message-ID: <20050715172346.GD3586@isilmar.linta.de>
+Mail-Followup-To: Bob Tracy <rct@gherkin.frus.com>,
+	linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
+References: <20050710184649.GG8758@dominikbrodowski.de> <20050710203722.DCBBDDBA1@gherkin.frus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050710203722.DCBBDDBA1@gherkin.frus.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
-> On Thu, 14 Jul 2005 18:27:01 +0200, Thoralf Will <thoralf@cipsoft.com> wrote:
-> 
-> 
->>I didn't find any useful answer anywhere so far, hope it's ok to ask here.
->>I'm currently trying to get a 2.4.31 up and running on an IBM
->>BladeCenter HS20/8843. (base system is a stripped down RH9)
->>
->>When booting the kernel the console is spammmed with:
->>   pc_keyb: controller jammed (0xA7)
->>But it seems there are no further consequences and the keyboard is
->>working.
-> 
-> 
-> I saw a patch for it by Brian Maly, and yes, it was for 2.4.x.
-> Maybe he can send you a rediff against current Marcelo's tree.
-> 
-> However, is there a reason you're running 2.4.31 in Summer of 2005?
-> Did you try 2.6, does that one do the same thing? It has a rather
-> different infrastructure with the serio.
-> 
-> -- Pete
-> 
+Hi,
 
-Meanwhile I've found the source of the problem. A simple change in
-drivers/char/pc_keyb.c
-line 73 did the trick.
-- #define kbd_controller_present()        1
-+ #define kbd_controller_present()        0
+On Sun, Jul 10, 2005 at 03:37:22PM -0500, Bob Tracy wrote:
+> Dominik Brodowski wrote:
+> > On Sat, Jul 09, 2005 at 12:12:17AM -0500, Bob Tracy wrote:
+> > > (/sbin/cardmgr chewing up lots of CPU cycles with 2.6.12 kernel)
+> > 
+> > Please post the output of "lspci" and "lsmod" as I'd like to know which
+> > kind of PCMCIA bridge is in your notebook.
 
-The only backdraw I've noticed so far is the problem that the kernel
-won't work on servers with a ps/2 keyboard controller anymore (of
-course) properly. But that's a minor issue.
+OK, it's a plain TI1225. Could you try whether the bug is still existent in
+2.6.13-rc3, please?
 
-We are still running 2.4 kernels because our application is incompatible
-with the new thread library. A migration is already planned but that
-takes time, alot of. I don't expect a migration to take place before the
-end of the year, maybe even later.
-
-Thoralf
+Thanks,
+	Dominik

@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263208AbVGOFXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263220AbVGOFZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263208AbVGOFXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 01:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbVGOFXP
+	id S263220AbVGOFZa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 01:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263216AbVGOFZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 01:23:15 -0400
-Received: from b.mail.sonic.net ([64.142.19.5]:46299 "EHLO b.mail.sonic.net")
-	by vger.kernel.org with ESMTP id S263208AbVGOFVx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 01:21:53 -0400
-Date: Thu, 14 Jul 2005 22:21:39 -0700
-From: David Hinds <dhinds@sonic.net>
-To: somshekar.c.kadam@in.abb.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sandisk Compact Flash
-Message-ID: <20050715052139.GA7788@sonic.net>
-References: <OFF2465F02.D3F1F2D8-ON6525703D.0049BB41-6525703D.004A8B94@in.abb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 15 Jul 2005 01:25:29 -0400
+Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:53411 "HELO
+	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S263220AbVGOFYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 01:24:52 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Andrew Haninger <ahaning@gmail.com>
+Subject: Re: PS/2 Keyboard is dead after resume.
+Date: Fri, 15 Jul 2005 00:24:45 -0500
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org,
+       suspend2-users <suspend2-users@lists.suspend2.net>
+References: <105c793f0507141935403fc828@mail.gmail.com>
+In-Reply-To: <105c793f0507141935403fc828@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <OFF2465F02.D3F1F2D8-ON6525703D.0049BB41-6525703D.004A8B94@in.abb.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200507150024.46293.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 13, 2005 at 07:04:38PM +0530, somshekar.c.kadam@in.abb.com wrote:
+On Thursday 14 July 2005 21:35, Andrew Haninger wrote:
+> Hello.
 > 
-> I ma newbie to compactflash driver , I am using mpc862 PPC processor
-> on my custom board having 64mb ram running linuxppc-2.4.18 kernel .
-> i am using Sandisk Extreme CF 1GB which is 133x high speed, but
-> found the performance with other kingston 1GB CF with slower speed ,
-> is both same , CF is implemented on pcmcia port , i am not sure what
-> is the mode set for transfer , Feature set command is used in which
-> it sets the PIO mode or Multiword DMA transfer mode by specifying
-> its value in Sector count register , i am not able to understand in
-> linux kernel ide driver where this is set , is it by default set ,
-> this mode is set or we need to set it , i think we should assign
-> this value , right now i am not able to trace this in my code.  ,
+> I'm using Linux Kernel 2.6.12.2 plus suspend 2.1.9.9 and acpi-20050408
+> with the hibernate-1.10 script. My machine is a Shuttle SK43G which
+> has a VIA KM400 chipset with an Athlon XP CPU.
+> 
+> Suspension seems to work well. However, when I resume, the keyboard is
+> dead and there is a warning in dmesg before and after suspension:
+> 
+> atkbd.c: Spurious ACK on isa0060/serio0. Some program, like XFree86,
+> might be trying access hardware directly.
 
-All Compact Flash cards, in 16-bit PCMCIA card readers, operate in PIO
-mode 1 (polled IO, no DMA), which means you will get only about 1
-MB/sec regardless of the card's claimed tranfer speed.  Some cameras
-also only support this mode; others will run CF cars in "TrueIDE"
-mode, which is required to use the DMA transfer modes.
+Could you try doing:
 
-There are high performance CF card readers that can use TrueIDE mode:
-both CardBus ones and Firewire ones.  For example:
+	echo 1 > /sys/modules/i8042/parameters/debug
 
-http://www.dpreview.com/news/0310/03102103delkincardbustest.asp
+before suspending and the post your dmesg, please? Maybe we see something
+there.
 
-It sounds like your card reader is one of the slow 16-bit ones.
-
--- Dave
+-- 
+Dmitry

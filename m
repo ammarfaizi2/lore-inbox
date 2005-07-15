@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263322AbVGOQeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263332AbVGOQfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263322AbVGOQeY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 12:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbVGOQeY
+	id S263332AbVGOQfy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 12:35:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbVGOQfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 12:34:24 -0400
-Received: from [217.19.149.7] ([217.19.149.7]:64518 "HELO mail.netline.it")
-	by vger.kernel.org with SMTP id S263322AbVGOQeW (ORCPT
+	Fri, 15 Jul 2005 12:35:53 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:36267 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263334AbVGOQfC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 12:34:22 -0400
-Date: Fri, 15 Jul 2005 18:34:22 +0200
-From: Domenico Andreoli <cavok@libero.it>
-To: Bas Vermeulen <bvermeul@blackstar.nl>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ATAPI+SATA support in 2.6.13-rc3
-Message-ID: <20050715163422.GA1867@raptus.dandreoli.com>
-Mail-Followup-To: Bas Vermeulen <bvermeul@blackstar.nl>,
-	Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <42D78269.5020809@gmx.net> <1121421557.5110.11.camel@laptop.blackstar.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121421557.5110.11.camel@laptop.blackstar.nl>
-User-Agent: Mutt/1.5.9i
+	Fri, 15 Jul 2005 12:35:02 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Date: Fri, 15 Jul 2005 12:33:15 -0400
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B300410F46A@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Thread-Index: AcWJIOHkaU7FfzkYT0KVSuN7gYVC/gAOCHZA
+From: "Brown, Len" <len.brown@intel.com>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: "Lee Revell" <rlrevell@joe-job.com>,
+       "dean gaudet" <dean-list-linux-kernel@arctic.org>,
+       "Chris Wedgwood" <cw@f00f.org>, "Andrew Morton" <akpm@osdl.org>,
+       <dtor_core@ameritech.net>, <torvalds@osdl.org>, <vojtech@suse.cz>,
+       <david.lang@digitalinsight.com>, <davidsen@tmr.com>,
+       <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>,
+       <mbligh@mbligh.org>, <diegocg@gmail.com>, <azarah@nosferatu.za.org>,
+       <christoph@lameter.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+X-OriginalArrivalTime: 15 Jul 2005 16:33:18.0692 (UTC) FILETIME=[E8467240:01C5895A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 15, 2005 at 11:59:17AM +0200, Bas Vermeulen wrote:
-> On Fri, 2005-07-15 at 11:31 +0200, Carl-Daniel Hailfinger wrote:
-> > Hi Jeff,
+>That's an APIC bug.
+>When Intel originally released the APIC (some
+>thirteen years ago) they stated it should be used as a source of the
+timer
+>interrupt instead of the 8254.  There is no excuse for changing the
+>behaviour after so many years.  So if you are on a broken system, you
+may
+>want to work around the bug, but it shouldn't impact good systems.
 
-hi all,
 
-> > I have a Intel ICH6M chipset and am using ata_piix as my
-> > default disk driver. With the SUSE patched 2.6.11.4 kernel
-> > (it has some libata patches) my DVD-RAM drive works, with
-> > 2.6.13-rc3 it doesn't work. My .config is nearly identical
-> > for both kernels (except options introduced after 2.6.11).
+I'm perfectly happy having Linux optimize itself for the hardware
+that it is running on.  However, the (harsh, I know) reality is that
+systems with a reliable LAPIC timer in the face of C3 do not exist
+today, and probably never will.  (don't shoot me, it wasn't my design
+decision, I'm just the messenger:-)  Further, I expect that power saving
+features, such as C3, will become more important and deployed more
+widely in the future, rather than less widely.
 
-i also have a ICH6M. the SATA HD is correctly seen and used but the
-cdrom unit isn't. i'm using a vanilla 2.6.12.2.
+So, the 13-year-old design advice will continue to apply to
+13-year-old systems, but newer systems with C3 and HPET
+should be using them.
 
-> You'll need to enable ATAPI support for ata_piix in
-> include/linux/libata.h
-> 
-> Change:
-> #undef ATA_ENABLE_ATAPI
-> 
-> into
-> #define ATA_ENABLE_ATAPI
-
-it works! i'm now able to read and write cdroms :)
-
-> Suse has probably done that for you, it's disabled by default.
-
-why it is disabled by default? what do these macros mean? what is
-really happening? thank you.
-
-cheers
-domenico
-
------[ Domenico Andreoli, aka cavok
- --[ http://people.debian.org/~cavok/gpgkey.asc
-   ---[ 3A0F 2F80 F79C 678A 8936  4FEE 0677 9033 A20E BC50
+-Len

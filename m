@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVGOXPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVGOXUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbVGOXPE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 19:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVGOXPE
+	id S261722AbVGOXUA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 19:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVGOXUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 19:15:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62436 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262039AbVGOXPC (ORCPT
+	Fri, 15 Jul 2005 19:20:00 -0400
+Received: from hastings.mumak.ee ([194.204.22.4]:26560 "EHLO hastings.mumak.ee")
+	by vger.kernel.org with ESMTP id S261722AbVGOXT7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 19:15:02 -0400
-Date: Fri, 15 Jul 2005 19:14:48 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Mark Gross <mgross@linux.intel.com>
-cc: Dave Jones <davej@redhat.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Why is 2.6.12.2 less stable on my laptop than 2.6.10?
-In-Reply-To: <200507151447.46318.mgross@linux.intel.com>
-Message-ID: <Pine.LNX.4.61.0507151914300.25957@chimarrao.boston.redhat.com>
-References: <200507140912.22532.mgross@linux.intel.com.suse.lists.linux.kernel>
- <9a8748490507141845162c0f19@mail.gmail.com> <20050715020912.GB22284@redhat.com>
- <200507151447.46318.mgross@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 15 Jul 2005 19:19:59 -0400
+Subject: reiserfs+acl makes processes hang?
+From: Tarmo =?ISO-8859-1?Q?T=E4nav?= <tarmo@itech.ee>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 15 Jul 2005 23:19:56 +0000
+Message-Id: <1121469596.17539.9.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Jul 2005, Mark Gross wrote:
+Hi,
 
-> What would be wrong in expecting the folks making the driver changes 
-> have some story on how they are validating there changes don't break 
-> existing working hardware?  I could probly be accomplished in open 
-> source with subsystem testing volenteers.
+I think I've found a bug in reiserfs acls. If triggered
+it means that any program trying to access the partition,
+where the bug occured, will just hang in D state, with
+no way to kill the program.
 
-Are you volunteering ?
+Here's how to reproduce:
+1. mount a reiserfs volume (loopmount will do) with "-o acl".
+2. create a directory "dir"
+3. set some default acl: setfacl -d -m u:username:rwX dir
+4. cd dir
+5. dd if=/dev/zero of=somefile1 bs=4k count=100000
+(the idea is to run out of space)
+6. now df should show 0 free space, if not then repeat 5.
+7. echo "1" > somefile2 # this should hang infinitely
 
--- 
-The Theory of Escalating Commitment: "The cost of continuing mistakes is
-borne by others, while the cost of admitting mistakes is borne by yourself."
-  -- Joseph Stiglitz, Nobel Laureate in Economics
+Now no program will be able to access the partition.
+
+I haven't tried to reproduce it, but the same problem also happened
+when a user hit his hard quota limit on my server. Then no program
+could access his homedir.
+
+
+PS. I'm not subscribed to lkml so please CC
+
+--
+Tarmo Tänav
+tarmo@itech.ee
+

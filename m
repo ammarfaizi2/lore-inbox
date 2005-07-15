@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVGOWap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbVGOWdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbVGOWap (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 18:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVGOWao
+	id S263366AbVGOWdm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 18:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263108AbVGOWau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 18:30:44 -0400
-Received: from smtp1.brturbo.com.br ([200.199.201.163]:33673 "EHLO
-	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S262118AbVGOW3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 18:29:23 -0400
-Message-ID: <42D838CC.7080003@brturbo.com.br>
-Date: Fri, 15 Jul 2005 19:29:32 -0300
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: pt-br, pt, es, en-us, en
+	Fri, 15 Jul 2005 18:30:50 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:48168 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263366AbVGOW2z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 18:28:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=lyj16BVmJVJE6g8qkwwp7utblyG4Z0Syrj4FRkATh7vKb0SJgcoc1q2hK+EQd4bCt/dt7leaN7sDVDuQPCdQDeCln5qYhMdb9W0fLdk1N7JCPmgY8Xt0RxQJLsYd/A7MiPsPumnqJhUQtKX4STtuLNC3/wFgXemH+3pD0OvvLLQ=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH -linus] Really __nocast-annotate kmalloc_node().
+Date: Sat, 16 Jul 2005 02:36:02 +0400
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Andrew Morton <akpm@osdl.org>, John Klar <linpvr@projectplasma.com>,
-       linux-kernel@vger.kernel.org, video4linux-list@redhat.com
-Subject: Re: [2.6 patch] drivers/media/video/tveeprom.c: possible cleanups
-References: <20050715213512.GI18059@stusta.de>
-In-Reply-To: <20050715213512.GI18059@stusta.de>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507160236.02968.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian,
+One chunk was lost somewhere between my and Andrew's machine.
 
-	Your patch is at my personal TODO list.
+Noticed by Victor Fusco.
 
-	We had lots of patches for 2.6.13, with some sigificative enhancements.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-	Unfortunatelly, your patch from 19 Apr 2005 was not applied, maybe
-because you've sent during a period where V4L was Orphaned.
+ include/linux/slab.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-	We've decided to stop non-bug fixes just some days before your newer
-attempt (July, 7) to focus on more tests at a stable branch. Until July,
-18, V4L are applying only bug fixes. After that, we'll collect more
-patches at V4L and, maybe at the end of the next week, we'll send the
-patchsets, including yours (It will be #1 :-) ).
-
-Cheers,
-
-Mauro.
-
-Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - make two needlessly global structs static
-> - #if 0 the EXPORT_SYMBOL'ed but unused function tveeprom_dump
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
-> This patch was already sent on:
-> - 9 Jul 2005
-> - 19 Apr 2005
-> 
-
+--- linux-vanilla/include/linux/slab.h	2005-07-08 13:52:46.000000000 +0400
++++ linux-slab/include/linux/slab.h	2005-07-08 21:02:47.000000000 +0400
+@@ -111,7 +111,7 @@ static inline void *kmem_cache_alloc_nod
+ {
+ 	return kmem_cache_alloc(cachep, flags);
+ }
+-static inline void *kmalloc_node(size_t size, int flags, int node)
++static inline void *kmalloc_node(size_t size, unsigned int __nocast flags, int node)
+ {
+ 	return kmalloc(size, flags);
+ }

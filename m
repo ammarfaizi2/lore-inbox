@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVGOXZC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVGOX04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbVGOXZC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 19:25:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVGOXZB
+	id S262053AbVGOX04 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 19:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVGOX04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 19:25:01 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:52165 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262043AbVGOXY7
+	Fri, 15 Jul 2005 19:26:56 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:34064 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262053AbVGOXZV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 19:24:59 -0400
-Message-ID: <42D83D77.4030107@us.ibm.com>
-Date: Fri, 15 Jul 2005 17:49:27 -0500
-From: Linda Xie <lxiep@us.ibm.com>
-Reply-To: lxiep@us.ibm.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; zh-CN; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, zh-cn, zh
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: linux-scsi@vger.kernel.org, Dave C Boutcher <sleddog@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Santiago Leon <santil@us.ibm.com>
-Subject: [PATCH] scsi/ibmvscsi/srp.h: Fix a wrong type code used for SRP_LOGIN_REJ
-Content-Type: multipart/mixed;
- boundary="------------070108040303040003060809"
+	Fri, 15 Jul 2005 19:25:21 -0400
+Subject: Re: reiserfs+acl makes processes hang?
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Tarmo =?ISO-8859-1?Q?T=E4nav?= <tarmo@itech.ee>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1121469596.17539.9.camel@localhost>
+References: <1121469596.17539.9.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sat, 16 Jul 2005 01:25:20 +0200
+Message-Id: <1121469920.18525.0.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070108040303040003060809
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+confirmed, i run 2.6.12 with reiserfs, created with reiserfsprogs 3.6.19
 
-Hi James,
-
-This patch fixes srp.h which uses 0x80 for SRP_LOGIN_REJ instead of 
-0xc2.  Please apply.
-
-Thanks,
-
-Linda
-
-Signed-off-by: Linda Xie <lxie@us.ibm.com
-
---------------070108040303040003060809
-Content-Type: text/plain;
- name="srp.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="srp.patch"
-
-diff -X ../dontdiff -purN large-sg/drivers/scsi/ibmvscsi/srp.h srp/drivers/scsi/ibmvscsi/srp.h
---- large-sg/drivers/scsi/ibmvscsi/srp.h	2005-06-24 17:32:27.000000000 -0500
-+++ srp/drivers/scsi/ibmvscsi/srp.h	2005-07-15 17:36:45.000000000 -0500
-@@ -35,7 +35,7 @@
- enum srp_types {
- 	SRP_LOGIN_REQ_TYPE = 0x00,
- 	SRP_LOGIN_RSP_TYPE = 0xC0,
--	SRP_LOGIN_REJ_TYPE = 0x80,
-+	SRP_LOGIN_REJ_TYPE = 0xC2,
- 	SRP_I_LOGOUT_TYPE = 0x03,
- 	SRP_T_LOGOUT_TYPE = 0x80,
- 	SRP_TSK_MGMT_TYPE = 0x01,
-
---------------070108040303040003060809--
+On Fri, 2005-07-15 at 23:19 +0000, Tarmo Tänav wrote:
+> Hi,
+> 
+> I think I've found a bug in reiserfs acls. If triggered
+> it means that any program trying to access the partition,
+> where the bug occured, will just hang in D state, with
+> no way to kill the program.
+> 
+> Here's how to reproduce:
+> 1. mount a reiserfs volume (loopmount will do) with "-o acl".
+> 2. create a directory "dir"
+> 3. set some default acl: setfacl -d -m u:username:rwX dir
+> 4. cd dir
+> 5. dd if=/dev/zero of=somefile1 bs=4k count=100000
+> (the idea is to run out of space)
+> 6. now df should show 0 free space, if not then repeat 5.
+> 7. echo "1" > somefile2 # this should hang infinitely
+> 
+> Now no program will be able to access the partition.
+> 
+> I haven't tried to reproduce it, but the same problem also happened
+> when a user hit his hard quota limit on my server. Then no program
+> could access his homedir.
+> 
+> 
+> PS. I'm not subscribed to lkml so please CC
+> 
+> --
+> Tarmo Tänav
+> tarmo@itech.ee
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263120AbVGOBpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVGOBxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263120AbVGOBpb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 21:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbVGOBpb
+	id S261811AbVGOBxE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 21:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbVGOBxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 21:45:31 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:18498 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263120AbVGOBp3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 21:45:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dyN2rAtoJx2axyS3MpT7c+bVkO4p4lKqZVz2qAHfxh0l2X3Qp2d/ly0ANndkjbyPr7Xz2mZHXUrq7HWchUmy/feYQY0gMYKMVUN2XZEfy9VGBx3+VDG5GUBxt5JaTq5lFqZzEevS5dreHYfkfwVCAgGI1BIKAd6eDJdGFiN7SnA=
-Message-ID: <9a8748490507141845162c0f19@mail.gmail.com>
-Date: Fri, 15 Jul 2005 03:45:28 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: Why is 2.6.12.2 less stable on my laptop than 2.6.10?
-Cc: Mark Gross <mgross@linux.intel.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <p73wtnsx5r1.fsf@bragg.suse.de>
+	Thu, 14 Jul 2005 21:53:03 -0400
+Received: from ozlabs.org ([203.10.76.45]:29661 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261811AbVGOBxC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 21:53:02 -0400
+Date: Fri, 15 Jul 2005 11:14:28 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Subject: Re: RFC: Hugepage COW
+Message-ID: <20050715011428.GC7750@localhost.localdomain>
+Mail-Followup-To: Christoph Lameter <christoph@lameter.com>,
+	linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+References: <20050707055554.GC11246@localhost.localdomain> <Pine.LNX.4.62.0507141022440.14347@graphe.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200507140912.22532.mgross@linux.intel.com.suse.lists.linux.kernel>
-	 <p73wtnsx5r1.fsf@bragg.suse.de>
+In-Reply-To: <Pine.LNX.4.62.0507141022440.14347@graphe.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Jul 2005 02:38:58 +0200, Andi Kleen <ak@suse.de> wrote:
-> Mark Gross <mgross@linux.intel.com> writes:
-> >
-> > The problem is the process, not than the code.
-> > * The issues are too much ad-hock code flux without enough disciplined/formal
-> > regression testing and review.
+On Thu, Jul 14, 2005 at 10:24:33AM -0700, Christoph Lameter wrote:
+> On Thu, 7 Jul 2005, David Gibson wrote:
 > 
-> It's basically impossible to regression test swsusp except to release it.
-> Its success or failure depends on exactly the driver combination/platform/BIOS
-> version etc.  e.g. all drivers have to cooperate and the particular
-> bugs in your BIOS need to be worked around etc. Since that is quite fragile
-> regressions are common.
+> > Now that the hugepage code has been consolidated across the
+> > architectures, it becomes much easier to implement copy-on-write.
+> > Hugepage COW is of limited utility of itself, however, it is
+> > essentially a prerequisite for any of a number of methods of allowing
+> > userland programs to automatically use hugepages without code changes
+> > e.g. hugepage malloc() libraries, implicit hugepage mmap(), hugepage
+> > ELF segments.  For certain applications (particularly enormous HPC
+> > FORTRAN programs), these can result in a large performance
+> > improvement.
+> > 
+> > Thoughts?  Flames?
 > 
-> However in some other cases I agree some more regression testing
-> before release would be nice. But that's not how Linux works.  Linux
-> does regression testing after release.
-> 
-And who says that couldn't change?
+> Great stuff. I am glad that you are cleaning up the hugepages and are 
+> making progress improving them. What are your thoughts on implementing 
+> fault handling for huge pages?
 
-In my oppinion it would be nice if Linus/Andrew had some basic
-regression tests they could run on kernels before releasing them.
-There are plenty of "Linux test" projects out there that could be
-borrowed from to create some sort of regression test harness for them
-to run prior to release.   It would be super nice if they had a suite
-of tests to run and could then drop a mail on lkml saying 2.6.x is
-almost ready to go, but it currently fails regression tests #x, #y &
-#z, we need to get those fixed first before we can release this - and
-then every time a bug was found that could resonably be tested for in
-the future it would be added to the regression test suite...  That
-would lead to more consistent quality I believe.
-
+Well, the COW patch implements a fault handler, obviously.  What
+specifically where you thinking about?
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/people/dgibson

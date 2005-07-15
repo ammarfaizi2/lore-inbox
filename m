@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263307AbVGOO4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263313AbVGOPAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263307AbVGOO4i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 10:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263312AbVGOO4i
+	id S263313AbVGOPAh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 11:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbVGOPAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 10:56:38 -0400
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:20456 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S263307AbVGOO4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 10:56:37 -0400
-Date: Fri, 15 Jul 2005 07:56:36 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Sam Ravnborg <sam@ravnborg.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, stable@kernel.org
-Subject: [PATCH 2.6.13-rc3] kbuild: When checking depmod version, redirect stderr
-Message-ID: <20050715145636.GU7741@smtp.west.cox.net>
+	Fri, 15 Jul 2005 11:00:37 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:38113 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263313AbVGOPAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 11:00:35 -0400
+Date: Fri, 15 Jul 2005 16:00:34 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm1
+Message-ID: <20050715150034.GA6192@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050715013653.36006990.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050715013653.36006990.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When running depmod to check for the correct version number, extra
-output we don't need to see, such as "depmod: QM_MODULES: Function not
-implemented" may show up.  Redirect stderr to /dev/null as the version
-information that we do care about comes to stdout.
+On Fri, Jul 15, 2005 at 01:36:53AM -0700, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
+> 
+> (http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-rc3-mm1.gz until
+> kernel.org syncs up)
+> 
+> 
+> - Added the CKRM patches.  This is just here for people to look at at this
+>   stage.
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+Andrew, do we really need to add every piece of crap lying on the street
+to -mm?  It's far away from mainline enough already without adding obviously
+unmergeable stuff like this.
 
-diff --git a/Makefile b/Makefile
---- a/Makefile
-+++ b/Makefile
-@@ -875,7 +875,7 @@ modules_install: _modinst_ _modinst_post
- 
- .PHONY: _modinst_
- _modinst_:
--	@if [ -z "`$(DEPMOD) -V | grep module-init-tools`" ]; then \
-+	@if [ -z "`$(DEPMOD) -V 2>/dev/null | grep module-init-tools`" ]; then \
- 		echo "Warning: you may need to install module-init-tools"; \
- 		echo "See http://www.codemonkey.org.uk/docs/post-halloween-2.6.txt";\
- 		sleep 1; \
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

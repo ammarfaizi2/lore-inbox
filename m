@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263254AbVGOJU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263255AbVGOJZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263254AbVGOJU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 05:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263255AbVGOJU3
+	id S263255AbVGOJZN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 05:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbVGOJZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 05:20:29 -0400
-Received: from bay106-f24.bay106.hotmail.com ([65.54.161.34]:30631 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263254AbVGOJU1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 05:20:27 -0400
-Message-ID: <BAY106-F24AA8EC580378C0F66BAA5D9D00@phx.gbl>
-X-Originating-IP: [23.251.190.230]
-X-Originating-Email: [axel__17@hotmail.com]
-From: "Axel Dine" <axel__17@hotmail.com>
+	Fri, 15 Jul 2005 05:25:13 -0400
+Received: from main.gmane.org ([80.91.229.2]:34497 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S263255AbVGOJZK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 05:25:10 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: i2o vs dpt-i2o
-Date: Thu, 14 Jul 2005 23:20:24 -1000
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: 2.6.13-rc3-mm1
+Date: Fri, 15 Jul 2005 11:24:42 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2005.07.15.09.24.38.515769@smurf.noris.de>
+References: <20050715013653.36006990.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 15 Jul 2005 09:20:24.0643 (UTC) FILETIME=[6E891930:01C5891E]
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list,
-I have an Adaptec 2110S controller on an A7M266-D dual AMD Athlon MP
-rig running a Debian Sarge 3.1 stable.
+Hi, Andrew Morton wrote:
 
-I am considering which driver between i2o and dpt-i2o using: according
-to your experience which one is preferrable performance and reliably
-wise?
 
-I have installed the i2o native driver and the linux kernel change the
-order of my disk (like /dev/sda became /dev/i2o/hdc): is there any way to
-have a consistent drive order (i.e. /dev/sda -> /dev/i2o/hdc)?
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
+> 
+Also GITtable, as soon as the mirrors' work is done:
 
-Last question: I started with the dpt-i2o and installed grub on the first 
-disk array, then I moved to the i2o native driver (statically compiled in 
-the kernel), without appling any patch and everything runs smoothly: how is 
-this possible? I would have expected some errors with frub not recognizing 
-the /dev/i2o/hdx devices.
+http://www.kernel.org/git/?p=linux/kernel/git/smurf/v2.6.13-rc3-mm1.git;a=summary
 
-Ciao
-AxeL
+
+... since people asked:
+- trees from GIT are properly parent-linked.
+- yes, I can import other people's patch series.
+- the whole import runs in a couple of minutes.
+  In fact, I keep suspecting that it must be skipping some important
+  step or other. ;-)  Kudos to Linus, and of course everybody else who's
+  involved with git, for yet another tool done *right*.
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+A classic is something that everybody wants to have read
+and nobody wants to read.
+					-- Mark Twain
 
 

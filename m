@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263258AbVGOJh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVGOJj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbVGOJh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 05:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbVGOJh2
+	id S261702AbVGOJj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 05:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbVGOJj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 05:37:28 -0400
-Received: from main.gmane.org ([80.91.229.2]:58576 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S263258AbVGOJhY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 05:37:24 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Date: Fri, 15 Jul 2005 11:36:16 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2005.07.15.09.36.14.672407@smurf.noris.de>
-References: <42D3E852.5060704@mvista.com> <42D540C2.9060201@tmr.com> <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz> <20050713184227.GB2072@ucw.cz> <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org> <1121282025.4435.70.camel@mindpipe> <d120d50005071312322b5d4bff@mail.gmail.com> <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org> <20050713211650.GA12127@taniwha.stupidest.org> <9a874849050714170465c979c3@mail.gmail.com> <1121386505.4535.98.camel@mindpipe> <Pine.LNX.4.58.0507141718350.19183@g5.osdl.org> <42D71A68.6030701@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Fri, 15 Jul 2005 05:39:58 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:62470 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261702AbVGOJhv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 05:37:51 -0400
+Date: Fri, 15 Jul 2005 10:37:50 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       dtor_core@ameritech.net, torvalds@osdl.org, vojtech@suse.cz,
+       david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
+       linux-kernel@vger.kernel.org, mbligh@mbligh.org, diegocg@gmail.com,
+       azarah@nosferatu.za.org, christoph@lameter.com
+Subject: RE: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30040CF924@hdsmsx401.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.61L.0507151031380.15977@blysk.ds.pg.gda.pl>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30040CF924@hdsmsx401.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Bill Davidsen wrote:
+On Thu, 14 Jul 2005, Brown, Len wrote:
 
-> Do you actually have something against tickless, or just don't think it 
-> can be done in reasonable time?
+> >Of course using APIC internal timers is generally the best idea on SMP,
+> >but they may have had reasons to avoid them (it's not an ISA interrupt,
+> so
+> >it could have been simply out of question in the initial design).
+> 
+> Best?  No.
+> 
+> Local APIC timers are based on a clock which on many processors will
+> STOP when the processor enters power saving idle states, such as C3.
+> So the LAPIC timer will not accurately reflect how much time
+> has passed across entry/exit from idle.
 
-You can do it in small steps.
+ That's an APIC bug.  When Intel originally released the APIC (some 
+thirteen years ago) they stated it should be used as a source of the timer 
+interrupt instead of the 8254.  There is no excuse for changing the 
+behaviour after so many years.  So if you are on a broken system, you may 
+want to work around the bug, but it shouldn't impact good systems.
 
-When you have that jiffies_increment variable, you can add code to
-dynamically adjust it at runtime -- just reprogram the system timer
-(which may not be cheap).
-
-After you've done *that*, you can teach the add_timer code to optionally
-adjust jiffies_increment when demand changes; add an estimate on timer
-tick cost vs. reprogramming cost (which could return "always" when you're
-running UML); you might want to take user prefs into account ("always
-reprogram if the timeout would arrive more than 10 msec late, because
-otherwise my Doom3 game lags too much").
-
-There you are. Tickless, and nobody even notices.
-
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-Caesar had his Brutus -- charles the First, his Cromwell -- and George the
-Third ("Treason!" cried the Speaker) -- may profit by their example. If this
-be treason, make the most of it.
-					-- Patrick Henry
-
-
+  Maciej

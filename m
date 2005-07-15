@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263136AbVGOAzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVGOBAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263136AbVGOAzj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 20:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263140AbVGOAzj
+	id S261732AbVGOBAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 21:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVGOBAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 20:55:39 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:52039 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263136AbVGOAzg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 20:55:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=fGyAO4kxXyw/wAsa4oY7MRzX4++cC3PoYOK3vGNHkcCcSO69n25tPPTwtSPKiHojXSk/i4OwNRtd3Q7Qig+ahS4NRiZfAYxqjNEhdegcw2Fz1dFJEeK5FzUERNpik+VBJIwBSSic+KHbSu0zLEac1/0TmttbTwntIJGQCdQ2VKg=
-Message-ID: <28183df50507141755557b5145@mail.gmail.com>
-Date: Fri, 15 Jul 2005 03:55:32 +0300
-From: Zvi Rackover <zvirack@gmail.com>
-Reply-To: Zvi Rackover <zvirack@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: interrupt hooking in kernel 2.6
+	Thu, 14 Jul 2005 21:00:09 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:56268 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261732AbVGOBAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 21:00:07 -0400
+Subject: Re: interrupt hooking in kernel 2.6
+From: Lee Revell <rlrevell@joe-job.com>
+To: Zvi Rackover <zvirack@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <28183df50507141755557b5145@mail.gmail.com>
+References: <28183df50507141755557b5145@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 14 Jul 2005 21:00:09 -0400
+Message-Id: <1121389210.4535.100.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello all,
+On Fri, 2005-07-15 at 03:55 +0300, Zvi Rackover wrote:
+> hello all,
+> 
+> i wish to write a module for i386 that can hook interrupts. the module
+> loads its own interrupt descriptor table instead of the default
+> system's table. after executing my own handler(s), the old appropriate
+> handler will be called.
 
-i wish to write a module for i386 that can hook interrupts. the module
-loads its own interrupt descriptor table instead of the default
-system's table. after executing my own handler(s), the old appropriate
-handler will be called.
-i could not find any documentation or sample code explaining how this
-is done in 2.6. There are very few outdated examples on the web which
-apparently are not suitable.
-can anyone help me out?
+I think you want the "I-Pipe", just posted to LKML few weeks ago.
 
-yours,
-zvi
+Lee
+

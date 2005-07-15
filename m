@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVGOXAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVGOXPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVGOXAY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 19:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVGOXAX
+	id S262039AbVGOXPE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 19:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVGOXPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 19:00:23 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:35838 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261983AbVGOXAV (ORCPT
+	Fri, 15 Jul 2005 19:15:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62436 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262039AbVGOXPC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 19:00:21 -0400
-Date: Sat, 16 Jul 2005 08:00:08 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: akpm@osdl.org
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm1
-Message-Id: <20050716080008.47e7bae2.yuasa@hh.iij4u.or.jp>
-In-Reply-To: <20050716075242.24aed0bd.yuasa@hh.iij4u.or.jp>
-References: <20050715013653.36006990.akpm@osdl.org>
-	<20050716075242.24aed0bd.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Jul 2005 19:15:02 -0400
+Date: Fri, 15 Jul 2005 19:14:48 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Mark Gross <mgross@linux.intel.com>
+cc: Dave Jones <davej@redhat.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Why is 2.6.12.2 less stable on my laptop than 2.6.10?
+In-Reply-To: <200507151447.46318.mgross@linux.intel.com>
+Message-ID: <Pine.LNX.4.61.0507151914300.25957@chimarrao.boston.redhat.com>
+References: <200507140912.22532.mgross@linux.intel.com.suse.lists.linux.kernel>
+ <9a8748490507141845162c0f19@mail.gmail.com> <20050715020912.GB22284@redhat.com>
+ <200507151447.46318.mgross@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
+On Fri, 15 Jul 2005, Mark Gross wrote:
 
-On Sat, 16 Jul 2005 07:52:42 +0900
-Yoichi Yuasa <yuasa@hh.iij4u.or.jp> wrote:
+> What would be wrong in expecting the folks making the driver changes 
+> have some story on how they are validating there changes don't break 
+> existing working hardware?  I could probly be accomplished in open 
+> source with subsystem testing volenteers.
 
-> Hi Andrew
-> 
-> I got the following error.
-> 
-> make ARCH=mips oldconfig
-> scripts/kconfig/conf -o arch/mips/Kconfig
-> drivers/video/Kconfig:7:warning: type of 'FB' redefined from 'boolean' to 'tristate'
-> 
-> file drivers/char/speakup/Kconfig already scanned?
-> make[1]: *** [oldconfig] Error 1
-> make: *** [oldconfig] Error 2
-> 
-> 
-> gregkh-driver-speakup-core.patch
-> 
->  arch/arm/Kconfig                         |    1
->  arch/mips/Kconfig                        |    2
->  arch/sparc64/Kconfig                     |    2
-> 
-> It is not necessary to change these three files. 
-> Please remove these changes.
+Are you volunteering ?
 
-Sorry, I mistook.
-It is not necessary to change for mips.
-Please remove mips Kconfig change.
-
-Yoichi
+-- 
+The Theory of Escalating Commitment: "The cost of continuing mistakes is
+borne by others, while the cost of admitting mistakes is borne by yourself."
+  -- Joseph Stiglitz, Nobel Laureate in Economics

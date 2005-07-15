@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVGORNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVGORTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVGORNs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 13:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVGORNs
+	id S261918AbVGORTj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 13:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVGORTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 13:13:48 -0400
-Received: from rgminet01.oracle.com ([148.87.122.30]:25273 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S261618AbVGORNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 13:13:47 -0400
-Date: Fri, 15 Jul 2005 10:13:32 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm1
-Message-ID: <20050715171332.GX16618@ca-server1.us.oracle.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050715013653.36006990.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050715013653.36006990.akpm@osdl.org>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+	Fri, 15 Jul 2005 13:19:39 -0400
+Received: from mail.cipsoft.com ([62.146.47.42]:35812 "EHLO mail.cipsoft.com")
+	by vger.kernel.org with ESMTP id S261918AbVGORTh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 13:19:37 -0400
+Message-ID: <42D7F026.90400@cipsoft.com>
+Date: Fri, 15 Jul 2005 19:19:34 +0200
+From: Thoralf Will <thoralf@cipsoft.com>
+Organization: CipSoft GmbH
+User-Agent: Mozilla Thunderbird 1.0.2-1.4.1.centos4 (X11/20050323)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: pc_keyb: controller jammed (0xA7)
+References: <mailman.1121358841.8002.linux-kernel2news@redhat.com> <20050714182101.640137d8.zaitcev@redhat.com>
+In-Reply-To: <20050714182101.640137d8.zaitcev@redhat.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 15, 2005 at 01:36:53AM -0700, Andrew Morton wrote:
-> +update-filesystems-for-new-delete_inode-behavior-fix.patch
+Pete Zaitcev wrote:
+> On Thu, 14 Jul 2005 18:27:01 +0200, Thoralf Will <thoralf@cipsoft.com> wrote:
 > 
->  This needs to be, too.
+> 
+>>I didn't find any useful answer anywhere so far, hope it's ok to ask here.
+>>I'm currently trying to get a 2.4.31 up and running on an IBM
+>>BladeCenter HS20/8843. (base system is a stripped down RH9)
+>>
+>>When booting the kernel the console is spammmed with:
+>>   pc_keyb: controller jammed (0xA7)
+>>But it seems there are no further consequences and the keyboard is
+>>working.
+> 
+> 
+> I saw a patch for it by Brian Maly, and yes, it was for 2.4.x.
+> Maybe he can send you a rediff against current Marcelo's tree.
+> 
+> However, is there a reason you're running 2.4.31 in Summer of 2005?
+> Did you try 2.6, does that one do the same thing? It has a rather
+> different infrastructure with the serio.
+> 
+> -- Pete
+> 
 
-	Applied.
+Meanwhile I've found the source of the problem. A simple change in
+drivers/char/pc_keyb.c
+line 73 did the trick.
+- #define kbd_controller_present()        1
++ #define kbd_controller_present()        0
 
-Joel
+The only backdraw I've noticed so far is the problem that the kernel
+won't work on servers with a ps/2 keyboard controller anymore (of
+course) properly. But that's a minor issue.
 
--- 
+We are still running 2.4 kernels because our application is incompatible
+with the new thread library. A migration is already planned but that
+takes time, alot of. I don't expect a migration to take place before the
+end of the year, maybe even later.
 
-"There are only two ways to live your life. One is as though nothing
- is a miracle. The other is as though everything is a miracle."
-        - Albert Einstein
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Thoralf

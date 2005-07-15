@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263316AbVGOPJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263315AbVGOPOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263316AbVGOPJz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 11:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbVGOPJz
+	id S263315AbVGOPOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 11:14:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbVGOPOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 11:09:55 -0400
-Received: from web25802.mail.ukl.yahoo.com ([217.12.10.187]:49055 "HELO
-	web25802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263316AbVGOPJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 11:09:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.es;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=wzp6L2/isskFQhkXm/LsZqSS3eXGfOfQkA2rGvI2GXI1kLPCgcAaOYcKE+SCfxWtj57MDhG5IC86Nu9ZlsAbg8GSbZfui/r9nwWuptpoRJAmd+tTYApPNBcTZdl86R/gW1uzDxpJFRiqGo89ZslzIoCaehxp9YY83bvbb4wnSws=  ;
-Message-ID: <20050715150935.3023.qmail@web25802.mail.ukl.yahoo.com>
-Date: Fri, 15 Jul 2005 17:09:34 +0200 (CEST)
-From: Albert Herranz <albert_herranz@yahoo.es>
-Subject: Re: console remains blanked
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1121437536.5963.24.camel@gaston>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 15 Jul 2005 11:14:08 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:50882 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S263315AbVGOPOE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 11:14:04 -0400
+Subject: Re: [PATCH] mb_cache_shrink() frees unexpected caches
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <200507151636.27532.agruen@suse.de>
+References: <1121346444.4282.8.camel@localhost.localdomain>
+	 <200507151249.52294.agruen@suse.de>
+	 <1121434894.1261.4.camel@localhost.localdomain>
+	 <200507151636.27532.agruen@suse.de>
+Content-Type: text/plain
+Date: Sat, 16 Jul 2005 00:07:46 +0900
+Message-Id: <1121440067.4137.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
+2005-07-15 (Fri) 16:36 +0200  Andreas Gruenbacher wrote:
+> The cache parameter could indeed be removed. Not that it would matter much...
+> 
 
- --- Benjamin Herrenschmidt <benh@kernel.crashing.org>
-escribió:
-> Yes. We discussed that with Linus back then. The
-> problem is that the
-> printk subsystem tend to abuse calling low level
-> drivers at interrupt
-> time, and in the case of blanking/unblanking, this
-> can be a problem.
-> Radeonfb for example relies on beeing able to
-> schedule() at
-> blank/unblank time.
+Currently, mbcache is used only for xattr on ext2/ext3 and reiserfs.
+In other words, only one type of mbcache is used per-filesystem.
+So any problems don't happen without the patch I sent.
 
-Ok.
+But, for example when someone use mbcache as another purpose on ext3,
+The crash will be caused by using mb_cache_shrink().
 
-> If this "feature" is really important, maybe the
-> best is to trigger the
-> workqueue and do the ublank from there.
-
-It looks like I'm the only one concerned, so don't
-worry. I'll workaround it.
-
-Thanks for your feedback.
-
-Cheers,
-Albert
+Therefore, I think your patch should not be committed until
+mbcache will be limited to use only type per-filesystem.
 
 
-
-
-		
-______________________________________________ 
-Renovamos el Correo Yahoo! 
-Nuevos servicios, más seguridad 
-http://correo.yahoo.es

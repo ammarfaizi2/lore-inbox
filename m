@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263296AbVGONsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263299AbVGON6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263296AbVGONsx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 09:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbVGONsx
+	id S263299AbVGON6t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 09:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbVGON6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 09:48:53 -0400
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:8950 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S263296AbVGONrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 09:47:53 -0400
-Subject: Re: [PATCH] mb_cache_shrink() frees unexpected caches
-From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <200507151249.52294.agruen@suse.de>
-References: <1121346444.4282.8.camel@localhost.localdomain>
-	 <200507151249.52294.agruen@suse.de>
-Content-Type: text/plain
-Date: Fri, 15 Jul 2005 22:41:34 +0900
-Message-Id: <1121434894.1261.4.camel@localhost.localdomain>
+	Fri, 15 Jul 2005 09:58:49 -0400
+Received: from main.gmane.org ([80.91.229.2]:28649 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S263299AbVGON5x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 09:57:53 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joe Seigh <jseigh_02@xemaps.com>
+Subject: Re: rcu-refcount stacker performance
+Date: Fri, 15 Jul 2005 09:59:15 -0400
+Message-ID: <db8fa3$t3o$1@sea.gmane.org>
+References: <20050714142107.GA20984@serge.austin.ibm.com> <20050714152321.GB1299@us.ibm.com> <20050714134450.GB7296@sergelap.austin.ibm.com> <20050714165936.GE1299@us.ibm.com> <20050714171357.GA23309@serge.austin.ibm.com> <db6vsm$fpm$1@sea.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+In-Reply-To: <db6vsm$fpm$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joe Seigh wrote:
+> A bit sketchy.  You can see a working example of this using
+> C++ refcounted pointers (which can't be used in the kernel
+> naturally, you'll have to implement your own) at
+> http://atomic-ptr-plus.sourceforge.net/
 
-> > --- 2.6-rc/fs/mbcache.c.orig	2005-07-14 20:40:34.000000000 +0900
-> > +++ 2.6-rc/fs/mbcache.c	2005-07-14 20:43:42.000000000 +0900
-> > @@ -329,7 +329,7 @@ mb_cache_shrink(struct mb_cache *cache,
-> >  	list_for_each_safe(l, ltmp, &mb_cache_lru_list) {
-> >  		struct mb_cache_entry *ce =
-> >  			list_entry(l, struct mb_cache_entry, e_lru_list);
-> > -		if (ce->e_bdev == bdev) {
-> > +		if (ce->e_cache == cache && ce->e_bdev == bdev) {
-> >  			list_move_tail(&ce->e_lru_list, &free_list);
-> >  			__mb_cache_entry_unhash(ce);
-> >  		}
+The APPC stuff is in the atomic-ptr-plus package if anyone is
+wondering where it is.  It was one of what I guess you'd
+call strawman packages.  The RCU+SMR (fastsmr) package is
+currently the one I'll probably carry forward.
+
 > 
-> this patch looks bogus to me. How could the cache contain entries for the same 
-> block_device from different file systems? The block_device is sufficient to 
-> identify the file system, and hence its cache entries.
-
-Why is mb_cache_shrink() declared as:
-
-void
-mb_cache_shrink(struct mb_cache *cache, struct block_device *bdev);
-
-The variable cache was never used.
-
+> -- 
+> Joe Seigh
+> 
 

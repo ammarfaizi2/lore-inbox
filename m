@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263324AbVGORGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVGORNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263324AbVGORGL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 13:06:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVGORGL
+	id S261618AbVGORNs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 13:13:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVGORNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 13:06:11 -0400
-Received: from bhhdoa.org.au ([216.17.101.199]:777 "EHLO bhhdoa.org.au")
-	by vger.kernel.org with ESMTP id S263334AbVGOREc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 13:04:32 -0400
-Message-ID: <1121439115.42d7cd8b3f372@vds.kolivas.org>
-Date: Sat, 16 Jul 2005 00:51:55 +1000
-From: kernel@kolivas.org
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Arjan van de Ven <arjan@infradead.org>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
-       david.lang@digitalinsight.com, davidsen@tmr.com,
-       linux-kernel@vger.kernel.org, mbligh@mbligh.org, diegocg@gmail.com,
-       azarah@nosferatu.za.org, christoph@lameter.com
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-References: <d120d50005071312322b5d4bff@mail.gmail.com>  <1121383050.4535.73.camel@mindpipe>  <Pine.LNX.4.58.0507141623490.19183@g5.osdl.org>  <200507151408.39932.kernel@kolivas.org> <1121401043.12420.5.camel@mindpipe>  <Pine.LNX.4.61.0507142254140.16055@montezuma.fsmlabs.com> <1121446794.12420.30.camel@mindpipe>
-In-Reply-To: <1121446794.12420.30.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
+	Fri, 15 Jul 2005 13:13:48 -0400
+Received: from rgminet01.oracle.com ([148.87.122.30]:25273 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S261618AbVGORNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 13:13:47 -0400
+Date: Fri, 15 Jul 2005 10:13:32 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm1
+Message-ID: <20050715171332.GX16618@ca-server1.us.oracle.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050715013653.36006990.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050715013653.36006990.akpm@osdl.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Lee Revell <rlrevell@joe-job.com>:
-
-> On Thu, 2005-07-14 at 22:54 -0600, Zwane Mwaikambo wrote:
-> > On Fri, 15 Jul 2005, Lee Revell wrote:
-> > 
-> > > On Fri, 2005-07-15 at 14:08 +1000, Con Kolivas wrote:
-> > > > Audio did show slightly larger max latencies but nothing that would be
-> of 
-> > > > significance.
-> > > > 
-> > > > On video, maximum latencies are only slightly larger at HZ 250, all the
+On Fri, Jul 15, 2005 at 01:36:53AM -0700, Andrew Morton wrote:
+> +update-filesystems-for-new-delete_inode-behavior-fix.patch
 > 
-> > > > desired cpu was achieved, but the average latency and number of missed
-> 
-> > > > deadlines was significantly higher.
-> > > 
-> > > Because audio timing is driven by the soundcard interrupt while video,
-> > > like MIDI, relies heavily on timers.
-> > 
-> > In interbench it's not driven by a soundcard interrupt.
-> > 
-> > 
-> 
-> OK.  Con, any idea why video is so much more affected than audio?
+>  This needs to be, too.
 
-In the emulation, video vs audio is 40% cpu vs 5% cpu, 16.7ms frames instead of
-50ms frames. When your cpu requirements are higher and your frames are shorter
-the likelihood of dropping a frame, especially under load, will skyrocket as
-your timing granularity decreases. Clearly 250HZ is not as good as 1000HZ for
-this, and I assume your midi example.
+	Applied.
 
-Cheers,
-Con
+Joel
 
+-- 
 
+"There are only two ways to live your life. One is as though nothing
+ is a miracle. The other is as though everything is a miracle."
+        - Albert Einstein
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

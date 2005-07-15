@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVGOJj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263264AbVGOJ7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbVGOJj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 05:39:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbVGOJj6
+	id S263264AbVGOJ7a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 05:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbVGOJ7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 05:39:58 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:62470 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261702AbVGOJhv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 05:37:51 -0400
-Date: Fri, 15 Jul 2005 10:37:50 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       dtor_core@ameritech.net, torvalds@osdl.org, vojtech@suse.cz,
-       david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, mbligh@mbligh.org, diegocg@gmail.com,
-       azarah@nosferatu.za.org, christoph@lameter.com
-Subject: RE: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30040CF924@hdsmsx401.amr.corp.intel.com>
-Message-ID: <Pine.LNX.4.61L.0507151031380.15977@blysk.ds.pg.gda.pl>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30040CF924@hdsmsx401.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 15 Jul 2005 05:59:30 -0400
+Received: from gwbw.xs4all.nl ([213.84.100.200]:9897 "EHLO laptop.blackstar.nl")
+	by vger.kernel.org with ESMTP id S263264AbVGOJ73 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 05:59:29 -0400
+Subject: Re: ATAPI+SATA support in 2.6.13-rc3
+From: Bas Vermeulen <bvermeul@blackstar.nl>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42D78269.5020809@gmx.net>
+References: <42D78269.5020809@gmx.net>
+Content-Type: text/plain
+Date: Fri, 15 Jul 2005 11:59:17 +0200
+Message-Id: <1121421557.5110.11.camel@laptop.blackstar.nl>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-14.WB1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Jul 2005, Brown, Len wrote:
-
-> >Of course using APIC internal timers is generally the best idea on SMP,
-> >but they may have had reasons to avoid them (it's not an ISA interrupt,
-> so
-> >it could have been simply out of question in the initial design).
+On Fri, 2005-07-15 at 11:31 +0200, Carl-Daniel Hailfinger wrote:
+> Hi Jeff,
 > 
-> Best?  No.
+> I have a Intel ICH6M chipset and am using ata_piix as my
+> default disk driver. With the SUSE patched 2.6.11.4 kernel
+> (it has some libata patches) my DVD-RAM drive works, with
+> 2.6.13-rc3 it doesn't work. My .config is nearly identical
+> for both kernels (except options introduced after 2.6.11).
 > 
-> Local APIC timers are based on a clock which on many processors will
-> STOP when the processor enters power saving idle states, such as C3.
-> So the LAPIC timer will not accurately reflect how much time
-> has passed across entry/exit from idle.
+> I have two suspects: the changed interrupt routing and
+> libata version differences. Especially strange is the fact
+> that both kernels seem to disagree with lspci about the
+> interrupts assigned to the SATA controller.
+> 
+> Please find dmesg, /proc/interrupts and lspci -v attached
+> for both kernels.
+> 
+> Regards,
+> Carl-Daniel
 
- That's an APIC bug.  When Intel originally released the APIC (some 
-thirteen years ago) they stated it should be used as a source of the timer 
-interrupt instead of the 8254.  There is no excuse for changing the 
-behaviour after so many years.  So if you are on a broken system, you may 
-want to work around the bug, but it shouldn't impact good systems.
+You'll need to enable ATAPI support for ata_piix in
+include/linux/libata.h
 
-  Maciej
+Change:
+#undef ATA_ENABLE_ATAPI
+
+into
+#define ATA_ENABLE_ATAPI
+
+Suse has probably done that for you, it's disabled by default.
+
+-- 
+Bas Vermeulen <bvermeul@blackstar.nl>
+

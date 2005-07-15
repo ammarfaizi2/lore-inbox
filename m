@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVGOL1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263286AbVGOLYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbVGOL1R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 07:27:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVGOLYP
+	id S263286AbVGOLYF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 07:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVGOLWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 07:24:15 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:1156 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261887AbVGOLXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 07:23:07 -0400
-Date: Fri, 15 Jul 2005 13:22:55 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jan Blunck <j.blunck@tu-harburg.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] generic_file_sendpage
-Message-ID: <20050715112255.GC2721@wohnheim.fh-wedel.de>
-References: <42D79468.3050808@tu-harburg.de> <20050715040611.05907f4a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050715040611.05907f4a.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+	Fri, 15 Jul 2005 07:22:25 -0400
+Received: from BTNL-TN-DSL-static-006.0.144.59.touchtelindia.net ([59.144.0.6]:11651
+	"EHLO mail.prodmail.net") by vger.kernel.org with ESMTP
+	id S263289AbVGOLTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 07:19:54 -0400
+Message-ID: <42D79B3D.7080108@prodmail.net>
+Date: Fri, 15 Jul 2005 16:47:17 +0530
+From: RVK <rvk@prodmail.net>
+Reply-To: rvk@prodmail.net
+Organization: GSEC1
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: omb@bluewin.ch, linux-kernel@vger.kernel.org
+Subject: Re: Buffer Over-runs, was Open source firewalls
+References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>	 <42D63AD0.6060609@aitel.hist.no> <42D63D4A.2050607@prodmail.net>	 <42D658A8.4040009@aitel.hist.no> <42D658A9.7050706@prodmail.net>	 <42D6ECED.7070504@khandalf.com>  <42D75A93.5010904@prodmail.net>	 <1121410260.3179.3.camel@laptopd505.fenrus.org>	 <42D7734D.9070204@prodmail.net> <1121417215.3179.7.camel@laptopd505.fenrus.org>
+In-Reply-To: <1121417215.3179.7.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 July 2005 04:06:11 -0700, Andrew Morton wrote:
-> > +
-> > +	/* There is no sane reason to use O_DIRECT */
-> > +	BUG_ON(file->f_flags & O_DIRECT);
-> 
-> err, this seems like an easy way for people to make the kernel go BUG.
+Arjan van de Ven wrote:
 
-Is there a sane use for O_DIRECT in combination with sendfile()?
+>On Fri, 2005-07-15 at 13:56 +0530, RVK wrote:
+>  
+>
+>>>except this is no longer true really ;)
+>>>
+>>>randomisation for example makes this a lot harder to do.
+>>>gcc level tricks to prevent buffer overflows are widely in use nowadays
+>>>too (FORTIFY_SOURCE and -fstack-protector). The combination of this all
+>>>makes it a LOT harder to actually exploit a buffer overflow on, say, a
+>>>distribution like Fedora Core 4.
+>>>
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>Still is very new....not every one can immediately start using gcc 4.
+>>    
+>>
+>
+>it;s also available for gcc 3.4 as patch (and included in FC3 and RHEL4
+>for example)
+>
+>so it's new? so what? doesn't make it less true that it nowadays is a
+>lot harder to exploit such bugs on recent distros.
+>
+>  
+>
+How about using ProPolice etc ?
 
-If not, I'd like to change sys_sendfile() and return -EINVAL for
-O_DIRECT file descriptors.
+rvk
 
-> > +	if (unlikely(signal_pending(current)))
-> > +		return -EINTR;
-> 
-> This doesn't help.  The reason we've avoided file-to-file sendfile() is
-> that it can cause applications to get uninterruptibly stuck in the kernel
-> for ages.  This code doesn't solve that problem.  It needs to handle
-> signal_pending() inside the main loop.
-> 
-> And it probably needs to return a sane value (number of bytes copied)
-> rather than -EINTR.
+>.
+>
+>  
+>
 
-Makes sense.
-
-> I don't know if we want to add this feature, really.  It's such a
-> specialised thing.
-
-With union mount and cowlink, there are two users already.  cp(1)
-could use it as well, even if the improvement is quite minimal.
-
-Jörn
-
--- 
-All art is but imitation of nature.
--- Lucius Annaeus Seneca

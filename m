@@ -1,96 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263152AbVGOCcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVGOCfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbVGOCcH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 22:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263170AbVGOCcH
+	id S261815AbVGOCfW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 22:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVGOCfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 22:32:07 -0400
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:15844 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S263152AbVGOCcF
+	Thu, 14 Jul 2005 22:35:22 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:1342 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261815AbVGOCfU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 22:32:05 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Arjan van de Ven <arjan@infradead.org>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
-       david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, mbligh@mbligh.org, diegocg@gmail.com,
-       azarah@nosferatu.za.org, christoph@lameter.com
-In-Reply-To: <Pine.LNX.4.58.0507141648070.19183@g5.osdl.org>
-References: <d120d50005071312322b5d4bff@mail.gmail.com>
-	 <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org>
-	 <20050714005106.GA16085@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org>
-	 <1121304825.4435.126.camel@mindpipe>
-	 <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
-	 <1121326938.3967.12.camel@laptopd505.fenrus.org>
-	 <20050714121340.GA1072@ucw.cz>
-	 <Pine.LNX.4.58.0507140933150.19183@g5.osdl.org>
-	 <1121383050.4535.73.camel@mindpipe>
-	 <Pine.LNX.4.58.0507141623490.19183@g5.osdl.org>
-	 <1121384499.4535.82.camel@mindpipe>
-	 <Pine.LNX.4.58.0507141648070.19183@g5.osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1121394653.19939.775.camel@cmn37.stanford.edu>
+	Thu, 14 Jul 2005 22:35:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=EFdIH/1cSQfIH58Kc9/75PkFAH1P6dB3xI+yZSQdXr/PpwF9fbI/jKjN1qKzzlMoNAAQ0LBhDiM2sfo5BPG37oQ8jkb4ALrglFEBwMiw5FOLt/OEaVGb0LMLvN9DQmE8ThI4G8lxi9n3T8RBSyvajJ52zZUoNX3J7oWnGSaMyco=
+Message-ID: <105c793f0507141935403fc828@mail.gmail.com>
+Date: Thu, 14 Jul 2005 22:35:19 -0400
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: suspend2-users <suspend2-users@lists.suspend2.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PS/2 Keyboard is dead after resume.
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jul 2005 19:30:53 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 16:49, Linus Torvalds wrote:
-> On Thu, 14 Jul 2005, Lee Revell wrote:
-> > 
-> > And I'm incredibly frustrated by this insistence on hard data when it's
-> > completely obvious to anyone who knows the first thing about MIDI that
-> > HZ=250 will fail in situations where HZ=1000 succeeds.
-> 
-> Ok, guys. How many people have this MIDI thing? How many of you can't be 
-> bothered to set the default to suit your usage?
-> 
-> > It's straight from the MIDI spec.  Your argument is pretty close to "the
-> > MIDI spec is wrong, no one can hear the difference between 1ms and 4ms".
-> 
-> No.
-> 
-> YOUR argument is "nobody else matters, only I do".
-> 
-> MY argument is that this is a case of give and take. 
+Hello.
 
-Take from "few" multimedia users, give to "many" laptop users. Where
-"few" and "many" are not very well defined quantities, but obviously
-"many" > "few" :-) 
+I'm using Linux Kernel 2.6.12.2 plus suspend 2.1.9.9 and acpi-20050408
+with the hibernate-1.10 script. My machine is a Shuttle SK43G which
+has a VIA KM400 chipset with an Athlon XP CPU.
 
-As to how few is few. I don't claim to know, but users that bother to
-subscribe to the Planet CCRMA[*] mailing list number 750+, so that's one
-datapoint. Total users of Planet CCRMA, I have no idea. Most of them
-will use MIDI, either externally through hardware interfaces or
-internally through the ALSA sequencer api. 
+Suspension seems to work well. However, when I resume, the keyboard is
+dead and there is a warning in dmesg before and after suspension:
 
-Planet CCRMA includes custom kernels with Ingo's patches for low
-latency, so I will have to configure them with HZ=1000 (or 500 or
-whatever) in 2.6.13+. Oh well. 
-
-HZ=250 is a setback anyway, as many advances had been made recently in
-the stock kernel that made it more and more suitable to multimedia work
-(_GREAT_ work BTW). That raised my hopes that, eventually, I would not
-have to build kernels, just apps, as stock kernels would be good enough.
-This will make the wait longer. 
-
-Sigh, I'll be patient and dream about high resolution timers or other
-technically elegant solutions that will not penalize multimedia apps or
-laptops... 
-
--- Fernando
-
-[*] http://ccrma.stanford.edu/planetccrma/software/
+atkbd.c: Spurious ACK on isa0060/serio0. Some program, like XFree86,
+might be trying access hardware directly.
+Please include the following information in bug reports:
+- SUSPEND core   : 2.1.9.9
+- Kernel Version : 2.6.12.2
+- Compiler vers. : 3.3
+- Attempt number : 1
+- Pageset sizes  : 5821 (5821 low) and 118350 (118350 low).
+- Parameters     : 0 32 0 1 0 5
+- Calculations   : Image size: 124376. Ram to suspend: 2240.
+- Limits         : 126960 pages RAM. Initial boot: 123894.
+- Overall expected compression percentage: 0.
+- Compressor lzf enabled.
+  Compressed 508604416 bytes into 23739845 (95 percent compression).
+- Swapwriter active.
+  Swap available for image: 487964 pages.
+- Filewriter inactive.
+- Preemptive kernel.
+- Max extents used: 4
+- I/O speed: Write 251 MB/s, Read 198 MB/s.
+Resume block device is defe0860.
+Real Time Clock Driver v1.12
+atkbd.c: Spurious ACK on isa0060/serio0. Some program, like XFree86,
+might be trying access hardware directly.
 
 
+This machine doesn't have XFree86 on it.
+
+I am presuming that this is a bug since I've used the exact same
+kernel+patches (with hibernate 1.09 script) on another machine without
+issues. I'm not sure if it's a suspension bug or if it's a kernel bug
+that is brought to light by the suspend2 patches. If I'm wrong and
+I've made a mistake, I'd love to hear it.
+
+Thanks.
+
+-Andy

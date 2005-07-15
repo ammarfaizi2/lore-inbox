@@ -1,80 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVGOWUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVGOWUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVGOWUl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 18:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVGOWUj
+	id S261847AbVGOWUb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 18:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVGOWO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 18:20:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55246 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261835AbVGOWUZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 18:20:25 -0400
-Date: Fri, 15 Jul 2005 18:19:55 -0400
-From: Dave Jones <davej@redhat.com>
-To: Mark Gross <mgross@linux.intel.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why is 2.6.12.2 less stable on my laptop than 2.6.10?
-Message-ID: <20050715221954.GA31610@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Mark Gross <mgross@linux.intel.com>,
-	Jesper Juhl <jesper.juhl@gmail.com>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <200507140912.22532.mgross@linux.intel.com.suse.lists.linux.kernel> <9a8748490507141845162c0f19@mail.gmail.com> <20050715020912.GB22284@redhat.com> <200507151447.46318.mgross@linux.intel.com>
-Mime-Version: 1.0
+	Fri, 15 Jul 2005 18:14:57 -0400
+Received: from smtp04.auna.com ([62.81.186.14]:39134 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S262111AbVGOWOr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 18:14:47 -0400
+Date: Fri, 15 Jul 2005 22:14:43 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: [PATCH] signed char fixes for scripts
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1121465068l.13352l.0l@werewolf.able.es> (from
+	jamagallon@able.es on Sat Jul 16 00:04:28 2005)
+X-Mailer: Balsa 2.3.4
+Message-Id: <1121465683l.13352l.5l@werewolf.able.es>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200507151447.46318.mgross@linux.intel.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.215.11] Login:jamagallon@able.es Fecha:Sat, 16 Jul 2005 00:14:43 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 15, 2005 at 02:47:46PM -0700, Mark Gross wrote:
+
+On 07.16, J.A. Magallon wrote:
+> 
+> On 07.15, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
+> > 
+
+This time I did not break anything... and they shut up gcc4 ;)
+
+--- linux-2.6.12-jam1/scripts/mod/sumversion.c.orig	2005-06-21 23:44:30.000000000 +0200
++++ linux-2.6.12-jam1/scripts/mod/sumversion.c	2005-06-21 23:47:09.000000000 +0200
+@@ -252,9 +252,9 @@
+ }
  
- > This problem is the developer making driver changes without have the resources 
- > to test the changes on a enough of the hardware effected by his change, and 
- > therefore probubly shouldn't be making changes they cannot realisticaly test.
+ /* FIXME: Handle .s files differently (eg. # starts comments) --RR */
+-static int parse_file(const signed char *fname, struct md4_ctx *md)
++static int parse_file(const char *fname, struct md4_ctx *md)
+ {
+-	signed char *file;
++	char *file;
+ 	unsigned long i, len;
+ 
+ 	file = grab_file(fname, &len);
+@@ -332,7 +332,7 @@
+ 	   Sum all files in the same dir or subdirs.
+ 	*/
+ 	while ((line = get_next_line(&pos, file, flen)) != NULL) {
+-		signed char* p = line;
++		char* p = line;
+ 		if (strncmp(line, "deps_", sizeof("deps_")-1) == 0) {
+ 			check_files = 1;
+ 			continue;
+@@ -458,7 +458,7 @@
+ 	close(fd);
+ }
+ 
+-static int strip_rcs_crap(signed char *version)
++static int strip_rcs_crap(char *version)
+ {
+ 	unsigned int len, full_len;
+ 
+--- linux-2.6.12-jam1/scripts/lxdialog/inputbox.c.orig	2005-06-21 23:40:27.000000000 +0200
++++ linux-2.6.12-jam1/scripts/lxdialog/inputbox.c	2005-06-21 23:42:39.000000000 +0200
+@@ -21,7 +21,7 @@
+ 
+ #include "dialog.h"
+ 
+-unsigned char dialog_input_result[MAX_LEN + 1];
++char dialog_input_result[MAX_LEN + 1];
+ 
+ /*
+  *  Print the termination buttons
+@@ -48,7 +48,7 @@
+ {
+     int i, x, y, box_y, box_x, box_width;
+     int input_x = 0, scroll = 0, key = 0, button = -1;
+-    unsigned char *instr = dialog_input_result;
++    char *instr = dialog_input_result;
+     WINDOW *dialog;
+ 
+     /* center dialog box on screen */
+--- linux-2.6.12-jam1/scripts/lxdialog/dialog.h.orig	2005-06-21 23:42:55.000000000 +0200
++++ linux-2.6.12-jam1/scripts/lxdialog/dialog.h	2005-06-21 23:43:19.000000000 +0200
+@@ -163,7 +163,7 @@
+ int dialog_checklist (const char *title, const char *prompt, int height,
+ 		int width, int list_height, int item_no,
+ 		const char * const * items, int flag);
+-extern unsigned char dialog_input_result[];
++extern char dialog_input_result[];
+ int dialog_inputbox (const char *title, const char *prompt, int height,
+ 		int width, const char *init);
+ 
+--- linux-2.6.12-jam1/scripts/conmakehash.c.orig	2005-06-22 00:16:58.000000000 +0200
++++ linux-2.6.12-jam1/scripts/conmakehash.c	2005-06-22 00:17:21.000000000 +0200
+@@ -33,7 +33,7 @@
+ 
+ int getunicode(char **p0)
+ {
+-  unsigned char *p = *p0;
++  char *p = *p0;
+ 
+   while (*p == ' ' || *p == '\t')
+     p++;
+--- linux-2.6.12-jam7/scripts/kallsyms.c.orig	2005-07-06 00:16:39.000000000 +0200
++++ linux-2.6.12-jam7/scripts/kallsyms.c	2005-07-06 00:42:24.000000000 +0200
+@@ -166,9 +166,9 @@
+ 		 * move then they may get dropped in pass 2, which breaks the
+ 		 * kallsyms rules.
+ 		 */
+-		if ((s->addr == _etext && strcmp(s->sym + offset, "_etext")) ||
+-		    (s->addr == _einittext && strcmp(s->sym + offset, "_einittext")) ||
+-		    (s->addr == _eextratext && strcmp(s->sym + offset, "_eextratext")))
++		if ((s->addr == _etext && strcmp((char*)s->sym + offset, "_etext")) ||
++		    (s->addr == _einittext && strcmp((char*)s->sym + offset, "_einittext")) ||
++		    (s->addr == _eextratext && strcmp((char*)s->sym + offset, "_eextratext")))
+ 			return 0;
+ 	}
+ 
 
-Such is life. The situation arises quite often where fixing a bug
-for one person breaks it for another. The lack of hardware to test on
-isn't the fault of the person making the change, nor the person requesting
-the change. The problem is that the person it breaks for doesn't test
-testing kernels, so the problem is only found out about when its too late.
 
-The agpgart driver for example supports around 50-60 different chipsets.
-I don't have a tenth of the hardware that it supports at my disposal,
-yet when I get patches fixing some problem for someone, or adding support
-for yet another variant, I'm not going to go out and find the variants
-I don't have.  By your metric I shouldn't apply that change.
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.12-jam9 (gcc 4.0.1 (4.0.1-0.2mdk for Mandriva Linux release 2006.0))
 
-That's not how things work.
-
- > What would be wrong in expecting the folks making the driver changes have some 
- > story on how they are validating there changes don't break existing working 
- > hardware?
-
-It's impractical given the plethora of hardware combinations out there.
-
- > I could probly be accomplished in open source with subsystem 
- > testing volenteers.
-
-People tend not to test things marked 'test kernels' or 'rc kernels'.
-They prefer to shout loudly when the final release happens, and
-blame it on 'the new kernel development model sucking'.
-
- > > The only way to cover as many combinations of hardware
- > > out there is by releasing test kernels. (Updates-testing
- > > repository for Fedora users, or -rc kernels in Linus' case).
- > > If users won't/don't test those 'test' releases, we're
- > > going to regress when the final release happens, there's
- > > no two ways about it.
- > 
- > You can't blame the users!  Don't fall into that trap.  Its not productive.
-
-You're missing my point. The bits are out there for people to
-test with.  We can't help people who won't help themselves,
-and they shouldn't be at all surprised to find things breaking
-if they choose to not take part in testing.
-
-		Dave
 

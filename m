@@ -1,98 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVGOGvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263227AbVGOHDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbVGOGvi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 02:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbVGOGvi
+	id S263227AbVGOHDF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 03:03:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbVGOHDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 02:51:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:9150 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261860AbVGOGvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 02:51:36 -0400
-Subject: Re: Buffer Over-runs, was Open source firewalls
-From: Arjan van de Ven <arjan@infradead.org>
-To: rvk@prodmail.net
-Cc: omb@bluewin.ch, linux-kernel@vger.kernel.org
-In-Reply-To: <42D75A93.5010904@prodmail.net>
-References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>
-	 <42D63AD0.6060609@aitel.hist.no> <42D63D4A.2050607@prodmail.net>
-	 <42D658A8.4040009@aitel.hist.no> <42D658A9.7050706@prodmail.net>
-	 <42D6ECED.7070504@khandalf.com>  <42D75A93.5010904@prodmail.net>
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 15 Jul 2005 08:51:00 +0200
-Message-Id: <1121410260.3179.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 15 Jul 2005 03:03:05 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:34787 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S263227AbVGOHDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 03:03:03 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Date: Fri, 15 Jul 2005 10:02:33 +0300
+User-Agent: KMail/1.5.4
+Cc: Jeff Garzik <jgarzik@pobox.com>, David Miller <davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507151002.33424.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-15 at 12:11 +0530, RVK wrote:
+Hi folks,
 
-> Even in the presence of non-executable stack, Linux Torvalds explains 
-> that "It's really easy. You do something like this: 1) overflow the 
-> buffer on the stack, so that the return value is overwritten by a 
-> pointer to the system() library function. 2) the next four bytes are 
-> crap (a "return pointer" for the system call, which you don't care 
-> about) 3) the next four bytes are a pointer to some random place in the 
-> shared library again that contains the string "/bin/sh" (and yes, just 
-> do a strings on the thing and you'll find it). Voila. You didn't have to 
-> write any code, the only thing you needed to know was where the library 
-> is loaded by default. And yes, it's library-specific, but hey, you just 
-> select one specific commonly used version to crash. Suddenly you have a 
-> root shell on the system. So it's not only doable, it's fairly trivial 
-> to do. In short, anybody who thinks that the non-executable stack gives 
-> them any real security is very very much living in a dream world. It may 
-> catch a few attacks for old binaries that have security problems, but 
-> the basic problem is that the binaries allow you to overwrite their 
-> stacks. And if they allow that, then they allow the above exploit. It 
-> probably takes all of five lines of changes to some existing exploit, 
-> and some random program to find out where in the address space the 
-> shared libraries tend to be loaded."
+I reported earlied that around linux-2.6.11-rc5 my home box sometimes
+does not want to send anything over ethetnet. That report is repeated below
+sig.
 
-except this is no longer true really ;)
+I finally managed to nail down where this happens.
+I instrumented sch_generic.c to trace what happens with packets
+to be sent over interface named "if".
 
-randomisation for example makes this a lot harder to do. 
-gcc level tricks to prevent buffer overflows are widely in use nowadays
-too (FORTIFY_SOURCE and -fstack-protector). The combination of this all
-makes it a LOT harder to actually exploit a buffer overflow on, say, a
-distribution like Fedora Core 4.
+On 'good' boot, I see
 
+2005-07-12_17:26:29.72158 kern.info: qdisc_restart: start
+2005-07-12_17:26:29.72164 kern.info: qdisc_restart: skb!=NULL
+2005-07-12_17:26:29.72166 kern.info: qdisc_restart: if !netif_queue_stopped...
+2005-07-12_17:26:29.72167 kern.info: qdisc_restart: ...hard_start_xmit
 
-> 
-> 
-> rvk
-> 
-> >but your system is not compromised.
-> >
-> >One final point, in practice, you get lots of unwanted packets
-> >off the internet, and in general you do not want them on your
-> >internal net, both for performance and security reasons, if you
-> >drop them on your router or firewall then you dont need to
-> >worry if the remote app is mal-ware.
-> >
-> >--
-> >mit freundlichen Grüßen, Brian.
-> >
-> >.
-> >
-> >  
-> >
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+in the log, on 'bad' one only "qdisc_restart: start".
+
+Below is first report and instrumented part of sch_generic.c.
+--
+vda
+
+============================================
+Subject: linux-2.6.11-rc5: mysterious loss of tx
+
+My home box has onboard via-rhine NIC.
+
+Several days ago my father called me and said that
+it does not send anything (tcpdump shows only rx'ed pkts
+despite pings being attempted etc). I did not investigate
+then.
+
+Yesterday I've seen it myself. I bumped up ethtool msglvl.
+Looks like via-rhine's hard_start_xmit was not called at all
+from network core code! (I did not see debug printks from
+rhine's hard_stat_xmit routine)
+
+Whatever I tried (ifconfig down/up, reinit IP config from scratch),
+nothing helped. No tx whatsoever was attempted by kernel, it seems.
+
+Reboot 'fixed' things.
+
+It hever happened on the same hardware before I switched to rc5.
+==============================================
+int qdisc_restart(struct net_device *dev)
+{
+	struct Qdisc *q = dev->qdisc;
+	struct sk_buff *skb;
+int track = (dev->name[0]=='i' && dev->name[1]=='f' && dev->name[2]=='\0');
+
+//'via rhine bug':
+//I see ONLY "qdisc_restart: start",
+//but not any of below msgs.
+//On 'good' boots, it looks like this:
+//...
+//2005-07-12_17:26:29.72158 kern.info: qdisc_restart: start
+//2005-07-12_17:26:29.72164 kern.info: qdisc_restart: skb!=NULL
+//2005-07-12_17:26:29.72166 kern.info: qdisc_restart: if !netif_queue_stopped...
+//2005-07-12_17:26:29.72167 kern.info: qdisc_restart: ...hard_start_xmit
+//...
+if(track) { printk("qdisc_restart: start\n"); }
+	/* Dequeue packet */
+	if ((skb = q->dequeue(q)) != NULL) {
+if(track) { printk("qdisc_restart: skb!=NULL\n"); }
+		unsigned nolock = (dev->features & NETIF_F_LLTX);
+		/*
+		 * When the driver has LLTX set it does its own locking
+		 * in start_xmit. No need to add additional overhead by
+		 * locking again. These checks are worth it because
+		 * even uncongested locks can be quite expensive.
+		 * The driver can do trylock like here too, in case
+		 * of lock congestion it should return -1 and the packet
+		 * will be requeued.
+		 */
+		if (!nolock) {
+			if (!spin_trylock(&dev->xmit_lock)) {
+			collision:
+if(track) { printk("qdisc_restart: collision\n"); }
+				/* So, someone grabbed the driver. */
+
+				/* It may be transient configuration error,
+				   when hard_start_xmit() recurses. We detect
+				   it by checking xmit owner and drop the
+				   packet when deadloop is detected.
+				*/
+				if (dev->xmit_lock_owner == smp_processor_id()) {
+					kfree_skb(skb);
+					if (net_ratelimit())
+						printk(KERN_DEBUG "Dead loop on netdevice %s, fix it urgently!\n", dev->name);
+					return -1;
+				}
+				__get_cpu_var(netdev_rx_stat).cpu_collision++;
+				goto requeue;
+			}
+			/* Remember that the driver is grabbed by us. */
+			dev->xmit_lock_owner = smp_processor_id();
+		}
+
+		{
+			/* And release queue */
+			spin_unlock(&dev->queue_lock);
+
+//vda
+if(track) { printk("qdisc_restart: if !netif_queue_stopped...\n"); }
+			if (!netif_queue_stopped(dev)) {
+				int ret;
+				if (netdev_nit)
+					dev_queue_xmit_nit(skb, dev);
+if(track) { printk("qdisc_restart: ...hard_start_xmit\n"); }
+				ret = dev->hard_start_xmit(skb, dev);
+				if (ret == NETDEV_TX_OK) {
+					if (!nolock) {
+						dev->xmit_lock_owner = -1;
+						spin_unlock(&dev->xmit_lock);
+					}
+					spin_lock(&dev->queue_lock);
+					return -1;
+				}
+				if (ret == NETDEV_TX_LOCKED && nolock) {
+					spin_lock(&dev->queue_lock);
+					goto collision; 
+				}
+			}
+
+			/* NETDEV_TX_BUSY - we need to requeue */
+			/* Release the driver */
+			if (!nolock) { 
+				dev->xmit_lock_owner = -1;
+				spin_unlock(&dev->xmit_lock);
+			}
+			spin_lock(&dev->queue_lock);
+			q = dev->qdisc;
+		}
+
+		/* Device kicked us out :(
+		   This is possible in three cases:
+
+		   0. driver is locked
+		   1. fastroute is enabled
+		   2. device cannot determine busy state
+		      before start of transmission (f.e. dialout)
+		   3. device is buggy (ppp)
+		 */
+
+requeue:
+		q->ops->requeue(skb, q);
+		netif_schedule(dev);
+		return 1;
+	}
+	BUG_ON((int) q->q.qlen < 0);
+	return q->q.qlen;
+}
 

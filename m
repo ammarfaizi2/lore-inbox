@@ -1,79 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262925AbVGOA1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262877AbVGOA24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbVGOA1k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 20:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbVGOA1k
+	id S262877AbVGOA24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 20:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbVGOA24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 20:27:40 -0400
-Received: from main.gmane.org ([80.91.229.2]:22471 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262925AbVGOA1i (ORCPT
+	Thu, 14 Jul 2005 20:28:56 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:20045 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262877AbVGOA2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 20:27:38 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joe Seigh <jseigh_02@xemaps.com>
-Subject: Re: rcu-refcount stacker performance
-Date: Thu, 14 Jul 2005 20:29:57 -0400
-Message-ID: <db6vsm$fpm$1@sea.gmane.org>
-References: <20050714142107.GA20984@serge.austin.ibm.com> <20050714152321.GB1299@us.ibm.com> <20050714134450.GB7296@sergelap.austin.ibm.com> <20050714165936.GE1299@us.ibm.com> <20050714171357.GA23309@serge.austin.ibm.com>
-Mime-Version: 1.0
+	Thu, 14 Jul 2005 20:28:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=MgzH3RsPeAFHPYGuuunXE8FtHcGVpF2h9Hq/AG/a9E0SyIhOaDEWY+o9/0PbiiVB5FI8c/WzNThIqQ3CVtfZ1kl1ylHnnnBiOMHegvPl6BjqE7d0RXHuGT/pl72iDapxjtOUvu9V9Wo8HNQgs9E1anGNHAC+OxMIJDye4RH6oCs=
+Message-ID: <42D70318.1000304@gmail.com>
+Date: Fri, 15 Jul 2005 09:28:08 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel McNeil <daniel@osdl.org>
+CC: "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc patch 2/2] direct-io: remove address alignment check
+References: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net>
+In-Reply-To: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-In-Reply-To: <20050714171357.GA23309@serge.austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-serue@us.ibm.com wrote:
-> Quoting Paul E. McKenney (paulmck@us.ibm.com):
->>OK, but in the above case, "do something" cannot be sleeping, since
->>it is under rcu_read_lock().
+Daniel McNeil wrote:
+> This patch relaxes the direct i/o alignment check so that user addresses
+> do not have to be a multiple of the device block size.
 > 
+> I've done some preliminary testing and it mostly works on an ext3
+> file system on a ide disk.  I have seen trouble when the user address
+> is on an odd byte boundary.  Sometimes the data is read back incorrectly
+> on read and sometimes I get these kernel error messages:
+> 	hda: dma_timer_expiry: dma status == 0x60
+> 	hda: DMA timeout retry
+> 	hda: timeout waiting for DMA
+> 	hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> 	ide: failed opcode was: unknown
+> 	hda: drive not ready for command
 > 
-> Oh, but that's not quite what the code is doing, rather it is doing:
+> Doing direct-io with user addresses on even, non-512 boundaries appears
+> to be working correctly.
 > 
-> 	rcu_read_lock
-> 	while get next element from list
-> 		inc element.refcount
-> 		rcu_read_unlock
-> 		do something
-> 		rcu_read_lock
-> 		dec refcount
-> 	rcu_read_unlock
+> Any additional testing and/or comments welcome.
 > 
 
-I've been experimenting with various lock-free methods in user space, which
-is preemptive.   Stuff like RCU, RCU+SMR which I've mentioned before,
-and some atomically thread-safe reference counting.  I have a proxy
-GC based on the latter called APPC (atomic pointer proxy collector).
-Basically you use a proxy refcounted object for the whole list
-rather than every element in the list.  Before you access the list,
-you increment the refcount of the proxy object, and afterwards you
-decrement it.  One interlocked instruction for each so performance
-wise it looks like a reader lock which never blocks.
+  Hi, Daniel.
 
-Writers enqueue deleted nodes on the collector object and then
-push a new collector object in place.
+  I don't think the change is a good idea.  We may be able to relax 
+alignment contraints on some hardware to certain levels, but IMHO it 
+will be very difficult to verify.  All internal block IO code follows 
+strict block boundary alignment.  And as raw IOs (especially unaligned 
+ones) aren't very common operations, they won't get tested much.  Then 
+when some rare (probably not an open source one) application uses it on 
+some rare buggy hardware, it may cause *very* strange things.
 
-The collector objects look like
+  Also, I don't think it will improve application programmer's 
+convenience.  As each hardware employs different DMA alignemnt, we need 
+to implement a way to export the alignment to user space and enforce it. 
+   So, in the end, user application must do aligned allocation 
+accordingly.  Just following block boundary will be easier.
 
+  I don't know why you wanna relax the alignment requirement, but 
+wouldn't it be easier to just write/use block-aligned allocator for such 
+buffers?  It will even make the program more portable.
 
-    proxy_anchor -> c_obj <- c_obj <- c_obj
-                                       ^
-                                       | reader
-
-The previous collector objects are back linked so when a reader
-thread releases it, all unreference collector objects have
-deallocation performed on them and attached nodes.
-
-A bit sketchy.  You can see a working example of this using
-C++ refcounted pointers (which can't be used in the kernel
-naturally, you'll have to implement your own) at
-http://atomic-ptr-plus.sourceforge.net/
-
---
-Joe Seigh
-
+-- 
+tejun

@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263150AbVGOCUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbVGOCSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263150AbVGOCUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 22:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbVGOCSf
+	id S263159AbVGOCSW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 22:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbVGOCPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 22:18:35 -0400
-Received: from mail.kroah.org ([69.55.234.183]:29671 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263183AbVGOCQK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 22:16:10 -0400
-Date: Thu, 14 Jul 2005 19:15:59 -0700
-From: Greg KH <greg@kroah.com>
-To: Adam Belay <abelay@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] PCI bus class driver rewrite for 2.6.13-rc2 [0/9]
-Message-ID: <20050715021558.GA7740@kroah.com>
-References: <1121331296.3398.88.camel@localhost.localdomain>
+	Thu, 14 Jul 2005 22:15:45 -0400
+Received: from natfrord.rzone.de ([81.169.145.161]:6819 "EHLO
+	natfrord.rzone.de") by vger.kernel.org with ESMTP id S263117AbVGOCPd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 22:15:33 -0400
+Subject: Re: sata_sil 3112 activity LED patch
+From: Christian Kroll <christian.kroll@bglug.org>
+To: linux-kernel@vger.kernel.org
+Cc: acyr@alumni.uwaterloo.ca
+Content-Type: text/plain
+Date: Fri, 15 Jul 2005 04:15:12 +0200
+Message-Id: <1121393712.4770.6.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121331296.3398.88.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 14, 2005 at 04:54:56AM -0400, Adam Belay wrote:
-> Hi all,
-> 
-> I'm in the process of overhauling some aspects of the PCI subsystem.
-> This patch series is a rewrite of the PCI probing and detection code.
-> It creates a well defined PCI bus class API and allows a standard PCI
-> driver to bind to PCI bridge devices.  This results in the following:
-> 
-> * cleaner code
-> * improved driver core support
-> * the option of adding new PCI bridge drivers
-> * better power management
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This looks great, thanks for doing this.
+Hello,
 
-> For these changes to be fully effective, the following code (some of
-> which was broken by these changes) will need to be fixed:
+I have tested the patch against my DawiControl DC-150 RAID controller
+which is basically an add-on card with a SiI 3112 ASIC and a flash ROM.
+The activity LED of my case is directly connected to the add-on card.
 
-<snip>
+Unfortunately your patch doesn't have any effect on the LED. The
+activity LED gets turned on by the card's BIOS at boot time and
+continues to shine until I shut down the computer.
+On the other hand it did not erase my Flash ROM and I haven't spotted
+any data loss so far.
 
-Good luck with all of this, it's a lot :)
+The LED does work as expected under that other OS as soon as Silicon
+Image's reference driver is loaded, hence it is connected correctly.
 
-thanks,
+Test setup:
+I'm using DawiControl's version of the BIOS and not the reference BIOS
+of Silicon Image. The test system is a Tualatin Celeron 1400 with an
+i440BX based mainboard. The following hard disk is connected to the
+controller: Seagate ST3160827AS (native SATA interface). The sata_sil
+driver is loaded as a module.
+Test kernel is vanilla 2.6.12.2. No tainted modules were used
+while doing these tests.
 
-greg k-h
+If you require more information, don't hesitate to contact me.
+
+Regards
+Christian Kroll
+
+- --
+Christian Kroll <christian dot kroll at bglug dot org>
+GnuPG Fingerprint: DA5D 5BFA 5C95 FD09 2A72  517E 10CB DCD5 71ED 7E35
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC1xsQEMvc1XHtfjURAqKQAJ0fp5EtdymeUsiklcqYsCR9Q7VyngCeIfKV
+Sb/wTjlvfk6MPMk/KEBkBPY=
+=g7Vc
+-----END PGP SIGNATURE-----
+
+

@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVGOQNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVGOQRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbVGOQNG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 12:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVGOQNG
+	id S261960AbVGOQRG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 12:17:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263331AbVGOQRG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 12:13:06 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:23753 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261957AbVGOQND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 12:13:03 -0400
-Subject: Re: [OT] high precision hardware (was Re: [PATCH] i386: Selectable
-	Frequency of the Timer Interrupt)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Paul Jakma <paul@clubi.ie>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
-       vojtech@suse.cz, david.lang@digitalinsight.com, davidsen@tmr.com,
-       kernel@kolivas.org, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
-       diegocg@gmail.com, azarah@nosferatu.za.org
-In-Reply-To: <Pine.LNX.4.62.0507150855220.1986@graphe.net>
-References: <1121282025.4435.70.camel@mindpipe>
-	 <d120d50005071312322b5d4bff@mail.gmail.com>
-	 <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org>
-	 <20050714005106.GA16085@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org>
-	 <1121304825.4435.126.camel@mindpipe>
-	 <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
-	 <20050714083843.GA4851@elte.hu> <1121352941.4535.15.camel@mindpipe>
-	 <Pine.LNX.4.62.0507140757200.31521@graphe.net>
-	 <Pine.LNX.4.63.0507151227240.31084@sheen.jakma.org>
-	 <Pine.LNX.4.62.0507150855220.1986@graphe.net>
+	Fri, 15 Jul 2005 12:17:06 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:26619 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261960AbVGOQRF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 12:17:05 -0400
+Subject: Re: RT and XFS
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dave Chinner <dgc@sgi.com>, Nathan Scott <nathans@sgi.com>,
+       Steve Lord <lord@xfs.org>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com, Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <20050715102311.GA5302@elte.hu>
+References: <1121209293.26644.8.camel@dhcp153.mvista.com>
+	 <20050713002556.GA980@frodo> <20050713064739.GD12661@elte.hu>
+	 <1121273158.13259.9.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <20050714002246.GA937@frodo> <20050714135023.E241419@melbourne.sgi.com>
+	 <1121314226.14816.18.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <20050715102311.GA5302@elte.hu>
 Content-Type: text/plain
-Date: Fri, 15 Jul 2005 12:13:08 -0400
-Message-Id: <1121443988.12420.13.camel@mindpipe>
+Date: Fri, 15 Jul 2005 09:16:55 -0700
+Message-Id: <1121444215.19554.18.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-15 at 08:57 -0700, Christoph Lameter wrote:
-> Try HPET which is pretty standard these days.
+On Fri, 2005-07-15 at 12:23 +0200, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
 > 
+> > PI is always good, cause it allows the tracking of what is high 
+> > priority , and what is not .
+> 
+> that's just plain wrong. PI might be good if one cares about priorities 
+> and worst-case latencies, but most of the time the kernel is plain good 
+> enough and we dont care. PI can also be pretty expensive. So in no way, 
+> shape or form can PI be "always good".
 
-Really?  None of my machines have it.  I suspect lots of "embeddable"
-systems don't either.
+I don't agree with that. But of course I'm always speaking from a real
+time perspective . PI is expensive , but it won't always be. However, no
+one is forcing PI on anyone, even if I think it's good ..
 
-Lee
+Daniel
 

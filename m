@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVGOVx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVGOVzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbVGOVx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 17:53:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVGOVx0
+	id S262082AbVGOVzu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 17:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVGOVzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 17:53:26 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:43145 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262027AbVGOVw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 17:52:29 -0400
-From: Mark Gross <mgross@linux.intel.com>
-Organization: Intel
-To: Dave Airlie <airlied@gmail.com>, Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: Why is 2.6.12.2 less stable on my laptop than 2.6.10?
-Date: Fri, 15 Jul 2005 14:39:22 -0700
-User-Agent: KMail/1.5.4
-Cc: Chris Friesen <cfriesen@nortel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-References: <200507140912.22532.mgross@linux.intel.com.suse.lists.linux.kernel> <9a8748490507141906fb7e5b@mail.gmail.com> <21d7e997050714191666656d5@mail.gmail.com>
-In-Reply-To: <21d7e997050714191666656d5@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Jul 2005 17:55:50 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64264 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262082AbVGOVyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 17:54:21 -0400
+Date: Fri, 15 Jul 2005 22:54:17 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: karl malbrain <karl@petzent.com>
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 chrdev_open: serial_core: uart_open
+Message-ID: <20050715225417.E23709@flint.arm.linux.org.uk>
+Mail-Followup-To: karl malbrain <karl@petzent.com>,
+	"Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <20050715215845.D23709@flint.arm.linux.org.uk> <NDBBKFNEMLJBNHKPPFILGEAMCEAA.karl@petzent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507151439.22594.mgross@linux.intel.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <NDBBKFNEMLJBNHKPPFILGEAMCEAA.karl@petzent.com>; from karl@petzent.com on Fri, Jul 15, 2005 at 02:17:01PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 July 2005 19:16, Dave Airlie wrote:
-> > That, of course, you cannot do. But, you can regression test a lot of
-> > other things, and having a default test suite that is constantly being
-> > added to and always being run before releases (that test hardware
-> > agnostic stuff) could help cut down on the number of regressions in
-> > new releases.
-> > You can't test everything this way, nor should you, but you can test
-> > many things, and adding a bit of formal testing to the release
-> > procedure wouldn't be a bad thing IMO.
->
-> But if you read peoples complaints about regression they are nearly
-> always to do with hardware that used to work not working any more ..
-> alps touchpads, sound cards, software suspend.. so these people still
-> gain nothing by you regression testing anything so you still get as
-> many reports.. the -rc series is meant to provide the testing for the
-> release so nothing really big gets through (like can't boot from IDE
-> anymore or something like that)....
->
+On Fri, Jul 15, 2005 at 02:17:01PM -0700, karl malbrain wrote:
+> > -----Original Message-----
+> > From: Russell King
+> > Sent: Friday, July 15, 2005 1:59 PM
+> > To: karl malbrain
+> > Cc: Linux-Kernel@Vger. Kernel. Org
+> > Subject: Re: 2.6.9 chrdev_open: serial_core: uart_open
+> >
+> >
+> > On Fri, Jul 15, 2005 at 01:52:15PM -0700, karl malbrain wrote:
+> > > On my 2.6.9-11EL source it clearly shows the up(&tty_sem) after
+> > the call to
+> > > uart_open. Init_dev never touches tty_sem.
+> >
+> > In which case, I have to say...
+> >
+> > Congratulations!  You've found a bug with Red Hat's Enterprise Linux
+> > kernel!  Go straight to Red Hat's bugzilla!  Do not collect 200$.  Do
+> > not pass go.
+> >
+> > Seriously though, this bug is not present in mainline kernels, so I
+> > can't resolve this issue for you.  Mainline kernels appear to work
+> > properly.
+> 
+> Could tty_io.c be all that changed by a small set of red-hat patches to
+> 2.6.9?  Why would they need to go in there to make so many changes in the
+> first place?  Which 2.6 release changed tty_io.c's use of tty_sem so
+> heavily?
 
-I've seen large labs of lots of different systems used for dedicated testing 
-of products I've worked on in the past.  The validation folks held the keys 
-to the build and if a change got in that broke on an important OEM's 
-hardware, then everything stops until that change is either fixed or backed 
-out.
+These are questions to ask of Red Hat, and can only be answered by
+their representatives.
 
-It aint cheap.  In open source we are attempting to simulate this, but we 
-don't simulate the control of the validation leads.
-
-> Dave.
+Thanks anyway, and I'm sorry that this hasn't been resolved given
+the amount of time put into it by both of us.
 
 -- 
---mgross
-BTW: This may or may not be the opinion of my employer, more likely not.  
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

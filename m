@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263284AbVGOKeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVGOL1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263284AbVGOKeU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 06:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbVGOKcE
+	id S261884AbVGOL1R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 07:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVGOLYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 06:32:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9362 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263271AbVGOKaC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 06:30:02 -0400
-Date: Fri, 15 Jul 2005 18:34:52 +0800
-From: David Teigland <teigland@redhat.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 02/12] dlm: resend lookups
-Message-ID: <20050715103452.GE17316@redhat.com>
+	Fri, 15 Jul 2005 07:24:15 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:1156 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261887AbVGOLXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 07:23:07 -0400
+Date: Fri, 15 Jul 2005 13:22:55 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jan Blunck <j.blunck@tu-harburg.de>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] generic_file_sendpage
+Message-ID: <20050715112255.GC2721@wohnheim.fh-wedel.de>
+References: <42D79468.3050808@tu-harburg.de> <20050715040611.05907f4a.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="resend-lookups.patch"
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050715040611.05907f4a.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During recovery, set the RESEND flag on locks waiting for a lookup so
-they'll be resent when recovery completes.
+On Fri, 15 July 2005 04:06:11 -0700, Andrew Morton wrote:
+> > +
+> > +	/* There is no sane reason to use O_DIRECT */
+> > +	BUG_ON(file->f_flags & O_DIRECT);
+> 
+> err, this seems like an easy way for people to make the kernel go BUG.
 
-Signed-off-by: David Teigland <teigland@redhat.com>
+Is there a sane use for O_DIRECT in combination with sendfile()?
 
-Index: linux-2.6.12-mm1/drivers/dlm/lock.c
-===================================================================
---- linux-2.6.12-mm1.orig/drivers/dlm/lock.c
-+++ linux-2.6.12-mm1/drivers/dlm/lock.c
-@@ -3212,12 +3212,20 @@ void dlm_recover_waiters_pre(struct dlm_
- 	down(&ls->ls_waiters_sem);
- 
- 	list_for_each_entry_safe(lkb, safe, &ls->ls_waiters, lkb_wait_reply) {
--		if (!dlm_is_removed(ls, lkb->lkb_nodeid))
--			continue;
--
- 		log_debug(ls, "pre recover waiter lkid %x type %d flags %x",
- 			  lkb->lkb_id, lkb->lkb_wait_type, lkb->lkb_flags);
- 
-+		/* all outstanding lookups, regardless of destination  will be
-+		   resent after recovery is done */
-+
-+		if (lkb->lkb_wait_type == DLM_MSG_LOOKUP) {
-+			lkb->lkb_flags |= DLM_IFL_RESEND;
-+			continue;
-+		}
-+
-+		if (!dlm_is_removed(ls, lkb->lkb_nodeid))
-+			continue;
-+
- 		switch (lkb->lkb_wait_type) {
- 
- 		case DLM_MSG_REQUEST:
-@@ -3244,11 +3252,6 @@ void dlm_recover_waiters_pre(struct dlm_
- 			put_lkb(lkb);
- 			break;
- 
--		case DLM_MSG_LOOKUP:
--			/* all outstanding lookups, regardless of dest.
--			   will be resent after recovery is done */
--			break;
--
- 		default:
- 			log_error(ls, "invalid lkb wait_type %d",
- 				  lkb->lkb_wait_type);
+If not, I'd like to change sys_sendfile() and return -EINVAL for
+O_DIRECT file descriptors.
 
---
+> > +	if (unlikely(signal_pending(current)))
+> > +		return -EINTR;
+> 
+> This doesn't help.  The reason we've avoided file-to-file sendfile() is
+> that it can cause applications to get uninterruptibly stuck in the kernel
+> for ages.  This code doesn't solve that problem.  It needs to handle
+> signal_pending() inside the main loop.
+> 
+> And it probably needs to return a sane value (number of bytes copied)
+> rather than -EINTR.
+
+Makes sense.
+
+> I don't know if we want to add this feature, really.  It's such a
+> specialised thing.
+
+With union mount and cowlink, there are two users already.  cp(1)
+could use it as well, even if the improvement is quite minimal.
+
+Jörn
+
+-- 
+All art is but imitation of nature.
+-- Lucius Annaeus Seneca

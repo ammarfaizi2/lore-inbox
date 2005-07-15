@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVGOTYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbVGOT0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVGOTYV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 15:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbVGOTYV
+	id S262003AbVGOT0p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 15:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVGOTY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 15:24:21 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:44029 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261179AbVGOTYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 15:24:10 -0400
-Date: Fri, 15 Jul 2005 14:24:05 -0500
-From: Lee <linuxtwidler@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Bug Report
-Message-ID: <20050715142405.0117dc21@localhost>
-In-Reply-To: <1121455191.12420.40.camel@mindpipe>
-References: <20050715140411.28a30e55@localhost>
-	<1121455191.12420.40.camel@mindpipe>
-Reply-To: linuxtwidler@gmail.com
-X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Jul 2005 15:24:28 -0400
+Received: from bay108-dav7.bay108.hotmail.com ([65.54.162.79]:10260 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261678AbVGOTWf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 15:22:35 -0400
+Message-ID: <BAY108-DAV714C888634D31F28B5A5D93D00@phx.gbl>
+X-Originating-IP: [65.54.162.200]
+X-Originating-Email: [multisyncfe991@hotmail.com]
+Reply-To: <multisyncfe991@hotmail.com>
+From: <multisyncfe991@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+References: <BAY108-DAV14071EF16A4482FB4B691593D10@phx.gbl> <20050714051653.GP8907@alpha.home.local> <BAY108-DAV7F3CC1BA8D84C5323469193D10@phx.gbl>
+Subject: Volatile vs Non-Volatile Spin Locks on SMP.
+Date: Fri, 15 Jul 2005 12:22:31 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-OriginalArrivalTime: 15 Jul 2005 19:22:33.0033 (UTC) FILETIME=[8CBBEB90:01C58972]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-> > [20975.978911] PREEMPT SMP DEBUG_PAGEALLOC
-> > [20976.029194] Modules linked in: vmnet vmmon nvidia
-> > [20976.090907] CPU:    695757158
-> > [20976.090909] EIP:    0060:[<c0119ed8>]    Tainted: P      VLI
->
-> Please reproduce the bug without these proprietary modules loaded.  And
-> make sure to include the stack trace.
+By using volatile keyword for spin lock defined by in spinlock_t, it seems 
+Linux choose to always
+reload the value of spin locks from cache instead of using the content from 
+registers. This may be
+helpful for synchronization between multithreads in a single CPU.
 
-My current setup has the kernel and metalog logging to the serial port, which I am monitoring using kermit rom another machine.
+I use two Xeon cpus with HyperThreading being disabled on both cpus. I think 
+the MESI
+protocol will enforce the cache coherency and update the spin lock value 
+automatically between
+these two cpus. So maybe we don't need to use the volatile any more, right?
 
-Would you mind explaining to me how to generate the strace track and/or how to do "proper" debugging when this crash occurs?
+Based on this, I rebuilt the Intel e1000 Gigabit network card driver with 
+volatile being removed,
+but I didn't notice any performance improvement.
 
-ATM, the machine writes the report to the serial console, and completely freezes.  I imagine that gdb would be involved here, but Im not sure how to go about setting that up.
+Any idea about this,
+
+Thanks a lot,
+
+Liang
 
 
 
--- 
-Lee
-linuxtwidler@gmail.com
-
- 14:21:30 up  5:40,  0 users,  load average: 0.29, 0.20, 0.10

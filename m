@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVGOMPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVGOM04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbVGOMPX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 08:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVGOMPW
+	id S261194AbVGOM04 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 08:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVGOM04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 08:15:22 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:26050 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261888AbVGOMPU (ORCPT
+	Fri, 15 Jul 2005 08:26:56 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:57731 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S261194AbVGOM0z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 08:15:20 -0400
-Date: Fri, 15 Jul 2005 14:15:16 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       David Woodhouse <dwmw2@redhat.com>, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Inotify patch missed arch/x86_64/ia32/sys_ia32.c
-Message-ID: <20050715141516.6c107c34@basil.nowhere.org>
-In-Reply-To: <1121426860.1909.52.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <1121426860.1909.52.camel@sisko.sctweedie.blueyonder.co.uk>
-X-Mailer: Sylpheed-Claws 1.0.3 (GTK+ 1.2.10; x86_64-suse-linux)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Jul 2005 08:26:55 -0400
+Message-ID: <42D7AB91.7040508@drzeus.cx>
+Date: Fri, 15 Jul 2005 14:26:57 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] MMC host class
+References: <42D538D4.7050803@drzeus.cx> <20050715093114.B25428@flint.arm.linux.org.uk>
+In-Reply-To: <20050715093114.B25428@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Jul 2005 12:27:40 +0100
-"Stephen C. Tweedie" <sct@redhat.com> wrote:
+Russell King wrote:
 
-> Hi,
-> 
-> The inotify patch just added a line
-> 
-> +				fsnotify_open(f->f_dentry);
-> 
-> to sys_open, but it missed the x86_64 compatibility sys32_open()
-> equivalent in arch/x86_64/ia32/sys_ia32.c.
+>No no no no no.  Repeat after me ten times.  Empty or non-existant release
+>functions are bad and cause oopsen.  I will not create code which does
+>this.
+>  
+>
 
-... and probably missing in the other compat layers too.
- 
-> Andi, perhaps it's time to factor out the guts of sys_open from the flag
-> munging to keep as much of that code as common as possible, and avoid
-> this sort of maintenance problem in the future?
+Sorry. I thought it was a generic cleanup function and since nothing was
+allocated in the register function I didn't think it needed to do
+anything. I tried to find some documentation about how classes were
+handled but eventually had to resort to looking at other code. Perhaps I
+should look at the documentation about kernel objects instead?
 
-No problem from my side if someone does a patch, but on the other hand if 
-sys_open needs changes then likely all filp_open callers need too, and one would
-better hope the patcher knows how to operate "grep -r" then. So it might
-not buy much.
+>What this means is that mmc_host itself becomes a refcounted sysfs
+>object which needs to follow the lifetime rules associated therewith.
+>
+>Luckily, I thought about this earlier on, so there's a core mmc function
+>to allocate the beast, register it, unregister it, and finally free it.
+>
+>The allocation function should initialise class_dev as much as possible.
+>  
+>
 
--Andi
+The name field cannot be initialised since it isn't generated until
+registration. And I avoided filling in the other stuff at allocation so
+that I could keep knowledge of mmc_host_class in mmc_sysfs.c.
+
+>The registration function should add the class device with the class
+>model.  The unregistration should remove the class device from the class
+>model, but _not_ free it.  The free function should drop the last
+>reference to the class device, which results in the remove function
+>(eventually) being called.  Finally, the remove function can free the
+>mmc_host.
+>  
+>
+
+With the remove function you mean the .release in the class struct?
+
+>Also note that since we have a class_dev, the mmc_host 'dev' field can
+>be removed.  However, we'll probably have to update the host drivers
+>to do this, so it should be a separate patch.
+>
+>  
+>
+
+I'll read up on kernel objects and sysfs and put together a new patch then.
+
+Rgds
+Pierre
+

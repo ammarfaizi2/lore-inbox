@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263313AbVGOPAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVGOPG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263313AbVGOPAh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 11:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbVGOPAh
+	id S261428AbVGOPG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 11:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbVGOPG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 11:00:37 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:38113 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263313AbVGOPAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 11:00:35 -0400
-Date: Fri, 15 Jul 2005 16:00:34 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm1
-Message-ID: <20050715150034.GA6192@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050715013653.36006990.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050715013653.36006990.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 15 Jul 2005 11:06:28 -0400
+Received: from [212.76.86.54] ([212.76.86.54]:51204 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S261428AbVGOPG1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 11:06:27 -0400
+Message-Id: <200507151505.SAA00652@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: "'Chen, Kenneth W'" <kenneth.w.chen@intel.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [announce] linux kernel performance project launch at sourceforge.net
+Date: Fri, 15 Jul 2005 18:05:33 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <200507142021.j6EKLPg04710@unix-os.sc.intel.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Thread-Index: AcWIsZvEsks0gLpjRFuu0RnyvLbzGgAeKOsQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 15, 2005 at 01:36:53AM -0700, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
-> 
-> (http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-rc3-mm1.gz until
-> kernel.org syncs up)
-> 
-> 
-> - Added the CKRM patches.  This is just here for people to look at at this
->   stage.
+Ken Chen <kenneth.w.chen@intel.com> wrote: {
+...Linux kernel needs a systematic and disciplined way to measure and track
+kernel performance on a regular basis.
+}
 
-Andrew, do we really need to add every piece of crap lying on the street
-to -mm?  It's far away from mainline enough already without adding obviously
-unmergeable stuff like this.
+Nice, but the numbers would have more meaning if they were put in relation
+to System Load ( CPU,MEM,DISK,NET,... )
+
+Also, a test that saturates resources would easily expose deeper Kernel
+problems.
+
+Thanks,
+		Al
 

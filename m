@@ -1,150 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263181AbVGOC6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263183AbVGODAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263181AbVGOC6z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 22:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbVGOC6z
+	id S263183AbVGODAH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 23:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbVGODAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 22:58:55 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:24567 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S263181AbVGOC6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 22:58:54 -0400
-Date: Thu, 14 Jul 2005 21:58:46 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
-Subject: [PATCH] I2C-MPC: Restore code removed
-Message-ID: <Pine.LNX.4.61.0507142157350.14920@nylon.am.freescale.net>
+	Thu, 14 Jul 2005 23:00:06 -0400
+Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:10306 "EHLO
+	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
+	id S263183AbVGOC7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 22:59:50 -0400
+Message-ID: <42D72705.8010306@tu-harburg.de>
+Date: Fri, 15 Jul 2005 05:01:25 +0200
+From: Jan Blunck <j.blunck@tu-harburg.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ramfs: pretend dirent sizes
+Content-Type: multipart/mixed;
+ boundary="------------060900010802040200080103"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
+This is a multi-part message in MIME format.
+--------------060900010802040200080103
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-If we can get this to Linus before 2.6.13 is released that would be a good 
-thing.
+This patch adds bogo dirent sizes for ramfs like already available for 
+tmpfs.
 
-I2C-MPC: Restore code removed
+Although i_size of directories isn't covered by the POSIX standard it is 
+a bad idea to always set it to zero. Therefore pretend a bogo dirent 
+size for directory i_sizes.
 
-A previous patch to remove support for the OCP device model was way
-to generious and moved some of the platform device model code, oops.
+Jan
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
----
-commit 0a224850142b1169b5a67735e51268057d24b833
-tree fd8ba3598b6ba6585e2dd90c2d53138d7e6c7d17
-parent 1eccf76f7b943d1e4b722c7f0847876127cad8b7
-author Kumar K. Gala <kumar.gala@freescale.com> Thu, 14 Jul 2005 21:41:36 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Thu, 14 Jul 2005 21:41:36 -0500
+--------------060900010802040200080103
+Content-Type: text/x-patch;
+ name="ramfs_bogo_dirent_size.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ramfs_bogo_dirent_size.diff"
 
- drivers/i2c/busses/i2c-mpc.c |   94 ++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 94 insertions(+), 0 deletions(-)
+Signed-off-by: Jan Blunck <j.blunck@tu-harburg.de>
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -288,6 +288,100 @@ static struct i2c_adapter mpc_ops = {
- 	.retries = 1
+ fs/ramfs/inode.c |   51 +++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 files changed, 47 insertions(+), 4 deletions(-)
+
+Index: linux-2.6/fs/ramfs/inode.c
+===================================================================
+--- linux-2.6.orig/fs/ramfs/inode.c
++++ linux-2.6/fs/ramfs/inode.c
+@@ -38,6 +38,9 @@
+ /* some random number */
+ #define RAMFS_MAGIC	0x858458f6
+ 
++/* Pretend that each entry is of this size in directory's i_size */
++#define BOGO_DIRENT_SIZE 20
++
+ static struct super_operations ramfs_ops;
+ static struct address_space_operations ramfs_aops;
+ static struct inode_operations ramfs_file_inode_operations;
+@@ -77,6 +80,7 @@ struct inode *ramfs_get_inode(struct sup
+ 
+ 			/* directory inodes start off with i_nlink == 2 (for "." entry) */
+ 			inode->i_nlink++;
++			inode->i_size = 2 * BOGO_DIRENT_SIZE;
+ 			break;
+ 		case S_IFLNK:
+ 			inode->i_op = &page_symlink_inode_operations;
+@@ -97,6 +101,7 @@ ramfs_mknod(struct inode *dir, struct de
+ 	int error = -ENOSPC;
+ 
+ 	if (inode) {
++		dir->i_size += BOGO_DIRENT_SIZE;
+ 		if (dir->i_mode & S_ISGID) {
+ 			inode->i_gid = dir->i_gid;
+ 			if (S_ISDIR(mode))
+@@ -132,6 +137,7 @@ static int ramfs_symlink(struct inode * 
+ 		int l = strlen(symname)+1;
+ 		error = page_symlink(inode, symname, l);
+ 		if (!error) {
++			dir->i_size += BOGO_DIRENT_SIZE;
+ 			if (dir->i_mode & S_ISGID)
+ 				inode->i_gid = dir->i_gid;
+ 			d_instantiate(dentry, inode);
+@@ -142,6 +148,43 @@ static int ramfs_symlink(struct inode * 
+ 	return error;
+ }
+ 
++static int ramfs_link(struct dentry *old_dentry, struct inode *dir, struct dentry *dentry)
++{
++	dir->i_size += BOGO_DIRENT_SIZE;
++	return simple_link(old_dentry, dir, dentry);
++}
++
++static int ramfs_unlink(struct inode *dir, struct dentry *dentry)
++{
++	dir->i_size -= BOGO_DIRENT_SIZE;
++	return simple_unlink(dir, dentry);
++}
++
++static int ramfs_rmdir(struct inode *dir, struct dentry *dentry)
++{
++	int ret;
++
++	ret = simple_rmdir(dir, dentry);
++	if (ret != -ENOTEMPTY)
++		dir->i_size -= BOGO_DIRENT_SIZE;
++
++	return ret;
++}
++
++static int ramfs_rename(struct inode *old_dir, struct dentry *old_dentry,
++			struct inode *new_dir, struct dentry *new_dentry)
++{
++	int ret;
++
++	ret = simple_rename(old_dir, old_dentry, new_dir, new_dentry);
++	if (ret != -ENOTEMPTY) {
++		old_dir->i_size -= BOGO_DIRENT_SIZE;
++		new_dir->i_size += BOGO_DIRENT_SIZE;
++	}
++
++	return ret;
++}
++
+ static struct address_space_operations ramfs_aops = {
+ 	.readpage	= simple_readpage,
+ 	.prepare_write	= simple_prepare_write,
+@@ -164,13 +207,13 @@ static struct inode_operations ramfs_fil
+ static struct inode_operations ramfs_dir_inode_operations = {
+ 	.create		= ramfs_create,
+ 	.lookup		= simple_lookup,
+-	.link		= simple_link,
+-	.unlink		= simple_unlink,
++	.link		= ramfs_link,
++	.unlink		= ramfs_unlink,
+ 	.symlink	= ramfs_symlink,
+ 	.mkdir		= ramfs_mkdir,
+-	.rmdir		= simple_rmdir,
++	.rmdir		= ramfs_rmdir,
+ 	.mknod		= ramfs_mknod,
+-	.rename		= simple_rename,
++	.rename		= ramfs_rename,
  };
  
-+static int fsl_i2c_probe(struct device *device)
-+{
-+	int result = 0;
-+	struct mpc_i2c *i2c;
-+	struct platform_device *pdev = to_platform_device(device);
-+	struct fsl_i2c_platform_data *pdata;
-+	struct resource *r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+
-+	pdata = (struct fsl_i2c_platform_data *) pdev->dev.platform_data;
-+
-+	if (!(i2c = kmalloc(sizeof(*i2c), GFP_KERNEL))) {
-+		return -ENOMEM;
-+	}
-+	memset(i2c, 0, sizeof(*i2c));
-+
-+	i2c->irq = platform_get_irq(pdev, 0);
-+	i2c->flags = pdata->device_flags;
-+	init_waitqueue_head(&i2c->queue);
-+
-+	i2c->base = ioremap((phys_addr_t)r->start, MPC_I2C_REGION);
-+
-+	if (!i2c->base) {
-+		printk(KERN_ERR "i2c-mpc - failed to map controller\n");
-+		result = -ENOMEM;
-+		goto fail_map;
-+	}
-+
-+	if (i2c->irq != 0)
-+		if ((result = request_irq(i2c->irq, mpc_i2c_isr,
-+					  SA_SHIRQ, "i2c-mpc", i2c)) < 0) {
-+			printk(KERN_ERR
-+			       "i2c-mpc - failed to attach interrupt\n");
-+			goto fail_irq;
-+		}
-+
-+	mpc_i2c_setclock(i2c);
-+	dev_set_drvdata(device, i2c);
-+
-+	i2c->adap = mpc_ops;
-+	i2c_set_adapdata(&i2c->adap, i2c);
-+	i2c->adap.dev.parent = &pdev->dev;
-+	if ((result = i2c_add_adapter(&i2c->adap)) < 0) {
-+		printk(KERN_ERR "i2c-mpc - failed to add adapter\n");
-+		goto fail_add;
-+	}
-+
-+	return result;
-+
-+      fail_add:
-+	if (i2c->irq != 0)
-+		free_irq(i2c->irq, NULL);
-+      fail_irq:
-+	iounmap(i2c->base);
-+      fail_map:
-+	kfree(i2c);
-+	return result;
-+};
-+
-+static int fsl_i2c_remove(struct device *device)
-+{
-+	struct mpc_i2c *i2c = dev_get_drvdata(device);
-+
-+	i2c_del_adapter(&i2c->adap);
-+	dev_set_drvdata(device, NULL);
-+
-+	if (i2c->irq != 0)
-+		free_irq(i2c->irq, i2c);
-+
-+	iounmap(i2c->base);
-+	kfree(i2c);
-+	return 0;
-+};
-+
-+/* Structure for a device driver */
-+static struct device_driver fsl_i2c_driver = {
-+	.name = "fsl-i2c",
-+	.bus = &platform_bus_type,
-+	.probe = fsl_i2c_probe,
-+	.remove = fsl_i2c_remove,
-+};
-+
-+static int __init fsl_i2c_init(void)
-+{
-+	return driver_register(&fsl_i2c_driver);
-+}
-+
-+static void __exit fsl_i2c_exit(void)
-+{
-+	driver_unregister(&fsl_i2c_driver);
-+}
-+
-+module_init(fsl_i2c_init);
-+module_exit(fsl_i2c_exit);
-+
- MODULE_AUTHOR("Adrian Cox <adrian@humboldt.co.uk>");
- MODULE_DESCRIPTION
-     ("I2C-Bus adapter for MPC107 bridge and MPC824x/85xx/52xx processors");
+ static struct super_operations ramfs_ops = {
+
+--------------060900010802040200080103--

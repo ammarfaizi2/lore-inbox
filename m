@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263292AbVGOP6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVGOQDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263292AbVGOP6I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 11:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbVGOP6I
+	id S261521AbVGOQDu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 12:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263322AbVGOQDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 11:58:08 -0400
-Received: from graphe.net ([209.204.138.32]:56977 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S263292AbVGOP6G (ORCPT
+	Fri, 15 Jul 2005 12:03:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38346 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261521AbVGOQCj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 11:58:06 -0400
-Date: Fri, 15 Jul 2005 08:57:36 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Paul Jakma <paul@clubi.ie>
-cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
-       vojtech@suse.cz, david.lang@digitalinsight.com, davidsen@tmr.com,
-       kernel@kolivas.org, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
-       diegocg@gmail.com, azarah@nosferatu.za.org
-Subject: Re: [OT] high precision hardware (was Re: [PATCH] i386: Selectable
- Frequency of the Timer Interrupt)
-In-Reply-To: <Pine.LNX.4.63.0507151227240.31084@sheen.jakma.org>
-Message-ID: <Pine.LNX.4.62.0507150855220.1986@graphe.net>
-References: <1121282025.4435.70.camel@mindpipe>  <d120d50005071312322b5d4bff@mail.gmail.com>
-  <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
-  <20050713211650.GA12127@taniwha.stupidest.org> 
- <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org> 
- <20050714005106.GA16085@taniwha.stupidest.org> 
- <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org> 
- <1121304825.4435.126.camel@mindpipe>  <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
-  <20050714083843.GA4851@elte.hu> <1121352941.4535.15.camel@mindpipe>
- <Pine.LNX.4.62.0507140757200.31521@graphe.net> <Pine.LNX.4.63.0507151227240.31084@sheen.jakma.org>
+	Fri, 15 Jul 2005 12:02:39 -0400
+Date: Fri, 15 Jul 2005 09:01:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Jan Blunck <j.blunck@tu-harburg.de>, linux-kernel@vger.kernel.org,
+       joern@wohnheim.fh-wedel.de
+Subject: Re: [PATCH] generic_file_sendpage
+In-Reply-To: <20050715040611.05907f4a.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0507150848500.19183@g5.osdl.org>
+References: <42D79468.3050808@tu-harburg.de> <20050715040611.05907f4a.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Jul 2005, Paul Jakma wrote:
 
-> On Thu, 14 Jul 2005, Christoph Lameter wrote:
+
+On Fri, 15 Jul 2005, Andrew Morton wrote:
 > 
-> > Linux can already provide a response time within < 3 usecs from user space
-> > using f.e. the Altix RTC driver which can generate an interrupt that then
-> > sends a signal to an application. The Altix RTC clock is supported via POSIX
-> > timer syscalls and can be accessed using CLOCK_SGI_CYCLE. This has been
-> > available in Linux since last fall and events can be specified with 50
-> > nanoseconds accurary.
-> 
-> Out of curiosity, are there any cheap and 'embeddable' linux supported
-> architectures which support such response times (User or kernel space)?
+> I don't know if we want to add this feature, really.  It's such a
+> specialised thing.
 
-Well, just implement the proper hooks for the HPET so that you can use
-CLOCK_HPET from user space.
+It is, in this format, and I agree - I don't want to add it.
 
-> Input comes in at anywhere from 6kHz to 100kHz (variable), (T0 say),
-> requirement is to assert an output line Ta seconds after each T0, Ta needs to
-> be accurate to about 6us in the extreme case (how long the output is held has
-> similar accuracy requirement).
+What I'd really like to see is somebody taking a look at my old "pipe as a
+zero-copy buffer" patches, which as an interface allowed arbitrary data to
+be copied between _any_ file descriptors, and allowed you to do things
+like mix input sources quite naturally (ie you could write a header first
+from a user-space buffer, then the contents of a file, and then push the
+result out to a socket, all with zero-copy).
 
-Well the interrupt latency depends on many things in the linux kernel. 
-Worst case is much greater than 6us. You probably need the RT patches as 
-well.
- 
-> What kind of hardware is capable of this? Even in microcontroller space it's
-> difficult to do (eg looked at some ARM microcontrollers, which still have
-> several usec of interrupt latency - even with no OS, still likely cant use
-> timers and interrupts.).
+"sendfile()" in general I think has been a mistake. It's too specialized,
+and the interface has always sucked. As Andrew pointed out, it actually
+needs to limit the number of buffers in flight partly because otherwise 
+you have uninterruptible kernel work etc etc.
 
-Try HPET which is pretty standard these days.
+But more importantly, sendfile() was always broken as a interface for
+receiving data from anything but a page-cache based filesystem. That means 
+that it's totally useless for a lot of things. The pipe-buffer thing ends 
+up being a totally generic "in-kernel buffer" interface, and is a _lot_ 
+more flexible. 
 
+For anybody interested in zero-copy work, here's a LWN write-up of some of 
+the original discussion:
 
+	http://lwn.net/Articles/118750/
+
+and my (very ugly) example patch can be found for example here:
+
+	http://groups-beta.google.com/group/linux.kernel/msg/782bd9e5cb647207?hl=en&
+
+(it's not a a complete implementation, but it shows how to go from a file 
+_to_ a pipe buffer, but not back to a file again).
+
+I really want to get _rid_ of sendfile, not make any more of it.
+
+			Linus

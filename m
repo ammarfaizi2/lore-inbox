@@ -1,65 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVGOS3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVGOSj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbVGOS3n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 14:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVGOS3m
+	id S261152AbVGOSj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 14:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVGOSj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 14:29:42 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:14200 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261648AbVGOS3m convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 14:29:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ORizV63OPP11hMFFNzHePxkY7ot+WvGhj/UAA5bd0MqLyxUKLxLZlFQTcc/iBRkJpNNR6N014jsp/C1I6Q9rjqGVcXOw29xFEbe3KYEO3zlTiA1irMQC7EIK+mndIWeBuIDU43vp2zfHi8WPb+vJgNDDqREbr5cDdd7S1LanERw=
-Message-ID: <9cde8bff05071511293bef5908@mail.gmail.com>
-Date: Sat, 16 Jul 2005 03:29:39 +0900
-From: aq <aquynh@gmail.com>
-Reply-To: aq <aquynh@gmail.com>
-To: Chris Wright <chrisw@osdl.org>
-Subject: Re: [PATCH] memparse bugfix
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050715181250.GO9153@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9cde8bff05071510307c7beb4@mail.gmail.com>
-	 <20050715181250.GO9153@shell0.pdx.osdl.net>
+	Fri, 15 Jul 2005 14:39:29 -0400
+Received: from mail8.fw-sd.sony.com ([160.33.66.75]:41627 "EHLO
+	mail8.fw-sd.sony.com") by vger.kernel.org with ESMTP
+	id S261152AbVGOSj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 14:39:27 -0400
+Message-ID: <42D802C6.2010401@am.sony.com>
+Date: Fri, 15 Jul 2005 11:39:02 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux@kesh.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RealTimeSync Patch
+References: <20050714171052.362f93dd.akpm@osdl.org>
+In-Reply-To: <20050714171052.362f93dd.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/16/05, Chris Wright <chrisw@osdl.org> wrote:
-> * aq (aquynh@gmail.com) wrote:
-> > Function lib/cmdline.c:memparse() wrongly calculates the memory if the
-> > given string has K/M/G suffix. This patch (against 2.6.13-rc3) fixes
-> > the problem. Please apply.
+Andrew Morton wrote:
+> Elias Kesh <linux@kesh.com> wrote:
+>> Looking at the archives I see that a an intel patch
+>> was submitted back in October but I am unable to
+>> determine what the resolution was.
 > 
-> Patch looks incorrect.
-> 
-> > --- 2.6.13-rc3/lib/cmdline.c  2005-04-30 10:31:37.000000000 +0900
-> > +++ 2.6.13-rc3/lib/cmdline-aq.c       2005-07-16 02:25:26.000000000 +0900
-> > @@ -100,10 +100,10 @@ unsigned long long memparse (char *ptr,
-> >       switch (**retptr) {
-> >       case 'G':
-> >       case 'g':
-> > -             ret <<= 10;
-> > +             ret <<= 30;
-> >       case 'M':
-> >       case 'm':
-> > -             ret <<= 10;
-> > +             ret <<= 20;
-> >       case 'K':
-> >       case 'k':
-> >               ret <<= 10;
-> 
-> Now, G == ret << 80, M == ret << 30...  Notice the fall-thru cases.
-> 
+> What patch was that?
 
-oops, this code doesnt use "break" like normally. what a trap!
+http://lkml.org/lkml/2004/10/29/332
 
-sorry for the noise :-)
+> OK.  But adding fiddle new config options and ifdefs is really, really a
+> last resort.  Much better to fix the code by making it smarter, or
+> runtime-selectable, or by avoiding the delays if we see that they're not
+> really needed (like: certain hardware isn't present) or whatever.
 
-regards,
-aq
+...
+> Better would be to work out whether the underlying platform really, realy
+> needs the delay and if so only enable it on those platforms, preferable via
+> a runtime decision.
+> 
+> But then, I don't know what that synchronisation code is actually trying to
+> do.
+
+The short of it: it's trying to make the system
+time as accurate as possible, by delaying
+setting the system time until the actual RTC
+seconds rollover.  Without this synch. operation,
+the system time is within a second of the
+RTC value anyways.
+
+With regard to the actual feature request,
+I agree that a config option should be a
+last resort.  I'd rather just eliminate
+the synchronization altogether, and let
+post-boot code fix the system time
+(sub-second) accuracy, if it's needed.
+IMHO it won't be needed in embedded
+scenarios and will very seldom be needed
+in other use areas (server and desktop).
+Many desktop users already get their
+system time accuracy from an external
+source (ntp) now anyways.
+
+We can submit a patch to *remove* code
+for multiple architectures very quickly!
+;-)
+
+> In general, it's taking waaaay to long to get all
+> these CELinux patches into the outside world.  Thanks
+> for getting this one on the wires. Let's
+> get them all done and finish this thing.
+
+The forum, of late, has been taking a different approach.
+While the forum has a few patches we want to push
+ourselves directly, we now focus more effort on
+getting individual member companies (and individual
+engineers) to participate directly in projects
+of interest.
+
+As one example, a Sony engineer has participated
+quite heavily in the high resolution timers project
+over the last year or so.
+
+Only occasionally, when there does not appear
+to be another suitable project in an area
+(such as fast booting), do we manage a patch
+inside the forum and submit it from there.
+
+But I agree that in some areas the forum has
+been quite slow to push these patches. This RTC
+synch. issue was first discussed on LKML in
+May of 2004.
+
+See: http://lkml.org/lkml/2004/5/7/180
+
+In a perfect world, a patch would have shown
+up within a week of that discussion.  For
+reasons too long to discuss here, it took
+5 months instead, and then another 9 months
+to submit this.  So, yes, CELF and some
+of it's members clearly have some areas
+to improve on in working with the open
+source model.
+
+I'm sincerely grateful for the help and
+encouragement!
+ -- Tim
+
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================

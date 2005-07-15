@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263261AbVGOJeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263258AbVGOJh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263261AbVGOJeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 05:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbVGOJeI
+	id S263258AbVGOJh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 05:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbVGOJh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 05:34:08 -0400
-Received: from BTNL-TN-DSL-static-006.0.144.59.touchtelindia.net ([59.144.0.6]:23426
-	"EHLO mail.prodmail.net") by vger.kernel.org with ESMTP
-	id S263261AbVGOJce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 05:32:34 -0400
-Message-ID: <42D781B9.4080506@prodmail.net>
-Date: Fri, 15 Jul 2005 14:58:25 +0530
-From: RVK <rvk@prodmail.net>
-Reply-To: rvk@prodmail.net
-Organization: GSEC1
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: omb@bluewin.ch, linux-kernel@vger.kernel.org
-Subject: Re: Buffer Over-runs, was Open source firewalls
-References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>	 <42D63AD0.6060609@aitel.hist.no> <42D63D4A.2050607@prodmail.net>	 <42D658A8.4040009@aitel.hist.no> <42D658A9.7050706@prodmail.net>	 <42D6ECED.7070504@khandalf.com>  <42D75A93.5010904@prodmail.net>	 <1121410260.3179.3.camel@laptopd505.fenrus.org>	 <42D7734D.9070204@prodmail.net> <1121417215.3179.7.camel@laptopd505.fenrus.org>
-In-Reply-To: <1121417215.3179.7.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Jul 2005 05:37:28 -0400
+Received: from main.gmane.org ([80.91.229.2]:58576 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S263258AbVGOJhY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 05:37:24 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Date: Fri, 15 Jul 2005 11:36:16 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2005.07.15.09.36.14.672407@smurf.noris.de>
+References: <42D3E852.5060704@mvista.com> <42D540C2.9060201@tmr.com> <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz> <20050713184227.GB2072@ucw.cz> <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org> <1121282025.4435.70.camel@mindpipe> <d120d50005071312322b5d4bff@mail.gmail.com> <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org> <20050713211650.GA12127@taniwha.stupidest.org> <9a874849050714170465c979c3@mail.gmail.com> <1121386505.4535.98.camel@mindpipe> <Pine.LNX.4.58.0507141718350.19183@g5.osdl.org> <42D71A68.6030701@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+Hi, Bill Davidsen wrote:
 
->On Fri, 2005-07-15 at 13:56 +0530, RVK wrote:
->  
->
->>>except this is no longer true really ;)
->>>
->>>randomisation for example makes this a lot harder to do.
->>>gcc level tricks to prevent buffer overflows are widely in use nowadays
->>>too (FORTIFY_SOURCE and -fstack-protector). The combination of this all
->>>makes it a LOT harder to actually exploit a buffer overflow on, say, a
->>>distribution like Fedora Core 4.
->>>
->>>
->>>
->>>
->>>      
->>>
->>Still is very new....not every one can immediately start using gcc 4.
->>    
->>
->
->it;s also available for gcc 3.4 as patch (and included in FC3 and RHEL4
->for example)
->
->so it's new? so what? doesn't make it less true that it nowadays is a
->lot harder to exploit such bugs on recent distros.
->  
->
-Can I get more details on this patch for 3.4. Where can I find it ?
+> Do you actually have something against tickless, or just don't think it 
+> can be done in reasonable time?
 
-rvk
+You can do it in small steps.
 
->.
->
->  
->
+When you have that jiffies_increment variable, you can add code to
+dynamically adjust it at runtime -- just reprogram the system timer
+(which may not be cheap).
+
+After you've done *that*, you can teach the add_timer code to optionally
+adjust jiffies_increment when demand changes; add an estimate on timer
+tick cost vs. reprogramming cost (which could return "always" when you're
+running UML); you might want to take user prefs into account ("always
+reprogram if the timeout would arrive more than 10 msec late, because
+otherwise my Doom3 game lags too much").
+
+There you are. Tickless, and nobody even notices.
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+Caesar had his Brutus -- charles the First, his Cromwell -- and George the
+Third ("Treason!" cried the Speaker) -- may profit by their example. If this
+be treason, make the most of it.
+					-- Patrick Henry
+
 

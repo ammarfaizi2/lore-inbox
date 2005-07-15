@@ -1,91 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVGOLgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVGOLlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVGOLgK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 07:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVGOLgK
+	id S261177AbVGOLlv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 07:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVGOLlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 07:36:10 -0400
-Received: from smtp3.brturbo.com.br ([200.199.201.164]:21386 "EHLO
-	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S261167AbVGOLgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 07:36:07 -0400
-Message-ID: <42D79FA2.90703@brturbo.com.br>
-Date: Fri, 15 Jul 2005 08:36:02 -0300
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: pt-br, pt, es, en-us, en
+	Fri, 15 Jul 2005 07:41:50 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:42376 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S261177AbVGOLlt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 07:41:49 -0400
+Date: Fri, 15 Jul 2005 12:38:39 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@sheen.jakma.org
+To: Christoph Lameter <christoph@lameter.com>
+cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>,
+       dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
+       vojtech@suse.cz, david.lang@digitalinsight.com, davidsen@tmr.com,
+       kernel@kolivas.org, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
+       diegocg@gmail.com, azarah@nosferatu.za.org
+Subject: [OT] high precision hardware (was Re: [PATCH] i386: Selectable
+ Frequency of the Timer Interrupt)
+In-Reply-To: <Pine.LNX.4.62.0507140757200.31521@graphe.net>
+Message-ID: <Pine.LNX.4.63.0507151227240.31084@sheen.jakma.org>
+References: <1121282025.4435.70.camel@mindpipe>  <d120d50005071312322b5d4bff@mail.gmail.com>
+  <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
+  <20050713211650.GA12127@taniwha.stupidest.org> 
+ <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org> 
+ <20050714005106.GA16085@taniwha.stupidest.org> 
+ <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org> 
+ <1121304825.4435.126.camel@mindpipe>  <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
+  <20050714083843.GA4851@elte.hu> <1121352941.4535.15.camel@mindpipe>
+ <Pine.LNX.4.62.0507140757200.31521@graphe.net>
+Mail-Copies-To: paul@hibernia.jakma.org
+Mail-Followup-To: paul@hibernia.jakma.org
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
 MIME-Version: 1.0
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-CC: Johannes Stezenbach <js@linuxtv.org>, Andrew Morton <akpm@osdl.org>,
-       Andrew Benton <b3nt@ukonline.co.uk>, linux-kernel@vger.kernel.org,
-       "v4l >> Linux and Kernel Video" <video4linux-list@redhat.com>
-Subject: Re: cx22702.c, 2.6.13-rc3 and a pci Hauppauge Nova-T DVB-T TV card
-References: <42D77E37.5010908@ukonline.co.uk>	<20050715110938.GB9976@linuxtv.org> <Pine.LNX.4.61.0507151308450.15841@pub2.ifh.de>
-In-Reply-To: <Pine.LNX.4.61.0507151308450.15841@pub2.ifh.de>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick,
+On Thu, 14 Jul 2005, Christoph Lameter wrote:
 
-	We'll include it at V4L.
+> Linux can already provide a response time within < 3 usecs from 
+> user space using f.e. the Altix RTC driver which can generate an 
+> interrupt that then sends a signal to an application. The Altix RTC 
+> clock is supported via POSIX timer syscalls and can be accessed 
+> using CLOCK_SGI_CYCLE. This has been available in Linux since last 
+> fall and events can be specified with 50 nanoseconds accurary.
 
-Mauro.
+Out of curiosity, are there any cheap and 'embeddable' linux 
+supported architectures which support such response times (User or 
+kernel space)?
 
-Patrick Boettcher wrote:
-> 
-> Hmm, yes. When I changed the cx22702-driver to make it work with the
-> cxusb-driver, I added another field to the struct cx22702_config to
-> determine the output type.
-> 
-> I was well aware that this breaks support for the PCI cards, that's why I
-> created a patch for the cx88-dvb.c and posted it the v4l-mailing list and
-> ask for inclusion.
-> 
-> This was the Mail:
-> http://www.linuxtv.org/pipermail/linux-dvb/2005-June/002383.html
-> 
-> This is the patch:
-> Index: cx88-dvb.c
-> ===================================================================
-> RCS file: /cvs/video4linux/video4linux/cx88-dvb.c,v
-> retrieving revision 1.42
-> diff -u -3 -p -r1.42 cx88-dvb.c
-> --- cx88-dvb.c    12 Jul 2005 15:44:55 -0000    1.42
-> +++ cx88-dvb.c    15 Jul 2005 11:06:22 -0000
-> @@ -166,12 +166,14 @@ static int mt352_pll_set(struct dvb_fron
-> 
->  static struct mt352_config dvico_fusionhdtv = {
->      .demod_address = 0x0F,
-> +    .output_mode   = CX22702_SERIAL_OUTPUT,
->      .demod_init    = dvico_fusionhdtv_demod_init,
->      .pll_set       = mt352_pll_set,
->  };
-> 
->  static struct mt352_config dntv_live_dvbt_config = {
->      .demod_address = 0x0f,
-> +    .output_mode   = CX22702_SERIAL_OUTPUT,
->      .demod_init    = dntv_live_dvbt_demod_init,
->      .pll_set       = mt352_pll_set,
->  };
-> 
-> Please include. Thanks
-> 
-> Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
-> 
-> best regards,
-> Patrick.
-> 
-> -- 
->   Mail: patrick.boettcher@desy.de
->   WWW:  http://www.wi-bw.tfh-wildau.de/~pboettch/
-> 
-> -- 
-> video4linux-list mailing list
-> Unsubscribe mailto:video4linux-list-request@redhat.com?subject=unsubscribe
-> https://www.redhat.com/mailman/listinfo/video4linux-list
-> 
-> 
+Would be very interested for a hobby project I'm planning 
+(programmable digital ignition) which requires about 10usec 
+resolution +/- 6us accuracy response times. At moment looks like this 
+task will have to done on a dedicated microcontroller.
 
+Input comes in at anywhere from 6kHz to 100kHz (variable), (T0 say), 
+requirement is to assert an output line Ta seconds after each T0, Ta 
+needs to be accurate to about 6us in the extreme case (how long the 
+output is held has similar accuracy requirement).
+
+What kind of hardware is capable of this? Even in microcontroller 
+space it's difficult to do (eg looked at some ARM microcontrollers, 
+which still have several usec of interrupt latency - even with no OS, 
+still likely cant use timers and interrupts.).
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+The church saves sinners, but science seeks to stop their manufacture.
+ 		-- Elbert Hubbard

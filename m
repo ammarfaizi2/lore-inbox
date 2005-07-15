@@ -1,81 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVGORlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263346AbVGORoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVGORlt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 13:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263323AbVGORlt
+	id S263346AbVGORoT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 13:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbVGORoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 13:41:49 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:21778 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S261624AbVGORls convert rfc822-to-8bit (ORCPT
+	Fri, 15 Jul 2005 13:44:19 -0400
+Received: from main.gmane.org ([80.91.229.2]:26549 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S263346AbVGORnX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 13:41:48 -0400
-Date: Fri, 15 Jul 2005 14:41:29 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Egry =?iso-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>,
-       Sam Ravnborg <sam@ravnborg.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Andrew Morton <akpm@osdl.org>, Massimo Maiurana <maiurana@inwind.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       KernelFR <kernelfr@traduc.org>
-Subject: Re: [PATCH 0/19] Kconfig I18N completion
-Message-ID: <20050715174129.GB26338@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Egry =?iso-8859-1?Q?G=E1bor?= <gaboregry@t-online.hu>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-	Massimo Maiurana <maiurana@inwind.it>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	KernelFR <kernelfr@traduc.org>
-References: <1121273456.2975.3.camel@spirit> <Pine.LNX.4.58.0507131038560.17536@g5.osdl.org> <1121277818.2975.68.camel@spirit> <20050713201147.GA23746@mars.ravnborg.org> <1121280104.2975.84.camel@spirit> <Pine.LNX.4.58.0507131155460.17536@g5.osdl.org>
+	Fri, 15 Jul 2005 13:43:23 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: 2.6.13-rc3-mm1
+Date: Fri, 15 Jul 2005 19:42:16 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2005.07.15.17.42.08.675834@smurf.noris.de>
+References: <20050715013653.36006990.akpm@osdl.org> <pan.2005.07.15.09.24.38.515769@smurf.noris.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0507131155460.17536@g5.osdl.org>
-X-Url: http://advogato.org/person/acme
-User-Agent: Mutt/1.5.9i
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Jul 13, 2005 at 12:02:20PM -0700, Linus Torvalds escreveu:
-> 
-> 
-> On Wed, 13 Jul 2005, Egry Gábor wrote:
-> > 
-> > Yes, the patch 19/19 contains the translation of configuration
-> > interfaces ([x|g|menu]config) and it is only 23 kb. The full version of
-> > unfinished hu.po is 2 MB and the fully translated italian it.po is 3,2
-> > MB. I see Linus doesn't want the huge language files in kernel source.
-> > But what is Linus opinion about this little .po file?
-> 
-> I don't want ANY of it in the kernel. 
+Hi, Matthias Urlichs wrote:
 
-Neither me.
- 
-> Quite frankly, I'm of the opinion that _all_ of the i18n stuff should be 
-> totally outside the kernel. I took the patch from Arnaldo only because I 
-> was told that me taking that patch would allow external packages to do the 
-> rest. Now I'm told that isn't true, which just makes me pissed off.
+> Also GITtable, as soon as the mirrors' work is done:
 > 
-> _I_ think you should have a totally external package that knows how to
-> parse the Kconfig files. They have a well-known format that hasn't changed
-> in quite a while, and a nice parser.  Yes, there will inevitably be new
-> entries that you don't have translations for, and you'll have to use the
-> English ones for those, but the fact is, that is true whether the i18n
-> stuff is included with the kernel or not.
+> http://www.kernel.org/git/?p=linux/kernel/git/smurf/v2.6.13-rc3-mm1.git;a=summary
 
-Having just kxgettext as I submitted I guess is enough, the translators
-just do make update-po-config and do the translations, put that somewhere
-for anyone who wants to use it.
- 
-> And exactly _because_ it doesn't help to put the non-English translations 
-> into the kernel, I think it's a mistake to even try. It's likely _easier_ 
-> for all the different language groups if they can just work on their _own_ 
-> project, and don't have to try to get their translations merged into the 
-> standard kernel.
+Moved to
 
-Exactly.
+http://www.kernel.org/git/?p=linux/kernel/git/smurf/linux-trees.git;a=summary
 
-- Arnaldo
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+A marriage is always made up of two people who are prepared to swear that
+only the other one snores.
+		-- Terry Pratchett (The Fifth Elephant)
+
+

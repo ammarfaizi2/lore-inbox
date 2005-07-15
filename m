@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVGONgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263296AbVGONsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVGONgo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 09:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbVGONgo
+	id S263296AbVGONsx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 09:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbVGONsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 09:36:44 -0400
-Received: from znsun1.ifh.de ([141.34.1.16]:33765 "EHLO znsun1.ifh.de")
-	by vger.kernel.org with ESMTP id S261364AbVGONgA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 09:36:00 -0400
-Date: Fri, 15 Jul 2005 15:34:31 +0200 (CEST)
-From: Patrick Boettcher <patrick.boettcher@desy.de>
-X-X-Sender: pboettch@pub2.ifh.de
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: Andrew Benton <b3nt@ukonline.co.uk>, Johannes Stezenbach <js@linuxtv.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Michael Krufky <mkrufky@m1k.net>, video4linux-list@redhat.com
-Subject: Re: cx22702.c, 2.6.13-rc3 and a pci Hauppauge Nova-T DVB-T TV card
-In-Reply-To: <42D7BA2F.9070505@brturbo.com.br>
-Message-ID: <Pine.LNX.4.61.0507151530200.15841@pub2.ifh.de>
-References: <42D77E37.5010908@ukonline.co.uk> <20050715110938.GB9976@linuxtv.org>
- <Pine.LNX.4.61.0507151308450.15841@pub2.ifh.de> <42D7B2A0.2040301@ukonline.co.uk>
- <Pine.LNX.4.61.0507151459180.15841@pub2.ifh.de> <42D7BA2F.9070505@brturbo.com.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Spam-Report: ALL_TRUSTED,AWL,BAYES_00
+	Fri, 15 Jul 2005 09:48:53 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:8950 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S263296AbVGONrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 09:47:53 -0400
+Subject: Re: [PATCH] mb_cache_shrink() frees unexpected caches
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <200507151249.52294.agruen@suse.de>
+References: <1121346444.4282.8.camel@localhost.localdomain>
+	 <200507151249.52294.agruen@suse.de>
+Content-Type: text/plain
+Date: Fri, 15 Jul 2005 22:41:34 +0900
+Message-Id: <1121434894.1261.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Jul 2005, Mauro Carvalho Chehab wrote:
 
-> Patrick,
->
-> Patrick Boettcher wrote:
->> On Fri, 15 Jul 2005, Andrew Benton wrote:
->>
->>> Hi, I tried the patch but unfortunately the kernel didn't compile, it
->>> ended like this
->>>
->>> CC      drivers/media/video/cx88/cx88-blackbird.o
->>> CC      drivers/media/video/cx88/cx88-dvb.o
->>> drivers/media/video/cx88/cx88-dvb.c:169: error: unknown field
->>> `output_mode' specified in initializer
->>> drivers/media/video/cx88/cx88-dvb.c:176: error: unknown field
->>> `output_mode' specified in initializer
->>
->>
->> Yes, I was in a hurry *slap* and made a mistake.
->>
->> This one is correct (revert the other one):
->
-> 	I've already included this on V4L tree.
->
-> 	On V4L, we do provide support for older 2.6 releases (so, we have some
-> ifdefs to provide backport compatibility that are removed by a script
-> before submiting patchsets).
-> 	If I understand well your patch, it is to be applied after 2.6.12
-> version. Am I right?
+> > --- 2.6-rc/fs/mbcache.c.orig	2005-07-14 20:40:34.000000000 +0900
+> > +++ 2.6-rc/fs/mbcache.c	2005-07-14 20:43:42.000000000 +0900
+> > @@ -329,7 +329,7 @@ mb_cache_shrink(struct mb_cache *cache,
+> >  	list_for_each_safe(l, ltmp, &mb_cache_lru_list) {
+> >  		struct mb_cache_entry *ce =
+> >  			list_entry(l, struct mb_cache_entry, e_lru_list);
+> > -		if (ce->e_bdev == bdev) {
+> > +		if (ce->e_cache == cache && ce->e_bdev == bdev) {
+> >  			list_move_tail(&ce->e_lru_list, &free_list);
+> >  			__mb_cache_entry_unhash(ce);
+> >  		}
+> 
+> this patch looks bogus to me. How could the cache contain entries for the same 
+> block_device from different file systems? The block_device is sufficient to 
+> identify the file system, and hence its cache entries.
 
-Yes. 2.6.13-rc1 introduced the cxusb-driver in the kernel and along with 
-it the change in the cx22702.
+Why is mb_cache_shrink() declared as:
 
-The cx22702.c from video4linux-CVS is not compatible anymore. Not sure how 
-you will handle this? (Throw away the cx22702.c and get it from 
-dvb-kernel ;) )
+void
+mb_cache_shrink(struct mb_cache *cache, struct block_device *bdev);
 
-best regards,
-Patrick.
+The variable cache was never used.
 
---
-   Mail: patrick.boettcher@desy.de
-   WWW:  http://www.wi-bw.tfh-wildau.de/~pboettch/
+

@@ -1,122 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbVGOOhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263303AbVGOOjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbVGOOhG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 10:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbVGOOhG
+	id S263303AbVGOOjv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 10:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263321AbVGOOjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 10:37:06 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:31970 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S263309AbVGOOgb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 10:36:31 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE LINUX Products GMBH
-To: Akinobu Mita <amgta@yacht.ocn.ne.jp>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [PATCH] mb_cache_shrink() frees unexpected caches
-Date: Fri, 15 Jul 2005 16:36:27 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <1121346444.4282.8.camel@localhost.localdomain> <200507151249.52294.agruen@suse.de> <1121434894.1261.4.camel@localhost.localdomain>
-In-Reply-To: <1121434894.1261.4.camel@localhost.localdomain>
+	Fri, 15 Jul 2005 10:39:48 -0400
+Received: from mailwasher.lanl.gov ([192.65.95.54]:60566 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S263303AbVGOOh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 10:37:27 -0400
+Date: Fri, 15 Jul 2005 08:37:21 -0600 (MDT)
+From: "Ronald G. Minnich" <rminnich@lanl.gov>
+To: Andi Kleen <ak@suse.de>
+cc: yhlu <yinghailu@gmail.com>, Stefan Reinauer <stepan@openbios.org>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: NUMA support for dual core Opteron
+In-Reply-To: <20050715030518.GS23737@wotan.suse.de>
+Message-ID: <Pine.LNX.4.58.0507150833481.7348@enigma.lanl.gov>
+References: <2ea3fae10507141058c476927@mail.gmail.com>
+ <Pine.LNX.4.58.0507141259170.22630@enigma.lanl.gov> <20050714190929.GL23619@wotan.suse.de>
+ <2ea3fae1050714194649c66d7e@mail.gmail.com> <20050715030518.GS23737@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507151636.27532.agruen@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-PMX-Version: 4.7.1.128075
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 July 2005 15:41, Akinobu Mita wrote:
-> > > --- 2.6-rc/fs/mbcache.c.orig	2005-07-14 20:40:34.000000000 +0900
-> > > +++ 2.6-rc/fs/mbcache.c	2005-07-14 20:43:42.000000000 +0900
-> > > @@ -329,7 +329,7 @@ mb_cache_shrink(struct mb_cache *cache,
-> > >  	list_for_each_safe(l, ltmp, &mb_cache_lru_list) {
-> > >  		struct mb_cache_entry *ce =
-> > >  			list_entry(l, struct mb_cache_entry, e_lru_list);
-> > > -		if (ce->e_bdev == bdev) {
-> > > +		if (ce->e_cache == cache && ce->e_bdev == bdev) {
-> > >  			list_move_tail(&ce->e_lru_list, &free_list);
-> > >  			__mb_cache_entry_unhash(ce);
-> > >  		}
-> >
-> > this patch looks bogus to me. How could the cache contain entries for the
-> > same block_device from different file systems? The block_device is
-> > sufficient to identify the file system, and hence its cache entries.
->
-> Why is mb_cache_shrink() declared as:
->
-> void
-> mb_cache_shrink(struct mb_cache *cache, struct block_device *bdev);
->
-> The variable cache was never used.
 
-The cache parameter could indeed be removed. Not that it would matter much...
 
-Thanks,
-Andreas.
+On Fri, 15 Jul 2005, Andi Kleen wrote:
 
-------------------------------- 8< -------------------------------
-Remove unused mb_cache_shrink parameter
+> Only on uniprocessor machines.
 
-The cache parameter to mb_cache_shrink isn't used. We may as well
-remove it.
+Question for the AMD guys: is there a chance of getting
+non-proprietary-bios ACPI tables from AMD directly? I.e. ACPI tables as
+needed for power-now etc. could be released under GPL, making inclusion
+into linuxbios a bit simpler.  Right now, the only ACPI table's I've seen
+all bear "IF I COPY THIS PLEASE SUE ME UNDER THE DMCA" notices :-)
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+If such tables are available, and I'm just out of touch, I'd be very happy
+to hear that; please send me a URL. 
 
-Index: linux-2.6.13-rc1/fs/ext2/xattr.c
-===================================================================
---- linux-2.6.13-rc1.orig/fs/ext2/xattr.c
-+++ linux-2.6.13-rc1/fs/ext2/xattr.c
-@@ -823,7 +823,7 @@ cleanup:
- void
- ext2_xattr_put_super(struct super_block *sb)
- {
--	mb_cache_shrink(ext2_xattr_cache, sb->s_bdev);
-+	mb_cache_shrink(sb->s_bdev);
- }
- 
- 
-Index: linux-2.6.13-rc1/fs/ext3/xattr.c
-===================================================================
---- linux-2.6.13-rc1.orig/fs/ext3/xattr.c
-+++ linux-2.6.13-rc1/fs/ext3/xattr.c
-@@ -1106,7 +1106,7 @@ cleanup:
- void
- ext3_xattr_put_super(struct super_block *sb)
- {
--	mb_cache_shrink(ext3_xattr_cache, sb->s_bdev);
-+	mb_cache_shrink(sb->s_bdev);
- }
- 
- /*
-Index: linux-2.6.13-rc1/fs/mbcache.c
-===================================================================
---- linux-2.6.13-rc1.orig/fs/mbcache.c
-+++ linux-2.6.13-rc1/fs/mbcache.c
-@@ -316,11 +316,10 @@ fail:
-  * currently in use cannot be freed, and thus remain in the cache. All others
-  * are freed.
-  *
-- * @cache: which cache to shrink
-  * @bdev: which device's cache entries to shrink
-  */
- void
--mb_cache_shrink(struct mb_cache *cache, struct block_device *bdev)
-+mb_cache_shrink(struct block_device *bdev)
- {
- 	LIST_HEAD(free_list);
- 	struct list_head *l, *ltmp;
-Index: linux-2.6.13-rc1/include/linux/mbcache.h
-===================================================================
---- linux-2.6.13-rc1.orig/include/linux/mbcache.h
-+++ linux-2.6.13-rc1/include/linux/mbcache.h
-@@ -29,7 +29,7 @@ struct mb_cache_op {
- 
- struct mb_cache * mb_cache_create(const char *, struct mb_cache_op *, size_t,
- 				  int, int);
--void mb_cache_shrink(struct mb_cache *, struct block_device *);
-+void mb_cache_shrink(struct block_device *);
- void mb_cache_destroy(struct mb_cache *);
- 
- /* Functions on cache entries */
+It makes no sense at all to me that ACPI would be copyright anyone, since
+they merely describe hardware, and even the OS guys might want to copy
+them around from node to node in some cases. But that's the problem right
+now.
+
+ron

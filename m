@@ -1,119 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVGOWJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVGOWM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbVGOWJs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 18:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVGOWJm
+	id S261799AbVGOWM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 18:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVGOWM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 18:09:42 -0400
-Received: from mailtir.platform.com ([192.219.104.248]:38602 "EHLO
-	mailtir.platform.com") by vger.kernel.org with ESMTP
-	id S261831AbVGOWJF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 18:09:05 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Content-Class: urn:content-classes:message
+	Fri, 15 Jul 2005 18:12:27 -0400
+Received: from smtp06.auna.com ([62.81.186.16]:9436 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S261799AbVGOWLr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 18:11:47 -0400
+Date: Fri, 15 Jul 2005 22:11:46 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: [PATCH] fix kmalloc in IDE
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1121465068l.13352l.0l@werewolf.able.es> (from
+	jamagallon@able.es on Sat Jul 16 00:04:28 2005)
+X-Mailer: Balsa 2.3.4
+Message-Id: <1121465506l.13352l.2l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [2.6.13-rc3][SATA] - SIL 3114 controller w/ firmware 5.0.39 - Hanging only in 64bit mode
-Date: Fri, 15 Jul 2005 18:09:01 -0400
-Message-ID: <9CD190F4AD92EC499A9397F49C8B0E4E018516DB@catoexm04.noam.corp.platform.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6.13-rc3][SATA] - SIL 3114 controller w/ firmware 5.0.39 - Hanging only in 64bit mode
-Thread-Index: AcWJic8Vb8FqPRvRSVy+/aAK4fhX1Q==
-From: "Shawn Starr" <sstarr@platform.com>
-To: <linux-ide@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>, <jgarzik@pobox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.215.11] Login:jamagallon@able.es Fecha:Sat, 16 Jul 2005 00:11:46 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I just tried -rc3 today on the amd64 box which is a Asus K8N-E Deluxe motherboard. Is it possible the firmware for the controller is buggy? Anyone else reporting hangs?
+On 07.16, J.A. Magallon wrote:
+> 
+> On 07.15, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
+> > 
 
-I can reproduce the sata controller with various writes:
-
-1) If I connect the box and allow a remote machine to PXE and TFTP boot from it, the machine hangs. This is consistent each time I try this but only if the box is in 64bit mode.
-
-2) Certain times when doing disk writes it will just hang, there doesn't appear to be any messages from the sil driver logged to console. It still seems to be released to DMA problems.
-
-I hope this info is helpful, 
-
-thanks, 
-
-Shawn.
-
-
-lspci info:
-
-00:00.0 Host bridge: nVidia Corporation nForce3 250Gb Host Bridge (rev a1)
-00:01.0 ISA bridge: nVidia Corporation nForce3 250Gb LPC Bridge (rev a2)
-00:01.1 SMBus: nVidia Corporation nForce 250Gb PCI System Management (rev a1)
-00:02.0 USB Controller: nVidia Corporation CK8S USB Controller (rev a1)
-00:02.1 USB Controller: nVidia Corporation CK8S USB Controller (rev a1)
-00:02.2 USB Controller: nVidia Corporation nForce3 EHCI USB 2.0 Controller (rev a2)
-00:06.0 Multimedia audio controller: nVidia Corporation nForce3 250Gb AC'97 Audio Controller (rev a1)
-00:08.0 IDE interface: nVidia Corporation CK8S Parallel ATA Controller (v2.5) (rev a2)
-00:0a.0 IDE interface: nVidia Corporation CK8S Serial ATA Controller (v2.5) (rev a2)
-00:0b.0 PCI bridge: nVidia Corporation nForce3 250Gb AGP Host to PCI Bridge (rev a2)
-00:0e.0 PCI bridge: nVidia Corporation nForce3 250Gb PCI-to-PCI Bridge (rev a2)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-01:00.0 VGA compatible controller: nVidia Corporation NV6 [Vanta/Vanta LT] (rev 15)
-02:07.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] (rev 08)
-02:08.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] (rev 08)
-02:0c.0 Unknown mass storage controller: Silicon Image, Inc. SiI 3114 [SATALink/SATARaid] Serial ATA Controller (rev 02)
-
-Relevent dmesg:
-
-SCSI subsystem initialized
-libata version 1.10 loaded.
-sata_sil version 0.8
-ata1: SATA max UDMA/100 cmd 0xFFFFFF0000004C80 ctl 0xFFFFFF0000004C8A bmdma 0xFFFFFF0000004C00 irq 11
-ata2: SATA max UDMA/100 cmd 0xFFFFFF0000004CC0 ctl 0xFFFFFF0000004CCA bmdma 0xFFFFFF0000004C08 irq 11
-ata3: SATA max UDMA/100 cmd 0xFFFFFF0000004E80 ctl 0xFFFFFF0000004E8A bmdma 0xFFFFFF0000004E00 irq 11
-ata4: SATA max UDMA/100 cmd 0xFFFFFF0000004EC0 ctl 0xFFFFFF0000004ECA bmdma 0xFFFFFF0000004E08 irq 11
-ata1: no device found (phy stat 00000000)
-scsi0 : sata_sil
-ata2: no device found (phy stat 00000000)
-scsi1 : sata_sil
-ata3: no device found (phy stat 00000000)
-scsi2 : sata_sil
-ata4: no device found (phy stat 00000000)
-scsi3 : sata_sil
-sata_nv version 0.6
-PCI: Setting latency timer of device 0000:00:0a.0 to 64
-ata5: SATA max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma 0xD000 irq 10
-ata6: SATA max UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xD008 irq 10
-ata5: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3a01 87:4003 88:007f
-ata5: dev 0 ATA, max UDMA/133, 160086528 sectors:
-nv_sata: Primary device added
-nv_sata: Primary device removed
-nv_sata: Secondary device removed
-ata5: dev 0 configured for UDMA/133
-scsi4 : sata_nv
-ata6: no device found (phy stat 00000000)
-scsi5 : sata_nv
-  Vendor: ATA       Model: Maxtor 6Y080M0    Rev: YAR5
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 160086528 512-byte hdwr sectors (81964 MB)
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3
-Attached scsi disk sda at scsi4, channel 0, id 0, lun 0
+--- linux-2.6.git.orig/drivers/ide/ide-probe.c	2005-06-23 11:38:02.000000000 -0700
++++ linux-2.6.git/drivers/ide/ide-probe.c	2005-07-07 10:22:02.000000000 -0700
+@@ -960,6 +960,15 @@
+ }
+ #endif /* MAX_HWIFS > 1 */
+ 
++static inline int hwif_to_node(ide_hwif_t *hwif)
++{
++	if (hwif && hwif->pci_dev)
++		return pcibus_to_node(hwif->pci_dev->bus);
++	else
++		/* Add ways to determine the node of other busses here */
++		return -1;
++}
++
+ /*
+  * init request queue
+  */
+@@ -978,8 +987,7 @@
+ 	 *	do not.
+ 	 */
+ 
+-	q = blk_init_queue_node(do_ide_request, &ide_lock,
+-				pcibus_to_node(drive->hwif->pci_dev->bus));
++	q = blk_init_queue_node(do_ide_request, &ide_lock, hwif_to_node(hwif));
+ 	if (!q)
+ 		return 1;
+ 
+@@ -1097,7 +1105,7 @@
+ 		spin_unlock_irq(&ide_lock);
+ 	} else {
+ 		hwgroup = kmalloc_node(sizeof(ide_hwgroup_t), GFP_KERNEL,
+-			pcibus_to_node(hwif->drives[0].hwif->pci_dev->bus));
++					hwif_to_node(hwif->drives[0].hwif));
+ 		if (!hwgroup)
+ 	       		goto out_up;
+ 
 
 
-Onboard IDE controller and devices information:
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.12-jam9 (gcc 4.0.1 (4.0.1-0.2mdk for Mandriva Linux release 2006.0))
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-NFORCE3-250: IDE controller at PCI slot 0000:00:08.0
-NFORCE3-250: chipset revision 162
-NFORCE3-250: not 100% native mode: will probe irqs later
-NFORCE3-250: 0000:00:08.0 (rev a2) UDMA133 controller
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
-Probing IDE interface ide0...
-hda: GCR-8523B, ATAPI CD/DVD-ROM drive
-hdb: LITE-ON DVD SOHD-16P9S, ATAPI CD/DVD-ROM drive
+

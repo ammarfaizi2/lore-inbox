@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263319AbVGOO3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263356AbVGOOc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbVGOO3z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 10:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263314AbVGOO3s
+	id S263356AbVGOOc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 10:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbVGOOc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 10:29:48 -0400
-Received: from gate.crashing.org ([63.228.1.57]:17375 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263309AbVGOO11 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 10:27:27 -0400
-Subject: Re: console remains blanked
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	Fri, 15 Jul 2005 10:32:57 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:27340 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263356AbVGOOcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 10:32:48 -0400
+Date: Fri, 15 Jul 2005 15:32:38 +0100
+From: Christoph Hellwig <hch@infradead.org>
 To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Albert Herranz <albert_herranz@yahoo.es>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0507141329270.26404@yvahk01.tjqt.qr>
-References: <20050714101807.74323.qmail@web25805.mail.ukl.yahoo.com>
-	 <Pine.LNX.4.61.0507141329270.26404@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Sat, 16 Jul 2005 00:27:27 +1000
-Message-Id: <1121437648.5963.28.camel@gaston>
+Cc: Christoph Hellwig <hch@infradead.org>, Chris Wright <chrisw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add security_task_post_setgid
+Message-ID: <20050715143238.GA5759@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Chris Wright <chrisw@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0507142339570.3256@yvahk01.tjqt.qr> <20050714223807.GA25671@infradead.org> <Pine.LNX.4.61.0507150951150.20435@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0507150951150.20435@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 13:38 +0200, Jan Engelhardt wrote:
-> >Before 2.6.12-rc2, the console was unblanked by just
-> >writing to the console.
-> >For keyboardless and mouseless systems (which is my
-> >case, embedded) this new behaviour is a bit annoying.
+On Fri, Jul 15, 2005 at 09:54:40AM +0200, Jan Engelhardt wrote:
 > 
-> Interesting. I have observed the following (2.6.13-rc1 and a little 
-> earlier):
->     mplayer bla.avi -vo cvidix
-> After the blanking time, all chars turn black[1] but are still "visible" 
-> thanks the movie in the background - a vga palette manipulation to the entries 
-> 0-15 as it seems. This is quite different to writing 80x25 the space character.
+> >> the following patch adds a post_setgid() security hook, and necessary dummy 
+> >> funcs.
+> >
+> >... and why exactly would we want these?
 > 
+> I am working on a sec module which, among other things, raises certain 
+> capabilities when the UID/GID has been successfully changed.
 
-I don't think this is related to the patch Albert is talking about
-
-Ben.
-
+So keep the patch part of your module, it has no business in mainline
+so far.
 

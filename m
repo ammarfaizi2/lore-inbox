@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263243AbVGOIpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263247AbVGOIr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263243AbVGOIpA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 04:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263246AbVGOIpA
+	id S263247AbVGOIr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 04:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263248AbVGOIr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 04:45:00 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2831 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263243AbVGOIo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 04:44:59 -0400
-Date: Fri, 15 Jul 2005 09:44:45 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
-       vojtech@suse.cz, david.lang@digitalinsight.com, davidsen@tmr.com,
-       kernel@kolivas.org, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
-       diegocg@gmail.com, azarah@nosferatu.za.org, christoph@lameter.com
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Message-ID: <20050715094445.D25428@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Jesper Juhl <jesper.juhl@gmail.com>, Chris Wedgwood <cw@f00f.org>,
-	Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
-	dtor_core@ameritech.net, vojtech@suse.cz,
-	david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
-	linux-kernel@vger.kernel.org, mbligh@mbligh.org, diegocg@gmail.com,
-	azarah@nosferatu.za.org, christoph@lameter.com
-References: <20050713184227.GB2072@ucw.cz> <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org> <1121282025.4435.70.camel@mindpipe> <d120d50005071312322b5d4bff@mail.gmail.com> <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org> <20050713211650.GA12127@taniwha.stupidest.org> <9a874849050714170465c979c3@mail.gmail.com> <1121386505.4535.98.camel@mindpipe> <Pine.LNX.4.58.0507141718350.19183@g5.osdl.org>
+	Fri, 15 Jul 2005 04:47:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:29110 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263247AbVGOIr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 04:47:27 -0400
+Subject: Re: Buffer Over-runs, was Open source firewalls
+From: Arjan van de Ven <arjan@infradead.org>
+To: rvk@prodmail.net
+Cc: omb@bluewin.ch, linux-kernel@vger.kernel.org
+In-Reply-To: <42D7734D.9070204@prodmail.net>
+References: <20050713163424.35416.qmail@web32110.mail.mud.yahoo.com>
+	 <42D63AD0.6060609@aitel.hist.no> <42D63D4A.2050607@prodmail.net>
+	 <42D658A8.4040009@aitel.hist.no> <42D658A9.7050706@prodmail.net>
+	 <42D6ECED.7070504@khandalf.com>  <42D75A93.5010904@prodmail.net>
+	 <1121410260.3179.3.camel@laptopd505.fenrus.org>
+	 <42D7734D.9070204@prodmail.net>
+Content-Type: text/plain
+Date: Fri, 15 Jul 2005 10:46:54 +0200
+Message-Id: <1121417215.3179.7.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0507141718350.19183@g5.osdl.org>; from torvalds@osdl.org on Thu, Jul 14, 2005 at 05:24:39PM -0700
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 14, 2005 at 05:24:39PM -0700, Linus Torvalds wrote:
-> HOWEVER. I bet that somebody who really really cares (hint hint) could
-> easily make HZ be 1000, and then dynamically tweak the divisor at bootup
-> to be either 1000, 250, or 100, and then increment "jiffies" by 1, 4 or
-> 10.
+On Fri, 2005-07-15 at 13:56 +0530, RVK wrote:
+> >except this is no longer true really ;)
+> >
+> >randomisation for example makes this a lot harder to do.
+> >gcc level tricks to prevent buffer overflows are widely in use nowadays
+> >too (FORTIFY_SOURCE and -fstack-protector). The combination of this all
+> >makes it a LOT harder to actually exploit a buffer overflow on, say, a
+> >distribution like Fedora Core 4.
+> >
+> >
+> >  
+> >
+> Still is very new....not every one can immediately start using gcc 4.
 
-Wouldn't this be better suited to a VST like implementation, but
-instead of using VST to dynamically adjust the timer divisor, it
-operates in a "fixed" mode?
+it;s also available for gcc 3.4 as patch (and included in FC3 and RHEL4
+for example)
 
-(I'm arguing this way because ARM has VST merged already, and all
-there are no changes required to the core kernel code to achieve
-this.)
+so it's new? so what? doesn't make it less true that it nowadays is a
+lot harder to exploit such bugs on recent distros.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+

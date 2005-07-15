@@ -1,73 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVGOAEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262865AbVGOAF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262551AbVGOAEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 20:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262816AbVGOAEJ
+	id S262865AbVGOAF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 20:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbVGOAF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 20:04:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1740 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262551AbVGOAEH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 20:04:07 -0400
-Subject: Re: [rfc patch 2/2] direct-io: remove address alignment check
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050714163947.3fb952f1.akpm@osdl.org>
-References: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net.suse.lists.linux.kernel>
-	 <p73hdex5xws.fsf@bragg.suse.de>
-	 <1121356952.6025.33.camel@ibm-c.pdx.osdl.net>
-	 <20050714182325.GI23737@wotan.suse.de>
-	 <1121373639.6025.70.camel@ibm-c.pdx.osdl.net>
-	 <20050714163947.3fb952f1.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1121385837.6025.97.camel@ibm-c.pdx.osdl.net>
+	Thu, 14 Jul 2005 20:05:27 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:52894 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262872AbVGOAEu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 20:04:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=r8sa/klHxcyiqS2BBRGO20fS0Uzk7QBy+CkZXFttYQr3LRnK0nRFgXplzfOinLG9uB5p4rn0HORMtqbo7lJeYQN0gVQ3oldXp8Fnp0sxgB769v5SGIPUF5vKZoJmmbUXk/DgZkpIDmTJZxGf+QB5veNvE0VRCjSNEf7Wcwvc3y8=
+Message-ID: <9a874849050714170465c979c3@mail.gmail.com>
+Date: Fri, 15 Jul 2005 02:04:50 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Cc: Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
+       torvalds@osdl.org, vojtech@suse.cz, david.lang@digitalinsight.com,
+       davidsen@tmr.com, kernel@kolivas.org, linux-kernel@vger.kernel.org,
+       mbligh@mbligh.org, diegocg@gmail.com, azarah@nosferatu.za.org,
+       christoph@lameter.com
+In-Reply-To: <20050713211650.GA12127@taniwha.stupidest.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 14 Jul 2005 17:03:58 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42D3E852.5060704@mvista.com> <42D540C2.9060201@tmr.com>
+	 <Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
+	 <20050713184227.GB2072@ucw.cz>
+	 <Pine.LNX.4.58.0507131203300.17536@g5.osdl.org>
+	 <1121282025.4435.70.camel@mindpipe>
+	 <d120d50005071312322b5d4bff@mail.gmail.com>
+	 <1121286258.4435.98.camel@mindpipe>
+	 <20050713134857.354e697c.akpm@osdl.org>
+	 <20050713211650.GA12127@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 16:39, Andrew Morton wrote:
-> Daniel McNeil <daniel@osdl.org> wrote:
-> >
-> > Do drivers have problems with odd addresses or with
-> >  non-512 addresses?
+On 7/13/05, Chris Wedgwood <cw@f00f.org> wrote:
+> On Wed, Jul 13, 2005 at 01:48:57PM -0700, Andrew Morton wrote:
 > 
-> I do recall hearing rumours that some bus-masters have fairly strict memory
-> alignment requirements.  A cacheline size, perhaps - that would be 32 bytes
-> given the age of the hardware.
+> > Len Brown, a year ago: "The bottom line number to laptop users is
+> > battery lifetime.  Just today somebody complained to me that Windows
+> > gets twice the battery life that Linux does."
 > 
-> But yeah, it's v.  risky to assume that all bus masters can cope with
-> memory alignments down to two bytes.
+> It seems the motivation for lower HZ is really:
 > 
-> It would be sane to put the minimum alignment into ->backing_dev_info,
-> default to 512, get the device drivers to override that as they are tested.
+>    (1) ACPI/SMM suckage in laptops
 > 
-> But this introduces a very very bad problem: people will write applications
-> which work on their hardware, ship the things and then find that the apps
-> break on other people's hardware.  So we can't do that.
+>    (2) NUMA systems with *horrible* remote memory latencies
 > 
-> Instead, we need to work out the minimum alignment requirement for all disk
-> controllers and DMA controllers and motherboards in the world.  And that
-> includes catering for weird ones which appear to work but which
-> occasionally fail in mysterious ways with finer alignments.  That's hard. 
-> It's easier to continue to make application developers jump through hoops.
+> Both can be detected from you .config and we could see HZ as needed
+> there and everyone else could avoid this surely?
+> 
 
-I was hoping this patch would help turn rumors into real data :)
+While reading this thread it occoured to me that perhaps what we
+really want (besides sub HZ timers) might be for the kernel to
+auto-tune HZ?
 
-If we did put min alignment into backing_dev_info, we could implement
-the equivalent of bounce buffers for direct-io -- or just fall back
-to buffer i/o like it does sometimes anyway.  That way application
-would not break, just get worse performance on some hardware.
+Would it make sense to introduce a new config option (say
+CONFIG_HZ_AUTO) that when selected does something like this at boot:
 
-Right now I just wanted to get the issues on table, get some test
-results, and see how to proceed from there.  Since this patch only
-affects direct i/o, getting test results shouldn't cause too many
-problems.
+if (running_on_a_laptop()) {
+    set_HZ_to(250);
+} else if (running_on_large_NUMA_box()) {
+    set_HZ_to_100();
+} else if (running_on_multimedia_box() {
+    set_HZ_to_1000();
+} else {
+    set_HZ_to_some_other_sane_default();
+}
 
-Thanks,
+and if user wants to not use the auto detection they can select a
+certain HZ in their .config instead of CONFIG_HZ_AUTO.
 
-Daniel
 
+Just wanted to throw the idea up in the air in case it made sense.
+Feel free to pick it apart or simply ignore it. :-)
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

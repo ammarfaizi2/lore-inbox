@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVGOKmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263290AbVGOKoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVGOKmF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 06:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbVGOKj6
+	id S263290AbVGOKoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 06:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbVGOKe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 06:39:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31201 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261810AbVGOKiA (ORCPT
+	Fri, 15 Jul 2005 06:34:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12435 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261810AbVGOKcQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 06:38:00 -0400
-Date: Fri, 15 Jul 2005 03:36:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Grant Coady <x0x0x@dodo.com.au>
+	Fri, 15 Jul 2005 06:32:16 -0400
+Date: Fri, 15 Jul 2005 18:37:12 +0800
+From: David Teigland <teigland@redhat.com>
+To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm1
-Message-Id: <20050715033656.7308f7a8.akpm@osdl.org>
-In-Reply-To: <8l3fd114elpvlpbd2uhqvk45qj4neqmmdl@4ax.com>
-References: <20050715013653.36006990.akpm@osdl.org>
-	<8l3fd114elpvlpbd2uhqvk45qj4neqmmdl@4ax.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: [patch 10/12] dlm: release list of root rsbs
+Message-ID: <20050715103712.GM17316@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="release-root-list.patch"
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady <x0x0x@dodo.com.au> wrote:
->
-> On Fri, 15 Jul 2005 01:36:53 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> >
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
-> 
-> Did _not_ break Yenta + CardBus on Toshiba ToPIC100: 
->   http://scatter.mine.nu/test/linux-2.6/tosh/dmesg-2.6.13-rc3-mm1a.gz
+The list of root rsb's created during recovery needs to be released if
+recovery is aborted early.
 
-What does this mean?
+Signed-off-by: David Teigland <teigland@redhat.com>
+
+Index: linux/drivers/dlm/recoverd.c
+===================================================================
+--- linux.orig/drivers/dlm/recoverd.c
++++ linux/drivers/dlm/recoverd.c
+@@ -205,6 +205,7 @@ static int ls_recover(struct dlm_ls *ls,
+ 	return 0;
+ 
+  fail:
++	dlm_release_root_list(ls);
+ 	log_debug(ls, "recover %"PRIx64" error %d", rv->seq, error);
+ 	up(&ls->ls_recoverd_active);
+ 	return error;
+
+--

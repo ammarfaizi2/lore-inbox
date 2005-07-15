@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263224AbVGOF2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263217AbVGOFaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263224AbVGOF2i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 01:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbVGOF2Y
+	id S263217AbVGOFaq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 01:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263216AbVGOFap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 01:28:24 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:21129 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S263216AbVGOF1j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 01:27:39 -0400
-Date: Fri, 15 Jul 2005 14:21:46 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: Re: RFC: Hugepage COW
-Message-ID: <20050715042146.GE7750@localhost.localdomain>
-Mail-Followup-To: Christoph Lameter <christoph@lameter.com>,
-	linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-References: <20050707055554.GC11246@localhost.localdomain> <Pine.LNX.4.62.0507141022440.14347@graphe.net> <20050715011428.GC7750@localhost.localdomain> <Pine.LNX.4.62.0507141858220.21873@graphe.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0507141858220.21873@graphe.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 15 Jul 2005 01:30:45 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:62659 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263213AbVGOFaJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 01:30:09 -0400
+Message-ID: <42D7495F.3030502@us.ibm.com>
+Date: Thu, 14 Jul 2005 22:27:59 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel McNeil <daniel@osdl.org>
+CC: "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc patch 2/2] direct-io: remove address alignment check
+References: <1121298112.6025.21.camel@ibm-c.pdx.osdl.net>	 <1121382983.6755.87.camel@dyn9047017102.beaverton.ibm.com> <1121384672.6025.81.camel@ibm-c.pdx.osdl.net>
+In-Reply-To: <1121384672.6025.81.camel@ibm-c.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 14, 2005 at 07:00:11PM -0700, Christoph Lameter wrote:
-> On Fri, 15 Jul 2005, David Gibson wrote:
-> 
-> > Well, the COW patch implements a fault handler, obviously.  What
-> > specifically where you thinking about?
-> 
-> About a fault handler of course and about surrounding scalability issues.
-> I worked on some hugepage related patches last fall. Have you had a look 
-> at the work of Ken, Ray and me on the subject?
+Daniel McNeil wrote:
 
-I'm still not at all sure what you're getting at.  Do you mean the
-demand-allocation patches which were floating around at some point - I
-gather they're important for doing sensible NUMA allocation of
-hugepages.  They have a small overlap with the COW code, in the fault
-handler, but not much.
+> On Thu, 2005-07-14 at 16:16, Badari Pulavarty wrote:
+> 
+>>How does your patch ensures that we meet the driver alignment
+>>restrictions ? Like you said, you need atleast "even" byte alignment
+>>for IDE etc..
+>>
+>>And also, are there any restrictions on how much the "minimum" IO
+>>size has to be ? I mean, can I read "1" byte ? I guess you are
+>>not relaxing it (yet)..
+>>
+> 
+> 
+> This patch does not change the i/o size requirements -- they
+> must be a multiple of device block size (usually 512).
+> 
+> It only relaxes the address alignment restriction.  I do not
+> know what the driver alignment restrictions are.  Without the
+> 1st patch, it was impossible to relax the address space
+> check and have direct-io generate the correct i/o's to submit.
+> 
+> This 2nd patch, is just for testing and generating feedback
+> to find out what the address alignment issues are.  Then
+> we can decide how to proceed.
+> 
+> Did you look over the 1st patch?  Comments?
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/people/dgibson
+Yes. I did look at the first patch and my questions were basically
+towards the first patch. I don't see any enforcement of alignment
+with your patch at all. So, we let the driver fail if it can't
+handle it ?
+
+BTW, I don't think the first patch is really doing the right thing.
+You got little carried away while cleaning up.
+You are trying to relax "user buffer" alignment only. If your
+"offset" is in the middle of a filesystem block (say 4k), you still
+need to zero out the first portion to be able to write into the
+middle. That "evil" code is still needed. :(
+
+Thanks,
+Badari
+

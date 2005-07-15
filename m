@@ -1,181 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263291AbVGOKeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263288AbVGOKhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263291AbVGOKeP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 06:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbVGOKb5
+	id S263288AbVGOKhF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 06:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVGOKfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 06:31:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33682 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263275AbVGOKbD (ORCPT
+	Fri, 15 Jul 2005 06:35:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19091 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263272AbVGOKc2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 06:31:03 -0400
-Date: Fri, 15 Jul 2005 18:35:56 +0800
+	Fri, 15 Jul 2005 06:32:28 -0400
+Date: Fri, 15 Jul 2005 18:37:19 +0800
 From: David Teigland <teigland@redhat.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 03/12] dlm: make code static
-Message-ID: <20050715103556.GF17316@redhat.com>
+Subject: [patch 11/12] dlm: return error in status reply
+Message-ID: <20050715103719.GN17316@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="add-static.patch"
+Content-Disposition: inline; filename="rcom-status-reply.patch"
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes needlessly global code static.
+When a lockspace on a remote node is not found for a recovery status
+request, an error needs to be returned so the requesting node can
+distinguish it from a normal reply with a zero status.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: David Teigland <teigland@redhat.com>
 
-Index: linux-2.6.12-mm1/drivers/dlm/lock.c
+Index: linux/drivers/dlm/rcom.c
 ===================================================================
---- linux-2.6.12-mm1.orig/drivers/dlm/lock.c
-+++ linux-2.6.12-mm1/drivers/dlm/lock.c
-@@ -92,7 +92,7 @@ static int receive_extralen(struct dlm_m
-  * Usage: matrix[grmode+1][rqmode+1]  (although m[rq+1][gr+1] is the same)
-  */
+--- linux.orig/drivers/dlm/rcom.c
++++ linux/drivers/dlm/rcom.c
+@@ -78,13 +78,13 @@ static void make_config(struct dlm_ls *l
+ 	rf->rf_lsflags = ls->ls_exflags;
+ }
  
--const int __dlm_compat_matrix[8][8] = {
-+static const int __dlm_compat_matrix[8][8] = {
-       /* UN NL CR CW PR PW EX PD */
-         {1, 1, 1, 1, 1, 1, 1, 0},       /* UN */
-         {1, 1, 1, 1, 1, 1, 1, 0},       /* NL */
-@@ -139,7 +139,7 @@ int dlm_modes_compat(int mode1, int mode
-  * Usage: matrix[grmode+1][rqmode+1]
-  */
- 
--const int __quecvt_compat_matrix[8][8] = {
-+static const int __quecvt_compat_matrix[8][8] = {
-       /* UN NL CR CW PR PW EX PD */
-         {0, 0, 0, 0, 0, 0, 0, 0},       /* UN */
-         {0, 0, 1, 1, 1, 1, 1, 0},       /* NL */
-@@ -1630,8 +1630,8 @@ static int set_unlock_args(uint32_t flag
+-static int check_config(struct dlm_ls *ls, struct rcom_config *rf)
++static int check_config(struct dlm_ls *ls, struct rcom_config *rf, int nodeid)
+ {
+ 	if (rf->rf_lvblen != ls->ls_lvblen ||
+ 	    rf->rf_lsflags != ls->ls_exflags) {
+-		log_error(ls, "config mismatch %d,%d %x,%x",
+-			  rf->rf_lvblen, ls->ls_lvblen,
+-			  rf->rf_lsflags, ls->ls_exflags);
++		log_error(ls, "config mismatch: %d,%x nodeid %d: %d,%x",
++			  ls->ls_lvblen, ls->ls_exflags,
++			  nodeid, rf->rf_lvblen, rf->rf_lsflags);
+ 		return -EINVAL;
+ 	}
  	return 0;
- }
+@@ -116,7 +116,15 @@ int dlm_rcom_status(struct dlm_ls *ls, i
+ 		goto out;
  
--int validate_lock_args(struct dlm_ls *ls, struct dlm_lkb *lkb,
--		       struct dlm_args *args)
-+static int validate_lock_args(struct dlm_ls *ls, struct dlm_lkb *lkb,
-+			      struct dlm_args *args)
- {
- 	int rv = -EINVAL;
- 
-@@ -1685,7 +1685,7 @@ int validate_lock_args(struct dlm_ls *ls
- 	return rv;
- }
- 
--int validate_unlock_args(struct dlm_lkb *lkb, struct dlm_args *args)
-+static int validate_unlock_args(struct dlm_lkb *lkb, struct dlm_args *args)
- {
- 	int rv = -EINVAL;
- 
-Index: linux-2.6.12-mm1/drivers/dlm/lockspace.c
-===================================================================
---- linux-2.6.12-mm1.orig/drivers/dlm/lockspace.c
-+++ linux-2.6.12-mm1/drivers/dlm/lockspace.c
-@@ -47,7 +47,7 @@ int dlm_lockspace_init(void)
- 	return 0;
- }
- 
--int dlm_scand(void *data)
-+static int dlm_scand(void *data)
- {
- 	struct dlm_ls *ls;
- 
-@@ -60,7 +60,7 @@ int dlm_scand(void *data)
- 	return 0;
- }
- 
--int dlm_scand_start(void)
-+static int dlm_scand_start(void)
- {
- 	struct task_struct *p;
- 	int error = 0;
-@@ -73,7 +73,7 @@ int dlm_scand_start(void)
+ 	rc = (struct dlm_rcom *) ls->ls_recover_buf;
+-	error = check_config(ls, (struct rcom_config *) rc->rc_buf);
++
++	if (rc->rc_result == -ESRCH) {
++		/* we pretend the remote lockspace exists with 0 status */
++		log_debug(ls, "remote node %d not ready", nodeid);
++		rc->rc_result = 0;
++	} else
++		error = check_config(ls, (struct rcom_config *) rc->rc_buf,
++				     nodeid);
++	/* the caller looks at rc_result for the remote recovery status */
+  out:
  	return error;
  }
+@@ -369,7 +377,7 @@ static int send_ls_not_ready(int nodeid,
+ 	rc->rc_header.h_cmd = DLM_RCOM;
  
--void dlm_scand_stop(void)
-+static void dlm_scand_stop(void)
- {
- 	kthread_stop(scand_task);
- }
-Index: linux-2.6.12-mm1/drivers/dlm/main.c
-===================================================================
---- linux-2.6.12-mm1.orig/drivers/dlm/main.c
-+++ linux-2.6.12-mm1/drivers/dlm/main.c
-@@ -30,7 +30,7 @@ static inline void dlm_unregister_debugf
- int dlm_node_ioctl_init(void);
- void dlm_node_ioctl_exit(void);
+ 	rc->rc_type = DLM_RCOM_STATUS_REPLY;
+-	rc->rc_result = 0;
++	rc->rc_result = -ESRCH;
  
--int __init init_dlm(void)
-+static int __init init_dlm(void)
- {
- 	int error;
+ 	dlm_rcom_out(rc);
+ 	dlm_lowcomms_commit_buffer(mh);
+@@ -392,6 +400,8 @@ void dlm_receive_rcom(struct dlm_header 
  
-@@ -74,7 +74,7 @@ int __init init_dlm(void)
- 	return error;
- }
- 
--void __exit exit_dlm(void)
-+static void __exit exit_dlm(void)
- {
- 	dlm_lowcomms_exit();
- 	dlm_member_sysfs_exit();
-Index: linux-2.6.12-mm1/drivers/dlm/member.c
-===================================================================
---- linux-2.6.12-mm1.orig/drivers/dlm/member.c
-+++ linux-2.6.12-mm1/drivers/dlm/member.c
-@@ -47,7 +47,7 @@ static void add_ordered_member(struct dl
+ 	ls = dlm_find_lockspace_global(hd->h_lockspace);
+ 	if (!ls) {
++		log_print("lockspace %x from %d not found",
++			  hd->h_lockspace, nodeid);
+ 		send_ls_not_ready(nodeid, rc);
+ 		return;
  	}
- }
- 
--int dlm_add_member(struct dlm_ls *ls, int nodeid)
-+static int dlm_add_member(struct dlm_ls *ls, int nodeid)
- {
- 	struct dlm_member *memb;
- 
-@@ -61,13 +61,13 @@ int dlm_add_member(struct dlm_ls *ls, in
- 	return 0;
- }
- 
--void dlm_remove_member(struct dlm_ls *ls, struct dlm_member *memb)
-+static void dlm_remove_member(struct dlm_ls *ls, struct dlm_member *memb)
- {
- 	list_move(&memb->list, &ls->ls_nodes_gone);
- 	ls->ls_num_nodes--;
- }
- 
--int dlm_is_member(struct dlm_ls *ls, int nodeid)
-+static int dlm_is_member(struct dlm_ls *ls, int nodeid)
- {
- 	struct dlm_member *memb;
- 
-Index: linux-2.6.12-mm1/drivers/dlm/recover.c
-===================================================================
---- linux-2.6.12-mm1.orig/drivers/dlm/recover.c
-+++ linux-2.6.12-mm1/drivers/dlm/recover.c
-@@ -235,7 +235,7 @@ static struct dlm_rsb *recover_list_find
- 	return r;
- }
- 
--void recover_list_clear(struct dlm_ls *ls)
-+static void recover_list_clear(struct dlm_ls *ls)
- {
- 	struct dlm_rsb *r, *s;
- 
-Index: linux-2.6.12-mm1/drivers/dlm/recoverd.c
-===================================================================
---- linux-2.6.12-mm1.orig/drivers/dlm/recoverd.c
-+++ linux-2.6.12-mm1/drivers/dlm/recoverd.c
-@@ -658,7 +658,7 @@ static void do_ls_recovery(struct dlm_ls
- 	}
- }
- 
--int dlm_recoverd(void *arg)
-+static int dlm_recoverd(void *arg)
- {
- 	struct dlm_ls *ls;
- 
 
 --

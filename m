@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVGOVRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVGOVYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVGOVRI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 17:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVGOVRI
+	id S261215AbVGOVYk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 17:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVGOVYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 17:17:08 -0400
-Received: from taxbrain.com ([64.162.14.3]:24922 "EHLO petzent.com")
-	by vger.kernel.org with ESMTP id S261210AbVGOVRH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 17:17:07 -0400
-From: "karl malbrain" <karl@petzent.com>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.9 chrdev_open: serial_core: uart_open
-Date: Fri, 15 Jul 2005 14:17:01 -0700
-Message-ID: <NDBBKFNEMLJBNHKPPFILGEAMCEAA.karl@petzent.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Fri, 15 Jul 2005 17:24:39 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:48349 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261215AbVGOVYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 17:24:39 -0400
+Date: Fri, 15 Jul 2005 14:24:32 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       stable@kernel.org
+Subject: Re: [PATCH 2.6.13-rc3] kbuild: When checking depmod version,
+ redirect stderr
+Message-Id: <20050715142432.15f6752b.rdunlap@xenotime.net>
+In-Reply-To: <20050715145636.GU7741@smtp.west.cox.net>
+References: <20050715145636.GU7741@smtp.west.cox.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
-In-Reply-To: <20050715215845.D23709@flint.arm.linux.org.uk>
-X-Spam-Processed: petzent.com, Fri, 15 Jul 2005 14:13:15 -0700
-	(not processed: message from valid local sender)
-X-Return-Path: karl@petzent.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: petzent.com, Fri, 15 Jul 2005 14:13:16 -0700
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Russell King
-> Sent: Friday, July 15, 2005 1:59 PM
-> To: karl malbrain
-> Cc: Linux-Kernel@Vger. Kernel. Org
-> Subject: Re: 2.6.9 chrdev_open: serial_core: uart_open
->
->
-> On Fri, Jul 15, 2005 at 01:52:15PM -0700, karl malbrain wrote:
-> > On my 2.6.9-11EL source it clearly shows the up(&tty_sem) after
-> the call to
-> > uart_open. Init_dev never touches tty_sem.
->
-> In which case, I have to say...
->
-> Congratulations!  You've found a bug with Red Hat's Enterprise Linux
-> kernel!  Go straight to Red Hat's bugzilla!  Do not collect 200$.  Do
-> not pass go.
->
-> Seriously though, this bug is not present in mainline kernels, so I
-> can't resolve this issue for you.  Mainline kernels appear to work
-> properly.
+On Fri, 15 Jul 2005 07:56:36 -0700 Tom Rini wrote:
 
-Could tty_io.c be all that changed by a small set of red-hat patches to
-2.6.9?  Why would they need to go in there to make so many changes in the
-first place?  Which 2.6 release changed tty_io.c's use of tty_sem so
-heavily?
+> When running depmod to check for the correct version number, extra
+> output we don't need to see, such as "depmod: QM_MODULES: Function not
+> implemented" may show up.  Redirect stderr to /dev/null as the version
+> information that we do care about comes to stdout.
+> 
+> Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+> 
+> diff --git a/Makefile b/Makefile
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -875,7 +875,7 @@ modules_install: _modinst_ _modinst_post
+>  
+>  .PHONY: _modinst_
+>  _modinst_:
+> -	@if [ -z "`$(DEPMOD) -V | grep module-init-tools`" ]; then \
+> +	@if [ -z "`$(DEPMOD) -V 2>/dev/null | grep module-init-tools`" ]; then \
+>  		echo "Warning: you may need to install module-init-tools"; \
+>  		echo "See http://www.codemonkey.org.uk/docs/post-halloween-2.6.txt";\
+>  		sleep 1; \
 
-This conflict between main-line/redhat looks much worse than the unix sysV
-r4.0 divergence after 3.2. Ouch.
+Well, seeing "QM_MODULES" is a great indicator that someone is using
+modutils instead of module-init-tools, so I'd like to see it stay.
+IOW, I somewhat disagree with "extra output we don't need to see."
 
-Thanks for your help, though.  karl m
-
-
-
+---
+~Randy

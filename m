@@ -1,78 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVGOVwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVGOVx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbVGOVwE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 17:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVGOVwE
+	id S262027AbVGOVx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 17:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVGOVx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 17:52:04 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:4846 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262009AbVGOVwC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 17:52:02 -0400
-Date: Fri, 15 Jul 2005 14:51:57 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       stable@kernel.org
-Subject: Re: [PATCH 2.6.13-rc3] kbuild: When checking depmod version,
- redirect stderr
-Message-Id: <20050715145157.5ee37e62.rdunlap@xenotime.net>
-In-Reply-To: <20050715213854.GY7741@smtp.west.cox.net>
-References: <20050715145636.GU7741@smtp.west.cox.net>
-	<20050715142432.15f6752b.rdunlap@xenotime.net>
-	<20050715213854.GY7741@smtp.west.cox.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Jul 2005 17:53:26 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:43145 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262027AbVGOVw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 17:52:29 -0400
+From: Mark Gross <mgross@linux.intel.com>
+Organization: Intel
+To: Dave Airlie <airlied@gmail.com>, Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: Why is 2.6.12.2 less stable on my laptop than 2.6.10?
+Date: Fri, 15 Jul 2005 14:39:22 -0700
+User-Agent: KMail/1.5.4
+Cc: Chris Friesen <cfriesen@nortel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+References: <200507140912.22532.mgross@linux.intel.com.suse.lists.linux.kernel> <9a8748490507141906fb7e5b@mail.gmail.com> <21d7e997050714191666656d5@mail.gmail.com>
+In-Reply-To: <21d7e997050714191666656d5@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Disposition: inline
+Message-Id: <200507151439.22594.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Jul 2005 14:38:54 -0700 Tom Rini wrote:
+On Thursday 14 July 2005 19:16, Dave Airlie wrote:
+> > That, of course, you cannot do. But, you can regression test a lot of
+> > other things, and having a default test suite that is constantly being
+> > added to and always being run before releases (that test hardware
+> > agnostic stuff) could help cut down on the number of regressions in
+> > new releases.
+> > You can't test everything this way, nor should you, but you can test
+> > many things, and adding a bit of formal testing to the release
+> > procedure wouldn't be a bad thing IMO.
+>
+> But if you read peoples complaints about regression they are nearly
+> always to do with hardware that used to work not working any more ..
+> alps touchpads, sound cards, software suspend.. so these people still
+> gain nothing by you regression testing anything so you still get as
+> many reports.. the -rc series is meant to provide the testing for the
+> release so nothing really big gets through (like can't boot from IDE
+> anymore or something like that)....
+>
 
-> On Fri, Jul 15, 2005 at 02:24:32PM -0700, randy_dunlap wrote:
-> > On Fri, 15 Jul 2005 07:56:36 -0700 Tom Rini wrote:
-> > 
-> > > When running depmod to check for the correct version number, extra
-> > > output we don't need to see, such as "depmod: QM_MODULES: Function not
-> > > implemented" may show up.  Redirect stderr to /dev/null as the version
-> > > information that we do care about comes to stdout.
-> > > 
-> > > Signed-off-by: Tom Rini <trini@kernel.crashing.org>
-> > > 
-> > > diff --git a/Makefile b/Makefile
-> > > --- a/Makefile
-> > > +++ b/Makefile
-> > > @@ -875,7 +875,7 @@ modules_install: _modinst_ _modinst_post
-> > >  
-> > >  .PHONY: _modinst_
-> > >  _modinst_:
-> > > -	@if [ -z "`$(DEPMOD) -V | grep module-init-tools`" ]; then \
-> > > +	@if [ -z "`$(DEPMOD) -V 2>/dev/null | grep module-init-tools`" ]; then \
-> > >  		echo "Warning: you may need to install module-init-tools"; \
-> > >  		echo "See http://www.codemonkey.org.uk/docs/post-halloween-2.6.txt";\
-> > >  		sleep 1; \
-> > 
-> > Well, seeing "QM_MODULES" is a great indicator that someone is using
-> > modutils instead of module-init-tools, so I'd like to see it stay.
-> > IOW, I somewhat disagree with "extra output we don't need to see."
-> 
-> This shows up when building a 2.6 kernel with incorrect tools installed.
-> What shows up when building a 2.6 kernel on a 2.4 machine that's
-> properly setup to do both is "depmod: Can't open
-> /lib/modules/.../modules.dep for writing".
+I've seen large labs of lots of different systems used for dedicated testing 
+of products I've worked on in the past.  The validation folks held the keys 
+to the build and if a change got in that broke on an important OEM's 
+hardware, then everything stops until that change is either fixed or backed 
+out.
 
-I see.  Thanks for clarifying.  No problem then (with the patch).
+It aint cheap.  In open source we are attempting to simulate this, but we 
+don't simulate the control of the validation leads.
 
----
-~Randy
+> Dave.
+
+-- 
+--mgross
+BTW: This may or may not be the opinion of my employer, more likely not.  
+

@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVGOCfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263176AbVGOCqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbVGOCfW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 22:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVGOCfW
+	id S263176AbVGOCqu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 22:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbVGOCqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 22:35:22 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:1342 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261815AbVGOCfU convert rfc822-to-8bit
+	Thu, 14 Jul 2005 22:46:50 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:62012 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263176AbVGOCqt convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 22:35:20 -0400
+	Thu, 14 Jul 2005 22:46:49 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=EFdIH/1cSQfIH58Kc9/75PkFAH1P6dB3xI+yZSQdXr/PpwF9fbI/jKjN1qKzzlMoNAAQ0LBhDiM2sfo5BPG37oQ8jkb4ALrglFEBwMiw5FOLt/OEaVGb0LMLvN9DQmE8ThI4G8lxi9n3T8RBSyvajJ52zZUoNX3J7oWnGSaMyco=
-Message-ID: <105c793f0507141935403fc828@mail.gmail.com>
-Date: Thu, 14 Jul 2005 22:35:19 -0400
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: suspend2-users <suspend2-users@lists.suspend2.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PS/2 Keyboard is dead after resume.
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eHE77IxNRC8sMzvMz0r0s+DgpKIWo36mqc8+YCqSuTQEfm8ruF0HNYWQwa4hZcxLlIq628fNzDRJTkTOal7B/gu/3m/bBLHD5r0U1u1Scd92yJvlCAdjkxnb0QWuzO8sUSkvqdKTWBG4EqtWIbmVmp9okvDgy4NVLV+6zmT0HNo=
+Message-ID: <2ea3fae1050714194649c66d7e@mail.gmail.com>
+Date: Thu, 14 Jul 2005 19:46:49 -0700
+From: yhlu <yinghailu@gmail.com>
+Reply-To: yhlu <yinghailu@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [discuss] Re: NUMA support for dual core Opteron
+Cc: "Ronald G. Minnich" <rminnich@lanl.gov>,
+       Stefan Reinauer <stepan@openbios.org>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050714190929.GL23619@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <2ea3fae10507141058c476927@mail.gmail.com>
+	 <Pine.LNX.4.58.0507141259170.22630@enigma.lanl.gov>
+	 <20050714190929.GL23619@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+I didn't see any problem about NUMA with LinuxBIOS + 8way dual core system.
+of couse the acpi support in Kernel is disabled.
 
-I'm using Linux Kernel 2.6.12.2 plus suspend 2.1.9.9 and acpi-20050408
-with the hibernate-1.10 script. My machine is a Shuttle SK43G which
-has a VIA KM400 chipset with an Athlon XP CPU.
+p.s. can you use powernow when acpi is disabled?
+p.s.s  Is powerpc64 support ACPI? or ACPI is only can be used by x86?
 
-Suspension seems to work well. However, when I resume, the keyboard is
-dead and there is a warning in dmesg before and after suspension:
+YH
 
-atkbd.c: Spurious ACK on isa0060/serio0. Some program, like XFree86,
-might be trying access hardware directly.
-Please include the following information in bug reports:
-- SUSPEND core   : 2.1.9.9
-- Kernel Version : 2.6.12.2
-- Compiler vers. : 3.3
-- Attempt number : 1
-- Pageset sizes  : 5821 (5821 low) and 118350 (118350 low).
-- Parameters     : 0 32 0 1 0 5
-- Calculations   : Image size: 124376. Ram to suspend: 2240.
-- Limits         : 126960 pages RAM. Initial boot: 123894.
-- Overall expected compression percentage: 0.
-- Compressor lzf enabled.
-  Compressed 508604416 bytes into 23739845 (95 percent compression).
-- Swapwriter active.
-  Swap available for image: 487964 pages.
-- Filewriter inactive.
-- Preemptive kernel.
-- Max extents used: 4
-- I/O speed: Write 251 MB/s, Read 198 MB/s.
-Resume block device is defe0860.
-Real Time Clock Driver v1.12
-atkbd.c: Spurious ACK on isa0060/serio0. Some program, like XFree86,
-might be trying access hardware directly.
-
-
-This machine doesn't have XFree86 on it.
-
-I am presuming that this is a bug since I've used the exact same
-kernel+patches (with hibernate 1.09 script) on another machine without
-issues. I'm not sure if it's a suspension bug or if it's a kernel bug
-that is brought to light by the suspend2 patches. If I'm wrong and
-I've made a mistake, I'd love to hear it.
-
-Thanks.
-
--Andy
+On 7/14/05, Andi Kleen <ak@suse.de> wrote:
+> [closed mailing list dropped. Sorry I have no plans to argue with
+> your mailbots]
+> 
+> On Thu, Jul 14, 2005 at 01:00:01PM -0600, Ronald G. Minnich wrote:
+> > if there is any chance of getting along without ACPI entries that is best.
+> > Linux did do this once already, for SMP K8: K8 can boot and run NUMA
+> > without an SRAT table. What more is needed for dual core, and could Linux
+> > support in this area be extended?
+> 
+> The dual core NUMA parsing problem could be probably fixed. I personally
+> have no plans to work on it though, since the ACPI method works fine.
+> 
+> Feel free to submit patches.
+> 
+> However with 90+W CPUs I would strongly recommend having support
+> for PowerNow! and the old style PST table doesn't support
+> dual core or SMP, so you need ACPI for that anyways.
+> 
+> -Andi
+>

@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263318AbVGOPgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVGOPzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263318AbVGOPgi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 11:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263322AbVGOPgi
+	id S261496AbVGOPzz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 11:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263292AbVGOPzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 11:36:38 -0400
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:37088 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S263318AbVGOPgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 11:36:35 -0400
-Subject: Re: [PATCH] mb_cache_shrink() frees unexpected caches
-From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <1121440067.4137.2.camel@localhost.localdomain>
-References: <1121346444.4282.8.camel@localhost.localdomain>
-	 <200507151249.52294.agruen@suse.de>
-	 <1121434894.1261.4.camel@localhost.localdomain>
-	 <200507151636.27532.agruen@suse.de>
-	 <1121440067.4137.2.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sat, 16 Jul 2005 00:30:19 +0900
-Message-Id: <1121441419.4137.7.camel@localhost.localdomain>
+	Fri, 15 Jul 2005 11:55:55 -0400
+Received: from c-67-163-99-44.hsd1.tx.comcast.net ([67.163.99.44]:33762 "EHLO
+	leaper.linuxtx.org") by vger.kernel.org with ESMTP id S261496AbVGOPzx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Jul 2005 11:55:53 -0400
+Date: Fri, 15 Jul 2005 10:53:33 -0500
+From: "Justin M. Forbes" <jmforbes@linuxtx.org>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: Andi Kleen <ak@suse.de>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [11/11] x86_64: TASK_SIZE fixes for compatibility mode processes
+Message-ID: <20050715155333.GA387@linuxtx.org>
+References: <20050713184130.GA9330@kroah.com> <20050713184426.GM9330@kroah.com> <20050713184946.GY23737@wotan.suse.de> <20050714094516.A1847@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050714094516.A1847@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005-07-16 (Sat) 00:07 +0900 Akinobu Mita wrote:
-> Currently, mbcache is used only for xattr on ext2/ext3 and reiserfs.
-> In other words, only one type of mbcache is used per-filesystem.
-> So any problems don't happen without the patch I sent.
+On Thu, Jul 14, 2005 at 09:45:17AM -0700, Siddha, Suresh B wrote:
+> On Wed, Jul 13, 2005 at 08:49:47PM +0200, Andi Kleen wrote:
+> > On Wed, Jul 13, 2005 at 11:44:26AM -0700, Greg KH wrote:
+> > > -stable review patch.  If anyone has any objections, please let us know.
+> > 
+> > I think the patch is too risky for stable. I had even my doubts
+> > for mainline.
 > 
-> But, for example when someone use mbcache as another purpose on ext3,
-> The crash will be caused by using mb_cache_shrink().
+> hmm.. Main reason why Andrew posted this for stable series is because of
+> the memory leak issue mentioned in the patch changeset comments...
 > 
+I would say if Andi has concerns for this stable series, we should indeed
+leave it out.  That said, I will be testing this patch a bit further
+myself, and because it does address a real memory leak issue, we should
+consider it or another fix for stable 2.6.12.4.
 
-The crash doesn't happen..
-But, If more than two type of mbcache exist per-filesystem,
-mb_cache_shrink() is not effective.
-
+Justin M. Forbes

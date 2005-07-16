@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVGPUFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVGPU2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVGPUFN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 16:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVGPUFM
+	id S261793AbVGPU2s (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 16:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVGPU2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 16:05:12 -0400
-Received: from [82.94.235.170] ([82.94.235.170]:33720 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S261452AbVGPUFK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 16:05:10 -0400
-From: Norbert van Nobelen <norbert@edusupport.nl>
-Organization: EduSupport BV
-To: linux-kernel@vger.kernel.org
-Subject: Re: Sandisk Compact Flash
-Date: Sat, 16 Jul 2005 22:03:54 +0000
-User-Agent: KMail/1.6.2
-References: <OFF2465F02.D3F1F2D8-ON6525703D.0049BB41-6525703D.004A8B94@in.abb.com> <42D8B196.8030208@m1k.net> <20050716183100.GA4266@sonic.net>
-In-Reply-To: <20050716183100.GA4266@sonic.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 16 Jul 2005 16:28:48 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:47783 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261809AbVGPU2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 16:28:37 -0400
+Subject: Re: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
+From: Lee Revell <rlrevell@joe-job.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: szonyi calin <caszonyi@yahoo.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>, caszonyi@rdslink.ro
+In-Reply-To: <200507140958.00510.kernel@kolivas.org>
+References: <20050713112710.60204.qmail@web52902.mail.yahoo.com>
+	 <1121276077.4435.50.camel@mindpipe> <200507140958.00510.kernel@kolivas.org>
+Content-Type: text/plain
+Date: Sat, 16 Jul 2005 16:28:35 -0400
+Message-Id: <1121545716.10774.16.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200507162203.54858.norbert@edusupport.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So then you will have to reboot sometimes. BTW, IDE can be hot swapped if you 
-are carefull:
-Umount the device,
-unplug it.
-Plug in the same device (same model)
-Remount.
-A bit risky to your hardware, but I have used this way for harddisks several 
-time when a system has to keep running. Never used it for compact flash 
-though.
-
-Another option: Buy an USB card controller or a pcmcia controller for in your 
-pc. Costs about $10,-
-
-Op zaterdag 16 juli 2005 18:31, schreef u:
-> On Sat, Jul 16, 2005 at 03:04:54AM -0400, Michael Krufky wrote:
-> > I recommend picking up a CF-to-IDE adapter, such as this:
+On Thu, 2005-07-14 at 09:57 +1000, Con Kolivas wrote:
+> On Thu, 14 Jul 2005 03:34, Lee Revell wrote:
+> > On Wed, 2005-07-13 at 13:27 +0200, szonyi calin wrote:
+> > > I have the following problem with audio:
+> > > Xmms is running with threads for audio and spectrum
+> > > analyzer(OpenGL).
+> > > The audio eats 5% cpu, the spectrum analyzer about 80 %. The
+> > > problem is that sometimes the spectrum analyzer is eating all of
+> > > the cpu while the audio is skipping. Xmms is version 1.2.10
+> > > kernel is vanilla, latest "stable" version 2.6.12, suid root.
+> > >
+> > > Does your benchmark simultes this kind of behaviour ?
 > >
-> > http://www.acscontrol.com/Index_ACS.asp?Page=/Pages/Products/CompactFlash
-> >/IDE_To_CF_Adapter.htm
->
-> That's fine if you have a spare IDE port, but unlikely if you're
-> using a laptop.  Also these do not support hot swapping.
->
-> -- Dave
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > That's just a broken app, the kernel can't do anything about it.  XMMS
+> > should not be running the spectrum analyzer thread at such a high
+> > priority as to interfere with the audio thread.
+> 
+> I agree; optimising for this is just silly.
+
+I took a closer look and it's indeed quite broken.  If XMMS is run in
+realtime mode, and multithreading is enabled, it runs everything
+SCHED_RR - GUI, audio, spectrum analyzer.  (And since it relies on new
+threads inheriting RT scheduling when pthread_create()'d, the threads
+will fail to get SCHED_RR on buggy NPTL versions like the one in Debian
+Sarge).
+
+This untested patch should enable RT scheduling for only the (ALSA)
+audio thread.  Make sure NOT to run in realtime mode.
+
+Lee
+
+--- ../xmms-1.2.10+cvs20050209.orig/Output/alsa/audio.c	2005-01-31 17:45:08.000000000 -0500
++++ Output/alsa/audio.c	2005-07-16 16:06:06.000000000 -0400
+@@ -962,6 +962,7 @@
+ /* open callback */
+ int alsa_open(AFormat fmt, int rate, int nch)
+ {
++	struct sched_param sparam;
+ 	debug("Opening device");
+ 	inputf = snd_format_from_xmms(fmt, rate, nch);
+ 	effectf = snd_format_from_xmms(fmt, rate, nch);
+@@ -1010,6 +1011,9 @@
+ 		flush_request = -1;
+ 
+ 		pthread_create(&audio_thread, NULL, alsa_loop, NULL);
++		sparam.sched_priority = sched_get_priority_max(SCHED_FIFO);
++		if (pthread_setschedparam (audio_thread, SCHED_FIFO, &sparam) )
++			fprintf(stderr, "Error %s getting SCHED_FIFO for audio thread\n", strerror (errno));
+ 	}
+ 
+ 	return 1;
+
+

@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVGPSfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVGPTA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261792AbVGPSfU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 14:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVGPSfU
+	id S261154AbVGPTA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 15:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVGPTA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 14:35:20 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:10349 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261792AbVGPSfS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 14:35:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=B2vrD1cS7D4Fms6WpfeWf0vBRi+Jt1ZD8SSFINAWkPZ+FOj9kmLc5gJ3ZpC98IACTZXJC6/dKA42Uv1+dJL7Zm3fQpAp6g4qiqh+bs0IfA2u64Pq57fdspRazSuM2k9cXiQVkHMMky+9xKcq8lH6QNHT5YBGW2B1McB2jM9CnjM=
-Message-ID: <6bffcb0e05071611347cadc52b@mail.gmail.com>
-Date: Sat, 16 Jul 2005 20:34:21 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Reply-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Martin Mokrejs <mmokrejs@ribosome.natur.cuni.cz>
-Subject: Re: init 0 stopped working
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050716000947.GA24094@ribosome.natur.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050716000947.GA24094@ribosome.natur.cuni.cz>
+	Sat, 16 Jul 2005 15:00:29 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:49484 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261154AbVGPTA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 15:00:26 -0400
+Date: Sat, 16 Jul 2005 12:58:14 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Volatile vs Non-Volatile Spin Locks on SMP.
+In-reply-to: <4qEcy-1CX-21@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42D958C6.7030809@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4q1Ec-5KI-9@gated-at.bofh.it> <4q4sq-7HQ-15@gated-at.bofh.it>
+ <4qeLl-7lW-11@gated-at.bofh.it> <4qEcy-1CX-21@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On 7/16/05, Martin Mokrejs <mmokrejs@ribosome.natur.cuni.cz> wrote:
-> Hi,
->   I used to shutdown my P4 machine based on ASUS P4C800E-Deluxe
-> with simple "init 0" command. That somehow broke between 2.6.12-rc6-git2
-> and 2.6.13-rc1. The machines makes the sound like shutdown but it
-> immediately turns the power on again. I used acpi and the kernel
-> configs should be almost identical in all cases, as I just recopy
-> previously used .config and run "make oldconfig".
+multisyncfe991@hotmail.com wrote:
+> Hello,
 > 
->   Any clues? I still happens even with 2.6.13-rc3-git2.
-> Please Cc: me in replies.
-> Martin
+> By using volatile keyword for spin lock defined by in spinlock_t, it 
+> seems Linux choose to always
+> reload the value of spin locks from cache instead of using the content 
+> from registers. This may be
+> helpful for synchronization between multithreads in a single CPU.
+> 
+> I use two Xeon cpus with HyperThreading being disabled on both cpus. I 
+> think the MESI
+> protocol will enforce the cache coherency and update the spin lock value 
+> automatically between
+> these two cpus. So maybe we don't need to use the volatile any more, right?
 
+The value must always be loaded from memory. If the value is cached in a 
+register it will not update when another CPU changes it.
 
-I have the same problem.
-System: Debian 3.1
-Hardware:
-motherboard P4P800 (with bios 1019)
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-It may be problem around acpi in asus board. But 2.6.12.1 works good.
-
-Regards,
-Michal Piotrowski

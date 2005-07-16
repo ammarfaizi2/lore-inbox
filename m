@@ -1,42 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVGPKoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVGPL4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbVGPKoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 06:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVGPKoY
+	id S261476AbVGPL4l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 07:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVGPL4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 06:44:24 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:26426 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261467AbVGPKoX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 06:44:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=twkn8TyNmbsS03KOMRyvk3yU43m25Yk7O/xXc/AKl5IUSZudw9ojKUIEUVM4c5fEjq9+GKCOlR16672VmWXYTCkUaQjEBaaowAGOnZhOuW6roVDEzc5ZhCs9JHfnBhV5X9mK2SlaoSU1/g/+i4s8xP6QXxHyRdWq1E5jShae6+k=
-Message-ID: <3a9148b9050716034417d7d148@mail.gmail.com>
-Date: Sat, 16 Jul 2005 16:14:21 +0530
-From: Dhruv Matani <dhruvbird@gmail.com>
-Reply-To: Dhruv Matani <dhruvbird@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: NFS and fifos.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Sat, 16 Jul 2005 07:56:41 -0400
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:34966 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S261476AbVGPL4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 07:56:40 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: domen@coderock.org
+Subject: Re: [patch 1/1] Audit return code of create_proc_*
+Date: Sat, 16 Jul 2005 13:56:29 +0200
+User-Agent: KMail/1.7.2
+References: <20050714221923.543951000@homer>
+In-Reply-To: <20050714221923.543951000@homer>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1731540.atL9McG8jg";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507161356.36058.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-  I can't seem to be able to use fifos on an NFS mount. Is there any
-reason why this is disallowed, or is this is a bug? v.2.4.20.
+--nextPart1731540.atL9McG8jg
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-ps. pl. cc to me.
-Thanx in advance.
+Hi Domen,
+
+On Friday 15 July 2005 00:19, you wrote:
+> Audit return of create_proc_* functions.
+
+This (and related changes) spam the log, if
+kernel is compiled without /proc-support.
+
+Kernels without /proc-support are quite common in the embedded world.
+
+Just provide a function in a suitable header=20
+(include/linux/proc_fs.h looks promising)
+file, which contains the following:
+
+#ifdef CONFIG_PROC_FS
+#define procfs_failure(msg) do { printk(msg); } while(0)
+#else
+#define procfs_failure(msg) do {} while(0)
+#endif
+
+and use it instead of the direct printk call.
+
+That way you get both: Your GCC or checking tool warning is silenced
+and the log is not spammed for the embedded people.
+
+=46or code, which is broken without procfs, the code
+should be fixed or it should select PROC_FS in its Kconfig file.
 
 
--- 
-   -Dhruv Matani.
-http://www.geocities.com/dhruvbird/
+Regards
 
-The race of quality has no finish line.
-	~Anon.
+Ingo Oeser
+
+
+
+--nextPart1731540.atL9McG8jg
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC2PX0U56oYWuOrkARAkx7AKCkkwMsZehON9+1eQSuop+PnGxSjACfUw4b
+WPG51s1/lgQnmBEyYWMoY/g=
+=8F5E
+-----END PGP SIGNATURE-----
+
+--nextPart1731540.atL9McG8jg--

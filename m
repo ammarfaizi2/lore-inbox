@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVGPPV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVGPPjC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbVGPPV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 11:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVGPPV5
+	id S261664AbVGPPjC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 11:39:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbVGPPjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 11:21:57 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46088 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261661AbVGPPVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 11:21:52 -0400
-Date: Sat, 16 Jul 2005 16:21:44 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Vincent C Jones <vcjones@networkingunlimited.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.13-rc3][PCMCIA] - iounmap: bad address f1d62000
-Message-ID: <20050716162144.A1650@flint.arm.linux.org.uk>
+	Sat, 16 Jul 2005 11:39:02 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:33946 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261664AbVGPPiG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 11:38:06 -0400
+Date: Sat, 16 Jul 2005 17:38:05 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Frederic Gaus <frederic@gaus.name>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCMCIA_SOCKET unable to apply filter after Ram Upgrade
+Message-ID: <20050716153805.GA8228@isilmar.linta.de>
 Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Vincent C Jones <vcjones@networkingunlimited.com>,
-	linux-kernel@vger.kernel.org
-References: <4qGHl-3Hm-11@gated-at.bofh.it> <20050716144024.14C8E1F3DC@X31.networkingunlimited.com> <20050716151258.GA7819@isilmar.linta.de>
+	Frederic Gaus <frederic@gaus.name>, linux-kernel@vger.kernel.org
+References: <42D9245C.7070601@gaus.name>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050716151258.GA7819@isilmar.linta.de>; from linux@dominikbrodowski.net on Sat, Jul 16, 2005 at 05:12:58PM +0200
+In-Reply-To: <42D9245C.7070601@gaus.name>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 16, 2005 at 05:12:58PM +0200, Dominik Brodowski wrote:
-> Could you send me the output of /proc/iomem on both a working kernel and on
-> 2.6.13-rc3-APM, please?
+Hi,
 
-Dominik, I'd suggest looking elsewhere.  The memory regions must be
-free to be able to call into readable(), and therefore pccard_validate_cis().
+On Sat, Jul 16, 2005 at 05:14:36PM +0200, Frederic Gaus wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Hi folks!
+> 
+> I've recently done a RAM upgrade on my IBM Thinkpad R40 (2722).
+> 
+> 1. Ram-Chip: pc2100 cl 2.5 512 MB
+> 2. Ram-Chip: pc2700 cl 2.5 1024 MB
+> 
+> When booting with only one Chip inside, everything works perfecly.
+> (Never mind in which slot). But when using both, I get this error
+> message every few seconds:
+> 
+> 	kernel: cs: pcmcia_socket0: unable to apply power.
+> 
+> Changing the slots does't fix the problem. High Memory Support is enabled.
+> 
+> Who can help? Or do you need more information?
 
-What seems to be happening is that s->ops->set_mem_map in set_cis_map
-is returning an error, causing it to free the ioremapped region
-multiple times.  Maybe the card has an invalid CIS causing an out
-of range card_start to be requested?
+Probably a BIOS bug which we need to work around. Please send me the output
+of dmesg and /proc/iomem with 1GB RAM.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+	Dominik

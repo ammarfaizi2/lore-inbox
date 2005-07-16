@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVGPWOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVGPW3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVGPWOf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 18:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVGPWOf
+	id S261795AbVGPW3P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 18:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVGPW3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 18:14:35 -0400
-Received: from spc2-brig1-3-0-cust232.asfd.broadband.ntl.com ([82.1.142.232]:45524
-	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
-	id S261665AbVGPWOQ convert rfc822-to-8bit (ORCPT
+	Sat, 16 Jul 2005 18:29:15 -0400
+Received: from main.gmane.org ([80.91.229.2]:42455 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261795AbVGPW2F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 18:14:16 -0400
-Date: Sat, 16 Jul 2005 23:14:11 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Kconfig: lxdialog: Enable UTF8
-In-Reply-To: <Pine.LNX.4.58.0507161108150.465@ppg_penguin.kenmoffat.uklinux.net>
-Message-ID: <Pine.LNX.4.58.0507162249150.2928@ppg_penguin.kenmoffat.uklinux.net>
-References: <1121273456.2975.3.camel@spirit> <1121274450.2975.12.camel@spirit>
- <Pine.LNX.4.61.0507131916060.9023@yvahk01.tjqt.qr>
- <Pine.LNX.4.58.0507140117210.18332@ppg_penguin.kenmoffat.uklinux.net>
- <20050716095450.GC8064@mars.ravnborg.org>
- <Pine.LNX.4.58.0507161108150.465@ppg_penguin.kenmoffat.uklinux.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sat, 16 Jul 2005 18:28:05 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: RE: 2.6.9 chrdev_open: serial_core: uart_open
+Date: Sun, 17 Jul 2005 00:27:32 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2005.07.16.22.27.29.322105@smurf.noris.de>
+References: <NDBBKFNEMLJBNHKPPFILIEALCEAA.karl@petzent.com> <1121472769.23918.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Jul 2005, Ken Moffat wrote:
+Hi, Alan Cox wrote:
 
-> On Sat, 16 Jul 2005, Sam Ravnborg wrote:
->
-> > >
-> > > OK, I'll bite - non utf8 here, and no libncursesw : a quick google
-> > > suggests I can get it if I recompile ncurses with --enable-widec, but
-> > > why would I want to do that ?
-> > Could you try if specifying both libraries works for you. the 'w'
-> > version first. Then we can use the 'w' version when available but
-> > fall-back to the normal case if not.
-> >
-> > 	Sam
-> >
->
->  Didn't work, I get the not unexpected "cannot find -lncursesw".  I
-> think some sort of pre-test will be needed to see which one exists.
-> I'm weak on doing this in a Makefile, but I'll have a look tonight or
-> tomorrow.
->
+> A good rule of thumb
+> is to trace the sequence of calls and assume that the last sane sequence
+> is the one that occurred before the failure.
 
- Hmm, I can repeatedly test by linking against candidate libraries by
-converting the current if...else test to nested if..else (adding
--lcurses while I'm at it), but I can't crack setting HOST_LOADLIBES from
-that - if the link succeeded, I'm into the shell code to tidy up and
-from there I can't set a variable in the Makefile .
+Note also that gcc does sibling optimization, i.e. it will happily
+reduce the code at the end of
+	int bar(a,b) { [...] return baz(x,y); }
+into something like
+	overwrite 'a' with 'x', and 'b' with 'y'
+	pop local stack frame, if present
+	jump to baz
 
- I don't want to attempt to build a configure script in a Makefile -
-even if it's possible, I think it would be nasty.  So unless I've
-misunderstood your question, no, I can't specify both libraries.
+which saves some stack space and is faster, but makes you wonder
+how in hell the
+	baz
+	foo
+stack dump you're seeing in your crash dump came about.
 
- Note that I originally asked why on a system that doesn't use utf8, I
-should rebuild ncurses.  A sufficiently compelling reason would make me
-rebuild.
+(2.6.13 will turn that off when debugging.)
 
-Ken
 -- 
- das eine Mal als Tragödie, das andere Mal als Farce
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+There is a vast difference between putting your nose in other people's
+business and putting your heart in other people's problems.
+
 

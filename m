@@ -1,59 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVGPW3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVGPW12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVGPW3P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 18:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVGPW3P
+	id S261762AbVGPW12 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 18:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVGPW12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 18:29:15 -0400
-Received: from main.gmane.org ([80.91.229.2]:42455 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261795AbVGPW2F (ORCPT
+	Sat, 16 Jul 2005 18:27:28 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:59015 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261762AbVGPW11 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 18:28:05 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: RE: 2.6.9 chrdev_open: serial_core: uart_open
-Date: Sun, 17 Jul 2005 00:27:32 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2005.07.16.22.27.29.322105@smurf.noris.de>
-References: <NDBBKFNEMLJBNHKPPFILIEALCEAA.karl@petzent.com> <1121472769.23918.16.camel@localhost.localdomain>
+	Sat, 16 Jul 2005 18:27:27 -0400
+Date: Sun, 17 Jul 2005 00:25:26 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Vincent C Jones <vcjones@networkingunlimited.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.13-rc3][PCMCIA] - iounmap: bad address f1d62000
+Message-ID: <20050716222526.GA14172@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Vincent C Jones <vcjones@networkingunlimited.com>,
+	linux-kernel@vger.kernel.org
+References: <4qGHl-3Hm-11@gated-at.bofh.it> <20050716144024.14C8E1F3DC@X31.networkingunlimited.com> <20050716151258.GA7819@isilmar.linta.de> <20050716162144.A1650@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050716162144.A1650@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Alan Cox wrote:
+On Sat, Jul 16, 2005 at 04:21:44PM +0100, Russell King wrote:
+> On Sat, Jul 16, 2005 at 05:12:58PM +0200, Dominik Brodowski wrote:
+> > Could you send me the output of /proc/iomem on both a working kernel and on
+> > 2.6.13-rc3-APM, please?
+> 
+> Dominik, I'd suggest looking elsewhere.  The memory regions must be
+> free to be able to call into readable(), and therefore pccard_validate_cis().
+> 
+> What seems to be happening is that s->ops->set_mem_map in set_cis_map
+> is returning an error, causing it to free the ioremapped region
+> multiple times.  Maybe the card has an invalid CIS causing an out
+> of range card_start to be requested?
 
-> A good rule of thumb
-> is to trace the sequence of calls and assume that the last sane sequence
-> is the one that occurred before the failure.
+Could you check whether this patch helps, please?
 
-Note also that gcc does sibling optimization, i.e. it will happily
-reduce the code at the end of
-	int bar(a,b) { [...] return baz(x,y); }
-into something like
-	overwrite 'a' with 'x', and 'b' with 'y'
-	pop local stack frame, if present
-	jump to baz
-
-which saves some stack space and is faster, but makes you wonder
-how in hell the
-	baz
-	foo
-stack dump you're seeing in your crash dump came about.
-
-(2.6.13 will turn that off when debugging.)
-
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-There is a vast difference between putting your nose in other people's
-business and putting your heart in other people's problems.
-
-
+Index: 2.6.13-rc3-git2/drivers/pcmcia/cistpl.c
+===================================================================
+--- 2.6.13-rc3-git2.orig/drivers/pcmcia/cistpl.c
++++ 2.6.13-rc3-git2/drivers/pcmcia/cistpl.c
+@@ -88,31 +88,38 @@ EXPORT_SYMBOL(release_cis_mem);
+ static void __iomem *
+ set_cis_map(struct pcmcia_socket *s, unsigned int card_offset, unsigned int flags)
+ {
+-    pccard_mem_map *mem = &s->cis_mem;
+-    int ret;
++	pccard_mem_map *mem = &s->cis_mem;
++	int ret;
+ 
+-    if (!(s->features & SS_CAP_STATIC_MAP) && mem->res == NULL) {
+-	mem->res = pcmcia_find_mem_region(0, s->map_size, s->map_size, 0, s);
+-	if (mem->res == NULL) {
+-	    printk(KERN_NOTICE "cs: unable to map card memory!\n");
+-	    return NULL;
+-	}
+-	s->cis_virt = ioremap(mem->res->start, s->map_size);
+-    }
+-    mem->card_start = card_offset;
+-    mem->flags = flags;
+-    ret = s->ops->set_mem_map(s, mem);
+-    if (ret) {
+-	iounmap(s->cis_virt);
+-	return NULL;
+-    }
+-
+-    if (s->features & SS_CAP_STATIC_MAP) {
+-	if (s->cis_virt)
+-	    iounmap(s->cis_virt);
+-	s->cis_virt = ioremap(mem->static_start, s->map_size);
+-    }
+-    return s->cis_virt;
++	if (!(s->features & SS_CAP_STATIC_MAP) && (mem->res == NULL)) {
++		mem->res = pcmcia_find_mem_region(0, s->map_size, s->map_size, 0, s);
++		if (mem->res == NULL) {
++			printk(KERN_NOTICE "cs: unable to map card memory!\n");
++			return NULL;
++		}
++		s->cis_virt = NULL;
++	}
++
++	if (!(s->features & SS_CAP_STATIC_MAP) && (!s->cis_virt))
++		s->cis_virt = ioremap(mem->res->start, s->map_size);
++
++	mem->card_start = card_offset;
++	mem->flags = flags;
++
++	ret = s->ops->set_mem_map(s, mem);
++	if (ret) {
++		iounmap(s->cis_virt);
++		s->cis_virt = NULL;
++		return NULL;
++	}
++
++	if (s->features & SS_CAP_STATIC_MAP) {
++		if (s->cis_virt)
++			iounmap(s->cis_virt);
++		s->cis_virt = ioremap(mem->static_start, s->map_size);
++	}
++
++	return s->cis_virt;
+ }
+ 
+ /*======================================================================

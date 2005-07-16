@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVGPNyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVGPOEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVGPNyd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 09:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVGPNvy
+	id S261593AbVGPOEy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 10:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVGPOEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 09:51:54 -0400
-Received: from cpu2485.adsl.bellglobal.com ([207.236.16.208]:29931 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261606AbVGPNuq (ORCPT
+	Sat, 16 Jul 2005 10:04:53 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:52143 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261593AbVGPOE2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 09:50:46 -0400
-Date: Fri, 15 Jul 2005 10:38:30 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: Stefan Seyfried <seife@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: resuming swsusp twice
-Message-ID: <20050715083830.GC1772@elf.ucw.cz>
-References: <20050713185955.GB12668@hexapodia.org> <42D67D84.2020306@suse.de> <20050714175447.GA16651@hexapodia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050714175447.GA16651@hexapodia.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 16 Jul 2005 10:04:28 -0400
+Message-ID: <42D913D6.5050902@colorfullife.com>
+Date: Sat, 16 Jul 2005 16:04:06 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+CC: Ayaz Abdulla <AAbdulla@nvidia.com>
+Subject: [PATCH] forcedeth: TX handler changes (experimental)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > I of course won't say that this cannot happen, but by design, the
-> > swsusp
-> > signature is invalidated even before reading the image, so
-> > theoretically
-> > it should not happen.
-> 
-> Yes, I'd seen that happen on earlier swsusps, so I was quite suprised
-> when it blew up like this.
-> 
-> Perhaps the image should be more rigorously checked?  I'm wishing that
-> it would verify that the header and the image matched, after it finishes
-> reading the image.  For example, computing the hash
-> 
-> MD5(header || image)     (|| denotes "concatenate" in crypto pseudocode.)
-> 
-> and storing that hash in a final trailing block.  Additionally, of
-> course, as soon as the resume has read the image it should overwrite the
-> header; and the header should include jiffies or something along those
-> lines to ensure that it won't accidentally have the same contents as the
-> previous image's header.
-> 
-> The hash doesn't have to be MD5; even a CRC should suffice I think...
+Attached is a patch that modifies the tx interrupt handling of the 
+nForce nic. It's part of the attempts to figure out what causes the nic 
+hangs (see bug 4552).
+The change is experimental: It affects all nForce versions. I've tested 
+it on my nForce 250-Gb.
 
-Actually, what you want is "if filesystems are newer than suspend
-image, panic" test. There is more than one way how that can happen.
+Please test it. And especially: If you experince a nic hang, please send 
+me the debug output. That's the block starting with
 
-Are you sure you did not do
+<<
+NETDEV WATCHDOG: eth1: transmit timed out
+eth1: Got tx_timeout. irq: 00000000
+eth1: Ring at  ...
+<<
 
-suspend kernel 1
-boot kernel 2
-attempt to suspend kernel 2 but fail ("not enough swap space")
-boot kernel 1 ("and successfully resume, corrupting data")
-
-?
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+Thanks,
+    Manfred

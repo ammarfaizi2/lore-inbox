@@ -1,30 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263376AbVGPDft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVGPDot@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263376AbVGPDft (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 23:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263108AbVGPDeH
+	id S262162AbVGPDot (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 23:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVGPDod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 23:34:07 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:12717 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263376AbVGPDa5
+	Fri, 15 Jul 2005 23:44:33 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:39133 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262183AbVGPD2o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 23:30:57 -0400
-Subject: [RFC][PATCH 6/6] new timeofday i386 specific timesources
+	Fri, 15 Jul 2005 23:28:44 -0400
+Subject: [RFC][PATCH 4/6] new timeofday i386 arch specific changes, part 3 
+	(v.B4)
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: George Anzinger <george@mvista.com>,
        Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
        Christoph Lameter <clameter@sgi.com>, frank@tuxrocks.com,
        benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>
-In-Reply-To: <1121484576.28999.10.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1121484443.28999.7.camel@cog.beaverton.ibm.com>
 References: <1121484326.28999.3.camel@cog.beaverton.ibm.com>
 	 <1121484376.28999.4.camel@cog.beaverton.ibm.com>
 	 <1121484443.28999.7.camel@cog.beaverton.ibm.com>
-	 <1121484521.28999.9.camel@cog.beaverton.ibm.com>
-	 <1121484576.28999.10.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain
-Date: Fri, 15 Jul 2005 20:30:50 -0700
-Message-Id: <1121484650.28999.13.camel@cog.beaverton.ibm.com>
+Date: Fri, 15 Jul 2005 20:28:41 -0700
+Message-Id: <1121484521.28999.9.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
@@ -32,667 +31,533 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
-	This patch implements the time sources shared between i386 acpi_pm,
-cyclone, hpet, pit, tsc and tsc-interp). The patch should apply on top
-of the timeofday-arch-i386-part4 patch.
-	
-The patch should be fairly straight forward, only adding the new
-timesources.
+		The conversion of i386 to use the new timeofday subsystem has been
+split into 4 parts. This patch, the third of four, reworks some of the
+code in the new tsc.c file. Additionally it adds some new interfaces and
+hooks to use these new interfaces appropriately. This patch also renames
+some ACPI PM variables. 
 
+It applies on top of my timeofday-arch-i386-part2 patch. This patch is
+part the timeofday-arch-i386 patchset, so without the following parts it
+is not expected to compile.
+	
 thanks
 -john
 
-linux-2.6.13-rc3_timeofday-timesources-i386_B4.patch
+linux-2.6.13-rc3_timeofday-arch-i386-part3_B4.patch
 ============================================
-diff --git a/drivers/timesource/Makefile b/drivers/timesource/Makefile
---- a/drivers/timesource/Makefile
-+++ b/drivers/timesource/Makefile
-@@ -1 +1,8 @@
- obj-y += jiffies.o
-+
-+obj-$(CONFIG_X86) += tsc.o
-+obj-$(CONFIG_X86) += i386_pit.o
-+obj-$(CONFIG_X86) += tsc-interp.o
-+obj-$(CONFIG_X86_CYCLONE_TIMER) += cyclone.o
-+obj-$(CONFIG_X86_PM_TIMER) += acpi_pm.o
-+obj-$(CONFIG_HPET_TIMER) += hpet.o
-diff --git a/drivers/timesource/acpi_pm.c b/drivers/timesource/acpi_pm.c
-new file mode 100644
---- /dev/null
-+++ b/drivers/timesource/acpi_pm.c
-@@ -0,0 +1,152 @@
-+/*
-+ * linux/drivers/timesource/acpi_pm.c
-+ *
-+ * This file contains the ACPI PM based time source.
-+ *
-+ * This code was largely moved from the i386 timer_pm.c file
-+ * which was (C) Dominik Brodowski <linux@brodo.de> 2003
-+ * and contained the following comments:
-+ *
-+ * Driver to use the Power Management Timer (PMTMR) available in some
-+ * southbridges as primary timing source for the Linux kernel.
-+ *
-+ * Based on parts of linux/drivers/acpi/hardware/hwtimer.c, timer_pit.c,
-+ * timer_hpet.c, and on Arjan van de Ven's implementation for 2.4.
-+ *
-+ * This file is licensed under the GPL v2.
+diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
+--- a/arch/i386/kernel/acpi/boot.c
++++ b/arch/i386/kernel/acpi/boot.c
+@@ -633,7 +633,8 @@ static int __init acpi_parse_hpet(unsign
+ #endif
+ 
+ #ifdef CONFIG_X86_PM_TIMER
+-extern u32 pmtmr_ioport;
++u32 acpi_pmtmr_ioport;
++int acpi_pmtmr_buggy;
+ #endif
+ 
+ static int __init acpi_parse_fadt(unsigned long phys, unsigned long size)
+@@ -664,13 +665,13 @@ static int __init acpi_parse_fadt(unsign
+ 		if (fadt->xpm_tmr_blk.address_space_id != ACPI_ADR_SPACE_SYSTEM_IO)
+ 			return 0;
+ 
+-		pmtmr_ioport = fadt->xpm_tmr_blk.address;
++		acpi_pmtmr_ioport = fadt->xpm_tmr_blk.address;
+ 	} else {
+ 		/* FADT rev. 1 */
+-		pmtmr_ioport = fadt->V1_pm_tmr_blk;
++		acpi_pmtmr_ioport = fadt->V1_pm_tmr_blk;
+ 	}
+-	if (pmtmr_ioport)
+-		printk(KERN_INFO PREFIX "PM-Timer IO Port: %#x\n", pmtmr_ioport);
++	if (acpi_pmtmr_ioport)
++		printk(KERN_INFO PREFIX "PM-Timer IO Port: %#x\n", acpi_pmtmr_ioport);
+ #endif
+ 	return 0;
+ }
+diff --git a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
+--- a/arch/i386/kernel/setup.c
++++ b/arch/i386/kernel/setup.c
+@@ -1610,6 +1610,7 @@ void __init setup_arch(char **cmdline_p)
+ 	conswitchp = &dummy_con;
+ #endif
+ #endif
++	tsc_init();
+ }
+ 
+ #include "setup_arch_post.h"
+diff --git a/arch/i386/kernel/tsc.c b/arch/i386/kernel/tsc.c
+--- a/arch/i386/kernel/tsc.c
++++ b/arch/i386/kernel/tsc.c
+@@ -5,11 +5,17 @@
+  */
+ 
+ #include <linux/init.h>
+-#include <linux/timex.h>
+ #include <linux/cpufreq.h>
++#include <asm/tsc.h>
+ #include <asm/io.h>
+ #include "mach_timer.h"
+ 
++/* On some systems the TSC frequency does not
++ * change with the cpu frequency. So we need
++ * an extra value to store the TSC freq
 + */
++unsigned int tsc_khz;
 +
-+
-+#include <linux/timesource.h>
-+#include <linux/errno.h>
-+#include <linux/init.h>
-+#include <asm/io.h>
-+
-+/* Number of PMTMR ticks expected during calibration run */
-+#define PMTMR_TICKS_PER_SEC 3579545
-+
-+#if (CONFIG_X86 && (!CONFIG_X86_64))
-+#include "mach_timer.h"
-+#define PMTMR_EXPECTED_RATE ((PMTMR_TICKS_PER_SEC*CALIBRATE_TIME_MSEC)/1000)
-+#endif
-+
-+/* The I/O port the PMTMR resides at.
-+ * The location is detected during setup_arch(),
-+ * in arch/i386/acpi/boot.c */
-+extern u32 acpi_pmtmr_ioport;
-+extern int acpi_pmtmr_buggy;
-+
-+#define ACPI_PM_MASK 0xFFFFFF /* limit it to 24 bits */
-+
-+
-+static inline u32 read_pmtmr(void)
-+{
-+	/* mask the output to 24 bits */
-+	return inl(acpi_pmtmr_ioport) & ACPI_PM_MASK;
-+}
-+
-+static cycle_t acpi_pm_read_verified(void)
-+{
-+	u32 v1=0,v2=0,v3=0;
-+	/* It has been reported that because of various broken
-+	 * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM time
-+	 * source is not latched, so you must read it multiple
-+	 * times to insure a safe value is read.
-+	 */
-+	do {
-+		v1 = read_pmtmr();
-+		v2 = read_pmtmr();
-+		v3 = read_pmtmr();
-+	} while ((v1 > v2 && v1 < v3) || (v2 > v3 && v2 < v1)
-+			|| (v3 > v1 && v3 < v2));
-+
-+	return (cycle_t)v2;
-+}
-+
-+
-+static cycle_t acpi_pm_read(void)
-+{
-+	return (cycle_t)read_pmtmr();
-+}
-+
-+struct timesource_t timesource_acpi_pm = {
-+	.name = "acpi_pm",
-+	.priority = 200,
-+	.type = TIMESOURCE_FUNCTION,
-+	.read_fnct = acpi_pm_read,
-+	.mask = (cycle_t)ACPI_PM_MASK,
-+	.mult = 0, /*to be caluclated*/
-+	.shift = 22,
-+};
-+
-+#if (CONFIG_X86 && (!CONFIG_X86_64))
-+/*
-+ * Some boards have the PMTMR running way too fast. We check
-+ * the PMTMR rate against PIT channel 2 to catch these cases.
+ int tsc_disable __initdata = 0;
+ #ifndef CONFIG_X86_TSC
+ /* disable flag for tsc.  Takes effect by clearing the TSC cpu flag
+@@ -32,15 +38,42 @@ __setup("notsc", tsc_setup);
+ 
+ int read_current_timer(unsigned long *timer_val)
+ {
+-	if (cur_timer->read_timer) {
+-		*timer_val = cur_timer->read_timer();
++	if (!tsc_disable && cpu_khz) {
++		rdtscl(*timer_val);
+ 		return 0;
+ 	}
+ 	return -1;
+ }
+ 
++/* Code to mark and check if the TSC is unstable
++ * due to cpufreq or due to unsynced TSCs
 + */
-+static int __init verify_pmtmr_rate(void)
++static int tsc_unstable;
++int check_tsc_unstable(void)
 +{
-+	u32 value1, value2;
-+	unsigned long count, delta;
-+
-+	mach_prepare_counter();
-+	value1 = read_pmtmr();
-+	mach_countup(&count);
-+	value2 = read_pmtmr();
-+	delta = (value2 - value1) & ACPI_PM_MASK;
-+
-+	/* Check that the PMTMR delta is within 5% of what we expect */
-+	if (delta < (PMTMR_EXPECTED_RATE * 19) / 20 ||
-+	    delta > (PMTMR_EXPECTED_RATE * 21) / 20) {
-+		printk(KERN_INFO "PM-Timer running at invalid rate: %lu%% of normal - aborting.\n", 100UL * delta / PMTMR_EXPECTED_RATE);
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+#else
-+#define verify_pmtmr_rate() (0)
-+#endif
-+
-+static int __init init_acpi_pm_timesource(void)
-+{
-+	u32 value1, value2;
-+	unsigned int i;
-+
-+	if (!acpi_pmtmr_ioport)
-+		return -ENODEV;
-+
-+	timesource_acpi_pm.mult = timesource_hz2mult(PMTMR_TICKS_PER_SEC,
-+									timesource_acpi_pm.shift);
-+
-+	/* "verify" this timing source */
-+	value1 = read_pmtmr();
-+	for (i = 0; i < 10000; i++) {
-+		value2 = read_pmtmr();
-+		if (value2 == value1)
-+			continue;
-+		if (value2 > value1)
-+			goto pm_good;
-+		if ((value2 < value1) && ((value2) < 0xFFF))
-+			goto pm_good;
-+		printk(KERN_INFO "PM-Timer had inconsistent results: 0x%#x, 0x%#x - aborting.\n", value1, value2);
-+		return -EINVAL;
-+	}
-+	printk(KERN_INFO "PM-Timer had no reasonable result: 0x%#x - aborting.\n", value1);
-+	return -ENODEV;
-+
-+pm_good:
-+	if (verify_pmtmr_rate() != 0)
-+		return -ENODEV;
-+
-+	/* check to see if pmtmr is known buggy */
-+	if (acpi_pmtmr_buggy) {
-+		timesource_acpi_pm.read_fnct = acpi_pm_read_verified;
-+		timesource_acpi_pm.priority = 110;
-+	}
-+
-+	register_timesource(&timesource_acpi_pm);
-+	return 0;
++	return tsc_unstable;
 +}
 +
-+module_init(init_acpi_pm_timesource);
-diff --git a/drivers/timesource/cyclone.c b/drivers/timesource/cyclone.c
-new file mode 100644
---- /dev/null
-+++ b/drivers/timesource/cyclone.c
-@@ -0,0 +1,138 @@
-+#include <linux/timesource.h>
-+#include <linux/errno.h>
-+#include <linux/string.h>
-+#include <linux/timex.h>
-+#include <linux/init.h>
-+
-+#include <asm/io.h>
-+#include <asm/pgtable.h>
-+#include "mach_timer.h"
-+
-+#define CYCLONE_CBAR_ADDR 0xFEB00CD0		/* base address ptr*/
-+#define CYCLONE_PMCC_OFFSET 0x51A0		/* offset to control register */
-+#define CYCLONE_MPCS_OFFSET 0x51A8		/* offset to select register */
-+#define CYCLONE_MPMC_OFFSET 0x51D0		/* offset to count register */
-+#define CYCLONE_TIMER_FREQ 100000000
-+#define CYCLONE_TIMER_MASK (0xFFFFFFFF) /* 32 bit mask */
-+
-+int use_cyclone = 0;
-+
-+struct timesource_t timesource_cyclone = {
-+	.name = "cyclone",
-+	.priority = 250,
-+	.type = TIMESOURCE_MMIO_32,
-+	.mmio_ptr = NULL, /* to be set */
-+	.mask = (cycle_t)CYCLONE_TIMER_MASK,
-+	.mult = 10,
-+	.shift = 0,
-+};
-+
-+static unsigned long __init calibrate_cyclone(void)
++void mark_tsc_unstable(void)
 +{
++	tsc_unstable = 1;
++}
++
++/* Code to compensate for C3 stalls */
++static u64 tsc_c3_offset;
++void tsc_c3_compensate(unsigned long usecs)
++{
++	u64 cycles = (usecs * tsc_khz)/1000;
++	tsc_c3_offset += cycles;
++}
++
++u64 tsc_read_c3_time(void)
++{
++	return tsc_c3_offset;
++}
+ 
+-/* convert from cycles(64bits) => nanoseconds (64bits)
++/* Accellerators for sched_clock()
++ * convert from cycles(64bits) => nanoseconds (64bits)
+  *  basic equation:
+  *		ns = cycles / (freq / ns_per_sec)
+  *		ns = cycles * (ns_per_sec / freq)
+@@ -80,76 +113,54 @@ unsigned long long sched_clock(void)
+ 	 * synchronized across all CPUs.
+ 	 */
+ #ifndef CONFIG_NUMA
+-	if (!use_tsc)
++	if (!cpu_khz || check_tsc_unstable())
+ #endif
+ 		/* no locking but a rare wrong value is not a big deal */
+-		return jiffies_64 * (1000000000 / HZ);
++		return (jiffies_64 - INITIAL_JIFFIES) * (1000000000 / HZ);
+ 
+ 	/* Read the Time Stamp Counter */
+ 	rdtscll(this_offset);
++	this_offset += tsc_read_c3_time();
+ 
+ 	/* return the value in ns */
+ 	return cycles_2_ns(this_offset);
+ }
+ 
+-/* ------ Calibrate the TSC -------
+- * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
+- * Too much 64-bit arithmetic here to do this cleanly in C, and for
+- * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
+- * output busy loop as low as possible. We avoid reading the CTC registers
+- * directly because of the awkward 8-bit access mechanism of the 82C54
+- * device.
+- */
+-
+-#define CALIBRATE_TIME	(5 * 1000020/HZ)
+ 
+-unsigned long calibrate_tsc(void)
++static unsigned long calculate_cpu_khz(void)
+ {
+-	mach_prepare_counter();
+-
+-	{
+-		unsigned long startlow, starthigh;
+-		unsigned long endlow, endhigh;
+-		unsigned long count;
+-
+-		rdtsc(startlow,starthigh);
++	unsigned long long start, end;
++	unsigned long count;
 +	u64 delta64;
-+	unsigned long start, end;
-+	unsigned long i, count;
-+	unsigned long cyclone_freq_khz;
-+
-+	/* repeat 3 times to make sure the cache is warm */
-+	for(i=0; i < 3; i++) {
++	int i;
++	/* run 3 times to ensure the cache is warm */
++	for(i=0; i<3; i++) {
 +		mach_prepare_counter();
-+		start = readl(timesource_cyclone.mmio_ptr);
-+		mach_countup(&count);
-+		end = readl(timesource_cyclone.mmio_ptr);
-+	}
++		rdtscll(start);
+ 		mach_countup(&count);
+-		rdtsc(endlow,endhigh);
+-
+-
+-		/* Error: ECTCNEVERSET */
+-		if (count <= 1)
+-			goto bad_ctc;
+-
+-		/* 64-bit subtract - gcc just messes up with long longs */
+-		__asm__("subl %2,%0\n\t"
+-			"sbbl %3,%1"
+-			:"=a" (endlow), "=d" (endhigh)
+-			:"g" (startlow), "g" (starthigh),
+-			 "0" (endlow), "1" (endhigh));
+-
+-		/* Error: ECPUTOOFAST */
+-		if (endhigh)
+-			goto bad_ctc;
+-
+-		/* Error: ECPUTOOSLOW */
+-		if (endlow <= CALIBRATE_TIME)
+-			goto bad_ctc;
+-
+-		__asm__("divl %2"
+-			:"=a" (endlow), "=d" (endhigh)
+-			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
+-
+-		return endlow;
++		rdtscll(end);
+ 	}
+-
+-	/*
++	/* Error: ECTCNEVERSET
+ 	 * The CTC wasn't reliable: we got a hit on the very first read,
+ 	 * or the CPU was so fast/slow that the quotient wouldn't fit in
+ 	 * 32 bits..
+ 	 */
+-bad_ctc:
+-	return 0;
++	if (count <= 1)
++		return 0;
 +
 +	delta64 = end - start;
++
++	/* cpu freq too fast */
++	if(delta64 > (1ULL<<32))
++		return 0;
++	/* cpu freq too slow */
++	if (delta64 <= CALIBRATE_TIME_MSEC)
++		return 0;
 +
 +	delta64 += CALIBRATE_TIME_MSEC/2; /* round for do_div */
 +	do_div(delta64,CALIBRATE_TIME_MSEC);
 +
-+	cyclone_freq_khz = (unsigned long)delta64;
++	return (unsigned long)delta64;
+ }
+ 
+ int recalibrate_cpu_khz(void)
+@@ -158,11 +169,11 @@ int recalibrate_cpu_khz(void)
+ 	unsigned long cpu_khz_old = cpu_khz;
+ 
+ 	if (cpu_has_tsc) {
+-		init_cpu_khz();
++		cpu_khz = calculate_cpu_khz();
++		tsc_khz = cpu_khz;
+ 		cpu_data[0].loops_per_jiffy =
+-		    cpufreq_scale(cpu_data[0].loops_per_jiffy,
+-			          cpu_khz_old,
+-				  cpu_khz);
++			cpufreq_scale(cpu_data[0].loops_per_jiffy,
++					cpu_khz_old, cpu_khz);
+ 		return 0;
+ 	} else
+ 		return -ENODEV;
+@@ -173,25 +184,21 @@ int recalibrate_cpu_khz(void)
+ EXPORT_SYMBOL(recalibrate_cpu_khz);
+ 
+ 
+-/* calculate cpu_khz */
+-void init_cpu_khz(void)
++void tsc_init(void)
+ {
+-	if (cpu_has_tsc) {
+-		unsigned long tsc_quotient = calibrate_tsc();
+-		if (tsc_quotient) {
+-			/* report CPU clock rate in Hz.
+-			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
+-			 * clock/second. Our precision is about 100 ppm.
+-			 */
+-			{	unsigned long eax=0, edx=1000;
+-				__asm__("divl %2"
+-		       		:"=a" (cpu_khz), "=d" (edx)
+-        	       		:"r" (tsc_quotient),
+-	                	"0" (eax), "1" (edx));
+-				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
+-			}
+-		}
+-	}
++	if(!cpu_has_tsc || tsc_disable)
++		return;
 +
-+	printk("calculated cyclone_freq: %lu khz\n", cyclone_freq_khz);
-+	return cyclone_freq_khz;
-+}
++	cpu_khz = calculate_cpu_khz();
++	tsc_khz = cpu_khz;
 +
-+static int __init init_cyclone_timesource(void)
-+{
-+	unsigned long base;	/* saved value from CBAR */
-+	unsigned long offset;
-+	u32 __iomem* reg;
-+	u32 __iomem* volatile cyclone_timer;	/* Cyclone MPMC0 register */
-+	unsigned long khz;
-+	int i;
++	if (!cpu_khz)
++		return;
 +
-+	/*make sure we're on a summit box*/
-+	if (!use_cyclone) return -ENODEV;
++	printk("Detected %lu.%03lu MHz processor.\n",
++				cpu_khz / 1000, cpu_khz % 1000);
 +
-+	printk(KERN_INFO "Summit chipset: Starting Cyclone Counter.\n");
++	set_cyc2ns_scale(cpu_khz/1000);
+ }
+ 
+ 
+@@ -211,15 +218,15 @@ static void handle_cpufreq_delayed_get(v
+ 	cpufreq_delayed_issched = 0;
+ }
+ 
+-/* if we notice lost ticks, schedule a call to cpufreq_get() as it tries
++/* if we notice cpufreq oddness, schedule a call to cpufreq_get() as it tries
+  * to verify the CPU frequency the timing core thinks the CPU is running
+  * at is still correct.
+  */
+-void cpufreq_delayed_get(void)
++static inline void cpufreq_delayed_get(void)
+ {
+ 	if (cpufreq_init && !cpufreq_delayed_issched) {
+ 		cpufreq_delayed_issched = 1;
+-		printk(KERN_DEBUG "Losing some ticks... checking if CPU frequency changed.\n");
++		printk(KERN_DEBUG "Checking if CPU frequency changed.\n");
+ 		schedule_work(&cpufreq_delayed_get_work);
+ 	}
+ }
+@@ -232,13 +239,11 @@ static unsigned int  ref_freq = 0;
+ static unsigned long loops_per_jiffy_ref = 0;
+ 
+ #ifndef CONFIG_SMP
+-static unsigned long fast_gettimeoffset_ref = 0;
+ static unsigned long cpu_khz_ref = 0;
+ #endif
+ 
+-static int
+-time_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
+-		       void *data)
++static int time_cpufreq_notifier(struct notifier_block *nb,
++		unsigned long val, void *data)
+ {
+ 	struct cpufreq_freqs *freq = data;
+ 
+@@ -248,7 +253,6 @@ time_cpufreq_notifier(struct notifier_bl
+ 		ref_freq = freq->old;
+ 		loops_per_jiffy_ref = cpu_data[freq->cpu].loops_per_jiffy;
+ #ifndef CONFIG_SMP
+-		fast_gettimeoffset_ref = fast_gettimeoffset_quotient;
+ 		cpu_khz_ref = cpu_khz;
+ #endif
+ 	}
+@@ -258,16 +262,20 @@ time_cpufreq_notifier(struct notifier_bl
+ 	    (val == CPUFREQ_RESUMECHANGE)) {
+ 		if (!(freq->flags & CPUFREQ_CONST_LOOPS))
+ 			cpu_data[freq->cpu].loops_per_jiffy = cpufreq_scale(loops_per_jiffy_ref, ref_freq, freq->new);
 +
-+	/* find base address */
-+	offset = CYCLONE_CBAR_ADDR;
-+	reg = ioremap_nocache(offset, sizeof(reg));
-+	if(!reg){
-+		printk(KERN_ERR "Summit chipset: Could not find valid CBAR register.\n");
-+		return -ENODEV;
-+	}
-+	/* even on 64bit systems, this is only 32bits */
-+	base = readl(reg);
-+	if(!base){
-+		printk(KERN_ERR "Summit chipset: Could not find valid CBAR value.\n");
-+		return -ENODEV;
-+	}
-+	iounmap(reg);
-+
-+	/* setup PMCC */
-+	offset = base + CYCLONE_PMCC_OFFSET;
-+	reg = ioremap_nocache(offset, sizeof(reg));
-+	if(!reg){
-+		printk(KERN_ERR "Summit chipset: Could not find valid PMCC register.\n");
-+		return -ENODEV;
-+	}
-+	writel(0x00000001,reg);
-+	iounmap(reg);
-+
-+	/* setup MPCS */
-+	offset = base + CYCLONE_MPCS_OFFSET;
-+	reg = ioremap_nocache(offset, sizeof(reg));
-+	if(!reg){
-+		printk(KERN_ERR "Summit chipset: Could not find valid MPCS register.\n");
-+		return -ENODEV;
-+	}
-+	writel(0x00000001,reg);
-+	iounmap(reg);
-+
-+	/* map in cyclone_timer */
-+	offset = base + CYCLONE_MPMC_OFFSET;
-+	cyclone_timer = ioremap_nocache(offset, sizeof(u64));
-+	if(!cyclone_timer){
-+		printk(KERN_ERR "Summit chipset: Could not find valid MPMC register.\n");
-+		return -ENODEV;
-+	}
-+
-+	/*quick test to make sure its ticking*/
-+	for(i=0; i<3; i++){
-+		u32 old = readl(cyclone_timer);
-+		int stall = 100;
-+		while(stall--) barrier();
-+		if(readl(cyclone_timer) == old){
-+			printk(KERN_ERR "Summit chipset: Counter not counting! DISABLED\n");
-+			iounmap(cyclone_timer);
-+			cyclone_timer = NULL;
-+			return -ENODEV;
-+		}
-+	}
-+	timesource_cyclone.mmio_ptr = cyclone_timer;
-+
-+	/* sort out mult/shift values */
-+	khz = calibrate_cyclone();
-+	timesource_cyclone.shift = 22;
-+	timesource_cyclone.mult = timesource_khz2mult(khz,
-+									timesource_cyclone.shift);
-+
-+	register_timesource(&timesource_cyclone);
-+
-+	return 0;
-+}
-+
-+module_init(init_cyclone_timesource);
-diff --git a/drivers/timesource/hpet.c b/drivers/timesource/hpet.c
-new file mode 100644
---- /dev/null
-+++ b/drivers/timesource/hpet.c
-@@ -0,0 +1,59 @@
-+#include <linux/timesource.h>
-+#include <linux/hpet.h>
-+#include <linux/errno.h>
-+#include <linux/init.h>
-+#include <asm/io.h>
-+#include <asm/hpet.h>
-+
-+#define HPET_MASK (0xFFFFFFFF)
-+#define HPET_SHIFT 22
-+
-+/* FSEC = 10^-15 NSEC = 10^-9 */
-+#define FSEC_PER_NSEC 1000000
-+
-+struct timesource_t timesource_hpet = {
-+	.name = "hpet",
-+	.priority = 250,
-+	.type = TIMESOURCE_MMIO_32,
-+	.mmio_ptr = NULL,
-+	.mask = (cycle_t)HPET_MASK,
-+	.mult = 0, /* set below */
-+	.shift = HPET_SHIFT,
-+};
-+
-+static int __init init_hpet_timesource(void)
-+{
-+	unsigned long hpet_period;
-+	void __iomem* hpet_base;
-+	u64 tmp;
-+
-+	if (!hpet_address)
-+		return -ENODEV;
-+
-+	/* calculate the hpet address */
-+	hpet_base =
-+		(void __iomem*)ioremap_nocache(hpet_address, HPET_MMAP_SIZE);
-+	timesource_hpet.mmio_ptr = hpet_base + HPET_COUNTER;
-+
-+	/* calculate the frequency */
-+	hpet_period = readl(hpet_base + HPET_PERIOD);
-+
-+
-+	/* hpet period is in femto seconds per cycle
-+	 * so we need to convert this to ns/cyc units
-+	 * aproximated by mult/2^shift
-+	 *
-+	 *  fsec/cyc * 1nsec/1000000fsec = nsec/cyc = mult/2^shift
-+	 *  fsec/cyc * 1ns/1000000fsec * 2^shift = mult
-+	 *  fsec/cyc * 2^shift * 1nsec/1000000fsec = mult
-+	 *  (fsec/cyc << shift)/1000000 = mult
-+	 *  (hpet_period << shift)/FSEC_PER_NSEC = mult
-+	 */
-+	tmp = (u64)hpet_period << HPET_SHIFT;
-+	do_div(tmp, FSEC_PER_NSEC);
-+	timesource_hpet.mult = (u32)tmp;
-+
-+	register_timesource(&timesource_hpet);
-+	return 0;
-+}
-+module_init(init_hpet_timesource);
-diff --git a/drivers/timesource/i386_pit.c b/drivers/timesource/i386_pit.c
-new file mode 100644
---- /dev/null
-+++ b/drivers/timesource/i386_pit.c
-@@ -0,0 +1,64 @@
-+#include <linux/timesource.h>
-+#include <linux/jiffies.h>
-+#include <linux/init.h>
-+/* pit timesource does not build on x86-64 */
-+#ifndef CONFIG_X86_64
-+#include <asm/io.h>
-+#include "io_ports.h"
-+
-+extern spinlock_t i8253_lock;
-+
-+/* Since the PIT overflows every tick, its not very useful
-+ * to just read by itself. So use jiffies to emulate a free
-+ * running counter.
-+ */
-+
-+static cycle_t pit_read(void)
-+{
-+	unsigned long flags, seq;
-+	int count;
-+	u64 jifs;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+
-+		spin_lock_irqsave(&i8253_lock, flags);
-+
-+		outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
-+		count = inb_p(PIT_CH0);	/* read the latched count */
-+		count |= inb_p(PIT_CH0) << 8;
-+
-+		/* VIA686a test code... reset the latch if count > max + 1 */
-+		if (count > LATCH) {
-+			outb_p(0x34, PIT_MODE);
-+			outb_p(LATCH & 0xff, PIT_CH0);
-+			outb(LATCH >> 8, PIT_CH0);
-+			count = LATCH - 1;
-+		}
-+		spin_unlock_irqrestore(&i8253_lock, flags);
-+		jifs = get_jiffies_64() - INITIAL_JIFFIES;
-+	} while (read_seqretry(&xtime_lock, seq));
-+
-+	count = (LATCH-1) - count;
-+
-+	return (cycle_t)(jifs * LATCH) + count;
-+}
-+
-+static struct timesource_t timesource_pit = {
-+	.name = "pit",
-+	.priority = 110,
-+	.type = TIMESOURCE_FUNCTION,
-+	.read_fnct = pit_read,
-+	.mask = (cycle_t)-1,
-+	.mult = 0,
-+	.shift = 20,
-+};
-+
-+static int __init init_pit_timesource(void)
-+{
-+	timesource_pit.mult = timesource_hz2mult(CLOCK_TICK_RATE, 20);
-+	register_timesource(&timesource_pit);
-+	return 0;
-+}
-+module_init(init_pit_timesource);
++		if (cpu_khz) {
+ #ifndef CONFIG_SMP
+-		if (cpu_khz)
+ 			cpu_khz = cpufreq_scale(cpu_khz_ref, ref_freq, freq->new);
+-		if (use_tsc) {
 +#endif
-diff --git a/drivers/timesource/tsc-interp.c b/drivers/timesource/tsc-interp.c
+ 			if (!(freq->flags & CPUFREQ_CONST_LOOPS)) {
+-				fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_ref, freq->new, ref_freq);
++				tsc_khz = cpu_khz;
+ 				set_cyc2ns_scale(cpu_khz/1000);
++				/* TSC based sched_clock turns
++				 * to junk w/ cpufreq
++				 */
++				mark_tsc_unstable();
+ 			}
+ 		}
+-#endif
+ 	}
+ 
+ 	if (val != CPUFREQ_RESUMECHANGE)
+@@ -289,10 +297,9 @@ static int __init cpufreq_tsc(void)
+ 					CPUFREQ_TRANSITION_NOTIFIER);
+ 	if (!ret)
+ 		cpufreq_init = 1;
++
+ 	return ret;
+ }
+ core_initcall(cpufreq_tsc);
+ 
+-#else /* CONFIG_CPU_FREQ */
+-void cpufreq_delayed_get(void) { return; }
+ #endif
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -164,6 +164,7 @@ acpi_processor_power_activate (
+ 	return;
+ }
+ 
++extern void tsc_c3_compensate(unsigned long usecs);
+ 
+ static atomic_t 	c3_cpu_count;
+ 
+@@ -332,6 +333,9 @@ static void acpi_processor_idle (void)
+ 			acpi_set_register(ACPI_BITREG_ARB_DISABLE, 0, ACPI_MTX_DO_NOT_LOCK);
+ 		}
+ 
++		/* compensate for TSC pause */
++		tsc_c3_compensate((((t2-t1)&0xFFFFFF)*286)>>10);
++
+ 		/* Re-enable interrupts */
+ 		local_irq_enable();
+ 		/* Compute time (ticks) that we were actually asleep */
+diff --git a/include/asm-i386/mach-default/mach_timer.h b/include/asm-i386/mach-default/mach_timer.h
+--- a/include/asm-i386/mach-default/mach_timer.h
++++ b/include/asm-i386/mach-default/mach_timer.h
+@@ -15,7 +15,9 @@
+ #ifndef _MACH_TIMER_H
+ #define _MACH_TIMER_H
+ 
+-#define CALIBRATE_LATCH	(5 * LATCH)
++#define CALIBRATE_TIME_MSEC 30 /* 30 msecs */
++#define CALIBRATE_LATCH	\
++	((CLOCK_TICK_RATE * CALIBRATE_TIME_MSEC + 1000/2)/1000)
+ 
+ static inline void mach_prepare_counter(void)
+ {
+diff --git a/include/asm-i386/mach-summit/mach_mpparse.h b/include/asm-i386/mach-summit/mach_mpparse.h
+--- a/include/asm-i386/mach-summit/mach_mpparse.h
++++ b/include/asm-i386/mach-summit/mach_mpparse.h
+@@ -30,6 +30,7 @@ static inline int mps_oem_check(struct m
+ 			(!strncmp(productid, "VIGIL SMP", 9) 
+ 			 || !strncmp(productid, "EXA", 3)
+ 			 || !strncmp(productid, "RUTHLESS SMP", 12))){
++		mark_tsc_unstable();
+ 		use_cyclone = 1; /*enable cyclone-timer*/
+ 		setup_summit();
+ 		usb_early_handoff = 1;
+@@ -44,6 +45,7 @@ static inline int acpi_madt_oem_check(ch
+ 	if (!strncmp(oem_id, "IBM", 3) &&
+ 	    (!strncmp(oem_table_id, "SERVIGIL", 8)
+ 	     || !strncmp(oem_table_id, "EXA", 3))){
++		mark_tsc_unstable();
+ 		use_cyclone = 1; /*enable cyclone-timer*/
+ 		setup_summit();
+ 		usb_early_handoff = 1;
+diff --git a/include/asm-i386/timex.h b/include/asm-i386/timex.h
+--- a/include/asm-i386/timex.h
++++ b/include/asm-i386/timex.h
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/config.h>
+ #include <asm/processor.h>
++#include <asm/tsc.h>
+ 
+ #ifdef CONFIG_X86_ELAN
+ #  define CLOCK_TICK_RATE 1189200 /* AMD Elan has different frequency! */
+@@ -16,39 +17,6 @@
+ #endif
+ 
+ 
+-/*
+- * Standard way to access the cycle counter on i586+ CPUs.
+- * Currently only used on SMP.
+- *
+- * If you really have a SMP machine with i486 chips or older,
+- * compile for that, and this will just always return zero.
+- * That's ok, it just means that the nicer scheduling heuristics
+- * won't work for you.
+- *
+- * We only use the low 32 bits, and we'd simply better make sure
+- * that we reschedule before that wraps. Scheduling at least every
+- * four billion cycles just basically sounds like a good idea,
+- * regardless of how fast the machine is. 
+- */
+-typedef unsigned long long cycles_t;
+-
+-static inline cycles_t get_cycles (void)
+-{
+-	unsigned long long ret=0;
+-
+-#ifndef CONFIG_X86_TSC
+-	if (!cpu_has_tsc)
+-		return 0;
+-#endif
+-
+-#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
+-	rdtscll(ret);
+-#endif
+-	return ret;
+-}
+-
+-extern unsigned int cpu_khz;
+-
+ extern int read_current_timer(unsigned long *timer_value);
+ #define ARCH_HAS_READ_CURRENT_TIMER	1
+ 
+diff --git a/include/asm-i386/tsc.h b/include/asm-i386/tsc.h
 new file mode 100644
 --- /dev/null
-+++ b/drivers/timesource/tsc-interp.c
-@@ -0,0 +1,112 @@
-+/* TSC-Jiffies Interpolation timesource
-+	Example interpolation timesource.
-+TODO:
-+	o per-cpu TSC offsets
-+*/
-+#include <linux/timesource.h>
-+#include <linux/timer.h>
-+#include <linux/timex.h>
-+#include <linux/init.h>
-+#include <linux/jiffies.h>
-+#include <linux/threads.h>
-+#include <linux/smp.h>
++++ b/include/asm-i386/tsc.h
+@@ -0,0 +1,50 @@
++/*
++ * linux/include/asm-i386/tsc.h
++ *
++ * i386 TSC related functions
++ */
++#ifndef _ASM_i386_TSC_H
++#define _ASM_i386_TSC_H
 +
-+static unsigned long current_tsc_khz = 0;
++#include <linux/config.h>
++#include <asm/processor.h>
 +
-+static seqlock_t tsc_interp_lock = SEQLOCK_UNLOCKED;
-+static cycle_t tsc_then;
-+static cycle_t jiffies_then;
-+struct timer_list tsc_interp_timer;
++/*
++ * Standard way to access the cycle counter on i586+ CPUs.
++ * Currently only used on SMP.
++ *
++ * If you really have a SMP machine with i486 chips or older,
++ * compile for that, and this will just always return zero.
++ * That's ok, it just means that the nicer scheduling heuristics
++ * won't work for you.
++ *
++ * We only use the low 32 bits, and we'd simply better make sure
++ * that we reschedule before that wraps. Scheduling at least every
++ * four billion cycles just basically sounds like a good idea,
++ * regardless of how fast the machine is.
++ */
++typedef unsigned long long cycles_t;
 +
-+static unsigned long mult, shift;
-+
-+#define NSEC_PER_JIFFY ((((unsigned long long)NSEC_PER_SEC)<<8)/ACTHZ)
-+#define SHIFT_VAL 22
-+
-+static cycle_t read_tsc_interp(void);
-+static void tsc_interp_update_callback(void);
-+
-+static struct timesource_t timesource_tsc_interp = {
-+	.name = "tsc-interp",
-+	.priority = 150,
-+	.type = TIMESOURCE_FUNCTION,
-+	.read_fnct = read_tsc_interp,
-+	.mask = (cycle_t)-1,
-+	.mult = 1<<SHIFT_VAL,
-+	.shift = SHIFT_VAL,
-+	.update_callback = tsc_interp_update_callback,
-+};
-+
-+static void tsc_interp_sync(unsigned long unused)
++static inline cycles_t get_cycles (void)
 +{
-+	cycle_t tsc_now;
-+	u64 jiffies_now;
++	unsigned long long ret=0;
 +
-+	do {
-+		jiffies_now = get_jiffies_64() - INITIAL_JIFFIES;
-+		rdtscll(tsc_now);
-+	} while (jiffies_now != (get_jiffies_64() - INITIAL_JIFFIES));
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc)
++		return 0;
++#endif
 +
-+	write_seqlock(&tsc_interp_lock);
-+	jiffies_then = jiffies_now;
-+	tsc_then = tsc_now;
-+	write_sequnlock(&tsc_interp_lock);
-+
-+	mod_timer(&tsc_interp_timer, jiffies+1);
-+}
-+
-+
-+static cycle_t read_tsc_interp(void)
-+{
-+	cycle_t ret;
-+	cycle_t now, then;
-+	u64 jiffs_now, jiffs_then;
-+	unsigned long seq;
-+
-+	do {
-+		seq = read_seqbegin(&tsc_interp_lock);
-+
-+		jiffs_now = get_jiffies_64() - INITIAL_JIFFIES;
-+		jiffs_then = jiffies_then;
-+		then = tsc_then;
-+
-+	} while (read_seqretry(&tsc_interp_lock, seq));
-+
-+	rdtscll(now);
-+	ret = jiffs_then * NSEC_PER_JIFFY;
-+	if (jiffs_then == jiffs_now)
-+		ret += min((cycle_t)NSEC_PER_JIFFY,(cycle_t)((now - then)*mult)>> shift);
-+	else
-+		ret += (jiffs_now - jiffs_then)*NSEC_PER_JIFFY;
-+
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++	rdtscll(ret);
++#endif
 +	return ret;
 +}
 +
-+static void tsc_interp_update_callback(void)
-+{
-+	/* only update if tsc_khz has changed */
-+	if (current_tsc_khz != tsc_khz){
-+		current_tsc_khz = tsc_khz;
-+		mult = timesource_khz2mult(current_tsc_khz, shift);
-+	}
-+}
-+
-+
-+static int __init init_tsc_interp_timesource(void)
-+{
-+	/* TSC initialization is done in arch/i386/kernel/tsc.c */
-+	if (cpu_has_tsc && tsc_khz) {
-+		current_tsc_khz = tsc_khz;
-+		shift = SHIFT_VAL;
-+		mult = timesource_khz2mult(current_tsc_khz, shift);
-+		/* setup periodic soft-timer */
-+		init_timer(&tsc_interp_timer);
-+		tsc_interp_timer.function = tsc_interp_sync;
-+		tsc_interp_timer.expires = jiffies;
-+		add_timer(&tsc_interp_timer);
-+
-+		register_timesource(&timesource_tsc_interp);
-+	}
-+	return 0;
-+}
-+module_init(init_tsc_interp_timesource);
-diff --git a/drivers/timesource/tsc.c b/drivers/timesource/tsc.c
-new file mode 100644
---- /dev/null
-+++ b/drivers/timesource/tsc.c
-@@ -0,0 +1,83 @@
-+/* TODO:
-+ *		o better calibration
-+ */
-+
-+#include <linux/timesource.h>
-+#include <linux/timex.h>
-+#include <linux/init.h>
-+
-+static unsigned long current_tsc_khz = 0;
-+
-+static cycle_t read_safe_tsc(void);
-+static void tsc_update_callback(void);
-+
-+static struct timesource_t timesource_safe_tsc = {
-+	.name = "c3tsc",
-+	.priority = 300,
-+	.type = TIMESOURCE_FUNCTION,
-+	.read_fnct = read_safe_tsc,
-+	.mask = (cycle_t)-1,
-+	.mult = 0, /* to be set */
-+	.shift = 22,
-+	.update_callback = tsc_update_callback,
-+};
-+
-+static struct timesource_t timesource_raw_tsc = {
-+	.name = "tsc",
-+	.priority = 300,
-+	.type = TIMESOURCE_CYCLES,
-+	.mask = (cycle_t)-1,
-+	.mult = 0, /* to be set */
-+	.shift = 22,
-+	.update_callback = tsc_update_callback,
-+};
-+
-+static struct timesource_t timesource_tsc;
-+
-+static cycle_t read_safe_tsc(void)
-+{
-+	cycle_t ret;
-+	rdtscll(ret);
-+	return ret + tsc_read_c3_time();
-+}
-+
-+static void tsc_update_callback(void)
-+{
-+	/* check to see if we should switch to the safe timesource */
-+	if (tsc_read_c3_time() &&
-+		strncmp(timesource_tsc.name, "c3tsc", 5)) {
-+		printk("Falling back to C3 safe TSC\n");
-+		timesource_safe_tsc.mult = timesource_tsc.mult;
-+		timesource_safe_tsc.priority = timesource_tsc.priority;
-+		timesource_tsc = timesource_safe_tsc;
-+	}
-+
-+	if (check_tsc_unstable()) {
-+		timesource_tsc.priority = 50;
-+		reselect_timesource();
-+	}
-+	/* only update if tsc_khz has changed */
-+	if (current_tsc_khz != tsc_khz){
-+		current_tsc_khz = tsc_khz;
-+		timesource_tsc.mult = timesource_khz2mult(current_tsc_khz,
-+							timesource_tsc.shift);
-+	}
-+}
-+
-+static int __init init_tsc_timesource(void)
-+{
-+
-+	timesource_tsc = timesource_raw_tsc;
-+
-+	/* TSC initialization is done in arch/i386/kernel/tsc.c */
-+	if (cpu_has_tsc && tsc_khz) {
-+		current_tsc_khz = tsc_khz;
-+		timesource_tsc.mult = timesource_khz2mult(current_tsc_khz,
-+							timesource_tsc.shift);
-+		register_timesource(&timesource_tsc);
-+	}
-+	return 0;
-+}
-+
-+module_init(init_tsc_timesource);
-+
++extern unsigned int cpu_khz;
++extern unsigned int tsc_khz;
++extern void tsc_init(void);
++void tsc_c3_compensate(unsigned long usecs);
++u64 tsc_read_c3_time(void);
++extern int check_tsc_unstable(void);
++extern void mark_tsc_unstable(void);
++#endif
 
 

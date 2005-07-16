@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVGPPTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVGPPV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbVGPPTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 11:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVGPPTY
+	id S261661AbVGPPV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 11:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVGPPV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 11:19:24 -0400
-Received: from [84.77.93.43] ([84.77.93.43]:13201 "EHLO dardhal.24x7linux.com")
-	by vger.kernel.org with ESMTP id S261660AbVGPPSS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 11:18:18 -0400
-Date: Sat, 16 Jul 2005 17:18:17 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: Martin Mokrejs <mmokrejs@ribosome.natur.cuni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: init 0 stopped working
-Message-ID: <20050716151817.GA7497@localhost>
-Mail-Followup-To: Martin Mokrejs <mmokrejs@ribosome.natur.cuni.cz>,
+	Sat, 16 Jul 2005 11:21:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46088 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261661AbVGPPVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 11:21:52 -0400
+Date: Sat, 16 Jul 2005 16:21:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Vincent C Jones <vcjones@networkingunlimited.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.13-rc3][PCMCIA] - iounmap: bad address f1d62000
+Message-ID: <20050716162144.A1650@flint.arm.linux.org.uk>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Vincent C Jones <vcjones@networkingunlimited.com>,
 	linux-kernel@vger.kernel.org
-References: <20050716000947.GA24094@ribosome.natur.cuni.cz>
+References: <4qGHl-3Hm-11@gated-at.bofh.it> <20050716144024.14C8E1F3DC@X31.networkingunlimited.com> <20050716151258.GA7819@isilmar.linta.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050716000947.GA24094@ribosome.natur.cuni.cz>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050716151258.GA7819@isilmar.linta.de>; from linux@dominikbrodowski.net on Sat, Jul 16, 2005 at 05:12:58PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 16, 2005 at 05:12:58PM +0200, Dominik Brodowski wrote:
+> Could you send me the output of /proc/iomem on both a working kernel and on
+> 2.6.13-rc3-APM, please?
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Dominik, I'd suggest looking elsewhere.  The memory regions must be
+free to be able to call into readable(), and therefore pccard_validate_cis().
 
-On Saturday, 16 July 2005, at 02:09:47 +0200,
-Martin Mokrejs wrote:
+What seems to be happening is that s->ops->set_mem_map in set_cis_map
+is returning an error, causing it to free the ioremapped region
+multiple times.  Maybe the card has an invalid CIS causing an out
+of range card_start to be requested?
 
->   Any clues? I still happens even with 2.6.13-rc3-git2.
->
-Check message with subject:
-[2.6.12-git8] ACPI shutdown fails to power off machine
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D112094139204799&w=3D2
-
-So it seems there are more boxes out there suffering from the same=20
-problem I reported some days ago
-=2E
-Greetings,
-
---=20
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.13-rc2)
-
-
---3MwIy2ne0vdjdPXF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFC2SU5ao1/w/yPYI0RAhfqAJ9T1vCuCr5U7GuNk9aTsI4qpp7lHwCdFLh6
-wNqRH7vdN2y5WpCanN4BSlk=
-=ymqt
------END PGP SIGNATURE-----
-
---3MwIy2ne0vdjdPXF--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,82 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVGPL4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVGPMbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbVGPL4l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 07:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVGPL4l
+	id S261531AbVGPMbU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 08:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVGPMbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 07:56:41 -0400
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:34966 "EHLO
-	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261476AbVGPL4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 07:56:40 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: domen@coderock.org
-Subject: Re: [patch 1/1] Audit return code of create_proc_*
-Date: Sat, 16 Jul 2005 13:56:29 +0200
-User-Agent: KMail/1.7.2
-References: <20050714221923.543951000@homer>
-In-Reply-To: <20050714221923.543951000@homer>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 16 Jul 2005 08:31:20 -0400
+Received: from web32012.mail.mud.yahoo.com ([68.142.207.109]:21879 "HELO
+	web32012.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S261531AbVGPMbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 08:31:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=jeWlSk/ZC4Om6J2CfyXI5cWeW3kdoLoxYtJEBhMgLQ4JheH+1OsganKUBb/LFTDdMJKOLEWejgk5OecDrdXc9g7lENU5fCpjx5Bl9igevw6YwN1p/rTvNsHYQ6tfhA6TMUuKSVRu8lr66faCX480ChhFS0skv1OvF2BrZVNbTjc=  ;
+Message-ID: <20050716123114.99015.qmail@web32012.mail.mud.yahoo.com>
+Date: Sat, 16 Jul 2005 05:31:14 -0700 (PDT)
+From: Sam Song <samlinuxkernel@yahoo.com>
+Subject: Re: [patch 2.6.13-git] 8250 tweaks
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: mgreer@mvista.com, david-b@pacbell.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20050716111556.L19067@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1731540.atL9McG8jg";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200507161356.36058.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1731540.atL9McG8jg
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> The interrupts are only claimed when the port is
+> actually opened, so if
+> only one port was open, you'll only see one
+> appearing in /proc/interrupts.
 
-Hi Domen,
+Get it.
 
-On Friday 15 July 2005 00:19, you wrote:
-> Audit return of create_proc_* functions.
+Thanks so much,
 
-This (and related changes) spam the log, if
-kernel is compiled without /proc-support.
-
-Kernels without /proc-support are quite common in the embedded world.
-
-Just provide a function in a suitable header=20
-(include/linux/proc_fs.h looks promising)
-file, which contains the following:
-
-#ifdef CONFIG_PROC_FS
-#define procfs_failure(msg) do { printk(msg); } while(0)
-#else
-#define procfs_failure(msg) do {} while(0)
-#endif
-
-and use it instead of the direct printk call.
-
-That way you get both: Your GCC or checking tool warning is silenced
-and the log is not spammed for the embedded people.
-
-=46or code, which is broken without procfs, the code
-should be fixed or it should select PROC_FS in its Kconfig file.
+Sam
 
 
-Regards
-
-Ingo Oeser
-
-
-
---nextPart1731540.atL9McG8jg
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC2PX0U56oYWuOrkARAkx7AKCkkwMsZehON9+1eQSuop+PnGxSjACfUw4b
-WPG51s1/lgQnmBEyYWMoY/g=
-=8F5E
------END PGP SIGNATURE-----
-
---nextPart1731540.atL9McG8jg--
+		
+____________________________________________________
+Start your day with Yahoo! - make it your home page 
+http://www.yahoo.com/r/hs 
+ 

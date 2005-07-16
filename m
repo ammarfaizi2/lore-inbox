@@ -1,109 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVGPORX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVGPOXR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVGPORX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 10:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVGPORS
+	id S261623AbVGPOXR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 10:23:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVGPOXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 10:17:18 -0400
-Received: from 64-60-240-146.cust.telepacific.net ([64.60.240.146]:41190 "EHLO
-	Netcell.com") by vger.kernel.org with ESMTP id S261622AbVGPORM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 10:17:12 -0400
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <dd3a477a1dcd51760fca4c6e4af3a986@netcell.com>
-Content-Transfer-Encoding: 7bit
-Cc: linux-ide@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
-From: Matt Gillette <matt.gillette@netcell.com>
-Subject: [PATCH 2.6.13-rc3] Add support for Netcell Revolution to pci-ide generic driver
-Date: Sat, 16 Jul 2005 07:17:04 -0700
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.622)
-X-OriginalArrivalTime: 16 Jul 2005 14:17:48.0171 (UTC) FILETIME=[248525B0:01C58A11]
+	Sat, 16 Jul 2005 10:23:17 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:14018 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261623AbVGPOXP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 10:23:15 -0400
+Date: Sat, 16 Jul 2005 16:23:11 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Tarmo =?ISO-8859-1?Q?T=E4nav?= <tarmo@itech.ee>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs+acl makes processes hang?
+In-Reply-To: <1121503573.9150.3.camel@localhost>
+Message-ID: <Pine.LNX.4.61.0507161619380.27363@yvahk01.tjqt.qr>
+References: <1121469596.17539.9.camel@localhost> 
+ <Pine.LNX.4.61.0507161018020.32709@yvahk01.tjqt.qr> <1121503573.9150.3.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: Adds support for Netcell Revolution to pci-ide generic 
-driver by including it in the list of devices matched. Includes the 
-Revolution in the list of simplex devices forced into DMA mode.
 
-Signed-off-by: Matt Gillette <matt.gillette@netcell.com>
--------
+>You made one mistake, the last echo "1" >blah should not be
+>to the file you created earlier.. the echo is meant to
 
-diff -purN linux-2.6.13-rc3/drivers/ide/pci/generic.c 
-linux/drivers/ide/pci/generic.c
---- linux-2.6.13-rc3/drivers/ide/pci/generic.c	2005-07-14 
-18:02:17.000000000 -0700
-+++ linux/drivers/ide/pci/generic.c	2005-07-15 15:33:00.000000000 -0700
-@@ -173,7 +173,13 @@ static ide_pci_device_t generic_chipsets
-  		.channels	= 2,
-  		.autodma	= NOAUTODMA,
-  		.bootable	= ON_BOARD,
--	}
-+	},{	/* 14 */
-+		.name		= "Revolution",
-+                .init_hwif      = init_hwif_generic,
-+                .channels       = 2,
-+                .autodma        = AUTODMA,
-+                .bootable       = OFF_BOARD,
-+        }
-  };
+Right. Hangs now.
 
-  /**
-@@ -231,6 +237,7 @@ static struct pci_device_id generic_pci_
-  	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO,     
-PCI_ANY_ID, PCI_ANY_ID, 0, 0, 11},
-  	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_1,   
-PCI_ANY_ID, PCI_ANY_ID, 0, 0, 12},
-  	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_2,   
-PCI_ANY_ID, PCI_ANY_ID, 0, 0, 13},
-+	{ PCI_VENDOR_ID_NETCELL,PCI_DEVICE_ID_REVOLUTION,          
-PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14},	
-  	/* Must come last. If you add entries adjust this table appropriately 
-and the init_one code */
-  	{ PCI_ANY_ID,		PCI_ANY_ID,			   PCI_ANY_ID, PCI_ANY_ID, 
-PCI_CLASS_STORAGE_IDE << 8, 0xFFFFFF00UL, 0},
-  	{ 0, },
-diff -purN linux-2.6.13-rc3/drivers/ide/setup-pci.c 
-linux/drivers/ide/setup-pci.c
---- linux-2.6.13-rc3/drivers/ide/setup-pci.c	2005-07-14 
-18:02:17.000000000 -0700
-+++ linux/drivers/ide/setup-pci.c	2005-07-15 14:43:26.000000000 -0700
-@@ -229,6 +229,7 @@ second_chance_to_dma:
-  			case PCI_DEVICE_ID_AMD_VIPER_7409:
-  			case PCI_DEVICE_ID_CMD_643:
-  			case PCI_DEVICE_ID_SERVERWORKS_CSB5IDE:
-+			case PCI_DEVICE_ID_REVOLUTION:
-  				simplex_stat = hwif->INB(dma_base + 2);
-  				hwif->OUTB((simplex_stat&0x60),(dma_base + 2));
-  				simplex_stat = hwif->INB(dma_base + 2);
-diff -purN linux-2.6.13-rc3/drivers/pci/pci.ids 
-linux/drivers/pci/pci.ids
---- linux-2.6.13-rc3/drivers/pci/pci.ids	2005-07-14 18:02:07.000000000 
--0700
-+++ linux/drivers/pci/pci.ids	2005-07-16 06:28:32.000000000 -0700
-@@ -7982,7 +7982,7 @@
-  		168c 2042  Netgate 5354MP Plus ARIES2 a/b/g MiniPCI Adapter
-  	1014  AR5212 802.11abg NIC
-  169c  Netcell Corporation
--	0044  SyncRAID SR3000/5000 Series SATA RAID Controllers
-+	0044  Revolution Storage Processing Card
-  16a5  Tekram Technology Co.,Ltd.
-  16ab  Global Sun Technology Inc
-  	1100  GL24110P
-diff -purN linux-2.6.13-rc3/include/linux/pci_ids.h 
-linux/include/linux/pci_ids.h
---- linux-2.6.13-rc3/include/linux/pci_ids.h	2005-07-14 
-18:01:56.000000000 -0700
-+++ linux/include/linux/pci_ids.h	2005-07-15 14:43:26.000000000 -0700
-@@ -2170,6 +2170,9 @@
-  #define PCI_VENDOR_ID_SIBYTE		0x166d
-  #define PCI_DEVICE_ID_BCM1250_HT	0x0002
+If someone wants a stack trace, below is one. However, I wonder why my traces 
+have become so distorted -- e.g. the proc_lookup in the last one should not be 
+there at all.
 
-+#define PCI_VENDOR_ID_NETCELL		0x169c
-+#define PCI_DEVICE_ID_REVOLUTION	0x0044
-+
-  #define PCI_VENDOR_ID_LINKSYS		0x1737
-  #define PCI_DEVICE_ID_LINKSYS_EG1032	0x1032
-  #define PCI_DEVICE_ID_LINKSYS_EG1064	0x1064
+But I think the problem is simple:
+Reiserfs implements ACLs/Xattrs using files, and obviously, creating the ACL 
+for the file cannot succeed because there's no space left. Don't know what 
+reiser does in case _an acl file_ can't be created...
 
+
+: bash          D C39335D0     0  4252   4195                     (NOTLB)
+: c3de3cb8 00000082 00000000 c39335d0 c0128a60 c3de3cbc bf1ff5dc 000000fd
+:        c39335d0 cdc01b84 c3de3cc8 c39335d0 c7101208 c02852a5 c3de3cbc cdc01b88
+:        c2d17e0c cdc01b88 c39335d0 00000001 c7101208 c71011bc c71011cc c7101208
+: Call Trace:
+:  [<c0128a60>] autoremove_wake_function+0x0/0x50
+:  [<c02852a5>] rwsem_down_read_failed+0x75/0x150
+:  [<c01b2268>] .text.lock.xattr+0x55/0x23d
+:  [<c018f5b0>] reiserfs_delete_inode+0x70/0x110
+:  [<c01b2ec7>] reiserfs_set_acl+0x167/0x1a0
+:  [<c018f540>] reiserfs_delete_inode+0x0/0x110
+:  [<c016643c>] generic_delete_inode+0x9c/0x140
+:  [<c016665c>] iput+0x4c/0x70
+:  [<c0192759>] reiserfs_new_inode+0x149/0x700
+:  [<c018cfdd>] reiserfs_find_entry+0xad/0x120
+:  [<c01aca00>] wake_queued_writers+0x30/0x40
+:  [<c018d8b7>] reiserfs_create+0xe7/0x210
+:  [<c01b21ef>] reiserfs_permission+0xf/0x20
+:  [<c01595e6>] permission+0xb6/0xe0
+:  [<c015b166>] vfs_create+0xc6/0x190
+:  [<c015ba9a>] open_namei+0x5fa/0x740
+:  [<c014c427>] filp_open+0x27/0x50
+:  [<c014c650>] get_unused_fd+0x20/0xa0
+:  [<c01593c7>] getname+0x67/0xb0
+:  [<c014c779>] sys_open+0x49/0xd0
+:  [<c0102b89>] syscall_call+0x7/0xb
+: ls            D C2D17E60     0 20215  14083                     (NOTLB)
+: c2d17dfc 00000086 c01ad123 c2d17e60 c2d17eb0 00000000 b1b8700c 00000134
+:        c3933ac0 cdc01b84 c2d17e0c c3933ac0 00000000 c02852a5 c3933ac0 cdc01b88
+:        cdc01b88 c3de3cc8 c3933ac0 00000001 c02c7be0 c7c7c4b4 c2d17e58 00000000
+: Call Trace:
+:  [<c01ad123>] journal_mark_dirty+0x113/0x250
+:  [<c02852a5>] rwsem_down_read_failed+0x75/0x150
+:  [<c01b22da>] .text.lock.xattr+0xc7/0x23d
+:  [<c016c8dc>] getxattr+0xdc/0x170
+:  [<c01b21e0>] reiserfs_permission+0x0/0x20
+:  [<c01b21ef>] reiserfs_permission+0xf/0x20
+:  [<c01595e6>] permission+0xb6/0xe0
+:  [<c0159f54>] __link_path_walk+0x4a4/0xed0
+:  [<c013fb78>] handle_mm_fault+0x138/0x190
+:  [<c015aa2b>] link_path_walk+0xab/0x1a0
+:  [<c015af9d>] __user_walk+0x3d/0x60
+:  [<c016c9bb>] sys_getxattr+0x4b/0x70
+:  [<c0102b89>] syscall_call+0x7/0xb
+: ls            D C0180493     0 22554  22493                     (NOTLB)
+: ce079dfc 00000082 cffec560 c0180493 ffffffea ced0fb00 08b060f1 00000170
+:        c478aa20 cdc01b84 ce079e0c c478aa20 00000000 c02852a5 c0135316 cdc01b88
+:        cdc01b88 c2d17e0c c478aa20 00000001 c02c7be0 c82d7f54 ce079e58 00000000
+: Call Trace:
+:  [<c0180493>] proc_lookup+0xa3/0xb0
+:  [<c02852a5>] rwsem_down_read_failed+0x75/0x150
+:  [<c0135316>] prep_new_page+0x46/0x60
+:  [<c01b22da>] .text.lock.xattr+0xc7/0x23d
+:  [<c016c8dc>] getxattr+0xdc/0x170
+:  [<c01b21e0>] reiserfs_permission+0x0/0x20
+:  [<c01b21ef>] reiserfs_permission+0xf/0x20
+:  [<c01595e6>] permission+0xb6/0xe0
+:  [<c0159f54>] __link_path_walk+0x4a4/0xed0
+:  [<c013fb78>] handle_mm_fault+0x138/0x190
+:  [<c015aa2b>] link_path_walk+0xab/0x1a0
+:  [<c015af9d>] __user_walk+0x3d/0x60
+:  [<c016c9bb>] sys_getxattr+0x4b/0x70
+:  [<c0102b89>] syscall_call+0x7/0xb
+
+
+Jan Engelhardt
+-- 

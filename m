@@ -1,81 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVGPId5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVGPIjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262031AbVGPId5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 04:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVGPId5
+	id S261174AbVGPIjE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 04:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVGPIjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 04:33:57 -0400
-Received: from www.tuxrocks.com ([64.62.190.123]:56845 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S262097AbVGPIdO (ORCPT
+	Sat, 16 Jul 2005 04:39:04 -0400
+Received: from smtp4.globo.com ([200.208.9.61]:60334 "EHLO smtp4.globo.com")
+	by vger.kernel.org with ESMTP id S261174AbVGPIiL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 04:33:14 -0400
-Message-ID: <42D8C60E.8040807@tuxrocks.com>
-Date: Sat, 16 Jul 2005 02:32:14 -0600
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Sat, 16 Jul 2005 04:38:11 -0400
+Message-ID: <009b01c589e2$1e96f130$3dfea8c0@glupfire>
+From: "GlupFire" <porranenhuma@globo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel Panic: VFS cannot open a root device
+Date: Sat, 16 Jul 2005 05:41:10 -0300
 MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>, benh@kernel.crashing.org,
-       Nishanth Aravamudan <nacc@us.ibm.com>
-Subject: Re: [RFC][PATCH 1/6] new timeofday core subsystem
-References: <1121484326.28999.3.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1121484326.28999.3.camel@cog.beaverton.ibm.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1506
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi , i have kernel 2.4.29 at slack 10.1 and when I upgrade my kernel to
+2.6.11 I get these erros on booting
 
+VFS: Cannot open a root device "301" or unknow block
+please append a correct "root" boot option
+KERNEL PANIC :  not syncing; VFS; Unable to mount root fs on unknown-block
+(3,1)
 
-> +extern nsec_t do_monotonic_clock(void);
-This looks okay ...
+I have compiled my kernel with my IDE support and also with my file system
+support with built-in option.
 
-> +/**
-> + * do_monotonic_clock - Returns monotonically increasing nanoseconds
-> + *
-> + * Returns the monotonically increasing number of nanoseconds
-> + * since the system booted via __monotonic_clock()
-> + */
-> +nsec_t do_monotonic_clock(void)
-> +{
-> +	nsec_t ret;
-> +	unsigned long seq;
-> +
-> +	/* atomically read __monotonic_clock() */
-> +	do {
-> +		seq = read_seqbegin(&system_time_lock);
-> +
-> +		ret = __monotonic_clock();
-> +
-> +	} while (read_seqretry(&system_time_lock, seq));
-> +
-> +	return ret;
-> +}
+My LILO.CONF
+image = /boot/vmlinuz-2.6.11
+root = /dev/hda1
+label = 2.6.11
+initrd = /boot/initrd.gz
+read-only
 
-... but this conflicts with Nish's softtimer patches, which is
-implemented slightly differently.  For those of us who are real gluttons
-for punishment, and want both sets of patches, are there problems just
-removing one of the do_monotonic_clock definitions?
+I googled this problem, and I think is a kind of bug, and i tryed to patch
+the kernel with Alan Cox patch 2.6.11-ac7.bzip  and I get these ::
+bzip2 -dc /usr/src/patch-2.6.11.ac7.bzip | patch -p1 -s
+1 out of hunk FAILED --saving rejects to file Makefike.rej
 
-Thanks,
+and I cat the file Makefile.rej
 
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+***************
+*** 1,8 ****
+VERSION = 2
+PATCHLEVEL = 6
+SUBLEVEL = 11
+- EXTRAVERSION =
+- NAME=Woozy Numbat
 
-iD8DBQFC2MYNaI0dwg4A47wRAiQoAJ9vUvpjE7KmhCNW7NJ6kfd0SuyvXwCg+NtN
-pXqoz0v5Tbf5OMFjhYSzPp0=
-=LT9E
------END PGP SIGNATURE-----
+# *DOCUMENTATION*
+# To see a list of typical targets execute "make help"
+--- 1,8 ---- 
+VERSION = 2
+PATCHLEVEL = 6
+SUBLEVEL = 11
++ EXTRAVERSION = ac7
++ NAME=AC
+
+# *DOCUMENTATION*
+# To see a list of typical targets execute "make help"
+
+I'm stuck! The patch dont work fine ( I think the patch is not installed
+succesfully on my kernel )
+I'm booting with my image of kernel 2.4.29..... i'm 5 days tryng to solve
+this problem ...
+any kind of help is wellcome... sorry for my english.
+

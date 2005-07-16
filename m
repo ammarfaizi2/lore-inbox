@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVGPQvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVGPRCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVGPQvp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 12:51:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVGPQvo
+	id S261701AbVGPRCF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 13:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVGPRCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 12:51:44 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:16338 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261734AbVGPQuf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 12:50:35 -0400
-Date: Sat, 16 Jul 2005 18:50:33 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: randy_dunlap <rdunlap@xenotime.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Module option for compiled-in parts
-In-Reply-To: <20050716091620.3d812b11.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.61.0507161846570.4126@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0507161043470.5993@yvahk01.tjqt.qr>
- <20050716091620.3d812b11.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 16 Jul 2005 13:02:05 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39698 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261701AbVGPRCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 13:02:04 -0400
+Date: Sat, 16 Jul 2005 19:02:02 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       stable@kernel.org
+Subject: Re: Linux 2.6.12.3
+Message-ID: <20050716170202.GA3613@stusta.de>
+References: <20050716044815.GA10063@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050716044815.GA10063@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I have added a module_param() to a component that is compiled in
->> (drivers/char/vt.c). Since it's not a module, will it still show a 
->> /sys/module/WhatGoesHere/parameters/myvariablename file? What will be put as 
->> "WhatGoesHere" as vt.c does not become vt.ko?
+On Fri, Jul 15, 2005 at 09:48:16PM -0700, Greg KH wrote:
+>...
+> Summary of changes from v2.6.12.2 to v2.6.12.3
+> ==============================================
+>...
+> Ralf Baechle:
+>   SMP fix for 6pack driver
+>...
 
-I actually done it, and a /sys/module/vt popped up, as expected.
+Will this patch [1] also be forward-ported to Linus' tree, or will 
+2.6.12.3 stay the _only_ 2.6 kernel that ever offered this driver for 
+SMP configs?
 
->Interesting question.
->
->Are you adding one/some module parameters to vt.c ?
+cu
+Adrian
 
-Yes
+[1] "fix" is a wrong patch description since all it does is to remove 
+    the BROKEN_ON_SMP dependency
 
->I don't see any there.
-
-It's my first.
-
->I have usbcore built-in (not a loadable module), and I still see
->in /sys/module/usbcore/parameters these files:
->
->blinkenlights
->old_scheme_first
->usbfs_snoop
->use_both_schemes
->
->but usbcore is "defined" as containing a list of .o files
->in drivers/usb/core/Makefile.
-
-I don't know who's deciding what the * in /sys/module/* will be, but it seems 
-that the module name will become the one that is listed in obj-y or obj-m, 
-respectively.
-
-In your usb case, this would be:
-obj-y := usbcore
-usbcore-objs := blinkenlights usbfs_snoop otherfiles uhci-hcd
-
-Seems fine for me.
-
-And vt.c is one that applies to obj-y
-
-
-
-Jan Engelhardt
 -- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

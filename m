@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVGPRP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVGPR1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbVGPRP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 13:15:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVGPRP6
+	id S261741AbVGPR1G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 13:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVGPR1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 13:15:58 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:8094 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261474AbVGPRP4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 13:15:56 -0400
-Date: Sat, 16 Jul 2005 19:15:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: "K.R. Foley" <kr@cybsft.com>, Chuck Harding <charding@llnl.gov>,
-       William Weston <weston@sysex.net>,
-       Linux Kernel Discussion List <linux-kernel@vger.kernel.org>,
-       Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-Message-ID: <20050716171537.GB16235@elte.hu>
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050713103930.GA16776@elte.hu> <42D51EAF.2070603@cybsft.com> <200507141450.42837.annabellesgarden@yahoo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507141450.42837.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 16 Jul 2005 13:27:06 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:34769 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261741AbVGPR1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 13:27:04 -0400
+Message-ID: <42D94361.7050609@ens-lyon.org>
+Date: Sat, 16 Jul 2005 19:26:57 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: k8 s <uint32@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: compiling Kernel Modules with debugging information enabled
+References: <699a19ea05071610115fcc827f@mail.gmail.com>
+In-Reply-To: <699a19ea05071610115fcc827f@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le 16.07.2005 19:11, k8 s a écrit :
+> To be more clear, say I have selected CONFIG_XFRM=y in .config file
+> I want to make a change such that net/xfrm/Makefile has an entry 
+> CFLAGS += -g so that it generates debugging information for all the
+> modules in that directory
 
-* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+Look at Documentation/kbuild/makefiles.txt:
 
-> Have I corrected the other path of ioapic early initialization, which 
-> had lacked virtual-address setup before ioapic_data[ioapic] was to be 
-> filled in -51-28? Please test attached patch on top of -51-29 or 
-> later. Also on Systems that liked -51-28.
+You can add some CFLAGS for a single object file with:
+CFLAGS_foo.o += -g
 
-thanks - i've applied it to my tree and have released the -51-31 patch.  
-It looks good on my testboxes.
+For all objects defined in a Makefile:
+EXTRA_CFLAGS = +g
 
-	Ingo
+Brice

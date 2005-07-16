@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbVGPQQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVGPQO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbVGPQQk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 12:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVGPQQk
+	id S261233AbVGPQO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 12:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVGPQO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 12:16:40 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:30573 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261669AbVGPQQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 12:16:25 -0400
-Date: Sat, 16 Jul 2005 09:16:20 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Module option for compiled-in parts
-Message-Id: <20050716091620.3d812b11.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.61.0507161043470.5993@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0507161043470.5993@yvahk01.tjqt.qr>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 16 Jul 2005 12:14:58 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:25261 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S261233AbVGPQO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 12:14:58 -0400
+Message-ID: <42D932E2.20005@gentoo.org>
+Date: Sat, 16 Jul 2005 17:16:34 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.5 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>, Ayaz Abdulla <AAbdulla@nvidia.com>
+Subject: Re: [PATCH] forcedeth: TX handler changes (experimental)
+References: <42D9141E.3070401@colorfullife.com>
+In-Reply-To: <42D9141E.3070401@colorfullife.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Jul 2005 10:45:17 +0200 (MEST) Jan Engelhardt wrote:
+Hi,
 
-> Hi,
-> 
-> 
-> I have added a module_param() to a component that is compiled in
-> (drivers/char/vt.c). Since it's not a module, will it still show a 
-> /sys/module/WhatGoesHere/parameters/myvariablename file? What will be put as 
-> "WhatGoesHere" as vt.c does not become vt.ko?
+Manfred Spraul wrote:
+> Attached is a patch that modifies the tx interrupt handling of the 
+> nForce nic. It's part of the attempts to figure out what causes the nic 
+> hangs (see bug 4552).
+> The change is experimental: It affects all nForce versions. I've tested 
+> it on my nForce 250-Gb.
 
-Interesting question.
+This patch doesn't apply to 2.6.13-rc3:
 
-Are you adding one/some module parameters to vt.c ?
-I don't see any there.
+patching file drivers/net/forcedeth.c
+Hunk #1 FAILED at 87.
+Hunk #2 FAILED at 100.
+Hunk #3 FAILED at 135.
+Hunk #4 succeeded at 145 (offset -3 lines).
+Hunk #5 succeeded at 295 (offset -3 lines).
+Hunk #6 succeeded at 305 (offset -3 lines).
+Hunk #7 succeeded at 995 (offset -20 lines).
+Hunk #8 succeeded at 1502 (offset -87 lines).
+Hunk #9 succeeded at 2112 (offset -133 lines).
+Hunk #10 FAILED at 2221.
+4 out of 10 hunks FAILED -- saving rejects to file drivers/net/forcedeth.c.rej
 
+I think this is because 2.6.13-rc3 has forcedeth 0.35.
 
-I have usbcore built-in (not a loadable module), and I still see
-in /sys/module/usbcore/parameters these files:
+I can't find the patch for 0.35 --> 0.36. (Is this when the netdev archives 
+were in limbo?)
 
-blinkenlights
-old_scheme_first
-usbfs_snoop
-use_both_schemes
+I found the patch for 0.36 --> 0.37 here : 
+http://marc.theaimsgroup.com/?l=linux-netdev&m=112101962422678&w=2
 
-but usbcore is "defined" as containing a list of .o files
-in drivers/usb/core/Makefile.
+Are the earlier changes a prerequisite, or can I just fix the TX handler 
+rejects manually?
 
----
-~Randy
+Thanks,
+Daniel

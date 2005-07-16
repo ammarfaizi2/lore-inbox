@@ -1,35 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVGPQoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVGPQp0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261671AbVGPQoR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 12:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVGPQoQ
+	id S261686AbVGPQp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 12:45:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVGPQp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 12:44:16 -0400
-Received: from femail.waymark.net ([206.176.148.84]:34217 "EHLO
-	femail.waymark.net") by vger.kernel.org with ESMTP id S261671AbVGPQoP convert rfc822-to-8bit
+	Sat, 16 Jul 2005 12:45:26 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:41365 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261686AbVGPQov
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 12:44:15 -0400
-Date: 16 Jul 2005 16:32:14 GMT
-From: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
-Subject: Re: 2.6.13-rc3 ACPI regression and hang on x86-64
-To: linux-kernel@vger.kernel.org
-Message-ID: <b03f6a.f05c07@family-bbs.org>
-Organization: FamilyNet HQ
-X-Mailer: BBBS/NT v4.01 Flag-5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 16 Jul 2005 12:44:51 -0400
+Date: Sat, 16 Jul 2005 09:44:47 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Frank Sorenson <frank@tuxrocks.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       George Anzinger <george@mvista.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>, benh@kernel.crashing.org
+Subject: Re: [RFC][PATCH 1/6] new timeofday core subsystem
+Message-ID: <20050716164447.GA5865@us.ibm.com>
+References: <1121484326.28999.3.camel@cog.beaverton.ibm.com> <42D8C60E.8040807@tuxrocks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42D8C60E.8040807@tuxrocks.com>
+X-Operating-System: Linux 2.6.13-rc2 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--=> Mikael Pettersson wrote to All <=-
+On 16.07.2005 [02:32:14 -0600], Frank Sorenson wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> > +extern nsec_t do_monotonic_clock(void);
+> This looks okay ...
+> 
+> > +/**
+> > + * do_monotonic_clock - Returns monotonically increasing nanoseconds
+> > + *
+> > + * Returns the monotonically increasing number of nanoseconds
+> > + * since the system booted via __monotonic_clock()
+> > + */
+> > +nsec_t do_monotonic_clock(void)
+> > +{
+> > +	nsec_t ret;
+> > +	unsigned long seq;
+> > +
+> > +	/* atomically read __monotonic_clock() */
+> > +	do {
+> > +		seq = read_seqbegin(&system_time_lock);
+> > +
+> > +		ret = __monotonic_clock();
+> > +
+> > +	} while (read_seqretry(&system_time_lock, seq));
+> > +
+> > +	return ret;
+> > +}
+> 
+> ... but this conflicts with Nish's softtimer patches, which is
+> implemented slightly differently.  For those of us who are real gluttons
+> for punishment, and want both sets of patches, are there problems just
+> removing one of the do_monotonic_clock definitions?
 
- MP> With the i386 kernel, 2.6.13-rc3 mostly works, but
- MP> it fails to detect the CPU's C2 state.
-This kernel fails to boot, occasionally, stopping at the system BIOS
-check successful message, but got C2 back with the recent patch here.
-LILO version 22.5.9 and Cyrix/VIA e-machines '99. I might be able to
-provide more information.
+No, in fact, that would be expected. If you are going to apply John's
+patches and mine, then you can remove the definition I put in time.c
+(technically, I probably should have put that definition in a #ifndef
+CONFIG_NEWTOD/#endif block).
 
-... Mars' surface air pressure is less than where high-altitude jets fly here.
---- MultiMail/Linux v0.46
+My version is basically a non-NEWTOD attempt to get nanosecond uptime.
+But, if you have John's timesources, then use them :)
+
+Thanks,
+Nish

@@ -1,82 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVGPU2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVGPUjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbVGPU2s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 16:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVGPU2s
+	id S261877AbVGPUjM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 16:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVGPUjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 16:28:48 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:47783 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261809AbVGPU2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 16:28:37 -0400
-Subject: Re: [ANNOUNCE] Interbench v0.20 - Interactivity benchmark
-From: Lee Revell <rlrevell@joe-job.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: szonyi calin <caszonyi@yahoo.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>, caszonyi@rdslink.ro
-In-Reply-To: <200507140958.00510.kernel@kolivas.org>
-References: <20050713112710.60204.qmail@web52902.mail.yahoo.com>
-	 <1121276077.4435.50.camel@mindpipe> <200507140958.00510.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Sat, 16 Jul 2005 16:28:35 -0400
-Message-Id: <1121545716.10774.16.camel@mindpipe>
+	Sat, 16 Jul 2005 16:39:12 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:14915 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261877AbVGPUjK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 16:39:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=Xr1XorI/8cwHDZr8Sm0AVrRMVOwfHxu7/g4f+Yes0bC3XtPOshoeKgZz7CxvMtrJlqKKz3o+XBpyxljfZJJ1fCyqNyD2NWHSx495iBL3HZ+xPkMbmcDnZXYGQ88xezgGXQGIJl/LEA0ccV2cVyxIjcKVmmmNdgmTBSjZNduCDew=
+Date: Sun, 17 Jul 2005 00:46:21 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] lib/int_sqrt.c: speedup compilation
+Message-ID: <20050716204621.GA17510@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-14 at 09:57 +1000, Con Kolivas wrote:
-> On Thu, 14 Jul 2005 03:34, Lee Revell wrote:
-> > On Wed, 2005-07-13 at 13:27 +0200, szonyi calin wrote:
-> > > I have the following problem with audio:
-> > > Xmms is running with threads for audio and spectrum
-> > > analyzer(OpenGL).
-> > > The audio eats 5% cpu, the spectrum analyzer about 80 %. The
-> > > problem is that sometimes the spectrum analyzer is eating all of
-> > > the cpu while the audio is skipping. Xmms is version 1.2.10
-> > > kernel is vanilla, latest "stable" version 2.6.12, suid root.
-> > >
-> > > Does your benchmark simultes this kind of behaviour ?
-> >
-> > That's just a broken app, the kernel can't do anything about it.  XMMS
-> > should not be running the spectrum analyzer thread at such a high
-> > priority as to interfere with the audio thread.
-> 
-> I agree; optimising for this is just silly.
+It uses only EXPORT_SYMBOL, so...
 
-I took a closer look and it's indeed quite broken.  If XMMS is run in
-realtime mode, and multithreading is enabled, it runs everything
-SCHED_RR - GUI, audio, spectrum analyzer.  (And since it relies on new
-threads inheriting RT scheduling when pthread_create()'d, the threads
-will fail to get SCHED_RR on buggy NPTL versions like the one in Debian
-Sarge).
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-This untested patch should enable RT scheduling for only the (ALSA)
-audio thread.  Make sure NOT to run in realtime mode.
+ lib/int_sqrt.c |    2 --
+ 1 files changed, 2 deletions(-)
 
-Lee
-
---- ../xmms-1.2.10+cvs20050209.orig/Output/alsa/audio.c	2005-01-31 17:45:08.000000000 -0500
-+++ Output/alsa/audio.c	2005-07-16 16:06:06.000000000 -0400
-@@ -962,6 +962,7 @@
- /* open callback */
- int alsa_open(AFormat fmt, int rate, int nch)
- {
-+	struct sched_param sparam;
- 	debug("Opening device");
- 	inputf = snd_format_from_xmms(fmt, rate, nch);
- 	effectf = snd_format_from_xmms(fmt, rate, nch);
-@@ -1010,6 +1011,9 @@
- 		flush_request = -1;
+--- linux-vanilla/lib/int_sqrt.c	2005-07-16 02:05:11.000000000 +0400
++++ linux-int_sqrt/lib/int_sqrt.c	2005-07-16 03:11:38.000000000 +0400
+@@ -1,5 +1,3 @@
+-
+-#include <linux/kernel.h>
+ #include <linux/module.h>
  
- 		pthread_create(&audio_thread, NULL, alsa_loop, NULL);
-+		sparam.sched_priority = sched_get_priority_max(SCHED_FIFO);
-+		if (pthread_setschedparam (audio_thread, SCHED_FIFO, &sparam) )
-+			fprintf(stderr, "Error %s getting SCHED_FIFO for audio thread\n", strerror (errno));
- 	}
- 
- 	return 1;
-
+ /**
 

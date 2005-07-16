@@ -1,386 +1,240 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbVGOE2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263206AbVGOE3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263204AbVGOE2G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Jul 2005 00:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbVGOE2G
+	id S263206AbVGOE3e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Jul 2005 00:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbVGOE3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 00:28:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19903 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263204AbVGOE1k (ORCPT
+	Fri, 15 Jul 2005 00:29:34 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:29314 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263206AbVGOE2r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 00:27:40 -0400
-Date: Thu, 14 Jul 2005 21:27:30 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: greg@kroah.com
-Cc: zaitcev@redhat.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Patch for ub and blank CDs in 2.6.12
-Message-Id: <20050714212730.6cacc02f.zaitcev@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.7; i686-pc-linux-gnu)
+	Fri, 15 Jul 2005 00:28:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=Igu+QqH6OTKYr8KJpE04UxPlR7tekAXR6O1qcbMywfIPNVsSBEkXDoxmfZLvCr7wqryGXLqHUBMatHpGsiq0TwRelX5SgSqtFHiolNN46qaE4bTDTHy7/3+sEL1vKOAms7uCAxGozOIkyKLfrBIi5Ylj6gTZyRDcC9XU0kt00c4=
+Date: Sat, 16 Jul 2005 16:42:02 +0100
+From: Nicholas Hans Simmonds <nhstux@gmail.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Nathan Scott <nathans@sgi.com>,
+       linux-kernel@vger.kernel.org, "Andrew G. Morgan" <morgan@transmeta.com>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] Filesystem capabilities support
+Message-ID: <20050716154202.GA9318@laptop>
+References: <20050714042934.GA25447@laptop> <200507142005.j6EK5Hhn030304@laptop11.inf.utfsm.cl> <20050716142328.GA9125@laptop> <9a8748490507142045790ba23a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490507142045790ba23a@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a microcode lockup in my CD-ROM adapters when a blank
-CD is inserted. However, do not try to burn CDs yet! I'm pretty sure
-that trying it will end in coasters.
+On Fri, Jul 15, 2005 at 05:45:58AM +0200, Jesper Juhl wrote:
+> On 7/16/05, Nicholas Hans Simmonds <nhstux@gmail.com> wrote:
+> 
+> While I'm not qualified to comment on the implementation I do have a
+> few small codingstyle comments :-)
+> 
+> 
+> > diff --git a/fs/read_write.c b/fs/read_write.c
+> > --- a/fs/read_write.c
+> > +++ b/fs/read_write.c
+> > @@ -14,6 +14,7 @@
+> >  #include <linux/security.h>
+> >  #include <linux/module.h>
+> >  #include <linux/syscalls.h>
+> > +#include <linux/xattr.h>
+> > 
+> >  #include <asm/uaccess.h>
+> >  #include <asm/unistd.h>
+> > @@ -303,6 +304,16 @@ ssize_t vfs_write(struct file *file, con
+> >                         else
+> >                                 ret = do_sync_write(file, buf, count, pos);
+> >                         if (ret > 0) {
+> > +#ifdef CONFIG_SECURITY_FS_CAPABILITIES
+> > +                               struct dentry *d = file->f_dentry;
+> > +                               if(d->d_inode->i_op && d->d_inode->i_op->
+> 
+>                                       if (d->d_inode->i_op ...
+> 
+> > +                                                               removexattr) {
+> > +                                       down(&d->d_inode->i_sem);
+> > +                                       d->d_inode->i_op->removexattr(d,
+> > +                                                               XATTR_CAP_SET);
+> > +                                       up(&d->d_inode->i_sem);
+> > +                               }
+> > +#endif /* CONFIG_SECURITY_FS_CAPABILITIES */
+> >                                 fsnotify_modify(file->f_dentry);
+> >                                 current->wchar += ret;
+> >                         }
+> > diff --git a/include/linux/capability.h b/include/linux/capability.h
+> > --- a/include/linux/capability.h
+> > +++ b/include/linux/capability.h
+> > @@ -39,7 +39,19 @@ typedef struct __user_cap_data_struct {
+> >          __u32 permitted;
+> >          __u32 inheritable;
+> >  } __user *cap_user_data_t;
+> > -
+> > +
+> > +struct cap_xattr_data {
+> > +       __u32 version;
+> > +       __u32 mask_effective;
+> > +       __u32 effective;
+> > +       __u32 mask_permitted;
+> > +       __u32 permitted;
+> > +       __u32 mask_inheritable;
+> > +       __u32 inheritable;
+> > +};
+> > +
+> > +#define XATTR_CAP_SET XATTR_SECURITY_PREFIX "cap_set"
+> > +
+> >  #ifdef __KERNEL__
+> > 
+> >  #include <linux/spinlock.h>
+> > diff --git a/security/Kconfig b/security/Kconfig
+> > --- a/security/Kconfig
+> > +++ b/security/Kconfig
+> > @@ -60,6 +60,13 @@ config SECURITY_CAPABILITIES
+> >           This enables the "default" Linux capabilities functionality.
+> >           If you are unsure how to answer this question, answer Y.
+> > 
+> > +config SECURITY_FS_CAPABILITIES
+> > +       bool "Filesystem Capabilities (EXPERIMENTAL)"
+> > +       depends on SECURITY && EXPERIMENTAL
+> > +       help
+> > +         This permits a process' capabilities to be set by an extended
+> > +         attribute in the security namespace (security.cap_set).
+> > +
+> >  config SECURITY_ROOTPLUG
+> >         tristate "Root Plug Support"
+> >         depends on USB && SECURITY
+> > diff --git a/security/commoncap.c b/security/commoncap.c
+> > --- a/security/commoncap.c
+> > +++ b/security/commoncap.c
+> > @@ -111,9 +111,15 @@ void cap_capset_set (struct task_struct
+> > 
+> >  int cap_bprm_set_security (struct linux_binprm *bprm)
+> >  {
+> > +#ifdef CONFIG_SECURITY_FS_CAPABILITIES
+> > +       ssize_t (*bprm_getxattr)(struct dentry *,const char *,void *,size_t);
+> > +       struct dentry *bprm_dentry;
+> > +       ssize_t ret;
+> > +       struct cap_xattr_data caps;
+> > +#endif /* CONFIG_SECURITY_FS_CAPABILITIES */
+> > +
+> >         /* Copied from fs/exec.c:prepare_binprm. */
+> > 
+> > -       /* We don't have VFS support for capabilities yet */
+> >         cap_clear (bprm->cap_inheritable);
+> >         cap_clear (bprm->cap_permitted);
+> >         cap_clear (bprm->cap_effective);
+> > @@ -134,6 +140,44 @@ int cap_bprm_set_security (struct linux_
+> >                 if (bprm->e_uid == 0)
+> >                         cap_set_full (bprm->cap_effective);
+> >         }
+> > +
+> > +#ifdef CONFIG_SECURITY_FS_CAPABILITIES
+> > +       /* Locate any VFS capabilities: */
+> > +
+> > +       bprm_dentry = bprm->file->f_dentry;
+> > +       if(!(bprm_dentry->d_inode->i_op &&
+> 
+>               if (!(bprm_dentry->d_inode->i_op ...
+> 
+> > +                               bprm_dentry->d_inode->i_op->getxattr))
+> > +               return 0;
+> > +       bprm_getxattr = bprm_dentry->d_inode->i_op->getxattr;
+> > +
+> > +       down(&bprm_dentry->d_inode->i_sem);
+> > +       ret = bprm_getxattr(bprm_dentry,XATTR_CAP_SET,&caps,sizeof(caps));
+> > +       up(&bprm_dentry->d_inode->i_sem);
+> > +       if(ret == sizeof(caps)) {
+> 
+>               if (ret == sizeof(caps)) {
+> 
+> > +               be32_to_cpus(&caps.version);
+> > +               be32_to_cpus(&caps.effective);
+> > +               be32_to_cpus(&caps.mask_effective);
+> > +               be32_to_cpus(&caps.permitted);
+> > +               be32_to_cpus(&caps.mask_permitted);
+> > +               be32_to_cpus(&caps.inheritable);
+> > +               be32_to_cpus(&caps.mask_inheritable);
+> > +               if(caps.version == _LINUX_CAPABILITY_VERSION) {
+> 
+>                       if (caps.version ...
+> 
+> > +                       cap_t(bprm->cap_effective) &= caps.mask_effective;
+> > +                       cap_t(bprm->cap_effective) |= caps.effective;
+> > +
+> > +                       cap_t(bprm->cap_permitted) &= caps.mask_permitted;
+> > +                       cap_t(bprm->cap_permitted) |= caps.permitted;
+> > +
+> > +                       cap_t(bprm->cap_inheritable) &= caps.mask_inheritable;
+> > +                       cap_t(bprm->cap_inheritable) |= caps.inheritable;
+> > +               } else
+> > +                       printk(KERN_WARNING "Warning: %s capability set has "
+> > +                               "incorrect version %08X. Correct version "
+> > +                               "is %08X.\n",bprm->filename,caps.version,
+> > +                               _LINUX_CAPABILITY_VERSION);
+> > +       }
+> > +#endif /* CONFIG_SECURITY_FS_CAPABILITIES */
+> > +
+> >         return 0;
+> >  }
+> > 
+> 
+> -- 
+> Jesper Juhl <jesper.juhl@gmail.com>
+> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+> Plain text mails only, please      http://www.expita.com/nomime.html
 
- - Fix a few cases where we were unable to resynchronize with replies
-   for previous commands. The main thing is to keep reading replies
-   in case of a stall. This is done with the new state CLRRS.
- - Since I am forgetting the basic state machine already, document it.
- - Move counter increments in the looping path in its own function.
- - Fix a harmless buglet in case CSW read fails to submit: do not
-   override state.
- - Implement the Alan Stern's idea for adaptive signature checking.
+Quite frankly if these are the only problems with my style I'll be more
+than happy. The following patch cleans things up.
 
-Signed-off-by: Pete Zaitcev <zaitcev@yahoo.com>
-
-diff -urp -X dontdiff linux-2.6.12/drivers/block/ub.c linux-2.6.12-lem/drivers/block/ub.c
---- linux-2.6.12/drivers/block/ub.c	2005-06-21 12:58:18.000000000 -0700
-+++ linux-2.6.12-lem/drivers/block/ub.c	2005-07-14 21:25:03.000000000 -0700
-@@ -23,6 +23,7 @@
-  *  -- Exterminate P3 printks
-  *  -- Resove XXX's
-  *  -- Redo "benh's retries", perhaps have spin-up code to handle them. V:D=?
-+ *  -- CLEAR, CLR2STS, CLRRS seem to be ripe for refactoring.
-  */
- #include <linux/kernel.h>
- #include <linux/module.h>
-@@ -38,6 +39,73 @@
- #define UB_MAJOR 180
+diff --git a/fs/read_write.c b/fs/read_write.c
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -306,8 +306,9 @@ ssize_t vfs_write(struct file *file, con
+ 			if (ret > 0) {
+ #ifdef CONFIG_SECURITY_FS_CAPABILITIES
+ 				struct dentry *d = file->f_dentry;
+-				if(d->d_inode->i_op && d->d_inode->i_op->
+-								removexattr) {
++				if (d->d_inode->i_op
++					&& d->d_inode->i_op->removexattr)
++				{
+ 					down(&d->d_inode->i_sem);
+ 					d->d_inode->i_op->removexattr(d,
+ 								XATTR_CAP_SET);
+diff --git a/security/commoncap.c b/security/commoncap.c
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -145,15 +145,15 @@ int cap_bprm_set_security (struct linux_
+ 	/* Locate any VFS capabilities: */
  
- /*
-+ * The command state machine is the key model for understanding of this driver.
-+ *
-+ * The general rule is that all transitions are done towards the bottom
-+ * of the diagram, thus preventing any loops.
-+ *
-+ * An exception to that is how the STAT state is handled. A counter allows it
-+ * to be re-entered along the path marked with [C].
-+ *
-+ *       +--------+
-+ *       ! INIT   !
-+ *       +--------+
-+ *           !
-+ *        ub_scsi_cmd_start fails ->--------------------------------------\
-+ *           !                                                            !
-+ *           V                                                            !
-+ *       +--------+                                                       !
-+ *       ! CMD    !                                                       !
-+ *       +--------+                                                       !
-+ *           !                                            +--------+      !
-+ *         was -EPIPE -->-------------------------------->! CLEAR  !      !
-+ *           !                                            +--------+      !
-+ *           !                                                !           !
-+ *         was error -->------------------------------------- ! --------->\
-+ *           !                                                !           !
-+ *  /--<-- cmd->dir == NONE ?                                 !           !
-+ *  !        !                                                !           !
-+ *  !        V                                                !           !
-+ *  !    +--------+                                           !           !
-+ *  !    ! DATA   !                                           !           !
-+ *  !    +--------+                                           !           !
-+ *  !        !                           +---------+          !           !
-+ *  !      was -EPIPE -->--------------->! CLR2STS !          !           !
-+ *  !        !                           +---------+          !           !
-+ *  !        !                                !               !           !
-+ *  !        !                              was error -->---- ! --------->\
-+ *  !      was error -->--------------------- ! ------------- ! --------->\
-+ *  !        !                                !               !           !
-+ *  !        V                                !               !           !
-+ *  \--->+--------+                           !               !           !
-+ *       ! STAT   !<--------------------------/               !           !
-+ *  /--->+--------+                                           !           !
-+ *  !        !                                                !           !
-+ * [C]     was -EPIPE -->-----------\                         !           !
-+ *  !        !                      !                         !           !
-+ *  +<---- len == 0                 !                         !           !
-+ *  !        !                      !                         !           !
-+ *  !      was error -->--------------------------------------!---------->\
-+ *  !        !                      !                         !           !
-+ *  +<---- bad CSW                  !                         !           !
-+ *  +<---- bad tag                  !                         !           !
-+ *  !        !                      V                         !           !
-+ *  !        !                 +--------+                     !           !
-+ *  !        !                 ! CLRRS  !                     !           !
-+ *  !        !                 +--------+                     !           !
-+ *  !        !                      !                         !           !
-+ *  \------- ! --------------------[C]--------\               !           !
-+ *           !                                !               !           !
-+ *         cmd->error---\                +--------+           !           !
-+ *           !          +--------------->! SENSE  !<----------/           !
-+ *         STAT_FAIL----/                +--------+                       !
-+ *           !                                !                           V
-+ *           !                                V                      +--------+
-+ *           \--------------------------------\--------------------->! DONE   !
-+ *                                                                   +--------+
-+ */
-+
-+/*
-  * Definitions which have to be scattered once we understand the layout better.
-  */
+ 	bprm_dentry = bprm->file->f_dentry;
+-	if(!(bprm_dentry->d_inode->i_op &&
+-				bprm_dentry->d_inode->i_op->getxattr))
++	if (!(bprm_dentry->d_inode->i_op
++				&& bprm_dentry->d_inode->i_op->getxattr))
+ 		return 0;
+ 	bprm_getxattr = bprm_dentry->d_inode->i_op->getxattr;
  
-@@ -91,8 +159,6 @@ struct bulk_cs_wrap {
+ 	down(&bprm_dentry->d_inode->i_sem);
+ 	ret = bprm_getxattr(bprm_dentry,XATTR_CAP_SET,&caps,sizeof(caps));
+ 	up(&bprm_dentry->d_inode->i_sem);
+-	if(ret == sizeof(caps)) {
++	if (ret == sizeof(caps)) {
+ 		be32_to_cpus(&caps.version);
+ 		be32_to_cpus(&caps.effective);
+ 		be32_to_cpus(&caps.mask_effective);
+@@ -161,7 +161,7 @@ int cap_bprm_set_security (struct linux_
+ 		be32_to_cpus(&caps.mask_permitted);
+ 		be32_to_cpus(&caps.inheritable);
+ 		be32_to_cpus(&caps.mask_inheritable);
+-		if(caps.version == _LINUX_CAPABILITY_VERSION) {
++		if (caps.version == _LINUX_CAPABILITY_VERSION) {
+ 			cap_t(bprm->cap_effective) &= caps.mask_effective;
+ 			cap_t(bprm->cap_effective) |= caps.effective;
  
- #define US_BULK_CS_WRAP_LEN	13
- #define US_BULK_CS_SIGN		0x53425355	/* spells out 'USBS' */
--/* This is for Olympus Camedia digital cameras */
--#define US_BULK_CS_OLYMPUS_SIGN	0x55425355	/* spells out 'USBU' */
- #define US_BULK_STAT_OK		0
- #define US_BULK_STAT_FAIL	1
- #define US_BULK_STAT_PHASE	2
-@@ -135,6 +201,7 @@ enum ub_scsi_cmd_state {
- 	UB_CMDST_CLR2STS,		/* Clearing before requesting status */
- 	UB_CMDST_STAT,			/* Status phase */
- 	UB_CMDST_CLEAR,			/* Clearing a stall (halt, actually) */
-+	UB_CMDST_CLRRS,			/* Clearing before retrying status */
- 	UB_CMDST_SENSE,			/* Sending Request Sense */
- 	UB_CMDST_DONE			/* Final state */
- };
-@@ -146,6 +213,7 @@ static char *ub_scsi_cmd_stname[] = {
- 	"c2s",
- 	"sts",
- 	"clr",
-+	"crs",
- 	"Sen",
- 	"fin"
- };
-@@ -316,6 +384,7 @@ struct ub_dev {
- 	struct urb work_urb;
- 	struct timer_list work_timer;
- 	int last_pipe;			/* What might need clearing */
-+	__le32 signature;		/* Learned signature */
- 	struct bulk_cb_wrap work_bcb;
- 	struct bulk_cs_wrap work_bcs;
- 	struct usb_ctrlrequest work_cr;
-@@ -339,8 +408,9 @@ static void ub_scsi_action(unsigned long
- static void ub_scsi_dispatch(struct ub_dev *sc);
- static void ub_scsi_urb_compl(struct ub_dev *sc, struct ub_scsi_cmd *cmd);
- static void ub_state_done(struct ub_dev *sc, struct ub_scsi_cmd *cmd, int rc);
--static void __ub_state_stat(struct ub_dev *sc, struct ub_scsi_cmd *cmd);
-+static int __ub_state_stat(struct ub_dev *sc, struct ub_scsi_cmd *cmd);
- static void ub_state_stat(struct ub_dev *sc, struct ub_scsi_cmd *cmd);
-+static void ub_state_stat_counted(struct ub_dev *sc, struct ub_scsi_cmd *cmd);
- static void ub_state_sense(struct ub_dev *sc, struct ub_scsi_cmd *cmd);
- static int ub_submit_clear_stall(struct ub_dev *sc, struct ub_scsi_cmd *cmd,
-     int stalled_pipe);
-@@ -1085,6 +1155,28 @@ static void ub_scsi_urb_compl(struct ub_
- 
- 		ub_state_stat(sc, cmd);
- 
-+	} else if (cmd->state == UB_CMDST_CLRRS) {
-+		if (urb->status == -EPIPE) {
-+			/*
-+			 * STALL while clearning STALL.
-+			 * The control pipe clears itself - nothing to do.
-+			 * XXX Might try to reset the device here and retry.
-+			 */
-+			printk(KERN_NOTICE "%s: stall on control pipe\n",
-+			    sc->name);
-+			goto Bad_End;
-+		}
-+
-+		/*
-+		 * We ignore the result for the halt clear.
-+		 */
-+
-+		/* reset the endpoint toggle */
-+		usb_settoggle(sc->dev, usb_pipeendpoint(sc->last_pipe),
-+			usb_pipeout(sc->last_pipe), 0);
-+
-+		ub_state_stat_counted(sc, cmd);
-+
- 	} else if (cmd->state == UB_CMDST_CMD) {
- 		if (urb->status == -EPIPE) {
- 			rc = ub_submit_clear_stall(sc, cmd, sc->last_pipe);
-@@ -1190,52 +1282,57 @@ static void ub_scsi_urb_compl(struct ub_
- 				 */
- 				goto Bad_End;
- 			}
--			cmd->state = UB_CMDST_CLEAR;
-+
-+			/*
-+			 * Having a stall when getting CSW is an error, so
-+			 * make sure uppper levels are not oblivious to it.
-+			 */
-+			cmd->error = -EIO;		/* A cheap trick... */
-+
-+			cmd->state = UB_CMDST_CLRRS;
- 			ub_cmdtr_state(sc, cmd);
- 			return;
- 		}
-+		if (urb->status == -EOVERFLOW) {
-+			/*
-+			 * XXX We are screwed here. Retrying is pointless,
-+			 * because the pipelined data will not get in until
-+			 * we read with a big enough buffer. We must reset XXX.
-+			 */
-+			goto Bad_End;
-+		}
- 		if (urb->status != 0)
- 			goto Bad_End;
- 
- 		if (urb->actual_length == 0) {
--			/*
--			 * Some broken devices add unnecessary zero-length
--			 * packets to the end of their data transfers.
--			 * Such packets show up as 0-length CSWs. If we
--			 * encounter such a thing, try to read the CSW again.
--			 */
--			if (++cmd->stat_count >= 4) {
--				printk(KERN_NOTICE "%s: unable to get CSW\n",
--				    sc->name);
--				goto Bad_End;
--			}
--			__ub_state_stat(sc, cmd);
-+			ub_state_stat_counted(sc, cmd);
- 			return;
- 		}
- 
- 		/*
- 		 * Check the returned Bulk protocol status.
-+		 * The status block has to be validated first.
- 		 */
- 
- 		bcs = &sc->work_bcs;
--		rc = le32_to_cpu(bcs->Residue);
--		if (rc != cmd->len - cmd->act_len) {
-+
-+		if (sc->signature == cpu_to_le32(0)) {
- 			/*
--			 * It is all right to transfer less, the caller has
--			 * to check. But it's not all right if the device
--			 * counts disagree with our counts.
-+			 * This is the first reply, so do not perform the check.
-+			 * Instead, remember the signature the device uses
-+			 * for future checks. But do not allow a nul.
- 			 */
--			/* P3 */ printk("%s: resid %d len %d act %d\n",
--			    sc->name, rc, cmd->len, cmd->act_len);
--			goto Bad_End;
--		}
--
--#if 0
--		if (bcs->Signature != cpu_to_le32(US_BULK_CS_SIGN) &&
--		    bcs->Signature != cpu_to_le32(US_BULK_CS_OLYMPUS_SIGN)) {
--			/* Windows ignores signatures, so do we. */
-+			sc->signature = bcs->Signature;
-+			if (sc->signature == cpu_to_le32(0)) {
-+				ub_state_stat_counted(sc, cmd);
-+				return;
-+			}
-+		} else {
-+			if (bcs->Signature != sc->signature) {
-+				ub_state_stat_counted(sc, cmd);
-+				return;
-+			}
- 		}
--#endif
- 
- 		if (bcs->Tag != cmd->tag) {
- 			/*
-@@ -1245,16 +1342,22 @@ static void ub_scsi_urb_compl(struct ub_
- 			 * commands and reply at commands we timed out before.
- 			 * Without flushing these replies we loop forever.
- 			 */
--			if (++cmd->stat_count >= 4) {
--				printk(KERN_NOTICE "%s: "
--				    "tag mismatch orig 0x%x reply 0x%x\n",
--				    sc->name, cmd->tag, bcs->Tag);
--				goto Bad_End;
--			}
--			__ub_state_stat(sc, cmd);
-+			ub_state_stat_counted(sc, cmd);
- 			return;
- 		}
- 
-+		rc = le32_to_cpu(bcs->Residue);
-+		if (rc != cmd->len - cmd->act_len) {
-+			/*
-+			 * It is all right to transfer less, the caller has
-+			 * to check. But it's not all right if the device
-+			 * counts disagree with our counts.
-+			 */
-+			/* P3 */ printk("%s: resid %d len %d act %d\n",
-+			    sc->name, rc, cmd->len, cmd->act_len);
-+			goto Bad_End;
-+		}
-+
- 		switch (bcs->Status) {
- 		case US_BULK_STAT_OK:
- 			break;
-@@ -1272,6 +1375,10 @@ static void ub_scsi_urb_compl(struct ub_
- 		}
- 
- 		/* Not zeroing error to preserve a babble indicator */
-+		if (cmd->error != 0) {
-+			ub_state_sense(sc, cmd);
-+			return;
-+		}
- 		cmd->state = UB_CMDST_DONE;
- 		ub_cmdtr_state(sc, cmd);
- 		ub_cmdq_pop(sc);
-@@ -1310,7 +1417,7 @@ static void ub_state_done(struct ub_dev 
-  * Factorization helper for the command state machine:
-  * Submit a CSW read.
-  */
--static void __ub_state_stat(struct ub_dev *sc, struct ub_scsi_cmd *cmd)
-+static int __ub_state_stat(struct ub_dev *sc, struct ub_scsi_cmd *cmd)
- {
- 	int rc;
- 
-@@ -1328,11 +1435,12 @@ static void __ub_state_stat(struct ub_de
- 		/* XXX Clear stalls */
- 		ub_complete(&sc->work_done);
- 		ub_state_done(sc, cmd, rc);
--		return;
-+		return -1;
- 	}
- 
- 	sc->work_timer.expires = jiffies + UB_STAT_TIMEOUT;
- 	add_timer(&sc->work_timer);
-+	return 0;
- }
- 
- /*
-@@ -1341,7 +1449,9 @@ static void __ub_state_stat(struct ub_de
-  */
- static void ub_state_stat(struct ub_dev *sc, struct ub_scsi_cmd *cmd)
- {
--	__ub_state_stat(sc, cmd);
-+
-+	if (__ub_state_stat(sc, cmd) != 0)
-+		return;
- 
- 	cmd->stat_count = 0;
- 	cmd->state = UB_CMDST_STAT;
-@@ -1350,6 +1460,25 @@ static void ub_state_stat(struct ub_dev 
- 
- /*
-  * Factorization helper for the command state machine:
-+ * Submit a CSW read and go to STAT state with counter (along [C] path).
-+ */
-+static void ub_state_stat_counted(struct ub_dev *sc, struct ub_scsi_cmd *cmd)
-+{
-+
-+	if (++cmd->stat_count >= 4) {
-+		ub_state_sense(sc, cmd);
-+		return;
-+	}
-+
-+	if (__ub_state_stat(sc, cmd) != 0)
-+		return;
-+
-+	cmd->state = UB_CMDST_STAT;
-+	ub_cmdtr_state(sc, cmd);
-+}
-+
-+/*
-+ * Factorization helper for the command state machine:
-  * Submit a REQUEST SENSE and go to SENSE state.
-  */
- static void ub_state_sense(struct ub_dev *sc, struct ub_scsi_cmd *cmd)

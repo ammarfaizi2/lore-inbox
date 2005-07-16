@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVGPTBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVGPTdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVGPTBr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 15:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVGPTBr
+	id S261158AbVGPTdz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 15:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVGPTdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 15:01:47 -0400
-Received: from mxsf18.cluster1.charter.net ([209.225.28.218]:55257 "EHLO
-	mxsf18.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261393AbVGPTBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 15:01:42 -0400
-X-IronPort-AV: i="3.93,295,1115006400"; 
-   d="scan'208"; a="1140775748:sNHT33618058"
-Message-ID: <42D95992.9090901@cybsft.com>
-Date: Sat, 16 Jul 2005 14:01:38 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Karsten Wiese <annabellesgarden@yahoo.de>,
-       Chuck Harding <charding@llnl.gov>, William Weston <weston@sysex.net>,
-       Linux Kernel Discussion List <linux-kernel@vger.kernel.org>,
-       Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050713103930.GA16776@elte.hu> <42D51EAF.2070603@cybsft.com> <200507141450.42837.annabellesgarden@yahoo.de> <20050716171537.GB16235@elte.hu>
-In-Reply-To: <20050716171537.GB16235@elte.hu>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Jul 2005 15:33:55 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:63652 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261158AbVGPTdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 15:33:45 -0400
+Date: Sat, 16 Jul 2005 21:32:43 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: William Weston <weston@sysex.net>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.12-final-V0.7.50-24
+Message-ID: <20050716193243.GA22112@elte.hu>
+References: <200507121223.10704.annabellesgarden@yahoo.de> <200507130204.08824.annabellesgarden@yahoo.de> <Pine.LNX.4.58.0507121706210.21776@echo.lysdexia.org> <200507151405.59961.annabellesgarden@yahoo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507151405.59961.annabellesgarden@yahoo.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
-> 
-> 
->>Have I corrected the other path of ioapic early initialization, which 
->>had lacked virtual-address setup before ioapic_data[ioapic] was to be 
->>filled in -51-28? Please test attached patch on top of -51-29 or 
->>later. Also on Systems that liked -51-28.
-> 
-> 
-> thanks - i've applied it to my tree and have released the -51-31 patch.  
-> It looks good on my testboxes.
-> 
-> 	Ingo
-> 
 
-I have booted this on my older SMP system (the one that wouldn't boot
--51-28) as well as an older duron box and thus far all is well.
+* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
 
--- 
-   kr
+> This is it. Apply it on top of -51-30 and 'make oldconfig'. You'll be 
+> asked about the new CONFIG_ONE_IOAPIC. Answering yes, io_apic_one.c 
+> will be used, which is ((io_apic.c minus quirks) minus 
+> multi_io_apic_capability) . It'll propably crash some machines, as the 
+> quirks are there for some reason... With CONFIG_ONE_IOAPIC unset, 
+> you'll get the same kernel as with my previously sent patch. have fun 
+> :-)
+
+this could only be offered if it's merged into the existing io_apic.c.  
+The current IOAPIC_FAST option will go away eventually, but ONE_IOAPIC 
+would/could be intentionally incompatible.
+
+	Ingo

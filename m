@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVGPEBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVGPEZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbVGPEBr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 00:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVGPEBq
+	id S261628AbVGPEZo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 00:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVGPEZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 00:01:46 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:53718 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id S262180AbVGPEBo (ORCPT
+	Sat, 16 Jul 2005 00:25:43 -0400
+Received: from ns.suse.de ([195.135.220.2]:31185 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261628AbVGPEZl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 00:01:44 -0400
-Subject: Re: 2.6.12 vs. /sbin/cardmgr
-In-Reply-To: <20050715172346.GD3586@isilmar.linta.de> "from Dominik Brodowski
- at Jul 15, 2005 07:23:46 pm"
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Date: Fri, 15 Jul 2005 23:01:39 -0500 (CDT)
-CC: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20050716040140.1F03FDBA1@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
+	Sat, 16 Jul 2005 00:25:41 -0400
+Date: Sat, 16 Jul 2005 06:25:23 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: "Justin M. Forbes" <jmforbes@linuxtx.org>, Andi Kleen <ak@suse.de>,
+       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [11/11] x86_64: TASK_SIZE fixes for compatibility mode processes
+Message-ID: <20050716042522.GA8459@wotan.suse.de>
+References: <20050713184130.GA9330@kroah.com> <20050713184426.GM9330@kroah.com> <20050713184946.GY23737@wotan.suse.de> <20050714094516.A1847@unix-os.sc.intel.com> <20050715155333.GA387@linuxtx.org> <20050715191744.B18854@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050715191744.B18854@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Brodowski wrote:
-> On Sun, Jul 10, 2005 at 03:37:22PM -0500, Bob Tracy wrote:
-> > Dominik Brodowski wrote:
-> > > On Sat, Jul 09, 2005 at 12:12:17AM -0500, Bob Tracy wrote:
-> > > > (/sbin/cardmgr chewing up lots of CPU cycles with 2.6.12 kernel)
-> > > 
-> > > Please post the output of "lspci" and "lsmod" as I'd like to know which
-> > > kind of PCMCIA bridge is in your notebook.
+On Fri, Jul 15, 2005 at 07:17:44PM -0700, Siddha, Suresh B wrote:
+> On Fri, Jul 15, 2005 at 10:53:33AM -0500, Justin M. Forbes wrote:
+> > That said, I will be testing this patch a bit further
 > 
-> OK, it's a plain TI1225. Could you try whether the bug is still existent in
-> 2.6.13-rc3, please?
+> Thanks. Let me know if you see any issues.
+> 
+> > myself, and because it does address a real memory leak issue, we should
+> > consider it or another fix for stable 2.6.12.4.
+> 
+> Appended patch will just fix the memory leak issue. Atleast, we should
+> apply this.
 
-2.6.13-rc3 works fine here.  The "cardmgr" process is no longer chewing
-up lots of CPU time, and otherwise seems to be working correctly.  Thanks!
+Looks good. Thanks, Suresh.
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+-Andi

@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbVGPFQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVGPFnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbVGPFQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 01:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbVGPFQ0
+	id S262236AbVGPFnq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 01:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262242AbVGPFnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 01:16:26 -0400
-Received: from tomts20.bellnexxia.net ([209.226.175.74]:19147 "EHLO
-	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262227AbVGPFQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 01:16:24 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-From: Eric St-Laurent <ericstl34@sympatico.ca>
-To: Stephen Pollei <stephen.pollei@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Chris Wedgwood <cw@f00f.org>,
-       Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
-       dtor_core@ameritech.net, vojtech@suse.cz, david.lang@digitalinsight.com,
-       davidsen@tmr.com, kernel@kolivas.org, linux-kernel@vger.kernel.org,
-       mbligh@mbligh.org, diegocg@gmail.com, azarah@nosferatu.za.org,
-       christoph@lameter.com
-In-Reply-To: <feed8cdd050715125846f8c42f@mail.gmail.com>
-References: <42D3E852.5060704@mvista.com>
-	 <1121282025.4435.70.camel@mindpipe>
-	 <d120d50005071312322b5d4bff@mail.gmail.com>
-	 <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-	 <9a874849050714170465c979c3@mail.gmail.com>
-	 <1121386505.4535.98.camel@mindpipe>
-	 <Pine.LNX.4.58.0507141718350.19183@g5.osdl.org>
-	 <1121392856.7934.11.camel@orbiter>
-	 <feed8cdd050715125846f8c42f@mail.gmail.com>
-Content-Type: text/plain
-Date: Sat, 16 Jul 2005 01:16:30 -0400
-Message-Id: <1121490991.7057.21.camel@orbiter>
+	Sat, 16 Jul 2005 01:43:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61082 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262236AbVGPFnp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 01:43:45 -0400
+Date: Fri, 15 Jul 2005 22:42:54 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, torvalds@osdl.org,
+       akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Greg KH <gregkh@suse.de>,
+       "Justin M. Forbes" <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, stable@kernel.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [stable] Re: [11/11] x86_64: TASK_SIZE fixes for compatibility mode processes
+Message-ID: <20050716054254.GI19052@shell0.pdx.osdl.net>
+References: <20050713184130.GA9330@kroah.com> <20050713184426.GM9330@kroah.com> <20050713184946.GY23737@wotan.suse.de> <20050714094516.A1847@unix-os.sc.intel.com> <20050715155333.GA387@linuxtx.org> <20050715191744.B18854@unix-os.sc.intel.com> <20050716042522.GA8459@wotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050716042522.GA8459@wotan.suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-15 at 12:58 -0700, Stephen Pollei wrote:
-> But If I understand Linus's points he wants jiffies to remain a memory
-> fetch, and make sure it doesn't turn into a singing dancing christmas
-> tree.
+* Andi Kleen (ak@suse.de) wrote:
+> On Fri, Jul 15, 2005 at 07:17:44PM -0700, Siddha, Suresh B wrote:
+> > On Fri, Jul 15, 2005 at 10:53:33AM -0500, Justin M. Forbes wrote:
+> > > That said, I will be testing this patch a bit further
+> > 
+> > Thanks. Let me know if you see any issues.
+> > 
+> > > myself, and because it does address a real memory leak issue, we should
+> > > consider it or another fix for stable 2.6.12.4.
+> > 
+> > Appended patch will just fix the memory leak issue. Atleast, we should
+> > apply this.
+> 
+> Looks good. Thanks, Suresh.
 
-It seems it relatively easy to support dynamic tick, the ARM
-architecture has it. But with the numerous users of jiffies through the
-code, it seems to me that it's hard to ensure that everyone of them will
-continue to work correctly if the jiffies_increment is changed during
-runtime.
+Queued for next -stable.
 
-As Linus noted, the current tick code is flexible and powerful, but it
-can be hard to get it right in all case. 
-
-WinCE developers have similar problems/concerns:
-
-http://blogs.msdn.com/ce_base/archive/2005/06/08/426762.aspx
-
-With the previous cleanup like time_after()/time_before(), msleep() and
-friends, unit conversion helpers, etc. it's a step in the right
-direction.
-
-I just wanted to point out that while it's good to preserve the current
-efficient tick implementation, it may be worthwhile to add a relative
-timeout API like Alan Cox proposed a year ago to better hide the
-implementation details.
-
-
-- Eric St-Laurent
-
-
+thanks,
+-chris

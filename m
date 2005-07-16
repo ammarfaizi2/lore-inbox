@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVGPP4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbVGPQQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbVGPP4H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 11:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbVGPP4H
+	id S261669AbVGPQQk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 12:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVGPQQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 11:56:07 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:52495 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261652AbVGPP4G convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 11:56:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CbeCVpo2E2OjpbEcjKTW1YUQCRjKz852eB2YKiksdouK/8a86mxZ/EWYzbZV6ZzX6EAnj3wCLvzSVjOTeEFgdydLniOVBXXYrov3BfebwQNdaTEuLXaPa0nYT/SIy76eQdoOnUNI4gi3FZsxzlq8yibavNHo0LqBKpZwQa3fAK8=
-Message-ID: <9a87484905071608565d4b2ec1@mail.gmail.com>
-Date: Sat, 16 Jul 2005 17:56:05 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Dhruv Matani <dhruvbird@gmail.com>
-Subject: Re: NFS and fifos.
-Cc: Arvind Kalyan <base16@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3a9148b905071608496f5c9339@mail.gmail.com>
+	Sat, 16 Jul 2005 12:16:40 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:30573 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261669AbVGPQQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 12:16:25 -0400
+Date: Sat, 16 Jul 2005 09:16:20 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Module option for compiled-in parts
+Message-Id: <20050716091620.3d812b11.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.61.0507161043470.5993@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0507161043470.5993@yvahk01.tjqt.qr>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <3a9148b9050716034417d7d148@mail.gmail.com>
-	 <90c25f2705071607321d66a776@mail.gmail.com>
-	 <3a9148b905071608496f5c9339@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/16/05, Dhruv Matani <dhruvbird@gmail.com> wrote:
-> On 7/16/05, Arvind Kalyan <base16@gmail.com> wrote:
-> > On 7/16/05, Dhruv Matani <dhruvbird@gmail.com> wrote:
-> > > Hello,
-> > >   I can't seem to be able to use fifos on an NFS mount. Is there any
-> > > reason why this is disallowed, or is this is a bug? v.2.4.20.
-> >
-> > Are both the processes (reader/writer) on the same machine? FIFOs are
-> > local objects.
-> 
-> Yes, but I'm accessing them through my remote[public] IP address.
-> The idea behind it is to have a fifo that works across the network
-> through an NFS mount. Is that possible?
-> 
-> I serched google for 'socket file', and all that I got was 'fifo', but
-> they are to be used only on a singl machine for communication between
-> 2 or more applications, but couldn't find any file abstraction for
-> communication for processes on distinct machines. Do you know of any
-> such thing, cause I couldn't find any.
-> 
+On Sat, 16 Jul 2005 10:45:17 +0200 (MEST) Jan Engelhardt wrote:
 
-sockets.
+> Hi,
+> 
+> 
+> I have added a module_param() to a component that is compiled in
+> (drivers/char/vt.c). Since it's not a module, will it still show a 
+> /sys/module/WhatGoesHere/parameters/myvariablename file? What will be put as 
+> "WhatGoesHere" as vt.c does not become vt.ko?
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Interesting question.
+
+Are you adding one/some module parameters to vt.c ?
+I don't see any there.
+
+
+I have usbcore built-in (not a loadable module), and I still see
+in /sys/module/usbcore/parameters these files:
+
+blinkenlights
+old_scheme_first
+usbfs_snoop
+use_both_schemes
+
+but usbcore is "defined" as containing a list of .o files
+in drivers/usb/core/Makefile.
+
+---
+~Randy

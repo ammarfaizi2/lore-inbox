@@ -1,205 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVGPQtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVGPQvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbVGPQtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 12:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVGPQtZ
+	id S261734AbVGPQvp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 12:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVGPQvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 12:49:25 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:24752 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261734AbVGPQtS (ORCPT
+	Sat, 16 Jul 2005 12:51:44 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:16338 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261734AbVGPQuf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 12:49:18 -0400
-Message-ID: <42D93A7E.5090807@colorfullife.com>
-Date: Sat, 16 Jul 2005 18:49:02 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
-X-Accept-Language: en-us, en
+	Sat, 16 Jul 2005 12:50:35 -0400
+Date: Sat, 16 Jul 2005 18:50:33 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: randy_dunlap <rdunlap@xenotime.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Module option for compiled-in parts
+In-Reply-To: <20050716091620.3d812b11.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.61.0507161846570.4126@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0507161043470.5993@yvahk01.tjqt.qr>
+ <20050716091620.3d812b11.rdunlap@xenotime.net>
 MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>, Ayaz Abdulla <AAbdulla@nvidia.com>
-Subject: Re: [PATCH] forcedeth: TX handler changes (experimental)
-References: <42D9141E.3070401@colorfullife.com> <42D932E2.20005@gentoo.org>
-In-Reply-To: <42D932E2.20005@gentoo.org>
-Content-Type: multipart/mixed;
- boundary="------------060503060906020809090406"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060503060906020809090406
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+>> I have added a module_param() to a component that is compiled in
+>> (drivers/char/vt.c). Since it's not a module, will it still show a 
+>> /sys/module/WhatGoesHere/parameters/myvariablename file? What will be put as 
+>> "WhatGoesHere" as vt.c does not become vt.ko?
 
-Daniel Drake wrote:
+I actually done it, and a /sys/module/vt popped up, as expected.
 
-> Hi,
+>Interesting question.
 >
-> Manfred Spraul wrote:
->
->> Attached is a patch that modifies the tx interrupt handling of the 
->> nForce nic. It's part of the attempts to figure out what causes the 
->> nic hangs (see bug 4552).
->> The change is experimental: It affects all nForce versions. I've 
->> tested it on my nForce 250-Gb.
->
->
-> This patch doesn't apply to 2.6.13-rc3:
->
-> patching file drivers/net/forcedeth.c
-> Hunk #1 FAILED at 87.
-> Hunk #2 FAILED at 100.
-> Hunk #3 FAILED at 135.
-> Hunk #4 succeeded at 145 (offset -3 lines).
-> Hunk #5 succeeded at 295 (offset -3 lines).
-> Hunk #6 succeeded at 305 (offset -3 lines).
-> Hunk #7 succeeded at 995 (offset -20 lines).
-> Hunk #8 succeeded at 1502 (offset -87 lines).
-> Hunk #9 succeeded at 2112 (offset -133 lines).
-> Hunk #10 FAILED at 2221.
-> 4 out of 10 hunks FAILED -- saving rejects to file 
-> drivers/net/forcedeth.c.rej
->
-> I think this is because 2.6.13-rc3 has forcedeth 0.35.
->
-> I can't find the patch for 0.35 --> 0.36. (Is this when the netdev 
-> archives were in limbo?)
->
-Either that, or I just forgot to cc netdev.
-I've uploaded all recent patches to
-http://www.colorfullife.com/~manfred/Linux-kernel/forcedeth/
+>Are you adding one/some module parameters to vt.c ?
 
-0.36 is attached.
---
-    Manfred
+Yes
 
---------------060503060906020809090406
-Content-Type: text/plain;
- name="patch-forcedeth-036-jumbo"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="patch-forcedeth-036-jumbo"
+>I don't see any there.
 
-LS0tIDIuNi9kcml2ZXJzL25ldC9mb3JjZWRldGguYwkyMDA1LTA2LTI4IDIyOjUxOjI2LjAw
-MDAwMDAwMCArMDIwMAorKysgYnVpbGQtMi42L2RyaXZlcnMvbmV0L2ZvcmNlZGV0aC5jCTIw
-MDUtMDYtMjggMjI6NTE6NDAuMDAwMDAwMDAwICswMjAwCkBAIC04NSw2ICs4NSw3IEBACiAg
-KgkwLjMzOiAxNiBNYXkgMjAwNTogU3VwcG9ydCBmb3IgTUNQNTEgYWRkZWQuCiAgKgkwLjM0
-OiAxOCBKdW4gMjAwNTogQWRkIERFVl9ORUVEX0xJTktUSU1FUiB0byBhbGwgbkZvcmNlIG5p
-Y3MuCiAgKgkwLjM1OiAyNiBKdW4gMjAwNTogU3VwcG9ydCBmb3IgTUNQNTUgYWRkZWQuCisg
-KgkwLjM2OiAyOCBKdWwgMjAwNTogQWRkIGp1bWJvIGZyYW1lIHN1cHBvcnQuCiAgKgogICog
-S25vd24gYnVnczoKICAqIFdlIHN1c3BlY3QgdGhhdCBvbiBzb21lIGhhcmR3YXJlIG5vIFRY
-IGRvbmUgaW50ZXJydXB0cyBhcmUgZ2VuZXJhdGVkLgpAQCAtOTYsNyArOTcsNyBAQAogICog
-REVWX05FRURfVElNRVJJUlEgd2lsbCBub3QgaGFybSB5b3Ugb24gc2FuZSBoYXJkd2FyZSwg
-b25seSBnZW5lcmF0aW5nIGEgZmV3CiAgKiBzdXBlcmZsdW91cyB0aW1lciBpbnRlcnJ1cHRz
-IGZyb20gdGhlIG5pYy4KICAqLwotI2RlZmluZSBGT1JDRURFVEhfVkVSU0lPTgkJIjAuMzUi
-CisjZGVmaW5lIEZPUkNFREVUSF9WRVJTSU9OCQkiMC4zNiIKICNkZWZpbmUgRFJWX05BTUUJ
-CQkiZm9yY2VkZXRoIgogCiAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+CkBAIC0zNzksOSAr
-MzgwLDEzIEBACiAjZGVmaW5lIFRYX0xJTUlUX1NUQVJUCTYyCiAKIC8qIHJ4L3R4IG1hYyBh
-ZGRyICsgdHlwZSArIHZsYW4gKyBhbGlnbiArIHNsYWNrKi8KLSNkZWZpbmUgUlhfTklDX0JV
-RlNJWkUJCShFVEhfREFUQV9MRU4gKyA2NCkKLS8qIGV2ZW4gbW9yZSBzbGFjayAqLwotI2Rl
-ZmluZSBSWF9BTExPQ19CVUZTSVpFCShFVEhfREFUQV9MRU4gKyAxMjgpCisjZGVmaW5lIE5W
-X1JYX0hFQURFUlMJCSg2NCkKKy8qIGV2ZW4gbW9yZSBzbGFjay4gKi8KKyNkZWZpbmUgTlZf
-UlhfQUxMT0NfUEFECQkoNjQpCisKKy8qIG1heGltdW0gbXR1IHNpemUgKi8KKyNkZWZpbmUg
-TlZfUEtUTElNSVRfMQlFVEhfREFUQV9MRU4JLyogaGFyZCBsaW1pdCBub3Qga25vd24gKi8K
-KyNkZWZpbmUgTlZfUEtUTElNSVRfMgk5MTAwCS8qIEFjdHVhbCBsaW1pdCBhY2NvcmRpbmcg
-dG8gTlZpZGlhOiA5MjAyICovCiAKICNkZWZpbmUgT09NX1JFRklMTAkoMStIWi8yMCkKICNk
-ZWZpbmUgUE9MTF9XQUlUCSgxK0haLzEwMCkKQEAgLTQ3Myw2ICs0NzgsNyBAQAogCXN0cnVj
-dCBza19idWZmICpyeF9za2J1ZmZbUlhfUklOR107CiAJZG1hX2FkZHJfdCByeF9kbWFbUlhf
-UklOR107CiAJdW5zaWduZWQgaW50IHJ4X2J1Zl9zejsKKwl1bnNpZ25lZCBpbnQgcGt0X2xp
-bWl0OwogCXN0cnVjdCB0aW1lcl9saXN0IG9vbV9raWNrOwogCXN0cnVjdCB0aW1lcl9saXN0
-IG5pY19wb2xsOwogCkBAIC03OTIsNyArNzk4LDcgQEAKIAkJbnIgPSByZWZpbGxfcnggJSBS
-WF9SSU5HOwogCQlpZiAobnAtPnJ4X3NrYnVmZltucl0gPT0gTlVMTCkgewogCi0JCQlza2Ig
-PSBkZXZfYWxsb2Nfc2tiKFJYX0FMTE9DX0JVRlNJWkUpOworCQkJc2tiID0gZGV2X2FsbG9j
-X3NrYihucC0+cnhfYnVmX3N6ICsgTlZfUlhfQUxMT0NfUEFEKTsKIAkJCWlmICghc2tiKQog
-CQkJCWJyZWFrOwogCkBAIC04MDUsNyArODExLDcgQEAKIAkJCQkJCVBDSV9ETUFfRlJPTURF
-VklDRSk7CiAJCW5wLT5yeF9yaW5nW25yXS5QYWNrZXRCdWZmZXIgPSBjcHVfdG9fbGUzMihu
-cC0+cnhfZG1hW25yXSk7CiAJCXdtYigpOwotCQlucC0+cnhfcmluZ1tucl0uRmxhZ0xlbiA9
-IGNwdV90b19sZTMyKFJYX05JQ19CVUZTSVpFIHwgTlZfUlhfQVZBSUwpOworCQlucC0+cnhf
-cmluZ1tucl0uRmxhZ0xlbiA9IGNwdV90b19sZTMyKG5wLT5yeF9idWZfc3ogfCBOVl9SWF9B
-VkFJTCk7CiAJCWRwcmludGsoS0VSTl9ERUJVRyAiJXM6IG52X2FsbG9jX3J4OiBQYWNrZXQg
-JWQgbWFya2VkIGFzIEF2YWlsYWJsZVxuIiwKIAkJCQkJZGV2LT5uYW1lLCByZWZpbGxfcngp
-OwogCQlyZWZpbGxfcngrKzsKQEAgLTgzMSwxOSArODM3LDMxIEBACiAJZW5hYmxlX2lycShk
-ZXYtPmlycSk7CiB9CiAKLXN0YXRpYyBpbnQgbnZfaW5pdF9yaW5nKHN0cnVjdCBuZXRfZGV2
-aWNlICpkZXYpCitzdGF0aWMgdm9pZCBudl9pbml0X3J4KHN0cnVjdCBuZXRfZGV2aWNlICpk
-ZXYpIAogewogCXN0cnVjdCBmZV9wcml2ICpucCA9IGdldF9udnByaXYoZGV2KTsKIAlpbnQg
-aTsKIAotCW5wLT5uZXh0X3R4ID0gbnAtPm5pY190eCA9IDA7Ci0JZm9yIChpID0gMDsgaSA8
-IFRYX1JJTkc7IGkrKykKLQkJbnAtPnR4X3JpbmdbaV0uRmxhZ0xlbiA9IDA7Ci0KIAlucC0+
-Y3VyX3J4ID0gUlhfUklORzsKIAlucC0+cmVmaWxsX3J4ID0gMDsKIAlmb3IgKGkgPSAwOyBp
-IDwgUlhfUklORzsgaSsrKQogCQlucC0+cnhfcmluZ1tpXS5GbGFnTGVuID0gMDsKK30KKwor
-c3RhdGljIHZvaWQgbnZfaW5pdF90eChzdHJ1Y3QgbmV0X2RldmljZSAqZGV2KQoreworCXN0
-cnVjdCBmZV9wcml2ICpucCA9IGdldF9udnByaXYoZGV2KTsKKwlpbnQgaTsKKworCW5wLT5u
-ZXh0X3R4ID0gbnAtPm5pY190eCA9IDA7CisJZm9yIChpID0gMDsgaSA8IFRYX1JJTkc7IGkr
-KykKKwkJbnAtPnR4X3JpbmdbaV0uRmxhZ0xlbiA9IDA7Cit9CisKK3N0YXRpYyBpbnQgbnZf
-aW5pdF9yaW5nKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYpCit7CisJbnZfaW5pdF90eChkZXYp
-OworCW52X2luaXRfcngoZGV2KTsKIAlyZXR1cm4gbnZfYWxsb2NfcngoZGV2KTsKIH0KIApA
-QCAtMTIwNywxNSArMTIyNSw4MiBAQAogCX0KIH0KIAorc3RhdGljIHZvaWQgc2V0X2J1ZnNp
-emUoc3RydWN0IG5ldF9kZXZpY2UgKmRldikKK3sKKwlzdHJ1Y3QgZmVfcHJpdiAqbnAgPSBu
-ZXRkZXZfcHJpdihkZXYpOworCisJaWYgKGRldi0+bXR1IDw9IEVUSF9EQVRBX0xFTikKKwkJ
-bnAtPnJ4X2J1Zl9zeiA9IEVUSF9EQVRBX0xFTiArIE5WX1JYX0hFQURFUlM7CisJZWxzZQor
-CQlucC0+cnhfYnVmX3N6ID0gZGV2LT5tdHUgKyBOVl9SWF9IRUFERVJTOworfQorCiAvKgog
-ICogbnZfY2hhbmdlX210dTogZGV2LT5jaGFuZ2VfbXR1IGZ1bmN0aW9uCiAgKiBDYWxsZWQg
-d2l0aCBkZXZfYmFzZV9sb2NrIGhlbGQgZm9yIHJlYWQuCiAgKi8KIHN0YXRpYyBpbnQgbnZf
-Y2hhbmdlX210dShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LCBpbnQgbmV3X210dSkKIHsKLQlp
-ZiAobmV3X210dSA+IEVUSF9EQVRBX0xFTikKKwlzdHJ1Y3QgZmVfcHJpdiAqbnAgPSBnZXRf
-bnZwcml2KGRldik7CisJaW50IG9sZF9tdHU7CisKKwlpZiAobmV3X210dSA8IDY0IHx8IG5l
-d19tdHUgPiBucC0+cGt0X2xpbWl0KQogCQlyZXR1cm4gLUVJTlZBTDsKKworCW9sZF9tdHUg
-PSBkZXYtPm10dTsKIAlkZXYtPm10dSA9IG5ld19tdHU7CisKKwkvKiByZXR1cm4gZWFybHkg
-aWYgdGhlIGJ1ZmZlciBzaXplcyB3aWxsIG5vdCBjaGFuZ2UgKi8KKwlpZiAob2xkX210dSA8
-PSBFVEhfREFUQV9MRU4gJiYgbmV3X210dSA8PSBFVEhfREFUQV9MRU4pCisJCXJldHVybiAw
-OworCWlmIChvbGRfbXR1ID09IG5ld19tdHUpCisJCXJldHVybiAwOworCisJLyogc3luY2hy
-b25pemVkIGFnYWluc3Qgb3BlbiA6IHJ0bmxfbG9jaygpIGhlbGQgYnkgY2FsbGVyICovCisJ
-aWYgKG5ldGlmX3J1bm5pbmcoZGV2KSkgeworCQl1OCAqYmFzZSA9IGdldF9od2Jhc2UoZGV2
-KTsKKwkJLyoKKwkJICogSXQgc2VlbXMgdGhhdCB0aGUgbmljIHByZWxvYWRzIHZhbGlkIHJp
-bmcgZW50cmllcyBpbnRvIGFuCisJCSAqIGludGVybmFsIGJ1ZmZlci4gVGhlIHByb2NlZHVy
-ZSBmb3IgZmx1c2hpbmcgZXZlcnl0aGluZyBpcworCQkgKiBndWVzc2VkLCB0aGVyZSBpcyBw
-cm9iYWJseSBhIHNpbXBsZXIgYXBwcm9hY2guCisJCSAqIENoYW5naW5nIHRoZSBNVFUgaXMg
-YSByYXJlIGV2ZW50LCBpdCBzaG91bGRuJ3QgbWF0dGVyLgorCQkgKi8KKwkJZGlzYWJsZV9p
-cnEoZGV2LT5pcnEpOworCQlzcGluX2xvY2tfYmgoJmRldi0+eG1pdF9sb2NrKTsKKwkJc3Bp
-bl9sb2NrKCZucC0+bG9jayk7CisJCS8qIHN0b3AgZW5naW5lcyAqLworCQludl9zdG9wX3J4
-KGRldik7CisJCW52X3N0b3BfdHgoZGV2KTsKKwkJbnZfdHhyeF9yZXNldChkZXYpOworCQkv
-KiBkcmFpbiByeCBxdWV1ZSAqLworCQludl9kcmFpbl9yeChkZXYpOworCQludl9kcmFpbl90
-eChkZXYpOworCQkvKiByZWluaXQgZHJpdmVyIHZpZXcgb2YgdGhlIHJ4IHF1ZXVlICovCisJ
-CW52X2luaXRfcngoZGV2KTsKKwkJbnZfaW5pdF90eChkZXYpOworCQkvKiBhbGxvYyBuZXcg
-cnggYnVmZmVycyAqLworCQlzZXRfYnVmc2l6ZShkZXYpOworCQlpZiAobnZfYWxsb2Nfcngo
-ZGV2KSkgeworCQkJaWYgKCFucC0+aW5fc2h1dGRvd24pCisJCQkJbW9kX3RpbWVyKCZucC0+
-b29tX2tpY2ssIGppZmZpZXMgKyBPT01fUkVGSUxMKTsKKwkJfQorCQkvKiByZWluaXQgbmlj
-IHZpZXcgb2YgdGhlIHJ4IHF1ZXVlICovCisJCXdyaXRlbChucC0+cnhfYnVmX3N6LCBiYXNl
-ICsgTnZSZWdPZmZsb2FkQ29uZmlnKTsKKwkJd3JpdGVsKCh1MzIpIG5wLT5yaW5nX2FkZHIs
-IGJhc2UgKyBOdlJlZ1J4UmluZ1BoeXNBZGRyKTsKKwkJd3JpdGVsKCh1MzIpIChucC0+cmlu
-Z19hZGRyICsgUlhfUklORypzaXplb2Yoc3RydWN0IHJpbmdfZGVzYykpLCBiYXNlICsgTnZS
-ZWdUeFJpbmdQaHlzQWRkcik7CisJCXdyaXRlbCggKChSWF9SSU5HLTEpIDw8IE5WUkVHX1JJ
-TkdTWl9SWFNISUZUKSArICgoVFhfUklORy0xKSA8PCBOVlJFR19SSU5HU1pfVFhTSElGVCks
-CisJCQliYXNlICsgTnZSZWdSaW5nU2l6ZXMpOworCQlwY2lfcHVzaChiYXNlKTsKKwkJd3Jp
-dGVsKE5WUkVHX1RYUlhDVExfS0lDS3xucC0+ZGVzY192ZXIsIGdldF9od2Jhc2UoZGV2KSAr
-IE52UmVnVHhSeENvbnRyb2wpOworCQlwY2lfcHVzaChiYXNlKTsKKworCQkvKiByZXN0YXJ0
-IHJ4IGVuZ2luZSAqLworCQludl9zdGFydF9yeChkZXYpOworCQludl9zdGFydF90eChkZXYp
-OworCQlzcGluX3VubG9jaygmbnAtPmxvY2spOworCQlzcGluX3VubG9ja19iaCgmZGV2LT54
-bWl0X2xvY2spOworCQllbmFibGVfaXJxKGRldi0+aXJxKTsKKwl9CiAJcmV0dXJuIDA7CiB9
-CiAKQEAgLTE3OTIsNiArMTg3Nyw3IEBACiAJd3JpdGVsKDAsIGJhc2UgKyBOdlJlZ0FkYXB0
-ZXJDb250cm9sKTsKIAogCS8qIDIpIGluaXRpYWxpemUgZGVzY3JpcHRvciByaW5ncyAqLwor
-CXNldF9idWZzaXplKGRldik7CiAJb29tID0gbnZfaW5pdF9yaW5nKGRldik7CiAKIAl3cml0
-ZWwoMCwgYmFzZSArIE52UmVnTGlua1NwZWVkKTsKQEAgLTE4MzcsNyArMTkyMyw3IEBACiAJ
-d3JpdGVsKE5WUkVHX01JU0MxX0ZPUkNFIHwgTlZSRUdfTUlTQzFfSEQsIGJhc2UgKyBOdlJl
-Z01pc2MxKTsKIAl3cml0ZWwocmVhZGwoYmFzZSArIE52UmVnVHJhbnNtaXR0ZXJTdGF0dXMp
-LCBiYXNlICsgTnZSZWdUcmFuc21pdHRlclN0YXR1cyk7CiAJd3JpdGVsKE5WUkVHX1BGRl9B
-TFdBWVMsIGJhc2UgKyBOdlJlZ1BhY2tldEZpbHRlckZsYWdzKTsKLQl3cml0ZWwoTlZSRUdf
-T0ZGTE9BRF9OT1JNQUwsIGJhc2UgKyBOdlJlZ09mZmxvYWRDb25maWcpOworCXdyaXRlbChu
-cC0+cnhfYnVmX3N6LCBiYXNlICsgTnZSZWdPZmZsb2FkQ29uZmlnKTsKIAogCXdyaXRlbChy
-ZWFkbChiYXNlICsgTnZSZWdSZWNlaXZlclN0YXR1cyksIGJhc2UgKyBOdlJlZ1JlY2VpdmVy
-U3RhdHVzKTsKIAlnZXRfcmFuZG9tX2J5dGVzKCZpLCBzaXplb2YoaSkpOwpAQCAtMjAwNywx
-MyArMjA5MywxNiBAQAogCiAJLyogaGFuZGxlIGRpZmZlcmVudCBkZXNjcmlwdG9yIHZlcnNp
-b25zICovCiAJaWYgKHBjaV9kZXYtPmRldmljZSA9PSBQQ0lfREVWSUNFX0lEX05WSURJQV9O
-VkVORVRfMSB8fAotCQlwY2lfZGV2LT5kZXZpY2UgPT0gUENJX0RFVklDRV9JRF9OVklESUFf
-TlZFTkVUXzIgfHwKLQkJcGNpX2Rldi0+ZGV2aWNlID09IFBDSV9ERVZJQ0VfSURfTlZJRElB
-X05WRU5FVF8zIHx8ICAgIAotCQlwY2lfZGV2LT5kZXZpY2UgPT0gUENJX0RFVklDRV9JRF9O
-VklESUFfTlZFTkVUXzEyIHx8Ci0JCXBjaV9kZXYtPmRldmljZSA9PSBQQ0lfREVWSUNFX0lE
-X05WSURJQV9OVkVORVRfMTMpCisJCQlwY2lfZGV2LT5kZXZpY2UgPT0gUENJX0RFVklDRV9J
-RF9OVklESUFfTlZFTkVUXzIgfHwKKwkJCXBjaV9kZXYtPmRldmljZSA9PSBQQ0lfREVWSUNF
-X0lEX05WSURJQV9OVkVORVRfMyB8fCAgICAKKwkJCXBjaV9kZXYtPmRldmljZSA9PSBQQ0lf
-REVWSUNFX0lEX05WSURJQV9OVkVORVRfMTIgfHwKKwkJCXBjaV9kZXYtPmRldmljZSA9PSBQ
-Q0lfREVWSUNFX0lEX05WSURJQV9OVkVORVRfMTMpIHsKIAkJbnAtPmRlc2NfdmVyID0gREVT
-Q19WRVJfMTsKLQllbHNlCisgCQlucC0+cGt0X2xpbWl0ID0gTlZfUEtUTElNSVRfMTsKKwl9
-IGVsc2UgewogCQlucC0+ZGVzY192ZXIgPSBERVNDX1ZFUl8yOworIAkJbnAtPnBrdF9saW1p
-dCA9IE5WX1BLVExJTUlUXzE7CisJfQogCiAJZXJyID0gLUVOT01FTTsKIAlucC0+YmFzZSA9
-IGlvcmVtYXAoYWRkciwgTlZfUENJX1JFR1NaKTsK
---------------060503060906020809090406--
+It's my first.
+
+>I have usbcore built-in (not a loadable module), and I still see
+>in /sys/module/usbcore/parameters these files:
+>
+>blinkenlights
+>old_scheme_first
+>usbfs_snoop
+>use_both_schemes
+>
+>but usbcore is "defined" as containing a list of .o files
+>in drivers/usb/core/Makefile.
+
+I don't know who's deciding what the * in /sys/module/* will be, but it seems 
+that the module name will become the one that is listed in obj-y or obj-m, 
+respectively.
+
+In your usb case, this would be:
+obj-y := usbcore
+usbcore-objs := blinkenlights usbfs_snoop otherfiles uhci-hcd
+
+Seems fine for me.
+
+And vt.c is one that applies to obj-y
+
+
+
+Jan Engelhardt
+-- 

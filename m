@@ -1,92 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbVGPIYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVGPId5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbVGPIYh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 04:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVGPIYg
+	id S262031AbVGPId5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 04:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVGPId5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 04:24:36 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:38571 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261850AbVGPIYa (ORCPT
+	Sat, 16 Jul 2005 04:33:57 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:56845 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S262097AbVGPIdO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 04:24:30 -0400
-Date: Sat, 16 Jul 2005 10:24:25 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Tarmo =?ISO-8859-1?Q?T=E4nav?= <tarmo@itech.ee>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs+acl makes processes hang?
-In-Reply-To: <1121469596.17539.9.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0507161018020.32709@yvahk01.tjqt.qr>
-References: <1121469596.17539.9.camel@localhost>
+	Sat, 16 Jul 2005 04:33:14 -0400
+Message-ID: <42D8C60E.8040807@tuxrocks.com>
+Date: Sat, 16 Jul 2005 02:32:14 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: john stultz <johnstul@us.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>, benh@kernel.crashing.org,
+       Nishanth Aravamudan <nacc@us.ibm.com>
+Subject: Re: [RFC][PATCH 1/6] new timeofday core subsystem
+References: <1121484326.28999.3.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1121484326.28999.3.camel@cog.beaverton.ibm.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi,
->
->Here's how to reproduce:
->1. mount a reiserfs volume (loopmount will do) with "-o acl".
->2. create a directory "dir"
->3. set some default acl: setfacl -d -m u:username:rwX dir
->4. cd dir
->5. dd if=/dev/zero of=somefile1 bs=4k count=100000
->(the idea is to run out of space)
->6. now df should show 0 free space, if not then repeat 5.
->7. echo "1" > somefile2 # this should hang infinitely
-
-Can't reproduce. My versions are:
-mkreiserfs 3.6.18
-Kernel 2.6.13-rc1
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
----Step 1---
-10:25 shanghai:/mnt > dd if=/dev/zero of=blk count=64 bs=1M
-64+0 records in
-64+0 records out
-67108864 bytes (67 MB) copied, 0.552862 seconds, 121 MB/s
-10:26 shanghai:/mnt > mkreiserfs -f blk
-mkreiserfs 3.6.18 (2003 www.namesys.com)
+> +extern nsec_t do_monotonic_clock(void);
+This looks okay ...
 
-A pair of credits:
-...
-blk is not a block special device
-Continue (y/n):y
-Guessing about desired format.. Kernel 2.6.13-rc1 is running.
-Format 3.6 with standard journal
-Count of blocks on the device: 16384
-Number of blocks consumed by mkreiserfs formatting process: 8212
-Blocksize: 4096
-Hash function used to sort names: "r5"
-Journal Size 8193 blocks (first block 18)
-Journal Max transaction length 1024
-inode generation number: 0
-UUID: aa3bd664-fde0-4552-9484-49bac0fb698f
-Initializing journal - 0%....20%....40%....60%....80%....100%
-Syncing..ok
-ReiserFS is successfully created on blk.
-10:26 shanghai:/mnt > mount blk loop -o loop,acl
+> +/**
+> + * do_monotonic_clock - Returns monotonically increasing nanoseconds
+> + *
+> + * Returns the monotonically increasing number of nanoseconds
+> + * since the system booted via __monotonic_clock()
+> + */
+> +nsec_t do_monotonic_clock(void)
+> +{
+> +	nsec_t ret;
+> +	unsigned long seq;
+> +
+> +	/* atomically read __monotonic_clock() */
+> +	do {
+> +		seq = read_seqbegin(&system_time_lock);
+> +
+> +		ret = __monotonic_clock();
+> +
+> +	} while (read_seqretry(&system_time_lock, seq));
+> +
+> +	return ret;
+> +}
 
----Step 2-7---
-10:26 shanghai:/mnt > cd loop/
-10:27 shanghai:/mnt/loop > md dir
-10:27 shanghai:/mnt/loop > setfacl -d -m u:daemon:rwX dir
-10:27 shanghai:/mnt/loop > cd dir
-10:27 shanghai:/mnt/loop/dir > cat /dev/zero >blah
-cat: write error: No space left on device
-10:27 shanghai:/mnt/loop/dir > df .
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/mnt/blk                 65528     65528         0 100% /mnt/loop
-10:27 shanghai:/mnt/loop/dir > l
-total 32684
-drwxr-xr-x+ 2 root root       72 Jul 16 10:27 .
-drwxr-xr-x  5 root root      104 Jul 16 10:27 ..
--rw-rw-r--+ 1 root root 33435648 Jul 16 10:27 blah
-(That's ok, the other 32MB are for the journal)
-10:27 shanghai:/mnt/loop/dir > echo "1" >blah
-10:28 shanghai:/mnt/loop/dir > l blah
--rw-rw-r--+ 1 root root 2 Jul 16 10:28 blah
+... but this conflicts with Nish's softtimer patches, which is
+implemented slightly differently.  For those of us who are real gluttons
+for punishment, and want both sets of patches, are there problems just
+removing one of the do_monotonic_clock definitions?
 
+Thanks,
 
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Jan Engelhardt
--- 
+iD8DBQFC2MYNaI0dwg4A47wRAiQoAJ9vUvpjE7KmhCNW7NJ6kfd0SuyvXwCg+NtN
+pXqoz0v5Tbf5OMFjhYSzPp0=
+=LT9E
+-----END PGP SIGNATURE-----

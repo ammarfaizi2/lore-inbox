@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263378AbVGPHGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVGPHYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263378AbVGPHGK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 03:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbVGPHGK
+	id S262183AbVGPHYn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 03:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbVGPHYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 03:06:10 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:41893 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S262262AbVGPHEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 03:04:51 -0400
-Message-ID: <42D8B196.8030208@m1k.net>
-Date: Sat, 16 Jul 2005 03:04:54 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Hinds <dhinds@sonic.net>
-CC: somshekar.c.kadam@in.abb.com, linux-kernel@vger.kernel.org
-Subject: Re: Sandisk Compact Flash
-References: <OFF2465F02.D3F1F2D8-ON6525703D.0049BB41-6525703D.004A8B94@in.abb.com> <20050715052139.GA7788@sonic.net>
-In-Reply-To: <20050715052139.GA7788@sonic.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 16 Jul 2005 03:24:43 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:9181 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262183AbVGPHYn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 03:24:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:reply-to:to:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=XhyhR3y8/nBMJ8Oc4yttm/psGt9b07GK/ice+Ut3lKzgy0sdhq4cXbchPY7sRFmPB5+cofmSGdwbwh3bU7Sl/mxDUVth89+vITonlCuk5LMowaY09VzVAtllhO29rK04Cpi6sQAUxLnDaGlfacwMGHKBufkA5qh2x6i55mMDO4M=
+Subject: BUG (?) in bridge-netfilter?
+From: Hetfield <hetfield666@gmail.com>
+Reply-To: hetfield666@gmail.com
+To: Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sat, 16 Jul 2005 09:24:27 +0200
+Message-Id: <1121498667.15384.5.camel@blight.blightgroup>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Hinds wrote:
+Hi
 
->On Wed, Jul 13, 2005 at 07:04:38PM +0530, somshekar.c.kadam@in.abb.com wrote:
->  
->
->>I ma newbie to compactflash driver , I am using mpc862 PPC processor
->>on my custom board having 64mb ram running linuxppc-2.4.18 kernel .
->>i am using Sandisk Extreme CF 1GB which is 133x high speed, but
->>found the performance with other kingston 1GB CF with slower speed ,
->>is both same , CF is implemented on pcmcia port , i am not sure what
->>is the mode set for transfer , Feature set command is used in which
->>it sets the PIO mode or Multiword DMA transfer mode by specifying
->>its value in Sector count register , i am not able to understand in
->>linux kernel ide driver where this is set , is it by default set ,
->>this mode is set or we need to set it , i think we should assign
->>this value , right now i am not able to trace this in my code.  ,
->>    
->>
->It sounds like your card reader is one of the slow 16-bit ones.
->
-I recommend picking up a CF-to-IDE adapter, such as this:
+i have a very strange bug on my system.
+i have 2 3com ethernet cards, bridged.
+I wrote some iptable rules on the bridge interface, and they work
+perfectly, all but one!
 
-http://www.acscontrol.com/Index_ACS.asp?Page=/Pages/Products/CompactFlash/IDE_To_CF_Adapter.htm
+i've this rule in a bash script, starting when a ppp0 connection starts
 
-...It works great for me!
+IPT=iptables
+$IPT -A INPUT -s 172.16.92.101 -p icmp --icmp-type echo-request -m limit
+--limit 1/s -j ACCEPT
+$IPT -A FORWARD -s 172.16.92.101 -p icmp --icmp-type echo-request -m
+limit --limit 1/s -j ACCEPT
+$IPT -A INPUT -s 172.16.92.102 -p icmp --icmp-type echo-request -m limit
+--limit 1/s -j ACCEPT
+$IPT -A FORWARD -s 172.16.92.102 -p icmp --icmp-type echo-request -m
+limit --limit 1/s -j ACCEPT
 
-There are a bunch of companies selling these... Google "cf ide adapter".
+it seems not to work.
 
--- 
-Michael Krufky
+but if i destroy completly my tables and manually restart the script it
+works!!
+i'm using 2.6.13-rc3 and iptables 1.3.2, but i got this problem with
+2.6.11 and .12 too 
+and with iptables 1.2.x
+
+what's wrong?
+
 

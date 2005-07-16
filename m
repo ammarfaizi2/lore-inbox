@@ -1,29 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVGPDC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVGPDC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbVGPDC2 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262061AbVGPDC2 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 15 Jul 2005 23:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVGPDAK
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVGPC77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Jul 2005 23:00:10 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:63155 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262063AbVGPC71
+	Fri, 15 Jul 2005 22:59:59 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:26769 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262061AbVGPC6h
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Jul 2005 22:59:27 -0400
-Subject: [RFC][PATCH - 4/12] NTP cleanup: Breakup ntp_adjtimex()
+	Fri, 15 Jul 2005 22:58:37 -0400
+Subject: [RFC][PATCH - 3/12] NTP cleanup: Remove unused NTP PPS code
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: George Anzinger <george@mvista.com>, frank@tuxrocks.com,
        Anton Blanchard <anton@samba.org>, benh@kernel.crashing.org,
        Nishanth Aravamudan <nacc@us.ibm.com>,
        Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <1121482713.25236.35.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1121482672.25236.33.camel@cog.beaverton.ibm.com>
 References: <1121482517.25236.29.camel@cog.beaverton.ibm.com>
 	 <1121482620.25236.31.camel@cog.beaverton.ibm.com>
 	 <1121482672.25236.33.camel@cog.beaverton.ibm.com>
-	 <1121482713.25236.35.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain
-Date: Fri, 15 Jul 2005 19:59:18 -0700
-Message-Id: <1121482758.25236.37.camel@cog.beaverton.ibm.com>
+Date: Fri, 15 Jul 2005 19:58:32 -0700
+Message-Id: <1121482713.25236.35.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
@@ -31,9 +30,9 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
-	This patch breaks up the complex nesting of code in ntp_adjtimex() by
-creating a ntp_hardupdate() function and simplifying some of the logic.
-This also follows the documented NTP spec somewhat better.
+	Since the NTP PPS code required an out of tree patch which I don't
+believe there is a 2.6 version of, this patch removes the unused PPS
+logic in the kernel.
 
 Any comments or feedback would be greatly appreciated.
 
@@ -41,168 +40,158 @@ thanks
 -john
 
 
-linux-2.6.13-rc3_timeofday-ntp-part4_B4.patch
+linux-2.6.13-rc3_timeofday-ntp-part3_B4.patch
 ============================================
 diff --git a/kernel/ntp.c b/kernel/ntp.c
 --- a/kernel/ntp.c
 +++ b/kernel/ntp.c
-@@ -69,6 +69,9 @@ static long time_reftime;               
- long time_adjust;
- static long time_next_adjust;
- 
-+/* Required to safely shift negative values */
-+#define shiftR(x,s) (x < 0) ? (-((-x) >> (s))) : ((x) >> (s))
-+
- int ntp_advance(void)
- {
- 	long time_adjust_step, delta_nsec;
-@@ -244,12 +247,79 @@ void second_overflow(void)
+@@ -46,26 +46,9 @@ void time_interpolator_update(long delta
+ #define time_interpolator_update(x)
  #endif
- }
  
-+/**
-+ * ntp_hardupdate - Calculates the offset and freq values
-+ * offset: current offset
-+ * tv: timeval holding the current time
-+ *
-+ * Private function, called only by ntp_adjtimex
-+ *
-+ * This function is called when an offset adjustment is requested.
-+ * It calculates the offset adjustment and manipulates the
-+ * frequency adjustement accordingly.
-+ */
-+static int ntp_hardupdate(long offset, struct timespec tv)
-+{
-+	int ret;
-+	long current_offset, interval;
-+
-+	ret = 0;
-+	if (!(time_status & STA_PLL))
-+		return ret;
-+
-+	current_offset = offset;
-+	/* Make sure offset is bounded by MAXPHASE */
-+	current_offset = min(current_offset, MAXPHASE);
-+	current_offset = max(current_offset, -MAXPHASE);
-+	time_offset = current_offset << SHIFT_UPDATE;
-+
-+	if (time_status & STA_FREQHOLD || time_reftime == 0)
-+		time_reftime = tv.tv_sec;
-+
-+	/* calculate seconds since last call to hardupdate */
-+	interval = tv.tv_sec - time_reftime;
-+	time_reftime = tv.tv_sec;
-+
-+	/*
-+	 * Select whether the frequency is to be controlled
-+	 * and in which mode (PLL or FLL). Clamp to the operating
-+	 * range. Ugly multiply/divide should be replaced someday.
-+	 */
-+	if ((time_status & STA_FLL) && (interval >= MINSEC)) {
-+		long offset_ppm;
-+
-+		offset_ppm = time_offset / interval;
-+		offset_ppm <<= (SHIFT_USEC - SHIFT_UPDATE);
-+
-+		time_freq += shiftR(offset_ppm, SHIFT_KH);
-+
-+	} else if ((time_status & STA_PLL) && (interval < MAXSEC)) {
-+		long damping, offset_ppm;
-+
-+		offset_ppm = offset * interval;
-+
-+		damping = (2 * time_constant) + SHIFT_KF - SHIFT_USEC;
-+
-+		time_freq += shiftR(offset_ppm, damping);
-+
-+	} else { /* calibration interval out of bounds (p. 12) */
-+		ret = TIME_ERROR;
-+	}
-+
-+	/* bound time_freq */
-+	time_freq = min(time_freq, time_tolerance);
-+	time_freq = max(time_freq, -time_tolerance);
-+
-+	return ret;
-+}
-+
-+
- /* adjtimex mainly allows reading (and writing, if superuser) of
-  * kernel time-keeping variables. used by xntpd.
+-
+-static long pps_offset;            /* pps time offset (us) */
+-static long pps_jitter = MAXTIME;  /* time dispersion (jitter) (us) */
+-
+-static long pps_freq;              /* frequency offset (scaled ppm) */
+-static long pps_stabil = MAXFREQ;  /* frequency dispersion (scaled ppm) */
+-
+-static long pps_valid = PPS_VALID; /* pps signal watchdog counter */
+-
+-static int pps_shift = PPS_SHIFT;  /* interval duration (s) (shift) */
+-
+-static long pps_jitcnt;            /* jitter limit exceeded */
+-static long pps_calcnt;            /* calibration intervals */
+-static long pps_errcnt;            /* calibration errors */
+-static long pps_stbcnt;            /* stability limit exceeded */
+-
+ /* Don't completely fail for HZ > 500.  */
+ int tickadj = 500/HZ ? : 1;		/* microsecs */
+ 
+-
+ /*
+  * phase-lock loop variables
   */
- int ntp_adjtimex(struct timex *txc)
- {
--	long ltemp, mtemp, save_adjust;
-+	long save_adjust;
- 	int result;
+@@ -235,21 +218,7 @@ void second_overflow(void)
+ 		time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+ 	}
  
- 	/* Now we validate the data before disabling interrupts */
-@@ -321,63 +391,9 @@ int ntp_adjtimex(struct timex *txc)
+-	/*
+-	 * Compute the frequency estimate and additional phase
+-	 * adjustment due to frequency error for the next
+-	 * second. When the PPS signal is engaged, gnaw on the
+-	 * watchdog counter and update the frequency computed by
+-	 * the pll and the PPS signal.
+-	 */
+-	pps_valid++;
+-	if (pps_valid == PPS_VALID) {	/* PPS signal lost */
+-		pps_jitter = MAXTIME;
+-		pps_stabil = MAXFREQ;
+-		time_status &= ~(STA_PPSSIGNAL | STA_PPSJITTER |
+-			STA_PPSWANDER | STA_PPSERROR);
+-	}
+-	ltemp = time_freq + pps_freq;
++	ltemp = time_freq;
+ 	if (ltemp < 0)
+ 		time_adj -= -ltemp >> (SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE);
+ 	else
+@@ -307,10 +276,6 @@ int ntp_adjtimex(struct timex *txc)
+ 	/* Save for later - semantics of adjtime is to return old value */
+ 	save_adjust = time_next_adjust ? time_next_adjust : time_adjust;
+ 
+-#if 0	/* STA_CLOCKERR is never set yet */
+-	time_status &= ~STA_CLOCKERR;		/* reset STA_CLOCKERR */
+-#endif
+-
+ 	/* If there are input parameters, then process them */
+ 	if (txc->modes)	{
+ 		if (txc->modes & ADJ_STATUS)	/* only set allowed bits */
+@@ -322,7 +287,7 @@ int ntp_adjtimex(struct timex *txc)
+ 				result = -EINVAL;
+ 				goto leave;
+ 			}
+-			time_freq = txc->freq - pps_freq;
++			time_freq = txc->freq;
+ 		}
+ 
+ 		if (txc->modes & ADJ_MAXERROR) {
+@@ -356,11 +321,8 @@ int ntp_adjtimex(struct timex *txc)
  				/* adjtime() is independent from ntp_adjtime() */
  				if ((time_next_adjust = txc->offset) == 0)
  					time_adjust = 0;
--			} else if (time_status & STA_PLL) {
--				ltemp = txc->offset;
--
--				/*
--				 * Scale the phase adjustment and
--				 * clamp to the operating range.
--				 */
--				if (ltemp > MAXPHASE)
--					time_offset = MAXPHASE << SHIFT_UPDATE;
--				else if (ltemp < -MAXPHASE)
--					time_offset = -(MAXPHASE
--							<< SHIFT_UPDATE);
--				else
--					time_offset = ltemp << SHIFT_UPDATE;
--
--				/*
--				 * Select whether the frequency is to be controlled
--				 * and in which mode (PLL or FLL). Clamp to the operating
--				 * range. Ugly multiply/divide should be replaced someday.
--				 */
--
--				if (time_status & STA_FREQHOLD || time_reftime == 0)
--					time_reftime = xtime.tv_sec;
--
--				mtemp = xtime.tv_sec - time_reftime;
--				time_reftime = xtime.tv_sec;
--
--				if (time_status & STA_FLL) {
--					if (mtemp >= MINSEC) {
--						ltemp = (time_offset / mtemp) << (SHIFT_USEC -
--									SHIFT_UPDATE);
--						if (ltemp < 0)
--							time_freq -= -ltemp >> SHIFT_KH;
--						else
--							time_freq += ltemp >> SHIFT_KH;
--					} else /* calibration interval too short (p. 12) */
--						result = TIME_ERROR;
--				} else {	/* PLL mode */
--					if (mtemp < MAXSEC) {
--						ltemp *= mtemp;
--						if (ltemp < 0)
--							time_freq -= -ltemp >> (time_constant +
--									time_constant +
--									SHIFT_KF - SHIFT_USEC);
--					    else
--				    	    time_freq += ltemp >> (time_constant +
--								       time_constant +
--								       SHIFT_KF - SHIFT_USEC);
--					} else /* calibration interval too long (p. 12) */
--						result = TIME_ERROR;
--				}
--
--				if (time_freq > time_tolerance)
--					time_freq = time_tolerance;
--				else if (time_freq < -time_tolerance)
--					time_freq = -time_tolerance;
--			} /* STA_PLL */
-+				else if (ntp_hardupdate(txc->offset, xtime))
-+					result = TIME_ERROR;
-+			}
+-			} else if ( time_status & (STA_PLL | STA_PPSTIME) ) {
+-				ltemp = (time_status
+-					& (STA_PPSTIME | STA_PPSSIGNAL))
+-					== (STA_PPSTIME | STA_PPSSIGNAL) ?
+-			            pps_offset : txc->offset;
++			} else if (time_status & STA_PLL) {
++				ltemp = txc->offset;
+ 
+ 				/*
+ 				 * Scale the phase adjustment and
+@@ -415,7 +377,7 @@ int ntp_adjtimex(struct timex *txc)
+ 					time_freq = time_tolerance;
+ 				else if (time_freq < -time_tolerance)
+ 					time_freq = -time_tolerance;
+-			} /* STA_PLL || STA_PPSTIME */
++			} /* STA_PLL */
  		} /* txc->modes & ADJ_OFFSET */
  
  		if (txc->modes & ADJ_TICK) {
+@@ -425,17 +387,8 @@ int ntp_adjtimex(struct timex *txc)
+ 	} /* txc->modes */
+ leave:
+ 
+-	if ((time_status & (STA_UNSYNC|STA_CLOCKERR)) != 0
+-		|| ((time_status & (STA_PPSFREQ|STA_PPSTIME)) != 0
+-		&& (time_status & STA_PPSSIGNAL) == 0)
+-		/* p. 24, (b) */
+-		|| ((time_status & (STA_PPSTIME|STA_PPSJITTER))
+-		== (STA_PPSTIME|STA_PPSJITTER))
+-		/* p. 24, (c) */
+-		|| ((time_status & STA_PPSFREQ) != 0
+-		&& (time_status & (STA_PPSWANDER|STA_PPSERROR)) != 0))
+-		/* p. 24, (d) */
+-			result = TIME_ERROR;
++	if ((time_status & (STA_UNSYNC|STA_CLOCKERR)) != 0)
++		result = TIME_ERROR;
+ 
+ 	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
+ 		txc->offset = save_adjust;
+@@ -445,7 +398,7 @@ leave:
+ 		else
+ 			txc->offset = time_offset >> SHIFT_UPDATE;
+ 	}
+-	txc->freq = time_freq + pps_freq;
++	txc->freq = time_freq;
+ 	txc->maxerror = time_maxerror;
+ 	txc->esterror = time_esterror;
+ 	txc->status = time_status;
+@@ -453,14 +406,17 @@ leave:
+ 	txc->precision = time_precision;
+ 	txc->tolerance = time_tolerance;
+ 	txc->tick = tick_usec;
+-	txc->ppsfreq = pps_freq;
+-	txc->jitter = pps_jitter >> PPS_AVG;
+-	txc->shift = pps_shift;
+-	txc->stabil = pps_stabil;
+-	txc->jitcnt = pps_jitcnt;
+-	txc->calcnt = pps_calcnt;
+-	txc->errcnt = pps_errcnt;
+-	txc->stbcnt = pps_stbcnt;
++
++	/* PPS is not implemented, so these are zero */
++	txc->ppsfreq = 0;
++	txc->jitter = 0;
++	txc->shift = 0;
++	txc->stabil = 0;
++	txc->jitcnt = 0;
++	txc->calcnt = 0;
++	txc->errcnt = 0;
++	txc->stbcnt = 0;
++
+ 	write_sequnlock_irq(&xtime_lock);
+ 	do_gettimeofday(&txc->time);
+ 	return result;
 
 

@@ -1,78 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVGPIjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVGPIkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVGPIjE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 04:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVGPIjE
+	id S262106AbVGPIkU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 04:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVGPIjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 04:39:04 -0400
-Received: from smtp4.globo.com ([200.208.9.61]:60334 "EHLO smtp4.globo.com")
-	by vger.kernel.org with ESMTP id S261174AbVGPIiL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 04:38:11 -0400
-Message-ID: <009b01c589e2$1e96f130$3dfea8c0@glupfire>
-From: "GlupFire" <porranenhuma@globo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel Panic: VFS cannot open a root device
-Date: Sat, 16 Jul 2005 05:41:10 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1506
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+	Sat, 16 Jul 2005 04:39:06 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4109 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261260AbVGPIjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 04:39:03 -0400
+Date: Sat, 16 Jul 2005 09:38:58 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "V. ANANDA KRISHNAN" <mansarov@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: Serial core: 8250_pci could not register serial port for  UART chip EXAR XR17D152
+Message-ID: <20050716093858.A19067@flint.arm.linux.org.uk>
+Mail-Followup-To: "V. ANANDA KRISHNAN" <mansarov@us.ibm.com>,
+	linux-kernel@vger.kernel.org, gregkh@suse.de
+References: <1121359649.15007.18.camel@siliver.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1121359649.15007.18.camel@siliver.austin.ibm.com>; from mansarov@us.ibm.com on Thu, Jul 14, 2005 at 11:47:29AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi , i have kernel 2.4.29 at slack 10.1 and when I upgrade my kernel to
-2.6.11 I get these erros on booting
+On Thu, Jul 14, 2005 at 11:47:29AM -0500, V. ANANDA KRISHNAN wrote:
+>   I have been coming across a problem with my serial port EXAR chip XR
+> 17D152, when I try to use the 8250_pci driver.  I am using
+> kernel-2.6.12.1 on RHEL4.0-U1 on pSeries box with 4-cpu.  8250_pci
+> during the boot time, after detecting the exar chip (I checked with the
+> pci_dev structure and the pci_device_id structure for the info), is
+> unable to get thru the port registration (static int
+> __devinit_pciserial_init_one(struct pci_dev *dev, const struct
+> pci_device_id *ent) procedure in 8250_pci.c).  I debugged the problem
+> and traced upto the routine "static int uart_match_port(struct uart_port
+> *port1, struct uart_port *port2" in 8250.c where UPIO_MEM is not
+> satisfying the condition port1->membase==port2->membase and hence
+> returns 0.
 
-VFS: Cannot open a root device "301" or unknow block
-please append a correct "root" boot option
-KERNEL PANIC :  not syncing; VFS; Unable to mount root fs on unknown-block
-(3,1)
+That's the intended result.  uart_match_port() only returns true when
+the types of the two ports match, and the base address of the two ports
+also match.
 
-I have compiled my kernel with my IDE support and also with my file system
-support with built-in option.
+Please try mainline 2.6 kernels.  Also, please include the kernel entire
+messages when reporting bugs.
 
-My LILO.CONF
-image = /boot/vmlinuz-2.6.11
-root = /dev/hda1
-label = 2.6.11
-initrd = /boot/initrd.gz
-read-only
-
-I googled this problem, and I think is a kind of bug, and i tryed to patch
-the kernel with Alan Cox patch 2.6.11-ac7.bzip  and I get these ::
-bzip2 -dc /usr/src/patch-2.6.11.ac7.bzip | patch -p1 -s
-1 out of hunk FAILED --saving rejects to file Makefike.rej
-
-and I cat the file Makefile.rej
-
-***************
-*** 1,8 ****
-VERSION = 2
-PATCHLEVEL = 6
-SUBLEVEL = 11
-- EXTRAVERSION =
-- NAME=Woozy Numbat
-
-# *DOCUMENTATION*
-# To see a list of typical targets execute "make help"
---- 1,8 ---- 
-VERSION = 2
-PATCHLEVEL = 6
-SUBLEVEL = 11
-+ EXTRAVERSION = ac7
-+ NAME=AC
-
-# *DOCUMENTATION*
-# To see a list of typical targets execute "make help"
-
-I'm stuck! The patch dont work fine ( I think the patch is not installed
-succesfully on my kernel )
-I'm booting with my image of kernel 2.4.29..... i'm 5 days tryng to solve
-this problem ...
-any kind of help is wellcome... sorry for my english.
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

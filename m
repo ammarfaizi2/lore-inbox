@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVGQNc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVGQNpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVGQNc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 09:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVGQNc0
+	id S261279AbVGQNpW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 09:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVGQNpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 09:32:26 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:30475 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261281AbVGQNcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 09:32:25 -0400
-Date: Sun, 17 Jul 2005 15:32:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Tom 'spot' Callaway" <tcallawa@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
-       sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] sparc: remove the useless APM_RTC_IS_GMT option
-Message-ID: <20050717133222.GF3613@stusta.de>
-References: <20050715203632.GD18059@stusta.de> <1121460211.2755.114.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121460211.2755.114.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+	Sun, 17 Jul 2005 09:45:22 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:53890 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261279AbVGQNpU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 09:45:20 -0400
+Date: Sun, 17 Jul 2005 15:45:04 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Bodo Eggert <7eggert@gmx.de>
+cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [0/5+1] menu -> menuconfig part 1
+In-Reply-To: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
+Message-ID: <Pine.LNX.4.61.0507171505300.3743@scrub.home>
+References: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 15, 2005 at 03:43:31PM -0500, Tom 'spot' Callaway wrote:
-> On Fri, 2005-07-15 at 22:36 +0200, Adrian Bunk wrote:
-> > I can't see any effect of this option outside the i386-specific APM 
-> > code.
+Hi,
+
+On Sun, 17 Jul 2005, Bodo Eggert wrote:
+
+> These patches change some menus into menuconfig options.
 > 
-> Doesn't the Javastation potentially use this?
+> Reworked to apply to linux-2.6.13-rc3-git3
 
-I don't know whether the Javastation supports APM, but the whole APM 
-code in the kernel is currently only available on i386.
+I like it, but I would prefer to give it first a bit more exposure in -mm, 
+as it does change the menu structure and the behaviour is little 
+different, so I'd like to see if there's a some feedback first from people 
+using it.
 
-> ~spot
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+bye, Roman

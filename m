@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVGQUTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVGQUWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVGQUTw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 16:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVGQUTw
+	id S261386AbVGQUWv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 16:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVGQUWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 16:19:52 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:44003 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261373AbVGQUTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 16:19:51 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.13-rc3-mm1: mount problems w/ 3ware on dual Opteron
-Date: Sun, 17 Jul 2005 22:20:06 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <20050715013653.36006990.akpm@osdl.org>
-In-Reply-To: <20050715013653.36006990.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Jul 2005 16:22:51 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:6441 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261386AbVGQUWu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 16:22:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jJC/635dk//cXA7orr7H1ydXVncl7Tobh9TRGT9FuN25qfp6eyqUQEUOO7MJ6EDkDfLfuMUEp8KOaYThFtm7224MSuexkA7JRjHDixUQ8jDJpXm8Oc/DqHj7jY08kxSU/BvFZtT2qQbSWzrUGzi4TlrVUi8PtU+OCfAWmQNy92A=
+Message-ID: <9e473391050717132233347d25@mail.gmail.com>
+Date: Sun, 17 Jul 2005 16:22:50 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: [PATCH] add NULL short circuit to fb_dealloc_cmap()
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+In-Reply-To: <200507172043.41473.jesper.juhl@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200507172220.07299.rjw@sisk.pl>
+References: <200507172043.41473.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 15 of July 2005 10:36, Andrew Morton wrote:
+On 7/17/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> Resource freeing functions should generally be safe to call with NULL pointers.
+> Why?
+>  - there is some precedence in the kernel for this for deallocation functions.
+>  - removes the need for callers to check pointers for NULL.
+>  - space is saved overall by less code to test pointers for NULL all over the place.
+>  - removes possible NULL pointer dereferences when a caller forgot to check.
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
-> 
-> (http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-rc3-mm1.gz until
-> kernel.org syncs up)
+> This patch makes  fb_dealloc_cmap()  safe to call with a NULL pointer argument.
 
-Apparently, mount does not work with partitions located on a 3ware RAID
-(8006-2PL controller) in a dual-Opteron box (64-bit kernel).
+The fb cmap copde would be a lot simpler if it did everything with a
+single allocation instead of five. Make a super cmap struct:
 
-If the kernel is configured with preemption and NUMA, it cannot mount any
-"real" filesystems and the output of "mount" is the following:
+struct fb_super_cmap {
+   struct fb_cmap cmap;
+   __u16 red[255];
+   __u16 blue[255];
+   __u16 green[255];
+   __u16 transp[255];
+}
 
-rootfs on / type ext3 (rw)
-/dev/root on / type ext3 (rw)
-proc on /proc type proc (rw,nodiratime)
-sysfs on /sys type sysfs (rw)
-tmpfs on /dev/shm type tmpfs (rw)
+Then adjust the code as need. Have the embedded cmap struct point to
+the fields in the super_cmap and the drivers don't have to be changed.
 
-(hand-copied from the screen).  I have tried some other combinations (ie.
-preemption w/o NUMA, NUMA w/o preemption etc.) and it seems that it works
-better with CONFIG_PREEMPT_NONE set, although even it this case some
-filesystems are mounted read-only.
 
-The mainline kernels (ie. -rc3 and -rc3-git[1-4]) have no such problems.
-
-Greets,
-Rafael
 
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Jon Smirl
+jonsmirl@gmail.com

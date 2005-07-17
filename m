@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVGQTmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVGQTnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVGQTmA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 15:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVGQTmA
+	id S261363AbVGQTnN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 15:43:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVGQTnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 15:42:00 -0400
-Received: from mx2.suse.de ([195.135.220.15]:32407 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261346AbVGQTl4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 15:41:56 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: "Nathanael Nerode" <neroden@twcny.rr.com>
+	Sun, 17 Jul 2005 15:43:12 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59406 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261363AbVGQTmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 15:42:10 -0400
+Date: Sun, 17 Jul 2005 21:42:08 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: ocfs2-devel@oss.oracle.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linus's git tree broken?
-References: <20050717100940.GA22224@twcny.rr.com>
-X-Yow: He is the MELBA-BEING...  the ANGEL CAKE...
-  XEROX him...  XEROX him --
-Date: Sun, 17 Jul 2005 21:41:54 +0200
-In-Reply-To: <20050717100940.GA22224@twcny.rr.com> (Nathanael Nerode's message
-	of "Sun, 17 Jul 2005 06:09:40 -0400")
-Message-ID: <jeu0itxlrx.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: [-mm patch] OCFS2_FS must depend on NET
+Message-ID: <20050717194207.GB3753@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Nathanael Nerode" <neroden@twcny.rr.com> writes:
+If you select some variable, you have to ensure that the dependencies of 
+the select'ed variable are fulfilled.
 
-> $ cg-clone http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-> defaulting to local storage area
-> 06:02:39 URL:http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/refs/heads/master [41/41] -> "refs/heads/origin" [1]
-> progress: 2 objects, 897 bytes
-> error: File 2a7e338ec2fc6aac461a11fe8049799e65639166 (http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/objects/2a/7e338ec2fc6aac461a11fe8049799e65639166) corrupt
+OCFS2_FS=y, NET=n, INET=y is not a legal combination (resulting in link 
+errors).
 
-You need to use the rsync method, http does not work with Linus' tree.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Andreas.
+--- linux-2.6.13-rc3-mm1-full/fs/Kconfig.old	2005-07-17 21:35:15.000000000 +0200
++++ linux-2.6.13-rc3-mm1-full/fs/Kconfig	2005-07-17 21:35:54.000000000 +0200
+@@ -327,11 +327,11 @@
+ 
+ source "fs/xfs/Kconfig"
+ 
+ config OCFS2_FS
+ 	tristate "OCFS2 file system support (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL && (X86 || IA64 || X86_64 || BROKEN)
++	depends on NET && EXPERIMENTAL && (X86 || IA64 || X86_64 || BROKEN)
+ 	select CONFIGFS_FS
+ 	select JBD
+ 	select CRC32
+ 	select INET
+ 	help
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+

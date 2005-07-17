@@ -1,87 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVGQUsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVGQUuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVGQUsq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 16:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVGQUsp
+	id S261402AbVGQUuz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 16:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVGQUsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 16:48:45 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:62952 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261397AbVGQUry
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 16:47:54 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
-MIME-Version: 1.0
+	Sun, 17 Jul 2005 16:48:50 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37391 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261402AbVGQUsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 16:48:22 -0400
+Date: Sun, 17 Jul 2005 22:48:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] EXIT_CONNECTOR and FORK_CONNECTOR must depend on NET
+Message-ID: <20050717204820.GD3753@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17114.50164.95627.703402@tut.ibm.com>
-Date: Sun, 17 Jul 2005 15:47:48 -0500
-To: bert hubert <bert.hubert@netherlabs.nl>
-Cc: Tom Zanussi <zanussi@us.ibm.com>, linux-kernel@vger.kernel.org,
-       karim@opersys.com, varap@us.ibm.com, richardj_moore@uk.ibm.com,
-       relayfs-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Re: relayfs documentation sucks?
-In-Reply-To: <20050717194558.GC27353@outpost.ds9a.nl>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	<20050716210759.GA1850@outpost.ds9a.nl>
-	<17113.38067.551471.862551@tut.ibm.com>
-	<20050717090137.GB5161@outpost.ds9a.nl>
-	<17114.31916.451621.501383@tut.ibm.com>
-	<20050717194558.GC27353@outpost.ds9a.nl>
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert writes:
- > On Sun, Jul 17, 2005 at 10:43:40AM -0500, Tom Zanussi wrote:
- > 
- > > It is racey - in this mode, there's nothing to keep the kernel from
- > > writing as much as it wants before the user side has a chance to read
- > > any of it.  The only way this can be used safely is to make sure the
- > > kernel side isn't writing anything when the client is reading.  This
- > > would be typical of a flight-recording usage i.e. kernel writes a
- > > bunch of data continuously, then stops and allows the client to read
- > > whatever's in there.
- > 
- > Or by numbering entries written out, when in flight-recording mode you
- > wouldn't want to block the kernel.
- > 
- > >  > In fact, it appears this might even happen in non-overwrite mode.
- > > 
- > > It shouldn't ever be able to happen in non-overwrite mode - if it
- > > did, it would be a bug.  Can you be more specific as to how you see
- > > this happening in this mode?
- > 
- > Yeah - you're right. The misunderstanding is because in both cases
- > (overwrite and non-overwrite) data is lost, except that in one case you lose
- > old data, and in the other new data.
+If you select some variable, you have to ensure that the dependencies of 
+the select'ed variable are fulfilled.
 
-Just to clarify - in either mode, if you don't have a consumer or the
-consumer can't keep up with the amount of data being written by the
-kernel, you will of course lose data at some point.  Normally you
-wouldn't want to lose data; by using non-overwrite mode you're
-implicitly letting relayfs know this i.e. if at any point all the
-sub-buffers remain unread and the kernel is still trying to write into
-them, let the client know (via the buffer-full callback) that this has
-happened.  Presumably you would then increase the buffer size or have
-the kernel write less etc.
+This patch fixes the following link error:
 
- > 
- > It might be a good idea to document this as well.
- > 
+<--  snip  -->
 
-Yes, I'll make it more explicit in the documentation.
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `cn_netlink_send':
+: undefined reference to `alloc_skb'
+drivers/built-in.o: In function `cn_netlink_send':
+: undefined reference to `netlink_broadcast'
+drivers/built-in.o: In function `cn_netlink_send':
+: undefined reference to `__kfree_skb'
+drivers/built-in.o: In function `cn_netlink_send':
+: undefined reference to `skb_over_panic'
+drivers/built-in.o: In function `cn_rx_skb':
+connector.c:(.text+0x20d809): undefined reference to `__kfree_skb'
+drivers/built-in.o: In function `cn_input':
+connector.c:(.text+0x20d91e): undefined reference to `skb_dequeue'
+drivers/built-in.o: In function `cn_init':
+connector.c:(.text+0x20dedc): undefined reference to 
+`netlink_kernel_create'
+connector.c:(.text+0x20df67): undefined reference to `sock_release'
+drivers/built-in.o: In function `kfree_skb':
+connector.c:(.text+0x20d756): undefined reference to `__kfree_skb'
+drivers/built-in.o: In function `cn_rx_skb':
+connector.c:(.text+0x20d7c8): undefined reference to `__kfree_skb'
+connector.c:(.text+0x20d87e): undefined reference to `__kfree_skb'
+drivers/built-in.o: In function `cn_fini':
+connector.c:(.text+0x20dfae): undefined reference to `sock_release'
+drivers/built-in.o: In function `w1_alloc_dev':
+make: *** [.tmp_vmlinux1] Error 1
 
- > Btw, I've already uncovered interesting things using relayfs, but I still
- > don't see the case for having it merged :-)
+<--  snip  -->
 
-Glad to hear it.  Can you say what if anything would convince you it
-should be merged?
 
- > 
- > Thanks for your answers, I think I get it all now.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-No problem, and thanks for patch and other suggestions.
-
-Tom
-
+--- linux-2.6.13-rc3-mm1-full/drivers/connector/Kconfig.old	2005-07-17 22:35:33.000000000 +0200
++++ linux-2.6.13-rc3-mm1-full/drivers/connector/Kconfig	2005-07-17 22:36:12.000000000 +0200
+@@ -1,35 +1,37 @@
+ menu "Connector - unified userspace <-> kernelspace linker"
+ 
+ config CONNECTOR
+ 	tristate "Connector - unified userspace <-> kernelspace linker"
+ 	depends on NET
+ 	---help---
+ 	  This is unified userspace <-> kernelspace connector working on top
+ 	  of the netlink socket protocol.
+ 
+ 	  Connector support can also be built as a module.  If so, the module
+ 	  will be called cn.ko.
+ 
+ config EXIT_CONNECTOR
+ 	bool "Enable exit connector"
++	depends on NET
+ 	select CONNECTOR
+ 	default y
+ 	---help---
+ 	  It adds a connector in kernel/exit.c:do_exit() function. When a exit
+ 	  occurs, netlink is used to transfer information about the process and
+ 	  its parent. This information can be used by a user space application.
+ 	  The exit connector can be enable/disable by sending a message to the
+ 	  connector with the corresponding group id.
+ 
+ config FORK_CONNECTOR
+ 	bool "Enable fork connector"
++	depends on NET
+ 	select CONNECTOR
+ 	default y
+ 	---help---
+ 	  It adds a connector in kernel/fork.c:do_fork() function. When a fork
+ 	  occurs, netlink is used to transfer information about the parent and
+ 	  its child. This information can be used by a user space application.
+ 	  The fork connector can be enable/disable by sending a message to the
+ 	  connector with the corresponding group id.
+ 
+ endmenu
 

@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVGQR6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVGQSA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVGQR6x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 13:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVGQR6x
+	id S261344AbVGQSA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 14:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVGQSA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 13:58:53 -0400
-Received: from totor.bouissou.net ([82.67.27.165]:38553 "EHLO
-	totor.bouissou.net") by vger.kernel.org with ESMTP id S261332AbVGQR6w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 13:58:52 -0400
-From: Michel Bouissou <michel@bouissou.net>
-Organization: Me, Myself and I
-To: bjorn.helgaas@hp.com,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-Subject: VIA KT400 + Kernel 2.6.12 + IO-APIC + uhci_hcd = IRQ trouble
-Date: Sun, 17 Jul 2005 19:58:49 +0200
-User-Agent: KMail/1.7.2
-References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C5D@USRV-EXCH4.na.uis.unisys.com>
-In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C5D@USRV-EXCH4.na.uis.unisys.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, liste@jordet.nu,
-       linux-kernel@vger.kernel.org
+	Sun, 17 Jul 2005 14:00:58 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:43139 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261344AbVGQSA4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 14:00:56 -0400
+Date: Sun, 17 Jul 2005 20:00:48 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
+       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
+       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>
+Subject: Re: [RFC - 0/12] NTP cleanup work (v. B4)
+In-Reply-To: <1121482517.25236.29.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0507171706490.3728@scrub.home>
+References: <1121482517.25236.29.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200507171958.49770@totor.bouissou.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Hi,
 
-Natalie Protasevich and Alan Stern have worked a lot on helping me out with a 
-VIA KT400 chipset / kernel 2.6.12 / IO-APIC / IRQ problem "irq 21: nobody 
-cared!", which so far hasn't found its solution.
+On Fri, 15 Jul 2005, john stultz wrote:
 
-Research done with Alan shows that, on my system, the USB 2.0 controller seems 
-to generate interrupts on the IRQ line attributed to the USB 1.1 controller, 
-which isn't supposed to happen, and puzzles the system, when IO-APIC is 
-enabled.
+> 	In my attempts to rework the timeofday subsystem, it was suggested I
+> try to avoid mixing cleanups with functional changes. In response to the
+> suggestion I've tried to break out the majority of the NTP cleanups I've
+> been working out of my larger patch and try to feed it in piece meal. 
+> 
+> The goal of this patch set is to isolate the in kernel NTP state machine
+> in the hope of simplifying the current timeofday code.
 
-However, this didn't cause problems with 2.4 series kernels.
+I don't really like, where you taken it with ntp_advance(). With these 
+patches you put half the ntp state machine in there and execute it at 
+every single tick.
+>From the previous patches I can guess where you want to go with this, but 
+I think it's the wrong direction. The code is currently as is for a 
+reason, it's optimized for tick based system and I don't see a reason to 
+change this for tick based system.
+If you want to change this for cycle based system, you have to give more 
+control to the arch/timer source, which simply call a different set of 
+functions and the ntp core system basically just acts as a library to the 
+timer source.
+Tick based timer sources continue to update xtime and cycle based system 
+will modify the cycle multiplier (e.g. what ppc64 does). Don't force 
+everything to use the same set of functions, you'll make it only more 
+complex. Larger ntp state updates don't have to be done more than once a 
+second and leave the details of how the clock is updated to the clock 
+source (just provide some library functions it can use).
 
-For the time being, there is no solution (Natalie is still investigating 
-this), and it boils down to the following:
-
-- If I boot with USB 2.0 enabled in BIOS, AND IO-APIC enabled in the kernel, 
-then it badly breaks.
-
-- If I either disable USB 2.0 in BIOS, or IO-APIC in the kernel, then it's OK.
-
-I found today the thread between Bjorn Helgaas and Mathieu Bérard on LKML, 
-where Mathieu reported the same problem, and Bjorn advised him to reverse a 
-kernel patch (http://lkml.org/lkml/2005/6/21/243 ).
-
-Mathieu (I don't have his email address, Bjorn, could you be so kind to 
-forward this message to him) reports that it apparently solved this problem, 
-so I tried to do the same, and reversed the same patch.
-
-At first boot it seems to solve the issue, but when I rebooted again, it broke 
-again, so this is not the solution -- the problem is not completely stable, 
-sometimes it doesn't happen for some reason unknown to me... But most of the 
-times it _does_ happen :-/
-
-So this message is to inform different people who have suffered from this same 
-problem, or are working for finding it a fix...
-
-I'll be on travel for the coming week, and may or may not have occasional 
-access to my email. (Please copy me on answers, as I'm not subscribed to the 
-linux-kernel ML).
-
-Cheers.
-
--- 
-Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E
+bye, Roman

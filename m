@@ -1,61 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVGQSZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVGQTDC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVGQSZo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 14:25:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVGQSZo
+	id S261320AbVGQTDC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 15:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVGQTDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 14:25:44 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:13842 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261337AbVGQSZl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 14:25:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=q07ILUE9cyjNuxXexDE/kaUnxpwIMquAjGv5buemxQZVGyfG4WiQ8RUJDfqqjTvu5W5WTkJhLlOzrRVsYd8yfIgf9NRfq/LOziEiBAxQRZd3+K7OwDjcr+7NvjV/4H2qUk1BxS9/gxQYMe4sawGf+dj7vvgCBA/jpkKmB7lH+wQ=
-From: Jesper Juhl <jesper.juhl@gmail.com>
+	Sun, 17 Jul 2005 15:03:02 -0400
+Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:64197 "EHLO
+	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S261320AbVGQTDB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 15:03:01 -0400
+Date: Sun, 17 Jul 2005 15:02:59 -0400 (EDT)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+X-X-Sender: hahn@coffee.psychology.mcmaster.ca
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] add NULL short circuit to fb_dealloc_cmap()
-Date: Sun, 17 Jul 2005 20:43:41 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: 2.6.13-rc3-mm1 (ckrm)
+In-Reply-To: <20050717082000.349b391f.pj@sgi.com>
+Message-ID: <Pine.LNX.4.44.0507171330030.4074-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507172043.41473.jesper.juhl@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-PMX-Version-Mac: 4.7.1.128075, Antispam-Engine: 2.0.3.2, Antispam-Data: 2005.7.17.22
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resource freeing functions should generally be safe to call with NULL pointers.
-Why?
- - there is some precedence in the kernel for this for deallocation functions.
- - removes the need for callers to check pointers for NULL.
- - space is saved overall by less code to test pointers for NULL all over the place.
- - removes possible NULL pointer dereferences when a caller forgot to check.
+> I suspect that the main problem is that this patch is not a mainstream
+> kernel feature that will gain multiple uses, but rather provides
+> support for a specific vendor middleware product used by that
+> vendor and a few closely allied vendors.  If it were smaller or
+> less intrusive, such as a driver, this would not be a big problem.
+> That's not the case.
 
-This patch makes  fb_dealloc_cmap()  safe to call with a NULL pointer argument.
+yes, that's the crux.  CKRM is all about resolving conflicting resource 
+demands in a multi-user, multi-server, multi-purpose machine.  this is a 
+huge undertaking, and I'd argue that it's completely inappropriate for 
+*most* servers.  that is, computers are generally so damn cheap that 
+the clear trend is towards dedicating a machine to a specific purpose, 
+rather than running eg, shell/MUA/MTA/FS/DB/etc all on a single machine.  
 
+this is *directly* in conflict with certain prominent products, such as 
+the Altix and various less-prominent Linux-based mainframes.  they're all
+about partitioning/virtualization - the big-iron aesthetic of splitting up 
+a single machine.  note that it's not just about "big", since cluster-based 
+approaches can clearly scale far past big-iron, and are in effect statically
+partitioned.  yes, buying a hideously expensive single box, and then chopping 
+it into little pieces is more than a little bizarre, and is mainly based
+on a couple assumptions:
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+	- that clusters are hard.  really, they aren't.  they are not 
+	necessarily higher-maintenance, can be far more robust, usually
+	do cost less.  just about the only bad thing about clusters is 
+	that they tend to be somewhat larger in size.
 
- drivers/video/fbcmap.c |    3 +++
- 1 files changed, 3 insertions(+)
+	- that partitioning actually makes sense.  the appeal is that if 
+	you have a partition to yourself, you can only hurt yourself.
+	but it also follows that burstiness in resource demand cannot be 
+	overlapped without either constantly tuning the partitions or 
+	infringing on the guarantee.
 
---- linux-2.6.13-rc3-orig/drivers/video/fbcmap.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.13-rc3/drivers/video/fbcmap.c	2005-07-17 20:33:43.000000000 +0200
-@@ -130,6 +130,9 @@ fail:
- 
- void fb_dealloc_cmap(struct fb_cmap *cmap)
- {
-+	if (unlikely(!cmap))
-+		return;
-+
- 	kfree(cmap->red);
- 	kfree(cmap->green);
- 	kfree(cmap->blue);
+CKRM is one of those things that could be done to Linux, and will benefit a
+few, but which will almost certainly hurt *most* of the community.
 
+let me say that the CKRM design is actually quite good.  the issue is whether 
+the extensive hooks it requires can be done (at all) in a way which does 
+not disporportionately hurt maintainability or efficiency.
+
+CKRM requires hooks into every resource-allocation decision fastpath:
+	- if CKRM is not CONFIG, the only overhead is software maintenance.
+	- if CKRM is CONFIG but not loaded, the overhead is a pointer check.
+	- if CKRM is CONFIG and loaded, the overhead is a pointer check
+	and a nontrivial callback.
+
+but really, this is only for CKRM-enforced limits.  CKRM really wants to
+change behavior in a more "weighted" way, not just causing an
+allocation/fork/packet to fail.  a really meaningful CKRM needs to 
+be tightly integrated into each resource manager - effecting each scheduler
+(process, memory, IO, net).  I don't really see how full-on CKRM can be 
+compiled out, unless these schedulers are made fully pluggable.
+
+finally, I observe that pluggable, class-based resource _limits_ could 
+probably be done without callbacks and potentially with low overhead.
+but mere limits doesn't meet CKRM's goal of flexible, wide-spread resource 
+partitioning within a large, shared machine.
+
+regards, mark hahn.
 

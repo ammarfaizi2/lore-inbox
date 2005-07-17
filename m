@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVGQL2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVGQLbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVGQL2v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 07:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVGQL2v
+	id S261258AbVGQLbK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 07:31:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVGQLbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 07:28:51 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:42456 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261256AbVGQL2q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 07:28:46 -0400
-Date: Sun, 17 Jul 2005 13:29:03 +0200 (CEST)
+	Sun, 17 Jul 2005 07:31:10 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:19910 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261258AbVGQLbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 07:31:02 -0400
+Date: Sun, 17 Jul 2005 13:31:23 +0200 (CEST)
 From: Bodo Eggert <7eggert@gmx.de>
 To: Bodo Eggert <7eggert@gmx.de>
 cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [1/5+1] menu -> menuconfig part 1
+Subject: [PATCH] [2/5+1] menu -> menuconfig part 1
 In-Reply-To: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0507171326470.6041@be1.lrz>
+Message-ID: <Pine.LNX.4.58.0507171329570.6041@be1.lrz>
 References: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
@@ -31,1256 +31,591 @@ On Sun, 17 Jul 2005, Bodo Eggert wrote:
 > 
 > Reworked to apply to linux-2.6.13-rc3-git3
 
-Mostly robotic works.
+The USB menu.
 
- drivers/acpi/Kconfig                |   10 ++--------
- drivers/cdrom/Kconfig               |    8 ++------
- drivers/char/ipmi/Kconfig           |    5 +----
- drivers/char/tpm/Kconfig            |    7 +------
- drivers/char/watchdog/Kconfig       |    6 +-----
- drivers/fc4/Kconfig                 |    7 +------
- drivers/i2c/Kconfig                 |    7 +------
- drivers/ide/Kconfig                 |    6 +-----
- drivers/ieee1394/Kconfig            |    6 +-----
- drivers/infiniband/Kconfig          |    6 +-----
- drivers/isdn/Kconfig                |    9 ++-------
- drivers/isdn/hardware/avm/Kconfig   |    9 ++-------
- drivers/isdn/hardware/eicon/Kconfig |    9 ++-------
- drivers/isdn/hisax/Kconfig          |    9 ++-------
- drivers/md/Kconfig                  |    7 +------
- drivers/media/dvb/Kconfig           |    8 ++------
- drivers/message/fusion/Kconfig      |   16 ++++++----------
- drivers/message/i2o/Kconfig         |    8 +-------
- drivers/mmc/Kconfig                 |    8 ++------
- drivers/mtd/Kconfig                 |    7 +------
- drivers/mtd/nand/Kconfig            |   14 +++++---------
- drivers/net/Kconfig                 |   22 ++++++++++++++--------
- drivers/net/arcnet/Kconfig          |    9 ++-------
- drivers/net/irda/Kconfig            |    8 +++++---
- drivers/net/pcmcia/Kconfig          |    9 ++-------
- drivers/net/tokenring/Kconfig       |    9 ++-------
- drivers/net/tulip/Kconfig           |    9 ++-------
- drivers/net/wan/Kconfig             |    9 ++-------
- drivers/net/wireless/Kconfig        |    9 ++-------
- drivers/parport/Kconfig             |    8 ++------
- drivers/pci/hotplug/Kconfig         |    7 +------
- drivers/pcmcia/Kconfig              |    6 +-----
- drivers/pnp/Kconfig                 |    7 +------
- drivers/scsi/Kconfig                |    6 +-----
- drivers/scsi/pcmcia/Kconfig         |    7 +++++--
- drivers/telephony/Kconfig           |    9 ++-------
- drivers/usb/serial/Kconfig          |    7 +------
- drivers/video/logo/Kconfig          |    9 ++-------
- drivers/w1/Kconfig                  |    8 ++------
- fs/Kconfig                          |    4 ----
- fs/nls/Kconfig                      |    8 ++------
- fs/partitions/Kconfig               |    2 +-
- fs/xfs/Kconfig                      |   17 +++++++----------
- init/Kconfig                        |   17 +++++++----------
- sound/Kconfig                       |   25 +++++++------------------
- sound/oss/Kconfig                   |    2 +-
- 46 files changed, 112 insertions(+), 293 deletions(-)
+ drivers/usb/Kconfig         |   18 ++++++++++--------
+ drivers/usb/atm/Kconfig     |    7 +------
+ drivers/usb/class/Kconfig   |   11 ++++-------
+ drivers/usb/core/Kconfig    |   11 ++++-------
+ drivers/usb/gadget/Kconfig  |    8 ++------
+ drivers/usb/host/Kconfig    |    8 +++-----
+ drivers/usb/image/Kconfig   |    5 ++---
+ drivers/usb/input/Kconfig   |    2 --
+ drivers/usb/media/Kconfig   |   24 +++++++++++-------------
+ drivers/usb/misc/Kconfig    |   17 ++++-------------
+ drivers/usb/net/Kconfig     |   11 +++++++----
+ drivers/usb/serial/Kconfig  |    1 -
+ drivers/usb/storage/Kconfig |    2 --
+ 13 files changed, 48 insertions(+), 77 deletions(-)
 
 Signed-Off-By: Bodo Eggert <7eggert@gmx.de>
 
-diff -rNup a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
---- a/drivers/acpi/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/acpi/Kconfig	2005-07-17 08:26:09.000000000 +0200
-@@ -2,16 +2,12 @@
- # ACPI Configuration
+diff -rNup a/drivers/usb/Kconfig b/drivers/usb/Kconfig
+--- a/drivers/usb/Kconfig	2005-07-17 08:09:02.000000000 +0200
++++ b/drivers/usb/Kconfig	2005-07-17 10:47:59.000000000 +0200
+@@ -2,8 +2,6 @@
+ # USB device configuration
  #
  
--menu "ACPI (Advanced Configuration and Power Interface) Support"
-+menuconfig ACPI
-+	bool "ACPI (Advanced Configuration and Power Interface) Support"
- 	depends on PM
- 	depends on !X86_VISWS
- 	depends on !IA64_HP_SIM
- 	depends on IA64 || X86
+-menu "USB support"
 -
--config ACPI
--	bool "ACPI Support"
--	depends on IA64 || X86
--
- 	default y
+ # Host-side USB depends on having a host controller
+ # NOTE:  dummy_hcd is always an option, but it's ignored here ...
+ # NOTE:  SL-811 option should be board-specific ...
+@@ -29,9 +27,12 @@ config USB_ARCH_HAS_OHCI
+ 	# more:
+ 	default PCI
+ 
++comment "USB (host side) may require PCI"
++	depends on !USB_ARCH_HAS_HCD && !PCI
++
+ # ARM SA1111 chips have a non-PCI based "OHCI-compatible" USB host interface.
+-config USB
+-	tristate "Support for Host-side USB"
++menuconfig USB
++	tristate "USB (host side)"
+ 	depends on USB_ARCH_HAS_HCD
  	---help---
- 	  Advanced Configuration and Power Interface (ACPI) support for 
-@@ -363,5 +359,3 @@ config ACPI_HOTPLUG_MEMORY
- 	  command: 
- 		$>modprobe acpi_memhotplug 
- endif	# ACPI
--
+ 	  Universal Serial Bus (USB) is a specification for a serial bus
+@@ -65,6 +66,8 @@ config USB
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called usbcore.
+ 
++if USB
++
+ source "drivers/usb/core/Kconfig"
+ 
+ source "drivers/usb/host/Kconfig"
+@@ -84,11 +87,10 @@ source "drivers/usb/net/Kconfig"
+ source "drivers/usb/mon/Kconfig"
+ 
+ comment "USB port drivers"
+-	depends on USB
+ 
+ config USB_USS720
+ 	tristate "USS720 parport driver"
+-	depends on USB && PARPORT
++	depends on PARPORT
+ 	select PARPORT_NOT_PC
+ 	---help---
+ 	  This driver is for USB parallel port adapters that use the Lucent
+@@ -121,7 +123,7 @@ source "drivers/usb/misc/Kconfig"
+ 
+ source "drivers/usb/atm/Kconfig"
+ 
+-source "drivers/usb/gadget/Kconfig"
++endif
+ 
 -endmenu
-diff -rNup a/drivers/cdrom/Kconfig b/drivers/cdrom/Kconfig
---- a/drivers/cdrom/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/cdrom/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,11 +2,9 @@
- # CDROM driver configuration
++source "drivers/usb/gadget/Kconfig"
+ 
+diff -rNup a/drivers/usb/atm/Kconfig b/drivers/usb/atm/Kconfig
+--- a/drivers/usb/atm/Kconfig	2005-07-17 08:10:01.000000000 +0200
++++ b/drivers/usb/atm/Kconfig	2005-07-17 11:11:22.000000000 +0200
+@@ -2,10 +2,7 @@
+ # USB/ATM DSL configuration
  #
  
--menu "Old CD-ROM drivers (not SCSI, not IDE)"
-+menuconfig CD_NO_IDESCSI
-+	bool "Old CD-ROM drivers (not SCSI, IDE or ATAPI)"
- 	depends on ISA
+-menu "USB DSL modem support"
+-	depends on USB
 -
--config CD_NO_IDESCSI
--	bool "Support non-SCSI/IDE/ATAPI CDROM drives"
- 	---help---
- 	  If you have a CD-ROM drive that is neither SCSI nor IDE/ATAPI, say Y
- 	  here, otherwise N. Read the CD-ROM-HOWTO, available from
-@@ -209,5 +207,3 @@ config CDU535
+-config USB_ATM
++menuconfig USB_ATM
+ 	tristate "USB DSL modem support"
+ 	depends on USB && ATM
+ 	select CRC32
+@@ -56,5 +53,3 @@ config USB_XUSBATM
  
  	  To compile this driver as a module, choose M here: the
- 	  module will be called sonycd535.
+ 	  module will be called xusbatm.
 -
 -endmenu
-diff -rNup a/drivers/char/ipmi/Kconfig b/drivers/char/ipmi/Kconfig
---- a/drivers/char/ipmi/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/char/ipmi/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,8 +2,7 @@
- # IPMI device configuration
+diff -rNup a/drivers/usb/class/Kconfig b/drivers/usb/class/Kconfig
+--- a/drivers/usb/class/Kconfig	2005-07-17 08:06:24.000000000 +0200
++++ b/drivers/usb/class/Kconfig	2005-07-17 10:48:06.000000000 +0200
+@@ -2,11 +2,10 @@
+ # USB Class driver configuration
  #
+ comment "USB Device Class drivers"
+-	depends on USB
  
--menu "IPMI"
--config IPMI_HANDLER
-+menuconfig IPMI_HANDLER
-        tristate 'IPMI top-level message handler'
-        help
-          This enables the central IPMI message handler, required for IPMI
-@@ -63,5 +62,3 @@ config IPMI_POWEROFF
-        help
-          This enables a function to power off the system with IPMI if
- 	 the IPMI management controller is capable of this.
--
--endmenu
-diff -rNup a/drivers/char/tpm/Kconfig b/drivers/char/tpm/Kconfig
---- a/drivers/char/tpm/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/char/tpm/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,9 +2,7 @@
- # TPM device configuration
- #
- 
--menu "TPM devices"
--
--config TCG_TPM
-+menuconfig TCG_TPM
- 	tristate "TPM Hardware Support"
- 	depends on EXPERIMENTAL && PCI
- 	---help---
-@@ -34,6 +32,3 @@ config TCG_ATMEL
- 	  If you have a TPM security chip from Atmel say Yes and it 
- 	  will be accessible from within Linux.  To compile this driver 
- 	  as a module, choose M here; the module will be called tpm_atmel.
--
--endmenu
--
-diff -rNup a/drivers/char/watchdog/Kconfig b/drivers/char/watchdog/Kconfig
---- a/drivers/char/watchdog/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/char/watchdog/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,9 +2,7 @@
- # Watchdog device configuration
- #
- 
--menu "Watchdog Cards"
--
--config WATCHDOG
-+menuconfig WATCHDOG
- 	bool "Watchdog Timer Support"
- 	---help---
- 	  If you say Y here (and to one of the following options) and create a
-@@ -555,5 +553,3 @@ config USBPCWATCHDOG
- 	  module will be called pcwd_usb.
- 
- 	  Most people will say N.
--
--endmenu
-diff -rNup a/drivers/fc4/Kconfig b/drivers/fc4/Kconfig
---- a/drivers/fc4/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/fc4/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,9 +2,7 @@
- # FC4 device configuration
- #
- 
--menu "Fibre Channel support"
--
--config FC4
-+menuconfig FC4
- 	tristate "Fibre Channel and FC4 SCSI support"
- 	---help---
- 	  Fibre Channel is a high speed serial protocol mainly used to
-@@ -76,6 +74,3 @@ config SCSI_FCAL
- config SCSI_FCAL
- 	prompt "Generic FC-AL disk driver"
- 	depends on FC4!=n && SCSI && !SPARC32 && !SPARC64
--
--endmenu
--
-diff -rNup a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
---- a/drivers/i2c/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/i2c/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,9 +2,7 @@
- # Character device configuration
- #
- 
--menu "I2C support"
--
--config I2C
-+menuconfig I2C
- 	tristate "I2C support"
- 	---help---
- 	  I2C (pronounce: I-square-C) is a slow serial bus protocol used in
-@@ -72,6 +70,3 @@ config I2C_DEBUG_CHIP
- 	  debug messages to the system log.  Select this if you are having
- 	  a problem with I2C support and want to see more of what is going
- 	  on.
--
--endmenu
--
-diff -rNup a/drivers/ide/Kconfig b/drivers/ide/Kconfig
---- a/drivers/ide/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/ide/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -4,9 +4,7 @@
- # Andre Hedrick <andre@linux-ide.org>
- #
- 
--menu "ATA/ATAPI/MFM/RLL support"
--
--config IDE
-+menuconfig IDE
- 	tristate "ATA/ATAPI/MFM/RLL support"
- 	---help---
- 	  If you say Y here, your kernel will be able to manage low cost mass
-@@ -1058,5 +1056,3 @@ config BLK_DEV_HD
- 	def_bool BLK_DEV_HD_IDE || BLK_DEV_HD_ONLY
- 
- endif
--
--endmenu
-diff -rNup a/drivers/ieee1394/Kconfig b/drivers/ieee1394/Kconfig
---- a/drivers/ieee1394/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/ieee1394/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -1,8 +1,6 @@
- # -*- shell-script -*-
- 
--menu "IEEE 1394 (FireWire) support"
--
--config IEEE1394
-+menuconfig IEEE1394
- 	tristate "IEEE 1394 (FireWire) support"
- 	depends on PCI || BROKEN
- 	select NET
-@@ -191,5 +189,3 @@ config IEEE1394_AMDTP
- 
- 	  To compile this driver as a module, say M here: the
- 	  module will be called amdtp.
--
--endmenu
-diff -rNup a/drivers/infiniband/Kconfig b/drivers/infiniband/Kconfig
---- a/drivers/infiniband/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/infiniband/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -1,6 +1,4 @@
--menu "InfiniBand support"
--
--config INFINIBAND
-+menuconfig INFINIBAND
- 	tristate "InfiniBand support"
- 	---help---
- 	  Core support for InfiniBand (IB).  Make sure to also select
-@@ -20,5 +18,3 @@ config INFINIBAND_USER_VERBS
- source "drivers/infiniband/hw/mthca/Kconfig"
- 
- source "drivers/infiniband/ulp/ipoib/Kconfig"
--
--endmenu
-diff -rNup a/drivers/isdn/Kconfig b/drivers/isdn/Kconfig
---- a/drivers/isdn/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/isdn/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,10 +2,8 @@
- # ISDN device configuration
- #
- 
--menu "ISDN subsystem"
--
--config ISDN
--	tristate "ISDN support"
-+menuconfig ISDN
-+	tristate "ISDN subsystem"
- 	depends on NET
- 	---help---
- 	  ISDN ("Integrated Services Digital Networks", called RNIS in France)
-@@ -62,6 +60,3 @@ config ISDN_CAPI
- source "drivers/isdn/capi/Kconfig"
- 
- source "drivers/isdn/hardware/Kconfig"
--
--endmenu
--
-diff -rNup a/drivers/isdn/hardware/avm/Kconfig b/drivers/isdn/hardware/avm/Kconfig
---- a/drivers/isdn/hardware/avm/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/isdn/hardware/avm/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,11 +2,9 @@
- # ISDN AVM drivers
- #
- 
--menu "Active AVM cards"
-+menuconfig CAPI_AVM
-+	bool "Active AVM cards"
- 	depends on NET && ISDN && ISDN_CAPI!=n
--
--config CAPI_AVM
--	bool "Support AVM cards"
+ config USB_AUDIO
+ 	tristate "USB Audio support"
+-	depends on USB && SOUND
++	depends on SOUND
  	help
- 	  Enable support for AVM active ISDN cards.
+ 	  Say Y here if you want to connect USB audio equipment such as
+ 	  speakers to your computer's USB port. You only need this if you use
+@@ -16,11 +15,11 @@ config USB_AUDIO
+ 	  module will be called audio.
  
-@@ -61,6 +59,3 @@ config ISDN_DRV_AVMB1_C4
- 	help
- 	  Enable support for the AVM C4/C2 PCI cards.
- 	  These cards handle 4/2 BRI ISDN lines (8/4 channels).
--
--endmenu
--
-diff -rNup a/drivers/isdn/hardware/eicon/Kconfig b/drivers/isdn/hardware/eicon/Kconfig
---- a/drivers/isdn/hardware/eicon/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/isdn/hardware/eicon/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,11 +2,9 @@
- # ISDN DIVAS Eicon driver
- #
+ comment "USB Bluetooth TTY can only be used with disabled Bluetooth subsystem"
+-	depends on USB && BT
++	depends on BT
  
--menu "Active Eicon DIVA Server cards"
--	depends on NET && ISDN && ISDN_CAPI!=n
--
--config CAPI_EICON
-+menuconfig CAPI_EICON
- 	bool "Support Eicon cards"
-+	depends on NET && ISDN && ISDN_CAPI!=n
- 	help
- 	  Enable support for Eicon Networks active ISDN cards.
- 
-@@ -48,6 +46,3 @@ config ISDN_DIVAS_MAINT
- 	depends on ISDN_DIVAS && m
- 	help
- 	  Enable Divas Maintainance driver.
--
--endmenu
--
-diff -rNup a/drivers/isdn/hisax/Kconfig b/drivers/isdn/hisax/Kconfig
---- a/drivers/isdn/hisax/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/isdn/hisax/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -1,9 +1,7 @@
- 
--menu "Passive cards"
-+menuconfig ISDN_DRV_HISAX
-+	tristate "Passive cards (HiSax, HFC)"
- 	depends on ISDN_I4L
--
--config ISDN_DRV_HISAX
--	tristate "HiSax SiemensChipSet driver support"
- 	select CRC_CCITT
+ config USB_BLUETOOTH_TTY
+ 	tristate "USB Bluetooth TTY support"
+-	depends on USB && BT=n
++	depends on BT=n
  	---help---
- 	  This is a driver supporting the Siemens chipset on various
-@@ -437,6 +435,3 @@ config HISAX_AVM_A1_PCMCIA
- 	default y
+ 	  This driver implements a nonstandard tty interface to a Bluetooth
+ 	  device that can be used only by specialized Bluetooth HCI software.
+@@ -40,7 +39,7 @@ config USB_BLUETOOTH_TTY
  
- endif
--
--endmenu
--
-diff -rNup a/drivers/md/Kconfig b/drivers/md/Kconfig
---- a/drivers/md/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/md/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,9 +2,7 @@
- # Block device driver configuration
- #
+ config USB_MIDI
+ 	tristate "USB MIDI support"
+-	depends on USB && SOUND
++	depends on SOUND
+ 	---help---
+ 	  Say Y here if you want to connect a USB MIDI device to your
+ 	  computer's USB port. This driver is for devices that comply with
+@@ -61,7 +60,6 @@ config USB_MIDI
  
--menu "Multi-device support (RAID and LVM)"
--
--config MD
-+menuconfig MD
- 	bool "Multiple devices driver support (RAID and LVM)"
+ config USB_ACM
+ 	tristate "USB Modem (CDC ACM) support"
+-	depends on USB
+ 	---help---
+ 	  This driver supports USB modems and ISDN adapters which support the
+ 	  Communication Device Class Abstract Control Model interface.
+@@ -76,7 +74,6 @@ config USB_ACM
+ 
+ config USB_PRINTER
+ 	tristate "USB Printer support"
+-	depends on USB
  	help
- 	  Support multiple physical spindles through a single logical device.
-@@ -235,6 +233,3 @@ config DM_MULTIPATH_EMC
- 	depends on DM_MULTIPATH && BLK_DEV_DM && EXPERIMENTAL
- 	---help---
- 	  Multipath support for EMC CX/AX series hardware.
--
--endmenu
--
-diff -rNup a/drivers/media/dvb/Kconfig b/drivers/media/dvb/Kconfig
---- a/drivers/media/dvb/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/media/dvb/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,10 +2,8 @@
- # Multimedia device configuration
+ 	  Say Y here if you want to connect a USB printer to your computer's
+ 	  USB port.
+diff -rNup a/drivers/usb/core/Kconfig b/drivers/usb/core/Kconfig
+--- a/drivers/usb/core/Kconfig	2005-07-17 08:04:48.000000000 +0200
++++ b/drivers/usb/core/Kconfig	2005-07-17 10:48:06.000000000 +0200
+@@ -3,18 +3,15 @@
  #
+ config USB_DEBUG
+ 	bool "USB verbose debug messages"
+-	depends on USB
+ 	help
+ 	  Say Y here if you want the USB core & hub drivers to produce a bunch
+ 	  of debug messages to the system log. Select this if you are having a
+ 	  problem with USB support and want to see more of what is going on.
  
--menu "Digital Video Broadcasting Devices"
--
--config DVB
--	bool "DVB For Linux"
-+menuconfig DVB
-+	bool "Digital Video Broadcasting Devices"
- 	depends on NET && INET
+ comment "Miscellaneous USB options"
+-	depends on USB
+ 
+ config USB_DEVICEFS
+ 	bool "USB device filesystem"
+-	depends on USB
  	---help---
- 	  Support Digital Video Broadcasting hardware.  Enable this if you
-@@ -47,5 +45,3 @@ source "drivers/media/dvb/pluto2/Kconfig
- comment "Supported DVB Frontends"
- 	depends on DVB_CORE
- source "drivers/media/dvb/frontends/Kconfig"
--
--endmenu
-diff -rNup a/drivers/message/fusion/Kconfig b/drivers/message/fusion/Kconfig
---- a/drivers/message/fusion/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/message/fusion/Kconfig	2005-07-17 09:21:13.000000000 +0200
-@@ -1,14 +1,13 @@
+ 	  If you say Y here (and to "/proc file system support" in the "File
+ 	  systems" section, above), you will get a file /proc/bus/usb/devices
+@@ -38,7 +35,7 @@ config USB_DEVICEFS
  
--menu "Fusion MPT device support"
--
--config FUSION
--	bool
-+menuconfig FUSION
-+	bool "Fusion MPT device support"
-+	depends on PCI && SCSI
+ config USB_BANDWIDTH
+ 	bool "Enforce USB bandwidth allocation (EXPERIMENTAL)"
+-	depends on USB && EXPERIMENTAL
++	depends on EXPERIMENTAL
+ 	help
+ 	  If you say Y here, the USB subsystem enforces USB bandwidth
+ 	  allocation and will prevent some device opens from succeeding
+@@ -51,7 +48,7 @@ config USB_BANDWIDTH
+ 
+ config USB_DYNAMIC_MINORS
+ 	bool "Dynamic USB minor allocation (EXPERIMENTAL)"
+-	depends on USB && EXPERIMENTAL
++	depends on EXPERIMENTAL
+ 	help
+ 	  If you say Y here, the USB subsystem will use dynamic minor
+ 	  allocation for any device that uses the USB major number.
+@@ -62,7 +59,7 @@ config USB_DYNAMIC_MINORS
+ 
+ config USB_SUSPEND
+ 	bool "USB suspend/resume (EXPERIMENTAL)"
+-	depends on USB && PM && EXPERIMENTAL
++	depends on PM && EXPERIMENTAL
+ 	help
+ 	  If you say Y here, you can use driver calls or the sysfs
+ 	  "power/state" file to suspend or resume individual USB
+@@ -75,7 +72,7 @@ config USB_SUSPEND
+ 
+ config USB_OTG
+ 	bool
+-	depends on USB && EXPERIMENTAL
++	depends on EXPERIMENTAL
+ 	select USB_SUSPEND
  	default n
  
-+if FUSION
-+
- config FUSION_SPI
- 	tristate "Fusion MPT ScsiHost drivers for SPI"
--	depends on PCI && SCSI
--	select FUSION
+diff -rNup a/drivers/usb/gadget/Kconfig b/drivers/usb/gadget/Kconfig
+--- a/drivers/usb/gadget/Kconfig	2005-07-17 08:10:01.000000000 +0200
++++ b/drivers/usb/gadget/Kconfig	2005-07-17 10:47:59.000000000 +0200
+@@ -12,10 +12,8 @@
+ # With help from a special transceiver and a "Mini-AB" jack, systems with
+ # both kinds of controller can also support "USB On-the-Go" (CONFIG_USB_OTG).
+ #
+-menu "USB Gadget Support"
+-
+-config USB_GADGET
+-	tristate "Support for USB Gadgets"
++menuconfig USB_GADGET
++	tristate "USB Gadgets (device side)"
+ 	help
+ 	   USB is a master/slave protocol, organized with one master
+ 	   host (such as a PC) controlling up to 127 peripheral devices.
+@@ -394,5 +392,3 @@ config USB_G_SERIAL
+ # - none yet
+ 
+ endchoice
+-
+-endmenu
+diff -rNup a/drivers/usb/host/Kconfig b/drivers/usb/host/Kconfig
+--- a/drivers/usb/host/Kconfig	2005-07-17 08:10:02.000000000 +0200
++++ b/drivers/usb/host/Kconfig	2005-07-17 10:48:06.000000000 +0200
+@@ -2,11 +2,10 @@
+ # USB Host Controller Drivers
+ #
+ comment "USB Host Controller Drivers"
+-	depends on USB
+ 
+ config USB_EHCI_HCD
+ 	tristate "EHCI HCD (USB 2.0) support"
+-	depends on USB && PCI
++	depends on PCI
  	---help---
- 	  SCSI HOST support for a parallel SCSI host adapters.
+ 	  The Enhanced Host Controller Interface (EHCI) is standard for USB 2.0
+ 	  "high speed" (480 Mbit/sec, 60 Mbyte/sec) host controller hardware.
+@@ -64,7 +63,7 @@ config USB_ISP116X_HCD
  
-@@ -21,8 +20,6 @@ config FUSION_SPI
- 
- config FUSION_FC
- 	tristate "Fusion MPT ScsiHost drivers for FC"
--	depends on PCI && SCSI
--	select FUSION
+ config USB_OHCI_HCD
+ 	tristate "OHCI HCD support"
+-	depends on USB && USB_ARCH_HAS_OHCI
++	depends on USB_ARCH_HAS_OHCI
+ 	select ISP1301_OMAP if MACH_OMAP_H2 || MACH_OMAP_H3
  	---help---
- 	  SCSI HOST support for a Fiber Channel host adapters.
+ 	  The Open Host Controller Interface (OHCI) is a standard for accessing
+@@ -110,7 +109,7 @@ config USB_OHCI_LITTLE_ENDIAN
  
-@@ -37,7 +34,6 @@ config FUSION_FC
- 
- config FUSION_MAX_SGE
- 	int "Maximum number of scatter gather entries (16 - 128)"
--	depends on FUSION
- 	default "128"
- 	range 16 128
- 	help
-@@ -83,4 +79,4 @@ config FUSION_LAN
- 
- 	  If unsure whether you really want or need this, say N.
- 
--endmenu
-+endif
-diff -rNup a/drivers/message/i2o/Kconfig b/drivers/message/i2o/Kconfig
---- a/drivers/message/i2o/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/message/i2o/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -1,7 +1,4 @@
--
--menu "I2O device support"
--
--config I2O
-+menuconfig I2O
- 	tristate "I2O support"
- 	depends on PCI
+ config USB_UHCI_HCD
+ 	tristate "UHCI HCD (most Intel and VIA) support"
+-	depends on USB && PCI
++	depends on PCI
  	---help---
-@@ -106,6 +103,3 @@ config I2O_PROC
+ 	  The Universal Host Controller Interface is a standard by Intel for
+ 	  accessing the USB hardware in the PC (which is also called the USB
+@@ -126,7 +125,6 @@ config USB_UHCI_HCD
  
- 	  To compile this support as a module, choose M here: the
- 	  module will be called i2o_proc.
--
--endmenu
--
-diff -rNup a/drivers/mmc/Kconfig b/drivers/mmc/Kconfig
---- a/drivers/mmc/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/mmc/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,10 +2,8 @@
- # MMC subsystem configuration
+ config USB_SL811_HCD
+ 	tristate "SL811HS HCD support"
+-	depends on USB
+ 	default N
+ 	help
+ 	  The SL811HS is a single-port USB controller that supports either
+diff -rNup a/drivers/usb/image/Kconfig b/drivers/usb/image/Kconfig
+--- a/drivers/usb/image/Kconfig	2005-07-17 08:09:04.000000000 +0200
++++ b/drivers/usb/image/Kconfig	2005-07-17 10:48:06.000000000 +0200
+@@ -2,11 +2,10 @@
+ # USB Imageing devices configuration
  #
+ comment "USB Imaging devices"
+-	depends on USB
  
--menu "MMC/SD Card support"
--
--config MMC
--	tristate "MMC support"
-+menuconfig MMC
-+	tristate "MMC/SD Card support"
- 	help
- 	  MMC is the "multi-media card" bus protocol.
- 
-@@ -59,5 +57,3 @@ config MMC_WBSD
- 	  SD/MMC card reader, say Y or M here.
- 
- 	  If unsure, say N.
--
--endmenu
-diff -rNup a/drivers/mtd/Kconfig b/drivers/mtd/Kconfig
---- a/drivers/mtd/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/mtd/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -1,8 +1,6 @@
- # $Id: Kconfig,v 1.7 2004/11/22 11:33:56 ijc Exp $
- 
--menu "Memory Technology Devices (MTD)"
--
--config MTD
-+menuconfig MTD
- 	tristate "Memory Technology Device (MTD) support"
- 	help
- 	  Memory Technology Devices are flash, RAM and similar chips, often
-@@ -260,6 +258,3 @@ source "drivers/mtd/maps/Kconfig"
- source "drivers/mtd/devices/Kconfig"
- 
- source "drivers/mtd/nand/Kconfig"
--
--endmenu
--
-diff -rNup a/drivers/mtd/nand/Kconfig b/drivers/mtd/nand/Kconfig
---- a/drivers/mtd/nand/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/mtd/nand/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -1,11 +1,12 @@
- # drivers/mtd/nand/Kconfig
- # $Id: Kconfig,v 1.31 2005/06/20 12:03:21 bjd Exp $
- 
--menu "NAND Flash Device Drivers"
--	depends on MTD!=n
-+config MTD_NAND_IDS
-+	depends on MTD
-+	tristate
- 
--config MTD_NAND
--	tristate "NAND Device Support"
-+menuconfig MTD_NAND
-+	tristate "NAND Flash Device Support"
- 	depends on MTD
- 	select MTD_NAND_IDS
- 	help
-@@ -55,9 +56,6 @@ config MTD_NAND_TOTO
- 	help
- 	  Support for NAND flash on Texas Instruments Toto platform.
- 
--config MTD_NAND_IDS
--	tristate
--
- config MTD_NAND_AU1550
- 	tristate "Au1550 NAND support"
- 	depends on SOC_AU1550 && MTD_NAND
-@@ -190,5 +188,3 @@ config MTD_NAND_DISKONCHIP_BBTWRITE
- 	help
- 	  The simulator may simulate verious NAND flash chips for the
- 	  MTD nand layer.
-- 
--endmenu
-diff -rNup a/drivers/net/Kconfig b/drivers/net/Kconfig
---- a/drivers/net/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/net/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -137,10 +137,8 @@ endif
- #	Ethernet
- #
- 
--menu "Ethernet (10 or 100Mbit)"
-+menuconfig NET_ETHERNET
- 	depends on NETDEVICES && !UML
--
--config NET_ETHERNET
- 	bool "Ethernet (10 or 100Mbit)"
+ config USB_MDC800
+ 	tristate "USB Mustek MDC800 Digital Camera support (EXPERIMENTAL)"
+-	depends on USB && EXPERIMENTAL
++	depends on EXPERIMENTAL
  	---help---
- 	  Ethernet (also called IEEE 802.3 or ISO 8802-2) is the most common
-@@ -166,6 +164,8 @@ config NET_ETHERNET
- 	  kernel: saying N will just cause the configurator to skip all
- 	  the questions about Ethernet network cards. If unsure, say N.
+ 	  Say Y here if you want to connect this type of still camera to
+ 	  your computer's USB port. This driver can be used with gphoto 0.4.3
+@@ -19,7 +18,7 @@ config USB_MDC800
  
-+if NET_ETHERNET
-+
- config MII
- 	tristate "Generic Media Independent Interface device support"
- 	depends on NET_ETHERNET
-@@ -1753,15 +1753,18 @@ config NE_H8300
- 
- source "drivers/net/fec_8xx/Kconfig"
- 
--endmenu
-+endif
- 
- #
- #	Gigabit Ethernet
- #
- 
--menu "Ethernet (1000 Mbit)"
-+menuconfig NET_ETHERNET1000
-+	bool "Ethernet (1 Gbit)"
- 	depends on NETDEVICES && !UML
- 
-+if NET_ETHERNET1000
-+
- config ACENIC
- 	tristate "Alteon AceNIC/3Com 3C985/NetGear GA620 Gigabit support"
- 	depends on PCI
-@@ -2084,15 +2087,18 @@ config MV643XX_ETH_2
- 	  This enables support for Port 2 of the Marvell MV643XX Gigabit
- 	  Ethernet.
- 
--endmenu
-+endif
- 
- #
- #	10 Gigabit Ethernet
- #
- 
--menu "Ethernet (10000 Mbit)"
-+menuconfig NET_ETHERNET10_000
-+	bool "Ethernet (10 Gbit)"
- 	depends on NETDEVICES && !UML
- 
-+if NET_ETHERNET10_000
-+
- config IXGB
- 	tristate "Intel(R) PRO/10GbE support"
- 	depends on PCI
-@@ -2168,7 +2174,7 @@ config 2BUFF_MODE
- 	physical memory loactions comes with a heavy price.
- 	If not sure please say N.
- 
--endmenu
-+endif
- 
- if !UML
- source "drivers/net/tokenring/Kconfig"
-diff -rNup a/drivers/net/arcnet/Kconfig b/drivers/net/arcnet/Kconfig
---- a/drivers/net/arcnet/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/net/arcnet/Kconfig	2005-07-17 08:23:15.000000000 +0200
+ config USB_MICROTEK
+ 	tristate "Microtek X6USB scanner support"
+-	depends on USB && SCSI
++	depends on SCSI
+ 	help
+ 	  Say Y here if you want support for the Microtek X6USB and
+ 	  possibly the Phantom 336CX, Phantom C6 and ScanMaker V6U(S)L.
+diff -rNup a/drivers/usb/input/Kconfig b/drivers/usb/input/Kconfig
+--- a/drivers/usb/input/Kconfig	2005-07-17 08:10:02.000000000 +0200
++++ b/drivers/usb/input/Kconfig	2005-07-17 10:47:59.000000000 +0200
 @@ -2,11 +2,9 @@
- # Arcnet configuration
+ # USB Input driver configuration
  #
+ comment "USB Input Devices"
+-	depends on USB
  
--menu "ARCnet devices"
-+menuconfig ARCNET
-+	tristate "ARCnet device support"
- 	depends on NETDEVICES && (ISA || PCI)
--
--config ARCNET
--	tristate "ARCnet support"
+ config USB_HID
+ 	tristate "USB Human Interface Device (full HID) support"
+-	depends on USB
  	---help---
- 	  If you have a network card of this type, say Y and check out the
- 	  (arguably) beautiful poetry in
-@@ -135,6 +133,3 @@ config ARCNET_COM20020_ISA
- config ARCNET_COM20020_PCI
- 	tristate "Support for COM20020 on PCI"
- 	depends on ARCNET_COM20020 && PCI
--
--endmenu
--
-diff -rNup a/drivers/net/irda/Kconfig b/drivers/net/irda/Kconfig
---- a/drivers/net/irda/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/net/irda/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -1,7 +1,10 @@
- 
--menu "Infrared-port device drivers"
-+menuconfig IRDA_DEVICES
-+	bool "Infrared-port device drivers"
- 	depends on IRDA!=n
- 
-+if IRDA_DEVICES
-+
- comment "SIR device drivers"
- 
- config IRTTY_SIR
-@@ -400,5 +403,4 @@ config VIA_FIR
- 	  To compile it as a module, choose M here: the module will be called
- 	  via-ircc.
- 
--endmenu
--
-+endif
-diff -rNup a/drivers/net/pcmcia/Kconfig b/drivers/net/pcmcia/Kconfig
---- a/drivers/net/pcmcia/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/net/pcmcia/Kconfig	2005-07-17 08:23:15.000000000 +0200
+ 	  Say Y here if you want full HID support to connect keyboards,
+ 	  mice, joysticks, graphic tablets, or any other HID based devices
+diff -rNup a/drivers/usb/media/Kconfig b/drivers/usb/media/Kconfig
+--- a/drivers/usb/media/Kconfig	2005-07-17 08:09:04.000000000 +0200
++++ b/drivers/usb/media/Kconfig	2005-07-17 10:48:06.000000000 +0200
 @@ -2,11 +2,9 @@
- # PCMCIA Network device configuration
+ # USB Multimedia device configuration
  #
+ comment "USB Multimedia devices"
+-	depends on USB
  
--menu "PCMCIA network device support"
--	depends on NETDEVICES && PCMCIA!=n
--
--config NET_PCMCIA
-+menuconfig NET_PCMCIA
- 	bool "PCMCIA network device support"
-+	depends on NETDEVICES && PCMCIA!=n
+ config USB_DABUSB
+ 	tristate "DABUSB driver"
+-	depends on USB
  	---help---
- 	  Say Y if you would like to include support for any PCMCIA or CardBus
- 	  network adapters, then say Y to the driver for your particular card
-@@ -127,6 +125,3 @@ config PCMCIA_IBMTR
+ 	  A Digital Audio Broadcasting (DAB) Receiver for USB and Linux
+ 	  brought to you by the DAB-Team
+@@ -19,11 +17,11 @@ config USB_DABUSB
+ 	  module will be called dabusb.
  
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called ibmtr_cs.
--
--endmenu
--
-diff -rNup a/drivers/net/tokenring/Kconfig b/drivers/net/tokenring/Kconfig
---- a/drivers/net/tokenring/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/net/tokenring/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,12 +2,10 @@
- # Token Ring driver configuration
+ comment "Video4Linux support is needed for USB Multimedia device support"
+-	depends on USB && VIDEO_DEV=n
++	depends on VIDEO_DEV=n
+ 
+ config USB_VICAM
+ 	tristate "USB 3com HomeConnect (aka vicam) support (EXPERIMENTAL)"
+-	depends on USB && VIDEO_DEV && EXPERIMENTAL
++	depends on VIDEO_DEV && EXPERIMENTAL
+ 	---help---
+ 	  Say Y here if you have 3com homeconnect camera (vicam).
+ 
+@@ -37,7 +35,7 @@ config USB_VICAM
+ 
+ config USB_DSBR
+ 	tristate "D-Link USB FM radio support (EXPERIMENTAL)"
+-	depends on USB && VIDEO_DEV && EXPERIMENTAL
++	depends on VIDEO_DEV && EXPERIMENTAL
+ 	---help---
+ 	  Say Y here if you want to connect this type of radio to your
+ 	  computer's USB port. Note that the audio is not digital, and
+@@ -55,7 +53,7 @@ config USB_DSBR
+ 
+ config USB_IBMCAM
+ 	tristate "USB IBM (Xirlink) C-it Camera support"
+-	depends on USB && VIDEO_DEV
++	depends on VIDEO_DEV
+ 	---help---
+ 	  Say Y here if you want to connect a IBM "C-It" camera, also known as
+ 	  "Xirlink PC Camera" to your computer's USB port.  For more
+@@ -76,7 +74,7 @@ config USB_IBMCAM
+ 
+ config USB_KONICAWC
+ 	tristate "USB Konica Webcam support"
+-	depends on USB && VIDEO_DEV
++	depends on VIDEO_DEV
+ 	---help---
+ 	  Say Y here if you want support for webcams based on a Konica
+ 	  chipset. This is known to work with the Intel YC76 webcam.
+@@ -92,7 +90,7 @@ config USB_KONICAWC
+ 
+ config USB_OV511
+ 	tristate "USB OV511 Camera support"
+-	depends on USB && VIDEO_DEV
++	depends on VIDEO_DEV
+ 	---help---
+ 	  Say Y here if you want to connect this type of camera to your
+ 	  computer's USB port. See <file:Documentation/usb/ov511.txt> for more
+@@ -108,7 +106,7 @@ config USB_OV511
+ 
+ config USB_SE401
+ 	tristate "USB SE401 Camera support"
+-	depends on USB && VIDEO_DEV
++	depends on VIDEO_DEV
+ 	---help---
+ 	  Say Y here if you want to connect this type of camera to your
+ 	  computer's USB port. See <file:Documentation/usb/se401.txt> for more
+@@ -124,7 +122,7 @@ config USB_SE401
+ 
+ config USB_SN9C102
+ 	tristate "USB SN9C10x PC Camera Controller support"
+-	depends on USB && VIDEO_DEV
++	depends on VIDEO_DEV
+ 	---help---
+ 	  Say Y here if you want support for cameras based on SONiX SN9C101,
+ 	  SN9C102 or SN9C103 PC Camera Controllers.
+@@ -139,7 +137,7 @@ config USB_SN9C102
+ 
+ config USB_STV680
+ 	tristate "USB STV680 (Pencam) Camera support"
+-	depends on USB && VIDEO_DEV
++	depends on VIDEO_DEV
+ 	---help---
+ 	  Say Y here if you want to connect this type of camera to your
+ 	  computer's USB port. This includes the Pencam line of cameras.
+@@ -156,7 +154,7 @@ config USB_STV680
+ 
+ config USB_W9968CF
+ 	tristate "USB W996[87]CF JPEG Dual Mode Camera support"
+-	depends on USB && VIDEO_DEV && I2C && VIDEO_OVCAMCHIP
++	depends on VIDEO_DEV && I2C && VIDEO_OVCAMCHIP
+ 	---help---
+ 	  Say Y here if you want support for cameras based on OV681 or
+ 	  Winbond W9967CF/W9968CF JPEG USB Dual Mode Camera Chips.
+@@ -178,7 +176,7 @@ config USB_W9968CF
+ 
+ config USB_PWC
+ 	tristate "USB Philips Cameras"
+-	depends on USB && VIDEO_DEV
++	depends on VIDEO_DEV
+ 	---help---
+ 	  Say Y or M here if you want to use one of these Philips & OEM
+           webcams:
+diff -rNup a/drivers/usb/misc/Kconfig b/drivers/usb/misc/Kconfig
+--- a/drivers/usb/misc/Kconfig	2005-07-17 08:10:02.000000000 +0200
++++ b/drivers/usb/misc/Kconfig	2005-07-17 10:48:06.000000000 +0200
+@@ -2,11 +2,9 @@
+ # USB Miscellaneous driver configuration
  #
+ comment "USB Miscellaneous drivers"
+-	depends on USB
  
--menu "Token Ring devices"
-+menuconfig TR
- 	depends on NETDEVICES
--
--# So far, we only have PCI, ISA, and MCA token ring devices
--config TR
- 	bool "Token Ring driver support"
-+# So far, we only have PCI, ISA, and MCA token ring devices
- 	depends on (PCI || ISA || MCA || CCW)
- 	select LLC
+ config USB_EMI62
+ 	tristate "EMI 6|2m USB Audio interface support"
+-	depends on USB
+ 	---help---
+ 	  This driver loads firmware to Emagic EMI 6|2m low latency USB
+ 	  Audio and Midi interface.
+@@ -21,7 +19,6 @@ config USB_EMI62
+ 
+ config USB_EMI26
+ 	tristate "EMI 2|6 USB Audio interface support"
+-	depends on USB
+ 	---help---
+ 	  This driver loads firmware to Emagic EMI 2|6 low latency USB
+ 	  Audio interface.
+@@ -34,7 +31,7 @@ config USB_EMI26
+ 
+ config USB_AUERSWALD
+ 	tristate "USB Auerswald ISDN support (EXPERIMENTAL)"
+-	depends on USB && EXPERIMENTAL
++	depends on EXPERIMENTAL
  	help
-@@ -181,6 +179,3 @@ config SMCTR
+ 	  Say Y here if you want to connect an Auerswald USB ISDN Device
+ 	  to your computer's USB port.
+@@ -44,7 +41,7 @@ config USB_AUERSWALD
  
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called smctr.
--
--endmenu
--
-diff -rNup a/drivers/net/tulip/Kconfig b/drivers/net/tulip/Kconfig
---- a/drivers/net/tulip/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/net/tulip/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,11 +2,9 @@
- # Tulip family network device configuration
- #
- 
--menu "Tulip family network device support"
--	depends on NET_ETHERNET && (PCI || EISA || CARDBUS)
--
--config NET_TULIP
-+menuconfig NET_TULIP
- 	bool "\"Tulip\" family network device support"
-+	depends on NET_ETHERNET && (PCI || EISA || CARDBUS)
+ config USB_RIO500
+ 	tristate "USB Diamond Rio500 support (EXPERIMENTAL)"
+-	depends on USB && EXPERIMENTAL
++	depends on EXPERIMENTAL
  	help
- 	  This selects the "Tulip" family of EISA/PCI network cards.
+ 	  Say Y here if you want to connect a USB Rio500 mp3 player to your
+ 	  computer's USB port. Please read <file:Documentation/usb/rio.txt>
+@@ -55,7 +52,7 @@ config USB_RIO500
  
-@@ -161,6 +159,3 @@ config PCMCIA_XIRTULIP
- 	  To compile this driver as a module, choose M here and read
- 	  <file:Documentation/networking/net-modules.txt>.  The module will
- 	  be called xircom_tulip_cb.  If unsure, say N.
--
--endmenu
--
-diff -rNup a/drivers/net/wan/Kconfig b/drivers/net/wan/Kconfig
---- a/drivers/net/wan/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/net/wan/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,11 +2,9 @@
- # wan devices configuration
+ config USB_LEGOTOWER
+ 	tristate "USB Lego Infrared Tower support (EXPERIMENTAL)"
+-	depends on USB && EXPERIMENTAL
++	depends on EXPERIMENTAL
+ 	help
+ 	  Say Y here if you want to connect a USB Lego Infrared Tower to your
+ 	  computer's USB port.
+@@ -68,7 +65,6 @@ config USB_LEGOTOWER
+ 
+ config USB_LCD
+ 	tristate "USB LCD driver support"
+-	depends on USB
+ 	help
+ 	  Say Y here if you want to connect an USBLCD to your computer's
+ 	  USB port. The USBLCD is a small USB interface board for
+@@ -80,7 +76,6 @@ config USB_LCD
+ 
+ config USB_LED
+ 	tristate "USB LED driver support"
+-	depends on USB
+ 	help
+ 	  Say Y here if you want to connect an USBLED device to your 
+ 	  computer's USB port.
+@@ -90,7 +85,6 @@ config USB_LED
+ 
+ config USB_CYTHERM
+ 	tristate "Cypress USB thermometer driver support"
+-	depends on USB
+ 	help
+ 	  Say Y here if you want to connect a Cypress USB thermometer
+ 	  device to your computer's USB port. This device is also known
+@@ -103,7 +97,6 @@ config USB_CYTHERM
+ 
+ config USB_PHIDGETKIT
+ 	tristate "USB PhidgetKit support"
+-	depends on USB
+ 	help
+ 	  Say Y here if you want to connect a PhidgetKit USB device from
+ 	  Phidgets Inc.
+@@ -113,7 +106,6 @@ config USB_PHIDGETKIT
+ 
+ config USB_PHIDGETSERVO
+ 	tristate "USB PhidgetServo support"
+-	depends on USB
+ 	help
+ 	  Say Y here if you want to connect an 1 or 4 Motor PhidgetServo 
+ 	  servo controller version 2.0 or 3.0.
+@@ -125,7 +117,6 @@ config USB_PHIDGETSERVO
+ 
+ config USB_IDMOUSE
+ 	tristate "Siemens ID USB Mouse Fingerprint sensor support"
+-	depends on USB
+ 	help
+ 	  Say Y here if you want to use the fingerprint sensor on
+ 	  the Siemens ID Mouse. There is also a Siemens ID Mouse
+@@ -151,7 +142,7 @@ config USB_LD
+ 
+ config USB_TEST
+ 	tristate "USB testing driver (DEVELOPMENT)"
+-	depends on USB && USB_DEVICEFS && EXPERIMENTAL
++	depends on USB_DEVICEFS && EXPERIMENTAL
+ 	help
+ 	  This driver is for testing host controller software.  It is used
+ 	  with specialized device firmware for regression and stress testing,
+diff -rNup a/drivers/usb/net/Kconfig b/drivers/usb/net/Kconfig
+--- a/drivers/usb/net/Kconfig	2005-07-17 08:09:05.000000000 +0200
++++ b/drivers/usb/net/Kconfig	2005-07-17 10:47:59.000000000 +0200
+@@ -2,10 +2,13 @@
+ # USB Network devices configuration
  #
+ comment "Networking support is needed for USB Network Adapter support"
+-	depends on USB && !NET
++	depends on !NET
  
--menu "Wan interfaces"
--	depends on NETDEVICES
--
--config WAN
-+menuconfig WAN
- 	bool "Wan interfaces support"
-+	depends on NETDEVICES
- 	---help---
- 	  Wide Area Networks (WANs), such as X.25, Frame Relay and leased
- 	  lines, are used to interconnect Local Area Networks (LANs) over vast
-@@ -602,6 +600,3 @@ config SBNI_MULTILINE
- 	  a program named 'sbniconfig' to configure adapters.
- 
- 	  If unsure, say N.
--
--endmenu
--
-diff -rNup a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
---- a/drivers/net/wireless/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/net/wireless/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,11 +2,9 @@
- # Wireless LAN device configuration
- #
- 
--menu "Wireless LAN (non-hamradio)"
--	depends on NETDEVICES
--
--config NET_RADIO
-+menuconfig NET_RADIO
- 	bool "Wireless LAN drivers (non-hamradio) & Wireless Extensions"
-+	depends on NETDEVICES
- 	---help---
- 	  Support for wireless LANs and everything having to do with radio,
- 	  but not with amateur radio or FM broadcasting.
-@@ -360,6 +358,3 @@ config NET_WIRELESS
- 	bool
- 	depends on NET_RADIO && (ISA || PCI || PPC_PMAC || PCMCIA)
- 	default y
--
--endmenu
--
-diff -rNup a/drivers/parport/Kconfig b/drivers/parport/Kconfig
---- a/drivers/parport/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/parport/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -5,9 +5,7 @@
- # Parport configuration.
- #
- 
--menu "Parallel port support"
--
--config PARPORT
-+menuconfig PARPORT
- 	tristate "Parallel port support"
- 	---help---
- 	  If you want to use devices connected to your machine's parallel port
-@@ -83,6 +81,7 @@ config PARPORT_PC_PCMCIA
- 	  ports. If unsure, say N.
- 
- config PARPORT_NOT_PC
-+	depends on PARPORT
- 	bool
- 
- config PARPORT_ARC
-@@ -140,6 +139,3 @@ config PARPORT_1284
- 	  such as EPP and ECP, say Y here to enable advanced IEEE 1284
- 	  transfer modes. Also say Y if you want device ID information to
- 	  appear in /proc/sys/dev/parport/*/autoprobe*. It is safe to say N.
--
--endmenu
--
-diff -rNup a/drivers/pci/hotplug/Kconfig b/drivers/pci/hotplug/Kconfig
---- a/drivers/pci/hotplug/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/pci/hotplug/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,9 +2,7 @@
- # PCI Hotplug support
- #
- 
--menu "PCI Hotplug Support"
--
--config HOTPLUG_PCI
-+menuconfig HOTPLUG_PCI
- 	tristate "Support for PCI Hotplug (EXPERIMENTAL)"
- 	depends on PCI && EXPERIMENTAL
- 	select HOTPLUG
-@@ -193,6 +191,3 @@ config HOTPLUG_PCI_SGI
- 	  Driver for PCI devices.
- 
- 	  When in doubt, say N.
--
--endmenu
--
-diff -rNup a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
---- a/drivers/pcmcia/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/pcmcia/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,9 +2,7 @@
- # PCCARD (PCMCIA/CardBus) bus subsystem configuration
- #
- 
--menu "PCCARD (PCMCIA/CardBus) support"
--
--config PCCARD
-+menuconfig PCCARD
- 	tristate "PCCard (PCMCIA/CardBus) support"
- 	select HOTPLUG
- 	---help---
-@@ -225,5 +223,3 @@ config PCCARD_NONSTATIC
- 	tristate
- 
- endif	# PCCARD
--
--endmenu
-diff -rNup a/drivers/pnp/Kconfig b/drivers/pnp/Kconfig
---- a/drivers/pnp/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/pnp/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,9 +2,7 @@
- # Plug and Play configuration
- #
- 
--menu "Plug and Play support"
--
--config PNP
-+menuconfig PNP
- 	bool "Plug and Play support"
- 	depends on ISA || ACPI_BUS
- 	---help---
-@@ -36,6 +34,3 @@ source "drivers/pnp/isapnp/Kconfig"
- source "drivers/pnp/pnpbios/Kconfig"
- 
- source "drivers/pnp/pnpacpi/Kconfig"
--
--endmenu
--
-diff -rNup a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
---- a/drivers/scsi/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/scsi/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -1,6 +1,4 @@
--menu "SCSI device support"
--
--config SCSI
-+menuconfig SCSI
- 	tristate "SCSI device support"
- 	---help---
- 	  If you want to use a SCSI hard disk, SCSI tape drive, SCSI CD-ROM or
-@@ -1792,5 +1790,3 @@ config ZFCP
- endmenu
- 
- source "drivers/scsi/pcmcia/Kconfig"
--
--endmenu
-diff -rNup a/drivers/scsi/pcmcia/Kconfig b/drivers/scsi/pcmcia/Kconfig
---- a/drivers/scsi/pcmcia/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/scsi/pcmcia/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,9 +2,12 @@
- # PCMCIA SCSI adapter configuration
- #
- 
--menu "PCMCIA SCSI adapter support"
-+menuconfig SCSI_PCMCIA
-+	bool "PCMCIA SCSI adapter support"
- 	depends on SCSI!=n && PCMCIA!=n && MODULES
- 
-+if SCSI_PCMCIA
+-menu "USB Network Adapters"
+-	depends on USB && NET
++menuconfig USB_NET_DEVICES
++	bool "USB Network Adapters"
++	depends on NET
 +
- config PCMCIA_AHA152X
- 	tristate "Adaptec AHA152X PCMCIA support"
- 	depends on m && !64BIT
-@@ -79,4 +82,4 @@ config PCMCIA_SYM53C500
++if USB_NET_DEVICES
+ 
+ config USB_CATC
+ 	tristate "USB CATC NetMate-based Ethernet device support (EXPERIMENTAL)"
+@@ -308,4 +311,4 @@ config USB_ZD1201
  	  To compile this driver as a module, choose M here: the
- 	  module will be called sym53c500_cs.
+ 	  module will be called zd1201.
  
 -endmenu
 +endif
-diff -rNup a/drivers/telephony/Kconfig b/drivers/telephony/Kconfig
---- a/drivers/telephony/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/telephony/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,10 +2,8 @@
- # Telephony device configuration
- #
- 
--menu "Telephony Support"
--
--config PHONE
--	tristate "Linux telephony support"
-+menuconfig PHONE
-+	tristate "Telephony support"
- 	---help---
- 	  Say Y here if you have a telephony card, which for example allows
- 	  you to use a regular phone for voice-over-IP applications.
-@@ -42,6 +40,3 @@ config PHONE_IXJ_PCMCIA
- 	  Say Y here to configure in PCMCIA service support for the Quicknet
- 	  cards manufactured by Quicknet Technologies, Inc.  This changes the
- 	  card initialization code to work with the card manager daemon.
--
--endmenu
--
 diff -rNup a/drivers/usb/serial/Kconfig b/drivers/usb/serial/Kconfig
---- a/drivers/usb/serial/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/usb/serial/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,10 +2,7 @@
- # USB Serial device configuration
- #
+--- a/drivers/usb/serial/Kconfig	2005-07-17 10:45:46.000000000 +0200
++++ b/drivers/usb/serial/Kconfig	2005-07-17 10:47:59.000000000 +0200
+@@ -4,7 +4,6 @@
  
--menu "USB Serial Converter support"
--	depends on USB!=n
--
--config USB_SERIAL
-+menuconfig USB_SERIAL
+ menuconfig USB_SERIAL
  	tristate "USB Serial Converter support"
- 	depends on USB
+-	depends on USB
  	---help---
-@@ -480,5 +477,3 @@ config USB_EZUSB
- 	depends on USB_SERIAL_KEYSPAN_PDA || USB_SERIAL_XIRCOM || USB_SERIAL_KEYSPAN || USB_SERIAL_WHITEHEAT
- 	default y
- 
--endmenu
--
-diff -rNup a/drivers/video/logo/Kconfig b/drivers/video/logo/Kconfig
---- a/drivers/video/logo/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/video/logo/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -2,10 +2,8 @@
- # Logo configuration
+ 	  Say Y here if you have a USB device that provides normal serial
+ 	  ports, or acts like a serial device, and you want to connect it to
+diff -rNup a/drivers/usb/storage/Kconfig b/drivers/usb/storage/Kconfig
+--- a/drivers/usb/storage/Kconfig	2005-07-17 08:09:05.000000000 +0200
++++ b/drivers/usb/storage/Kconfig	2005-07-17 10:48:06.000000000 +0200
+@@ -3,11 +3,9 @@
  #
  
--menu "Logo configuration"
--
--config LOGO
--	bool "Bootup logo"
-+menuconfig LOGO
-+	bool "Bootup logo configuration"
- 	depends on FB || SGI_NEWPORT_CONSOLE
+ comment "NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information"
+-	depends on USB
  
- config LOGO_LINUX_MONO
-@@ -67,6 +65,3 @@ config LOGO_M32R_CLUT224
- 	bool "224-color M32R Linux logo"
- 	depends on LOGO && M32R
- 	default y
--
--endmenu
--
-diff -rNup a/drivers/w1/Kconfig b/drivers/w1/Kconfig
---- a/drivers/w1/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/drivers/w1/Kconfig	2005-07-17 08:23:15.000000000 +0200
-@@ -1,7 +1,5 @@
--menu "Dallas's 1-wire bus"
--
--config W1
--	tristate "Dallas's 1-wire support"
-+menuconfig W1
-+	tristate "Dallas's 1-wire bus support"
+ config USB_STORAGE
+ 	tristate "USB Mass Storage support"
+-	depends on USB
+ 	select SCSI
  	---help---
- 	  Dallas's 1-wire bus is usefull to connect slow 1-pin devices
- 	  such as iButtons and thermal sensors.
-@@ -53,5 +51,3 @@ config W1_SMEM
- 	help
- 	  Say Y here if you want to connect 1-wire
- 	  simple 64bit memory rom(ds2401/ds2411/ds1990*) to you wire.
--
--endmenu
-diff -rNup a/fs/Kconfig b/fs/Kconfig
---- a/fs/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/fs/Kconfig	2005-07-17 08:23:16.000000000 +0200
-@@ -1736,12 +1736,8 @@ config RXRPC
- 
- endmenu
- 
--menu "Partition Types"
--
- source "fs/partitions/Kconfig"
- 
--endmenu
--
- source "fs/nls/Kconfig"
- 
- endmenu
-diff -rNup a/fs/nls/Kconfig b/fs/nls/Kconfig
---- a/fs/nls/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/fs/nls/Kconfig	2005-07-17 08:23:16.000000000 +0200
-@@ -2,10 +2,8 @@
- # Native language support configuration
- #
- 
--menu "Native Language Support"
--
--config NLS
--	tristate "Base native language support"
-+menuconfig NLS
-+	tristate "Native language support"
- 	---help---
- 	  The base Native Language Support. A number of filesystems
- 	  depend on it (e.g. FAT, JOLIET, NT, BEOS filesystems), as well
-@@ -500,5 +498,3 @@ config NLS_UTF8
- 	  input/output character sets. Say Y here for the UTF-8 encoding of
- 	  the Unicode/ISO9646 universal character set.
- 
--endmenu
--
-diff -rNup a/fs/partitions/Kconfig b/fs/partitions/Kconfig
---- a/fs/partitions/Kconfig	2005-07-17 08:09:08.000000000 +0200
-+++ b/fs/partitions/Kconfig	2005-07-17 09:52:14.000000000 +0200
-@@ -1,7 +1,7 @@
- #
- # Partition configuration
- #
--config PARTITION_ADVANCED
-+menuconfig PARTITION_ADVANCED
- 	bool "Advanced partition selection"
- 	help
- 	  Say Y here if you would like to use hard disks under Linux which
-diff -rNup a/fs/xfs/Kconfig b/fs/xfs/Kconfig
---- a/fs/xfs/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/fs/xfs/Kconfig	2005-07-17 08:23:16.000000000 +0200
-@@ -1,7 +1,5 @@
--menu "XFS support"
--
--config XFS_FS
--	tristate "XFS filesystem support"
-+menuconfig XFS_FS
-+	tristate "XFS support"
- 	select EXPORTFS if NFSD!=n
- 	help
- 	  XFS is a high performance journaling filesystem which originated
-@@ -20,13 +18,15 @@ config XFS_FS
- 	  system of your root partition is compiled as a module, you'll need
- 	  to use an initial ramdisk (initrd) to boot.
- 
-+if XFS_FS
-+
- config XFS_EXPORT
- 	bool
--	default y if XFS_FS && EXPORTFS
-+	default y if EXPORTFS
- 
- config XFS_RT
- 	bool "Realtime support (EXPERIMENTAL)"
--	depends on XFS_FS && EXPERIMENTAL
-+	depends on EXPERIMENTAL
- 	help
- 	  If you say Y here you will be able to mount and use XFS filesystems
- 	  which contain a realtime subvolume. The realtime subvolume is a
-@@ -43,7 +43,6 @@ config XFS_RT
- 
- config XFS_QUOTA
- 	bool "Quota support"
--	depends on XFS_FS
- 	help
- 	  If you say Y here, you will be able to set limits for disk usage on
- 	  a per user and/or a per group basis under XFS.  XFS considers quota
-@@ -60,7 +59,6 @@ config XFS_QUOTA
- 
- config XFS_SECURITY
- 	bool "Security Label support"
--	depends on XFS_FS
- 	help
- 	  Security labels support alternative access control models
- 	  implemented by security modules like SELinux.  This option
-@@ -72,7 +70,6 @@ config XFS_SECURITY
- 
- config XFS_POSIX_ACL
- 	bool "POSIX ACL support"
--	depends on XFS_FS
- 	help
- 	  POSIX Access Control Lists (ACLs) support permissions for users and
- 	  groups beyond the owner/group/world scheme.
-@@ -82,4 +79,4 @@ config XFS_POSIX_ACL
- 
- 	  If you don't know what Access Control Lists are, say N.
- 
--endmenu
-+endif
-diff -rNup a/init/Kconfig b/init/Kconfig
---- a/init/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/init/Kconfig	2005-07-17 08:23:16.000000000 +0200
-@@ -391,10 +391,8 @@ config BASE_SMALL
- 	default 0 if BASE_FULL
- 	default 1 if !BASE_FULL
- 
--menu "Loadable module support"
--
--config MODULES
--	bool "Enable loadable module support"
-+menuconfig MODULES
-+	bool "Loadable module support"
- 	help
- 	  Kernel modules are small pieces of compiled code which can
- 	  be inserted in the running kernel, rather than being
-@@ -413,9 +411,10 @@ config MODULES
- 
- 	  If unsure, say Y.
- 
-+if MODULES
-+
- config MODULE_UNLOAD
- 	bool "Module unloading"
--	depends on MODULES
- 	help
- 	  Without this option you will not be able to unload any
- 	  modules (note that some modules may not be unloadable
-@@ -435,7 +434,6 @@ config MODULE_FORCE_UNLOAD
- config OBSOLETE_MODPARM
- 	bool
- 	default y
--	depends on MODULES
- 	help
- 	  You need this option to use module parameters on modules which
- 	  have not been converted to the new module parameter system yet.
-@@ -443,7 +441,7 @@ config OBSOLETE_MODPARM
- 
- config MODVERSIONS
- 	bool "Module versioning support (EXPERIMENTAL)"
--	depends on MODULES && EXPERIMENTAL
-+	depends on EXPERIMENTAL
- 	help
- 	  Usually, you have to use modules compiled with your kernel.
- 	  Saying Y here makes it sometimes possible to use modules
-@@ -454,7 +452,6 @@ config MODVERSIONS
- 
- config MODULE_SRCVERSION_ALL
- 	bool "Source checksum for all modules"
--	depends on MODULES
- 	help
- 	  Modules which contain a MODULE_VERSION get an extra "srcversion"
- 	  field inserted into their modinfo section, which contains a
-@@ -466,7 +463,6 @@ config MODULE_SRCVERSION_ALL
- 
- config KMOD
- 	bool "Automatic kernel module loading"
--	depends on MODULES
- 	help
- 	  Normally when you have selected some parts of the kernel to
- 	  be created as kernel modules, you must load them (using the
-@@ -482,4 +478,5 @@ config STOP_MACHINE
- 	depends on (SMP && MODULE_UNLOAD) || HOTPLUG_CPU
- 	help
- 	  Need stop_machine() primitive.
--endmenu
-+
-+endif
-diff -rNup a/sound/Kconfig b/sound/Kconfig
---- a/sound/Kconfig	2005-07-17 09:51:47.000000000 +0200
-+++ b/sound/Kconfig	2005-07-17 09:57:53.000000000 +0200
-@@ -1,9 +1,7 @@
- # sound/Config.in
- #
- 
--menu "Sound"
--
--config SOUND
-+menuconfig SOUND
- 	tristate "Sound card support"
- 	help
- 	  If you have a sound card in your computer, i.e. if it can say more
-@@ -32,16 +30,14 @@ config SOUND
- 	  Kernel patches and supporting utilities to do that are in the pcsp
- 	  package, available at <ftp://ftp.infradead.org/pub/pcsp/>.
- 
-+if SOUND
-+
- source "sound/oss/dmasound/Kconfig"
- 
- if !M68K
- 
--menu "Advanced Linux Sound Architecture"
--	depends on SOUND!=n
--
--config SND
-+menuconfig SND
- 	tristate "Advanced Linux Sound Architecture"
--	depends on SOUND
- 	help
- 	  Say 'Y' or 'M' to enable ALSA (Advanced Linux Sound Architecture),
- 	  the new base sound system.
-@@ -74,21 +70,14 @@ source "sound/sparc/Kconfig"
- 
- source "sound/parisc/Kconfig"
- 
--endmenu
--
--menu "Open Sound System"
--	depends on SOUND!=n && (BROKEN || (!SPARC32 && !SPARC64))
--
--config SOUND_PRIME
-+menuconfig SOUND_PRIME
- 	tristate "Open Sound System (DEPRECATED)"
--	depends on SOUND
-+	depends on (BROKEN || (!SPARC32 && !SPARC64))
- 	help
- 	  Say 'Y' or 'M' to enable Open Sound System drivers.
- 
- source "sound/oss/Kconfig"
- 
--endmenu
--
- endif
- 
--endmenu
-+endif
-diff -rNup a/sound/oss/Kconfig b/sound/oss/Kconfig
---- a/sound/oss/Kconfig	2005-07-17 08:10:20.000000000 +0200
-+++ b/sound/oss/Kconfig	2005-07-17 09:52:14.000000000 +0200
-@@ -1084,7 +1084,7 @@ config SOUND_TVMIXER
- 
- config SOUND_KAHLUA
- 	tristate "XpressAudio Sound Blaster emulation"
--	depends on SOUND_SB
-+	depends on SOUND_SB && SOUND_PRIME
- 
- config SOUND_ALI5455
- 	tristate "ALi5455 audio support"
-
+ 	  Say Y here if you want to connect USB mass storage devices to your
 -- 
-Top 100 things you don't want the sysadmin to say:
-8. ...and after I patched the microcode...
+"If your attack is going too well, you're walking into an ambush."
+-Infantry Journal

@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVGQAx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVGQBLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbVGQAx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 20:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVGQAx6
+	id S261744AbVGQBLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 21:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbVGQBLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 20:53:58 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:24999 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261786AbVGQAxa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 20:53:30 -0400
-Date: Sat, 16 Jul 2005 17:53:23 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/4] new human-time soft-timer subsystem
-Message-ID: <20050717005323.GC5865@us.ibm.com>
-References: <20050714202629.GD28100@us.ibm.com> <Pine.LNX.4.61.0507150014200.3743@scrub.home>
+	Sat, 16 Jul 2005 21:11:16 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40966 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261744AbVGQBLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 21:11:15 -0400
+Date: Sun, 17 Jul 2005 03:11:13 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mchehab@brturbo.com.br, video4linux-list@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] VIDEO_SAA7134 must depend on SOUND
+Message-ID: <20050717011113.GB3613@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0507150014200.3743@scrub.home>
-X-Operating-System: Linux 2.6.13-rc2 (i686)
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15.07.2005 [00:28:44 +0200], Roman Zippel wrote:
-> Hi,
-> 
-> On Thu, 14 Jul 2005, Nishanth Aravamudan wrote:
-> 
-> > We no longer use jiffies (the variable) as the basis for determining
-> > what "time" a timer should expire or when it should be added. Instead,
-> > we use a new function, do_monotonic_clock(), which is simply a wrapper
-> > for getnstimeofday().
-> 
-> And suddenly a simple 32bit integer becomes a complex 64bit integer, which 
-> requires hardware access to read a timer and additional conversion into ns.
-> Why is suddenly everyone so obsessed with molesting something simple and 
-> cute as jiffies?
+VIDEO_SAA7134=y and SOUND=n results in the following compile error:
 
-Thanks for the feedback, Roman. I know the 64-bit operations are
-critical from a performance perspective and may be excessive from a
-pragmatic perspective. Maybe an alternative would be to only provide
-*microsecond* resolution in the software, which I currently assume is
-storable in an unsigned long (a little over an hour?). We could then
-provide a supplemental interface for those sleeps which would exceed
-this time, either via looping or a 64-bit parameter for this special
-interface.
+<--  snip  -->
 
-Would that perhaps be a better alternative from the 64-bit perspective?
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0x4fafcb): In function `saa7134_initdev':
+: undefined reference to `unregister_sound_dsp'
+drivers/built-in.o(.text+0x4fb141): In function `saa7134_initdev':
+: undefined reference to `register_sound_dsp'
+drivers/built-in.o(.text+0x4fb17c): In function `saa7134_initdev':
+: undefined reference to `register_sound_mixer'
+drivers/built-in.o(.text+0x4fb339): In function `saa7134_finidev':
+: undefined reference to `unregister_sound_mixer'
+drivers/built-in.o(.text+0x4fb341): In function `saa7134_finidev':
+: undefined reference to `unregister_sound_dsp'
+make: *** [.tmp_vmlinux1] Error 1
 
-We could do this one better, perhaps, by basically doing exactly what
-jiffies does now, but storing a time value (in microseconds) instead of
-a count of the number of ticks (jiffies' current interpretation). This
-would perhaps be a 64-bit op, but that is the case current with
-jiffies_64++ (or jiffies_64 += jiffies_increment). I will work on some
-patches to do something to this effect and will bring it up during the
-time/timer talk (Saturday at 13h30).
+<--  snip  -->
 
-Thanks again,
-Nish
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 2 Jul 2005
+
+--- linux-2.6.13-rc1-mm1-full/drivers/media/video/Kconfig.old	2005-07-02 19:57:04.000000000 +0200
++++ linux-2.6.13-rc1-mm1-full/drivers/media/video/Kconfig	2005-07-02 20:01:33.000000000 +0200
+@@ -249,7 +249,7 @@
+ 
+ config VIDEO_SAA7134
+ 	tristate "Philips SAA7134 support"
+-	depends on VIDEO_DEV && PCI && I2C
++	depends on VIDEO_DEV && PCI && I2C && SOUND
+ 	select VIDEO_BUF
+ 	select VIDEO_IR
+ 	select VIDEO_TUNER
+

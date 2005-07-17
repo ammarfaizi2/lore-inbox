@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVGQO5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVGQO65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbVGQO5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 10:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVGQO5Q
+	id S261304AbVGQO65 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 10:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVGQO5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 10:57:16 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:18188 "HELO
+	Sun, 17 Jul 2005 10:57:18 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18700 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261294AbVGQO5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 10:57:15 -0400
-Date: Sun, 17 Jul 2005 16:57:09 +0200
+	id S261296AbVGQO5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 10:57:16 -0400
+Date: Sun, 17 Jul 2005 16:57:13 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: bluez-devel@lists.sf.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/bluetooth/: cleanups
-Message-ID: <20050717145709.GI3613@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [-mm patch] fs/fscache/: cleanups
+Message-ID: <20050717145713.GJ3613@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,173 +23,91 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch contains the following cleanups:
-- remove BT_DMP/bt_dump
-- remove the following unneeded EXPORT_SYMBOL's:
-  - hci_core.c: hci_dev_get
-  - hci_core.c: hci_send_cmd
-  - hci_event.c: hci_si_event
+- make needlessly global code static
+- main.c: remove the unused global variable fscache_debug
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 5 May 2005
+- 20 Jun 2005
+- 23 Apr 2005
 
- drivers/bluetooth/hci_bcsp.c      |    2 --
- drivers/bluetooth/hci_h4.c        |    5 -----
- drivers/bluetooth/hci_ldisc.c     |    2 --
- drivers/bluetooth/hci_usb.c       |    2 --
- include/net/bluetooth/bluetooth.h |    8 --------
- net/bluetooth/hci_core.c          |    2 --
- net/bluetooth/hci_event.c         |    1 -
- net/bluetooth/lib.c               |   25 -------------------------
- 8 files changed, 47 deletions(-)
+ fs/fscache/cookie.c      |   19 +++++++++++++++----
+ fs/fscache/fscache-int.h |   11 -----------
+ fs/fscache/main.c        |    2 --
+ 3 files changed, 15 insertions(+), 17 deletions(-)
 
---- linux-2.6.12-rc3-mm2-full/net/bluetooth/hci_core.c.old	2005-05-03 10:38:58.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/net/bluetooth/hci_core.c	2005-05-03 10:47:49.000000000 +0200
-@@ -299,7 +299,6 @@
- 	read_unlock(&hci_dev_list_lock);
- 	return hdev;
- }
--EXPORT_SYMBOL(hci_dev_get);
+--- linux-2.6.12-rc2-mm3-full/fs/fscache/fscache-int.h.old	2005-04-23 02:53:14.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/fscache/fscache-int.h	2005-04-23 02:55:11.000000000 +0200
+@@ -22,17 +22,6 @@
  
- /* ---- Inquiry support ---- */
- static void inquiry_cache_flush(struct hci_dev *hdev)
-@@ -1042,7 +1045,6 @@
+ extern void fscache_cookie_init_once(void *_cookie, kmem_cache_t *cachep, unsigned long flags);
  
- 	return 0;
- }
--EXPORT_SYMBOL(hci_send_cmd);
- 
- /* Get data from the previously sent command */
- void *hci_sent_cmd_data(struct hci_dev *hdev, __u16 ogf, __u16 ocf)
---- linux-2.6.12-rc3-mm2-full/net/bluetooth/hci_event.c.old	2005-05-03 10:48:13.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/net/bluetooth/hci_event.c	2005-05-03 10:48:21.000000000 +0200
-@@ -1040,4 +1040,3 @@
- 	hci_send_to_sock(hdev, skb);
- 	kfree_skb(skb);
- }
--EXPORT_SYMBOL(hci_si_event);
-
---- linux-2.6.12-rc3-mm3-full/include/net/bluetooth/bluetooth.h.old	2005-05-05 17:36:52.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/include/net/bluetooth/bluetooth.h	2005-05-05 17:40:41.000000000 +0200
-@@ -57,12 +57,6 @@
- #define BT_DBG(fmt, arg...)  printk(KERN_INFO "%s: " fmt "\n" , __FUNCTION__ , ## arg)
- #define BT_ERR(fmt, arg...)  printk(KERN_ERR  "%s: " fmt "\n" , __FUNCTION__ , ## arg)
- 
--#ifdef HCI_DATA_DUMP
--#define BT_DMP(buf, len) bt_dump(__FUNCTION__, buf, len)
--#else
--#define BT_DMP(D...)
--#endif
+-extern void __fscache_cookie_put(struct fscache_cookie *cookie);
 -
- extern struct proc_dir_entry *proc_bt;
- 
- /* Connection and socket states */
-@@ -174,8 +168,6 @@
- 	return n;
- }
- 
--void bt_dump(char *pref, __u8 *buf, int count);
--
- int bt_err(__u16 code);
- 
- #endif /* __BLUETOOTH_H */
---- linux-2.6.12-rc3-mm3-full/net/bluetooth/lib.c.old	2005-05-05 17:37:20.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/bluetooth/lib.c	2005-05-05 17:37:30.000000000 +0200
-@@ -34,31 +34,6 @@
- 
- #include <net/bluetooth/bluetooth.h>
- 
--void bt_dump(char *pref, __u8 *buf, int count)
+-static inline void fscache_cookie_put(struct fscache_cookie *cookie)
 -{
--	char *ptr;
--	char line[100];
--	unsigned int i;
+-	BUG_ON(atomic_read(&cookie->usage) <= 0);
 -
--	printk(KERN_INFO "%s: dump, len %d\n", pref, count);
+-	if (atomic_dec_and_test(&cookie->usage))
+-		__fscache_cookie_put(cookie);
 -
--	ptr = line;
--	*ptr = 0;
--	for (i = 0; i < count; i++) {
--		ptr += sprintf(ptr, " %2.2X", buf[i]);
--
--		if (i && !((i + 1) % 20)) {
--			printk(KERN_INFO "%s:%s\n", pref, line);
--			ptr = line;
--			*ptr = 0;
--		}
--	}
--
--	if (line[0])
--		printk(KERN_INFO "%s:%s\n", pref, line);
 -}
--EXPORT_SYMBOL(bt_dump);
 -
- void baswap(bdaddr_t *dst, bdaddr_t *src)
+ /*****************************************************************************/
+ /*
+  * debug tracing
+--- linux-2.6.12-rc2-mm3-full/fs/fscache/cookie.c.old	2005-04-23 02:53:26.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/fscache/cookie.c	2005-04-23 02:55:39.000000000 +0200
+@@ -12,14 +12,25 @@
+ #include <linux/module.h>
+ #include "fscache-int.h"
+ 
+-LIST_HEAD(fscache_netfs_list);
+-LIST_HEAD(fscache_cache_list);
+-DECLARE_RWSEM(fscache_addremove_sem);
++static LIST_HEAD(fscache_netfs_list);
++static LIST_HEAD(fscache_cache_list);
++static DECLARE_RWSEM(fscache_addremove_sem);
+ 
+ kmem_cache_t *fscache_cookie_jar;
+ 
+ static void fscache_withdraw_node(struct fscache_cache *cache,
+ 				  struct fscache_node *node);
++static void __fscache_cookie_put(struct fscache_cookie *cookie);
++
++
++static inline void fscache_cookie_put(struct fscache_cookie *cookie)
++{
++	BUG_ON(atomic_read(&cookie->usage) <= 0);
++
++	if (atomic_dec_and_test(&cookie->usage))
++		__fscache_cookie_put(cookie);
++
++}
+ 
+ /*****************************************************************************/
+ /*
+@@ -925,7 +936,7 @@
+ /*
+  * destroy a cookie
+  */
+-void __fscache_cookie_put(struct fscache_cookie *cookie)
++static void __fscache_cookie_put(struct fscache_cookie *cookie)
  {
- 	unsigned char *d = (unsigned char *) dst;
---- linux-2.6.12-rc3-mm3-full/drivers/bluetooth/hci_h4.c.old	2005-05-05 17:38:19.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/drivers/bluetooth/hci_h4.c	2005-05-05 17:39:42.000000000 +0200
-@@ -57,8 +57,6 @@
- #ifndef CONFIG_BT_HCIUART_DEBUG
- #undef  BT_DBG
- #define BT_DBG( A... )
--#undef  BT_DMP
--#define BT_DMP( A... )
- #endif
+ 	struct fscache_search_result *srch;
  
- /* Initialize protocol */
-@@ -125,7 +123,6 @@
+--- linux-2.6.12-rc2-mm3-full/fs/fscache/main.c.old	2005-04-23 02:55:48.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/fscache/main.c	2005-04-23 02:56:22.000000000 +0200
+@@ -16,8 +16,6 @@
+ #include <linux/slab.h>
+ #include "fscache-int.h"
  
- 	BT_DBG("len %d room %d", len, room);
- 	if (!len) {
--		BT_DMP(h4->rx_skb->data, h4->rx_skb->len);
- 		hci_recv_frame(h4->rx_skb);
- 	} else if (len > room) {
- 		BT_ERR("Data length is too large");
-@@ -169,8 +166,6 @@
- 			case H4_W4_DATA:
- 				BT_DBG("Complete data");
- 
--				BT_DMP(h4->rx_skb->data, h4->rx_skb->len);
+-int fscache_debug = 0;
 -
- 				hci_recv_frame(h4->rx_skb);
+ static int fscache_init(void);
+ static void fscache_exit(void);
  
- 				h4->rx_state = H4_W4_PACKET_TYPE;
---- linux-2.6.12-rc3-mm3-full/drivers/bluetooth/hci_ldisc.c.old	2005-05-05 17:38:51.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/drivers/bluetooth/hci_ldisc.c	2005-05-05 17:39:54.000000000 +0200
-@@ -57,8 +57,6 @@
- #ifndef CONFIG_BT_HCIUART_DEBUG
- #undef  BT_DBG
- #define BT_DBG( A... )
--#undef  BT_DMP
--#define BT_DMP( A... )
- #endif
- 
- static int reset = 0;
---- linux-2.6.12-rc3-mm3-full/drivers/bluetooth/hci_bcsp.c.old	2005-05-05 17:40:04.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/drivers/bluetooth/hci_bcsp.c	2005-05-05 17:40:08.000000000 +0200
-@@ -58,8 +58,6 @@
- #ifndef CONFIG_BT_HCIUART_DEBUG
- #undef  BT_DBG
- #define BT_DBG( A... )
--#undef  BT_DMP
--#define BT_DMP( A... )
- #endif
- 
- static int hciextn = 1;
---- linux-2.6.12-rc3-mm3-full/drivers/bluetooth/hci_usb.c.old	2005-05-05 17:40:18.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/drivers/bluetooth/hci_usb.c	2005-05-05 17:40:22.000000000 +0200
-@@ -57,8 +57,6 @@
- #ifndef CONFIG_BT_HCIUSB_DEBUG
- #undef  BT_DBG
- #define BT_DBG(D...)
--#undef  BT_DMP
--#define BT_DMP(D...)
- #endif
- 
- #ifndef CONFIG_BT_HCIUSB_ZERO_PACKET
-
 

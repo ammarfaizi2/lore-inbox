@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVGRM3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVGRMvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbVGRM3o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 08:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbVGRM3o
+	id S261340AbVGRMvC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 08:51:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVGRMvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 08:29:44 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:43231 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261175AbVGRM3n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 08:29:43 -0400
-Date: Mon, 18 Jul 2005 14:30:18 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>
-Subject: [PATCH 2.6.13-rc3-mm1] connector: fix missing dependencies in
- Kconfig
-Message-ID: <20050718143018.1bd10031@frecb000711.frec.bull.fr>
-Organization: BULL SA.
-X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 18/07/2005 14:41:34,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 18/07/2005 14:41:36,
-	Serialize complete at 18/07/2005 14:41:36
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 18 Jul 2005 08:51:02 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:41689 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261340AbVGRMvB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 08:51:01 -0400
+Message-Id: <200507170256.j6H2ugUo004904@laptop11.inf.utfsm.cl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.13-rc3 from today: No Toshiba ACPI module load?
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Sat, 16 Jul 2005 22:56:42 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 18 Jul 2005 08:50:59 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew,
+I'm getting:
+# modprobe toshiba_acpi
+FATAL: Error inserting toshiba_acpi (/lib/modules/2.6.13-rc3/kernel/drivers/acpi/toshiba_acpi.ko): No such device
 
-  This patch fixes missing dependencies in drivers/connector/Kconfig
-file. We have to ensure that the dependencies of the selected variable
-are fulfilled otherwise it can produce some undefined references
-during the kernel compilation. This problem was reported by Adrian Bunk.
+This is definitely a Toshiba M30 notebook with this.
 
-Signed-off-by: guillaume.thouvenin@bull.net
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On bootup I see:
 
----
+ACPI: RSDP (v000 TOSHIB                                ) @ 0x000f7a10
+ACPI: RSDT (v001 TOSHIB 750      0x00970814 MASM 0x06110000) @ 0x1ff63fd8
+ACPI: FADT (v002 TOSHIB 750      0x20030101 MASM 0x61100000) @ 0x1ff69d03
+ACPI: SSDT (v001 TOSHIB A0007    0x00970814 MSFT 0x0100000e) @ 0x1ff69d87
+ACPI: DBGP (v001 TOSHIB 750      0x00970814 MASM 0x61100000) @ 0x1ff69fa4
+ACPI: BOOT (v001 TOSHIB 750      0x00970814 MASM 0x06110000) @ 0x1ff69fd8
+ACPI: DSDT (v001 TOSHIB A0007    0x20030806 MSFT 0x0100000e) @ 0x00000000
+ACPI: PM-Timer IO Port: 0x1008
 
-Index: linux-2.6.13-rc3-mm1/drivers/connector/Kconfig
-===================================================================
---- linux-2.6.13-rc3-mm1.orig/drivers/connector/Kconfig	2005-07-18 13:35:26.000000000 +0200
-+++ linux-2.6.13-rc3-mm1/drivers/connector/Kconfig	2005-07-18 13:37:43.000000000 +0200
-@@ -12,6 +12,7 @@ config CONNECTOR
- 
- config EXIT_CONNECTOR
- 	bool "Enable exit connector"
-+	depends on NET
- 	select CONNECTOR
- 	default y
- 	---help---
-@@ -23,6 +24,7 @@ config EXIT_CONNECTOR
- 
- config FORK_CONNECTOR
- 	bool "Enable fork connector"
-+	depends on NET
- 	select CONNECTOR
- 	default y
- 	---help---
+Anything else that might be useful?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

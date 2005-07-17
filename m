@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVGQCWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVGQCa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVGQCWX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 22:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVGQCWX
+	id S261753AbVGQCa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 22:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVGQCa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 22:22:23 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:64006 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261677AbVGQCWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 22:22:22 -0400
-Date: Sun, 17 Jul 2005 04:22:20 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       mj@ucw.cz
-Subject: [2.6 patch] remove CONFIG_PCI_NAMES
-Message-ID: <20050717022220.GC3613@stusta.de>
-Mime-Version: 1.0
+	Sat, 16 Jul 2005 22:30:28 -0400
+Received: from [202.136.32.45] ([202.136.32.45]:52622 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S261753AbVGQCa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 22:30:26 -0400
+From: Grant Coady <lkml@dodo.com.au>
+To: rct@gherkin.frus.com (Bob Tracy)
+Cc: linux@dominikbrodowski.net, linix-pcmcia@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 vs. /sbin/cardmgr
+Date: Sun, 17 Jul 2005 12:30:07 +1000
+Organization: www.scatter.mine.nu
+Reply-To: lkml@dodo.com.au
+Message-ID: <ijgjd1loteavmfe5h466ou4ie73tefe5bf@4ax.com>
+References: <20050716163645.8FD8DDBA1@gherkin.frus.com>
+In-Reply-To: <20050716163645.8FD8DDBA1@gherkin.frus.com>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes CONFIG_PCI_NAMES.
+On Sat, 16 Jul 2005 11:36:45 -0500 (CDT), rct@gherkin.frus.com (Bob Tracy) wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>rct wrote:
+>> Dominik Brodowski wrote:
+>> > On Sun, Jul 10, 2005 at 03:37:22PM -0500, Bob Tracy wrote:
+>> > > Dominik Brodowski wrote:
+>> > > > On Sat, Jul 09, 2005 at 12:12:17AM -0500, Bob Tracy wrote:
+>> > > > > (/sbin/cardmgr chewing up lots of CPU cycles with 2.6.12 kernel)
+>> > > > 
+>> > > > Please post the output of "lspci" and "lsmod" as I'd like to know which
+>> > > > kind of PCMCIA bridge is in your notebook.
+>> > 
+>> > OK, it's a plain TI1225. Could you try whether the bug is still existent in
+>> > 2.6.13-rc3, please?
+>> 
+>> 2.6.13-rc3 works fine here.  The "cardmgr" process is no longer chewing
+>> up lots of CPU time, and otherwise seems to be working correctly.  Thanks!
+>
+>I spoke too soon :-(.  The first boot on 2.6.13-rc3 was fine.  Every
+>boot since then has reflected no change relative to the 2.6.12 behavior.
+>The "cardmgr" process racks up CPU time almost as fast as time
+>elapses: it's at the top of the "top" list.
 
----
+I turned off cardmgr for 2.6, CardBus works without it on slackware 
+'cos pciutils is patched to provide a helper, what is 'correct' way 
+to test this?  
 
-Due to it's size, the patch is available at
-  http://www.fs.tum.de/~bunk/kernel/patch-remove-CONFIG_PCI_NAMES
+Toshiba laptop with ToPIC100 bridge, currently not working for 
+PCCard 16-bit things because I turned off cardmgr.  CardBus NIC 
+works in 2.4 + 2.6 series.
 
- Documentation/feature-removal-schedule.txt |    9 
- MAINTAINERS                                |    7 
- arch/alpha/kernel/sys_marvel.c             |    5 
- arch/ppc64/kernel/eeh.c                    |   31 
- arch/ppc64/kernel/iSeries_VpdInfo.c        |    5 
- arch/ppc64/kernel/pci.c                    |    1 
- drivers/char/drm/drmP.h                    |    4 
- drivers/infiniband/hw/mthca/mthca_main.c   |    8 
- drivers/infiniband/hw/mthca/mthca_reset.c  |    8 
- drivers/net/irda/vlsi_ir.h                 |    6 
- drivers/pci/Kconfig                        |   17 
- drivers/pci/Makefile                       |   18 
- drivers/pci/gen-devlist.c                  |  132 
- drivers/pci/names.c                        |  137 
- drivers/pci/pci.ids                        |10180 ---------------------
- drivers/pci/probe.c                        |    2 
- drivers/pci/proc.c                         |   12 
- drivers/usb/core/hcd-pci.c                 |    4 
- drivers/video/nvidia/nvidia.c              |    4 
- drivers/video/riva/fbdev.c                 |    4 
- include/linux/pci.h                        |   14 
- 21 files changed, 32 insertions(+), 10576 deletions(-)
+--Grant.
 
 

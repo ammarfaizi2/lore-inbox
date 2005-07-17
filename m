@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVGQVvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVGQVxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVGQVvM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 17:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbVGQVvM
+	id S261404AbVGQVxL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 17:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVGQVxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 17:51:12 -0400
-Received: from totor.bouissou.net ([82.67.27.165]:50594 "EHLO
-	totor.bouissou.net") by vger.kernel.org with ESMTP id S261313AbVGQVvK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 17:51:10 -0400
-From: Michel Bouissou <michel@bouissou.net>
-Organization: Me, Myself and I
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: VIA KT400 + Kernel 2.6.12 + IO-APIC + uhci_hcd = IRQ trouble
-Date: Sun, 17 Jul 2005 23:51:06 +0200
-User-Agent: KMail/1.7.2
-Cc: bjorn.helgaas@hp.com,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0507171606320.30920-100000@netrider.rowland.org> <200507172320.26156@totor.bouissou.net>
-In-Reply-To: <200507172320.26156@totor.bouissou.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Sun, 17 Jul 2005 17:53:11 -0400
+Received: from mail.charite.de ([160.45.207.131]:60900 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S261404AbVGQVxH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 17:53:07 -0400
+Date: Sun, 17 Jul 2005 23:53:06 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.13.3 flooding my logs
+Message-ID: <20050717215306.GK10995@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200507172351.06569@totor.bouissou.net>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Dimanche 17 Juillet 2005 23:20, Michel Bouissou a écrit :
->
-> I just tried an USB flashdisk that "used to work good with 2.4" and that I
-> hadn't tried yet in 2.6. It's identified as "high speed" and ehci would
-> like to manage it, but it seems I'm out of luck in some other aspect:
->
-> totor kernel: usb 4-4: new high speed USB device using ehci_hcd and address
-> 25 totor kernel: usb 4-4: device not accepting address 25, error -71
-> totor kernel: usb 4-4: new high speed USB device using ehci_hcd and address
-> 35 totor kernel: usb 4-4: device not accepting address 35, error -71
-[...]
-> ...ad nauseam until I unplug the key...
-[...]
-> Doesn't like the front panel socket ? Let me try another USB socket... Just
-> close to my mouse...
->
-> totor kernel: usb 4-2: new high speed USB device using ehci_hcd and address
-> 16 totor kernel: SCSI subsystem initialized
-> totor kernel: Initializing USB Mass Storage driver...
+2.6.13.2 didn't do this, now I'm getting (from dmesg):
 
-By the way, the front socket that dislikes the USB 2.0 flashdisk (ehci) feels 
-perfectly happy if I plug and USB 1.1 flashdisk (uhci)... Feels good also if 
-I plug my Digital Camera there... And I've plugged it there thousands of 
-times.
+PROTO=17 127.0.0.1:53 127.0.0.1:56872 L=56 S=0x00 I=40463 F=0x4000 T=64
+ip_local_deliver: bad skb: PRE_ROUTING LOCAL_IN LOCAL_OUT POST_ROUTING 
+skb: pf=2 (unowned) dev=lo len=56
+PROTO=17 127.0.0.1:56872 127.0.0.1:53 L=56 S=0x00 I=12024 F=0x4000 T=64
+ip_local_deliver: bad skb: PRE_ROUTING LOCAL_IN LOCAL_OUT POST_ROUTING 
+skb: pf=2 (unowned) dev=lo len=89
+PROTO=17 127.0.0.1:53 127.0.0.1:56872 L=89 S=0x00 I=40464 F=0x4000 T=64
+ip_local_deliver: bad skb: PRE_ROUTING LOCAL_IN LOCAL_OUT POST_ROUTING 
+skb: pf=2 (unowned) dev=lo len=124
+PROTO=17 127.0.0.1:53 127.0.0.1:56729 L=124 S=0x00 I=40465 F=0x4000 T=64
+ip_local_deliver: bad skb: PRE_ROUTING LOCAL_IN LOCAL_OUT POST_ROUTING 
+skb: pf=2 (unowned) dev=lo len=152
+PROTO=1 127.0.0.1:0 127.0.0.1:0 L=152 S=0xC0 I=41998 F=0x0000 T=64
 
-Some posts I googled about this kind of errors tend to indicate this would be 
-an IRQ mess ;-))
+What is it? Looks like debug output, but I haven't turned any of that
+on.
 
 -- 
-Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E
+_________________________________________________
+
+  Charité - Universitätsmedizin Berlin
+_________________________________________________
+
+  Ralf Hildebrandt
+   i.A. Geschäftsbereich Informationsmanagement
+   Campus Benjamin Franklin
+   Hindenburgdamm 30 | Berlin
+   Tel. +49 30 450 570155 | Fax +49 30 450 570962
+   Ralf.Hildebrandt@charite.de
+   http://www.charite.de

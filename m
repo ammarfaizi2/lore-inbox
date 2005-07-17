@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVGQQ3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVGQRCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVGQQ3t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 12:29:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVGQQ3t
+	id S261329AbVGQRCj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 13:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVGQRCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 12:29:49 -0400
-Received: from fest.stud.feec.vutbr.cz ([147.229.72.16]:27372 "EHLO
-	fest.stud.feec.vutbr.cz") by vger.kernel.org with ESMTP
-	id S261321AbVGQQ3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 12:29:48 -0400
-Message-ID: <42DA8779.3020005@stud.feec.vutbr.cz>
-Date: Sun, 17 Jul 2005 18:29:45 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
+	Sun, 17 Jul 2005 13:02:39 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:14997 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261329AbVGQRCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 13:02:38 -0400
+Date: Sun, 17 Jul 2005 19:03:09 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Bodo Eggert <7eggert@gmx.de>
+cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [1b/5+1] menu -> menuconfig part 1
+In-Reply-To: <Pine.LNX.4.58.0507171326470.6041@be1.lrz>
+Message-ID: <Pine.LNX.4.58.0507171902030.16515@be1.lrz>
+References: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
+ <Pine.LNX.4.58.0507171326470.6041@be1.lrz>
 MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: rt-preempt and x86_64?
-References: <200507171346.11377.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200507171346.11377.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
-> Hi Ingo,
-> 
-> (I searched the list for rt realtime x86_64 x86-64 before posting this, so I 
-> hope it's not a duplicate).
-> 
-> I've noticed -31 compiles without notable error or warning on x86-64, so I 
-> thought maybe it was a valid time to file a bug report about it not working.
-> 
-> The machine currently runs 2.6.12 but when booting with PREEMPT_RT mode on the 
-> same machine I get:
-> 
-> init[1]: segfault at ffffffff8010e9c4 rip ffffffff8010e9c4 rsp 
-> 00007fffffe28018
-> [...]
+On Sun, 17 Jul 2005, Bodo Eggert wrote:
+> On Sun, 17 Jul 2005, Bodo Eggert wrote:
 
-Do you have latency tracing enabled in the kernel config? Try disabling 
-it. It's a known problem that it doesn't work on x86_64.
+> > These patches change some menus into menuconfig options.
+> > 
+> > Reworked to apply to linux-2.6.13-rc3-git3
+> 
+> Mostly robotic works.
 
-Michal
+Fixup: unbreak i2c menu
+
+-- 
+Fun things to slip into your budget
+Half a million dollars for consultants to design a web site that was being
+done by an intern in his spare time.

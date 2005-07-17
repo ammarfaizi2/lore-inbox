@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVGQTtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVGQUEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVGQTtD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 15:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVGQTsq
+	id S261366AbVGQUEl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 16:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVGQUEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 15:48:46 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:30354 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261367AbVGQTqa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 15:46:30 -0400
-Date: Sun, 17 Jul 2005 21:45:58 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
-       richardj_moore@uk.ibm.com, relayfs-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Re: relayfs documentation sucks?
-Message-ID: <20050717194558.GC27353@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Tom Zanussi <zanussi@us.ibm.com>, linux-kernel@vger.kernel.org,
-	karim@opersys.com, varap@us.ibm.com, richardj_moore@uk.ibm.com,
-	relayfs-devel@lists.sourceforge.net
-References: <17107.6290.734560.231978@tut.ibm.com> <20050716210759.GA1850@outpost.ds9a.nl> <17113.38067.551471.862551@tut.ibm.com> <20050717090137.GB5161@outpost.ds9a.nl> <17114.31916.451621.501383@tut.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 17 Jul 2005 16:04:41 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:35543 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261366AbVGQUEk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 16:04:40 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: rt-preempt and x86_64?
+Date: Sun, 17 Jul 2005 21:04:40 +0100
+User-Agent: KMail/1.8.1
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <200507171346.11377.s0348365@sms.ed.ac.uk> <42DA8779.3020005@stud.feec.vutbr.cz>
+In-Reply-To: <42DA8779.3020005@stud.feec.vutbr.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <17114.31916.451621.501383@tut.ibm.com>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200507172104.40073.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 17, 2005 at 10:43:40AM -0500, Tom Zanussi wrote:
+On Sunday 17 Jul 2005 17:29, Michal Schmidt wrote:
+> Alistair John Strachan wrote:
+> > Hi Ingo,
+> >
+> > (I searched the list for rt realtime x86_64 x86-64 before posting this,
+> > so I hope it's not a duplicate).
+> >
+> > I've noticed -31 compiles without notable error or warning on x86-64, so
+> > I thought maybe it was a valid time to file a bug report about it not
+> > working.
+> >
+> > The machine currently runs 2.6.12 but when booting with PREEMPT_RT mode
+> > on the same machine I get:
+> >
+> > init[1]: segfault at ffffffff8010e9c4 rip ffffffff8010e9c4 rsp
+> > 00007fffffe28018
+> > [...]
+>
+> Do you have latency tracing enabled in the kernel config? Try disabling
+> it. It's a known problem that it doesn't work on x86_64.
+>
 
-> It is racey - in this mode, there's nothing to keep the kernel from
-> writing as much as it wants before the user side has a chance to read
-> any of it.  The only way this can be used safely is to make sure the
-> kernel side isn't writing anything when the client is reading.  This
-> would be typical of a flight-recording usage i.e. kernel writes a
-> bunch of data continuously, then stops and allows the client to read
-> whatever's in there.
+Thanks Michal, this was the problem. Unless x86_64 is going to receive an 
+implementation of LATENCY_TRACE soon, it might be an idea to only let this be 
+selectable on x86.
 
-Or by numbering entries written out, when in flight-recording mode you
-wouldn't want to block the kernel.
-
->  > In fact, it appears this might even happen in non-overwrite mode.
-> 
-> It shouldn't ever be able to happen in non-overwrite mode - if it
-> did, it would be a bug.  Can you be more specific as to how you see
-> this happening in this mode?
-
-Yeah - you're right. The misunderstanding is because in both cases
-(overwrite and non-overwrite) data is lost, except that in one case you lose
-old data, and in the other new data.
-
-It might be a good idea to document this as well.
-
-Btw, I've already uncovered interesting things using relayfs, but I still
-don't see the case for having it merged :-)
-
-Thanks for your answers, I think I get it all now.
+(Unfortunately I couldn't use the resulting kernel anyway, as my lirc modules 
+hang the system when modprobe'd; it's probably easy even for me to fix if I 
+inspect Ingo's rt-preempt patch.)
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

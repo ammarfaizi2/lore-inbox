@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVGQLjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVGQLll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVGQLjV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 07:39:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVGQLjU
+	id S261270AbVGQLll (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 07:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVGQLj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 07:39:20 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:19927 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261266AbVGQLgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 07:36:20 -0400
-Date: Sun, 17 Jul 2005 13:36:45 +0200 (CEST)
+	Sun, 17 Jul 2005 07:39:28 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:62896 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261278AbVGQLis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 07:38:48 -0400
+Date: Sun, 17 Jul 2005 13:39:13 +0200 (CEST)
 From: Bodo Eggert <7eggert@gmx.de>
 To: Bodo Eggert <7eggert@gmx.de>
 cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [5/5+1] menu -> menuconfig part 1
+Subject: [PATCH] [6/5+1] menu -> menuconfig part 1
 In-Reply-To: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0507171333390.6041@be1.lrz>
+Message-ID: <Pine.LNX.4.58.0507171336490.6041@be1.lrz>
 References: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
@@ -31,316 +31,115 @@ On Sun, 17 Jul 2005, Bodo Eggert wrote:
 > 
 > Reworked to apply to linux-2.6.13-rc3-git3
 
-The oprofile menu
+The Fusion driver is basically a scsi driver (isn't it?). Move it
+to the other drivers and above the SCSI debugging driver.
 
- ./arch/alpha/oprofile/Kconfig   |   10 ++--------
- ./arch/arm/oprofile/Kconfig     |   10 ++--------
- ./arch/i386/oprofile/Kconfig    |   10 ++--------
- ./arch/ia64/oprofile/Kconfig    |   10 ++--------
- ./arch/m32r/oprofile/Kconfig    |   10 ++--------
- ./arch/mips/oprofile/Kconfig    |   10 ++--------
- ./arch/parisc/oprofile/Kconfig  |   10 ++--------
- ./arch/ppc/oprofile/Kconfig     |   10 ++--------
- ./arch/ppc64/oprofile/Kconfig   |   10 ++--------
- ./arch/s390/oprofile/Kconfig    |    8 +-------
- ./arch/sh/oprofile/Kconfig      |    9 ++-------
- ./arch/sh64/oprofile/Kconfig    |   10 ++--------
- ./arch/sparc64/oprofile/Kconfig |   10 ++--------
- ./arch/x86_64/oprofile/Kconfig  |   10 ++--------
- 14 files changed, 27 insertions(+), 110 deletions(-)
+ arch/arm/Kconfig     |    2 --
+ arch/sparc64/Kconfig |    4 ----
+ arch/v850/Kconfig    |    2 --
+ drivers/Kconfig      |    2 --
+ drivers/scsi/Kconfig |   30 ++++++++++++++++--------------
+ 5 files changed, 16 insertions(+), 24 deletions(-)
 
 Signed-Off-By: Bodo Eggert <7eggert@gmx.de>
 
---- a/./arch/sh/oprofile/Kconfig	2004-08-14 07:36:14.000000000 +0200
-+++ b/./arch/sh/oprofile/Kconfig	2005-07-04 12:45:58.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -19,5 +16,3 @@ config OPROFILE
+diff -rNup a/arch/arm/Kconfig b/arch/arm/Kconfig
+--- a/arch/arm/Kconfig	2005-07-17 12:03:15.000000000 +0200
++++ b/arch/arm/Kconfig	2005-07-17 12:05:38.000000000 +0200
+@@ -724,8 +724,6 @@ source "drivers/scsi/Kconfig"
  
- 	  If unsure, say N.
+ source "drivers/md/Kconfig"
+ 
+-source "drivers/message/fusion/Kconfig"
+-
+ source "drivers/ieee1394/Kconfig"
+ 
+ source "drivers/message/i2o/Kconfig"
+diff -rNup a/arch/sparc64/Kconfig b/arch/sparc64/Kconfig
+--- a/arch/sparc64/Kconfig	2005-07-17 08:09:35.000000000 +0200
++++ b/arch/sparc64/Kconfig	2005-07-17 12:05:38.000000000 +0200
+@@ -547,10 +547,6 @@ source "drivers/fc4/Kconfig"
+ 
+ source "drivers/md/Kconfig"
+ 
+-if PCI
+-source "drivers/message/fusion/Kconfig"
+-endif
+-
+ source "drivers/ieee1394/Kconfig"
+ 
+ source "drivers/net/Kconfig"
+diff -rNup a/arch/v850/Kconfig b/arch/v850/Kconfig
+--- a/arch/v850/Kconfig	2005-07-17 08:09:36.000000000 +0200
++++ b/arch/v850/Kconfig	2005-07-17 12:05:38.000000000 +0200
+@@ -279,8 +279,6 @@ endmenu
+ 
+ source "drivers/md/Kconfig"
+ 
+-source "drivers/message/fusion/Kconfig"
+-
+ source "drivers/ieee1394/Kconfig"
+ 
+ source "drivers/message/i2o/Kconfig"
+diff -rNup a/drivers/Kconfig b/drivers/Kconfig
+--- a/drivers/Kconfig	2005-07-17 08:09:37.000000000 +0200
++++ b/drivers/Kconfig	2005-07-17 12:05:38.000000000 +0200
+@@ -20,8 +20,6 @@ source "drivers/cdrom/Kconfig"
+ 
+ source "drivers/md/Kconfig"
+ 
+-source "drivers/message/fusion/Kconfig"
+-
+ source "drivers/ieee1394/Kconfig"
+ 
+ source "drivers/message/i2o/Kconfig"
+diff -rNup a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
+--- a/drivers/scsi/Kconfig	2005-07-17 11:53:22.000000000 +0200
++++ b/drivers/scsi/Kconfig	2005-07-17 12:05:38.000000000 +0200
+@@ -1485,19 +1485,6 @@ config SCSI_NSP32
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called nsp32.
+ 
+-config SCSI_DEBUG
+-	tristate "SCSI debugging host simulator"
+-	depends on SCSI
+-	help
+-	  This is a host adapter simulator that can simulate multiple hosts
+-	  each with multiple dummy SCSI devices (disks). It defaults to one
+-	  host adapter with one dummy SCSI disk. Each dummy disk uses kernel
+-	  RAM as storage (i.e. it is a ramdisk). To save space when multiple
+-	  dummy disks are simulated, they share the same kernel RAM for 
+-	  their storage. See <http://www.torque.net/sg/sdebug.html> for more
+-	  information. This driver is primarily of use to those testing the
+-	  SCSI and block subsystems. If unsure, say N.
+-
+ config SCSI_MESH
+ 	tristate "MESH (Power Mac internal SCSI) support"
+ 	depends on PPC32 && PPC_PMAC && SCSI
+@@ -1787,6 +1774,21 @@ config ZFCP
+           called zfcp. If you want to compile it as a module, say M here
+           and read <file:Documentation/modules.txt>.
  
 -endmenu
--
---- a/./arch/arm/oprofile/Kconfig	2004-08-14 07:36:57.000000000 +0200
-+++ b/./arch/arm/oprofile/Kconfig	2005-07-04 12:46:17.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
++source "drivers/message/fusion/Kconfig"
  
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/ppc/oprofile/Kconfig	2004-08-14 07:36:32.000000000 +0200
-+++ b/./arch/ppc/oprofile/Kconfig	2005-07-04 12:46:35.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/i386/oprofile/Kconfig	2004-08-14 07:36:59.000000000 +0200
-+++ b/./arch/i386/oprofile/Kconfig	2005-07-04 12:46:56.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/m32r/oprofile/Kconfig	2005-05-02 02:23:53.000000000 +0200
-+++ b/./arch/m32r/oprofile/Kconfig	2005-07-04 12:47:10.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/ia64/oprofile/Kconfig	2005-05-02 02:23:53.000000000 +0200
-+++ b/./arch/ia64/oprofile/Kconfig	2005-07-04 12:47:27.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -21,6 +18,3 @@ config OPROFILE
- 	  counters.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/mips/oprofile/Kconfig	2005-05-02 02:25:32.000000000 +0200
-+++ b/./arch/mips/oprofile/Kconfig	2005-07-04 12:47:42.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/s390/oprofile/Kconfig	2005-06-19 14:16:18.000000000 +0200
-+++ b/./arch/s390/oprofile/Kconfig	2005-07-04 12:47:56.000000000 +0200
-@@ -1,7 +1,4 @@
--
--menu "Profiling support"
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support"
- 	help
- 	  Say Y here to enable profiling support mechanisms used by
-@@ -17,6 +14,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/sh64/oprofile/Kconfig	2004-08-14 07:36:12.000000000 +0200
-+++ b/./arch/sh64/oprofile/Kconfig	2005-07-04 12:48:09.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/alpha/oprofile/Kconfig	2004-08-14 07:36:56.000000000 +0200
-+++ b/./arch/alpha/oprofile/Kconfig	2005-07-04 12:48:23.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/ppc64/oprofile/Kconfig	2004-08-14 07:36:17.000000000 +0200
-+++ b/./arch/ppc64/oprofile/Kconfig	2005-07-04 12:48:40.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/sparc64/oprofile/Kconfig	2004-08-14 07:37:55.000000000 +0200
-+++ b/./arch/sparc64/oprofile/Kconfig	2005-07-04 12:48:55.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/parisc/oprofile/Kconfig	2004-08-14 07:37:38.000000000 +0200
-+++ b/./arch/parisc/oprofile/Kconfig	2005-07-04 12:49:10.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
---- a/./arch/x86_64/oprofile/Kconfig	2004-08-14 07:37:25.000000000 +0200
-+++ b/./arch/x86_64/oprofile/Kconfig	2005-07-04 12:49:23.000000000 +0200
-@@ -1,9 +1,6 @@
--
--menu "Profiling support"
--	depends on EXPERIMENTAL
--
--config PROFILING
-+menuconfig PROFILING
- 	bool "Profiling support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
- 	help
- 	  Say Y here to enable the extended profiling support mechanisms used
- 	  by profilers such as OProfile.
-@@ -18,6 +15,3 @@ config OPROFILE
- 	  and applications.
- 
- 	  If unsure, say N.
--
--endmenu
--
+ source "drivers/scsi/pcmcia/Kconfig"
++
++config SCSI_DEBUG
++	tristate "SCSI debugging host simulator"
++	depends on SCSI
++	help
++	  This is a host adapter simulator that can simulate multiple hosts
++	  each with multiple dummy SCSI devices (disks). It defaults to one
++	  host adapter with one dummy SCSI disk. Each dummy disk uses kernel
++	  RAM as storage (i.e. it is a ramdisk). To save space when multiple
++	  dummy disks are simulated, they share the same kernel RAM for 
++	  their storage. See <http://www.torque.net/sg/sdebug.html> for more
++	  information. This driver is primarily of use to those testing the
++	  SCSI and block subsystems. If unsure, say N.
++
++endmenu
 
 -- 
-Did anyone see my lost carrier? 
+Top 100 things you don't want the sysadmin to say:
+83. Damn, and I just bought that pop...

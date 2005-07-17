@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbVGQEUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVGQGOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbVGQEUt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 00:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVGQEUt
+	id S261942AbVGQGOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 02:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVGQGOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 00:20:49 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:62421 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261933AbVGQEUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 00:20:47 -0400
-Subject: Re: [2.6 patch] SCSI_QLA2ABC mustn't select SCSI_FC_ATTRS
-From: Lee Revell <rlrevell@joe-job.com>
-To: randy_dunlap <rdunlap@xenotime.net>
-Cc: bunk@stusta.de, andrew.vasquez@qlogic.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       James.Bottomley@SteelEye.com
-In-Reply-To: <20050716210456.12accf7b.rdunlap@xenotime.net>
-References: <20050715013653.36006990.akpm@osdl.org>
-	 <20050715102744.GA3569@stusta.de> <20050715144037.GA25648@plap.qlogic.org>
-	 <20050717023809.GE3613@stusta.de> <1121569886.13990.4.camel@mindpipe>
-	 <20050716210456.12accf7b.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Sun, 17 Jul 2005 00:20:44 -0400
-Message-Id: <1121574045.14698.3.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Jul 2005 02:14:16 -0400
+Received: from femail.waymark.net ([206.176.148.84]:38327 "EHLO
+	femail.waymark.net") by vger.kernel.org with ESMTP id S261942AbVGQGOP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 02:14:15 -0400
+Date: 17 Jul 2005 06:06:08 GMT
+From: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
+Subject: 2.6.12-rc2 and as-iosched
+To: linux-kernel@vger.kernel.org
+Message-ID: <e03f6e.f108c4@family-bbs.org>
+Organization: FamilyNet HQ
+X-Mailer: BBBS/NT v4.01 Flag-5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-16 at 21:04 -0700, randy_dunlap wrote:
-> On Sat, 16 Jul 2005 23:11:26 -0400 Lee Revell wrote:
-> 
-> > On Sun, 2005-07-17 at 04:38 +0200, Adrian Bunk wrote:
-> > > SCSI_QLA2XXX is automatically enabled for (SCSI && PCI).
-> > 
-> > This has bugged me for a while.  Why does this one SCSI driver default
-> > to Y in the first place?
-> 
-> It's not a driver, it's a subdirectory.
+========================================================================
+ System: FamilyNet HQ
+   Area: Internet-Email, Internet E-mail
+   Date: Jul 16 2005  22:45
+   From: Kenneth Parrish
+     To: linux-kernel@vger.kernel.org
+   Subj: 2.6.12-rc2 and as-iosched
+------------------------------------------------------------------------
+v2.6.13-rc2 as-iosched.c and /sys/block/hda/queue/iosched/* values differ:
+[..]
+Oops, HZ=250, so correct.
 
-Ah, ok.  Thanks.
-
-Lee
-
+... The later PDP-11s supported 4MB.
+--- MultiMail/Linux v0.46

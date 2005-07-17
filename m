@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVGQLdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVGQLfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVGQLdF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 07:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVGQLdE
+	id S261276AbVGQLfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 07:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVGQLfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 07:33:04 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:21184 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261259AbVGQLbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 07:31:42 -0400
-Date: Sun, 17 Jul 2005 13:32:07 +0200 (CEST)
+	Sun, 17 Jul 2005 07:35:15 -0400
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:57518 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261263AbVGQLdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 07:33:16 -0400
+Date: Sun, 17 Jul 2005 13:33:35 +0200 (CEST)
 From: Bodo Eggert <7eggert@gmx.de>
 To: Bodo Eggert <7eggert@gmx.de>
 cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [3/5+1] menu -> menuconfig part 1
+Subject: [PATCH] [4/5+1] menu -> menuconfig part 1
 In-Reply-To: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0507171331270.6041@be1.lrz>
+Message-ID: <Pine.LNX.4.58.0507171332090.6041@be1.lrz>
 References: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
@@ -31,98 +31,105 @@ On Sun, 17 Jul 2005, Bodo Eggert wrote:
 > 
 > Reworked to apply to linux-2.6.13-rc3-git3
 
-The APM menu.
+CPU frequency scaling menu
 
- arch/i386/Kconfig |   18 +++++-------------
- 1 files changed, 5 insertions(+), 13 deletions(-)
+ arch/arm/Kconfig                     |    4 ----
+ arch/i386/kernel/cpu/cpufreq/Kconfig |    4 ----
+ arch/sh/Kconfig                      |    4 ----
+ arch/x86_64/kernel/cpufreq/Kconfig   |    4 ----
+ drivers/cpufreq/Kconfig              |    2 +-
+ 5 files changed, 1 insertion(+), 17 deletions(-)
 
 Signed-Off-By: Bodo Eggert <7eggert@gmx.de>
 
-diff -rNup a/arch/i386/Kconfig b/arch/i386/Kconfig
---- a/arch/i386/Kconfig	2005-07-17 08:09:33.000000000 +0200
-+++ b/arch/i386/Kconfig	2005-07-17 11:18:20.000000000 +0200
-@@ -987,12 +987,9 @@ source kernel/power/Kconfig
+diff -rNup a/arch/arm/Kconfig b/arch/arm/Kconfig
+--- a/arch/arm/Kconfig	2005-07-17 08:09:33.000000000 +0200
++++ b/arch/arm/Kconfig	2005-07-17 11:25:40.000000000 +0200
+@@ -518,8 +518,6 @@ endmenu
  
- source "drivers/acpi/Kconfig"
+ if (ARCH_SA1100 || ARCH_INTEGRATOR || ARCH_OMAP1)
  
--menu "APM (Advanced Power Management) BIOS Support"
--depends on PM && !X86_VISWS
+-menu "CPU Frequency scaling"
 -
--config APM
-+menuconfig APM
- 	tristate "APM (Advanced Power Management) BIOS support"
--	depends on PM
-+	depends on PM && !X86_VISWS
- 	---help---
- 	  APM is a BIOS specification for saving power using several different
- 	  techniques. This is mostly useful for battery powered laptops with
-@@ -1049,9 +1046,10 @@ config APM
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called apm.
+ source "drivers/cpufreq/Kconfig"
  
-+if APM
-+
- config APM_IGNORE_USER_SUSPEND
- 	bool "Ignore USER SUSPEND"
--	depends on APM
- 	help
- 	  This option will ignore USER SUSPEND requests. On machines with a
- 	  compliant APM BIOS, you want to say N. However, on the NEC Versa M
-@@ -1059,7 +1057,6 @@ config APM_IGNORE_USER_SUSPEND
+ config CPU_FREQ_SA1100
+@@ -543,8 +541,6 @@ config CPU_FREQ_INTEGRATOR
  
- config APM_DO_ENABLE
- 	bool "Enable PM at boot time"
--	depends on APM
- 	---help---
- 	  Enable APM features at boot time. From page 36 of the APM BIOS
- 	  specification: "When disabled, the APM BIOS does not automatically
-@@ -1077,7 +1074,6 @@ config APM_DO_ENABLE
- 
- config APM_CPU_IDLE
- 	bool "Make CPU Idle calls when idle"
--	depends on APM
- 	help
- 	  Enable calls to APM CPU Idle/CPU Busy inside the kernel's idle loop.
- 	  On some machines, this can activate improved power savings, such as
-@@ -1089,7 +1085,6 @@ config APM_CPU_IDLE
- 
- config APM_DISPLAY_BLANK
- 	bool "Enable console blanking using APM"
--	depends on APM
- 	help
- 	  Enable console blanking using the APM. Some laptops can use this to
- 	  turn off the LCD backlight when the screen blanker of the Linux
-@@ -1103,7 +1098,6 @@ config APM_DISPLAY_BLANK
- 
- config APM_RTC_IS_GMT
- 	bool "RTC stores time in GMT"
--	depends on APM
- 	help
- 	  Say Y here if your RTC (Real Time Clock a.k.a. hardware clock)
- 	  stores the time in GMT (Greenwich Mean Time). Say N if your RTC
-@@ -1116,7 +1110,6 @@ config APM_RTC_IS_GMT
- 
- config APM_ALLOW_INTS
- 	bool "Allow interrupts during APM BIOS calls"
--	depends on APM
- 	help
- 	  Normally we disable external interrupts while we are making calls to
- 	  the APM BIOS as a measure to lessen the effects of a badly behaving
-@@ -1127,13 +1120,12 @@ config APM_ALLOW_INTS
- 
- config APM_REAL_MODE_POWER_OFF
- 	bool "Use real mode APM BIOS call to power off"
--	depends on APM
- 	help
- 	  Use real mode APM BIOS calls to switch off the computer. This is
- 	  a work-around for a number of buggy BIOSes. Switch this option on if
- 	  your computer crashes instead of powering off properly.
+ 	  If in doubt, say Y.
  
 -endmenu
-+endif
+-
+ endif
  
- source "arch/i386/kernel/cpu/cpufreq/Kconfig"
+ menu "Floating point emulation"
+diff -rNup a/arch/i386/kernel/cpu/cpufreq/Kconfig b/arch/i386/kernel/cpu/cpufreq/Kconfig
+--- a/arch/i386/kernel/cpu/cpufreq/Kconfig	2005-07-17 08:08:24.000000000 +0200
++++ b/arch/i386/kernel/cpu/cpufreq/Kconfig	2005-07-17 11:25:40.000000000 +0200
+@@ -2,8 +2,6 @@
+ # CPU Frequency scaling
+ #
  
+-menu "CPU Frequency scaling"
+-
+ source "drivers/cpufreq/Kconfig"
+ 
+ if CPU_FREQ
+@@ -239,5 +237,3 @@ config X86_SPEEDSTEP_RELAXED_CAP_CHECK
+ 	  parameter "relaxed_check=1" is passed to the module.
+ 
+ endif	# CPU_FREQ
+-
+-endmenu
+diff -rNup a/arch/sh/Kconfig b/arch/sh/Kconfig
+--- a/arch/sh/Kconfig	2005-07-17 08:09:35.000000000 +0200
++++ b/arch/sh/Kconfig	2005-07-17 11:25:40.000000000 +0200
+@@ -657,8 +657,6 @@ config SH_PCLK_FREQ
+ 	  with an auto-probed frequency which should be considered the proper
+ 	  value for your hardware.
+ 
+-menu "CPU Frequency scaling"
+-
+ source "drivers/cpufreq/Kconfig"
+ 
+ config SH_CPU_FREQ
+@@ -673,8 +671,6 @@ config SH_CPU_FREQ
+ 
+ 	  If unsure, say N.
+ 
+-endmenu
+-
+ source "arch/sh/drivers/dma/Kconfig"
+ 
+ source "arch/sh/cchips/Kconfig"
+diff -rNup a/arch/x86_64/kernel/cpufreq/Kconfig b/arch/x86_64/kernel/cpufreq/Kconfig
+--- a/arch/x86_64/kernel/cpufreq/Kconfig	2005-07-17 08:08:37.000000000 +0200
++++ b/arch/x86_64/kernel/cpufreq/Kconfig	2005-07-17 11:25:40.000000000 +0200
+@@ -2,8 +2,6 @@
+ # CPU Frequency scaling
+ #
+ 
+-menu "CPU Frequency scaling"
+-
+ source "drivers/cpufreq/Kconfig"
+ 
+ if CPU_FREQ
+@@ -92,5 +90,3 @@ config X86_SPEEDSTEP_LIB
+ 
+ endif
+ 
+-endmenu
+-
+diff -rNup a/drivers/cpufreq/Kconfig b/drivers/cpufreq/Kconfig
+--- a/drivers/cpufreq/Kconfig	2005-07-17 08:08:43.000000000 +0200
++++ b/drivers/cpufreq/Kconfig	2005-07-17 11:31:18.000000000 +0200
+@@ -1,4 +1,4 @@
+-config CPU_FREQ
++menuconfig CPU_FREQ
+ 	bool "CPU Frequency scaling"
+ 	help
+ 	  CPU Frequency scaling allows you to change the clock speed of 
+
 -- 
-I don't care about people reading in OE. It just gets bad if they
-send postings, viruses, and complaints about non-existing attachements.
+The most dangerous thing in the world is a second lieutenant with a map and
+a compass.

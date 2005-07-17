@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVGQOix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVGQOwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbVGQOix (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 10:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVGQOix
+	id S261284AbVGQOwb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 10:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVGQOwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 10:38:53 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8460 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261303AbVGQOiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 10:38:50 -0400
-Date: Sun, 17 Jul 2005 16:38:47 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] m32r: add missing Kconfig help text
-Message-ID: <20050717143847.GG3613@stusta.de>
+	Sun, 17 Jul 2005 10:52:31 -0400
+Received: from cantor.suse.de ([195.135.220.2]:65171 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261300AbVGQOw3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 10:52:29 -0400
+Date: Sun, 17 Jul 2005 16:52:28 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, blaisorblade@yahoo.it,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] readd missing define to arch/um/Makefile-i386
+Message-ID: <20050717145228.GA15771@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's no help text for CONFIG_DEBUG_STACKOVERFLOW - add one.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+New in 2.6.13-rc3-git4:
 
----
+scripts/Makefile.build:13: /Makefile: No such file or directory
+scripts/Makefile.build:64: kbuild: Makefile.build is included improperly
 
-This patch was sent by Jesper Juhl on:
-- 22 Dec 2004
+the define was removed, but its still required to build some targets.
 
---- linux-2.6.10-rc3-bk15-orig/arch/m32r/Kconfig.debug	2004-12-06 22:24:16.000000000 +0100
-+++ linux-2.6.10-rc3-bk15/arch/m32r/Kconfig.debug	2004-12-22 23:28:32.000000000 +0100
-@@ -5,6 +5,9 @@
- config DEBUG_STACKOVERFLOW
- 	bool "Check for stack overflows"
- 	depends on DEBUG_KERNEL
-+	help
-+	  This option will cause messages to be printed if free stack space
-+	  drops below a certain limit.
+Signed-off-by: Olaf Hering <olh@suse.de>
+
+ arch/um/Makefile-i386 |    1 +
+ 1 files changed, 1 insertion(+)
+
+Index: linux-2.6.13-rc3-git4/arch/um/Makefile-i386
+===================================================================
+--- linux-2.6.13-rc3-git4.orig/arch/um/Makefile-i386
++++ linux-2.6.13-rc3-git4/arch/um/Makefile-i386
+@@ -33,6 +33,7 @@ ifneq ($(CONFIG_GPROF),y)
+ ARCH_CFLAGS += -DUM_FASTCALL
+ endif
  
- config DEBUG_STACK_USAGE
- 	bool "Stack utilization instrumentation"
-
-
++SYS_UTIL_DIR	:= $(ARCH_DIR)/sys-i386/util
+ SYS_HEADERS	:= $(SYS_DIR)/sc.h $(SYS_DIR)/thread.h
+ 
+ prepare: $(SYS_HEADERS)

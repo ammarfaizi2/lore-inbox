@@ -1,105 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVGQUuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVGQVPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbVGQUuz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 16:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVGQUsu
+	id S261306AbVGQVPD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 17:15:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVGQVPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 16:48:50 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37391 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261402AbVGQUsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 16:48:22 -0400
-Date: Sun, 17 Jul 2005 22:48:20 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] EXIT_CONNECTOR and FORK_CONNECTOR must depend on NET
-Message-ID: <20050717204820.GD3753@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 17 Jul 2005 17:15:02 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:43955 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261306AbVGQVPA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 17:15:00 -0400
+Date: Sun, 17 Jul 2005 23:14:38 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] add NULL short circuit to fb_dealloc_cmap()
+In-Reply-To: <9e473391050717132233347d25@mail.gmail.com>
+Message-ID: <Pine.LNX.4.62.0507172314000.4553@numbat.sonytel.be>
+References: <200507172043.41473.jesper.juhl@gmail.com>
+ <9e473391050717132233347d25@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you select some variable, you have to ensure that the dependencies of 
-the select'ed variable are fulfilled.
+On Sun, 17 Jul 2005, Jon Smirl wrote:
+> On 7/17/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > Resource freeing functions should generally be safe to call with NULL pointers.
+> > Why?
+> >  - there is some precedence in the kernel for this for deallocation functions.
+> >  - removes the need for callers to check pointers for NULL.
+> >  - space is saved overall by less code to test pointers for NULL all over the place.
+> >  - removes possible NULL pointer dereferences when a caller forgot to check.
+> > 
+> > This patch makes  fb_dealloc_cmap()  safe to call with a NULL pointer argument.
+> 
+> The fb cmap copde would be a lot simpler if it did everything with a
+> single allocation instead of five. Make a super cmap struct:
+> 
+> struct fb_super_cmap {
+>    struct fb_cmap cmap;
+>    __u16 red[255];
+>    __u16 blue[255];
+>    __u16 green[255];
+>    __u16 transp[255];
+                  ^^^
+I assume you meant 256?
 
-This patch fixes the following link error:
+> }
+> 
+> Then adjust the code as need. Have the embedded cmap struct point to
+> the fields in the super_cmap and the drivers don't have to be changed.
 
-<--  snip  -->
+What if your colormap has more than 256 entries?
 
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o: In function `cn_netlink_send':
-: undefined reference to `alloc_skb'
-drivers/built-in.o: In function `cn_netlink_send':
-: undefined reference to `netlink_broadcast'
-drivers/built-in.o: In function `cn_netlink_send':
-: undefined reference to `__kfree_skb'
-drivers/built-in.o: In function `cn_netlink_send':
-: undefined reference to `skb_over_panic'
-drivers/built-in.o: In function `cn_rx_skb':
-connector.c:(.text+0x20d809): undefined reference to `__kfree_skb'
-drivers/built-in.o: In function `cn_input':
-connector.c:(.text+0x20d91e): undefined reference to `skb_dequeue'
-drivers/built-in.o: In function `cn_init':
-connector.c:(.text+0x20dedc): undefined reference to 
-`netlink_kernel_create'
-connector.c:(.text+0x20df67): undefined reference to `sock_release'
-drivers/built-in.o: In function `kfree_skb':
-connector.c:(.text+0x20d756): undefined reference to `__kfree_skb'
-drivers/built-in.o: In function `cn_rx_skb':
-connector.c:(.text+0x20d7c8): undefined reference to `__kfree_skb'
-connector.c:(.text+0x20d87e): undefined reference to `__kfree_skb'
-drivers/built-in.o: In function `cn_fini':
-connector.c:(.text+0x20dfae): undefined reference to `sock_release'
-drivers/built-in.o: In function `w1_alloc_dev':
-make: *** [.tmp_vmlinux1] Error 1
+Gr{oetje,eeting}s,
 
-<--  snip  -->
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.13-rc3-mm1-full/drivers/connector/Kconfig.old	2005-07-17 22:35:33.000000000 +0200
-+++ linux-2.6.13-rc3-mm1-full/drivers/connector/Kconfig	2005-07-17 22:36:12.000000000 +0200
-@@ -1,35 +1,37 @@
- menu "Connector - unified userspace <-> kernelspace linker"
- 
- config CONNECTOR
- 	tristate "Connector - unified userspace <-> kernelspace linker"
- 	depends on NET
- 	---help---
- 	  This is unified userspace <-> kernelspace connector working on top
- 	  of the netlink socket protocol.
- 
- 	  Connector support can also be built as a module.  If so, the module
- 	  will be called cn.ko.
- 
- config EXIT_CONNECTOR
- 	bool "Enable exit connector"
-+	depends on NET
- 	select CONNECTOR
- 	default y
- 	---help---
- 	  It adds a connector in kernel/exit.c:do_exit() function. When a exit
- 	  occurs, netlink is used to transfer information about the process and
- 	  its parent. This information can be used by a user space application.
- 	  The exit connector can be enable/disable by sending a message to the
- 	  connector with the corresponding group id.
- 
- config FORK_CONNECTOR
- 	bool "Enable fork connector"
-+	depends on NET
- 	select CONNECTOR
- 	default y
- 	---help---
- 	  It adds a connector in kernel/fork.c:do_fork() function. When a fork
- 	  occurs, netlink is used to transfer information about the parent and
- 	  its child. This information can be used by a user space application.
- 	  The fork connector can be enable/disable by sending a message to the
- 	  connector with the corresponding group id.
- 
- endmenu
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

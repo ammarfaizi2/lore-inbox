@@ -1,95 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVGQCNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVGQCWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbVGQCNk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 22:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVGQCNk
+	id S261677AbVGQCWX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 22:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVGQCWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 22:13:40 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:63901 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261392AbVGQCNj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 22:13:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JjOJDI0R9txLOYadf0qzRKTK4VugbzbeBgiIV63mp8iUHPVMjKzFcrjy9Ng33bdlbkKMX2TafNpkQz2S+/L+oAq0seWaD10xHmioFPb2Qibn3QOAzlFFx/btCE1bNoRLvrnU5ur+FZQ1uZeXT+sUzE8E3qzB3bbPx6Bk695AW8A=
-Message-ID: <9a874849050716191324d2f8b4@mail.gmail.com>
-Date: Sun, 17 Jul 2005 04:13:39 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Cc: Lee Revell <rlrevell@joe-job.com>, Chris Wedgwood <cw@f00f.org>,
-       Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
-       dtor_core@ameritech.net, vojtech@suse.cz, david.lang@digitalinsight.com,
-       davidsen@tmr.com, kernel@kolivas.org, linux-kernel@vger.kernel.org,
-       mbligh@mbligh.org, diegocg@gmail.com, azarah@nosferatu.za.org,
-       christoph@lameter.com
-In-Reply-To: <9a874849050715061247ab4fd8@mail.gmail.com>
+	Sat, 16 Jul 2005 22:22:23 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:64006 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261677AbVGQCWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 22:22:22 -0400
+Date: Sun, 17 Jul 2005 04:22:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       mj@ucw.cz
+Subject: [2.6 patch] remove CONFIG_PCI_NAMES
+Message-ID: <20050717022220.GC3613@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <42D3E852.5060704@mvista.com> <1121286258.4435.98.camel@mindpipe>
-	 <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-	 <9a874849050714170465c979c3@mail.gmail.com>
-	 <1121386505.4535.98.camel@mindpipe>
-	 <Pine.LNX.4.58.0507141718350.19183@g5.osdl.org>
-	 <42D731A4.40504@gmail.com>
-	 <Pine.LNX.4.58.0507142158010.19183@g5.osdl.org>
-	 <9a874849050715061247ab4fd8@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/15/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 7/15/05, Linus Torvalds <torvalds@osdl.org> wrote:
-> >
-> > On Fri, 15 Jul 2005, Jesper Juhl wrote:
-> > >
-> > > It's buggy, that I know. setting kernel_hz (the new boot parameter) to
-> > > 250 causes my system clock to run at something like 4-5 times normal
-> > > speed
-> >
-> > 4 times normal. You don't actually make the timer interrupt happen at
-> > 250Hz, so the timer will be programmed to run at the full 1kHz.
-> >
-> Right, that's the basic problem. I increase jiffies at a higher rate
-> but didn't slow the timer interrupt down at the same time.
-> 
-> > You also need to actually change the LATCH define (in
-> > include/linux/jiffies.h) to take this into account (there might be
-> > something else too).
-> >
-> [...]
-> > and you might be getting closer.
-> >
-> > Of course, you need to make sure that LATCH is used only after
-> > jiffies_increment is set up. See "setup_pit_timer(void)" in
-> > arch/i386/kernel/timers/timer_pit.c for more details.
-> >
-> 
-> Thank you for all the pointers and hints. This is a new area of code
-> for me, so I'll need some time to poke around - the above helps a lot.
-> Unfortunately I won't have any time to work on this today, but I'll
-> see if I can get a working implementation together tomorrow.
-> 
+This patch removes CONFIG_PCI_NAMES.
 
-Ok, I'm afraid I'm going to need another hint or two.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I've been looking at the timer code and getting thoroughly confused.
-I've tried to find out where we actually program the interrupt
-controller to say "this is the frequency I want you to interrupt me
-at", but I can't seem to find it.
-I'm aware that there are multiple possible time sources, and I've been
-looking at the 8259 code, the ioapic code, the hpet code and various
-other bits in arch/i386/kernel/ and arch/i386/kernel/timers/ , but I
-seem to end up getting confused about all the different defines like 
-CLOCK_TICK_RATE, ACTHZ, TICK_NSEC, TICK_USEC, etc...
+---
 
-Where do we actually program the tick rate we want?
+Due to it's size, the patch is available at
+  http://www.fs.tum.de/~bunk/kernel/patch-remove-CONFIG_PCI_NAMES
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+ Documentation/feature-removal-schedule.txt |    9 
+ MAINTAINERS                                |    7 
+ arch/alpha/kernel/sys_marvel.c             |    5 
+ arch/ppc64/kernel/eeh.c                    |   31 
+ arch/ppc64/kernel/iSeries_VpdInfo.c        |    5 
+ arch/ppc64/kernel/pci.c                    |    1 
+ drivers/char/drm/drmP.h                    |    4 
+ drivers/infiniband/hw/mthca/mthca_main.c   |    8 
+ drivers/infiniband/hw/mthca/mthca_reset.c  |    8 
+ drivers/net/irda/vlsi_ir.h                 |    6 
+ drivers/pci/Kconfig                        |   17 
+ drivers/pci/Makefile                       |   18 
+ drivers/pci/gen-devlist.c                  |  132 
+ drivers/pci/names.c                        |  137 
+ drivers/pci/pci.ids                        |10180 ---------------------
+ drivers/pci/probe.c                        |    2 
+ drivers/pci/proc.c                         |   12 
+ drivers/usb/core/hcd-pci.c                 |    4 
+ drivers/video/nvidia/nvidia.c              |    4 
+ drivers/video/riva/fbdev.c                 |    4 
+ include/linux/pci.h                        |   14 
+ 21 files changed, 32 insertions(+), 10576 deletions(-)
+
+

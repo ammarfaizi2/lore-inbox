@@ -1,103 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVGQCgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVGQCjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVGQCgx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 22:36:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVGQCgw
+	id S261776AbVGQCjy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 22:39:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVGQCjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 22:36:52 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:26244 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261783AbVGQCgA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 22:36:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uEwNp6qAeg4Yq5ytWaVIgqG0XeKMNK7s6lkl8hRUfHXk9wBlN0eJixgj3ypFcCOAQLQ+sMt0ibn10LBoLv45R1V7fgOgJR5rUb1aZ01nkyGeAuCVDtm6fZwg85IAzO2GXc8Ws8tTLipFflQ8arPXvT5xeLeo7+oSwNznwmzsVwo=
-Message-ID: <29495f1d0507161935218d798@mail.gmail.com>
-Date: Sat, 16 Jul 2005 19:35:59 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Cc: Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, dtor_core@ameritech.net,
-       vojtech@suse.cz, david.lang@digitalinsight.com, davidsen@tmr.com,
-       kernel@kolivas.org, linux-kernel@vger.kernel.org, mbligh@mbligh.org,
-       diegocg@gmail.com, azarah@nosferatu.za.org, christoph@lameter.com
-In-Reply-To: <9a874849050716191324d2f8b4@mail.gmail.com>
+	Sat, 16 Jul 2005 22:39:53 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:7175 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261776AbVGQCiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 22:38:12 -0400
+Date: Sun, 17 Jul 2005 04:38:09 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com
+Subject: [2.6 patch] SCSI_QLA2ABC mustn't select SCSI_FC_ATTRS
+Message-ID: <20050717023809.GE3613@stusta.de>
+References: <20050715013653.36006990.akpm@osdl.org> <20050715102744.GA3569@stusta.de> <20050715144037.GA25648@plap.qlogic.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <42D3E852.5060704@mvista.com>
-	 <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-	 <9a874849050714170465c979c3@mail.gmail.com>
-	 <1121386505.4535.98.camel@mindpipe>
-	 <Pine.LNX.4.58.0507141718350.19183@g5.osdl.org>
-	 <42D731A4.40504@gmail.com>
-	 <Pine.LNX.4.58.0507142158010.19183@g5.osdl.org>
-	 <9a874849050715061247ab4fd8@mail.gmail.com>
-	 <9a874849050716191324d2f8b4@mail.gmail.com>
+In-Reply-To: <20050715144037.GA25648@plap.qlogic.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/16/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 7/15/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > On 7/15/05, Linus Torvalds <torvalds@osdl.org> wrote:
-> > >
-> > > On Fri, 15 Jul 2005, Jesper Juhl wrote:
-> > > >
-> > > > It's buggy, that I know. setting kernel_hz (the new boot parameter) to
-> > > > 250 causes my system clock to run at something like 4-5 times normal
-> > > > speed
-> > >
-> > > 4 times normal. You don't actually make the timer interrupt happen at
-> > > 250Hz, so the timer will be programmed to run at the full 1kHz.
-> > >
-> > Right, that's the basic problem. I increase jiffies at a higher rate
-> > but didn't slow the timer interrupt down at the same time.
-> >
-> > > You also need to actually change the LATCH define (in
-> > > include/linux/jiffies.h) to take this into account (there might be
-> > > something else too).
-> > >
-> > [...]
-> > > and you might be getting closer.
-> > >
-> > > Of course, you need to make sure that LATCH is used only after
-> > > jiffies_increment is set up. See "setup_pit_timer(void)" in
-> > > arch/i386/kernel/timers/timer_pit.c for more details.
-> > >
-> >
-> > Thank you for all the pointers and hints. This is a new area of code
-> > for me, so I'll need some time to poke around - the above helps a lot.
-> > Unfortunately I won't have any time to work on this today, but I'll
-> > see if I can get a working implementation together tomorrow.
-> >
-> 
-> Ok, I'm afraid I'm going to need another hint or two.
-> 
-> I've been looking at the timer code and getting thoroughly confused.
-> I've tried to find out where we actually program the interrupt
-> controller to say "this is the frequency I want you to interrupt me
-> at", but I can't seem to find it.
-> I'm aware that there are multiple possible time sources, and I've been
-> looking at the 8259 code, the ioapic code, the hpet code and various
-> other bits in arch/i386/kernel/ and arch/i386/kernel/timers/ , but I
-> seem to end up getting confused about all the different defines like
-> CLOCK_TICK_RATE, ACTHZ, TICK_NSEC, TICK_USEC, etc...
-> 
-> Where do we actually program the tick rate we want?
+[ The subject was adapted to linux-kernel spam filters... ]
 
-As you've seen, I think it depends on the timesource: for the PIT, it
-would be arch/i386/kernel/timers/timer_pit.c::setup_pit_timer(). In
-that function, you'll notice we outb() the LATCH value. I think there
-are similar functions in the other timesources, e.g. the
-arch/i386/kernel/apic.c::setup_APIC_timer().
+On Fri, Jul 15, 2005 at 07:40:37AM -0700, Andrew Vasquez wrote:
+> On Fri, 15 Jul 2005, Adrian Bunk wrote:
+> 
+> > On Fri, Jul 15, 2005 at 01:36:53AM -0700, Andrew Morton wrote:
+> > >...
+> > > Changes since 2.6.13-rc2-mm2:
+> > >...
+> > >  git-scsi-misc.patch
+> > >...
+> > >  Subsystem trees
+> > >...
+> > 
+> ...
+> > +obj-$(CONFIG_SCSI_QLA24XX) += qla2xxx.o
+> > 
+> > 
+> > I don't know what exactly you want to achieve, but this is so horribly 
+> > wrong.
+> 
+> 
+> Yes, quite.  How about the following to correct the intention.
+>...
 
-Does that help some?
+It looks good (except that you used spaces instead of a tab in the 
+"select" line, but that's only a minor nitpick).
 
-Thanks,
-Nish
+Below is another fix for a different issue that was already present.
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+SCSI_QLA2XXX is automatically enabled for (SCSI && PCI).
+It therefore mustn't select SCSI_FC_ATTRS, since it otherwise 
+unconditionally enables SCSI_FC_ATTRS for all users with
+(SCSI && PCI) enabled, even when they don't need any support for
+QLogic hardware.
+
+This patch also does a cosmetic change for making the "default" look 
+more like in other kernel code.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.13-rc3-mm1-full/drivers/scsi/qla2xxx/Kconfig.old	2005-07-15 22:05:19.000000000 +0200
++++ linux-2.6.13-rc3-mm1-full/drivers/scsi/qla2xxx/Kconfig	2005-07-15 22:07:42.000000000 +0200
+@@ -1,8 +1,7 @@
+ config SCSI_QLA2XXX
+ 	tristate
+-	default (SCSI && PCI)
+ 	depends on SCSI && PCI
+-	select SCSI_FC_ATTRS
++	default y
+ 
+ config SCSI_QLA21XX
+ 	tristate "QLogic ISP2100 host adapter family support"
+

@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVGQUWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVGQUeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVGQUWv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 16:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVGQUWv
+	id S261385AbVGQUeB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 16:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVGQUeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 16:22:51 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:6441 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261386AbVGQUWu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 16:22:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jJC/635dk//cXA7orr7H1ydXVncl7Tobh9TRGT9FuN25qfp6eyqUQEUOO7MJ6EDkDfLfuMUEp8KOaYThFtm7224MSuexkA7JRjHDixUQ8jDJpXm8Oc/DqHj7jY08kxSU/BvFZtT2qQbSWzrUGzi4TlrVUi8PtU+OCfAWmQNy92A=
-Message-ID: <9e473391050717132233347d25@mail.gmail.com>
-Date: Sun, 17 Jul 2005 16:22:50 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: [PATCH] add NULL short circuit to fb_dealloc_cmap()
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-In-Reply-To: <200507172043.41473.jesper.juhl@gmail.com>
+	Sun, 17 Jul 2005 16:34:01 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28943 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261385AbVGQUd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 16:33:59 -0400
+Date: Sun, 17 Jul 2005 22:33:54 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Gerrit Huizenga <gh@us.ibm.com>, Chandra Seetharaman <sekharan@us.ibm.com>,
+       Hubertus Franke <frankeh@us.ibm.com>, Shailabh Nagar <nagar@us.ibm.com>,
+       Vivek Kashyap <vivk@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] CKRM_TYPE_SOCKETCLASS must depend on INET
+Message-ID: <20050717203354.GC3753@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200507172043.41473.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/17/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> Resource freeing functions should generally be safe to call with NULL pointers.
-> Why?
->  - there is some precedence in the kernel for this for deallocation functions.
->  - removes the need for callers to check pointers for NULL.
->  - space is saved overall by less code to test pointers for NULL all over the place.
->  - removes possible NULL pointer dereferences when a caller forgot to check.
-> 
-> This patch makes  fb_dealloc_cmap()  safe to call with a NULL pointer argument.
+CKRM_TYPE_SOCKETCLASS=y, NET=n, INET=n results in the following link 
+error:
 
-The fb cmap copde would be a lot simpler if it did everything with a
-single allocation instead of five. Make a super cmap struct:
+<--  snip  -->
 
-struct fb_super_cmap {
-   struct fb_cmap cmap;
-   __u16 red[255];
-   __u16 blue[255];
-   __u16 green[255];
-   __u16 transp[255];
-}
+...
+  LD      .tmp_vmlinux1
+kernel/built-in.o: In function `cb_sockclass_listen_stop':
+ckrm_sockc.c:(.text+0x27e2b): undefined reference to `sk_free'
+kernel/built-in.o: In function `ckrm_sock_forced_reclassify_ns':
+ckrm_sockc.c:(.text+0x280d5): undefined reference to 
+`tcp_v4_lookup_listener'
+ckrm_sockc.c:(.text+0x280e4): undefined reference to `lock_sock'
+ckrm_sockc.c:(.text+0x28134): undefined reference to `release_sock'
+ckrm_sockc.c:(.text+0x28154): undefined reference to `sk_free'
+kernel/built-in.o: In function `ckrm_sock_reclassify_class':
+ckrm_sockc.c:(.text+0x2851e): undefined reference to `lock_sock'
+ckrm_sockc.c:(.text+0x2853b): undefined reference to `release_sock'
+make: *** [.tmp_vmlinux1] Error 1
 
-Then adjust the code as need. Have the embedded cmap struct point to
-the fields in the super_cmap and the drivers don't have to be changed.
+<--  snip  -->
 
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+--- linux-2.6.13-rc3-mm1-full/init/Kconfig.old	2005-07-17 21:45:25.000000000 +0200
++++ linux-2.6.13-rc3-mm1-full/init/Kconfig	2005-07-17 21:46:03.000000000 +0200
+@@ -184,7 +184,7 @@
+ 
+ config CKRM_TYPE_SOCKETCLASS
+ 	bool "Class Manager for socket groups"
+-	depends on CKRM && RCFS_FS
++	depends on INET && CKRM && RCFS_FS
+ 	default y
+ 	help
+ 	  SOCKET provides the extensions for CKRM to track per socket
 
--- 
-Jon Smirl
-jonsmirl@gmail.com

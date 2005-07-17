@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261805AbVGQDYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVGQDjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261805AbVGQDYW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 23:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVGQDYV
+	id S261841AbVGQDjB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Jul 2005 23:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVGQDjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 23:24:21 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:5612 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261805AbVGQDYU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 23:24:20 -0400
-X-ORBL: [63.202.173.158]
-Date: Sat, 16 Jul 2005 20:24:07 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Doug Warzecha <Douglas_Warzecha@dell.com>
-Cc: rdunlap@xenotime.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] char: Add Dell Systems Management Base driver
-Message-ID: <20050717032407.GA29404@taniwha.stupidest.org>
-References: <20050706001333.GA3569@sysman-doug.us.dell.com> <20050706005320.GA23709@taniwha.stupidest.org> <20050712231729.GA15062@sysman-doug.us.dell.com>
+	Sat, 16 Jul 2005 23:39:01 -0400
+Received: from sybil.roundthebend.com ([65.98.18.22]:8603 "EHLO
+	sybil.roundthebend.com") by vger.kernel.org with ESMTP
+	id S261841AbVGQDhl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Jul 2005 23:37:41 -0400
+Subject: [PATCH 2.6.12.3] libata: add support for Promise SATA 300 TX2plus
+	PDC40775
+From: Ed Kear <ed@kear.net>
+Reply-To: ed@kear.net
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sat, 16 Jul 2005 23:32:19 -0400
+Message-Id: <1121571139.20986.21.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050712231729.GA15062@sysman-doug.us.dell.com>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 06:17:29PM -0500, Doug Warzecha wrote:
+I'm using this card in a RAID1 with 2 new SATA drives with no problems.
 
-> Because the hardware interfaces on those systems and the Dell
-> systems management software that access the interfaces are
-> proprietary, I can't provide specifications for the interfaces or
-> source code for the software.
+Card - SATA 300 TX2plus  PDC40775 (3d73)
 
-So you want a driver merged which nobody except Dell can write code
-for?
+Signed-off-by: Ed Kear <ed@kear.net>
 
-> The systems that are supported by the dcdbas driver contain the
-> following Dell proprietary hardware systems management interfaces:
-> Temperature Voltage Monitor (TVM) and Calling Interface.  These
-> interfaces are supported by older Dell PowerEdge systems.
+diff -urN a/drivers/scsi/sata_promise.c b/drivers/scsi/sata_promise.c
+--- a/drivers/scsi/sata_promise.c   2005-07-15 17:18:57.000000000 -0400
++++ b/drivers/scsi/sata_promise.c   2005-07-16 10:03:56.316189832 -0400
+@@ -164,6 +164,8 @@
+ 	  board_2037x },
+ 	{ PCI_VENDOR_ID_PROMISE, 0x3d75, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_2037x },
++	{ PCI_VENDOR_ID_PROMISE, 0x3d73, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_2037x },
+ 
+ 	{ PCI_VENDOR_ID_PROMISE, 0x3318, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_20319 },
 
-What's so special here that you can't give more details?  I personally
-find it a little unfair to ask to have a driver merged into mainline
-to facilitate some proprietary userland where you refuse to give
-protocol level details to create a viable alternative.
 

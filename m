@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVGQOFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVGQOix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbVGQOFa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 10:05:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVGQOFa
+	id S261292AbVGQOix (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 10:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVGQOix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 10:05:30 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:1411 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261288AbVGQOF2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 10:05:28 -0400
-Date: Sun, 17 Jul 2005 16:04:44 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Tom Zanussi <zanussi@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
-       richardj_moore@uk.ibm.com
-Subject: Re: Merging relayfs?
-In-Reply-To: <17110.32325.532858.79690@tut.ibm.com>
-Message-ID: <Pine.LNX.4.61.0507171551390.3728@scrub.home>
-References: <17107.6290.734560.231978@tut.ibm.com> <20050712022537.GA26128@infradead.org>
- <20050711193409.043ecb14.akpm@osdl.org> <Pine.LNX.4.61.0507131809120.3743@scrub.home>
- <17110.32325.532858.79690@tut.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 17 Jul 2005 10:38:53 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8460 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261303AbVGQOiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 10:38:50 -0400
+Date: Sun, 17 Jul 2005 16:38:47 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] m32r: add missing Kconfig help text
+Message-ID: <20050717143847.GG3613@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+There's no help text for CONFIG_DEBUG_STACKOVERFLOW - add one.
 
-On Thu, 14 Jul 2005, Tom Zanussi wrote:
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> The netlink control channel seems to work very well, but I can
-> certainly change the examples to use something different.  Could you
-> suggest something?
+---
 
-It just looks like a complicated way to do an ioctl, a control file that 
-you can read/write would be a lot simpler and faster.
+This patch was sent by Jesper Juhl on:
+- 22 Dec 2004
 
->  > Looking through the patch there are still a few areas I'm concerned about:
->  > - the usage of atomic_t look a little silly, there is only a single 
->  > writer and probably needs some cache line optimisations
-> 
-> The only things that are atomic are the counts of produced and
-> consumed buffers and these are only ever updated or read in the slow
-> buffer-switch path.  They're atomic because if they weren't, wouldn't
-> it be possible for the client to read an unfinished value if the
-> producer was in the middle of updating it?
+--- linux-2.6.10-rc3-bk15-orig/arch/m32r/Kconfig.debug	2004-12-06 22:24:16.000000000 +0100
++++ linux-2.6.10-rc3-bk15/arch/m32r/Kconfig.debug	2004-12-22 23:28:32.000000000 +0100
+@@ -5,6 +5,9 @@
+ config DEBUG_STACKOVERFLOW
+ 	bool "Check for stack overflows"
+ 	depends on DEBUG_KERNEL
++	help
++	  This option will cause messages to be printed if free stack space
++	  drops below a certain limit.
+ 
+ config DEBUG_STACK_USAGE
+ 	bool "Stack utilization instrumentation"
 
-No.
 
->  > - I would prefer "unsigned int" over just "unsigned"
->  > - the padding/commit arrays can be easily managed by the client
-> 
-> Yes, I can move them out and update the examples to reflect that, but
-> I thought that if this was something that most clients would need to
-> do, it made some sense to keep it in relayfs and avoid duplication in
-> the clients.
-
-If a lot of clients needs this, there a different ways to do this, e.g. by 
-introducing some helper functions that clients can use. This way you can 
-keep the core simple and allow the client to modify its behaviour.
-
->  > - overwrite mode can be implemented via the buffer switch callback
-> 
-> The buffer switch callback is already where this is handled, unless
-> you're thinking of something else - one of the first checks in the
-> buffer switch is relay_buf_full(), which always returns 0 if the
-> buffer is in overwrite mode.
-
-I mean, relayfs doesn't has to know about this, the client itself can do 
-it (e.g. via helper functions).
-
-bye, Roman

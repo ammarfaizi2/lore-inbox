@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVGQD72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVGQEFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261926AbVGQD72 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Jul 2005 23:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbVGQD71
+	id S261930AbVGQEFc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 00:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVGQEFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Jul 2005 23:59:27 -0400
-Received: from femail.waymark.net ([206.176.148.84]:21671 "EHLO
-	femail.waymark.net") by vger.kernel.org with ESMTP id S261926AbVGQD7W convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Jul 2005 23:59:22 -0400
-Date: 17 Jul 2005 03:46:06 GMT
-From: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
-Subject: 2.6.12-rc2 and as-iosched
-To: linux-kernel@vger.kernel.org
-Message-ID: <b03f6d.f0b5c3@family-bbs.org>
-Organization: FamilyNet HQ
-X-Mailer: BBBS/NT v4.01 Flag-5
-MIME-Version: 1.0
+	Sun, 17 Jul 2005 00:05:31 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:40528 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261930AbVGQEF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 00:05:28 -0400
+Date: Sat, 16 Jul 2005 21:04:56 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: bunk@stusta.de, andrew.vasquez@qlogic.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       James.Bottomley@SteelEye.com
+Subject: Re: [2.6 patch] SCSI_QLA2ABC mustn't select SCSI_FC_ATTRS
+Message-Id: <20050716210456.12accf7b.rdunlap@xenotime.net>
+In-Reply-To: <1121569886.13990.4.camel@mindpipe>
+References: <20050715013653.36006990.akpm@osdl.org>
+	<20050715102744.GA3569@stusta.de>
+	<20050715144037.GA25648@plap.qlogic.org>
+	<20050717023809.GE3613@stusta.de>
+	<1121569886.13990.4.camel@mindpipe>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-v2.6.13-rc2 as-iosched.c and /sys/block/hda/queue/iosched/* values differ:
+On Sat, 16 Jul 2005 23:11:26 -0400 Lee Revell wrote:
 
-/*  from ../drivers/block/as-iosched.c  */
-#define default_read_expire (HZ / 8)
-#define default_write_expire (HZ / 4)
-#define default_read_batch_expire (HZ / 2)
-#define default_write_batch_expire (HZ / 8)
+> On Sun, 2005-07-17 at 04:38 +0200, Adrian Bunk wrote:
+> > SCSI_QLA2XXX is automatically enabled for (SCSI && PCI).
+> 
+> This has bugged me for a while.  Why does this one SCSI driver default
+> to Y in the first place?
 
-$ ls /sys/block/hda/queue/iosched
-antic_expire
-est_time
-read_batch_expire
-read_expire
-write_batch_expire
-write_expire
+It's not a driver, it's a subdirectory.
 
-$ cat /sys/block/hda/queue/iosched
-16
-7 % exit probability
-0 ms new thinktime
-647336 sectors new seek distance
-2000  # read_batch_expire (500ms?)
-496   # read_expire (125ms?)
-496   # write_batch_expire (125ms?)
-992   # write_expire (250ms?)
-
---
+---
+~Randy

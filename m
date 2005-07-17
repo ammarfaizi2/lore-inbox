@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVGQUEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVGQULl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVGQUEl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 16:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVGQUEl
+	id S261269AbVGQULl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 16:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVGQULk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 16:04:41 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:35543 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261366AbVGQUEk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 16:04:40 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: rt-preempt and x86_64?
-Date: Sun, 17 Jul 2005 21:04:40 +0100
+	Sun, 17 Jul 2005 16:11:40 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:25827 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261269AbVGQULk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 16:11:40 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.13-rc3-mm1: a regression
+Date: Sun, 17 Jul 2005 22:11:56 +0200
 User-Agent: KMail/1.8.1
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <200507171346.11377.s0348365@sms.ed.ac.uk> <42DA8779.3020005@stud.feec.vutbr.cz>
-In-Reply-To: <42DA8779.3020005@stud.feec.vutbr.cz>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20050715013653.36006990.akpm@osdl.org> <200507162330.18810.rjw@sisk.pl> <20050716143945.735906ce.akpm@osdl.org>
+In-Reply-To: <20050716143945.735906ce.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200507172104.40073.s0348365@sms.ed.ac.uk>
+Message-Id: <200507172211.56487.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 Jul 2005 17:29, Michal Schmidt wrote:
-> Alistair John Strachan wrote:
-> > Hi Ingo,
+On Saturday, 16 of July 2005 23:39, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 > >
-> > (I searched the list for rt realtime x86_64 x86-64 before posting this,
-> > so I hope it's not a duplicate).
-> >
-> > I've noticed -31 compiles without notable error or warning on x86-64, so
-> > I thought maybe it was a valid time to file a bug report about it not
-> > working.
-> >
-> > The machine currently runs 2.6.12 but when booting with PREEMPT_RT mode
-> > on the same machine I get:
-> >
-> > init[1]: segfault at ffffffff8010e9c4 rip ffffffff8010e9c4 rsp
-> > 00007fffffe28018
-> > [...]
->
-> Do you have latency tracing enabled in the kernel config? Try disabling
-> it. It's a known problem that it doesn't work on x86_64.
->
+> > On Friday, 15 of July 2005 10:36, Andrew Morton wrote:
+> >  > 
+> >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
+> >  > 
+> >  > (http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-rc3-mm1.gz until
+> >  > kernel.org syncs up)
+> > 
+> >  There seems to be a regression wrt 2.6.13-rc3 which causes my box (Asus L5D,
+> >  Athlon 64 + nForce3) to hang solid during resume from disk on battery power.
+> > 
+> >  First, 2.6.13-rc3-mm1 is affected by the problems described at:
+> >  http://bugzilla.kernel.org/show_bug.cgi?id=4416
+> >  http://bugzilla.kernel.org/show_bug.cgi?id=4665
+> >  These problems go away after applying the two attached patches.  Then, the
+> >  box resumes on AC power but hangs solid during resume on battery power.
+> >  The problem is 100% reproducible and I think it's related to ACPI.
+> 
+> That recent acpi merge seems to have damaged a number of people...
+> 
+> Are you able to test Linus's latest -git spanshot?  See if there's a
+> difference between -linus and -mm behaviour?
 
-Thanks Michal, this was the problem. Unless x86_64 is going to receive an 
-implementation of LATENCY_TRACE soon, it might be an idea to only let this be 
-selectable on x86.
+I was afraid you would say so. ;-)
 
-(Unfortunately I couldn't use the resulting kernel anyway, as my lirc modules 
-hang the system when modprobe'd; it's probably easy even for me to fix if I 
-inspect Ingo's rt-preempt patch.)
+The -rc3-git-[2-4] kernels are unaffected by the problem described, so it seems
+to be specific to -rc3-mm1.
+
+Greets,
+Rafael
+
 
 -- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

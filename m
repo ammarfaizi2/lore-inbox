@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVGSN56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVGSOCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbVGSN56 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 09:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVGSN4J
+	id S261982AbVGSOCr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 10:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVGSOAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 09:56:09 -0400
-Received: from gate.crashing.org ([63.228.1.57]:53134 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261362AbVGSNyq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 09:54:46 -0400
-Subject: Re: [PATCH] Dynamic tick for x86 version 050610-1
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: hugang@soulinfo.com
-Cc: Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
-       Bernard Blackham <b-lkml@blackham.com.au>,
-       Christian Hesse <mail@earthworm.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-In-Reply-To: <20050719065122.GA5913@hugang.soulinfo.com>
-References: <20050602013641.GL21597@atomide.com>
-	 <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com>
-	 <20050603223758.GA2227@elf.ucw.cz> <20050610041706.GC18103@atomide.com>
-	 <20050610091515.GH4173@elf.ucw.cz> <20050610151707.GB7858@atomide.com>
-	 <20050610221501.GB7575@atomide.com>
-	 <20050618033419.GA6476@hugang.soulinfo.com>
-	 <1119076233.18247.27.camel@gaston>
-	 <20050719065122.GA5913@hugang.soulinfo.com>
-Content-Type: text/plain
-Date: Tue, 19 Jul 2005 23:51:54 +1000
-Message-Id: <1121781115.14393.59.camel@gaston>
+	Tue, 19 Jul 2005 10:00:50 -0400
+Received: from mail.linux-mips.org ([62.254.210.162]:35545 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S261982AbVGSN6p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 09:58:45 -0400
+Date: Sun, 17 Jul 2005 17:09:39 -0400
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Greg KH <greg@kroah.com>, Francois Romieu <romieu@fr.zoreil.com>,
+       Greg KH <gregkh@suse.de>, torvalds@osdl.org, akpm@osdl.org,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, netdev@vger.kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, jgarzik@pobox.com,
+       stable@kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [stable] Re: [05/11] SMP fix for 6pack driver
+Message-ID: <20050717210939.GA11884@linux-mips.org>
+References: <20050713184130.GA9330@kroah.com> <20050713184331.GG9330@kroah.com> <20050713220123.GA3292@electric-eye.fr.zoreil.com> <20050713221311.GA30039@kroah.com> <20050715193556.GB18059@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050715193556.GB18059@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-19 at 14:51 +0800, hugang@soulinfo.com wrote:
-> On Sat, Jun 18, 2005 at 04:30:32PM +1000, Benjamin Herrenschmidt wrote:
-> > 
-> > > I'm try to port it powerpc, Here is a patch.
-> > > 
-> > >  Port Dynamic Tick Timer to new platform is easy. :)
-> > >   1) Find the reprogram timer interface.
-> > >   2) do a hook in the idle function.
-> > > 
-> > > That worked on my PowerBookG4 12'.
-> > 
-> > Did you get a measurable gain on power consumption ?
-> > 
-> > Last time I toyed with this, I didn't.
+On Fri, Jul 15, 2005 at 09:35:56PM +0200, Adrian Bunk wrote:
+
+> I do agree with Francois regarding this issue:
 > 
-> Today I do a measurable about it. 
-> 
-> First I using 2.6.12 without dynamic enable and unplug the AC power,
-> I check the /proc/pmu/battery_0, like this.
-> --
->  flags      : 00000011
->  charge     : 907
->  max_charge : 2863
->  current    : -987
->  voltage    : 10950
->  time rem.  : 3600
-> --
-> I only intresting with current, that show the system power load. 
-> 
-> When I enable dynamic, The current can low at -900.
+> AFAIR, there has been not one 2.6 kernel where this driver was available 
+> for SMP kernels.
 
-The numbers are repeatable ? I mean, if you actually let it settle down
-in both cases ? Also, you should be careful about "parasites" in the
-measurement, like pbbuttons dimming the backlight, the hard disk going
-to sleep etc...
+Eh...  That after all is the raison d'etre for this patch :)
 
->From your numbers you get something like 10% improvement, which isn't
-too bad.
+> It's therefore untested which problems might arise with 
+> this driver on SMP systems. I'm not arguing against including this 
+> driver in 2.6.13, but 2.6.12.3 isn't the right place.
 
-Ben.
+Nonsense.  Most development activity for this stuff happens not on the
+internet and you won't be able to follow it unless you're a licensed ham.
+I've been circulating things patch since a while and nobody has been unhappy.
 
+> What surprises me most is that you accepted this patch is neither in 
+> 2.6.13-rc3 nor in 2.6.13-rc3-mm1. There seems to be either an
+> (IMHO unfortunate) change in your policy of what patches to accept,
+> or there's a serious problem in your patch review process.
 
+I've sent it to jgarzik so it's somewhere on it's long way there.
+
+  Ralf

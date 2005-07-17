@@ -1,138 +1,314 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263110AbVGNS4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbVGNSd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263110AbVGNS4u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Jul 2005 14:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263109AbVGNSxM
+	id S263085AbVGNSd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Jul 2005 14:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbVGNSdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Jul 2005 14:53:12 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:5548 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263081AbVGNSuV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Jul 2005 14:50:21 -0400
-Date: Thu, 14 Jul 2005 11:50:53 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: serue@us.ibm.com
-Cc: lkml <linux-kernel@vger.kernel.org>, Dipankar Sarma <dipankar@in.ibm.com>,
-       "David A. Wheeler" <dwheeler@ida.org>, Tony Jones <tonyj@immunix.com>
-Subject: Re: rcu-refcount stacker performance
-Message-ID: <20050714185053.GF1299@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050714142107.GA20984@serge.austin.ibm.com> <20050714152321.GB1299@us.ibm.com> <20050714134450.GB7296@sergelap.austin.ibm.com> <20050714165936.GE1299@us.ibm.com> <20050714171357.GA23309@serge.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050714171357.GA23309@serge.austin.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 14 Jul 2005 14:33:24 -0400
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:53188 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S263085AbVGNSbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Jul 2005 14:31:45 -0400
+Message-Id: <200507141830.j6EIUue1020761@ms-smtp-02-eri0.texas.rr.com>
+From: ericvh@gmail.com
+Date: Sun, 17 Jul 2005 08:53:59 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.13-rc2-mm2 7/7] v9fs: debug and support routines (2.0.2)
+Cc: v9fs-developer@lists.sourceforge.net, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 14, 2005 at 12:13:57PM -0500, serue@us.ibm.com wrote:
-> Quoting Paul E. McKenney (paulmck@us.ibm.com):
-> > On Thu, Jul 14, 2005 at 08:44:50AM -0500, serue@us.ibm.com wrote:
-> > > Quoting Paul E. McKenney (paulmck@us.ibm.com):
-> > > > My guess is that the reference count is indeed costing you quite a
-> > > > bit.  I glance quickly at the patch, and most of the uses seem to
-> > > > be of the form:
-> > > > 
-> > > > 	increment ref count
-> > > > 	rcu_read_lock()
-> > > > 	do something
-> > > > 	rcu_read_unlock()
-> > > > 	decrement ref count
-> > > > 
-> > > > Can't these cases rely solely on rcu_read_lock()?  Why do you also
-> > > > need to increment the reference count in these cases?
-> > > 
-> > > The problem is on module unload: is it possible for CPU1 to be
-> > > on "do something", and sleep, and, while it sleeps, CPU2 does
-> > > rmmod(lsm), so that by the time CPU1 stops sleeping, the code it
-> > > is executing has been freed?
-> > 
-> > OK, but in the above case, "do something" cannot be sleeping, since
-> > it is under rcu_read_lock().
-> 
-> Oh, but that's not quite what the code is doing, rather it is doing:
-> 
-> 	rcu_read_lock
-> 	while get next element from list
-> 		inc element.refcount
-> 		rcu_read_unlock
-> 		do something
-> 		rcu_read_lock
-> 		dec refcount
-> 	rcu_read_unlock
+This is part [7/7] of the v9fs-2.0.2 patch against Linux 2.6.13-rc2-mm2.
 
-Color me blind this morning...  :-/  Yes, "do something" can legitimately
-sleep.  Sorry for my confusion!
+This part of the patch contains debug and other misc routine changes related
+to hch's comments.
 
-> What I plan to try next is:
-> 
-> 	rcu_read_lock
-> 	while get next element from list
-> 		if (element->owning_module->state != LIVE)
-> 			continue
-> 		rcu_read_unlock
-> 		do something
-> 		rcu_read_lock
-> 	rcu_read_unlock
-> 
-> > > Because stacker won't remove the lsm from the list of modules
-> > > until mod->exit() is executed, and module_free(mod) happens
-> > > immediately after that, the above scenario seems possible.
-> > 
-> > Right, if you have some other code path that sleeps (outside of
-> > rcu_read_lock(), right?), then you need the reference count for that
-> > code path.  But the code paths that do not sleep should be able to
-> > dispense with the reference count, reducing the cache-line traffic.
-> 
-> Most if not all of the codepaths can sleep, however.  So unfortunately
-> that doesn't seem a feasible solution.  That's why I'm hoping there is
-> something inherent in the module unload code that I can take advantage
-> of to forego my own refcounting.
+Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 
-OK, so the only way that elements are removed is when a module is
-unloaded, right?
+ ----------
 
-If your module trick does not pan out, how about the following:
+ fs/9p/error.c    |    3 +--
+ fs/9p/error.h    |    3 +++
+ fs/9p/fid.c      |   14 ++++++++++----
+ fs/9p/idpool.c   |  152 ----------------------------------------------------
+ fs/9p/idpool.h   |   42 --------------
+ 6 files changed, 14 insertions(+), 200 deletions(-)
 
-o	Add a "need per-element reference count" global variable
+ ----------
 
-o	Have a per-CPU reference-count variable.
+--- a/fs/9p/error.h
++++ b/fs/9p/error.h
+@@ -172,3 +172,6 @@ static struct errormap errmap[] = {
+ 	{"u9fs authnone: no authentication required", 0},
+ 	{NULL, -1}
+ };
++
++extern int v9fs_error_init(void);
++extern int v9fs_errstr2errno(char *errstr);
+diff --git a/fs/9p/fid.c b/fs/9p/fid.c
+--- a/fs/9p/error.c
++++ b/fs/9p/error.c
+@@ -75,8 +75,7 @@ int v9fs_errstr2errno(char *errstr)
+ 	struct errormap *c = NULL;
+ 	int bucket = jhash(errstr, strlen(errstr), 0) % ERRHASHSZ;
+ 
+-	hlist_for_each(p, &hash_errmap[bucket]) {
+-		c = hlist_entry(p, struct errormap, list);
++	hlist_for_each_entry(c, p, &hash_errmap[bucket], list) {
+ 		if (!strcmp(c->name, errstr)) {
+ 			errno = c->val;
+ 			break;
+diff --git a/fs/9p/error.h b/fs/9p/error.h
+--- a/fs/9p/fid.c
++++ b/fs/9p/fid.c
+@@ -25,9 +25,9 @@
+ #include <linux/module.h>
+ #include <linux/errno.h>
+ #include <linux/fs.h>
++#include <linux/idr.h>
+ 
+ #include "debug.h"
+-#include "idpool.h"
+ #include "v9fs.h"
+ #include "9p.h"
+ #include "v9fs_vfs.h"
+@@ -123,7 +123,7 @@ struct v9fs_fid *v9fs_fid_lookup(struct 
+ {
+ 	struct list_head *fid_list = (struct list_head *)dentry->d_fsdata;
+ 	struct v9fs_fid *current_fid = NULL;
+-	struct list_head *p, *temp;
++	struct v9fs_fid *temp = NULL;
+ 	struct v9fs_fid *return_fid = NULL;
+ 	int found_parent = 0;
+ 	int found_user = 0;
+@@ -132,8 +132,7 @@ struct v9fs_fid *v9fs_fid_lookup(struct 
+ 		type);
+ 
+ 	if (fid_list && !list_empty(fid_list)) {
+-		list_for_each_safe(p, temp, fid_list) {
+-			current_fid = list_entry(p, struct v9fs_fid, list);
++		list_for_each_entry_safe(current_fid, temp, fid_list, list) {
+ 			if (current_fid->uid == current->uid) {
+ 				if (return_fid == NULL) {
+ 					if ((type == FID_OP)
+@@ -205,7 +204,14 @@ struct v9fs_fid *v9fs_fid_lookup(struct 
+ 			oldfid = current_fid->fid;
+ 			par = current->fs->pwd;
+ 			/* TODO: take advantage of multiwalk */
++
+ 			fidnum = v9fs_get_idpool(&v9ses->fidpool);
++			if(fidnum < 0) {
++				dprintk(DEBUG_ERROR,
++					"could not get a new fid num\n");
++				return return_fid;
++			}
++
+ 			while (par != dentry) {
+ 				result =
+ 				    v9fs_t_walk(v9ses, oldfid, fidnum, "..",
 
-o	Make your code snippet do something like the following:
-
-	rcu_read_lock()
-	while get next element from list
-		if (need per-element reference count)
-			ref = &element.refcount
-		else
-			ref = &__get_cpu_var(stacker_refcounts)
-		atomic_inc(ref)
-		rcu_read_unlock()
-		do something
-		rcu_read_lock()
-		atomic_dec(ref)
-	rcu_read_unlock()
-
-o	The point is to (hopefully) reduce the cache thrashing associated
-	with the reference counts.
-
-At module unload time, do something like the following:
-
-	need per-element reference count = 1
-	synchronize_rcu()
-	for_each_cpu(cpu)
-		while (per_cpu(stacker_refcounts,cpu) != 0)
-			sleep for a bit
-
-	/* At this point, all CPUs are using per-element reference counts */
-
-If this approach does not reduce cache thrashing enough, one could use
-a per-task reference count instead of a per-CPU reference count.  The
-downside of doing this per-task approach is that you have to traverse
-the entire task list at unload time.  But module unloading should be
-quite rare.  If doing the per-task approach, you don't need atomic
-increments and decrements for the reference count, and you have excellent
-cache locality.
-
-							Thanx, Paul
+diff --git a/fs/9p/idpool.c b/fs/9p/idpool.c
+deleted file mode 100644
+--- a/fs/9p/idpool.c
++++ /dev/null
+@@ -1,152 +0,0 @@
+-/*
+- *  linux/fs/9p/idpool.c
+- *
+- *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
+- *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
+- *
+- *  This program is free software; you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License as published by
+- *  the Free Software Foundation; either version 2 of the License, or
+- *  (at your option) any later version.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *  GNU General Public License for more details.
+- *
+- *  You should have received a copy of the GNU General Public License
+- *  along with this program; if not, write to:
+- *  Free Software Foundation
+- *  51 Franklin Street, Fifth Floor
+- *  Boston, MA  02111-1301  USA
+- *
+- */
+-
+-#include <linux/config.h>
+-#include <linux/module.h>
+-#include <linux/errno.h>
+-#include <asm/semaphore.h>
+-#include <linux/config.h>
+-#include "idpool.h"
+-#include "debug.h"
+-
+-/**
+- * grow_idpool - increase the size of an id pool
+- * @i: pointer to idpool to initialize
+- * @size: size (in bits) of idpool
+- *
+- */
+-
+-static int grow_idpool(struct idpool *i, int newsize)
+-{
+-	unsigned long *newpool;
+-
+-	newpool = kmalloc((newsize / 8), GFP_KERNEL);
+-	if (!newpool) {
+-		eprintk(KERN_WARNING,
+-			"Couldn't allocate memory to grow idpool\n");
+-		return 0;
+-	}
+-
+-	memset(newpool, 0, newsize / 8);
+-	if (i->idlist) {
+-		memcpy(newpool, i->idlist, (i->maxalloc) / 8);
+-		kfree(i->idlist);
+-	}
+-
+-	i->idlist = newpool;
+-	i->maxalloc = newsize;
+-
+-	return newsize;
+-}
+-
+-/**
+- * v9fs_alloc_idpool - allocate an id pool
+- * @i: pointer to idpool to initialize
+- * @size: size of idpool
+- *
+- */
+-
+-int v9fs_alloc_idpool(struct idpool *i, int size)
+-{
+-	int newsize;
+-
+-	init_MUTEX(&i->sem);
+-	i->maxalloc = 0;
+-	i->numalloc = 0;
+-	i->lastfree = 0;
+-	i->idlist = NULL;
+-	newsize = grow_idpool(i, size);
+-	return newsize;
+-}
+-
+-/**
+- * v9fs_free_idpool - deallocate an id pool
+- * @i: pointer to idpool to free
+- *
+- */
+-
+-void v9fs_free_idpool(struct idpool *i)
+-{
+-	kfree(i->idlist);
+-}
+-
+-/**
+- * v9fs_get_idpool - get a new id from the pool
+- * @i: pointer to idpool
+- *
+- */
+-
+-int v9fs_get_idpool(struct idpool *i)
+-{
+-	int nextbit;
+-
+-	if (down_interruptible(&i->sem) == -EINTR) {
+-		eprintk(KERN_WARNING, "Interrupted while locking\n");
+-		return -1;
+-	}
+-
+-	nextbit = find_next_zero_bit(i->idlist, i->maxalloc, i->lastfree);
+-	if (nextbit > i->maxalloc) {
+-		if (grow_idpool(i, i->maxalloc * 2) == 0) {
+-			up(&i->sem);
+-			return -1;
+-		} else {
+-			nextbit =
+-			    find_next_zero_bit(i->idlist, i->maxalloc,
+-					       i->lastfree);
+-		}
+-	}
+-
+-	set_bit(nextbit, i->idlist);
+-	if (i->lastfree == nextbit)
+-		i->lastfree = nextbit + 1;
+-
+-	up(&i->sem);
+-	return nextbit;
+-}
+-
+-/**
+- * v9fs_put_idpool - get a new id from the pool
+- * @which: which id to put
+- * @i: pointer to idpool
+- *
+- */
+-
+-void v9fs_put_idpool(int which, struct idpool *i)
+-{
+-	if ((which < 0) || (which > i->maxalloc)) {
+-		return;
+-	}
+-
+-	if (down_interruptible(&i->sem) == -EINTR) {
+-		eprintk(KERN_WARNING, "Interrupted while locking\n");
+-		return;
+-	}
+-
+-	clear_bit(which, i->idlist);
+-	if (which < i->lastfree)
+-		i->lastfree = which;
+-
+-	up(&i->sem);
+-}
+diff --git a/fs/9p/idpool.h b/fs/9p/idpool.h
+deleted file mode 100644
+--- a/fs/9p/idpool.h
++++ /dev/null
+@@ -1,42 +0,0 @@
+-/*
+- *  linux/fs/9p/idpool.h
+- *
+- *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
+- *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
+- *
+- *  This program is free software; you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License as published by
+- *  the Free Software Foundation; either version 2 of the License, or
+- *  (at your option) any later version.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *  GNU General Public License for more details.
+- *
+- *  You should have received a copy of the GNU General Public License
+- *  along with this program; if not, write to:
+- *  Free Software Foundation
+- *  51 Franklin Street, Fifth Floor
+- *  Boston, MA  02111-1301  USA
+- *
+- */
+-
+-/*
+- * This is for getting unique IDs.
+- * 0 means free, non-zero means used.
+- *
+- */
+-
+-struct idpool {
+-	struct semaphore sem;
+-	int maxalloc;
+-	int numalloc;
+-	int lastfree;
+-	unsigned long *idlist;
+-};
+-
+-int v9fs_alloc_idpool(struct idpool *, int);
+-void v9fs_free_idpool(struct idpool *);
+-int v9fs_get_idpool(struct idpool *i);
+-void v9fs_put_idpool(int which, struct idpool *i);

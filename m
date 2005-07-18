@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVGRVYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbVGRV13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVGRVYw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 17:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVGRVYw
+	id S261916AbVGRV13 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 17:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVGRV13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 17:24:52 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:37620 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261899AbVGRVYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 17:24:52 -0400
-Date: Mon, 18 Jul 2005 17:24:56 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: RT-V0.7.51-31 vs ntpd, 1 to nothin so far
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Message-id: <200507181724.56755.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Mon, 18 Jul 2005 17:27:29 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:60333 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261916AbVGRV10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 17:27:26 -0400
+From: Mark Gross <mgross@linux.intel.com>
+Organization: Intel
+To: Rik van Riel <riel@redhat.com>
+Subject: Re: Why is 2.6.12.2 less stable on my laptop than 2.6.10?
+Date: Mon, 18 Jul 2005 14:14:02 -0700
+User-Agent: KMail/1.5.4
+Cc: Dave Jones <davej@redhat.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+References: <200507140912.22532.mgross@linux.intel.com.suse.lists.linux.kernel> <200507151447.46318.mgross@linux.intel.com> <Pine.LNX.4.61.0507151914300.25957@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0507151914300.25957@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507181414.02262.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo;
+On Friday 15 July 2005 16:14, Rik van Riel wrote:
+> On Fri, 15 Jul 2005, Mark Gross wrote:
+> > What would be wrong in expecting the folks making the driver changes
+> > have some story on how they are validating there changes don't break
+> > existing working hardware?  I could probly be accomplished in open
+> > source with subsystem testing volenteers.
+>
+> Are you volunteering ?
 
-I just built 51-31, mode 4, and although I spent an hour putting in 
-debug printouts in /etc/init.d/ntpd, I couldn't make it work, and 
-the /var/log/ntpd.log is being flooded with "bad file descriptor" 
-messages.
+I am not volunteering.  That last sentence was meant to say "It could 
+probubly..."
 
-So I'm back on 51-30 in mode 3 for the time being so tvtime works.
- 
+I'm just poking at a process change that would include a more formal 
+validation / testing phase as part of getting change into the stable tree.  I 
+don't have any silver bullets.
+
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+--mgross
+BTW: This may or may not be the opinion of my employer, more likely not.  
+

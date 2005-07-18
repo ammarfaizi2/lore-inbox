@@ -1,71 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVGRVFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVGRVQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbVGRVFs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 17:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVGRVFr
+	id S261913AbVGRVQq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 17:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVGRVQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 17:05:47 -0400
-Received: from mxout2.netvision.net.il ([194.90.9.21]:36756 "EHLO
-	mxout2.netvision.net.il") by vger.kernel.org with ESMTP
-	id S261895AbVGRVFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 17:05:45 -0400
-Date: Tue, 19 Jul 2005 00:05:28 +0300
-From: Maxim Kozover <maximkoz@netvision.net.il>
-Subject: 2.6.13-rc3 (ide ?) kernel crash
-To: linux-kernel@vger.kernel.org
-Reply-to: Maxim Kozover <maximkoz@netvision.net.il>
-Message-id: <1348130158.20050719000528@netvision.net.il>
-MIME-version: 1.0
-X-Mailer: The Bat! (v3.5.30) Professional
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Priority: 3 (Normal)
+	Mon, 18 Jul 2005 17:16:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3750 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261913AbVGRVQq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 17:16:46 -0400
+Date: Mon, 18 Jul 2005 14:16:37 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: vojtech@suse.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Fw: Oops in hidinput_hid_event
+Message-Id: <20050718141637.074c6f70.zaitcev@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-Trying 2.6.13-rc3 for Supermicro dual Xeon x86_64 with maxcpus=1 (because of
-hyperthreading bug) I get an ide-related (?) kernel crash:
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-hdb: HL-DT-STCD-RW/DVD DRIVE GCC-4240N, ATAPI CD/DVD-ROM drive
-ide1: I/O resource 0x170-0x177 not free.
-ide1: ports already in use, skipping probe
-Unable to handle kernel NULL pointer dereference at 0000000000000020 RIP:
-<ffffffff80297940>{init_irq+448}
-PGD 0
-Oops: 0000 [1] SMP
-CPU 0
-Modules linked in:
-Pid: 1, comm: swapper Not tainted 2.6.13-rc3
-RIP: 0010:[<ffffffff80297940>] <ffffffff80297940>{init_irq+448}
-RSP: 0018:ffff81007ff29e38  EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 0000000000007580 RCX: 0000000000000000
-RDX: ffff810037e39500 RSI: 00000000000000d0 RDI: 0000000000000198
-RBP: ffffffff804f5200 R08: 0000000000000030 R09: 0000000000000002
-R10: 000000000000000e R11: 0000000000000000 R12: ffffffff804fc780
-R13: 00000000ffffffff R14: 0000ffffffff8010 R15: ffffffff8051bfb0
-FS:  0000000000000000(0000) GS:ffffffff8050f800(0000) knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: 0000000000000020 CR3: 0000000000101000 CR4: 00000000000006e0
-Process swapper (pid: 1, threadinfo ffff81007ff28000, task ffff81007ff274d0)
-Stack: 0000000000000003 0000000000000246 0000000000000000 0000000000000000
-       0000000000000246 ffffffff804f5200 ffffffff804f5220 0000000000000001
-       0000000000000001 0000ffffffff8010
-Call Trace:<ffffffff80298138>{hwif_init+328} <ffffffff80298443>{ideprobe_init+131}
-       <ffffffff801be662>{create_proc_entry+146} <ffffffff8053a0a9>{ide_generic_init+9}
-       <ffffffff8010b249>{init+505} <ffffffff8010e93f>{child_rip+8}
-       <ffffffff8010b050>{init+0} <ffffffff8010e937>{child_rip+0}
+I think this patch is rather obvious, so maybe I should ask Andrew to
+apply it to -mm for now, to get some testing. Would that help to verify
+it for acceptance?
 
+-- Pete
 
-Code: 48 8b 40 20 48 0f b6 80 98 00 00 00 0f b6 90 c0 55 49 80 e8
-RIP <ffffffff80297940>{init_irq+448} RSP <ffff81007ff29e38>
-CR2: 0000000000000020
- <0>Kernel panic - not syncing: Attempted to kill init!
+Begin forwarded message:
 
-Please advise.
+Date: Tue, 28 Jun 2005 15:00:23 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: vojtech@suse.cz
+Cc: zaitcev@redhat.com, linux-usb-devel@lists.sourceforge.net
+Subject: Oops in hidinput_hid_event
 
-Thanks,
+Hi, Vojtech:
 
-Maxim Kozover.
+Someone reported a bug in Fedora, which runs a largely unmodified upstream
+kernel in this area. Whenever the user hits a key which switches LED,
+the system oopses. Here's a trace:
 
+Unable to handle kernel NULL pointer dereference at virtual address 000000c8
+EFLAGS: 00010006   (2.6.11-1.1369_FC4smp)
+EIP is at hidinput_hid_event+0x2d/0x292                                       
+Call Trace:           
+ [<c02872e0>] hid_process_event+0x57/0x5f
+ [<c028758a>] hid_input_field+0x2a2/0x2ac
+ [<c0287632>] hid_input_report+0x9e/0xb8
+ [<c0287f62>] hid_ctrl+0x14c/0x151
+ [<e0a21060>] uhci_destroy_urb_priv+0xb5/0x10a [uhci_hcd]
+ [<c027dab5>] usb_hcd_giveback_urb+0x24/0x67
+ [<e0a22360>] uhci_finish_urb+0x2d/0x38 [uhci_hcd]
+ [<e0a223af>] uhci_finish_completion+0x44/0x56 [uhci_hcd]
+ [<e0a224a2>] uhci_scan_schedule+0xaa/0x13a [uhci_hcd]
+ [<c023413d>] i8042_interrupt+0x121/0x234
+ [<e0a226d0>] uhci_irq+0x47/0x10d [uhci_hcd]
+
+Full trace at
+ https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=160709
+
+Any ideas?
+
+By the way, it seems that I see a bug in hidinput_hid_event.
+The check for NULL can never work, becaue &hidinput->input
+is nonzero at all times. How about this?
+
+--- linux-2.6.12/drivers/usb/input/hid-input.c	2005-06-21 12:58:47.000000000 -0700
++++ linux-2.6.12-lem/drivers/usb/input/hid-input.c	2005-06-28 14:57:22.000000000 -0700
+@@ -397,11 +397,12 @@
+ 
+ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, struct pt_regs *regs)
+ {
+-	struct input_dev *input = &field->hidinput->input;
++	struct input_dev *input;
+ 	int *quirks = &hid->quirks;
+ 
+-	if (!input)
++	if (!field->hidinput)
+ 		return;
++	input = &field->hidinput->input;
+ 
+ 	input_regs(input, regs);
+ 
+
+-- Pete

@@ -1,91 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbVGROnB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVGROpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbVGROnB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 10:43:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVGROnB
+	id S261777AbVGROpM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 10:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbVGROpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 10:43:01 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:45244 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261777AbVGROls
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 10:41:48 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Mon, 18 Jul 2005 10:45:11 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:39148
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261777AbVGROn5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 10:43:57 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'regatta'" <regatta@gmail.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: how to be a kernel developer ?
+Date: Mon, 18 Jul 2005 08:43:57 -0600
+Message-ID: <001101c58ba7$215c8d00$a20cc60a@amer.sykes.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17115.49049.576527.324806@tut.ibm.com>
-Date: Mon, 18 Jul 2005 09:41:29 -0500
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Tom Zanussi <zanussi@us.ibm.com>, richardj_moore@uk.ibm.com,
-       varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: Merging relayfs?
-In-Reply-To: <1121694275.12862.23.camel@localhost.localdomain>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	<20050712022537.GA26128@infradead.org>
-	<20050711193409.043ecb14.akpm@osdl.org>
-	<Pine.LNX.4.61.0507131809120.3743@scrub.home>
-	<17110.32325.532858.79690@tut.ibm.com>
-	<Pine.LNX.4.61.0507171551390.3728@scrub.home>
-	<17114.32450.420164.971783@tut.ibm.com>
-	<1121694275.12862.23.camel@localhost.localdomain>
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <5a3ed56505071807357fc419e7@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt writes:
- > On Sun, 2005-07-17 at 10:52 -0500, Tom Zanussi wrote:
- > 
- > >  > 
- > >  > >  > - overwrite mode can be implemented via the buffer switch callback
- > >  > > 
- > >  > > The buffer switch callback is already where this is handled, unless
- > >  > > you're thinking of something else - one of the first checks in the
- > >  > > buffer switch is relay_buf_full(), which always returns 0 if the
- > >  > > buffer is in overwrite mode.
- > >  > 
- > >  > I mean, relayfs doesn't has to know about this, the client itself can do 
- > >  > it (e.g. via helper functions).
- > > 
- > > In a previous version, we did something like having the client pass
- > > back a return value from the callback indicating whether or not to
- > > continue or stop.  I can try doing something like that instead again.
- > 
- > Tom,
- > 
- > I'm actually very much against this. Looking at a point of view from the
- > logdev device. Having a callback to know to continue at every buffer
- > switch would just be slowing down something that is expected to be very
- > fast. I don't see the problem with having an overwrite mode or not. Why
- > can't relayfs know this? It _is_ an operation of relayfs, and having it
- > pushed to the client would seem to make the client need to know more
- > about how relayfs works that it needs to.  Because, the logdev device
- > doesn't care about buffer switches.
 
-I don't think it would slow anything down - it would be pretty much
-the same code being executed as before e.g. the buffer_start()
-callback for overwrite mode could look like this:
+> Hi
+>
+> I want to join the Kernel community and help in developing Linux
+> kernel, I'm good in C,Perl and  not that good in C++
+>
+> is there any How-To page in how to help or how to join ? since I want
+> to start in basic things
 
-int buffer_start()
-{
-	...	
-	return 1; // continue unconditionally
-}
+I can tell you one thing for sure. And that is that you will need to read a
+lot and that includes the mailing list archives.
 
-And for no-overwrite mode:
+This exact question is made at least every 15 days. Did you google? You will
+need to make that your Home Page.
 
-int buffer_start()
-{
-	...	
-	return !relay_buf_full(buf); // continue if not full
-}
-
-Since the buffer start callback already returns the amount that's
-supposed to be reserved at the start of the sub-buffer, I'd have to
-make that an outparam instead, I guess, but it's basically the same
-code handling the overwrite/no-overwrite condition.
-
-Tom
-
+.Alejandro
 

@@ -1,47 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVGRKrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVGRLIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVGRKrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 06:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVGRKrJ
+	id S261298AbVGRLIp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 07:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVGRLIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 06:47:09 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:40712 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261602AbVGRKrH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 06:47:07 -0400
-Date: Mon, 18 Jul 2005 11:47:07 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       "Brown, Len" <len.brown@intel.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, vojtech@suse.cz,
-       christoph@lameter.com
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-In-Reply-To: <20050715175819.GF15783@wotan.suse.de>
-Message-ID: <Pine.LNX.4.61L.0507181140200.527@blysk.ds.pg.gda.pl>
-References: <F7DC2337C7631D4386A2DF6E8FB22B300410F46A@hdsmsx401.amr.corp.intel.com.suse.lists.linux.kernel>
- <p73y8889f4v.fsf@bragg.suse.de> <20050715102349.A15791@unix-os.sc.intel.com>
- <Pine.LNX.4.61L.0507151848440.15977@blysk.ds.pg.gda.pl>
- <20050715175819.GF15783@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Jul 2005 07:08:42 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:9744 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261644AbVGRLHi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 07:07:38 -0400
+To: linuxram@us.ibm.com
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       mike@waychison.com, bfields@fieldses.org
+In-reply-to: <1121304437.5288.32.camel@localhost> (message from Ram on Wed, 13
+	Jul 2005 18:27:17 -0700)
+Subject: shared subtrees implementation writeup
+References: <1120816072.30164.10.camel@localhost>
+	 <1120816229.30164.13.camel@localhost> <1120817463.30164.43.camel@localhost>
+	 <E1Dqttu-0004kx-00@dorka.pomaz.szeredi.hu>
+	 <1120839568.30164.88.camel@localhost>
+	 <E1Dqw4W-0004sT-00@dorka.pomaz.szeredi.hu>
+	 <1120845120.30164.139.camel@localhost>
+	 <E1DqyqO-00057C-00@dorka.pomaz.szeredi.hu> <1121304437.5288.32.camel@localhost>
+Message-Id: <E1DuTSd-0007TC-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 18 Jul 2005 13:06:59 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Jul 2005, Andi Kleen wrote:
+Thanks for the writeup, it helps to understand things a bit better.
+However I still don't understand a few things:
 
-> >  That's like scratching your left ear with your right hand -- broadcasting 
-> > that external timer interrupt in the first place is more straightforward.  
-> > If you want to exclude CPUs from the list of receivers, just use the 
-> > logical destination mode appropriately.
+
+> Section 1. mount:
 > 
-> The problem with that is that it would need regular synchronizations
-> of all CPUs to coordinate this.   Not good for scalability and I 
-> believe the fundamentally wrong way to do this.
+> 	to begin with we have a the following mount tree 
+> 
+> 		         root
+> 		      /	/  \  \ \
+> 		     /	t1  t2 \  \ 
+> 		   t0		t3 \
+> 				    t4
+> 
+> 	note: 
+> 	t0, t1, t2, t3, t4 all contain mounts.
+> 	t1 t2 t3 are the slave of t0. 
+> 	t4 is the slave of t2.
+> 	t4 and t3 is marked as shared.
+> 
+> 	The corresponding propagation tree will be:
+> 
+> 			p0
+> 		      /   \
+> 		     p1   p2
+> 		     /     
+> 	 	     p3	   
+> 
+> 
+> 	***************************************************************
+> 	      p0 contains the mount t0, and contains the slave mount t1
+> 	      p1 contains the mount t2
+> 	      p3 contains the mount t4
+> 	      p2 contains the mount t3
+> 
+> 	  NOTE: you may need to look at this multiple time as you try to
+> 	  	understand the various scenarios.
+> 	***************************************************************
 
- What to you mean by "regular synchronizations of all CPUs?"  And how is a 
-broadcasted external timer interrupt different from a unicasted one 
-redistributed further via an all-but-self IPI, except from removing an 
-unnecessary burden from the CPU targeted by the unicast interrupt?
+Why you have p2 and p3?  They contain a single mount only, which could
+directly be slaves to p0 and p1 respectively.  Does it have something
+to do with being shared?
 
-  Maciej
+BTW, is there a reason not to include the pnode info in 'struct
+vfsmount'?  That would simplify a lot of allocation error cases.
+
+> 	The key point to be noted in the above set of operations is:
+> 	each pnode does three different operations corresponding to each stage.
+> 
+> 	A. when the pnode is encountered the first time, it has to create
+> 		a new pnode for its child mounts.
+> 	B. when the pnode is encountered again after it has traversed down
+> 	   each slave pnode, it has to associate the slave pnode's newly created
+> 	   pnode with the pnode's newly created pnode.
+> 	C. when the pnode is encountered finally after having traversed through
+> 		all its slave pnodes, it has to create new child mounts
+> 		for each of its member mounts.
+
+Now why is this needed?  Couldn't each of these be done in a single step?
+
+I still can't see the reason for having these things done at different
+stages of the traversal.
+
+Thanks,
+Miklos

@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVGRUQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVGRUYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbVGRUQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 16:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVGRUQY
+	id S261601AbVGRUYY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 16:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVGRUYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 16:16:24 -0400
-Received: from MailBox.iNES.RO ([80.86.96.21]:20877 "EHLO mailbox.ines.ro")
-	by vger.kernel.org with ESMTP id S261709AbVGRUP3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 16:15:29 -0400
-Subject: Re: 2.6.13-rc3 from today: No Toshiba ACPI module load?
-From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200507170256.j6H2ugUo004904@laptop11.inf.utfsm.cl>
-References: <200507170256.j6H2ugUo004904@laptop11.inf.utfsm.cl>
-Content-Type: text/plain; charset=utf-8
-Organization: iNES Group
-Date: Mon, 18 Jul 2005 23:00:41 +0300
-Message-Id: <1121716841.3705.42.camel@localhost>
+	Mon, 18 Jul 2005 16:24:24 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50823
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261601AbVGRUYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 16:24:23 -0400
+Date: Mon, 18 Jul 2005 13:24:44 -0700 (PDT)
+Message-Id: <20050718.132444.78737368.davem@davemloft.net>
+To: herbert@gondor.apana.org.au
+Cc: ast@domdv.de, linux-kernel@vger.kernel.org, jmorris@intercode.com.au
+Subject: Re: 2.6.13rc3: crypto horribly broken on all 64bit archs
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050717204554.GA23637@gondor.apana.org.au>
+References: <42DA4D05.7000403@domdv.de>
+	<20050717204554.GA23637@gondor.apana.org.au>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-7) 
-Content-Transfer-Encoding: 8bit
-X-BitDefender-Scanner: Clean, Agent: BitDefender Milter 1.6.2 on MailBox.iNES.RO
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-În data de Sî, 16-07-2005 la 22:56 -0400, Horst von Brand a scris:
-> I'm getting:
-> # modprobe toshiba_acpi
-> FATAL: Error inserting toshiba_acpi (/lib/modules/2.6.13-rc3/kernel/drivers/acpi/toshiba_acpi.ko): No such device
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Mon, 18 Jul 2005 06:45:54 +1000
+
+> On Sun, Jul 17, 2005 at 02:20:21PM +0200, Andreas Steinmetz wrote:
+> > 
+> > The compiler first does ~((a)-1)) and then expands the unsigned int to
+> > unsigned long for the & operation. So we end up with only the lower 32
+> > bits of the address. Who did smoke what to do this? Patch attached.
 > 
-> This is definitely a Toshiba M30 notebook with this.
-> Anything else that might be useful?
+> Thanks for the patch Andreas.  A similar patch will be in the
+> mainline kernel as soon as everybody is back home from Canada.
 
-Does your toshiba use an Phoenix BIOS ?
-If yes, the toshiba_acpi module does not apply.
-
--- 
-Cioby
-
-
+Yes, the fix is in my tree and will make it's way upstream
+as soon as possible.

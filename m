@@ -1,98 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVGROYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVGRObk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbVGROYA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 10:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVGROX7
+	id S261757AbVGRObk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 10:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVGRObj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 10:23:59 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:43464 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261766AbVGROWR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 10:22:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=nkE0nGdLgJIAoEd1dSb9lzVJITFua/D12R6gdO9b9lqzVcPUk5X0Lu/HPbt0ChGal44ZkZvkGi1/O1KkMQ8WbEZWIHS79c4HbgMkhHVQGLXKZdhSwjaA1sOhh/Qb5ViI+KFfrNgLNpfDXSk7BOhbYLbhYVEZXAJfpz0Hh/OUE5k=
-Date: Mon, 18 Jul 2005 10:21:54 -0400
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm1
-Message-ID: <20050718142154.GA11815@nineveh.rivenstone.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050715013653.36006990.akpm@osdl.org> <20050717013248.GA10673@nineveh.rivenstone.net>
-Mime-Version: 1.0
+	Mon, 18 Jul 2005 10:31:39 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:57507 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261757AbVGRObj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 10:31:39 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050717013248.GA10673@nineveh.rivenstone.net>
-User-Agent: Mutt/1.5.6+20040907i
-From: jfannin@gmail.com (Joseph Fannin)
+Content-Transfer-Encoding: 7bit
+Message-ID: <17115.48448.238359.451882@tut.ibm.com>
+Date: Mon, 18 Jul 2005 09:31:28 -0500
+To: Hareesh Nagarajan <hareesh@google.com>
+Cc: Tom Zanussi <zanussi@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, karim@opersys.com, varap@us.ibm.com,
+       richardj_moore@uk.ibm.com
+Subject: Re: Merging relayfs?
+In-Reply-To: <42DB3B59.1080006@google.com>
+References: <17107.6290.734560.231978@tut.ibm.com>
+	<20050712022537.GA26128@infradead.org>
+	<20050711193409.043ecb14.akpm@osdl.org>
+	<Pine.LNX.4.61.0507131809120.3743@scrub.home>
+	<17110.32325.532858.79690@tut.ibm.com>
+	<Pine.LNX.4.61.0507171551390.3728@scrub.home>
+	<17114.32450.420164.971783@tut.ibm.com>
+	<42DB3B59.1080006@google.com>
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 16, 2005 at 09:32:49PM -0400,  wrote:
-> On Fri, Jul 15, 2005 at 01:36:53AM -0700, Andrew Morton wrote:
-> > 
->  ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
->  
-> > +suspend-update-documentation.patch
-> > +swsusp-fix-printks-and-cleanups.patch
-> > +swsusp-fix-remaining-u32-vs-pm_message_t-confusion.patch
-> > +swsusp-switch-pm_message_t-to-struct.patch
-> > +swsusp-switch-pm_message_t-to-struct-pmac_zilog-fix.patch
-> > +swsusp-switch-pm_message_t-to-struct-ppc32-fixes.patch
-> > +fix-pm_message_t-stuff-in-mm-tree-netdev.patch
-> 
+Hareesh Nagarajan writes:
+ > Tom Zanussi wrote:
+ > > Roman Zippel writes:
+ > >  > Hi,
+ > >  > 
+ > >  > On Thu, 14 Jul 2005, Tom Zanussi wrote:
+ > >  > 
+ > >  > > The netlink control channel seems to work very well, but I can
+ > >  > > certainly change the examples to use something different.  Could you
+ > >  > > suggest something?
+ > >  > 
+ > >  > It just looks like a complicated way to do an ioctl, a control file that 
+ > >  > you can read/write would be a lot simpler and faster.
+ > > 
+ > > You're right - in previous versions, we did use ioctl - we ended up
+ > > using netlink as it seemed like least offensive option to most people.
+ > > I'll try modifying the example code to use a control file or something
+ > > like that instead though.
+ > 
+ > Having an ioctl() interface will definitely make things less 
+ > complicated. Are the older versions which use ioctl available off the 
+ > relayfs website?
 
-    I needed this little patch too.  It's boot-tested; I have a MESH
-controller.
+Yes, the 'old relayfs' patches on the website implement ioctl.
 
-    Thanks!
-
--
-
-diff -aurN linux-2.6.13-rc3-mm1/drivers/scsi/mesh.c linux-2.6.13-rc3-mm1_changed/drivers/scsi/mesh.c
---- linux-2.6.13-rc3-mm1/drivers/scsi/mesh.c	2005-07-16 01:46:44.000000000 -0400
-+++ linux-2.6.13-rc3-mm1_changed/drivers/scsi/mesh.c	2005-07-18 07:52:04.000000000 -0400
-@@ -1766,7 +1766,7 @@
- 	struct mesh_state *ms = (struct mesh_state *)macio_get_drvdata(mdev);
- 	unsigned long flags;
- 
--	if (state == mdev->ofdev.dev.power.power_state || state < 2)
-+	if (state.event == mdev->ofdev.dev.power.power_state.event || state.event < 2)
- 		return 0;
- 
- 	scsi_block_requests(ms->host);
-@@ -1781,7 +1781,7 @@
- 	disable_irq(ms->meshintr);
- 	set_mesh_power(ms, 0);
- 
--	mdev->ofdev.dev.power.power_state = state;
-+	mdev->ofdev.dev.power.power_state.event = state.event;
- 
- 	return 0;
- }
-@@ -1791,7 +1791,7 @@
- 	struct mesh_state *ms = (struct mesh_state *)macio_get_drvdata(mdev);
- 	unsigned long flags;
- 
--	if (mdev->ofdev.dev.power.power_state == 0)
-+	if (mdev->ofdev.dev.power.power_state.event == 0)
- 		return 0;
- 
- 	set_mesh_power(ms, 1);
-@@ -1802,7 +1802,7 @@
- 	enable_irq(ms->meshintr);
- 	scsi_unblock_requests(ms->host);
- 
--	mdev->ofdev.dev.power.power_state = 0;
-+	mdev->ofdev.dev.power.power_state.event = 0;
- 
- 	return 0;
- }
+Tom
 
 
--- 
-Joseph Fannin
-jfannin@gmail.com
-
-"That's all I have to say about that." -- Forrest Gump.

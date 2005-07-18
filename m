@@ -1,393 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVGREZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVGREne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVGREZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 00:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVGREZ0
+	id S261419AbVGREne (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 00:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVGREne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 00:25:26 -0400
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:40627 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S261199AbVGREZX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 00:25:23 -0400
-X-OB-Received: from unknown (205.158.62.182)
-  by wfilter.us4.outblaze.com; 18 Jul 2005 04:25:23 -0000
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+	Mon, 18 Jul 2005 00:43:34 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:62869 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261419AbVGREmr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 00:42:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=BMLx74ukqyCBxemrZ+PZE2aFqc1QzUIYMWVNvvWS8sFglTDodMkJjjHbXbr/Rar1posxll5iyWncs8aj7rDr12w4iQDnSc4ikSkh+pp4g9ESFk/eES5xBWizp0fKxhvPw0kIerYSCvFasgrSIieR9ONskvuipDinadgFtHV/qac=
+Message-ID: <3faf056805071721422594dd20@mail.gmail.com>
+Date: Mon, 18 Jul 2005 10:12:46 +0530
+From: vamsi krishna <vamsi.krishnak@gmail.com>
+Reply-To: vamsi krishna <vamsi.krishnak@gmail.com>
+To: alan@lxorguk.ukuu.org.uk
+Subject: Increasing virtual address space of a process, by treating virtual address's as offsets in secondary memory.
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-From: "Parminder Chhabra" <parminderchhabra@email.com>
-To: linux-kernel@vger.kernel.org
-Date: Sun, 17 Jul 2005 23:25:23 -0500
-Subject: repeated Oops on Kernel 2.6.12.2
-X-Originating-Ip: 198.152.240.62
-X-Originating-Server: ws1-6.us4.outblaze.com
-Message-Id: <20050718042523.275E41CE304@ws1-6.us4.outblaze.com>
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello Alan, mm-hackers,
 
-I get repeated Oops messages on 2.6.12.2. I get the message on inserting a
-module that spawns a kernel thread to perform a task on a group of packets.
-The thread runs only a stub routine to simulate delay in serving a group of
-packets. The above condition is reached before the thread is invoked by the
-packets the first time.
+I have been working this idea of increasing virtual address space of a
+process with the help of secondary memory. At first this may seem like
+the same virtual memory concept but its not the case.
 
-I notice from previous postings that there was a problem with the 
-free_block in the 2.6.9-rc2 kernel. This appears to be similar 
-problem. Any pointers will help.
+Imagine all the virtual address the compiler generates while creating
+the binary as relocatable offsets on the disk, and the application
+specific runtime mmaps and munmaps these dynamically.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-  printing eip:
-  c0141205
-  *pde = 00000000
-  Oops: 0002 [#1]
-  PREEMPT
-  Modules linked in: module1 3c59x eepro100
-  CPU:    0
-  EIP:    0060:[<c0141205>]    Tainted: P      VLI
-  EFLAGS: 00010012   (2.6.12.2)
-  EIP is at free_block+0x55/0xe0
-  eax: cfa60cc0   ebx: cfa60ec0   ecx: cf077400   edx: 00000000
+I was searching a lot about work on this, and found your reply where
+you say that we can increase the virtual address space by mmaping and
+munmaping programatically ourself.
 
-  EIP is at free_block+0x55/0xe0
-  eax: cfa60cc0   ebx: cfa60ec0   ecx: cf077400   edx: 00000000
-  esi: cfffd760   edi: 00000003   ebp: cfffd76c   esp: cffa3ed8
-  ds: 007b   es: 007b   ss: 0068
-  Process events/0 (pid: 3, threadinfo=cffa2000 task=cffe2020)
-  Stack: 00000246 c011dbd5 cfffd77c cfff9150 cfff9140 0000000b 
-cfffd760 c014188f
-         cfffd760 cfff9150 0000000b cfffd7fc cfffd760 cfffd7d0 
-00000003 c0141963
-         cfffd760 cfff9140 00000000 cfffd7fc cffa2000 cffa2000 
-00000296 c05bb444
-  Call Trace:
-  [<c011dbd5>] __mod_timer+0x115/0x1c0
-  [<c014188f>] drain_array_locked+0x7f/0xb0
-  [<c0141963>] cache_reap+0xa3/0x1c0
+So is the bigmem kernel implement this? may be  you can give me some
+insight into this.
 
-  [<c01418c0>] cache_reap+0x0/0x1c0
-  [<c0111030>] default_wake_function+0x0/0x20
-  [<c0111030>] default_wake_function+0x0/0x20
-  [<c0125a00>] worker_thread+0x0/0x2e0
-  [<c012a50a>] kthread+0xaa/0xb0
-  [<c012a460>] kthread+0x0/0xb0
-  [<c0100e15>] kernel_thread_helper+0x5/0x10
-  Code: bc 27 00 00 00 00 8b 44 24 24 8b 15 b0 b4 5b c0 8b 0c b8 8d 
-81 00 00 00 40 c1 e8 0c c1 e0 05 8b 5c 02 1c 8b 53 04 8b 03 89 50 04 
-<89> 02 8b 43 0c 31 d2 c7 03 00 01 10 00 c7 43 04 00 02 20 00 29
-  note: events/0[3] exited with preempt_count 1
+Some inputs on this would be highly appreciated.
 
-The following is the config file with only the [y|m] attributes shown 
-for brevity.
+Sincerely,
+Vamsi kundeti. 
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_AUDIT=y
-CONFIG_AUDITSYSCALL=y
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_EMBEDDED=y
-CONFIG_KALLSYMS=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODULE_SRCVERSION_ALL=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_SECCOMP=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_IBM=m
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA_DMA_API=y
-CONFIG_ISA=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_FW_LOADER=m
-CONFIG_MTD=y
-CONFIG_MTD_MAP_BANK_WIDTH_1=y
-CONFIG_MTD_MAP_BANK_WIDTH_2=y
-CONFIG_MTD_MAP_BANK_WIDTH_4=y
-CONFIG_MTD_CFI_I1=y
-CONFIG_MTD_CFI_I2=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PNP=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_LBD=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_SPI_ATTRS=y
-CONFIG_SCSI_AHA152X=y
-CONFIG_SCSI_AHA1542=y
-CONFIG_SCSI_AACRAID=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_DEBUG_ENABLE=y
-CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
-CONFIG_SCSI_AIC7XXX_OLD=y
-CONFIG_SCSI_AIC79XX=y
-CONFIG_AIC79XX_DEBUG_ENABLE=y
-CONFIG_AIC79XX_REG_PRETTY_PRINT=y
-CONFIG_SCSI_DPT_I2O=y
-CONFIG_SCSI_SATA=y
-CONFIG_SCSI_ATA_PIIX=y
-CONFIG_SCSI_IPR=m
-CONFIG_SCSI_QLA2XXX=y
-CONFIG_IEEE1394=y
-CONFIG_IEEE1394_OHCI1394=y
-CONFIG_IEEE1394_RAWIO=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_TCPDIAG=y
-CONFIG_NETFILTER=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_QUEUE=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_IPRANGE=y
-CONFIG_IP_NF_MATCH_MAC=y
-CONFIG_IP_NF_MATCH_PKTTYPE=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_TOS=y
-CONFIG_IP_NF_MATCH_RECENT=y
-CONFIG_IP_NF_MATCH_ECN=y
-CONFIG_IP_NF_MATCH_DSCP=y
-CONFIG_IP_NF_MATCH_AH_ESP=y
-CONFIG_IP_NF_MATCH_LENGTH=y
-CONFIG_IP_NF_MATCH_TTL=y
-CONFIG_IP_NF_MATCH_TCPMSS=y
-CONFIG_IP_NF_MATCH_HELPER=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_CONNTRACK=y
-CONFIG_IP_NF_MATCH_OWNER=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IP_NF_TARGET_ULOG=y
-CONFIG_IP_NF_TARGET_TCPMSS=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_IP_NF_TARGET_NETMAP=y
-CONFIG_IP_NF_TARGET_SAME=y
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_TARGET_TOS=y
-CONFIG_IP_NF_TARGET_ECN=y
-CONFIG_IP_NF_TARGET_DSCP=y
-CONFIG_IP_NF_TARGET_MARK=y
-CONFIG_IP_NF_TARGET_CLASSIFY=y
-CONFIG_IP_NF_RAW=m
-CONFIG_IP_NF_TARGET_NOTRACK=m
-CONFIG_IP_NF_ARPTABLES=y
-CONFIG_IP_NF_ARPFILTER=y
-CONFIG_IP_NF_ARP_MANGLE=y
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CLK_JIFFIES=y
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_CLS=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=m
-CONFIG_NET_PCI=y
-CONFIG_PCNET32=m
-CONFIG_AMD8111_ETH=m
-CONFIG_AMD8111E_NAPI=y
-CONFIG_EEPRO100=m
-CONFIG_FEALNX=m
-CONFIG_NATSEMI=m
-CONFIG_NE2K_PCI=m
-CONFIG_8139TOO=y
-CONFIG_8139TOO_PIO=y
-CONFIG_S2IO=m
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_LIBPS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_PRINTER=y
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_DRM=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_TIMER=y
-CONFIG_SND_PCM=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_AC97_CODEC=y
-CONFIG_SND_INTEL8X0=y
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_STORAGE=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_EGALAX=m
-CONFIG_USB_MON=y
-CONFIG_USB_CYTHERM=m
-CONFIG_USB_PHIDGETSERVO=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_DNOTIFY=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
-CONFIG_UDF_NLS=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFSD=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_PRINTK_TIME=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_CRC32=y
-CONFIG_LIBCRC32C=m
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_X86_BIOS_REBOOT=y
+PS: Please refer this kernel mailing list email.
+
+
+<--------------------------------------------------SNIP--------------------------------------------------------------------------->
+Re: BIGMEM kernel question
+From: Alan Cox (alan@lxorguk.ukuu.org.uk)
+Date: Fri Jul 06 2001 - 16:46:16 EST
 
 
 
+> Ahh. That makes sense. So how can I change the chunk size from 64k to
+> something higher (I assume I could set it to 128k to effectively double
+> that 3GB to 6GB)?
 
+I think you misunderstand. If you want more than 3Gb you will have to map and
+unmap stuff yourself. You only have 3Gb of per process address space due to
+x86 weaknesses (lack of seperate kernel/user spaces without tlb flush
+overhead nightmares)
 
--- 
-___________________________________________________________
-Sign-up for Ads Free at Mail.com
-http://promo.mail.com/adsfreejump.htm
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at http://www.tux.org/lkml/
 
+    * Next message: Donald Becker: "Re: why this 1ms delay in
+mdio_read? (cont'd from "are ioctl calls supposed to take this
+long?")"
+    * Previous message: Rik van Riel: "Re: BIGMEM kernel question"
+    * In reply to: Eric Anderson: "Re: BIGMEM kernel question"
+    * Next in thread: Brian Gerst: "Re: BIGMEM kernel question"
+    * Messages sorted by: [ date ] [ thread ] [ subject ] [ author ] 
+<------------------------------------------------------SNIP----------------------------------------------------------------------------->

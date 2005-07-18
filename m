@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbVGROTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVGROTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261771AbVGROTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 10:19:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVGROTI
+	id S261756AbVGROTK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 10:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVGROTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 10:19:08 -0400
-Received: from Quebec-HSE-ppp231061.qc.sympatico.ca ([69.159.205.163]:7153
-	"EHLO cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261771AbVGROSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 10:18:08 -0400
-Subject: [PATCH] Fix cryptoapi deflate not handling PAGE_SIZE chunks.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1121657195.13487.36.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 18 Jul 2005 13:26:35 +1000
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Jul 2005 10:19:02 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:37257 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261764AbVGRORR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 10:17:17 -0400
+Date: Mon, 18 Jul 2005 16:16:15 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Tom Zanussi <zanussi@us.ibm.com>, richardj_moore@uk.ibm.com,
+       varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Merging relayfs?
+In-Reply-To: <1121694275.12862.23.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0507181607410.3743@scrub.home>
+References: <17107.6290.734560.231978@tut.ibm.com>  <20050712022537.GA26128@infradead.org>
+  <20050711193409.043ecb14.akpm@osdl.org>  <Pine.LNX.4.61.0507131809120.3743@scrub.home>
+  <17110.32325.532858.79690@tut.ibm.com>  <Pine.LNX.4.61.0507171551390.3728@scrub.home>
+  <17114.32450.420164.971783@tut.ibm.com> <1121694275.12862.23.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Herbert.
+Hi,
 
-Here's a resend of a patch I'm using in Suspend2's new cryptoapi
-support, which is needed for us to successfully compress pages using
-deflate. It's along the lines of the existing fix in the decompression
-code.
+On Mon, 18 Jul 2005, Steven Rostedt wrote:
 
-Regards,
+> I'm actually very much against this. Looking at a point of view from the
+> logdev device. Having a callback to know to continue at every buffer
+> switch would just be slowing down something that is expected to be very
+> fast.
 
-Nigel
+What exactly would be slowed down?
+It would just move around some code and even avoid the overwrite mode 
+check.
 
-diff -ruNp 190-cryptoapi-deflate.patch-old/crypto/deflate.c 190-cryptoapi-deflate.patch-new/crypto/deflate.c
---- 190-cryptoapi-deflate.patch-old/crypto/deflate.c	2005-06-20 11:46:49.000000000 +1000
-+++ 190-cryptoapi-deflate.patch-new/crypto/deflate.c	2005-07-04 23:14:20.000000000 +1000
-@@ -143,8 +143,15 @@ static int deflate_compress(void *ctx, c
- 
- 	ret = zlib_deflate(stream, Z_FINISH);
- 	if (ret != Z_STREAM_END) {
--		ret = -EINVAL;
--		goto out;
-+	    	if (!(ret == Z_OK && !stream->avail_in && !stream->avail_out)) {
-+			ret = -EINVAL;
-+			goto out;
-+		} else {
-+			u8 zerostuff = 0;
-+			stream->next_out = &zerostuff;
-+			stream->avail_out = 1; 
-+			ret = zlib_deflate(stream, Z_FINISH);
-+		}
- 	}
- 	ret = 0;
- 	*dlen = stream->total_out;
+> I don't see the problem with having an overwrite mode or not. Why
+> can't relayfs know this?
 
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-Be amazed that people believe it happened. 
+The point is to design a simple and flexible relayfs layer, which means 
+not every possible function has to be done in the relayfs layer, as long 
+it's flexible enough to build additional functionality on top of it (for 
+which it can again provide some library functions).
 
+bye, Roman

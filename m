@@ -1,47 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVGQXYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVGRA1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVGQXYv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Jul 2005 19:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVGQXYv
+	id S261461AbVGRA1J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Jul 2005 20:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVGRA1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Jul 2005 19:24:51 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25353 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261445AbVGQXYu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Jul 2005 19:24:50 -0400
-Date: Mon, 18 Jul 2005 00:24:46 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: sys_times() return value
-Message-ID: <20050718002446.B789@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Sun, 17 Jul 2005 20:27:09 -0400
+Received: from mx57.globo.com ([200.208.9.88]:35494 "EHLO mx57.globo.com")
+	by vger.kernel.org with ESMTP id S261461AbVGRA1H convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Jul 2005 20:27:07 -0400
+Date: Sun, 17 Jul 2005 21:27:05 -0300
+Message-ID: <428C48BA000CBFCB@riosf03.globoi.com>
+In-Reply-To: <200507171016.37940.norbert@edusupport.nl>
+From: porranenhuma@globo.com
+Subject: Re: Kernel Panic: VFS cannot open a root device
+To: "Norbert van Nobelen" <norbert@edusupport.nl>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: GloboMail
+X-Originating-IP: 200.141.234.234
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
+I already done that things , and I still getting these errors ... I dont
+no what to do , and I'm getting desesperated...
 
-ARM folk have recently pointed out a problem with sys_times().
-When the kernel boots, we set jiffies to -5 minutes.  This causes
-sys_times() to return a negative number, which increments through
-zero.
+ '>'-- Mensagem Original --
+ '>'From: Norbert van Nobelen <norbert@edusupport.nl>
+ '>'To: "GlupFire" <porranenhuma@globo.com>
+ '>'Subject: Re: Kernel Panic: VFS cannot open a root device
+ '>'Date: Sun, 17 Jul 2005 10:16:37 +0000
+ '>'
+ '>'
+ '>'You should compile in the filesystem (reiserfs?) into the kernel (*
+instead
+ '>'of 
+ '>'M), or put the correct module in initrd (usually done by mkinitrd).
 
-However, some negative numbers are used to return error codes.
-Hence, there's a period of time when sys_times() returns values
-which are indistinguishable from error codes shortly after boot.
+ '>'After that run lilo, and it should boot just fine.
+ '>'
+ '>'Norbert
+ '>'
+ '>'Op zaterdag 16 juli 2005 20:57, schreef u:
+ '>'> > Hi , i have kernel 2.4.29 at slack 10.1 and when I upgrade my kernel
+ '>'to
+ '>'> > 2.6.11 I get these erros on booting
+ '>'> >
+ '>'> > VFS: Cannot open a root device "301" or unknow block
+ '>'> > please append a correct "root" boot option
+ '>'> > KERNEL PANIC :  not syncing; VFS; Unable to mount root fs on
+ '>'> > unknown-block (3,1)
+ '>'> >
+ '>'> > I have compiled my kernel with my IDE support and also with my file
+ '>'> > system support with built-in option.
+ '>'> >
+ '>'> > My LILO.CONF
+ '>'> > image = /boot/vmlinuz-2.6.11
+ '>'> > root = /dev/hda1
+ '>'> > label = 2.6.11
+ '>'> > initrd = /boot/initrd.gz
+ '>'> > read-only
+ '>'> >
+ '>'> > I googled this problem, and I think is a kind of bug, and i tryed
+to
+ '>'> > patch the kernel with Alan Cox patch 2.6.11-ac7.bzip  and I get
+these
+ '>'::
+ '>'> > bzip2 -dc /usr/src/patch-2.6.11.ac7.bzip | patch -p1 -s
+ '>'> > 1 out of hunk FAILED --saving rejects to file Makefike.rej
+ '>'> >
+ '>'> > and I cat the file Makefile.rej
+ '>'> >
+ '>'> > ***************
+ '>'> > *** 1,8 ****
+ '>'> > VERSION = 2
+ '>'> > PATCHLEVEL = 6
+ '>'> > SUBLEVEL = 11
+ '>'> > - EXTRAVERSION =
+ '>'> > - NAME=Woozy Numbat
+ '>'> >
+ '>'> > # *DOCUMENTATION*
+ '>'> > # To see a list of typical targets execute "make help"
+ '>'> > --- 1,8 ----
+ '>'> > VERSION = 2
+ '>'> > PATCHLEVEL = 6
+ '>'> > SUBLEVEL = 11
+ '>'> > + EXTRAVERSION = ac7
+ '>'> > + NAME=AC
+ '>'> >
+ '>'> > # *DOCUMENTATION*
+ '>'> > # To see a list of typical targets execute "make help"
+ '>'> >
+ '>'> > I'm stuck! The patch dont work fine ( I think the patch is not installed
+ '>'> > succesfully on my kernel )
+ '>'> > I'm booting with my image of kernel 2.4.29..... i'm 5 days tryng
+to solve
+ '>'> > this problem ...
+ '>'> > any kind of help is wellcome... sorry for my english.
+ '>'>
+ '>'> -
+ '>'> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+ '>'in
+ '>'> the body of a message to majordomo@vger.kernel.org
+ '>'> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ '>'> Please read the FAQ at  http://www.tux.org/lkml/
 
-This probably only affects 32-bit architectures.  However, one
-wonders whether sys_times() needs force_successful_syscall_return().
 
-Also, it appears that glibc does indeed interpret the return value
-from sys_times in the way I describe above on at least ARM and x86.
-Other architectures may be similarly affected.  Hopefully the ARM
-glibc folk will raise a cross-architecture bug in glibc for this.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

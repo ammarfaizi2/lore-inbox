@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVGRTTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVGRTX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVGRTTf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 15:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVGRTTd
+	id S261545AbVGRTX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 15:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVGRTX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 15:19:33 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:27840 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261545AbVGRTTc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 15:19:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eb04fKPQBYtGYXmaTqpgN9hIMwKNARUUv10gVLHJJ15oehhYxvXifxYbvxmynEjQbZYYz9kkbYju5djP0jyfQlGGHYpjq6qo0/ucKrjd/igz+mHXoU2ZV6NZKIJ6h524oH9lcnH9fxRN/E7OHoCeJakmIP3ihZKbtnMhhvk3A/Y=
-Message-ID: <1e62d137050718121848b5080f@mail.gmail.com>
-Date: Tue, 19 Jul 2005 00:18:52 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-Reply-To: Fawad Lateef <fawadlateef@gmail.com>
-To: vamsi krishna <vamsi.krishnak@gmail.com>
-Subject: Re: Avoiding BIGMEM support programatically.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3faf0568050718075677c13e8@mail.gmail.com>
+	Mon, 18 Jul 2005 15:23:59 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:27358 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261545AbVGRTX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 15:23:59 -0400
+Date: Mon, 18 Jul 2005 14:23:57 -0500
+From: Erik Jacobson <erikj@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] QLA2xxx FW_LOADER Kconfig issue results in undefined symbols
+Message-ID: <20050718192357.GA8470@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3faf0568050718075677c13e8@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/18/05, vamsi krishna <vamsi.krishnak@gmail.com> wrote:
-> Hello All,
-> 
-> I have a program working fine on a 2.6.xx-smp kernel, and the program
-> crashes on the same version kernel with bigmem i.e (2.6.xxx-bigmem).
-> 
+I hit a small problem (first observed in 2.6.13-rc3-mm1) that resulted in
+my kernels no longer building because of undefined references to 
+request_firmware and release_firmware.
 
-What is your program ??? what it is doing ??? Can u explain ?? or send
-some code portion ?? b/c the BIGMEM kernel and smp/normal kenel has
-only a difference of HIGHMEM64G which allows system/kernel on x86 to
-use physical memory upto 64GB ..... and enabling this creates
-little-bit overhead on the kernel, but I don't think it will effect
-the working of most of the kernel modules ......
+After a little research, I found that the QLA stuff requires CONFIG_FW_LOADER.
 
-> I also found that for a same executable on bigmem kernel the virtual
-> address's of '&_start' and '&_etext', seem to vary in every new run.
-> 
+I was using the sn2_defconfig as a starting point for my config file. 
+This config file compiles some of the QLA2xxx drivers statically.
+By default, CONFIG_FW_LOADER is set to "m" and not "y".
 
-I don't know abt this, so can't say any thing ....
+So this small change should ensure CONFIG_FW_LOADER is set properly.
 
-> Is there any way I can avoid the kernel's bigmem virtual address
-> mapping programatically? and still run the program on a bigmem kernel?
-> 
+Perhaps there are better ways to do this?
 
-I think this can be done through specifying GFP_ATOMIC flag in the
-memory allocation function, so that it will use ZONE_NORMAL of the
-kernel ....... (if i m wrong, then plzz do correct me)
+Signed-off-by: Erik Jacobson <erikj@sgi.com>
 
--- 
-Fawad Lateef
+---
+
+ Kconfig |    1 +
+ 1 files changed, 1 insertion(+)
+
+
+diff -Naru 2.6-akpm-rc-mm-orig/drivers/scsi/qla2xxx/Kconfig 2.6-akpm-rc-mm/drivers/scsi/qla2xxx/Kconfig
+--- 2.6-akpm-rc-mm-orig/drivers/scsi/qla2xxx/Kconfig	2005-07-15 10:58:54.316985000 -0500
++++ 2.6-akpm-rc-mm/drivers/scsi/qla2xxx/Kconfig	2005-07-18 14:03:37.888758336 -0500
+@@ -3,6 +3,7 @@
+ 	default (SCSI && PCI)
+ 	depends on SCSI && PCI
+ 	select SCSI_FC_ATTRS
++	select FW_LOADER
+ 
+ config SCSI_QLA21XX
+ 	tristate "QLogic ISP2100 host adapter family support"
+
+--
+Erik Jacobson - Linux System Software - Silicon Graphics - Eagan, Minnesota

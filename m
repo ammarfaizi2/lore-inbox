@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVGRTQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVGRTTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbVGRTQh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 15:16:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVGRTQh
+	id S261536AbVGRTTf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 15:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVGRTTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 15:16:37 -0400
-Received: from colo.lackof.org ([198.49.126.79]:39831 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261525AbVGRTQf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 15:16:35 -0400
-Date: Mon, 18 Jul 2005 13:21:16 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
-       Linas Vepstas <linas@austin.ibm.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       long <tlnguyen@snoqualmie.dp.intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: Re: [PATCH 2.6.13-rc1 05/10] IOCHK interface for I/O error handling/detecting
-Message-ID: <20050718192116.GB11016@colo.lackof.org>
-References: <42CB63B2.6000505@jp.fujitsu.com> <42CB680E.2010103@jp.fujitsu.com>
+	Mon, 18 Jul 2005 15:19:33 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:27840 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261545AbVGRTTc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 15:19:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eb04fKPQBYtGYXmaTqpgN9hIMwKNARUUv10gVLHJJ15oehhYxvXifxYbvxmynEjQbZYYz9kkbYju5djP0jyfQlGGHYpjq6qo0/ucKrjd/igz+mHXoU2ZV6NZKIJ6h524oH9lcnH9fxRN/E7OHoCeJakmIP3ihZKbtnMhhvk3A/Y=
+Message-ID: <1e62d137050718121848b5080f@mail.gmail.com>
+Date: Tue, 19 Jul 2005 00:18:52 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+Reply-To: Fawad Lateef <fawadlateef@gmail.com>
+To: vamsi krishna <vamsi.krishnak@gmail.com>
+Subject: Re: Avoiding BIGMEM support programatically.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3faf0568050718075677c13e8@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42CB680E.2010103@jp.fujitsu.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+References: <3faf0568050718075677c13e8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 06, 2005 at 02:11:42PM +0900, Hidetoshi Seto wrote:
-> [This is 5 of 10 patches, "iochk-05-check_bridge.patch"]
-...
->   It means that A or B hits a bus error, but there is no data
->   which one actually hits the error. So, C should notify the
->   error to both of A and B, and clear the H's status to start
->   its own I/Os.
+On 7/18/05, vamsi krishna <vamsi.krishnak@gmail.com> wrote:
+> Hello All,
 > 
->   If there are only two devices, it become more simple. It is
->   clear if one find a bridge error while another is check-in,
->   the error is nothing except for another's.
+> I have a program working fine on a 2.6.xx-smp kernel, and the program
+> crashes on the same version kernel with bigmem i.e (2.6.xxx-bigmem).
+> 
 
-Sorry, I don't understand this last paragraph.
-I don't see how it's more simple with two devices (vs three) if
-we don't exactly know which device caused the error. I thought
-one still needed to reset/restart both devices. Is that correct?
+What is your program ??? what it is doing ??? Can u explain ?? or send
+some code portion ?? b/c the BIGMEM kernel and smp/normal kenel has
+only a difference of HIGHMEM64G which allows system/kernel on x86 to
+use physical memory upto 64GB ..... and enabling this creates
+little-bit overhead on the kernel, but I don't think it will effect
+the working of most of the kernel modules ......
 
-The devices operate asyncronously from the drivers.
-Only the driver can tell us for sure if IO was in flight for a
-particular device and decide that a device could NOT have generated
-an error.
+> I also found that for a same executable on bigmem kernel the virtual
+> address's of '&_start' and '&_etext', seem to vary in every new run.
+> 
 
+I don't know abt this, so can't say any thing ....
 
-Otherwise, so far, the patches look fine to me.
+> Is there any way I can avoid the kernel's bigmem virtual address
+> mapping programatically? and still run the program on a bigmem kernel?
+> 
 
-thanks,
-grant
+I think this can be done through specifying GFP_ATOMIC flag in the
+memory allocation function, so that it will use ZONE_NORMAL of the
+kernel ....... (if i m wrong, then plzz do correct me)
+
+-- 
+Fawad Lateef

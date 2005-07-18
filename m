@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVGRPVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVGRPbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261781AbVGRPVF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 11:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbVGRPVF
+	id S261451AbVGRPbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 11:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVGRPbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 11:21:05 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:63625 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261781AbVGRPVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 11:21:03 -0400
-Date: Mon, 18 Jul 2005 17:20:40 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Karim Yaghmour <karim@opersys.com>
-cc: Steven Rostedt <rostedt@goodmis.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       richardj_moore@uk.ibm.com, varap@us.ibm.com,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Merging relayfs?
-In-Reply-To: <42DBBD69.3030300@opersys.com>
-Message-ID: <Pine.LNX.4.61.0507181706430.3728@scrub.home>
-References: <17107.6290.734560.231978@tut.ibm.com>  <20050712022537.GA26128@infradead.org>
-  <20050711193409.043ecb14.akpm@osdl.org>  <Pine.LNX.4.61.0507131809120.3743@scrub.home>
-  <17110.32325.532858.79690@tut.ibm.com>  <Pine.LNX.4.61.0507171551390.3728@scrub.home>
-  <17114.32450.420164.971783@tut.ibm.com> <1121694275.12862.23.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507181607410.3743@scrub.home> <42DBBD69.3030300@opersys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Jul 2005 11:31:16 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:53515 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261451AbVGRPbO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 11:31:14 -0400
+Date: Tue, 19 Jul 2005 01:30:55 +1000
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] no more need to check for NULL before calls to crypto_free_tfm
+Message-ID: <20050718153055.GA14719@gondor.apana.org.au>
+References: <200507170032.28174.jesper.juhl@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507170032.28174.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jul 17, 2005 at 12:32:27AM +0200, Jesper Juhl wrote:
+> 
+> --- linux-2.6.13-rc3-orig/drivers/block/cryptoloop.c	2005-06-17 21:48:29.000000000 +0200
+> +++ linux-2.6.13-rc3/drivers/block/cryptoloop.c	2005-07-16 23:35:55.000000000 +0200
+> @@ -227,14 +227,14 @@ cryptoloop_ioctl(struct loop_device *lo,
+>  static int
+>  cryptoloop_release(struct loop_device *lo)
+>  {
+> -	struct crypto_tfm *tfm = (struct crypto_tfm *) lo->key_data;
+> -	if (tfm != NULL) {
+> -		crypto_free_tfm(tfm);
+> -		lo->key_data = NULL;
+> -		return 0;
+> +	struct crypto_tfm *tfm = lo->key_data;
+> +	if (!tfm) {
+> +		printk(KERN_ERR "cryptoloop_release(): tfm == NULL?\n");
+> +		return -EINVAL;
+>  	}
+> -	printk(KERN_ERR "cryptoloop_release(): tfm == NULL?\n");
+> -	return -EINVAL;
+> +	crypto_free_tfm(tfm);
+> +	lo->key_data = NULL;
+> +	return 0;
+>  }
 
-On Mon, 18 Jul 2005, Karim Yaghmour wrote:
+This change looks rather pointless.
 
-> I guess I just don't get the point here. Why cut something away if many
-> users will need it. If it's that popular that you're ready to provide a
-> library function to do it, then why not just leave it to boot? One of the
-> goals of relayfs is to avoid code duplication with regards to buffering
-> in general.
+The rest of the patch looks good.
 
-The road to bloatness is paved with lots of little features.
-There aren't that many users anyway (none of the examples use that 
-feature). I'd prefer to concentrate on a simple and correct relayfs layer 
-and we can still think about other features as more users appear.
-Starting a design by implementing every little feature which _might_ be 
-needed is a really bad idea.
-
-bye, Roman
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

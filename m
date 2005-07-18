@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVGRKOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVGRKrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbVGRKOG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 06:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVGRKOG
+	id S261602AbVGRKrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 06:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVGRKrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 06:14:06 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:14561 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S261427AbVGRKOF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 06:14:05 -0400
-Date: Mon, 18 Jul 2005 19:12:22 +0900 (JST)
-Message-Id: <20050718.191222.71104647.taka@valinux.co.jp>
-To: pj@sgi.com
-Cc: akpm@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm1 (ckrm)
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20050717082000.349b391f.pj@sgi.com>
-References: <20050715150034.GA6192@infradead.org>
-	<20050715131610.25c25c15.akpm@osdl.org>
-	<20050717082000.349b391f.pj@sgi.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Jul 2005 06:47:09 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:40712 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261602AbVGRKrH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 06:47:07 -0400
+Date: Mon, 18 Jul 2005 11:47:07 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       "Brown, Len" <len.brown@intel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, vojtech@suse.cz,
+       christoph@lameter.com
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+In-Reply-To: <20050715175819.GF15783@wotan.suse.de>
+Message-ID: <Pine.LNX.4.61L.0507181140200.527@blysk.ds.pg.gda.pl>
+References: <F7DC2337C7631D4386A2DF6E8FB22B300410F46A@hdsmsx401.amr.corp.intel.com.suse.lists.linux.kernel>
+ <p73y8889f4v.fsf@bragg.suse.de> <20050715102349.A15791@unix-os.sc.intel.com>
+ <Pine.LNX.4.61L.0507151848440.15977@blysk.ds.pg.gda.pl>
+ <20050715175819.GF15783@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 15 Jul 2005, Andi Kleen wrote:
 
-> > What, in your opinion, makes it "obviously unmergeable"?
+> >  That's like scratching your left ear with your right hand -- broadcasting 
+> > that external timer interrupt in the first place is more straightforward.  
+> > If you want to exclude CPUs from the list of receivers, just use the 
+> > logical destination mode appropriately.
+> 
+> The problem with that is that it would need regular synchronizations
+> of all CPUs to coordinate this.   Not good for scalability and I 
+> believe the fundamentally wrong way to do this.
 
-Controlling resource assignment, I think that concept is good.
-But the design is another matter that it seems somewhat overkilled
-with the current CKRM.
+ What to you mean by "regular synchronizations of all CPUs?"  And how is a 
+broadcasted external timer interrupt different from a unicasted one 
+redistributed further via an all-but-self IPI, except from removing an 
+unnecessary burden from the CPU targeted by the unicast interrupt?
 
-> I suspect that the main problem is that this patch is not a mainstream
-> kernel feature that will gain multiple uses, but rather provides
-> support for a specific vendor middleware product used by that
-> vendor and a few closely allied vendors.  If it were smaller or
-> less intrusive, such as a driver, this would not be a big problem.
-> That's not the case.
-
-I believe this feature would also make desktop users happier -- controlling
-X-server, mpeg player, video capturing and all that -- if the code
-becomes much simpler and easier to use.
-
-> A major restructuring of this patch set could be considered,  This
-> might involve making the metric tools (that monitor memory, fork
-> and network usage rates per task) separate patches useful for other
-> purposes.  It might also make the rate limiters in fork, alloc and
-> network i/o separately useful patches.  I mean here genuinely useful
-> and understandable in their own right, independent of some abstract
-> CKRM framework.
-
-That makes sense.
-
-> Though hints have been dropped, I have not seen any public effort to
-> integrate CKRM with either cpusets or scheduler domains or process
-> accounting.  By this I don't mean recoding cpusets using the CKRM
-> infrastructure; that proposal received _extensive_ consideration
-> earlier, and I am as certain as ever that it made no sense.  Rather I
-> could imagine the CKRM folks extending cpusets to manage resources
-> on a per-cpuset basis, not just on a per-task or task class basis.
-> Similarly, it might make sense to use CKRM to manage resources on
-> a per-sched domain basis, and to integrate the resource tracking
-> of CKRM with the resource tracking needs of system accounting.
-
->From a standpoint of the users, CKRM and CPUSETS should be managed
-seamlessly through the same interface though I'm not sure whether
-your idea is the best yet.
-
-
-Thanks,
-Hirokazu Takahashi.
+  Maciej

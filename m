@@ -1,66 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVGRNpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVGROFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbVGRNpL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 09:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVGRNpK
+	id S261674AbVGROFk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 10:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVGROFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 09:45:10 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:57852 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261400AbVGRNpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 09:45:08 -0400
-Subject: Re: Merging relayfs?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: richardj_moore@uk.ibm.com, varap@us.ibm.com, karim@opersys.com,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <17114.32450.420164.971783@tut.ibm.com>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	 <20050712022537.GA26128@infradead.org>
-	 <20050711193409.043ecb14.akpm@osdl.org>
-	 <Pine.LNX.4.61.0507131809120.3743@scrub.home>
-	 <17110.32325.532858.79690@tut.ibm.com>
-	 <Pine.LNX.4.61.0507171551390.3728@scrub.home>
-	 <17114.32450.420164.971783@tut.ibm.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 18 Jul 2005 09:44:35 -0400
-Message-Id: <1121694275.12862.23.camel@localhost.localdomain>
+	Mon, 18 Jul 2005 10:05:39 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:9612 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261674AbVGROFg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 10:05:36 -0400
+Date: Mon, 18 Jul 2005 13:59:29 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2 and as-iosched
+Message-ID: <20050718115929.GE2403@suse.de>
+References: <403f93.f22097@family-bbs.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403f93.f22097@family-bbs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-07-17 at 10:52 -0500, Tom Zanussi wrote:
-
->  > 
->  > >  > - overwrite mode can be implemented via the buffer switch callback
->  > > 
->  > > The buffer switch callback is already where this is handled, unless
->  > > you're thinking of something else - one of the first checks in the
->  > > buffer switch is relay_buf_full(), which always returns 0 if the
->  > > buffer is in overwrite mode.
->  > 
->  > I mean, relayfs doesn't has to know about this, the client itself can do 
->  > it (e.g. via helper functions).
+On Mon, Jul 18 2005, Kenneth Parrish wrote:
+> Randy> Need more info.
 > 
-> In a previous version, we did something like having the client pass
-> back a return value from the callback indicating whether or not to
-> continue or stop.  I can try doing something like that instead again.
+>         Greetings.  :)
+> CONFIG_HZ_ changes the block device elevator time-out values -- didn't see.
 
-Tom,
+I cannot reproduce here with cfq and HZ == 250, the jiffies <-> msec
+conversions are working fine. Please provide a proper bug report, did
+you change the values and not getting the expected back, or what is
+going wrong??
 
-I'm actually very much against this. Looking at a point of view from the
-logdev device. Having a callback to know to continue at every buffer
-switch would just be slowing down something that is expected to be very
-fast. I don't see the problem with having an overwrite mode or not. Why
-can't relayfs know this? It _is_ an operation of relayfs, and having it
-pushed to the client would seem to make the client need to know more
-about how relayfs works that it needs to.  Because, the logdev device
-doesn't care about buffer switches.
-
--- Steve
-
+-- 
+Jens Axboe
 

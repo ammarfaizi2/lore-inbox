@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVGRPsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVGRPzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbVGRPsi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 11:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVGRPsi
+	id S261529AbVGRPzw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 11:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVGRPzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 11:48:38 -0400
-Received: from moraine.clusterfs.com ([66.96.26.190]:32170 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261533AbVGRPs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 11:48:26 -0400
-Date: Sun, 17 Jul 2005 19:47:43 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: ext2-devel <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, Badari Pulavarty <pbadari@us.ibm.com>,
-       suparna@in.ibm.com, tytso@mit.edu
-Subject: Re: [Ext2-devel] [RFC] [PATCH 2/4]delayed allocation for ext3
-Message-ID: <20050718014743.GB6427@schatzie.adilger.int>
-Mail-Followup-To: Mingming Cao <cmm@us.ibm.com>,
-	ext2-devel <ext2-devel@lists.sourceforge.net>,
-	Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	linux-fsdevel@vger.kernel.org, Badari Pulavarty <pbadari@us.ibm.com>,
-	suparna@in.ibm.com, tytso@mit.edu
-References: <1110839154.24286.302.camel@dyn318077bld.beaverton.ibm.com> <1121622041.4609.25.camel@localhost.localdomain>
+	Mon, 18 Jul 2005 11:55:52 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:36292 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261529AbVGRPzu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 11:55:50 -0400
+Date: Mon, 18 Jul 2005 15:49:33 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc2 and as-iosched
+Message-ID: <20050718134933.GA1890@suse.de>
+References: <403f93.f22097@family-bbs.org> <20050718115929.GE2403@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1121622041.4609.25.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <20050718115929.GE2403@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 17, 2005  10:40 -0700, Mingming Cao wrote:
-> @@ -373,6 +373,7 @@ struct ext3_inode {
->  #define EXT3_MOUNT_BARRIER		0x20000 /* Use block barriers */
->  #define EXT3_MOUNT_NOBH			0x40000 /* No bufferheads */
->  #define EXT3_MOUNT_QUOTA		0x80000 /* Some quota option set */
-> + #define EXT3_MOUNT_DELAYED_ALLOC	0xC0000 /* Delayed Allocation */
+On Mon, Jul 18 2005, Jens Axboe wrote:
+> On Mon, Jul 18 2005, Kenneth Parrish wrote:
+> > Randy> Need more info.
+> > 
+> >         Greetings.  :)
+> > CONFIG_HZ_ changes the block device elevator time-out values -- didn't see.
+> 
+> I cannot reproduce here with cfq and HZ == 250, the jiffies <-> msec
+> conversions are working fine. Please provide a proper bug report, did
+> you change the values and not getting the expected back, or what is
+> going wrong??
 
-This doesn't make sense.  DELAYED_ALLOC == QUOTA | NOBH?
+ok, AS is definitely broken, it does an internal HZ <-> msec conversion
+in the store/show functions as well. This should fix it.
 
-> +     {Opt_delayed_alloc, "delalloc"},
-
-Is this a replacement for Alex's delalloc code?  We also use delalloc for
-that code and if they are not interchangeable it will cause confusion
-about which one is in use.
-
-> +     if (test_opt(sb, DELAYED_ALLOC)) {
-> +             if (!(test_opt(sb, DATA_FLAGS) == EXT3_MOUNT_WRITEBACK_DATA)) {
-> +                     printk(KERN_WARNING "EXT3-fs: Ignoring delall option - "
-> +                             "its supported only with writeback mode\n");
-
-Should be "ignoring delalloc option".
+--- /opt/kernel/linux-2.6.13-rc3/drivers/block/as-iosched.c	2005-07-13 06:46:46.000000000 +0200
++++ linux-2.6.13-rc3/drivers/block/as-iosched.c	2005-07-18 15:46:23.000000000 +0200
+@@ -1935,23 +1935,15 @@
+ static ssize_t
+ as_var_show(unsigned int var, char *page)
+ {
+-	var = (var * 1000) / HZ;
+ 	return sprintf(page, "%d\n", var);
+ }
  
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+ static ssize_t
+ as_var_store(unsigned long *var, const char *page, size_t count)
+ {
+-	unsigned long tmp;
+ 	char *p = (char *) page;
+ 
+-	tmp = simple_strtoul(p, &p, 10);
+-	if (tmp != 0) {
+-		tmp = (tmp * HZ) / 1000;
+-		if (tmp == 0)
+-			tmp = 1;
+-	}
+-	*var = tmp;
++	*var = simple_strtoul(p, &p, 10);
+ 	return count;
+ }
+ 
+
+-- 
+Jens Axboe
 

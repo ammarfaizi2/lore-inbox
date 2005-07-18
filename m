@@ -1,89 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVGRVQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVGRVYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbVGRVQq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 17:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVGRVQq
+	id S261899AbVGRVYw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 17:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVGRVYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 17:16:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3750 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261913AbVGRVQq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 17:16:46 -0400
-Date: Mon, 18 Jul 2005 14:16:37 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: vojtech@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: Fw: Oops in hidinput_hid_event
-Message-Id: <20050718141637.074c6f70.zaitcev@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Jul 2005 17:24:52 -0400
+Received: from vms046pub.verizon.net ([206.46.252.46]:37620 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261899AbVGRVYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 17:24:52 -0400
+Date: Mon, 18 Jul 2005 17:24:56 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: RT-V0.7.51-31 vs ntpd, 1 to nothin so far
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Message-id: <200507181724.56755.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think this patch is rather obvious, so maybe I should ask Andrew to
-apply it to -mm for now, to get some testing. Would that help to verify
-it for acceptance?
+Hi Ingo;
 
--- Pete
+I just built 51-31, mode 4, and although I spent an hour putting in 
+debug printouts in /etc/init.d/ntpd, I couldn't make it work, and 
+the /var/log/ntpd.log is being flooded with "bad file descriptor" 
+messages.
 
-Begin forwarded message:
-
-Date: Tue, 28 Jun 2005 15:00:23 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: vojtech@suse.cz
-Cc: zaitcev@redhat.com, linux-usb-devel@lists.sourceforge.net
-Subject: Oops in hidinput_hid_event
-
-Hi, Vojtech:
-
-Someone reported a bug in Fedora, which runs a largely unmodified upstream
-kernel in this area. Whenever the user hits a key which switches LED,
-the system oopses. Here's a trace:
-
-Unable to handle kernel NULL pointer dereference at virtual address 000000c8
-EFLAGS: 00010006   (2.6.11-1.1369_FC4smp)
-EIP is at hidinput_hid_event+0x2d/0x292                                       
-Call Trace:           
- [<c02872e0>] hid_process_event+0x57/0x5f
- [<c028758a>] hid_input_field+0x2a2/0x2ac
- [<c0287632>] hid_input_report+0x9e/0xb8
- [<c0287f62>] hid_ctrl+0x14c/0x151
- [<e0a21060>] uhci_destroy_urb_priv+0xb5/0x10a [uhci_hcd]
- [<c027dab5>] usb_hcd_giveback_urb+0x24/0x67
- [<e0a22360>] uhci_finish_urb+0x2d/0x38 [uhci_hcd]
- [<e0a223af>] uhci_finish_completion+0x44/0x56 [uhci_hcd]
- [<e0a224a2>] uhci_scan_schedule+0xaa/0x13a [uhci_hcd]
- [<c023413d>] i8042_interrupt+0x121/0x234
- [<e0a226d0>] uhci_irq+0x47/0x10d [uhci_hcd]
-
-Full trace at
- https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=160709
-
-Any ideas?
-
-By the way, it seems that I see a bug in hidinput_hid_event.
-The check for NULL can never work, becaue &hidinput->input
-is nonzero at all times. How about this?
-
---- linux-2.6.12/drivers/usb/input/hid-input.c	2005-06-21 12:58:47.000000000 -0700
-+++ linux-2.6.12-lem/drivers/usb/input/hid-input.c	2005-06-28 14:57:22.000000000 -0700
-@@ -397,11 +397,12 @@
+So I'm back on 51-30 in mode 3 for the time being so tvtime works.
  
- void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, struct pt_regs *regs)
- {
--	struct input_dev *input = &field->hidinput->input;
-+	struct input_dev *input;
- 	int *quirks = &hid->quirks;
- 
--	if (!input)
-+	if (!field->hidinput)
- 		return;
-+	input = &field->hidinput->input;
- 
- 	input_regs(input, regs);
- 
-
--- Pete
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

@@ -1,125 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVGRUFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVGRUMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbVGRUFP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 16:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVGRUFP
+	id S261691AbVGRUMw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 16:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVGRUMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 16:05:15 -0400
-Received: from ns.solnet.cz ([193.165.198.50]:55254 "EHLO solnet.cz")
-	by vger.kernel.org with ESMTP id S261590AbVGRUFA (ORCPT
+	Mon, 18 Jul 2005 16:12:51 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:27338 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261691AbVGRUMv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 16:05:00 -0400
-X-AntiVirus: scanned for viruses by soLNet AVirCheck 2.0.29 (http://www.solnet.cz/avircheck)
-Message-ID: <42DC0A99.2010304@solnet.cz>
-Date: Mon, 18 Jul 2005 22:01:29 +0200
-From: =?UTF-8?B?TWFydGluIFBvdm9sbsO9?= <martin.povolny@solnet.cz>
-Organization: soLNet, s.r.o.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
+	Mon, 18 Jul 2005 16:12:51 -0400
+Date: Mon, 18 Jul 2005 22:12:29 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Richard Gooch <rg+lkml0@safe-mbox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
+In-Reply-To: <17115.55954.942676.450479@mailix.sanjose.privnets>
+Message-ID: <Pine.LNX.4.61.0507182202400.16975@yvahk01.tjqt.qr>
+References: <20050621062926.GB15062@kroah.com> <20050620235403.45bf9613.akpm@osdl.org>
+ <20050621151019.GA19666@kroah.com> <20050623010031.GB17453@mikebell.org>
+ <20050623045959.GB10386@kroah.com> <17115.55954.942676.450479@mailix.sanjose.privnets>
 MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Promise TX4200 support?
-References: <42DBFC9E.1040607@gentoo.org>
-In-Reply-To: <42DBFC9E.1040607@gentoo.org>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Hi,
-> 
-> I recieved an email from someone claiming to be stuck with Linux 2.4,
-> due to relying on a Promise TX4200 disk controller (using the fdsata
-> driver from promise's website, which is 2.4-only):
-> 
-> 0000:01:09.0 RAID bus controller: Promise Technology, Inc.: Unknown
-> device 3519 (rev 02)
->         Subsystem: Promise Technology, Inc.: Unknown device 3519
->         Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 9
->         I/O ports at dc00 [size=128]
->         I/O ports at d800 [size=256]
->         Memory at ff8ff000 (32-bit, non-prefetchable) [size=4K]
->         Memory at ff8c0000 (32-bit, non-prefetchable) [size=128K]
->         Expansion ROM at ff8e0000 [disabled] [size=64K]
->         Capabilities: [60] Power Management version 2
-> 
-> What is the status of this on 2.6? I found a blank changeset (??) in the
-> mail below, from 24th May:
-> 
-> Jeff Garzik wrote:
->> Please pull the 'new-ids' branch from
->>
->> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
->>
->> This add new PCI ids to some SATA drivers.
-> <snip>
->> commit 37c15447c565ab458ee3778e198d08f4041caa99
->> tree 2eda289903e3bf19eebce7d5f9aaed2240a02479
->> parent 9422e59ddf6cae68e46d7a2c3afe1ce4e739d3eb
->> author Martin Povolny <martin.povolny@solnet.cz> Mon, 16 May 2005
-> 02:41:00 -0400
->> committer Jeff Garzik <jgarzik@pobox.com> Mon, 16 May 2005 02:41:00 -0400
->>
->> [PATCH] sata_promise: new PCI ID for TX4200
->>
->> [note - blank changeset]
->>
-> 
-> Was this accidently removed, or is the sata_promise driver actually
-> incompatible with this hardware?
-> 
 
-We are succesfully running patched sata_promise with 3 disks in a
-raid5/raid1 setup. (Patched against ubuntu linux-image 2.6.11-1-686
-package.)
+>Greg KH writes:
+>> I do care about this, please don't think that.  But here's my reasoning
+>> for why it needs to go:
+>[...]
+>> 	- original developer of devfs has publicly stated udev is a
+>> 	  replacement.
+>
+>Well, that's news to me!
 
-# check_partitions
-disk: [8.0] => '/dev/sda', 279.4 GB
-         1 : /dev/sda1 : Linux raid autodetect     (      55 MB)
-         2 : /dev/sda2 : Linux raid autodetect     (  285640 MB)
-         3 : /dev/sda3 : Linux swap                (     486 MB)
-disk: [8.16] => '/dev/sdb', 279.4 GB
-         1 : /dev/sdb1 : Linux raid autodetect     (      55 MB)
-         2 : /dev/sdb2 : Linux raid autodetect     (  285640 MB)
-         3 : /dev/sdb3 : Linux swap                (     486 MB)
-disk: [8.32] => '/dev/sdc', 279.4 GB
-         1 : /dev/sdc1 : Linux raid autodetect     (      55 MB)
-         2 : /dev/sdc2 : Linux raid autodetect     (  285640 MB)
-         3 : /dev/sdc3 : Linux swap                (     486 MB)
-disk: [9.0] => '/dev/md',
-         0 : /dev/md0  : raid1                     (      55 MB)
-                uuid: db3bdcf4:3e4774c7:b2541959:eeef67e0
-                0 active sync   /dev/sda1
-                1 active sync   /dev/sdb1
-                2 active sync   /dev/sdc1
-         1 : /dev/md1  : raid5                     (  571280 MB)
-                uuid: b9562e24:8a095e31:40702712:19009a40
-                0 active sync   /dev/sda2
-                1 active sync   /dev/sdb2
-                2 active sync   /dev/sdc2
+What is more news to me: 
+    ( http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ )
+    Q: Why was devfs marked OBSOLETE if udev is not finished yet?
+    A: To quote Al Viro (Linux VFS kernel maintainer):
+==> - the devfs maintainer/author disappeared and stoped maintaining the code
 
-'lspci -v' says:
+So, if you allow the question, where [t.h.] have you been in the meantime?
 
-02:02.0 RAID bus controller: Promise Technology, Inc.: Unknown device
-3519 (rev 02)
-        Subsystem: Promise Technology, Inc.: Unknown device 3519
-        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 18
-        I/O ports at dc00 [size=128]
-        I/O ports at d800 [size=256]
-        Memory at feaff000 (32-bit, non-prefetchable) [size=4K]
-        Memory at feac0000 (32-bit, non-prefetchable) [size=128K]
-        Expansion ROM at feae0000 [disabled] [size=64K]
-        Capabilities: [60] Power Management version 2
+>> 	- clutter and mess
+>In the eye of the beholder.
+It's kernel code - I think the point is valid.
 
-No problems at all.
+>> 	- code is broken and unfixable
+>No proof. Never say never...
 
-Regards,
+*thumbs up* You could just become the maintainer of ndevfs. :)
 
+
+Something's wondering me, though:
+FreeBSD "just" (5.0) introduced devfs, so either they are behind The Facts 
+(see udev FAQ), or devfs (anylinux/anybsd) is not so bad after all.
+
+
+
+Jan Engelhardt
 -- 
-Mgr. Martin Povolný, soLNet, s.r.o.,
-+420777714458, martin.povolny@solnet.cz
-

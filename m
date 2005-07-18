@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVGRMvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVGRM7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbVGRMvC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 08:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVGRMvC
+	id S261365AbVGRM7P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 08:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVGRM7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 08:51:02 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:41689 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261340AbVGRMvB (ORCPT
+	Mon, 18 Jul 2005 08:59:05 -0400
+Received: from mail.suse.de ([195.135.220.2]:51865 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261365AbVGRM7D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 08:51:01 -0400
-Message-Id: <200507170256.j6H2ugUo004904@laptop11.inf.utfsm.cl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.13-rc3 from today: No Toshiba ACPI module load?
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Sat, 16 Jul 2005 22:56:42 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 18 Jul 2005 08:50:59 -0400 (CLT)
+	Mon, 18 Jul 2005 08:59:03 -0400
+Date: Mon, 18 Jul 2005 14:58:58 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Alexander Y. Fomichev" <gluk@php4.ru>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, admin@list.net.ru,
+       Git Mailing List <git@vger.kernel.org>, ak@suse.de
+Subject: Re: 2.6.12 hangs on boot
+Message-ID: <20050718125857.GF8459@wotan.suse.de>
+References: <200506221813.50385.gluk@php4.ru> <Pine.LNX.4.58.0506241446440.11175@ppc970.osdl.org> <200507181527.16652.gluk@php4.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507181527.16652.gluk@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting:
-# modprobe toshiba_acpi
-FATAL: Error inserting toshiba_acpi (/lib/modules/2.6.13-rc3/kernel/drivers/acpi/toshiba_acpi.ko): No such device
 
-This is definitely a Toshiba M30 notebook with this.
+Can you please test if this patch fixes it?
 
-On bootup I see:
+-Andi
 
-ACPI: RSDP (v000 TOSHIB                                ) @ 0x000f7a10
-ACPI: RSDT (v001 TOSHIB 750      0x00970814 MASM 0x06110000) @ 0x1ff63fd8
-ACPI: FADT (v002 TOSHIB 750      0x20030101 MASM 0x61100000) @ 0x1ff69d03
-ACPI: SSDT (v001 TOSHIB A0007    0x00970814 MSFT 0x0100000e) @ 0x1ff69d87
-ACPI: DBGP (v001 TOSHIB 750      0x00970814 MASM 0x61100000) @ 0x1ff69fa4
-ACPI: BOOT (v001 TOSHIB 750      0x00970814 MASM 0x06110000) @ 0x1ff69fd8
-ACPI: DSDT (v001 TOSHIB A0007    0x20030806 MSFT 0x0100000e) @ 0x00000000
-ACPI: PM-Timer IO Port: 0x1008
 
-Anything else that might be useful?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Don't compare linux processor index with APICID
+
+Fixes boot up lockups on some machines where CPU apic ids
+don't start with 0
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/arch/x86_64/kernel/smpboot.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/smpboot.c
++++ linux/arch/x86_64/kernel/smpboot.c
+@@ -211,7 +211,7 @@ static __cpuinit void sync_master(void *
+ {
+ 	unsigned long flags, i;
+ 
+-	if (smp_processor_id() != boot_cpu_id)
++	if (smp_processor_id() != 0)
+ 		return;
+ 
+ 	go[MASTER] = 0;
+
+
+

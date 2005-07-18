@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVGRSW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVGRS7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVGRSW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 14:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVGRSW4
+	id S261483AbVGRS7w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 14:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVGRS7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 14:22:56 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:7809 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261453AbVGRSWw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 14:22:52 -0400
-Message-ID: <42DBF378.7080804@drzeus.cx>
-Date: Mon, 18 Jul 2005 20:22:48 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-7 (X11/20050623)
+	Mon, 18 Jul 2005 14:59:51 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:23875 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S261483AbVGRS7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 14:59:44 -0400
+Message-ID: <42DBFC9E.1040607@gentoo.org>
+Date: Mon, 18 Jul 2005 20:01:50 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.5 (X11/20050715)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] MMC host class
-References: <42D538D4.7050803@drzeus.cx> <20050715093114.B25428@flint.arm.linux.org.uk> <42D81AD7.3000407@drzeus.cx> <20050718184554.A31022@flint.arm.linux.org.uk>
-In-Reply-To: <20050718184554.A31022@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+To: jgarzik@pobox.com, martin.povolny@solnet.cz
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Promise TX4200 support?
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+Hi,
 
->On Fri, Jul 15, 2005 at 10:21:43PM +0200, Pierre Ossman wrote:
->  
->
->>Russell King wrote:
->>    
->>
->>>Also note that since we have a class_dev, the mmc_host 'dev' field can
->>>be removed.  However, we'll probably have to update the host drivers
->>>to do this, so it should be a separate patch.
->>>      
->>>
->>I believe there's a bit of abstraction to be gained from not poking
->>around inside the class_dev struct in too many places. It's not like
->>we're wasting any large amounts of memory.
->>    
->>
->
->I still don't like the needless duplication.  How about doing it this
->way (see the attached patch.)
->  
->
+I recieved an email from someone claiming to be stuck with Linux 2.4, due to 
+relying on a Promise TX4200 disk controller (using the fdsata driver from 
+promise's website, which is 2.4-only):
 
-The mmc_hostname macro seems like a good solution. It'll keep the
-abstraction even if stuff needs to be moved around.
+0000:01:09.0 RAID bus controller: Promise Technology, Inc.: Unknown device 
+3519 (rev 02)
+         Subsystem: Promise Technology, Inc.: Unknown device 3519
+         Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 9
+         I/O ports at dc00 [size=128]
+         I/O ports at d800 [size=256]
+         Memory at ff8ff000 (32-bit, non-prefetchable) [size=4K]
+         Memory at ff8c0000 (32-bit, non-prefetchable) [size=128K]
+         Expansion ROM at ff8e0000 [disabled] [size=64K]
+         Capabilities: [60] Power Management version 2
 
-I see a problem with waiting until mmc_add_host() until initialising the
-kobject though. If a driver calls mmc_alloc_host() and then
-mmc_free_host(), perhaps because of some error, then the structure won't
-be freed since we rely on release getting called. That's why I tried to
-get the kobject stuff set up with the allocation.
+What is the status of this on 2.6? I found a blank changeset (??) in the mail 
+below, from 24th May:
 
-Perhaps it is possible to test if a kobject is initialised and if not
-free the structure directly?
+Jeff Garzik wrote:
+ > Please pull the 'new-ids' branch from
+ >
+ > rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+ >
+ > This add new PCI ids to some SATA drivers.
+<snip>
+ > commit 37c15447c565ab458ee3778e198d08f4041caa99
+ > tree 2eda289903e3bf19eebce7d5f9aaed2240a02479
+ > parent 9422e59ddf6cae68e46d7a2c3afe1ce4e739d3eb
+ > author Martin Povolny <martin.povolny@solnet.cz> Mon, 16 May 2005 02:41:00 
+-0400
+ > committer Jeff Garzik <jgarzik@pobox.com> Mon, 16 May 2005 02:41:00 -0400
+ >
+ > [PATCH] sata_promise: new PCI ID for TX4200
+ >
+ > [note - blank changeset]
+ >
 
-Rgds
-Pierre
+Was this accidently removed, or is the sata_promise driver actually 
+incompatible with this hardware?
+
+Thanks,
+Daniel
 

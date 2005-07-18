@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVGRLOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVGRLQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVGRLOb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 07:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVGRLOb
+	id S261350AbVGRLQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 07:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVGRLQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 07:14:31 -0400
-Received: from aeimail.aei.ca ([206.123.6.84]:12503 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261305AbVGRLOa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 07:14:30 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Fawad Lateef <fawadlateef@gmail.com>
-Subject: Re: Kernel Panic: VFS cannot open a root device
-Date: Mon, 18 Jul 2005 07:14:41 -0400
-User-Agent: KMail/1.8.1
-Cc: "porranenhuma@globo.com" <porranenhuma@globo.com>,
-       Norbert van Nobelen <norbert@edusupport.nl>,
-       linux-kernel@vger.kernel.org
-References: <200507171016.37940.norbert@edusupport.nl> <428C48BA000CBFCB@riosf03.globoi.com> <1e62d13705071719462d437a21@mail.gmail.com>
-In-Reply-To: <1e62d13705071719462d437a21@mail.gmail.com>
+	Mon, 18 Jul 2005 07:16:28 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:62373 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261350AbVGRLQ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 07:16:26 -0400
+Message-ID: <42DB8F7B.30100@grupopie.com>
+Date: Mon, 18 Jul 2005 12:16:11 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] signed char fixes for scripts
+References: <1121465068l.13352l.0l@werewolf.able.es> <1121465683l.13352l.5l@werewolf.able.es> <20050716095216.GB8064@mars.ravnborg.org>
+In-Reply-To: <20050716095216.GB8064@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507180714.41939.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 July 2005 22:46, Fawad Lateef wrote:
-> I saw this prob when my boot device/partition in the bootloader config
-> was wrong or the filesystem of my root partition is not compiled as a
-> kernel image rather compiled as module, so plz try to solve this prob
-> by selecting your desired filesystem in kernel configuration as Y
-> rather than M ...... I hope this will work
+Sam Ravnborg wrote:
+> On Fri, Jul 15, 2005 at 10:14:43PM +0000, J.A. Magallon wrote:
+> 
+>>On 07.16, J.A. Magallon wrote:
+>>[...]
+>>This time I did not break anything... and they shut up gcc4 ;)
+> 
+> Thanks.
+> Can you please resend with proper changelog and signed-off-by.
+> Diff should be done on top of latest -linus preferable.
+> Also this patch seems relative small compared to the others floating
+> around to cure signed warnings in scripts/
+> Does this really fix all of them or only a subset of the warnings?
 
-One further tip.  Make your root FS's type the only one that is not a module.
-Once you have it booting then, if you want, flip other FSes to in kernel.
+Well, current -linus already has a patch from me to change the 
+compression scheme that also fixes most of the signedness problems. The 
+ones below escaped me because my gcc3.3.2 didn't complain about them 
+even with all the -W[xxx] switches I could find.
 
-Ed Tomlinson
+This takes a big hunk out of previous patches I've seen, so that might 
+explain the difference.
+
+-- 
+Paulo Marques - www.grupopie.com
+
+It is a mistake to think you can solve any major problems
+just with potatoes.
+Douglas Adams

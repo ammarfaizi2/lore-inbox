@@ -1,135 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVGRQMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVGRQOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbVGRQMO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 12:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVGRQMO
+	id S261827AbVGRQOa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 12:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVGRQO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 12:12:14 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:35042 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261823AbVGRQMH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 12:12:07 -0400
-Date: Mon, 18 Jul 2005 12:12:06 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Michel Bouissou <michel@bouissou.net>
-cc: bjorn.helgaas@hp.com,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       <linux-kernel@vger.kernel.org>, <Mathieu.Berard@crans.org>
-Subject: Re: VIA KT400 + Kernel 2.6.12 + IO-APIC + uhci_hcd = IRQ trouble
-In-Reply-To: <200507172320.26156@totor.bouissou.net>
-Message-ID: <Pine.LNX.4.44L0.0507181200370.5668-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Jul 2005 12:14:29 -0400
+Received: from mxout2.netvision.net.il ([194.90.9.21]:32194 "EHLO
+	mxout2.netvision.net.il") by vger.kernel.org with ESMTP
+	id S261827AbVGRQNH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 12:13:07 -0400
+Date: Mon, 18 Jul 2005 19:12:50 +0300
+From: Maxim Kozover <maximkoz@netvision.net.il>
+Subject: 2.6.12.3/2.6.13-rc3 BUG REPORT - x86_64 with hyperthreading
+To: linux-kernel@vger.kernel.org
+Reply-to: Maxim Kozover <maximkoz@netvision.net.il>
+Message-id: <102574499.20050718191250@netvision.net.il>
+MIME-version: 1.0
+X-Mailer: The Bat! (v3.5.30) Professional
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Priority: 3 (Normal)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Jul 2005, Michel Bouissou wrote:
+Hi!
+I tried 2.6.12.3/2.6.13-rc3 compiled for x86_64 on Supermicro dual Xeon
+with hyperthreading enabled and the kernel gets stuck when trying to
+initialize the second CPU.
+CPU: Trace cache: 12K uops, L1 D cache: 16K
+CPU: L2 cache: 1024K
+using mwait in idle threads.
+CPU: Physical Processor ID: 0
+CPU0: Thermal monitoring enabled (TM1)
+Using local APIC timer interrupts.
+Detected 12.501 MHz APIC timer.
+Booting processor 1/6 rip 6000 rsp ffff81007ff35f58
+Initializing CPU#1
+CPU: Trace cache: 12K uops, L1 D cache: 16K
+CPU: L2 cache: 1024K
+CPU: Physical Processor ID: 3
+CPU1: Thermal monitoring enabled (TM1)
+                  Intel(R) Xeon(TM) CPU 2.80GHz stepping 01
+CPU 1: Syncing TSC to CPU 0.
+Booting processor 2/1 rip 6000 rsp ffff8100032dff58
+Initializing CPU#2
 
-> I'm afraid I won't have time for this today. It's already more than 11 PM here 
-> and I'm leaving early tomorrow for travel...
+Booting with hyperthreading disabled is OK.
+Booting with hyperthreading enabled and maxcpus=1 is also OK.
 
-I will be travelling this week also.  That's okay, there's no hurry.
+Here are board/bios details:
+Supermicro X6DH8-XG2/X6DHE-XG2 BIOS Rev 1.2a
 
-> But AFAIR, when I performed previous tests, I had tried about every USB socket 
-> on my computer (I have 6 of them...) to the same result.
+CPU = 4 - Intel(R) Xeon(TM) CPU 2.80GHz
+DRAM Type : DDR2-400
+Hyper Threading Technology Enabled
 
-But you didn't try these exact tests.
+Please advise.
 
-> Humm. I'm not sure about what you call a "full speed" device, for when I plug 
-> my USB scanner, my kernel reports it as a "full speed" USB device, and says 
-> it's managed by uhci (not ehci):
-> 
-> Jul 17 22:46:42 totor kernel: usb 3-2: new full speed USB device using 
-> uhci_hcd and address 3
+Thanks,
 
-That's what I mean by a "full speed device".
-
-> I just tried an USB flashdisk that "used to work good with 2.4" and that I 
-> hadn't tried yet in 2.6. It's identified as "high speed" and ehci would like 
-> to manage it, but it seems I'm out of luck in some other aspect:
-> 
-> totor kernel: usb 4-4: new high speed USB device using ehci_hcd and address 25
-> totor kernel: usb 4-4: device not accepting address 25, error -71
-> totor kernel: usb 4-4: new high speed USB device using ehci_hcd and address 35
-> totor kernel: usb 4-4: device not accepting address 35, error -71
-> totor kernel: usb 4-4: new high speed USB device using ehci_hcd and address 36
-> totor kernel: usb 4-4: device not accepting address 36, error -71
-> totor kernel: usb 4-4: new high speed USB device using ehci_hcd and address 38
-> totor kernel: usb 4-4: device not accepting address 38, error -71
-> totor kernel: usb 4-4: new high speed USB device using ehci_hcd and address 48
-> totor kernel: usb 4-4: device not accepting address 48, error -71
-> 
-> ...ad nauseam until I unplug the key...
-
-This could be the result of inadequate cabling inside the computer case
-from the front panel socket to the motherboard.  Lots of other people have
-seen that sort of thing.
-
-> Shhh... 
-> 
-> Doesn't like the front panel socket ? Let me try another USB socket... Just 
-> close to my mouse...
-> 
-> totor kernel: usb 4-2: new high speed USB device using ehci_hcd and address 16
-> totor kernel: SCSI subsystem initialized
-> totor kernel: Initializing USB Mass Storage driver...
-> totor kernel: scsi0 : SCSI emulation for USB Mass Storage devices
-> totor kernel: usbcore: registered new driver usb-storage
-> totor kernel: USB Mass Storage support registered.
-> 
-> Looks better, isn't it ?
-> 
-> Now, I checked that I can mount it and see its contents. That's OK.
-> 
-> I'm currently running with IO-APIC disabled, so my interrupts shows as:
-
-For the tests I described earlier, you will want to boot with IO-APIC 
-enabled.  Otherwise there's nothing to test...
-
-
-> I know that what I'm going to write will look crazy ;-) because it doesn't 
-> seem to make any sense, but I've noticed a pattern that tends to emerge from 
-> the different tests I've made with IO-APIC enabled and different 2.6.12 
-> kernels (patches, boot options, etc...) :
-> 
-> 1/ When I'm testing a new kernel for the first time, I usually call it 
-> manually by typing the different relevant option manually from my grub 
-> (bootloader) commandline, and most of the times, it works without "losing IRQ 
-> 21".
-> That's why I had thought, with your first suggestion of "usb-handoff" option, 
-> that my problem was solved.
-> 
-> Once I believe it works and want to test it again, I then put this as the 
-> default entry in my bootloader, then I reboot without touching anything (I 
-> let the bootloader select its default entry), and, usually, it then fails.
-> 
-> So I would say that a patterns looks emerging : When I have typed things on 
-> the keyboard at the bootloader stage, then loaded Linux, it may work. On the 
-> contrary, when I let the machine boot by itself without having touched 
-> anything, then I usually get these IRQ 21 losses.
-> 
-> Yes, I know this look completely silly ;-) but I mentioned it to be as 
-> complete as possible about what I noticed, and that may or may not be 
-> relevant...
-
-I would be very surprised if this turned out to mean anything.  But it 
-doesn't hurt to try more tests, doing it both ways, and see what happens.
-
-
-> By the way, the front socket that dislikes the USB 2.0 flashdisk (ehci) feels
-> perfectly happy if I plug and USB 1.1 flashdisk (uhci)... Feels good also if 
-> I plug my Digital Camera there... And I've plugged it there thousands of
-> times.
-
-That's to be expected from bad cabling.  Full-speed transmissions are much 
-more tolerant of interference and noise than high-speed transmissions.
-
-> Some posts I googled about this kind of errors tend to indicate this would be
-> an IRQ mess ;-))
-
-Sometimes it is.  And many of those posts are just guesses.  In your case
-you know that the IRQs work correctly when you don't enable IO-APIC.
-
-Alan Stern
+Maxim Kozover.
 

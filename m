@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVGSUuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVGSUwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVGSUuD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 16:50:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVGSUuD
+	id S261630AbVGSUwL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 16:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVGSUwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 16:50:03 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:28348 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261607AbVGSUuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 16:50:01 -0400
-Date: Tue, 19 Jul 2005 22:50:53 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Bodo Eggert <7eggert@gmx.de>, perex@suse.cz, akpm@osdl.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org
-Subject: Re: [2.6 patch] sound drivers select'ing ISAPNP must depend on PNP
- && ISA
-In-Reply-To: <20050719163640.GK5031@stusta.de>
-Message-ID: <Pine.LNX.4.58.0507192232230.4182@be1.lrz>
-References: <Pine.LNX.4.58.0507171702030.12446@be1.lrz> <20050719163640.GK5031@stusta.de>
+	Tue, 19 Jul 2005 16:52:10 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:15118 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261630AbVGSUwD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 16:52:03 -0400
+Message-ID: <42DD67D9.60201@stud.feec.vutbr.cz>
+Date: Tue, 19 Jul 2005 22:51:37 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+To: Pavel Machek <pavel@suse.cz>
+CC: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+Subject: amd64-agp vs. swsusp
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  tested this incoming email. See other headers to know if the email
+  has beed identified as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Jul 2005, Adrian Bunk wrote:
-> On Sun, Jul 17, 2005 at 05:07:48PM +0200, Bodo Eggert wrote:
+Hello,
 
-> > In sound/isa/Kconfig, select ISAPNP and depend on ISAPNP are intermixed, 
-> > resulting in funny behaviour. (Soundcarts get selectable if other 
-> > soundcards are selected).
-> > 
-> > This patch changes the "depend on ISAPNP"s to select.
-> >...
-> 
-> I like the idea of this patch, but it brings to more drivers to a 
-> violation of the "if you select something, you have to ensure that the 
-> dependencies of what you select are fulfilled" rule causing link errors 
-> with invalid .config's.
+Does resuming from swsuspend work for anyone with amd64-agp loaded?
 
-That should be mentioned in kconfig-language.txt. OTOH, the build system
-should automatically propagate the dependencies. I asume that should be
-easy, except for having the time to implement that.
+On my system when I suspend with amd64-agp loaded, I get a spontaneous 
+reboot on resume. It reboots immediately after reading the saved image 
+from disk.
+This is 100% reproducible.
 
+Athlon 64 FX-53, Asus A8V Deluxe, Linux 2.6.13-rc3-mm1.
 
-BTW: How can you select something to be at least a module?
-BTW2: In bool options, depending on FOO seems to be equal to depending on 
-      FOO!=n. Is this assumption correct?
-
--- 
-Top 100 things you don't want the sysadmin to say:
-49. What's this switch for anyways...?
+Regards,
+Michal

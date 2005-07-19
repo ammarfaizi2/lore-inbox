@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVGSOy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVGSPTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVGSOy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 10:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVGSOy7
+	id S261415AbVGSPTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 11:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVGSPTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 10:54:59 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:56069 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261396AbVGSOy6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 10:54:58 -0400
-To: Hiroyuki Machida <machida@sm.sony.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFD] FAT robustness
-References: <42D9FDAC.3010109@sm.sony.co.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 19 Jul 2005 23:54:52 +0900
-In-Reply-To: <42D9FDAC.3010109@sm.sony.co.jp> (Hiroyuki Machida's message of "Sun, 17 Jul 2005 15:41:48 +0900")
-Message-ID: <87fyuaq20z.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Jul 2005 11:19:09 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:30359 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261415AbVGSPTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 11:19:07 -0400
+Date: Tue, 19 Jul 2005 11:19:06 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+In-reply-to: <20050719135715.GA20664@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, Karsten Wiese <annabellesgarden@yahoo.de>,
+       "K.R. Foley" <kr@cybsft.com>, Chuck Harding <charding@llnl.gov>,
+       William Weston <weston@sysex.net>
+Message-id: <200507191119.06671.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200507061257.36738.s0348365@sms.ed.ac.uk>
+ <200507191314.24093.annabellesgarden@yahoo.de> <20050719135715.GA20664@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiroyuki Machida <machida@sm.sony.co.jp> writes:
-
-> We currently plan to add following features to address FAT corruption.
+On Tuesday 19 July 2005 09:57, Ingo Molnar wrote:
+>* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+>> > Found another error:
+>> > the ioapic cache isn't fully initialized in -51-31's
+>> > ioapic_cache_init(). <snip>
+>>
+>> and another: some NULL-pointers are used in -51-31 instead of
+>> ioapic_data[0]. Please apply attached patch on top of -51-31. It
+>> includes yesterday's fix.
 >
->     - Utilize standard 2.6 features as much as possible
-> 	- Implement as options of fat, vfat and uvfat
+>thanks, i've applied it and released -32.
 
-What is the uvfat? typo (xvfat)?  Why is this an option (does it have
-the big demerit)?
+And this fixed ntpd (in mode 4) right up.  But now Im seeing some 
+fussing from Xprint when its started, from my logs:
 
-> 	- Utilize noop elevator to cancel unexpected operation reordering
+Jul 19 10:59:58 coyote rc: Starting xprint:  succeeded
+Jul 19 10:59:58 coyote kernel: set_rtc_mmss: can't update from 7 to 59
+Jul 19 10:59:58 coyote kernel: set_rtc_mmss: can't update from 7 to 59
+Jul 19 10:59:59 coyote Xprt_33: lpstat: Unable to connect to server: Connection refused
+Jul 19 10:59:59 coyote Xprt_33: No matching visual for __GLcontextMode with visual class = 0 (32775), nplanes =
+8
+Jul 19 11:00:00 coyote kernel: set_rtc_mmss: can't update from 7 to 59
 
-Why don't you use the barrier?
+The font path stuff I snipped has been there since forever.
+And, I didn't get the set_rtc_mmss messages when I did a service xprint restart.
 
->     - Coordinate order of operations so that update data first, meta
-> 	 data later with transaction control
+Is this even connected to Xprint, that looks like something from maybe ntp?
 
-Is this meaning the SoftUpdates? What does this guarantee? How does
-this handle the rename(), and cyclic dependency of updates?
+And of course in mode 4, tvtime has a blue screen.  But you knew that. :)
 
->     - With O_SYNC, close() make flush all related data and
-> 	 meta-data, then wait completion of I/O
+> Ingo
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-What is this meaning? Why does O_SYNC only flush at close()?
-
-Almost things in your email is needing the detail.
-I'm thinking the SoftUpdates is best solution for now. Could you tell
-the detail of your solution?
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

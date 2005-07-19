@@ -1,349 +1,319 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVGSQxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVGSQyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbVGSQxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 12:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVGSQxZ
+	id S261575AbVGSQyU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 12:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVGSQyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 12:53:25 -0400
-Received: from [194.90.237.34] ([194.90.237.34]:472 "EHLO mtlex01.yok.mtl.com")
-	by vger.kernel.org with ESMTP id S261244AbVGSQxX (ORCPT
+	Tue, 19 Jul 2005 12:54:20 -0400
+Received: from opersys.com ([64.40.108.71]:60425 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261575AbVGSQxo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 12:53:23 -0400
-Date: Tue, 19 Jul 2005 19:55:42 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Roland Dreier <roland@topspin.com>, openib-general@openib.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fork support
-Message-ID: <20050719165542.GB16028@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Mime-Version: 1.0
+	Tue, 19 Jul 2005 12:53:44 -0400
+Message-ID: <42DD2EA4.5040507@opersys.com>
+Date: Tue, 19 Jul 2005 12:47:32 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Weird USB errors on HD
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a patch to linux kernel to enable fork() support for
-infiniband uverbs (userspace i/o initiator).
-Please Cc me with comments.
 
----
+I have a usb-attached HD that I use from time to time. When it's connected
+to my desktop through a hub it works flawlessly. When connected to my Dell
+D600 Laptop, however, it sometimes randomly exhibits a loud click (as if the
+heads went berzerk) and the device goes unrecognized (i.e. the USB layer drops
+the device and then redetects it again; meanwhile there is FS corruption.)
 
-This patch adds PROT_DONTCOPY to mmap and mprotect, to set VM_DONTCOPY on vma.
-This is needed for infiniband userspace i/o, where we need to protect against
-  - the child process accessing the parent hardware page
-  - the parent registered address (on which the driver did get_user_pages)
-    getting remapped to another page by COW
-One can imagine other uses, e.g. combined with mlock for real-time or security.
+The same behavior happens with 2.4.x and 2.6.x
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+In /var/log/messages I see something like:
+hub 3-0:1.0: over-current change on port 1
+hub 1-0:1.0: over-current change on port 3
+...
+usb 1-3: USB disconnect, address 2
+usb 1-3: new high speed USB device using ehci_hcd and address 3
+...
+usb-storage: device found at 3
+usb-storage: waiting for device to settle before scanning
 
-Index: linux-2.6.12.2/include/asm-ppc64/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-ppc64/mman.h
-+++ linux-2.6.12.2/include/asm-ppc64/mman.h
-@@ -15,6 +15,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-cris/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-cris/mman.h
-+++ linux-2.6.12.2/include/asm-cris/mman.h
-@@ -10,6 +10,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-arm26/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-arm26/mman.h
-+++ linux-2.6.12.2/include/asm-arm26/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-alpha/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-alpha/mman.h
-+++ linux-2.6.12.2/include/asm-alpha/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-m68k/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-m68k/mman.h
-+++ linux-2.6.12.2/include/asm-m68k/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-mips/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-mips/mman.h
-+++ linux-2.6.12.2/include/asm-mips/mman.h
-@@ -22,6 +22,7 @@
- #define PROT_SEM	0x10		/* page may be used for atomic ops */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- /*
-  * Flags for mmap
-Index: linux-2.6.12.2/include/asm-sparc64/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-sparc64/mman.h
-+++ linux-2.6.12.2/include/asm-sparc64/mman.h
-@@ -11,6 +11,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-v850/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-v850/mman.h
-+++ linux-2.6.12.2/include/asm-v850/mman.h
-@@ -7,6 +7,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-s390/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-s390/mman.h
-+++ linux-2.6.12.2/include/asm-s390/mman.h
-@@ -16,6 +16,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-parisc/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-parisc/mman.h
-+++ linux-2.6.12.2/include/asm-parisc/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-ppc/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-ppc/mman.h
-+++ linux-2.6.12.2/include/asm-ppc/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-i386/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-i386/mman.h
-+++ linux-2.6.12.2/include/asm-i386/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-sh/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-sh/mman.h
-+++ linux-2.6.12.2/include/asm-sh/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-x86_64/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-x86_64/mman.h
-+++ linux-2.6.12.2/include/asm-x86_64/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_SEM	0x8
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-ia64/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-ia64/mman.h
-+++ linux-2.6.12.2/include/asm-ia64/mman.h
-@@ -15,6 +15,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-sparc/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-sparc/mman.h
-+++ linux-2.6.12.2/include/asm-sparc/mman.h
-@@ -11,6 +11,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-m32r/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-m32r/mman.h
-+++ linux-2.6.12.2/include/asm-m32r/mman.h
-@@ -10,6 +10,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-frv/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-frv/mman.h
-+++ linux-2.6.12.2/include/asm-frv/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/linux/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/linux/mman.h
-+++ linux-2.6.12.2/include/linux/mman.h
-@@ -47,9 +47,10 @@ static inline void vm_unacct_memory(long
- static inline unsigned long
- calc_vm_prot_bits(unsigned long prot)
- {
--	return _calc_vm_trans(prot, PROT_READ,  VM_READ ) |
--	       _calc_vm_trans(prot, PROT_WRITE, VM_WRITE) |
--	       _calc_vm_trans(prot, PROT_EXEC,  VM_EXEC );
-+	return _calc_vm_trans(prot, PROT_READ,     VM_READ ) |
-+	       _calc_vm_trans(prot, PROT_WRITE,    VM_WRITE) |
-+	       _calc_vm_trans(prot, PROT_EXEC,     VM_EXEC ) |
-+	       _calc_vm_trans(prot, PROT_DONTCOPY, VM_DONTCOPY );
- }
- 
- /*
-Index: linux-2.6.12.2/include/asm-h8300/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-h8300/mman.h
-+++ linux-2.6.12.2/include/asm-h8300/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/include/asm-arm/mman.h
-===================================================================
---- linux-2.6.12.2.orig/include/asm-arm/mman.h
-+++ linux-2.6.12.2/include/asm-arm/mman.h
-@@ -8,6 +8,7 @@
- #define PROT_NONE	0x0		/* page can not be accessed */
- #define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
- #define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#define PROT_DONTCOPY	0x04000000	/* dont copy to child on fork */
- 
- #define MAP_SHARED	0x01		/* Share changes */
- #define MAP_PRIVATE	0x02		/* Changes are private */
-Index: linux-2.6.12.2/mm/mprotect.c
-===================================================================
---- linux-2.6.12.2.orig/mm/mprotect.c
-+++ linux-2.6.12.2/mm/mprotect.c
-@@ -196,7 +196,7 @@ sys_mprotect(unsigned long start, size_t
- 	end = start + len;
- 	if (end <= start)
- 		return -ENOMEM;
--	if (prot & ~(PROT_READ | PROT_WRITE | PROT_EXEC | PROT_SEM))
-+	if (prot & ~(PROT_READ | PROT_WRITE | PROT_EXEC | PROT_SEM | PROT_DONTCOPY))
- 		return -EINVAL;
- 
- 	reqprot = prot;
-@@ -246,7 +246,7 @@ sys_mprotect(unsigned long start, size_t
- 			goto out;
- 		}
- 
--		newflags = vm_flags | (vma->vm_flags & ~(VM_READ | VM_WRITE | VM_EXEC));
-+		newflags = vm_flags | (vma->vm_flags & ~(VM_READ | VM_WRITE | VM_EXEC | VM_DONTCOPY));
- 
- 		if ((newflags & ~(newflags >> 4)) & 0xf) {
- 			error = -EACCES;
-Index: linux-2.6.12.2/mm/mmap.c
-===================================================================
---- linux-2.6.12.2.orig/mm/mmap.c
-+++ linux-2.6.12.2/mm/mmap.c
-@@ -792,8 +792,8 @@ struct anon_vma *find_mergeable_anon_vma
- 	 * Neither mlock nor madvise tries to remerge at present,
- 	 * so leave their flags as obstructing a merge.
- 	 */
--	vm_flags = vma->vm_flags & ~(VM_READ|VM_WRITE|VM_EXEC);
--	vm_flags |= near->vm_flags & (VM_READ|VM_WRITE|VM_EXEC);
-+	vm_flags = vma->vm_flags & ~(VM_READ|VM_WRITE|VM_EXEC|VM_DONTCOPY);
-+	vm_flags |= near->vm_flags & (VM_READ|VM_WRITE|VM_EXEC|VM_DONTCOPY);
- 
- 	if (near->anon_vma && vma->vm_end == near->vm_start &&
-  			mpol_equal(vma_policy(vma), vma_policy(near)) &&
-@@ -814,8 +814,8 @@ try_prev:
- 	if (!near)
- 		goto none;
- 
--	vm_flags = vma->vm_flags & ~(VM_READ|VM_WRITE|VM_EXEC);
--	vm_flags |= near->vm_flags & (VM_READ|VM_WRITE|VM_EXEC);
-+	vm_flags = vma->vm_flags & ~(VM_READ|VM_WRITE|VM_EXEC|VM_DONTCOPY);
-+	vm_flags |= near->vm_flags & (VM_READ|VM_WRITE|VM_EXEC|VM_DONTCOPY);
- 
- 	if (near->anon_vma && near->vm_end == vma->vm_start &&
-   			mpol_equal(vma_policy(near), vma_policy(vma)) &&
+This doesn't seem too good.
 
+Here's the complete passage from /var/log/messages:
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 384296
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 384296
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 384296
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 384296
+EXT3-fs error (device sda): ext3_free_branches: Read failure, inode=1046532, block=48037
+Aborting journal on device sda.
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 4176
+printk: 813 messages suppressed.
+Buffer I/O error on device sda, logical block 522
+lost page write due to I/O error on sda
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 0
+Buffer I/O error on device sda, logical block 0
+lost page write due to I/O error on sda
+EXT3-fs error (device sda) in ext3_reserve_inode_write: Journal has aborted
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 0
+Buffer I/O error on device sda, logical block 0
+lost page write due to I/O error on sda
+EXT3-fs error (device sda) in ext3_reserve_inode_write: Journal has aborted
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 0
+Buffer I/O error on device sda, logical block 0
+lost page write due to I/O error on sda
+EXT3-fs error (device sda) in ext3_orphan_del: Journal has aborted
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 0
+Buffer I/O error on device sda, logical block 0
+lost page write due to I/O error on sda
+EXT3-fs error (device sda) in ext3_truncate: Journal has aborted
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 0
+Buffer I/O error on device sda, logical block 0
+lost page write due to I/O error on sda
+ext3_abort called.
+EXT3-fs error (device sda): ext3_journal_start_sb: Detected aborted journal
+Remounting filesystem read-only
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 3254080
+hub 3-0:1.0: over-current change on port 1
+hub 1-0:1.0: over-current change on port 3
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 3254088
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 3254096
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 3254104
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 3254088
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 3254088
+usb 1-3: USB disconnect, address 2
+scsi0 (0:0): rejecting I/O to device being removed
+Buffer I/O error on device sda, logical block 458754
+lost page write due to I/O error on sda
+scsi0 (0:0): rejecting I/O to device being removed
+Buffer I/O error on device sda, logical block 517070
+lost page write due to I/O error on sda
+scsi0 (0:0): rejecting I/O to device being removed
+Buffer I/O error on device sda, logical block 1
+lost page write due to I/O error on sda
+scsi0 (0:0): rejecting I/O to device being removed
+Buffer I/O error on device sda, logical block 393218
+lost page write due to I/O error on sda
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+usb 1-3: new high speed USB device using ehci_hcd and address 3
+scsi1 : SCSI emulation for USB Mass Storage devices
+usb-storage: device found at 3
+usb-storage: waiting for device to settle before scanning
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #196225 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #196225 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #277985 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #1046529 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #228929 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #196225 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #212577 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #212577 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #196225 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #163521 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #163521 offset 0
+  Vendor: FUJITSU   Model: MHT2040AT         Rev: 0022
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sdb: 78140160 512-byte hdwr sectors (40008 MB)
+sdb: assuming drive cache: write through
+SCSI device sdb: 78140160 512-byte hdwr sectors (40008 MB)
+sdb: assuming drive cache: write through
+ sdb: unknown partition table
+Attached scsi disk sdb at scsi1, channel 0, id 0, lun 0
+usb-storage: device scan complete
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #163521 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_find_entry: reading directory #163521 offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_readdir: directory #2 contains a hole at offset 0
+scsi0 (0:0): rejecting I/O to dead device
+EXT3-fs error (device sda): ext3_readdir: directory #2 contains a hole at offset 0
+scsi0 (0:0): rejecting I/O to dead device
+printk: 5 messages suppressed.
+Buffer I/O error on device sda, logical block 522
+lost page write due to I/O error on sda
+usb 1-3: USB disconnect, address 3
+usb 1-3: new high speed USB device using ehci_hcd and address 4
+scsi2 : SCSI emulation for USB Mass Storage devices
+usb-storage: device found at 4
+usb-storage: waiting for device to settle before scanning
+  Vendor: FUJITSU   Model: MHT2040AT         Rev: 0022
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sda: 78140160 512-byte hdwr sectors (40008 MB)
+sda: assuming drive cache: write through
+SCSI device sda: 78140160 512-byte hdwr sectors (40008 MB)
+sda: assuming drive cache: write through
+ sda: unknown partition table
+Attached scsi disk sda at scsi2, channel 0, id 0, lun 0
+usb-storage: device scan complete
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on sda, internal journal
+EXT3-fs: recovery complete.
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+usb 1-3: USB disconnect, address 4
+
+Any chances someone has seen this before or if there's something I can do
+to stop this from happening anymore?
+
+Thanks,
+
+Karim
 -- 
-MST
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVGSU3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVGSUuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbVGSU3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 16:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVGSU3Q
+	id S261607AbVGSUuD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 16:50:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVGSUuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 16:29:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:29643 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261700AbVGSU3P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 16:29:15 -0400
-Date: Tue, 19 Jul 2005 16:29:01 -0400
-From: Greg KH <greg@kroah.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Karim Yaghmour <karim@opersys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Weird USB errors on HD
-Message-ID: <20050719202901.GA20439@kroah.com>
-References: <42DD2EA4.5040507@opersys.com> <20050719192918.GA19803@kroah.com> <1121804216.4299.7.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121804216.4299.7.camel@mindpipe>
-User-Agent: Mutt/1.5.8i
+	Tue, 19 Jul 2005 16:50:03 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:28348 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261607AbVGSUuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 16:50:01 -0400
+Date: Tue, 19 Jul 2005 22:50:53 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Bodo Eggert <7eggert@gmx.de>, perex@suse.cz, akpm@osdl.org,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org
+Subject: Re: [2.6 patch] sound drivers select'ing ISAPNP must depend on PNP
+ && ISA
+In-Reply-To: <20050719163640.GK5031@stusta.de>
+Message-ID: <Pine.LNX.4.58.0507192232230.4182@be1.lrz>
+References: <Pine.LNX.4.58.0507171702030.12446@be1.lrz> <20050719163640.GK5031@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 19, 2005 at 04:16:55PM -0400, Lee Revell wrote:
-> On Tue, 2005-07-19 at 15:29 -0400, Greg KH wrote:
-> > Ugh, you have a bad device or power supply, or aren't giving it enough
-> > power to drive the thing.  Nothing we can do in Linux for that, sorry.
-> > Buy a wall-powered usb hub, that usually helps.
+On Tue, 19 Jul 2005, Adrian Bunk wrote:
+> On Sun, Jul 17, 2005 at 05:07:48PM +0200, Bodo Eggert wrote:
+
+> > In sound/isa/Kconfig, select ISAPNP and depend on ISAPNP are intermixed, 
+> > resulting in funny behaviour. (Soundcarts get selectable if other 
+> > soundcards are selected).
 > > 
+> > This patch changes the "depend on ISAPNP"s to select.
+> >...
 > 
-> I get the same messages on boot from a bus with no devices connected to
-> it (hub 4).  I have not connected the motherboard header because I don't
-> use that bus, could this be related?
+> I like the idea of this patch, but it brings to more drivers to a 
+> violation of the "if you select something, you have to ensure that the 
+> dependencies of what you select are fulfilled" rule causing link errors 
+> with invalid .config's.
 
-Yes, it's probably just not grounded properly because the header is not
-connected.  It's harmless and you can just ignore it.
+That should be mentioned in kconfig-language.txt. OTOH, the build system
+should automatically propagate the dependencies. I asume that should be
+easy, except for having the time to implement that.
 
-thanks,
 
-greg k-h
+BTW: How can you select something to be at least a module?
+BTW2: In bool options, depending on FOO seems to be equal to depending on 
+      FOO!=n. Is this assumption correct?
+
+-- 
+Top 100 things you don't want the sysadmin to say:
+49. What's this switch for anyways...?

@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVGSOCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVGSOCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVGSOCr (ORCPT <rfc822;willy@w.ods.org>);
+	id S261984AbVGSOCr (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 19 Jul 2005 10:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVGSOAu
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbVGSOA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 10:00:50 -0400
-Received: from mail.linux-mips.org ([62.254.210.162]:35545 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S261982AbVGSN6p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 09:58:45 -0400
-Date: Sun, 17 Jul 2005 17:09:39 -0400
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Greg KH <greg@kroah.com>, Francois Romieu <romieu@fr.zoreil.com>,
-       Greg KH <gregkh@suse.de>, torvalds@osdl.org, akpm@osdl.org,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, netdev@vger.kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, jgarzik@pobox.com,
-       stable@kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [stable] Re: [05/11] SMP fix for 6pack driver
-Message-ID: <20050717210939.GA11884@linux-mips.org>
-References: <20050713184130.GA9330@kroah.com> <20050713184331.GG9330@kroah.com> <20050713220123.GA3292@electric-eye.fr.zoreil.com> <20050713221311.GA30039@kroah.com> <20050715193556.GB18059@stusta.de>
+	Tue, 19 Jul 2005 10:00:57 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:16030 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261362AbVGSN6L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 09:58:11 -0400
+Date: Tue, 19 Jul 2005 15:57:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: "K.R. Foley" <kr@cybsft.com>, Chuck Harding <charding@llnl.gov>,
+       William Weston <weston@sysex.net>,
+       Linux Kernel Discussion List <linux-kernel@vger.kernel.org>,
+       Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
+Message-ID: <20050719135715.GA20664@elte.hu>
+References: <200507061257.36738.s0348365@sms.ed.ac.uk> <20050716171537.GB16235@elte.hu> <200507171407.20373.annabellesgarden@yahoo.de> <200507191314.24093.annabellesgarden@yahoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050715193556.GB18059@stusta.de>
+In-Reply-To: <200507191314.24093.annabellesgarden@yahoo.de>
 User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 15, 2005 at 09:35:56PM +0200, Adrian Bunk wrote:
 
-> I do agree with Francois regarding this issue:
-> 
-> AFAIR, there has been not one 2.6 kernel where this driver was available 
-> for SMP kernels.
+* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
 
-Eh...  That after all is the raison d'etre for this patch :)
+> > Found another error:
+> > the ioapic cache isn't fully initialized in -51-31's ioapic_cache_init().
+> > <snip>
+> > 
+>
+> and another: some NULL-pointers are used in -51-31 instead of 
+> ioapic_data[0]. Please apply attached patch on top of -51-31. It 
+> includes yesterday's fix.
 
-> It's therefore untested which problems might arise with 
-> this driver on SMP systems. I'm not arguing against including this 
-> driver in 2.6.13, but 2.6.12.3 isn't the right place.
+thanks, i've applied it and released -32.
 
-Nonsense.  Most development activity for this stuff happens not on the
-internet and you won't be able to follow it unless you're a licensed ham.
-I've been circulating things patch since a while and nobody has been unhappy.
-
-> What surprises me most is that you accepted this patch is neither in 
-> 2.6.13-rc3 nor in 2.6.13-rc3-mm1. There seems to be either an
-> (IMHO unfortunate) change in your policy of what patches to accept,
-> or there's a serious problem in your patch review process.
-
-I've sent it to jgarzik so it's somewhere on it's long way there.
-
-  Ralf
+	Ingo

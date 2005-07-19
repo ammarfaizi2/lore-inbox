@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVGSQWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVGSQY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVGSQWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 12:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVGSQWI
+	id S261541AbVGSQY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 12:24:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVGSQY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 12:22:08 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:46506 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261528AbVGSQVV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 12:21:21 -0400
-Date: Tue, 19 Jul 2005 18:24:25 +0200
-From: DervishD <lkml@dervishd.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: USB debouncing?
-Message-ID: <20050719162425.GA135@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+	Tue, 19 Jul 2005 12:24:27 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:46567 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261541AbVGSQYZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 12:24:25 -0400
+Date: Tue, 19 Jul 2005 17:52:14 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-cluster@redhat.com, ocfs2-devel@oss.oracle.com
+Subject: Re: [Ocfs2-devel] [RFC] nodemanager, ocfs2, dlm
+Message-ID: <20050719155214.GG13246@marowsky-bree.de>
+References: <20050718061553.GA9568@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20050718061553.GA9568@redhat.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :)
+On 2005-07-18T14:15:53, David Teigland <teigland@redhat.com> wrote:
 
-    I have a new MP3 player, and when I disconnect it from the USB
-port, my logs says:
+> Some of the comments about the dlm concerned how it's configured (from
+> user space.)  In particular, there was interest in seeing the dlm and
+> ocfs2 use common methods for their configuration.
+> 
+> The first area I'm looking at is how we get addresses/ids of other nodes.
+> Currently, the dlm uses an ioctl on a misc device and ocfs2 uses a
+> separate kernel module called "ocfs2_nodemanager" that's based on
+> configfs.
+> 
+> I've taken a stab at generalizing ocfs2_nodemanager so the dlm could use
+> it (removing ocfs-specific stuff).  It still needs some work, but I'd like
+> to know if this appeals to the ocfs group and to others who were
+> interested in seeing some similarity in dlm/ocfs configuration.
 
-    <30>Jul 19 18:11:05 kernel: usb.c: USB disconnect on device 00:07.3-1 address 2
-    <27>Jul 19 18:11:06 kernel: hub.c: connect-debounce failed, port 1 disabled
+Hi Dave, I finally found time to read through this.
 
-    What is that 'connect-debounce' for? Is the port damaged? Am I
-doing anything wrong?
+Yes, I most definetely like where this is going!
 
-    Thanks a lot in advance :)
+> +/* TODO:
+> +   - generic addresses (IPV4/6)
+> +   - multiple addresses per node
 
-    Raúl Núñez de Arenas Coronado
+The nodeid, I thought, was relative to a given DLM namespace, no? This
+concept seems to be missing here, or are you suggesting the nodeid to be
+global across namespaces?
+
+Also, eventually we obviously need to have state for the nodes - up/down
+et cetera. I think the node manager also ought to track this.
+
+How would kernel components use this and be notified about changes to
+the configuration / membership state?
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to...
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
+

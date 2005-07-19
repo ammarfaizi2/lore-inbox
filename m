@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVGSDOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVGSDSJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVGSDOk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 23:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVGSDOk
+	id S261925AbVGSDSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 23:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVGSDSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 23:14:40 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:15805 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261361AbVGSDOj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 23:14:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tEQ8JFkJ+A+dSDt26wp+z+8pST1Sp2yKnJLifXEQGV3nlplH7zOY0wDCnUN2+0hyNP8CQkzG+lmVwvkZN8pvhUnZSZDkz9b5v442S39Vj0V3y2FS4W3OcQm+mmhrx5INhfxKdu63PE8PccWnPMHX909oNcyhQwQnWSOCQ714/eA=
-Message-ID: <1e62d13705071820132e7fa6c9@mail.gmail.com>
-Date: Tue, 19 Jul 2005 08:13:29 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-Reply-To: Fawad Lateef <fawadlateef@gmail.com>
-To: Keith Owens <kaos@sgi.com>
-Subject: Re: Regarding KDB for REDHAT9.0
-Cc: Subbu <subbu@sasken.com>, linux-kernel@vger.kernel.org,
-       subbu2k_av@yahoo.com
-In-Reply-To: <5276.1121737277@kao2.melbourne.sgi.com>
+	Mon, 18 Jul 2005 23:18:09 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:7181 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261925AbVGSDSH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 23:18:07 -0400
+Date: Mon, 18 Jul 2005 20:26:24 -0700
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Christoph Hellwig <hch@infradead.org>, Daniel Walker <dwalker@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, Dave Chinner <dgc@sgi.com>, greg@kroah.com,
+       Nathan Scott <nathans@sgi.com>, Steve Lord <lord@xfs.org>,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: RT and XFS
+Message-ID: <20050719032624.GA22060@nietzsche.lynx.com>
+References: <20050714160835.GA19229@infradead.org> <Pine.OSF.4.05.10507171848440.14250-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.GSO.4.30.0507181124560.28721-100000@sunrnd2.sasken.com>
-	 <5276.1121737277@kao2.melbourne.sgi.com>
+In-Reply-To: <Pine.OSF.4.05.10507171848440.14250-100000@da410.phys.au.dk>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/19/05, Keith Owens <kaos@sgi.com> wrote:
-> 
-> Sorry, not available.  RedHat do not want kdb so SGI do not do KDB
-> patches against RedHat distributions.  Use SuSE instead, that has KDB
-> built in.
-> 
+On Mon, Jul 18, 2005 at 02:10:31PM +0200, Esben Nielsen wrote:
+> Unfortunately, one of the goals of the preempt-rt branch is to avoid
+> altering too much code. Therefore the type semaphore can't be removed
+> there. Therefore the name still lingers ... :-(
 
-I want to add one more thing, you can compile your own kernel with KDB
-patch applied .... if u really want to use KDB on Redhat ...... And I
-think you can also try to apply patch of KDB for 2.4.20 on the Redhat
-kenel, that might succeed if redhat havn't changed anything in the
-files of 2.4.20 kernel in which KDB patches or make changes .........
+This is where you failed. You assumed that that person making the comment,
+Christopher, in the first place didn't have his head up his ass in the
+first place and was open to your end of the discussion.
 
+bill
 
--- 
-Fawad Lateef

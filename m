@@ -1,77 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVGSUKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVGSUMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbVGSUKm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 16:10:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbVGSUKl
+	id S261636AbVGSUMF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 16:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVGSUME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 16:10:41 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:48111 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261603AbVGSUKh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 16:10:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UB/sNRkDICDm942H3181AZxOZlNo185VEQl1k4ul9b/yX0Mp8lzaYy/C7hIkYszXym2l2U/Em8JXiMXKGNTAct1PyTzLMgbgEOpODJA0xJG8n250gFwBSk2nxIAHGcWGkUHhAtHWgsu5p0us90zJsWvisraKS33XhQKN0dKlbzQ=
-Message-ID: <3f250c7105071913091c5b2858@mail.gmail.com>
-Date: Tue, 19 Jul 2005 16:09:43 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: "P@draigbrady.com" <P@draigbrady.com>
-Subject: Re: How do you accurately determine a process' RAM usage?
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <42D39102.5010503@draigBrady.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42CC2923.2030709@draigBrady.com>
-	 <20050706181623.3729d208.akpm@osdl.org>
-	 <42CCE737.70802@draigBrady.com>
-	 <20050707014005.338ea657.akpm@osdl.org>
-	 <42D39102.5010503@draigBrady.com>
+	Tue, 19 Jul 2005 16:12:04 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:37030 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261636AbVGSULc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 16:11:32 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: Noob question. Why is the for-pentium4 kernel built with 	-march=i686 ?
+To: ivan@yosifov.net, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 19 Jul 2005 22:12:24 +0200
+References: <4s3M3-ph-15@gated-at.bofh.it> <4s4y2-Rt-17@gated-at.bofh.it> <4s5aD-1sw-3@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DuyS0-00013Z-VG@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ivan Yosifov <ivan@yosifov.net> wrote:
 
-On 7/12/05, P@draigbrady.com <P@draigbrady.com> wrote:
-> Andrew Morton wrote:
-> > OK, please let us know how it goes.
-> 
-> It went very well. I could find no problems at all.
-> I've updated my script to use the new method, so please merge smaps :)
-> http://www.pixelbeat.org/scripts/ps_mem.py
-> 
-> Usually the shared mem reported by /proc/$$/statm
-> is the same as summing all the shared values in in /proc/$$/smaps
-> but there can be large discrepancies.
+> -march implies -mtune and also implies thing like -msse2 for the
+> instruction set where applicable.
+> I think -march=pentium4 is equivalent to -mmmx -msse -msse2
+> -mtune=pentium4 ( if I have not fogotten anything ).
+> Pentium4 supports things like sse2 and mmx which AFAIK plain i686 does
+> not.
 
-Have you checked how the statm shared is calculated? I guess it does
-something like:
-shared = mm->rss - mm->anon_rss
-
-But in smaps output you can have anonymous area like:
-
-b6e0e000-b6e13000 rw-p
-Size:                20 KB
-Rss:                  4 KB
-Shared_Clean:         0 KB
-Shared_Dirty:         4 KB
-Private_Clean:        0 KB
-Private_Dirty:        0 KB
-
-Look that it presents 4 KB of shared value in area considered anonymous.
-
-ANDREW: anon_rss is the rss for anonymous area, right?
-
-> In the real world you can see this with a newly started apache.
-> On my system statm reported that apache was using 35MB,
-> whereas smaps reported the correct amount of 11MB.
-
-How dou you know that 11MB is the correct shared value  and the 35MB
-is the wrong value?
-
-BR,
-
-Mauricio Lin.
+AFAIK it's not possible to use SSE and MME in kernel mode, since these
+registers aren't preserved (it would be expensive).
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

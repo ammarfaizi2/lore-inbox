@@ -1,192 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVGSNkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVGSNvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbVGSNkk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 09:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVGSNkk
+	id S261254AbVGSNvu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 09:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVGSNvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 09:40:40 -0400
-Received: from [210.76.114.20] ([210.76.114.20]:29077 "EHLO ccoss.com.cn")
-	by vger.kernel.org with ESMTP id S261229AbVGSNki (ORCPT
+	Tue, 19 Jul 2005 09:51:50 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:48285 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261254AbVGSNvt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 09:40:38 -0400
-Message-ID: <42DD029B.2000103@ccoss.com.cn>
-Date: Tue, 19 Jul 2005 21:39:39 +0800
-From: "liyu@WAN" <liyu@ccoss.com.cn>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How linear address translate to physical address in kernel	space?
-References: <42DCE551.80104@ccoss.com.cn> <1121775177.6125.28.camel@localhost.localdomain>
-In-Reply-To: <1121775177.6125.28.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Jul 2005 09:51:49 -0400
+Date: Tue, 19 Jul 2005 15:50:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>, Bill Huey <bhuey@lnxw.com>,
+       Esben Nielsen <simlo@phys.au.dk>, Daniel Walker <dwalker@mvista.com>,
+       Dave Chinner <dgc@sgi.com>, greg@kroah.com,
+       Nathan Scott <nathans@sgi.com>, Steve Lord <lord@xfs.org>,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: RT and XFS
+Message-ID: <20050719135056.GA19552@elte.hu>
+References: <20050714160835.GA19229@infradead.org> <Pine.OSF.4.05.10507171848440.14250-100000@da410.phys.au.dk> <20050719032624.GA22060@nietzsche.lynx.com> <20050719123457.GC12368@elte.hu> <20050719132750.GA20595@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050719132750.GA20595@infradead.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
 
-    Thanks for steven. but I think you don't understand real intention 
-of my question.
+* Christoph Hellwig <hch@infradead.org> wrote:
 
-    First, please allow me make a bit explain about intel architecture. 
-If it include
-any error, please tell me. 3ks.
+> On Tue, Jul 19, 2005 at 02:34:57PM +0200, Ingo Molnar wrote:
+> > (I do disagree with Christoph on another point: i do think we eventually 
+> > want to change the standard semaphore type in a similar fashion upstream 
+> > as well - but that probably has to come with a s/struct semaphore/struct 
+> > mutex/ change as well.)
+> 
+> Actually having a mutex_t in mainline would be a good idea even 
+> without preempt rt, to document better what kind of locking we expect.
 
-    On i386, that all addresses can be used directly in program, is 
-called "logical address",
-logical address include a pointer(16bit) to segment descriptor table and 
-one offset(32bit).
-the logical address must be pass segment translation. this process use 
-segment descriptor in
-GDT or LDT (Global/Local segment Descriptor Table).  Each segment 
-descriptor includes
-one base address of the segment, then, the offset in "logical address" 
-and this base address
-will combine "linear address", if we disable paging, this linear address 
-just is physcial address.
-however, if we enable great paging, it still need do paging translate to 
-physical address yet.
-In paging process, CR3 register take one important role, it include page 
-table directory base address.
+cool! I'll cook up a patch for that. Right now these are the numbers: 
+there are 526 uses of struct semaphore in 2.6.12. In the -RT tree i had 
+to change 23 of them to be compat_semaphore - i.e. 23 uses were 
+definitely non-mutex.
 
-    On i386 Linux, segment tranlstion just is dummy process, all logical 
-address is translated to same
-address. in other words, all segments (KERNEL_CS, KERNEL_DS, USER_DS, 
-USER_CS) have zero value base
-address.
+(We sure have missed some cases - but it would be fair to say that the 
+expected number of cases is less than 50, and that we've mapped the most 
+common ones already. That makes it a 90%/10% splitup: more than 90% of 
+all struct semaphore use is pure mutex.)
 
-    And we must note, in above words, the terms "logical address" , 
-"linear address" are came from intel
-architecture manual, they are not completely equal with linux kernel 
-terms. but both "linear address" are
-the most like.
+Of the remaining <10% cases, the majority is of the type of completions, 
+and there are a handful of (<10) cases of 'counted semaphore' uses: 
+semaphores with a count larger than 1. (e.g. ACPI uses it to count 
+resources, some audio code too - but it's very rare) Btw., that's the 
+only 'true' (in terms of CS) semaphore use.
 
-    The paging at i386 architecture must use CR3 register, as we known, 
-at least. So in linux kernel, if it
-is going to map its "linear address" to low end physical address, it 
-also need use CR3 register. but it can
-not use CR3 directly ,in switch_mm() function at least, this function 
-will change CR3 register value to switch
-user task memory address space.
-
-    I known kernel often do not setup page table for itself, except some 
-special cases, for example, vmalloc.
-This feature say kernel use page table(and CR3) in reverse.
-
-    I want to know how kernel translate itself address , especially, How 
-code after kernel change CR3 register
-work? It use CR3, or no? As steven said, I am confused here really.
-
-    It is like kernel have many secrets I don't know. these secrets 
-drive me study it.
-
-    3ks in advanced.
-
-
-                                                                         
-         liyu/NOW~
-
-
-
-
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-   
-
-
-
-
-
-
-
-
-
-Steven Rostedt wrote:
-
->Hi Liyu,
->
->I'm not that strong in the Intel world, but after all the fancy
->registers, intel is not much different than say PPC. So I'll keep this
->more of a generic platform discussion, and only talk about physical and
->virtual address space.
->
->The kernel is usually mapped down to the lower end of memory, which in
->most platforms starts at physical address zero (I've worked with
->platforms that don't do this, but that's offtopic). Then the kernel maps
->this physical location to some upper address (with intel it's usually
->0xc0000000).
->
->All the user space addresses are mapped below this kernel address. Now
->the magic here, and it probably confuses you, is that all
->tasks/processes have the kernel address mapped to the same location.  So
->on context switches, the kernel is still in the same location in virtual
->address.  It's just that when the CPU is in user mode, the kernel
->address is protected from being read or written to. So if a user space
->process tries to write or read from it (like *(char*)(0xc0000000) = 1;)
->it will get a page fault. But when the CPU switches to kernel mode
->(through a system call or interrupt), it has full access to this area.
->
->So you have this mapping:
->
->             Physical               Virtual
->0x00000000  ------------          -------------
->            | kernel   | --+      |  user      |
->            |          |   |      |            | 
->            +----------+   |      |            |
->            | general  |   |      |            |
->            | memory   |   |      |            |
->            .          .   |      .            .
->            .          .   |      .            . 
->            | end of   |   |      |            |
->            | memory   |   |      |            |
->            +----------+   |      |            |
->            |          |   +--->  +------------+ 0xc0000000
->            |          |          |  kernel    |
->            .          .          .            .
->            .          .          .            .
->
->Usually all of memory is mapped to the address 0xc0000000. But this
->becomes a problem when you have a gig or more of RAM.  Since you run out
->of virtual space to map there. And you still need room to map device
->memory as well (you can't have user space conflicting with devices). So
->if you have a lot of RAM, you need to turn on highmem support, which
->then plays around to get memory above a certain point. But that's
->another discussion.
->
->So to access physical memory from the kernel, you can use __pa and back
->with __va.  These are used to communicate with devices usually, which
->are also mapped to some location.  But these only work when the mapping
->is direct as show above. When highmem support is on, you can't get to
->memory that is not mapped in. But there's no need to use __pa or __va to
->get to memory just for itself.  Usually they are used when dealing with
->devices that have DMA or some other need to find a physical address. If
->a device needs to write to memory (usually only knowing about the
->physical location of the memory) you get that memory with GFP_DMA flag,
->which guarantees that you will get memory that is mapped directly.
->
->-- Steve
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-
+	Ingo

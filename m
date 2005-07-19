@@ -1,103 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVGSTS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVGSTVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbVGSTS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 15:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVGSTS0
+	id S261991AbVGSTVX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 15:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbVGSTVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 15:18:26 -0400
-Received: from H229.C79.B0.tor.eicat.ca ([72.0.79.229]:26981 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261986AbVGSTRC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 15:17:02 -0400
-Date: Tue, 19 Jul 2005 09:30:58 -0400
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fw: Oops in hidinput_hid_event
-Message-ID: <20050719133058.GA7872@ucw.cz>
-References: <20050718141637.074c6f70.zaitcev@redhat.com>
+	Tue, 19 Jul 2005 15:21:22 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41692 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261991AbVGSTVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 15:21:20 -0400
+Date: Tue, 19 Jul 2005 21:21:06 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: John Lenz <lenz@cs.wisc.edu>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: Sharp Zaurus sl-5500 broken in 2.6.12
+Message-ID: <20050719192104.GB32757@elf.ucw.cz>
+References: <20050711193454.GA2210@elf.ucw.cz> <33703.127.0.0.1.1121130438.squirrel@localhost> <20050719180624.GB15186@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050718141637.074c6f70.zaitcev@redhat.com>
+In-Reply-To: <20050719180624.GB15186@atrey.karlin.mff.cuni.cz>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 18, 2005 at 02:16:37PM -0700, Pete Zaitcev wrote:
+Hi!
 
-> I think this patch is rather obvious, so maybe I should ask Andrew to
-> apply it to -mm for now, to get some testing. Would that help to verify
-> it for acceptance?
+> ...and that's well known; but now I did some back tracking, and
+> 2.6.12-rc1 works, 2.6.12-rc2 does *not* and 2.6.12-rc2 with arm
+> changes reverted works. I'll play a bit more.
 
-Your patch is perfectly OK, my NULL check was indeed completely wrong.
+This fixes at least one break-the-boot bug in -rc2...
 
-I need to find out how there can be an input event happening without its
-associated input structure, though, since the oops actually reveals a
-deeper problem.
+							Pavel
 
-So that's why I didn't apply the patch yet.
+--- linux-z11.rc2bad/arch/arm/mach-sa1100/collie.c	2005-07-19 20:49:07.000000000 +0200
++++ linux-z11/arch/arm/mach-sa1100/collie.c	2005-07-19 21:05:54.000000000 +0200
+@@ -235,7 +235,7 @@
+ 	sa11x0_set_flash_data(&collie_flash_data, collie_flash_resources,
+ 			      ARRAY_SIZE(collie_flash_resources));
+ 
+-	sharpsl_save_param();
++//	sharpsl_save_param();
+ }
+ 
+ static struct map_desc collie_io_desc[] __initdata = {
 
-> Begin forwarded message:
-> 
-> Date: Tue, 28 Jun 2005 15:00:23 -0700
-> From: Pete Zaitcev <zaitcev@redhat.com>
-> To: vojtech@suse.cz
-> Cc: zaitcev@redhat.com, linux-usb-devel@lists.sourceforge.net
-> Subject: Oops in hidinput_hid_event
-> 
-> Hi, Vojtech:
-> 
-> Someone reported a bug in Fedora, which runs a largely unmodified upstream
-> kernel in this area. Whenever the user hits a key which switches LED,
-> the system oopses. Here's a trace:
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 000000c8
-> EFLAGS: 00010006   (2.6.11-1.1369_FC4smp)
-> EIP is at hidinput_hid_event+0x2d/0x292                                       
-> Call Trace:           
->  [<c02872e0>] hid_process_event+0x57/0x5f
->  [<c028758a>] hid_input_field+0x2a2/0x2ac
->  [<c0287632>] hid_input_report+0x9e/0xb8
->  [<c0287f62>] hid_ctrl+0x14c/0x151
->  [<e0a21060>] uhci_destroy_urb_priv+0xb5/0x10a [uhci_hcd]
->  [<c027dab5>] usb_hcd_giveback_urb+0x24/0x67
->  [<e0a22360>] uhci_finish_urb+0x2d/0x38 [uhci_hcd]
->  [<e0a223af>] uhci_finish_completion+0x44/0x56 [uhci_hcd]
->  [<e0a224a2>] uhci_scan_schedule+0xaa/0x13a [uhci_hcd]
->  [<c023413d>] i8042_interrupt+0x121/0x234
->  [<e0a226d0>] uhci_irq+0x47/0x10d [uhci_hcd]
-> 
-> Full trace at
->  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=160709
-> 
-> Any ideas?
-> 
-> By the way, it seems that I see a bug in hidinput_hid_event.
-> The check for NULL can never work, becaue &hidinput->input
-> is nonzero at all times. How about this?
-> 
-> --- linux-2.6.12/drivers/usb/input/hid-input.c	2005-06-21 12:58:47.000000000 -0700
-> +++ linux-2.6.12-lem/drivers/usb/input/hid-input.c	2005-06-28 14:57:22.000000000 -0700
-> @@ -397,11 +397,12 @@
->  
->  void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, struct pt_regs *regs)
->  {
-> -	struct input_dev *input = &field->hidinput->input;
-> +	struct input_dev *input;
->  	int *quirks = &hid->quirks;
->  
-> -	if (!input)
-> +	if (!field->hidinput)
->  		return;
-> +	input = &field->hidinput->input;
->  
->  	input_regs(input, regs);
->  
-> 
-> -- Pete
-> 
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+teflon -- maybe it is a trademark, but it should not be.

@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVGSQQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVGSQRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVGSQQd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 12:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVGSQQd
+	id S261517AbVGSQRW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 12:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVGSQRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 12:16:33 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:53376 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261485AbVGSQQd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 12:16:33 -0400
-X-ORBL: [63.202.173.158]
-Date: Tue, 19 Jul 2005 09:16:24 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Jan Blunck <j.blunck@tu-harburg.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ramfs: pretend dirent sizes
-Message-ID: <20050719161623.GA11771@taniwha.stupidest.org>
-References: <42D72705.8010306@tu-harburg.de> <Pine.LNX.4.58.0507151151360.19183@g5.osdl.org> <20050716003952.GA30019@taniwha.stupidest.org> <42DCC7AA.2020506@tu-harburg.de>
+	Tue, 19 Jul 2005 12:17:21 -0400
+Received: from [84.77.94.195] ([84.77.94.195]:21215 "EHLO
+	dardhal.24x7linux.com") by vger.kernel.org with ESMTP
+	id S261517AbVGSQQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 12:16:47 -0400
+Date: Tue, 19 Jul 2005 18:16:46 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.12-git8] ACPI shutdown fails to power off machine
+Message-ID: <20050719161646.GB9119@localhost>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20050709203402.GA4621@localhost> <m1r7dvgjs9.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="f2QGlHpHGjS2mn6Y"
 Content-Disposition: inline
-In-Reply-To: <42DCC7AA.2020506@tu-harburg.de>
+In-Reply-To: <m1r7dvgjs9.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 19, 2005 at 11:28:10AM +0200, Jan Blunck wrote:
 
-> I'm using the i_size of directories in my patches.  When reading
-> from a union directory, I'm using the i_size to seek to the right
-> offset in the union stack.
+--f2QGlHpHGjS2mn6Y
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ick.  That'a a bit of a hack.
+On Tuesday, 19 July 2005, at 04:41:26 -0600,
+Eric W. Biederman wrote:
 
-> Therefore I need values of dirent->d_off which are smaller than the
-> i_size of the directory.
+> Thanks.  Before I forget I want to ack this.  I think you are correct
+> and I have a hunch on what might be done to fix this but I haven't found
+> the couple of hours needed to handle that.
+>=20
+ACK. Just for the record, there seems to be several people out there with
+the same problem, and using different motherboards/BIOSes. Check:
+http://marc.theaimsgroup.com/?t=3D112147291000001&r=3D1&w=3D2
 
-Hence the value of 20 I guess --- assuming nothing will stack this
-high?
+Greetings,
 
-> Altogether, it doesn't make sense to me to seek to an offset which
-> is greater than the i_size and let the dirent read succeed.
+--=20
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.13-rc2)
 
-I personally would prefer that to be honest or some other way that
-doesn't change i_size.
+
+--f2QGlHpHGjS2mn6Y
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC3Sduao1/w/yPYI0RAoG2AJ9S23TFk8UKgCofkwyxSZ1T5hWKEwCgj/LM
+DrLJYgFWnthtT1+2ANIodLQ=
+=KdpG
+-----END PGP SIGNATURE-----
+
+--f2QGlHpHGjS2mn6Y--

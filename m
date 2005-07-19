@@ -1,91 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVGSQTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVGSQWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbVGSQTd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 12:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVGSQRd
+	id S261528AbVGSQWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 12:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVGSQWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 12:17:33 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:33176 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S261528AbVGSQQe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 12:16:34 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pci_find_device --> pci_get_device
-Date: Tue, 19 Jul 2005 18:20:20 +0200
-User-Agent: KMail/1.8.1
-Cc: Jiri Slaby <jirislaby@gmail.com>, rth@twiddle.net, dhowells@redhat.com,
-       kumar.gala@freescale.com, davem@davemloft.net, mhw@wittsend.com,
-       support@comtrol.com, Rogier Wolff <R.E.Wolff@bitwizard.nl>,
-       nils@kernelconcepts.de, cjtsai@ali.com.tw, Lionel.Bouton@inet6.fr,
-       benh@kernel.crashing.org, mchehab@brturbo.com.br, laredo@gnu.org,
-       rbultje@ronald.bitfreak.net, middelin@polyware.nl, philb@gnu.org,
-       tim@cyberelk.net, campbell@torque.net, andrea@suse.de,
-       linux@advansys.com, chirag.kantharia@hp.com, mulix@mulix.org
-References: <42DC4873.2080807@gmail.com> <200507191327.44415@bilbo.math.uni-mannheim.de> <42DD1FCF.4050304@gmail.com>
-In-Reply-To: <42DD1FCF.4050304@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1360345.T2YvWR61yh";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200507191820.35472@bilbo.math.uni-mannheim.de>
+	Tue, 19 Jul 2005 12:22:08 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:46506 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261528AbVGSQVV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 12:21:21 -0400
+Date: Tue, 19 Jul 2005 18:24:25 +0200
+From: DervishD <lkml@dervishd.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: USB debouncing?
+Message-ID: <20050719162425.GA135@DervishD>
+Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1360345.T2YvWR61yh
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+    Hi all :)
 
-Am Dienstag, 19. Juli 2005 17:44 schrieb Jiri Slaby:
->Rolf Eike Beer napsal(a):
->>Jiri Slaby wrote:
->>>Kernel version: 2.6.13-rc3-git4
->>>
->>>* This patch removes from kernel tree pci_find_device and changes
->>>it with pci_get_device. Next, it adds pci_dev_put, to decrease reference
->>>count of the variable.
->>>* Next, there are some (about 10 or so) gcc warning problems (i. e.
->>>variable may be unitialized) solutions, which were around code with old
->>>pci_find_device.
->>
->>Is this the reason why you initialize members of static structs? If this =
-is
->>uninitialized it will end in the bss section and will be zeroed before the
->>kernel uses is. If you do it will go into data section and add more bloat
->> to the binary. At least this is the explanation I got once why not to do
->> this.
->
->I can't find now changes of initialization static variables, but i have
->deleted section
->dealing up with gcc warning from patch, it would go on a queue later.
+    I have a new MP3 player, and when I disconnect it from the USB
+port, my logs says:
 
-Sorry, I misread the diff. That are static functions with the variables in=
-=20
-them, not static structs.
+    <30>Jul 19 18:11:05 kernel: usb.c: USB disconnect on device 00:07.3-1 address 2
+    <27>Jul 19 18:11:06 kernel: hub.c: connect-debounce failed, port 1 disabled
 
-Your patch to arch/sparc64/kernel/ebus.c is broken, the removed and added=20
-parts do not match in behaviour.
+    What is that 'connect-debounce' for? Is the port damaged? Am I
+doing anything wrong?
 
-If you add braces after if's please add the '{' in the same line as the if=
-=20
-itself. This will make the diff bigger, but then this matches=20
-Documentation/Coding-style.
+    Thanks a lot in advance :)
 
-Eike
+    Raúl Núñez de Arenas Coronado
 
---nextPart1360345.T2YvWR61yh
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD4DBQBC3ShTXKSJPmm5/E4RAvh+AJiv22LqBjUUvCqgBcXToJM3Mh96AJ4vSDxe
-ln7aqBIeefMYI2AgYPRFqQ==
-=qHej
------END PGP SIGNATURE-----
-
---nextPart1360345.T2YvWR61yh--
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

@@ -1,74 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVGSGwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVGSGxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261911AbVGSGwV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 02:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVGSGwV
+	id S261927AbVGSGxm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 02:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVGSGxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 02:52:21 -0400
-Received: from [220.248.27.114] ([220.248.27.114]:36277 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S261911AbVGSGwT (ORCPT
+	Tue, 19 Jul 2005 02:53:41 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:43208 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261931AbVGSGwz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 02:52:19 -0400
-Date: Tue, 19 Jul 2005 14:51:22 +0800
-From: hugang@soulinfo.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: hugang@soulinfo.com, Tony Lindgren <tony@atomide.com>,
-       linux-kernel@vger.kernel.org,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
-       Bernard Blackham <b-lkml@blackham.com.au>,
-       Christian Hesse <mail@earthworm.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] Dynamic tick for x86 version 050610-1
-Message-ID: <20050719065122.GA5913@hugang.soulinfo.com>
-References: <20050602013641.GL21597@atomide.com> <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com> <20050603223758.GA2227@elf.ucw.cz> <20050610041706.GC18103@atomide.com> <20050610091515.GH4173@elf.ucw.cz> <20050610151707.GB7858@atomide.com> <20050610221501.GB7575@atomide.com> <20050618033419.GA6476@hugang.soulinfo.com> <1119076233.18247.27.camel@gaston>
+	Tue, 19 Jul 2005 02:52:55 -0400
+Date: Tue, 19 Jul 2005 10:49:31 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
+Subject: Re: drivers/w1/w1_int.c compile error with NET=n
+Message-ID: <20050719104931.A22238@2ka.mipt.ru>
+References: <20050719000549.GD5031@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1119076233.18247.27.camel@gaston>
-User-Agent: Mutt/1.5.9i
-X-Virus-Checked: Checked
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050719000549.GD5031@stusta.de>; from bunk@stusta.de on Tue, Jul 19, 2005 at 02:05:49AM +0200
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 19 Jul 2005 10:49:31 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 18, 2005 at 04:30:32PM +1000, Benjamin Herrenschmidt wrote:
+On Tue, Jul 19, 2005 at 02:05:49AM +0200, Adrian Bunk (bunk@stusta.de) wrote:
+> I'm seeing the following compile error in 2.6.13-rc3-mm1 (but it doesn't 
+> seem to be specific to -mm) with CONFIG_NET=n:
 > 
-> > I'm try to port it powerpc, Here is a patch.
-> > 
-> >  Port Dynamic Tick Timer to new platform is easy. :)
-> >   1) Find the reprogram timer interface.
-> >   2) do a hook in the idle function.
-> > 
-> > That worked on my PowerBookG4 12'.
+> <--  snip  -->
 > 
-> Did you get a measurable gain on power consumption ?
+> ...
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o: In function `w1_alloc_dev':
+> w1_int.c:(.text+0x65d81f): undefined reference to `netlink_kernel_create'
+> w1_int.c:(.text+0x65d881): undefined reference to `sock_release'
+> drivers/built-in.o: In function `w1_free_dev':
+> w1_int.c:(.text+0x65d8e9): undefined reference to `sock_release'
+> make: *** [.tmp_vmlinux1] Error 1
 > 
-> Last time I toyed with this, I didn't.
+> <--  snip  -->
+> 
 
-Today I do a measurable about it. 
+Something changed...
+Those functions were exported before even with NET disabled.
+There is a NETLINK_DISABLE config option which guards message
+sending, now it should guard socket creation too.
 
-First I using 2.6.12 without dynamic enable and unplug the AC power,
-I check the /proc/pmu/battery_0, like this.
---
- flags      : 00000011
- charge     : 907
- max_charge : 2863
- current    : -987
- voltage    : 10950
- time rem.  : 3600
---
-I only intresting with current, that show the system power load. 
+Thanks, Adrian, I will create a patch for it.
 
-When I enable dynamic, The current can low at -900.
-
-So, It works. :>
-
-2.6.12 + suspend2 + ck3 + dynamic 
-http://soulinfo.com/~hugang/kernel/linux-2.6.12/
+> 
+> cu
+> Adrian
+> 
+> -- 
+> 
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+> 
 
 -- 
-Hu Gang       .-.    Steve
-              /v\
-             // \\ 
-            /(   )\
-GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc
+	Evgeniy Polyakov

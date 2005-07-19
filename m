@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVGSOm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVGSOvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbVGSOm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 10:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVGSOm5
+	id S261182AbVGSOvS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 10:51:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVGSOvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 10:42:57 -0400
-Received: from everest.sosdg.org ([66.93.203.161]:954 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S261370AbVGSOm4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 10:42:56 -0400
-Date: Tue, 19 Jul 2005 09:42:54 -0500
-From: Coywolf Qi Hunt <coywolf@sosdg.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-Subject: [patch] kbuild: make help binrpm-pkg fix
-Message-ID: <20050719144254.GA6893@everest.sosdg.org>
-Reply-To: coywolf@lovecn.org
-References: <20050715013653.36006990.akpm@osdl.org> <2cd57c9005071907214c71fbaa@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2cd57c9005071907214c71fbaa@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: coywolf@mail.sosdg.org
+	Tue, 19 Jul 2005 10:51:18 -0400
+Received: from web8406.mail.in.yahoo.com ([202.43.219.154]:58500 "HELO
+	web8406.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S261182AbVGSOvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 10:51:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=MRupvNq8zQVRtZ8UGTIkl0aeHYwyXCoRy7wYXHFWQW9omgD5TtIi8fhLlIVosxp0VyATrEs1evtfygz2Z5QmtItqmgUfAoxSebASi4hm8i4UtvL+yRdX7q92kybI5JmMhbQkfUi5/KTL9AKyadg4jD1cKHhTjui16e0V5fItuAY=  ;
+Message-ID: <20050719145114.19836.qmail@web8406.mail.in.yahoo.com>
+Date: Tue, 19 Jul 2005 15:51:13 +0100 (BST)
+From: KV Pavuram <kvpavuram@yahoo.co.in>
+Subject: sigwait in multi-threaded application
+To: linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 19, 2005 at 10:21:30PM +0800, Coywolf Qi Hunt wrote:
-> On 7/15/05, Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> > 
-> > Changes since 2.6.13-rc2-mm2:
-> > 
-> > 
-> >  git-drm.patch
-> >  git-audit.patch
-> >  git-input.patch
-> >  git-kbuild.patch
-> 
-> make help br0ken, missing matching `'' for binrpm-pkg.
-> 
+Hi,
 
-This fixes kbuild make help binrpm-pkg missing `''.
+Are there any caveats of sigwait (on RT signals) in
+multithreaded application?
 
-Signed-off-by: Coywolf Qi Hunt <coywolf@lovecn.org>
+As suggested in the man page, i call 
 
---- 2.6.13-rc3-mm1-cy/scripts/package/Makefile~binrpm-pkg-fix	2005-07-19 22:25:27.000000000 +0800
-+++ 2.6.13-rc3-mm1-cy/scripts/package/Makefile	2005-07-19 22:25:47.000000000 +0800
-@@ -94,7 +94,7 @@ clean-dirs += $(objtree)/tar-install/
- # ---------------------------------------------------------------------------
- help:
- 	@echo '  rpm-pkg         - Build the kernel as an RPM package'
--	@echo '  binrpm-pkg      - Build an rpm package containing the compiled kernel
-+	@echo '  binrpm-pkg      - Build an rpm package containing the compiled kernel'
- 	@echo '                    and modules'
- 	@echo '  deb-pkg         - Build the kernel as an deb package'
- 	@echo '  tar-pkg         - Build the kernel as an uncompressed tarball'
+# define SIG35 35
+# define SIG36 36
+
+sigaddset (&set, SIG36) ;
+pthread_sigmask (SIG_BLOCK, &set, NULL);
+
+at the beginning of the program (in main) before I
+create any threads.
+
+Then i register a signal handler for SIG35. The signal
+handler i call sigwait for SIG36 as
+
+    sigaddset (&set, SIG36) ; 
+    pthread_sigmask (SIG_BLOCK, &set, NULL) ;      
+    sigwait (&set, &signum) ; 
+    if (signum == SIG_TASKRESUME)
+    {
+        printf ("Task is received SIG36\n") ;
+    }
+
+Is this usage right? I see that some times if run
+strace on the particular thread that is currently in
+sigwait and then kill strace with Ctrl+C, the threads
+starts hogging CPU? Why should Ctrl+C wake up sigwait
+on SIG36??
+
+Am I missing something?  (Linux 9, 2.4 kernel)
+
+Regards,
+Pav.
+
+
+
+		
+__________________________________________________________
+How much free photo storage do you get? Store your friends 'n family snaps for FREE with Yahoo! Photos http://in.photos.yahoo.com

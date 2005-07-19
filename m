@@ -1,51 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVGSNzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVGSN56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbVGSNzu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 09:55:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVGSNzt
+	id S261382AbVGSN56 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 09:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVGSN4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 09:55:49 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:42760 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261917AbVGSNzg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 09:55:36 -0400
-Date: Tue, 19 Jul 2005 15:55:29 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: shemminger@osdl.org, coreteam@netfilter.org
-Cc: netfilter-devel@lists.netfilter.org, bridge@osdl.org,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] BRIDGE_EBT_ARPREPLY must depend on INET
-Message-ID: <20050719135529.GH5031@stusta.de>
+	Tue, 19 Jul 2005 09:56:14 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16070 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261372AbVGSNyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 09:54:38 -0400
+Date: Tue, 19 Jul 2005 15:54:41 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LZF Cryptoapi support.
+Message-ID: <20050719135441.GB2410@elf.ucw.cz>
+References: <1121657429.13487.41.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1121657429.13487.41.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BRIDGE_EBT_ARPREPLY=y and INET=n results in the following compile error:
+Hi!
 
-<--  snip  -->
+> Here's another resend, this time adding an lzf cryptoapi module.
+> 
+> LZF is a very fast compressor which typically achieves approximately 50%
+> compression on a suspend image. The original author (Marc Alexander
+> Lehmann) donated it to Suspend2. I have converted it to cryptoapi with a
+> recent switch of Suspend2 to use cryptoapi.
 
-...
-  LD      .tmp_vmlinux1
-net/built-in.o: In function `ebt_target_reply':
-ebt_arpreply.c:(.text+0x68fb9): undefined reference to `arp_send'
-make: *** [.tmp_vmlinux1] Error 1
+And it is still that old, ugly code.
 
-<--  snip  -->
+> +/*
+> + * sacrifice some compression quality in favour of compression speed.
+> + * (roughly 1-2% worse compression for large blocks and
+> + * 9-10% for small, redundant, blocks and >>20% better speed in both cases)
+> + * In short: enable this for binary data, disable this for text data.
+> + */
+> +#define ULTRA_FAST 1
+> +
+> +#define STRICT_ALIGN 0
+> +#define USE_MEMCPY 1
+> +#define INIT_HTAB 0
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+We do not want these options. It also allows you to kill ifdefs down
+in the code.
 
---- linux-2.6.13-rc3-mm1-full/net/bridge/netfilter/Kconfig.old	2005-07-19 08:48:41.000000000 +0200
-+++ linux-2.6.13-rc3-mm1-full/net/bridge/netfilter/Kconfig	2005-07-19 08:49:20.000000000 +0200
-@@ -138,7 +138,7 @@
- #
- config BRIDGE_EBT_ARPREPLY
- 	tristate "ebt: arp reply target support"
--	depends on BRIDGE_NF_EBTABLES
-+	depends on BRIDGE_NF_EBTABLES && INET
- 	help
- 	  This option adds the arp reply target, which allows
- 	  automatically sending arp replies to arp requests.
+> +#define HSIZE (1 << (HLOG))
+> +
+> +/*
+> + * don't play with this unless you benchmark!
+> + * decompression is not dependent on the hash function
+> + * the hashing function might seem strange, just believe me
+> + * it works ;)
+> + */
+> +#define FRST(p) (((p[0]) << 8) + p[1])
+> +#define NEXT(v,p) (((v) << 8) + p[2])
+> +#define IDX(h) ((((h ^ (h << 5)) >> (3*8 - HLOG)) + h*3) & (HSIZE - 1))
+> +/*
+> + * IDX works because it is very similar to a multiplicative hash, e.g.
+> + * (h * 57321 >> (3*8 - HLOG))
+> + * the next one is also quite good, albeit slow ;)
+> + * (int)(cos(h & 0xffffff) * 1e6)
+> + */
+> +
+> +#if 0
+> +/* original lzv-like hash function */
+> +# define FRST(p) (p[0] << 5) ^ p[1]
+> +# define NEXT(v,p) ((v) << 5) ^ p[2]
+> +# define IDX(h) ((h) & (HSIZE - 1))
+> +#endif
 
+And we do not want #if 0-ed code.
+
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

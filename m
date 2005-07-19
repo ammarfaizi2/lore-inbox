@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVGSR0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVGSRmC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVGSR0i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 13:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVGSR0i
+	id S261564AbVGSRmC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 13:42:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVGSRmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 13:26:38 -0400
-Received: from mr1.uky.edu ([128.163.2.150]:36551 "EHLO mr1.uky.edu")
-	by vger.kernel.org with ESMTP id S261563AbVGSR0h convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 13:26:37 -0400
-Subject: Possible GPL violation by PQI
-Reply-To: rfbaum2@uky.edu
-From: "Ryan Frederick Baumann" <rfbaum2@uky.edu>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 19 Jul 2005 13:05:00 -0400
-X-Mailer: NetMail ModWeb Module
+	Tue, 19 Jul 2005 13:42:02 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:20154 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261564AbVGSRmB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 13:42:01 -0400
+Date: Tue, 19 Jul 2005 19:41:57 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Piszcz, Justin" <jpiszcz@servervault.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Suddenly getting APIC errors on SMP system using 2.4.20-8smp,
+ mobo dying?
+In-Reply-To: <F8B974E70BDE1745ABB27AF04788FA0099883E@mail1.dulles.sv.int>
+Message-ID: <Pine.LNX.4.61.0507191937410.89@yvahk01.tjqt.qr>
+References: <F8B974E70BDE1745ABB27AF04788FA0099883E@mail1.dulles.sv.int>
 MIME-Version: 1.0
-Message-ID: <1121792700.9333fa4rfbaum2@uky.edu>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Mail-Router: No infection found
-X-Mail-Router-SpamCheck: not spam (whitelisted), SpamAssassin (score=0,
-	required 7)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Precise name of the product: PQI mPack P800
 
-The firmware uses a modified version of the Sigma Designs uClinux 2.4.17-uc0 kernel (available here:
-http://www.uclinux.org/pub/uClinux/ports/arm/EM8500/). In my previous encounters with similar devices, they have kept the portions of code that dealt with the EM85XX chipset in a seperate binary module loaded at run-time (this is the case with my Bravo D1). This is not the case with this firmware. All the EM85XX-specific modifications are embedded directly into the linux.bin kernel image, with no source available to reproduce the kernel. I contacted PQI a week ago through their "Contact Engineer" web form, but have received no response.
+>http://lkml.org/lkml/2003/5/18/64 (the problem we are having)
 
-How the license was violated:
+>on it's way out. Try running with 'noapic' to see if it's the IOAPIC or 
+>local APICs (my bet is on the IOAPIC which would be on your motherboard 
+>chipset)"
 
--copyright notice of the copyright holder is not preserved
--source code is completely missing, requests for source code ignored
--no written offer for source or copy of the license included
+I have the same problem, throughout 2.6.11 to 2.6.13-rc1, maybe before.
 
-Firmware can be downloaded here:
-http://www.pqi.com.tw/download.asp?filetype=3D5
+It pops up when CONFIG_ACPI=y (CONFIG_X86_UP_APIC,IO_APIC or UP_IO_APIC does 
+not affect this!) && when my ISDN card is active, e.g. I'm online. If it's not 
+online, everything is fine.
 
-The firmware is a modified romfs filesystem (it has a nonstandard header that you must strip before being able to use it with normal romfs tools).
+APIC error on CPU0: 02(02)
 
--Ryan Baumann
+This only shows if I run `klogconsole -l8`, which means this message is 
+printed with KERN_DEBUG.
+I do live on UP, though. Everytime I get this message, the ERR counter 
+increases.
 
-(My apologies if this reaches the list multiple times, I tried sending this message from my GMail account but it never appeared on the list)
+lspci:
+0000:00:0a.0 Network controller: Tiger Jet Network Inc. Tiger3XX Modem/ISDN 
+interface
+Need more info?
 
+
+Jan Engelhardt
+-- 

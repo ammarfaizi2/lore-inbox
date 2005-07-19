@@ -1,75 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbVGSScR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVGSSg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbVGSScR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 14:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVGSScQ
+	id S261822AbVGSSg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 14:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVGSSg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 14:32:16 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:58554 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261804AbVGSScQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 14:32:16 -0400
-X-ORBL: [63.202.173.158]
-Date: Tue, 19 Jul 2005 11:32:06 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Jan Blunck <j.blunck@tu-harburg.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ramfs: pretend dirent sizes
-Message-ID: <20050719183206.GA23253@taniwha.stupidest.org>
-References: <42D72705.8010306@tu-harburg.de> <Pine.LNX.4.58.0507151151360.19183@g5.osdl.org> <20050716003952.GA30019@taniwha.stupidest.org> <42DCC7AA.2020506@tu-harburg.de> <20050719161623.GA11771@taniwha.stupidest.org> <42DD44E2.3000605@tu-harburg.de>
+	Tue, 19 Jul 2005 14:36:26 -0400
+Received: from mail.yosifov.net ([193.200.14.114]:53943 "EHLO home.yosifov.net")
+	by vger.kernel.org with ESMTP id S261822AbVGSSgZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 14:36:25 -0400
+Subject: Re: Noob question. Why is the for-pentium4 kernel built with
+	-march=i686 ?
+From: Ivan Yosifov <ivan@yosifov.net>
+Reply-To: ivan@yosifov.net
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0507191950020.89@yvahk01.tjqt.qr>
+References: <1121792852.11857.6.camel@home.yosifov.net>
+	 <Pine.LNX.4.61.0507191950020.89@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Tue, 19 Jul 2005 21:35:51 +0300
+Message-Id: <1121798151.15700.9.camel@home.yosifov.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42DD44E2.3000605@tu-harburg.de>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 19, 2005 at 08:22:26PM +0200, Jan Blunck wrote:
+On Tue, 2005-07-19 at 19:52 +0200, Jan Engelhardt wrote:
+> >Hello,
+> >
+> >If I set the CPU type to be amd64 in kernel config, the kernel is built
+> >with -march=k8. If I set it to be k6, the kernel is built with
+> >-march=k6. If I set the CPU type to be Pentium4, the kernel is built
+> >with -march=i686 -mtune=pentium4. Why is not the for-P4 kernel built
+> >with -march=pentium4 ? 
+> >I tried building the kernel with -march=pentium4  for the sake of
+> >experiment and got no ill effects.
+> 
+> -march= specifies the instruction set, -mcpu= / -mtune= the tuning factor. 
+> Maybe it is that the instruction set is the same on i686 and 
+> pentium4. cmov for example is not present in k6, and k8 is something 
+> completely different at all.
+> 
+> 
+> Jan Engelhardt
 
-> Since these "arranged" values are also used as the offsets in the
-> return dirent IMO it is quite clean.
+-march implies -mtune and also implies thing like -msse2 for the
+instruction set where applicable. 
+I think -march=pentium4 is equivalent to -mmmx -msse -msse2
+-mtune=pentium4 ( if I have not fogotten anything ).  
+Pentium4 supports things like sse2 and mmx which AFAIK plain i686 does
+not. I first thought that maybe the kernel was destabilized by such
+optimizations, but k8 has all of them and more ( sse3 ). 
+So, if it is ok to build the k8 kernel with -march=k8 why is it not ok
+to built the p4 kernel with -march=pentium4 ? 
+I may be wrong, but any way I think of it it looks like a performance
+hit to build a p4 kernel with -march=i686.
 
-So the size you want to reflect is n*<stack-depth> i take it?  Where
-in this case n is 20?
+Ivan Yosifov.
 
-So you can seek to m*<stack-depth>+<offset> to access an offset into
-something at depth m?
-
-> Nope. This value is kind of traditional: tmpfs is using it
-> (http://marc.theaimsgroup.com/?l=linux-kernel&m=103208296515378&w=2). I
-> think a better value would be 1 (one) since this is also used as the
-> dirent offset by dcache_readdir().
-
-I really don't know why tmpfs is doing this.
-
-> The i_size of a directory isn't covered by the POSIX standard. IMO,
-> it should be possible to seek in the range of i_size and a following
-> readdir() on the directory should succeed.
-
-With what defined semantics?  What if an entry is added in between
-seek and readdir?
-
-> But this isn't possible even not with real file systems like ext2.
-
-I'm not sure how expecting a meaningful offset into a directory can
-have consistent bahvior.
-
-> But keeping the i_size bound to zero even if the directory contains
-> entries does not make sense at all.
-
-Why?  It seems perfectly reasonable that we can return 0 in such
-cases.  Zero seems to make more sense as 'magical/unknown' than say
-any other arbitrary value.
-
-It's also possible a regular filesystem could return an arbitrary
-value such as 20 (not that this directly matters except it becomes
-confusing potentially):
-
-    cw@taniwha:~$ mkdir foobar
-    cw@taniwha:~$ ls -ld foobar
-    drwxr-xr-x  2 cw cw 6 Jul 19 11:29 foobar
-
-    cw@taniwha:~$ mkdir foobar/1234567
-    cw@taniwha:~$ ls -ld foobar
-    drwxr-xr-x  3 cw cw 20 Jul 19 11:30 foobar

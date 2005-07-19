@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVGSN56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVGSN56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVGSN56 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261750AbVGSN56 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 19 Jul 2005 09:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVGSN4O
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVGSN4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 09:56:14 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16070 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261372AbVGSNyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 09:54:38 -0400
-Date: Tue, 19 Jul 2005 15:54:41 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LZF Cryptoapi support.
-Message-ID: <20050719135441.GB2410@elf.ucw.cz>
-References: <1121657429.13487.41.camel@localhost>
+	Tue, 19 Jul 2005 09:56:09 -0400
+Received: from gate.crashing.org ([63.228.1.57]:53134 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261362AbVGSNyq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 09:54:46 -0400
+Subject: Re: [PATCH] Dynamic tick for x86 version 050610-1
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: hugang@soulinfo.com
+Cc: Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
+       Bernard Blackham <b-lkml@blackham.com.au>,
+       Christian Hesse <mail@earthworm.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+In-Reply-To: <20050719065122.GA5913@hugang.soulinfo.com>
+References: <20050602013641.GL21597@atomide.com>
+	 <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com>
+	 <20050603223758.GA2227@elf.ucw.cz> <20050610041706.GC18103@atomide.com>
+	 <20050610091515.GH4173@elf.ucw.cz> <20050610151707.GB7858@atomide.com>
+	 <20050610221501.GB7575@atomide.com>
+	 <20050618033419.GA6476@hugang.soulinfo.com>
+	 <1119076233.18247.27.camel@gaston>
+	 <20050719065122.GA5913@hugang.soulinfo.com>
+Content-Type: text/plain
+Date: Tue, 19 Jul 2005 23:51:54 +1000
+Message-Id: <1121781115.14393.59.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1121657429.13487.41.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Here's another resend, this time adding an lzf cryptoapi module.
+On Tue, 2005-07-19 at 14:51 +0800, hugang@soulinfo.com wrote:
+> On Sat, Jun 18, 2005 at 04:30:32PM +1000, Benjamin Herrenschmidt wrote:
+> > 
+> > > I'm try to port it powerpc, Here is a patch.
+> > > 
+> > >  Port Dynamic Tick Timer to new platform is easy. :)
+> > >   1) Find the reprogram timer interface.
+> > >   2) do a hook in the idle function.
+> > > 
+> > > That worked on my PowerBookG4 12'.
+> > 
+> > Did you get a measurable gain on power consumption ?
+> > 
+> > Last time I toyed with this, I didn't.
 > 
-> LZF is a very fast compressor which typically achieves approximately 50%
-> compression on a suspend image. The original author (Marc Alexander
-> Lehmann) donated it to Suspend2. I have converted it to cryptoapi with a
-> recent switch of Suspend2 to use cryptoapi.
+> Today I do a measurable about it. 
+> 
+> First I using 2.6.12 without dynamic enable and unplug the AC power,
+> I check the /proc/pmu/battery_0, like this.
+> --
+>  flags      : 00000011
+>  charge     : 907
+>  max_charge : 2863
+>  current    : -987
+>  voltage    : 10950
+>  time rem.  : 3600
+> --
+> I only intresting with current, that show the system power load. 
+> 
+> When I enable dynamic, The current can low at -900.
 
-And it is still that old, ugly code.
+The numbers are repeatable ? I mean, if you actually let it settle down
+in both cases ? Also, you should be careful about "parasites" in the
+measurement, like pbbuttons dimming the backlight, the hard disk going
+to sleep etc...
 
-> +/*
-> + * sacrifice some compression quality in favour of compression speed.
-> + * (roughly 1-2% worse compression for large blocks and
-> + * 9-10% for small, redundant, blocks and >>20% better speed in both cases)
-> + * In short: enable this for binary data, disable this for text data.
-> + */
-> +#define ULTRA_FAST 1
-> +
-> +#define STRICT_ALIGN 0
-> +#define USE_MEMCPY 1
-> +#define INIT_HTAB 0
+>From your numbers you get something like 10% improvement, which isn't
+too bad.
 
-We do not want these options. It also allows you to kill ifdefs down
-in the code.
+Ben.
 
-> +#define HSIZE (1 << (HLOG))
-> +
-> +/*
-> + * don't play with this unless you benchmark!
-> + * decompression is not dependent on the hash function
-> + * the hashing function might seem strange, just believe me
-> + * it works ;)
-> + */
-> +#define FRST(p) (((p[0]) << 8) + p[1])
-> +#define NEXT(v,p) (((v) << 8) + p[2])
-> +#define IDX(h) ((((h ^ (h << 5)) >> (3*8 - HLOG)) + h*3) & (HSIZE - 1))
-> +/*
-> + * IDX works because it is very similar to a multiplicative hash, e.g.
-> + * (h * 57321 >> (3*8 - HLOG))
-> + * the next one is also quite good, albeit slow ;)
-> + * (int)(cos(h & 0xffffff) * 1e6)
-> + */
-> +
-> +#if 0
-> +/* original lzv-like hash function */
-> +# define FRST(p) (p[0] << 5) ^ p[1]
-> +# define NEXT(v,p) ((v) << 5) ^ p[2]
-> +# define IDX(h) ((h) & (HSIZE - 1))
-> +#endif
 
-And we do not want #if 0-ed code.
-
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.

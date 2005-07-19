@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVGSKNC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVGSKVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbVGSKNC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 06:13:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVGSKNC
+	id S261954AbVGSKVl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 06:21:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVGSKVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 06:13:02 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:23747 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261892AbVGSKMe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 06:12:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gbaNVxLRSb4vqUaAuIT2YAjJBwxya62VhFjHr7v+PSbaxplABOn9KUAnen2Vv7RgE9e1Py8pnYVKLrw/uAkuO3mP+6LL5Sqh9RbyOz2Hnn0rJurPObGj7UtX+PnxAlZ95DlcqeU6NkxP+ZwYxjwTeFlqZrEnK2jTVQmS+H1ysNI=
-Message-ID: <4d8e3fd3050719031258aee8e6@mail.gmail.com>
-Date: Tue, 19 Jul 2005 12:12:33 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Mark Gross <mgross@linux.intel.com>
-Subject: Re: Why is 2.6.12.2 less stable on my laptop than 2.6.10?
-Cc: Rik van Riel <riel@redhat.com>, Dave Jones <davej@redhat.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200507181414.02262.mgross@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200507140912.22532.mgross@linux.intel.com.suse.lists.linux.kernel>
-	 <200507151447.46318.mgross@linux.intel.com>
-	 <Pine.LNX.4.61.0507151914300.25957@chimarrao.boston.redhat.com>
-	 <200507181414.02262.mgross@linux.intel.com>
+	Tue, 19 Jul 2005 06:21:41 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:46937 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S261479AbVGSKVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 06:21:40 -0400
+Message-ID: <42DCD445.6080102@gentoo.org>
+Date: Tue, 19 Jul 2005 11:21:57 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.5 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?UTF-8?B?TWFydGluIFBvdm9sbsO9?= <martin.povolny@solnet.cz>
+Cc: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Promise TX4200 support?
+References: <42DBFC9E.1040607@gentoo.org> <42DC0A99.2010304@solnet.cz> <42DC2F44.7000708@gentoo.org> <42DC835E.7030301@solnet.cz>
+In-Reply-To: <42DC835E.7030301@solnet.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/7/18, Mark Gross <mgross@linux.intel.com>:
-> On Friday 15 July 2005 16:14, Rik van Riel wrote:
-> > On Fri, 15 Jul 2005, Mark Gross wrote:
-> > > What would be wrong in expecting the folks making the driver changes
-> > > have some story on how they are validating there changes don't break
-> > > existing working hardware?  I could probly be accomplished in open
-> > > source with subsystem testing volenteers.
-> >
-> > Are you volunteering ?
-> 
-> I am not volunteering.  That last sentence was meant to say "It could
-> probubly..."
-> 
-> I'm just poking at a process change that would include a more formal
-> validation / testing phase as part of getting change into the stable tree.  I
-> don't have any silver bullets.
+Martin Povolný wrote:
+> For me it works with 20319, but I don't understand the difference
+> between different settings.
 
-I totaly agree with you, but the real problem is *how* to do that.
-Do you have any suggestion ?
+20319 is 4 port SATA.
+2037x is 2 port SATA, optionally with 1 PATA port
+20619 is 4 port PATA
 
--- 
-Paolo
+So I believe 20319 is the correct option.
+
+Jeff, the chip on the TX4200 is actually a PDC40519 but it meets the 
+description of the 20319. Is something like the patch below ok, or should we 
+add a new board_ entry?
+
+> *** sata_promise.c	2005-05-11 21:22:20.000000000 +0200
+> --- sata_promise_new.c	2005-05-11 21:22:02.000000000 +0200
+> ***************
+> *** 164,171 ****
+> --- 164,173 ----
+>   	{ PCI_VENDOR_ID_PROMISE, 0x3318, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+>   	  board_20319 },
+>   	{ PCI_VENDOR_ID_PROMISE, 0x3319, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+>   	  board_20319 },
+> + 	{ PCI_VENDOR_ID_PROMISE, 0x3519, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+> + 	  board_20319 },
+>   	{ PCI_VENDOR_ID_PROMISE, 0x3d18, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+>   	  board_20319 },
+> 
+>   	{ }	/* terminate list */
+
+
+Thanks,
+Daniel

@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVGSOWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVGSObM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVGSOWz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 10:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVGSOW2
+	id S261381AbVGSObM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 10:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVGSObL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 10:22:28 -0400
-Received: from nproxy.gmail.com ([64.233.182.201]:12737 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261372AbVGSOVe convert rfc822-to-8bit
+	Tue, 19 Jul 2005 10:31:11 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:22099 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261381AbVGSObL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 10:21:34 -0400
+	Tue, 19 Jul 2005 10:31:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kKf5aiXYwnACwWLQeSAlD4w0dcIr7ssYNhRDIiXuFIR9ECSPJAO077uTSfvIaFQ10yOAUCrHlo6wbbrKZrh73zqqwRyJ9FRFjk62mwmQUw7Oz6ZPky4R1k/vYfSzbSw2IdbnYZxdG6O3XGrEvALM/CO8tJ8l7VzaCwQYcowGcXw=
-Message-ID: <2cd57c9005071907214c71fbaa@mail.gmail.com>
-Date: Tue, 19 Jul 2005 22:21:30 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.13-rc3-mm1
-Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-In-Reply-To: <20050715013653.36006990.akpm@osdl.org>
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=JjnZRiDMuUSmeA4mNGUgrrOTtv6VmYADiEDBv+F2AN5CEDVoPAOZ29pd6MHyBoDQoQBo4n10ZVmtNW9V9/hATXbdnRInSVtOWoeaBOehnZUY9fuUp6MNISPQzTsmDEaoAiMVJhBXCm4AFU1/hDwEv/Ryio2373XdNe/3UmBRhsg=
+Message-ID: <5f83f60f05071907313ad3b186@mail.gmail.com>
+Date: Tue, 19 Jul 2005 20:01:10 +0530
+From: Vivek Dasgupta <vivek.dasgupta@gmail.com>
+Reply-To: Vivek Dasgupta <vivek.dasgupta@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: function to zero out module ref count so module can be unloaded in 2.6 kernel?
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20050715013653.36006990.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/15/05, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> 
-> Changes since 2.6.13-rc2-mm2:
-> 
-> 
->  git-drm.patch
->  git-audit.patch
->  git-input.patch
->  git-kbuild.patch
+In 2.4 kernel one could check MOD_IN_USE and repeatedly call
+MOD_DEC_USE_COUNT until the ref count drops to zero.
 
-make help br0ken, missing matching `'' for binrpm-pkg.
+Is there a function in 2.6 kernel that would zero out the ref count so
+that module can be unloaded ?
 
--- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+Need to implement ioctl for a driver to zero out the ref count.
+
+Thanks
+Vivek

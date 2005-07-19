@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVGSMgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVGSNPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261978AbVGSMgF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 08:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVGSMgF
+	id S261225AbVGSNPW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 09:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVGSNPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 08:36:05 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:49046 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261978AbVGSMf4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 08:35:56 -0400
-Date: Tue, 19 Jul 2005 14:34:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Esben Nielsen <simlo@phys.au.dk>, Christoph Hellwig <hch@infradead.org>,
-       Daniel Walker <dwalker@mvista.com>, Dave Chinner <dgc@sgi.com>,
-       greg@kroah.com, Nathan Scott <nathans@sgi.com>,
-       Steve Lord <lord@xfs.org>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: RT and XFS
-Message-ID: <20050719123457.GC12368@elte.hu>
-References: <20050714160835.GA19229@infradead.org> <Pine.OSF.4.05.10507171848440.14250-100000@da410.phys.au.dk> <20050719032624.GA22060@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050719032624.GA22060@nietzsche.lynx.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 19 Jul 2005 09:15:22 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:53511 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S261225AbVGSNPU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 09:15:20 -0400
+Message-ID: <42DCFEF6.60907@snapgear.com>
+Date: Tue, 19 Jul 2005 23:24:06 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.6.12-uc0 (MMU-less support)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-* Bill Huey <bhuey@lnxw.com> wrote:
+An update of the uClinux (MMU-less) support against 2.6.12.
 
-> On Mon, Jul 18, 2005 at 02:10:31PM +0200, Esben Nielsen wrote:
-> > Unfortunately, one of the goals of the preempt-rt branch is to avoid
-> > altering too much code. Therefore the type semaphore can't be removed
-> > there. Therefore the name still lingers ... :-(
-> 
-> This is where you failed. You assumed that that person making the 
-> comment, Christopher, in the first place didn't have his head up his 
-> ass in the first place and was open to your end of the discussion.
+Support added for the Freescale Coldfire 5235 CPU family. Still have
+a few cleanups of the 68x328 support to submit too.
 
-please take me off the Cc: list for such kind of replies. Christoph is 
-very much entitled to his opinion, which i happen to mostly share in 
-this case: we should not be bothering upstream with requirements unique 
-to PREEMPT_RT. PREEMPT_RT restricts struct semaphore to be a mutex, and 
-that doesnt make it a classic semaphore anymore. We had no other choice 
-but it's still somewhat unclean in that regard.
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.12-uc0.patch.gz
 
-(I do disagree with Christoph on another point: i do think we eventually 
-want to change the standard semaphore type in a similar fashion upstream 
-as well - but that probably has to come with a s/struct semaphore/struct 
-mutex/ change as well.)
 
-	Ingo
+Change log:
+
+. import of linux-2.6.12                       <gerg@snapgear.com>
+. support for the Freescale 5235 family        Jate Sujjavanich
+. use MAP_PRIVATE for binfmt_flat text maps    <gerg@snapgear.com>
+
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+
+
+

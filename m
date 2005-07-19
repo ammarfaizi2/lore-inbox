@@ -1,116 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVGSQgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVGSQqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbVGSQgr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 12:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVGSQgr
+	id S261219AbVGSQqG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 12:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVGSQqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 12:36:47 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:45066 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261512AbVGSQgr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 12:36:47 -0400
-Date: Tue, 19 Jul 2005 18:36:40 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Bodo Eggert <7eggert@gmx.de>, perex@suse.cz
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org
-Subject: [2.6 patch] sound drivers select'ing ISAPNP must depend on PNP && ISA
-Message-ID: <20050719163640.GK5031@stusta.de>
-References: <Pine.LNX.4.58.0507171702030.12446@be1.lrz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0507171702030.12446@be1.lrz>
-User-Agent: Mutt/1.5.9i
+	Tue, 19 Jul 2005 12:46:06 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:50469 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S261219AbVGSQqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 12:46:04 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.93,300,1114984800"; 
+   d="scan'208"; a="12813607:sNHT50905092376"
+Message-ID: <42DD2E37.3080204@fujitsu-siemens.com>
+Date: Tue, 19 Jul 2005 18:45:43 +0200
+From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Organization: Fujitsu Siemens Computers
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: files_lock deadlock?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 17, 2005 at 05:07:48PM +0200, Bodo Eggert wrote:
 
-> In sound/isa/Kconfig, select ISAPNP and depend on ISAPNP are intermixed, 
-> resulting in funny behaviour. (Soundcarts get selectable if other 
-> soundcards are selected).
-> 
-> This patch changes the "depend on ISAPNP"s to select.
->...
+Hello,
 
-I like the idea of this patch, but it brings to more drivers to a 
-violation of the "if you select something, you have to ensure that the 
-dependencies of what you select are fulfilled" rule causing link errors 
-with invalid .config's.
+I apologize in advance if this is a dummy question. My web search turned 
+up nothing, so I'm trying it here.
 
-This patch (on top of your patch) fixes this problem.
+We came across the following error message:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Kernelpanic - not syncing: fs/proc/
+Generic.c:521: spin_lock(fs/file_table.c:ffffffff80420280)
+Already locked by fs/file_table.c/204
 
----
+This shows a locking problem with the files_lock on a UP kernel with 
+spinlock debugging enabled.
 
- sound/isa/Kconfig |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+I noticed that files_lock is only protected with spin_lock() 
+(file_list_lock(), include/linux/fs.h). Is it possible that this should 
+be changed to spin_lock_irq()) or spin_lock_irqsave()? Or am I misssing 
+something obvious?
 
---- linux-2.6.13-rc3-mm1-full/sound/isa/Kconfig.old	2005-07-19 18:27:21.000000000 +0200
-+++ linux-2.6.13-rc3-mm1-full/sound/isa/Kconfig	2005-07-19 18:28:44.000000000 +0200
-@@ -15,7 +15,7 @@
- 
- config SND_AD1816A
- 	tristate "Analog Devices SoundPort AD1816A"
--	depends on SND
-+	depends on SND && PNP && ISA
- 	select ISAPNP
- 	select SND_OPL3_LIB
- 	select SND_MPU401_UART
-@@ -81,7 +81,7 @@
- 
- config SND_ES968
- 	tristate "Generic ESS ES968 driver"
--	depends on SND
-+	depends on SND && PNP && ISA
- 	select ISAPNP
- 	select SND_MPU401_UART
- 	select SND_PCM
-@@ -162,7 +162,7 @@
- 
- config SND_INTERWAVE
- 	tristate "AMD InterWave, Gravis UltraSound PnP"
--	depends on SND
-+	depends on SND && PNP && ISA
- 	select SND_RAWMIDI
- 	select SND_CS4231_LIB
- 	select SND_GUS_SYNTH
-@@ -177,7 +177,7 @@
- 
- config SND_INTERWAVE_STB
- 	tristate "AMD InterWave + TEA6330T (UltraSound 32-Pro)"
--	depends on SND
-+	depends on SND && PNP && ISA
- 	select SND_RAWMIDI
- 	select SND_CS4231_LIB
- 	select SND_GUS_SYNTH
-@@ -293,7 +293,7 @@
- 
- config SND_ALS100
- 	tristate "Avance Logic ALS100/ALS120"
--	depends on SND
-+	depends on SND && PNP && ISA
- 	select ISAPNP
- 	select SND_OPL3_LIB
- 	select SND_MPU401_UART
-@@ -307,7 +307,7 @@
- 
- config SND_AZT2320
- 	tristate "Aztech Systems AZT2320"
--	depends on SND
-+	depends on SND && PNP && ISA
- 	select ISAPNP
- 	select SND_OPL3_LIB
- 	select SND_MPU401_UART
-@@ -332,7 +332,7 @@
- 
- config SND_DT019X
- 	tristate "Diamond Technologies DT-019X, Avance Logic ALS-007"
--	depends on SND
-+	depends on SND && PNP && ISA
- 	select ISAPNP
- 	select SND_OPL3_LIB
- 	select SND_MPU401_UART
+Thanks
+Martin
 
+-- 
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy

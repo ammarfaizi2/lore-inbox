@@ -1,76 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVGSSFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVGSSGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbVGSSFY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 14:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVGSSFX
+	id S261578AbVGSSGt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 14:06:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVGSSGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 14:05:23 -0400
-Received: from web60711.mail.yahoo.com ([209.73.178.214]:30061 "HELO
-	web60711.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261480AbVGSSFW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 14:05:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.br;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=X5Qh5/tuusaSeX6LPLhqbXn+5IttPqe1vGuR4CCK1OYcMuuXjHH6qG2T6yLtpwR83IymXwQB+DdIO7UDkAQTy/zM5RsMGkFFC4hmy39KgCL2uw1RW8nn/Z1lmP9FwenqY7ZShMQATUNb4ZFxBLiXbti6JHIuGawcDoaUZsFLONA=  ;
-Message-ID: <20050719180521.8914.qmail@web60711.mail.yahoo.com>
-Date: Tue, 19 Jul 2005 15:05:21 -0300 (ART)
-From: "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br>
-Subject: Kernel 2.6.12 and 2.6.13 hangs for a while on boot
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 19 Jul 2005 14:06:49 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57816 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261992AbVGSSGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 14:06:36 -0400
+Date: Tue, 19 Jul 2005 20:06:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: John Lenz <lenz@cs.wisc.edu>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Sharp Zaurus sl-5500 broken in 2.6.12
+Message-ID: <20050719180624.GB15186@atrey.karlin.mff.cuni.cz>
+References: <20050711193454.GA2210@elf.ucw.cz> <33703.127.0.0.1.1121130438.squirrel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <33703.127.0.0.1.1121130438.squirrel@localhost>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
-Hi all,
-
-I'm having little hangs while booting with kernels 2.6.12 and 2.6.13-rc1, rc2
-and rc3.
-
-It is strange that 2.6.12-rc1 booted ok without hangs.
-
-I saw a post of Alan Cox on rc-1 release notes:
-
-"Old ISA/VESA systems sometimes put tertiary IDE controllers at addresses
-    0x1e8, 0x168, 0x1e0 or 0x160.  Linux thus probes these addresses on x86
-    systems.  Unfortunately some PCI systems now use these addresses for other
-    purposes which leads to users seeing minute plus hangs during boot or even
-    crashes."
-
-I thought this could be my problem, but it still hangs on boot.
-
-Hangs appears just before mounting filesystems message and before configuring
-system to use udev.
-
-I'm using Gentoo with vanilla-sources. I already asked on gentoo lists and
-nobody saw this behaviour. I tried google with no luck too. So my last resource
-which could give me some light is here.
-
-I'm using 2.6.13 on a Gateway laptop.
-
-Do you know of something about this? Have you seen this problem?
-Where could I look for more information about that in my system? I saw logs but
-they don't say anything. Also, besides this hangs on boot, system seems to work
-perfectly, but I'd like to remove this hangs from boot.
-
-For while, I'm using 2.6.11.10 which is working ok.
-
-Thanks in advance.
-
---
-Regards,
-
-Francisco Figueiredo Jr.
-
-
-
-	
-	
-		
-_______________________________________________________ 
-Yahoo! Acesso Grátis - Internet rápida e grátis. 
-Instale o discador agora! http://br.acesso.yahoo.com/
+...and that's well known; but now I did some back tracking, and
+2.6.12-rc1 works, 2.6.12-rc2 does *not* and 2.6.12-rc2 with arm
+changes reverted works. I'll play a bit more.
+							Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

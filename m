@@ -1,34 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVGSVAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVGSVDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbVGSVAt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 17:00:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVGSVAq
+	id S261992AbVGSVDs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 17:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVGSVDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 17:00:46 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:34517
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261705AbVGSVAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 17:00:43 -0400
-Date: Tue, 19 Jul 2005 14:00:24 -0700 (PDT)
-Message-Id: <20050719.140024.131914996.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: shemminger@osdl.org, coreteam@netfilter.org,
-       netfilter-devel@lists.netfilter.org, bridge@osdl.org,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] BRIDGE_EBT_ARPREPLY must depend on INET
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050719135529.GH5031@stusta.de>
-References: <20050719135529.GH5031@stusta.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 19 Jul 2005 17:03:48 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:56586 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261992AbVGSVDr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 17:03:47 -0400
+Message-ID: <42DD6AA7.40409@domdv.de>
+Date: Tue, 19 Jul 2005 23:03:35 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+CC: Pavel Machek <pavel@suse.cz>, Dave Jones <davej@codemonkey.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: amd64-agp vs. swsusp
+References: <42DD67D9.60201@stud.feec.vutbr.cz>
+In-Reply-To: <42DD67D9.60201@stud.feec.vutbr.cz>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Tue, 19 Jul 2005 15:55:29 +0200
+Michal Schmidt wrote:
+> Hello,
+> 
+> Does resuming from swsuspend work for anyone with amd64-agp loaded?
+> 
+> On my system when I suspend with amd64-agp loaded, I get a spontaneous
+> reboot on resume. It reboots immediately after reading the saved image
+> from disk.
+> This is 100% reproducible.
+> 
+> Athlon 64 FX-53, Asus A8V Deluxe, Linux 2.6.13-rc3-mm1.
 
-> BRIDGE_EBT_ARPREPLY=y and INET=n results in the following compile error:
+AMD Athlon(tm) 64 Processor 3000+, Acer Aspire
 
-Applied, thanks Adrian.
+Linux gringo 2.6.13-rc3-gringo #36 Sun Jul 17 15:57:17 CEST 2005 x86_64
+unknown unknown GNU/Linux
+
+CONFIG_AGP=y
+CONFIG_AGP_AMD64=y
+
+swsusp works for me. Could it be mm, agp as a module or some speciality
+of your hardware?
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

@@ -1,54 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVGSUwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVGSVAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVGSUwL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 16:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVGSUwK
+	id S261705AbVGSVAt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 17:00:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVGSVAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 16:52:10 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:15118 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261630AbVGSUwD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 16:52:03 -0400
-Message-ID: <42DD67D9.60201@stud.feec.vutbr.cz>
-Date: Tue, 19 Jul 2005 22:51:37 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-Subject: amd64-agp vs. swsusp
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	Tue, 19 Jul 2005 17:00:46 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:34517
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261705AbVGSVAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 17:00:43 -0400
+Date: Tue, 19 Jul 2005 14:00:24 -0700 (PDT)
+Message-Id: <20050719.140024.131914996.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: shemminger@osdl.org, coreteam@netfilter.org,
+       netfilter-devel@lists.netfilter.org, bridge@osdl.org,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] BRIDGE_EBT_ARPREPLY must depend on INET
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050719135529.GH5031@stusta.de>
+References: <20050719135529.GH5031@stusta.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  tested this incoming email. See other headers to know if the email
-  has beed identified as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+From: Adrian Bunk <bunk@stusta.de>
+Date: Tue, 19 Jul 2005 15:55:29 +0200
 
-Does resuming from swsuspend work for anyone with amd64-agp loaded?
+> BRIDGE_EBT_ARPREPLY=y and INET=n results in the following compile error:
 
-On my system when I suspend with amd64-agp loaded, I get a spontaneous 
-reboot on resume. It reboots immediately after reading the saved image 
-from disk.
-This is 100% reproducible.
-
-Athlon 64 FX-53, Asus A8V Deluxe, Linux 2.6.13-rc3-mm1.
-
-Regards,
-Michal
+Applied, thanks Adrian.

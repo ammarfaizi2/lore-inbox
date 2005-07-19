@@ -1,122 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVGSOVI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVGSOWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbVGSOVI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 10:21:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVGSOVI
+	id S261372AbVGSOWz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 10:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVGSOW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 10:21:08 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:52654 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261330AbVGSOVG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 10:21:06 -0400
-Subject: Re: How linear address translate to physical address in
-	kernel	space?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "liyu@WAN" <liyu@ccoss.com.cn>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <42DD029B.2000103@ccoss.com.cn>
-References: <42DCE551.80104@ccoss.com.cn>
-	 <1121775177.6125.28.camel@localhost.localdomain>
-	 <42DD029B.2000103@ccoss.com.cn>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 19 Jul 2005 10:20:57 -0400
-Message-Id: <1121782857.6019.29.camel@localhost.localdomain>
+	Tue, 19 Jul 2005 10:22:28 -0400
+Received: from nproxy.gmail.com ([64.233.182.201]:12737 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261372AbVGSOVe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 10:21:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kKf5aiXYwnACwWLQeSAlD4w0dcIr7ssYNhRDIiXuFIR9ECSPJAO077uTSfvIaFQ10yOAUCrHlo6wbbrKZrh73zqqwRyJ9FRFjk62mwmQUw7Oz6ZPky4R1k/vYfSzbSw2IdbnYZxdG6O3XGrEvALM/CO8tJ8l7VzaCwQYcowGcXw=
+Message-ID: <2cd57c9005071907214c71fbaa@mail.gmail.com>
+Date: Tue, 19 Jul 2005 22:21:30 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.13-rc3-mm1
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
+In-Reply-To: <20050715013653.36006990.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050715013653.36006990.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-19 at 21:39 +0800, liyu@WAN wrote:
-> Hi:
+On 7/15/05, Andrew Morton <akpm@osdl.org> wrote:
 > 
->     Thanks for steven. but I think you don't understand real intention 
-> of my question.
-
-I think I actually do. I just haven't expressed myself well enough for
-you to understand :-)
-
 > 
->     First, please allow me make a bit explain about intel architecture. 
-> If it include
-> any error, please tell me. 3ks.
+> Changes since 2.6.13-rc2-mm2:
 > 
-
-[snip explaination of intel]
-
 > 
->     On i386 Linux, segment tranlstion just is dummy process, all logical 
-> address is translated to same
-> address. in other words, all segments (KERNEL_CS, KERNEL_DS, USER_DS, 
-> USER_CS) have zero value base
-> address.
+>  git-drm.patch
+>  git-audit.patch
+>  git-input.patch
+>  git-kbuild.patch
 
-This is used to make intel look more like other architectures.
+make help br0ken, missing matching `'' for binrpm-pkg.
 
-> 
->     And we must note, in above words, the terms "logical address" , 
-> "linear address" are came from intel
-> architecture manual, they are not completely equal with linux kernel 
-> terms. but both "linear address" are
-> the most like.
-
-I always get confused with intel's terminology.  That's why I tried to
-stay with the generic physical (what the bus sees) and the virtual (what
-the CPU sees).
-
-> 
->     The paging at i386 architecture must use CR3 register, as we known, 
-> at least. So in linux kernel, if it
-> is going to map its "linear address" to low end physical address, it 
-> also need use CR3 register. but it can
-> not use CR3 directly ,in switch_mm() function at least, this function 
-> will change CR3 register value to switch
-> user task memory address space.
-
-OK, I'm too lazy to go open up my Intel books (they're buried someplace,
-and my online documention is too big), so I'm assuming that the CR3
-register is the pointer to the Global Page Table (GPT).
-
-> 
->     I known kernel often do not setup page table for itself, except some 
-> special cases, for example, vmalloc.
-> This feature say kernel use page table(and CR3) in reverse.
-
-Lets for sake of simplicity, forget about how the kernel fills up the
-entries in the GPT (can be done from page faults).
-
-> 
->     I want to know how kernel translate itself address , especially, How 
-> code after kernel change CR3 register
-> work? It use CR3, or no? As steven said, I am confused here really.
-> 
->     It is like kernel have many secrets I don't know. these secrets 
-> drive me study it.
-
-OK, the CR3 (If I was right in my above statement) points to the page
-tables. So we have
-
-         GPT
-CR3 -> +--------+
-       |        | -> user page tables.
-       |        |
-       |        |
-       |        |
-       |0xc0000 | ->  Page table of kernel
-       +--------+
-      
-If all the user's Global page tables (GPT) has a pointer to the kernel
-page table for the address of 0xc0000000 and above, then there's no
-problem in switching the CR3 register.  What happens is that the user's
-page tables will change. But all the user tasks have the upper address
-pointing to the same address (thus the kernel), with the proper
-protection bits as described earlier that say that only when the CPU is
-in kernel mode does it have access to this.
-
-I hope this helps, since I'm just about to leave to Ottawa. (See
-everyone there ;-)
-
--- Steve
-
-
+-- 
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

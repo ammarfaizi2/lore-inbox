@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVGSSUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVGSS32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbVGSSUj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 14:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVGSSUj
+	id S261604AbVGSS32 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 14:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVGSS3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 14:20:39 -0400
-Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:38411 "EHLO
-	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
-	id S261704AbVGSSUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 14:20:37 -0400
-Message-ID: <42DD44E2.3000605@tu-harburg.de>
-Date: Tue, 19 Jul 2005 20:22:26 +0200
-From: Jan Blunck <j.blunck@tu-harburg.de>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ramfs: pretend dirent sizes
-References: <42D72705.8010306@tu-harburg.de> <Pine.LNX.4.58.0507151151360.19183@g5.osdl.org> <20050716003952.GA30019@taniwha.stupidest.org> <42DCC7AA.2020506@tu-harburg.de> <20050719161623.GA11771@taniwha.stupidest.org>
-In-Reply-To: <20050719161623.GA11771@taniwha.stupidest.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Jul 2005 14:29:22 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:9740 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261604AbVGSS3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 14:29:20 -0400
+Date: Tue, 19 Jul 2005 20:29:19 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: jgarzik@pobox.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] NETCONSOLE must depend on INET
+Message-ID: <20050719182919.GA5531@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> 
->>I'm using the i_size of directories in my patches.  When reading
->>from a union directory, I'm using the i_size to seek to the right
->>offset in the union stack.
-> 
-> 
-> Ick.  That'a a bit of a hack.
-> 
+NETCONSOLE=y and INET=n results in the following compile error:
 
-Don't think so:
+<--  snip  -->
 
-1st dir:   [XXXXXXXXXXXXXXXXXXXXX]
-       f_pos=0               f_pos=i_size(1st)
+...
+  LD      .tmp_vmlinux1
+net/built-in.o: In function `netpoll_parse_options':
+: undefined reference to `in_aton'
+net/built-in.o: In function `netpoll_parse_options':
+: undefined reference to `in_aton'
+make: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
 
 
-2nd dir:   [XXXXXXXXXXX|---------]
-       f_pos=i_size(1st)     f_pos=i_size(1st+2nd)
-                        ^
-                        | f_pos=i_size(1st)+offset
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Since these "arranged" values are also used as the offsets in the return 
-dirent IMO it is quite clean.
+--- linux-2.6.13-rc3/drivers/net/Kconfig.old	2005-07-19 19:29:25.000000000 +0200
++++ linux-2.6.13-rc3/drivers/net/Kconfig	2005-07-19 19:29:37.000000000 +0200
+@@ -2544,7 +2544,7 @@
+ 
+ config NETCONSOLE
+ 	tristate "Network console logging support (EXPERIMENTAL)"
+-	depends on NETDEVICES && EXPERIMENTAL
++	depends on NETDEVICES && INET && EXPERIMENTAL
+ 	---help---
+ 	If you want to log kernel messages over the network, enable this.
+ 	See <file:Documentation/networking/netconsole.txt> for details.
 
-> 
-> Hence the value of 20 I guess --- assuming nothing will stack this
-> high?
-> 
-
-Nope. This value is kind of traditional: tmpfs is using it 
-(http://marc.theaimsgroup.com/?l=linux-kernel&m=103208296515378&w=2). I 
-think a better value would be 1 (one) since this is also used as the 
-dirent offset by dcache_readdir().
-
-> 
-> I personally would prefer that to be honest or some other way that
-> doesn't change i_size.
-
-The i_size of a directory isn't covered by the POSIX standard. IMO, it 
-should be possible to seek in the range of i_size and a following 
-readdir()  on the directory should succeed. But this isn't possible even 
-not with real file systems like ext2.
-But keeping the i_size bound to zero even if the directory contains 
-entries does not make sense at all.
-
-Jan

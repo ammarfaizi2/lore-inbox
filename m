@@ -1,71 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVGSEiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVGSGwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbVGSEiO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 00:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVGSEiO
+	id S261911AbVGSGwV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 02:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVGSGwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 00:38:14 -0400
-Received: from ns.solnet.cz ([193.165.198.50]:20674 "EHLO solnet.cz")
-	by vger.kernel.org with ESMTP id S261944AbVGSEh1 (ORCPT
+	Tue, 19 Jul 2005 02:52:21 -0400
+Received: from [220.248.27.114] ([220.248.27.114]:36277 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S261911AbVGSGwT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 00:37:27 -0400
-X-AntiVirus: scanned for viruses by soLNet AVirCheck 2.0.29 (http://www.solnet.cz/avircheck)
-Message-ID: <42DC835E.7030301@solnet.cz>
-Date: Tue, 19 Jul 2005 06:36:46 +0200
-From: =?UTF-8?B?TWFydGluIFBvdm9sbsO9?= <martin.povolny@solnet.cz>
-Organization: soLNet, s.r.o.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Promise TX4200 support?
-References: <42DBFC9E.1040607@gentoo.org> <42DC0A99.2010304@solnet.cz> <42DC2F44.7000708@gentoo.org>
-In-Reply-To: <42DC2F44.7000708@gentoo.org>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Tue, 19 Jul 2005 02:52:19 -0400
+Date: Tue, 19 Jul 2005 14:51:22 +0800
+From: hugang@soulinfo.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: hugang@soulinfo.com, Tony Lindgren <tony@atomide.com>,
+       linux-kernel@vger.kernel.org,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@ucw.cz>,
+       Bernard Blackham <b-lkml@blackham.com.au>,
+       Christian Hesse <mail@earthworm.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [PATCH] Dynamic tick for x86 version 050610-1
+Message-ID: <20050719065122.GA5913@hugang.soulinfo.com>
+References: <20050602013641.GL21597@atomide.com> <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com> <20050603223758.GA2227@elf.ucw.cz> <20050610041706.GC18103@atomide.com> <20050610091515.GH4173@elf.ucw.cz> <20050610151707.GB7858@atomide.com> <20050610221501.GB7575@atomide.com> <20050618033419.GA6476@hugang.soulinfo.com> <1119076233.18247.27.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1119076233.18247.27.camel@gaston>
+User-Agent: Mutt/1.5.9i
+X-Virus-Checked: Checked
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Hi Martin,
+On Sat, Jun 18, 2005 at 04:30:32PM +1000, Benjamin Herrenschmidt wrote:
 > 
-> Martin Povolný wrote:
+> > I'm try to port it powerpc, Here is a patch.
+> > 
+> >  Port Dynamic Tick Timer to new platform is easy. :)
+> >   1) Find the reprogram timer interface.
+> >   2) do a hook in the idle function.
+> > 
+> > That worked on my PowerBookG4 12'.
 > 
->> We are succesfully running patched sata_promise with 3 disks in a
->> raid5/raid1 setup. (Patched against ubuntu linux-image 2.6.11-1-686
->> package.)
+> Did you get a measurable gain on power consumption ?
 > 
-> 
-> Could you please either send in your patch, or tell me which board_
-> setting (2037x/20319/20619) the device ID table should include so I can
-> write submit one myself.
-> 
+> Last time I toyed with this, I didn't.
 
-For me it works with 20319, but I don't understand the difference
-between different settings.
+Today I do a measurable about it. 
 
-*** sata_promise.c	2005-05-11 21:22:20.000000000 +0200
---- sata_promise_new.c	2005-05-11 21:22:02.000000000 +0200
-***************
-*** 164,171 ****
---- 164,173 ----
-  	{ PCI_VENDOR_ID_PROMISE, 0x3318, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-  	  board_20319 },
-  	{ PCI_VENDOR_ID_PROMISE, 0x3319, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-  	  board_20319 },
-+ 	{ PCI_VENDOR_ID_PROMISE, 0x3519, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+ 	  board_20319 },
-  	{ PCI_VENDOR_ID_PROMISE, 0x3d18, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-  	  board_20319 },
+First I using 2.6.12 without dynamic enable and unplug the AC power,
+I check the /proc/pmu/battery_0, like this.
+--
+ flags      : 00000011
+ charge     : 907
+ max_charge : 2863
+ current    : -987
+ voltage    : 10950
+ time rem.  : 3600
+--
+I only intresting with current, that show the system power load. 
 
-  	{ }	/* terminate list */
+When I enable dynamic, The current can low at -900.
 
-Regards,
+So, It works. :>
+
+2.6.12 + suspend2 + ck3 + dynamic 
+http://soulinfo.com/~hugang/kernel/linux-2.6.12/
 
 -- 
-Mgr. Martin Povolný, soLNet, s.r.o.,
-+420777714458, martin.povolny@solnet.cz
-
+Hu Gang       .-.    Steve
+              /v\
+             // \\ 
+            /(   )\
+GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc

@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVGSEga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVGSEiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbVGSEga (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 00:36:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVGSEga
+	id S261944AbVGSEiO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 00:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVGSEiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 00:36:30 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:23648 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S261941AbVGSEg3 (ORCPT
+	Tue, 19 Jul 2005 00:38:14 -0400
+Received: from ns.solnet.cz ([193.165.198.50]:20674 "EHLO solnet.cz")
+	by vger.kernel.org with ESMTP id S261944AbVGSEh1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 00:36:29 -0400
-Date: Tue, 19 Jul 2005 06:36:22 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-kernel@vger.kernel.org, rth@twiddle.net, dhowells@redhat.com,
-       kumar.gala@freescale.com, davem@davemloft.net, mhw@wittsend.com,
-       support@comtrol.com, R.E.Wolff@BitWizard.nl, nils@kernelconcepts.de,
-       cjtsai@ali.com.tw, Lionel.Bouton@inet6.fr, benh@kernel.crashing.org,
-       mchehab@brturbo.com.br, laredo@gnu.org, rbultje@ronald.bitfreak.net,
-       middelin@polyware.nl, philb@gnu.org, tim@cyberelk.net,
-       campbell@torque.net, andrea@suse.de, linux@advansys.com,
-       lnz@dandelion.com, chirag.kantharia@hp.com, mike@i-Connect.Net,
-       mulix@mulix.org
-Subject: Re: [PATCH] pci_find_device --> pci_get_device
-Message-ID: <20050719043621.GA14657@bitwizard.nl>
-References: <42DC4873.2080807@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42DC4873.2080807@gmail.com>
-Organization: BitWizard.nl
-User-Agent: Mutt/1.5.9i
+	Tue, 19 Jul 2005 00:37:27 -0400
+X-AntiVirus: scanned for viruses by soLNet AVirCheck 2.0.29 (http://www.solnet.cz/avircheck)
+Message-ID: <42DC835E.7030301@solnet.cz>
+Date: Tue, 19 Jul 2005 06:36:46 +0200
+From: =?UTF-8?B?TWFydGluIFBvdm9sbsO9?= <martin.povolny@solnet.cz>
+Organization: soLNet, s.r.o.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Drake <dsd@gentoo.org>
+CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Promise TX4200 support?
+References: <42DBFC9E.1040607@gentoo.org> <42DC0A99.2010304@solnet.cz> <42DC2F44.7000708@gentoo.org>
+In-Reply-To: <42DC2F44.7000708@gentoo.org>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 19, 2005 at 02:25:23AM +0200, Jiri Slaby wrote:
-> The patch is for mixed files from all over the tree.
+Daniel Drake wrote:
+> Hi Martin,
 > 
-> Kernel version: 2.6.13-rc3-git4
+> Martin Povolný wrote:
 > 
-> * This patch removes from kernel tree pci_find_device and changes
-> it with pci_get_device. Next, it adds pci_dev_put, to decrease reference
-> count of the variable.
-> * Next, there are some (about 10 or so) gcc warning problems (i. e.
-> variable may be unitialized) solutions, which were around code with old
-> pci_find_device.
-> * Some code was unpretty, or ugly, so the patch provides more readable
-> code, in some cases.
-> * Marks the function as deprecated in pci.h
+>> We are succesfully running patched sata_promise with 3 disks in a
+>> raid5/raid1 setup. (Patched against ubuntu linux-image 2.6.11-1-686
+>> package.)
+> 
+> 
+> Could you please either send in your patch, or tell me which board_
+> setting (2037x/20319/20619) the device ID table should include so I can
+> write submit one myself.
+> 
 
-Hi Jiri, 
+For me it works with 20319, but I don't understand the difference
+between different settings.
 
-The patch grabs reference counts to pdev structures, but almost never
-decreases the reference counts. 
+*** sata_promise.c	2005-05-11 21:22:20.000000000 +0200
+--- sata_promise_new.c	2005-05-11 21:22:02.000000000 +0200
+***************
+*** 164,171 ****
+--- 164,173 ----
+  	{ PCI_VENDOR_ID_PROMISE, 0x3318, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+  	  board_20319 },
+  	{ PCI_VENDOR_ID_PROMISE, 0x3319, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+  	  board_20319 },
++ 	{ PCI_VENDOR_ID_PROMISE, 0x3519, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++ 	  board_20319 },
+  	{ PCI_VENDOR_ID_PROMISE, 0x3d18, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+  	  board_20319 },
 
-If you are working in a team, and want others to be able to continue
-where you left off, you should add a comment, even if it is repetitive
-to state what needs to be done. 
+  	{ }	/* terminate list */
 
-As far as I can see, you grab a reference to the "pdev" on 
-initialization, and never release it. Or you only release it in 
-certain error conditions. Would this make the driver unable to 
-be unloaded and reloaded? That would not be good. 
-
-	Roger. 
+Regards,
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
-Does it sit on the couch all day? Is it unemployed? Please be specific! 
-Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ
+Mgr. Martin Povolný, soLNet, s.r.o.,
++420777714458, martin.povolny@solnet.cz
+

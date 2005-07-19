@@ -1,19 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVGSMWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVGSM1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbVGSMWE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 08:22:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVGSMWE
+	id S261977AbVGSM1t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 08:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVGSM1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 08:22:04 -0400
-Received: from penfold.hotkey.net.au ([202.138.0.33]:46571 "EHLO
+	Tue, 19 Jul 2005 08:27:49 -0400
+Received: from penfold.hotkey.net.au ([202.138.0.33]:21996 "EHLO
 	penfold.hotkey.net.au") by vger.kernel.org with ESMTP
-	id S261214AbVGSMWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 08:22:03 -0400
-Message-ID: <1121775780.42dcf0a453b1a@webmail.hotkey.net.au>
-Date: Tue, 19 Jul 2005 22:23:00 +1000
+	id S261977AbVGSM1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 08:27:49 -0400
+Message-ID: <1121776133.42dcf20511c67@webmail.hotkey.net.au>
+Date: Tue, 19 Jul 2005 22:28:53 +1000
 From: frosts1@hotkey.net.au
-To: akpm@osdl.org
-Cc: js@linuxtv.org, linux-kernel@vger.kernel.org
+To: frosts1@hotkey.net.au
+Cc: akpm@osdl.org, js@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] DVICO Fusion DVB-T1 Tuner (LG-Z201)
+References: <1121775780.42dcf0a453b1a@webmail.hotkey.net.au>
+In-Reply-To: <1121775780.42dcf0a453b1a@webmail.hotkey.net.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -23,6 +26,9 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew,
+
+I apologise profusely for initially sending this message without a 
+subject.
 
 Johannes Stezenbach (of dvb-kernel) suggested that I send this patch 
 directly to you since I am anxious to get it into the kernel and he

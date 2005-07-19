@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVGSCwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVGSDOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbVGSCwM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Jul 2005 22:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVGSCwM
+	id S261361AbVGSDOk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Jul 2005 23:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVGSDOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Jul 2005 22:52:12 -0400
-Received: from atpro.com ([12.161.0.3]:32774 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S261919AbVGSCwK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Jul 2005 22:52:10 -0400
-Date: Mon, 18 Jul 2005 22:51:47 -0400
-From: Jim Crilly <jim@why.dont.jablowme.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Richard Gooch <rg+lkml0@safe-mbox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.12-git
-Message-ID: <20050719025146.GM3550@mail>
-Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Richard Gooch <rg+lkml0@safe-mbox.com>, linux-kernel@vger.kernel.org
-References: <20050621062926.GB15062@kroah.com> <20050620235403.45bf9613.akpm@osdl.org> <20050621151019.GA19666@kroah.com> <20050623010031.GB17453@mikebell.org> <20050623045959.GB10386@kroah.com> <17115.55954.942676.450479@mailix.sanjose.privnets> <Pine.LNX.4.61.0507182202400.16975@yvahk01.tjqt.qr>
+	Mon, 18 Jul 2005 23:14:40 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:15805 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261361AbVGSDOj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Jul 2005 23:14:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tEQ8JFkJ+A+dSDt26wp+z+8pST1Sp2yKnJLifXEQGV3nlplH7zOY0wDCnUN2+0hyNP8CQkzG+lmVwvkZN8pvhUnZSZDkz9b5v442S39Vj0V3y2FS4W3OcQm+mmhrx5INhfxKdu63PE8PccWnPMHX909oNcyhQwQnWSOCQ714/eA=
+Message-ID: <1e62d13705071820132e7fa6c9@mail.gmail.com>
+Date: Tue, 19 Jul 2005 08:13:29 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+Reply-To: Fawad Lateef <fawadlateef@gmail.com>
+To: Keith Owens <kaos@sgi.com>
+Subject: Re: Regarding KDB for REDHAT9.0
+Cc: Subbu <subbu@sasken.com>, linux-kernel@vger.kernel.org,
+       subbu2k_av@yahoo.com
+In-Reply-To: <5276.1121737277@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0507182202400.16975@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.9i
+References: <Pine.GSO.4.30.0507181124560.28721-100000@sunrnd2.sasken.com>
+	 <5276.1121737277@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/18/05 10:12:29PM +0200, Jan Engelhardt wrote:
+On 7/19/05, Keith Owens <kaos@sgi.com> wrote:
 > 
-> Something's wondering me, though:
-> FreeBSD "just" (5.0) introduced devfs, so either they are behind The Facts 
-> (see udev FAQ), or devfs (anylinux/anybsd) is not so bad after all.
+> Sorry, not available.  RedHat do not want kdb so SGI do not do KDB
+> patches against RedHat distributions.  Use SuSE instead, that has KDB
+> built in.
+> 
 
-There's not much to wonder about here, the basic idea of devfs is a good
-one which is why udev was written. The problems expressed on lkml about
-devfs were with that specifically implementation, if a better
-implementation had been merged originally udev might have never been
-created. I really doubt FreeBSD took the Linux devfs code and integrated it
-with their kernel, so the fact that FreeBSD is using a devfs now simply
-means they like the idea of a dynamic /dev as well.
+I want to add one more thing, you can compile your own kernel with KDB
+patch applied .... if u really want to use KDB on Redhat ...... And I
+think you can also try to apply patch of KDB for 2.4.20 on the Redhat
+kenel, that might succeed if redhat havn't changed anything in the
+files of 2.4.20 kernel in which KDB patches or make changes .........
 
-> 
-> 
-> 
-> Jan Engelhardt
 
-Jim.
+-- 
+Fawad Lateef

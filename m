@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVGSRT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVGSR0i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVGSRT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 13:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVGSRT7
+	id S261563AbVGSR0i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 13:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVGSR0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 13:19:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38582 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261562AbVGSRT7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 13:19:59 -0400
-From: Daniel Phillips <phillips@redhat.com>
-Organization: Red Hat
-To: linux-cluster@redhat.com
-Subject: Re: [Linux-cluster] [RFC] nodemanager, ocfs2, dlm
-Date: Wed, 20 Jul 2005 03:19:50 +1000
-User-Agent: KMail/1.7.2
-Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
-       ocfs2-devel@oss.oracle.com
-References: <20050718061553.GA9568@redhat.com>
-In-Reply-To: <20050718061553.GA9568@redhat.com>
+	Tue, 19 Jul 2005 13:26:38 -0400
+Received: from mr1.uky.edu ([128.163.2.150]:36551 "EHLO mr1.uky.edu")
+	by vger.kernel.org with ESMTP id S261563AbVGSR0h convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 13:26:37 -0400
+Subject: Possible GPL violation by PQI
+Reply-To: rfbaum2@uky.edu
+From: "Ryan Frederick Baumann" <rfbaum2@uky.edu>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 19 Jul 2005 13:05:00 -0400
+X-Mailer: NetMail ModWeb Module
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507200319.51000.phillips@redhat.com>
+Message-ID: <1121792700.9333fa4rfbaum2@uky.edu>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Mail-Router: No infection found
+X-Mail-Router-SpamCheck: not spam (whitelisted), SpamAssassin (score=0,
+	required 7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 July 2005 16:15, David Teigland wrote:
-> I've taken a stab at generalizing ocfs2_nodemanager so the dlm could use
-> it (removing ocfs-specific stuff).  It still needs some work, but I'd
-> like to know if this appeals to the ocfs group and to others who were
-> interested in seeing some similarity in dlm/ocfs configuration.
+Precise name of the product: PQI mPack P800
 
-Let me get this straight.  The proposal is to expose cluster membership as a 
-virtual filesystem and use that as the primary membership interface?  So 
-that, e.g., a server on the cluster does a getdents to find out what nodes 
-are in the cluster or uses inotify to learn about membership changes, 
-instead of subscribing for and receiving membership events directly from 
-the cluster membership manager?
+The firmware uses a modified version of the Sigma Designs uClinux 2.4.17-uc0 kernel (available here:
+http://www.uclinux.org/pub/uClinux/ports/arm/EM8500/). In my previous encounters with similar devices, they have kept the portions of code that dealt with the EM85XX chipset in a seperate binary module loaded at run-time (this is the case with my Bravo D1). This is not the case with this firmware. All the EM85XX-specific modifications are embedded directly into the linux.bin kernel image, with no source available to reproduce the kernel. I contacted PQI a week ago through their "Contact Engineer" web form, but have received no response.
 
-Or what is this about, just providing a nice friendly view of the cluster to 
-the administrator, not intended to be used by cluster infrastructure 
-components?
+How the license was violated:
 
-Regards,
+-copyright notice of the copyright holder is not preserved
+-source code is completely missing, requests for source code ignored
+-no written offer for source or copy of the license included
 
-Daniel
+Firmware can be downloaded here:
+http://www.pqi.com.tw/download.asp?filetype=3D5
+
+The firmware is a modified romfs filesystem (it has a nonstandard header that you must strip before being able to use it with normal romfs tools).
+
+-Ryan Baumann
+
+(My apologies if this reaches the list multiple times, I tried sending this message from my GMail account but it never appeared on the list)
+

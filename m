@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVGSUX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVGSU3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVGSUX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 16:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVGSUX1
+	id S261700AbVGSU3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 16:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVGSU3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 16:23:27 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:50881 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S261592AbVGSUWo (ORCPT
+	Tue, 19 Jul 2005 16:29:16 -0400
+Received: from mail.kroah.org ([69.55.234.183]:29643 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261700AbVGSU3P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 16:22:44 -0400
-Subject: Re: Sharp Zaurus sl-5500 broken in 2.6.12
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: John Lenz <lenz@cs.wisc.edu>, kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-In-Reply-To: <20050719192104.GB32757@elf.ucw.cz>
-References: <20050711193454.GA2210@elf.ucw.cz>
-	 <33703.127.0.0.1.1121130438.squirrel@localhost>
-	 <20050719180624.GB15186@atrey.karlin.mff.cuni.cz>
-	 <20050719192104.GB32757@elf.ucw.cz>
-Content-Type: text/plain
-Date: Tue, 19 Jul 2005 21:22:31 +0100
-Message-Id: <1121804551.7499.55.camel@localhost.localdomain>
+	Tue, 19 Jul 2005 16:29:15 -0400
+Date: Tue, 19 Jul 2005 16:29:01 -0400
+From: Greg KH <greg@kroah.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Karim Yaghmour <karim@opersys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Weird USB errors on HD
+Message-ID: <20050719202901.GA20439@kroah.com>
+References: <42DD2EA4.5040507@opersys.com> <20050719192918.GA19803@kroah.com> <1121804216.4299.7.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1121804216.4299.7.camel@mindpipe>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-19 at 21:21 +0200, Pavel Machek wrote:
-> Hi!
+On Tue, Jul 19, 2005 at 04:16:55PM -0400, Lee Revell wrote:
+> On Tue, 2005-07-19 at 15:29 -0400, Greg KH wrote:
+> > Ugh, you have a bad device or power supply, or aren't giving it enough
+> > power to drive the thing.  Nothing we can do in Linux for that, sorry.
+> > Buy a wall-powered usb hub, that usually helps.
+> > 
 > 
-> > ...and that's well known; but now I did some back tracking, and
-> > 2.6.12-rc1 works, 2.6.12-rc2 does *not* and 2.6.12-rc2 with arm
-> > changes reverted works. I'll play a bit more.
-> 
-> This fixes at least one break-the-boot bug in -rc2...
-> 
-> 							Pavel
-> 
-> --- linux-z11.rc2bad/arch/arm/mach-sa1100/collie.c	2005-07-19 20:49:07.000000000 +0200
-> +++ linux-z11/arch/arm/mach-sa1100/collie.c	2005-07-19 21:05:54.000000000 +0200
-> @@ -235,7 +235,7 @@
->  	sa11x0_set_flash_data(&collie_flash_data, collie_flash_resources,
->  			      ARRAY_SIZE(collie_flash_resources));
->  
-> -	sharpsl_save_param();
-> +//	sharpsl_save_param();
->  }
->  
->  static struct map_desc collie_io_desc[] __initdata = {
+> I get the same messages on boot from a bus with no devices connected to
+> it (hub 4).  I have not connected the motherboard header because I don't
+> use that bus, could this be related?
 
-Could you check this wasn't caused by this typo please:
+Yes, it's probably just not grounded properly because the header is not
+connected.  It's harmless and you can just ignore it.
 
-http://www.rpsys.net/openzaurus/patches/collie_typofix-r0.patch
+thanks,
 
-(this has been fixed in recent kernels)
-
-Cheers,
-
-Richard
-
+greg k-h

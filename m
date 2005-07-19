@@ -1,182 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVGSR75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVGSSFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbVGSR75 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 13:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVGSR75
+	id S261480AbVGSSFY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 14:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVGSSFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 13:59:57 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:48344 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261621AbVGSR74
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 13:59:56 -0400
-Subject: [PATCH] jsm driver - Linux-2.6.12.3
-From: "V. ANANDA KRISHNAN" <mansarov@us.ibm.com>
-To: linux-kernel@vger.kernel.org, "gregkh@suse.de" <rmk+lkml@arm.linux.org.uk>
-Cc: gregkh@suse.de, rmk+lkml@arm.linux.org.uk
-Content-Type: multipart/mixed; boundary="=-Ue0Nb9VQWLRGwt0i76Mx"
-Date: Tue, 19 Jul 2005 12:53:20 -0500
-Message-Id: <1121795600.3756.25.camel@siliver.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
+	Tue, 19 Jul 2005 14:05:23 -0400
+Received: from web60711.mail.yahoo.com ([209.73.178.214]:30061 "HELO
+	web60711.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261480AbVGSSFW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 14:05:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.br;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=X5Qh5/tuusaSeX6LPLhqbXn+5IttPqe1vGuR4CCK1OYcMuuXjHH6qG2T6yLtpwR83IymXwQB+DdIO7UDkAQTy/zM5RsMGkFFC4hmy39KgCL2uw1RW8nn/Z1lmP9FwenqY7ZShMQATUNb4ZFxBLiXbti6JHIuGawcDoaUZsFLONA=  ;
+Message-ID: <20050719180521.8914.qmail@web60711.mail.yahoo.com>
+Date: Tue, 19 Jul 2005 15:05:21 -0300 (ART)
+From: "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br>
+Subject: Kernel 2.6.12 and 2.6.13 hangs for a while on boot
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-Ue0Nb9VQWLRGwt0i76Mx
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-Hi All,
+Hi all,
 
- Here is a patch to the jsm driver in the Linux (drivers/serial/jsm).
-This patch takes care of (1) compiler warnings which displays the mixing
-of declarations and code (2) dynamic allocation of major device number
-instead of the static number 253 (3) the version update to reflect the
-changes in the patch.
+I'm having little hangs while booting with kernels 2.6.12 and 2.6.13-rc1, rc2
+and rc3.
 
- Please CC me your comments.  Thanks.
-Signed-off-by: V. Ananda Krishnan <mansarov-at-us-dot-ibm-dot-com>
+It is strange that 2.6.12-rc1 booted ok without hangs.
+
+I saw a post of Alan Cox on rc-1 release notes:
+
+"Old ISA/VESA systems sometimes put tertiary IDE controllers at addresses
+    0x1e8, 0x168, 0x1e0 or 0x160.  Linux thus probes these addresses on x86
+    systems.  Unfortunately some PCI systems now use these addresses for other
+    purposes which leads to users seeing minute plus hangs during boot or even
+    crashes."
+
+I thought this could be my problem, but it still hangs on boot.
+
+Hangs appears just before mounting filesystems message and before configuring
+system to use udev.
+
+I'm using Gentoo with vanilla-sources. I already asked on gentoo lists and
+nobody saw this behaviour. I tried google with no luck too. So my last resource
+which could give me some light is here.
+
+I'm using 2.6.13 on a Gateway laptop.
+
+Do you know of something about this? Have you seen this problem?
+Where could I look for more information about that in my system? I saw logs but
+they don't say anything. Also, besides this hangs on boot, system seems to work
+perfectly, but I'd like to remove this hangs from boot.
+
+For while, I'm using 2.6.11.10 which is working ok.
+
+Thanks in advance.
+
+--
+Regards,
+
+Francisco Figueiredo Jr.
 
 
 
-
-
-
---=-Ue0Nb9VQWLRGwt0i76Mx
-Content-Disposition: attachment; filename=patch_jsm_korg-2.6.12.3
-Content-Type: text/x-patch; name=patch_jsm_korg-2.6.12.3; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -Nuar linux-2.6.12.3.orig/drivers/serial/jsm/jsm_driver.c linux-2.6.12.3.new/drivers/serial/jsm/jsm_driver.c
---- linux-2.6.12.3.orig/drivers/serial/jsm/jsm_driver.c	2005-07-19 15:16:20.000000000 -0500
-+++ linux-2.6.12.3.new/drivers/serial/jsm/jsm_driver.c	2005-07-19 15:18:57.000000000 -0500
-@@ -22,6 +22,10 @@
-  * Scott H Kilau <Scott_Kilau@digi.com>
-  * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
-  *
-+ * CHANGE LOG:
-+ * Jul 18, 2005: Changed the major number changed to 0 to use the dynamic
-+ *	allocation of major number by OS.
-+ *
-  ***********************************************************************/
- #include <linux/moduleparam.h>
- #include <linux/pci.h>
-@@ -42,7 +46,7 @@
- 	.owner		= THIS_MODULE,
- 	.driver_name	= JSM_DRIVER_NAME,
- 	.dev_name	= "ttyn",
--	.major		= 253,
-+	.major		= 0,
- 	.minor		= JSM_MINOR_START,
- 	.nr		= NR_PORTS,
- };
-diff -Nuar linux-2.6.12.3.orig/drivers/serial/jsm/jsm.h linux-2.6.12.3.new/drivers/serial/jsm/jsm.h
---- linux-2.6.12.3.orig/drivers/serial/jsm/jsm.h	2005-07-19 15:16:21.000000000 -0500
-+++ linux-2.6.12.3.new/drivers/serial/jsm/jsm.h	2005-07-19 15:18:58.000000000 -0500
-@@ -22,6 +22,9 @@
-  * Scott H Kilau <Scott_Kilau@digi.com>
-  * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
-  *
-+ * CHANGE LOG:
-+ * Jul 18, 2005: Changed the JSM_VERSION to "jsm: 1.2-1-INKERNEL"
-+ *
-  ***********************************************************************/
- 
- #ifndef __JSM_DRIVER_H
-@@ -90,7 +93,7 @@
- #define WRITEBUFLEN	((4096) + 4)
- #define MYFLIPLEN	N_TTY_BUF_SIZE
- 
--#define JSM_VERSION	"jsm: 1.1-1-INKERNEL"
-+#define JSM_VERSION	"jsm: 1.2-1-INKERNEL"
- #define JSM_PARTNUM	"40002438_A-INKERNEL"
- 
- struct jsm_board;
-diff -Nuar linux-2.6.12.3.orig/drivers/serial/jsm/jsm_neo.c linux-2.6.12.3.new/drivers/serial/jsm/jsm_neo.c
---- linux-2.6.12.3.orig/drivers/serial/jsm/jsm_neo.c	2005-07-19 15:16:22.000000000 -0500
-+++ linux-2.6.12.3.new/drivers/serial/jsm/jsm_neo.c	2005-07-19 15:19:00.000000000 -0500
-@@ -22,6 +22,9 @@
-  * Scott H Kilau <Scott_Kilau@digi.com>
-  * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
-  *
-+ * CHANGE LOG:
-+ * Jul 18, 2005: separated the mixed declarations and code.
-+ *
-  ***********************************************************************/
- #include <linux/delay.h>	/* For udelay */
- #include <linux/serial_reg.h>	/* For the various UART offsets */
-@@ -48,8 +51,9 @@
- 
- static void neo_set_cts_flow_control(struct jsm_channel *ch)
- {
--	u8 ier = readb(&ch->ch_neo_uart->ier);
--	u8 efr = readb(&ch->ch_neo_uart->efr);
-+	u8 ier, efr;
-+	ier = readb(&ch->ch_neo_uart->ier);
-+	efr = readb(&ch->ch_neo_uart->efr);
- 
- 	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Setting CTSFLOW\n");
- 
-@@ -78,8 +82,9 @@
- 
- static void neo_set_rts_flow_control(struct jsm_channel *ch)
- {
--	u8 ier = readb(&ch->ch_neo_uart->ier);
--	u8 efr = readb(&ch->ch_neo_uart->efr);
-+	u8 ier, efr;
-+	ier = readb(&ch->ch_neo_uart->ier);
-+	efr = readb(&ch->ch_neo_uart->efr);
- 
- 	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Setting RTSFLOW\n");
- 
-@@ -117,8 +122,9 @@
- 
- static void neo_set_ixon_flow_control(struct jsm_channel *ch)
- {
--	u8 ier = readb(&ch->ch_neo_uart->ier);
--	u8 efr = readb(&ch->ch_neo_uart->efr);
-+	u8 ier, efr;
-+	ier = readb(&ch->ch_neo_uart->ier);
-+	efr = readb(&ch->ch_neo_uart->efr);
- 
- 	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Setting IXON FLOW\n");
- 
-@@ -153,8 +159,9 @@
- 
- static void neo_set_ixoff_flow_control(struct jsm_channel *ch)
- {
--	u8 ier = readb(&ch->ch_neo_uart->ier);
--	u8 efr = readb(&ch->ch_neo_uart->efr);
-+	u8 ier, efr;
-+	ier = readb(&ch->ch_neo_uart->ier);
-+	efr = readb(&ch->ch_neo_uart->efr);
- 
- 	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Setting IXOFF FLOW\n");
- 
-@@ -190,8 +197,9 @@
- 
- static void neo_set_no_input_flow_control(struct jsm_channel *ch)
- {
--	u8 ier = readb(&ch->ch_neo_uart->ier);
--	u8 efr = readb(&ch->ch_neo_uart->efr);
-+	u8 ier, efr;
-+	ier = readb(&ch->ch_neo_uart->ier);
-+	efr = readb(&ch->ch_neo_uart->efr);
- 
- 	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Unsetting Input FLOW\n");
- 
-@@ -228,8 +236,9 @@
- 
- static void neo_set_no_output_flow_control(struct jsm_channel *ch)
- {
--	u8 ier = readb(&ch->ch_neo_uart->ier);
--	u8 efr = readb(&ch->ch_neo_uart->efr);
-+	u8 ier, efr;
-+	ier = readb(&ch->ch_neo_uart->ier);
-+	efr = readb(&ch->ch_neo_uart->efr);
- 
- 	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Unsetting Output FLOW\n");
- 
-
---=-Ue0Nb9VQWLRGwt0i76Mx--
-
+	
+	
+		
+_______________________________________________________ 
+Yahoo! Acesso Grátis - Internet rápida e grátis. 
+Instale o discador agora! http://br.acesso.yahoo.com/

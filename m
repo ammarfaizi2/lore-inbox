@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVGSXDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVGSXTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbVGSXDy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 19:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVGSXDy
+	id S261437AbVGSXTa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 19:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVGSXTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 19:03:54 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:55633 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261412AbVGSXDx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 19:03:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Q53Ejay/gghUyasZSiTLrBvm3/V3DzufBWeeEfGPqgsCYsFUjJMhbPnsXkz8A4G+gQsDmtwJSm+BLOd28kFvilUySnUkiud76b+Sm0A9JRMVhA3tJx1xmFK11uEinqBBXyQJPYX2+AgDl6dkckcEijPJTCWYkY5dzJEk/IfQciU=
-Message-ID: <4de7f8a605071916022f019cd0@mail.gmail.com>
-Date: Wed, 20 Jul 2005 01:02:57 +0200
-From: Jan Blunck <jblunck@gmail.com>
-Reply-To: j.blunck@tu-harburg.de
-To: omb@bluewin.ch
-Subject: Re: how to be (SAFE) a kernel developer ?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42DD7644.5040304@khandalf.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5a3ed56505071807357fc419e7@mail.gmail.com>
-	 <9a87484905071818116f7cb0de@mail.gmail.com>
-	 <42DD7644.5040304@khandalf.com>
+	Tue, 19 Jul 2005 19:19:30 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:16517 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S261437AbVGSXT2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 19:19:28 -0400
+Message-Id: <200507192319.j6JNJQlE007448@zeus2.kernel.org>
+From: "Louis" <dell_peene@bonbon.net>
+To: <davem@vger.kernel.org>
+Subject: Oh, you are not able to control your feelings! 
+Date: Tue, 19 Jul 2005 19:19:54 +0000
+MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: gnMvmLq35KmCwimyXsJWqH5mraChlOhrtuh7
+Content-Type: text/plain;
+        charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/19/05, Brian O'Mahoney <omb@khandalf.com> wrote:
-> 
-> sacrifical system, and, for example NFS mount everything, on
-> it from your main box, otherwise use a cheap local disk just
-> for your fs stuff
-> 
-> then when you blow it there is no FS damage and you don't need
-> to wait for FSCK, or Journal Replay, when your fs works you
-> can live more dangerously ;-)
-> 
+Oh, you are not able to control your feelings! 
+Every day you loose the sensations of sex!  
+Forget about it and take pleasure every night! 
+I am really happy I got this nice thing on-line! 
+Trust me - it will be a great surprise for your girl!
+http://adulterate.ito-laboratory.com/et/ 
 
-Or try qemu/bochs for your laptop, Xen for your desktop and z/VM for
-your mainframe ;)
 
-Jan
+
+
+DELETE ME-yo:
+http://console.ito-laboratory.com/rm.php
+

@@ -1,94 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVGTOIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVGTOTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbVGTOIU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 10:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVGTOIU
+	id S261233AbVGTOTO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 10:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVGTOTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 10:08:20 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:33676 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261231AbVGTOIT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 10:08:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=h+KMfOYQFy6qWtzioev24DnRUOFx1V70qZoiJB2KhG+7dNlA8q2KSa3xyMTeV4lq3VKWagcp9KtPpw32bx0Ks/FLeDSnyBliq30fSVXR/f0bX1HqH2eo6jqzsUqNAhqYf08odI2np13FUBPWH1oEWgNQEGU52xbH2NfINv98aKs=
-Message-ID: <9a87484905072007075a9b0bba@mail.gmail.com>
-Date: Wed, 20 Jul 2005 16:07:45 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: eliad lubovsky <eliadl@013.net>
-Subject: Re: Linux Benchmarks
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1121866937.3251.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 20 Jul 2005 10:19:13 -0400
+Received: from apisx02.abbasiapacific.com.sg ([210.24.147.18]:5904 "EHLO
+	apisx02.abbasiapacific.com.sg") by vger.kernel.org with ESMTP
+	id S261233AbVGTOTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 10:19:12 -0400
+Sensitivity: 
+Subject: Re: Sandisk Compact Flash
+To: dhinds@sonic.net
+Cc: somshekar.c.kadam@in.abb.com, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF56551899.13BEFC21-ON65257044.00280854-65257044.00282849@abbasiapacific.com.sg>
+From: somshekar.c.kadam@in.abb.com
+Date: Wed, 20 Jul 2005 12:48:59 +0530
+X-MIMETrack: Serialize by Router on ABB_APEXTERNAL_WWW01/APEXTERNAL(Release 5.0.12  |February
+ 13, 2003) at 07/20/2005 10:19:29 PM
+MIME-Version: 1.0
+Content-type: multipart/mixed; 
+	Boundary="0__=EABBFAD7DFBB8EC48f9e8a93df938690918cEABBFAD7DFBB8EC4"
 Content-Disposition: inline
-References: <1121866937.3251.5.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/20/05, eliad lubovsky <eliadl@013.net> wrote:
-> Where can I find common Linux benchmarks? I added some changes to system
-> calls and want to check whether it cause any performance degradation.
-> Thanks,
-> 
-You could go search Google - http://google.com/ 
-You could go search Freshmeat - http://freshmeat.net/ 
-You could go search almost any Linux software archive...
-
-Luckily for you I'm a bit bored and have 2min to spare, so I'll list a
-few for you, but in the future, please try finding them yourself
-first...
-
-aiostress
-  ftp://ftp.suse.com/pub/people/mason/utils/aio-stress.c
-
-bonnie
-  http://www.garloff.de/kurt/linux/bonnie/
-
-clyde
-  http://tdec.free.fr/clyde/clyde.en.html
-
-contest
-  http://contest.kolivas.org/
-  
-dbench
-  http://samba.org/ftp/tridge/dbench/
-
-interbench
-  http://interbench.kolivas.org/
-
-iozone
-  http://www.iozone.org/
-
-lmbench
-  http://www.bitmover.com/lmbench/
-
-nbench
-  http://www.tux.org/~mayer/linux/bmark.html
-
-netperf
-  http://www.netperf.org/
-
-re-aim
-  http://sourceforge.net/projects/re-aim-7
-
-sysbench
-  http://sysbench.sourceforge.net/
-
-tbench
-  http://gnunet.org/doxygen/html/dir_000026.html
-
-volanomark
-  http://www.volano.com/benchmarks.html
+--0__=EABBFAD7DFBB8EC48f9e8a93df938690918cEABBFAD7DFBB8EC4
+Content-type: text/plain; charset=us-ascii
 
 
-And there's plenty more to be found out there on the 'net if need be...
+
+Hi David ,
+
+    On my controller CF INPACK pin is connected to 3.3v.  so Comapct flash
+with DMA capabilty will not be supported , i understood this .
+but i did not undesrtand why only PIO mode 1 is supported is it , why not
+PIO mode 4 , is it a limitation of pcmcia driver , correct me if i am wrong
+
+Thanks In Advance
+Somshekar
 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+                                                                                                     
+ (Embedded     David Hinds <dhinds@sonic.net>                                                        
+ image moved   07/15/2005 10:51 AM                                                                   
+ to file:                                                                                            
+ pic05705.pcx)                                                                                       
+                                                                                                     
+                                                                                                     
+
+
+
+To:    somshekar.c.kadam@in.abb.com
+cc:    linux-kernel@vger.kernel.org
+Subject:    Re: Sandisk Compact Flash
+
+Security Level:?              Internal
+
+On Wed, Jul 13, 2005 at 07:04:38PM +0530, somshekar.c.kadam@in.abb.com
+wrote:
+>
+> I ma newbie to compactflash driver , I am using mpc862 PPC processor
+> on my custom board having 64mb ram running linuxppc-2.4.18 kernel .
+> i am using Sandisk Extreme CF 1GB which is 133x high speed, but
+> found the performance with other kingston 1GB CF with slower speed ,
+> is both same , CF is implemented on pcmcia port , i am not sure what
+> is the mode set for transfer , Feature set command is used in which
+> it sets the PIO mode or Multiword DMA transfer mode by specifying
+> its value in Sector count register , i am not able to understand in
+> linux kernel ide driver where this is set , is it by default set ,
+> this mode is set or we need to set it , i think we should assign
+> this value , right now i am not able to trace this in my code.  ,
+
+All Compact Flash cards, in 16-bit PCMCIA card readers, operate in PIO
+mode 1 (polled IO, no DMA), which means you will get only about 1
+MB/sec regardless of the card's claimed tranfer speed.  Some cameras
+also only support this mode; others will run CF cars in "TrueIDE"
+mode, which is required to use the DMA transfer modes.
+
+There are high performance CF card readers that can use TrueIDE mode:
+both CardBus ones and Firewire ones.  For example:
+
+http://www.dpreview.com/news/0310/03102103delkincardbustest.asp
+
+It sounds like your card reader is one of the slow 16-bit ones.
+
+-- Dave
+
+
+
+
+
+--0__=EABBFAD7DFBB8EC48f9e8a93df938690918cEABBFAD7DFBB8EC4
+Content-type: application/octet-stream; 
+	name="pic05705.pcx"
+Content-Disposition: attachment; filename="pic05705.pcx"
+Content-transfer-encoding: base64
+
+CgUBCAAAAABBADEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAABQgABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAA=
+
+--0__=EABBFAD7DFBB8EC48f9e8a93df938690918cEABBFAD7DFBB8EC4--
+

@@ -1,44 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVGTUq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVGTVDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVGTUq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 16:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVGTUq2
+	id S261503AbVGTVDk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 17:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVGTVDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 16:46:28 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:9122 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261500AbVGTUqI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 16:46:08 -0400
-Date: Wed, 20 Jul 2005 22:45:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Stuart_Hayes@Dell.com
-Cc: ak@suse.de, riel@redhat.com, andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: page allocation/attributes question (i386/x86_64 specific)
-Message-ID: <20050720204556.GB8665@elte.hu>
-References: <B1939BC11A23AE47A0DBE89A37CB26B40743C7@ausx3mps305.aus.amer.dell.com>
+	Wed, 20 Jul 2005 17:03:40 -0400
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:48645 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S261503AbVGTVDj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 17:03:39 -0400
+Date: Wed, 20 Jul 2005 23:03:50 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>
+Subject: Re: [PATCH 2.6] I2C: Separate non-i2c hwmon drivers from i2c-core
+ (1/9)
+Message-Id: <20050720230350.6ba51474.khali@linux-fr.org>
+In-Reply-To: <20050720042622.GC26552@kroah.com>
+References: <20050719233902.40282559.khali@linux-fr.org>
+	<20050719234540.78a3f8ea.khali@linux-fr.org>
+	<20050720042622.GC26552@kroah.com>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B1939BC11A23AE47A0DBE89A37CB26B40743C7@ausx3mps305.aus.amer.dell.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Greg,
 
-* Stuart_Hayes@Dell.com <Stuart_Hayes@Dell.com> wrote:
+> > +/* Next four are needed by i2c-isa */
+> > +EXPORT_SYMBOL(i2c_adapter_dev_release);
+> > +EXPORT_SYMBOL(i2c_adapter_driver);
+> > +EXPORT_SYMBOL(i2c_adapter_class);
+> > +EXPORT_SYMBOL(i2c_bus_type);
+> 
+> EXPORT_SYMBOL_GPL() instead?  As these were, core, GPL only symbols
+> before you exported them.
 
-> Oh, sorry, we're talking about two different patches.  I sent in a 
-> different patch yesterday, because Andi Kleen didn't seem very 
-> enthusiastic about fixnx2.patch.  Here's the patch that I sent 
-> yesterday (attached as file init.c.patch).
+Sure, no problem. I would even use EXPORT_SYMBOL_I2C_ISA_ONLY() if it
+happened to exist ;)
 
-ah - ok - this patch indeed should solve it.
+Updated patch follows, thanks.
 
-	Ingo
+Temporarily export a few structures and functions from i2c-core, because we
+will soon need them in i2c-isa.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+
+ drivers/i2c/i2c-core.c |   14 ++++++++++----
+ include/linux/i2c.h    |    7 +++++++
+ 2 files changed, 17 insertions(+), 4 deletions(-)
+
+--- linux-2.6.13-rc3.orig/drivers/i2c/i2c-core.c	2005-07-17 20:15:52.000000000 +0200
++++ linux-2.6.13-rc3/drivers/i2c/i2c-core.c	2005-07-20 18:19:46.000000000 +0200
+@@ -61,7 +61,7 @@
+ 	return rc;
+ }
+ 
+-static struct bus_type i2c_bus_type = {
++struct bus_type i2c_bus_type = {
+ 	.name =		"i2c",
+ 	.match =	i2c_device_match,
+ 	.suspend =      i2c_bus_suspend,
+@@ -78,13 +78,13 @@
+ 	return 0;
+ }
+ 
+-static void i2c_adapter_dev_release(struct device *dev)
++void i2c_adapter_dev_release(struct device *dev)
+ {
+ 	struct i2c_adapter *adap = dev_to_i2c_adapter(dev);
+ 	complete(&adap->dev_released);
+ }
+ 
+-static struct device_driver i2c_adapter_driver = {
++struct device_driver i2c_adapter_driver = {
+ 	.name =	"i2c_adapter",
+ 	.bus = &i2c_bus_type,
+ 	.probe = i2c_device_probe,
+@@ -97,7 +97,7 @@
+ 	complete(&adap->class_dev_released);
+ }
+ 
+-static struct class i2c_adapter_class = {
++struct class i2c_adapter_class = {
+ 	.name =		"i2c-adapter",
+ 	.release =	&i2c_adapter_class_dev_release,
+ };
+@@ -1171,6 +1171,12 @@
+ }
+ 
+ 
++/* Next four are needed by i2c-isa */
++EXPORT_SYMBOL_GPL(i2c_adapter_dev_release);
++EXPORT_SYMBOL_GPL(i2c_adapter_driver);
++EXPORT_SYMBOL_GPL(i2c_adapter_class);
++EXPORT_SYMBOL_GPL(i2c_bus_type);
++
+ EXPORT_SYMBOL(i2c_add_adapter);
+ EXPORT_SYMBOL(i2c_del_adapter);
+ EXPORT_SYMBOL(i2c_add_driver);
+--- linux-2.6.13-rc3.orig/include/linux/i2c.h	2005-07-17 20:15:52.000000000 +0200
++++ linux-2.6.13-rc3/include/linux/i2c.h	2005-07-20 18:19:01.000000000 +0200
+@@ -34,6 +34,13 @@
+ #include <linux/device.h>	/* for struct device */
+ #include <asm/semaphore.h>
+ 
++/* --- For i2c-isa ---------------------------------------------------- */
++
++extern void i2c_adapter_dev_release(struct device *dev);
++extern struct device_driver i2c_adapter_driver;
++extern struct class i2c_adapter_class;
++extern struct bus_type i2c_bus_type;
++
+ /* --- General options ------------------------------------------------	*/
+ 
+ struct i2c_msg;
+
+
+-- 
+Jean Delvare

@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVGTTYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVGTT0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVGTTYv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 15:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVGTTYv
+	id S261448AbVGTT0n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 15:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVGTT0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 15:24:51 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:61297 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S261493AbVGTTYu convert rfc822-to-8bit (ORCPT
+	Wed, 20 Jul 2005 15:26:43 -0400
+Received: from pcp0011457276pcs.chrchv01.md.comcast.net ([69.250.122.81]:55229
+	"EHLO mail.jettisonnetworks.com") by vger.kernel.org with ESMTP
+	id S261448AbVGTT0i convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 15:24:50 -0400
-X-IronPort-AV: i="3.94,212,1118034000"; 
-   d="scan'208"; a="269371968:sNHT25046430"
-Content-class: urn:content-classes:message
+	Wed, 20 Jul 2005 15:26:38 -0400
+Message-Id: <200507201926.j6KJQW6L021545@mail.jettisonnetworks.com>
+From: "David Lewis" <dlewis@vnxsolutions.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: IDE PIIX vs libata piix with software raid
+Date: Wed, 20 Jul 2005 15:26:26 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: page allocation/attributes question (i386/x86_64 specific)
-Date: Wed, 20 Jul 2005 14:24:48 -0500
-Message-ID: <B1939BC11A23AE47A0DBE89A37CB26B40743CA@ausx3mps305.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: page allocation/attributes question (i386/x86_64 specific)
-Thread-Index: AcWNO9iN8MVFGj2fQoWn26mYUughoAAAA9cAAAkSqDA=
-From: <Stuart_Hayes@Dell.com>
-To: <mingo@elte.hu>
-Cc: <ak@suse.de>, <riel@redhat.com>, <andrea@suse.de>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Jul 2005 19:24:49.0781 (UTC) FILETIME=[B24EC250:01C58D60]
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Thread-Index: AcWNYOuxU3cGr1aYSBCFI+RRhwr8DQ==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hayes, Stuart wrote:
-> Ingo Molnar wrote:
->> * Stuart_Hayes@Dell.com <Stuart_Hayes@Dell.com> wrote:
->> 
->>> Ingo Molnar wrote:
->>>> there's one problem with the patch: it breaks things that need the
->>>> low 1MB executable (e.g. APM bios32 calls). It would at a minimum
->>>> be needed to exclude the BIOS area in 0xd0000-0xfffff.
->>>> 
->>>> 	Ingo
->>> 
->>> I wrote it to make everything below 1MB executable, if it isn't RAM
->>> according to the e820 map, which should include the BIOS area.  This
->>> includes 0xd0000-0xffff on my system.  Do you think I should
->>> explicity make 0xd0000-0xfffff executable regardless of the e820
->>> map? 
->> 
->> hm ... which portion does this? I'm looking at fixnx2.patch. I
->> definitely saw a APM bootup crash due to this, but that was on a
->> 2.4-ish backport of the patch.
->> 
->> 	Ingo
-> 
-> Oh, sorry, we're talking about two different patches.  I sent in a
-> different patch yesterday, because Andi Kleen didn't seem very
-> enthusiastic about fixnx2.patch.  Here's the patch that I sent
-> yesterday (attached as file init.c.patch).   
-> 
-> Thanks
-> Stuart
+Greetings,
 
-Although... if you like the fixnx2.patch better, I can modify it.  I'm
-ok with either approach.
+I am developing a system using the Intel SE7520BD2 motherboard. It has an
+ICH5 with two SATA ports and one PATA channel. I am able to drive the PATA
+channel with either the normal PIIX IDE driver or the libata driver which I
+am using for the SATA ports. Ultimately all 4 ports will be in use with the
+md driver creating a stripe volume (RAID0) that spans a partition on each of
+the 4 drives (not for boot).
 
-Stuart
+My question is, what is the recommended driver to use for the PATA channel?
+Is it better to let libata support both types of drives, or use the IDE
+driver for the PATA? Searching I have found that the support is there in
+libata for the PATA channel (and I have it working on the system), but I
+can't find a clear recommendation on which driver is considered 'better' in
+this situation.
+
+Thanks!
+
+David Lewis 
+VNX Solutions, Inc
+dlewis@vnxsolutions.com
+703-286-6529 Main
+703-637-1090 FAX
+410-569-4025 Direct FAX
+410-459-7428 Cell
+ 
+
+
+

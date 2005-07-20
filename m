@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVGTRlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVGTRmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbVGTRlK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 13:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVGTRlJ
+	id S261426AbVGTRmR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 13:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVGTRmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 13:41:09 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:15551 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261414AbVGTRlI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 13:41:08 -0400
-Subject: Re: [new] kernel-desktop 2.6.12-1.1398_FC4.desktop_1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jean-Eric Cuendet <jec@rptec.ch>
-Cc: fedora-list@redhat.com, freshrpms-list@freshrpms.net,
-       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
-       David Goetschmann <dgo@rptec.ch>, jmsunseri@gmail.com, bcs@metacon.ca,
-       ling@caltech.edu, posti@tomihalonen.com, killers_soul@hotmail.com,
-       bhb@iceburg.net, mike.savage@gmail.com
-In-Reply-To: <42DE6DBD.2030902@rptec.ch>
-References: <42DE6DBD.2030902@rptec.ch>
-Content-Type: text/plain
-Date: Wed, 20 Jul 2005 13:41:06 -0400
-Message-Id: <1121881266.23806.34.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Jul 2005 13:42:17 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:20438 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261426AbVGTRls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 13:41:48 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: kernel guide to space
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, linux@horizon.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Wed, 20 Jul 2005 19:42:45 +0200
+References: <4q0yr-4YQ-3@gated-at.bofh.it> <4sdKS-7Ko-9@gated-at.bofh.it> <4shEU-25p-5@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DvIak-0006Fa-Au@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-20 at 17:29 +0200, Jean-Eric Cuendet wrote:
-> Hi,
-> I just released a new version of kernel-desktop. New features are:
+Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
-> - Realtime LSM module (Useful for jack audio server)
+>> 3)  If a normal line of code is more than 80 characters, one of the
+>> following is probably true: you need to break the line up and use temps
+>> for clarity, or your function is so big that you're tabbing over too
+>> far.
+> 
+> (Find source files, expand tab chars to their on-screen length, print if
+>>= 80, count lines)
+> 
+> ~/linux-2.6.12 >
+>   find . -type f "(" -iname "*.c" -o -iname "*.h" -o -iname "*.S" ")"
 
-2.6.12 supports RLIMIT_RTPRIO and RLIMIT_NICE so this is no longer
-needed.
+... -exec expand -t 8 '{}' \; | egrep '^.{80}' | wc -l
 
-The distros need to get with the program, AFAIK none of them have even
-released updated pam, bash, and glibc packages to support the new
-rlimits yet.
+ 233941
 
-Lee
-
+You didn't take \t[^\t]\t into account.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

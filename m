@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVGTGRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVGTGSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVGTGRl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 02:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVGTGRk
+	id S261218AbVGTGSk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 02:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVGTGSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 02:17:40 -0400
-Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:10117 "HELO
-	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261161AbVGTGRk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 02:17:40 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Stephen Evanchik <evanchsa@gmail.com>
-Subject: Re: Synaptics and TrackPoint problems in 2.6.12
-Date: Wed, 20 Jul 2005 01:17:33 -0500
+	Wed, 20 Jul 2005 02:18:39 -0400
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:53950 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261190AbVGTGS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 02:18:27 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Interbench v0.22 - Interactivity benchmark
+Date: Wed, 20 Jul 2005 16:20:59 +1000
 User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <a71293c2050719204047bd2afe@mail.gmail.com>
-In-Reply-To: <a71293c2050719204047bd2afe@mail.gmail.com>
+Cc: ck@vds.kolivas.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200507200117.33852.dtor_core@ameritech.net>
+Message-Id: <200507201620.59346.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 July 2005 22:40, Stephen Evanchik wrote:
-> Dimitry,
-> 
-> I have been receiving a lot of complaints that TrackPoints on
-> Synaptics pass-thru ports stopped working with 2.6.12. I retested
-> 2.6.9 and 2.6.11-rc3 successfully, I believe 2.6.11.7 may also work
-> but that is unconfirmed at this point.
-> 
-> The behavior is always the same .. after sending the read secondary ID
-> command, the TrackPoint seems to be disabled from that point forward.
-> 
-> Any ideas?
-> 
+Interbench is a benchmarking application designed to emulate the CPU 
+scheduling behavior of interactive tasks and measure their scheduling latency 
+and jitter. It does this first with the tasks on their own and then in the 
+presence of various background loads.
 
-Not really... You know, I am reviewing the 2.6.12 patch and don't really
-see anything that might have caused the problem you are describing. I know
-that not all devices on pass-through ports are broken since I have one
-(not TrackPoint, just a simple eraser head pointer) and I make sure it
-works ;)
+Homepage:
+http://interbench.kolivas.org/
+Tar/BZ2:
+http://ck.kolivas.org/apps/interbench/interbench-0.22.tar.bz2
 
-When you are talking about reading secondary ID, are you talking about
-TP_READ_ID or something else?
+Changes since v0.21:
+Real time processes were converted to also do mlockall().
+2.4 kernel support was added thanks to Miguel Freitas.
+Some overflow accounting bugs were fixed.
 
-Are you experiencing the breakage yourself? It might be interesting to
-see the log with i8042 debugging turned on.
-
--- 
-Dmitry
+Cheers,
+Con

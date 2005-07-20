@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVGTUdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVGTUox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVGTUdT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 16:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVGTUdT
+	id S261494AbVGTUox (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 16:44:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVGTUox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 16:33:19 -0400
-Received: from mail4.zigzag.pl ([217.11.136.106]:37004 "HELO mail4.zigzag.pl")
-	by vger.kernel.org with SMTP id S261502AbVGTUdS (ORCPT
+	Wed, 20 Jul 2005 16:44:53 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:30870 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261494AbVGTUow (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 16:33:18 -0400
-Date: Wed, 20 Jul 2005 22:33:16 +0200
-From: Lukasz Spaleniak <lspaleniak@wroc.zigzag.pl>
-X-Mailer: The Bat! (v3.0.1.33) Professional
-Reply-To: Lukasz Spaleniak <lspaleniak@wroc.zigzag.pl>
-Organization: Internet Group SA
-X-Priority: 3 (Normal)
-Message-ID: <273347727.20050720223316@wroc.zigzag.pl>
-To: Willy Tarreau <willy@w.ods.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re[2]: kernel oops, fast ethernet bridge, 2.4.31
-In-Reply-To: <20050720194457.GR8907@alpha.home.local>
-References: <20050720170025.1264b68a.lspaleniak@wroc.zigzag.pl>
- <20050720194457.GR8907@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 20 Jul 2005 16:44:52 -0400
+Subject: Re: [RFC][PATCH - 1/12] NTP cleanup: Move NTP code into ntp.c
+From: john stultz <johnstul@us.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050718114226.GC1869@elf.ucw.cz>
+References: <1121482517.25236.29.camel@cog.beaverton.ibm.com>
+	 <1121482620.25236.31.camel@cog.beaverton.ibm.com>
+	 <20050718114226.GC1869@elf.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 20 Jul 2005 13:44:46 -0700
+Message-Id: <1121892287.2931.1.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-X-BitDefender-Scanner: Clean, Agent: BitDefender Qmail 1.6.2 on
- mail4.zigzag.pl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, July 20, 2005, 9:44:57 PM, Willy Tarreau wrote:
+On Mon, 2005-07-18 at 13:42 +0200, Pavel Machek wrote:
+> Hi!
+> > Any comments or feedback would be greatly appreciated.
+> > +#ifdef CONFIG_TIME_INTERPOLATION
+> > +void time_interpolator_update(long delta_nsec);
+> > +#else
+> > +#define time_interpolator_update(x)
+> 
+> do {} while (0) is safer...
 
-> Hello,
-Hello Willy,
+Applied. 
 
-> just some basic questions :
->   - did your configuration change before the oopses started ? (eg: new
->     matches, etc...)
-One new machine appears but it generates small traffic rate (by now
-it's almost unused).
+> > +	result = time_state;       /* mostly `TIME_OK' */
+> > +
+> > +	/* Save for later - semantics of adjtime is to return old value */
+> > +	save_adjust = time_next_adjust ? time_next_adjust : time_adjust;
+> > +
+> > +#if 0	/* STA_CLOCKERR is never set yet */
+> > +	time_status &= ~STA_CLOCKERR;		/* reset STA_CLOCKERR */
+> > +#endif
+> 
+> Please remove deleted code completely.
 
->   - did the traffic change recently (protocols, data rate) ? eg: new
->     applications on the network, etc...
-No - firewall is bridging IPv4 only. There was no dramatic topology
-change. Those VLANs which are going through this firewall were
-untouched.
-
->   - is it possible that it's being targetted by an attack where it is
->     installed (unfiltered internet, holiday employees who like to play
->     with the network, etc...) ?
-I don't think so that managed IP of firewall was targetet, maybe
-machines behid firewall but problem appears on eth2 interface which
-is:
-internet <-trunk-> eth1(firewall/iptables)eth2<-trunk->(switch
-ports) <-> servers
-So it's after iptables ...
-
-> I really find it strange that it suddenly started oopsing if nothing
-> changed. At least it should have been oopsing from day one.
-It is strange to me too. There is no dependency when it happens.
-Sometimes traffic is small, sometimes it's normal. Packet rates are
-around ~2000-3000 pkt/sec - so not so high.
+Done in a later patch, but good point, I'll kill it in the first one. 
 
 
-Regards,
-Lukasz
-
--- 
-lspaleniak on wroc zigzag pl
-GCM dpu s: a--- C++ UL++++ P+ L+++ E--- W+ N+ K- w O- M V-
-PGP t--- 5 X+ R- tv-- b DI- D- G e-- h! r y+
+Thanks for the review and feedback! 
+-john
 
 

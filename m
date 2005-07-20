@@ -1,122 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVGTOeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVGTOhB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVGTOeY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 10:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVGTOeY
+	id S261241AbVGTOhB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 10:37:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVGTOhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 10:34:24 -0400
-Received: from gate.corvil.net ([213.94.219.177]:46085 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S261240AbVGTOeV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 10:34:21 -0400
-Message-ID: <42DE60D8.2070101@draigBrady.com>
-Date: Wed, 20 Jul 2005 15:34:00 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mauricio Lin <mauriciolin@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: How do you accurately determine a process' RAM usage?
-References: <42CC2923.2030709@draigBrady.com>	 <20050706181623.3729d208.akpm@osdl.org>	 <42CCE737.70802@draigBrady.com>	 <20050707014005.338ea657.akpm@osdl.org>	 <42D39102.5010503@draigBrady.com> <3f250c7105071913091c5b2858@mail.gmail.com>
-In-Reply-To: <3f250c7105071913091c5b2858@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 20 Jul 2005 10:37:00 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:37304 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261241AbVGTOg5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 10:36:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fjo33AoZo5EBpA9DdpFXmtJE3nz/MpMJtKeZb3zfdCxMF+L2GUEns81/M8Ov/rXW8WjuNJSunGtVRkvK4YfAQStglROcs0dpxdxNv0E9oadaK9Wg3nUdVyPBElC37qlCH/z9x5WfUwXCcq+Gq1im+e3r2zQ5a3wdcTK8bWBHkbA=
+Message-ID: <9a874849050720073665b87c50@mail.gmail.com>
+Date: Wed, 20 Jul 2005 16:36:25 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: eliad lubovsky <eliadl@013.net>
+Subject: Re: Linux Benchmarks
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9a87484905072007075a9b0bba@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1121866937.3251.5.camel@localhost.localdomain>
+	 <9a87484905072007075a9b0bba@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mauricio Lin wrote:
-> Hi,
+On 7/20/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 7/20/05, eliad lubovsky <eliadl@013.net> wrote:
+> > Where can I find common Linux benchmarks? I added some changes to system
+> > calls and want to check whether it cause any performance degradation.
+> > Thanks,
+> >
+> You could go search Google - http://google.com/
+> You could go search Freshmeat - http://freshmeat.net/
+> You could go search almost any Linux software archive...
 > 
-> On 7/12/05, P@draigbrady.com <P@draigbrady.com> wrote:
+> Luckily for you I'm a bit bored and have 2min to spare, so I'll list a
+> few for you, but in the future, please try finding them yourself
+> first...
 > 
->>Andrew Morton wrote:
->>
->>>OK, please let us know how it goes.
->>
->>It went very well. I could find no problems at all.
->>I've updated my script to use the new method, so please merge smaps :)
->>http://www.pixelbeat.org/scripts/ps_mem.py
->>
->>Usually the shared mem reported by /proc/$$/statm
->>is the same as summing all the shared values in in /proc/$$/smaps
->>but there can be large discrepancies.
+> aiostress
+>   ftp://ftp.suse.com/pub/people/mason/utils/aio-stress.c
 > 
+> bonnie
+>   http://www.garloff.de/kurt/linux/bonnie/
 > 
-> Have you checked how the statm shared is calculated? I guess it does
-> something like:
-> shared = mm->rss - mm->anon_rss
-
-yes
-
-> But in smaps output you can have anonymous area like:
+> clyde
+>   http://tdec.free.fr/clyde/clyde.en.html
 > 
-> b6e0e000-b6e13000 rw-p
-> Size:                20 KB
-> Rss:                  4 KB
-> Shared_Clean:         0 KB
-> Shared_Dirty:         4 KB
-> Private_Clean:        0 KB
-> Private_Dirty:        0 KB
+> contest
+>   http://contest.kolivas.org/
 > 
-> Look that it presents 4 KB of shared value in area considered anonymous.
+> dbench
+>   http://samba.org/ftp/tridge/dbench/
 > 
-> ANDREW: anon_rss is the rss for anonymous area, right?
-
-I see your point and I'm not sure.
-The following shell gets the shared values for the
-first httpd process:
-
-FIRST_HTTPD=`ps -C httpd -o pid= | head -1 | tr -d ' '`
-HTTPD_STATM_SHARED=$(expr 4 '*' `cut -f3 -d' ' /proc/$FIRST_HTTPD/statm`)
-HTTPD_SMAPS_SHARED=$(grep Shared /proc/$FIRST_HTTPD/smaps | tr -s ' ' 
-| cut -f2 -d' ' | ( tr '\n' +; echo 0 ) | bc)
- 
-
-This shows that "smaps" reports 3060 KB more shared mem than "statm".
-However adding up all the anon sections in smaps only gives 2456 KB?
-
-When doing this I also noticed that there are duplicate
-entries in smaps. Any ideas why?
-
-grep -F - /proc/$FIRST_HTTPD/smaps | sort | uniq -d -c
-
-       2 b7f7d000-b7f7e000 r-xp 00000000 03:05 246646 
-/usr/lib/httpd/modules/mod_auth_anon.so
-       2 b7f7e000-b7f7f000 rwxp 00000000 03:05 246646 
-/usr/lib/httpd/modules/mod_auth_anon.so
-       2 b7f7f000-b7f81000 r-xp 00000000 03:05 246645 
-/usr/lib/httpd/modules/mod_auth.so
-       2 b7f81000-b7f82000 rwxp 00001000 03:05 246645 
-/usr/lib/httpd/modules/mod_auth.so
-       2 b7f82000-b7f84000 r-xp 00000000 03:05 246641 
-/usr/lib/httpd/modules/mod_access.so
-       2 b7f84000-b7f85000 rwxp 00001000 03:05 246641 
-/usr/lib/httpd/modules/mod_access.so
-       2 b7f85000-b7f9a000 r-xp 00000000 03:05 361234     /lib/ld-2.3.3.so
-       2 b7f9a000-b7f9b000 r-xp 00014000 03:05 361234     /lib/ld-2.3.3.so
-       2 b7f9b000-b7f9c000 rwxp 00015000 03:05 361234     /lib/ld-2.3.3.so
-       2 bfb85000-bfb9a000 rw-p bfb85000 00:00 0          [stack]
-       2 ffffe000-fffff000 ---p 00000000 00:00 0          [vdso]
-
-If you factor that in, it means that smaps will report 156 KB
-too much shared mem in this example.
-
->>In the real world you can see this with a newly started apache.
->>On my system statm reported that apache was using 35MB,
->>whereas smaps reported the correct amount of 11MB.
+> interbench
+>   http://interbench.kolivas.org/
+> 
+> iozone
+>   http://www.iozone.org/
+> 
+> lmbench
+>   http://www.bitmover.com/lmbench/
+> 
+> nbench
+>   http://www.tux.org/~mayer/linux/bmark.html
+> 
+> netperf
+>   http://www.netperf.org/
+> 
+> re-aim
+>   http://sourceforge.net/projects/re-aim-7
+> 
+> sysbench
+>   http://sysbench.sourceforge.net/
+> 
+> tbench
+>   http://gnunet.org/doxygen/html/dir_000026.html
+> 
+> volanomark
+>   http://www.volano.com/benchmarks.html
 > 
 > 
-> How dou you know that 11MB is the correct shared value  and the 35MB
-> is the wrong value?
 
-Well I'm quite sure that COW pages ar not accounted for
-in the statm shared value, which can be easily seen with
-my previously posted test program. Also putting the machine
-into swap, and then using httpd again causes the value reported
-to be very close to 11MB (i.e. the unused pages are not swapped
-back in).
+For the bennefit of people searching the archives, I guss I might as
+well list a few more now that I'm at it :
+
+bonnie++
+  http://www.coker.com.au/bonnie%2B%2B/
+
+cpuburn
+  http://pages.sbcglobal.net/redelm/
+
+glxgears 
+  http://www.xfree86.org/4.4.0/glxgears.1.html
+
+hdparm (hdparm -tT /dev/drive_to_test)
+  http://sourceforge.net/projects/hdparm/
+  http://www.die.net/doc/linux/man/man8/hdparm.8.html
+
+iometer
+  http://www.iometer.org/
+
+jmeter
+  http://jakarta.apache.org/jmeter/index.html
+
+kernprof
+  http://oss.sgi.com/projects/kernprof/
+
+llcbench
+  http://icl.cs.utk.edu/projects/llcbench/index.html
+
+lockmeter
+  http://oss.sgi.com/projects/lockmeter/
+
+openssl (openssl -speed)
+  http://www.openssl.org/docs/apps/speed.html
+
+siege
+  http://www.joedog.org/siege/
+
+spec
+  http://www.spec.org/
+
+specviewperf
+  http://www.spec.org/gpc/opc.static/viewperf71info.html
+
+stream
+  http://www.cs.virginia.edu/stream/
+
+stress
+  http://weather.ou.edu/~apw/projects/stress/
+
+testvidinfo (test program part of the SDL library source, contains a
+-benchmark mode)
+  http://www.libsdl.org/
+
+vmregress
+  http://www.skynet.ie/~mel/projects/vmregress/
+
+
+And while not really a benchmark tool, the Linux Test Project's test
+suite may also be good to use to test for regressions :
+http://ltp.sourceforge.net/
+StressLinux (http://www.stresslinux.org/) may also be of interrest.
+
 
 -- 
-Pádraig Brady - http://www.pixelbeat.org
---
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

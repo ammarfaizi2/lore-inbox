@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVGTS5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVGTTBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbVGTS5E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 14:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVGTS5E
+	id S261163AbVGTTBj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 15:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVGTTBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 14:57:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31135 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261476AbVGTSzV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 14:55:21 -0400
-Message-ID: <42DE9D80.3070905@redhat.com>
-Date: Wed, 20 Jul 2005 14:52:48 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
+	Wed, 20 Jul 2005 15:01:39 -0400
+Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:24070 "EHLO
+	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
+	id S261163AbVGTTBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 15:01:38 -0400
+Message-ID: <42DEA00C.7010407@tu-harburg.de>
+Date: Wed, 20 Jul 2005 21:03:40 +0200
+From: Jan Blunck <j.blunck@tu-harburg.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jan Blunck <j.blunck@tu-harburg.de>
-CC: Chris Wedgwood <cw@f00f.org>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ramfs: pretend dirent sizes
-References: <42D72705.8010306@tu-harburg.de> <Pine.LNX.4.58.0507151151360.19183@g5.osdl.org> <20050716003952.GA30019@taniwha.stupidest.org> <42DCC7AA.2020506@tu-harburg.de> <20050719161623.GA11771@taniwha.stupidest.org> <42DD44E2.3000605@tu-harburg.de> <20050719183206.GA23253@taniwha.stupidest.org> <42DD50FC.9090004@tu-harburg.de> <20050719191648.GA24444@taniwha.stupidest.org> <20050720112127.GC3890@wohnheim.fh-wedel.de> <20050720181101.GB11609@taniwha.stupidest.org> <42DE9C71.7090903@tu-harburg.de>
-In-Reply-To: <42DE9C71.7090903@tu-harburg.de>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       joern@wohnheim.fh-wedel.de
+Subject: Re: [PATCH] generic_file_sendpage
+References: <42D79468.3050808@tu-harburg.de> <20050715040611.05907f4a.akpm@osdl.org> <Pine.LNX.4.58.0507150848500.19183@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0507150848500.19183@g5.osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Blunck wrote:
+Linus Torvalds wrote:
+> 
+> "sendfile()" in general I think has been a mistake. It's too specialized,
+> and the interface has always sucked.
 
->
-> I don't want to tell where these are in general, I need an easy way to 
-> seek to the m'th directory + offset position without reading every 
-> single dirent. With i_sizes != 0 it is straight forward to use "the 
-> sum of the m directory's i_sizes + offset" as the f_pos to seek to. 
-> For this purpose it is not necessary to have a "honest" i_size as long 
-> as the i_size is bigger than the offset of the last dirent in the 
-> directory.
->
+Ok, you're right. I will have a look at the pipe buffer stuff.
 
-You are not going to get this functionality.  It is simply not how 
-directories
-work nowadays.  Very few file systems are going to be usable if you insist
-upon this semantic.  It is simply not possible to guess, with variable sized
-entries and with distributed directory structures.
+> As Andrew pointed out, it actually
+> needs to limit the number of buffers in flight partly because otherwise 
+> you have uninterruptible kernel work etc etc.
 
-       ps
+Hmm, sendfile() uses do_generic_mapping_read() which is calling the 
+file_send_actor() per page. The actor calls ->sendpage(). I don't see 
+any situation how this could lead to uninterruptible kernel work when 
+the sendpage() itself is checking for signals. There are only 2 pages in 
+flight in this case.
+
+Jan

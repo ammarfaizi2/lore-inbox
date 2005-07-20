@@ -1,78 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVGTPqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVGTPsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbVGTPqG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 11:46:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVGTPqG
+	id S261151AbVGTPsk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 11:48:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVGTPsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 11:46:06 -0400
-Received: from mivlgu.ru ([81.18.140.87]:59842 "EHLO master.mivlgu.local")
-	by vger.kernel.org with ESMTP id S261392AbVGTPqF (ORCPT
+	Wed, 20 Jul 2005 11:48:40 -0400
+Received: from gate.corvil.net ([213.94.219.177]:5638 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S261151AbVGTPsj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 11:46:05 -0400
-Date: Wed, 20 Jul 2005 19:46:04 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: dtor_core@ameritech.net
-Cc: Stephen Evanchik <evanchsa@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Synaptics and TrackPoint problems in 2.6.12
-Message-ID: <20050720154604.GA20656@master.mivlgu.local>
-References: <a71293c2050719204047bd2afe@mail.gmail.com> <20050720183420.282f72f4.vsu@altlinux.ru> <d120d50005072008057d8a9043@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
-Content-Disposition: inline
-In-Reply-To: <d120d50005072008057d8a9043@mail.gmail.com>
+	Wed, 20 Jul 2005 11:48:39 -0400
+Message-ID: <42DE7249.6090102@draigBrady.com>
+Date: Wed, 20 Jul 2005 16:48:25 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mauricio Lin <mauriciolin@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: How do you accurately determine a process' RAM usage?
+References: <42CC2923.2030709@draigBrady.com>	 <20050706181623.3729d208.akpm@osdl.org>	 <42CCE737.70802@draigBrady.com>	 <20050707014005.338ea657.akpm@osdl.org>	 <42D39102.5010503@draigBrady.com>	 <3f250c7105071913091c5b2858@mail.gmail.com>	 <42DE60D8.2070101@draigBrady.com> <3f250c7105072008321c128deb@mail.gmail.com>
+In-Reply-To: <3f250c7105072008321c128deb@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mauricio Lin wrote:
+> Hi Brady,
+> 
+> On 7/20/05, P@draigbrady.com <P@draigbrady.com> wrote:
+> 
+>>The following shell gets the shared values for the
+>>first httpd process:
+>>
+>>FIRST_HTTPD=`ps -C httpd -o pid= | head -1 | tr -d ' '`
+>>HTTPD_STATM_SHARED=$(expr 4 '*' `cut -f3 -d' ' /proc/$FIRST_HTTPD/statm`)
+>>HTTPD_SMAPS_SHARED=$(grep Shared /proc/$FIRST_HTTPD/smaps | tr -s ' '
+>>| cut -f2 -d' ' | ( tr '\n' +; echo 0 ) | bc)
+>>
+>>
+>>This shows that "smaps" reports 3060 KB more shared mem than "statm".
+>>However adding up all the anon sections in smaps only gives 2456 KB?
+> 
+> 
+> You are adding up all Shared_Clean and Shared_Dirty as Shared, right?
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+yes. Look at the command I posted.
 
-On Wed, Jul 20, 2005 at 10:05:13AM -0500, Dmitry Torokhov wrote:
-> On 7/20/05, Sergey Vlasov <vsu@altlinux.ru> wrote:
-> > Another option is to change the
-> > PSMOUSE_TRACKPOINT value so that it is less than PSMOUSE_GENPS,=20
->=20
-> No, protocol numbers should not be changed as userspace drivers/setups
-> check them and rely on them being stable.
+>>When doing this I also noticed that there are duplicate
+>>entries in smaps. Any ideas why?
+> 
+> 
+> Each pair of address per line indicates the start and end address of a
+> memory area (VMA) such as:
+> 
+> b7f7d000-b7f7e000 
+> 
+> This means that an specific memory area start on virtual address 
+> b7f7d000 and end on b7f7e000 .
+> 
+> An mapped file like /lib/ld-2.3.3.so is organized in different memory
+> areas. The memory area can be a text section, data section or bss. So
+> it is normal you find the same filename mapped in more than one memory
+> area.
 
-Found that now:
+yes. Look at the command I posted.
+There are multiple entries with the _same addresses_
 
-	psmouse->dev.id.product =3D psmouse->type;
+>>grep -F - /proc/$FIRST_HTTPD/smaps | sort | uniq -d -c
 
-So the type is visible through the input device interface.  Probably this
-should be mentioned in a comment near "enum psmouse_type" - its definition
-in drivers/input/mouse/psmouse.h looks just like some driver-internal
-enum.
-
-> > In theory, someone could attach a device which uses 6-byte packets to
-> > the Synaptics pass-thru port; I'm not sure what would happen in this
-> > case, but with Synaptics confugured for 3-byte packets (as the patch
-> > below will do) this configuration even has a chance of working.
->=20
-> I don't think it can support more than 4 byte packets. bytes 0 and 3
-> are protocol markers and can't be readily used for transmitting other
-> protocols data.
-
-At least the Synaptics protocol description mentions that its 6-byte
-protocol was designed to look like two 3-byte PS/2 mouse packets, so that
-it would work even if the controller looks at those markers; other such
-protocols are likely to have the same property for the same reason.  Now,
-if the Synaptics touchpad would be able to accept a 6-byte packet from the
-pass-thru port as two 3-byte packets...
-
---nFreZHaLTZJo0R7j
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFC3nG7W82GfkQfsqIRAsXtAJ9qMN7Z/DppIg6S5G4p52UNfj2zTACfaaE3
-ElcJymtbvFFzC6691FrsGDg=
-=FVHh
------END PGP SIGNATURE-----
-
---nFreZHaLTZJo0R7j--
+-- 
+Pádraig Brady - http://www.pixelbeat.org
+--

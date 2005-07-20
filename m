@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVGTBnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVGTC3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVGTBnf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 21:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVGTBnf
+	id S261186AbVGTC3o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 22:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVGTC3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 21:43:35 -0400
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:2286 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261326AbVGTBnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 21:43:33 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: Interbench real time benchmark results
-Date: Wed, 20 Jul 2005 11:45:39 +1000
-User-Agent: KMail/1.8.1
-Cc: dwalker@mvista.com, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-References: <200507200816.11386.kernel@kolivas.org> <1121822524.26927.85.camel@dhcp153.mvista.com> <9a8748490507191831267b17d9@mail.gmail.com>
-In-Reply-To: <9a8748490507191831267b17d9@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 19 Jul 2005 22:29:44 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:64645 "EHLO
+	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S261186AbVGTC3n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 22:29:43 -0400
+Subject: Re: [PATCH] Convert refrigerator() to try_to_freeze()
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050719135425.GA2410@elf.ucw.cz>
+References: <1121659148.13493.58.camel@localhost>
+	 <20050719135425.GA2410@elf.ucw.cz>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1121826645.2322.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 20 Jul 2005 12:31:40 +1000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507201145.39378.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Jul 2005 11:31 am, Jesper Juhl wrote:
-> On 7/20/05, Daniel Walker <dwalker@mvista.com> wrote:
-> > On Wed, 2005-07-20 at 11:04 +1000, Con Kolivas wrote:
-> > > On Wed, 20 Jul 2005 10:23 am, Daniel Walker wrote:
-> > > > On Wed, 2005-07-20 at 00:32 +0200, Ingo Molnar wrote:
-> > > > >  - networking is another frequent source of latencies - it might
-> > > > > make sense to add a workload doing lots of socket IO. (localhost
-> > > > > might be enough, but not for everything)
-> > > >
-> > > > The Gnutella test?
-> > >
-> > > I've seen some massive latencies on mainline when throwing network
-> > > loads from outside, but with my limited knowledge I haven't found a way
-> > > to implement such a thing locally. I'll look at this gnutella test at
-> > > some stage to see what it is and if I can adopt the load within
-> > > interbench. Thanks for the suggestion.
-> >
-> > There isn't actually a test called "The Gnutella test" , but I think
-> > Gnutella clients put lots of network load on a system (Lee was talking
-> > about that not to long ago). I was thinking that type of load may have
-> > been what Ingo was talking about.
->
-> If you want to generate a lot of network related interrupts, wouldn't
-> a much simpler way to do that be a simple
->
->   ping -f targetbox
->
-> from a host connected to `targetbox' via a crosswired ethernet cable
-> or a fast switch..?
->
-> Also easy to modify the size of the ping packets if you want to.
+Hi.
 
-Well that load works very well, but once again it isn't really something that 
-can be done locally on one box running init 1.
+On Tue, 2005-07-19 at 23:54, Pavel Machek wrote:
+> Hi!
+> 
+> > This patch removes the few remaining direct invocations of the
+> > refrigerator in 2.6.13-rc3. In drivers/media/video/msp3400.c, it also
+> > shifts the call to after the remove_wait_queue; this seems to be the
+> > more appropriate place.
+> 
+> 
+> > diff -ruNp 230-refrigerator-to-try_to_freeze.patch-old/fs/jbd/journal.c 230-refrigerator-to-try_to_freeze.patch-new/fs/jbd/journal.c
+> > --- 230-refrigerator-to-try_to_freeze.patch-old/fs/jbd/journal.c	2005-07-18 06:36:59.000000000 +1000
+> > +++ 230-refrigerator-to-try_to_freeze.patch-new/fs/jbd/journal.c	2005-07-18 13:54:47.000000000 +1000
+> > @@ -175,7 +175,7 @@ loop:
+> >  		 */
+> >  		jbd_debug(1, "Now suspending kjournald\n");
+> >  		spin_unlock(&journal->j_state_lock);
+> > -		refrigerator();
+> > +		try_to_freeze();
+> >  		spin_lock(&journal->j_state_lock);
+> >  	} else {
+> >  		/*
+> 
+> They probably tested it before, why test again?
+> 
+> > diff -ruNp 230-refrigerator-to-try_to_freeze.patch-old/fs/jfs/jfs_logmgr.c 230-refrigerator-to-try_to_freeze.patch-new/fs/jfs/jfs_logmgr.c
+> > --- 230-refrigerator-to-try_to_freeze.patch-old/fs/jfs/jfs_logmgr.c	2005-07-18 06:36:59.000000000 +1000
+> > +++ 230-refrigerator-to-try_to_freeze.patch-new/fs/jfs/jfs_logmgr.c	2005-07-18 13:54:47.000000000 +1000
+> > @@ -2361,7 +2361,7 @@ int jfsIOWait(void *arg)
+> >  		}
+> >  		if (freezing(current)) {
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> >  			spin_unlock_irq(&log_redrive_lock);
+> > -			refrigerator();
+> > +			try_to_freeze();
+> >  		} else {
+> >  			add_wait_queue(&jfs_IO_thread_wait, &wq);
+> >  			set_current_state(TASK_INTERRUPTIBLE);
+> 
+> See? You are needlessly testing condition twice.
 
-Cheers,
-Con
+True. I was just concerned that things are messy and inconsistent as
+they stand (sometimes we use try_to_freeze and implicitly call
+refrigerator(), sometimes we call freezing() and refrigerator). *shrug*
+
+Regards,
+
+Nigel
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
+

@@ -1,66 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVGTLwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVGTMIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVGTLwV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 07:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVGTLwV
+	id S261178AbVGTMIm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 08:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbVGTMIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 07:52:21 -0400
-Received: from smtp1.pp.htv.fi ([213.243.153.37]:8392 "EHLO smtp1.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S261177AbVGTLwT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 07:52:19 -0400
-Date: Wed, 20 Jul 2005 14:52:18 +0300
-From: Paul Mundt <lethal@linux-sh.org>
-To: snogglethorpe@gmail.com, miles@gnu.org
-Cc: Jan Dittmer <jdittmer@ppp0.net>, linux-kernel@vger.kernel.org
-Subject: Re: defconfig for v850, please
-Message-ID: <20050720115218.GB9754@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	snogglethorpe@gmail.com, miles@gnu.org,
-	Jan Dittmer <jdittmer@ppp0.net>, linux-kernel@vger.kernel.org
-References: <42DE17DC.7050506@ppp0.net> <fc339e4a05072002355e4062d6@mail.gmail.com> <42DE1DDE.90503@ppp0.net> <fc339e4a0507200302d9f0141@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1UWUbFP1cBYEclgG"
-Content-Disposition: inline
-In-Reply-To: <fc339e4a0507200302d9f0141@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 20 Jul 2005 08:08:42 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:56704 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261178AbVGTMIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 08:08:41 -0400
+Message-ID: <42DE3E03.1070401@gmail.com>
+Date: Wed, 20 Jul 2005 14:05:23 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, rth@twiddle.net,
+       dhowells@redhat.com, kumar.gala@freescale.com, davem@davemloft.net,
+       mhw@wittsend.com, Rogier Wolff <R.E.Wolff@bitwizard.nl>,
+       nils@kernelconcepts.de, Lionel.Bouton@inet6.fr,
+       benh@kernel.crashing.org, mchehab@brturbo.com.br, laredo@gnu.org,
+       rbultje@ronald.bitfreak.net, middelin@polyware.nl, philb@gnu.org,
+       tim@cyberelk.net, campbell@torque.net, andrea@suse.de, mulix@mulix.org
+Subject: Re: [PATCH] pci_find_device --> pci_get_device
+References: <42DC4873.2080807@gmail.com> <200507191820.35472@bilbo.math.uni-mannheim.de> <42DE2A31.7080505@gmail.com> <200507201319.42050@bilbo.math.uni-mannheim.de>
+In-Reply-To: <200507201319.42050@bilbo.math.uni-mannheim.de>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rolf Eike Beer napsal(a):
 
---1UWUbFP1cBYEclgG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>Am Mittwoch, 20. Juli 2005 12:40 schrieb Jiri Slaby:
+>  
+>
+>>Rolf Eike Beer napsal(a):
+>>    
+>>
+>>>Your patch to arch/sparc64/kernel/ebus.c is broken, the removed and added
+>>>parts do not match in behaviour.
+>>>      
+>>>
+>>I can't still see the difference.
+>>    
+>>
+>
+>diff --git a/arch/sparc64/kernel/ebus.c b/arch/sparc64/kernel/ebus.c
+>--- a/arch/sparc64/kernel/ebus.c
+>+++ b/arch/sparc64/kernel/ebus.c
+>@@ -527,8 +527,15 @@ static struct pci_dev *find_next_ebus(st
+> {
+> 	struct pci_dev *pdev = start;
+> 
+>-	do {
+>-		pdev = pci_find_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev);
+>+    while (pdev = pci_get_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev))
+>+		if (pdev->device == PCI_DEVICE_ID_SUN_EBUS ||
+>+			pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS)
+>+			break;
+>+
+>+	*is_rio_p = !!(pdev && (pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS));
+>+	
+>+/*	do { // BEFORE \/           AFTER ^
+>+ *		pdev = pci_find_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev);
+> 		if (pdev &&
+> 		    (pdev->device == PCI_DEVICE_ID_SUN_EBUS ||
+> 		     pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS))
+>  
+>
+The code was:
+  do {
+      pdev = pci_find_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev);
+        if (pdev &&
+            (pdev->device == PCI_DEVICE_ID_SUN_EBUS ||
+             pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS))
+            break;
+    } while (pdev != NULL);
 
-On Wed, Jul 20, 2005 at 07:02:53PM +0900, Miles Bader wrote:
-> Some archs seem to provide defconfigs for various different platforms,
-> which seems nice, and there seems to be some sort of framework for
-> doing this, but ...
->=20
-For most of the architectures aimed at embedded systems, having an
-arch/foo/defconfig makes no sense. The basic "framework" is to have
-arch/foo/configs and place all of your board-specific defconfigs in there
-(as boardname_defconfig -- the reason for this is that you get free make
-targets of the same name which copy the defconfig over, see 'make help').
+    if (pdev && (pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS))
+        *is_rio_p = 1;
+    else
+        *is_rio_p = 0;
 
-If you have a particular board that you can assume will be kept
-reasonably up-to-date, you can set KBUILD_DEFCONFIG in your Makefile to
-set the default config to use by name, and then you can forego having an
-arch/foo/defconfig entirely (you can look at sh and some of the other
-architectures to see this being done).
+and I changed to:
+    while (pdev = pci_get_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev))
+        if (pdev->device == PCI_DEVICE_ID_SUN_EBUS ||
+            pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS)
+            break;
 
---1UWUbFP1cBYEclgG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+    *is_rio_p = !!(pdev && (pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS));
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+Is there any difference? I don't see any, but... The reading of diff 
+file in this case is not the best, maybe...
 
-iD8DBQFC3jry1K+teJFxZ9wRAmdPAKCFZn9bvowII9fCq1yvBI3h2zlD3wCfdnBe
-04TnWkhhZe4nwQiuAIFH4Y4=
-=+R63
------END PGP SIGNATURE-----
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
 
---1UWUbFP1cBYEclgG--

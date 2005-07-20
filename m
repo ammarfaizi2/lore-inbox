@@ -1,90 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVGTQ1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVGTQd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbVGTQ1U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 12:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVGTQ1T
+	id S261401AbVGTQd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 12:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVGTQd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 12:27:19 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:60844 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261398AbVGTQ1F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 12:27:05 -0400
-Subject: Re: [RFC - 0/12] NTP cleanup work (v. B4)
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
-       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
-       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.61.0507171706490.3728@scrub.home>
-References: <1121482517.25236.29.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0507171706490.3728@scrub.home>
-Content-Type: text/plain
-Date: Wed, 20 Jul 2005 09:26:46 -0700
-Message-Id: <1121876812.4259.14.camel@leatherman>
+	Wed, 20 Jul 2005 12:33:29 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:34204 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261401AbVGTQd1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 12:33:27 -0400
+Date: Wed, 20 Jul 2005 18:26:36 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: David Teigland <teigland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-cluster@redhat.com,
+       ocfs2-devel@oss.oracle.com
+Subject: Re: [Ocfs2-devel] [RFC] nodemanager, ocfs2, dlm
+Message-ID: <20050720162636.GL5416@marowsky-bree.de>
+References: <20050718061553.GA9568@redhat.com> <20050719155214.GG13246@marowsky-bree.de> <20050720033546.GB9747@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050720033546.GB9747@redhat.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-07-17 at 20:00 +0200, Roman Zippel wrote:
-> On Fri, 15 Jul 2005, john stultz wrote:
+On 2005-07-20T11:35:46, David Teigland <teigland@redhat.com> wrote:
+
+> > Also, eventually we obviously need to have state for the nodes - up/down
+> > et cetera. I think the node manager also ought to track this.
+> We don't have a need for that information yet; I'm hoping we won't ever
+> need it in the kernel, but we'll see.
+
+Hm, I'm thinking a service might have a good reason to want to know the
+possible list of nodes as opposed to the currently active membership;
+though the DLM as the service in question right now does not appear to
+need such.
+
+But, see below.
+
+> There are at least two ways to handle this:
 > 
-> > 	In my attempts to rework the timeofday subsystem, it was suggested I
-> > try to avoid mixing cleanups with functional changes. In response to the
-> > suggestion I've tried to break out the majority of the NTP cleanups I've
-> > been working out of my larger patch and try to feed it in piece meal. 
-> > 
-> > The goal of this patch set is to isolate the in kernel NTP state machine
-> > in the hope of simplifying the current timeofday code.
+> 1. Pass cluster events and data into the kernel (this sounds like what
+> you're talking about above), notify the effected kernel components, each
+> kernel component takes the cluster data and does whatever it needs to with
+> it (internal adjustments, recovery, etc).
 > 
-> I don't really like, where you taken it with ntp_advance(). With these 
-> patches you put half the ntp state machine in there and execute it at 
-> every single tick.
+> 2. Each kernel component "foo-kernel" has an associated user space
+> component "foo-user".  Cluster events (from userland clustering
+> infrastructure) are passed to foo-user -- not into the kernel.  foo-user
+> determines what the specific consequences are for foo-kernel.  foo-user
+> then manipulates foo-kernel accordingly, through user/kernel hooks (sysfs,
+> configfs, etc).  These control hooks would largely be specific to foo.
+> 
+> We're following option 2 with the dlm and gfs and have been for quite a
+> while, which means we don't need 1.  I think ocfs2 is moving that way,
+> too.  Someone could still try 1, of course, but it would be of no use or
+> interest to me.  I'm not aware of any actual projects pushing forward with
+> something like 1, so the persistent reference to it is somewhat baffling.
 
-Hmm. While second_overflow() has been integrated into ntp_advance, we
-are not actually running that code every tick. Instead we keep an
-internal interval counter that runs the equivalent second_overflow()
-code only once a second. Maybe I'm not understanding specifically which
-you're talking about? 
-
-
-> From the previous patches I can guess where you want to go with this, but 
-> I think it's the wrong direction. The code is currently as is for a 
-> reason, it's optimized for tick based system and I don't see a reason to 
-> change this for tick based system.
-
-Well, with the exception of the last two patches, these changes should
-just be cleanups. If you notice a change in behavior in the first 10
-patches, please let me know.
-
-> If you want to change this for cycle based system, you have to give more 
-> control to the arch/timer source, which simply call a different set of 
-> functions and the ntp core system basically just acts as a library to the 
-> timer source.
-> Tick based timer sources continue to update xtime and cycle based system 
-> will modify the cycle multiplier (e.g. what ppc64 does). Don't force 
-> everything to use the same set of functions, you'll make it only more 
-> complex.
-
-In a sense that's what I'm trying to provide, the NTP state machine will
-provide the adjustment that you can either apply completely at tick time
-or continually w/ a timesource.
-
-I really don't think the NTP changes I've mailed is very complex.
-Please, be specific and point to something you think is an issue and
-I'll do my best to fix it.
+Right. I thought that the node manager changes for generalizing it where
+pushing into sort-of direction 1. Thanks for clearing this up.
 
 
->  Larger ntp state updates don't have to be done more than once a 
-> second and leave the details of how the clock is updated to the clock 
-> source (just provide some library functions it can use).
 
-Again, I'm not be doing larger NTP state machine changes every tick.
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-
-Thanks again for the feedback, I really do appreciate the review.
-
-thanks
--john
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
 

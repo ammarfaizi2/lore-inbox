@@ -1,55 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVGTPD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVGTPGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVGTPD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 11:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVGTPD7
+	id S261353AbVGTPGy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 11:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVGTPGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 11:03:59 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:4528 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S261357AbVGTPCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 11:02:44 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.93,304,1114984800"; 
-   d="scan'208"; a="12868361:sNHT31551564"
-Message-ID: <42DE6791.2030305@fujitsu-siemens.com>
-Date: Wed, 20 Jul 2005 17:02:41 +0200
-From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de, en-us, en
+	Wed, 20 Jul 2005 11:06:54 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:37254 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S261413AbVGTPGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 11:06:43 -0400
+X-IronPort-AV: i="3.94,212,1118034000"; 
+   d="scan'208"; a="288606002:sNHT71725406"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Alexander Nyberg <alexn@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: files_lock deadlock?
-References: <42DD2E37.3080204@fujitsu-siemens.com> <1121870871.1103.14.camel@localhost.localdomain>
-In-Reply-To: <1121870871.1103.14.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C58D3C.A0A658DF"
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: page allocation/attributes question (i386/x86_64 specific)
+Date: Wed, 20 Jul 2005 10:06:38 -0500
+Message-ID: <B1939BC11A23AE47A0DBE89A37CB26B40743C7@ausx3mps305.aus.amer.dell.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: page allocation/attributes question (i386/x86_64 specific)
+Thread-Index: AcWNO9iN8MVFGj2fQoWn26mYUughoAAAA9cA
+From: <Stuart_Hayes@Dell.com>
+To: <mingo@elte.hu>
+Cc: <ak@suse.de>, <riel@redhat.com>, <andrea@suse.de>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Jul 2005 15:06:38.0704 (UTC) FILETIME=[A0E7FF00:01C58D3C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg wrote:
+This is a multi-part message in MIME format.
 
-> spin_lock_irqsave is only needed when a lock is taken both in normal
-> context and in interrupt context. Clearly this lock is not intended to
-> be taken in interrupt context. 
+------_=_NextPart_001_01C58D3C.A0A658DF
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-According to Rusty's unreliable guide
-(http://www.kernel.org/pub/linux/kernel/people/rusty/kernel-locking/c214.html)
-if some code can be called from user context as well as in a softirq, at 
-least spin_lock_bh() is necessary. I am not sure whether that may be 
-true for the code that modifies files_lock.
+Ingo Molnar wrote:
+> * Stuart_Hayes@Dell.com <Stuart_Hayes@Dell.com> wrote:
+>=20
+>> Ingo Molnar wrote:
+>>> there's one problem with the patch: it breaks things that need the
+>>> low 1MB executable (e.g. APM bios32 calls). It would at a minimum be
+>>> needed to exclude the BIOS area in 0xd0000-0xfffff.
+>>>=20
+>>> 	Ingo
+>>=20
+>> I wrote it to make everything below 1MB executable, if it isn't RAM
+>> according to the e820 map, which should include the BIOS area.  This
+>> includes 0xd0000-0xffff on my system.  Do you think I should
+>> explicity make 0xd0000-0xfffff executable regardless of the e820 map?
+>=20
+> hm ... which portion does this? I'm looking at fixnx2.patch. I
+> definitely saw a APM bootup crash due to this, but that was on a
+> 2.4-ish backport of the patch. =20
+>=20
+> 	Ingo
 
-> I'll take a look, that spinlock debugging information unfortunately
-> doesn't give too much info :|
+Oh, sorry, we're talking about two different patches.  I sent in a
+different patch yesterday, because Andi Kleen didn't seem very
+enthusiastic about fixnx2.patch.  Here's the patch that I sent yesterday
+(attached as file init.c.patch).
 
-Thanks!
+Thanks
+Stuart
 
-Martin
+------_=_NextPart_001_01C58D3C.A0A658DF
+Content-Type: application/octet-stream;
+	name="init.c.patch"
+Content-Transfer-Encoding: base64
+Content-Description: init.c.patch
+Content-Disposition: attachment;
+	filename="init.c.patch"
 
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+LS0tIDIuNi4xMi1hL2FyY2gvaTM4Ni9tbS9pbml0LmMJMjAwNS0wNy0xOSAxNDo0MToxNC4wMDAw
+MDAwMDAgLTA1MDAKKysrIDIuNi4xMi1iL2FyY2gvaTM4Ni9tbS9pbml0LmMJMjAwNS0wNy0xOSAx
+NDo0MDoyMi4wMDAwMDAwMDAgLTA1MDAKQEAgLTEyOCwxMiArMTI4LDcgQEAgc3RhdGljIHZvaWQg
+X19pbml0IHBhZ2VfdGFibGVfcmFuZ2VfaW5pdAogCX0KIH0KIAotc3RhdGljIGlubGluZSBpbnQg
+aXNfa2VybmVsX3RleHQodW5zaWduZWQgbG9uZyBhZGRyKQotewotCWlmIChhZGRyID49IFBBR0Vf
+T0ZGU0VUICYmIGFkZHIgPD0gKHVuc2lnbmVkIGxvbmcpX19pbml0X2VuZCkKLQkJcmV0dXJuIDE7
+Ci0JcmV0dXJuIDA7Ci19CitzdGF0aWMgcGdwcm90X3QgcGFnZV9yZWZwcm90KHVuc2lnbmVkIGlu
+dCk7CiAKIC8qCiAgKiBUaGlzIG1hcHMgdGhlIHBoeXNpY2FsIG1lbW9yeSB0byBrZXJuZWwgdmly
+dHVhbCBhZGRyZXNzIHNwYWNlLCBhIHRvdGFsIApAQCAtMTU4LDI1ICsxNTMsMTggQEAgc3RhdGlj
+IHZvaWQgX19pbml0IGtlcm5lbF9waHlzaWNhbF9tYXBwaQogCQkJY29udGludWU7CiAJCWZvciAo
+cG1kX2lkeCA9IDA7IHBtZF9pZHggPCBQVFJTX1BFUl9QTUQgJiYgcGZuIDwgbWF4X2xvd19wZm47
+IHBtZCsrLCBwbWRfaWR4KyspIHsKIAkJCXVuc2lnbmVkIGludCBhZGRyZXNzID0gcGZuICogUEFH
+RV9TSVpFICsgUEFHRV9PRkZTRVQ7CisJCQlwZ3Byb3RfdCByZWZfcHJvdCA9IHBhZ2VfcmVmcHJv
+dChhZGRyZXNzKTsKIAogCQkJLyogTWFwIHdpdGggYmlnIHBhZ2VzIGlmIHBvc3NpYmxlLCBvdGhl
+cndpc2UgY3JlYXRlIG5vcm1hbCBwYWdlIHRhYmxlcy4gKi8KLQkJCWlmIChjcHVfaGFzX3BzZSkg
+ewotCQkJCXVuc2lnbmVkIGludCBhZGRyZXNzMiA9IChwZm4gKyBQVFJTX1BFUl9QVEUgLSAxKSAq
+IFBBR0VfU0laRSArIFBBR0VfT0ZGU0VUICsgUEFHRV9TSVpFLTE7Ci0KLQkJCQlpZiAoaXNfa2Vy
+bmVsX3RleHQoYWRkcmVzcykgfHwgaXNfa2VybmVsX3RleHQoYWRkcmVzczIpKQotCQkJCQlzZXRf
+cG1kKHBtZCwgcGZuX3BtZChwZm4sIFBBR0VfS0VSTkVMX0xBUkdFX0VYRUMpKTsKLQkJCQllbHNl
+Ci0JCQkJCXNldF9wbWQocG1kLCBwZm5fcG1kKHBmbiwgUEFHRV9LRVJORUxfTEFSR0UpKTsKKwkJ
+CWlmIChwZ3Byb3RfdmFsKHJlZl9wcm90KSAmIF9QQUdFX1BTRSkgeyAKKwkJCQlzZXRfcG1kKHBt
+ZCwgcGZuX3BtZChwZm4sIHJlZl9wcm90KSk7CiAJCQkJcGZuICs9IFBUUlNfUEVSX1BURTsKIAkJ
+CX0gZWxzZSB7CiAJCQkJcHRlID0gb25lX3BhZ2VfdGFibGVfaW5pdChwbWQpOwogCi0JCQkJZm9y
+IChwdGVfb2ZzID0gMDsgcHRlX29mcyA8IFBUUlNfUEVSX1BURSAmJiBwZm4gPCBtYXhfbG93X3Bm
+bjsgcHRlKyssIHBmbisrLCBwdGVfb2ZzKyspIHsKLQkJCQkJCWlmIChpc19rZXJuZWxfdGV4dChh
+ZGRyZXNzKSkKLQkJCQkJCQlzZXRfcHRlKHB0ZSwgcGZuX3B0ZShwZm4sIFBBR0VfS0VSTkVMX0VY
+RUMpKTsKLQkJCQkJCWVsc2UKLQkJCQkJCQlzZXRfcHRlKHB0ZSwgcGZuX3B0ZShwZm4sIFBBR0Vf
+S0VSTkVMKSk7Ci0JCQkJfQorCQkJCWZvciAocHRlX29mcyA9IDA7IHB0ZV9vZnMgPCBQVFJTX1BF
+Ul9QVEUgJiYgcGZuIDwgbWF4X2xvd19wZm47IAorCQkJCSAgICAgYWRkcmVzcyArPSBQQUdFX1NJ
+WkUsIHB0ZSsrLCBwZm4rKywgcHRlX29mcysrKQorCQkJCQkJc2V0X3B0ZShwdGUsIHBmbl9wdGUo
+cGZuLCBwYWdlX3JlZnByb3QoYWRkcmVzcykpKTsKIAkJCX0KIAkJfQogCX0KQEAgLTIyOSw2ICsy
+MTcsNTYgQEAgc3RhdGljIGlubGluZSBpbnQgcGFnZV9pc19yYW0odW5zaWduZWQgbAogCXJldHVy
+biAwOwogfQogCisvKgorICogcGFnZV9yZWZwcm90KCkgcmV0dXJucyBQVEUgYXR0cmlidXRlcyB1
+c2VkIHRvIHNldCB1cCB0aGUgcGFnZSB0YWJsZXMKKyAqLworCitzdGF0aWMgaW5saW5lIGludCBp
+c19rZXJuZWxfdGV4dCAodW5zaWduZWQgaW50IGFkZHIsIHVuc2lnbmVkIGludCBtYXNrKQorewor
+CWFkZHIgJj0gbWFzazsKKwlpZiAoKGFkZHIgPj0gKCh1bnNpZ25lZCBpbnQpX3RleHQgJiBtYXNr
+KSkgJiYKKwkgICAgKGFkZHIgPD0gKCh1bnNpZ25lZCBpbnQpX2V0ZXh0KSkpCisJCXJldHVybiAx
+OworCXJldHVybiAwOworfQorCitzdGF0aWMgaW5saW5lIGludCBpc19rZXJuZWxfaW5pdHRleHQg
+KHVuc2lnbmVkIGludCBhZGRyLCB1bnNpZ25lZCBpbnQgbWFzaykKK3sKKwlhZGRyICY9IG1hc2s7
+CisJaWYgKChhZGRyID49ICgodW5zaWduZWQgaW50KV9zaW5pdHRleHQgJiBtYXNrKSkgJiYKKwkg
+ICAgKGFkZHIgPD0gKCh1bnNpZ25lZCBpbnQpX2Vpbml0dGV4dCkpKQorCQlyZXR1cm4gMTsKKwly
+ZXR1cm4gMDsKK30KKworc3RhdGljIHBncHJvdF90IHBhZ2VfcmVmcHJvdCh1bnNpZ25lZCBpbnQg
+YWRkcikKK3sKKwlpZiAobnhfZW5hYmxlZCAmJgorCSAgICAoaXNfa2VybmVsX3RleHQoYWRkciwg
+TEFSR0VfUEFHRV9NQVNLKSB8fAorCSAgICAgKGlzX2tlcm5lbF9pbml0dGV4dChhZGRyLCBMQVJH
+RV9QQUdFX01BU0spKSB8fAorCSAgICAgKChhZGRyICYgTEFSR0VfUEFHRV9NQVNLKSA9PSAwKSkp
+IHsKKwkJLyogYmlnIHBhZ2UgYXJlYSBoYXMgZXhlY3V0YWJsZSBzdHVmZiBpbiBpdC0tdXNlIHNt
+YWxsIHBhZ2VzICovCisJCWlmIChpc19rZXJuZWxfdGV4dChhZGRyLCBQQUdFX01BU0spIHx8CisJ
+CSAgIChpc19rZXJuZWxfaW5pdHRleHQoYWRkciwgUEFHRV9NQVNLKSkgfHwKKwkJICAgKChfX3Bh
+KGFkZHIpIDw9IDB4ZmZmZmYpICYmICFwYWdlX2lzX3JhbShfX3BhKGFkZHIpID4+IFBBR0VfU0hJ
+RlQpKSkKKwkJCXJldHVybiBQQUdFX0tFUk5FTF9FWEVDOworCQllbHNlCisJCQlyZXR1cm4gUEFH
+RV9LRVJORUw7CisJfQorCS8qIGJpZyBwYWdlcyB3aXRoIG5vIGV4ZWN1dGFibGUgc3R1ZmYgaW4g
+dGhlbSAqLworCXJldHVybiBjcHVfaGFzX3BzZSA/IFBBR0VfS0VSTkVMX0xBUkdFIDogUEFHRV9L
+RVJORUw7Cit9CisKK3N0YXRpYyBpbmxpbmUgdm9pZCBzZXRfbnhfaW5faW5pdG1lbSh2b2lkKQor
+eworCXVuc2lnbmVkIGludCBhZGRyOworCisJcHJpbnRrKCJfdGV4dD0lcCBfZXRleHQ9JXAgX3Np
+bml0dGV4dD0lcCBfZWluaXR0ZXh0PSVwXG4iLF90ZXh0LF9ldGV4dCxfc2luaXR0ZXh0LF9laW5p
+dHRleHQpOworCWFkZHIgPSAodW5zaWduZWQgbG9uZykoX3Npbml0dGV4dCkgJiBQQUdFX01BU0s7
+CisJZm9yICg7IGFkZHIgPD0gKHVuc2lnbmVkIGxvbmcpKF9laW5pdHRleHQpOyBhZGRyICs9IFBB
+R0VfU0laRSkKKwkJc2V0X2tlcm5lbF9leGVjKGFkZHIsIDApOworfQorCiAjaWZkZWYgQ09ORklH
+X0hJR0hNRU0KIHB0ZV90ICprbWFwX3B0ZTsKIHBncHJvdF90IGttYXBfcHJvdDsKQEAgLTQzNiw3
+ICs0NzQsNyBAQCBzdGF0aWMgdm9pZCBfX2luaXQgc2V0X254KHZvaWQpCiAgKiBFbmFibGVzL2Rp
+c2FibGVzIGV4ZWN1dGFiaWxpdHkgb2YgYSBnaXZlbiBrZXJuZWwgcGFnZSBhbmQKICAqIHJldHVy
+bnMgdGhlIHByZXZpb3VzIHNldHRpbmcuCiAgKi8KLWludCBfX2luaXQgc2V0X2tlcm5lbF9leGVj
+KHVuc2lnbmVkIGxvbmcgdmFkZHIsIGludCBlbmFibGUpCitpbnQgc2V0X2tlcm5lbF9leGVjKHVu
+c2lnbmVkIGxvbmcgdmFkZHIsIGludCBlbmFibGUpCiB7CiAJcHRlX3QgKnB0ZTsKIAlpbnQgcmV0
+ID0gMTsKQEAgLTY3MCw2ICs3MDgsOSBAQCB2b2lkIGZyZWVfaW5pdG1lbSh2b2lkKQogewogCXVu
+c2lnbmVkIGxvbmcgYWRkcjsKIAorCWlmIChueF9lbmFibGVkKQorCQlzZXRfbnhfaW5faW5pdG1l
+bSgpOworCiAJYWRkciA9ICh1bnNpZ25lZCBsb25nKSgmX19pbml0X2JlZ2luKTsKIAlmb3IgKDsg
+YWRkciA8ICh1bnNpZ25lZCBsb25nKSgmX19pbml0X2VuZCk7IGFkZHIgKz0gUEFHRV9TSVpFKSB7
+CiAJCUNsZWFyUGFnZVJlc2VydmVkKHZpcnRfdG9fcGFnZShhZGRyKSk7Cg==
+
+------_=_NextPart_001_01C58D3C.A0A658DF--

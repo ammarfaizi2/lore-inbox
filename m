@@ -1,98 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVGTDMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVGTDZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbVGTDMw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 23:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVGTDMw
+	id S261495AbVGTDZa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 23:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVGTDZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 23:12:52 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:42258 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S261500AbVGTDMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 23:12:51 -0400
-X-IronPort-AV: i="3.94,209,1118034000"; 
-   d="scan'208"; a="288329011:sNHT18591620"
-Date: Tue, 19 Jul 2005 22:12:49 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-Cc: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 22/82] remove linux/version.h from drivers/message/fus ion
-Message-ID: <20050720031249.GA18042@humbolt.us.dell.com>
-Reply-To: Matt Domsch <Matt_Domsch@dell.com>
-References: <91888D455306F94EBD4D168954A9457C03281EB4@nacos172.co.lsil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Jul 2005 23:25:29 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:20631 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261495AbVGTDZ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 23:25:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=PDK/KkhSHWmwEPqpZ4IGOc5RdtnNMlU8YiaK5QAcWCW3ezlGUYjsvco0oep6KD3owFDUSmrFuy/egdnkdh79HF9DObdLAwW+TLkF+tSjCfGjrnGTY52PLtCU0QE6k7Rj+7eFKi1fBEmM0Gp7NJgqopNomQGdOrx71V+YO+HUA6Y=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] clarify KALLSYMS_ALL help text
+Date: Wed, 20 Jul 2005 05:43:05 +0200
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <91888D455306F94EBD4D168954A9457C03281EB4@nacos172.co.lsil.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200507200543.05965.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 19, 2005 at 06:07:41PM -0600, Moore, Eric Dean wrote:
-> On Tuesday, July 12, 2005 8:17 PM, Matt Domsch wrote:
-> > In general, this construct:
-> > 
-> > > > -#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,6))
-> > > > -static int inline scsi_device_online(struct scsi_device *sdev)
-> > > > -{
-> > > > -	return sdev->online;
-> > > > -}
-> > > > -#endif
-> > 
-> > is better tested as:
-> > 
-> > #ifndef scsi_device_inline
-> > static int inline scsi_device_online(struct scsi_device *sdev)
-> > {
-> >     return sdev->online;
-> > }
-> > #endif
-> > 
-> > when you can.  It cleanly eliminates the version test, and tests for
-> > exactly what you're looking for - is this function defined.
-> > 
-> 
-> What you illustrated above is not going to work.
-> If your doing #ifndef around a function, such as scsi_device_online, it's
-> not going to compile
-> when scsi_device_online is already implemented in the kernel tree.
-> The routine scsi_device_online is a function, not a define.  For a define
-> this would work.
+Clarify the KALLSYMS_ALL help text slightly.
 
-Sure it does, function names are defined symbols.
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-I'm doing exactly this in my backport of the openipmi drivers to RHEL4
-and SLES9.
+ init/Kconfig |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-> I'm trying your example around msleep, msleep_interruptible, and
-> msecs_to_jiffies, and 
-> my code simply won't compile in SLES9 SP2(-191).  In SLES9 SP1(-139), these
-> three routines were not implemented and
-> your suggestion works.  I won't be able to to a linux version check as this
-> change occurred between service packs
-> of the 2.6.5 kernel suse tree.   Anybody on the linux forums have any ideas?
-> 
-> Example:
-> 
-> #ifdef msleep
+--- linux-2.6.13-rc3-mm1-orig/init/Kconfig	2005-07-17 04:40:00.000000000 +0200
++++ linux-2.6.13-rc3-mm1/init/Kconfig	2005-07-20 05:39:20.000000000 +0200
+@@ -366,8 +366,8 @@
+ 	help
+ 	   Normally kallsyms only contains the symbols of functions, for nicer
+ 	   OOPS messages.  Some debuggers can use kallsyms for other
+-	   symbols too: say Y here to include all symbols, and you
+-	   don't care about adding 300k to the size of your kernel.
++	   symbols too: say Y here to include all symbols, if you need them 
++	   and you don't care about adding 300k to the size of your kernel.
+ 
+ 	   Say N.
+ 
 
-#ifndef  you mean.
-
-> static void inline msleep(unsigned long msecs)
-> {
->         set_current_state(TASK_UNINTERRUPTIBLE);
->         schedule_timeout(msecs_to_jiffies(msecs) + 1);
-> }
-> #endif
-
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com

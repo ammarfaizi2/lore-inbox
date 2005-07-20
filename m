@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVGTSXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVGTSkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVGTSXg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 14:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVGTSXg
+	id S261443AbVGTSkH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 14:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVGTSkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 14:23:36 -0400
-Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:28271 "EHLO
-	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
-	id S261455AbVGTSXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 14:23:00 -0400
-Message-ID: <42DE96F2.9070105@tu-harburg.de>
-Date: Wed, 20 Jul 2005 20:24:50 +0200
-From: Jan Blunck <j.blunck@tu-harburg.de>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ramfs: pretend dirent sizes
-References: <42D72705.8010306@tu-harburg.de> <Pine.LNX.4.58.0507151151360.19183@g5.osdl.org> <20050716003952.GA30019@taniwha.stupidest.org> <42DCC7AA.2020506@tu-harburg.de> <20050719161623.GA11771@taniwha.stupidest.org> <42DD44E2.3000605@tu-harburg.de> <20050719183206.GA23253@taniwha.stupidest.org> <42DD50FC.9090004@tu-harburg.de> <20050719191648.GA24444@taniwha.stupidest.org>
-In-Reply-To: <20050719191648.GA24444@taniwha.stupidest.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Jul 2005 14:40:07 -0400
+Received: from rgminet02.oracle.com ([148.87.122.31]:53165 "EHLO
+	rgminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S261443AbVGTSkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 14:40:04 -0400
+Date: Wed, 20 Jul 2005 11:39:38 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux clustering <linux-cluster@redhat.com>
+Cc: "Walker, Bruce J (HP-Labs)" <bruce.walker@hp.com>,
+       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       ocfs2-devel@oss.oracle.com, clusters_sig@lists.osdl.org
+Subject: Re: [Clusters_sig] RE: [Linux-cluster] Re: [Ocfs2-devel] [RFC] nodemanager, ocfs2, dlm
+Message-ID: <20050720183938.GM16618@ca-server1.us.oracle.com>
+Mail-Followup-To: linux clustering <linux-cluster@redhat.com>,
+	"Walker, Bruce J (HP-Labs)" <bruce.walker@hp.com>,
+	David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+	ocfs2-devel@oss.oracle.com, clusters_sig@lists.osdl.org
+References: <3689AF909D816446BA505D21F1461AE404167CFB@cacexc04.americas.cpqcorp.net> <20050720180918.GU5416@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050720180918.GU5416@marowsky-bree.de>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
+On Wed, Jul 20, 2005 at 08:09:18PM +0200, Lars Marowsky-Bree wrote:
+> On 2005-07-20T09:55:31, "Walker, Bruce J (HP-Labs)" <bruce.walker@hp.com> wrote:
 > 
-> Hos does that work if offset >= m?
+> > Like Lars, I too was under the wrong impression about this configfs
+> > "nodemanager" kernel component.  Our discussions in the cluster
+> > meeting Monday and Tuesday were assuming it was a general service that
+> > other kernel components could/would utilize and possibly also
+> > something that could send uevents to non-kernel components wanting a
+> > std. way to see membership information/events.
 > 
+> Let me clarify that this was something we briefly touched on in
+> Walldorf: The node manager would (re-)export the current data via sysfs
+> (which would result in uevents being sent, too), and not something we
+> dreamed up just Monday ;-)
 
-Eerrh, did you actually read my patch? The i_size of a directory is 
-increased by SIMPLE_BOGO_DIRENT_SIZE for every entry in the directory.
+	In turn, let me clarify a little where configfs fits in to
+things.  Configfs is merely a convenient and transparent method to
+communicate configuration to kernel objects.  It's not a place for
+uevents, for netlink sockets, or for fancy communication.  It allows
+userspace to create an in-kernel object and set/get values on that
+object.  It also allows userspace and kernelspace to share the same
+representation of that object and its values.
+	For more complex interaction, sysfs and procfs are often more
+appropriate.  While you might "configure" all known nodes in configfs,
+the node up/down state might live in sysfs.  A netlink socket for
+up/down events might live in procfs.  And so on.
 
- >>So you can seek to m*<stack-depth>+<offset> to access an offset into
- >>> >something at depth m?
- >>> >
- >>
- >> Yes.
+Joel
 
-I got that one wrong! You can seek to the "sum of i_sizes (of the m 
-directories) + offset" to access offset in the m'th directory/stack-depth.
+-- 
 
-> 
-> lseek talks about bytes --- yes, it means for files specifically but I
-> still don't see why we need to define more counter-intuitive semantics
-> for directories when we don't need them.
+"But all my words come back to me
+ In shades of mediocrity.
+ Like emptiness in harmony
+ I need someone to comfort me."
 
-It is counter-intuitive to have a value which is information less, like 
-in the zero case.
-
-> 
-> Also, how is lseek + readdir supposed to work in general?
-
-This is how libc is reading directories (at least on arch s390x):
-
-getdents() != 0
-lseek() to d_off of last dirent
-getdents() != 0
-lseek() to d_off of last dirent
-getdents() == 0
-return
-
-Therefore I really need values that make sense for d_off. Therefore I 
-really need values that make (some kind of) sense for i_size.
-
-Jan
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

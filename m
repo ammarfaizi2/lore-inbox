@@ -1,70 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVGTMv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVGTNAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVGTMv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 08:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVGTMv6
+	id S261179AbVGTNAX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 09:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVGTNAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 08:51:58 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:7596 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261193AbVGTMv5
+	Wed, 20 Jul 2005 09:00:23 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:56858 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261179AbVGTNAV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 08:51:57 -0400
-Date: Wed, 20 Jul 2005 14:54:59 +0200
-From: DervishD <lkml@dervishd.net>
-To: Pete Zaitcev <zaitcev@redhat.com>
+	Wed, 20 Jul 2005 09:00:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=g4VbFsmgTw6pZxR5u85kz36TE11X+rr9rdjvwqaHmIEBnJoQvd3e3Bc3XQfIoZJ+BwIUm+60+jByMre3LqwVcLTZwI2GFsy75dLAgwDNOPzI1AYAC6v33bplU7DMqYhhHZCHANvAcZUF7wpPrswWXlJLWzDXIB0viJdUlhO8744=
+Message-ID: <9a87484905072005596f2c2b51@mail.gmail.com>
+Date: Wed, 20 Jul 2005 14:59:51 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Subject: Re: kernel guide to space
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB debouncing?
-Message-ID: <20050720125459.GD89@DervishD>
-Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <mailman.1121790540.24438.linux-kernel2news@redhat.com> <20050719122206.1b690f57.zaitcev@redhat.com>
+In-Reply-To: <20050711145616.GA22936@mellanox.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050719122206.1b690f57.zaitcev@redhat.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+References: <20050711145616.GA22936@mellanox.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Pete :)
+On 7/11/05, Michael S. Tsirkin <mst@mellanox.co.il> wrote:
+> 
+[snip]
+> kernel guide to space AKA a boring list of rules
+> http://www.mellanox.com/mst/boring.txt
+> 
+[snip]
+> 
+> 3c. * in types
+>         Leave space between name and * in types.
+>         Multiple * dont need additional space between them.
+> 
+>         struct foo **bar;
+> 
+Don't put spaces between `*' and the name when declaring variables,
+even if it's not a double pointer.   int * foo;  is ugly. Common
+convention is  int *foo;
 
- * Pete Zaitcev <zaitcev@redhat.com> dixit:
-> On Tue, 19 Jul 2005 18:24:25 +0200, DervishD <lkml@dervishd.net> wrote:
-> >     I have a new MP3 player, and when I disconnect it from the USB
-> > port, my logs says:
-> > 
-> >     <30>Jul 19 18:11:05 kernel: usb.c: USB disconnect on device 00:07.3-1 address 2
-> >     <27>Jul 19 18:11:06 kernel: hub.c: connect-debounce failed, port 1 disabled
-> > 
-> >     What is that 'connect-debounce' for? Is the port damaged? Am I
-> > doing anything wrong?
-[...]
-> In this case, when you're pulling the plug the hub receives a
-> momentary reconnect, so the software things something else was plugged.
-> I think perhaps the resistor harness is not good in the device,
-> or perhaps something is wrong with the connector.
+> 3e. sizeof
+>         space after the operator
+>         sizeof a
+> 
 
-    The device has a flimsy connector which didn't make good electric
-contact, that was the problem. I've returned the device and got a new
-one with a different connector that works ok :) Thanks a lot for the
-hint, I was assuming some kind of incompatibility or something like
-that, and the problem was just electrical.
+I don't think that's a hard rule, there's plenty of code that does 
+"sizeof(type)"  and not  "sizeof (type)", and whitespace cleanup
+patches I've done that change "sizeof (type)" into "sizeof(type)" have
+generally been accepted.
 
-    Thanks :)
+[snip]
+> 
+> 4. Indentation rules for C
+>         Use tabs, not spaces, for indentation. Tabs should be 8 characters wide.
+> 
+A tab is a tab is a tab, how it's displayed is up to the editor
+showing the file.
 
-    Raúl Núñez de Arenas Coronado
+
+[snip]
+> 
+> static struct foo *foo_bar(struct foo *first, struct bar *second,
+>                            struct foobar* thirsd);
+> 
+In this example you are not consistently placing your *'s, "struct foo
+*first" vs "struct foobar* thirsd". Common practice is "struct foo
+*first".
+
+
+[snip]
+> 
+>         No more than one blank line in a row.
+>         Last (or first) line in a file is never blank.
+> 
+Files should end with a  newline. gcc will even warn (with -pedantic)
+if this is not so.
+
+"line<nl>
+ line"
+
+is wrong,
+
+"line<nl>
+ line<nl>
+"
+
+is right.
+
+
+> Non-whitespace issues:
+> 
+> 6. One-line statement does not need a {} block, so dont put it into one
+>         if (foo)
+>                 bar;
+> 
+
+Not always so, if `bar' is a macro adding {} may be safer. Also
+sometimes adding {} improves readability, which is important.
+
+
+> 7. Comments
+>         Dont use C99 // comments.
+> 
+
+s/Dont/Don't/
+
+
+> 9a. Integer types
+>         int is the default integer type.
+>         Use unsigned type if you perform bit operations (<<,>>,&,|,~).
+>         Use unsigned long if you have to fit a pointer into integer.
+>         long long is at least 64 bit wide on all platforms.
+>         char is for ASCII characters and strings.
+>         Use u8,u16,u32,u64 if you need an integer of a specific size.
+
+u8,s8,u16,s16,u32,s32,u64,s64
+
 
 -- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to...
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

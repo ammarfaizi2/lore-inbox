@@ -1,43 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVGTDlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVGTDmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261583AbVGTDlN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 23:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVGTDlM
+	id S261555AbVGTDmP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 23:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVGTDmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 23:41:12 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:37234 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261583AbVGTDlL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 23:41:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=XIMP1+cEXrxLr+wKaOXjHHaKkY+80sPGHyF0sA98c9IRfKF8shVjvmfmiWJSHOkyXJ6vAEyQI0oRvYQzrbn/TYGYQTiU86arn8TvZsfDb6SNecZYX3EEQ8JKtBkHJVjwBKP1w0poLX0OcjqoDty2bKnWOhhMfOhkmewldZRbXYk=
-Message-ID: <a71293c2050719204047bd2afe@mail.gmail.com>
-Date: Tue, 19 Jul 2005 23:40:18 -0400
-From: Stephen Evanchik <evanchsa@gmail.com>
-Reply-To: Stephen Evanchik <evanchsa@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Synaptics and TrackPoint problems in 2.6.12
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Tue, 19 Jul 2005 23:42:15 -0400
+Received: from smtpout.mac.com ([17.250.248.45]:53968 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261555AbVGTDls (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 23:41:48 -0400
+In-Reply-To: <20050714011208.22598.qmail@science.horizon.com>
+References: <20050714011208.22598.qmail@science.horizon.com>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <FD559B50-FB1E-4478-ACF4-70E4DB7A0176@mac.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: kernel guide to space
+Date: Tue, 19 Jul 2005 23:41:35 -0400
+To: linux@horizon.com
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimitry,
+On Jul 13, 2005, at 21:12:08, linux@horizon.com wrote:
+>>> I don't think there's a strict 80 column rule anymore.  It's 2005...
+>
+>> Think again.  There are a lot of people who use 80 column windows so
+>> that we can see two code windows side-by-side.
+>
+> Agreed.  If you're having trouble with width, it's a sign that the  
+> code
+> needs to be refactored.
+>
+> Also, my personal rule is if that a source file exceeds 1000 lines,  
+> start
+> looking for a way to split it.  It can go longer (indeed, there is  
+> little
+> reason to split the fs/nls/nls_cp9??.c files), but
+> (I will refrain from discussing drivers/scsi/advansys.c)
 
-I have been receiving a lot of complaints that TrackPoints on
-Synaptics pass-thru ports stopped working with 2.6.12. I retested
-2.6.9 and 2.6.11-rc3 successfully, I believe 2.6.11.7 may also work
-but that is unconfirmed at this point.
+A simple set of code refactoring rules that I try to abide by:
 
-The behavior is always the same .. after sending the read secondary ID
-command, the TrackPoint seems to be disabled from that point forward.
+1)  If a function is more than a few 25 or 40 line screens, it's likely
+too big (unless a big switch statement or a list of initialization calls
+or something).  If necessary, use static inline functions to factor out
+repetitive behavior.
 
-Any ideas?
+2)  If a file is more than 30-40 functions, it's likely too big, and you
+should try to split it.  It's _ok_ to have 4 source files implementing
+code for manipulating a single struct.
 
--- 
-Stephen Evanchik
-http://stephen.evanchik.com
+3)  If a normal line of code is more than 80 characters, one of the
+following is probably true: you need to break the line up and use temps
+for clarity, or your function is so big that you're tabbing over too
+far.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$ L++++(+ 
+++) E
+W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+ PGP+++ t+(+++) 5  
+X R?
+tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  !y?(-)
+------END GEEK CODE BLOCK------
+
+

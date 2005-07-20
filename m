@@ -1,92 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVGTELi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVGTE2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVGTELi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 00:11:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVGTELi
+	id S261689AbVGTE2i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 00:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVGTE2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 00:11:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17550 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261580AbVGTELh (ORCPT
+	Wed, 20 Jul 2005 00:28:33 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:41450 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261615AbVGTE2b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 00:11:37 -0400
-Date: Wed, 20 Jul 2005 12:16:30 +0800
-From: David Teigland <teigland@redhat.com>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-cluster@redhat.com,
-       ocfs2-devel@oss.oracle.com
-Subject: Re: [Linux-cluster] [RFC] nodemanager, ocfs2, dlm
-Message-ID: <20050720041630.GC9747@redhat.com>
-References: <20050718061553.GA9568@redhat.com> <20050720004826.GH14505@ca-server1.us.oracle.com>
+	Wed, 20 Jul 2005 00:28:31 -0400
+Date: Wed, 20 Jul 2005 14:28:16 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: Eric.Moore@lsil.com, olh@suse.de, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 22/82] remove linux/version.h from drivers/message/fus
+ ion
+Message-Id: <20050720142816.57a0364b.sfr@canb.auug.org.au>
+In-Reply-To: <20050720031249.GA18042@humbolt.us.dell.com>
+References: <91888D455306F94EBD4D168954A9457C03281EB4@nacos172.co.lsil.com>
+	<20050720031249.GA18042@humbolt.us.dell.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050720004826.GH14505@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__20_Jul_2005_14_28_16_+1000_Oluk/RIGAaOko.lh"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 19, 2005 at 05:48:26PM -0700, Mark Fasheh wrote:
-> For OCFS2 that would mean that an ocfs2_nodemanager would still exist,
-> but as a much smaller module sitting on top of 'nodemanager'.
+--Signature=_Wed__20_Jul_2005_14_28_16_+1000_Oluk/RIGAaOko.lh
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yep, factoring out the common bits.
+On Tue, 19 Jul 2005 22:12:49 -0500 Matt Domsch <Matt_Domsch@dell.com> wrote:
+>
+> Sure it does, function names are defined symbols.
+>=20
+> I'm doing exactly this in my backport of the openipmi drivers to RHEL4
+> and SLES9.
 
-> So no port attribute. The OCFS2 network code normally takes port from the
-> node manager in order to determine how to talk to a given node. We'll have
-> to figure out how to resolve that. The easiest would be to add 'port' back,
-> but I think that might be problematic if we have multiple cluster network
-> infrastructures as we do today.
+I missed the smiley, right :-)
 
-The port is specific to the component using it (ocfs2, dlm, etc), so
-defining port as a node property doesn't make sense if nodemanager is
-providing node info to multiple components.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-> Another way to handle this would be to have userspace symlink to the node
-> items as an attribute on an ocfs2_tcp item. We could store 'port' as a
-> second attribute. This would have the added benefit of pinning node
-> information while OCFS2 uses it.
+--Signature=_Wed__20_Jul_2005_14_28_16_+1000_Oluk/RIGAaOko.lh
+Content-Type: application/pgp-signature
 
-I expect each component will probably use another per-node configfs object
-for component-specific attributes, using the common bits from the
-nodemanager object.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-> > +	char			nd_name[NODEMANAGER_MAX_NAME_LEN+1];
-> An accessor function for this would be nice for pretty prints - maybe strcpy
-> into a passed string.
+iD8DBQFC3dLkFdBgD/zoJvwRAoYYAJ420PoWmJK6Orx2oVPVwmjvpeVS3gCePGqB
+A57tMnlQ2rWyt2ZwxICXAgg=
+=qWmM
+-----END PGP SIGNATURE-----
 
-ok
-
-> > +	int			nd_nodeid;
-> This definitely won't work with OCFS2... Nodeid (what used to be called
-> node_num) needs to be unsigned. Otherwise this will break all our nodemap
-> stuff which uses a bitmap to represent cluster state.
-
-ok
-
-> > +	struct list_head	nd_status_list;
-> What are these two for? They don't seem to be referenced elsewhere...
-
-Missed ripping them out with the other ocfs-specific stuff.
-
-> > +	if (!tmp && cluster->cl_has_local &&
-> > +	    cluster->cl_local_node == node->nd_nodeid) {
-> > +		cluster->cl_local_node = 0;
-> I think we might want to be setting cl_local_node to NODEMANAGER_MAX_NODES
-> here. It seems that ocfs2_nodemanager also does this so we might have just
-> caught a bug you inherited :)
-
-yep
-
-> You removed o2nm_configured_node_map but we need some sort of method for
-> enumerating over the set of configured nodes.
-> 
-> Also we need a method for querying the existence of a node.
-> The OCFS2 code usually uses o2nm_get_node_by_num(..) != NULL for this but a
-> simple boolean api call would be cleaner and would avoid exposing the node
-> structure.
-
-Right, those should be on the TODO.
-
-Thanks,
-Dave
-
+--Signature=_Wed__20_Jul_2005_14_28_16_+1000_Oluk/RIGAaOko.lh--

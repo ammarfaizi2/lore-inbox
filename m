@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVGTSJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVGTSLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbVGTSJb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 14:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVGTSJb
+	id S261467AbVGTSLU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 14:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVGTSLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 14:09:31 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:5790 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261442AbVGTSJa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 14:09:30 -0400
-Date: Wed, 20 Jul 2005 20:09:18 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: "Walker, Bruce J (HP-Labs)" <bruce.walker@hp.com>,
-       linux clustering <linux-cluster@redhat.com>,
-       David Teigland <teigland@redhat.com>
-Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
-       clusters_sig@lists.osdl.org
-Subject: Re: [Clusters_sig] RE: [Linux-cluster] Re: [Ocfs2-devel] [RFC] nodemanager, ocfs2, dlm
-Message-ID: <20050720180918.GU5416@marowsky-bree.de>
-References: <3689AF909D816446BA505D21F1461AE404167CFB@cacexc04.americas.cpqcorp.net>
+	Wed, 20 Jul 2005 14:11:20 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:33676 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261448AbVGTSLP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 14:11:15 -0400
+X-ORBL: [63.202.173.158]
+Date: Wed, 20 Jul 2005 11:11:01 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: J?rn Engel <joern@wohnheim.fh-wedel.de>
+Cc: Jan Blunck <j.blunck@tu-harburg.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ramfs: pretend dirent sizes
+Message-ID: <20050720181101.GB11609@taniwha.stupidest.org>
+References: <42D72705.8010306@tu-harburg.de> <Pine.LNX.4.58.0507151151360.19183@g5.osdl.org> <20050716003952.GA30019@taniwha.stupidest.org> <42DCC7AA.2020506@tu-harburg.de> <20050719161623.GA11771@taniwha.stupidest.org> <42DD44E2.3000605@tu-harburg.de> <20050719183206.GA23253@taniwha.stupidest.org> <42DD50FC.9090004@tu-harburg.de> <20050719191648.GA24444@taniwha.stupidest.org> <20050720112127.GC3890@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3689AF909D816446BA505D21F1461AE404167CFB@cacexc04.americas.cpqcorp.net>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050720112127.GC3890@wohnheim.fh-wedel.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-07-20T09:55:31, "Walker, Bruce J (HP-Labs)" <bruce.walker@hp.com> wrote:
+On Wed, Jul 20, 2005 at 01:21:27PM +0200, J?rn Engel wrote:
 
-> Like Lars, I too was under the wrong impression about this configfs
-> "nodemanager" kernel component.  Our discussions in the cluster
-> meeting Monday and Tuesday were assuming it was a general service that
-> other kernel components could/would utilize and possibly also
-> something that could send uevents to non-kernel components wanting a
-> std. way to see membership information/events.
+> To my understanding, you can lseek to any "proper" offset inside a
+> directory.  Proper means that the offset marks the beginning of a
+> new dirent (or end of file) in the interpretation of the filesystem.
 
-Let me clarify that this was something we briefly touched on in
-Walldorf: The node manager would (re-)export the current data via sysfs
-(which would result in uevents being sent, too), and not something we
-dreamed up just Monday ;-)
+But you can never tell where these are in general.
 
-> As to kernel components without corresponding user-level "managers",
-> look no farther than OpenSSI.  Our hope was that we could adapt to a
-> user-land membership service and this interface thru configfs would
-> drive all our kernel subsystems.
+> Userspace doesn't have any means to figure out, which addresses are
+> proper and which aren't.  Except that getdents(2) moves the fd
+> offset to a proper address, which likely will remain proper until
+> the fd is closed.
 
-Well, node manager still can provide you the input as to which nodes are
-configured, which in a way translates to "membership". The thing it
-doesn't seem to provide yet is the supsend/modify/resume cycle which for
-example the RHAT DLM seems to require.
+I don't see why or how this can be true in general (it might be, but I
+don't see how myself).  If we are half way through scanning a
+directory and people start messing with it we could end up somewhere
+bogus (in which case f_op->readdir I guess is expected to try and do
+something sane here?)
 
+> Reopening the same directory may result in a formerly proper offset
+> isn't anymore.
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
+For that to be the case where is the state kept to ensure your current
+offset is valid?
 

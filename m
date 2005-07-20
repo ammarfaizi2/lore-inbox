@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVGTKkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVGTKpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVGTKkV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 06:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVGTKkV
+	id S261152AbVGTKpA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 06:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVGTKpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 06:40:21 -0400
-Received: from grerelbas01.net.external.hp.com ([192.6.111.85]:46768 "EHLO
-	grerelbas01.bastion.europe.hp.com") by vger.kernel.org with ESMTP
-	id S261157AbVGTKkP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 06:40:15 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 20 Jul 2005 06:45:00 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:11143 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261152AbVGTKo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 06:44:59 -0400
+Message-ID: <42DE2A31.7080505@gmail.com>
+Date: Wed, 20 Jul 2005 12:40:49 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Dual-core with kernel 2.4 (Red Hat EL 3)
-Date: Wed, 20 Jul 2005 12:40:11 +0200
-Message-ID: <213219CA6232F94E989A9A5354135D2F09387C@frqexc04.emea.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Dual-core with kernel 2.4 (Red Hat EL 3)
-Thread-Index: AcWMmAcNvssNvVqzSFexWJksgVV1BwAfuuLA
-From: "Cabaniols, Sebastien" <sebastien.cabaniols@hp.com>
-To: "Hubert Schwarthoff" <hubert@mail.lns.cornell.edu>,
-       "linux-kernel mailing list" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Jul 2005 10:40:11.0846 (UTC) FILETIME=[67FF0E60:01C58D17]
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, rth@twiddle.net,
+       dhowells@redhat.com, kumar.gala@freescale.com, davem@davemloft.net,
+       mhw@wittsend.com, Rogier Wolff <R.E.Wolff@bitwizard.nl>,
+       nils@kernelconcepts.de, cjtsai@ali.com.tw, Lionel.Bouton@inet6.fr,
+       benh@kernel.crashing.org, mchehab@brturbo.com.br, laredo@gnu.org,
+       rbultje@ronald.bitfreak.net, middelin@polyware.nl, philb@gnu.org,
+       tim@cyberelk.net, campbell@torque.net, andrea@suse.de,
+       linux@advansys.com, mulix@mulix.org
+Subject: Re: [PATCH] pci_find_device --> pci_get_device
+References: <42DC4873.2080807@gmail.com> <200507191327.44415@bilbo.math.uni-mannheim.de> <42DD1FCF.4050304@gmail.com> <200507191820.35472@bilbo.math.uni-mannheim.de>
+In-Reply-To: <200507191820.35472@bilbo.math.uni-mannheim.de>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rolf Eike Beer napsal(a):
 
-Redhat 3 update 5 may be what you are looking for (dual core support).
-Please note, this may not be the right list for these questions, the
-redhat kernel is something very different from the www.kernel.org kernel
-(same applies to suse/mandrake....)
+>Your patch to arch/sparc64/kernel/ebus.c is broken, the removed and added 
+>parts do not match in behaviour.
+>  
+>
+I can't still see the difference.
 
-Best regards
+if (pdev && (pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS))
+    *is_rio_p = 1;
+else
+    *is_rio_p = 0;
+AND
+*is_rio_p = !!(pdev && (pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS));
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Hubert
-Schwarthoff
-Sent: mardi 19 juillet 2005 21:22
-To: linux-kernel mailing list
-Subject: Dual-core with kernel 2.4 (Red Hat EL 3)
+aren't the same or these:
 
+    while (pdev = pci_get_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev))
+        if (pdev->device == PCI_DEVICE_ID_SUN_EBUS ||
+            pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS)
+            break;
+AND
+  do {
+        pdev = pci_find_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev);
+        if (pdev &&
+            (pdev->device == PCI_DEVICE_ID_SUN_EBUS ||
+             pdev->device == PCI_DEVICE_ID_SUN_RIO_EBUS))
+            break;
+    } while (pdev != NULL);
 
-Hallo, Linux folks!
-(first post here)
-I am trying to find out whether I can start using dual-core cpus with a
-2.4 kernel (Red Hat EL 3).
-Three questions below - please answer if you have any insight.
- - The first update to EL 4 announced "support" for dual core cpus both
-   from AMD and Intel, but doesn't say what that support means. I would
-   think with the right BIOS, the OS might distribute all tasks among
-   all cores right out of the box, as long as you don't need any special
-   parallel computing capabilities.
-   Or will the kernel just not recognize the second core?
- - The most recent update to EL 3 (which is what I am using) does not
-   say anything about dual-core. Does that mean there is no chance it
-   will run on a dual-core chip, because it has kernel 2.4?
- - My application is multi process server type stuff. I'd like to use
-   Intel dual chip boards. Are there any Intel dual chip dual-core
-   solutions you can buy? I haven't found one yet.
- Cheers
- Hubert Schwarthoff
+>If you add braces after if's please add the '{' in the same line as the if 
+>itself. This will make the diff bigger, but then this matches 
+>Documentation/Coding-style.
+>  
+>
+Ok, this has been improved.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in the body of a message to majordomo@vger.kernel.org More majordomo
-info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+* Added for_each_pci_dev wherever it is appropriate.
+
+New patch:
+http://www.fi.muni.cz/~xslaby/lnx/lnx-pci_find-2.6.13-r3g4_2.patch
+http://www.fi.muni.cz/~xslaby/lnx/lnx-pci_find-2.6.13-r3g4_2.patch.bz2
+
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
+

@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVGTOop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVGTOr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVGTOop (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 10:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVGTOoo
+	id S261272AbVGTOr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 10:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVGTOr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 10:44:44 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:65102 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S261272AbVGTOoW (ORCPT
+	Wed, 20 Jul 2005 10:47:58 -0400
+Received: from mailfe02.swip.net ([212.247.154.33]:52720 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261272AbVGTOr4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 10:44:22 -0400
-Date: Wed, 20 Jul 2005 16:44:21 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
+	Wed, 20 Jul 2005 10:47:56 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: files_lock deadlock?
+From: Alexander Nyberg <alexn@telia.com>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: a 15 GB file on tmpfs
-Message-ID: <20050720144421.GK7050@harddisk-recovery.com>
-References: <200507201416.36155.naber@inl.nl> <20050720132006.GI7050@harddisk-recovery.com> <dbljub$mgm$1@news.cistron.nl>
+In-Reply-To: <42DD2E37.3080204@fujitsu-siemens.com>
+References: <42DD2E37.3080204@fujitsu-siemens.com>
+Content-Type: text/plain
+Date: Wed, 20 Jul 2005 16:47:51 +0200
+Message-Id: <1121870871.1103.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dbljub$mgm$1@news.cistron.nl>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 20, 2005 at 01:35:07PM +0000, Miquel van Smoorenburg wrote:
-> In article <20050720132006.GI7050@harddisk-recovery.com>,
-> Erik Mouw  <erik@harddisk-recovery.com> wrote:
-> >On Wed, Jul 20, 2005 at 02:16:36PM +0200, Bastiaan Naber wrote:
-> >AFAIK you can't use a 15 GB tmpfs on i386 because large memory support
-> >is basically a hack to support multiple 4GB memory spaces (some VM guru
-> >correct me if I'm wrong).
+tis 2005-07-19 klockan 18:45 +0200 skrev Martin Wilck:
+> Hello,
 > 
-> I'm no VM guru but I have a 32 bit machine here with 8 GB of
-> memory and 8 GB of swap:
+> I apologize in advance if this is a dummy question. My web search turned 
+> up nothing, so I'm trying it here.
 > 
-> # mount -t tmpfs -o size=$((12*1024*1024*1024)) tmpfs /mnt
-> # df
-> Filesystem           1K-blocks      Used Available Use% Mounted on
-> /dev/sda1             19228276   1200132  17051396   7% /
-> tmpfs                 12582912         0  12582912   0% /mnt
+> We came across the following error message:
 > 
-> There you go, a 12 GB tmpfs. I haven't tried to create a 12 GB
-> file on it, though, since this is a production machine and it
-> needs the memory ..
+> Kernelpanic - not syncing: fs/proc/
+> Generic.c:521: spin_lock(fs/file_table.c:ffffffff80420280)
+> Already locked by fs/file_table.c/204
+> 
+> This shows a locking problem with the files_lock on a UP kernel with 
+> spinlock debugging enabled.
+> 
+> I noticed that files_lock is only protected with spin_lock() 
+> (file_list_lock(), include/linux/fs.h). Is it possible that this should 
+> be changed to spin_lock_irq()) or spin_lock_irqsave()? Or am I misssing 
+> something obvious?
 
-I stand corrected.
+spin_lock_irqsave is only needed when a lock is taken both in normal
+context and in interrupt context. Clearly this lock is not intended to
+be taken in interrupt context. 
 
-> So yes that appears to work just fine.
-
-The question is if it's a good idea to use a 15GB tmpfs on a 32 bit
-i386 class machine. I guess a real 64 bit machine will be much faster
-in handling suchs amounts of data simply because you don't have to go
-through the hurdles needed to address such memory on i386.
+I'll take a look, that spinlock debugging information unfortunately
+doesn't give too much info :|
 
 
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

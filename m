@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVGTAXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVGTAYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVGTAXL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 20:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVGTAXL
+	id S261720AbVGTAYX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 20:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVGTAYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 20:23:11 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:49657 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261684AbVGTAXK
+	Tue, 19 Jul 2005 20:24:22 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:26618 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261720AbVGTAYG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 20:23:10 -0400
+	Tue, 19 Jul 2005 20:24:06 -0400
 Subject: Re: Interbench real time benchmark results
 From: Daniel Walker <dwalker@mvista.com>
 Reply-To: dwalker@mvista.com
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
        ck@vds.kolivas.org
-In-Reply-To: <200507200816.11386.kernel@kolivas.org>
+In-Reply-To: <20050719223216.GA4194@elte.hu>
 References: <200507200816.11386.kernel@kolivas.org>
+	 <20050719223216.GA4194@elte.hu>
 Content-Type: text/plain
 Organization: MontaVista
-Date: Tue, 19 Jul 2005 17:23:03 -0700
-Message-Id: <1121818983.26927.74.camel@dhcp153.mvista.com>
+Date: Tue, 19 Jul 2005 17:23:57 -0700
+Message-Id: <1121819037.26927.75.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-20 at 08:16 +1000, Con Kolivas wrote:
+On Wed, 2005-07-20 at 00:32 +0200, Ingo Molnar wrote:
 
-> Interestingly the average latencies are slightly higher (in the miniscule <2us 
-> range), but the maximum latencies are excellently bound to 25us.
 > 
-> The results are quite reproducible.
+>  - networking is another frequent source of latencies - it might make 
+>    sense to add a workload doing lots of socket IO. (localhost might be 
+>    enough, but not for everything)
 
-I would guess that the average latencies are tunable .. In this case if
-any of the benchmarks are dependent on specific interrupts , or
-ksoftirqd, you can tune the priority of the associate IRQ threads , or
-ksoftirqd, to get similar averages to 2.6.12 ..
+The Gnutella test?
 
 Daniel
 

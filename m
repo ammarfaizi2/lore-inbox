@@ -1,176 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVGTPAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVGTPBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVGTPAa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 11:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVGTPA3
+	id S261345AbVGTPBx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 11:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVGTPBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 11:00:29 -0400
-Received: from mail4.zigzag.pl ([217.11.136.106]:32385 "HELO mail4.zigzag.pl")
-	by vger.kernel.org with SMTP id S261331AbVGTPA1 (ORCPT
+	Wed, 20 Jul 2005 11:01:52 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:23949 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261345AbVGTPA6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 11:00:27 -0400
-Date: Wed, 20 Jul 2005 17:00:25 +0200
-From: Lukasz Spaleniak <lspaleniak@wroc.zigzag.pl>
-To: linux-kernel@vger.kernel.org
-Subject: kernel oops, fast ethernet bridge, 2.4.31
-Message-Id: <20050720170025.1264b68a.lspaleniak@wroc.zigzag.pl>
-Organization: Internet Group SA
-X-Mailer: Sylpheed version 2.0.0beta2 (GTK+ 2.6.7; i686-pc-linux-gnu)
+	Wed, 20 Jul 2005 11:00:58 -0400
+Date: Wed, 20 Jul 2005 17:00:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Stuart_Hayes@Dell.com
+Cc: ak@suse.de, riel@redhat.com, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: page allocation/attributes question (i386/x86_64 specific)
+Message-ID: <20050720150029.GA29619@elte.hu>
+References: <B1939BC11A23AE47A0DBE89A37CB26B40743C6@ausx3mps305.aus.amer.dell.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Wed__20_Jul_2005_17_00_25_+0200_RCqzNDuMvJXtqpOn"
-X-BitDefender-Scanner: Clean, Agent: BitDefender Qmail 1.6.2 on
- mail4.zigzag.pl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B1939BC11A23AE47A0DBE89A37CB26B40743C6@ausx3mps305.aus.amer.dell.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---Multipart=_Wed__20_Jul_2005_17_00_25_+0200_RCqzNDuMvJXtqpOn
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+* Stuart_Hayes@Dell.com <Stuart_Hayes@Dell.com> wrote:
 
-Hello,
+> Ingo Molnar wrote:
+> > there's one problem with the patch: it breaks things that need the
+> > low 1MB executable (e.g. APM bios32 calls). It would at a minimum be
+> > needed to exclude the BIOS area in 0xd0000-0xfffff.  
+> > 
+> > 	Ingo
+> 
+> I wrote it to make everything below 1MB executable, if it isn't RAM 
+> according to the e820 map, which should include the BIOS area.  This 
+> includes 0xd0000-0xffff on my system.  Do you think I should explicity 
+> make 0xd0000-0xfffff executable regardless of the e820 map?
 
-I have bridge firewall (linux box) with three fast ethernet cards (one
-rtl8139 for management and two e100 for bridge). It is running 2.4.31
-kernel and iptables v1.2.11. It works ok about one month. Few weeks
-ago It started ooopsing. First thought was hardware, but it was
-replaced with a new one and problem still exist. I'm attaching 
-ksymoops analysis of ooops message. I hope I'll help.
+hm ... which portion does this? I'm looking at fixnx2.patch. I 
+definitely saw a APM bootup crash due to this, but that was on a 2.4-ish 
+backport of the patch.
 
-Some facts:
-Traffic over this bridge is about ~30 MBit/sec and every frame is
-tagged with VID (802.1q). Problem exist also on 2.4.30 kernel.
-Kernel is patched with ebtables patch. Ooops completeley freezes
-machine, only hard reset takes effect. Nothing is placed into syslog.
-
-The ksymooops analisis is attached as text file.
-
-Anyone know this bug/problem ?
-
-Regards,
-Lukasz Spaleniak
-
--- 
-spalek on wroc zigzag pl
-GCM dpu s: a--- C++ UL++++ P+ L+++ E--- W+ N+ K- w O- M V-
-PGP t--- 5 X+ R- tv-- b DI- D- G e-- h! r y+
-
---Multipart=_Wed__20_Jul_2005_17_00_25_+0200_RCqzNDuMvJXtqpOn
-Content-Type: application/octet-stream;
- name="lalala"
-Content-Disposition: attachment;
- filename="lalala"
-Content-Transfer-Encoding: base64
-
-a3N5bW9vcHMgMi40Ljkgb24gaTY4NiAyLjQuMzEuICBPcHRpb25zIHVzZWQKICAgICAtViAoZGVm
-YXVsdCkKICAgICAtayBrc3ltcyAoc3BlY2lmaWVkKQogICAgIC1sIG1vZHVseSAoc3BlY2lmaWVk
-KQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMzEvIChkZWZhdWx0KQogICAgIC1tIC9ib290L1N5
-c3RlbS5tYXAtMi40LjMxIChkZWZhdWx0KQoKc2twdXQ6dW5kZXI6IGUwOGU3YzQ4OjE1MTggcHV0
-OjE0IGRldjpldGgya2VybmVsIEJVRyBhdCBza2J1ZmYuYzoxMDkhCmludmFsaWQgb3BlcmFuZDog
-MDAwMApDUFU6ICAgIDAKRUlQOiAgICAwMDEwOls8YzAxY2QxY2I+XSAgICBOb3QgdGFpbnRlZApV
-c2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLWkzODYgLWEgaTM4NgpFRkxBR1M6
-IDAwMDEwMjgyCmVheDogMDAwMDAwMmEgICBlYng6IGRmM2I4YzgwICAgZWN4OiBjMDI4NjAwMCAg
-IGVkeDogZGYzYzNmODQKZXNpOiBkZGJiM2JhNiAgIGVkaTogZGRmOWI4MTAgICBlYnA6IGRmM2I4
-YzgwICAgZXNwOiBjMDI4N2I0OApkczogMDAxOCAgIGVzOiAwMDE4ICAgc3M6IDAwMTgKUHJvY2Vz
-cyBzd2FwcGVyIChwaWQ6IDAsIHN0YWNrcGFnZT1jMDI4NzAwMCkKU3RhY2s6IGMwMjNiNGUwIGUw
-OGU3YzQ4IDAwMDAwNWVlIDAwMDAwMDBlIGRmYWU4YzAwIGUwOGU3YzUxIGRmM2I4YzgwIDAwMDAw
-MDBlCiAgICAgICBlMDhlN2M0OCBkZjNiOGM4MCBkZGY5YjgxMCBkZGY5YjgyNCAwMDAwMDVjOCBj
-MDFlNjM0YyBkZjNiOGM4MCAwMDAwMDAxNAogICAgICAgZGRmOWI4MjQgMDAwMDA1YzggMDAwMDA1
-ZGMgMDAwMDAwMTQgMDAwMDAwMDAgMDAwMDA1YzggMDAwMDAwMDkgMDAwMDA1YzgKQ2FsbCBUcmFj
-ZTogICAgWzxlMDhlN2M0OD5dIFs8ZTA4ZTdjNTE+XSBbPGUwOGU3YzQ4Pl0gWzxjMDFlNjM0Yz5d
-IFs8ZTA4ZWNlYzA+XQogIFs8ZTA4ZWQwMjA+XSBbPGUwOGU3YmIwPl0gWzxlMDkwMDY4ND5dIFs8
-ZTA4ZTdiYjA+XSBbPGUwOGU3YmIwPl0gWzxlMDkwNzNkMD5dCiAgWzxjMDFkOWM2YT5dIFs8ZTA4
-ZTdiYjA+XSBbPGMwMWQ5ZmQ5Pl0gWzxlMDhlN2JiMD5dIFs8ZTA5MDczZDA+XSBbPGUwOGVjMzRk
-Pl0KICBbPGUwOGU3YmIwPl0gWzxlMDhlZDE0MD5dIFs8YzAxZDljNmE+XSBbPGUwOGU3YmIwPl0g
-WzxjMDFkOWZkOT5dIFs8ZTA4ZTdiYjA+XQogIFs8ZTA4ZWQxNDA+XSBbPGUwOGU3Y2YzPl0gWzxl
-MDhlN2JiMD5dIFs8ZTA4ZWJkMGM+XSBbPGUwOGU3Y2IwPl0gWzxlMDhlYmU2Zj5dCiAgWzxlMDhl
-YmM4MD5dIFs8ZTA4ZWQxMTA+XSBbPGMwMWQ5YzZhPl0gWzxlMDhlN2NiMD5dIFs8YzAxZDlmZDk+
-XSBbPGUwOGU3Y2IwPl0KICBbPGUwOGVkMTEwPl0gWzxlMDhlN2RlYT5dIFs8ZTA4ZTdjYjA+XSBb
-PGUwOGU4OGRmPl0gWzxlMDhlODgyMD5dIFs8ZTA4ZWIzNjI+XQogIFs8ZTA4ZTg4MjA+XSBbPGUw
-OGViMjUwPl0gWzxlMDhlYmFkZT5dIFs8ZTA4ZWIyNTA+XSBbPGUwOGVkMGUwPl0gWzxjMDFkOWM2
-YT5dCiAgWzxlMDhlODgyMD5dIFs8YzAxZDlmZDk+XSBbPGUwOGU4ODIwPl0gWzxlMDhlZDBlMD5d
-IFs8ZTA4ZTg4MjA+XSBbPGUwOGU4YWEyPl0KICBbPGUwOGU4ODIwPl0gWzxjMDFkMTI4OT5dIFs8
-YzAxZDE0NjM+XSBbPGMwMWQxNTY0Pl0gWzxjMDExOGIwNT5dIFs8YzAxMDg4ZmI+XQogIFs8YzAx
-MDUyYzA+XSBbPGMwMTBhYzc4Pl0gWzxjMDEwNTJjMD5dIFs8YzAxMDUyZTM+XSBbPGMwMTA1Mzcy
-Pl0gWzxjMDEwNTAwMD5dCkNvZGU6IDBmIDBiIDZkIDAwIDVmIGE1IDIzIGMwIDgzIGM0IDE0IGMz
-IDg5IGY2IDhkIGJjIDI3IDAwIDAwIDAwCgoKPj5FSVA7IGMwMWNkMWNiIDxza2JfdW5kZXJfcGFu
-aWMrM2IvNTA+ICAgPD09PT09Cgo+PmVieDsgZGYzYjhjODAgPF9lbmQrMWYwZjRmZmMvMjA1Zjgz
-ZGM+Cj4+ZWN4OyBjMDI4NjAwMCA8aW5pdF90YXNrX3VuaW9uKzAvMjAwMD4KPj5lZHg7IGRmM2Mz
-Zjg0IDxfZW5kKzFmMTAwMzAwLzIwNWY4M2RjPgo+PmVzaTsgZGRiYjNiYTYgPF9lbmQrMWQ4ZWZm
-MjIvMjA1ZjgzZGM+Cj4+ZWRpOyBkZGY5YjgxMCA8X2VuZCsxZGNkN2I4Yy8yMDVmODNkYz4KPj5l
-YnA7IGRmM2I4YzgwIDxfZW5kKzFmMGY0ZmZjLzIwNWY4M2RjPgo+PmVzcDsgYzAyODdiNDggPGlu
-aXRfdGFza191bmlvbisxYjQ4LzIwMDA+CgpUcmFjZTsgZTA4ZTdjNDggPFticmlkZ2VdYnJfZGV2
-X3F1ZXVlX3B1c2hfeG1pdCs5OC8xMDA+ClRyYWNlOyBlMDhlN2M1MSA8W2JyaWRnZV1icl9kZXZf
-cXVldWVfcHVzaF94bWl0K2ExLzEwMD4KVHJhY2U7IGUwOGU3YzQ4IDxbYnJpZGdlXWJyX2Rldl9x
-dWV1ZV9wdXNoX3htaXQrOTgvMTAwPgpUcmFjZTsgYzAxZTYzNGMgPGlwX2ZyYWdtZW50KzJlYy8z
-ZTA+ClRyYWNlOyBlMDhlY2VjMCA8W2JyaWRnZV1fX2Zha2VfbmV0X2RldmljZSswLzE2MD4KVHJh
-Y2U7IGUwOGVkMDIwIDxbYnJpZGdlXV9fZmFrZV9ydGFibGUrMC9jMD4KVHJhY2U7IGUwOGU3YmIw
-IDxbYnJpZGdlXWJyX2Rldl9xdWV1ZV9wdXNoX3htaXQrMC8xMDA+ClRyYWNlOyBlMDkwMDY4NCA8
-W2lwX2Nvbm50cmFja11pcF9yZWZyYWcrNzQvODA+ClRyYWNlOyBlMDhlN2JiMCA8W2JyaWRnZV1i
-cl9kZXZfcXVldWVfcHVzaF94bWl0KzAvMTAwPgpUcmFjZTsgZTA4ZTdiYjAgPFticmlkZ2VdYnJf
-ZGV2X3F1ZXVlX3B1c2hfeG1pdCswLzEwMD4KVHJhY2U7IGUwOTA3M2QwIDxbaXBfY29ubnRyYWNr
-XWlwX2Nvbm50cmFja19vdXRfb3BzKzAvMTg+ClRyYWNlOyBjMDFkOWM2YSA8bmZfaXRlcmF0ZSs2
-YS9iMD4KVHJhY2U7IGUwOGU3YmIwIDxbYnJpZGdlXWJyX2Rldl9xdWV1ZV9wdXNoX3htaXQrMC8x
-MDA+ClRyYWNlOyBjMDFkOWZkOSA8bmZfaG9va19zbG93Kzk5LzFmMD4KVHJhY2U7IGUwOGU3YmIw
-IDxbYnJpZGdlXWJyX2Rldl9xdWV1ZV9wdXNoX3htaXQrMC8xMDA+ClRyYWNlOyBlMDkwNzNkMCA8
-W2lwX2Nvbm50cmFja11pcF9jb25udHJhY2tfb3V0X29wcyswLzE4PgpUcmFjZTsgZTA4ZWMzNGQg
-PFticmlkZ2VdYnJfbmZfcG9zdF9yb3V0aW5nKzEzZC8yNDA+ClRyYWNlOyBlMDhlN2JiMCA8W2Jy
-aWRnZV1icl9kZXZfcXVldWVfcHVzaF94bWl0KzAvMTAwPgpUcmFjZTsgZTA4ZWQxNDAgPFticmlk
-Z2VdYnJfbmZfb3BzKzYwLzE0MD4KVHJhY2U7IGMwMWQ5YzZhIDxuZl9pdGVyYXRlKzZhL2IwPgpU
-cmFjZTsgZTA4ZTdiYjAgPFticmlkZ2VdYnJfZGV2X3F1ZXVlX3B1c2hfeG1pdCswLzEwMD4KVHJh
-Y2U7IGMwMWQ5ZmQ5IDxuZl9ob29rX3Nsb3crOTkvMWYwPgpUcmFjZTsgZTA4ZTdiYjAgPFticmlk
-Z2VdYnJfZGV2X3F1ZXVlX3B1c2hfeG1pdCswLzEwMD4KVHJhY2U7IGUwOGVkMTQwIDxbYnJpZGdl
-XWJyX25mX29wcys2MC8xNDA+ClRyYWNlOyBlMDhlN2NmMyA8W2JyaWRnZV1icl9mb3J3YXJkX2Zp
-bmlzaCs0My82MD4KVHJhY2U7IGUwOGU3YmIwIDxbYnJpZGdlXWJyX2Rldl9xdWV1ZV9wdXNoX3ht
-aXQrMC8xMDA+ClRyYWNlOyBlMDhlYmQwYyA8W2JyaWRnZV1icl9uZl9mb3J3YXJkX2ZpbmlzaCs4
-Yy9lMD4KVHJhY2U7IGUwOGU3Y2IwIDxbYnJpZGdlXWJyX2ZvcndhcmRfZmluaXNoKzAvNjA+ClRy
-YWNlOyBlMDhlYmU2ZiA8W2JyaWRnZV1icl9uZl9mb3J3YXJkX2lwKzEwZi8xNjA+ClRyYWNlOyBl
-MDhlYmM4MCA8W2JyaWRnZV1icl9uZl9mb3J3YXJkX2ZpbmlzaCswL2UwPgpUcmFjZTsgZTA4ZWQx
-MTAgPFticmlkZ2VdYnJfbmZfb3BzKzMwLzE0MD4KVHJhY2U7IGMwMWQ5YzZhIDxuZl9pdGVyYXRl
-KzZhL2IwPgpUcmFjZTsgZTA4ZTdjYjAgPFticmlkZ2VdYnJfZm9yd2FyZF9maW5pc2grMC82MD4K
-VHJhY2U7IGMwMWQ5ZmQ5IDxuZl9ob29rX3Nsb3crOTkvMWYwPgpUcmFjZTsgZTA4ZTdjYjAgPFti
-cmlkZ2VdYnJfZm9yd2FyZF9maW5pc2grMC82MD4KVHJhY2U7IGUwOGVkMTEwIDxbYnJpZGdlXWJy
-X25mX29wcyszMC8xNDA+ClRyYWNlOyBlMDhlN2RlYSA8W2JyaWRnZV1fX2JyX2ZvcndhcmQrNWEv
-NzA+ClRyYWNlOyBlMDhlN2NiMCA8W2JyaWRnZV1icl9mb3J3YXJkX2ZpbmlzaCswLzYwPgpUcmFj
-ZTsgZTA4ZTg4ZGYgPFticmlkZ2VdYnJfaGFuZGxlX2ZyYW1lX2ZpbmlzaCtiZi8xNjA+ClRyYWNl
-OyBlMDhlODgyMCA8W2JyaWRnZV1icl9oYW5kbGVfZnJhbWVfZmluaXNoKzAvMTYwPgpUcmFjZTsg
-ZTA4ZWIzNjIgPFticmlkZ2VdYnJfbmZfcHJlX3JvdXRpbmdfZmluaXNoKzExMi8yYjA+ClRyYWNl
-OyBlMDhlODgyMCA8W2JyaWRnZV1icl9oYW5kbGVfZnJhbWVfZmluaXNoKzAvMTYwPgpUcmFjZTsg
-ZTA4ZWIyNTAgPFticmlkZ2VdYnJfbmZfcHJlX3JvdXRpbmdfZmluaXNoKzAvMmIwPgpUcmFjZTsg
-ZTA4ZWJhZGUgPFticmlkZ2VdYnJfbmZfcHJlX3JvdXRpbmcrMjllLzQxMD4KVHJhY2U7IGUwOGVi
-MjUwIDxbYnJpZGdlXWJyX25mX3ByZV9yb3V0aW5nX2ZpbmlzaCswLzJiMD4KVHJhY2U7IGUwOGVk
-MGUwIDxbYnJpZGdlXWJyX25mX29wcyswLzE0MD4KVHJhY2U7IGMwMWQ5YzZhIDxuZl9pdGVyYXRl
-KzZhL2IwPgpUcmFjZTsgZTA4ZTg4MjAgPFticmlkZ2VdYnJfaGFuZGxlX2ZyYW1lX2ZpbmlzaCsw
-LzE2MD4KVHJhY2U7IGMwMWQ5ZmQ5IDxuZl9ob29rX3Nsb3crOTkvMWYwPgpUcmFjZTsgZTA4ZTg4
-MjAgPFticmlkZ2VdYnJfaGFuZGxlX2ZyYW1lX2ZpbmlzaCswLzE2MD4KVHJhY2U7IGUwOGVkMGUw
-IDxbYnJpZGdlXWJyX25mX29wcyswLzE0MD4KVHJhY2U7IGUwOGU4ODIwIDxbYnJpZGdlXWJyX2hh
-bmRsZV9mcmFtZV9maW5pc2grMC8xNjA+ClRyYWNlOyBlMDhlOGFhMiA8W2JyaWRnZV1icl9oYW5k
-bGVfZnJhbWUrMTIyLzFlMD4KVHJhY2U7IGUwOGU4ODIwIDxbYnJpZGdlXWJyX2hhbmRsZV9mcmFt
-ZV9maW5pc2grMC8xNjA+ClRyYWNlOyBjMDFkMTI4OSA8bmV0aWZfcmVjZWl2ZV9za2IrYjkvMjEw
-PgpUcmFjZTsgYzAxZDE0NjMgPHByb2Nlc3NfYmFja2xvZys4My8xMTA+ClRyYWNlOyBjMDFkMTU2
-NCA8bmV0X3J4X2FjdGlvbis3NC8xMTA+ClRyYWNlOyBjMDExOGIwNSA8ZG9fc29mdGlycSs5NS9h
-MD4KVHJhY2U7IGMwMTA4OGZiIDxkb19JUlErOWIvYTA+ClRyYWNlOyBjMDEwNTJjMCA8ZGVmYXVs
-dF9pZGxlKzAvNDA+ClRyYWNlOyBjMDEwYWM3OCA8Y2FsbF9kb19JUlErNS9kPgpUcmFjZTsgYzAx
-MDUyYzAgPGRlZmF1bHRfaWRsZSswLzQwPgpUcmFjZTsgYzAxMDUyZTMgPGRlZmF1bHRfaWRsZSsy
-My80MD4KVHJhY2U7IGMwMTA1MzcyIDxjcHVfaWRsZSs1Mi83MD4KVHJhY2U7IGMwMTA1MDAwIDxf
-c3RleHQrMC8wPgoKQ29kZTsgIGMwMWNkMWNiIDxza2JfdW5kZXJfcGFuaWMrM2IvNTA+CjAwMDAw
-MDAwIDxfRUlQPjoKQ29kZTsgIGMwMWNkMWNiIDxza2JfdW5kZXJfcGFuaWMrM2IvNTA+ICAgPD09
-PT09CiAgIDA6ICAgMGYgMGIgICAgICAgICAgICAgICAgICAgICB1ZDJhICAgICAgPD09PT09CkNv
-ZGU7ICBjMDFjZDFjZCA8c2tiX3VuZGVyX3BhbmljKzNkLzUwPgogICAyOiAgIDZkICAgICAgICAg
-ICAgICAgICAgICAgICAgaW5zbCAgICglZHgpLCVlczooJWVkaSkKQ29kZTsgIGMwMWNkMWNlIDxz
-a2JfdW5kZXJfcGFuaWMrM2UvNTA+CiAgIDM6ICAgMDAgNWYgYTUgICAgICAgICAgICAgICAgICBh
-ZGQgICAgJWJsLDB4ZmZmZmZmYTUoJWVkaSkKQ29kZTsgIGMwMWNkMWQxIDxza2JfdW5kZXJfcGFu
-aWMrNDEvNTA+CiAgIDY6ICAgMjMgYzAgICAgICAgICAgICAgICAgICAgICBhbmQgICAgJWVheCwl
-ZWF4CkNvZGU7ICBjMDFjZDFkMyA8c2tiX3VuZGVyX3BhbmljKzQzLzUwPgogICA4OiAgIDgzIGM0
-IDE0ICAgICAgICAgICAgICAgICAgYWRkICAgICQweDE0LCVlc3AKQ29kZTsgIGMwMWNkMWQ2IDxz
-a2JfdW5kZXJfcGFuaWMrNDYvNTA+CiAgIGI6ICAgYzMgICAgICAgICAgICAgICAgICAgICAgICBy
-ZXQgICAgCkNvZGU7ICBjMDFjZDFkNyA8c2tiX3VuZGVyX3BhbmljKzQ3LzUwPgogICBjOiAgIDg5
-IGY2ICAgICAgICAgICAgICAgICAgICAgbW92ICAgICVlc2ksJWVzaQpDb2RlOyAgYzAxY2QxZDkg
-PHNrYl91bmRlcl9wYW5pYys0OS81MD4KICAgZTogICA4ZCBiYyAyNyAwMCAwMCAwMCAwMCAgICAg
-IGxlYSAgICAweDAoJWVkaSksJWVkaQoKIDwwPktlcm5lbCBwYW5pYzogQWllZSwga2lsbGluZyBp
-bnRlcnJ1cHQgaGFuZGxlciEK
-
---Multipart=_Wed__20_Jul_2005_17_00_25_+0200_RCqzNDuMvJXtqpOn--
-
+	Ingo

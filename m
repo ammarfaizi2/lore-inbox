@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVGTLdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVGTLhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVGTLdh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 07:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVGTLdh
+	id S261169AbVGTLhF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 07:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVGTLhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 07:33:37 -0400
-Received: from mail.yosifov.net ([193.200.14.114]:10142 "EHLO home.yosifov.net")
-	by vger.kernel.org with ESMTP id S261174AbVGTLdg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 07:33:36 -0400
-Subject: Re: Noob question. Why is the for-pentium4 kernel built
-	with	-march=i686 ?
-From: Ivan Yosifov <ivan@yosifov.net>
-Reply-To: ivan@yosifov.net
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Kerin Millar <kerframil@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200507201338.08179.vda@ilport.com.ua>
-References: <1121792852.11857.6.camel@home.yosifov.net>
-	 <1121852642.18129.39.camel@localhost>
-	 <1121851507.10454.3.camel@home.yosifov.net>
-	 <200507201338.08179.vda@ilport.com.ua>
-Content-Type: text/plain
-Date: Wed, 20 Jul 2005 14:33:00 +0300
-Message-Id: <1121859180.2924.4.camel@home.yosifov.net>
+	Wed, 20 Jul 2005 07:37:05 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:31762 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261169AbVGTLhC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 07:37:02 -0400
+Date: Wed, 20 Jul 2005 13:40:01 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: LKML Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: inotify - i dont get a inotify device
+Message-ID: <20050720114001.GB10223@irc.pl>
+Mail-Followup-To: LKML Mailinglist <linux-kernel@vger.kernel.org>
+References: <1121858078.17798.2.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+nBD6E3TurpgldQp"
+Content-Disposition: inline
+In-Reply-To: <1121858078.17798.2.camel@localhost>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-20 at 13:38 +0300, Denis Vlasenko wrote:
-> On Wednesday 20 July 2005 12:25, Ivan Yosifov wrote:
-> > > > > Also, I believe that the -march=pentium4 option /was/ actually used up
-> > > > > until kernel 2.6.10 where it was dropped because of a risk that some
-> > > > > versions of gcc would cause the kernel to use SSE registers for data
-> > > > > movement (which is a no-no).
-> > > > > 
-> > > > 
-> > > > You seem right. I fetched a 2.6.9 tarball and it is really built with
-> > > > -march=pentium4. Do you know which are versions of gcc in question ?
-> > > > 
-> > > 
-> > > No, I'm afraid not. I only know that the advice came from Richard
-> > > Henderson who (I think) is one of the core glibc hackers. You can see
-> > > the point at which it was introduced by Linus in the ChangeLog (2nd
-> > > message from last):
-> > > 
-> > > http://www.kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.10
-> > 
-> > Seems to be this one:
-> > 
-> > <torvalds@ppc970.osdl.org>
-> > 	Don't use "-march=pentium3" for gcc tuning.
-> > 	
-> > 	rth tells me that some versions of gcc may end up using the
-> > 	SSE registers for data movement when you do that.
-> > 	
-> > 	Use "-march=i686 -mtune=xxxx" instead.
-> > 	
-> > 	(We do the same thing for march=pentium2/4 too, just for
-> > 	consistency).
-> > 
-> > 
-> > The way it is worded it seems that it is a problem with *some* versions
-> > of gcc only on p3, not p4.
-> 
-> Why do you care? I bet that differences between i686 code and pentium4 code
-> are well below noise level.
 
-Ah, well.
+--+nBD6E3TurpgldQp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I was curious why p4 got special treatment other CPUs ( like amd ) do
-not.
+On Wed, Jul 20, 2005 at 01:14:38PM +0200, Kasper Sandberg wrote:
+> hello.. i have a small problem with inotify in kernel 2.6.13-rc3-git4 -
+> i do not get the inotify device, i know i build it in,
+> gzcat /proc/config.gz | grep -i inotify confirms it, and i have a very
+> new udev, where inotify is in the rules file, i tried udevstart but it
+> did not create me the inotify device..
+> anyone that can help? perhaps a fix is known?
 
-Cheers,
-Ivan Yosifov.
+ Inotify got converted to using syscall. There is no longer a device
+node. You can check the details of using inotify here:
+http://rlove.org/log/2005071401.html
+
+--=20
+Tomasz Torcz                 "God, root, what's the difference?"
+zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
 
 
+--+nBD6E3TurpgldQp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: gpg --search-keys Tomasz Torcz
+
+iD8DBQFC3jgRThhlKowQALQRAqINAJ4pPuRVs5t94W5N0QPCHuQzLs5jiQCeOM7U
+icnww560AdCPBVqNRW+o6po=
+=xKQe
+-----END PGP SIGNATURE-----
+
+--+nBD6E3TurpgldQp--

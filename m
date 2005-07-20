@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVGTPBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVGTPD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVGTPBx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 11:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVGTPBw
+	id S261357AbVGTPD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 11:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVGTPD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 11:01:52 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:23949 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261345AbVGTPA6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 11:00:58 -0400
-Date: Wed, 20 Jul 2005 17:00:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Stuart_Hayes@Dell.com
-Cc: ak@suse.de, riel@redhat.com, andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: page allocation/attributes question (i386/x86_64 specific)
-Message-ID: <20050720150029.GA29619@elte.hu>
-References: <B1939BC11A23AE47A0DBE89A37CB26B40743C6@ausx3mps305.aus.amer.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B1939BC11A23AE47A0DBE89A37CB26B40743C6@ausx3mps305.aus.amer.dell.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 20 Jul 2005 11:03:59 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:4528 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S261357AbVGTPCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 11:02:44 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.93,304,1114984800"; 
+   d="scan'208"; a="12868361:sNHT31551564"
+Message-ID: <42DE6791.2030305@fujitsu-siemens.com>
+Date: Wed, 20 Jul 2005 17:02:41 +0200
+From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Organization: Fujitsu Siemens Computers
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
+To: Alexander Nyberg <alexn@telia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: files_lock deadlock?
+References: <42DD2E37.3080204@fujitsu-siemens.com> <1121870871.1103.14.camel@localhost.localdomain>
+In-Reply-To: <1121870871.1103.14.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Nyberg wrote:
 
-* Stuart_Hayes@Dell.com <Stuart_Hayes@Dell.com> wrote:
+> spin_lock_irqsave is only needed when a lock is taken both in normal
+> context and in interrupt context. Clearly this lock is not intended to
+> be taken in interrupt context. 
 
-> Ingo Molnar wrote:
-> > there's one problem with the patch: it breaks things that need the
-> > low 1MB executable (e.g. APM bios32 calls). It would at a minimum be
-> > needed to exclude the BIOS area in 0xd0000-0xfffff.  
-> > 
-> > 	Ingo
-> 
-> I wrote it to make everything below 1MB executable, if it isn't RAM 
-> according to the e820 map, which should include the BIOS area.  This 
-> includes 0xd0000-0xffff on my system.  Do you think I should explicity 
-> make 0xd0000-0xfffff executable regardless of the e820 map?
+According to Rusty's unreliable guide
+(http://www.kernel.org/pub/linux/kernel/people/rusty/kernel-locking/c214.html)
+if some code can be called from user context as well as in a softirq, at 
+least spin_lock_bh() is necessary. I am not sure whether that may be 
+true for the code that modifies files_lock.
 
-hm ... which portion does this? I'm looking at fixnx2.patch. I 
-definitely saw a APM bootup crash due to this, but that was on a 2.4-ish 
-backport of the patch.
+> I'll take a look, that spinlock debugging information unfortunately
+> doesn't give too much info :|
 
-	Ingo
+Thanks!
+
+Martin
+
+-- 
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy

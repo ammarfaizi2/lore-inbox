@@ -1,81 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVGTLZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVGTLdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVGTLZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 07:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVGTLZZ
+	id S261174AbVGTLdh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 07:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVGTLdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 07:25:25 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:39607 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261165AbVGTLZW (ORCPT
+	Wed, 20 Jul 2005 07:33:37 -0400
+Received: from mail.yosifov.net ([193.200.14.114]:10142 "EHLO home.yosifov.net")
+	by vger.kernel.org with ESMTP id S261174AbVGTLdg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 07:25:22 -0400
-Message-ID: <1121858719.42de349feb815@imap.linux.ibm.com>
-Date: Wed, 20 Jul 2005 07:25:19 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: "Moore, Eric Dean" <Eric.Moore@lsil.com>, bharata@in.ibm.com,
-       "Wade, Roy" <Roy.Wade@lsil.com>, "Hayes, Jared" <Jared.Hayes@lsil.com>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [IBM] RE: [BUG] Fusion MPT Base Driver initialization failure wit h kdum p
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.7
-X-Originating-IP: 9.184.230.110
+	Wed, 20 Jul 2005 07:33:36 -0400
+Subject: Re: Noob question. Why is the for-pentium4 kernel built
+	with	-march=i686 ?
+From: Ivan Yosifov <ivan@yosifov.net>
+Reply-To: ivan@yosifov.net
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Kerin Millar <kerframil@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200507201338.08179.vda@ilport.com.ua>
+References: <1121792852.11857.6.camel@home.yosifov.net>
+	 <1121852642.18129.39.camel@localhost>
+	 <1121851507.10454.3.camel@home.yosifov.net>
+	 <200507201338.08179.vda@ilport.com.ua>
+Content-Type: text/plain
+Date: Wed, 20 Jul 2005 14:33:00 +0300
+Message-Id: <1121859180.2924.4.camel@home.yosifov.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting James Bottomley <James.Bottomley@SteelEye.com>:
-
-> On Fri, 2005-07-15 at 09:46 +0530, Vivek Goyal wrote:
-> > Kdump does not require any special support from the driver. After a
-> reboot
-> > a fresh kernel is booted and drivers are initialized again. The only 
-> > difference here is that underlying devices are not shutdown or reset so
-> > when driver is initializing, associated device might very well be sending
-> > the interrupts. Driver should be hardened to handle this situation.
+On Wed, 2005-07-20 at 13:38 +0300, Denis Vlasenko wrote:
+> On Wednesday 20 July 2005 12:25, Ivan Yosifov wrote:
+> > > > > Also, I believe that the -march=pentium4 option /was/ actually used up
+> > > > > until kernel 2.6.10 where it was dropped because of a risk that some
+> > > > > versions of gcc would cause the kernel to use SSE registers for data
+> > > > > movement (which is a no-no).
+> > > > > 
+> > > > 
+> > > > You seem right. I fetched a 2.6.9 tarball and it is really built with
+> > > > -march=pentium4. Do you know which are versions of gcc in question ?
+> > > > 
+> > > 
+> > > No, I'm afraid not. I only know that the advice came from Richard
+> > > Henderson who (I think) is one of the core glibc hackers. You can see
+> > > the point at which it was introduced by Linus in the ChangeLog (2nd
+> > > message from last):
+> > > 
+> > > http://www.kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.10
+> > 
+> > Seems to be this one:
+> > 
+> > <torvalds@ppc970.osdl.org>
+> > 	Don't use "-march=pentium3" for gcc tuning.
+> > 	
+> > 	rth tells me that some versions of gcc may end up using the
+> > 	SSE registers for data movement when you do that.
+> > 	
+> > 	Use "-march=i686 -mtune=xxxx" instead.
+> > 	
+> > 	(We do the same thing for march=pentium2/4 too, just for
+> > 	consistency).
+> > 
+> > 
+> > The way it is worded it seems that it is a problem with *some* versions
+> > of gcc only on p3, not p4.
 > 
-> This doesn't sound very safe to me.  Lots of drivers (of which SCSI is
-> only a minority) have large DMA transaction engines which continue
-> automatically after they're initially programmed.
-> 
-> If you don't stop the DMA engines before you boot the new kernel, the
-> addresses they have to send data to will now be random points in that
-> kernel's memory, leading to potential corruption of the new kernel
-> image.
+> Why do you care? I bet that differences between i686 code and pentium4 code
+> are well below noise level.
 
-[Copying it to fastboot and linux-kernel mailing lists]
+Ah, well.
 
-We are booting second kernel (capture kernel) from a reserved memory location
-to take care of on-going DMA issues. So even if some DMA transactions are going
-on after the crash they will not corrupt the new kernel.
+I was curious why p4 got special treatment other CPUs ( like amd ) do
+not.
 
-> 
-> The interrupt panic of the fusion is probably a symptom of this: I bet a
-> DMA transfer has just completed and the interrupt is to inform us of
-> this (however, in the new kernel we're not expecting any transfers).
-
-That might very well be the case. So driver should simply ignore the interrupt
-when it is not expecting it or it should reset the device if it finds that 
-some interrupts are pending when it should not have been there.
-
-Basically it is a matter of hardening the driver so that it can handle/
-initialize the device even if the device is not in reset state. 
-
-> 
-> But the problem isn't really in the fusion driver, it's in Kdump.  You
-> have to shut down active drivers before you boot to a new kernel.
-
-After a crash (panic) we can not shutdown the devices. It is not reliable
-and new kernel might not boot at all. We have had plenty of discussions on
-this in the past on fastboot and linux-kernel mailing list.
-
-It is not about problem being on kdump part or Fusion MPT driver part. This
-is a new scenario for drivers after the introduction of kdump. Previously 
-drivers could safely assume that BIOS had put the device in reset state but
-after kdump it assumption is not valid.
-
-Thanks
-Vivek
+Cheers,
+Ivan Yosifov.
 
 

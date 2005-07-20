@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVGTKie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVGTKkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbVGTKie (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 06:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbVGTKib
+	id S261158AbVGTKkV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 06:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVGTKkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 06:38:31 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:701 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261152AbVGTKia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 06:38:30 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: ivan@yosifov.net, Kerin Millar <kerframil@gmail.com>
-Subject: Re: Noob question. Why is the for-pentium4 kernel built =?koi8-r?q?with=09-march=3Di686?= ?
-Date: Wed, 20 Jul 2005 13:38:08 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <1121792852.11857.6.camel@home.yosifov.net> <1121852642.18129.39.camel@localhost> <1121851507.10454.3.camel@home.yosifov.net>
-In-Reply-To: <1121851507.10454.3.camel@home.yosifov.net>
+	Wed, 20 Jul 2005 06:40:21 -0400
+Received: from grerelbas01.net.external.hp.com ([192.6.111.85]:46768 "EHLO
+	grerelbas01.bastion.europe.hp.com") by vger.kernel.org with ESMTP
+	id S261157AbVGTKkP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 06:40:15 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507201338.08179.vda@ilport.com.ua>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Dual-core with kernel 2.4 (Red Hat EL 3)
+Date: Wed, 20 Jul 2005 12:40:11 +0200
+Message-ID: <213219CA6232F94E989A9A5354135D2F09387C@frqexc04.emea.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Dual-core with kernel 2.4 (Red Hat EL 3)
+Thread-Index: AcWMmAcNvssNvVqzSFexWJksgVV1BwAfuuLA
+From: "Cabaniols, Sebastien" <sebastien.cabaniols@hp.com>
+To: "Hubert Schwarthoff" <hubert@mail.lns.cornell.edu>,
+       "linux-kernel mailing list" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Jul 2005 10:40:11.0846 (UTC) FILETIME=[67FF0E60:01C58D17]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 July 2005 12:25, Ivan Yosifov wrote:
-> > > > Also, I believe that the -march=pentium4 option /was/ actually used up
-> > > > until kernel 2.6.10 where it was dropped because of a risk that some
-> > > > versions of gcc would cause the kernel to use SSE registers for data
-> > > > movement (which is a no-no).
-> > > > 
-> > > 
-> > > You seem right. I fetched a 2.6.9 tarball and it is really built with
-> > > -march=pentium4. Do you know which are versions of gcc in question ?
-> > > 
-> > 
-> > No, I'm afraid not. I only know that the advice came from Richard
-> > Henderson who (I think) is one of the core glibc hackers. You can see
-> > the point at which it was introduced by Linus in the ChangeLog (2nd
-> > message from last):
-> > 
-> > http://www.kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.10
-> 
-> Seems to be this one:
-> 
-> <torvalds@ppc970.osdl.org>
-> 	Don't use "-march=pentium3" for gcc tuning.
-> 	
-> 	rth tells me that some versions of gcc may end up using the
-> 	SSE registers for data movement when you do that.
-> 	
-> 	Use "-march=i686 -mtune=xxxx" instead.
-> 	
-> 	(We do the same thing for march=pentium2/4 too, just for
-> 	consistency).
-> 
-> 
-> The way it is worded it seems that it is a problem with *some* versions
-> of gcc only on p3, not p4.
+Hi,
 
-Why do you care? I bet that differences between i686 code and pentium4 code
-are well below noise level.
---
-vda
+Redhat 3 update 5 may be what you are looking for (dual core support).
+Please note, this may not be the right list for these questions, the
+redhat kernel is something very different from the www.kernel.org kernel
+(same applies to suse/mandrake....)
 
+Best regards
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Hubert
+Schwarthoff
+Sent: mardi 19 juillet 2005 21:22
+To: linux-kernel mailing list
+Subject: Dual-core with kernel 2.4 (Red Hat EL 3)
+
+
+Hallo, Linux folks!
+(first post here)
+I am trying to find out whether I can start using dual-core cpus with a
+2.4 kernel (Red Hat EL 3).
+Three questions below - please answer if you have any insight.
+ - The first update to EL 4 announced "support" for dual core cpus both
+   from AMD and Intel, but doesn't say what that support means. I would
+   think with the right BIOS, the OS might distribute all tasks among
+   all cores right out of the box, as long as you don't need any special
+   parallel computing capabilities.
+   Or will the kernel just not recognize the second core?
+ - The most recent update to EL 3 (which is what I am using) does not
+   say anything about dual-core. Does that mean there is no chance it
+   will run on a dual-core chip, because it has kernel 2.4?
+ - My application is multi process server type stuff. I'd like to use
+   Intel dual chip boards. Are there any Intel dual chip dual-core
+   solutions you can buy? I haven't found one yet.
+ Cheers
+ Hubert Schwarthoff
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in the body of a message to majordomo@vger.kernel.org More majordomo
+info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVGTKLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVGTKie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbVGTKLw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 06:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVGTKLw
+	id S261159AbVGTKie (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 06:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbVGTKib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 06:11:52 -0400
-Received: from mail.portrix.net ([212.202.157.208]:7089 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261484AbVGTKLv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 06:11:51 -0400
-Message-ID: <42DE235D.9050007@ppp0.net>
-Date: Wed, 20 Jul 2005 12:11:41 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Wed, 20 Jul 2005 06:38:31 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:701 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261152AbVGTKia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 06:38:30 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: ivan@yosifov.net, Kerin Millar <kerframil@gmail.com>
+Subject: Re: Noob question. Why is the for-pentium4 kernel built =?koi8-r?q?with=09-march=3Di686?= ?
+Date: Wed, 20 Jul 2005 13:38:08 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <1121792852.11857.6.camel@home.yosifov.net> <1121852642.18129.39.camel@localhost> <1121851507.10454.3.camel@home.yosifov.net>
+In-Reply-To: <1121851507.10454.3.camel@home.yosifov.net>
 MIME-Version: 1.0
-To: snogglethorpe@gmail.com, miles@gnu.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: defconfig for v850, please
-References: <42DE17DC.7050506@ppp0.net>	 <fc339e4a05072002355e4062d6@mail.gmail.com> <42DE1DDE.90503@ppp0.net> <fc339e4a0507200302d9f0141@mail.gmail.com>
-In-Reply-To: <fc339e4a0507200302d9f0141@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507201338.08179.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Bader wrote:
-> 2005/7/20, Jan Dittmer <jdittmer@ppp0.net>:
+On Wednesday 20 July 2005 12:25, Ivan Yosifov wrote:
+> > > > Also, I believe that the -march=pentium4 option /was/ actually used up
+> > > > until kernel 2.6.10 where it was dropped because of a risk that some
+> > > > versions of gcc would cause the kernel to use SSE registers for data
+> > > > movement (which is a no-no).
+> > > > 
+> > > 
+> > > You seem right. I fetched a 2.6.9 tarball and it is really built with
+> > > -march=pentium4. Do you know which are versions of gcc in question ?
+> > > 
+> > 
+> > No, I'm afraid not. I only know that the advice came from Richard
+> > Henderson who (I think) is one of the core glibc hackers. You can see
+> > the point at which it was introduced by Linus in the ChangeLog (2nd
+> > message from last):
+> > 
+> > http://www.kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.10
 > 
->>>I must admit it's because I've never quite understood how the
->>>defconfig stuff works... I'll look into it I guess...
->>
->>I think you just need to provide a file called 'defconfig' in
->>arch/v850/
+> Seems to be this one:
+> 
+> <torvalds@ppc970.osdl.org>
+> 	Don't use "-march=pentium3" for gcc tuning.
+> 	
+> 	rth tells me that some versions of gcc may end up using the
+> 	SSE registers for data movement when you do that.
+> 	
+> 	Use "-march=i686 -mtune=xxxx" instead.
+> 	
+> 	(We do the same thing for march=pentium2/4 too, just for
+> 	consistency).
 > 
 > 
-> Hmmm...
-> 
-> Some archs seem to provide defconfigs for various different platforms,
-> which seems nice, and there seems to be some sort of framework for
-> doing this, but ...
+> The way it is worded it seems that it is a problem with *some* versions
+> of gcc only on p3, not p4.
 
-dropping them in arch/v850/configs/{yourwildplatform}_defconfig
-seems to be the way most archs do this (ia64, arm).
-They also provide a common defconfig file in arch/v850/ .
+Why do you care? I bet that differences between i686 code and pentium4 code
+are well below noise level.
+--
+vda
 
-HTH,
-
--- 
-Jan

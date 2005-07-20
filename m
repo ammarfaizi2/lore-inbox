@@ -1,148 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVGTPGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVGTPGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVGTPGy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 11:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVGTPGy
+	id S261393AbVGTPGq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 11:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVGTPGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 11:06:54 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:37254 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S261413AbVGTPGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 11:06:43 -0400
-X-IronPort-AV: i="3.94,212,1118034000"; 
-   d="scan'208"; a="288606002:sNHT71725406"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C58D3C.A0A658DF"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: page allocation/attributes question (i386/x86_64 specific)
-Date: Wed, 20 Jul 2005 10:06:38 -0500
-Message-ID: <B1939BC11A23AE47A0DBE89A37CB26B40743C7@ausx3mps305.aus.amer.dell.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: page allocation/attributes question (i386/x86_64 specific)
-Thread-Index: AcWNO9iN8MVFGj2fQoWn26mYUughoAAAA9cA
-From: <Stuart_Hayes@Dell.com>
-To: <mingo@elte.hu>
-Cc: <ak@suse.de>, <riel@redhat.com>, <andrea@suse.de>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Jul 2005 15:06:38.0704 (UTC) FILETIME=[A0E7FF00:01C58D3C]
+	Wed, 20 Jul 2005 11:06:38 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:16322 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261348AbVGTPFP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 11:05:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jEu0/XPsHTFgWkqx37ZSwhLHNEBwj0/EidyJMCQ2fTiJPlHI87SqmMfNM0i4/6vfpUcEcnw24jUXuukxrFHMTT7C0K048yY92WGSCn4WAHgw7A/BY8X3E5kBEupFZlXLAIJt7jfcLMT1UnKAy94OjzMELYTi9eoG7HY2vJIu3EY=
+Message-ID: <d120d50005072008057d8a9043@mail.gmail.com>
+Date: Wed, 20 Jul 2005 10:05:13 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: Synaptics and TrackPoint problems in 2.6.12
+Cc: Stephen Evanchik <evanchsa@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050720183420.282f72f4.vsu@altlinux.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <a71293c2050719204047bd2afe@mail.gmail.com>
+	 <20050720183420.282f72f4.vsu@altlinux.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On 7/20/05, Sergey Vlasov <vsu@altlinux.ru> wrote:
+> On Tue, 19 Jul 2005 23:40:18 -0400 Stephen Evanchik wrote:
+> 
+> > I have been receiving a lot of complaints that TrackPoints on
+> > Synaptics pass-thru ports stopped working with 2.6.12. I retested
+> > 2.6.9 and 2.6.11-rc3 successfully, I believe 2.6.11.7 may also work
+> > but that is unconfirmed at this point.
+> >
+> > The behavior is always the same .. after sending the read secondary ID
+> > command, the TrackPoint seems to be disabled from that point forward.
+> >
+> > Any ideas?
+> 
+> Looks like this problem was introduced by the change from PSMOUSE_PS2 to
+> PSMOUSE_TRACKPOINT in the TrackPoint support patch.  The Synaptics
+> driver needs to know whether the device on the pass-thru port is using
+> 3-byte or 4-byte packets; however, instead of checking child->pktsize,
+> it checks child->type >= PSMOUSE_GENPS - and this check is now giving a
+> wrong result.  Therefore the Synaptics driver configures the pass-thru
+> port for 4-byte packets, and all 3-byte packets from TrackPoint seem to
+> be thrown away.
 
-------_=_NextPart_001_01C58D3C.A0A658DF
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Oh, yes, that would do it.
 
-Ingo Molnar wrote:
-> * Stuart_Hayes@Dell.com <Stuart_Hayes@Dell.com> wrote:
->=20
->> Ingo Molnar wrote:
->>> there's one problem with the patch: it breaks things that need the
->>> low 1MB executable (e.g. APM bios32 calls). It would at a minimum be
->>> needed to exclude the BIOS area in 0xd0000-0xfffff.
->>>=20
->>> 	Ingo
->>=20
->> I wrote it to make everything below 1MB executable, if it isn't RAM
->> according to the e820 map, which should include the BIOS area.  This
->> includes 0xd0000-0xffff on my system.  Do you think I should
->> explicity make 0xd0000-0xfffff executable regardless of the e820 map?
->=20
-> hm ... which portion does this? I'm looking at fixnx2.patch. I
-> definitely saw a APM bootup crash due to this, but that was on a
-> 2.4-ish backport of the patch. =20
->=20
-> 	Ingo
+> The patch below is reported to fix the problem - now the 4-byte mode is
+> used only if child->pktsize == 4. 
 
-Oh, sorry, we're talking about two different patches.  I sent in a
-different patch yesterday, because Andi Kleen didn't seem very
-enthusiastic about fixnx2.patch.  Here's the patch that I sent yesterday
-(attached as file init.c.patch).
+That is the correct fix.
 
-Thanks
-Stuart
+> Another option is to change the
+> PSMOUSE_TRACKPOINT value so that it is less than PSMOUSE_GENPS, 
 
-------_=_NextPart_001_01C58D3C.A0A658DF
-Content-Type: application/octet-stream;
-	name="init.c.patch"
-Content-Transfer-Encoding: base64
-Content-Description: init.c.patch
-Content-Disposition: attachment;
-	filename="init.c.patch"
+No, protocol numbers should not be changed as userspace drivers/setups
+check them and rely on them being stable. That's why psmouse->pktsize
+was introduced to begin with. Unfortunately synaptics pass-through
+piece was missed and not adjusted.
 
-LS0tIDIuNi4xMi1hL2FyY2gvaTM4Ni9tbS9pbml0LmMJMjAwNS0wNy0xOSAxNDo0MToxNC4wMDAw
-MDAwMDAgLTA1MDAKKysrIDIuNi4xMi1iL2FyY2gvaTM4Ni9tbS9pbml0LmMJMjAwNS0wNy0xOSAx
-NDo0MDoyMi4wMDAwMDAwMDAgLTA1MDAKQEAgLTEyOCwxMiArMTI4LDcgQEAgc3RhdGljIHZvaWQg
-X19pbml0IHBhZ2VfdGFibGVfcmFuZ2VfaW5pdAogCX0KIH0KIAotc3RhdGljIGlubGluZSBpbnQg
-aXNfa2VybmVsX3RleHQodW5zaWduZWQgbG9uZyBhZGRyKQotewotCWlmIChhZGRyID49IFBBR0Vf
-T0ZGU0VUICYmIGFkZHIgPD0gKHVuc2lnbmVkIGxvbmcpX19pbml0X2VuZCkKLQkJcmV0dXJuIDE7
-Ci0JcmV0dXJuIDA7Ci19CitzdGF0aWMgcGdwcm90X3QgcGFnZV9yZWZwcm90KHVuc2lnbmVkIGlu
-dCk7CiAKIC8qCiAgKiBUaGlzIG1hcHMgdGhlIHBoeXNpY2FsIG1lbW9yeSB0byBrZXJuZWwgdmly
-dHVhbCBhZGRyZXNzIHNwYWNlLCBhIHRvdGFsIApAQCAtMTU4LDI1ICsxNTMsMTggQEAgc3RhdGlj
-IHZvaWQgX19pbml0IGtlcm5lbF9waHlzaWNhbF9tYXBwaQogCQkJY29udGludWU7CiAJCWZvciAo
-cG1kX2lkeCA9IDA7IHBtZF9pZHggPCBQVFJTX1BFUl9QTUQgJiYgcGZuIDwgbWF4X2xvd19wZm47
-IHBtZCsrLCBwbWRfaWR4KyspIHsKIAkJCXVuc2lnbmVkIGludCBhZGRyZXNzID0gcGZuICogUEFH
-RV9TSVpFICsgUEFHRV9PRkZTRVQ7CisJCQlwZ3Byb3RfdCByZWZfcHJvdCA9IHBhZ2VfcmVmcHJv
-dChhZGRyZXNzKTsKIAogCQkJLyogTWFwIHdpdGggYmlnIHBhZ2VzIGlmIHBvc3NpYmxlLCBvdGhl
-cndpc2UgY3JlYXRlIG5vcm1hbCBwYWdlIHRhYmxlcy4gKi8KLQkJCWlmIChjcHVfaGFzX3BzZSkg
-ewotCQkJCXVuc2lnbmVkIGludCBhZGRyZXNzMiA9IChwZm4gKyBQVFJTX1BFUl9QVEUgLSAxKSAq
-IFBBR0VfU0laRSArIFBBR0VfT0ZGU0VUICsgUEFHRV9TSVpFLTE7Ci0KLQkJCQlpZiAoaXNfa2Vy
-bmVsX3RleHQoYWRkcmVzcykgfHwgaXNfa2VybmVsX3RleHQoYWRkcmVzczIpKQotCQkJCQlzZXRf
-cG1kKHBtZCwgcGZuX3BtZChwZm4sIFBBR0VfS0VSTkVMX0xBUkdFX0VYRUMpKTsKLQkJCQllbHNl
-Ci0JCQkJCXNldF9wbWQocG1kLCBwZm5fcG1kKHBmbiwgUEFHRV9LRVJORUxfTEFSR0UpKTsKKwkJ
-CWlmIChwZ3Byb3RfdmFsKHJlZl9wcm90KSAmIF9QQUdFX1BTRSkgeyAKKwkJCQlzZXRfcG1kKHBt
-ZCwgcGZuX3BtZChwZm4sIHJlZl9wcm90KSk7CiAJCQkJcGZuICs9IFBUUlNfUEVSX1BURTsKIAkJ
-CX0gZWxzZSB7CiAJCQkJcHRlID0gb25lX3BhZ2VfdGFibGVfaW5pdChwbWQpOwogCi0JCQkJZm9y
-IChwdGVfb2ZzID0gMDsgcHRlX29mcyA8IFBUUlNfUEVSX1BURSAmJiBwZm4gPCBtYXhfbG93X3Bm
-bjsgcHRlKyssIHBmbisrLCBwdGVfb2ZzKyspIHsKLQkJCQkJCWlmIChpc19rZXJuZWxfdGV4dChh
-ZGRyZXNzKSkKLQkJCQkJCQlzZXRfcHRlKHB0ZSwgcGZuX3B0ZShwZm4sIFBBR0VfS0VSTkVMX0VY
-RUMpKTsKLQkJCQkJCWVsc2UKLQkJCQkJCQlzZXRfcHRlKHB0ZSwgcGZuX3B0ZShwZm4sIFBBR0Vf
-S0VSTkVMKSk7Ci0JCQkJfQorCQkJCWZvciAocHRlX29mcyA9IDA7IHB0ZV9vZnMgPCBQVFJTX1BF
-Ul9QVEUgJiYgcGZuIDwgbWF4X2xvd19wZm47IAorCQkJCSAgICAgYWRkcmVzcyArPSBQQUdFX1NJ
-WkUsIHB0ZSsrLCBwZm4rKywgcHRlX29mcysrKQorCQkJCQkJc2V0X3B0ZShwdGUsIHBmbl9wdGUo
-cGZuLCBwYWdlX3JlZnByb3QoYWRkcmVzcykpKTsKIAkJCX0KIAkJfQogCX0KQEAgLTIyOSw2ICsy
-MTcsNTYgQEAgc3RhdGljIGlubGluZSBpbnQgcGFnZV9pc19yYW0odW5zaWduZWQgbAogCXJldHVy
-biAwOwogfQogCisvKgorICogcGFnZV9yZWZwcm90KCkgcmV0dXJucyBQVEUgYXR0cmlidXRlcyB1
-c2VkIHRvIHNldCB1cCB0aGUgcGFnZSB0YWJsZXMKKyAqLworCitzdGF0aWMgaW5saW5lIGludCBp
-c19rZXJuZWxfdGV4dCAodW5zaWduZWQgaW50IGFkZHIsIHVuc2lnbmVkIGludCBtYXNrKQorewor
-CWFkZHIgJj0gbWFzazsKKwlpZiAoKGFkZHIgPj0gKCh1bnNpZ25lZCBpbnQpX3RleHQgJiBtYXNr
-KSkgJiYKKwkgICAgKGFkZHIgPD0gKCh1bnNpZ25lZCBpbnQpX2V0ZXh0KSkpCisJCXJldHVybiAx
-OworCXJldHVybiAwOworfQorCitzdGF0aWMgaW5saW5lIGludCBpc19rZXJuZWxfaW5pdHRleHQg
-KHVuc2lnbmVkIGludCBhZGRyLCB1bnNpZ25lZCBpbnQgbWFzaykKK3sKKwlhZGRyICY9IG1hc2s7
-CisJaWYgKChhZGRyID49ICgodW5zaWduZWQgaW50KV9zaW5pdHRleHQgJiBtYXNrKSkgJiYKKwkg
-ICAgKGFkZHIgPD0gKCh1bnNpZ25lZCBpbnQpX2Vpbml0dGV4dCkpKQorCQlyZXR1cm4gMTsKKwly
-ZXR1cm4gMDsKK30KKworc3RhdGljIHBncHJvdF90IHBhZ2VfcmVmcHJvdCh1bnNpZ25lZCBpbnQg
-YWRkcikKK3sKKwlpZiAobnhfZW5hYmxlZCAmJgorCSAgICAoaXNfa2VybmVsX3RleHQoYWRkciwg
-TEFSR0VfUEFHRV9NQVNLKSB8fAorCSAgICAgKGlzX2tlcm5lbF9pbml0dGV4dChhZGRyLCBMQVJH
-RV9QQUdFX01BU0spKSB8fAorCSAgICAgKChhZGRyICYgTEFSR0VfUEFHRV9NQVNLKSA9PSAwKSkp
-IHsKKwkJLyogYmlnIHBhZ2UgYXJlYSBoYXMgZXhlY3V0YWJsZSBzdHVmZiBpbiBpdC0tdXNlIHNt
-YWxsIHBhZ2VzICovCisJCWlmIChpc19rZXJuZWxfdGV4dChhZGRyLCBQQUdFX01BU0spIHx8CisJ
-CSAgIChpc19rZXJuZWxfaW5pdHRleHQoYWRkciwgUEFHRV9NQVNLKSkgfHwKKwkJICAgKChfX3Bh
-KGFkZHIpIDw9IDB4ZmZmZmYpICYmICFwYWdlX2lzX3JhbShfX3BhKGFkZHIpID4+IFBBR0VfU0hJ
-RlQpKSkKKwkJCXJldHVybiBQQUdFX0tFUk5FTF9FWEVDOworCQllbHNlCisJCQlyZXR1cm4gUEFH
-RV9LRVJORUw7CisJfQorCS8qIGJpZyBwYWdlcyB3aXRoIG5vIGV4ZWN1dGFibGUgc3R1ZmYgaW4g
-dGhlbSAqLworCXJldHVybiBjcHVfaGFzX3BzZSA/IFBBR0VfS0VSTkVMX0xBUkdFIDogUEFHRV9L
-RVJORUw7Cit9CisKK3N0YXRpYyBpbmxpbmUgdm9pZCBzZXRfbnhfaW5faW5pdG1lbSh2b2lkKQor
-eworCXVuc2lnbmVkIGludCBhZGRyOworCisJcHJpbnRrKCJfdGV4dD0lcCBfZXRleHQ9JXAgX3Np
-bml0dGV4dD0lcCBfZWluaXR0ZXh0PSVwXG4iLF90ZXh0LF9ldGV4dCxfc2luaXR0ZXh0LF9laW5p
-dHRleHQpOworCWFkZHIgPSAodW5zaWduZWQgbG9uZykoX3Npbml0dGV4dCkgJiBQQUdFX01BU0s7
-CisJZm9yICg7IGFkZHIgPD0gKHVuc2lnbmVkIGxvbmcpKF9laW5pdHRleHQpOyBhZGRyICs9IFBB
-R0VfU0laRSkKKwkJc2V0X2tlcm5lbF9leGVjKGFkZHIsIDApOworfQorCiAjaWZkZWYgQ09ORklH
-X0hJR0hNRU0KIHB0ZV90ICprbWFwX3B0ZTsKIHBncHJvdF90IGttYXBfcHJvdDsKQEAgLTQzNiw3
-ICs0NzQsNyBAQCBzdGF0aWMgdm9pZCBfX2luaXQgc2V0X254KHZvaWQpCiAgKiBFbmFibGVzL2Rp
-c2FibGVzIGV4ZWN1dGFiaWxpdHkgb2YgYSBnaXZlbiBrZXJuZWwgcGFnZSBhbmQKICAqIHJldHVy
-bnMgdGhlIHByZXZpb3VzIHNldHRpbmcuCiAgKi8KLWludCBfX2luaXQgc2V0X2tlcm5lbF9leGVj
-KHVuc2lnbmVkIGxvbmcgdmFkZHIsIGludCBlbmFibGUpCitpbnQgc2V0X2tlcm5lbF9leGVjKHVu
-c2lnbmVkIGxvbmcgdmFkZHIsIGludCBlbmFibGUpCiB7CiAJcHRlX3QgKnB0ZTsKIAlpbnQgcmV0
-ID0gMTsKQEAgLTY3MCw2ICs3MDgsOSBAQCB2b2lkIGZyZWVfaW5pdG1lbSh2b2lkKQogewogCXVu
-c2lnbmVkIGxvbmcgYWRkcjsKIAorCWlmIChueF9lbmFibGVkKQorCQlzZXRfbnhfaW5faW5pdG1l
-bSgpOworCiAJYWRkciA9ICh1bnNpZ25lZCBsb25nKSgmX19pbml0X2JlZ2luKTsKIAlmb3IgKDsg
-YWRkciA8ICh1bnNpZ25lZCBsb25nKSgmX19pbml0X2VuZCk7IGFkZHIgKz0gUEFHRV9TSVpFKSB7
-CiAJCUNsZWFyUGFnZVJlc2VydmVkKHZpcnRfdG9fcGFnZShhZGRyKSk7Cg==
+I will add the patch to my tree, thanks!
 
-------_=_NextPart_001_01C58D3C.A0A658DF--
+> In theory, someone could attach a device which uses 6-byte packets to
+> the Synaptics pass-thru port; I'm not sure what would happen in this
+> case, but with Synaptics confugured for 3-byte packets (as the patch
+> below will do) this configuration even has a chance of working.
+
+I don't think it can support more than 4 byte packets. bytes 0 and 3
+are protocol markers and can't be readily used for transmitting other
+protocols data.
+
+-- 
+Dmitry

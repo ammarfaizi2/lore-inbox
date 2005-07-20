@@ -1,74 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVGTJPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVGTJV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVGTJPV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 05:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVGTJPV
+	id S261473AbVGTJV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 05:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVGTJV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 05:15:21 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:26059 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261449AbVGTJPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 05:15:19 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: amd64-agp vs. swsusp
-Date: Wed, 20 Jul 2005 11:15:07 +0200
-User-Agent: KMail/1.8.1
-Cc: Andreas Steinmetz <ast@domdv.de>, Pavel Machek <pavel@suse.cz>,
-       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-References: <42DD67D9.60201@stud.feec.vutbr.cz> <42DD6AA7.40409@domdv.de> <42DD7011.6080201@stud.feec.vutbr.cz>
-In-Reply-To: <42DD7011.6080201@stud.feec.vutbr.cz>
+	Wed, 20 Jul 2005 05:21:56 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:61312 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261473AbVGTJVz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 05:21:55 -0400
+Date: Wed, 20 Jul 2005 11:21:47 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Ivan Yosifov <ivan@yosifov.net>
+cc: Kerin Millar <kerframil@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Noob question. Why is the for-pentium4 kernel built with
+ -march=i686 ?
+In-Reply-To: <1121847799.31603.5.camel@home.yosifov.net>
+Message-ID: <Pine.LNX.4.61.0507201120120.22899@yvahk01.tjqt.qr>
+References: <1121792852.11857.6.camel@home.yosifov.net> 
+ <Pine.LNX.4.61.0507191950020.89@yvahk01.tjqt.qr>  <1121798151.15700.9.camel@home.yosifov.net>
+  <pan.2005.07.20.08.03.25.15476@gmail.com> <1121847799.31603.5.camel@home.yosifov.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507201115.08733.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tuesday, 19 of July 2005 23:26, Michal Schmidt wrote:
-> Andreas Steinmetz wrote:
-> > Michal Schmidt wrote:
-> >>Does resuming from swsuspend work for anyone with amd64-agp loaded?
-> >>
-> >>On my system when I suspend with amd64-agp loaded, I get a spontaneous
-> >>reboot on resume. It reboots immediately after reading the saved image
-> >>from disk.
-> >>This is 100% reproducible.
-> >>
-> >>Athlon 64 FX-53, Asus A8V Deluxe, Linux 2.6.13-rc3-mm1.
-> > 
-> > 
-> > AMD Athlon(tm) 64 Processor 3000+, Acer Aspire
-> > 
-> > Linux gringo 2.6.13-rc3-gringo #36 Sun Jul 17 15:57:17 CEST 2005 x86_64
-> > unknown unknown GNU/Linux
-> > 
-> > CONFIG_AGP=y
-> > CONFIG_AGP_AMD64=y
-> > 
-> > swsusp works for me. Could it be mm, agp as a module or some speciality
->                                         ^^^^^^^^^^^^^^^
->                                  That seems to be the problem!
-> > of your hardware?
-> 
-> I have rebuilt agpgart and amd64-agp into the kernel and now it has 
-> resumed successfully for the first time. Thank you for the hint!
-> 
-> But I still wonder, why that makes a difference.
+>> https://www.redhat.com/archives/fedora-devel-list/2005-January/msg00742.html
+>
+>Interesting. 
 
-Before resume the module is not present.  When it gets loaded from the
-image it probably runs with the assumption that the hardware was initialized
-which is not correct.
-
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+This may seem reasonable for a Linux distribution, but less for those who 
+compile kernelballs just for themselves.

@@ -1,121 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVGTUPD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVGTUdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVGTUPD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 16:15:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVGTUPD
+	id S261502AbVGTUdT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 16:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVGTUdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 16:15:03 -0400
-Received: from [216.129.110.2] ([216.129.110.2]:21684 "EHLO
-	beigebox.liquidev.com") by vger.kernel.org with ESMTP
-	id S261499AbVGTUPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 16:15:01 -0400
-Date: Wed, 20 Jul 2005 16:08:35 -0400 (EDT)
-From: Mark Whittington <markc@liquidev.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12] printk: add sysctl to control printk_time
-Message-ID: <Pine.LNX.4.63.0507201551310.727@beigebox.liquidev.com>
+	Wed, 20 Jul 2005 16:33:19 -0400
+Received: from mail4.zigzag.pl ([217.11.136.106]:37004 "HELO mail4.zigzag.pl")
+	by vger.kernel.org with SMTP id S261502AbVGTUdS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 16:33:18 -0400
+Date: Wed, 20 Jul 2005 22:33:16 +0200
+From: Lukasz Spaleniak <lspaleniak@wroc.zigzag.pl>
+X-Mailer: The Bat! (v3.0.1.33) Professional
+Reply-To: Lukasz Spaleniak <lspaleniak@wroc.zigzag.pl>
+Organization: Internet Group SA
+X-Priority: 3 (Normal)
+Message-ID: <273347727.20050720223316@wroc.zigzag.pl>
+To: Willy Tarreau <willy@w.ods.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re[2]: kernel oops, fast ethernet bridge, 2.4.31
+In-Reply-To: <20050720194457.GR8907@alpha.home.local>
+References: <20050720170025.1264b68a.lspaleniak@wroc.zigzag.pl>
+ <20050720194457.GR8907@alpha.home.local>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-BitDefender-Scanner: Clean, Agent: BitDefender Qmail 1.6.2 on
+ mail4.zigzag.pl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Added a sysctl (KERN_PRINTK_TIME) and by proxy an entry in 
-/proc/sys/kernel to enable and disable printk interval information when 
-CONFIG_PRINTK_TIME is compiled in.
+On Wednesday, July 20, 2005, 9:44:57 PM, Willy Tarreau wrote:
 
-Signed-off-by: Mark Whittington <markc@liquidev.com>
+> Hello,
+Hello Willy,
 
-diff -ruN linux-2.6.12/Documentation/sysctl/kernel.txt linux-2.6.12-work/Documentation/sysctl/kernel.txt
---- linux-2.6.12/Documentation/sysctl/kernel.txt	2005-06-17 15:48:29.000000000 -0400
-+++ linux-2.6.12-work/Documentation/sysctl/kernel.txt	2005-07-20 14:58:15.000000000 -0400
-@@ -39,6 +39,7 @@
-  - pid_max
-  - powersave-nap               [ PPC only ]
-  - printk
-+- printk_time                 [ CONFIG_PRINTK_TIME=y ]
-  - real-root-dev               ==> Documentation/initrd.txt
-  - reboot-cmd                  [ SPARC only ]
-  - rtsig-max
-@@ -260,6 +261,14 @@
+> just some basic questions :
+>   - did your configuration change before the oopses started ? (eg: new
+>     matches, etc...)
+One new machine appears but it generates small traffic rate (by now
+it's almost unused).
 
-  ==============================================================
+>   - did the traffic change recently (protocols, data rate) ? eg: new
+>     applications on the network, etc...
+No - firewall is bridging IPv4 only. There was no dramatic topology
+change. Those VLANs which are going through this firewall were
+untouched.
 
-+printk_time:
-+
-+If CONFIG_PRINTK_TIME is on at compile time, you can enable
-+and disable time printing by echoing 1 or 0 to this file.  You
-+can also read the current value from this file.
-+
-+==============================================================
-+
-  reboot-cmd: (Sparc only)
+>   - is it possible that it's being targetted by an attack where it is
+>     installed (unfiltered internet, holiday employees who like to play
+>     with the network, etc...) ?
+I don't think so that managed IP of firewall was targetet, maybe
+machines behid firewall but problem appears on eth2 interface which
+is:
+internet <-trunk-> eth1(firewall/iptables)eth2<-trunk->(switch
+ports) <-> servers
+So it's after iptables ...
 
-  ??? This seems to be a way to give an argument to the Sparc
-diff -ruN linux-2.6.12/include/linux/sysctl.h linux-2.6.12-work/include/linux/sysctl.h
---- linux-2.6.12/include/linux/sysctl.h	2005-06-17 15:48:29.000000000 -0400
-+++ linux-2.6.12-work/include/linux/sysctl.h	2005-07-20 14:54:29.000000000 -0400
-@@ -136,6 +136,9 @@
-  	KERN_UNKNOWN_NMI_PANIC=66, /* int: unknown nmi panic flag */
-  	KERN_BOOTLOADER_TYPE=67, /* int: boot loader type */
-  	KERN_RANDOMIZE=68, /* int: randomize virtual address space */
-+#if defined(CONFIG_PRINTK_TIME)
-+	KERN_PRINTK_TIME=69, /* int: printk times enabled */
-+#endif
-  };
+> I really find it strange that it suddenly started oopsing if nothing
+> changed. At least it should have been oopsing from day one.
+It is strange to me too. There is no dependency when it happens.
+Sometimes traffic is small, sometimes it's normal. Packet rates are
+around ~2000-3000 pkt/sec - so not so high.
 
 
-diff -ruN linux-2.6.12/kernel/printk.c linux-2.6.12-work/kernel/printk.c
---- linux-2.6.12/kernel/printk.c	2005-06-17 15:48:29.000000000 -0400
-+++ linux-2.6.12-work/kernel/printk.c	2005-07-20 15:32:03.000000000 -0400
-@@ -473,7 +473,8 @@
-  }
+Regards,
+Lukasz
 
-  #if defined(CONFIG_PRINTK_TIME)
--static int printk_time = 1;
-+int printk_time = 1;
-+EXPORT_SYMBOL(printk_time);
-  #else
-  static int printk_time = 0;
-  #endif
-diff -ruN linux-2.6.12/kernel/sysctl.c linux-2.6.12-work/kernel/sysctl.c
---- linux-2.6.12/kernel/sysctl.c	2005-06-17 15:48:29.000000000 -0400
-+++ linux-2.6.12-work/kernel/sysctl.c	2005-07-20 14:53:54.000000000 -0400
-@@ -63,6 +63,7 @@
-  extern int pid_max;
-  extern int min_free_kbytes;
-  extern int printk_ratelimit_jiffies;
-+extern int printk_time;
-  extern int printk_ratelimit_burst;
-  extern int pid_max_min, pid_max_max;
-
-@@ -589,6 +590,16 @@
-  		.mode		= 0644,
-  		.proc_handler	= &proc_dointvec,
-  	},
-+#if defined(CONFIG_PRINTK_TIME)
-+	{
-+		.ctl_name	= KERN_PRINTK_TIME,
-+		.procname	= "printk_time",
-+		.data		= &printk_time,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+#endif
-  	{
-  		.ctl_name	= KERN_PRINTK_RATELIMIT,
-  		.procname	= "printk_ratelimit",
-diff -ruN linux-2.6.12/lib/Kconfig.debug linux-2.6.12-work/lib/Kconfig.debug
---- linux-2.6.12/lib/Kconfig.debug	2005-06-17 15:48:29.000000000 -0400
-+++ linux-2.6.12-work/lib/Kconfig.debug	2005-07-20 15:09:07.000000000 -0400
-@@ -6,7 +6,9 @@
-  	  included in printk output.  This allows you to measure
-  	  the interval between kernel operations, including bootup
-  	  operations.  This is useful for identifying long delays
--	  in kernel startup.
-+	  in kernel startup.  If this option is enabled, you can turn
-+          off and on the timing information by echoing a 1 or 0 to
-+          /proc/kernel/sys/printk_time.
+-- 
+lspaleniak on wroc zigzag pl
+GCM dpu s: a--- C++ UL++++ P+ L+++ E--- W+ N+ K- w O- M V-
+PGP t--- 5 X+ R- tv-- b DI- D- G e-- h! r y+
 
 
-  config DEBUG_KERNEL

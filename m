@@ -1,124 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVGTVDk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVGTVFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVGTVDk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 17:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVGTVDk
+	id S261505AbVGTVFa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 17:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVGTVFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 17:03:40 -0400
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:48645 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S261503AbVGTVDj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 17:03:39 -0400
-Date: Wed, 20 Jul 2005 23:03:50 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <lm-sensors@lm-sensors.org>
-Subject: Re: [PATCH 2.6] I2C: Separate non-i2c hwmon drivers from i2c-core
- (1/9)
-Message-Id: <20050720230350.6ba51474.khali@linux-fr.org>
-In-Reply-To: <20050720042622.GC26552@kroah.com>
-References: <20050719233902.40282559.khali@linux-fr.org>
-	<20050719234540.78a3f8ea.khali@linux-fr.org>
-	<20050720042622.GC26552@kroah.com>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 20 Jul 2005 17:05:30 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14825 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261505AbVGTVFZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 17:05:25 -0400
+Date: Wed, 20 Jul 2005 14:05:15 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: mst@mellanox.co.il, linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space
+Message-Id: <20050720140515.64bde211.pj@sgi.com>
+In-Reply-To: <9a87484905072005596f2c2b51@mail.gmail.com>
+References: <20050711145616.GA22936@mellanox.co.il>
+	<9a87484905072005596f2c2b51@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.6.4; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+> > 3c. * in types
+> >         Leave space between name and * in types.
+> >         Multiple * dont need additional space between them.
+> > 
+> >         struct foo **bar;
+> > 
+> Don't put spaces between `*' and the name when declaring variables,
+> even if it's not a double pointer.   int * foo;  is ugly. Common
+> convention is  int *foo;
 
-> > +/* Next four are needed by i2c-isa */
-> > +EXPORT_SYMBOL(i2c_adapter_dev_release);
-> > +EXPORT_SYMBOL(i2c_adapter_driver);
-> > +EXPORT_SYMBOL(i2c_adapter_class);
-> > +EXPORT_SYMBOL(i2c_bus_type);
-> 
-> EXPORT_SYMBOL_GPL() instead?  As these were, core, GPL only symbols
-> before you exported them.
 
-Sure, no problem. I would even use EXPORT_SYMBOL_I2C_ISA_ONLY() if it
-happened to exist ;)
+The "Leave space between name and *" is confusing.  Does 'name'
+refer to the type or variable.  I hope Michael was not recommending:
 
-Updated patch follows, thanks.
+	char * p;
 
-Temporarily export a few structures and functions from i2c-core, because we
-will soon need them in i2c-isa.
+How about saying:
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+	Do not leave a space between a * and the following
+	variable name, nor between multiple *, when used
+	to declare pointers:
 
- drivers/i2c/i2c-core.c |   14 ++++++++++----
- include/linux/i2c.h    |    7 +++++++
- 2 files changed, 17 insertions(+), 4 deletions(-)
-
---- linux-2.6.13-rc3.orig/drivers/i2c/i2c-core.c	2005-07-17 20:15:52.000000000 +0200
-+++ linux-2.6.13-rc3/drivers/i2c/i2c-core.c	2005-07-20 18:19:46.000000000 +0200
-@@ -61,7 +61,7 @@
- 	return rc;
- }
- 
--static struct bus_type i2c_bus_type = {
-+struct bus_type i2c_bus_type = {
- 	.name =		"i2c",
- 	.match =	i2c_device_match,
- 	.suspend =      i2c_bus_suspend,
-@@ -78,13 +78,13 @@
- 	return 0;
- }
- 
--static void i2c_adapter_dev_release(struct device *dev)
-+void i2c_adapter_dev_release(struct device *dev)
- {
- 	struct i2c_adapter *adap = dev_to_i2c_adapter(dev);
- 	complete(&adap->dev_released);
- }
- 
--static struct device_driver i2c_adapter_driver = {
-+struct device_driver i2c_adapter_driver = {
- 	.name =	"i2c_adapter",
- 	.bus = &i2c_bus_type,
- 	.probe = i2c_device_probe,
-@@ -97,7 +97,7 @@
- 	complete(&adap->class_dev_released);
- }
- 
--static struct class i2c_adapter_class = {
-+struct class i2c_adapter_class = {
- 	.name =		"i2c-adapter",
- 	.release =	&i2c_adapter_class_dev_release,
- };
-@@ -1171,6 +1171,12 @@
- }
- 
- 
-+/* Next four are needed by i2c-isa */
-+EXPORT_SYMBOL_GPL(i2c_adapter_dev_release);
-+EXPORT_SYMBOL_GPL(i2c_adapter_driver);
-+EXPORT_SYMBOL_GPL(i2c_adapter_class);
-+EXPORT_SYMBOL_GPL(i2c_bus_type);
-+
- EXPORT_SYMBOL(i2c_add_adapter);
- EXPORT_SYMBOL(i2c_del_adapter);
- EXPORT_SYMBOL(i2c_add_driver);
---- linux-2.6.13-rc3.orig/include/linux/i2c.h	2005-07-17 20:15:52.000000000 +0200
-+++ linux-2.6.13-rc3/include/linux/i2c.h	2005-07-20 18:19:01.000000000 +0200
-@@ -34,6 +34,13 @@
- #include <linux/device.h>	/* for struct device */
- #include <asm/semaphore.h>
- 
-+/* --- For i2c-isa ---------------------------------------------------- */
-+
-+extern void i2c_adapter_dev_release(struct device *dev);
-+extern struct device_driver i2c_adapter_driver;
-+extern struct class i2c_adapter_class;
-+extern struct bus_type i2c_bus_type;
-+
- /* --- General options ------------------------------------------------	*/
- 
- struct i2c_msg;
+		char *p;
+		struct foo **bar;
 
 
 -- 
-Jean Delvare
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

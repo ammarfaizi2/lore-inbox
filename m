@@ -1,131 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVGTNAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVGTNCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVGTNAX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 09:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVGTNAX
+	id S261191AbVGTNCL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 09:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVGTNCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 09:00:23 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:56858 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261179AbVGTNAV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 09:00:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=g4VbFsmgTw6pZxR5u85kz36TE11X+rr9rdjvwqaHmIEBnJoQvd3e3Bc3XQfIoZJ+BwIUm+60+jByMre3LqwVcLTZwI2GFsy75dLAgwDNOPzI1AYAC6v33bplU7DMqYhhHZCHANvAcZUF7wpPrswWXlJLWzDXIB0viJdUlhO8744=
-Message-ID: <9a87484905072005596f2c2b51@mail.gmail.com>
-Date: Wed, 20 Jul 2005 14:59:51 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Subject: Re: kernel guide to space
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050711145616.GA22936@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050711145616.GA22936@mellanox.co.il>
+	Wed, 20 Jul 2005 09:02:11 -0400
+Received: from mail.portrix.net ([212.202.157.208]:5093 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S261191AbVGTNCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 09:02:05 -0400
+Message-ID: <42DE4B44.80504@ppp0.net>
+Date: Wed, 20 Jul 2005 15:01:56 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Mundt <lethal@Linux-SH.ORG>
+CC: snogglethorpe@gmail.com, miles@gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: defconfig for v850, please
+References: <42DE17DC.7050506@ppp0.net> <fc339e4a05072002355e4062d6@mail.gmail.com> <42DE1DDE.90503@ppp0.net> <fc339e4a0507200302d9f0141@mail.gmail.com> <20050720115218.GB9754@linux-sh.org>
+In-Reply-To: <20050720115218.GB9754@linux-sh.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/11/05, Michael S. Tsirkin <mst@mellanox.co.il> wrote:
+Paul Mundt wrote:
+> On Wed, Jul 20, 2005 at 07:02:53PM +0900, Miles Bader wrote:
 > 
-[snip]
-> kernel guide to space AKA a boring list of rules
-> http://www.mellanox.com/mst/boring.txt
+>>Some archs seem to provide defconfigs for various different platforms,
+>>which seems nice, and there seems to be some sort of framework for
+>>doing this, but ...
+>>
 > 
-[snip]
+> For most of the architectures aimed at embedded systems, having an
+> arch/foo/defconfig makes no sense. The basic "framework" is to have
+
+Still, for basic compile testing and testing patches on other
+architectures it would be nice, when the patch writer can test his/her
+patch with a simple defconfig, without knowing a common platform for
+this target arch.
+So please include a defconfig with a reasonable common set of CONFIG_*
+options. It's about testing the core of the architecure not about
+random driver failures.
+
+> arch/foo/configs and place all of your board-specific defconfigs in there
+> (as boardname_defconfig -- the reason for this is that you get free make
+> targets of the same name which copy the defconfig over, see 'make help').
 > 
-> 3c. * in types
->         Leave space between name and * in types.
->         Multiple * dont need additional space between them.
-> 
->         struct foo **bar;
-> 
-Don't put spaces between `*' and the name when declaring variables,
-even if it's not a double pointer.   int * foo;  is ugly. Common
-convention is  int *foo;
+> If you have a particular board that you can assume will be kept
+> reasonably up-to-date, you can set KBUILD_DEFCONFIG in your Makefile to
+> set the default config to use by name, and then you can forego having an
+> arch/foo/defconfig entirely (you can look at sh and some of the other
+> architectures to see this being done).
 
-> 3e. sizeof
->         space after the operator
->         sizeof a
-> 
+arm is another one which uses this style, ia64 for example uses configs/*
+and defconfig. But on arm and sh `make defconfig` works contrary to v850.
 
-I don't think that's a hard rule, there's plenty of code that does 
-"sizeof(type)"  and not  "sizeof (type)", and whitespace cleanup
-patches I've done that change "sizeof (type)" into "sizeof(type)" have
-generally been accepted.
-
-[snip]
-> 
-> 4. Indentation rules for C
->         Use tabs, not spaces, for indentation. Tabs should be 8 characters wide.
-> 
-A tab is a tab is a tab, how it's displayed is up to the editor
-showing the file.
-
-
-[snip]
-> 
-> static struct foo *foo_bar(struct foo *first, struct bar *second,
->                            struct foobar* thirsd);
-> 
-In this example you are not consistently placing your *'s, "struct foo
-*first" vs "struct foobar* thirsd". Common practice is "struct foo
-*first".
-
-
-[snip]
-> 
->         No more than one blank line in a row.
->         Last (or first) line in a file is never blank.
-> 
-Files should end with a  newline. gcc will even warn (with -pedantic)
-if this is not so.
-
-"line<nl>
- line"
-
-is wrong,
-
-"line<nl>
- line<nl>
-"
-
-is right.
-
-
-> Non-whitespace issues:
-> 
-> 6. One-line statement does not need a {} block, so dont put it into one
->         if (foo)
->                 bar;
-> 
-
-Not always so, if `bar' is a macro adding {} may be safer. Also
-sometimes adding {} improves readability, which is important.
-
-
-> 7. Comments
->         Dont use C99 // comments.
-> 
-
-s/Dont/Don't/
-
-
-> 9a. Integer types
->         int is the default integer type.
->         Use unsigned type if you perform bit operations (<<,>>,&,|,~).
->         Use unsigned long if you have to fit a pointer into integer.
->         long long is at least 64 bit wide on all platforms.
->         char is for ASCII characters and strings.
->         Use u8,u16,u32,u64 if you need an integer of a specific size.
-
-u8,s8,u16,s16,u32,s32,u64,s64
-
+Thanks,
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Jan

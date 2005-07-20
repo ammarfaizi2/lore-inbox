@@ -1,92 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVGTSWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVGTSXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbVGTSWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 14:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVGTSWJ
+	id S261455AbVGTSXg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 14:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVGTSXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 14:22:09 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:37215 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S261430AbVGTSWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 14:22:07 -0400
-X-OUTRCPT-TO: linux-scsi@vger.kernel.org, James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org, akpm@osdl.org, olh@suse.de, Eric.Moore@lsil.com, ntl@pobox.com
-X-OUTMAIL-FROM: mdomsch@humbolt.us.dell.com
-X-IronPort-AV: i="3.94,212,1118034000"; 
-   d="scan'208"; a="269339961:sNHT18325572"
-Date: Wed, 20 Jul 2005 13:22:04 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Nathan Lynch <ntl@pobox.com>
-Cc: "Moore, Eric Dean" <Eric.Moore@lsil.com>, Olaf Hering <olh@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 22/82] remove linux/version.h from drivers/message/fus ion
-Message-ID: <20050720182204.GA1134@humbolt.us.dell.com>
-Reply-To: Matt Domsch <Matt_Domsch@dell.com>
-References: <91888D455306F94EBD4D168954A9457C03281EB4@nacos172.co.lsil.com> <20050720031249.GA18042@humbolt.us.dell.com> <20050720175409.GB1573@otto>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050720175409.GB1573@otto>
-User-Agent: Mutt/1.5.9i
+	Wed, 20 Jul 2005 14:23:36 -0400
+Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:28271 "EHLO
+	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
+	id S261455AbVGTSXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 14:23:00 -0400
+Message-ID: <42DE96F2.9070105@tu-harburg.de>
+Date: Wed, 20 Jul 2005 20:24:50 +0200
+From: Jan Blunck <j.blunck@tu-harburg.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ramfs: pretend dirent sizes
+References: <42D72705.8010306@tu-harburg.de> <Pine.LNX.4.58.0507151151360.19183@g5.osdl.org> <20050716003952.GA30019@taniwha.stupidest.org> <42DCC7AA.2020506@tu-harburg.de> <20050719161623.GA11771@taniwha.stupidest.org> <42DD44E2.3000605@tu-harburg.de> <20050719183206.GA23253@taniwha.stupidest.org> <42DD50FC.9090004@tu-harburg.de> <20050719191648.GA24444@taniwha.stupidest.org>
+In-Reply-To: <20050719191648.GA24444@taniwha.stupidest.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 20, 2005 at 12:54:09PM -0500, Nathan Lynch wrote:
-> Matt Domsch wrote:
-> > On Tue, Jul 19, 2005 at 06:07:41PM -0600, Moore, Eric Dean wrote:
-> > > On Tuesday, July 12, 2005 8:17 PM, Matt Domsch wrote:
-> > > > In general, this construct:
-> > > > 
-> > > > > > -#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,6))
-> > > > > > -static int inline scsi_device_online(struct scsi_device *sdev)
-> > > > > > -{
-> > > > > > -	return sdev->online;
-> > > > > > -}
-> > > > > > -#endif
-> > > > 
-> > > > is better tested as:
-> > > > 
-> > > > #ifndef scsi_device_inline
-> > > > static int inline scsi_device_online(struct scsi_device *sdev)
-> > > > {
-> > > >     return sdev->online;
-> > > > }
-> > > > #endif
-> > > > 
-> > > > when you can.  It cleanly eliminates the version test, and tests for
-> > > > exactly what you're looking for - is this function defined.
-> > > > 
-> > > 
-> > > What you illustrated above is not going to work.
-> > > If your doing #ifndef around a function, such as scsi_device_online, it's
-> > > not going to compile
-> > > when scsi_device_online is already implemented in the kernel tree.
-> > > The routine scsi_device_online is a function, not a define.  For a define
-> > > this would work.
-> > 
-> > Sure it does, function names are defined symbols.
-> > 
+Chris Wedgwood wrote:
 > 
-> $ cat foo.c
-> static int foo(void) { return 0; }
-> #ifndef foo
-> static int foo(void) { return 0; }
-> #endif
+> Hos does that work if offset >= m?
 > 
-> $ gcc -c foo.c
-> foo.c:3: error: redefinition of 'foo'
-> foo.c:1: error: previous definition of 'foo' was here
+
+Eerrh, did you actually read my patch? The i_size of a directory is 
+increased by SIMPLE_BOGO_DIRENT_SIZE for every entry in the directory.
+
+ >>So you can seek to m*<stack-depth>+<offset> to access an offset into
+ >>> >something at depth m?
+ >>> >
+ >>
+ >> Yes.
+
+I got that one wrong! You can seek to the "sum of i_sizes (of the m 
+directories) + offset" to access offset in the m'th directory/stack-depth.
+
 > 
-> I believe #ifdef/#ifndef can test only preprocessor symbols.
+> lseek talks about bytes --- yes, it means for files specifically but I
+> still don't see why we need to define more counter-intuitive semantics
+> for directories when we don't need them.
 
+It is counter-intuitive to have a value which is information less, like 
+in the zero case.
 
-I was mistaken. Christoph explained to me that it worked on 2.4 due to
-the way module symbol versions worked, but isn't that way on 2.6
-anymore.  My apologies.
+> 
+> Also, how is lseek + readdir supposed to work in general?
 
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+This is how libc is reading directories (at least on arch s390x):
+
+getdents() != 0
+lseek() to d_off of last dirent
+getdents() != 0
+lseek() to d_off of last dirent
+getdents() == 0
+return
+
+Therefore I really need values that make sense for d_off. Therefore I 
+really need values that make (some kind of) sense for i_size.
+
+Jan

@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVGTLPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVGTLV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVGTLPt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 07:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVGTLPt
+	id S261156AbVGTLV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 07:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVGTLV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 07:15:49 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:48874 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S261157AbVGTLP1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 07:15:27 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pci_find_device --> pci_get_device
-Date: Wed, 20 Jul 2005 13:19:29 +0200
-User-Agent: KMail/1.8.1
-Cc: Jiri Slaby <jirislaby@gmail.com>, rth@twiddle.net, dhowells@redhat.com,
-       kumar.gala@freescale.com, davem@davemloft.net, mhw@wittsend.com,
-       Rogier Wolff <R.E.Wolff@bitwizard.nl>, nils@kernelconcepts.de,
-       cjtsai@ali.com.tw, Lionel.Bouton@inet6.fr, benh@kernel.crashing.org,
-       mchehab@brturbo.com.br, laredo@gnu.org, rbultje@ronald.bitfreak.net,
-       middelin@polyware.nl, philb@gnu.org, tim@cyberelk.net,
-       campbell@torque.net, andrea@suse.de, linux@advansys.com,
-       mulix@mulix.org
-References: <42DC4873.2080807@gmail.com> <200507191820.35472@bilbo.math.uni-mannheim.de> <42DE2A31.7080505@gmail.com>
-In-Reply-To: <42DE2A31.7080505@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart17263247.sU2RnSQhd5";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200507201319.42050@bilbo.math.uni-mannheim.de>
+	Wed, 20 Jul 2005 07:21:56 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:3052 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261156AbVGTLVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 07:21:55 -0400
+Date: Wed, 20 Jul 2005 13:21:27 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Jan Blunck <j.blunck@tu-harburg.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ramfs: pretend dirent sizes
+Message-ID: <20050720112127.GC3890@wohnheim.fh-wedel.de>
+References: <42D72705.8010306@tu-harburg.de> <Pine.LNX.4.58.0507151151360.19183@g5.osdl.org> <20050716003952.GA30019@taniwha.stupidest.org> <42DCC7AA.2020506@tu-harburg.de> <20050719161623.GA11771@taniwha.stupidest.org> <42DD44E2.3000605@tu-harburg.de> <20050719183206.GA23253@taniwha.stupidest.org> <42DD50FC.9090004@tu-harburg.de> <20050719191648.GA24444@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050719191648.GA24444@taniwha.stupidest.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart17263247.sU2RnSQhd5
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 19 July 2005 12:16:48 -0700, Chris Wedgwood wrote:
+> 
+> Also, how is lseek + readdir supposed to work in general?
 
-Am Mittwoch, 20. Juli 2005 12:40 schrieb Jiri Slaby:
->Rolf Eike Beer napsal(a):
->>Your patch to arch/sparc64/kernel/ebus.c is broken, the removed and added
->>parts do not match in behaviour.
->
->I can't still see the difference.
+To my understanding, you can lseek to any "proper" offset inside a
+directory.  Proper means that the offset marks the beginning of a new
+dirent (or end of file) in the interpretation of the filesystem.
 
-diff --git a/arch/sparc64/kernel/ebus.c b/arch/sparc64/kernel/ebus.c
-=2D-- a/arch/sparc64/kernel/ebus.c
-+++ b/arch/sparc64/kernel/ebus.c
-@@ -527,8 +527,15 @@ static struct pci_dev *find_next_ebus(st
- {
- 	struct pci_dev *pdev =3D start;
-=20
-=2D	do {
-=2D		pdev =3D pci_find_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev);
-+    while (pdev =3D pci_get_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev))
-+		if (pdev->device =3D=3D PCI_DEVICE_ID_SUN_EBUS ||
-+			pdev->device =3D=3D PCI_DEVICE_ID_SUN_RIO_EBUS)
-+			break;
-+
-+	*is_rio_p =3D !!(pdev && (pdev->device =3D=3D PCI_DEVICE_ID_SUN_RIO_EBUS)=
-);
-+=09
-+/*	do { // BEFORE \/           AFTER ^
-+ *		pdev =3D pci_find_device(PCI_VENDOR_ID_SUN, PCI_ANY_ID, pdev);
- 		if (pdev &&
- 		    (pdev->device =3D=3D PCI_DEVICE_ID_SUN_EBUS ||
- 		     pdev->device =3D=3D PCI_DEVICE_ID_SUN_RIO_EBUS))
+A filesystem could use offset n for directory entry n, or it could
+interpret n as the offset in bytes and require that a dirent start at
+this offset (else the offset wouldn't be proper) or it could be
+anything else as well.
 
-Eike
+Userspace doesn't have any means to figure out, which addresses are
+proper and which aren't.  Except that getdents(2) moves the fd offset
+to a proper address, which likely will remain proper until the fd is
+closed.  Reopening the same directory may result in a formerly proper
+offset isn't anymore.
 
---nextPart17263247.sU2RnSQhd5
-Content-Type: application/pgp-signature
+Does the above make sense?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+Jörn
 
-iD8DBQBC3jNNXKSJPmm5/E4RAr3zAJ0SVBMR2yLnLRWoYPy8pGPIYtcVSQCginj7
-UnLy4+fvkmvVH5pkBQXQHLo=
-=XaRf
------END PGP SIGNATURE-----
-
---nextPart17263247.sU2RnSQhd5--
+-- 
+And spam is a useful source of entropy for /dev/random too!
+-- Jasmine Strong

@@ -1,69 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVGTVpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVGTVqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbVGTVpW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 17:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVGTVpW
+	id S261510AbVGTVqj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 17:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVGTVqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 17:45:22 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:64435 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261509AbVGTVpU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 17:45:20 -0400
-Date: Wed, 20 Jul 2005 23:45:19 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Paul Jackson <pj@sgi.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, relayfs-devel@lists.sourceforge.net,
-       richardj_moore@uk.ibm.com, varap@us.ibm.com, karim@opersys.com,
-       linux-kernel@vger.kernel.org, zanussi@us.ibm.com
-Subject: Re: [PATCH] Re: relayfs documentation sucks?
-Message-ID: <20050720214519.GA13155@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Paul Jackson <pj@sgi.com>, Steven Rostedt <rostedt@goodmis.org>,
-	relayfs-devel@lists.sourceforge.net, richardj_moore@uk.ibm.com,
-	varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
-	zanussi@us.ibm.com
-References: <17107.6290.734560.231978@tut.ibm.com> <20050716210759.GA1850@outpost.ds9a.nl> <17113.38067.551471.862551@tut.ibm.com> <20050717090137.GB5161@outpost.ds9a.nl> <17114.31916.451621.501383@tut.ibm.com> <20050717194558.GC27353@outpost.ds9a.nl> <1121693274.12862.15.camel@localhost.localdomain> <20050720142732.761354de.pj@sgi.com>
+	Wed, 20 Jul 2005 17:46:39 -0400
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:55815 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S261510AbVGTVpt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 17:45:49 -0400
+Date: Wed, 20 Jul 2005 23:46:03 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>
+Subject: Re: [PATCH 2.6] I2C: Separate non-i2c hwmon drivers from i2c-core
+ (2/9)
+Message-Id: <20050720234603.2b66560d.khali@linux-fr.org>
+In-Reply-To: <20050720042755.GD26552@kroah.com>
+References: <20050719233902.40282559.khali@linux-fr.org>
+	<20050719234843.14cfb1ec.khali@linux-fr.org>
+	<20050720042755.GD26552@kroah.com>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050720142732.761354de.pj@sgi.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Greg,
+
+> > Convert i2c-isa from a dumb i2c_adapter into a pseudo i2c-core for
+> > ISA hardware monitoring drivers. The isa i2c_adapter is no more
+> > registered with i2c-core, drivers have to explicitely connect to it
+> > using the new i2c_isa_{add,del}_driver interface.
 > 
-> When I'm debugging something requiring detailed tracing, I don't want
-> to have to think about whether the tracing tool has the particular
-> behaviour, performance, data loss, and other such characteristics
-> needed for my immediate needs.  It is easier to code up some little
-> ad hoc mechanism than it is to try to figure out whether some general
-> purpose mechanism is suitable and how to use the generic mechanism.
+> Ick, when I did this originally it was a hack, and it's still a hack.
+> It's sad to see it spreading around, but that's proably my fault...
 
-You can do lots of modes with relayfs already - no ping-pong buffer,
-n-buffer, lossy, not lossy etc etc.
+I didn't know that, I'm sorry. As I don't really know how the driver
+core works, I just copied from the nearest working driver, which
+happened to be i2c-core. If this isn't good and you want me to do it
+differently, just tell me how and I'll tackle this. Actually it might be
+more important for i2c-core than i2c-isa, as i2c-isa will die in the
+long run.
 
-I currently use it in 'flight-recorder' mode where new messages overwrite
-old ones.
+> Anyway, what are your plans for after this?  How long will this code
+> stay around?  What do you want to do next?
+> 
+> I don't have any real objections to this patch series at all, just
+> very curious as to your proposed roadmap after this.
 
-It might be good to document different possible ways of using relayfs.
+I'm sorry, I thought I had explained it in the first post of the set,
+but now I realize that I explained in detail *what* I am doing, not
+*why* nor the whole picture.
 
-> If there are enough specific purposes for relayfs, fine.  But beware
-> of over generalizing its potential usefulness.  There is always the
-> risk of over designing it, adding additional flexibility and options
-> in an effort to gain customers, at the expense of making it less and
-> less obviously useful in a trivial way for any specific purpose.
+The whole point is to end with the current state where i2c and hardware
+monitoring are the same subsystem. There are more and more non-i2c
+hardware monitoring chip, in particular Super-I/O integrated sensors
+(IT8712F, W83627HF, PC87366 and all their variants), which have a very
+high overhead currently due to being linked to the i2c core for no
+reason but historical.
 
-It's currently pretty limited - but you can add more features on top of it,
-in a modular fashion. I tend not to use the complex stuff, but you can layer
-it if you want.
+The positive side effect is that there are a few ugly hooks in the
+i2c-core (expecially the sensors part) to handle the non-i2c chips, and
+we will be able to get rid of them and clean up a few things - as
+details in my original post.
 
-It'd be nice if we had some basic relaying infrastructure available that'd
-cover most needs successfully. Advanced users can do advanced things if they
-want.
+The reason why I am going into this now is that a totally different
+hardware monitoring driver is in the process of being added to the Linux
+kernel: bmcsensors, which is IPMI based. This would be yet another
+driver articifially linked to the i2c subsystem, requiring yet other
+hooks. So I wanted to clean up the mess first.
 
-Btw, the diskstat tools (http://ds9a.nl/diskstat) require relayfs. It'll be
-released this Friday or so.
+Another reason is that I now have a Super-I/O chip with integrated
+sensors on one of my systems, as well as a legacy ISA hardware
+monitoring chip on another one, so I should be able to test my changes
+more efficiently than before in that field (although more hardware would
+be even better, as usual).
 
+The major steps in the process are:
+
+1* Define a hardware monitoring class, which all hardware monitoring
+drivers would register with. Mark M. Hoffman just did that a few weeks
+ago.
+
+2* Separate the non-i2c hardware monitoring drivers from the i2c-core.
+This is what I am doing right now.
+
+3* Have the user-space tools (libsensors) search for hardware monitoring
+drivers through /sys/class/hwmon rather than (or, for the time being,
+additionally to) /sys/bus/i2c. Next on my list.
+
+4* Clean up the i2c core. This isn't directly related, but needs to be
+done, and will be much easier now that the isa hooks are gone. This
+includes a full rewrite of the way the i2c chip driver module parameters
+are handled, and a merge of i2c_probe and i2c_detect, to name only the
+two major ones. We might also get rid of some IDs that don't seem to be
+strictly needed (in i2c_algorithm and i2c_driver). And maybe split the
+SMBus 1 and 2 implementations away from i2c-core, not too sure what it
+would take.
+
+5* Really attach the non-i2c drivers to their right location in the
+sysfs tree. I don't know exactly where the correct location is, but
+we'll have to find. Once the hwmon class is in use, moving the drivers
+around in the sysfs tree will not break the user-space compatibility.
+
+Note that 3* depends on 1* and 4* depends on 2*. Also, we will need to
+wait some time (6 months? 1 year?) between 3* and 5* so as to not break
+user-space compatibility too much. This is the reason why I made 2* and
+5* different points even though it would sound saner to do them in a
+single step. This approach also lets me parallelize with 4*, which I
+want to do now rather than wait for 5* to happen.
+
+So, the approximate timeline would be 1* to 3* right now, 4* after that
+as time permits, and 5* when we estimate that 3* happened long enough
+ago (roughly 1st half of 2006?)
+
+I hope I explained it correctly this time. If not, just complain ;)
+
+Thanks,
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+Jean Delvare

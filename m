@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVGTOUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVGTOXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVGTOUV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 10:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVGTOUV
+	id S261237AbVGTOXG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 10:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVGTOXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 10:20:21 -0400
-Received: from smtp1.pp.htv.fi ([213.243.153.37]:15587 "EHLO smtp1.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S261238AbVGTOUJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 10:20:09 -0400
-Date: Wed, 20 Jul 2005 17:20:08 +0300
-From: Paul Mundt <lethal@linux-sh.org>
-To: Jan Dittmer <jdittmer@ppp0.net>
-Cc: snogglethorpe@gmail.com, miles@gnu.org, linux-kernel@vger.kernel.org
-Subject: Re: defconfig for v850, please
-Message-ID: <20050720142008.GA6762@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Jan Dittmer <jdittmer@ppp0.net>, snogglethorpe@gmail.com,
-	miles@gnu.org, linux-kernel@vger.kernel.org
-References: <42DE17DC.7050506@ppp0.net> <fc339e4a05072002355e4062d6@mail.gmail.com> <42DE1DDE.90503@ppp0.net> <fc339e4a0507200302d9f0141@mail.gmail.com> <20050720115218.GB9754@linux-sh.org> <42DE4B44.80504@ppp0.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
-Content-Disposition: inline
-In-Reply-To: <42DE4B44.80504@ppp0.net>
-User-Agent: Mutt/1.5.6i
+	Wed, 20 Jul 2005 10:23:05 -0400
+Received: from leyde.iplannetworks.net ([200.69.193.99]:51961 "EHLO
+	proxy3.iplannetworks.net") by vger.kernel.org with ESMTP
+	id S261237AbVGTOWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 10:22:02 -0400
+Message-ID: <42DE5E7C.6060709@latinsourcetech.com>
+Date: Wed, 20 Jul 2005 11:23:56 -0300
+From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@latinsourcetech.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory Management
+References: <42DE4D2B.9090503@latinsourcetech.com> <1121865874.3606.13.camel@localhost.localdomain>
+In-Reply-To: <1121865874.3606.13.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>I'm sure RH support will be able to help you with that; I doubt many
+>other people care about an ancient kernel like that, and a vendor one to
+>boot.
+>
+>(Also I assume you are using the -hugemem kernel as the documentation
+>recommends you to do)
+>
+>  
+>
+Arjan,
 
-On Wed, Jul 20, 2005 at 03:01:56PM +0200, Jan Dittmer wrote:
-> Still, for basic compile testing and testing patches on other
-> architectures it would be nice, when the patch writer can test his/her
-> patch with a simple defconfig, without knowing a common platform for
-> this target arch.
+   I'd like to know/understand more about memory management  on  Linux 
+Kernel and I belive this concept is applyable to the Red Hat Linux Kernel.
 
-This is what KBUILD_DEFCONFIG is for. A general purpose defconfig that
-has no hope of being kept up-to-date is worse than useless.
+  I have some doubts about the ZONE divison (DMA, NORMAL, HIGHMEM), 
+Shared Memory utilization, HugeTLB feature and OOM with large memory and 
+the kernel management of memory on SMP machines. I believe these 
+features are common to the Linux kernel in general(Red Hat, Debian, 
+SuSe, kernel.org), right?
+   I read a tons of docs regarding symposiums, The Linux Memory 
+Management Book and lots of docs about Oracle memory management but 
+memory management still not clear to me.
 
-> arm is another one which uses this style, ia64 for example uses configs/*
-> and defconfig. But on arm and sh `make defconfig` works contrary to v850.
->=20
-That's because it looks at KBUILD_DEFCONFIG.. We absolutely do not want
-to have an arch/foo/defconfig for most of these architectures, and I
-doubt that v850 is an exception. Note that sh also does not have one.
+  If somebody can help me...
 
---x+6KMIRAuhnl3hBn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Thanks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFC3l2Y1K+teJFxZ9wRArWnAJ9nPux965SVDVAKPP/EAgqXDZgUZwCePls3
-IvHMp0/rhvM8Nh7flqLTPO4=
-=n1dd
------END PGP SIGNATURE-----
-
---x+6KMIRAuhnl3hBn--

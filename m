@@ -1,99 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVGTNzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVGTOIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbVGTNzf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 09:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVGTNzf
+	id S261231AbVGTOIU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 10:08:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVGTOIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 09:55:35 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:48579 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S261233AbVGTNyy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 09:54:54 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove Comtrol mail address from MAINTAINERS
-Date: Wed, 20 Jul 2005 15:59:05 +0200
-User-Agent: KMail/1.8.1
-References: <200507200932.35003@bilbo.math.uni-mannheim.de> <42DE3FC0.8070500@gmail.com>
-In-Reply-To: <42DE3FC0.8070500@gmail.com>
-Cc: Jiri Slaby <lnx4us@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart59049569.Gf4ICVYQLy";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200507201559.12180@bilbo.math.uni-mannheim.de>
+	Wed, 20 Jul 2005 10:08:20 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:33676 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261231AbVGTOIT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 10:08:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=h+KMfOYQFy6qWtzioev24DnRUOFx1V70qZoiJB2KhG+7dNlA8q2KSa3xyMTeV4lq3VKWagcp9KtPpw32bx0Ks/FLeDSnyBliq30fSVXR/f0bX1HqH2eo6jqzsUqNAhqYf08odI2np13FUBPWH1oEWgNQEGU52xbH2NfINv98aKs=
+Message-ID: <9a87484905072007075a9b0bba@mail.gmail.com>
+Date: Wed, 20 Jul 2005 16:07:45 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: eliad lubovsky <eliadl@013.net>
+Subject: Re: Linux Benchmarks
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1121866937.3251.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1121866937.3251.5.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart59049569.Gf4ICVYQLy
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 7/20/05, eliad lubovsky <eliadl@013.net> wrote:
+> Where can I find common Linux benchmarks? I added some changes to system
+> calls and want to check whether it cause any performance degradation.
+> Thanks,
+> 
+You could go search Google - http://google.com/ 
+You could go search Freshmeat - http://freshmeat.net/ 
+You could go search almost any Linux software archive...
 
-Am Mittwoch, 20. Juli 2005 14:12 schrieb Jiri Slaby:
->Rolf Eike Beer napsal(a):
->>Every Mail to this address produces a mail telling that they do no longer
->>monitor this address and you should use their webinterface.
->>
->>"We are pleased to offer this powerful replacement to standard email
->> support."
->>
->>Some people just don't understand.
->>
->>Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
->>
->>--- linux-2.6.13-rc3/MAINTAINERS	2005-07-20 09:05:30.000000000 +0200
->>+++ linux-2.6.13-rc3-eike/MAINTAINERS	2005-07-20 09:13:40.000000000 +0200
->>@@ -1934,7 +1934,6 @@
->>
->> ROCKETPORT DRIVER
->> P:	Comtrol Corp.
->>-M:	support@comtrol.com
->> W:	http://www.comtrol.com
->> S:	Maintained
->
->And you can remove these:
->
->... while talking to advansys.com <http://advansys.com>.:
-> >>> DATA
->
-><<< 550 5.7.1 <linux@advansys.com <mailto:linux@advansys.com>>...
->Relaying denied. Proper authentication required.
+Luckily for you I'm a bit bored and have 2min to spare, so I'll list a
+few for you, but in the future, please try finding them yourself
+first...
 
-Looks like the admin of their mail setup should ask someone who knows what =
-he=20
-does.
+aiostress
+  ftp://ftp.suse.com/pub/people/mason/utils/aio-stress.c
 
->550 5.1.1 <linux@advansys.com <mailto:linux@advansys.com>>... User unknown
-><<< 503 5.0.0 Need RCPT (recipient)
+bonnie
+  http://www.garloff.de/kurt/linux/bonnie/
 
-This is just if your mailer uses PIPELINING and sent a DATA before getting =
-the=20
-reply to RCPT TO:
+clyde
+  http://tdec.free.fr/clyde/clyde.en.html
 
->... while talking to ali.ali.com.tw <http://ali.ali.com.tw>.:
-> >>> RCPT To:<cjtsai@ali.com.tw <mailto:cjtsai@ali.com.tw>>
->
-><<< 550 unknown user.
->550 5.1.1 <cjtsai@ali.com.tw <mailto:cjtsai@ali.com.tw>>... User unknown
+contest
+  http://contest.kolivas.org/
+  
+dbench
+  http://samba.org/ftp/tridge/dbench/
 
-Send a patch, you know the addresses.
+interbench
+  http://interbench.kolivas.org/
 
-Eike
+iozone
+  http://www.iozone.org/
 
---nextPart59049569.Gf4ICVYQLy
-Content-Type: application/pgp-signature
+lmbench
+  http://www.bitmover.com/lmbench/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+nbench
+  http://www.tux.org/~mayer/linux/bmark.html
 
-iD8DBQBC3liwXKSJPmm5/E4RAiv0AJ9zjsTyzpFxD8Hdw4slCNGN9INKcACeOfbD
-RIXjsCJt+JiBA8S/afD2X6w=
-=YOYP
------END PGP SIGNATURE-----
+netperf
+  http://www.netperf.org/
 
---nextPart59049569.Gf4ICVYQLy--
+re-aim
+  http://sourceforge.net/projects/re-aim-7
+
+sysbench
+  http://sysbench.sourceforge.net/
+
+tbench
+  http://gnunet.org/doxygen/html/dir_000026.html
+
+volanomark
+  http://www.volano.com/benchmarks.html
+
+
+And there's plenty more to be found out there on the 'net if need be...
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

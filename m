@@ -1,77 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVGSPTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVGSP1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261415AbVGSPTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Jul 2005 11:19:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVGSPTJ
+	id S261418AbVGSP1s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Jul 2005 11:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVGSP1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Jul 2005 11:19:09 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:30359 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261415AbVGSPTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Jul 2005 11:19:07 -0400
-Date: Tue, 19 Jul 2005 11:19:06 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Realtime Preemption, 2.6.12, Beginners Guide?
-In-reply-to: <20050719135715.GA20664@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Karsten Wiese <annabellesgarden@yahoo.de>,
-       "K.R. Foley" <kr@cybsft.com>, Chuck Harding <charding@llnl.gov>,
-       William Weston <weston@sysex.net>
-Message-id: <200507191119.06671.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200507061257.36738.s0348365@sms.ed.ac.uk>
- <200507191314.24093.annabellesgarden@yahoo.de> <20050719135715.GA20664@elte.hu>
-User-Agent: KMail/1.7
+	Tue, 19 Jul 2005 11:27:48 -0400
+Received: from alpha.tmit.bme.hu ([152.66.246.10]:11787 "EHLO alpha.ttt.bme.hu")
+	by vger.kernel.org with ESMTP id S261856AbVGSP1p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Jul 2005 11:27:45 -0400
+Message-ID: <42DD9AB9.1030808@alpha.tmit.bme.hu>
+Date: Tue, 19 Jul 2005 17:28:41 -0700
+From: Gyorgy Horvath <horvaath@alpha.tmit.bme.hu>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCE: Driver for Rocky 4782E WDT and pls help
+References: <42DC2871.1030103@alpha.tmit.bme.hu> <1121704467.12438.71.camel@localhost.localdomain>
+In-Reply-To: <1121704467.12438.71.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 July 2005 09:57, Ingo Molnar wrote:
->* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
->> > Found another error:
->> > the ioapic cache isn't fully initialized in -51-31's
->> > ioapic_cache_init(). <snip>
->>
->> and another: some NULL-pointers are used in -51-31 instead of
->> ioapic_data[0]. Please apply attached patch on top of -51-31. It
->> includes yesterday's fix.
->
->thanks, i've applied it and released -32.
+Hi again,
 
-And this fixed ntpd (in mode 4) right up.  But now Im seeing some 
-fussing from Xprint when its started, from my logs:
+I have scanned IHC errata for this Rocky stuff.
 
-Jul 19 10:59:58 coyote rc: Starting xprint:  succeeded
-Jul 19 10:59:58 coyote kernel: set_rtc_mmss: can't update from 7 to 59
-Jul 19 10:59:58 coyote kernel: set_rtc_mmss: can't update from 7 to 59
-Jul 19 10:59:59 coyote Xprt_33: lpstat: Unable to connect to server: Connection refused
-Jul 19 10:59:59 coyote Xprt_33: No matching visual for __GLcontextMode with visual class = 0 (32775), nplanes =
-8
-Jul 19 11:00:00 coyote kernel: set_rtc_mmss: can't update from 7 to 59
+First, lspi -vvv said that Rocky has 82820.
+Hmm... I have a phy look at the card and see 82801.
+OK.
+I went to the Intel site, and downloaded the spec updates
+for it.
 
-The font path stuff I snipped has been there since forever.
-And, I didn't get the set_rtc_mmss messages when I did a service xprint restart.
+http://www.intel.com/design/chipsets/mobile/documentation845.htm#specupdates
+Intel (R) 82801CAM I/O Controller Hub 3 (ICH3-M)
+Specification Update
 
-Is this even connected to Xprint, that looks like something from maybe ntp?
+-- -- --
+Errata 22. IDE Hang Issue
 
-And of course in mode 4, tvtime has a blue screen.  But you knew that. :)
+Problem:
 
-> Ingo
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+An arbitration deadlock in the ICH3-M may occur if
+IDE traffic is combined with heavy graphic traffic and
+internal/external PCI Bus Master traffic to memory.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Implication:
+
+This issue may lockup the IDE bus master causing a
+system hang. This issue was found during ongoing internal
+validation using a synthetic test environment and there
+have been no failures reported by customers.
+
+Workaround:
+
+BIOS needs to set configuration register
+(Device 31, Function 0, offset FCh, bit 23) to prevent the
+arbitration deadlock. Contact your local Intel Field
+representative if you require more detailed
+BIOS workaround information.
+
+-- -- --
+Errata 24. DWORD I/O Cycle Native Mode IDE Issue
+
+Problem:
+
+An I/O read crossing a DWORD boundary being sent
+from processor to the ICH3-M may not complete correctly.
+The ICH3-M will treat such a transaction as two single DWORD
+I/O accesses.
+If native mode IDE addressing is enabled, the ICH3-M will
+return the first I/O cycle completion request to the MCH
+but the second I/O cycle may get decoded to the IDE
+controller instead of its intended address.
+
+Implication:
+
+System may hang while processor waits for return of I/O cycle.
+
+Workaround:
+
+Disable Native Mode IDE in BIOS. See ICH3-M BIOS Specification
+Update for more details.
+-- -- --
+There are A LOT of other issues, but the aboves may be relevant.
+I am going to try them.
+Can you guide me where can I place the mentioned workarounds?
+Also - how can I check that we are REALLY facing this chipset?
+Are the PCI ID's enough?
+(btw. lspci makes me fool)
+
+Also, disabling IDE DMA caused an other side effect.
+At a Poisson distributed moment - my interrupt from
+the SGA155D simply can not get thru.
+
+It is a known issue for me. SGA1GED dual gigabit
+ethernet (monitor) card produced the same on a brand new
+PC (blue lights from the power supply, etc... :-).
+
+Since the chipset is so new - no IDE DMA in 2.4.18 for this.
+It is not a real problem since we have a 3ware raid in place.
+Now it is 14 days up, and cca. 160 Giga of headers were captured.
+(students are on their holliday - that is why so few data)
+The workaround was QED. The capture task reads AMCC S5933
+when the IT count is stalled for a while.
+That rearms the IT logic - and the show goes on.
+
+Unfortunatelly, for the POS stuff this trick cannot be used.
+Precise timing for TX schedule is vital.
+
+So I have to dig further.
+
+Best regards
+
+Gyuri
+

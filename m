@@ -1,101 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVGUMWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVGUMcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbVGUMWW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 08:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVGUMWW
+	id S261770AbVGUMcf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 08:32:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVGUMcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 08:22:22 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:36059 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261772AbVGUMWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 08:22:21 -0400
-Date: Thu, 21 Jul 2005 08:22:33 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 2.6.12 PREEMPT_RT && PPC
-In-reply-to: <200507210745.57120.gene.heskett@verizon.net>
-To: linux-kernel@vger.kernel.org
-Cc: Billy Biggs <vektor@dumbterm.net>
-Message-id: <200507210822.34023.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200507200816.11386.kernel@kolivas.org>
- <42DF293A.4050702@timesys.com> <200507210745.57120.gene.heskett@verizon.net>
-User-Agent: KMail/1.7
+	Thu, 21 Jul 2005 08:32:35 -0400
+Received: from alerce3.iplannetworks.net ([200.69.193.91]:18883 "EHLO
+	alerce3.iplannetworks.net") by vger.kernel.org with ESMTP
+	id S261770AbVGUMcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 08:32:32 -0400
+Message-ID: <42DF9646.5070806@latinsourcetech.com>
+Date: Thu, 21 Jul 2005 09:34:14 -0300
+From: =?UTF-8?B?TcOhcmNpbyBPbGl2ZWlyYQ==?= 
+	<moliveira@latinsourcetech.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory Management
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-iplan-Al-Info: iplan networks - Proteccion contra spam y virus en e-mail
+X-iplan-Al-MRId: 9bd3db6c5ab88a4ed75aa285017de11b
+X-iplan-Al-From: moliveira@latinsourcetech.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 July 2005 07:45, Gene Heskett wrote:
->On Thursday 21 July 2005 00:48, john cooper wrote:
->>Ingo,
->>     Attached is a patch for 51-28 which brings PPC
->>up to date for 2.6.12 PREEMPT_RT.  My goal was to
->>get a more recent vintage of this work building and
->>minimally booting for PPC.  Yet this has been stable
->>even under our internal stress tests.  We now have
->>this running on 8560 and 8260 PPC targets with a few
->>others in the pipe.
+Arjan van de Ven wrote:
+
+>On Wed, 2005-07-20 at 11:23 -0300, Márcio Oliveira wrote:
+>  
+>
+>>Arjan van de Ven wrote:
 >>
->>Remaining are a few known BUG asserts to address,
->>but as we've historically been chasing seemingly
->>PPC-specific (or perhaps usage-specific) problems in
->>a fairly old code base it seemed high time to move
->>forward.  I've also applied the same patch to 51-33
->>which not being very far from 51-28 did apply clean,
->>builds, boots, and appears equally stable as 51-28.
+>>    
 >>
->>In the process of producing the patch I stumbled
->>across a change introduced in 51-15 where in the
->>case of PREEMPT_RT it appears hw_irq_controller.end()
->>is never being called at the end of do_hardirq().
->>This appears to be an oversight in the code and
->>the existing PPC openpic code does register a end()
->>handler which it expects to be called in order to
->>terminate the interrupt.  Otherwise interrupts at
->>the current level are effectively disabled.
+>>>I'm sure RH support will be able to help you with that; I doubt many
+>>>other people care about an ancient kernel like that, and a vendor one to
+>>>boot.
+>>>
+>>>(Also I assume you are using the -hugemem kernel as the documentation
+>>>recommends you to do)
+>>>
+>>> 
+>>>
+>>>      
+>>>
+>>Arjan,
+>>
+>>   I'd like to know/understand more about memory management  on  Linux 
+>>Kernel and I belive this concept is applyable to the Red Hat Linux Kernel.
+>>    
+>>
 >
->Humm, I wondering out loud if this is the video dma failure in
-> tvtime? Anyway, it applied cleanly over -33, and is building now,
-> set for mode=4.
+>Only on the highest of levels. The RHEL3 kernel has a VM that resembles
+>almost no other linux kernel in many many ways. 
 >
->Rebooted, running it now, and no, this wasn't it, tvtime still has a
->BSOD with good audio.  However, where before I got about 4-6 cx88
->interrupts for a short run of tvtime each time I ran it, now I'm
->showing only 4 regardless.  Even if I leave it runnng, the count is
->stuck at 4.
 >
->I wonder if those 4 are associated with the initial insmod?
->I've rmmod cx8800 cx88-dvb, then modprobe cx88-dvb which then shows
->the cx8800 module (unused) in an lsmod, but a cat of
-> /proc/interrupts now shows 2 of them:
+>  
 >
->17:          4  IO-APIC-level  [........../  0]  cx88[0], cx88[0]
+>>  I have some doubts about the ZONE divison (DMA, NORMAL, HIGHMEM), 
+>>Shared Memory utilization, HugeTLB feature and OOM with large memory and 
+>>the kernel management of memory on SMP machines. I believe these 
+>>features are common to the Linux kernel in general(Red Hat, Debian, 
+>>SuSe, kernel.org), right?
+>>    
+>>
 >
->But I'll run this for a bit & see what else falls off on the
->curves. :)
+>nope. These things are very much different between the kernels you
+>mention.
+>
+>What do you want to use the knowledge for? Fixing the VM? Tuning your
+>server? The goal of your question determines what kind of answer you
+>want to your questions....
+>  
+>
+It's about tunning the VM parameters...
 
-As an addendum, I've found that xawtv's video works, but its audio 
-doesn't.  And the IRQ count for cx88 is being incremented, but not at  
-an IRQ per video frame, maybe around 10/second.
+That's my first question on list:
 
- 17:       8972  IO-APIC-level  [........../ 58]  cx88[0], cx88[0]
+"Is HugeTBL proc memory parameters only to hugetlbfs "filesystem" or are 
+these parameters affect ramfs, shm and tmpfs too?
 
-Thats for about a (SWAG) 10 minute run while I tried to find some 
-audio.
+What is the basic difference between ramfs, hugetlbfs, shm and tmpfs to 
+the memory management / process VLM utilization?
 
-The video looks ok considering its never twice same color.
+thanks,
 
-So now we know its not the cx88 stuff, but tvtime thats failing, and 
-only in mode 4 so Billy Biggs has been added to the CC:
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Márcio."

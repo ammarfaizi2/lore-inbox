@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVGUTVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVGUTjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVGUTVu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 15:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVGUTVs
+	id S261792AbVGUTjW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 15:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVGUTjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 15:21:48 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62088 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261847AbVGUTVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 15:21:45 -0400
-Date: Thu, 21 Jul 2005 21:21:43 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>, xschmi00@stud.feec.vutbr.cz,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch] no disk yoyo for -mm
-Message-ID: <20050721192143.GA5917@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 21 Jul 2005 15:39:22 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:45842 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S261792AbVGUTjV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 15:39:21 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <9a874849050721114227f3c6a7@mail.gmail.com>
+References: <20050714011208.22598.qmail@science.horizon.com> <FD559B50-FB1E-4478-ACF4-70E4DB7A0176@mac.com> <Pine.LNX.4.61.0507200715290.9066@yvahk01.tjqt.qr> <20050720174521.73c06bce.pj@sgi.com> <3FC51285-941F-48B6-B5A9-1BBE95CCD816@mac.com> <9a874849050721114227f3c6a7@mail.gmail.com>
+X-OriginalArrivalTime: 21 Jul 2005 19:39:14.0065 (UTC) FILETIME=[DFDFC810:01C58E2B]
+Content-class: urn:content-classes:message
+Subject: Re: kernel guide to space
+Date: Thu, 21 Jul 2005 15:37:44 -0400
+Message-ID: <Pine.LNX.4.61.0507211528250.12675@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kernel guide to space
+thread-index: AcWOK9/rjwGdbCmyQbiUnxQ0D6fshQ==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Cc: "Kyle Moffett" <mrmacman_g4@mac.com>, "Paul Jackson" <pj@sgi.com>,
+       "Jan Engelhardt" <jengelh@linux01.gwdg.de>, <linux@horizon.com>,
+       <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
 
-The attached patch stops the disks from spinning down and up on
-suspend.  The patch applies to 2.6.13-rc3-mm1 (depends on
-pm_message_t being struct).
+On Thu, 21 Jul 2005, Jesper Juhl wrote:
 
-Signed-off-by: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+> On 7/21/05, Kyle Moffett <mrmacman_g4@mac.com> wrote:
+>> On Jul 20, 2005, at 20:45:21, Paul Jackson wrote:
+> [...snip...]
+>> *cough* TargetStatistics[TargetID].HostAdapterResetsCompleted *cough*
+>>
+>> I suspect linus would be willing to accept a few cleanup patches for the
+>> BusLogic.c file.  Perhaps even one that renames BusLogic.c to buslogic.c
+>> like all the other files in the source tree, instead of using nasty
+>> StudlyCaps all over :-D
+>>
+>
+> To avoid people doing duplicate work, I just want to say that I've
+> started doing a CodingStyle/whitespace/VariableAndFunctionNaming
+> cleanup of the BusLogic driver, I'll send the patches to LKML in a few
+> hours.
+>
+Are you going to get rid of the BusLogic* in front of every variable
+and function name? (yes please??)  If so, you will need a few days!
 
----
-commit 3d1f9a53dcf4a73934daeb878493ed512fd78407
-tree 53c0d3101fa18fbfeae3dd0a4214428319dace99
-parent c21641336d5c83a41d15cdb34f18413f2b8217fd
-author <pavel@amd.(none)> Thu, 21 Jul 2005 21:20:05 +0200
-committer <pavel@amd.(none)> Thu, 21 Jul 2005 21:20:05 +0200
+It will take probably an hour to parse:
+struct BusLogic_FetchHostAdapterLocalRAMReguest FetchHostAdapterLocalRAMRequest
+ 		^!)
 
- drivers/ide/ide-io.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> --
+> Jesper Juhl <jesper.juhl@gmail.com>
+> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+> Plain text mails only, please      http://www.expita.com/nomime.html
 
-diff --git a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
---- a/drivers/ide/ide-io.c
-+++ b/drivers/ide/ide-io.c
-@@ -150,7 +150,7 @@ static void ide_complete_power_step(ide_
- 
- 	switch (rq->pm->pm_step) {
- 	case ide_pm_flush_cache:	/* Suspend step 1 (flush cache) complete */
--		if (rq->pm->pm_state == 4)
-+		if (rq->pm->pm_state == PM_EVENT_FREEZE)
- 			rq->pm->pm_step = ide_pm_state_completed;
- 		else
- 			rq->pm->pm_step = idedisk_pm_standby;
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.
 
--- 
-teflon -- maybe it is a trademark, but it should not be.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

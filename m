@@ -1,77 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVGUTjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVGUTnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261792AbVGUTjW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 15:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVGUTjW
+	id S261858AbVGUTnD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 15:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVGUTnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 15:39:22 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:45842 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S261792AbVGUTjV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 15:39:21 -0400
+	Thu, 21 Jul 2005 15:43:03 -0400
+Received: from digitalimplant.org ([64.62.235.95]:11184 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261858AbVGUTnC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 15:43:02 -0400
+Date: Thu, 21 Jul 2005 12:42:54 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Nigel Cunningham <ncunningham@cyclades.com>
+cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [PATCH] Workqueue freezer support.
+In-Reply-To: <1121923059.2936.224.camel@localhost>
+Message-ID: <Pine.LNX.4.50.0507211221550.12779-100000@monsoon.he.net>
+References: <1121923059.2936.224.camel@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <9a874849050721114227f3c6a7@mail.gmail.com>
-References: <20050714011208.22598.qmail@science.horizon.com> <FD559B50-FB1E-4478-ACF4-70E4DB7A0176@mac.com> <Pine.LNX.4.61.0507200715290.9066@yvahk01.tjqt.qr> <20050720174521.73c06bce.pj@sgi.com> <3FC51285-941F-48B6-B5A9-1BBE95CCD816@mac.com> <9a874849050721114227f3c6a7@mail.gmail.com>
-X-OriginalArrivalTime: 21 Jul 2005 19:39:14.0065 (UTC) FILETIME=[DFDFC810:01C58E2B]
-Content-class: urn:content-classes:message
-Subject: Re: kernel guide to space
-Date: Thu, 21 Jul 2005 15:37:44 -0400
-Message-ID: <Pine.LNX.4.61.0507211528250.12675@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel guide to space
-thread-index: AcWOK9/rjwGdbCmyQbiUnxQ0D6fshQ==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Cc: "Kyle Moffett" <mrmacman_g4@mac.com>, "Paul Jackson" <pj@sgi.com>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>, <linux@horizon.com>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 21 Jul 2005, Jesper Juhl wrote:
 
-> On 7/21/05, Kyle Moffett <mrmacman_g4@mac.com> wrote:
->> On Jul 20, 2005, at 20:45:21, Paul Jackson wrote:
-> [...snip...]
->> *cough* TargetStatistics[TargetID].HostAdapterResetsCompleted *cough*
->>
->> I suspect linus would be willing to accept a few cleanup patches for the
->> BusLogic.c file.  Perhaps even one that renames BusLogic.c to buslogic.c
->> like all the other files in the source tree, instead of using nasty
->> StudlyCaps all over :-D
->>
+On Thu, 21 Jul 2005, Nigel Cunningham wrote:
+
+> This patch implements freezer support for workqueues. The current
+> refrigerator implementation makes all workqueues NOFREEZE, regardless of
+> whether they need to be or not.
+
+A few comments..
+
+> Signed-off by: Nigel Cunningham <nigel@suspend2.net>
 >
-> To avoid people doing duplicate work, I just want to say that I've
-> started doing a CodingStyle/whitespace/VariableAndFunctionNaming
-> cleanup of the BusLogic driver, I'll send the patches to LKML in a few
-> hours.
+>  drivers/acpi/osl.c          |    2 +-
+>  drivers/block/ll_rw_blk.c   |    2 +-
+>  drivers/char/hvc_console.c  |    2 +-
+>  drivers/char/hvcs.c         |    2 +-
+>  drivers/input/serio/serio.c |    2 +-
+>  drivers/md/dm-crypt.c       |    2 +-
+>  drivers/scsi/hosts.c        |    2 +-
+>  drivers/usb/net/pegasus.c   |    2 +-
+
+If you want some practice splitting things up, submit the patches above
+individually to the maintainers o the relevant code once the patches you
+submit below get merged to -mm.
+
+>  include/linux/kthread.h     |   20 ++++++++++++++++++--
+>  include/linux/workqueue.h   |    9 ++++++---
+>  kernel/kmod.c               |    4 ++++
+>  kernel/kthread.c            |   23 ++++++++++++++++++++++-
+>  kernel/sched.c              |    4 ++--
+>  kernel/softirq.c            |    3 +--
+>  kernel/workqueue.c          |   21 ++++++++++++---------
+>  15 files changed, 73 insertions(+), 27 deletions(-)
+
+
+You should make sure that you get an explicit ACK from people (Ingo et al)
+about whether this is an acceptable interface.
+
+> --- 400-workthreads.patch-old/include/linux/kthread.h	2004-11-03 21:51:12.000000000 +1100
+> +++ 400-workthreads.patch-new/include/linux/kthread.h	2005-07-20 15:11:37.000000000 +1000
+> @@ -27,6 +27,14 @@ struct task_struct *kthread_create(int (
+>  				   void *data,
+>  				   const char namefmt[], ...);
 >
-Are you going to get rid of the BusLogic* in front of every variable
-and function name? (yes please??)  If so, you will need a few days!
+> +struct task_struct *_kthread_create(int (*threadfn)(void *data),
+> +				   void *data,
+> +				   unsigned long freezer_flags,
+> +				   const char namefmt[], ...);
+> +
 
-It will take probably an hour to parse:
-struct BusLogic_FetchHostAdapterLocalRAMReguest FetchHostAdapterLocalRAMRequest
- 		^!)
+This should be __kthread_create(...)
 
-> --
-> Jesper Juhl <jesper.juhl@gmail.com>
-> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-> Plain text mails only, please      http://www.expita.com/nomime.html
+> -#define kthread_run(threadfn, data, namefmt, ...)			   \
+> +#define kthread_run(threadfn, data, namefmt, args...)			   \
+>  ({									   \
+>  	struct task_struct *__k						   \
+> -		= kthread_create(threadfn, data, namefmt, ## __VA_ARGS__); \
+> +		= kthread_create(threadfn, data, namefmt, ##args);	   \
+>  	if (!IS_ERR(__k))						   \
+>  		wake_up_process(__k);					   \
+>  	__k;								   \
+>  })
+>
+> +#define kthread_nofreeze_run(threadfn, data, namefmt, args...)		   \
+> +({									   \
+> +	struct task_struct *__k	= kthread_nofreeze_create(threadfn, data,  \
+> +			namefmt, ##args);				   \
+> +	if (!IS_ERR(__k))						   \
+> +		wake_up_process(__k);					   \
+> +	__k;								   \
+> +})
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Do these functions need to be inlined?
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+> @@ -86,6 +87,10 @@ static int kthread(void *_create)
+>  	/* By default we can run anywhere, unlike keventd. */
+>  	set_cpus_allowed(current, CPU_MASK_ALL);
+>
+> +	/* Set our freezer flags */
+> +	current->flags &= ~(PF_SYNCTHREAD | PF_NOFREEZE);
+> +	current->flags |= (create->freezer_flags & PF_NOFREEZE);
+> +
 
-Thank you.
+Maybe these should be encapsulated in a helper in include/linux/sched.h
+like some other flags manipulations are?
+
+> diff -ruNp 400-workthreads.patch-old/kernel/sched.c 400-workthreads.patch-new/kernel/sched.c
+> --- 400-workthreads.patch-old/kernel/sched.c	2005-07-21 04:00:02.000000000 +1000
+> +++ 400-workthreads.patch-new/kernel/sched.c	2005-07-21 04:00:19.000000000 +1000
+> @@ -4580,10 +4580,10 @@ static int migration_call(struct notifie
+>
+>  	switch (action) {
+>  	case CPU_UP_PREPARE:
+> -		p = kthread_create(migration_thread, hcpu, "migration/%d",cpu);
+> +		p = kthread_create(migration_thread, hcpu,
+> +				"migration/%d",cpu);
+
+This is unnecessary.
+
+Overall, it looks pretty good.
+
+Thanks,
+
+
+
+	Pat

@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVGUO21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVGUOci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVGUO21 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 10:28:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVGUO21
+	id S261788AbVGUOci (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 10:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVGUOci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 10:28:27 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:40860 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261783AbVGUO20 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 10:28:26 -0400
-Date: Thu, 21 Jul 2005 16:20:51 +0200 (MEST)
-Message-Id: <200507211420.j6LEKp6l023181@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: bunk@stusta.de
-Subject: Re: -mm: strange places for the PERFCTR option
+	Thu, 21 Jul 2005 10:32:38 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33030 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261788AbVGUOch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 10:32:37 -0400
+Date: Thu, 21 Jul 2005 16:32:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: spyro@f2s.com
 Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] include/asm-arm26/hardirq.h: remove #define irq_enter()
+Message-ID: <20050721143234.GE3160@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On i386, the PERFCTR option is currently available under:
-> 
->   Power management options (ACPI, APM)
->     APM (Advanced Power Management) BIOS Support
-> 
-> 
-> On x86_64, the PERFCTR option is currently available under:
-> 
->   Executable file formats / Emulation
-> 
-> 
-> On ppc, the PERFCTR option is currently available under:
-> 
->   Processor
-> 
-> 
-> On ppc64, the PERFCTR option is currently available under:
-> 
->   Platform support
-> 
-> 
-> The ppc and ppc64 places seem to be logical, but the places where it's 
-> available on i386 and x86_64 are strange.
+This patch removes a #define for irq_enter that is superfluous due to a 
+similar one in include/linux/hardirq.h .
 
-The strange placement on i386 and x86_64 is probably due to patch
-making mistakes. Once I saw patch misapply a Kconfig hunk for
-x86_64 by about 900 lines...
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Feel free to propose a cleanup patch.
+---
 
-/Mikael
+Note: The compilation of this patch was not tested.
+
+--- linux-2.6.13-rc3-mm1-full/include/asm-arm26/hardirq.h.old	2005-07-21 16:27:36.000000000 +0200
++++ linux-2.6.13-rc3-mm1-full/include/asm-arm26/hardirq.h	2005-07-21 16:29:32.000000000 +0200
+@@ -22,8 +22,6 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-#define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+ #ifndef CONFIG_SMP
+ 
+ extern asmlinkage void __do_softirq(void);
+

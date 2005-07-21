@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVGUApg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVGUBZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVGUApg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 20:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVGUApg
+	id S261574AbVGUBZW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 21:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVGUBZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 20:45:36 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:9088 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261579AbVGUApe (ORCPT
+	Wed, 20 Jul 2005 21:25:13 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:7180 "EHLO tron.kn.vutbr.cz")
+	by vger.kernel.org with ESMTP id S261195AbVGUBZJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 20:45:34 -0400
-Date: Wed, 20 Jul 2005 17:45:21 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: mrmacman_g4@mac.com, linux@horizon.com, linux-kernel@vger.kernel.org
-Subject: Re: kernel guide to space
-Message-Id: <20050720174521.73c06bce.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.61.0507200715290.9066@yvahk01.tjqt.qr>
-References: <20050714011208.22598.qmail@science.horizon.com>
-	<FD559B50-FB1E-4478-ACF4-70E4DB7A0176@mac.com>
-	<Pine.LNX.4.61.0507200715290.9066@yvahk01.tjqt.qr>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.6.4; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 20 Jul 2005 21:25:09 -0400
+Message-ID: <42DEF96E.60103@stud.feec.vutbr.cz>
+Date: Thu, 21 Jul 2005 03:25:02 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+CC: Andreas Steinmetz <ast@domdv.de>, Pavel Machek <pavel@suse.cz>,
+       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: amd64-agp vs. swsusp
+References: <42DD67D9.60201@stud.feec.vutbr.cz> <200507201115.08733.rjw@sisk.pl> <42DECB21.5020903@stud.feec.vutbr.cz> <200507210123.16537.rjw@sisk.pl>
+In-Reply-To: <200507210123.16537.rjw@sisk.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  tested this incoming email. See other headers to know if the email
+  has beed identified as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0001]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan wrote:
-> (Find source files, expand tab chars to their on-screen length, print if 
-> >= 80, count lines)
+Rafael J. Wysocki wrote:
+> On Thursday, 21 of July 2005 00:07, Michal Schmidt wrote:
+>>I also tried putting a printk before restore_processor_state(), but I'm 
+>>not sure if it is safe to use printk there.
+> 
+> 
+> Yes, it is, but you may be unable to see the message if the box reboots before
+> it can be displayed.
 
-The bulk of the longest lines are in the sound and drivers subtrees.
+OK, but then I also tried putting a 5s long busy wait there and the 
+reset was not delayed. Therefore, the reset must be occurring before 
+restore_processor_state().
+Or is there a reason why
+	for(i=0; i<5000; i++)
+		udelay(1000);
+wouldn't work as expected?
 
-One example on the "high end", with 546 chars in one line:
-
-==
-
-drivers/scsi/BusLogic.c:
-
-  %2d	 %5d %5d %5d    %5d %5d %5d	   %5d %5d %5d\n", TargetID, TargetStatistics[TargetID].CommandAbortsRequested, TargetStatistics[TargetID].CommandAbortsAttempted, TargetStatistics[TargetID].CommandAbortsCompleted, TargetStatistics[TargetID].BusDeviceResetsRequested, TargetStatistics[TargetID].BusDeviceResetsAttempted, TargetStatistics[TargetID].BusDeviceResetsCompleted, TargetStatistics[TargetID].HostAdapterResetsRequested, TargetStatistics[TargetID].HostAdapterResetsAttempted, TargetStatistics[TargetID].HostAdapterResetsCompleted);
-
-==
-
-Clearly, it would be unrepresentative of certain coding styles in drivers
-and sound to claim they closely followed an 80 column constraint.
-
-Perhaps the spacing guide should acknowledge this, with some qualification
-such as:
-
-   The core kernel code (as apposed to some driver code) tends to keep
-   source line lengths below 80 columns.  When changing such code, respect
-   the line length constraints of nearby code.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Michal

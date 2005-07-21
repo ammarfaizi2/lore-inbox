@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVGUF6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVGUGXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbVGUF6c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 01:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVGUF6b
+	id S261658AbVGUGXU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 02:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVGUGXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 01:58:31 -0400
-Received: from mx.freeshell.ORG ([192.94.73.21]:29419 "EHLO sdf.lonestar.org")
-	by vger.kernel.org with ESMTP id S261651AbVGUF6b (ORCPT
+	Thu, 21 Jul 2005 02:23:20 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:12732 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261658AbVGUGXT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 01:58:31 -0400
-From: Jim Nance <jlnance@sdf.lonestar.org>
-Date: Thu, 21 Jul 2005 02:13:53 +0000
-To: Antonio Vargas <windenntw@gmail.com>
-Cc: Erik Mouw <erik@harddisk-recovery.com>,
-       Miquel van Smoorenburg <miquels@cistron.nl>, naber@inl.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: a 15 GB file on tmpfs
-Message-ID: <20050721021353.GA23309@SDF.LONESTAR.ORG>
-References: <200507201416.36155.naber@inl.nl> <20050720132006.GI7050@harddisk-recovery.com> <dbljub$mgm$1@news.cistron.nl> <20050720144421.GK7050@harddisk-recovery.com> <69304d1105072008237dd21e08@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <69304d1105072008237dd21e08@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 21 Jul 2005 02:23:19 -0400
+Date: Thu, 21 Jul 2005 08:22:25 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Paul Jackson <pj@sgi.com>
+cc: mrmacman_g4@mac.com, linux@horizon.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space
+In-Reply-To: <20050720174521.73c06bce.pj@sgi.com>
+Message-ID: <Pine.LNX.4.61.0507210814580.15745@yvahk01.tjqt.qr>
+References: <20050714011208.22598.qmail@science.horizon.com>
+ <FD559B50-FB1E-4478-ACF4-70E4DB7A0176@mac.com> <Pine.LNX.4.61.0507200715290.9066@yvahk01.tjqt.qr>
+ <20050720174521.73c06bce.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 20, 2005 at 05:23:52PM +0200, Antonio Vargas wrote:
-> Most probably the cost of programming and debugging the hand-made
-> paging on 32bit machines will cost more than the difference for a
-> 64bit machine.
 
-I'll second that.  There may not even be a price difference.
-I've had quotes for otherwise comprable 32 bit Xeon servers
-come in more expensive than 64 bit AMD machines.
+>> (Find source files, expand tab chars to their on-screen length, print if 
+>> >= 80, count lines)
+>
+>The bulk of the longest lines are in the sound and drivers subtrees.
+>One example on the "high end", with 546 chars in one line:
+>
+>==
+>drivers/scsi/BusLogic.c:
+>  %2d	 %5d %5d %5d    %5d %5d %5d	   %5d %5d %5d\n", TargetID, TargetStatistics[TargetID].CommandAbortsRequested, TargetStatistics[TargetID].CommandAbortsAttempted, TargetStatistics[TargetID].CommandAbortsCompleted, TargetStatistics[TargetID].BusDeviceResetsRequested, TargetStatistics[TargetID].BusDeviceResetsAttempted, TargetStatistics[TargetID].BusDeviceResetsCompleted, TargetStatistics[TargetID].HostAdapterResetsRequested, TargetStatistics[TargetID].HostAdapterResetsAttempted, TargetStatistics[TargetID].HostAdapterResetsCompleted);
+>==
 
-One piece of advice I would offer is to make sure you buy
-good ECC memory.  I've been working with large servers
-for the last few years, and trying to be cheap with
-memory has caused a lot of hard to track down problems.
+this is omg.
+- the VLN BASIC way (very long variable names)
+- it could have been splitted at the next possible space at 80, i.e.
+  mostly after a comma (my mail _reader_ automatically wrapped it, so it
+  looked rather ok - until I took an _editor_)
 
-- Jim
+If I add a temporary (as suggested by rule 3)
+(struct BusLogic_Statistics *tp = &TargetStatistics[TargetID]), the line
+length loses a lot of weight: 339 chars.
 
+>  %2d	 %5d %5d %5d    %5d %5d %5d	   %5d %5d %5d\n", TargetID, TargetStatistics[TargetID].CommandAbortsRequested, TargetStatistics[TargetID].CommandAbortsAttempted, TargetStatistics[TargetID].CommandAbortsCompleted, TargetStatistics[TargetID].BusDeviceResetsRequested, TargetStatistics[TargetID].BusDeviceResetsAttempted, TargetStatistics[TargetID].BusDeviceResetsCompleted, TargetStatistics[TargetID].HostAdapterResetsRequested, TargetStatistics[TargetID].HostAdapterResetsAttempted, TargetStatistics[TargetID].HostAdapterResetsCompleted);
+
+
+Jan Engelhardt
 -- 
-jlnance@sdf.lonestar.org
-SDF Public Access UNIX System - http://sdf.lonestar.org

@@ -1,1637 +1,416 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVGUE6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVGUFQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbVGUE6P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 00:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVGUE6O
+	id S261623AbVGUFQA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 01:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVGUFQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 00:58:14 -0400
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:63149 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S261629AbVGUE5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 00:57:35 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] v850: Add defconfigs
-Cc: linux-kernel@vger.kernel.org
-From: Miles Bader <miles@gnu.org>
-Message-Id: <20050721045730.6E72C418@mctpc71>
-Date: Thu, 21 Jul 2005 13:57:30 +0900 (JST)
+	Thu, 21 Jul 2005 01:16:00 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:2980 "EHLO OTTLS.pngxnet.com")
+	by vger.kernel.org with ESMTP id S261623AbVGUFP4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 01:15:56 -0400
+Subject: [PATCH] Workqueue freezer support.
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1121923059.2936.224.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 21 Jul 2005 15:17:39 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Miles Bader <miles@gnu.org>
+This patch implements freezer support for workqueues. The current
+refrigerator implementation makes all workqueues NOFREEZE, regardless of
+whether they need to be or not.
 
- arch/v850/Makefile                     |    7 
- arch/v850/README                       |   62 ++-
- arch/v850/configs/rte-ma1-cb_defconfig |  605 +++++++++++++++++++++++++++++++++
- arch/v850/configs/rte-me2-cb_defconfig |  453 ++++++++++++++++++++++++
- arch/v850/configs/sim_defconfig        |  442 ++++++++++++++++++++++++
- 5 files changed, 1542 insertions(+), 27 deletions(-)
+While this doesn't appear to have caused any problems with swsusp (ie
+Pavel's version) to date, this is no guarantee for the future.
+Furthermore, it seems better to me to treat kernel and userspace threads
+consistently, and it also enables us to err on the side of caution by
+default with new workqueues.
 
-diff -ruN -X../cludes linux-2.6.12-uc0/arch/v850/Makefile linux-2.6.12-uc0-v850-20050721/arch/v850/Makefile
---- linux-2.6.12-uc0/arch/v850/Makefile	2003-07-28 10:13:57.643115000 +0900
-+++ linux-2.6.12-uc0-v850-20050721/arch/v850/Makefile	2005-07-21 11:34:48.550867000 +0900
-@@ -1,8 +1,8 @@
- #
- # arch/v850/Makefile
- #
--#  Copyright (C) 2001,02,03  NEC Corporation
--#  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
-+#  Copyright (C) 2001,02,03,05  NEC Corporation
-+#  Copyright (C) 2001,02,03,05  Miles Bader <miles@gnu.org>
- #
- # This file is included by the global makefile so that you can add your own
- # architecture-specific flags and dependencies. Remember to do have actions
-@@ -22,6 +22,9 @@
- CFLAGS += -fno-builtin
- CFLAGS += -D__linux__ -DUTS_SYSNAME=\"uClinux\"
+Queues can be made unfreezable via the new kthread_nonfreeze_run,
+create_nofreeze_workqueue and create_nofreeze_singlethread_workqueue
+calls, which take the same parameters as kthread_run, create_workqueue
+and create_singlethread_workqueue respectively. Existing call syntax is
+unchanged and the vast majority of current workqueue calls are therefore
+unaffected.
+
+As far as Suspend2 goes, I don't rate this as critical. May save your
+hard disk partition one day, but that depends upon what workqueues get
+implemented in the future, what out of tree ones do and whether I've
+missed good rationale for having nofreeze on existing in tree instances.
+If you must flame me, call me overly careful :>.
+
+Regards,
+
+Nigel
+
+Signed-off by: Nigel Cunningham <nigel@suspend2.net>
+
+ drivers/acpi/osl.c          |    2 +-
+ drivers/block/ll_rw_blk.c   |    2 +-
+ drivers/char/hvc_console.c  |    2 +-
+ drivers/char/hvcs.c         |    2 +-
+ drivers/input/serio/serio.c |    2 +-
+ drivers/md/dm-crypt.c       |    2 +-
+ drivers/scsi/hosts.c        |    2 +-
+ drivers/usb/net/pegasus.c   |    2 +-
+ include/linux/kthread.h     |   20 ++++++++++++++++++--
+ include/linux/workqueue.h   |    9 ++++++---
+ kernel/kmod.c               |    4 ++++
+ kernel/kthread.c            |   23 ++++++++++++++++++++++-
+ kernel/sched.c              |    4 ++--
+ kernel/softirq.c            |    3 +--
+ kernel/workqueue.c          |   21 ++++++++++++---------
+ 15 files changed, 73 insertions(+), 27 deletions(-)
+diff -ruNp 400-workthreads.patch-old/drivers/acpi/osl.c 400-workthreads.patch-new/drivers/acpi/osl.c
+--- 400-workthreads.patch-old/drivers/acpi/osl.c	2005-07-18 06:36:41.000000000 +1000
++++ 400-workthreads.patch-new/drivers/acpi/osl.c	2005-07-20 08:52:31.000000000 +1000
+@@ -98,7 +98,7 @@ acpi_os_initialize1(void)
+ 		return AE_NULL_ENTRY;
+ 	}
+ #endif
+-	kacpid_wq = create_singlethread_workqueue("kacpid");
++	kacpid_wq = create_nofreeze_singlethread_workqueue("kacpid");
+ 	BUG_ON(!kacpid_wq);
  
-+# By default, build a kernel that runs on the gdb v850 simulator.
-+KBUILD_DEFCONFIG := sim_defconfig
-+
- # This prevents the linker from consolidating the .gnu.linkonce.this_module
- # section into .text (which the v850 default linker script for -r does for
- # some reason)
-diff -ruN -X../cludes linux-2.6.12-uc0/arch/v850/README linux-2.6.12-uc0-v850-20050721/arch/v850/README
---- linux-2.6.12-uc0/arch/v850/README	2003-07-28 10:13:57.663116000 +0900
-+++ linux-2.6.12-uc0-v850-20050721/arch/v850/README	2005-07-21 11:48:07.674661000 +0900
-@@ -1,31 +1,43 @@
- This port to the NEC V850E processor supports the following platforms:
+ 	return AE_OK;
+diff -ruNp 400-workthreads.patch-old/drivers/block/ll_rw_blk.c 400-workthreads.patch-new/drivers/block/ll_rw_blk.c
+--- 400-workthreads.patch-old/drivers/block/ll_rw_blk.c	2005-07-18 06:36:42.000000000 +1000
++++ 400-workthreads.patch-new/drivers/block/ll_rw_blk.c	2005-07-21 00:44:30.000000000 +1000
+@@ -3215,7 +3215,7 @@ EXPORT_SYMBOL(kblockd_flush);
  
--   + The gdb v850e simulator (CONFIG_V850E_SIM).
-+   "sim"
-+	The gdb v850e simulator (CONFIG_V850E_SIM).
+ int __init blk_dev_init(void)
+ {
+-	kblockd_workqueue = create_workqueue("kblockd");
++	kblockd_workqueue = create_nofreeze_workqueue("kblockd");
+ 	if (!kblockd_workqueue)
+ 		panic("Failed to create kblockd\n");
  
--   + The Midas labs RTE-V850E/MA1-CB and RTE-V850E/NB85E-CB evaluation boards
--     (CONFIG_RTE_CB_MA1 and CONFIG_RTE_CB_NB85E).  This support has only been
--     tested when running with the Multi-debugger monitor ROM (for the Green
--     Hills Multi debugger).  The optional NEC Solution Gear RTE-MOTHER-A
--     motherboard is also supported, which allows PCI boards to be used
--     (CONFIG_RTE_MB_A_PCI).
--
--   + The Midas labs RTE-V850E/ME2-CB evaluation board (CONFIG_RTE_CB_ME2).
--     This has only been tested using a kernel downloaded via an ICE connection
--     using the Multi debugger.  Support for the RTE-MOTHER-A is present, but
--     hasn't been tested (unlike the other Midas labs cpu boards, the
--     RTE-V850E/ME2-CB includes an ethernet adaptor).
--
--   + The NEC AS85EP1 V850E evaluation chip/board (CONFIG_V850E_AS85EP1).
--
--   + The NEC `Anna' (board/chip) implementation of the V850E2 processor
--     (CONFIG_V850E2_ANNA).
--
--   + The sim85e2c and sim85e2s simulators, which are verilog simulations of
--     the V850E2 NA85E2C/NA85E2S cpu cores (CONFIG_V850E2_SIM85E2C and
--     CONFIG_V850E2_SIM85E2S).
--
--   + A FPGA implementation of the V850E2 NA85E2C cpu core
--     (CONFIG_V850E2_FPGA85E2C).
-+   "rte-ma1-cb"
-+	The Midas labs RTE-V850E/MA1-CB and RTE-V850E/NB85E-CB evaluation
-+	boards (CONFIG_RTE_CB_MA1 and CONFIG_RTE_CB_NB85E).  This support
-+	has only been tested when running with the Multi-debugger monitor
-+	ROM (for the Green Hills Multi debugger).  The optional NEC
-+	Solution Gear RTE-MOTHER-A motherboard is also supported, which
-+	allows PCI boards to be used (CONFIG_RTE_MB_A_PCI).
-+
-+   "rte-me2-cb"
-+	The Midas labs RTE-V850E/ME2-CB evaluation board (CONFIG_RTE_CB_ME2).
-+     	This has only been tested using a kernel downloaded via an ICE
-+     	connection using the Multi debugger.  Support for the RTE-MOTHER-A is
-+     	present, but hasn't been tested (unlike the other Midas labs cpu
-+     	boards, the RTE-V850E/ME2-CB includes an ethernet adaptor).
-+
-+   "as85ep1"
-+	The NEC AS85EP1 V850E evaluation chip/board (CONFIG_V850E_AS85EP1).
-+
-+   "anna"
-+	The NEC `Anna' (board/chip) implementation of the V850E2 processor
-+	(CONFIG_V850E2_ANNA).
-+
-+   "sim85e2c", "sim85e2s"
-+   	The sim85e2c and sim85e2s simulators, which are verilog simulations
-+	of the V850E2 NA85E2C/NA85E2S cpu cores (CONFIG_V850E2_SIM85E2C and
-+	CONFIG_V850E2_SIM85E2S).
-+
-+   "fpga85e2c"
-+	A FPGA implementation of the V850E2 NA85E2C cpu core
-+	(CONFIG_V850E2_FPGA85E2C).
-+
-+To get a default kernel configuration for a particular platform, you can
-+use a <platform>_defconfig make target (e.g., "make rte-me2-cb_defconfig");
-+to see which default configurations are possible, look in the directory
-+"arch/v850/configs".
+diff -ruNp 400-workthreads.patch-old/drivers/char/hvc_console.c 400-workthreads.patch-new/drivers/char/hvc_console.c
+--- 400-workthreads.patch-old/drivers/char/hvc_console.c	2005-07-18 06:36:43.000000000 +1000
++++ 400-workthreads.patch-new/drivers/char/hvc_console.c	2005-07-20 08:52:31.000000000 +1000
+@@ -844,7 +844,7 @@ int __init hvc_init(void)
  
- Porting to anything with a V850E/MA1 or MA2 processor should be simple.
- See the file <asm-v850/machdep.h> and the files it includes for an example of
-diff -ruN -X../cludes linux-2.6.12-uc0/arch/v850/configs/rte-me2-cb_defconfig linux-2.6.12-uc0-v850-20050721/arch/v850/configs/rte-me2-cb_defconfig
---- linux-2.6.12-uc0/arch/v850/configs/rte-me2-cb_defconfig	1970-01-01 09:00:00.000000000 +0900
-+++ linux-2.6.12-uc0-v850-20050721/arch/v850/configs/rte-me2-cb_defconfig	2005-07-21 11:30:56.192738000 +0900
-@@ -0,0 +1,453 @@
-+#
-+# Automatically generated make config: don't edit
-+# Linux kernel version: 2.6.12-uc0
-+# Thu Jul 21 11:30:08 2005
-+#
-+# CONFIG_MMU is not set
-+# CONFIG_UID16 is not set
-+CONFIG_RWSEM_GENERIC_SPINLOCK=y
-+# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
-+CONFIG_GENERIC_CALIBRATE_DELAY=y
-+# CONFIG_ISA is not set
-+# CONFIG_ISAPNP is not set
-+# CONFIG_EISA is not set
-+# CONFIG_MCA is not set
-+CONFIG_V850=y
-+
-+#
-+# Processor type and features
-+#
-+# CONFIG_V850E_SIM is not set
-+# CONFIG_RTE_CB_MA1 is not set
-+# CONFIG_RTE_CB_NB85E is not set
-+CONFIG_RTE_CB_ME2=y
-+# CONFIG_V850E_AS85EP1 is not set
-+# CONFIG_V850E2_SIM85E2C is not set
-+# CONFIG_V850E2_SIM85E2S is not set
-+# CONFIG_V850E2_FPGA85E2C is not set
-+# CONFIG_V850E2_ANNA is not set
-+CONFIG_V850E=y
-+CONFIG_V850E_ME2=y
-+CONFIG_RTE_CB=y
-+# CONFIG_RTE_MB_A_PCI is not set
-+# CONFIG_PCI is not set
-+CONFIG_V850E_INTC=y
-+CONFIG_V850E_TIMER_D=y
-+CONFIG_V850E_CACHE=y
-+# CONFIG_V850E2_CACHE is not set
-+# CONFIG_NO_CACHE is not set
-+# CONFIG_ROM_KERNEL is not set
-+CONFIG_ZERO_BSS=y
-+# CONFIG_V850E_HIGHRES_TIMER is not set
-+# CONFIG_RESET_GUARD is not set
-+CONFIG_LARGE_ALLOCS=y
-+
-+#
-+# Code maturity level options
-+#
-+# CONFIG_EXPERIMENTAL is not set
-+CONFIG_CLEAN_COMPILE=y
-+CONFIG_BROKEN_ON_SMP=y
-+CONFIG_INIT_ENV_ARG_LIMIT=32
-+
-+#
-+# General setup
-+#
-+CONFIG_LOCALVERSION=""
-+# CONFIG_BSD_PROCESS_ACCT is not set
-+# CONFIG_SYSCTL is not set
-+# CONFIG_AUDIT is not set
-+# CONFIG_HOTPLUG is not set
-+# CONFIG_IKCONFIG is not set
-+CONFIG_EMBEDDED=y
-+# CONFIG_KALLSYMS is not set
-+CONFIG_PRINTK=y
-+CONFIG_BUG=y
-+# CONFIG_BASE_FULL is not set
-+# CONFIG_FUTEX is not set
-+# CONFIG_EPOLL is not set
-+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
-+CONFIG_CC_ALIGN_FUNCTIONS=0
-+CONFIG_CC_ALIGN_LABELS=0
-+CONFIG_CC_ALIGN_LOOPS=0
-+CONFIG_CC_ALIGN_JUMPS=0
-+CONFIG_BASE_SMALL=1
-+
-+#
-+# Loadable module support
-+#
-+CONFIG_MODULES=y
-+CONFIG_MODULE_UNLOAD=y
-+CONFIG_OBSOLETE_MODPARM=y
-+# CONFIG_MODULE_SRCVERSION_ALL is not set
-+CONFIG_KMOD=y
-+
-+#
-+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-+#
-+
-+#
-+# PCCARD (PCMCIA/CardBus) support
-+#
-+# CONFIG_PCCARD is not set
-+
-+#
-+# PCI Hotplug Support
-+#
-+
-+#
-+# Executable file formats
-+#
-+CONFIG_BINFMT_FLAT=y
-+# CONFIG_BINFMT_ZFLAT is not set
-+# CONFIG_BINFMT_SHARED_FLAT is not set
-+# CONFIG_BINFMT_MISC is not set
-+
-+#
-+# Generic Driver Options
-+#
-+CONFIG_STANDALONE=y
-+CONFIG_PREVENT_FIRMWARE_BUILD=y
-+# CONFIG_FW_LOADER is not set
-+# CONFIG_DEBUG_DRIVER is not set
-+
-+#
-+# Memory Technology Devices (MTD)
-+#
-+CONFIG_MTD=y
-+# CONFIG_MTD_DEBUG is not set
-+# CONFIG_MTD_CONCAT is not set
-+# CONFIG_MTD_PARTITIONS is not set
-+
-+#
-+# User Modules And Translation Layers
-+#
-+# CONFIG_MTD_CHAR is not set
-+CONFIG_MTD_BLOCK=y
-+# CONFIG_FTL is not set
-+# CONFIG_NFTL is not set
-+# CONFIG_INFTL is not set
-+
-+#
-+# RAM/ROM/Flash chip drivers
-+#
-+# CONFIG_MTD_CFI is not set
-+# CONFIG_MTD_JEDECPROBE is not set
-+CONFIG_MTD_MAP_BANK_WIDTH_1=y
-+CONFIG_MTD_MAP_BANK_WIDTH_2=y
-+CONFIG_MTD_MAP_BANK_WIDTH_4=y
-+# CONFIG_MTD_MAP_BANK_WIDTH_8 is not set
-+# CONFIG_MTD_MAP_BANK_WIDTH_16 is not set
-+# CONFIG_MTD_MAP_BANK_WIDTH_32 is not set
-+CONFIG_MTD_CFI_I1=y
-+CONFIG_MTD_CFI_I2=y
-+# CONFIG_MTD_CFI_I4 is not set
-+# CONFIG_MTD_CFI_I8 is not set
-+# CONFIG_MTD_RAM is not set
-+# CONFIG_MTD_ROM is not set
-+# CONFIG_MTD_ABSENT is not set
-+
-+#
-+# Mapping drivers for chip access
-+#
-+# CONFIG_MTD_COMPLEX_MAPPINGS is not set
-+
-+#
-+# Self-contained MTD device drivers
-+#
-+CONFIG_MTD_SLRAM=y
-+# CONFIG_MTD_PHRAM is not set
-+# CONFIG_MTD_MTDRAM is not set
-+# CONFIG_MTD_BLKMTD is not set
-+
-+#
-+# Disk-On-Chip Device Drivers
-+#
-+# CONFIG_MTD_DOC2000 is not set
-+# CONFIG_MTD_DOC2001 is not set
-+# CONFIG_MTD_DOC2001PLUS is not set
-+
-+#
-+# NAND Flash Device Drivers
-+#
-+# CONFIG_MTD_NAND is not set
-+
-+#
-+# Parallel port support
-+#
-+# CONFIG_PARPORT is not set
-+
-+#
-+# Block devices
-+#
-+# CONFIG_BLK_DEV_FD is not set
-+# CONFIG_BLK_DEV_COW_COMMON is not set
-+# CONFIG_BLK_DEV_LOOP is not set
-+# CONFIG_BLK_DEV_RAM is not set
-+CONFIG_BLK_DEV_RAM_COUNT=16
-+CONFIG_INITRAMFS_SOURCE=""
-+# CONFIG_CDROM_PKTCDVD is not set
-+
-+#
-+# IO Schedulers
-+#
-+CONFIG_IOSCHED_NOOP=y
-+# CONFIG_IOSCHED_AS is not set
-+# CONFIG_IOSCHED_DEADLINE is not set
-+# CONFIG_IOSCHED_CFQ is not set
-+
-+#
-+# Disk device support
-+#
-+
-+#
-+# ATA/ATAPI/MFM/RLL support
-+#
-+# CONFIG_IDE is not set
-+
-+#
-+# SCSI device support
-+#
-+# CONFIG_SCSI is not set
-+
-+#
-+# Multi-device support (RAID and LVM)
-+#
-+# CONFIG_MD is not set
-+
-+#
-+# Fusion MPT device support
-+#
-+
-+#
-+# IEEE 1394 (FireWire) support
-+#
-+
-+#
-+# I2O device support
-+#
-+
-+#
-+# Networking support
-+#
-+# CONFIG_NET is not set
-+# CONFIG_NETPOLL is not set
-+# CONFIG_NET_POLL_CONTROLLER is not set
-+
-+#
-+# ISDN subsystem
-+#
-+
-+#
-+# Input device support
-+#
-+CONFIG_INPUT=y
-+
-+#
-+# Userland interfaces
-+#
-+# CONFIG_INPUT_MOUSEDEV is not set
-+# CONFIG_INPUT_JOYDEV is not set
-+# CONFIG_INPUT_TSDEV is not set
-+# CONFIG_INPUT_EVDEV is not set
-+# CONFIG_INPUT_EVBUG is not set
-+
-+#
-+# Input Device Drivers
-+#
-+# CONFIG_INPUT_KEYBOARD is not set
-+# CONFIG_INPUT_MOUSE is not set
-+# CONFIG_INPUT_JOYSTICK is not set
-+# CONFIG_INPUT_TOUCHSCREEN is not set
-+# CONFIG_INPUT_MISC is not set
-+
-+#
-+# Hardware I/O ports
-+#
-+CONFIG_SERIO=y
-+# CONFIG_SERIO_I8042 is not set
-+# CONFIG_SERIO_SERPORT is not set
-+# CONFIG_SERIO_LIBPS2 is not set
-+# CONFIG_SERIO_RAW is not set
-+# CONFIG_GAMEPORT is not set
-+
-+#
-+# Character devices
-+#
-+# CONFIG_VT is not set
-+# CONFIG_SERIAL_NONSTANDARD is not set
-+
-+#
-+# Serial drivers
-+#
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_8250_NR_UARTS=1
-+# CONFIG_SERIAL_8250_EXTENDED is not set
-+
-+#
-+# Non-8250 serial port support
-+#
-+# CONFIG_V850E_UART is not set
-+CONFIG_SERIAL_CORE=y
-+CONFIG_SERIAL_CORE_CONSOLE=y
-+# CONFIG_UNIX98_PTYS is not set
-+# CONFIG_LEGACY_PTYS is not set
-+
-+#
-+# IPMI
-+#
-+# CONFIG_IPMI_HANDLER is not set
-+
-+#
-+# Watchdog Cards
-+#
-+# CONFIG_WATCHDOG is not set
-+# CONFIG_RTC is not set
-+# CONFIG_GEN_RTC is not set
-+# CONFIG_DTLK is not set
-+# CONFIG_R3964 is not set
-+
-+#
-+# Ftape, the floppy tape device driver
-+#
-+# CONFIG_DRM is not set
-+# CONFIG_RAW_DRIVER is not set
-+
-+#
-+# TPM devices
-+#
-+
-+#
-+# Multimedia devices
-+#
-+# CONFIG_VIDEO_DEV is not set
-+
-+#
-+# Digital Video Broadcasting Devices
-+#
-+
-+#
-+# File systems
-+#
-+# CONFIG_EXT2_FS is not set
-+# CONFIG_EXT3_FS is not set
-+# CONFIG_JBD is not set
-+# CONFIG_REISERFS_FS is not set
-+# CONFIG_JFS_FS is not set
-+
-+#
-+# XFS support
-+#
-+# CONFIG_XFS_FS is not set
-+# CONFIG_MINIX_FS is not set
-+CONFIG_ROMFS_FS=y
-+# CONFIG_QUOTA is not set
-+CONFIG_DNOTIFY=y
-+# CONFIG_AUTOFS_FS is not set
-+# CONFIG_AUTOFS4_FS is not set
-+
-+#
-+# CD-ROM/DVD Filesystems
-+#
-+# CONFIG_ISO9660_FS is not set
-+# CONFIG_UDF_FS is not set
-+
-+#
-+# DOS/FAT/NT Filesystems
-+#
-+# CONFIG_MSDOS_FS is not set
-+# CONFIG_VFAT_FS is not set
-+# CONFIG_NTFS_FS is not set
-+
-+#
-+# Pseudo filesystems
-+#
-+CONFIG_PROC_FS=y
-+CONFIG_SYSFS=y
-+# CONFIG_TMPFS is not set
-+# CONFIG_HUGETLB_PAGE is not set
-+CONFIG_RAMFS=y
-+
-+#
-+# Miscellaneous filesystems
-+#
-+# CONFIG_HFSPLUS_FS is not set
-+# CONFIG_JFFS_FS is not set
-+# CONFIG_JFFS2_FS is not set
-+# CONFIG_CRAMFS is not set
-+# CONFIG_VXFS_FS is not set
-+# CONFIG_HPFS_FS is not set
-+# CONFIG_QNX4FS_FS is not set
-+# CONFIG_SYSV_FS is not set
-+# CONFIG_UFS_FS is not set
-+
-+#
-+# Partition Types
-+#
-+# CONFIG_PARTITION_ADVANCED is not set
-+CONFIG_MSDOS_PARTITION=y
-+
-+#
-+# Native Language Support
-+#
-+# CONFIG_NLS is not set
-+
-+#
-+# Graphics support
-+#
-+# CONFIG_FB is not set
-+
-+#
-+# Sound
-+#
-+# CONFIG_SOUND is not set
-+
-+#
-+# USB support
-+#
-+# CONFIG_USB_ARCH_HAS_HCD is not set
-+# CONFIG_USB_ARCH_HAS_OHCI is not set
-+
-+#
-+# USB Gadget Support
-+#
-+# CONFIG_USB_GADGET is not set
-+
-+#
-+# Kernel hacking
-+#
-+# CONFIG_PRINTK_TIME is not set
-+CONFIG_DEBUG_KERNEL=y
-+# CONFIG_MAGIC_SYSRQ is not set
-+CONFIG_LOG_BUF_SHIFT=14
-+# CONFIG_SCHEDSTATS is not set
-+# CONFIG_DEBUG_SLAB is not set
-+# CONFIG_DEBUG_SPINLOCK is not set
-+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-+# CONFIG_DEBUG_KOBJECT is not set
-+CONFIG_DEBUG_INFO=y
-+# CONFIG_DEBUG_FS is not set
-+# CONFIG_NO_KERNEL_MSG is not set
-+
-+#
-+# Security options
-+#
-+# CONFIG_KEYS is not set
-+# CONFIG_SECURITY is not set
-+
-+#
-+# Cryptographic options
-+#
-+# CONFIG_CRYPTO is not set
-+
-+#
-+# Hardware crypto devices
-+#
-+
-+#
-+# Library routines
-+#
-+# CONFIG_CRC_CCITT is not set
-+# CONFIG_CRC32 is not set
-+# CONFIG_LIBCRC32C is not set
-diff -ruN -X../cludes linux-2.6.12-uc0/arch/v850/configs/sim_defconfig linux-2.6.12-uc0-v850-20050721/arch/v850/configs/sim_defconfig
---- linux-2.6.12-uc0/arch/v850/configs/sim_defconfig	1970-01-01 09:00:00.000000000 +0900
-+++ linux-2.6.12-uc0-v850-20050721/arch/v850/configs/sim_defconfig	2005-07-21 11:31:03.852667000 +0900
-@@ -0,0 +1,442 @@
-+#
-+# Automatically generated make config: don't edit
-+# Linux kernel version: 2.6.12-uc0
-+# Thu Jul 21 11:29:27 2005
-+#
-+# CONFIG_MMU is not set
-+# CONFIG_UID16 is not set
-+CONFIG_RWSEM_GENERIC_SPINLOCK=y
-+# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
-+CONFIG_GENERIC_CALIBRATE_DELAY=y
-+# CONFIG_ISA is not set
-+# CONFIG_ISAPNP is not set
-+# CONFIG_EISA is not set
-+# CONFIG_MCA is not set
-+CONFIG_V850=y
-+
-+#
-+# Processor type and features
-+#
-+CONFIG_V850E_SIM=y
-+# CONFIG_RTE_CB_MA1 is not set
-+# CONFIG_RTE_CB_NB85E is not set
-+# CONFIG_RTE_CB_ME2 is not set
-+# CONFIG_V850E_AS85EP1 is not set
-+# CONFIG_V850E2_SIM85E2C is not set
-+# CONFIG_V850E2_SIM85E2S is not set
-+# CONFIG_V850E2_FPGA85E2C is not set
-+# CONFIG_V850E2_ANNA is not set
-+CONFIG_V850E=y
-+# CONFIG_PCI is not set
-+# CONFIG_V850E_INTC is not set
-+# CONFIG_V850E_TIMER_D is not set
-+# CONFIG_V850E_CACHE is not set
-+# CONFIG_V850E2_CACHE is not set
-+CONFIG_NO_CACHE=y
-+CONFIG_ZERO_BSS=y
-+# CONFIG_RESET_GUARD is not set
-+CONFIG_LARGE_ALLOCS=y
-+
-+#
-+# Code maturity level options
-+#
-+# CONFIG_EXPERIMENTAL is not set
-+CONFIG_CLEAN_COMPILE=y
-+CONFIG_BROKEN_ON_SMP=y
-+CONFIG_INIT_ENV_ARG_LIMIT=32
-+
-+#
-+# General setup
-+#
-+CONFIG_LOCALVERSION=""
-+# CONFIG_BSD_PROCESS_ACCT is not set
-+# CONFIG_SYSCTL is not set
-+# CONFIG_AUDIT is not set
-+# CONFIG_HOTPLUG is not set
-+# CONFIG_IKCONFIG is not set
-+CONFIG_EMBEDDED=y
-+# CONFIG_KALLSYMS is not set
-+CONFIG_PRINTK=y
-+CONFIG_BUG=y
-+# CONFIG_BASE_FULL is not set
-+# CONFIG_FUTEX is not set
-+# CONFIG_EPOLL is not set
-+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
-+CONFIG_CC_ALIGN_FUNCTIONS=0
-+CONFIG_CC_ALIGN_LABELS=0
-+CONFIG_CC_ALIGN_LOOPS=0
-+CONFIG_CC_ALIGN_JUMPS=0
-+CONFIG_BASE_SMALL=1
-+
-+#
-+# Loadable module support
-+#
-+CONFIG_MODULES=y
-+CONFIG_MODULE_UNLOAD=y
-+CONFIG_OBSOLETE_MODPARM=y
-+# CONFIG_MODULE_SRCVERSION_ALL is not set
-+CONFIG_KMOD=y
-+
-+#
-+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-+#
-+
-+#
-+# PCCARD (PCMCIA/CardBus) support
-+#
-+# CONFIG_PCCARD is not set
-+
-+#
-+# PCI Hotplug Support
-+#
-+
-+#
-+# Executable file formats
-+#
-+CONFIG_BINFMT_FLAT=y
-+# CONFIG_BINFMT_ZFLAT is not set
-+# CONFIG_BINFMT_SHARED_FLAT is not set
-+# CONFIG_BINFMT_MISC is not set
-+
-+#
-+# Generic Driver Options
-+#
-+CONFIG_STANDALONE=y
-+CONFIG_PREVENT_FIRMWARE_BUILD=y
-+# CONFIG_FW_LOADER is not set
-+# CONFIG_DEBUG_DRIVER is not set
-+
-+#
-+# Memory Technology Devices (MTD)
-+#
-+CONFIG_MTD=y
-+# CONFIG_MTD_DEBUG is not set
-+# CONFIG_MTD_CONCAT is not set
-+# CONFIG_MTD_PARTITIONS is not set
-+
-+#
-+# User Modules And Translation Layers
-+#
-+# CONFIG_MTD_CHAR is not set
-+CONFIG_MTD_BLOCK=y
-+# CONFIG_FTL is not set
-+# CONFIG_NFTL is not set
-+# CONFIG_INFTL is not set
-+
-+#
-+# RAM/ROM/Flash chip drivers
-+#
-+# CONFIG_MTD_CFI is not set
-+# CONFIG_MTD_JEDECPROBE is not set
-+CONFIG_MTD_MAP_BANK_WIDTH_1=y
-+CONFIG_MTD_MAP_BANK_WIDTH_2=y
-+CONFIG_MTD_MAP_BANK_WIDTH_4=y
-+# CONFIG_MTD_MAP_BANK_WIDTH_8 is not set
-+# CONFIG_MTD_MAP_BANK_WIDTH_16 is not set
-+# CONFIG_MTD_MAP_BANK_WIDTH_32 is not set
-+CONFIG_MTD_CFI_I1=y
-+CONFIG_MTD_CFI_I2=y
-+# CONFIG_MTD_CFI_I4 is not set
-+# CONFIG_MTD_CFI_I8 is not set
-+# CONFIG_MTD_RAM is not set
-+# CONFIG_MTD_ROM is not set
-+# CONFIG_MTD_ABSENT is not set
-+
-+#
-+# Mapping drivers for chip access
-+#
-+# CONFIG_MTD_COMPLEX_MAPPINGS is not set
-+
-+#
-+# Self-contained MTD device drivers
-+#
-+CONFIG_MTD_SLRAM=y
-+# CONFIG_MTD_PHRAM is not set
-+# CONFIG_MTD_MTDRAM is not set
-+# CONFIG_MTD_BLKMTD is not set
-+
-+#
-+# Disk-On-Chip Device Drivers
-+#
-+# CONFIG_MTD_DOC2000 is not set
-+# CONFIG_MTD_DOC2001 is not set
-+# CONFIG_MTD_DOC2001PLUS is not set
-+
-+#
-+# NAND Flash Device Drivers
-+#
-+# CONFIG_MTD_NAND is not set
-+
-+#
-+# Parallel port support
-+#
-+# CONFIG_PARPORT is not set
-+
-+#
-+# Block devices
-+#
-+# CONFIG_BLK_DEV_FD is not set
-+# CONFIG_BLK_DEV_COW_COMMON is not set
-+# CONFIG_BLK_DEV_LOOP is not set
-+# CONFIG_BLK_DEV_RAM is not set
-+CONFIG_BLK_DEV_RAM_COUNT=16
-+CONFIG_INITRAMFS_SOURCE=""
-+# CONFIG_CDROM_PKTCDVD is not set
-+
-+#
-+# IO Schedulers
-+#
-+CONFIG_IOSCHED_NOOP=y
-+# CONFIG_IOSCHED_AS is not set
-+# CONFIG_IOSCHED_DEADLINE is not set
-+# CONFIG_IOSCHED_CFQ is not set
-+
-+#
-+# Disk device support
-+#
-+
-+#
-+# ATA/ATAPI/MFM/RLL support
-+#
-+# CONFIG_IDE is not set
-+
-+#
-+# SCSI device support
-+#
-+# CONFIG_SCSI is not set
-+
-+#
-+# Multi-device support (RAID and LVM)
-+#
-+# CONFIG_MD is not set
-+
-+#
-+# Fusion MPT device support
-+#
-+
-+#
-+# IEEE 1394 (FireWire) support
-+#
-+
-+#
-+# I2O device support
-+#
-+
-+#
-+# Networking support
-+#
-+# CONFIG_NET is not set
-+# CONFIG_NETPOLL is not set
-+# CONFIG_NET_POLL_CONTROLLER is not set
-+
-+#
-+# ISDN subsystem
-+#
-+
-+#
-+# Input device support
-+#
-+CONFIG_INPUT=y
-+
-+#
-+# Userland interfaces
-+#
-+# CONFIG_INPUT_MOUSEDEV is not set
-+# CONFIG_INPUT_JOYDEV is not set
-+# CONFIG_INPUT_TSDEV is not set
-+# CONFIG_INPUT_EVDEV is not set
-+# CONFIG_INPUT_EVBUG is not set
-+
-+#
-+# Input Device Drivers
-+#
-+# CONFIG_INPUT_KEYBOARD is not set
-+# CONFIG_INPUT_MOUSE is not set
-+# CONFIG_INPUT_JOYSTICK is not set
-+# CONFIG_INPUT_TOUCHSCREEN is not set
-+# CONFIG_INPUT_MISC is not set
-+
-+#
-+# Hardware I/O ports
-+#
-+CONFIG_SERIO=y
-+# CONFIG_SERIO_I8042 is not set
-+# CONFIG_SERIO_SERPORT is not set
-+# CONFIG_SERIO_LIBPS2 is not set
-+# CONFIG_SERIO_RAW is not set
-+# CONFIG_GAMEPORT is not set
-+
-+#
-+# Character devices
-+#
-+# CONFIG_VT is not set
-+# CONFIG_SERIAL_NONSTANDARD is not set
-+
-+#
-+# Serial drivers
-+#
-+# CONFIG_SERIAL_8250 is not set
-+
-+#
-+# Non-8250 serial port support
-+#
-+# CONFIG_UNIX98_PTYS is not set
-+# CONFIG_LEGACY_PTYS is not set
-+
-+#
-+# IPMI
-+#
-+# CONFIG_IPMI_HANDLER is not set
-+
-+#
-+# Watchdog Cards
-+#
-+# CONFIG_WATCHDOG is not set
-+# CONFIG_RTC is not set
-+# CONFIG_GEN_RTC is not set
-+# CONFIG_DTLK is not set
-+# CONFIG_R3964 is not set
-+
-+#
-+# Ftape, the floppy tape device driver
-+#
-+# CONFIG_DRM is not set
-+# CONFIG_RAW_DRIVER is not set
-+
-+#
-+# TPM devices
-+#
-+
-+#
-+# Multimedia devices
-+#
-+# CONFIG_VIDEO_DEV is not set
-+
-+#
-+# Digital Video Broadcasting Devices
-+#
-+
-+#
-+# File systems
-+#
-+# CONFIG_EXT2_FS is not set
-+# CONFIG_EXT3_FS is not set
-+# CONFIG_JBD is not set
-+# CONFIG_REISERFS_FS is not set
-+# CONFIG_JFS_FS is not set
-+
-+#
-+# XFS support
-+#
-+# CONFIG_XFS_FS is not set
-+# CONFIG_MINIX_FS is not set
-+CONFIG_ROMFS_FS=y
-+# CONFIG_QUOTA is not set
-+CONFIG_DNOTIFY=y
-+# CONFIG_AUTOFS_FS is not set
-+# CONFIG_AUTOFS4_FS is not set
-+
-+#
-+# CD-ROM/DVD Filesystems
-+#
-+# CONFIG_ISO9660_FS is not set
-+# CONFIG_UDF_FS is not set
-+
-+#
-+# DOS/FAT/NT Filesystems
-+#
-+# CONFIG_MSDOS_FS is not set
-+# CONFIG_VFAT_FS is not set
-+# CONFIG_NTFS_FS is not set
-+
-+#
-+# Pseudo filesystems
-+#
-+CONFIG_PROC_FS=y
-+CONFIG_SYSFS=y
-+# CONFIG_TMPFS is not set
-+# CONFIG_HUGETLB_PAGE is not set
-+CONFIG_RAMFS=y
-+
-+#
-+# Miscellaneous filesystems
-+#
-+# CONFIG_HFSPLUS_FS is not set
-+# CONFIG_JFFS_FS is not set
-+# CONFIG_JFFS2_FS is not set
-+# CONFIG_CRAMFS is not set
-+# CONFIG_VXFS_FS is not set
-+# CONFIG_HPFS_FS is not set
-+# CONFIG_QNX4FS_FS is not set
-+# CONFIG_SYSV_FS is not set
-+# CONFIG_UFS_FS is not set
-+
-+#
-+# Partition Types
-+#
-+# CONFIG_PARTITION_ADVANCED is not set
-+CONFIG_MSDOS_PARTITION=y
-+
-+#
-+# Native Language Support
-+#
-+# CONFIG_NLS is not set
-+
-+#
-+# Graphics support
-+#
-+# CONFIG_FB is not set
-+
-+#
-+# Sound
-+#
-+# CONFIG_SOUND is not set
-+
-+#
-+# USB support
-+#
-+# CONFIG_USB_ARCH_HAS_HCD is not set
-+# CONFIG_USB_ARCH_HAS_OHCI is not set
-+
-+#
-+# USB Gadget Support
-+#
-+# CONFIG_USB_GADGET is not set
-+
-+#
-+# Kernel hacking
-+#
-+# CONFIG_PRINTK_TIME is not set
-+CONFIG_DEBUG_KERNEL=y
-+# CONFIG_MAGIC_SYSRQ is not set
-+CONFIG_LOG_BUF_SHIFT=14
-+# CONFIG_SCHEDSTATS is not set
-+# CONFIG_DEBUG_SLAB is not set
-+# CONFIG_DEBUG_SPINLOCK is not set
-+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-+# CONFIG_DEBUG_KOBJECT is not set
-+CONFIG_DEBUG_INFO=y
-+# CONFIG_DEBUG_FS is not set
-+# CONFIG_NO_KERNEL_MSG is not set
-+
-+#
-+# Security options
-+#
-+# CONFIG_KEYS is not set
-+# CONFIG_SECURITY is not set
-+
-+#
-+# Cryptographic options
-+#
-+# CONFIG_CRYPTO is not set
-+
-+#
-+# Hardware crypto devices
-+#
-+
-+#
-+# Library routines
-+#
-+# CONFIG_CRC_CCITT is not set
-+# CONFIG_CRC32 is not set
-+# CONFIG_LIBCRC32C is not set
-diff -ruN -X../cludes linux-2.6.12-uc0/arch/v850/configs/rte-ma1-cb_defconfig linux-2.6.12-uc0-v850-20050721/arch/v850/configs/rte-ma1-cb_defconfig
---- linux-2.6.12-uc0/arch/v850/configs/rte-ma1-cb_defconfig	1970-01-01 09:00:00.000000000 +0900
-+++ linux-2.6.12-uc0-v850-20050721/arch/v850/configs/rte-ma1-cb_defconfig	2005-07-21 12:45:27.366492000 +0900
-@@ -0,0 +1,605 @@
-+#
-+# Automatically generated make config: don't edit
-+# Linux kernel version: 2.6.12-uc0
-+# Thu Jul 21 11:08:27 2005
-+#
-+# CONFIG_MMU is not set
-+# CONFIG_UID16 is not set
-+CONFIG_RWSEM_GENERIC_SPINLOCK=y
-+# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
-+CONFIG_GENERIC_CALIBRATE_DELAY=y
-+# CONFIG_ISA is not set
-+# CONFIG_ISAPNP is not set
-+# CONFIG_EISA is not set
-+# CONFIG_MCA is not set
-+CONFIG_V850=y
-+
-+#
-+# Processor type and features
-+#
-+# CONFIG_V850E_SIM is not set
-+CONFIG_RTE_CB_MA1=y
-+# CONFIG_RTE_CB_NB85E is not set
-+# CONFIG_RTE_CB_ME2 is not set
-+# CONFIG_V850E_AS85EP1 is not set
-+# CONFIG_V850E2_SIM85E2C is not set
-+# CONFIG_V850E2_SIM85E2S is not set
-+# CONFIG_V850E2_FPGA85E2C is not set
-+# CONFIG_V850E2_ANNA is not set
-+CONFIG_V850E=y
-+CONFIG_V850E_MA1=y
-+CONFIG_RTE_CB=y
-+CONFIG_RTE_CB_MULTI=y
-+CONFIG_RTE_CB_MULTI_DBTRAP=y
-+# CONFIG_RTE_CB_MA1_KSRAM is not set
-+CONFIG_RTE_MB_A_PCI=y
-+CONFIG_RTE_GBUS_INT=y
-+CONFIG_PCI=y
-+CONFIG_V850E_INTC=y
-+CONFIG_V850E_TIMER_D=y
-+# CONFIG_V850E_CACHE is not set
-+# CONFIG_V850E2_CACHE is not set
-+CONFIG_NO_CACHE=y
-+CONFIG_ZERO_BSS=y
-+# CONFIG_V850E_HIGHRES_TIMER is not set
-+# CONFIG_RESET_GUARD is not set
-+CONFIG_LARGE_ALLOCS=y
-+
-+#
-+# Code maturity level options
-+#
-+# CONFIG_EXPERIMENTAL is not set
-+CONFIG_CLEAN_COMPILE=y
-+CONFIG_BROKEN_ON_SMP=y
-+CONFIG_INIT_ENV_ARG_LIMIT=32
-+
-+#
-+# General setup
-+#
-+CONFIG_LOCALVERSION=""
-+# CONFIG_BSD_PROCESS_ACCT is not set
-+# CONFIG_SYSCTL is not set
-+# CONFIG_AUDIT is not set
-+# CONFIG_HOTPLUG is not set
-+CONFIG_KOBJECT_UEVENT=y
-+# CONFIG_IKCONFIG is not set
-+CONFIG_EMBEDDED=y
-+# CONFIG_KALLSYMS is not set
-+CONFIG_PRINTK=y
-+CONFIG_BUG=y
-+# CONFIG_BASE_FULL is not set
-+# CONFIG_FUTEX is not set
-+# CONFIG_EPOLL is not set
-+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
-+CONFIG_CC_ALIGN_FUNCTIONS=0
-+CONFIG_CC_ALIGN_LABELS=0
-+CONFIG_CC_ALIGN_LOOPS=0
-+CONFIG_CC_ALIGN_JUMPS=0
-+CONFIG_BASE_SMALL=1
-+
-+#
-+# Loadable module support
-+#
-+CONFIG_MODULES=y
-+CONFIG_MODULE_UNLOAD=y
-+CONFIG_OBSOLETE_MODPARM=y
-+# CONFIG_MODULE_SRCVERSION_ALL is not set
-+CONFIG_KMOD=y
-+
-+#
-+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-+#
-+# CONFIG_PCI_LEGACY_PROC is not set
-+# CONFIG_PCI_NAMES is not set
-+# CONFIG_PCI_DEBUG is not set
-+
-+#
-+# PCCARD (PCMCIA/CardBus) support
-+#
-+# CONFIG_PCCARD is not set
-+
-+#
-+# PCI Hotplug Support
-+#
-+
-+#
-+# Executable file formats
-+#
-+CONFIG_BINFMT_FLAT=y
-+# CONFIG_BINFMT_ZFLAT is not set
-+# CONFIG_BINFMT_SHARED_FLAT is not set
-+# CONFIG_BINFMT_MISC is not set
-+
-+#
-+# Generic Driver Options
-+#
-+CONFIG_STANDALONE=y
-+CONFIG_PREVENT_FIRMWARE_BUILD=y
-+# CONFIG_FW_LOADER is not set
-+# CONFIG_DEBUG_DRIVER is not set
-+
-+#
-+# Memory Technology Devices (MTD)
-+#
-+CONFIG_MTD=y
-+# CONFIG_MTD_DEBUG is not set
-+# CONFIG_MTD_CONCAT is not set
-+# CONFIG_MTD_PARTITIONS is not set
-+
-+#
-+# User Modules And Translation Layers
-+#
-+# CONFIG_MTD_CHAR is not set
-+CONFIG_MTD_BLOCK=y
-+# CONFIG_FTL is not set
-+# CONFIG_NFTL is not set
-+# CONFIG_INFTL is not set
-+
-+#
-+# RAM/ROM/Flash chip drivers
-+#
-+# CONFIG_MTD_CFI is not set
-+# CONFIG_MTD_JEDECPROBE is not set
-+CONFIG_MTD_MAP_BANK_WIDTH_1=y
-+CONFIG_MTD_MAP_BANK_WIDTH_2=y
-+CONFIG_MTD_MAP_BANK_WIDTH_4=y
-+# CONFIG_MTD_MAP_BANK_WIDTH_8 is not set
-+# CONFIG_MTD_MAP_BANK_WIDTH_16 is not set
-+# CONFIG_MTD_MAP_BANK_WIDTH_32 is not set
-+CONFIG_MTD_CFI_I1=y
-+CONFIG_MTD_CFI_I2=y
-+# CONFIG_MTD_CFI_I4 is not set
-+# CONFIG_MTD_CFI_I8 is not set
-+# CONFIG_MTD_RAM is not set
-+# CONFIG_MTD_ROM is not set
-+# CONFIG_MTD_ABSENT is not set
-+
-+#
-+# Mapping drivers for chip access
-+#
-+# CONFIG_MTD_COMPLEX_MAPPINGS is not set
-+
-+#
-+# Self-contained MTD device drivers
-+#
-+# CONFIG_MTD_PMC551 is not set
-+CONFIG_MTD_SLRAM=y
-+# CONFIG_MTD_PHRAM is not set
-+# CONFIG_MTD_MTDRAM is not set
-+# CONFIG_MTD_BLKMTD is not set
-+
-+#
-+# Disk-On-Chip Device Drivers
-+#
-+# CONFIG_MTD_DOC2000 is not set
-+# CONFIG_MTD_DOC2001 is not set
-+# CONFIG_MTD_DOC2001PLUS is not set
-+
-+#
-+# NAND Flash Device Drivers
-+#
-+# CONFIG_MTD_NAND is not set
-+
-+#
-+# Parallel port support
-+#
-+# CONFIG_PARPORT is not set
-+
-+#
-+# Block devices
-+#
-+# CONFIG_BLK_DEV_FD is not set
-+# CONFIG_BLK_CPQ_DA is not set
-+# CONFIG_BLK_CPQ_CISS_DA is not set
-+# CONFIG_BLK_DEV_DAC960 is not set
-+# CONFIG_BLK_DEV_COW_COMMON is not set
-+# CONFIG_BLK_DEV_LOOP is not set
-+# CONFIG_BLK_DEV_NBD is not set
-+# CONFIG_BLK_DEV_SX8 is not set
-+# CONFIG_BLK_DEV_RAM is not set
-+CONFIG_BLK_DEV_RAM_COUNT=16
-+CONFIG_INITRAMFS_SOURCE=""
-+# CONFIG_CDROM_PKTCDVD is not set
-+
-+#
-+# IO Schedulers
-+#
-+CONFIG_IOSCHED_NOOP=y
-+# CONFIG_IOSCHED_AS is not set
-+# CONFIG_IOSCHED_DEADLINE is not set
-+# CONFIG_IOSCHED_CFQ is not set
-+# CONFIG_ATA_OVER_ETH is not set
-+
-+#
-+# Disk device support
-+#
-+
-+#
-+# ATA/ATAPI/MFM/RLL support
-+#
-+# CONFIG_IDE is not set
-+
-+#
-+# SCSI device support
-+#
-+# CONFIG_SCSI is not set
-+
-+#
-+# Multi-device support (RAID and LVM)
-+#
-+# CONFIG_MD is not set
-+
-+#
-+# Fusion MPT device support
-+#
-+
-+#
-+# IEEE 1394 (FireWire) support
-+#
-+# CONFIG_IEEE1394 is not set
-+
-+#
-+# I2O device support
-+#
-+# CONFIG_I2O is not set
-+
-+#
-+# Networking support
-+#
-+CONFIG_NET=y
-+
-+#
-+# Networking options
-+#
-+# CONFIG_PACKET is not set
-+# CONFIG_UNIX is not set
-+# CONFIG_NET_KEY is not set
-+CONFIG_INET=y
-+# CONFIG_IP_MULTICAST is not set
-+# CONFIG_IP_ADVANCED_ROUTER is not set
-+# CONFIG_IP_PNP is not set
-+# CONFIG_NET_IPIP is not set
-+# CONFIG_NET_IPGRE is not set
-+# CONFIG_SYN_COOKIES is not set
-+# CONFIG_INET_AH is not set
-+# CONFIG_INET_ESP is not set
-+# CONFIG_INET_IPCOMP is not set
-+# CONFIG_INET_TUNNEL is not set
-+# CONFIG_IP_TCPDIAG is not set
-+# CONFIG_IP_TCPDIAG_IPV6 is not set
-+# CONFIG_IPV6 is not set
-+# CONFIG_NETFILTER is not set
-+# CONFIG_BRIDGE is not set
-+# CONFIG_VLAN_8021Q is not set
-+# CONFIG_DECNET is not set
-+# CONFIG_LLC2 is not set
-+# CONFIG_IPX is not set
-+# CONFIG_ATALK is not set
-+
-+#
-+# QoS and/or fair queueing
-+#
-+# CONFIG_NET_SCHED is not set
-+# CONFIG_NET_CLS_ROUTE is not set
-+
-+#
-+# Network testing
-+#
-+# CONFIG_NET_PKTGEN is not set
-+# CONFIG_NETPOLL is not set
-+# CONFIG_NET_POLL_CONTROLLER is not set
-+# CONFIG_HAMRADIO is not set
-+# CONFIG_IRDA is not set
-+# CONFIG_BT is not set
-+CONFIG_NETDEVICES=y
-+# CONFIG_DUMMY is not set
-+# CONFIG_BONDING is not set
-+# CONFIG_EQUALIZER is not set
-+# CONFIG_TUN is not set
-+
-+#
-+# ARCnet devices
-+#
-+# CONFIG_ARCNET is not set
-+
-+#
-+# Ethernet (10 or 100Mbit)
-+#
-+CONFIG_NET_ETHERNET=y
-+CONFIG_MII=y
-+# CONFIG_HAPPYMEAL is not set
-+# CONFIG_SUNGEM is not set
-+# CONFIG_NET_VENDOR_3COM is not set
-+# CONFIG_NET_VENDOR_SMC is not set
-+
-+#
-+# Tulip family network device support
-+#
-+# CONFIG_NET_TULIP is not set
-+# CONFIG_HP100 is not set
-+# CONFIG_NE2000 is not set
-+CONFIG_NET_PCI=y
-+# CONFIG_PCNET32 is not set
-+# CONFIG_AMD8111_ETH is not set
-+# CONFIG_ADAPTEC_STARFIRE is not set
-+# CONFIG_DGRS is not set
-+CONFIG_EEPRO100=y
-+# CONFIG_E100 is not set
-+# CONFIG_FEALNX is not set
-+# CONFIG_NATSEMI is not set
-+# CONFIG_NE2K_PCI is not set
-+# CONFIG_8139TOO is not set
-+# CONFIG_SIS900 is not set
-+# CONFIG_EPIC100 is not set
-+# CONFIG_SUNDANCE is not set
-+# CONFIG_TLAN is not set
-+# CONFIG_VIA_RHINE is not set
-+
-+#
-+# Ethernet (1000 Mbit)
-+#
-+# CONFIG_ACENIC is not set
-+# CONFIG_DL2K is not set
-+# CONFIG_E1000 is not set
-+# CONFIG_NS83820 is not set
-+# CONFIG_HAMACHI is not set
-+# CONFIG_R8169 is not set
-+# CONFIG_SK98LIN is not set
-+# CONFIG_VIA_VELOCITY is not set
-+# CONFIG_TIGON3 is not set
-+# CONFIG_BNX2 is not set
-+
-+#
-+# Ethernet (10000 Mbit)
-+#
-+# CONFIG_IXGB is not set
-+# CONFIG_S2IO is not set
-+
-+#
-+# Token Ring devices
-+#
-+# CONFIG_TR is not set
-+
-+#
-+# Wireless LAN (non-hamradio)
-+#
-+# CONFIG_NET_RADIO is not set
-+
-+#
-+# Wan interfaces
-+#
-+# CONFIG_WAN is not set
-+# CONFIG_FDDI is not set
-+# CONFIG_PPP is not set
-+# CONFIG_SLIP is not set
-+
-+#
-+# ISDN subsystem
-+#
-+# CONFIG_ISDN is not set
-+
-+#
-+# Input device support
-+#
-+CONFIG_INPUT=y
-+
-+#
-+# Userland interfaces
-+#
-+# CONFIG_INPUT_MOUSEDEV is not set
-+# CONFIG_INPUT_JOYDEV is not set
-+# CONFIG_INPUT_TSDEV is not set
-+# CONFIG_INPUT_EVDEV is not set
-+# CONFIG_INPUT_EVBUG is not set
-+
-+#
-+# Input Device Drivers
-+#
-+# CONFIG_INPUT_KEYBOARD is not set
-+# CONFIG_INPUT_MOUSE is not set
-+# CONFIG_INPUT_JOYSTICK is not set
-+# CONFIG_INPUT_TOUCHSCREEN is not set
-+# CONFIG_INPUT_MISC is not set
-+
-+#
-+# Hardware I/O ports
-+#
-+# CONFIG_SERIO is not set
-+# CONFIG_GAMEPORT is not set
-+
-+#
-+# Character devices
-+#
-+# CONFIG_VT is not set
-+# CONFIG_SERIAL_NONSTANDARD is not set
-+
-+#
-+# Serial drivers
-+#
-+# CONFIG_SERIAL_8250 is not set
-+
-+#
-+# Non-8250 serial port support
-+#
-+CONFIG_V850E_UART=y
-+CONFIG_V850E_UART_CONSOLE=y
-+CONFIG_SERIAL_CORE=y
-+CONFIG_SERIAL_CORE_CONSOLE=y
-+# CONFIG_SERIAL_JSM is not set
-+# CONFIG_UNIX98_PTYS is not set
-+# CONFIG_LEGACY_PTYS is not set
-+
-+#
-+# IPMI
-+#
-+# CONFIG_IPMI_HANDLER is not set
-+
-+#
-+# Watchdog Cards
-+#
-+# CONFIG_WATCHDOG is not set
-+# CONFIG_RTC is not set
-+# CONFIG_GEN_RTC is not set
-+# CONFIG_DTLK is not set
-+# CONFIG_R3964 is not set
-+# CONFIG_APPLICOM is not set
-+
-+#
-+# Ftape, the floppy tape device driver
-+#
-+# CONFIG_DRM is not set
-+# CONFIG_RAW_DRIVER is not set
-+
-+#
-+# TPM devices
-+#
-+
-+#
-+# Multimedia devices
-+#
-+# CONFIG_VIDEO_DEV is not set
-+
-+#
-+# Digital Video Broadcasting Devices
-+#
-+# CONFIG_DVB is not set
-+
-+#
-+# File systems
-+#
-+# CONFIG_EXT2_FS is not set
-+# CONFIG_EXT3_FS is not set
-+# CONFIG_JBD is not set
-+# CONFIG_REISERFS_FS is not set
-+# CONFIG_JFS_FS is not set
-+
-+#
-+# XFS support
-+#
-+# CONFIG_XFS_FS is not set
-+# CONFIG_MINIX_FS is not set
-+CONFIG_ROMFS_FS=y
-+# CONFIG_QUOTA is not set
-+CONFIG_DNOTIFY=y
-+# CONFIG_AUTOFS_FS is not set
-+# CONFIG_AUTOFS4_FS is not set
-+
-+#
-+# CD-ROM/DVD Filesystems
-+#
-+# CONFIG_ISO9660_FS is not set
-+# CONFIG_UDF_FS is not set
-+
-+#
-+# DOS/FAT/NT Filesystems
-+#
-+# CONFIG_MSDOS_FS is not set
-+# CONFIG_VFAT_FS is not set
-+# CONFIG_NTFS_FS is not set
-+
-+#
-+# Pseudo filesystems
-+#
-+CONFIG_PROC_FS=y
-+CONFIG_SYSFS=y
-+# CONFIG_TMPFS is not set
-+# CONFIG_HUGETLB_PAGE is not set
-+CONFIG_RAMFS=y
-+
-+#
-+# Miscellaneous filesystems
-+#
-+# CONFIG_HFSPLUS_FS is not set
-+# CONFIG_JFFS_FS is not set
-+# CONFIG_JFFS2_FS is not set
-+# CONFIG_CRAMFS is not set
-+# CONFIG_VXFS_FS is not set
-+# CONFIG_HPFS_FS is not set
-+# CONFIG_QNX4FS_FS is not set
-+# CONFIG_SYSV_FS is not set
-+# CONFIG_UFS_FS is not set
-+
-+#
-+# Network File Systems
-+#
-+CONFIG_NFS_FS=y
-+CONFIG_NFS_V3=y
-+# CONFIG_NFSD is not set
-+CONFIG_LOCKD=y
-+CONFIG_LOCKD_V4=y
-+CONFIG_SUNRPC=y
-+# CONFIG_SMB_FS is not set
-+# CONFIG_CIFS is not set
-+# CONFIG_NCP_FS is not set
-+# CONFIG_CODA_FS is not set
-+
-+#
-+# Partition Types
-+#
-+# CONFIG_PARTITION_ADVANCED is not set
-+CONFIG_MSDOS_PARTITION=y
-+
-+#
-+# Native Language Support
-+#
-+# CONFIG_NLS is not set
-+
-+#
-+# Graphics support
-+#
-+# CONFIG_FB is not set
-+
-+#
-+# Sound
-+#
-+# CONFIG_SOUND is not set
-+
-+#
-+# USB support
-+#
-+CONFIG_USB_ARCH_HAS_HCD=y
-+CONFIG_USB_ARCH_HAS_OHCI=y
-+# CONFIG_USB is not set
-+
-+#
-+# USB Gadget Support
-+#
-+# CONFIG_USB_GADGET is not set
-+
-+#
-+# Kernel hacking
-+#
-+# CONFIG_PRINTK_TIME is not set
-+CONFIG_DEBUG_KERNEL=y
-+# CONFIG_MAGIC_SYSRQ is not set
-+CONFIG_LOG_BUF_SHIFT=14
-+# CONFIG_SCHEDSTATS is not set
-+# CONFIG_DEBUG_SLAB is not set
-+# CONFIG_DEBUG_SPINLOCK is not set
-+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-+# CONFIG_DEBUG_KOBJECT is not set
-+CONFIG_DEBUG_INFO=y
-+# CONFIG_DEBUG_FS is not set
-+# CONFIG_NO_KERNEL_MSG is not set
-+
-+#
-+# Security options
-+#
-+# CONFIG_KEYS is not set
-+# CONFIG_SECURITY is not set
-+
-+#
-+# Cryptographic options
-+#
-+# CONFIG_CRYPTO is not set
-+
-+#
-+# Hardware crypto devices
-+#
-+
-+#
-+# Library routines
-+#
-+# CONFIG_CRC_CCITT is not set
-+# CONFIG_CRC32 is not set
-+# CONFIG_LIBCRC32C is not set
+ 	/* Always start the kthread because there can be hotplug vty adapters
+ 	 * added later. */
+-	hvc_task = kthread_run(khvcd, NULL, "khvcd");
++	hvc_task = kthread_nofreeze_run(khvcd, NULL, "khvcd");
+ 	if (IS_ERR(hvc_task)) {
+ 		panic("Couldn't create kthread for console.\n");
+ 		put_tty_driver(hvc_driver);
+diff -ruNp 400-workthreads.patch-old/drivers/char/hvcs.c 400-workthreads.patch-new/drivers/char/hvcs.c
+--- 400-workthreads.patch-old/drivers/char/hvcs.c	2005-07-18 06:36:43.000000000 +1000
++++ 400-workthreads.patch-new/drivers/char/hvcs.c	2005-07-20 08:52:31.000000000 +1000
+@@ -1403,7 +1403,7 @@ static int __init hvcs_module_init(void)
+ 		return -ENOMEM;
+ 	}
+ 
+-	hvcs_task = kthread_run(khvcsd, NULL, "khvcsd");
++	hvcs_task = kthread_nofreeze_run(khvcsd, NULL, "khvcsd");
+ 	if (IS_ERR(hvcs_task)) {
+ 		printk(KERN_ERR "HVCS: khvcsd creation failed.  Driver not loaded.\n");
+ 		kfree(hvcs_pi_buff);
+diff -ruNp 400-workthreads.patch-old/drivers/input/serio/serio.c 400-workthreads.patch-new/drivers/input/serio/serio.c
+--- 400-workthreads.patch-old/drivers/input/serio/serio.c	2005-07-21 04:00:03.000000000 +1000
++++ 400-workthreads.patch-new/drivers/input/serio/serio.c	2005-07-20 08:52:31.000000000 +1000
+@@ -889,7 +889,7 @@ irqreturn_t serio_interrupt(struct serio
+ 
+ static int __init serio_init(void)
+ {
+-	serio_task = kthread_run(serio_thread, NULL, "kseriod");
++	serio_task = kthread_nofreeze_run(serio_thread, NULL, "kseriod");
+ 	if (IS_ERR(serio_task)) {
+ 		printk(KERN_ERR "serio: Failed to start kseriod\n");
+ 		return PTR_ERR(serio_task);
+diff -ruNp 400-workthreads.patch-old/drivers/md/dm-crypt.c 400-workthreads.patch-new/drivers/md/dm-crypt.c
+--- 400-workthreads.patch-old/drivers/md/dm-crypt.c	2005-07-18 06:36:47.000000000 +1000
++++ 400-workthreads.patch-new/drivers/md/dm-crypt.c	2005-07-20 08:52:31.000000000 +1000
+@@ -926,7 +926,7 @@ static int __init dm_crypt_init(void)
+ 	if (!_crypt_io_pool)
+ 		return -ENOMEM;
+ 
+-	_kcryptd_workqueue = create_workqueue("kcryptd");
++	_kcryptd_workqueue = create_nofreeze_workqueue("kcryptd");
+ 	if (!_kcryptd_workqueue) {
+ 		r = -ENOMEM;
+ 		DMERR(PFX "couldn't create kcryptd");
+diff -ruNp 400-workthreads.patch-old/drivers/scsi/hosts.c 400-workthreads.patch-new/drivers/scsi/hosts.c
+--- 400-workthreads.patch-old/drivers/scsi/hosts.c	2005-07-18 06:36:54.000000000 +1000
++++ 400-workthreads.patch-new/drivers/scsi/hosts.c	2005-07-20 08:52:31.000000000 +1000
+@@ -132,7 +132,7 @@ int scsi_add_host(struct Scsi_Host *shos
+ 	if (shost->transportt->create_work_queue) {
+ 		snprintf(shost->work_q_name, KOBJ_NAME_LEN, "scsi_wq_%d",
+ 			shost->host_no);
+-		shost->work_q = create_singlethread_workqueue(
++		shost->work_q = create_nofreeze_singlethread_workqueue(
+ 					shost->work_q_name);
+ 		if (!shost->work_q)
+ 			goto out_free_shost_data;
+diff -ruNp 400-workthreads.patch-old/drivers/usb/net/pegasus.c 400-workthreads.patch-new/drivers/usb/net/pegasus.c
+--- 400-workthreads.patch-old/drivers/usb/net/pegasus.c	2005-07-18 06:36:58.000000000 +1000
++++ 400-workthreads.patch-new/drivers/usb/net/pegasus.c	2005-07-20 08:52:31.000000000 +1000
+@@ -1412,7 +1412,7 @@ static struct usb_driver pegasus_driver 
+ static int __init pegasus_init(void)
+ {
+ 	pr_info("%s: %s, " DRIVER_DESC "\n", driver_name, DRIVER_VERSION);
+-	pegasus_workqueue = create_singlethread_workqueue("pegasus");
++	pegasus_workqueue = create_nofreeze_singlethread_workqueue("pegasus");
+ 	if (!pegasus_workqueue)
+ 		return -ENOMEM;
+ 	return usb_register(&pegasus_driver);
+diff -ruNp 400-workthreads.patch-old/include/linux/kthread.h 400-workthreads.patch-new/include/linux/kthread.h
+--- 400-workthreads.patch-old/include/linux/kthread.h	2004-11-03 21:51:12.000000000 +1100
++++ 400-workthreads.patch-new/include/linux/kthread.h	2005-07-20 15:11:37.000000000 +1000
+@@ -27,6 +27,14 @@ struct task_struct *kthread_create(int (
+ 				   void *data,
+ 				   const char namefmt[], ...);
+ 
++struct task_struct *_kthread_create(int (*threadfn)(void *data),
++				   void *data,
++				   unsigned long freezer_flags,
++				   const char namefmt[], ...);
++
++#define kthread_nofreeze_create(threadfn, data, namefmt, args...) \
++	_kthread_create(threadfn, data, PF_NOFREEZE, namefmt, ##args)
++
+ /**
+  * kthread_run: create and wake a thread.
+  * @threadfn: the function to run until signal_pending(current).
+@@ -35,15 +43,23 @@ struct task_struct *kthread_create(int (
+  *
+  * Description: Convenient wrapper for kthread_create() followed by
+  * wake_up_process().  Returns the kthread, or ERR_PTR(-ENOMEM). */
+-#define kthread_run(threadfn, data, namefmt, ...)			   \
++#define kthread_run(threadfn, data, namefmt, args...)			   \
+ ({									   \
+ 	struct task_struct *__k						   \
+-		= kthread_create(threadfn, data, namefmt, ## __VA_ARGS__); \
++		= kthread_create(threadfn, data, namefmt, ##args);	   \
+ 	if (!IS_ERR(__k))						   \
+ 		wake_up_process(__k);					   \
+ 	__k;								   \
+ })
+ 
++#define kthread_nofreeze_run(threadfn, data, namefmt, args...)		   \
++({									   \
++	struct task_struct *__k	= kthread_nofreeze_create(threadfn, data,  \
++			namefmt, ##args);				   \
++	if (!IS_ERR(__k))						   \
++		wake_up_process(__k);					   \
++	__k;								   \
++})
+ /**
+  * kthread_bind: bind a just-created kthread to a cpu.
+  * @k: thread created by kthread_create().
+diff -ruNp 400-workthreads.patch-old/include/linux/workqueue.h 400-workthreads.patch-new/include/linux/workqueue.h
+--- 400-workthreads.patch-old/include/linux/workqueue.h	2005-06-20 11:47:30.000000000 +1000
++++ 400-workthreads.patch-new/include/linux/workqueue.h	2005-07-20 16:21:55.000000000 +1000
+@@ -51,9 +51,12 @@ struct work_struct {
+ 	} while (0)
+ 
+ extern struct workqueue_struct *__create_workqueue(const char *name,
+-						    int singlethread);
+-#define create_workqueue(name) __create_workqueue((name), 0)
+-#define create_singlethread_workqueue(name) __create_workqueue((name), 1)
++						    int singlethread,
++						    unsigned long freezer_flag);
++#define create_workqueue(name) __create_workqueue((name), 0, 0)
++#define create_nofreeze_workqueue(name) __create_workqueue((name), 0, PF_NOFREEZE)
++#define create_singlethread_workqueue(name) __create_workqueue((name), 1, 0)
++#define create_nofreeze_singlethread_workqueue(name) __create_workqueue((name), 1, PF_NOFREEZE)
+ 
+ extern void destroy_workqueue(struct workqueue_struct *wq);
+ 
+diff -ruNp 400-workthreads.patch-old/kernel/kthread.c 400-workthreads.patch-new/kernel/kthread.c
+--- 400-workthreads.patch-old/kernel/kthread.c	2005-06-20 11:47:31.000000000 +1000
++++ 400-workthreads.patch-new/kernel/kthread.c	2005-07-21 04:00:19.000000000 +1000
+@@ -25,6 +25,7 @@ struct kthread_create_info
+ 	/* Information passed to kthread() from keventd. */
+ 	int (*threadfn)(void *data);
+ 	void *data;
++	unsigned long freezer_flags;
+ 	struct completion started;
+ 
+ 	/* Result passed back to kthread_create() from keventd. */
+@@ -86,6 +87,10 @@ static int kthread(void *_create)
+ 	/* By default we can run anywhere, unlike keventd. */
+ 	set_cpus_allowed(current, CPU_MASK_ALL);
+ 
++	/* Set our freezer flags */
++	current->flags &= ~(PF_SYNCTHREAD | PF_NOFREEZE);
++	current->flags |= (create->freezer_flags & PF_NOFREEZE);
++
+ 	/* OK, tell user we're spawned, wait for stop or wakeup */
+ 	__set_current_state(TASK_INTERRUPTIBLE);
+ 	complete(&create->started);
+@@ -119,8 +124,9 @@ static void keventd_create_kthread(void 
+ 	complete(&create->done);
+ }
+ 
+-struct task_struct *kthread_create(int (*threadfn)(void *data),
++struct task_struct *_kthread_create(int (*threadfn)(void *data),
+ 				   void *data,
++				   unsigned long freezer_flags,
+ 				   const char namefmt[],
+ 				   ...)
+ {
+@@ -129,6 +135,7 @@ struct task_struct *kthread_create(int (
+ 
+ 	create.threadfn = threadfn;
+ 	create.data = data;
++	create.freezer_flags = freezer_flags;
+ 	init_completion(&create.started);
+ 	init_completion(&create.done);
+ 
+@@ -151,6 +158,20 @@ struct task_struct *kthread_create(int (
+ 
+ 	return create.result;
+ }
++
++struct task_struct *kthread_create(int (*threadfn)(void *data),
++				   void *data,
++				   const char namefmt[], ...)
++{
++	char result[TASK_COMM_LEN];
++
++	va_list args;
++	va_start(args, namefmt);
++	vsnprintf(result, TASK_COMM_LEN, namefmt, args);
++	va_end(args);
++	return _kthread_create(threadfn, data, 0, result);
++}
++
+ EXPORT_SYMBOL(kthread_create);
+ 
+ void kthread_bind(struct task_struct *k, unsigned int cpu)
+diff -ruNp 400-workthreads.patch-old/kernel/sched.c 400-workthreads.patch-new/kernel/sched.c
+--- 400-workthreads.patch-old/kernel/sched.c	2005-07-21 04:00:02.000000000 +1000
++++ 400-workthreads.patch-new/kernel/sched.c	2005-07-21 04:00:19.000000000 +1000
+@@ -4580,10 +4580,10 @@ static int migration_call(struct notifie
+ 
+ 	switch (action) {
+ 	case CPU_UP_PREPARE:
+-		p = kthread_create(migration_thread, hcpu, "migration/%d",cpu);
++		p = kthread_create(migration_thread, hcpu,
++				"migration/%d",cpu);
+ 		if (IS_ERR(p))
+ 			return NOTIFY_BAD;
+-		p->flags |= PF_NOFREEZE;
+ 		kthread_bind(p, cpu);
+ 		/* Must be high prio: stop_machine expects to yield to it. */
+ 		rq = task_rq_lock(p, &flags);
+diff -ruNp 400-workthreads.patch-old/kernel/softirq.c 400-workthreads.patch-new/kernel/softirq.c
+--- 400-workthreads.patch-old/kernel/softirq.c	2005-06-20 11:47:32.000000000 +1000
++++ 400-workthreads.patch-new/kernel/softirq.c	2005-07-20 08:52:31.000000000 +1000
+@@ -350,7 +350,6 @@ void __init softirq_init(void)
+ static int ksoftirqd(void * __bind_cpu)
+ {
+ 	set_user_nice(current, 19);
+-	current->flags |= PF_NOFREEZE;
+ 
+ 	set_current_state(TASK_INTERRUPTIBLE);
+ 
+@@ -456,7 +455,7 @@ static int __devinit cpu_callback(struct
+ 	case CPU_UP_PREPARE:
+ 		BUG_ON(per_cpu(tasklet_vec, hotcpu).list);
+ 		BUG_ON(per_cpu(tasklet_hi_vec, hotcpu).list);
+-		p = kthread_create(ksoftirqd, hcpu, "ksoftirqd/%d", hotcpu);
++		p = kthread_nofreeze_create(ksoftirqd, hcpu, "ksoftirqd/%d", hotcpu);
+ 		if (IS_ERR(p)) {
+ 			printk("ksoftirqd for %i failed\n", hotcpu);
+ 			return NOTIFY_BAD;
+diff -ruNp 400-workthreads.patch-old/kernel/workqueue.c 400-workthreads.patch-new/kernel/workqueue.c
+--- 400-workthreads.patch-old/kernel/workqueue.c	2005-06-20 11:47:32.000000000 +1000
++++ 400-workthreads.patch-new/kernel/workqueue.c	2005-07-21 00:39:28.000000000 +1000
+@@ -186,8 +186,6 @@ static int worker_thread(void *__cwq)
+ 	struct k_sigaction sa;
+ 	sigset_t blocked;
+ 
+-	current->flags |= PF_NOFREEZE;
+-
+ 	set_user_nice(current, -5);
+ 
+ 	/* Block and flush all signals */
+@@ -208,6 +206,7 @@ static int worker_thread(void *__cwq)
+ 			schedule();
+ 		else
+ 			__set_current_state(TASK_RUNNING);
++		try_to_freeze();
+ 		remove_wait_queue(&cwq->more_work, &wait);
+ 
+ 		if (!list_empty(&cwq->worklist))
+@@ -277,7 +276,8 @@ void fastcall flush_workqueue(struct wor
+ }
+ 
+ static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
+-						   int cpu)
++						   int cpu,
++						   unsigned long freezer_flags)
+ {
+ 	struct cpu_workqueue_struct *cwq = wq->cpu_wq + cpu;
+ 	struct task_struct *p;
+@@ -292,9 +292,11 @@ static struct task_struct *create_workqu
+ 	init_waitqueue_head(&cwq->work_done);
+ 
+ 	if (is_single_threaded(wq))
+-		p = kthread_create(worker_thread, cwq, "%s", wq->name);
++		p = _kthread_create(worker_thread, cwq, freezer_flags,
++				"%s", wq->name);
+ 	else
+-		p = kthread_create(worker_thread, cwq, "%s/%d", wq->name, cpu);
++		p = _kthread_create(worker_thread, cwq, freezer_flags,
++				"%s/%d", wq->name, cpu);
+ 	if (IS_ERR(p))
+ 		return NULL;
+ 	cwq->thread = p;
+@@ -302,7 +304,8 @@ static struct task_struct *create_workqu
+ }
+ 
+ struct workqueue_struct *__create_workqueue(const char *name,
+-					    int singlethread)
++					    int singlethread,
++					    unsigned long freezer_flags)
+ {
+ 	int cpu, destroy = 0;
+ 	struct workqueue_struct *wq;
+@@ -320,7 +323,7 @@ struct workqueue_struct *__create_workqu
+ 	lock_cpu_hotplug();
+ 	if (singlethread) {
+ 		INIT_LIST_HEAD(&wq->list);
+-		p = create_workqueue_thread(wq, 0);
++		p = create_workqueue_thread(wq, 0, freezer_flags);
+ 		if (!p)
+ 			destroy = 1;
+ 		else
+@@ -330,7 +333,7 @@ struct workqueue_struct *__create_workqu
+ 		list_add(&wq->list, &workqueues);
+ 		spin_unlock(&workqueue_lock);
+ 		for_each_online_cpu(cpu) {
+-			p = create_workqueue_thread(wq, cpu);
++			p = create_workqueue_thread(wq, cpu, freezer_flags);
+ 			if (p) {
+ 				kthread_bind(p, cpu);
+ 				wake_up_process(p);
+@@ -540,7 +543,7 @@ static int __devinit workqueue_cpu_callb
+ void init_workqueues(void)
+ {
+ 	hotcpu_notifier(workqueue_cpu_callback, 0);
+-	keventd_wq = create_workqueue("events");
++	keventd_wq = create_nofreeze_workqueue("events");
+ 	BUG_ON(!keventd_wq);
+ }
+ 
+
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
+

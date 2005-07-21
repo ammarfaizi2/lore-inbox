@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVGUHvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbVGUIDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbVGUHvC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 03:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVGUHvB
+	id S261685AbVGUIDk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 04:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVGUIDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 03:51:01 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:64901 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S261675AbVGUHu7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 03:50:59 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Content-class: urn:content-classes:message
-Subject: Multi-threaded IO performance regression on 2.6 kernel?
-Date: Thu, 21 Jul 2005 15:48:18 +0800
+	Thu, 21 Jul 2005 04:03:40 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:54439 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S261685AbVGUIDi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 04:03:38 -0400
+From: Rolf Eike Beer <eike@sf-mail.de>
+To: Jiri Slaby <xslaby@fi.muni.cz>
+Subject: Re: [PATCH] Remove Comtrol mail address from MAINTAINERS [next 1 address]
+Date: Thu, 21 Jul 2005 10:07:36 +0200
+User-Agent: KMail/1.8.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+References: <Pine.LNX.4.61.0507210139020.14792@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.61.0507210139020.14792@localhost.localdomain>
 MIME-Version: 1.0
-Message-ID: <1784BBD8D1F15B4C9FB0F09F0A939F9001A3E463@SZEXMTA4.amd.com>
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Multi-threaded IO performance regression on 2.6 kernel?
-Thread-Index: AcWNyLTu2sPCSz1JQFSdT6zj0Y739g==
-From: "Xie, Bill" <bill.xie@amd.com>
-To: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 21 Jul 2005 07:50:45.0090 (UTC)
- FILETIME=[E68CF420:01C58DC8]
-X-WSS-ID: 6EC18C572CC3912044-01-01
-Content-Type: text/plain;
- charset=gb2312
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed;
+  boundary="nextPart2149075.4sESFpXXSX";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507211007.44356@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+--nextPart2149075.4sESFpXXSX
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I am testing the multi-threaded IO performance on Opteron servers. 
+Am Donnerstag, 21. Juli 2005 01:43 schrieb Jiri Slaby:
+>Rolf Eike Beer wrotes:
+>>Send a patch, you know the addresses.
+>
+>kernel 2.6.13-rc3-git4
+>
+>Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+>
+>--- a/MAINTAINERS	2005-07-21 01:13:32.000000000 +0200
+>+++ b/MAINTAINERS	2005-07-21 01:17:41.000000000 +0200
+>@@ -204,8 +204,6 @@
+>
+>  ADVANSYS SCSI DRIVER
+>  P:	Bob Frey
+>-M:	linux@advansys.com
+>-W:	http://www.advansys.com/linux.html
+>  L:	linux-scsi@vger.kernel.org
+>  S:	Maintained
 
-I use dd as the test tools. The single dd can reach 60MBps for single disk.
+Please do not remove this mail address until you have verified that it real=
+ly=20
+does not exist and is not only rejected due to the broken mail setup of=20
+advansys.com. Removing the website is ok. The mail address you can remove i=
+s=20
+cjtsai@ali.com.tw.
 
-on 2.6.5 kernel, If dd numbers exceed the CPU numbers, vmstat bi reduced to 20MBps.
+Eike
 
-on 2.4.21 kernel, multi-threaded IO performance works fine, even I run 40 dd command at same time.
+--nextPart2149075.4sESFpXXSX
+Content-Type: application/pgp-signature
 
-Does anybody experienced similar issue also?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Best Regards
-Bill Xie
+iD8DBQBC31fQXKSJPmm5/E4RAl2vAJwJeMzfTEy+rCVuNy6dbYsJsK1h5wCgpgoA
+DOdVFtTpD0wafWowsIixEQE=
+=h5jf
+-----END PGP SIGNATURE-----
 
+--nextPart2149075.4sESFpXXSX--

@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVGUWOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVGUWRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbVGUWOs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 18:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVGUWOs
+	id S261906AbVGUWRk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 18:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVGUWRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 18:14:48 -0400
-Received: from ptr-64-201-187-87.ptr.terago.ca ([64.201.187.87]:660 "HELO
-	mars.net-itech.com") by vger.kernel.org with SMTP id S261900AbVGUWOr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 18:14:47 -0400
-Message-ID: <42E01E56.4080301@nit.ca>
-Date: Thu, 21 Jul 2005 18:14:46 -0400
-From: Lukasz Kosewski <lkosewsk@nit.ca>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
+	Thu, 21 Jul 2005 18:17:35 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:37017 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261902AbVGUWRd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 18:17:33 -0400
+From: Fabio Erculiani <fabio.erculiani@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: strange boot problem since 2.6.12
+User-Agent: KMail/1.8.1
 MIME-Version: 1.0
-To: Michael Tokarev <mjt@tls.msk.ru>
-CC: jgarzik@pobox.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] Add disk hotswap support to libata
-References: <42E01024.9030600@nit.ca> <42E01A68.6000002@tls.msk.ru>
-In-Reply-To: <42E01A68.6000002@tls.msk.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+X-Length: 1931
+Date: Fri, 22 Jul 2005 00:17:27 +0200
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200507220017.28106.fabio.erculiani@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev wrote:
-> echo -n 1 > /sys/.../hostA/targetA:B:C/A:B:C:D/delete
-> still works.  I think.
-> And (again, I think) this same problem exists with 2.6.11 as well.
-> At least, I wasn't able to remove-single-device even once (I discovered
-> this mechanism only recently, haven't tried it with other kernels).
+The problem is simple and I have it since 2.6.12 final (tested on 2.6.12, 
+2.6.12.2, 2.6.13-rc3). After grub stage2 (kernel image loaded) the system 
+freeze and I can only hit the three-finger-salute (ctrl+alt+del).
 
-You're both correct and incorrect based on my testing; in 2.6.11.12, I 
-have no problems.
+The system is:
+Asus A8V Deluxe bios 1014.007 (tested with 1014.001 and 1013)
+AMD Athlon 64 3800+ running in 32bit mode
+2 GB of DDR PC3200
+nVIDIA GF FX 5600XT 256Mb
+3 HD (1 ATA and 2 SATA)
+etc etc
+and it's running mail, web, ldap, ftp and NX services
 
-However, in 2.6.13-rc1-mm1, you're right that echoing 1 into the delete 
-node does remove the device.
+Here's some info:
 
-It seems that there is some issue with the 'scsi_device_lookup' function 
-then?
+cmdline -> http://lxnay.no-ip.org/kernel/bug-report/cmdline
+cpuinfo -> http://lxnay.no-ip.org/kernel/bug-report/cpuinfo
+lspci -> http://lxnay.no-ip.org/kernel/bug-report/lspci
+grub configuration -> http://lxnay.no-ip.org/kernel/bug-report/grub
+lsusb -> http://lxnay.no-ip.org/kernel/bug-report/lsusb
+kernel config (for 2.6.12 and 2.6.13-rc - make oldconfig) -> 
+http://lxnay.no-ip.org/kernel/bug-report/config
+Error image -> http://lxnay.no-ip.org/kernel/bug-report/boot.jpg (thanks to 
+kdebluetooth and nokia 6600 :-) )
 
-I'd have to debug further.
+Yes, I'm running 2.6.12, in fact, after hours of recompilations I was able to 
+generate a running kernel (based on 2.6.12.2)...
+Every 2.6.11 works fine, this is the only one working 2.6.12 and I don't know 
+why it works...
 
-Luke Kosewski
-Human Cannonball
-Net Integration Technologies
+Unfortunately, I can't give any more information since the error appears in an 
+early stage... :(
+-- 
+Fabio Erculiani
+lxnay
+fabio.erculiani@gmail.com - lxnay@lxnaydesign.net

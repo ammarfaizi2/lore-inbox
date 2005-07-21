@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVGUEX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVGUE0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVGUEX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 00:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVGUEXz
+	id S261616AbVGUE0L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 00:26:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVGUEYC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 00:23:55 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:9393 "EHLO
+	Thu, 21 Jul 2005 00:24:02 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:64154 "EHLO
 	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S261614AbVGUEX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 00:23:28 -0400
-Message-ID: <42DF2338.1050507@m1k.net>
-Date: Thu, 21 Jul 2005 00:23:20 -0400
+	id S261608AbVGUEXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 00:23:12 -0400
+Message-ID: <42DF232A.9090805@m1k.net>
+Date: Thu, 21 Jul 2005 00:23:06 -0400
 From: Michael Krufky <mkrufky@m1k.net>
 Reply-To: mkrufky@m1k.net
 User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
@@ -22,11 +22,11 @@ CC: mkrufky@m1k.net, linux-dvb-maintainer@linuxtv.org,
        Mac Michaels <wmichaels1@earthlink.net>,
        LKML <linux-kernel@vger.kernel.org>,
        Linux and Kernel Video <video4linux-list@redhat.com>
-Subject: [2.6.13 PATCH 4/4] 04-cx88-dvb-cleanup.patch
+Subject: [2.6.13 PATCH 3/4] 03-lgdt3302-suppress-compile-warning.patch
 References: <42DF2196.5040503@m1k.net>
 In-Reply-To: <42DF2196.5040503@m1k.net>
 Content-Type: multipart/mixed;
- boundary="------------060604010409010301080102"
+ boundary="------------060208010403020600000609"
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -39,7 +39,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------060604010409010301080102
+--------------060208010403020600000609
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -62,38 +62,40 @@ Michael Krufky wrote:
 
 
 
---------------060604010409010301080102
+--------------060208010403020600000609
 Content-Type: text/plain;
- name="04-cx88-dvb-cleanup.patch"
+ name="03-lgdt3302-suppress-compile-warning.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="04-cx88-dvb-cleanup.patch"
+ filename="03-lgdt3302-suppress-compile-warning.patch"
 
-Remove unneeded comment.
+Suppress the following during compile:
+warning: `i2c_readbytes' defined but not used
+This code will either be re-enabled or deleted in a future patch.
 
 Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 
- cx88-dvb.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ lgdt3302.c |    2 ++
+ 1 files changed, 2 insertions(+)
 
-diff -u linux-2.6.13/drivers/media/video/cx88/cx88-dvb.c linux/drivers/media/video/cx88/cx88-dvb.c
---- linux-2.6.13/drivers/media/video/cx88/cx88-dvb.c	2005-07-20 22:53:42.000000000 +0000
-+++ linux/drivers/media/video/cx88/cx88-dvb.c	2005-07-20 23:01:58.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
-- * $Id: cx88-dvb.c,v 1.48 2005/07/20 05:33:33 mkrufky Exp $
-+ * $Id: cx88-dvb.c,v 1.49 2005/07/20 05:38:09 mkrufky Exp $
-  *
-  * device driver for Conexant 2388x based TV cards
-  * MPEG Transport Stream (DVB) routines
-@@ -328,7 +328,7 @@
+diff -u linux-2.6.13/drivers/media/dvb/frontends/lgdt3302.c linux/drivers/media/dvb/frontends/lgdt3302.c
+--- linux-2.6.13/drivers/media/dvb/frontends/lgdt3302.c	2005-07-20 22:53:42.000000000 +0000
++++ linux/drivers/media/dvb/frontends/lgdt3302.c	2005-07-20 23:01:58.000000000 +0000
+@@ -94,6 +94,7 @@
+ 	return 0;
+ }
  
- 		cx_clear(MO_GP0_IO, 1);
- 		mdelay(100);
--		cx_set(MO_GP0_IO, 9); /* ANT connector too FIXME */
-+		cx_set(MO_GP0_IO, 9);
- 		mdelay(200);
- 		dev->core->pll_addr = 0x61;
- 		dev->core->pll_desc = &dvb_pll_thomson_dtt7611;
++#if 0
+ static int i2c_readbytes (struct lgdt3302_state* state,
+ 			  u8 addr, /* demod_address or pll_address */
+ 			  u8 *buf, /* holds data bytes read */
+@@ -109,6 +110,7 @@
+ 	}
+ 	return 0;
+ }
++#endif
+ 
+ /*
+  * This routine writes the register (reg) to the demod bus
 
---------------060604010409010301080102--
+--------------060208010403020600000609--

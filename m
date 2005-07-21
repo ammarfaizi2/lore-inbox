@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVGUPZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVGUP1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVGUPZG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 11:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVGUPZF
+	id S261797AbVGUP1O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 11:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVGUP1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 11:25:05 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:60434 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261840AbVGUPYz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 11:24:55 -0400
-Message-ID: <42DFBE3F.20602@stud.feec.vutbr.cz>
-Date: Thu, 21 Jul 2005 17:24:47 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: "Rafael J. Wysocki" <rjw@sisk.pl>, Andreas Steinmetz <ast@domdv.de>,
-       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: amd64-agp vs. swsusp
-References: <42DD67D9.60201@stud.feec.vutbr.cz> <42DD6AA7.40409@domdv.de> <42DD7011.6080201@stud.feec.vutbr.cz> <200507201115.08733.rjw@sisk.pl> <42DECB21.5020903@stud.feec.vutbr.cz> <20050721053126.GB5230@atrey.karlin.mff.cuni.cz> <42DF7C52.4020907@stud.feec.vutbr.cz> <20050721152053.GA21475@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20050721152053.GA21475@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  tested this incoming email. See other headers to know if the email
-  has beed identified as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
+	Thu, 21 Jul 2005 11:27:12 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3591 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261797AbVGUPZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 11:25:50 -0400
+Date: Thu, 21 Jul 2005 17:25:46 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>, andrew.vasquez@qlogic.com
+Cc: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Erik Jacobson <erikj@sgi.com>
+Subject: Re: [-mm patch] SCSI_QLA2ABC options must select FW_LOADER
+Message-ID: <20050721152546.GG3160@stusta.de>
+References: <20050715013653.36006990.akpm@osdl.org> <20050715102744.GA3569@stusta.de> <20050715144037.GA25648@plap.qlogic.org> <dbbg0k$p8g$1@sea.gmane.org> <20050719140419.GI5031@stusta.de> <9a874849050720063872d0c680@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a874849050720063872d0c680@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
->>I'm trying to do something similar for x86_64. See the attached patch.
->>Unfortunately, it doesn't help. The behaviour seems unchanged (resume 
->>still works iff amd64-agp wasn't loaded before suspend).
-> 
-> 
-> Are you sure problem is on level4_pgt? We probably use constant
-> level4_pgt but split pages at some deeper level. You may want try
-> saving 3rd-level table, instead.
+On Wed, Jul 20, 2005 at 03:38:02PM +0200, Jesper Juhl wrote:
+>...
+> I send a patch for this yesterday that lets SCSI_QLA2XXX select
+> FW_LOADER. I believe that's a bit better since the other options
+> depend on SCSI_QLA2XXX anyway, there's no point in having them all set
+> FW_LOADER. My patch also fixes another little issue; that you cannot
+> disable SCSI_QLA2XXX if you don't need it.
+>...
 
-I'm not sure about that at all. That was just my attempt of cargocult 
-programming :-)
-OK, I'll try saving the 3rd-level table. It'll take me some time to 
-figure out how to do that, however :-)
+That's not an issue, this seems to be intentional.
 
-Michal
+Whether SCSI_QLA2XXX should be user-visible (as your patches make it) or 
+stay as it is (with the fixes from my patches) doesn't matter much - 
+both are valid setups.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

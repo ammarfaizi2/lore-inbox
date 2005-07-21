@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVGUVui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVGUV7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbVGUVui (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 17:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVGUVui
+	id S261890AbVGUV7L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 17:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVGUV7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 17:50:38 -0400
-Received: from nproxy.gmail.com ([64.233.182.204]:52622 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261884AbVGUVug convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 17:50:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=k4c4DH7PcUx3dm1m9V+lcrbloa//vjNa8BR6+xgMFydkbRhWm2L3+5ZB8ZahEqqjXmWCsTzs/pieDQ9l7BrqHPS/wK/07POmCKb8QRCHc8EfKc4As4EusrVjIhwN0iJ0cxSzfYzpzcJyM5iYPVRg3OZLe5s0rSXN0D6gDc8wETI=
-Message-ID: <2de37a440507211450501a8378@mail.gmail.com>
-Date: Thu, 21 Jul 2005 23:50:34 +0200
-From: ioGL64NX <iogl64nx@gmail.com>
-Reply-To: ioGL64NX <iogl64nx@gmail.com>
-To: =?ISO-8859-1?Q?Lasse_K=E4rkk=E4inen_/_Tronic?= 
-	<tronic+lzID=lx43caky45@trn.iki.fi>
-Subject: Re: Supermount
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42E00DD3.9060407@trn.iki.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <42E00DD3.9060407@trn.iki.fi>
+	Thu, 21 Jul 2005 17:59:01 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:32609 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S261890AbVGUV67 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 17:58:59 -0400
+Message-ID: <42E01A68.6000002@tls.msk.ru>
+Date: Fri, 22 Jul 2005 01:58:00 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lukasz Kosewski <lkosewsk@nit.ca>
+CC: jgarzik@pobox.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] Add disk hotswap support to libata
+References: <42E01024.9030600@nit.ca>
+In-Reply-To: <42E01024.9030600@nit.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->2005/7/21, Lasse Kärkkäinen / Tronic <tronic+lzID=lx43caky45@trn.iki.fi>:
-> Is there a reason why this magnificient piece of software is not already
-> in the mainline? It seems to be working very well and provides
-> functionality that simply isn't available otherwise.
-> 
-Hi Tronic,
+Lukasz Kosewski wrote:
+[]
+> [1]  The SCSI error on 2.6.13-rc3-mm1 that I found:
+> 'echo "scsi add-single-device a b c d" > /proc/scsi/scsi'  //works, or 
+> no-op if the sd corresponding to that device is there already
+> 'echo "scsi remove-single-device a b c d" > /proc/scsi/scsi'  //works
+> 'echo "scsi add-single-device a b c d" > /proc/scsi/scsi'  //works
+> 'echo "scsi remove-single-device a b c d" > /proc/scsi/scsi'  //FAILS
 
-Supermount is obsolete there are other tools in userspace that do the
-job perfectly.
-e.g ivman which uses hal and dbus.
+echo -n 1 > /sys/.../hostA/targetA:B:C/A:B:C:D/delete
+still works.  I think.
+And (again, I think) this same problem exists with 2.6.11 as well.
+At least, I wasn't able to remove-single-device even once (I discovered
+this mechanism only recently, haven't tried it with other kernels).
 
-Including source like supermount because it simply work is not a good
-argument. And why to hell should everthing in the kernel, to make
-sorry *leazy* people happy? The kernel is not a trash...also
-supermount uses ioctl which is nearly removed from kernel?! Please
-correct me if i am wrong with ioctl.
+> As such, since the same underlying functions are called by hotplugging, 
+> you will only be able to remove a disk from a device once before it 
+> fails, until this error is fixed.  I'll look into it as well.
 
-Also there are other fs like supermount e.g submount etc...
-
-> For those who are not familiar with it: this system does on-demand
-> mounting when the mount point is accessed and automatically umounts
-> afterwards. Unlike autofs, this does not require a special automount
-> filesystem to be mounted, but the actual filesystems can be directly
-> mounted where-ever. Also, it "just works" and the CD drive will eject
-> when the button is pressed, without having to wait for the umount
-> timeout to pass. I haven't looked inside to find out HOW it actually
-> does it, because I simply don't care, as long as it just works.
-I used supermount, too - for a long long time...but it cost me a
-second to write a bash script with does supermount job's for eject.
-;-)
-> 
-> - Tronic -
-> 
-> 
->
--- 
-Mit freundlichen Grüßen
-Michael Thonke
-
-Best regards
-Michael thonke
+/mjt

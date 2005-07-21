@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVGUWsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVGUWv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbVGUWsg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 18:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVGUWsf
+	id S261946AbVGUWv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 18:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVGUWvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 18:48:35 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:15031 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261923AbVGUWqo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 18:46:44 -0400
-Subject: Re: CIFS slowness & crashes
-From: Steve French <smfltc@us.ibm.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Lasse =?ISO-8859-1?Q?K=E4rkk=E4inen?= / Tronic 
-	<tronic+lzID=lx43caky45@trn.iki.fi>,
-       linux-kernel@vger.kernel.org, Steve French <sfrench@samba.org>
-In-Reply-To: <9a87484905072115041cc576a4@mail.gmail.com>
-References: <42E01163.3090302@trn.iki.fi>
-	 <9a87484905072115041cc576a4@mail.gmail.com>
+	Thu, 21 Jul 2005 18:51:22 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:5000 "EHLO OTTLS.pngxnet.com")
+	by vger.kernel.org with ESMTP id S261932AbVGUWvS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 18:51:18 -0400
+Subject: Re: [PATCH] serverworks should not take ahold of megaraid'd
+	controllers
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       AJ Johnson <blujuice@us.ibm.com>
+In-Reply-To: <42E023B2.5030900@us.ibm.com>
+References: <42E023B2.5030900@us.ibm.com>
 Content-Type: text/plain
-Organization: IBM - Linux Technology Center
-Message-Id: <1121985800.26832.41.camel@stevef95.austin.ibm.com>
+Date: Thu, 21 Jul 2005 18:51:00 -0400
+Message-Id: <1121986260.3914.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 21 Jul 2005 17:43:20 -0500
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-07-21 at 15:37 -0700, Darrick J. Wong wrote:
+> Hi all,
+> 
+> I've noticed what might be a small bug with the serverworks driver in
+> 2.6.12.3.  The IBM HS20 blade has a ServerWorks CSB6 IDE controller with
+> an optional LSI MegaIDE RAID BIOS (BIOS assisted software raid, iow).
+> When this megaide BIOS is enabled on the HS20, the PCI
+> subvendor/subdevice IDs on the CSB6 are changed from the default
+> (ServerWorks) to IBM.  However, the serverworks driver doesn't notice
+> this and will attach to the controller anyway, thus allowing raw access
+> to the disks in the RAID.  An unsuspecting user can then read and write
+> whatever they want to the drive, which could very well degrade or
+> destroy the array, which is clearly not desirable behavior.
 
-> > 2. Occassionally the transmission speeds go extremely low for no
-> > apparent reason. While writing this, I am getting 0.39 Mo/s over a
-> > gigabit network.
+actually this is the RIGHT behavior.
+This way dmraid can address the raid format and make the thing work.
+Your patch will break it. That is a very bad idea.
 
-It would help to know whether you are doing mostly writing to or reading
-from the server.
+So this is a NAK on your patch.
 
-Forgot to mention that another thing that may help (besides the large
-number of improvements that already went into 2.6.12 already to
-drastically reduce the expensive large buffer usage, and the even newer
-experimental CIFS write code) are two configuration changes - either
-dropping the buffer size to relieve pressure on the slab (e.g. to just
-under 8K - perhaps 7800 bytes) or increasing the number of large buffers
-in the pool (they are insmod parms of cifs.ko - you can do modinfo on
-cifs.ko to see them) so fewer allocations are done.  This would only be
-needed if multiple processes were accessing the mount at one time.
 

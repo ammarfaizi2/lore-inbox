@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVGUPeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVGUPiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbVGUPeX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 11:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbVGUPb7
+	id S261791AbVGUPiY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 11:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbVGUPiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 11:31:59 -0400
-Received: from upco.es ([130.206.70.227]:15273 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261775AbVGUPaM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 11:30:12 -0400
-Date: Thu, 21 Jul 2005 17:30:18 +0200
-From: Romano Giannetti <romanol@upco.es>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: acpi-devel@lists.sourceforge.net
-Subject: try acpi -V & acpi -V & acpi -V (was Linux v2.6.13-rc3)
-Message-ID: <20050721153018.GA31835@pern.dea.icai.upco.es>
-Mail-Followup-To: Romano Giannetti <romanol@upco.es>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	acpi-devel@lists.sourceforge.net
-References: <F7DC2337C7631D4386A2DF6E8FB22B30041AC76D@hdsmsx401.amr.corp.intel.com> <200507211209.46039.rjw@sisk.pl>
+	Thu, 21 Jul 2005 11:38:23 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33773 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261791AbVGUPiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 11:38:21 -0400
+Date: Thu, 21 Jul 2005 17:38:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [PATCH] Workqueue freezer support.
+Message-ID: <20050721153824.GB1896@elf.ucw.cz>
+References: <1121923059.2936.224.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200507211209.46039.rjw@sisk.pl>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1121923059.2936.224.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm... switched today on my Vaio laptop to 2.6.13-rc3. Known 
-(see http://bugme.osdl.org/show_bug.cgi?id=4124) is still here. 
-A fact that could help, or not, chasing it down: when there are problems 
-with acpi events, it happens the following too: 
+Hi!
 
-# acpi -V & acpi -V & acpi -V 
-[2] 23884
-[3] 23885
-     Battery 1: charged, 0%
-     Thermal 1: ok, 73.0 degrees C
-  AC Adapter 1: on-line
-[2]  - 23884 done       acpi -V
-rukbat:~/tmp%
-     Battery 1: charged, 0%
-     Thermal 1: ok, 73.0 degrees C
-  AC Adapter 1: on-line
+> This patch implements freezer support for workqueues. The current
+> refrigerator implementation makes all workqueues NOFREEZE, regardless of
+> whether they need to be or not.
+> 
+> While this doesn't appear to have caused any problems with swsusp (ie
+> Pavel's version) to date, this is no guarantee for the future.
+> Furthermore, it seems better to me to treat kernel and userspace threads
+> consistently, and it also enables us to err on the side of caution by
+> default with new workqueues.
+> 
+> Queues can be made unfreezable via the new kthread_nonfreeze_run,
+> create_nofreeze_workqueue and create_nofreeze_singlethread_workqueue
+> calls, which take the same parameters as kthread_run, create_workqueue
+> and create_singlethread_workqueue respectively. Existing call syntax is
+> unchanged and the vast majority of current workqueue calls are therefore
+> unaffected.
+> 
+> As far as Suspend2 goes, I don't rate this as critical. May save your
+> hard disk partition one day, but that depends upon what workqueues get
+> implemented in the future, what out of tree ones do and whether I've
+> missed good rationale for having nofreeze on existing in tree instances.
+> If you must flame me, call me overly careful :>.
 
-[3]  + 23885 done       acpi -V
+> @@ -151,6 +158,20 @@ struct task_struct *kthread_create(int (
+>  
+>  	return create.result;
+>  }
+> +
+> +struct task_struct *kthread_create(int (*threadfn)(void *data),
+> +				   void *data,
+> +				   const char namefmt[], ...)
+> +{
+> +	char result[TASK_COMM_LEN];
+> +
+> +	va_list args;
+> +	va_start(args, namefmt);
+> +	vsnprintf(result, TASK_COMM_LEN, namefmt, args);
+> +	va_end(args);
+> +	return _kthread_create(threadfn, data, 0, result);
+> +}
+> +
 
-Battery 1: charging, 93%, 06:22:58 until charged
-     Thermal 1: ok, 73.0 degrees C
-  AC Adapter 1: on-line     
+This is slightly ugly and uses lot of stack. Otherwise patch looks
+okay. If you want me to apply it, be sure to put me into To: or at
+least Cc:. Or perhaps you want to just mail it to akpm, noting that I
+acked it (if you do something with the char result[] :-).
 
-
-It happens just sometime, bust repeating acpi -V & acpi -V in fast succession 
-it gives a 0% reading in few tries. Kernel is vanilla, no patch applied. 
-
-
-HTH,
-    Romano 
-  
+								Pavel
 -- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+teflon -- maybe it is a trademark, but it should not be.

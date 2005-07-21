@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVGUNxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVGUOL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbVGUNxo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 09:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbVGUNxn
+	id S261598AbVGUOL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 10:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVGUOL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 09:53:43 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:50588 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261786AbVGUNxn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 09:53:43 -0400
-Message-Id: <200507211353.j6LDrcNH003711@laptop11.inf.utfsm.cl>
-To: Jiri Slaby <lnx4us@gmail.com>
-cc: Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Obsolete files in 2.6 tree 
-In-Reply-To: Message from Jiri Slaby <lnx4us@gmail.com> 
-   of "Thu, 21 Jul 2005 11:47:32 +0200." <42DF6F34.4080804@gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 21 Jul 2005 09:53:38 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 21 Jul 2005 09:53:39 -0400 (CLT)
+	Thu, 21 Jul 2005 10:11:57 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:33295 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261598AbVGUOL4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 10:11:56 -0400
+Message-ID: <42DFAD1C.80004@stud.feec.vutbr.cz>
+Date: Thu, 21 Jul 2005 16:11:40 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [RFT] solve "swsusp plays yoyo" with disks
+References: <20050705172953.GA18748@elf.ucw.cz>
+In-Reply-To: <20050705172953.GA18748@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  tested this incoming email. See other headers to know if the email
+  has beed identified as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby <lnx4us@gmail.com> wrote:
-> Jiri Slaby napsal(a):
-> > Are these files obsolete and could be deleted from tree.
-> > Does anybody use them? Could anybody compile them?
+Pavel Machek wrote:
+> Hi!
 > 
-> New list should be:
+> I'd like to get this tested under as many configurations as
+> possible. With this, your hdd should no longer do "yoyo" (spindown,
+> spinup, spindown) during suspend...
 
-[...]
+It looks like the patch is now in -mm (I use 2.6.13-rc3-mm1).
+But my disks still yoyo during suspend. What more is needed? Some patch 
+to ide-disk.c ?
 
-> sound/oss/skeleton.c
-
-I think skeleton.* files are there as examples, not for real use. Sure,
-they should be checked that they are up to date and fixed as required.
-
-OSS is obsolete, so this could probably be axed when/if it finally is deleted.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Michal

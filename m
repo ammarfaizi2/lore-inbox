@@ -1,87 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVGUPWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVGUPZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbVGUPWo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 11:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVGUPWY
+	id S261840AbVGUPZG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 11:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVGUPZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 11:22:24 -0400
-Received: from amber.ccs.neu.edu ([129.10.116.51]:2544 "EHLO amber.ccs.neu.edu")
-	by vger.kernel.org with ESMTP id S261794AbVGUPVH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 11:21:07 -0400
-Date: Thu, 21 Jul 2005 11:21:05 -0400 (EDT)
-From: Jim Faulkner <jfaulkne@ccs.neu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: IDE Zip drive doesn't work under 2.6.12
-Message-ID: <Pine.GSO.4.58.0507211045180.28914@denali.ccs.neu.edu>
+	Thu, 21 Jul 2005 11:25:05 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:60434 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261840AbVGUPYz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 11:24:55 -0400
+Message-ID: <42DFBE3F.20602@stud.feec.vutbr.cz>
+Date: Thu, 21 Jul 2005 17:24:47 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@ucw.cz>
+CC: "Rafael J. Wysocki" <rjw@sisk.pl>, Andreas Steinmetz <ast@domdv.de>,
+       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: amd64-agp vs. swsusp
+References: <42DD67D9.60201@stud.feec.vutbr.cz> <42DD6AA7.40409@domdv.de> <42DD7011.6080201@stud.feec.vutbr.cz> <200507201115.08733.rjw@sisk.pl> <42DECB21.5020903@stud.feec.vutbr.cz> <20050721053126.GB5230@atrey.karlin.mff.cuni.cz> <42DF7C52.4020907@stud.feec.vutbr.cz> <20050721152053.GA21475@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20050721152053.GA21475@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  tested this incoming email. See other headers to know if the email
+  has beed identified as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
+>>I'm trying to do something similar for x86_64. See the attached patch.
+>>Unfortunately, it doesn't help. The behaviour seems unchanged (resume 
+>>still works iff amd64-agp wasn't loaded before suspend).
+> 
+> 
+> Are you sure problem is on level4_pgt? We probably use constant
+> level4_pgt but split pages at some deeper level. You may want try
+> saving 3rd-level table, instead.
 
-Recently I upgraded from 2.6.11.11 to 2.6.12.3.  This morning I tried
-using my Zip drive... unfortunately it doesn't work under 2.6.12.3.  To
-verify that this was a kernel problem, I rebooted to 2.6.11.11.  Here's
-some relevant output using 2.6.11.11:
+I'm not sure about that at all. That was just my attempt of cargocult 
+programming :-)
+OK, I'll try saving the 3rd-level table. It'll take me some time to 
+figure out how to do that, however :-)
 
-uname -a:
-Linux michelangelo 2.6.11.11 #2 SMP Fri Jun 3 21:02:33 EDT 2005 i686
-Intel(R) Xeon(TM) CPU 1700MHz GenuineIntel GNU/Linux
-
-parts of dmesg:
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:DMA
-hdd: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
-hdd: 98304kB, 196608 blocks, 512 sector size
-hdd: 98304kB, 96/64/32 CHS, 4096 kBps, 512 sector size, 2941 rpm
- hdd: hdd4
-
-michelangelo ~ # mount /dev/hdd4 /mnt/zip
-michelangelo ~ # df -h
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/md1               17G  3.7G   13G  23% /
-udev                  506M  2.6M  503M   1% /dev
-none                  506M     0  506M   0% /dev/shm
-/dev/hdd4              96M     0   96M   0% /mnt/zip
-
-And here's what happens under the 2.6.12 kernel:
-
-Linux michelangelo 2.6.12.3 #1 SMP Wed Jul 20 18:14:36 EDT 2005 i686
-Intel(R) Xeon(TM) CPU 1700MHz GenuineIntel GNU/Linux
-
- ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:DMA
-hdd: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
-hdd: 98304kB, 196608 blocks, 512 sector size
-hdd: 98304kB, 96/64/32 CHS, 4096 kBps, 512 sector size, 2941 rpm
-hdd: CHECK for good STATUS
- hdd: hdd4
-
-michelangelo ~ # mount /dev/hdd4 /mnt/zip
-mount: special device /dev/hdd4 does not exist
-michelangelo ~ #
-
-Every time I run that "mount" command under 2.6.12.3 I get that same error
-message, and each time this line shows up in my dmesg again:
- hdd: hdd4
-
-Something else weird happens when I run the "mount" command.  Right after
-running the command, /dev/hdd4 disappears for a few seconds, then
-re-appears:
-michelangelo ~ # ls -al /dev/hdd4
-brw-rw----  1 root root 22, 68 Jul 21 11:05 /dev/hdd4
-michelangelo ~ # mount /dev/hdd4 /mnt/zip
-mount: special device /dev/hdd4 does not exist
-michelangelo ~ # ls -al /dev/hdd4
-ls: /dev/hdd4: No such file or directory
-michelangelo ~ # ls -al /dev/hdd4
-ls: /dev/hdd4: No such file or directory
-michelangelo ~ # ls -al /dev/hdd4
-brw-rw----  1 root root 22, 68 Jul 21 11:06 /dev/hdd4
-michelangelo ~ #
-
-I'm using udev-058.  Should I be using a newer version of udev with
-2.6.12?  Or is this a kernel bug?  Please CC my e-mail address in any
-replies since I am not subscribed to this list.
-
-thanks,
-Jim Faulkner
+Michal

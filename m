@@ -1,104 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVGUWhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVGUWjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbVGUWhy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 18:37:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVGUWhv
+	id S261915AbVGUWjD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 18:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVGUWjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 18:37:51 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:57745 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261910AbVGUWhp (ORCPT
+	Thu, 21 Jul 2005 18:39:02 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:19607 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261915AbVGUWie (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 18:37:45 -0400
-Message-ID: <42E023B2.5030900@us.ibm.com>
-Date: Thu, 21 Jul 2005 15:37:38 -0700
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-CC: AJ Johnson <blujuice@us.ibm.com>
-Subject: [PATCH] serverworks should not take ahold of megaraid'd controllers
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig9D4648A981B3A7BA646483D0"
+	Thu, 21 Jul 2005 18:38:34 -0400
+Subject: Re: CIFS slowness & crashes
+From: Steve French <smfltc@us.ibm.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Lasse =?ISO-8859-1?Q?K=E4rkk=E4inen?= / Tronic 
+	<tronic+lzID=lx43caky45@trn.iki.fi>,
+       linux-kernel@vger.kernel.org, linux-cifs-client@lists.samba.org
+In-Reply-To: <9a87484905072115041cc576a4@mail.gmail.com>
+References: <42E01163.3090302@trn.iki.fi>
+	 <9a87484905072115041cc576a4@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: IBM - Linux Technology Center
+Message-Id: <1121985312.26833.28.camel@stevef95.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 21 Jul 2005 17:35:12 -0500
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig9D4648A981B3A7BA646483D0
-Content-Type: multipart/mixed;
- boundary="------------020904050004010507030005"
+On Thu, 2005-07-21 at 17:04, Jesper Juhl wrote:
+> On 7/21/05, Lasse Kärkkäinen / Tronic <tronic+lzID=lx43caky45@trn.iki.fi> wrote:
+> > I mailed sfrench@samba.org (the guy who wrote the driver) about this a
+> > month ago, but didn't get any reply. Is anyone working on that driver
+> > anymore?
+> > 
+> As far as I know Steve is still maintaining cifs. If you wrote him and
+> didn't get a response, then try again after a while (you might have
+> included him on CC for this mail) - maintainers don't always have time
+> to answer all mail in a timely fashion (or at all), and it's your
+> responsability to resend - that's not news.
 
-This is a multi-part message in MIME format.
---------------020904050004010507030005
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+CIFS is still being actively improved/maintained.  I was out on vacation
+for over a week.  It might have gotten missed in the flood of email I
+had to catch up on.  I am still maintaining cifs and evaluating patches
+from others as well.  As you can see from the web git page, changesets
+are still being added.  You can see the list of CIFS changesets (most
+recent first) by the query:
+	http://www.kernel.org/git/?p=linux%2Fkernel%2Fgit%2Fsfrench%2Fcifs-2.6.git&a=search&s=CIFS
 
-Hi all,
+> You could also have written to the samba-technical@lists.samba.org
+> mailinglist (or copied it - it's listed in MAINTAINERS under "COMMON
+> INTERNET FILE SYSTEM (CIFS)").
+> 
+> [adding Stephen French to CC]
+> 
+> Personally I'd probably have send the mail
+>  To: Steve French <sfrench@samba.org>
+>  Cc: samba-technical@lists.samba.org
+>  Cc: linux-kernel@vger.kernel.org
 
-I've noticed what might be a small bug with the serverworks driver in
-2.6.12.3.  The IBM HS20 blade has a ServerWorks CSB6 IDE controller with
-an optional LSI MegaIDE RAID BIOS (BIOS assisted software raid, iow).
-When this megaide BIOS is enabled on the HS20, the PCI
-subvendor/subdevice IDs on the CSB6 are changed from the default
-(ServerWorks) to IBM.  However, the serverworks driver doesn't notice
-this and will attach to the controller anyway, thus allowing raw access
-to the disks in the RAID.  An unsuspecting user can then read and write
-whatever they want to the drive, which could very well degrade or
-destroy the array, which is clearly not desirable behavior.
+Yes.  CCing those lists is recommended.  The best list to send to is and
+which I and others in this area monitor regularly though is
+linux-cifs-client@lists.samba.org
 
-The attached patch against 2.6.12.3 makes the serverworks driver ignore
-a megaraided CSB6.  If desired, I can respin this patch with a debugging
-knob to force the serverworks driver to use the old behavior.  This
-patch has been tested on the HS20 mentioned above, and I haven't seen
-any problems with it.
+> > not possible to umount with either smbumount (hangs) 
+smbumount can not be called on cifs vfs mounts (it is for the older
+smbfs).  Although there is a somewhat similar umount.cifs utility
+(umount.cifs.c in the samba 3 source) it will be obsolete when 
+more general user umounting (of their own mounts) is permitted
+in the kernel vfs itself.
 
-Please let me know what you think of this patch; I'm not cc'd on lkml or
-linux-ide.
+> nor umount -f
+> > (prints errors but doesn't umount anything). 
 
---Darrick
+What are the errors?  What is the version of cifs.ko module?
 
---------------020904050004010507030005
-Content-Type: text/x-patch;
- name="megaraid_svwks_blacklist-2.6.12.3-2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="megaraid_svwks_blacklist-2.6.12.3-2.patch"
+> It won't recover without
+> > reboot, even if the server becomes back online.
+> > 
+> > This problem has been around as long as I have used SMBFS or CIFS. There
+> > has only been slight variation from one version to another. Sometimes it
+> > is possible to umount them (after some pretty long timeout), sometimes
+> > it is not. It seems as if the problem was being fixed, but none of the
+> > fixes really worked.
 
-diff -Naur linux-2.6.12.3_0/drivers/ide/pci/serverworks.c linux-2.6.12.3_1/drivers/ide/pci/serverworks.c
---- linux-2.6.12.3_0/drivers/ide/pci/serverworks.c	2005-07-15 14:18:57.000000000 -0700
-+++ linux-2.6.12.3_1/drivers/ide/pci/serverworks.c	2005-07-21 13:02:54.469552989 -0700
-@@ -645,6 +647,15 @@
- {
- 	ide_pci_device_t *d = &serverworks_chipsets[id->driver_data];
- 
-+	/* Refuse to acknowledge CSB6 in MegaRAID mode on IBM HS20/40 blade. */
-+	if (	dev->subsystem_vendor == PCI_VENDOR_ID_IBM &&
-+		dev->subsystem_device == PCI_DEVICE_ID_SERVERWORKS_CSB6IDE)
-+	{
-+		printk(KERN_INFO "svwks: MegaRAID detected; ignoring.\n");
-+		return -ENODEV;
-+	}
-+
-+
- 	return d->init_setup(dev, d);
- }
- 
+My tests of reconnection after server crash or network reconnection with
+smbfs works (for the past year or two) and also of course for cifs. 
+cifs also reconnects state (open files) not just the connection to
+\\server\share
 
---------------020904050004010507030005--
 
---------------enig9D4648A981B3A7BA646483D0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+> > 
+> > 2. Occassionally the transmission speeds go extremely low for no
+> > apparent reason. While writing this, I am getting 0.39 Mo/s over a
+> > gigabit network.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+My informal tests (cifs->samba) showed a maximum of about 20%
+utilization of gigabit doing large file writes and about double that for
+large file reads with a single cifs client to Samba over gigabit. Should
+be somewhat simalar to Windows server.
 
-iD8DBQFC4CO3a6vRYYgWQuURAty/AJ959wv2qob8arVEEOiYK/o/7SI/BwCfZ02j
-y736393c853mf42E6l92lEY=
-=nvtN
------END PGP SIGNATURE-----
+The most common cause of widely varying speeds are the following:
+1) memory fragmentation - some versions of the kernel badly fragment
+slab allocations greater than 4 pages (cifs by default allocates 16.5K
+buffers - which results in larger size allocations when more than 5
+processes are accessing the mount and the cifs buffer pool is exceeded)
+2) write behind due to oplock - smbfs does not do oplock, cifs does -
+which means that cifs client caching can cause a large amount of
+writebehind data to accumulate (with great performance for a while) -
+then when memory gets tight due to the inode caching in linux's mm
+layer, the cifs client is asked to write out a large amount of file data
+at one time (which it does synchronously). 
 
---------------enig9D4648A981B3A7BA646483D0--
+Both of these are being improved.  You can bypass the inode caching on
+the client by using the cifs mount option
+	"forcedirectio"
+
+
+>  Using FTP to read the same file gives 40 Mo/s,
+Similarly NFS was somewhat better than that (as long as the file was in
+memory already on the server).
+
+
+

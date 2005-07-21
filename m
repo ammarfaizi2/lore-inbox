@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVGUHfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVGUHvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261671AbVGUHfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 03:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVGUHfJ
+	id S261675AbVGUHvC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 03:51:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVGUHvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 03:35:09 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:6052 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261671AbVGUHfH convert rfc822-to-8bit
+	Thu, 21 Jul 2005 03:51:01 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:64901 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S261675AbVGUHu7 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 03:35:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IUqdBPQSVm6cmPYmyd9skPaPpuWSYhNJZluMiRzFlcgnfbOl5Q9H67dNqxc7eRiIh/yyn0UM6OtV11RiCh9Bqa+8q3nzkAbBYKC+HA+3wZ8j7vppG56K0vwRncktShYgglOObh9jvBRtU8Uf7SAJDRIbPS/v7RtpXdydCNAFDeU=
-Message-ID: <4ae3c1405072100343fb2e5cf@mail.gmail.com>
-Date: Thu, 21 Jul 2005 03:34:34 -0400
-From: Xin Zhao <uszhaoxin@gmail.com>
-Reply-To: Xin Zhao <uszhaoxin@gmail.com>
+	Thu, 21 Jul 2005 03:50:59 -0400
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+Content-class: urn:content-classes:message
+Subject: Multi-threaded IO performance regression on 2.6 kernel?
+Date: Thu, 21 Jul 2005 15:48:18 +0800
+MIME-Version: 1.0
+Message-ID: <1784BBD8D1F15B4C9FB0F09F0A939F9001A3E463@SZEXMTA4.amd.com>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Multi-threaded IO performance regression on 2.6 kernel?
+Thread-Index: AcWNyLTu2sPCSz1JQFSdT6zj0Y739g==
+From: "Xie, Bill" <bill.xie@amd.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Where can I find the RPC FSM document?
-In-Reply-To: <4ae3c140507202221e66bec9@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4ae3c140507202221e66bec9@mail.gmail.com>
+X-OriginalArrivalTime: 21 Jul 2005 07:50:45.0090 (UTC)
+ FILETIME=[E68CF420:01C58DC8]
+X-WSS-ID: 6EC18C572CC3912044-01-01
+Content-Type: text/plain;
+ charset=gb2312
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK. I already read the codes.  But an official document is always welcome. :)
+All,
 
+I am testing the multi-threaded IO performance on Opteron servers. 
 
-On 7/21/05, Xin Zhao <uszhaoxin@gmail.com> wrote:
-> I'd like to learn some details of how RPC's FSM works (e.g. the
-> changing graph of all states). I know one possibility is to read the
-> source code, but it is a little time consuming.
-> 
-> Can someone kindly direct me to some documents about the rpc
-> implementatino? Thanks  in advance!
-> 
-> -x
->
+I use dd as the test tools. The single dd can reach 60MBps for single disk.
+
+on 2.6.5 kernel, If dd numbers exceed the CPU numbers, vmstat bi reduced to 20MBps.
+
+on 2.4.21 kernel, multi-threaded IO performance works fine, even I run 40 dd command at same time.
+
+Does anybody experienced similar issue also?
+
+Best Regards
+Bill Xie
+

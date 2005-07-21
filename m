@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVGUJ6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVGUKJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVGUJ6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 05:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVGUJ6Q
+	id S261719AbVGUKJu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 06:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVGUKJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 05:58:16 -0400
-Received: from mailhub3.nextra.sk ([195.168.1.146]:45585 "EHLO
-	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S261734AbVGUJ6P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 05:58:15 -0400
-Message-ID: <42DF71B3.5030705@rainbow-software.org>
-Date: Thu, 21 Jul 2005 11:58:11 +0200
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.5 (X11/20050711)
-X-Accept-Language: en-us, en
+	Thu, 21 Jul 2005 06:09:50 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:18664 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261719AbVGUKJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 06:09:49 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Brown, Len" <len.brown@intel.com>
+Subject: Re: Linux v2.6.13-rc3
+Date: Thu, 21 Jul 2005 12:09:45 +0200
+User-Agent: KMail/1.8.1
+Cc: "Linus Torvalds" <torvalds@osdl.org>, acpi-devel@lists.sourceforge.net,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Li, Shaohua" <shaohua.li@intel.com>,
+       "Yu, Luming" <luming.yu@intel.com>, "Greg KH" <greg@kroah.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30041AC76D@hdsmsx401.amr.corp.intel.com>
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30041AC76D@hdsmsx401.amr.corp.intel.com>
 MIME-Version: 1.0
-To: Jiri Slaby <lnx4us@gmail.com>
-CC: Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Obsolete files in 2.6 tree
-References: <42DED9F3.4040300@gmail.com> <42DF6F34.4080804@gmail.com>
-In-Reply-To: <42DF6F34.4080804@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507211209.46039.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> drivers/scsi/NCR5380.c
-> drivers/scsi/NCR5380.h
+Hi,
 
-These files are used by many older SCSI drivers:
+On Thursday, 21 of July 2005 07:30, Brown, Len wrote:
+> >Len, ACPI people - can we fix this regression, please?
+> >
+> >Rafael even pinpoints exactly which patches are causing the 
+> >problem, so why didn't they get reverted before sending them off to me?
+> 
+> Linus,
+> I'm sorry it was in '-rc3' -- that is as soon as I could
+> muster the bk->git transition.  Now that I'm running on git,
+> I expect I'll be able to get the development/testing/push
+> pipeline moving and back on schedule.
+> 
+> Yes, we discovered both of these regressions in mm.
+> Yes, Rafael has been a sport in filing good bug reports,
+> and his Asus L5D has been an interesting case.
+> 
+> Although we broke this system, I do believe that there is
+> significant value in keeping these changes in the mainline,
+> as I believe that it is the fastest path to improved support
+> for all systems.  Specifically...
 
-rainbow@pentium:/usr/src/linux/drivers/scsi$ grep -l NCR5380\[.\]\[ch\] *
-Kconfig
-NCR5380.c
-NCR5380.h
-atari_scsi.c
-dmx3191d.c
-dtc.c
-g_NCR5380.c
-g_NCR5380.h
-g_NCR5380.ko
-g_NCR5380.o
-g_NCR5380_mmio.c
-mac_scsi.c
-mac_scsi.h
-pas16.c
-sun3_NCR5380.c
-sun3_scsi.c
-sun3_scsi.h
-sun3_scsi_vme.c
-t128.c
-t128.h
+In short: If the changes are generally needed, I can live with them
+(as long as I know what patches to revert :-)).
+
+Still it would be nice to let people know what to do if they have problems with
+these changes.  Many people don't run -rc kernels and even more people
+don't run -mm, so they have no idea that there are known regressions  ...
+
+Greets,
+Rafael
+
 
 -- 
-Ondrej Zary
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

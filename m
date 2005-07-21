@@ -1,141 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVGUDcw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVGUDjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVGUDcw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Jul 2005 23:32:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVGUDcw
+	id S261192AbVGUDjN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Jul 2005 23:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVGUDjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Jul 2005 23:32:52 -0400
-Received: from [216.208.38.107] ([216.208.38.107]:24716 "EHLO
-	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S261600AbVGUDcv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Jul 2005 23:32:51 -0400
-Date: Thu, 21 Jul 2005 00:29:49 +0200
-From: Jens Axboe <axboe@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, dmo@osdl.org
-Subject: [PATCH] kill bio->bi_set
-Message-ID: <20050720222949.GE2548@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Wed, 20 Jul 2005 23:39:13 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:29577 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S261192AbVGUDjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Jul 2005 23:39:11 -0400
+Message-ID: <42DF18CD.6000003@m1k.net>
+Date: Wed, 20 Jul 2005 23:38:53 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Johannes Stezenbach <js@linuxtv.org>, Graeme Christie <graeme@sx.net.au>,
+       Linux and Kernel Video <video4linux-list@redhat.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Mauro Carvalho Chehab <mchehab@brturbo.com.br>, manu@kromtek.com,
+       Gerd Knorr <kraxel@bytesex.org>
+Subject: [2.6.13 PATCH] v4l: fix regression modprobe bttv freezes the computer
+References: <42DC902E.9030009@sx.net.au> <42DCEE30.2020909@m1k.net> <20050719145804.GA19766@linuxtv.org>
+In-Reply-To: <20050719145804.GA19766@linuxtv.org>
+Content-Type: multipart/mixed;
+ boundary="------------010309050105090904000906"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------010309050105090904000906
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Dunno why I didn't notice before, but ->bi_set is totally unnecessary
-bloat of struct bio. Just define a proper destructor for the bio and it
-already knows what bio_set it belongs too.
+Johannes Stezenbach wrote:
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
+>>Graeme Christie wrote:
+>>
+>>>It seems to me as if this bug has resurfaced again.
+>>>
+>It probably got lost because it was
+>applied to the kernel which v4l was maintainer- and CVS-less.
+>http://groups-beta.google.com/group/linux.kernel/msg/6a27dd3dc46a5b5b?dmode=source&hl=en
+>
+>It would be cool if you could apply this patch to v4l CVS and
+>send it to akpm for inclusion into 2.6.13 (hopefully), as
+>the "hang at boot" issue is quite nasty.
+>
+Fix Bug 4395: modprobe bttv freezes the computer
 
-diff --git a/drivers/md/dm-io.c b/drivers/md/dm-io.c
---- a/drivers/md/dm-io.c
-+++ b/drivers/md/dm-io.c
-@@ -239,6 +239,11 @@ static void vm_dp_init(struct dpages *dp
- 	dp->context_ptr = data;
- }
- 
-+static void dm_bio_destructor(struct bio *bio)
-+{
-+	bio_free(bio, _bios);
-+}
-+
- /*-----------------------------------------------------------------
-  * IO routines that accept a list of pages.
-  *---------------------------------------------------------------*/
-@@ -263,6 +268,7 @@ static void do_region(int rw, unsigned i
- 		bio->bi_bdev = where->bdev;
- 		bio->bi_end_io = endio;
- 		bio->bi_private = io;
-+		bio->bi_destructor = dm_bio_destructor;
- 		bio_set_region(bio, region);
- 
- 		/*
-diff --git a/fs/bio.c b/fs/bio.c
---- a/fs/bio.c
-+++ b/fs/bio.c
-@@ -104,18 +104,22 @@ static inline struct bio_vec *bvec_alloc
- 	return bvl;
- }
- 
--/*
-- * default destructor for a bio allocated with bio_alloc_bioset()
-- */
--static void bio_destructor(struct bio *bio)
-+void bio_free(struct bio *bio, struct bio_set *bio_set)
- {
- 	const int pool_idx = BIO_POOL_IDX(bio);
--	struct bio_set *bs = bio->bi_set;
- 
- 	BIO_BUG_ON(pool_idx >= BIOVEC_NR_POOLS);
- 
--	mempool_free(bio->bi_io_vec, bs->bvec_pools[pool_idx]);
--	mempool_free(bio, bs->bio_pool);
-+	mempool_free(bio->bi_io_vec, fs_bio_set->bvec_pools[pool_idx]);
-+	mempool_free(bio, fs_bio_set->bio_pool);
-+}
-+
-+/*
-+ * default destructor for a bio allocated with bio_alloc_bioset()
-+ */
-+static void bio_fs_destructor(struct bio *bio)
-+{
-+	bio_free(bio, fs_bio_set);
- }
- 
- inline void bio_init(struct bio *bio)
-@@ -171,8 +175,6 @@ struct bio *bio_alloc_bioset(unsigned in
- 			bio->bi_max_vecs = bvec_slabs[idx].nr_vecs;
- 		}
- 		bio->bi_io_vec = bvl;
--		bio->bi_destructor = bio_destructor;
--		bio->bi_set = bs;
- 	}
- out:
- 	return bio;
-@@ -180,7 +182,12 @@ out:
- 
- struct bio *bio_alloc(unsigned int __nocast gfp_mask, int nr_iovecs)
- {
--	return bio_alloc_bioset(gfp_mask, nr_iovecs, fs_bio_set);
-+	struct bio *bio = bio_alloc_bioset(gfp_mask, nr_iovecs, fs_bio_set);
-+
-+	if (bio)
-+		bio->bi_destructor = bio_fs_destructor;
-+
-+	return bio;
- }
- 
- void zero_fill_bio(struct bio *bio)
-@@ -1078,6 +1085,7 @@ subsys_initcall(init_bio);
- 
- EXPORT_SYMBOL(bio_alloc);
- EXPORT_SYMBOL(bio_put);
-+EXPORT_SYMBOL(bio_free);
- EXPORT_SYMBOL(bio_endio);
- EXPORT_SYMBOL(bio_init);
- EXPORT_SYMBOL(__bio_clone);
-diff --git a/include/linux/bio.h b/include/linux/bio.h
---- a/include/linux/bio.h
-+++ b/include/linux/bio.h
-@@ -111,7 +111,6 @@ struct bio {
- 	void			*bi_private;
- 
- 	bio_destructor_t	*bi_destructor;	/* destructor */
--	struct bio_set		*bi_set;	/* memory pools set */
- };
- 
+http://bugme.osdl.org/show_bug.cgi?id=4395. (link is dead now)
+Date: Wed, 13 Apr 2005 03:20:08
+Patch by Manu Abraham and Gerd Knorr:
+
+
+--------------010309050105090904000906
+Content-Type: text/plain;
+ name="fix-regression-modprobe-bttv-freezes-the-computer.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-regression-modprobe-bttv-freezes-the-computer.patch"
+
+Remove redundant bttv_reset_audio() which caused the computer to
+freeze with some bt8xx based DVB cards when loading the bttv driver.
+
+Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+ linux/drivers/media/video/bttv-cards.c |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
+
+diff -u linux-2.6.13-rc3-git3/drivers/media/video/bttv-cards.c linux/drivers/media/video/bttv-cards.c
+--- linux-2.6.13-rc3-git3/drivers/media/video/bttv-cards.c	2005-07-16 15:25:34.000000000 +0000
++++ linux/drivers/media/video/bttv-cards.c	2005-07-20 22:00:26.000000000 +0000
+@@ -1,5 +1,5 @@
  /*
-@@ -280,6 +279,7 @@ extern void bioset_free(struct bio_set *
- extern struct bio *bio_alloc(unsigned int __nocast, int);
- extern struct bio *bio_alloc_bioset(unsigned int __nocast, int, struct bio_set *);
- extern void bio_put(struct bio *);
-+extern void bio_free(struct bio *, struct bio_set *);
+-    $Id: bttv-cards.c,v 1.53 2005/07/05 17:37:35 nsh Exp $
++    $Id: bttv-cards.c,v 1.54 2005/07/19 18:26:46 mkrufky Exp $
  
- extern void bio_endio(struct bio *, unsigned int, int);
- struct request_queue;
+     bttv-cards.c
+ 
+@@ -2772,8 +2772,6 @@
+         }
+ 	btv->pll.pll_current = -1;
+ 
+-	bttv_reset_audio(btv);
+-
+ 	/* tuner configuration (from card list / autodetect / insmod option) */
+  	if (UNSET != bttv_tvcards[btv->c.type].tuner_type)
+ 		if(UNSET == btv->tuner_type)
 
--- 
-Jens Axboe
-
+--------------010309050105090904000906--

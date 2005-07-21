@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVGUNPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVGUNi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbVGUNPc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 09:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVGUNPc
+	id S261776AbVGUNi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 09:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVGUNi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 09:15:32 -0400
-Received: from mail.timesys.com ([65.117.135.102]:41282 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S261667AbVGUNPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 09:15:30 -0400
-Message-ID: <42DF9F8C.7010503@timesys.com>
-Date: Thu, 21 Jul 2005 09:13:48 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Thu, 21 Jul 2005 09:38:57 -0400
+Received: from leyde.iplannetworks.net ([200.69.193.99]:52419 "EHLO
+	proxy3.iplannetworks.net") by vger.kernel.org with ESMTP
+	id S261776AbVGUNi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 09:38:57 -0400
+Message-ID: <42DFA5E6.1080302@latinsourcetech.com>
+Date: Thu, 21 Jul 2005 10:40:54 -0300
+From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@latinsourcetech.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Gene Heskett <gene.heskett@verizon.net>
-CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: 2.6.12 PREEMPT_RT && PPC
-References: <200507200816.11386.kernel@kolivas.org> <1121822524.26927.85.camel@dhcp153.mvista.com> <42DF293A.4050702@timesys.com> <200507210745.57120.gene.heskett@verizon.net>
-In-Reply-To: <200507210745.57120.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Neil Horman <nhorman@redhat.com>
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Memory Management
+References: <42DF9646.5070806@latinsourcetech.com> <20050721131132.GB11327@hmsendeavour.rdu.redhat.com>
+In-Reply-To: <20050721131132.GB11327@hmsendeavour.rdu.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Jul 2005 13:06:19.0765 (UTC) FILETIME=[FC7F1250:01C58DF4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
 
-> Humm, I wondering out loud if this is the video dma failure in tvtime?
-> Anyway, it applied cleanly over -33, and is building now, set for 
-> mode=4.
+>http://people.redhat.com/nhorman/papers/rhel3_vm.pdf
+>I wrote this with norm awhile back.  It may help you out.
+>Regards
+>Neil
+>  
+>
+Neil,
 
-On i386 the hw_irq_controller.end() handler
-conditionally calls the function registered
-for the hw_irq_controller.enable() handler
-[enable_8259A_irq()] which I'd hazard is
-how the missing hw_irq_controller.end() call
-went unnoticed.  ie: for the i386 the end()
-call was effectively redundant w/r/t the
-enable() call.
+   Thanks.~10-12GB of total RAM (16GB) are
 
-However for PPC there is some specific
-unfinished business to be done at the logical
-conclusion of IRQ reception which is
-accomplished by the registered end() hook.
+   How can Proc virtual memory parameters like inactive_clean_percent, 
+overcommit_memory, overcommit_ratio and page_cache help me to solve / 
+reduce Out Of Memory conditions on servers with 16GB RAM and lots of GB 
+swap?
 
--john
+   Kernel does not free cached memory (~10-12GB of total RAM - 16GB). Is 
+there some way to force the kernel to free cached memory?
+
+/proc/meminfo:
+
+              total:    used:    free:  shared: buffers:  cached:
+Mem:    16603488256 16523333632 80154624        0 70651904 13194563584
+Swap:   17174257664 11771904 17162485760
+MemTotal:     16214344 kB
+MemFree:         78276 kB
+Buffers:         68996 kB
+Cached:       12874808 kB
+
+Thanks to all.
+
+Marcio.
 
 
--- 
-john.cooper@timesys.com

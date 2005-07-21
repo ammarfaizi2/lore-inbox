@@ -1,84 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVGUUOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVGUUbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbVGUUOF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 16:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVGUUOA
+	id S261835AbVGUUbD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 16:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVGUUbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 16:14:00 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:47811 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261868AbVGUUMT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 16:12:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l6Bzdwltlv55mWgSQ6s1Y+WaeFnS4knJyHfP/FfqrU9s4gsQ7nSEGKaAGOvVG1LjiP/oeA3PFFmKFDw+jtQqO7HTvCmSzoHa/+8MXMGeGuBph+gvMbH8oML1xpeDm7e7aZTXwvihz8EzDxhjlNbuDBCwejjS1Th2nSq6cOiOzC4=
-Message-ID: <9a874849050721131145f5c711@mail.gmail.com>
-Date: Thu, 21 Jul 2005 22:11:37 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: kernel guide to space
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Paul Jackson <pj@sgi.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux@horizon.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0507211528250.12675@chaos.analogic.com>
+	Thu, 21 Jul 2005 16:31:03 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:17816 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261835AbVGUUbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 16:31:02 -0400
+Date: Thu, 21 Jul 2005 13:30:58 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: njw@osdl.org
+Subject: [announce] 'patchview' ver. 003
+Message-Id: <20050721133058.791773b8.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050714011208.22598.qmail@science.horizon.com>
-	 <FD559B50-FB1E-4478-ACF4-70E4DB7A0176@mac.com>
-	 <Pine.LNX.4.61.0507200715290.9066@yvahk01.tjqt.qr>
-	 <20050720174521.73c06bce.pj@sgi.com>
-	 <3FC51285-941F-48B6-B5A9-1BBE95CCD816@mac.com>
-	 <9a874849050721114227f3c6a7@mail.gmail.com>
-	 <Pine.LNX.4.61.0507211528250.12675@chaos.analogic.com>
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/21/05, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
-> 
-> On Thu, 21 Jul 2005, Jesper Juhl wrote:
-> 
-> > On 7/21/05, Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> >> On Jul 20, 2005, at 20:45:21, Paul Jackson wrote:
-> > [...snip...]
-> >> *cough* TargetStatistics[TargetID].HostAdapterResetsCompleted *cough*
-> >>
-> >> I suspect linus would be willing to accept a few cleanup patches for the
-> >> BusLogic.c file.  Perhaps even one that renames BusLogic.c to buslogic.c
-> >> like all the other files in the source tree, instead of using nasty
-> >> StudlyCaps all over :-D
-> >>
-> >
-> > To avoid people doing duplicate work, I just want to say that I've
-> > started doing a CodingStyle/whitespace/VariableAndFunctionNaming
-> > cleanup of the BusLogic driver, I'll send the patches to LKML in a few
-> > hours.
-> >
-> Are you going to get rid of the BusLogic* in front of every variable
-> and function name? (yes please??)
-Yes, I am.  
 
->  If so, you will need a few days!
+Hi,
 
-That may be, it sure turned into a bigger job than I had at first
-expected. I'll break it into a few logical bits and submit them along
-the way. First bits in a few hours - let's see how far I get :)
+[version 003]
+
+'patchview' merges a patch file and a source tree to a set of
+temporary modified files.  This enables better patch (re)viewing
+and more viewable context.  (hopefully)
 
 
-> It will take probably an hour to parse:
-> struct BusLogic_FetchHostAdapterLocalRAMReguest 
+The patchview script is here:
+  http://www.xenotime.net/linux/scripts/patchview
 
-Yeah, it takes time, but I'll get it done.
 
-> 
-> Thank you.
-> 
-np.
+usage: patchview [-f] patchfile srctree {ver. 003}
+  -f : force tkdiff even if 'patch' has errors
+  -s : single tkdiff even if patchfile contains multiple files
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+It uses (requires) lsdiff (from patchutils) and tkdiff.
+
+patchutils:  http://cyberelk.net/tim/patchutils/
+tkdiff:      http://sourceforge.net/projects/tkdiff/
+
+---
+~Randy
+
+
+Changes for ver. 003:
+- handle patch making empty .orig files (for new files)
+  with permission of 000

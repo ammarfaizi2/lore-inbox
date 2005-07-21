@@ -1,69 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVGUKJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVGUKV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbVGUKJu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 06:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVGUKJu
+	id S261738AbVGUKV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 06:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVGUKV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 06:09:50 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:18664 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261719AbVGUKJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 06:09:49 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: "Brown, Len" <len.brown@intel.com>
-Subject: Re: Linux v2.6.13-rc3
-Date: Thu, 21 Jul 2005 12:09:45 +0200
-User-Agent: KMail/1.8.1
-Cc: "Linus Torvalds" <torvalds@osdl.org>, acpi-devel@lists.sourceforge.net,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Li, Shaohua" <shaohua.li@intel.com>,
-       "Yu, Luming" <luming.yu@intel.com>, "Greg KH" <greg@kroah.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30041AC76D@hdsmsx401.amr.corp.intel.com>
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30041AC76D@hdsmsx401.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507211209.46039.rjw@sisk.pl>
+	Thu, 21 Jul 2005 06:21:27 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:38823 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261738AbVGUKV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 06:21:26 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] v850: Add pte_file
+Cc: linux-kernel@vger.kernel.org
+From: Miles Bader <miles@gnu.org>
+Message-Id: <20050721102121.CD5324BC@mctpc71>
+Date: Thu, 21 Jul 2005 19:21:21 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Signed-off-by: Miles Bader <miles@gnu.org>
 
-On Thursday, 21 of July 2005 07:30, Brown, Len wrote:
-> >Len, ACPI people - can we fix this regression, please?
-> >
-> >Rafael even pinpoints exactly which patches are causing the 
-> >problem, so why didn't they get reverted before sending them off to me?
-> 
-> Linus,
-> I'm sorry it was in '-rc3' -- that is as soon as I could
-> muster the bk->git transition.  Now that I'm running on git,
-> I expect I'll be able to get the development/testing/push
-> pipeline moving and back on schedule.
-> 
-> Yes, we discovered both of these regressions in mm.
-> Yes, Rafael has been a sport in filing good bug reports,
-> and his Asus L5D has been an interesting case.
-> 
-> Although we broke this system, I do believe that there is
-> significant value in keeping these changes in the mainline,
-> as I believe that it is the fastest path to improved support
-> for all systems.  Specifically...
+ include/asm-v850/pgtable.h |    2 ++
+ 1 files changed, 2 insertions(+)
 
-In short: If the changes are generally needed, I can live with them
-(as long as I know what patches to revert :-)).
-
-Still it would be nice to let people know what to do if they have problems with
-these changes.  Many people don't run -rc kernels and even more people
-don't run -mm, so they have no idea that there are known regressions  ...
-
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+diff -ruN -X../cludes linux-2.6.12-uc0/include/asm-v850/pgtable.h linux-2.6.12-uc0-v850-20050721/include/asm-v850/pgtable.h
+--- linux-2.6.12-uc0/include/asm-v850/pgtable.h	2005-03-04 11:34:09.605536000 +0900
++++ linux-2.6.12-uc0-v850-20050721/include/asm-v850/pgtable.h	2005-07-21 16:23:19.930669000 +0900
+@@ -23,6 +23,8 @@
+ #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
+ #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
+ 
++static inline int pte_file (pte_t pte) { return 0; }
++
+ 
+ /* These mean nothing to !CONFIG_MMU.  */
+ #define PAGE_NONE		__pgprot(0)

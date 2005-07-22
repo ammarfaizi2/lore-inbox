@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbVGVQUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVGVQZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbVGVQUG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 12:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVGVQUG
+	id S261312AbVGVQZo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 12:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVGVQZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 12:20:06 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:39679 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S262111AbVGVQTe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 12:19:34 -0400
-Date: Fri, 22 Jul 2005 11:19:28 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
-       Thomas.Downing@ipc.com
-Subject: [PATCH] ppc32: Fix building of PQ2FADS with PCI enabled
-Message-ID: <Pine.LNX.4.61.0507221118440.25550@nylon.am.freescale.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Jul 2005 12:25:44 -0400
+Received: from quechua.inka.de ([193.197.184.2]:43451 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261312AbVGVQZm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 12:25:42 -0400
+Date: Fri, 22 Jul 2005 18:25:39 +0200
+From: Bernd Eckenfels <be-mail2005@lina.inka.de>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: a 15 GB file on tmpfs
+Message-ID: <20050722162539.GA25577@lina.inka.de>
+References: <E1Dvusr-00048r-00@calista.eckenfels.6bone.ka-ip.net> <42E0D1C2.8080703@stesmi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42E0D1C2.8080703@stesmi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compilation fails for arch/ppc/syslib/m82xx_pci.c in version
-2.6.12.3 when CONFIG_PQ2FADS=y.  The following patch fixes the
-problems, which are just typographical.
+On Fri, Jul 22, 2005 at 01:00:18PM +0200, Stefan Smietanowski wrote:
+> > You cant have 16GB of Memory with 32bit CPUs.
+> PAE
+> CONFIG_HIGMEM64G
+> Supports a 36bit address space, which Xeons do support.
 
-Signed-off-by: Thomas Downing <Thomas.Downing@ipc.com>
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+Yes right, I was just not aware recent hardware (still) supports that. I
+mean even mit 2MB modules most of them are specified only to 8GB. I would
+consider buying such a system quite foolish. All of the HP servers with 12GB
+and more seem to support EM64T. Do you know vendors who ship non-EM64T
+servers with more than 16GB?
 
----
-commit 4bc715f73b35eea5c58a9124f31b05f1fbb3b6c4
-tree fb2f9683a7260795ef5ff2d7488f7d19de1b5ffa
-parent 9ec8020999ffebb9524ca88e86c15923bf744b55
-author Kumar K. Gala <kumar.gala@freescale.com> Fri, 22 Jul 2005 10:40:33 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Fri, 22 Jul 2005 10:40:33 -0500
-
- arch/ppc/syslib/m82xx_pci.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/arch/ppc/syslib/m82xx_pci.c b/arch/ppc/syslib/m82xx_pci.c
---- a/arch/ppc/syslib/m82xx_pci.c
-+++ b/arch/ppc/syslib/m82xx_pci.c
-@@ -238,9 +238,9 @@ pq2ads_setup_pci(struct pci_controller *
- 	 * Setting required to enable IRQ1-IRQ7 (SIUMCR [DPPC]),
- 	 * and local bus for PCI (SIUMCR [LBPC]).
- 	 */
--	immap->im_siu_conf.siu_82xx.sc_siumcr = (immap->im_siu_conf.sc_siumcr &
--				~(SIUMCR_L2PC11 | SIUMCR_LBPC11 | SIUMCR_CS10PC11 | SIUMCR_APPC11) |
--				SIUMCR_BBD | SIUMCR_LBPC01 | SIUMCR_DPPC11 | SIUMCR_APPC10;
-+	immap->im_siu_conf.siu_82xx.sc_siumcr = (immap->im_siu_conf.siu_82xx.sc_siumcr &
-+				~(SIUMCR_L2CPC11 | SIUMCR_LBPC11 | SIUMCR_CS10PC11 | SIUMCR_APPC11) |
-+				SIUMCR_BBD | SIUMCR_LBPC01 | SIUMCR_DPPC11 | SIUMCR_APPC10);
- #endif
- 	/* Enable PCI  */
- 	immap->im_pci.pci_gcr = cpu_to_le32(PCIGCR_PCI_BUS_EN);
+Gruss
+Bernd
+-- 
+  (OO)     -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
+ ( .. )    ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
+  o--o   1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+49721151516129
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!

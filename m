@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVGVRzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVGVR5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVGVRzp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 13:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVGVRzp
+	id S262125AbVGVR5G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 13:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVGVR5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 13:55:45 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:17026 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262123AbVGVRzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 13:55:43 -0400
-Subject: Re: ALSA, snd_intel8x0m and kexec() don't work together
-	(2.6.13-rc3-git4 and 2.6.13-rc3-git3)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050722131825.GR8528@charite.de>
-References: <20050721180621.GA25829@charite.de>
-	 <20050722062548.GJ25829@charite.de> <200507221614.28096.vda@ilport.com.ua>
-	 <20050722131825.GR8528@charite.de>
-Content-Type: text/plain
-Date: Fri, 22 Jul 2005 13:55:41 -0400
-Message-Id: <1122054941.877.6.camel@mindpipe>
+	Fri, 22 Jul 2005 13:57:06 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:12943 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262125AbVGVR5A convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 13:57:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ouqNlU1ZwWvys4/ipwj4L7NjqJrYCEpOHPR35f4tTtfOs5yYfMNQNP3dxYqjlN/1rH/szaLLY0ZVsnF7WA+pGE8jTuvzATCKQIwbSgkH5LAZaequKFMC5djDopTNmFY3zupoRxeY5hwHn/mXLsIUlCIxvKMW7vx9U4x8rl6nubU=
+Message-ID: <3faf056805072210563ed8f158@mail.gmail.com>
+Date: Fri, 22 Jul 2005 23:26:58 +0530
+From: vamsi krishna <vamsi.krishnak@gmail.com>
+Reply-To: vamsi krishna <vamsi.krishnak@gmail.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: Whats in this vaddr segment 0xffffe000-0xfffff000 ---p ?
+Cc: Bhanu Kalyan Chetlapalli <chbhanukalyan@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0507221154150.16740@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3faf0568050721232547aa2482@mail.gmail.com>
+	 <7d15175e050722072727a7f539@mail.gmail.com>
+	 <3faf0568050722081890a2e@mail.gmail.com>
+	 <Pine.LNX.4.61.0507221154150.16740@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-22 at 15:18 +0200, Ralf Hildebrandt wrote:
-> * Denis Vlasenko <vda@ilport.com.ua>:
-> 
-> > Not happening here on 2.6.12:
-> 
-> 2.6.12 didn't have kexec (unless it's a -mm kernel)
-> So how could you boot using kexec then?
-> 
+Hi,
 
-Is kexec supposed to be transparent to all the subsystems, or does ALSA
-have to know how to stop all DMA in order for kexec to work?
+> It doesn't. The 32-bit machines never show 64 bit words in
+> /proc/NN/maps. They don't "know" how.
+> 
+> b7fd6000-b7fd7000 rw-p b7fd6000 00:00 0
+> b7ff5000-b7ff6000 rw-p b7ff5000 00:00 0
+> bffe1000-bfff6000 rw-p bffe1000 00:00 0          [stack]
+> ffffe000-fffff000 ---p 00000000 00:00 0          [vdso]
+> ^^^^^^^^____________ 32 bits
 
-Lee
+hello john can you tell me what is [vdso], does it have any content
+related file descriptor table it seems that the if I dont save this
+segment during checkpointing,  the file open descriptors (i.e FILE *)
+seems to have null after restoration.
 
+Sincerely appreciate your inputs.
+
+Cheers!
+Vamsi

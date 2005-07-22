@@ -1,136 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVGVEsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVGVEtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbVGVEsE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 00:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVGVEsE
+	id S262033AbVGVEtz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 00:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVGVEtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 00:48:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28860 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262009AbVGVEr7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 00:47:59 -0400
-Date: Fri, 22 Jul 2005 14:47:10 +1000
-From: Andrew Morton <akpm@osdl.org>
-To: bert hubert <bert.hubert@netherlabs.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fastboot, diskstat
-Message-Id: <20050722144710.47e0cbd6.akpm@osdl.org>
-In-Reply-To: <20050722034135.GA21201@outpost.ds9a.nl>
-References: <20050722034135.GA21201@outpost.ds9a.nl>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 22 Jul 2005 00:49:55 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:16536 "EHLO
+	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S262032AbVGVEtE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 00:49:04 -0400
+Subject: Re: [linux-pm] [PATCH] Workqueue freezer support.
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.50.0507211221550.12779-100000@monsoon.he.net>
+References: <1121923059.2936.224.camel@localhost>
+	 <Pine.LNX.4.50.0507211221550.12779-100000@monsoon.he.net>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1122001360.3030.17.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 22 Jul 2005 13:02:41 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert <bert.hubert@netherlabs.nl> wrote:
->
-> Hi Andrew,
+Hi.
+
+On Fri, 2005-07-22 at 05:42, Patrick Mochel wrote:
+> On Thu, 21 Jul 2005, Nigel Cunningham wrote:
 > 
-> I'm currently at OLS and presented http://ds9a.nl/diskstat yesterday, which
-> also references your ancient 'fboot' program.
+> > This patch implements freezer support for workqueues. The current
+> > refrigerator implementation makes all workqueues NOFREEZE, regardless of
+> > whether they need to be or not.
 > 
-> I've also done experiments along those lines, and will be doing more of them
-> soon. 
+> A few comments..
 > 
-> You mention it was a waste of time, do you recall if that meant:
+> > Signed-off by: Nigel Cunningham <nigel@suspend2.net>
+> >
+> >  drivers/acpi/osl.c          |    2 +-
+> >  drivers/block/ll_rw_blk.c   |    2 +-
+> >  drivers/char/hvc_console.c  |    2 +-
+> >  drivers/char/hvcs.c         |    2 +-
+> >  drivers/input/serio/serio.c |    2 +-
+> >  drivers/md/dm-crypt.c       |    2 +-
+> >  drivers/scsi/hosts.c        |    2 +-
+> >  drivers/usb/net/pegasus.c   |    2 +-
 > 
-> 1) that the total time for prefetching + actual boot was only 10% shorter,
-> but that the actual booting did not (significantly) touch the disk?
+> If you want some practice splitting things up, submit the patches above
+> individually to the maintainers o the relevant code once the patches you
+> submit below get merged to -mm.
+
+Ok. Thanks for telling me.
+
+> >  include/linux/kthread.h     |   20 ++++++++++++++++++--
+> >  include/linux/workqueue.h   |    9 ++++++---
+> >  kernel/kmod.c               |    4 ++++
+> >  kernel/kthread.c            |   23 ++++++++++++++++++++++-
+> >  kernel/sched.c              |    4 ++--
+> >  kernel/softirq.c            |    3 +--
+> >  kernel/workqueue.c          |   21 ++++++++++++---------
+> >  15 files changed, 73 insertions(+), 27 deletions(-)
 > 
-> 2) that on actual boot there would still be a lot of i/o
 > 
-> ?
+> You should make sure that you get an explicit ACK from people (Ingo et al)
+> about whether this is an acceptable interface.
 
-eep, this was early 2001, on 2.4.whatever.
+Ok. How do I know who to ask? (Who besides Ingo, and could I learn who
+without help - Maintainers?)
 
-I recall trying various preloading schemes - try loading the metadata
-first, then the pagecache, pagecache first then metadata, one and not the
-other, etc.
-
-Yeah, 10-15% benefit was obtainable but on a little old laptop the amount
-of discontiguous I/O was still quite tremendous.
-
-I also recall hacking the initscripts so they were _all_ launched
-asynchronously.  A few things broke because of dependency problems of
-course, but that improved things quite noticeably.  I think quite a few of
-the scripts and daemons and things have explicit sleeps, and parallelising
-all of those helped.
-
+> > --- 400-workthreads.patch-old/include/linux/kthread.h	2004-11-03 21:51:12.000000000 +1100
+> > +++ 400-workthreads.patch-new/include/linux/kthread.h	2005-07-20 15:11:37.000000000 +1000
+> > @@ -27,6 +27,14 @@ struct task_struct *kthread_create(int (
+> >  				   void *data,
+> >  				   const char namefmt[], ...);
+> >
+> > +struct task_struct *_kthread_create(int (*threadfn)(void *data),
+> > +				   void *data,
+> > +				   unsigned long freezer_flags,
+> > +				   const char namefmt[], ...);
+> > +
 > 
-> Regarding 1), in my own experiments I failed to convince the kernel to
-> actually cache the pages I touched, I wonder if some sequential-read
-> detection kicked in, the one that prevents entire cd's being cached.
+> This should be __kthread_create(...)
 
-It depends how you touch the page.  Remember that there is no unified
-pagecache in 2.6.  The pagecache for /dev/hda1 is separate from the
-pagecache for /etc/passwd.  If one tries to preload /etc/passwd by reading
-from /dev/hda1 then that won't be effective.  So any userspace preloading
-scheme would have to open both /dev/hda1 and /etc/passwd and it would then
-read from both fds in some intermingled manner based on disk block address.
+Ok. Fixed. Is one underscore ever right?
 
-Although I'd suggest that it'd be easier to just get the kernel to do it:
-set the disk queue size to something enormous (4096 requests?), open 100
-files, launch posix_fadvise() against them all (or against sections of
-them) then close the files again.  Rely upon that large disk queue to
-perform all the sorting.  Maybe.
+> > -#define kthread_run(threadfn, data, namefmt, ...)			   \
+> > +#define kthread_run(threadfn, data, namefmt, args...)			   \
+> >  ({									   \
+> >  	struct task_struct *__k						   \
+> > -		= kthread_create(threadfn, data, namefmt, ## __VA_ARGS__); \
+> > +		= kthread_create(threadfn, data, namefmt, ##args);	   \
+> >  	if (!IS_ERR(__k))						   \
+> >  		wake_up_process(__k);					   \
+> >  	__k;								   \
+> >  })
+> >
+> > +#define kthread_nofreeze_run(threadfn, data, namefmt, args...)		   \
+> > +({									   \
+> > +	struct task_struct *__k	= kthread_nofreeze_create(threadfn, data,  \
+> > +			namefmt, ##args);				   \
+> > +	if (!IS_ERR(__k))						   \
+> > +		wake_up_process(__k);					   \
+> > +	__k;								   \
+> > +})
+> 
+> Do these functions need to be inlined?
 
-> For my next attempt I'll try to actually lock the pages into memory.
+I tried to find out how to pass the va_list on nicely without using a
+#define, but could find the info. If you're able to tell me, I'll make
+them inline. Perhaps I could also improve the kthread_create call Pavel
+and Ingo commented on.
 
-It shouldn't be needed.  If at the end of preload there's still a decent
-amount of free memory, you know that the kernel hasn't gone and thrown
-anything away yet.  Any machine with 256MB or more of RAM should be able to
-fit all the boot-time stuff into RAM fairly comfortably.
+> > @@ -86,6 +87,10 @@ static int kthread(void *_create)
+> >  	/* By default we can run anywhere, unlike keventd. */
+> >  	set_cpus_allowed(current, CPU_MASK_ALL);
+> >
+> > +	/* Set our freezer flags */
+> > +	current->flags &= ~(PF_SYNCTHREAD | PF_NOFREEZE);
+> > +	current->flags |= (create->freezer_flags & PF_NOFREEZE);
+> > +
+> 
+> Maybe these should be encapsulated in a helper in include/linux/sched.h
+> like some other flags manipulations are?
 
-> Also, regarding the directory entries, are they accessed via the buffer
-> cache?
+This would be the only place it's used. Does that matter? (And note from
+the updated patch that the SYNCTHREAD wouldn't be there).
 
-yes.  For ext3 you can preload both inodes and directory entries via
-read()s from /dev/hda1.  For ext2, directory entries each have their own
-pagecache and should be preloaded via read(open(/name/of/directory)).
+> > diff -ruNp 400-workthreads.patch-old/kernel/sched.c 400-workthreads.patch-new/kernel/sched.c
+> > --- 400-workthreads.patch-old/kernel/sched.c	2005-07-21 04:00:02.000000000 +1000
+> > +++ 400-workthreads.patch-new/kernel/sched.c	2005-07-21 04:00:19.000000000 +1000
+> > @@ -4580,10 +4580,10 @@ static int migration_call(struct notifie
+> >
+> >  	switch (action) {
+> >  	case CPU_UP_PREPARE:
+> > -		p = kthread_create(migration_thread, hcpu, "migration/%d",cpu);
+> > +		p = kthread_create(migration_thread, hcpu,
+> > +				"migration/%d",cpu);
+> 
+> This is unnecessary.
 
-> Iow, would reading blocks which can't be mapped to files directly via
-> /dev/hda be useful?
+Oops. Comes from adding an extra parameter, fixing line length and then
+removing it. Fixed.
 
-If the blocks are directories or inodes then you _must_ preload them via
-/dev/hda1's pagecache.  (/dev/hda1's pagecache is the storage for
-/dev/hda1's buffercache - they're the same thing).
+> Overall, it looks pretty good.
 
-So a scheme which would work for 2.6.x would be:
+Thanks!
 
-a) Boot the machine
+Nigel
 
-b) Walk /dev/hda1's pagecache, record which pages are present.
-
-c) For all files which are in dcache, walk their pagecache, work out
-   which pages are present.
-
-  (nb: it might be possible to do most of the above from userspace: mmap
-   the file and use mincore() to find out if the page is in pagecache).
-
-The above data is enough for performing a crude preload:
-
-a) Boot the machine
-
-b) Boost the disk queue size, set the VFS readahead to zero, open
-   /dev/hda1 and all the regular files, hose reads at the disk via
-   fadvise().  Restore VFS readahead and queue size, continue with boot.
-
-
-More sophisticated preload would involve bmap()ping the various regular
-files so the reads can be issued in LBA-sorted order.  But this could be of
-marginal additional benefit.
-
-
-And I suspect that the whole thing will be of marginal benefit.  Although
-things might be better now that files are laid out with the Orlov allocator
-(make sure that the distro was installed with a 2.6 kernel!  The file
-layout will be quite different if the installer used a 2.4 ext3).
-
-Of course the next step is to rewrite files so that they are more
-favourably laid out on disk.  Tricky.  Or dump all pagecache to some temp
-file in a nice linear slurp and preload that, copying it all to the
-appropriate per-inode pagecaches and taking care of files which have been
-modified.  Trickier ;)
+> Thanks,
+> 
+> 
+> 
+> 	Pat
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
 

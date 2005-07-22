@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVGVIzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVGVJFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbVGVIzU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 04:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVGVIzU
+	id S261180AbVGVJFx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 05:05:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVGVJFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 04:55:20 -0400
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:8416 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262073AbVGVIzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 04:55:18 -0400
-Date: Fri, 22 Jul 2005 10:55:16 +0200
-From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: 10 GB in Opteron machine
-Message-Id: <20050722105516.6ccffb8f.Christoph.Pleger@uni-dortmund.de>
-Organization: Universitaet Dortmund
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-sun-solaris2.7)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 22 Jul 2005 05:05:53 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:42407 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261180AbVGVJFv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 05:05:51 -0400
+Message-ID: <42E0B6E4.1030303@pobox.com>
+Date: Fri, 22 Jul 2005 05:05:40 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 10 GB in Opteron machine
+References: <20050722105516.6ccffb8f.Christoph.Pleger@uni-dortmund.de>
+In-Reply-To: <20050722105516.6ccffb8f.Christoph.Pleger@uni-dortmund.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Christoph Pleger wrote:
+> At last I found out that setting HIGHMEM support to 64 GB is the
+> problem. But is it really not possible to use more than 4GB on an
+> Opteron machine?
 
-I had a working kernel configuration for an Opteron machine. Since that
-configuration was supposed to support many kinds of hardware, it
-contained many settings that were not optimal for an Opteron machine. So
-I created a new configuration especially for that machine. But the
-resulting kernel could not be booted. To find the problem I took the
-working configuration and changed and it in many small steps and after
-every change compiled the kernel, installed it and rebooted to see if
-the kernel still boots. 
+Build and boot a 64-bit kernel, not a 32-bit kernel.
 
-At last I found out that setting HIGHMEM support to 64 GB is the
-problem. But is it really not possible to use more than 4GB on an
-Opteron machine?
+There is no highmem option for the 64-bit kernel, because it doesn't 
+need one.
 
-I have set the processor type to Opteron and disabled SMP support. I am
-using Kernel 2.6.11.12.
+	Jeff
 
-Christoph 
+

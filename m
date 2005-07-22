@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVGVOt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVGVO5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbVGVOt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 10:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVGVOt1
+	id S262106AbVGVO5S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 10:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbVGVO5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 10:49:27 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57786 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262103AbVGVOsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 10:48:55 -0400
-Date: Fri, 22 Jul 2005 16:48:55 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Voluspa <lista1@telia.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3 Battery times at 100/250/1000 Hz = Zero difference
-Message-ID: <20050722144855.GA2036@elf.ucw.cz>
-References: <20050721200448.5c4a2ea0.lista1@telia.com> <9a8748490507211114227720b0@mail.gmail.com>
+	Fri, 22 Jul 2005 10:57:18 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:33099 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S262106AbVGVO5R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 10:57:17 -0400
+Date: Fri, 22 Jul 2005 16:57:16 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux tty layer hackery: Heads up and RFC
+Message-ID: <20050722145716.GA3332@bitwizard.nl>
+References: <1121967993.19424.18.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9a8748490507211114227720b0@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <1121967993.19424.18.camel@localhost.localdomain>
+Organization: BitWizard.nl
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Jul 21, 2005 at 06:46:32PM +0100, Alan Cox wrote:
+> int tty_prepare_flip_string(tty, strptr, len)
+> 
+> Adjust the buffer to allow len characters to be added. Returns a buffer
+> pointer in strptr and the length available. This allows for hardware
+> that needs to use functions like insl or mencpy_fromio.
 
-> > I'd gladly (ehum..) redo this mind-numbingly boring test if someone can
-> > point me to a magic software which unleashes some untapped powersaving
-> > feature of the CPU.
-> > 
-> > _Kernel 2.6.13-rc3 Boot to Death_:
-> > 
-> > 2h48m at 100 HZ
-> > 2h48m at 250 HZ
-> > 2h47m at 1000 HZ
-> > 
-> > _"Load"_:
-> > 
-> > #!/bin/sh
-> > touch time-hz-start
-> > while (true) do
-> >     touch time-hz-end
-> >     sleep 1m
-> > done
-> > 
-> Ok, so with an idle machine, different HZ makes no noticeable
-> difference, but I'd suspect things would be different if the machine
-> was actually doing some work.
-> Would be more interresting to see how long it lasts with a light load
-> and with a heavy load.
+Ok, So then I start copying characters into the flipstring, but how do
+I say I'm done?
 
-No, I do not think so. Biggest difference should be on completely idle
-machine where ACPI can utilize low power states.
+Or is there a race between that I call tty_prepare_flip_string, and
+other processes start pulling my not-yet-filled string from the
+buffer? (Surely not!)
 
-Can you check that C3 is utilized? Unloading usb modules may be
-neccessary...
+	Roger. 
 
-								Pavel
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
+Does it sit on the couch all day? Is it unemployed? Please be specific! 
+Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ

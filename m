@@ -1,43 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbVGVEzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVGVE6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbVGVEzN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 00:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVGVEzN
+	id S261932AbVGVE6t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 00:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVGVE6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 00:55:13 -0400
-Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:10956 "EHLO
-	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S261933AbVGVEzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 00:55:11 -0400
-Date: Fri, 22 Jul 2005 00:53:58 -0400 (EDT)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: hahn@coffee.psychology.mcmaster.ca
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm1 (ckrm) 
-In-Reply-To: <E1Dvp8T-0007wp-00@w-gerrit.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0507220033371.4935-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-PMX-Version-Mac: 4.7.1.128075, Antispam-Engine: 2.0.3.2, Antispam-Data: 2005.7.21.45
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+	Fri, 22 Jul 2005 00:58:49 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:25496 "EHLO
+	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S261932AbVGVE6s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 00:58:48 -0400
+Subject: Re: [linux-pm] [PATCH] Syncthreads support.
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050721153932.GA2005@elf.ucw.cz>
+References: <1121923564.2936.231.camel@localhost>
+	 <20050721153932.GA2005@elf.ucw.cz>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1122001826.3033.25.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 22 Jul 2005 13:10:26 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > yes, that's the crux.  CKRM is all about resolving conflicting resource 
-> > > demands in a multi-user, multi-server, multi-purpose machine.  this is a 
-> > > huge undertaking, and I'd argue that it's completely inappropriate for 
-> > > *most* servers.  that is, computers are generally so damn cheap that 
-> > > the clear trend is towards dedicating a machine to a specific purpose, 
-> > > rather than running eg, shell/MUA/MTA/FS/DB/etc all on a single machine.  
->  
-> This is a big NAK - if computers are so damn cheap, why is virtualization
-> and consolidation such a big deal?  Well, the answer is actually that
+Hi.
 
-yes, you did miss my point.  I'm actually arguing that it's bad design
-to attempt to arbitrate within a single shared user-space.  you make 
-the fast path slower and less maintainable.  if you are really concerned
-about isolating many competing servers on a single piece of hardware, then
-run separate virtualized environments, each with its own user-space.
+On Fri, 2005-07-22 at 01:39, Pavel Machek wrote:
+> Hi!
+> 
+> > This patch implements a new PF_SYNCTHREAD flag, which allows upcoming
+> > the refrigerator implementation to know that a thread is syncing data to
+> > disk. This allows the refrigerator to be more reliable, even under heavy
+> > load, because it can separate userspace processes that are submitting
+> > I/O from those trying to sync it and freezing the former first. We can
+> > thus ensure that syncing processes complete their work more quickly and
+> > the refrigerator is far less likely to incorrectly give up (thinking a
+> > syncing process is completely failing to enter the refrigerator).
+> 
+> This patch is ****, and pretty intrusive too. Ouch and then it is
+> unneccessary. We have been over this before, and explained to you in
+> person. Greg explained it to you, too. This one is NOT GOING IN. Drop
+> it from your patches, trying to submit it 10 times will not get it
+> accepted.
+> 
+> [For the record, simple solution for this one is 
+> 
+> sys_sync();
+> 
+> and only then start refrigeration].
+
+That's not right.
+
+Greg said he believed the right thing to do was to sync in the kernel,
+but he also said he agreed with you. I thought at the time he was
+confused about who was suggesting what - let's check with him.
+
+Anyway, we discussed before that sync_sync before starting refrigerating
+is insufficient. Remember that since processes aren't refrigerated yet,
+there is absolutely nothing to stop other processes submitting I/O
+between the two actions and thus making the sync pointless. The sync
+needs to be done after the userspace processes that might submit I/O
+have been frozen, to ensure that all the dirty data is actually synced
+to disk.
+
+Remember also that it is important that we do need to sync all dirty
+buffers. In the case of not resuming, data loss should nil.
+
+Regards,
+
+Nigel
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
 

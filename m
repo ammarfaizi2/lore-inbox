@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbVGVCae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVGVCiW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262018AbVGVCae (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 22:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVGVCad
+	id S262013AbVGVCiW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 22:38:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVGVCiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 22:30:33 -0400
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:47850 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S262018AbVGVCaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 22:30:30 -0400
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>, "Paul Jackson" <pj@sgi.com>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>, <linux@horizon.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: kernel guide to space
-References: <20050714011208.22598.qmail@science.horizon.com>
-	<FD559B50-FB1E-4478-ACF4-70E4DB7A0176@mac.com>
-	<Pine.LNX.4.61.0507200715290.9066@yvahk01.tjqt.qr>
-	<20050720174521.73c06bce.pj@sgi.com>
-	<3FC51285-941F-48B6-B5A9-1BBE95CCD816@mac.com>
-	<9a874849050721114227f3c6a7@mail.gmail.com>
-	<Pine.LNX.4.61.0507211528250.12675@chaos.analogic.com>
-From: Miles Bader <miles@lsi.nec.co.jp>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-Date: Fri, 22 Jul 2005 11:29:55 +0900
-In-Reply-To: <Pine.LNX.4.61.0507211528250.12675@chaos.analogic.com> (linux-os@analogic.com's message of "Thu, 21 Jul 2005 15:37:44 -0400")
-Message-Id: <buozmsfvaho.fsf@mctpc71.ucom.lsi.nec.co.jp>
+	Thu, 21 Jul 2005 22:38:22 -0400
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:31916 "EHLO
+	aquarius.doma") by vger.kernel.org with ESMTP id S262013AbVGVCiV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 22:38:21 -0400
+Message-ID: <42E05C17.2000305@ribosome.natur.cuni.cz>
+Date: Fri, 22 Jul 2005 04:38:15 +0200
+From: =?windows-1252?Q?Martin_MOKREJ=8A?= 
+	<mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Mark Nipper <nipsy@bitgnome.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Giving developers clue how many testers verified certain kernel
+ version
+References: <42E04D11.20005@ribosome.natur.cuni.cz> <20050722021046.GB21727@king.bitgnome.net>
+In-Reply-To: <20050722021046.GB21727@king.bitgnome.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
-> It will take probably an hour to parse:
-> struct BusLogic_FetchHostAdapterLocalRAMReguest FetchHostAdapterLocalRAMRequest
->  		^!)
+Hi,
 
-Agh!  My eyes!
+Mark Nipper wrote:
+> 	I have a different idea along these lines but not using
+> bugzilla.  A nice system for tracking usage of certain components
+> might be made by having people register using a certain e-mail
+> address and then submitting their .config as they try out new
+> versions of kernels.
 
-The above names are way overdone by any measure, but is there any
-consensus whether studly-caps in general are discouraged or not?
+Nice idea, but I still think it is of interrest on what hardware
+was it tested. Maybe also 'dmesg' output would help a bit, but
+I still don't know how you'd find that I have _this_ motherboard
+instead of another.
 
-CodingStyle is vague on the issue, though it kind of implies you should
-use underscores when multiple words are needed (the sole example of
-studly caps is in a negative context, and a following recommended name
-uses underlines).  The kernel source seems pretty random -- they get
-used here and there, but more often not; they seem more common in older
-code.
+Second, I'd submit sometimes 2 or even 3 tested hosts. But am
+willing to use only single email, though. ;)
 
-If they are discouraged, it might be better to say so explicitly, as
-there are many programmers these days who are used to using them.
+I think we'd need some sort of profile, the profile would contain
+some HW info, like motherboard type, bios version etc. To extract
+that from 'dmesg' would be a nightmare I think.
 
--Miles
--- 
-Run away!  Run away!
+...
+
+> 	Just an idea.  It might require some minimum
+> recommendations to users willing to participate.  I know for
+> example that I statically compile all four I/O schedulers in all
+
+Well, my case too. ;)
+
+Martin

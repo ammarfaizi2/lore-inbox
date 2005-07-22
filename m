@@ -1,79 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVGVP6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVGVP7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbVGVP6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 11:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVGVP6P
+	id S261304AbVGVP7q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 11:59:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVGVP7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 11:58:15 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:62473 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S261303AbVGVP6K convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 11:58:10 -0400
+	Fri, 22 Jul 2005 11:59:45 -0400
+Received: from mail.ccur.com ([208.248.32.212]:24675 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S262107AbVGVP6z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 11:58:55 -0400
+Message-ID: <42E117BE.5000003@ccur.com>
+Date: Fri, 22 Jul 2005 11:58:54 -0400
+From: John Blackwood <john.blackwood@ccur.com>
+Reply-To: john.blackwood@ccur.com
+Organization: Concurrent Computer Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.4) Gecko/20050318 Red Hat/1.4.4-1.3.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <3faf0568050722081890a2e@mail.gmail.com>
-References: <3faf0568050721232547aa2482@mail.gmail.com> <7d15175e050722072727a7f539@mail.gmail.com> <3faf0568050722081890a2e@mail.gmail.com>
-X-OriginalArrivalTime: 22 Jul 2005 15:58:07.0410 (UTC) FILETIME=[26BEA120:01C58ED6]
-Content-class: urn:content-classes:message
-Subject: Re: Whats in this vaddr segment 0xffffe000-0xfffff000 ---p ?
-Date: Fri, 22 Jul 2005 11:56:34 -0400
-Message-ID: <Pine.LNX.4.61.0507221154150.16740@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Whats in this vaddr segment 0xffffe000-0xfffff000 ---p ?
-thread-index: AcWO1ibdeZlpWvW2T0yiIwAaJYbiEA==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "vamsi krishna" <vamsi.krishnak@gmail.com>
-Cc: "Bhanu Kalyan Chetlapalli" <chbhanukalyan@gmail.com>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: linux-kernel@vger.kernel.org
+CC: Andrea Arcangeli <andrea@suse.de>, Andi Kleen <ak@suse.de>
+Subject: Subject: [PATCH] mm/mempolicy.c linux-2.6.12.3
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Jul 2005 15:58:54.0869 (UTC) FILETIME=[43084C50:01C58ED6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Andrea,
 
-On Fri, 22 Jul 2005, vamsi krishna wrote:
+I believe that we are seeing a problem with one change from the patch
 
-> Hello,
->
->>
->> The location of the vsyscall page is different on 32 and 64 bit
->> machines. So 0xffffe000 is NOT the address you are looking for while
->> dealing with the 64 bit machine.  Rather 0xffffffffff600000 is the
->> correct location (on x86-64).
->>
-> Both my process's are 32-bit process's, its just one runs on 64-bit
-> machine and other runs on 32-bit machine. The write from address
-> 0xffffe0000 to a file on a 32-bit machine fails, but does'nt fail on
-> 64-bit machine (the process is still 32-bit although it runs on
-> 64-bit).
->
-> How can the virtual address of   0xffffffffff600000 exist in a 32-bit
-> process ? (May be I have not made myself clear in explaining the
-> problem?? :-?)
->
-> Best,
-> Vamsi.
+   2005/01/03 20:15:21-08:00 andrea@novell.com
+   [PATCH] mempolicy optimisation
 
-It doesn't. The 32-bit machines never show 64 bit words in
-/proc/NN/maps. They don't "know" how.
+in the mpol_free_shared_policy() routine in mm/mempolicy.c, where a
+rb_erase() line was removed.
 
-b7fd6000-b7fd7000 rw-p b7fd6000 00:00 0
-b7ff5000-b7ff6000 rw-p b7ff5000 00:00 0
-bffe1000-bfff6000 rw-p bffe1000 00:00 0          [stack]
-ffffe000-fffff000 ---p 00000000 00:00 0          [vdso]
-^^^^^^^^____________ 32 bits
+The corresponding portion of the original patch is shown below:
+
+@@ -1086,11 +1084,11 @@
+         while (next) {
+                 n = rb_entry(next, struct sp_node, nd);
+                 next = rb_next(&n->nd);
+-               rb_erase(&n->nd, &p->root);
+                 mpol_free(n->policy);
+                 kmem_cache_free(sn_cache, n);
+         }
+         spin_unlock(&p->lock);
++       p->root = RB_ROOT;
+  }
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
+When we build a 2.6.11.4 debug kernel on a 2 cpu NUMA-enabled opteron
+system, and run the following set of commands:
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+echo "1" > /tmp/numatest
+numactl --length=0x4000 --shm /tmp/numatest --localalloc
+numactl --length=0x2000 --offset=0 --shm /tmp/numatest --membind=0
+numactl --length=0x2000 --offset=0x2000 --shm /tmp/numatest --membind=1
+ipcs
+ipcrm -M "the_key_value_of_this_shm_area"
 
-Thank you.
+
+On the ipcrm call above, the system will oops:
+
+general protection fault: 0000 [1] PREEMPT SMP
+
+Entering kdb (current=0xffff81008161a0f0, pid 3102) on processor 1 Oops: 
+<NULL>
+due to oops @ 0xffffffff802e51f3
+      r15 = 0x0000000000000100      r14 = 0xffff81007d7a5470
+      r13 = 0xffff810001eea460      r12 = 0xffff81007c4324f8
+      rbp = 0xffff81007c4324f8      rbx = 0xffff81007c4324f8
+      r11 = 0x0000000000000202      r10 = 0x00002aaaaabc3db0
+       r9 = 0xffff81007c4324a8       r8 = 0x0000000000000000
+      rax = 0x000000000000000f      rcx = 0x0000000000000000
+      rdx = 0x0000000000000000      rsi = 0x000000000000006b
+      rdi = 0x6b6b6b6b6b6b6b6b orig_rax = 0xffffffffffffffff
+      rip = 0xffffffff802e51f3       cs = 0x0000000000000010
+   eflags = 0x0000000000010202      rsp = 0xffff81007d06bc40
+       ss = 0xffff81007d06a000 &regs = 0xffff81007d06bba8
+[1]kdb> bt
+Stack traceback for pid 3102
+0xffff81008161a0f0     3102     2761  1    1   R  0xffff81008161a480 *ipcrm
+RSP           RIP                Function (args)
+0xffff81007d06bc40 0xffffffff802e51f3 rb_next+0xb (0xffff810001eea7d8, 
+0xffff810001eea518, 0xffff810001eea518, 0x0, 0xffff810001eea518)
+0xffff81007d06bc58 0xffffffff80189c74 mpol_free_shared_policy+0x3a
+0xffff81007d06bc88 0xffffffff8018d306 shmem_destroy_inode+0x1f
+0xffff81007d06bc98 0xffffffff801ab0e8 destroy_inode+0x31 
+(0xffff81007d7a5484)
+0xffff81007d06bca8 0xffffffff801ac5a6 generic_delete_inode+0x10c
+0xffff81007d06bcc8 0xffffffff801ac796 iput+0x77 (0xffff8100815673c8)
+0xffff81007d06bcd8 0xffffffff801a915c dput+0x1c0 (0xffff81007d3e8408, 
+0x10000, 0x0, 0x0, 0xffff81007d3e8408)
+0xffff81007d06bcf8 0xffffffff80190a9a __fput+0x128 (0xffff81007d3e8408)
+0xffff81007d06bd28 0xffffffff8019096d fput+0x14
+0xffff81007d06bd38 0xffffffff802d1a8c shm_destroy+0x4d
+0xffff81007d06bd48 0xffffffff802d26d9 sys_shmctl+0x689
+
+
+The rdi = 0x6b6b6b6b6b6b6b6b above (and additional debugging that I did)
+shows that we called rb_next(&n->nd) in the while loop and we got back
+a rb_node that we already just deallocated via kmem_cache_free() in that
+same while loop execution.
+
+As a result, on the debug kernel, the already deallocated rb_node has
+0x6b6b6b6b6b6b6b6b in its memory locations and we oops when we try to
+use this value as a pointer.
+
+When I put back the rb_erase() line, the above example test, and lots
+of others like it, start working again w/out oops-ing.
+
+I'm no rb tree expert, but it seems that we still need to have the
+rb_erase() line in the while loop:
+
+diff -u linux-2.6.12.3/mm/mempolicy.c new/mm/mempolicy.c
+--- linux-2.6.12.3/mm/mempolicy.c	2005-07-15 17:18:57.000000000 -0400
++++ new/mm/mempolicy.c	2005-07-22 11:12:56.000000000 -0400
+@@ -1104,6 +1104,7 @@
+  	while (next) {
+  		n = rb_entry(next, struct sp_node, nd);
+  		next = rb_next(&n->nd);
++		rb_erase(&n->nd, &p->root);
+  		mpol_free(n->policy);
+  		kmem_cache_free(sn_cache, n);
+  	}
+
+
+
+Thank you for your time and considerations.
+

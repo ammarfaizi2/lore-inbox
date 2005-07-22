@@ -1,84 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVGVQC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVGVQJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVGVQC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 12:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbVGVQC2
+	id S261296AbVGVQJT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 12:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVGVQJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 12:02:28 -0400
-Received: from smtp-32.ig.com.br ([200.226.132.32]:30141 "EHLO
-	smtp-32.ig.com.br") by vger.kernel.org with ESMTP id S261307AbVGVQAz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 12:00:55 -0400
-To: alan@lxorguk.ukuu.org.uk
-From: Vinicius <jdob@ig.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel doesn't free Cached Memory
-Date: Fri, 22 Jul 2005 13:00:51 -0300
-X-Priority: 3 (Normal)
-Message-ID: <20050722_160051_071630.jdob@ig.com.br>
-X-Originating-IP: [10.17.1.76]172.31.47.254, 201.6.254.70
-X-Mailer: iGMail [www.ig.com.br]
-X-user: jdob@ig.com.br
-Teste: asaes
+	Fri, 22 Jul 2005 12:09:18 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:974 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id S261296AbVGVQJR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 12:09:17 -0400
+Message-ID: <42E11A03.6030400@namesys.com>
+Date: Fri, 22 Jul 2005 20:08:35 +0400
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+Organization: Namesys
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040804
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: multipart/mixed;
-	boundary="Message-Boundary-by-Mail-Sender-1122048051"
+To: Christoph Hellwig <hch@infradead.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] type safe list
+References: <42E0FBA0.6050502@namesys.com> <20050722144153.GA17220@infradead.org>
+In-Reply-To: <20050722144153.GA17220@infradead.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Hello
 
---Message-Boundary-by-Mail-Sender-1122048051
-Content-type: text/plain; charset=ISO-8859-1
-Content-description: Mail message body
-Content-transfer-encoding: 8bit
-Content-disposition: inline
-
-
-
-
-Em (15:49:49), Alan Cox escreveu: 
-
-
->On Gwe, 2005-07-22 at 08:27 -0300, Vinicius wrote: 
->> Hi all! 
->> 
->> I have a server with 2 Pentium 4 HT processors and 32 GB of RAM, this 
->> server runs lots of applications that consume lots of memory to. When I 
->stop 
->> this applications, the kernel doesn't free memory (the memory still in 
->use) 
+Christoph Hellwig wrote:
+> On Fri, Jul 22, 2005 at 05:58:56PM +0400, Vladimir V. Saveliev wrote:
 > 
->See any FAQ on the Linux memory management - memory is reclaimed when 
->needed not when nobody is using it. That makes things more efficient. 
+>>Hello
+>>
+>>This is implementaion of circular doubly linked parametrized list.
+>>It is similar to the list implementation in include/linux/list.h
+>>but it also provides type safety which allows to detect some of list 
+>>manipulating
+>>mistakes as soon as they happen.
 > 
->> and the server cache lots of memory (~27GB). When I start this 
->applications, 
->> the kernel sends "Out of Memory" messages and kill some random 
->> applications. 
 > 
->Some RHEL3 kernels had a problem with very large memory sizes and 2.4. 
->That should not be the case in the current RHEL3 kernels. 2.6 handles 
->very large systems a lot lot better, and of course the fact real 
->computers now have 64bit processors has also rather improved life. 
+> This looks like an ugly solution in search of a problem.  Just use
+> normal list.h list and get rid of this mess.
 > 
->Alan 
-> 
->---------- 
-
-Thanks Alan, 
-
-   I also read on the Linux-Kernel that the problem may be related to an 
-exhaustion of your kernels address space, I read that the hugemem-kernel 
-might be the solution to this case since it has 4GB for the kernel memory 
-plus 4GB for user process. 
-How can I define if my kernel memory is beeing exhausted? Does this 
-exhaustion of kernel memory can cause Out Of memory errors ? 
-
-
-
-
-
---Message-Boundary-by-Mail-Sender-1122048051--
-
+ok.
+We have also type safe hash chain implementation.
+I guess it also does not have a chance to get in?

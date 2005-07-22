@@ -1,59 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVGVCiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbVGVDJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbVGVCiW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 22:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVGVCiW
+	id S262004AbVGVDJg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 23:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVGVDJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 22:38:22 -0400
-Received: from r3az252.chello.upc.cz ([213.220.243.252]:31916 "EHLO
-	aquarius.doma") by vger.kernel.org with ESMTP id S262013AbVGVCiV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 22:38:21 -0400
-Message-ID: <42E05C17.2000305@ribosome.natur.cuni.cz>
-Date: Fri, 22 Jul 2005 04:38:15 +0200
-From: =?windows-1252?Q?Martin_MOKREJ=8A?= 
-	<mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: cs, en-us, en
+	Thu, 21 Jul 2005 23:09:36 -0400
+Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:26009 "EHLO
+	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S262004AbVGVDJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 23:09:36 -0400
+Date: Thu, 21 Jul 2005 23:06:22 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch 2.6.13-rc3a] i386: inline restore_fpu
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200507212309_MC3-1-A534-95EF@compuserve.com>
 MIME-Version: 1.0
-To: Mark Nipper <nipsy@bitgnome.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Giving developers clue how many testers verified certain kernel
- version
-References: <42E04D11.20005@ribosome.natur.cuni.cz> <20050722021046.GB21727@king.bitgnome.net>
-In-Reply-To: <20050722021046.GB21727@king.bitgnome.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Mark Nipper wrote:
-> 	I have a different idea along these lines but not using
-> bugzilla.  A nice system for tracking usage of certain components
-> might be made by having people register using a certain e-mail
-> address and then submitting their .config as they try out new
-> versions of kernels.
+  This patch makes restore_fpu() an inline.  When L1/L2 cache are saturated
+it makes a measurable difference.
 
-Nice idea, but I still think it is of interrest on what hardware
-was it tested. Maybe also 'dmesg' output would help a bit, but
-I still don't know how you'd find that I have _this_ motherboard
-instead of another.
+  Results from profiling Volanomark follow.  Sample rate was 2000 samples/sec
+(HZ = 250, profile multiplier = 8) on a dual-processor Pentium II Xeon.
 
-Second, I'd submit sometimes 2 or even 3 tested hosts. But am
-willing to use only single email, though. ;)
 
-I think we'd need some sort of profile, the profile would contain
-some HW info, like motherboard type, bios version etc. To extract
-that from 'dmesg' would be a nightmare I think.
+Before:
 
-...
+ 10680 restore_fpu                              333.7500
+  8351 device_not_available                     203.6829
+  3823 math_state_restore                        59.7344
+ -----
+ 22854
 
-> 	Just an idea.  It might require some minimum
-> recommendations to users willing to participate.  I know for
-> example that I statically compile all four I/O schedulers in all
 
-Well, my case too. ;)
+After:
 
-Martin
+ 12534 math_state_restore                       130.5625
+  8354 device_not_available                     203.7561
+ -----
+ 20888
+
+
+Patch is "obviously correct" and cuts 9% of the overhead.  Please apply.
+
+Next step should be to physically place math_state_restore() after
+device_not_available().  Would such a patch be accepted?  (Yes it
+would be ugly and require linker script changes.)
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+Index: 2.6.13-rc3a/arch/i386/kernel/i387.c
+===================================================================
+--- 2.6.13-rc3a.orig/arch/i386/kernel/i387.c
++++ 2.6.13-rc3a/arch/i386/kernel/i387.c
+@@ -82,17 +82,6 @@
+ }
+ EXPORT_SYMBOL_GPL(kernel_fpu_begin);
+ 
+-void restore_fpu( struct task_struct *tsk )
+-{
+-	if ( cpu_has_fxsr ) {
+-		asm volatile( "fxrstor %0"
+-			      : : "m" (tsk->thread.i387.fxsave) );
+-	} else {
+-		asm volatile( "frstor %0"
+-			      : : "m" (tsk->thread.i387.fsave) );
+-	}
+-}
+-
+ /*
+  * FPU tag word conversions.
+  */
+Index: 2.6.13-rc3a/include/asm-i386/i387.h
+===================================================================
+--- 2.6.13-rc3a.orig/include/asm-i386/i387.h
++++ 2.6.13-rc3a/include/asm-i386/i387.h
+@@ -22,11 +22,20 @@
+ /*
+  * FPU lazy state save handling...
+  */
+-extern void restore_fpu( struct task_struct *tsk );
+-
+ extern void kernel_fpu_begin(void);
+ #define kernel_fpu_end() do { stts(); preempt_enable(); } while(0)
+ 
++static inline void restore_fpu( struct task_struct *tsk )
++{
++	if ( cpu_has_fxsr ) {
++		asm volatile( "fxrstor %0"
++			      : : "m" (tsk->thread.i387.fxsave) );
++	} else {
++		asm volatile( "frstor %0"
++			      : : "m" (tsk->thread.i387.fsave) );
++	}
++}
++
+ /*
+  * These must be called with preempt disabled
+  */
+__
+Chuck

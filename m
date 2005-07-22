@@ -1,136 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVGVC1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbVGVCae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbVGVC1F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 22:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbVGVC1F
+	id S262018AbVGVCae (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 22:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVGVCad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 22:27:05 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:6301 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262016AbVGVC1E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 22:27:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=IO5hDthu5c2z5td1WG9KbSY0TjAg4ACbpvNg69K3CI611gzF8Qezr/9Gxu6yxH1SYUOM+J+DoboouaeuxzoVz/ch9FVL2UonpBaWC2YdALzF6wMKkNuItdv/SPGeWDHOR7GH+V6pNglQL4pVhPgddFABXrNFFl+2mBkCNnDlL4c=
-Message-ID: <42E0594E.4060305@gmail.com>
-Date: Fri, 22 Jul 2005 11:26:22 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
-X-Accept-Language: en-us, en
+	Thu, 21 Jul 2005 22:30:33 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:47850 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262018AbVGVCaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 22:30:30 -0400
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>, "Paul Jackson" <pj@sgi.com>,
+       "Jan Engelhardt" <jengelh@linux01.gwdg.de>, <linux@horizon.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: kernel guide to space
+References: <20050714011208.22598.qmail@science.horizon.com>
+	<FD559B50-FB1E-4478-ACF4-70E4DB7A0176@mac.com>
+	<Pine.LNX.4.61.0507200715290.9066@yvahk01.tjqt.qr>
+	<20050720174521.73c06bce.pj@sgi.com>
+	<3FC51285-941F-48B6-B5A9-1BBE95CCD816@mac.com>
+	<9a874849050721114227f3c6a7@mail.gmail.com>
+	<Pine.LNX.4.61.0507211528250.12675@chaos.analogic.com>
+From: Miles Bader <miles@lsi.nec.co.jp>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Fri, 22 Jul 2005 11:29:55 +0900
+In-Reply-To: <Pine.LNX.4.61.0507211528250.12675@chaos.analogic.com> (linux-os@analogic.com's message of "Thu, 21 Jul 2005 15:37:44 -0400")
+Message-Id: <buozmsfvaho.fsf@mctpc71.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
-To: randy_dunlap <rdunlap@xenotime.net>
-CC: lkml <linux-kernel@vger.kernel.org>, njw@osdl.org
-Subject: Re: [announce] 'patchview' ver. 003
-References: <20050721133058.791773b8.rdunlap@xenotime.net>
-In-Reply-To: <20050721133058.791773b8.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-randy_dunlap wrote:
-> Hi,
-> 
-> [version 003]
-> 
-> 'patchview' merges a patch file and a source tree to a set of
-> temporary modified files.  This enables better patch (re)viewing
-> and more viewable context.  (hopefully)
-> 
-> 
-> The patchview script is here:
->   http://www.xenotime.net/linux/scripts/patchview
-> 
-> 
-> usage: patchview [-f] patchfile srctree {ver. 003}
->   -f : force tkdiff even if 'patch' has errors
->   -s : single tkdiff even if patchfile contains multiple files
-> 
-> 
-> It uses (requires) lsdiff (from patchutils) and tkdiff.
-> 
-> patchutils:  http://cyberelk.net/tim/patchutils/
-> tkdiff:      http://sourceforge.net/projects/tkdiff/
-> 
-> ---
-> ~Randy
-> 
-> 
-> Changes for ver. 003:
-> - handle patch making empty .orig files (for new files)
->   with permission of 000
+"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
+> It will take probably an hour to parse:
+> struct BusLogic_FetchHostAdapterLocalRAMReguest FetchHostAdapterLocalRAMRequest
+>  		^!)
 
-  Hi, Randy.
+Agh!  My eyes!
 
-  Here's a small modification to make it work with mtkdiff (my hacked 
-version of tkdiff which supports multiple files).  mtkdiff+patchview 
-tarball is available at the following url.
+The above names are way overdone by any measure, but is there any
+consensus whether studly-caps in general are discouraged or not?
 
+CodingStyle is vague on the issue, though it kind of implies you should
+use underscores when multiple words are needed (the sole example of
+studly caps is in a negative context, and a following recommended name
+uses underlines).  The kernel source seems pretty random -- they get
+used here and there, but more often not; they seem more common in older
+code.
 
-http://home-tj.org/mtkdiff/files/patchview-mtkdiff.tar.gz
+If they are discouraged, it might be better to say so explicitly, as
+there are many programmers these days who are used to using them.
 
-
---- patchview.orig	2005-07-22 11:19:26.000000000 +0900
-+++ patchview/patchview	2005-07-22 11:21:01.000000000 +0900
-@@ -5,7 +5,7 @@
-  # uses patchutils (lsdiff) and tkdiff
-
-  PROG=patchview
--VERSION=003
-+VERSION=004
-
-  # usage: help message and exit
-  function usage()
-@@ -40,7 +40,12 @@
-
-  force=0
-  single=0
-+mtkdiff=0
-  VIEWER="tkdiff"
-+if [ -x "`which mtkdiff`" ]; then
-+	VIEWER="mtkdiff"
-+	mtkdiff=1
-+fi
-  # or maybe "sh -c colordiff" would work
-
-  while [ -n "$1" ]
-@@ -117,15 +122,29 @@
-  	exit 1
-  fi
-
--for pf in $pfiles ; do
--	$VIEWER $WORKDIR/$pf.orig $WORKDIR/$pf &
--	if [ ${single} -eq 1 ]; then
--		wait # for viewer to exit
--	fi
--done
-+if [ $mtkdiff -ne 0 ]; then
-+	i=0
-+	argv[i++]="-gdesc"
-+	argv[i++]=`diffstat $patchfile`
-+	for pf in $pfiles ; do
-+		argv[i++]="-fname"
-+		argv[i++]="$pf"
-+		argv[i++]="$WORKDIR/$pf.orig"
-+		argv[i++]="$WORKDIR/$pf"
-+	done
-
--if [ ${single} -eq 0 ]; then
--	wait # for all viewers to exit
-+	mtkdiff "${argv[@]}"
-+else
-+	for pf in $pfiles ; do
-+		$VIEWER $WORKDIR/$pf.orig $WORKDIR/$pf &
-+		if [ ${single} -eq 1 ]; then
-+			wait # for viewer to exit
-+		fi
-+	done
-+
-+	if [ ${single} -eq 0 ]; then
-+		wait # for all viewers to exit
-+	fi
-  fi
-
-  rm -rf $WORKDIR
-
+-Miles
+-- 
+Run away!  Run away!

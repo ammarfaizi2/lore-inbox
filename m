@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbVGVDJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVGVDKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262004AbVGVDJg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 23:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVGVDJg
+	id S262024AbVGVDKm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 23:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVGVDKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 23:09:36 -0400
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:26009 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S262004AbVGVDJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 23:09:36 -0400
-Date: Thu, 21 Jul 2005 23:06:22 -0400
+	Thu, 21 Jul 2005 23:10:41 -0400
+Received: from siaag2ag.compuserve.com ([149.174.40.140]:28965 "EHLO
+	siaag2ag.compuserve.com") by vger.kernel.org with ESMTP
+	id S262024AbVGVDKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 23:10:31 -0400
+Date: Thu, 21 Jul 2005 23:06:21 -0400
 From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 2.6.13-rc3a] i386: inline restore_fpu
+Subject: Why build empty object files in drivers/media?
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200507212309_MC3-1-A534-95EF@compuserve.com>
+Cc: Johannes Stezenbach <js@linuxtv.org>, Adrian Bunk <bunk@stusta.de>
+Message-ID: <200507212309_MC3-1-A534-95EE@compuserve.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
@@ -24,86 +24,44 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  This patch makes restore_fpu() an inline.  When L1/L2 cache are saturated
-it makes a measurable difference.
-
-  Results from profiling Volanomark follow.  Sample rate was 2000 samples/sec
-(HZ = 250, profile multiplier = 8) on a dual-processor Pentium II Xeon.
+I have this in my .config file for 2.6.13-rc3:
 
 
-Before:
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
 
- 10680 restore_fpu                              333.7500
-  8351 device_not_available                     203.6829
-  3823 math_state_restore                        59.7344
- -----
- 22854
-
-
-After:
-
- 12534 math_state_restore                       130.5625
-  8354 device_not_available                     203.7561
- -----
- 20888
+#
+# Digital Video Broadcasting Devices
+#
+# CONFIG_DVB is not set
 
 
-Patch is "obviously correct" and cuts 9% of the overhead.  Please apply.
+And yet these completely empty files are being built:
 
-Next step should be to physically place math_state_restore() after
-device_not_available().  Would such a patch be accepted?  (Yes it
-would be ugly and require linker script changes.)
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+$ find drivers/media -name built-in.o | xargs ls -go
+-rw-rw-r--  1 305 Jul 16 00:20 drivers/media/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/common/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/dvb/b2c2/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/dvb/bt8xx/built-in.o
+-rw-rw-r--  1 305 Jul 16 00:20 drivers/media/dvb/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/dvb/cinergyT2/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/dvb/dvb-core/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/dvb/dvb-usb/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/dvb/frontends/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/dvb/pluto2/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/dvb/ttpci/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/dvb/ttusb-budget/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/dvb/ttusb-dec/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/radio/built-in.o
+-rw-rw-r--  1   8 Jul 16 00:20 drivers/media/video/built-in.o
 
-Index: 2.6.13-rc3a/arch/i386/kernel/i387.c
-===================================================================
---- 2.6.13-rc3a.orig/arch/i386/kernel/i387.c
-+++ 2.6.13-rc3a/arch/i386/kernel/i387.c
-@@ -82,17 +82,6 @@
- }
- EXPORT_SYMBOL_GPL(kernel_fpu_begin);
- 
--void restore_fpu( struct task_struct *tsk )
--{
--	if ( cpu_has_fxsr ) {
--		asm volatile( "fxrstor %0"
--			      : : "m" (tsk->thread.i387.fxsave) );
--	} else {
--		asm volatile( "frstor %0"
--			      : : "m" (tsk->thread.i387.fsave) );
--	}
--}
--
- /*
-  * FPU tag word conversions.
-  */
-Index: 2.6.13-rc3a/include/asm-i386/i387.h
-===================================================================
---- 2.6.13-rc3a.orig/include/asm-i386/i387.h
-+++ 2.6.13-rc3a/include/asm-i386/i387.h
-@@ -22,11 +22,20 @@
- /*
-  * FPU lazy state save handling...
-  */
--extern void restore_fpu( struct task_struct *tsk );
--
- extern void kernel_fpu_begin(void);
- #define kernel_fpu_end() do { stts(); preempt_enable(); } while(0)
- 
-+static inline void restore_fpu( struct task_struct *tsk )
-+{
-+	if ( cpu_has_fxsr ) {
-+		asm volatile( "fxrstor %0"
-+			      : : "m" (tsk->thread.i387.fxsave) );
-+	} else {
-+		asm volatile( "frstor %0"
-+			      : : "m" (tsk->thread.i387.fsave) );
-+	}
-+}
-+
- /*
-  * These must be called with preempt disabled
-  */
+$ size drivers/media/built-in.o
+   text    data     bss     dec     hex filename
+      0       0       0       0       0 drivers/media/built-in.o
+
+
 __
 Chuck

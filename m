@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVGVVUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVGVVZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVGVVUp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 17:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVGVVUa
+	id S262194AbVGVVZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 17:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbVGVVZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 17:20:30 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:54985 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262181AbVGVVSx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 17:18:53 -0400
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Johannes Stezenbach <js@linuxtv.org>, Adrian Bunk <bunk@stusta.de>
-Subject: Re: Why build empty object files in drivers/media?
-References: <200507212309_MC3-1-A534-95EE@compuserve.com>
-	<20050722194600.GA8757@mars.ravnborg.org>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Fri, 22 Jul 2005 23:18:13 +0200
-Message-ID: <87oe8uleui.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
+	Fri, 22 Jul 2005 17:25:56 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:22719 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S262185AbVGVVZl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 17:25:41 -0400
+Date: Fri, 22 Jul 2005 23:24:54 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Davy Durham <pubaddr2@davyandbeth.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: select() efficiency
+Message-ID: <20050722212454.GB18988@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Davy Durham <pubaddr2@davyandbeth.com>, linux-kernel@vger.kernel.org
+References: <42E162B6.2000602@davyandbeth.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:fa0178852225c1084dbb63fc71559d78
+Content-Disposition: inline
+In-Reply-To: <42E162B6.2000602@davyandbeth.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> writes:
+On Fri, Jul 22, 2005 at 04:18:46PM -0500, Davy Durham wrote:
+> Please forgive and redirect me if this is not the right place to ask 
+> this question:
+> 
+> I'm looking to write a sort of messaging system that would take input 
+> from any number of entities that "register" with it.. it would then 
+> route the messages to outputs and so forth..
 
-> +obj-$(CONFIG_VIDEO_DEV) := video/
-> +obj-$(CONFIG_VIDEO_DEV) := radio/
+Look at epoll, or libevent, which uses epoll to be quick in this scenario.
 
-  s/VIDEO/RADIO/
 
-Regards, Olaf.
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

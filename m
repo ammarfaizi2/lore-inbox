@@ -1,87 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVGVU62@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVGVVFC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbVGVU62 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 16:58:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVGVU61
+	id S262171AbVGVVFC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 17:05:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbVGVVFC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 16:58:27 -0400
-Received: from flawless.real.com ([207.188.23.141]:23737 "EHLO
-	flawless.real.com") by vger.kernel.org with ESMTP id S262163AbVGVU61
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 16:58:27 -0400
-Date: Fri, 22 Jul 2005 13:58:25 -0700
-From: Tom Marshall <tmarshall@real.com>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: itimer oddness in 2.6.12
-Message-ID: <20050722205825.GB6476@real.com>
-References: <20050722171657.GG4311@real.com> <42E14735.1090205@grupopie.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_flawless.real.com-2955-1122065901-0001-2"
-Content-Disposition: inline
-In-Reply-To: <42E14735.1090205@grupopie.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 22 Jul 2005 17:05:02 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:63156 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S262171AbVGVVFA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 17:05:00 -0400
+Message-ID: <42E160E3.8010006@stesmi.com>
+Date: Fri, 22 Jul 2005 23:10:59 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bernd Eckenfels <be-mail2005@lina.inka.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: a 15 GB file on tmpfs
+References: <E1Dvusr-00048r-00@calista.eckenfels.6bone.ka-ip.net> <42E0D1C2.8080703@stesmi.com> <20050722162539.GA25577@lina.inka.de>
+In-Reply-To: <20050722162539.GA25577@lina.inka.de>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=_flawless.real.com-2955-1122065901-0001-2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Bernd Eckenfels wrote:
+> On Fri, Jul 22, 2005 at 01:00:18PM +0200, Stefan Smietanowski wrote:
+> 
+>>>You cant have 16GB of Memory with 32bit CPUs.
+>>
+>>PAE
+>>CONFIG_HIGMEM64G
+>>Supports a 36bit address space, which Xeons do support.
+> 
+> 
+> Yes right, I was just not aware recent hardware (still) supports that. I
+> mean even mit 2MB modules most of them are specified only to 8GB. I would
+> consider buying such a system quite foolish. All of the HP servers with 12GB
+> and more seem to support EM64T. Do you know vendors who ship non-EM64T
+> servers with more than 16GB?
 
-On Fri, Jul 22, 2005 at 08:21:25PM +0100, Paulo Marques wrote:
-> Tom Marshall wrote:
-> >The patch to fix "setitimer timer expires too early" is causing issues f=
-or
-> >the Helix server.  We have a timer processs that updates the server's
-> >timestamp on an itimer and it expects the signal to be delivered at roug=
-hly
-> >the interval retrieved from getitimer.  This is very consistent on every
-> >platform, including Linux up to 2.6.11, but breaks on 2.6.12.  On 2.6.12,
-> >setting the itimer to 10ms and retrieving the actual interval from=20
-> >getitimer
-> >reports 10.998ms, but the timer interrupts are consistently delivered at
-> >roughly 11.998ms. =20
->=20
-> Unfortunately, this is not so clear cut as it seems :(
+http://www.intel.com/products/processor/xeon/index.htm
 
-Yes, I am sure that it is not a simple problem.  I am not a kernel developer
-but I imagine that issues such as NTP adjustments would complicate this
-issue.  I must also admit that I am not intimately familiar with the POSIX
-spec regarding itimers.
+Shows that the lowest speed Xeon with EM64T is 2.83GHz.
 
-Our current code does a setitimer followed by getitimer, then uses the
-actual interval retrieved by getitimer to set a global timer delta.  On each
-timer signal, it updates the notion of the current time by the timer delta.=
-=20
-As mentioned, this works on every other platform (Solaris, BSD, HPUX, AIX,
-DGUX, IRIX, Tru64, and Linux up to 2.6.11) but breaks on 2.6.12.
+http://commerce.euro.dell.com/dellstore/config/frameset.asp?c=607&n=3410&b=62417&m=gbp&cs=ukbsdt1&sbc=ukbsdpedge&v=d&cu=etstore&l=en&s=ukbsd&store=ukbsd
 
-This is not an insurmountable problem for userspace.  It can be easily
-solved by using gettimeofday in the timer interrupt instead of adding the
-delta to the current time blindly.  No big deal.  I just wanted to point
-this issue out and ensure that (1) it was a known issue, and (2) it is the
-direction that the Linux kernel intends to take.  If so, no big deal and we
-can modify the timer code to take that into account.
+Shows a system taking 1-4 of those processors at 2.0, 2.2, 2.7 and
+3.0GHz, making them 32bit only.
 
---=20
-Apathy Club meeting this Friday.  If you want to come, you're not invited.
+Memory you can configure is from 1GiB (4x256MiB) to 32GiB (16x2GiB).
 
---=_flawless.real.com-2955-1122065901-0001-2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Transfer-Encoding: 7bit
-Content-Description: Digital signature
-Content-Disposition: inline
+If I'd buy a server I wouldn't buy one of those however, I'm just
+answering the question.
 
+Disclaimer: I do not have anything to do with either of the above
+mentioned vendors. I just looked up the first vendor that came into
+my head.
+
+// Stefan
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.1 (MingW32)
 
-iD8DBQFC4V3xqznSmcYu2m8RAk+6AJwN0qGV1sV1IcHeTjz3jHPRn2ErpwCfQMQN
-Qz2Z70ntJxpCSzHWDhnBd08=
-=1KGK
+iD8DBQFC4WDjBrn2kJu9P78RAn9RAJ9wRffW5VB0WbRgRBNjfN9+k3XMvgCgtWAO
+mu8p8nj8iIpNIkuYiMkiTuI=
+=9kQz
 -----END PGP SIGNATURE-----
-
---=_flawless.real.com-2955-1122065901-0001-2--

@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVGVLhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVGVLlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbVGVLhu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 07:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVGVLht
+	id S262080AbVGVLlj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 07:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVGVLlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 07:37:49 -0400
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:56575 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262079AbVGVLhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 07:37:47 -0400
-Date: Fri, 22 Jul 2005 13:37:46 +0200
-From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 10 GB in Opteron machine
-Message-Id: <20050722133746.67e5f5d3.Christoph.Pleger@uni-dortmund.de>
-In-Reply-To: <20050722103955.GI30510@unthought.net>
-References: <20050722105516.6ccffb8f.Christoph.Pleger@uni-dortmund.de>
-	<42E0B6E4.1030303@pobox.com>
-	<20050722113138.5d81c770.Christoph.Pleger@uni-dortmund.de>
-	<20050722103955.GI30510@unthought.net>
-Organization: Universitaet Dortmund
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-sun-solaris2.7)
+	Fri, 22 Jul 2005 07:41:39 -0400
+Received: from ns.firmix.at ([62.141.48.66]:16802 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S262080AbVGVLli (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 07:41:38 -0400
+Subject: Re: Kernel doesn't free Cached Memory
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Vinicius <jdob@ig.com.br>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050722_112730_062779.jdob@ig.com.br>
+References: <20050722_112730_062779.jdob@ig.com.br>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Fri, 22 Jul 2005 13:41:31 +0200
+Message-Id: <1122032491.22878.4.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-On Fri, 22 Jul 2005 12:39:55 +0200
-Jakob Oestergaard <jakob@unthought.net> wrote:
-
-> > 1. Is it possible to compile a 64-bit kernel on a 32-bit machine (or
-> > at least on a 64-bit machine with 32-bit software) and if yes, how
-> > can I do that?
+On Fri, 2005-07-22 at 08:27 -0300, Vinicius wrote:
+[...]
+>    I have a server with 2 Pentium 4 HT processors and 32 GB of RAM, this 
+> server runs lots of applications that consume lots of memory to. When I stop 
+> this applications, the kernel doesn't free memory (the  memory still in use) 
+> and the server cache lots of memory (~27GB). When I start this applications, 
+> the kernel sends  "Out of Memory" messages and kill some random 
+> applications. 
 > 
-> Yes. On Debian Sarge, I have a few wrapper scripts to accomplish it -
-> all attached to this mail - just untar them in /usr/local/bin on a
-> standard x86 32-bit Sarge distro.  Use 'kmake' instead of 'make' when
-> you are working with your kernel source (eg. 'kmake menuconfig',
-> 'kmake all')
-> 
-> Sarge comes with all the necessary toolchain support to build a 64-bit
-> kernel.
-> 
-> It should be equally possible on most other distros of course, I just
-> haven't felt the urge to go waste my time with them :)
+>    Anyone know how can I reduce the kernel cached memory on RHEL 3 (kernel 
+> 2.4.21-32.ELsmp - Trial version)? There is a way to reduce the kernel cached 
+> memory utilization? 
 
-I am also using Debian sarge. I extracted the tarfile to /usr/local/bin
-end executed "kmake menuconfig". Everything seemed fine so far. But a
-few seconds after starting the compilation (kmake bzImage) I got this
-error message:
+Probably RedHat's support can answer this for RHEL 3.
 
-In file included from <snip>
-...
-<snip>
-include/asm/mpspec.h:6:25: mach_mpspec.h: No such file or directory
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-
-
-Hm. I understand why that file cannot be found: It only exists in the
-asm-i386 directory. But why does the compilation process look for a file
-that belongs to i386, but not to x86_64?
-
-Christoph  

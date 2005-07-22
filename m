@@ -1,34 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVGVFiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVGVFwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbVGVFiA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 01:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVGVFh7
+	id S262023AbVGVFwe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 01:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVGVFwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 01:37:59 -0400
-Received: from coriana6.CIS.McMaster.CA ([130.113.128.17]:34960 "EHLO
-	coriana6.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S261470AbVGVFhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 01:37:55 -0400
-Date: Fri, 22 Jul 2005 01:37:42 -0400 (EDT)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: hahn@coffee.psychology.mcmaster.ca
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm1 (ckrm) 
-In-Reply-To: <E1Dvph3-00087R-00@w-gerrit.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0507220135040.4935-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-PMX-Version-Mac: 4.7.1.128075, Antispam-Engine: 2.0.3.2, Antispam-Data: 2005.7.21.45
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+	Fri, 22 Jul 2005 01:52:33 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:30331 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262023AbVGVFwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 01:52:33 -0400
+Date: Thu, 21 Jul 2005 22:52:26 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: 7eggert@gmx.de, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [1/5+1] menu -> menuconfig part 1
+Message-Id: <20050721225226.4fbd64f7.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.58.0507171326470.6041@be1.lrz>
+References: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
+	<Pine.LNX.4.58.0507171326470.6041@be1.lrz>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> of the various environments.  I don't think you are one of those end
-> users, though.  I don't think I'm required to make everyone happy all
-> the time.  ;)
+On Sun, 17 Jul 2005 13:29:03 +0200 (CEST) Bodo Eggert wrote:
 
-the issue is whether CKRM (in it's real form, not this thin edge)
-will noticably hurt Linux's fast-path.
+> On Sun, 17 Jul 2005, Bodo Eggert wrote:
+> 
+> > These patches change some menus into menuconfig options.
+> > 
+> > Reworked to apply to linux-2.6.13-rc3-git3
+> 
+> Mostly robotic works.
 
+Hi,
+
+When using xconfig (not menuconfig), the drivers/MTD menu
+needs some help IMO, but it's not clear where/why.
+
+Before the patch, there was only "Memory Technology
+Devices (MTD)" in the left xconfig panel.  After the patch,
+under that heading there are 4 other MTD entries,
+which are in the right-side panel before the patch and should
+remain there.  These are:
+
+  RAM/ROM/Flash chip drivers
+  Mapping drivers for chip access
+  Self-contained MTD device drivers
+  NAND Flash Device support
+
+---
+~Randy

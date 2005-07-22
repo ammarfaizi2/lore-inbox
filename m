@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVGVVSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVGVVUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbVGVVSI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 17:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVGVVR4
+	id S262183AbVGVVUp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 17:20:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVGVVUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 17:17:56 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22026 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261402AbVGVVRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 17:17:37 -0400
-Date: Fri, 22 Jul 2005 23:17:32 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Gerrit Huizenga <gh@us.ibm.com>,
-       Hubertus Franke <frankeh@us.ibm.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>,
-       Vivek Kashyap <vivk@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] kernel/ckrm/rbce/rbce_core.c: fix -Wundef warning
-Message-ID: <20050722211732.GQ3160@stusta.de>
-References: <20050715013653.36006990.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050715013653.36006990.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+	Fri, 22 Jul 2005 17:20:36 -0400
+Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:51113 "EHLO
+	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262183AbVGVVSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 17:18:51 -0400
+Message-ID: <42E162B6.2000602@davyandbeth.com>
+Date: Fri, 22 Jul 2005 16:18:46 -0500
+From: Davy Durham <pubaddr2@davyandbeth.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: select() efficiency
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 15, 2005 at 01:36:53AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.13-rc2-mm2:
->...
-> +ckrm-rule-based-classification-engine-full-ce.patch
->...
->  Class-based kernel resource management
->...
+Please forgive and redirect me if this is not the right place to ask 
+this question:
 
-This patch fixes the following warning with -Wundef:
+I'm looking to write a sort of messaging system that would take input 
+from any number of entities that "register" with it.. it would then 
+route the messages to outputs and so forth..
 
-<--  snip  -->
+I'm guessing that the messaging system would be a single process on the 
+machine..
 
-...
-  CC      kernel/ckrm/rbce/rbce_core.o
-kernel/ckrm/rbce/rbce_core.c:323:5: warning: "__NOT_YET__" is not defined
-...
+So, I'm considering making the means of input to the system be a unix 
+socket.  An entity would connect to the socket as it's means of 
+inputting messages into the system. 
 
-<--  snip  -->
+However, lets suppose that 1000+ entities connect to that socket.. this 
+would require the message system's loop to be adding 1000+ file 
+descriptures to an fd_set and call select() every time it loops around 
+to check for any messages.
 
+So, my question is: how efficient would things be, doing selects() very 
+often on 1000+ file descriptors?  I'm not aware of max size for an 
+fd_set.. (I do know that NT is limited to 64 handles.. but that's really 
+beside the point unless I look at porting someday)
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Should I go another route?
 
---- linux-2.6.13-rc3-mm1-full/kernel/ckrm/rbce/rbce_core.c.old	2005-07-22 18:04:28.000000000 +0200
-+++ linux-2.6.13-rc3-mm1-full/kernel/ckrm/rbce/rbce_core.c	2005-07-22 18:04:36.000000000 +0200
-@@ -320,7 +320,7 @@
- 
- 			case RBCE_RULE_CMD_PATH:
- 			case RBCE_RULE_CMD:
--#if __NOT_YET__
-+#ifdef __NOT_YET__
- 				if (!*filename) {	/* get this once */
- 					if (((*filename =
- 					      kmalloc(NAME_MAX,
+The system is meant to rapidly route messages ASAP.. so it would be a 
+bad idea to say write them to a file and poll the file or something like 
+that...
 
+Another thought was to use a system-wide mutex and write to a named 
+pipe, but the socket method seems more appealing to me in design... and 
+I didn't know if it was pretty much equivalent either way since either I 
+will do the work of dealing with 1000+ things or the kernel will.
+
+Thanks,
+  Davy

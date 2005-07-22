@@ -1,50 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVGVBhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVGVCKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbVGVBhD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 21:37:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVGVBgz
+	id S261994AbVGVCKt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 22:10:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbVGVCKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 21:36:55 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:42661 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262000AbVGVBfc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 21:35:32 -0400
-Message-ID: <42E04D5C.5010907@pobox.com>
-Date: Thu, 21 Jul 2005 21:35:24 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lukasz Kosewski <lkosewsk@nit.ca>
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: [PATCH 0/3] Add disk hotswap support to libata
-References: <42E01024.9030600@nit.ca>
-In-Reply-To: <42E01024.9030600@nit.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 21 Jul 2005 22:10:48 -0400
+Received: from king.bitgnome.net ([70.84.111.244]:35759 "EHLO
+	king.bitgnome.net") by vger.kernel.org with ESMTP id S261994AbVGVCKr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 22:10:47 -0400
+Date: Thu, 21 Jul 2005 21:10:46 -0500
+From: Mark Nipper <nipsy@bitgnome.net>
+To: Martin =?utf-8?Q?MOKREJ=C5=A0?= <mmokrejs@ribosome.natur.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Giving developers clue how many testers verified certain kernel version
+Message-ID: <20050722021046.GB21727@king.bitgnome.net>
+References: <42E04D11.20005@ribosome.natur.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42E04D11.20005@ribosome.natur.cuni.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Kosewski wrote:
-> Hey all, introductory blurb here.
-> 
-> This sequence of patches will add a framework to libata to allow for 
-> hot-swapping disks in and out.
-> 
-> There are three patches:
-> 01-promise_sataII150_support
-> 02-libata_hotswap_infrastructure
-> 03-promise_hotswap_support
+	I have a different idea along these lines but not using
+bugzilla.  A nice system for tracking usage of certain components
+might be made by having people register using a certain e-mail
+address and then submitting their .config as they try out new
+versions of kernels.
 
-Pretty cool stuff!
+	The idea of course is that people will generally only
+have compiled their own custom kernels with the drivers and
+components they tend to use most.  It might be enough to ask
+people who use this system to only submit mostly customized
+configurations as opposed to distribution style kernel
+configurations where almost everything is compiled as a module.
 
-As soon as I finish SATA ATAPI (this week[end]), I'll take a look at 
-this.  A quick review of the patches didn't turn up anything terribly 
-objectionable, though :)
+	Anyway, the end result being that kernel developers could
+ultimately refer to this system and see as they change things
+whether a lot of people are hitting the components in the kernel
+which might have been affected by their changes.  If even one
+hundred people report using some specific subsystem which has
+recently undergone significant change without any reports of
+problems, then the developer can rest somewhat more easily
+knowing their changes were probably made without incident.
 
-	Jeff
+	Just an idea.  It might require some minimum
+recommendations to users willing to participate.  I know for
+example that I statically compile all four I/O schedulers in all
+my kernels currently even though I always let the kernel select
+whichever is the default and never change it myself.  Obviously
+it would make more sense for me to axe those schedulers which are
+not absolutely necessary to make whatever statistics being
+gathered on my particular configuration more useful to a
+developer checking to see which schedulers are being used and to
+what extent.
 
+-- 
+Mark Nipper                                                e-contacts:
+4475 Carter Creek Parkway                           nipsy@bitgnome.net
+Apartment 724                               http://nipsy.bitgnome.net/
+Bryan, Texas, 77802-4481           AIM/Yahoo: texasnipsy ICQ: 66971617
+(979)575-3193                                      MSN: nipsy@tamu.edu
 
-P.S.  You might want to CC linux-ide as well, on libata patches.
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GG/IT d- s++:+ a- C++$ UBL++++$ P--->+++ L+++$ !E---
+W++(--) N+ o K++ w(---) O++ M V(--) PS+++(+) PE(--)
+Y+ PGP t+ 5 X R tv b+++@ DI+(++) D+ G e h r++ y+(**)
+------END GEEK CODE BLOCK------
+
+---begin random quote of the moment---
+This sentence no verb.
+----end random quote of the moment----

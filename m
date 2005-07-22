@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVGVU27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVGVUfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVGVU27 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 16:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVGVU27
+	id S262158AbVGVUfi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 16:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVGVUfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 16:28:59 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:1406 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261373AbVGVU26 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 16:28:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AsLiHFbdn/wdqmeqvVoki47doSxEuD0mzDcVw2ff5OY0woBqphwxENagb0ZEz+voEkJiLgmoyFKysDYVrQA+bQXkBzbjMm4PPYqBaDP8lni5ZpirGbtDNScP7oiJQQ746JgzGB7PLrRxfEYilFyJHSYPKXD+u2l8M9aUj5ZMUIQ=
-Message-ID: <9a87484905072213286cb6e49b@mail.gmail.com>
-Date: Fri, 22 Jul 2005 22:28:58 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: kernel guide to space
-Cc: Patrick Draper <pdraper@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050722192103.GA8556@mars.ravnborg.org>
+	Fri, 22 Jul 2005 16:35:38 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:64699 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S262158AbVGVUfg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 16:35:36 -0400
+Date: Fri, 22 Jul 2005 22:33:21 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Paul Jackson <pj@sgi.com>
+Cc: rostedt@goodmis.org, relayfs-devel@lists.sourceforge.net,
+       richardj_moore@uk.ibm.com, varap@us.ibm.com, karim@opersys.com,
+       linux-kernel@vger.kernel.org, zanussi@us.ibm.com
+Subject: relayfs as infrastructure,  ltt, systemtap, diskstat
+Message-ID: <20050722203321.GD13270@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Paul Jackson <pj@sgi.com>, rostedt@goodmis.org,
+	relayfs-devel@lists.sourceforge.net, richardj_moore@uk.ibm.com,
+	varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
+	zanussi@us.ibm.com
+References: <17107.6290.734560.231978@tut.ibm.com> <20050716210759.GA1850@outpost.ds9a.nl> <17113.38067.551471.862551@tut.ibm.com> <20050717090137.GB5161@outpost.ds9a.nl> <17114.31916.451621.501383@tut.ibm.com> <20050717194558.GC27353@outpost.ds9a.nl> <1121693274.12862.15.camel@localhost.localdomain> <20050720142732.761354de.pj@sgi.com> <20050720214519.GA13155@outpost.ds9a.nl> <20050722130132.60f1524e.pj@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050711145616.GA22936@mellanox.co.il>
-	 <9a87484905072005596f2c2b51@mail.gmail.com>
-	 <m3pstd2jfu.fsf@defiant.localdomain>
-	 <6981e08b050722101241ba2f3e@mail.gmail.com>
-	 <20050722192103.GA8556@mars.ravnborg.org>
+In-Reply-To: <20050722130132.60f1524e.pj@sgi.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/22/05, Sam Ravnborg <sam@ravnborg.org> wrote:
-> On Fri, Jul 22, 2005 at 12:12:12PM -0500, Patrick Draper wrote:
-> > Why isn't a code formatting program used? People could write the code
-> > as they like to write it, then format it automatically in a standard
-> > way before it gets put into the kernel.
-> There is.
-> scripts/Lindent
-> 
-> But sometimes it fails to do the job properly and some hand formatting
-> is needed. Also much of the kernel is not new stuff but expanding or
-> fixing old stuff.
-> 
-Ehh, that's exactely why I wrote "You can do some cleanup that way,
-but not everything..."
+On Fri, Jul 22, 2005 at 01:01:32PM -0700, Paul Jackson wrote:
+> Another vote in favor of relayfs here ...
 
-        Jesper
+At OLS the 'SystemTAP' idea was presented, which has been partially
+implemented already, and it builds on relayfs as well. It dovetails nicely
+with kprobes.
+
+So it appears there is a sizeable amount of code which is building on
+relayfs, iow, it is getting to be infrastructure.
+
+I'm redoing diskstat to work with k/jprobes so it won't require a kernel
+patch anymore, but it will still rely on relayfs.
+
+So it would be tremendously helpful if relayfs would be part of the
+mainline. I'll be banging out some HOWTO style documentation soonish.
+
+Bert.
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

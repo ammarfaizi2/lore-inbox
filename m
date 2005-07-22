@@ -1,79 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVGVB2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbVGVBdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbVGVB2X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 21:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVGVB2X
+	id S261987AbVGVBdO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 21:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbVGVBdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 21:28:23 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3736 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261883AbVGVB2V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 21:28:21 -0400
-Date: Fri, 22 Jul 2005 03:28:14 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk,
-       vojtech@suse.cz
-Subject: Re: [patch,rfc] Support for touchscreen on sharp zaurus sl-5500
-Message-ID: <20050722012814.GB6758@atrey.karlin.mff.cuni.cz>
-References: <20050721052455.GB7849@elf.ucw.cz> <29495f1d05072117247817c5d1@mail.gmail.com>
+	Thu, 21 Jul 2005 21:33:14 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:52531 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261987AbVGVBdM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 21:33:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=te5zkwX5g8P1s86zEzN76T2sdYFdfuLcmZebU28/244mZpiTJOMqpAzkEsVZkm28i70OfOnDit6TNc27hCZdC1xKm5vZXCFEwt95c1Jckr9YdoS1JcoUQWnCYplbdis0761J7CyA4+RQ082YF3V+WKsZQu4L4LYT70G7pLojc94=
+Message-ID: <9a874849050721183272f443f8@mail.gmail.com>
+Date: Fri, 22 Jul 2005 03:32:05 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: kernel guide to space
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Paul Jackson <pj@sgi.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux@horizon.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <9a874849050721131145f5c711@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <29495f1d05072117247817c5d1@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+References: <20050714011208.22598.qmail@science.horizon.com>
+	 <FD559B50-FB1E-4478-ACF4-70E4DB7A0176@mac.com>
+	 <Pine.LNX.4.61.0507200715290.9066@yvahk01.tjqt.qr>
+	 <20050720174521.73c06bce.pj@sgi.com>
+	 <3FC51285-941F-48B6-B5A9-1BBE95CCD816@mac.com>
+	 <9a874849050721114227f3c6a7@mail.gmail.com>
+	 <Pine.LNX.4.61.0507211528250.12675@chaos.analogic.com>
+	 <9a874849050721131145f5c711@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > +               set_task_state(tsk, TASK_UNINTERRUPTIBLE);
-> > +               schedule_timeout(HZ / 100);
-> > +               if (signal_pending(tsk))
-> > +                       break;
+On 7/21/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 7/21/05, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
+> >
+> > On Thu, 21 Jul 2005, Jesper Juhl wrote:
+> >
+> > > On 7/21/05, Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> > >> On Jul 20, 2005, at 20:45:21, Paul Jackson wrote:
+> > > [...snip...]
+> > >> *cough* TargetStatistics[TargetID].HostAdapterResetsCompleted *cough*
+> > >>
+> > >> I suspect linus would be willing to accept a few cleanup patches for the
+> > >> BusLogic.c file.  Perhaps even one that renames BusLogic.c to buslogic.c
+> > >> like all the other files in the source tree, instead of using nasty
+> > >> StudlyCaps all over :-D
+> > >>
+> > >
+> > > To avoid people doing duplicate work, I just want to say that I've
+> > > started doing a CodingStyle/whitespace/VariableAndFunctionNaming
+> > > cleanup of the BusLogic driver, I'll send the patches to LKML in a few
+> > > hours.
+> > >
+> > Are you going to get rid of the BusLogic* in front of every variable
+> > and function name? (yes please??)
+> Yes, I am.
 > 
-> You specifically allow SIGKILL, but then sleep uninterruptibly? And
-> then you check if signal_pending() :) I think you may want
-> TASK_INTERRUPTIBLE? Or, go one better and use msleep_interruptible(),
-> as I don't see any wait-queues in the immediate area of this code...
-
-Okay, I think this should be uninterruptible. The signal can be
-delivered during next interruptible sleep. Fixes.
-
-> > +/**
-> > + *     ucb1x00_adc_read - read the specified ADC channel
-> > + *     @ucb: UCB1x00 structure describing chip
-> > + *     @adc_channel: ADC channel mask
-> > + *     @sync: wait for syncronisation pulse.
-> > + *
-> > + *     Start an ADC conversion and wait for the result.  Note that
-> > + *     synchronised ADC conversions (via the ADCSYNC pin) must wait
-> > + *     until the trigger is asserted and the conversion is finished.
-> > + *
-> > + *     This function currently spins waiting for the conversion to
-> > + *     complete (2 frames max without sync).
+> >  If so, you will need a few days!
 > 
-> You technically sleep (schedule_timeout()), not spin...
-
-Well, it also spins :-).
-
-> > +       for (;;) {
-> > +               val = ucb1x00_reg_read(ucb, UCB_ADC_DATA);
-> > +               if (val & UCB_ADC_DAT_VAL)
-> > +                       break;
-> > +               /* yield to other processes */
-> > +               set_current_state(TASK_INTERRUPTIBLE);
-> > +               schedule_timeout(1);
-> > +       }
+> That may be, it sure turned into a bigger job than I had at first
+> expected. I'll break it into a few logical bits and submit them along
+> the way. First bits in a few hours - let's see how far I get :)
 > 
-> If I ever add a poll_event() interface to the kernel, this would be a
-> good user. You don't check if signal_pending(), though, even though
-> you are in INTERRUPTIBLE state... Maybe this case can use
-> UNINTERRUPTIBLE?
-
-Ok, UNINTERRUPTIBLE here...
-								Pavel
+> 
+> > It will take probably an hour to parse:
+> > struct BusLogic_FetchHostAdapterLocalRAMReguest
+> 
+> Yeah, it takes time, but I'll get it done.
+> 
+Heh, it takes a little more time than I had anticipated. I've got
+~300Kb of patches here already, and I'm only about 30% done
+(estimated).
+It makes little sense to post the patches I have at this time, since
+they don't really finish the job and leave the files in a funky
+intermediate state, so I'll hold off on posting them untill I'm a
+little closer to the goal - hopefully tomorrow I'll finish it (right
+now I need to get some sleep) - I'll post the patches as soon as I'm
+done with them...
 
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

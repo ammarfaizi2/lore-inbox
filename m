@@ -1,345 +1,293 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVGVUoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVGVUzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVGVUoq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 16:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVGVUof
+	id S262168AbVGVUzu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 16:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVGVUzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 16:44:35 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:53942 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261386AbVGVUnz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 16:43:55 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Fri, 22 Jul 2005 16:55:50 -0400
+Received: from host27-37.discord.birch.net ([65.16.27.37]:50547 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S262168AbVGVUzr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 16:55:47 -0400
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "=?iso-8859-1?Q?'M=E1rcio_Oliveira'?=" 
+	<moliveira@latinsourcetech.com>,
+       "'Neil Horman'" <nhorman@redhat.com>
+Cc: <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Memory Management
+Date: Fri, 22 Jul 2005 15:58:31 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17121.23168.541515.259702@tut.ibm.com>
-Date: Fri, 22 Jul 2005 15:43:44 -0500
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Karim Yaghmour <karim@opersys.com>,
-       Steven Rostedt <rostedt@goodmis.org>, richardj_moore@uk.ibm.com,
-       varap@us.ibm.com, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Merging relayfs?
-In-Reply-To: <17115.53671.326542.392470@tut.ibm.com>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	<20050712022537.GA26128@infradead.org>
-	<20050711193409.043ecb14.akpm@osdl.org>
-	<Pine.LNX.4.61.0507131809120.3743@scrub.home>
-	<17110.32325.532858.79690@tut.ibm.com>
-	<Pine.LNX.4.61.0507171551390.3728@scrub.home>
-	<17114.32450.420164.971783@tut.ibm.com>
-	<1121694275.12862.23.camel@localhost.localdomain>
-	<Pine.LNX.4.61.0507181607410.3743@scrub.home>
-	<42DBBD69.3030300@opersys.com>
-	<Pine.LNX.4.61.0507181706430.3728@scrub.home>
-	<17115.53671.326542.392470@tut.ibm.com>
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <42E14BED.40508@latinsourcetech.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+thread-index: AcWO7W3FAf6KMLW8TD+46SAd7nfP+AAEh/ww
+Message-ID: <EXCHG2003gbLYluLCTa000004d6@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 22 Jul 2005 19:53:49.0110 (UTC) FILETIME=[13DACD60:01C58EF7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Zanussi writes:
- > 
- > OK, if we got rid of the padding counts and commit counts and let the
- > client manage those, we can simplify the buffer switch slow path and
- > make the API simpler in the process.  Here's a first proposal for
- > doing that - I won't know until I actually do it what snags I may run
- > into, but if this looks like the right direction to go, I'll go ahead
- > with it...
- > 
 
-And here's a patch to update the Documentation...
+I have seen RH3.0 crash on 32GB systems because it has too
+much memory tied up in write cache.  It required update 2 
+(this was a while ago) and a change of a parameter in /proc
+to prevent the crash, it was because of a overagressive
+write caching change RH implemented in the kernel resulted
+in the crash.  This crash was an OOM related crash.  To
+duplicate the bug, you booted the machine and ran a dd
+to create a very large file filling the disk.
 
+We did test and did determine that it did not appear to have
+the issue if you had less than 28GB of ram, this was on an
+itanium machine, so I don't know if it occurs on other arches,
+and if it occurs at the same memory limits on the other arches
+either.
 
-diff -urpN -X dontdiff linux-2.6.13-rc3-mm1/Documentation/filesystems/relayfs.txt linux-2.6.13-rc3-mm1-cur/Documentation/filesystems/relayfs.txt
---- linux-2.6.13-rc3-mm1/Documentation/filesystems/relayfs.txt	2005-07-16 11:47:32.000000000 -0500
-+++ linux-2.6.13-rc3-mm1-cur/Documentation/filesystems/relayfs.txt	2005-07-23 12:50:46.000000000 -0500
-@@ -23,6 +23,47 @@ This document provides an overview of th
- the function parameters are documented along with the functions in the
- filesystem code - please see that for details.
- 
-+Semantics
-+=========
-+
-+Each relayfs channel has one buffer per CPU, each buffer has one or
-+more sub-buffers. Messages are written to the first sub-buffer until
-+it is too full to contain a new message, in which case it it is
-+written to the next (if available).  Messages are never split across
-+sub-buffers.  At this point, userspace can be notified so it empties
-+the first sub-buffer, while the kernel continues writing to the next.
-+
-+When notified that a sub-buffer is full, the kernel knows how many
-+bytes of it are padding i.e. unused.  Userspace can use this knowledge
-+to copy only valid data.
-+
-+After copying it, userspace can notify the kernel that a sub-buffer
-+has been consumed.
-+
-+relayfs can operate in a mode where it will overwrite data not yet
-+collected by userspace, and not wait for it to consume it.
-+
-+relayfs itself does not provide for communication of such data between
-+userspace and kernel, allowing the kernel side to remain simple and not
-+impose a single interface on userspace. It does provide a separate
-+helper though, described below.
-+
-+klog, relay-app & librelay
-+==========================
-+
-+relayfs itself is ready to use, but to make things easier, two
-+additional systems are provided. klog is a simple wrapper to make
-+sending data to a channel simpler, regardless of whether a channel to
-+write to exists or not.  relay-app is the kernel counterpart of
-+userspace librelay.c, combined these two files provide glue to easily
-+stream data, without having to bother with housekeeping.
-+
-+It is possible to use relayfs without relay-app & librelay, but you'll
-+have to implement communication between userspace and kernel, allowing
-+both to convey the state of buffers (full, empty, amount of padding).
-+
-+klog, relay-app and librelay can be found in the relay-apps tarball on
-+http://relayfs.sourceforge.net
- 
- The relayfs user space API
- ==========================
-@@ -34,7 +75,8 @@ available and some comments regarding th
- open()	 enables user to open an _existing_ buffer.
- 
- mmap()	 results in channel buffer being mapped into the caller's
--	 memory space.
-+	 memory space. Note that you can't do a partial mmap - you must
-+	 map the entire file, which is NRBUF * SUBBUFSIZE. 
- 
- poll()	 POLLIN/POLLRDNORM/POLLERR supported.  User applications are
- 	 notified when sub-buffer boundaries are crossed.
-@@ -63,13 +105,15 @@ Here's a summary of the API relayfs prov
-   channel management functions:
- 
-     relay_open(base_filename, parent, subbuf_size, n_subbufs,
--               overwrite, callbacks)
-+               callbacks)
-     relay_close(chan)
-     relay_flush(chan)
-     relay_reset(chan)
-     relayfs_create_dir(name, parent)
-     relayfs_remove_dir(dentry)
--    relay_commit(buf, reserved, count)
-+
-+  channel management typically called on instigation of userspace:
-+
-     relay_subbufs_consumed(chan, cpu, subbufs_consumed)
- 
-   write functions:
-@@ -77,19 +121,22 @@ Here's a summary of the API relayfs prov
-     relay_write(chan, data, length)
-     __relay_write(chan, data, length)
-     relay_reserve(chan, length)
-+    __relay_reserve(buf, length)
- 
-   callbacks:
- 
--    subbuf_start(buf, subbuf, prev_subbuf_idx, prev_subbuf)
--    deliver(buf, subbuf_idx, subbuf)
-+    subbuf_start(buf, subbuf, prev_subbuf, prev_padding)
-     buf_mapped(buf, filp)
-     buf_unmapped(buf, filp)
--    buf_full(buf, subbuf_idx)
- 
-+  helper functions:
-+
-+    relay_buf_full(buf)
-+    subbuf_start_reserve(buf, length)
- 
--A relayfs channel is made of up one or more per-cpu channel buffers,
--each implemented as a circular buffer subdivided into one or more
--sub-buffers.
-+
-+Creating a channel
-+------------------
- 
- relay_open() is used to create a channel, along with its per-cpu
- channel buffers.  Each channel buffer will have an associated file
-@@ -117,30 +164,106 @@ though, it's safe to assume that having 
- idea - you're guaranteed to either overwrite data or lose events
- depending on the channel mode being used.
- 
--relayfs channels can be opened in either of two modes - 'overwrite' or
--'no-overwrite'.  In overwrite mode, writes continuously cycle around
--the buffer and will never fail, but will unconditionally overwrite old
--data regardless of whether it's actually been consumed.  In
--no-overwrite mode, writes will fail i.e. data will be lost, if the
-+Channel 'modes'
-+---------------
-+
-+relayfs channels can be used in either of two modes - 'overwrite' or
-+'no-overwrite'.  The mode is entirely determined by the implementation
-+of the subbuf_start() callback, as described below.  In 'overwrite'
-+mode, also known as 'flight recorder' mode, writes continuously cycle
-+around the buffer and will never fail, but will unconditionally
-+overwrite old data regardless of whether it's actually been consumed.
-+In no-overwrite mode, writes will fail i.e. data will be lost, if the
- number of unconsumed sub-buffers equals the total number of
--sub-buffers in the channel.  In this mode, the client is reponsible
--for notifying relayfs when sub-buffers have been consumed via
--relay_subbufs_consumed().  A full buffer will become 'unfull' and
--logging will continue once the client calls relay_subbufs_consumed()
--again.  When a buffer becomes full, the buf_full() callback is invoked
--to notify the client.  In both modes, the subbuf_start() callback will
--notify the client whenever a sub-buffer boundary is crossed.  This can
--be used to write header information into the new sub-buffer or fill in
--header information reserved in the previous sub-buffer.  One piece of
--information that's useful to save in a reserved header slot is the
--number of bytes of 'padding' for a sub-buffer, which is the amount of
--unused space at the end of a sub-buffer.  The padding count for each
--sub-buffer is contained in an array in the rchan_buf struct passed
--into the subbuf_start() callback: rchan_buf->padding[prev_subbuf_idx]
--can be used to to get the padding for the just-finished sub-buffer.
--subbuf_start() is also called for the first sub-buffer in each channel
--buffer when the channel is created.  The mode is specified to
--relay_open() using the overwrite parameter.
-+sub-buffers in the channel.  It should be clear that if there is no
-+consumer or if the consumer can't consume sub-buffers fast enought,
-+data will be lost in either case; the only difference is whether data
-+is lost from the beginning or the end of a buffer.
-+
-+As explained above, a relayfs channel is made of up one or more
-+per-cpu channel buffers, each implemented as a circular buffer
-+subdivided into one or more sub-buffers.  Messages are written into
-+the current sub-buffer of the channel's current per-cpu buffer via the
-+write functions described below.  Whenever a message can't fit into
-+the current sub-buffer, because there's no room left for it, the
-+client is notified via the subbuf_start() callback that a switch to a
-+new sub-buffer is about to occur.  The client uses this callback to 1)
-+initialize the next sub-buffer if appropriate 2) finalize the previous
-+sub-buffer if appropriate and 3) return a boolean value indicating
-+whether or not to actually go ahead with the sub-buffer switch.
-+
-+To implement 'no-overwrite' mode, the userspace client would provide
-+an implementation of the subbuf_start() callback something like the
-+following:
-+
-+static int subbuf_start(struct rchan_buf *buf,
-+                        void *subbuf,
-+			void *prev_subbuf,
-+			unsigned int prev_padding)
-+{
-+	if (relay_buf_full(buf))
-+		return 0;
-+
-+	if (prev_subbuf)
-+		*((unsigned *)prev_subbuf) = prev_padding;
-+
-+	subbuf_start_reserve(buf, sizeof(unsigned int));
-+
-+	return 1;
-+}
-+
-+If the current buffer is full i.e. all sub-buffers remain unconsumed,
-+the callback returns 0 to indicate that the buffer switch should not
-+occur yet i.e. until the consumer has had a chance to read the current
-+set of ready sub-buffers.  For the relay_buf_full() function to make
-+sense, the consumer is reponsible for notifying relayfs when
-+sub-buffers have been consumed via relay_subbufs_consumed().  Any
-+subsequent attempts to write into the buffer will again invoke the
-+subbuf_start() callback with the same parameters; only when the
-+consumer has consumed one or more of the ready sub-buffers will
-+relay_buf_full() return 0, in which case the buffer switch can
-+continue.
-+
-+The implementation of the subbuf_start() callback for 'overwrite' mode
-+would be very similar:
-+
-+static int subbuf_start(struct rchan_buf *buf,
-+                        void *subbuf,
-+			void *prev_subbuf,
-+			unsigned int prev_padding)
-+{
-+	if (prev_subbuf)
-+		*((unsigned *)prev_subbuf) = prev_padding;
-+
-+	subbuf_start_reserve(buf, sizeof(unsigned int));
-+
-+	return 1;
-+}
-+
-+In this case, the relay_buf_full() check is meaningless and the
-+callback always returns 1, causing the buffer switch to occur
-+unconditionally.  It's also meaningless for the client to use the
-+relay_subbufs_consumed() function in this mode, as it's never
-+consulted.
-+
-+Header information can be reserved at the beginning of each sub-buffer
-+by calling the subbuf_start_reserve() helper function from within the
-+subbuf_start() callback.  This reserved area can be used to store
-+whatever information the client wants.  In the example above, room is
-+reserved in each sub-buffer to store the padding count for that
-+sub-buffer.  This is filled in for the previous sub-buffer in the
-+subbuf_start() implementation; the padding value for the previous
-+sub-buffer is passed into the subbuf_start() callback along with a
-+pointer to the previous sub-buffer, since the padding value isn't
-+known until a sub-buffer is filled.  The subbuf_start() callback is
-+also called for the first sub-buffer when the channel is opened, to
-+give the client a chance to reserve space in it.  In this case the
-+previous sub-buffer pointer passed into the callback will be NULL, so
-+the client should check the value of the prev_subbuf pointer before
-+writing into the previous sub-buffer.
-+
-+Writing to a channel
-+--------------------
- 
- kernel clients write data into the current cpu's channel buffer using
- relay_write() or __relay_write().  relay_write() is the main logging
-@@ -151,22 +274,31 @@ __relay_write(), which only disables pre
- don't return a value, so you can't determine whether or not they
- failed - the assumption is that you wouldn't want to check a return
- value in the fast logging path anyway, and that they'll always succeed
--unless the buffer is full and in no-overwrite mode, in which case
--you'll be notified via the buf_full() callback.
-+unless the buffer is full and no-overwrite mode is being used, in
-+which case you can detect a failed write in the subbuf_start()
-+callback by calling the relay_buf_full() helper function.
- 
- relay_reserve() is used to reserve a slot in a channel buffer which
- can be written to later.  This would typically be used in applications
- that need to write directly into a channel buffer without having to
- stage data in a temporary buffer beforehand.  Because the actual write
- may not happen immediately after the slot is reserved, applications
--using relay_reserve() can call relay_commit() to notify relayfs when
--the slot has actually been written.  When all the reserved slots have
--been committed, the deliver() callback is invoked to notify the client
--that a guaranteed full sub-buffer has been produced.  Because the
--write is under control of the client and is separated from the
--reserve, relay_reserve() doesn't protect the buffer at all - it's up
--to the client to provide the appropriate synchronization when using
--relay_reserve().
-+using relay_reserve() can keep a count of the number of bytes actually
-+written, either in space reserved in the sub-buffers themselves or as
-+a separate array.  See the 'reserve' example in the relay-apps tarball
-+at http://relayfs.sourceforge.net for an example of how this can be
-+done.  Because the write is under control of the client and is
-+separated from the reserve, relay_reserve() doesn't protect the buffer
-+at all - it's up to the client to provide the appropriate
-+synchronization when using relay_reserve().
-+
-+relay_reserve() uses __relay_reserve() to actually do the reservation;
-+__relay_reserve() is also available to clients - in some cases for
-+more efficiency, it may be more efficient for the client to direcly
-+access the buffer when maintaining commit counts, for example.
-+
-+Closing a channel
-+-----------------
- 
- The client calls relay_close() when it's finished using the channel.
- The channel and its associated buffers are destroyed when there are no
-@@ -175,6 +307,9 @@ forces a sub-buffer switch on all the ch
- to finalize and process the last sub-buffers before the channel is
- closed.
- 
-+Misc
-+----
-+
- Some applications may want to keep a channel around and re-use it
- rather than open and close a new channel for each use.  relay_reset()
- can be used for this purpose - it resets a channel to its initial
+                        Roger
 
+ 
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+> Márcio Oliveira
+> Sent: Friday, July 22, 2005 2:42 PM
+> To: Neil Horman
+> Cc: arjanv@redhat.com; linux-kernel@vger.kernel.org
+> Subject: Re: Memory Management
+> 
+> Neil Horman wrote:
+> 
+> >On Fri, Jul 22, 2005 at 11:32:52AM -0300, Márcio Oliveira wrote:
+> >  
+> >
+> >>Neil Horman wrote:
+> >>
+> >>    
+> >>
+> >>>On Thu, Jul 21, 2005 at 10:40:54AM -0300, Márcio Oliveira wrote:
+> >>>
+> >>>
+> >>>      
+> >>>
+> >>>>>http://people.redhat.com/nhorman/papers/rhel3_vm.pdf
+> >>>>>I wrote this with norm awhile back.  It may help you out.
+> >>>>>Regards
+> >>>>>Neil
+> >>>>>
+> >>>>>
+> >>>>>    
+> >>>>>
+> >>>>>          
+> >>>>>
+> >>>>Neil,
+> >>>>
+> >>>>Thanks.~10-12GB of total RAM (16GB) are
+> >>>>
+> >>>>How can Proc virtual memory parameters like 
+> inactive_clean_percent, 
+> >>>>overcommit_memory, overcommit_ratio and page_cache help 
+> me to solve 
+> >>>>/ reduce Out Of Memory conditions on servers with 16GB 
+> RAM and lots 
+> >>>>of GB swap?
+> >>>>
+> >>>>  
+> >>>>
+> >>>>        
+> >>>>
+> >>>I wouldn't touch memory overcommit if you are already 
+> seeing out of 
+> >>>memory issues.  If you are using lots of pagecache, I 
+> would suggest 
+> >>>increasing inactive_clean percent, reducing the 
+> pagecahce.max value, 
+> >>>and modifying the bdflush parameters in the above document 
+> such that 
+> >>>bdflush runs sooner, more often, and does more work per 
+> iteration.  
+> >>>This will help you move data in pagecache back to disk more 
+> >>>aggressively so that memory will be available for other purposes, 
+> >>>like heap allocations. Also if you're using a Red Hat 
+> kernel and you 
+> >>>have 16GB of ram in your system, you're a good candidate for the 
+> >>>hugemem kernel.  Rather than a straightforward out of memory 
+> >>>condition, you may be seeing a exhaustion of your kernels address 
+> >>>space (check LowFree in /proc/meminfo).  In this even the hugemem 
+> >>>kernel will help you in that it increases your Low Memory address 
+> >>>space from 1GB to 4GB, preventing some OOM conditions.
+> >>>
+> >>>
+> >>>
+> >>>
+> >>>      
+> >>>
+> >>>>Kernel does not free cached memory (~10-12GB of total RAM 
+> - 16GB). Is 
+> >>>>there some way to force the kernel to free cached memory?
+> >>>>
+> >>>>  
+> >>>>
+> >>>>        
+> >>>>
+> >>>Cached memory is freed on demand.  Just because its listed 
+> under the 
+> >>>cached line
+> >>>below doesn't mean it can't be freed and used for another 
+> purpose.  
+> >>>Implement
+> >>>the tunings above, and your situation should improve.
+> >>>
+> >>>Regards
+> >>>Neil
+> >>>
+> >>>
+> >>>
+> >>>      
+> >>>
+> >>>>/proc/meminfo:
+> >>>>
+> >>>>           total:    used:    free:  shared: buffers:  cached:
+> >>>>Mem:    16603488256 16523333632 80154624        0 
+> 70651904 13194563584
+> >>>>Swap:   17174257664 11771904 17162485760
+> >>>>MemTotal:     16214344 kB
+> >>>>MemFree:         78276 kB
+> >>>>Buffers:         68996 kB
+> >>>>Cached:       12874808 kB
+> >>>>
+> >>>>Thanks to all.
+> >>>>
+> >>>>Marcio.
+> >>>>  
+> >>>>
+> >>>>        
+> >>>>
+> >>Neil,
+> >>
+> >>  Thanks for the answers!
+> >>
+> >>The following lines are the Out Of Memory log:
+> >>
+> >>Jul 20 13:45:44 server kernel: Out of Memory: Killed 
+> process 23716 (oracle).
+> >>Jul 20 13:45:44 server kernel: Fixed up OOM kill of mm-less task
+> >>Jul 20 13:45:45 server su(pam_unix)[3848]: session closed 
+> for user root
+> >>Jul 20 13:45:48 server kernel: Mem-info:
+> >>Jul 20 13:45:48 server kernel: Zone:DMA freepages:  1884 min:     0 
+> >>low:     0 high:     0
+> >>Jul 20 13:45:48 server kernel: Zone:Normal freepages:  1084 
+> min:  1279 
+> >>low:  4544 high:  6304
+> >>Jul 20 13:45:48 server kernel: Zone:HighMem 
+> freepages:386679 min:   255 
+> >>low: 61952 high: 92928
+> >>Jul 20 13:45:48 server kernel: Free pages:      389647 
+> (386679 HighMem)
+> >>Jul 20 13:45:48 server kernel: ( Active: 2259787/488777, 
+> >>inactive_laundry: 244282, inactive_clean: 244366, free: 389647 )
+> >>Jul 20 13:45:48 server kernel:   aa:0 ac:0 id:0 il:0 ic:0 fr:1884
+> >>Jul 20 13:45:48 server kernel:   aa:1620 ac:1801 id:231 
+> il:15 ic:0 fr:1085
+> >>Jul 20 13:45:48 server kernel:   aa:1099230 ac:1157136 id:488536 
+> >>il:244277 ic:244366 fr:386679
+> >>Jul 20 13:45:48 server kernel: 0*4kB 0*8kB 1*16kB 1*32kB 
+> 1*64kB 0*128kB 
+> >>1*256kB 0*512kB 1*1024kB 1*2048kB 1*4096kB = 7536kB)Jul 20 13:45:48 
+> >>server kernel: 55*4kB 9*8kB 19*16kB 9*32kB 0*64kB 1*128kB 1*256kB 
+> >>0*512kB 1*1024kB 1*2048kB 0*4096kB = 4340kB)
+> >>Jul 20 13:45:48 server kernel: 291229*4kB 46179*8kB 711*16kB 1*32kB 
+> >>1*64kB 1*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 
+> 1546716kB)
+> >>Jul 20 13:45:48 server kernel: Swap cache: add 192990, 
+> delete 189665, 
+> >>find 21145/90719, race 0+0
+> >>Jul 20 13:45:48 server kernel: 139345 pages of slabcache
+> >>Jul 20 13:45:48 server kernel: 1890 pages of kernel stacks
+> >>Jul 20 13:45:48 server kernel: 0 lowmem pagetables, 274854 highmem 
+> >>pagetables
+> >>Jul 20 13:45:48 server kernel: Free swap:       16749720kB
+> >>Jul 20 13:45:49 server kernel: 4194304 pages of RAM
+> >>Jul 20 13:45:49 server kernel: 3899360 pages of HIGHMEM
+> >>Jul 20 13:45:49 server kernel: 140718 reserved pages
+> >>Jul 20 13:45:49 server kernel: 35350398 pages shared
+> >>Jul 20 13:45:49 server kernel: 3325 pages swap cached
+> >>
+> >>/proc/meminfo LowFree info:
+> >>LowFree:         17068 kB    ------> Do you think this 
+> value is too low?
+> >>
+> >>    
+> >>
+> >No that should be plenty of lowFree, but that number can 
+> change quickly
+> >depending on workload.
+> >
+> >  
+> >
+> >>Zone:Normal freepages:  1084 min:  1279 low:  4544 high:  
+> 6304   ---->  
+> >>(freepages < min) It's normal?
+> >>Zone:HighMem freepages:386679 min:   255 low: 61952 high: 
+> 92928  ----> 
+> >>(freepages < min) It's normal?
+> >>
+> >>    
+> >>
+> >You're beneath your low water mark in the normal (lowmem) 
+> zone for free pages,
+> >so your kernel is likely trying to get lots of data moved to 
+> disk.  Although
+> >given that you're largest buddy list has a 2048K chunk free, 
+> I'm hard pressed to
+> >see how you aren't able to get memory when you need it.  Do 
+> you have a module
+> >loaded in your kernel that might require such large memory 
+> allocations.
+> >Neil
+> >
+> >  
+> >
+> >>Thanks a lot Neil!
+> >>
+> >>Márcio Oliveira.
+> >>
+> >>
+> >>    
+> >>
+> >
+> >  
+> >
+> Neil,
+> 
+>    Thanks for the help.
+> 
+>    I have a storage attached to the server. Maybe the storage module 
+> require lots of memory.
+>    Maybe the "LowFree" be wrong (out of OOM time), so there 
+> is possible 
+> that "LowFree" value be too small on the OOM condition.
+> 
+>   Is there a way to identify if the Low Memory is too small?  (some 
+> program, command, daemon...)
+> 
+>   The server has 16GB RAM and 16GB swap. When the OOM kill conditions 
+> happens, the system has ~6GB RAM used, ~10GB RAM cached and 16GB free 
+> swap. Is that indicate that the server can't allocate Low Memory and 
+> starts OOM conditions? Because the High Memory is OK, right?
+> 
+> Thanks again!
+> 
+> Márcio.
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

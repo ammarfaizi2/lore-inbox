@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVGVS2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVGVSaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVGVS2x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 14:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVGVS2x
+	id S261377AbVGVSaI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 14:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVGVSaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 14:28:53 -0400
-Received: from web60715.mail.yahoo.com ([209.73.178.218]:13236 "HELO
-	web60715.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261369AbVGVS2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 14:28:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.br;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=6R+cP89vmeb95x/LoRVSPKQUjgjqJTlTx8W11sjMPOZzPYtkfjr9omfHjDpr5qSYDQ4oQ+F1/sLsJ1NkVkVRQRMGXd5dM/tgJIls7xxHTU8e1MdqCibaCihjjKlswjfL0stgL27nmoXUW5l5Qoa8um5DlruvNAeLcBSUqD1sbaM=  ;
-Message-ID: <20050722182848.8028.qmail@web60715.mail.yahoo.com>
-Date: Fri, 22 Jul 2005 15:28:48 -0300 (ART)
-From: "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br>
-Subject: "seeing minute plus hangs during boot" - 2.6.12 and 2.6.13
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 22 Jul 2005 14:30:07 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:23428 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261377AbVGVS3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 14:29:06 -0400
+Date: Fri, 22 Jul 2005 20:28:54 +0200
+From: Voluspa <lista1@telia.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: jesper.juhl@gmail.com, lista1@telia.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3 Battery times at 100/250/1000 Hz = Zero difference
+Message-Id: <20050722202854.0b7ff7fc.lista1@telia.com>
+In-Reply-To: <20050722180236.GA615@atrey.karlin.mff.cuni.cz>
+References: <20050721200448.5c4a2ea0.lista1@telia.com>
+	<9a8748490507211114227720b0@mail.gmail.com>
+	<20050722144855.GA2036@elf.ucw.cz>
+	<20050722191510.5e120515.voluspa@telia.com>
+	<20050722180236.GA615@atrey.karlin.mff.cuni.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Jul 2005 20:02:36 +0200 Pavel Machek wrote:
+> Okay, if you have no C2/C3 like the dump above shows, unloading usb
+> will not help. It seems like your machine is simply not able to do
+> reasonable powersaving.
 
+Because of the CPU, ACPI implementation or because of kernel acpi
+quality, x86_64 kernel quirks or...? It seems crazy that a modern CPU
+like this should be so backwards as to not implement sleep states. It
+being in a notebook and all. I blame intel kernel hackers ;-)
 
-Hi all,
-
-Sorry for sending this issue to your attention again, but I got no answers and
-I thought it could be because of my bad subject message.
-
-I'm having little hangs while booting with kernels 2.6.12 and 2.6.13-rc1, rc2
-and rc3.
-
-Hangs appears just before mounting filesystems message and before configuring
-system to use udev.
- 
-I'm using Gentoo with vanilla-sources. I already asked on gentoo lists and
-nobody saw this behaviour. I tried google with no luck too. So my last
-resource which could give me some light is here.
-
-Do you know of something about this? Have you seen this problem?
-Where could I look for more information about that in my system? I saw logs
-but they don't say anything. Also, besides this hangs on boot, system seems to
-work perfectly, but I'd like to remove this hangs from boot.
-
-Thanks in advance.
-
+Mvh
+Mats Johannesson
 --
-Regards,
-
-Francisco Figueiredo Jr.
-
-
-__________________________________________________
-Converse com seus amigos em tempo real com o Yahoo! Messenger 
-http://br.download.yahoo.com/messenger/ 

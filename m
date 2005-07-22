@@ -1,45 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVGVILv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbVGVIO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbVGVILv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 04:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVGVILu
+	id S262062AbVGVIO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 04:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVGVIO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 04:11:50 -0400
-Received: from ms004msg.fastwebnet.it ([213.140.2.58]:59075 "EHLO
-	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S262064AbVGVILO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 04:11:14 -0400
-Date: Fri, 22 Jul 2005 10:10:11 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Drosos Kourounis <drososkourounis@yahoo.gr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.20, 2.4.21, 2.4.22 , ... does not compile with
- gcc-3.4.X
-Message-ID: <20050722101011.153ea2f4@localhost>
-In-Reply-To: <20050722075307.46321.qmail@web25806.mail.ukl.yahoo.com>
-References: <20050722075307.46321.qmail@web25806.mail.ukl.yahoo.com>
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
+	Fri, 22 Jul 2005 04:14:26 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:31505 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262062AbVGVIOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 04:14:22 -0400
+Date: Fri, 22 Jul 2005 10:14:17 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch 2.6.13-rc3a] i386: inline restore_fpu
+Message-ID: <20050722081417.GJ3160@stusta.de>
+References: <200507212309_MC3-1-A534-95EF@compuserve.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507212309_MC3-1-A534-95EF@compuserve.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Jul 2005 00:53:07 -0700 (PDT)
-Drosos Kourounis <drososkourounis@yahoo.gr> wrote:
+On Thu, Jul 21, 2005 at 11:06:22PM -0400, Chuck Ebbert wrote:
+> 
+>   This patch makes restore_fpu() an inline.  When L1/L2 cache are saturated
+> it makes a measurable difference.
+> 
+>   Results from profiling Volanomark follow.  Sample rate was 2000 samples/sec
+> (HZ = 250, profile multiplier = 8) on a dual-processor Pentium II Xeon.
+> 
+> 
+> Before:
+> 
+>  10680 restore_fpu                              333.7500
+>   8351 device_not_available                     203.6829
+>   3823 math_state_restore                        59.7344
+>  -----
+>  22854
+> 
+> 
+> After:
+> 
+>  12534 math_state_restore                       130.5625
+>   8354 device_not_available                     203.7561
+>  -----
+>  20888
+> 
+> 
+> Patch is "obviously correct" and cuts 9% of the overhead.  Please apply.
+>...
 
-> Dear Developers,
-> This might be a known issue but it is not known to me!
-> I tried to compile kernel 2.4.22 under Crux Linux,
-> and the compilation stopped in sched.c. I do not have
-> to say much to you because it seems a compiler
-> problem!
+If this patch makes a difference, could you do me a favour and check 
+whether replacing the current cpu_has_fxsr #define in
+include/asm-i386/cpufeature.h with
 
+  #define cpu_has_fxsr           1
 
-Linux 2.4.22 is quite old: 25-Aug-2003...
+on top of your patch brings an additional improvement?
 
-Have you tried with 2.4.31?
+> Chuck
+
+TIA
+Adrian
 
 -- 
-	Paolo Ornati
-	Linux 2.6.13-rc3 on x86_64
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

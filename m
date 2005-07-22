@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVGVP4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVGVP6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbVGVP4U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 11:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVGVP4U
+	id S261303AbVGVP6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 11:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVGVP6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 11:56:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:63909 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261302AbVGVP4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 11:56:17 -0400
-Subject: Re: why is jiffies 128 in jffs2_find_gc_block() in gc.c of jffs2
-From: David Woodhouse <dwmw2@infradead.org>
-To: krishna <krishna.c@globaledgesoft.com>
-Cc: linux-mtd@lists.infradead.org, Josh Boyer <jdub@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42E079B8.9070703@globaledgesoft.com>
-References: <42E079B8.9070703@globaledgesoft.com>
-Content-Type: text/plain
-Date: Fri, 22 Jul 2005 11:55:42 -0400
-Message-Id: <1122047742.12630.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 22 Jul 2005 11:58:15 -0400
+Received: from spirit.analogic.com ([208.224.221.4]:62473 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S261303AbVGVP6K convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 11:58:10 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <3faf0568050722081890a2e@mail.gmail.com>
+References: <3faf0568050721232547aa2482@mail.gmail.com> <7d15175e050722072727a7f539@mail.gmail.com> <3faf0568050722081890a2e@mail.gmail.com>
+X-OriginalArrivalTime: 22 Jul 2005 15:58:07.0410 (UTC) FILETIME=[26BEA120:01C58ED6]
+Content-class: urn:content-classes:message
+Subject: Re: Whats in this vaddr segment 0xffffe000-0xfffff000 ---p ?
+Date: Fri, 22 Jul 2005 11:56:34 -0400
+Message-ID: <Pine.LNX.4.61.0507221154150.16740@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Whats in this vaddr segment 0xffffe000-0xfffff000 ---p ?
+thread-index: AcWO1ibdeZlpWvW2T0yiIwAaJYbiEA==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "vamsi krishna" <vamsi.krishnak@gmail.com>
+Cc: "Bhanu Kalyan Chetlapalli" <chbhanukalyan@gmail.com>,
+       <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-22 at 10:14 +0530, krishna wrote:
-> I am not clear why the hardcoded values are 50, 110 and 126
-> and why is jiffies moded with 128, why not any other value.
 
-It's just a way to achieve 'randomness' which doesn't actually consume
-entropy and which is quick to obtain. It only needs to be relatively
-evenly distributed.
+On Fri, 22 Jul 2005, vamsi krishna wrote:
 
-We use it for selecting the next eraseblock to be garbage-collected.
-50/128 of the time we pick a block from the eraseable_list, 60/128 of
-the time we pick a block from the very_dirty_list, 16/128 of the time we
-pick a block from the dirty_list, and the remaining 2/128 of the time we
-pick a block from the clean_list for garbage collection.
+> Hello,
+>
+>>
+>> The location of the vsyscall page is different on 32 and 64 bit
+>> machines. So 0xffffe000 is NOT the address you are looking for while
+>> dealing with the 64 bit machine.  Rather 0xffffffffff600000 is the
+>> correct location (on x86-64).
+>>
+> Both my process's are 32-bit process's, its just one runs on 64-bit
+> machine and other runs on 32-bit machine. The write from address
+> 0xffffe0000 to a file on a 32-bit machine fails, but does'nt fail on
+> 64-bit machine (the process is still 32-bit although it runs on
+> 64-bit).
+>
+> How can the virtual address of   0xffffffffff600000 exist in a 32-bit
+> process ? (May be I have not made myself clear in explaining the
+> problem?? :-?)
+>
+> Best,
+> Vamsi.
 
-The precise numbers don't have a huge amount of science behind them;
-they are mostly guesses about what would achieve evenly-distributed wear
-levelling over time without garbage-collecting clean blocks more often
-than is necessary.
+It doesn't. The 32-bit machines never show 64 bit words in
+/proc/NN/maps. They don't "know" how.
 
-If you want to conduct tests with various workloads in order to refine
-the fairly primitive algorithm described above, that could be useful.
+b7fd6000-b7fd7000 rw-p b7fd6000 00:00 0
+b7ff5000-b7ff6000 rw-p b7ff5000 00:00 0
+bffe1000-bfff6000 rw-p bffe1000 00:00 0          [stack]
+ffffe000-fffff000 ---p 00000000 00:00 0          [vdso]
+^^^^^^^^____________ 32 bits
 
--- 
-dwmw2
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

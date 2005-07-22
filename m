@@ -1,165 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVGVEtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbVGVEzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVGVEtz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 00:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVGVEtz
+	id S261933AbVGVEzN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 00:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVGVEzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 00:49:55 -0400
-Received: from [216.208.38.107] ([216.208.38.107]:16536 "EHLO
-	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S262032AbVGVEtE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 00:49:04 -0400
-Subject: Re: [linux-pm] [PATCH] Workqueue freezer support.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.50.0507211221550.12779-100000@monsoon.he.net>
-References: <1121923059.2936.224.camel@localhost>
-	 <Pine.LNX.4.50.0507211221550.12779-100000@monsoon.he.net>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1122001360.3030.17.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 22 Jul 2005 13:02:41 +1000
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Jul 2005 00:55:13 -0400
+Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:10956 "EHLO
+	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S261933AbVGVEzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 00:55:11 -0400
+Date: Fri, 22 Jul 2005 00:53:58 -0400 (EDT)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+X-X-Sender: hahn@coffee.psychology.mcmaster.ca
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm1 (ckrm) 
+In-Reply-To: <E1Dvp8T-0007wp-00@w-gerrit.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0507220033371.4935-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-PMX-Version-Mac: 4.7.1.128075, Antispam-Engine: 2.0.3.2, Antispam-Data: 2005.7.21.45
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> > > yes, that's the crux.  CKRM is all about resolving conflicting resource 
+> > > demands in a multi-user, multi-server, multi-purpose machine.  this is a 
+> > > huge undertaking, and I'd argue that it's completely inappropriate for 
+> > > *most* servers.  that is, computers are generally so damn cheap that 
+> > > the clear trend is towards dedicating a machine to a specific purpose, 
+> > > rather than running eg, shell/MUA/MTA/FS/DB/etc all on a single machine.  
+>  
+> This is a big NAK - if computers are so damn cheap, why is virtualization
+> and consolidation such a big deal?  Well, the answer is actually that
 
-On Fri, 2005-07-22 at 05:42, Patrick Mochel wrote:
-> On Thu, 21 Jul 2005, Nigel Cunningham wrote:
-> 
-> > This patch implements freezer support for workqueues. The current
-> > refrigerator implementation makes all workqueues NOFREEZE, regardless of
-> > whether they need to be or not.
-> 
-> A few comments..
-> 
-> > Signed-off by: Nigel Cunningham <nigel@suspend2.net>
-> >
-> >  drivers/acpi/osl.c          |    2 +-
-> >  drivers/block/ll_rw_blk.c   |    2 +-
-> >  drivers/char/hvc_console.c  |    2 +-
-> >  drivers/char/hvcs.c         |    2 +-
-> >  drivers/input/serio/serio.c |    2 +-
-> >  drivers/md/dm-crypt.c       |    2 +-
-> >  drivers/scsi/hosts.c        |    2 +-
-> >  drivers/usb/net/pegasus.c   |    2 +-
-> 
-> If you want some practice splitting things up, submit the patches above
-> individually to the maintainers o the relevant code once the patches you
-> submit below get merged to -mm.
-
-Ok. Thanks for telling me.
-
-> >  include/linux/kthread.h     |   20 ++++++++++++++++++--
-> >  include/linux/workqueue.h   |    9 ++++++---
-> >  kernel/kmod.c               |    4 ++++
-> >  kernel/kthread.c            |   23 ++++++++++++++++++++++-
-> >  kernel/sched.c              |    4 ++--
-> >  kernel/softirq.c            |    3 +--
-> >  kernel/workqueue.c          |   21 ++++++++++++---------
-> >  15 files changed, 73 insertions(+), 27 deletions(-)
-> 
-> 
-> You should make sure that you get an explicit ACK from people (Ingo et al)
-> about whether this is an acceptable interface.
-
-Ok. How do I know who to ask? (Who besides Ingo, and could I learn who
-without help - Maintainers?)
-
-> > --- 400-workthreads.patch-old/include/linux/kthread.h	2004-11-03 21:51:12.000000000 +1100
-> > +++ 400-workthreads.patch-new/include/linux/kthread.h	2005-07-20 15:11:37.000000000 +1000
-> > @@ -27,6 +27,14 @@ struct task_struct *kthread_create(int (
-> >  				   void *data,
-> >  				   const char namefmt[], ...);
-> >
-> > +struct task_struct *_kthread_create(int (*threadfn)(void *data),
-> > +				   void *data,
-> > +				   unsigned long freezer_flags,
-> > +				   const char namefmt[], ...);
-> > +
-> 
-> This should be __kthread_create(...)
-
-Ok. Fixed. Is one underscore ever right?
-
-> > -#define kthread_run(threadfn, data, namefmt, ...)			   \
-> > +#define kthread_run(threadfn, data, namefmt, args...)			   \
-> >  ({									   \
-> >  	struct task_struct *__k						   \
-> > -		= kthread_create(threadfn, data, namefmt, ## __VA_ARGS__); \
-> > +		= kthread_create(threadfn, data, namefmt, ##args);	   \
-> >  	if (!IS_ERR(__k))						   \
-> >  		wake_up_process(__k);					   \
-> >  	__k;								   \
-> >  })
-> >
-> > +#define kthread_nofreeze_run(threadfn, data, namefmt, args...)		   \
-> > +({									   \
-> > +	struct task_struct *__k	= kthread_nofreeze_create(threadfn, data,  \
-> > +			namefmt, ##args);				   \
-> > +	if (!IS_ERR(__k))						   \
-> > +		wake_up_process(__k);					   \
-> > +	__k;								   \
-> > +})
-> 
-> Do these functions need to be inlined?
-
-I tried to find out how to pass the va_list on nicely without using a
-#define, but could find the info. If you're able to tell me, I'll make
-them inline. Perhaps I could also improve the kthread_create call Pavel
-and Ingo commented on.
-
-> > @@ -86,6 +87,10 @@ static int kthread(void *_create)
-> >  	/* By default we can run anywhere, unlike keventd. */
-> >  	set_cpus_allowed(current, CPU_MASK_ALL);
-> >
-> > +	/* Set our freezer flags */
-> > +	current->flags &= ~(PF_SYNCTHREAD | PF_NOFREEZE);
-> > +	current->flags |= (create->freezer_flags & PF_NOFREEZE);
-> > +
-> 
-> Maybe these should be encapsulated in a helper in include/linux/sched.h
-> like some other flags manipulations are?
-
-This would be the only place it's used. Does that matter? (And note from
-the updated patch that the SYNCTHREAD wouldn't be there).
-
-> > diff -ruNp 400-workthreads.patch-old/kernel/sched.c 400-workthreads.patch-new/kernel/sched.c
-> > --- 400-workthreads.patch-old/kernel/sched.c	2005-07-21 04:00:02.000000000 +1000
-> > +++ 400-workthreads.patch-new/kernel/sched.c	2005-07-21 04:00:19.000000000 +1000
-> > @@ -4580,10 +4580,10 @@ static int migration_call(struct notifie
-> >
-> >  	switch (action) {
-> >  	case CPU_UP_PREPARE:
-> > -		p = kthread_create(migration_thread, hcpu, "migration/%d",cpu);
-> > +		p = kthread_create(migration_thread, hcpu,
-> > +				"migration/%d",cpu);
-> 
-> This is unnecessary.
-
-Oops. Comes from adding an extra parameter, fixing line length and then
-removing it. Fixed.
-
-> Overall, it looks pretty good.
-
-Thanks!
-
-Nigel
-
-> Thanks,
-> 
-> 
-> 
-> 	Pat
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
+yes, you did miss my point.  I'm actually arguing that it's bad design
+to attempt to arbitrate within a single shared user-space.  you make 
+the fast path slower and less maintainable.  if you are really concerned
+about isolating many competing servers on a single piece of hardware, then
+run separate virtualized environments, each with its own user-space.
 

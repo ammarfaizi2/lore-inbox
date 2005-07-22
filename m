@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVGVImI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVGVIsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbVGVImI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 04:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVGVImI
+	id S262069AbVGVIsM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 04:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVGVIsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 04:42:08 -0400
-Received: from moutng.kundenserver.de ([212.227.126.184]:41445 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262051AbVGVImG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 04:42:06 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: =?iso-8859-1?Q?[COMPILE_ERROR]_realtime-preempt-2=2E6=2E12-final-V0=2E7=2E51-33_on_x86_64_SMP_system?=
-From: =?iso-8859-1?Q?Steve_Wooding?= <steve_wooding@keysounds.co.uk>
-Message-Id: <30280207$112202125842e0af8a66cf16.45394659@config22.schlund.de>
-X-Binford: 6100 (more power)
-X-Originating-From: 30280207
-X-Mailer: Webmail
-X-Routing: UK
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 22 Jul 2005 04:48:12 -0400
+Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:24492 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262069AbVGVIsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 04:48:10 -0400
+Date: Fri, 22 Jul 2005 10:48:05 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: DriveStatusError BadCRC
+Message-ID: <20050722084805.GA10207@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <42D7AA0C000141C7@mail-8.mail.tiscali.sys>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Date: Fri, 22 Jul 2005 10:40:01 +0200
-X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.149
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42D7AA0C000141C7@mail-8.mail.tiscali.sys>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Jul 2005, sampei02@tiscali.it wrote:
 
-Ingo,
+> I bought new Maxtor HD 80 GB but somthing Fedora Core 3 crashes giving this
+> message:
+> 
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: dma_intr: Error=0x84 { DriveStatusError BadCRC }
 
-I get the following compile error when using your patch
-realtime-preempt-2.6.12-final-V0.7.51-33 on a x86_64 SMP system.
+> How can I solve it ?
 
-arch/x86_64/kernel/smpboot.c: 191: error: section of 'tsc_sync_lock'
-conflicts with previous declaration.
+Check your hardware. ATA cables must not exceed 45 cm in length; for
+Ultra DMA 4, 5 or 6 (66 MByte/s and faster), you need to use 80-wire
+cables (they need extra ground lines for shielding), and check if all
+plugs are seated properly.
 
-It compiles fine if I don't set CONFIG_SMP=y, but then I can only use
-one processor of my SMP system (not ideal).
+WRT the backtrace you showed, someone else will have to answer - which
+kernel version are you using? If it's a Fedora-patched kernel, report
+the problem to the Fedora project. If it's an older unmodified kernel,
+retry with a newer kernel (2.6.12.3) first and see if the problem is
+still present.
 
-Maybe you could find time to squash this bug.
-
-Cheers,
-
-Steve Wooding.
+-- 
+Matthias Andree

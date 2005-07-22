@@ -1,82 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVGVE6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVGVFCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbVGVE6t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 00:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVGVE6t
+	id S262035AbVGVFCs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 01:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVGVFCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 00:58:49 -0400
-Received: from [216.208.38.107] ([216.208.38.107]:25496 "EHLO
-	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S261932AbVGVE6s
+	Fri, 22 Jul 2005 01:02:47 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:17488 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262035AbVGVFCr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 00:58:48 -0400
-Subject: Re: [linux-pm] [PATCH] Syncthreads support.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>
-Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050721153932.GA2005@elf.ucw.cz>
-References: <1121923564.2936.231.camel@localhost>
-	 <20050721153932.GA2005@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1122001826.3033.25.camel@localhost>
+	Fri, 22 Jul 2005 01:02:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qiUgk258Y+aChz/fFLKBhVW8MmVNpafwTIuAqjoOmRNYek2ufADIZtYRcmT21z9Ks0iaDn679egfq+fWU5EMvERk+J6MmeTGCcbRUcMWfiZG1990xY9Kurf8zf4wyo9m/XKclktNtK4AC9ONIf5hmQc5kARoJ3SHy1bK0hCafCs=
+Message-ID: <29495f1d050721220276c8733c@mail.gmail.com>
+Date: Thu, 21 Jul 2005 22:02:46 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [patch,rfc] Support for touchscreen on sharp zaurus sl-5500
+Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk,
+       vojtech@suse.cz
+In-Reply-To: <20050722012814.GB6758@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 22 Jul 2005 13:10:26 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050721052455.GB7849@elf.ucw.cz>
+	 <29495f1d05072117247817c5d1@mail.gmail.com>
+	 <20050722012814.GB6758@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Fri, 2005-07-22 at 01:39, Pavel Machek wrote:
+On 7/21/05, Pavel Machek <pavel@suse.cz> wrote:
 > Hi!
 > 
-> > This patch implements a new PF_SYNCTHREAD flag, which allows upcoming
-> > the refrigerator implementation to know that a thread is syncing data to
-> > disk. This allows the refrigerator to be more reliable, even under heavy
-> > load, because it can separate userspace processes that are submitting
-> > I/O from those trying to sync it and freezing the former first. We can
-> > thus ensure that syncing processes complete their work more quickly and
-> > the refrigerator is far less likely to incorrectly give up (thinking a
-> > syncing process is completely failing to enter the refrigerator).
+> > > +               set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+> > > +               schedule_timeout(HZ / 100);
+> > > +               if (signal_pending(tsk))
+> > > +                       break;
+> >
+> > You specifically allow SIGKILL, but then sleep uninterruptibly? And
+> > then you check if signal_pending() :) I think you may want
+> > TASK_INTERRUPTIBLE? Or, go one better and use msleep_interruptible(),
+> > as I don't see any wait-queues in the immediate area of this code...
 > 
-> This patch is ****, and pretty intrusive too. Ouch and then it is
-> unneccessary. We have been over this before, and explained to you in
-> person. Greg explained it to you, too. This one is NOT GOING IN. Drop
-> it from your patches, trying to submit it 10 times will not get it
-> accepted.
-> 
-> [For the record, simple solution for this one is 
-> 
-> sys_sync();
-> 
-> and only then start refrigeration].
+> Okay, I think this should be uninterruptible. The signal can be
+> delivered during next interruptible sleep. Fixes.
 
-That's not right.
+Good point. But the signal_pending() check after that interruptible
+sleep (which deterministically comes after this one) takes care of the
+break, doesn't it? I guess you can (maybe already have done so...) get
+rid of the signal_pending() check after the uninterruptible sleep. And
+then go ahead and make this an msleep(10) call  and the other one (in
+the same function) an msleep_interruptible() call ;)
 
-Greg said he believed the right thing to do was to sync in the kernel,
-but he also said he agreed with you. I thought at the time he was
-confused about who was suggesting what - let's check with him.
-
-Anyway, we discussed before that sync_sync before starting refrigerating
-is insufficient. Remember that since processes aren't refrigerated yet,
-there is absolutely nothing to stop other processes submitting I/O
-between the two actions and thus making the sync pointless. The sync
-needs to be done after the userspace processes that might submit I/O
-have been frozen, to ensure that all the dirty data is actually synced
-to disk.
-
-Remember also that it is important that we do need to sync all dirty
-buffers. In the case of not resuming, data loss should nil.
-
-Regards,
-
-Nigel
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-
+Thanks,
+Nish

@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVGVEEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVGVEXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVGVEEr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 00:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVGVEEr
+	id S261924AbVGVEXf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 00:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVGVEXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 00:04:47 -0400
-Received: from mta10.srv.hcvlny.cv.net ([167.206.4.205]:44860 "EHLO
-	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S261973AbVGVEEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 00:04:46 -0400
-Date: Fri, 22 Jul 2005 00:07:21 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Subject: Re: 2.6.13-rc3-mm1 (ckrm)
-In-reply-to: <20050721204631.1fb4d9a5.pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, matthltc@us.ibm.com, akpm@osdl.org,
-       hch@infradead.org, linux-kernel@vger.kernel.org, gh@us.ibm.com
-Message-id: <42E070F9.6010009@watson.ibm.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-References: <20050715013653.36006990.akpm@osdl.org>
- <20050715150034.GA6192@infradead.org> <20050715131610.25c25c15.akpm@osdl.org>
- <20050717082000.349b391f.pj@sgi.com> <1121985448.5242.90.camel@stark>
- <20050721163227.661a5169.pj@sgi.com> <42E03DD2.6020308@mbligh.org>
- <20050721204631.1fb4d9a5.pj@sgi.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Fri, 22 Jul 2005 00:23:35 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:42391 "EHLO
+	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S261924AbVGVEXe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 00:23:34 -0400
+Subject: [PATCH] Address BUG: using smp_processor_id() in preemptible
+	[00000001] code
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1122004741.3033.49.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 22 Jul 2005 13:59:01 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Martin wrote:
-> 
->>No offense, but I really don't see why this matters at all ... the stuff
->>in -mm is what's under consideration for merging - what's in SuSE is ...
-> 
-> 
-> Yes - what's in SuSE doesn't matter, at least not directly.
-> 
-> No - we are not just considering the CKRM that is in *-mm now, but also
-> what can be expected to be proposed as part of CKRM in the future.
-> 
-> If the CPU controller is not in *-mm now, but if one might reasonably
-> expect it to be proposed as part of CKRM in the future, then we need to
-> understand that.  This is perhaps especially important in this case,
-> where there is some reason to suspect that this additional piece is
-> both non-trivial and essential to CKRM's purpose.
-> 
+This patch fixes a warning in the disable_nonboot_cpus call in
+kernel/power/smp.c.
 
-The CKRM design explicitly considered this problem of some controllers 
-being more unacceptable than the rest and part of the indirections 
-introduced in CKRM are to allow the kernel community the flexibility of 
-cherry-picking acceptable controllers. So if the current CPU controller 
-   implementation is considered too intrusive/unacceptable, it can be 
-reworked or (and we certainly hope not) even rejected in perpetuity. 
-Same for the other controllers as and when they're introduced and 
-proposed for inclusion.
+Please apply.
 
+Signed-off by: Nigel Cunningham <nigel@suspend2.net>
 
--- Shailabh
+ smp.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+diff -ruNp 830-smp_processor_id_warning.patch-old/kernel/power/smp.c 830-smp_processor_id_warning.patch-new/kernel/power/smp.c
+--- 830-smp_processor_id_warning.patch-old/kernel/power/smp.c	2005-07-18 06:37:08.000000000 +1000
++++ 830-smp_processor_id_warning.patch-new/kernel/power/smp.c	2005-07-22 11:09:16.000000000 +1000
+@@ -38,7 +38,7 @@ void disable_nonboot_cpus(void)
+ 		}
+ 		printk("Error taking cpu %d down: %d\n", cpu, error);
+ 	}
+-	BUG_ON(smp_processor_id() != 0);
++	BUG_ON(raw_smp_processor_id() != 0);
+ 	if (error)
+ 		panic("cpus not sleeping");
+ }
 
-
-
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
 

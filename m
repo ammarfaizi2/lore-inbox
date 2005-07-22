@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVGVSV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVGVS2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbVGVSV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 14:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVGVSV5
+	id S261369AbVGVS2x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 14:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVGVS2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 14:21:57 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:56963 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261328AbVGVSV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 14:21:56 -0400
-Subject: Re: [new] kernel-desktop 2.6.12-1.1398_FC4.desktop_1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jean-Eric Cuendet <jec@rptec.ch>
-Cc: Andreas Steinmetz <ast@domdv.de>, fedora-list@redhat.com,
-       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
-       David Goetschmann <dgo@rptec.ch>, jmsunseri@gmail.com, bcs@metacon.ca,
-       ling@caltech.edu, posti@tomihalonen.com, killers_soul@hotmail.com,
-       bhb@iceburg.net, mike.savage@gmail.com
-In-Reply-To: <1121881266.23806.34.camel@mindpipe>
-References: <42DE6DBD.2030902@rptec.ch> <1121881266.23806.34.camel@mindpipe>
-Content-Type: text/plain
-Date: Fri, 22 Jul 2005 14:21:54 -0400
-Message-Id: <1122056514.877.19.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Jul 2005 14:28:53 -0400
+Received: from web60715.mail.yahoo.com ([209.73.178.218]:13236 "HELO
+	web60715.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261369AbVGVS2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 14:28:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.br;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=6R+cP89vmeb95x/LoRVSPKQUjgjqJTlTx8W11sjMPOZzPYtkfjr9omfHjDpr5qSYDQ4oQ+F1/sLsJ1NkVkVRQRMGXd5dM/tgJIls7xxHTU8e1MdqCibaCihjjKlswjfL0stgL27nmoXUW5l5Qoa8um5DlruvNAeLcBSUqD1sbaM=  ;
+Message-ID: <20050722182848.8028.qmail@web60715.mail.yahoo.com>
+Date: Fri, 22 Jul 2005 15:28:48 -0300 (ART)
+From: "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br>
+Subject: "seeing minute plus hangs during boot" - 2.6.12 and 2.6.13
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-20 at 13:41 -0400, Lee Revell wrote:
-> On Wed, 2005-07-20 at 17:29 +0200, Jean-Eric Cuendet wrote:
-> > Hi,
-> > I just released a new version of kernel-desktop. New features are:
-> 
-> > - Realtime LSM module (Useful for jack audio server)
-> 
-> 2.6.12 supports RLIMIT_RTPRIO and RLIMIT_NICE so this is no longer
-> needed.
-> 
-> The distros need to get with the program, AFAIK none of them have even
-> released updated pam, bash, and glibc packages to support the new
-> rlimits yet.
 
-Actually Andreas Steinmetz has discovered that RLIMIT_RTPRIO is broken
-in 2.6.12-2.6.13-rc3 (patch for 2.6.13 will be forthcoming).  So
-realtime LSM *is* still needed...
 
-Lee
+Hi all,
 
+Sorry for sending this issue to your attention again, but I got no answers and
+I thought it could be because of my bad subject message.
+
+I'm having little hangs while booting with kernels 2.6.12 and 2.6.13-rc1, rc2
+and rc3.
+
+Hangs appears just before mounting filesystems message and before configuring
+system to use udev.
+ 
+I'm using Gentoo with vanilla-sources. I already asked on gentoo lists and
+nobody saw this behaviour. I tried google with no luck too. So my last
+resource which could give me some light is here.
+
+Do you know of something about this? Have you seen this problem?
+Where could I look for more information about that in my system? I saw logs
+but they don't say anything. Also, besides this hangs on boot, system seems to
+work perfectly, but I'd like to remove this hangs from boot.
+
+Thanks in advance.
+
+--
+Regards,
+
+Francisco Figueiredo Jr.
+
+
+__________________________________________________
+Converse com seus amigos em tempo real com o Yahoo! Messenger 
+http://br.download.yahoo.com/messenger/ 

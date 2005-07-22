@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVGVUJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVGVUOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbVGVUJY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 16:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVGVUJV
+	id S262154AbVGVUOX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 16:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVGVUOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 16:09:21 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:23115 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262149AbVGVUIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 16:08:46 -0400
-Date: Fri, 22 Jul 2005 13:08:32 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: njw@osdl.org, Tejun Heo <htejun@gmail.com>
-Subject: [announce] 'patchview' ver. 004
-Message-Id: <20050722130832.6c22f430.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 22 Jul 2005 16:14:22 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42505 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262154AbVGVUOV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 16:14:21 -0400
+Date: Fri, 22 Jul 2005 22:14:16 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: christos gentsis <christos_gentsis@yahoo.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel optimization
+Message-ID: <20050722201416.GM3160@stusta.de>
+References: <42E14134.1040804@yahoo.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42E14134.1040804@yahoo.co.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 22, 2005 at 07:55:48PM +0100, christos gentsis wrote:
 
-Hi,
+> hello
 
-[version 004]
+Hi Chris,
 
-'patchview' merges a patch file and a source tree to a set of
-temporary modified files.  This enables better patch (re)viewing
-and more viewable context.  (hopefully)
+> i would like to ask if it possible to change the optimization of the 
+> kernel from -O2 to -O3 :D, how can i do that? if i change it to the top 
+> level Makefile does it change to all the Makefiles?
 
+search for the line with
+  CFLAGS          += -O2
+and change this to -O3.
 
-The patchview script is here:
-  http://www.xenotime.net/linux/scripts/patchview
+This works for most Makefile's except for the one's that manually
+set -Os.
 
+> And let's say that i change it... does this generate any problems with 
+> the space that the kernel will take? (the kernel will be much larger)
 
-usage: patchview [-f] [-s] patchfile srctree {ver. 004}
-  -f : force tkdiff even if 'patch' has errors
-  -s : single tkdiff even if patchfile contains multiple files
+It's completely untested.
+And since it's larger, it's also slower.
 
+> Thanks
+> Chris
 
-It uses (requires) lsdiff (from patchutils) and
-tkdiff or mtkdiff (multi-file tkdiff viewer).
-'mtkdiff' is used if it is found and is executable.
-(and it's pretty cool)
+cu
+Adrian
 
+-- 
 
-patchutils:  http://cyberelk.net/tim/patchutils/
-tkdiff:      http://sourceforge.net/projects/tkdiff/
-mtkdiff:     http://home-tj.org/mtkdiff/files/
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
----
-~Randy
-
-Thanks to Nick Wilson and Tejun Heo for patches.
-
-Changes for ver. 004:
-* Make sure things get cleaned up if we ctrl-c the sucker.
-* Kill the viewers when the script is killed.
-* Un-hardcode PROG.
-* Add [-s] to usage message.
-* Add support for the mtkdiff viewer.

@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVGVJFx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVGVJJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVGVJFx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 05:05:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVGVJFx
+	id S262071AbVGVJJh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 05:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVGVJJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 05:05:53 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:42407 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261180AbVGVJFv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 05:05:51 -0400
-Message-ID: <42E0B6E4.1030303@pobox.com>
-Date: Fri, 22 Jul 2005 05:05:40 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Fri, 22 Jul 2005 05:09:37 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:29551 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262071AbVGVJJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 05:09:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=mF+CViJt5povxcNl2oR410gmFGGB9tLX1Jsacx3tTms+pG8HN8QtlKPtYJCXxA30gCoN2lp6zxpdG3wc+ZxwzyzM0j44MrcpnLzGY46nL04tgOAHZ3BvrR8ixUsWqEBTjv5FCkLfQd6ENyLhzSTTwxKPDcSwOpCsVLJLM06vjtc=  ;
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: steve_wooding@keysounds.co.uk
+Subject: Re:=?iso-8859-1?Q?[COMPILE_ERROR]_realtime-preempt-2=2E6=2E12-final-V0=2E7=2E51-33_on_x86_64_SMP_system
+Date: Fri, 22 Jul 2005 11:13:02 +0200
+User-Agent: KMail/1.8.1
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 10 GB in Opteron machine
-References: <20050722105516.6ccffb8f.Christoph.Pleger@uni-dortmund.de>
-In-Reply-To: <20050722105516.6ccffb8f.Christoph.Pleger@uni-dortmund.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Disposition: inline
+Message-Id: <200507221113.02246.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Pleger wrote:
-> At last I found out that setting HIGHMEM support to 64 GB is the
-> problem. But is it really not possible to use more than 4GB on an
-> Opteron machine?
+Steve,
 
-Build and boot a 64-bit kernel, not a 32-bit kernel.
+to make it compile and build replace
+ arch/x86_64/kernel/smpboot.c: line 191
+with this:
+<snip>
+static __cpuinitdata raw_spinlock_t tsc_sync_lock = RAW_SPIN_LOCK_UNLOCKED;
+</snip>
 
-There is no highmem option for the 64-bit kernel, because it doesn't 
-need one.
+or alternativly:
+<snip>
+static DEFINE_RAW_SPINLOCK(tsc_sync_lock);
+</snip>
 
-	Jeff
+    Karsten
 
+	
 
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

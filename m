@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVGVXYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVGVX1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbVGVXYd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 19:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVGVXWq
+	id S262228AbVGVX1W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 19:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVGVX1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 19:22:46 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24587 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262220AbVGVXWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 19:22:31 -0400
-Date: Sat, 23 Jul 2005 01:22:23 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: Martin MOKREJ <mmokrejs@ribosome.natur.cuni.cz>,
-       Mark Nipper <nipsy@bitgnome.net>, linux-kernel@vger.kernel.org
-Subject: Re: Giving developers clue how many testers verified certain kernel version
-Message-ID: <20050722232223.GC3160@stusta.de>
-References: <42E04D11.20005@ribosome.natur.cuni.cz> <20050722021046.GB21727@king.bitgnome.net> <42E05C17.2000305@ribosome.natur.cuni.cz> <42E05CAB.9020703@linuxwireless.org>
-Mime-Version: 1.0
+	Fri, 22 Jul 2005 19:27:13 -0400
+Received: from opersys.com ([64.40.108.71]:14864 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262228AbVGVXZh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 19:25:37 -0400
+Message-ID: <42E17EEC.5070102@opersys.com>
+Date: Fri, 22 Jul 2005 19:19:08 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Tom Zanussi <zanussi@us.ibm.com>
+CC: Roman Zippel <zippel@linux-m68k.org>, Steven Rostedt <rostedt@goodmis.org>,
+       richardj_moore@uk.ibm.com, varap@us.ibm.com,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Merging relayfs?
+References: <17107.6290.734560.231978@tut.ibm.com>	<20050712022537.GA26128@infradead.org>	<20050711193409.043ecb14.akpm@osdl.org>	<Pine.LNX.4.61.0507131809120.3743@scrub.home>	<17110.32325.532858.79690@tut.ibm.com>	<Pine.LNX.4.61.0507171551390.3728@scrub.home>	<17114.32450.420164.971783@tut.ibm.com>	<1121694275.12862.23.camel@localhost.localdomain>	<Pine.LNX.4.61.0507181607410.3743@scrub.home>	<42DBBD69.3030300@opersys.com>	<Pine.LNX.4.61.0507181706430.3728@scrub.home>	<17115.53671.326542.392470@tut.ibm.com> <17121.23125.981162.389667@tut.ibm.com>
+In-Reply-To: <17121.23125.981162.389667@tut.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42E05CAB.9020703@linuxwireless.org>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 21, 2005 at 09:40:43PM -0500, Alejandro Bonilla wrote:
->...
->    How does one check if hotplug is working better than before? How do 
-> I test the fact that a performance issue seen in the driver is now fixed 
-> for me or most of users? How do I get back to a bugzilla and tell that 
-> there is a bug somewhere when one can't really know if that is the way 
-> it works but is simply ugly, or if there is really a bug?
-> 
->    My point is that a user like me, can't really get back to this 
-> mailing list and say "hey, since 2.6.13-rc1, my PCI bus is having an 
-> additional 1ms of latency" We don't really have a process to follow and 
-> then be able to say "ahha, so this is different" and then report the 
-> problem, even if we can't fix it because of our C and kernel skills.
-> 
->    How do we know that something is OK or wrong? just by the fact that 
-> it works or not, it doesn't mean like is OK.
-> 
-> There has to be a process for any user to be able to verify and study a 
-> problem. We don't have that yet.
 
-If the user doesn't notice the difference then there's no problem for 
-him.
+Tom Zanussi wrote:
+> - removed the deliver() callback
+> - removed the relay_commit() function
 
-If there's a problem the user notices, then the process is to send an 
-email to linux-kernel and/or open a bug in the kernel Bugzilla and 
-follow the "please send the output of foo" and "please test patch bar" 
-instructions.
+This breaks LTT. Any reason why this needed to be removed? In the end,
+the code will just end up being duplicated in ltt and all other users.
+IOW, this is not some potential future use, but something that's
+currently being used.
 
-What comes nearest to what you are talking about is that you run LTP 
-and/or various benchmarks against every -git and every -mm kernel and 
-report regressions. But this is sinply a task someone could do (and I 
-don't know how much of it is already done e.g. at OSDL), and not 
-something every user could contribute to.
-
-> .Alejandro
-
-cu
-Adrian
-
+Karim
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

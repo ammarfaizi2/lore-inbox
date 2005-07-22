@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVGVPSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVGVP2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbVGVPSd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 11:18:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVGVPSd
+	id S261292AbVGVP2T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 11:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVGVP2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 11:18:33 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:17416 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261253AbVGVPSd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 11:18:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TtvBuU7ab2E+rNtGIpVA7Q0CouCKEJM0UafadnAIPuFH8iLO7y4NQKN90Q/3z8BANfkl0FlygNHabLi9VD3rVlH1bSpegvPCwNAgeZUnlmQ4fMTW3/ZSVgS8e3+HyXp3fFCNwG1p/ZGN8sPcFtMj54ykxN/ZaQ9hOg48qTpPXvo=
-Message-ID: <3faf0568050722081890a2e@mail.gmail.com>
-Date: Fri, 22 Jul 2005 20:48:30 +0530
-From: vamsi krishna <vamsi.krishnak@gmail.com>
-Reply-To: vamsi krishna <vamsi.krishnak@gmail.com>
-To: Bhanu Kalyan Chetlapalli <chbhanukalyan@gmail.com>
-Subject: Re: Whats in this vaddr segment 0xffffe000-0xfffff000 ---p ?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7d15175e050722072727a7f539@mail.gmail.com>
+	Fri, 22 Jul 2005 11:28:19 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64188 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261292AbVGVP2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 11:28:18 -0400
+Date: Fri, 22 Jul 2005 17:28:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: [patch] Fix preempt warning in kernel/power/smp.c
+Message-ID: <20050722152818.GA2561@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3faf0568050721232547aa2482@mail.gmail.com>
-	 <7d15175e050722072727a7f539@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+From: Nigel Cunningham <nigel@suspend2.net>
 
->
-> The location of the vsyscall page is different on 32 and 64 bit
-> machines. So 0xffffe000 is NOT the address you are looking for while
-> dealing with the 64 bit machine.  Rather 0xffffffffff600000 is the
-> correct location (on x86-64).
->
-Both my process's are 32-bit process's, its just one runs on 64-bit
-machine and other runs on 32-bit machine. The write from address
-0xffffe0000 to a file on a 32-bit machine fails, but does'nt fail on
-64-bit machine (the process is still 32-bit although it runs on
-64-bit).
+This patch fixes a warning in the disable_nonboot_cpus call in
+kernel/power/smp.c.
 
-How can the virtual address of   0xffffffffff600000 exist in a 32-bit
-process ? (May be I have not made myself clear in explaining the
-problem?? :-?)
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-Best,
-Vamsi.
+---
+commit 93fb99fd9f170b5418ed73475b7664d355465359
+tree f2bd09522ef68da1010e423fde07ad902f50eda5
+parent 3bd0270be587b87ec14f1fdc50bd8c9e3f1142dc
+author <pavel@amd.(none)> Fri, 22 Jul 2005 17:27:11 +0200
+committer <pavel@amd.(none)> Fri, 22 Jul 2005 17:27:11 +0200
+
+ kernel/power/smp.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/kernel/power/smp.c b/kernel/power/smp.c
+--- a/kernel/power/smp.c
++++ b/kernel/power/smp.c
+@@ -38,7 +38,7 @@ void disable_nonboot_cpus(void)
+ 		}
+ 		printk("Error taking cpu %d down: %d\n", cpu, error);
+ 	}
+-	BUG_ON(smp_processor_id() != 0);
++	BUG_ON(raw_smp_processor_id() != 0);
+ 	if (error)
+ 		panic("cpus not sleeping");
+ }

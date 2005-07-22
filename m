@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVGVUA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVGVUCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbVGVUA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 16:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbVGVUA3
+	id S262142AbVGVUCM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 16:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVGVUCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 16:00:29 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:23768 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261320AbVGVUA1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 16:00:27 -0400
-Subject: slow tcp acks on loopback device
-From: Steve French <smfltc@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: samba-technical@lists.samba.org
-Content-Type: text/plain
-Organization: IBM - Linux Technology Center
-Message-Id: <1122062219.29258.12.camel@stevef95.austin.ibm.com>
+	Fri, 22 Jul 2005 16:02:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:29597 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262153AbVGVUCF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 16:02:05 -0400
+Date: Fri, 22 Jul 2005 13:01:32 -0700
+From: Paul Jackson <pj@sgi.com>
+To: bert hubert <bert.hubert@netherlabs.nl>
+Cc: rostedt@goodmis.org, relayfs-devel@lists.sourceforge.net,
+       richardj_moore@uk.ibm.com, varap@us.ibm.com, karim@opersys.com,
+       linux-kernel@vger.kernel.org, zanussi@us.ibm.com
+Subject: Re: [PATCH] Re: relayfs documentation sucks?
+Message-Id: <20050722130132.60f1524e.pj@sgi.com>
+In-Reply-To: <20050720214519.GA13155@outpost.ds9a.nl>
+References: <17107.6290.734560.231978@tut.ibm.com>
+	<20050716210759.GA1850@outpost.ds9a.nl>
+	<17113.38067.551471.862551@tut.ibm.com>
+	<20050717090137.GB5161@outpost.ds9a.nl>
+	<17114.31916.451621.501383@tut.ibm.com>
+	<20050717194558.GC27353@outpost.ds9a.nl>
+	<1121693274.12862.15.camel@localhost.localdomain>
+	<20050720142732.761354de.pj@sgi.com>
+	<20050720214519.GA13155@outpost.ds9a.nl>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.6.4; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 22 Jul 2005 14:56:59 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am seeing odd tcp characteristics on the loopback device.
+Another vote in favor of relayfs here ...
 
-In analyzing cifs read performance to samba, I see a fairly consistent
-pattern.
+I am reminded by my good colleagues at SGI that relayfs is a key
+to the Linux Trace Toolkit (LTT), which is in turn an important
+technology for some product(s) on which SGI is working.
 
-TCP frame containing SMBRead request (asking for size 16K)
-1st 16K of SMB Read Response  (1 ms later or less) sent from samba
-	Samba's response is just over 16K (due to protocol header)
-wait 40ms doing nothing AFAIK
-tcp ack from client to server
-TCP frame with last few bytes of the SMB ReadResponse
-TCP frame containing next SMB Read Request (asking for size 16K) etc.
+It is uses such as this which speak to the value of including
+relayfs in the kernel.
 
-I added a setsockopt call to cifs's ipv4_connect to set TCP_NODELAY to 1
-(done once just after the connect) which did not seem to help.
-
-Noticing that the loopback device (at least on RHEL4) has an unfortunate
-mtu size 16384 (which is about 50 bytes too small for SMB read
-responses), I did try increasing the MTU slightly.  Changing that to
-18000 did avoid the fragmentation and the 40ms delay - but what puzzled
-me was why setting TCP_NODELAY after the socket was created did not
-eliminate the delay on the ack and if there is a way to avoid the huge
-tcp ack delay by either doing something else to force client acking
-immediately or to do something on the client side of the stack to get
-the server to send the whole 16K+ frame - it looks like the tcp windows
-is 32K if the value in the tcp acks in the network trace is to be
-trusted.
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVGVSDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVGVSGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbVGVSDr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 14:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbVGVSDq
+	id S262129AbVGVSGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 14:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVGVSDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 14:03:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32708 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262126AbVGVSCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 14:02:42 -0400
-Date: Fri, 22 Jul 2005 20:02:36 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Voluspa <voluspa@telia.com>
-Cc: jesper.juhl@gmail.com, lista1@telia.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3 Battery times at 100/250/1000 Hz = Zero difference
-Message-ID: <20050722180236.GA615@atrey.karlin.mff.cuni.cz>
-References: <20050721200448.5c4a2ea0.lista1@telia.com> <9a8748490507211114227720b0@mail.gmail.com> <20050722144855.GA2036@elf.ucw.cz> <20050722191510.5e120515.voluspa@telia.com>
+	Fri, 22 Jul 2005 14:03:54 -0400
+Received: from mail.charite.de ([160.45.207.131]:54938 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S262124AbVGVSCG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 14:02:06 -0400
+Date: Fri, 22 Jul 2005 20:02:04 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ALSA, snd_intel8x0m and kexec() don't work together (2.6.13-rc3-git4 and 2.6.13-rc3-git3)
+Message-ID: <20050722180204.GD30517@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050721180621.GA25829@charite.de> <20050722062548.GJ25829@charite.de> <200507221614.28096.vda@ilport.com.ua> <20050722131825.GR8528@charite.de> <1122054941.877.6.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050722191510.5e120515.voluspa@telia.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1122054941.877.6.camel@mindpipe>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+* Lee Revell <rlrevell@joe-job.com>:
 
-> and catting /proc/acpi/processor/CPU0/power gives
-> active state: C1
-> max_cstate: C8
-> bus master activity: 00000000
-> states:
->    *C1: type[C1] promotion[--] demotion[--] latency[000] usage[02998796]
+> > 2.6.12 didn't have kexec (unless it's a -mm kernel)
+> > So how could you boot using kexec then?
+> > 
 > 
-> /sys/module/processor/parameters/max_cstate says 8
-> /sys/module/processor/parameters/bm_history says 4294967295
-> 
-> So I'm a bit baffled that no C2/C3 turns up. I've done a test-compile
-> with all of ACPI in kernel instead of as modules, but there was no
-> difference.
-> 
-> I'll unload the whole USB-module part and boot without loading them, but
-> will it matter? Please provide more details about how to debug this
-> (very confusing) field.
+> Is kexec supposed to be transparent to all the subsystems, or does ALSA
+> have to know how to stop all DMA in order for kexec to work?
 
-Okay, if you have no C2/C3 like the dump above shows, unloading usb
-will not help. It seems like your machine is simply not able to do
-reasonable powersaving.
-								Pavel
+The way I used it was to replace the "reboot" call in
+/etc/init.d/reboot. So at that time, ALSA was already "stopped"
+(/etc/init.d/also stop ran)  -- shouldn't that suffice?
 
+Kconfig says:
+
+kexec is a system call that implements the ability to shutdown your
+current kernel, and to start another kernel.  It is like a reboot but it
+is indepedent of the system firmware.  And like a reboot you can start
+any kernel with it, not just Linux.
+	  
+The name comes from the similiarity to the exec system call.
+
+It is an ongoing process to be certain the hardware in a machine is
+properly shutdown, so do not be surprised if this code does not initially
+work for you.  It may help to enable device hotplugging support.  As of
+this writing the exact hardware interface is strongly in flux, so no good
+recommendation can be made.
+	    
+		    
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

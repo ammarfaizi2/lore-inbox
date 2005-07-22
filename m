@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVGVTwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbVGVTyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVGVTwg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 15:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbVGVTwg
+	id S262150AbVGVTyU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 15:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVGVTyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 15:52:36 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:20212 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261391AbVGVTwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 15:52:34 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: christos gentsis <christos_gentsis@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Fri, 22 Jul 2005 12:52:22 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: kernel optimization
-In-Reply-To: <42E14134.1040804@yahoo.co.uk>
-Message-ID: <Pine.LNX.4.62.0507221250450.23492@qynat.qvtvafvgr.pbz>
-References: <42E14134.1040804@yahoo.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 22 Jul 2005 15:54:20 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:47852 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262150AbVGVTyO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 15:54:14 -0400
+Date: Fri, 22 Jul 2005 12:53:35 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: mbligh@mbligh.org, matthltc@us.ibm.com, akpm@osdl.org, hch@infradead.org,
+       linux-kernel@vger.kernel.org, gh@us.ibm.com
+Subject: Re: 2.6.13-rc3-mm1 (ckrm)
+Message-Id: <20050722125335.10b3ee0b.pj@sgi.com>
+In-Reply-To: <42E070F9.6010009@watson.ibm.com>
+References: <20050715013653.36006990.akpm@osdl.org>
+	<20050715150034.GA6192@infradead.org>
+	<20050715131610.25c25c15.akpm@osdl.org>
+	<20050717082000.349b391f.pj@sgi.com>
+	<1121985448.5242.90.camel@stark>
+	<20050721163227.661a5169.pj@sgi.com>
+	<42E03DD2.6020308@mbligh.org>
+	<20050721204631.1fb4d9a5.pj@sgi.com>
+	<42E070F9.6010009@watson.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.6.4; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a airly frequent question
+Shailabh wrote:
+> So if the current CPU controller 
+>   implementation is considered too intrusive/unacceptable, it can be 
+> reworked or (and we certainly hope not) even rejected in perpetuity. 
 
-the short answer is 'don't try'
+It is certainly reasonable that you would hope such.
 
-the longer answer is that all the additional optimization options that are 
-part of O3+ are considered individually and if they make sense for the 
-kernel they are explicitly enabled (in some cases the optimizations need 
-to be explicitly turned off for proper functionality of the kernel under 
-all versions of GCC)
-
-David Lang
-
-On Fri, 22 Jul 2005, christos gentsis wrote:
-
-> Date: Fri, 22 Jul 2005 19:55:48 +0100
-> From: christos gentsis <christos_gentsis@yahoo.co.uk>
-> To: linux-kernel@vger.kernel.org
-> Subject: kernel optimization
-> 
-> hello
->
-> i would like to ask if it possible to change the optimization of the kernel 
-> from -O2 to -O3 :D, how can i do that? if i change it to the top level 
-> Makefile does it change to all the Makefiles?
->
-> And let's say that i change it... does this generate any problems with the 
-> space that the kernel will take? (the kernel will be much larger)
->
-> Thanks
-> Chris
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+But this hypothetical possibility concerns me a little.  Where would
+that leave CKRM, if it was in the mainline kernel, but there was no CPU
+controller in the mainline kernel?  Wouldn't that be a rather serious
+problem for many users of CKRM if they wanted to work on mainline
+kernels?
 
 -- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

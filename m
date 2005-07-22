@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVGVDoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVGVDql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbVGVDoK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 23:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVGVDoJ
+	id S261943AbVGVDql (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 23:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVGVDql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 23:44:09 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:20929 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id S261960AbVGVDoI (ORCPT
+	Thu, 21 Jul 2005 23:46:41 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:5559 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261943AbVGVDqj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 23:44:08 -0400
-Subject: Re: Obsolete files in 2.6 tree
-In-Reply-To: <42DF67BF.2070105@gmail.com> "from Jiri Slaby at Jul 21, 2005 11:15:43
- am"
-To: Jiri Slaby <jirislaby@gmail.com>
-Date: Thu, 21 Jul 2005 22:44:07 -0500 (CDT)
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20050722034407.C1C58DBA1@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
+	Thu, 21 Jul 2005 23:46:39 -0400
+Date: Fri, 22 Jul 2005 05:41:35 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: fastboot, diskstat
+Message-ID: <20050722034135.GA21201@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> Bob Tracy napsal(a):
-> >Jiri Slaby wrote:
-> >>Are these files obsolete and could be deleted from tree.
-> >>Does anybody use them? Could anybody compile them?
-> >>(...)
-> >>drivers/scsi/NCR5380.c
-> >>drivers/scsi/NCR5380.h
-> >>(...)
-> >
-> >The above are used by (at least) the PAS16 SCSI driver.
->
-> I think, that this driver uses g_NCR5380.c and g_NCR5380.h, doesn't it?
+Hi Andrew,
 
-grep include pas16.c | grep NCR5380
-produces...
+I'm currently at OLS and presented http://ds9a.nl/diskstat yesterday, which
+also references your ancient 'fboot' program.
 
-#include "NCR5380.h"
-#include "NCR5380.c"
+I've also done experiments along those lines, and will be doing more of them
+soon. 
+
+You mention it was a waste of time, do you recall if that meant:
+
+1) that the total time for prefetching + actual boot was only 10% shorter,
+but that the actual booting did not (significantly) touch the disk?
+
+2) that on actual boot there would still be a lot of i/o
+
+?
+
+Regarding 1), in my own experiments I failed to convince the kernel to
+actually cache the pages I touched, I wonder if some sequential-read
+detection kicked in, the one that prevents entire cd's being cached.
+
+For my next attempt I'll try to actually lock the pages into memory.
+
+Also, regarding the directory entries, are they accessed via the buffer
+cache? Iow, would reading blocks which can't be mapped to files directly via
+/dev/hda be useful?
+
+Thanks!
 
 -- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

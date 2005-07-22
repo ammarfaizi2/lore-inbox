@@ -1,42 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVGVF5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVGVGL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbVGVF5A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 01:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVGVF47
+	id S262045AbVGVGL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 02:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVGVGL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 01:56:59 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:57535 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262041AbVGVF47 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 01:56:59 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: sboyce@blueyonder.co.uk
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kdb v4.4 supports OHCI keyboard in 2.6 
-In-reply-to: Your message of "Thu, 21 Jul 2005 12:11:21 +0100."
-             <42DF82D9.30202@blueyonder.co.uk> 
+	Fri, 22 Jul 2005 02:11:26 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:64133 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262045AbVGVGLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 02:11:24 -0400
+Date: Thu, 21 Jul 2005 23:11:18 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: 7eggert@gmx.de, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [1/5+1] menu -> menuconfig part 1
+Message-Id: <20050721231118.10e0afe0.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.58.0507171326470.6041@be1.lrz>
+References: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
+	<Pine.LNX.4.58.0507171326470.6041@be1.lrz>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 22 Jul 2005 15:56:53 +1000
-Message-ID: <11122.1122011813@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jul 2005 12:11:21 +0100, 
-Sid Boyce <sboyce@blueyonder.co.uk> wrote:
->   CHK     include/linux/version.h
->make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   CHK     include/linux/compile.h
->   CHK     usr/initramfs_list
->   CC      arch/i386/kernel/traps.o
->arch/i386/kernel/traps.c:809: error: redefinition of `do_int3'
->arch/i386/kernel/traps.c:709: error: `do_int3' previously defined here
->make[1]: *** [arch/i386/kernel/traps.o] Error 1
->make: *** [arch/i386/kernel] Error 2
->
->Both lines are the same, enabling both kprobes and kdb causes the error, 
->so kprobes must be deselected.
+On Sun, 17 Jul 2005 13:29:03 +0200 (CEST) Bodo Eggert wrote:
 
-Fixed in kdb-v4.4-2.6.13-rc3-common-2 + kdb-v4.4-2.6.13-rc3-i386-2.
+> On Sun, 17 Jul 2005, Bodo Eggert wrote:
+> 
+> > These patches change some menus into menuconfig options.
+> > 
+> > Reworked to apply to linux-2.6.13-rc3-git3
+> 
+> Mostly robotic works.
 
+
+The SCSI drivers menu has problems similar to the MTD drivers menu.
+I.e., some items are displayed on the left panel of xconfig
+when they should appear on the right panel.  E.g., these are all
+on the left-side panel but should be on the right side:
+
+  SCSI Transport Attributes
+  SCSI low-level drivers
+    Fusion MPT device support
+    PCMCIA SCSI adapter support
+
+
+Similar comments for the Sound menu.
+
+Are you testing with menuconfig/xconfig/gconfig ?
+
+---
+~Randy

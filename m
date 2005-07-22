@@ -1,58 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVGVVsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVGVVrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262206AbVGVVsU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 17:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVGVVsQ
+	id S262202AbVGVVrz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 17:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVGVVp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 17:48:16 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:43530 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262206AbVGVVsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 17:48:04 -0400
-Date: Fri, 22 Jul 2005 23:47:56 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux1394-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/ieee1394/sbp2.c: fix warnings with -Wundef
-Message-ID: <20050722214756.GY3160@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Fri, 22 Jul 2005 17:45:29 -0400
+Received: from [64.34.38.30] ([64.34.38.30]:950 "EHLO mercury.illhostit.com")
+	by vger.kernel.org with ESMTP id S262198AbVGVVnp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 17:43:45 -0400
+From: "John Pearson" <john@illhostit.com>
+To: "Erik Mouw" <erik@harddisk-recovery.com>, "Ashley" <ashleyz@alchip.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel cached memory
+Date: Fri, 22 Jul 2005 14:43:43 -0700
+Message-ID: <JCEEICIEKCENOEGFMGBACEAGCAAA.john@illhostit.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20050722125746.GG20258@harddisk-recovery.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - mercury.illhostit.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - illhostit.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the following warnings with -Wundef:
+Wouldn't having (practically) all your memory used for cache slow down
+starting a new program? First it would have to free up that space, and then
+put stuff in that space, taking potentially twice as long. I think there
+should be a system call for freeing cached memory, for those that do want to
+do it.
 
-<--  snip  -->
-
-...
-  CC      drivers/ieee1394/sbp2.o
-drivers/ieee1394/sbp2.c:202:5: warning: "CONFIG_IEEE1394_SBP2_DEBUG" is not defined
-drivers/ieee1394/sbp2.c:207:7: warning: "CONFIG_IEEE1394_SBP2_DEBUG" is not defined
-drivers/ieee1394/sbp2.c:2053:6: warning: "CONFIG_IEEE1394_SBP2_DEBUG" is not defined
-drivers/ieee1394/sbp2.c:2623:5: warning: "CONFIG_IEEE1394_SBP2_DEBUG" is not defined
-...
-
-<--  snip  -->
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Erik Mouw
+Sent: Friday, July 22, 2005 5:58 AM
+To: Ashley
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel cached memory
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Fri, Jul 22, 2005 at 05:46:58PM +0800, Ashley wrote:
+>    I've a server with 2 Operton 64bit CPU and 12G memory, and this server
+> is used to run  applications which will comsume huge memory,
+> the problem is: when this aplications exits,  the free memory of the
+server
+> is still very low(accroding to the output of "top"), and
+> from the output of command "free", I can see that many GB memory was
+cached
+> by kernel. Does anyone know how to free the kernel cached
+> memory? thanks in advance.
 
---- linux-2.6.13-rc3-mm1-full/drivers/ieee1394/sbp2.c.old	2005-07-22 18:19:38.000000000 +0200
-+++ linux-2.6.13-rc3-mm1-full/drivers/ieee1394/sbp2.c	2005-07-22 18:20:32.000000000 +0200
-@@ -171,10 +171,11 @@
- 
- /* #define CONFIG_IEEE1394_SBP2_DEBUG_ORBS */
- /* #define CONFIG_IEEE1394_SBP2_DEBUG_DMA */
--/* #define CONFIG_IEEE1394_SBP2_DEBUG 1 */
--/* #define CONFIG_IEEE1394_SBP2_DEBUG 2 */
- /* #define CONFIG_IEEE1394_SBP2_PACKET_DUMP */
- 
-+/* CONFIG_IEEE1394_SBP2_DEBUG: 0-2 */
-+#define CONFIG_IEEE1394_SBP2_DEBUG 0
-+
- #ifdef CONFIG_IEEE1394_SBP2_DEBUG_ORBS
- #define SBP2_ORB_DEBUG(fmt, args...)	HPSB_ERR("sbp2(%s): "fmt, __FUNCTION__, ## args)
- static u32 global_outstanding_command_orbs = 0;
+Free memory is bad, it means the memory doesn't have a proper use.
+Cached memory will be freed automatically when the kernel needs memory
+for other (more important) things.
+
+
+Erik
+
+--
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

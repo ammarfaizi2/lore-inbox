@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVGVP2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVGVPlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbVGVP2T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 11:28:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVGVP2T
+	id S261297AbVGVPlu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 11:41:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVGVPlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 11:28:19 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64188 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261292AbVGVP2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 11:28:18 -0400
-Date: Fri, 22 Jul 2005 17:28:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: [patch] Fix preempt warning in kernel/power/smp.c
-Message-ID: <20050722152818.GA2561@elf.ucw.cz>
+	Fri, 22 Jul 2005 11:41:50 -0400
+Received: from main.gmane.org ([80.91.229.2]:60887 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261297AbVGVPlt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 11:41:49 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joy Leima <jleima@comcast.net>
+Subject: Re: Re[2]: kernel oops, fast ethernet bridge, 2.4.31
+Date: Fri, 22 Jul 2005 15:13:33 +0000 (UTC)
+Message-ID: <loom.20050722T171013-389@post.gmane.org>
+References: <20050720170025.1264b68a.lspaleniak@wroc.zigzag.pl> <20050720194457.GR8907@alpha.home.local> <273347727.20050720223316@wroc.zigzag.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 216.23.87.58 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007 Firebird/0.7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nigel Cunningham <nigel@suspend2.net>
+Lukasz Spaleniak <lspaleniak <at> wroc.zigzag.pl> writes:
 
-This patch fixes a warning in the disable_nonboot_cpus call in
-kernel/power/smp.c.
+> 
+> On Wednesday, July 20, 2005, 9:44:57 PM, Willy Tarreau wrote:
+ > changed. At least it should have been oopsing from day one.
+> It is strange to me too. There is no dependency when it happens.
+> Sometimes traffic is small, sometimes it's normal. Packet rates are
+> around ~2000-3000 pkt/sec - so not so high.
+> 
+> Regards,
+> Lukasz
+> 
+Lukasz,
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+I think I have a fix for you.  Verify for me that it is the same problem.  Send
+a large UDP packet through the bridge.  I believe the problem is the ip_fragment
+code is not taking into account the VLAN header that needs to be added to the
+packet when it gets fragmented on the way out.   
 
----
-commit 93fb99fd9f170b5418ed73475b7664d355465359
-tree f2bd09522ef68da1010e423fde07ad902f50eda5
-parent 3bd0270be587b87ec14f1fdc50bd8c9e3f1142dc
-author <pavel@amd.(none)> Fri, 22 Jul 2005 17:27:11 +0200
-committer <pavel@amd.(none)> Fri, 22 Jul 2005 17:27:11 +0200
+Just send the large UDP packet through the bridge.  I use ttcp.  If it panics
+then I can send you the fix.  There are further changed to ip_output.c
 
- kernel/power/smp.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/kernel/power/smp.c b/kernel/power/smp.c
---- a/kernel/power/smp.c
-+++ b/kernel/power/smp.c
-@@ -38,7 +38,7 @@ void disable_nonboot_cpus(void)
- 		}
- 		printk("Error taking cpu %d down: %d\n", cpu, error);
- 	}
--	BUG_ON(smp_processor_id() != 0);
-+	BUG_ON(raw_smp_processor_id() != 0);
- 	if (error)
- 		panic("cpus not sleeping");
- }

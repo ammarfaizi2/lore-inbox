@@ -1,92 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbVGVTed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVGVTgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262146AbVGVTed (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 15:34:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVGVTed
+	id S262133AbVGVTgR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 15:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbVGVTgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 15:34:33 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:15627 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S262146AbVGVTe2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 15:34:28 -0400
+	Fri, 22 Jul 2005 15:36:17 -0400
+Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:16529 "EHLO
+	gw02.mail.saunalahti.fi") by vger.kernel.org with ESMTP
+	id S262133AbVGVTgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 15:36:09 -0400
+Message-ID: <42E12105.3090900@trn.iki.fi>
+Date: Fri, 22 Jul 2005 19:38:29 +0300
+From: =?ISO-8859-1?Q?Lasse_K=E4rkk=E4inen_/_Tronic?= 
+	<tronic+lzID=lx43caky45@trn.iki.fi>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050712)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <3faf056805072210563ed8f158@mail.gmail.com>
-References: <3faf0568050721232547aa2482@mail.gmail.com> <7d15175e050722072727a7f539@mail.gmail.com> <3faf0568050722081890a2e@mail.gmail.com> <Pine.LNX.4.61.0507221154150.16740@chaos.analogic.com> <3faf056805072210563ed8f158@mail.gmail.com>
-X-OriginalArrivalTime: 22 Jul 2005 19:34:27.0685 (UTC) FILETIME=[5F976950:01C58EF4]
-Content-class: urn:content-classes:message
-Subject: Re: Whats in this vaddr segment 0xffffe000-0xfffff000 ---p ?
-Date: Fri, 22 Jul 2005 15:32:54 -0400
-Message-ID: <Pine.LNX.4.61.0507221515040.18320@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Whats in this vaddr segment 0xffffe000-0xfffff000 ---p ?
-thread-index: AcWO9F+epoq4qY0XSBKuArvwtVk5Bg==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "vamsi krishna" <vamsi.krishnak@gmail.com>
-Cc: "Bhanu Kalyan Chetlapalli" <chbhanukalyan@gmail.com>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: ioGL64NX <iogl64nx@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Supermount
+References: <42E00DD3.9060407@trn.iki.fi> <2de37a440507211450501a8378@mail.gmail.com>
+In-Reply-To: <2de37a440507211450501a8378@mail.gmail.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigCD961465B2BCE25AD230AE76"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigCD961465B2BCE25AD230AE76
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Fri, 22 Jul 2005, vamsi krishna wrote:
+> Supermount is obsolete there are other tools in userspace that do the
+> job perfectly.
+> e.g ivman which uses hal and dbus.
 
-> Hi,
->
->> It doesn't. The 32-bit machines never show 64 bit words in
->> /proc/NN/maps. They don't "know" how.
->>
->> b7fd6000-b7fd7000 rw-p b7fd6000 00:00 0
->> b7ff5000-b7ff6000 rw-p b7ff5000 00:00 0
->> bffe1000-bfff6000 rw-p bffe1000 00:00 0          [stack]
->> ffffe000-fffff000 ---p 00000000 00:00 0          [vdso]
->> ^^^^^^^^____________ 32 bits
->
-> hello john can you tell me what is [vdso], does it have any content
-> related file descriptor table it seems that the if I dont save this
-> segment during checkpointing,  the file open descriptors (i.e FILE *)
-> seems to have null after restoration.
->
-> Sincerely appreciate your inputs.
->
-> Cheers!
-> Vamsi
->
+They cannot mount on demand, thus cannot do the same job. The boot
+partition, for example, is something that should only be mounted when
+required. The same obviously also goes for network filesystems in many
+cases (i.e. avoid having zillion idling connections to the server).
 
-#include <stdio.h>
+> Also there are other fs like supermount e.g submount etc...
 
-int main()
-{
-     long *foo = (long *)0xffffe000;
-     printf("%08x\n", foo[0]);
-     printf("%08x\n", foo[1]);
-     printf("%08x\n", foo[2]);
-     printf("%08x\n", foo[3]);
-     printf("%08x\n", foo[4]);
-     printf("%s\n", (char *)foo);
+I woudldn't care about the implementation (original supermount,
+supermountng, submount or something else). Getting the job done is what
+counts.
 
-}
+- Tronic -
 
-Seems to be readable and starts with 'ELF'. It's something
-the the 'C' runtime may library use to make syscalls to the
-kernel. Older libraries used interrupt 0x80, newer ones
-may use this. Roland McGrath has made patches to this
-segment so maybe he knows.
+--------------enigCD961465B2BCE25AD230AE76
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFC4SEIOBbAI1NE8/ERAuu4AJ9++rnjahcNzJHtQN+FVL5Kagw8GQCggg33
+dlUeh314t6N0G2WiKfgmunA=
+=U5dr
+-----END PGP SIGNATURE-----
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+--------------enigCD961465B2BCE25AD230AE76--

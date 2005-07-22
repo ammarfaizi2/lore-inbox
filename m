@@ -1,57 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVGVVjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVGVVk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbVGVVjU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 17:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVGVVjU
+	id S262200AbVGVVk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 17:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVGVVj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 17:39:20 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36618 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262185AbVGVVjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 17:39:17 -0400
-Date: Fri, 22 Jul 2005 23:39:12 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com, jkmaline@cc.hut.fi, hostap@shmoo.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [-mm patch] include/net/ieee80211.h must #include <linux/wireless.h>
-Message-ID: <20050722213912.GU3160@stusta.de>
+	Fri, 22 Jul 2005 17:39:28 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:47264 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262192AbVGVVjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 17:39:21 -0400
+Subject: Re: Kernel doesn't free Cached Memory
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Vinicius <jdob@ig.com.br>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050722_160051_071630.jdob@ig.com.br>
+References: <20050722_160051_071630.jdob@ig.com.br>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 22 Jul 2005 23:03:51 +0100
+Message-Id: <1122069831.9478.61.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--Wundef found an (although perhaps harmless) bug:
+On Gwe, 2005-07-22 at 13:00 -0300, Vinicius wrote:
+>    I also read on the Linux-Kernel that the problem may be related to an 
+> exhaustion of your kernels address space, I read that the hugemem-kernel 
+> might be the solution to this case since it has 4GB for the kernel memory 
+> plus 4GB for user process. 
 
-<--  snip  -->
-
-...
-  CC      net/ieee80211/ieee80211_crypt.o
-In file included from net/ieee80211/ieee80211_crypt.c:21:
-include/net/ieee80211.h:26:5: warning: "WIRELESS_EXT" is not defined
-  CC      net/ieee80211/ieee80211_crypt_wep.o
-In file included from net/ieee80211/ieee80211_crypt_wep.c:20:
-include/net/ieee80211.h:26:5: warning: "WIRELESS_EXT" is not defined
-  CC      net/ieee80211/ieee80211_crypt_ccmp.o
-  CC      net/ieee80211/ieee80211_crypt_tkip.o
-In file included from net/ieee80211/ieee80211_crypt_tkip.c:23:
-include/net/ieee80211.h:26:5: warning: "WIRELESS_EXT" is not defined
-...
-
-<--  snip  -->
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.13-rc3-mm1-full/include/net/ieee80211.h.old	2005-07-22 18:37:57.000000000 +0200
-+++ linux-2.6.13-rc3-mm1-full/include/net/ieee80211.h	2005-07-22 18:38:10.000000000 +0200
-@@ -22,6 +22,7 @@
- #define IEEE80211_H
- #include <linux/if_ether.h> /* ETH_ALEN */
- #include <linux/kernel.h>   /* ARRAY_SIZE */
-+#include <linux/wireless.h>
- 
- #if WIRELESS_EXT < 17
- #define IW_QUAL_QUAL_INVALID   0x10
+If its x86-32 then only the hugemem kernel will even see the memory.
+There are big problems with 32Gb+ on a 32bit processor because there is
+so little memory usable at a time that even the page tables become
+problematic. Thankfully all sane machines with that much ram are 64bit.
 

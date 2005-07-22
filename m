@@ -1,154 +1,245 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVGVE2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVGVEfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVGVE2m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 00:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVGVE2m
+	id S261855AbVGVEfy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 00:35:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbVGVEfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 00:28:42 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:35258 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261918AbVGVE2l (ORCPT
+	Fri, 22 Jul 2005 00:35:54 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:1432 "EHLO OTTLS.pngxnet.com")
+	by vger.kernel.org with ESMTP id S261855AbVGVEfv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 00:28:41 -0400
-To: Shailabh Nagar <nagar@watson.ibm.com>
-cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: 2.6.13-rc3-mm1 (ckrm) 
-In-reply-to: Your message of Thu, 21 Jul 2005 23:59:09 EDT.
-             <42E06F0D.8020503@watson.ibm.com> 
-Date: Thu, 21 Jul 2005 21:27:45 -0700
-Message-Id: <E1Dvp8T-0007wp-00@w-gerrit.beaverton.ibm.com>
+	Fri, 22 Jul 2005 00:35:51 -0400
+Subject: [QN/PATCH] Why do some archs allocate stack via kmalloc, others
+	via get_free_pages?
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1122005477.3033.56.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 22 Jul 2005 14:11:17 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all.
 
-Sorry - I didn't see Mark's original comment, so I'm replying to
-a reply which I did get.  ;-)
+In making some modifications to Suspend, we've discovered that some
+arches use kmalloc and others use get_free_pages to allocate the stack.
+Is there a reason for the variation? If not, could the following patch
+be considered for inclusion (tested on x86 only).
 
-On Thu, 21 Jul 2005 23:59:09 EDT, Shailabh Nagar wrote:
-> Mark Hahn wrote:
-> >>I suspect that the main problem is that this patch is not a mainstream
-> >>kernel feature that will gain multiple uses, but rather provides
-> >>support for a specific vendor middleware product used by that
-> >>vendor and a few closely allied vendors.  If it were smaller or
-> >>less intrusive, such as a driver, this would not be a big problem.
-> >>That's not the case.
-> > 
-> > 
-> > yes, that's the crux.  CKRM is all about resolving conflicting resource 
-> > demands in a multi-user, multi-server, multi-purpose machine.  this is a 
-> > huge undertaking, and I'd argue that it's completely inappropriate for 
-> > *most* servers.  that is, computers are generally so damn cheap that 
-> > the clear trend is towards dedicating a machine to a specific purpose, 
-> > rather than running eg, shell/MUA/MTA/FS/DB/etc all on a single machine.  
+Regards,
+
+Nigel
+
+ arch/frv/kernel/process.c       |    4 ++--
+ include/asm-frv/thread_info.h   |   11 ++++++++---
+ include/asm-i386/thread_info.h  |   11 ++++++++---
+ include/asm-m32r/thread_info.h  |   10 +++++++---
+ include/asm-mips/thread_info.h  |    8 +++++---
+ include/asm-ppc64/thread_info.h |    9 ++++++---
+ include/asm-um/thread_info.h    |    6 ++++--
+ 7 files changed, 40 insertions(+), 19 deletions(-)
+diff -ruNp 821-make-task-struct-use-get-free-pages.patch-old/arch/frv/kernel/process.c 821-make-task-struct-use-get-free-pages.patch-new/arch/frv/kernel/process.c
+--- 821-make-task-struct-use-get-free-pages.patch-old/arch/frv/kernel/process.c	2005-02-03 22:33:14.000000000 +1100
++++ 821-make-task-struct-use-get-free-pages.patch-new/arch/frv/kernel/process.c	2005-07-22 04:39:15.000000000 +1000
+@@ -41,7 +41,7 @@ asmlinkage void ret_from_fork(void);
  
-This is a big NAK - if computers are so damn cheap, why is virtualization
-and consolidation such a big deal?  Well, the answer is actually that
-floor space, heat, and power are also continuing to be very important
-in the overall equation.  And, buying machines which are dedicated but
-often 80-99% idle occasionally bothers people who are concerned about
-wasting planetary resources for no good reason.  Yeah, we can stamp out
-thousands of metal boxes, but if just a couple can do the same work,
-well, let's consolidate.  Less wasted metal, less wasted heat, less
-wasted power, less air conditioning, wow, we are now part of the
-eco-computing movement!  ;-)
-
-> > this is *directly* in conflict with certain prominent products, such as 
-> > the Altix and various less-prominent Linux-based mainframes.  they're all
-> > about partitioning/virtualization - the big-iron aesthetic of splitting up 
-> > a single machine.  note that it's not just about "big", since cluster-based 
-> > approaches can clearly scale far past big-iron, and are in effect statically
-> > partitioned.  yes, buying a hideously expensive single box, and then chopping 
-> > it into little pieces is more than a little bizarre, and is mainly based
-> > on a couple assumptions:
-
-Well, yeah IBM has been doing this virtualization & partitioning stuff
-for ages at lots of different levels for lots of reasons.  If we are
-in such direct conflict with Altix, aren't we also in conflict with our
-own lines of business which do the same thing?  But, well, we aren't
-in conflict - this is a complementary part of our overall capabilities.
-
-> > 	- that clusters are hard.  really, they aren't.  they are not 
-> > 	necessarily higher-maintenance, can be far more robust, usually
-> > 	do cost less.  just about the only bad thing about clusters is 
-> > 	that they tend to be somewhat larger in size.
-
-This is orthogonal to clusters.  Or, well, we are even using CKRM today
-is some grid/cluster style applications.  But that has no bearing on
-whether or not clusters is useful.
-
-> > 	- that partitioning actually makes sense.  the appeal is that if 
-> > 	you have a partition to yourself, you can only hurt yourself.
-> > 	but it also follows that burstiness in resource demand cannot be 
-> > 	overlapped without either constantly tuning the partitions or 
-> > 	infringing on the guarantee.
+ struct task_struct *alloc_task_struct(void)
+ {
+-	struct task_struct *p = kmalloc(THREAD_SIZE, GFP_KERNEL);
++	struct task_struct *p = (struct task_struct *) __get_free_pages(GFP_KERNEL, THREAD_ORDER);
+ 	if (p)
+ 		atomic_set((atomic_t *)(p+1), 1);
+ 	return p;
+@@ -50,7 +50,7 @@ struct task_struct *alloc_task_struct(vo
+ void free_task_struct(struct task_struct *p)
+ {
+ 	if (atomic_dec_and_test((atomic_t *)(p+1)))
+-		kfree(p);
++		free_pages((unsigned long) p, THREAD_ORDER);
+ }
  
-Well, if you don't think it makes sense, don't buy one.  And stay away
-from Xen, VMware, VirtualIron, PowerPC/pSeries hardware, Mainframes,
-Altix, IA64 platforms, Intel VT, AMD Pacifica, and, well, anyone else
-that is working to support virtualization, which is one key level of
-partitioning.
-
-I'm sorry but I'm not buying your argument here at all - it just has
-no relationship to what's going on at the user side as near as I can
-tell.
-
-> > CKRM is one of those things that could be done to Linux, and will benefit a
-> > few, but which will almost certainly hurt *most* of the community.
-> > 
-> > let me say that the CKRM design is actually quite good.  the issue is whether 
-> > the extensive hooks it requires can be done (at all) in a way which does 
-> > not disporportionately hurt maintainability or efficiency.
+ static void core_sleep_idle(void)
+diff -ruNp 821-make-task-struct-use-get-free-pages.patch-old/include/asm-frv/thread_info.h 821-make-task-struct-use-get-free-pages.patch-new/include/asm-frv/thread_info.h
+--- 821-make-task-struct-use-get-free-pages.patch-old/include/asm-frv/thread_info.h	2005-07-18 06:37:02.000000000 +1000
++++ 821-make-task-struct-use-get-free-pages.patch-new/include/asm-frv/thread_info.h	2005-07-22 04:52:48.000000000 +1000
+@@ -89,6 +89,8 @@ struct thread_info {
+ #define THREAD_SIZE		8192
+ #endif
  
-Can you be more clear on how this will hurt *most* of the community?
-CKRM when not in use is not in any way intrusive.  Can you take a look
-at the patch again and point out the "extensive" hooks for me?  I've
-looked at "all" of them and I have trouble calling a couple of callbacks
-"extensive hooks".
-
-> > CKRM requires hooks into every resource-allocation decision fastpath:
-> > 	- if CKRM is not CONFIG, the only overhead is software maintenance.
-> > 	- if CKRM is CONFIG but not loaded, the overhead is a pointer check.
-> > 	- if CKRM is CONFIG and loaded, the overhead is a pointer check
-> > 	and a nontrivial callback.
-
-You left out a case here:  CKRM is CONFIG and loaded and classes are
-defined.
-
-In all of the cases that you mentioned, if there are no classes
-defined, the overhead is still unmeasurable for any real workload.
-Refer to the archives referenced earlier where Nish did some performance
-measurements/comparisons.  If you think there are real workloads where
-this is non-trivial, can you run, measure, and point out the cost?  Also,
-do this with and without classes defined.  I think that without classes
-defined, you'll be hard pressed to find a real workload that shows any
-statistically significant performance impact.
-
-> > but really, this is only for CKRM-enforced limits.  CKRM really wants to
-> > change behavior in a more "weighted" way, not just causing an
-> > allocation/fork/packet to fail.  a really meaningful CKRM needs to 
-> > be tightly integrated into each resource manager - effecting each scheduler
-> > (process, memory, IO, net).  I don't really see how full-on CKRM can be 
-> > compiled out, unless these schedulers are made fully pluggable.
++#define THREAD_ORDER	(THREAD_SIZE >> PAGE_SHIFT)
++
+ /* how to get the thread information struct from C */
+ register struct thread_info *__current_thread_info asm("gr15");
  
-Well, loadable modules make sense for some items - what cost there is
-(which is still often small) is born only by the users that use that
-specific portion of CKRM.  But not everything is likely to be a loadable
-module, e.g. the memory controller and the CPU scheduler components
-are a bit tougher.  And yes, we are concerned about performance on big
-and small machines, so that is always a concern with CKRM as well as
-with any patches in any subsystem.
+@@ -100,16 +102,19 @@ register struct thread_info *__current_t
+ 	({							\
+ 		struct thread_info *ret;			\
+ 								\
+-		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
++		ret = (struct thread_info *) 			\
++			__get_free_pages(GFP_KERNEL, 		\
++					THREAD_ORDER); 		\
+ 		if (ret)					\
+ 			memset(ret, 0, THREAD_SIZE);		\
+ 		ret;						\
+ 	})
+ #else
+-#define alloc_thread_info(tsk)	kmalloc(THREAD_SIZE, GFP_KERNEL)
++#define alloc_thread_info(tsk)	(struct thread_info *) \
++		__get_free_pages(GFP_KERNEL, THREAD_ORDER)
+ #endif
+ 
+-#define free_thread_info(info)	kfree(info)
++#define free_thread_info(info)	free_pages((unsigned long) info, THREAD_ORDER)
+ #define get_thread_info(ti)	get_task_struct((ti)->task)
+ #define put_thread_info(ti)	put_task_struct((ti)->task)
+ 
+diff -ruNp 821-make-task-struct-use-get-free-pages.patch-old/include/asm-i386/thread_info.h 821-make-task-struct-use-get-free-pages.patch-new/include/asm-i386/thread_info.h
+--- 821-make-task-struct-use-get-free-pages.patch-old/include/asm-i386/thread_info.h	2005-07-22 05:17:22.000000000 +1000
++++ 821-make-task-struct-use-get-free-pages.patch-new/include/asm-i386/thread_info.h	2005-07-22 04:58:14.000000000 +1000
+@@ -55,8 +55,10 @@ struct thread_info {
+ #define PREEMPT_ACTIVE		0x10000000
+ #ifdef CONFIG_4KSTACKS
+ #define THREAD_SIZE            (4096)
++#define THREAD_ORDER		0
+ #else
+ #define THREAD_SIZE		(8192)
++#define THREAD_ORDER		1
+ #endif
+ 
+ #define STACK_WARN             (THREAD_SIZE/8)
+@@ -101,16 +103,19 @@ register unsigned long current_stack_poi
+ 	({							\
+ 		struct thread_info *ret;			\
+ 								\
+-		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
++		ret = (struct thread_info *) 			\
++			__get_free_pages(GFP_KERNEL, 		\
++					THREAD_ORDER);		\
+ 		if (ret)					\
+ 			memset(ret, 0, THREAD_SIZE);		\
+ 		ret;						\
+ 	})
+ #else
+-#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
++#define alloc_thread_info(tsk) (struct thread_info *) \
++		__get_free_pages(GFP_KERNEL, THREAD_ORDER)
+ #endif
+ 
+-#define free_thread_info(info)	kfree(info)
++#define free_thread_info(info)	free_pages((unsigned long) info, THREAD_ORDER)
+ #define get_thread_info(ti) get_task_struct((ti)->task)
+ #define put_thread_info(ti) put_task_struct((ti)->task)
+ 
+diff -ruNp 821-make-task-struct-use-get-free-pages.patch-old/include/asm-m32r/thread_info.h 821-make-task-struct-use-get-free-pages.patch-new/include/asm-m32r/thread_info.h
+--- 821-make-task-struct-use-get-free-pages.patch-old/include/asm-m32r/thread_info.h	2005-07-18 06:37:03.000000000 +1000
++++ 821-make-task-struct-use-get-free-pages.patch-new/include/asm-m32r/thread_info.h	2005-07-22 05:01:51.000000000 +1000
+@@ -79,6 +79,7 @@ struct thread_info {
+ #define init_stack		(init_thread_union.stack)
+ 
+ #define THREAD_SIZE (2*PAGE_SIZE)
++#define THREAD_ORDER 1
+ 
+ /* how to get the thread information struct from C */
+ static inline struct thread_info *current_thread_info(void)
+@@ -100,16 +101,19 @@ static inline struct thread_info *curren
+ 	({							\
+ 		struct thread_info *ret;			\
+ 	 							\
+-	 	ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
++	 	ret = (struct thread_info *)			\
++			__get_free_pages(GFP_KERNEL, 		\
++					THREAD_ORDER);		\
+ 	 	if (ret)					\
+ 	 		memset(ret, 0, THREAD_SIZE);		\
+ 	 	ret;						\
+ 	 })
+ #else
+-#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
++#define alloc_thread_info(tsk) (struct thread_info *) \
++	__get_free_pages(GFP_KERNEL, THREAD_ORDER)
+ #endif
+ 
+-#define free_thread_info(info) kfree(info)
++#define free_thread_info(info) free_pages((unsigned long) info, THREAD_ORDER)
+ #define get_thread_info(ti) get_task_struct((ti)->task)
+ #define put_thread_info(ti) put_task_struct((ti)->task)
+ 
+diff -ruNp 821-make-task-struct-use-get-free-pages.patch-old/include/asm-mips/thread_info.h 821-make-task-struct-use-get-free-pages.patch-new/include/asm-mips/thread_info.h
+--- 821-make-task-struct-use-get-free-pages.patch-old/include/asm-mips/thread_info.h	2005-07-18 06:37:03.000000000 +1000
++++ 821-make-task-struct-use-get-free-pages.patch-new/include/asm-mips/thread_info.h	2005-07-22 04:43:10.000000000 +1000
+@@ -86,16 +86,18 @@ register struct thread_info *__current_t
+ ({								\
+ 	struct thread_info *ret;				\
+ 								\
+-	ret = kmalloc(THREAD_SIZE, GFP_KERNEL);			\
++	ret = (struct thread_info *)				\
++		__get_free_pages(GFP_KERNEL, THREAD_ORDER);	\
+ 	if (ret)						\
+ 		memset(ret, 0, THREAD_SIZE);			\
+ 	ret;							\
+ })
+ #else
+-#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
++#define alloc_thread_info(tsk) (struct thread_info *) \
++			__get_free_pages(GFP_KERNEL, THREAD_ORDER)
+ #endif
+ 
+-#define free_thread_info(info) kfree(info)
++#define free_thread_info(info) free_pages((unsigned long) info, THREAD_ORDER)
+ #define get_thread_info(ti) get_task_struct((ti)->task)
+ #define put_thread_info(ti) put_task_struct((ti)->task)
+ 
+diff -ruNp 821-make-task-struct-use-get-free-pages.patch-old/include/asm-ppc64/thread_info.h 821-make-task-struct-use-get-free-pages.patch-new/include/asm-ppc64/thread_info.h
+--- 821-make-task-struct-use-get-free-pages.patch-old/include/asm-ppc64/thread_info.h	2005-07-18 06:37:03.000000000 +1000
++++ 821-make-task-struct-use-get-free-pages.patch-new/include/asm-ppc64/thread_info.h	2005-07-22 04:44:26.000000000 +1000
+@@ -62,15 +62,18 @@ struct thread_info {
+ 	({							\
+ 		struct thread_info *ret;			\
+ 								\
+-		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
++		ret = (struct thread_info *)			\
++			__get_free_pages(GFP_KERNEL, 		\
++					THREAD_ORDER);		\
+ 		if (ret)					\
+ 			memset(ret, 0, THREAD_SIZE);		\
+ 		ret;						\
+ 	})
+ #else
+-#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
++#define alloc_thread_info(tsk) (struct thread_info *) \
++			__get_free_pages(GFP_KERNEL, THREAD_ORDER)
+ #endif
+-#define free_thread_info(ti)	kfree(ti)
++#define free_thread_info(ti)	free_pages((unsigned long) ti, THREAD_ORDER)
+ #define get_thread_info(ti)	get_task_struct((ti)->task)
+ #define put_thread_info(ti)	put_task_struct((ti)->task)
+ 
+diff -ruNp 821-make-task-struct-use-get-free-pages.patch-old/include/asm-um/thread_info.h 821-make-task-struct-use-get-free-pages.patch-new/include/asm-um/thread_info.h
+--- 821-make-task-struct-use-get-free-pages.patch-old/include/asm-um/thread_info.h	2005-07-18 06:37:04.000000000 +1000
++++ 821-make-task-struct-use-get-free-pages.patch-new/include/asm-um/thread_info.h	2005-07-22 01:57:00.000000000 +1000
+@@ -53,8 +53,10 @@ static inline struct thread_info *curren
+ 
+ /* thread information allocation */
+ #define alloc_thread_info(tsk) \
+-	((struct thread_info *) kmalloc(THREAD_SIZE, GFP_KERNEL))
+-#define free_thread_info(ti) kfree(ti)
++	((struct thread_info *) __get_free_pages(GFP_KERNEL, \
++			CONFIG_KERNEL_STACK_ORDER))
++#define free_thread_info(ti) free_pages((unsigned long) ti, \
++			CONFIG_KERNEL_STACK_ORDER)
+ 
+ #define get_thread_info(ti) get_task_struct((ti)->task)
+ #define put_thread_info(ti) put_task_struct((ti)->task)
 
-> > finally, I observe that pluggable, class-based resource _limits_ could 
-> > probably be done without callbacks and potentially with low overhead.
-> > but mere limits doesn't meet CKRM's goal of flexible, wide-spread resource 
-> > partitioning within a large, shared machine.
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
 
-CKRM's goal is to do simple workload management both on laptops and
-on servers.  I'm not opposed to doing a few things overly simply as long
-as we get some basic capability.  And we can refine with experience.  I'm
-definitly not looking to make CKRM any more complex than it has to
-be, and yet I also want it to be useful on a laptop, small single CPU
-machine, as well as larger servers.
-
-gerrit

@@ -1,198 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVGVSxD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVGVS5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVGVSxD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 14:53:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVGVSxD
+	id S261261AbVGVS5u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 14:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVGVS5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 14:53:03 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:43241 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262124AbVGVSxB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 14:53:01 -0400
-Date: Fri, 22 Jul 2005 19:52:56 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] reset VGA adapters via BIOS on resume... (non-fbdev/con)
-Message-ID: <Pine.LNX.4.58.0507221942540.5475@skynet>
+	Fri, 22 Jul 2005 14:57:50 -0400
+Received: from rly-ip03.mx.aol.com ([64.12.138.7]:18371 "EHLO
+	rly-ip03.mx.aol.com") by vger.kernel.org with ESMTP id S261261AbVGVS5t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 14:57:49 -0400
+Message-ID: <42E14134.1040804@yahoo.co.uk>
+Date: Fri, 22 Jul 2005 19:55:48 +0100
+From: christos gentsis <christos_gentsis@yahoo.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-913833367-763108554-1122058376=:5475"
+To: linux-kernel@vger.kernel.org
+Subject: kernel optimization
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AOL-IP: 195.93.24.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+hello
 
----913833367-763108554-1122058376=:5475
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+i would like to ask if it possible to change the optimization of the 
+kernel from -O2 to -O3 :D, how can i do that? if i change it to the top 
+level Makefile does it change to all the Makefiles?
 
+And let's say that i change it... does this generate any problems with 
+the space that the kernel will take? (the kernel will be much larger)
 
-Hi all,
-	At OLS at lot of people were giving out about cards not resuming,
-so using a patch from Michael Marineau and help from lots of people
-sitting around in a circle at OLS I've gotten a patch that restores video
-on my laptop by going into real mode and re-posting the BIOS during
-resume,
+Thanks
+Chris
 
-The current code can try to repost the BIOS in wakeup.S but this won't
-work as ths PCI bus isn't alive enough, this patch waits until the pci
-resume code is being called and it if finds a card with no driver loaded
-it calls the reset code. This won't work if you are using radeonfb or any
-fb, I've also written this code with Benh for radeonfb but the card
-doesn't come up perfectly and we can crash later on...
-
-Issues with this patch:
-1. It uses CONFIG_X86 in C file, this should really be done with an arch
-hook but I want to make sure that it solves the issues that people are
-seeing and on what setups it breaks... I'd like this in -mm just to get
-testing of it .. but I believe more discussion would be needed before
-mainline could get it.
-2. It traps back to realmode in kernel space.. (before reboot and apm bios
-did this but to be honest a lot of people may not like this)
-3. It traps back to realmode in kernel space (just in case you missed it)
-4. See 2 and 3
-5. Andi said he has code to do that trap on x86-64 systems, I might
-integrate it in future versions...
-
-My laptop still doesn't resume due to SATA no resuming properly on it..
-but that is my next issue....
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
-
----913833367-763108554-1122058376=:5475
-Content-Type: TEXT/plain; charset=US-ASCII; name="acpi_vga_reset.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.58.0507221952560.5475@skynet>
-Content-Description: 
-Content-Disposition: attachment; filename="acpi_vga_reset.diff"
-
-ZGlmZiAtLWdpdCBhL2FyY2gvaTM4Ni9rZXJuZWwvYWNwaS9zbGVlcC5jIGIv
-YXJjaC9pMzg2L2tlcm5lbC9hY3BpL3NsZWVwLmMNCi0tLSBhL2FyY2gvaTM4
-Ni9rZXJuZWwvYWNwaS9zbGVlcC5jDQorKysgYi9hcmNoL2kzODYva2VybmVs
-L2FjcGkvc2xlZXAuYw0KQEAgLTUsMTUgKzUsMTggQEANCiAgKiAgQ29weXJp
-Z2h0IChDKSAyMDAxLTIwMDMgUGF2ZWwgTWFjaGVrIDxwYXZlbEBzdXNlLmN6
-Pg0KICAqLw0KIA0KKyNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4NCiAjaW5j
-bHVkZSA8bGludXgvYWNwaS5oPg0KICNpbmNsdWRlIDxsaW51eC9ib290bWVt
-Lmg+DQogI2luY2x1ZGUgPGxpbnV4L2RtaS5oPg0KKyNpbmNsdWRlIDxsaW51
-eC9wY2kuaD4NCiAjaW5jbHVkZSA8YXNtL3NtcC5oPg0KICNpbmNsdWRlIDxh
-c20vdGxiZmx1c2guaD4NCiANCiAvKiBhZGRyZXNzIGluIGxvdyBtZW1vcnkg
-b2YgdGhlIHdha2V1cCByb3V0aW5lLiAqLw0KIHVuc2lnbmVkIGxvbmcgYWNw
-aV93YWtldXBfYWRkcmVzcyA9IDA7DQogdW5zaWduZWQgbG9uZyBhY3BpX3Zp
-ZGVvX2ZsYWdzOw0KK3Vuc2lnbmVkIGxvbmcgYWNwaV92aWRlb19kZXZudW07
-DQogZXh0ZXJuIGNoYXIgd2FrZXVwX3N0YXJ0LCB3YWtldXBfZW5kOw0KIA0K
-IGV4dGVybiB2b2lkIHphcF9sb3dfbWFwcGluZ3Modm9pZCk7DQpAQCAtNTYs
-NiArNTksMzMgQEAgdm9pZCBhY3BpX3Jlc3RvcmVfc3RhdGVfbWVtICh2b2lk
-KQ0KIAl6YXBfbG93X21hcHBpbmdzKCk7DQogfQ0KIA0KKy8qDQorICogYWNw
-aV92Z2Fwb3N0DQorICovDQorDQorZXh0ZXJuIHZvaWQgZG9fdmdhcG9zdF9s
-b3dsZXZlbCAodW5zaWduZWQgbG9uZyk7DQorDQordm9pZCBhY3BpX3ZnYXBv
-c3QgKHN0cnVjdCBwY2lfZGV2ICpwY2lfZGV2KQ0KK3sNCisgIHVuc2lnbmVk
-IGxvbmcgZmxhZ3MsIHNhdmVkX3ZpZGVvX2ZsYWdzID0gYWNwaV92aWRlb19m
-bGFnczsNCisNCisgIGFjcGlfdmlkZW9fZGV2bnVtID0gKHBjaV9kZXYtPmJ1
-cy0+bnVtYmVyPDw4KSB8IChwY2lfZGV2LT5kZXZmbik7DQorICBhY3BpX3Zp
-ZGVvX2ZsYWdzID0gMTsNCisgIC8qIE1hcCBsb3cgbWVtb3J5IGFuZCBjb3B5
-IGluZm9ybWF0aW9uICovDQorICBpbml0X2xvd19tYXBwaW5nKHN3YXBwZXJf
-cGdfZGlyLCBVU0VSX1BUUlNfUEVSX1BHRCk7DQorICBtZW1jcHkoKHZvaWQg
-KikgYWNwaV93YWtldXBfYWRkcmVzcywgJndha2V1cF9zdGFydCwgJndha2V1
-cF9lbmQgLSAmd2FrZXVwX3N0YXJ0KTsNCisgIGFjcGlfY29weV93YWtldXBf
-cm91dGluZShhY3BpX3dha2V1cF9hZGRyZXNzKTsNCisgIC8qIFR1bm5lbCB0
-aHJ1IHJlYWwgbW9kZSAqLw0KKyAgbG9jYWxfaXJxX3NhdmUoZmxhZ3MpOw0K
-KyAgZG9fdmdhcG9zdF9sb3dsZXZlbChhY3BpX3dha2V1cF9hZGRyZXNzKTsN
-CisgIGxvY2FsX2lycV9yZXN0b3JlKGZsYWdzKTsNCisgIC8qIFJlc3RvcmUg
-bWFwcGluZyBldGMgKi8NCisgIHphcF9sb3dfbWFwcGluZ3MoKTsNCisgIGFj
-cGlfdmlkZW9fZmxhZ3MgPSBzYXZlZF92aWRlb19mbGFnczsNCit9DQorDQor
-RVhQT1JUX1NZTUJPTCAoYWNwaV92Z2Fwb3N0KTsNCisNCiAvKioNCiAgKiBh
-Y3BpX3Jlc2VydmVfYm9vdG1lbSAtIGRvIF92ZXJ5XyBlYXJseSBBQ1BJIGlu
-aXRpYWxpc2F0aW9uDQogICoNCmRpZmYgLS1naXQgYS9hcmNoL2kzODYva2Vy
-bmVsL2FjcGkvd2FrZXVwLlMgYi9hcmNoL2kzODYva2VybmVsL2FjcGkvd2Fr
-ZXVwLlMNCi0tLSBhL2FyY2gvaTM4Ni9rZXJuZWwvYWNwaS93YWtldXAuUw0K
-KysrIGIvYXJjaC9pMzg2L2tlcm5lbC9hY3BpL3dha2V1cC5TDQpAQCAtNDMs
-NiArNDMsNyBAQCB3YWtldXBfY29kZToNCiANCiAJdGVzdGwJJDEsIHZpZGVv
-X2ZsYWdzIC0gd2FrZXVwX2NvZGUNCiAJanoJMWYNCisJbW92bCAgICB2aWRl
-b19kZXZudW0gLSB3YWtldXBfY29kZSwgJWVheA0KIAlsY2FsbCAgICQweGMw
-MDAsJDMNCiAJbW92dwklY3MsICVheA0KIAltb3Z3CSVheCwgJWRzCQkJCQkj
-IEJpb3MgbWlnaHQgaGF2ZSBwbGF5ZWQgd2l0aCB0aGF0DQpAQCAtOTgsNiAr
-OTksNyBAQCByZWFsX3NhdmVfY3I0OgkubG9uZyAwDQogcmVhbF9tYWdpYzoJ
-LmxvbmcgMA0KIHZpZGVvX21vZGU6CS5sb25nIDANCiB2aWRlb19mbGFnczoJ
-LmxvbmcgMA0KK3ZpZGVvX2Rldm51bToJLmxvbmcgMA0KIHJlYWxfZWZlcl9z
-YXZlX3Jlc3RvcmU6CS5sb25nIDANCiByZWFsX3NhdmVfZWZlcl9lZHg6IAku
-bG9uZyAwDQogcmVhbF9zYXZlX2VmZXJfZWF4OiAJLmxvbmcgMA0KQEAgLTE3
-MSw2ICsxNzMsMzIgQEAgY2hlY2tfdmVzYToNCiANCiBfc2V0YmFkOiBqbXAg
-c2V0YmFkDQogDQorIw0KKyMJUmVhbCBtb2RlIHN3aXRjaCAtIHZlcmJhdGlt
-IGZyb20gcmVib290LmMNCisjDQorZ29fcmVhbDoNCisJbW92bAklY3IwLCAl
-ZWF4DQorCWFuZGwJJDB4MDAwMDAwMTEsICVlYXgNCisJb3JsCSQweDYwMDAw
-MDAwLCAlZWF4DQorCW1vdmwJJWVheCwgJWNyMA0KKwltb3ZsCSVlYXgsICVj
-cjMNCisJbW92bAklY3IwLCAlZWJ4DQorCWFuZGwJJDB4NjAwMDAwMDAsICVl
-YngNCisJanoJMWYNCisJd2JpbnZkDQorMToJYW5kYgkkMHgxMCwgJWFsDQor
-CW1vdmwJJWVheCwgJWNyMA0KK2dvX3JlYWxfam1wOgkJLmJ5dGUJMHhlYQ0K
-K2dvX3JlYWxfam1wX29mZjoJLndvcmQJMHgwMDAwDQorZ29fcmVhbF9qbXBf
-c2VnOgkud29yZAkweDAwMDANCisjDQorIyAJUmVhbCBtb2RlIGRlc2NyaXB0
-b3IgdGFibGUNCisjDQorCQkuYWxpZ24JOA0KK2dvX3JlYWxfZGVzYzoJLnF1
-YWQJMHgwMDAwMDAwMDAwMDAwMDAwDQorZ29fcmVhbF9jc2VnOgkucXVhZAkw
-eDAwMDA5YTAwMDAwMGZmZmYNCitnb19yZWFsX2RzZWc6CS5xdWFkCTB4MDAw
-MDkyMDAwMDAwZmZmZg0KKw0KIAkuY29kZTMyDQogCUFMSUdODQogDQpAQCAt
-MjYxLDYgKzI4OSw4IEBAIEVOVFJZKGFjcGlfY29weV93YWtldXBfcm91dGlu
-ZSkNCiAJbW92bAklZWR4LCB2aWRlb19tb2RlIC0gd2FrZXVwX3N0YXJ0ICgl
-ZWF4KQ0KIAltb3ZsCWFjcGlfdmlkZW9fZmxhZ3MsICVlZHgNCiAJbW92bAkl
-ZWR4LCB2aWRlb19mbGFncyAtIHdha2V1cF9zdGFydCAoJWVheCkNCisJbW92
-bAlhY3BpX3ZpZGVvX2Rldm51bSwgJWVkeA0KKwltb3ZsCSVlZHgsIHZpZGVv
-X2Rldm51bSAtIHdha2V1cF9zdGFydCAoJWVheCkNCiAJbW92bAkkMHgxMjM0
-NTY3OCwgcmVhbF9tYWdpYyAtIHdha2V1cF9zdGFydCAoJWVheCkNCiAJbW92
-bAkkMHgxMjM0NTY3OCwgc2F2ZWRfbWFnaWMNCiAJcmV0DQpAQCAtMzEwLDYg
-KzM0MCw1OSBAQCBFTlRSWShkb19zdXNwZW5kX2xvd2xldmVsX3M0YmlvcykN
-CiAJY2FsbCBhY3BpX2VudGVyX3NsZWVwX3N0YXRlX3M0Ymlvcw0KIAlyZXQN
-CiANCitFTlRSWShkb192Z2Fwb3N0X2xvd2xldmVsKQ0KKwkjIENvbnZlcnQg
-dGFyZ2V0IG9mZnNldCB0byBwaHlzaWNhbCBhZGRyZXNzDQorCW1vdmwJJWVh
-eCwgJWVjeA0KKwlzdWJsCSRfX1BBR0VfT0ZGU0VULCAlZWN4DQorCSMgRml4
-dXAgR0RUIHBvaW50ZXINCisJbW92bAklZWN4LCAlZWR4DQorCWFkZGwJJGdv
-X3JlYWxfZGVzYyAtIHdha2V1cF9zdGFydCwgJWVkeA0KKwltb3ZsCSVlZHgs
-IGdvX3JlYWxfZ2R0ICsgMg0KKwkjIEZpeHVwIDE2LWJpdCBDUyBkZXNjcmlw
-dG9yDQorCW1vdmwJJWVjeCwgJWVkeA0KKwltb3Z3CSVkeCwgZ29fcmVhbF9j
-c2VnIC0gd2FrZXVwX3N0YXJ0ICsgMiAoJWVheCkNCisJc2hybAkkMTYsICVl
-ZHgNCisJbW92YgklZGwsIGdvX3JlYWxfY3NlZyAtIHdha2V1cF9zdGFydCAr
-IDQgKCVlYXgpDQorCW1vdmIJJWRoLCBnb19yZWFsX2NzZWcgLSB3YWtldXBf
-c3RhcnQgKyA3ICglZWF4KQ0KKwkjIEZpeHVwIDE2LWJpdCBqdW1wDQorCW1v
-dmwJJWVjeCwgJWVkeA0KKwlzaHJsCSQ0LCAlZWR4DQorCW1vdncJJWR4LCBn
-b19yZWFsX2ptcF9zZWcgLSB3YWtldXBfc3RhcnQgKCVlYXgpDQorCSMgU2F2
-ZSBzdGF0ZSBhbmQgcmVnaXN0ZXJzDQorCWNhbGwJc2F2ZV9wcm9jZXNzb3Jf
-c3RhdGUNCisJY2FsbAlzYXZlX3JlZ2lzdGVycw0KKwkjIFJlbG9hZCBwYWdl
-IHRhYmxlIHdpdGggbG93IG1hcHBpbmcNCisJbW92bAkkc3dhcHBlcl9wZ19k
-aXItX19QQUdFX09GRlNFVCwgJWVheA0KKwltb3ZsCSVlYXgsICVjcjMNCisJ
-IyBMb2FkIElEVFIgYW5kIEdEVFIgZm9yIHJlYWwgbW9kZQ0KKwlsaWR0CWdv
-X3JlYWxfaWR0DQorCWxnZHQJZ29fcmVhbF9nZHQNCisJIyBMb2FkIERTICYg
-YWwNCisJbW92bAkkMHgwMDEwLCAlZWF4DQorCW1vdmwJJWVheCwgJXNzDQor
-CW1vdmwJJWVheCwgJWRzDQorCW1vdmwJJWVheCwgJWVzDQorCW1vdmwJJWVh
-eCwgJWZzDQorCW1vdmwJJWVheCwgJWdzDQorCSMgTG9hZCBDUw0KKwljYWxs
-CSQweDAwMDgsICQoZ29fcmVhbCAtIHdha2V1cF9zdGFydCkNCisJIyBQaG9u
-eSByZXR1cm4gY29kZQ0KKwljYWxsCXJlc3RvcmVfcmVnaXN0ZXJzDQorCWNh
-bGwJcmVzdG9yZV9wcm9jZXNzb3Jfc3RhdGUNCisJcmV0DQorCQ0KKwkuYWxp
-Z24JNA0KKwkud29yZAkwDQorZ29fcmVhbF9pZHQ6DQorCS53b3JkCTB4M2Zm
-DQorCS5sb25nCTANCisJDQorCS5hbGlnbgk0DQorCS53b3JkCTANCitnb19y
-ZWFsX2dkdDoNCisJLndvcmQJMyo4LTENCisJLmxvbmcJMA0KKw0KIEFMSUdO
-DQogIyBzYXZlZCByZWdpc3RlcnMNCiBzYXZlZF9nZHQ6CS5sb25nCTAsMA0K
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvcGNpL3BjaS1kcml2ZXIuYyBiL2RyaXZl
-cnMvcGNpL3BjaS1kcml2ZXIuYw0KLS0tIGEvZHJpdmVycy9wY2kvcGNpLWRy
-aXZlci5jDQorKysgYi9kcml2ZXJzL3BjaS9wY2ktZHJpdmVyLmMNCkBAIC0y
-NDIsNiArMjQyLDkgQEAgc3RhdGljIGludCBwY2lfZGV2aWNlX3N1c3BlbmQo
-c3RydWN0IGRldg0KIAlyZXR1cm4gaTsNCiB9DQogDQorI2lmZGVmIENPTkZJ
-R19YODYNCit2b2lkIGFjcGlfdmdhcG9zdChzdHJ1Y3QgcGNpX2RldiAqKTsN
-CisjZW5kaWYNCiANCiAvKiANCiAgKiBEZWZhdWx0IHJlc3VtZSBtZXRob2Qg
-Zm9yIGRldmljZXMgdGhhdCBoYXZlIG5vIGRyaXZlciBwcm92aWRlZCByZXN1
-bWUsDQpAQCAtMjU3LDYgKzI2MCwxMyBAQCBzdGF0aWMgdm9pZCBwY2lfZGVm
-YXVsdF9yZXN1bWUoc3RydWN0IHBjDQogCS8qIGlmIHRoZSBkZXZpY2Ugd2Fz
-IGJ1c21hc3RlciBiZWZvcmUgdGhlIHN1c3BlbmQsIG1ha2UgaXQgYnVzbWFz
-dGVyIGFnYWluICovDQogCWlmIChwY2lfZGV2LT5pc19idXNtYXN0ZXIpDQog
-CQlwY2lfc2V0X21hc3RlcihwY2lfZGV2KTsNCisNCisjaWZkZWYgQ09ORklH
-X1g4Ng0KKwlpZiAoKHBjaV9kZXYtPmNsYXNzID4+IDgpID09IFBDSV9DTEFT
-U19ESVNQTEFZX1ZHQSkgew0KKwkJaWYgKHBjaV9kZXYtPnJlc291cmNlW1BD
-SV9ST01fUkVTT1VSQ0VdLmZsYWdzICYgSU9SRVNPVVJDRV9ST01fU0hBRE9X
-KQ0KKwkJCWFjcGlfdmdhcG9zdChwY2lfZGV2KTsNCisJfQ0KKyNlbmRpZg0K
-IH0NCiANCiBzdGF0aWMgaW50IHBjaV9kZXZpY2VfcmVzdW1lKHN0cnVjdCBk
-ZXZpY2UgKiBkZXYpDQo=
-
----913833367-763108554-1122058376=:5475--

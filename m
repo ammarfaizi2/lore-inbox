@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVGVFVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVGVFXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262043AbVGVFVF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 01:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVGVFVF
+	id S262039AbVGVFXB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 01:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVGVFXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 01:21:05 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:65130 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262043AbVGVFVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 01:21:03 -0400
-Date: Thu, 21 Jul 2005 22:20:57 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: 7eggert@gmx.de, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2/5+1] menu -> menuconfig part 1
-Message-Id: <20050721222057.48dfc799.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.58.0507171329570.6041@be1.lrz>
-References: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
-	<Pine.LNX.4.58.0507171329570.6041@be1.lrz>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 22 Jul 2005 01:23:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25030 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262039AbVGVFW4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 01:22:56 -0400
+Date: Thu, 21 Jul 2005 22:22:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.13-rc3a] i386: inline restore_fpu
+In-Reply-To: <20050722132756.578acca7.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0507212211400.6074@g5.osdl.org>
+References: <200507212309_MC3-1-A534-95EF@compuserve.com>
+ <20050722132756.578acca7.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Jul 2005 13:31:23 +0200 (CEST) Bodo Eggert wrote:
 
-> On Sun, 17 Jul 2005, Bodo Eggert wrote:
+
+On Fri, 22 Jul 2005, Andrew Morton wrote:
 > 
-> > These patches change some menus into menuconfig options.
-> > 
-> > Reworked to apply to linux-2.6.13-rc3-git3
-> 
-> The USB menu.
+> Is the benchmark actually doing floating point stuff?
 
-The USB Gadgets menu is also wacky.
+It must be. We still do lazy FP saves.
 
-  ? ?     <*> USB Gadgets (device side)  --->                             ? ?
-  ? ?         USB Peripheral Controller (NetChip 2280)  --->              ? ?
-  ? ?           NetChip 2280 (NEW)                                        ? ?
-  ? ?     <M> USB Gadget Drivers                                          ? ?
-  ? ?     < >   Gadget Zero (DEVELOPMENT) (NEW)                           ? ?
-  ? ?     < >   Ethernet Gadget (with CDC Ethernet support) (NEW)         ? ?
-  ? ?     < >   Gadget Filesystem (EXPERIMENTAL) (NEW)                    ? ?
-  ? ?     < >   File-backed Storage Gadget (NEW)                          ? ?
-  ? ?     < >   Serial Gadget (with CDC ACM support) (NEW)
+> We do have the `used_math' optimisation in there which attempts to avoid
+> doing the FP save/restore if the app isn't actually using math.
 
-Those should all be visible only after pressing Enter on the
-USB Gadgets menu item; they should not be expanded inline
-in the Device Drivers menu.
+No, it's more than that. There's a per-processor "used_math" flag to
+determine if we need to _initialize_ the FPU, but on context switches we 
+always assume the program we're switching to will _not_ use FP, and we 
+just set the "fault on FP" flag and do not normally restore FP state.
 
----
-~Randy
+It seems volanomark will always use FP, if this is the hot path. 
+
+We'll only save the FP context if the thread has used the FP in _that_ 
+particular time-slice (TS_USEDFPU).
+
+As to why volanomark also uses FP, I don't know. I wouldn't be surprised 
+if the benchmark was designed by somebody to not benefit from the x87 
+state save optimization.
+
+On the other hand, I also wouldn't be surprised if glibc (or similar
+system libraries) is over-eagerly using things like SSE instructions for
+memcopies etc, not realizing that they can have serious downsides. I don't
+see why volanomark would use FP, but hey, it's billed as a java VM and
+thread torture test for "chatrooms". Whatever.
+
+		Linus

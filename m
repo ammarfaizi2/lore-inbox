@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVGVDYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVGVD2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbVGVDYA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 23:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbVGVDX7
+	id S262026AbVGVD2b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 23:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVGVD2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 23:23:59 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:62868 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262030AbVGVDXz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 23:23:55 -0400
-To: Peter Williams <pwil3058@bigpond.net.au>
-cc: Paul Jackson <pj@sgi.com>, Matthew Helsley <matthltc@us.ibm.com>,
-       akpm@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: 2.6.13-rc3-mm1 (ckrm) 
-In-reply-to: Your message of Fri, 22 Jul 2005 11:06:14 +1000.
-             <42E04686.9020107@bigpond.net.au> 
-Date: Thu, 21 Jul 2005 20:00:36 -0700
-Message-Id: <E1Dvnm8-0006iD-00@w-gerrit.beaverton.ibm.com>
+	Thu, 21 Jul 2005 23:28:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64176 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262026AbVGVD23 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 23:28:29 -0400
+Date: Fri, 22 Jul 2005 13:27:56 +1000
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [patch 2.6.13-rc3a] i386: inline restore_fpu
+Message-Id: <20050722132756.578acca7.akpm@osdl.org>
+In-Reply-To: <200507212309_MC3-1-A534-95EF@compuserve.com>
+References: <200507212309_MC3-1-A534-95EF@compuserve.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 22 Jul 2005 11:06:14 +1000, Peter Williams wrote:
-> Paul Jackson wrote:
-> > Matthew wrote:
-> > 
-> >>I don't see the large ifdefs you're referring to in -mm's
-> >>kernel/sched.c.
-> > 
-> > 
-> > Perhaps someone who knows CKRM better than I can explain why the CKRM
-> > version in some SuSE releases based on 2.6.5 kernels has substantial
-> > code and some large ifdef's in sched.c, but the CKRM in *-mm doesn't.
-> > Or perhaps I'm confused.  There's a good chance that this represents
-> > ongoing improvements that CKRM is making to reduce their footprint
-> > in core kernel code.  Or perhaps there is a more sophisticated cpu
-> > controller in the SuSE kernel.
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>
 > 
-> As there is NO CKRM cpu controller in 2.6.13-rc3-mm1 (that I can see) 
-> the one in 2.6.5 is certainly more sophisticated :-).  So the reason 
-> that the considerable mangling of sched.c evident in SuSE's 2.6.5 kernel 
-> source is not present is that the cpu controller is not included in 
-> these patches.
- 
- Yeah - I don't really consider the current CPU controller code something
- ready for consideration yet for mainline merging.  That doesn't mean
- we don't want a CPU controller for CKRM - just that what we have
- doesn't integrate cleanly/nicely with mainline.
+>   This patch makes restore_fpu() an inline.  When L1/L2 cache are saturated
+> it makes a measurable difference.
+> 
+>   Results from profiling Volanomark follow.  Sample rate was 2000 samples/sec
+> (HZ = 250, profile multiplier = 8) on a dual-processor Pentium II Xeon.
+> 
+> 
+> Before:
+> 
+>  10680 restore_fpu                              333.7500
+>   8351 device_not_available                     203.6829
+>   3823 math_state_restore                        59.7344
+>  -----
+>  22854
+> 
+> 
+> After:
+> 
+>  12534 math_state_restore                       130.5625
+>   8354 device_not_available                     203.7561
+>  -----
+>  20888
+> 
+> 
+> Patch is "obviously correct" and cuts 9% of the overhead.  Please apply.
 
-> I imagine that the cpu controller is missing from this version of CKRM 
-> because the bugs introduced to the cpu controller during upgrading from 
-> 2.6.5 to 2.6.10 version have not yet been resolved.
+hm.  What context switch rate is that thing doing?
 
- I don't know what bugs you are referring to here.  I don't think we
- have any open defects with SuSE on the CPU scheduler in their releases.
- And that is not at all related to the reason for not having a CPU
- controller in the current patch set.
+Is the benchmark actually doing floating point stuff?
 
-gerrit
+We do have the `used_math' optimisation in there which attempts to avoid
+doing the FP save/restore if the app isn't actually using math.  But
+<ancient recollections> there's code in glibc startup which always does a
+bit of float, so that optimisation is always defeated.  There was some
+discussion about periodically setting tasks back into !used_math state to
+try to restore the optimisation for tasks which only do a little bit of FP,
+but nothing actually got done.
+
+> Next step should be to physically place math_state_restore() after
+> device_not_available().  Would such a patch be accepted?  (Yes it
+> would be ugly and require linker script changes.)
+
+Depends on the benefit/ugly ratio ;)
+

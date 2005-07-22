@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVGVUIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVGVUJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVGVUIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 16:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbVGVUIQ
+	id S262149AbVGVUJY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 16:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVGVUJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 16:08:16 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:4299
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261366AbVGVUIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 16:08:13 -0400
-Date: Fri, 22 Jul 2005 13:08:16 -0700 (PDT)
-Message-Id: <20050722.130816.91445335.davem@davemloft.net>
-To: smfltc@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, samba-technical@lists.samba.org,
-       netdev@vger.kernel.org
-Subject: Re: slow tcp acks on loopback device
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1122062219.29258.12.camel@stevef95.austin.ibm.com>
-References: <1122062219.29258.12.camel@stevef95.austin.ibm.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 22 Jul 2005 16:09:21 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:23115 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262149AbVGVUIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 16:08:46 -0400
+Date: Fri, 22 Jul 2005 13:08:32 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: njw@osdl.org, Tejun Heo <htejun@gmail.com>
+Subject: [announce] 'patchview' ver. 004
+Message-Id: <20050722130832.6c22f430.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Steve French <smfltc@us.ibm.com>
-Date: 22 Jul 2005 14:56:59 -0500
 
-> Noticing that the loopback device (at least on RHEL4) has an unfortunate
-> mtu size 16384 (which is about 50 bytes too small for SMB read
-> responses), I did try increasing the MTU slightly.  Changing that to
-> 18000 did avoid the fragmentation and the 40ms delay - but what puzzled
-> me was why setting TCP_NODELAY after the socket was created did not
-> eliminate the delay on the ack and if there is a way to avoid the huge
-> tcp ack delay by either doing something else to force client acking
-> immediately or to do something on the client side of the stack to get
-> the server to send the whole 16K+ frame - it looks like the tcp windows
-> is 32K if the value in the tcp acks in the network trace is to be
-> trusted.
+Hi,
 
-TCP_NODELAY does not control ACK generation, instead it modifies
-the Nagle algorithm behavior when sending data packets.
+[version 004]
 
-Please take networking discussions to netdev@vger.kernel.org which
-is where the networking developers are.
+'patchview' merges a patch file and a source tree to a set of
+temporary modified files.  This enables better patch (re)viewing
+and more viewable context.  (hopefully)
+
+
+The patchview script is here:
+  http://www.xenotime.net/linux/scripts/patchview
+
+
+usage: patchview [-f] [-s] patchfile srctree {ver. 004}
+  -f : force tkdiff even if 'patch' has errors
+  -s : single tkdiff even if patchfile contains multiple files
+
+
+It uses (requires) lsdiff (from patchutils) and
+tkdiff or mtkdiff (multi-file tkdiff viewer).
+'mtkdiff' is used if it is found and is executable.
+(and it's pretty cool)
+
+
+patchutils:  http://cyberelk.net/tim/patchutils/
+tkdiff:      http://sourceforge.net/projects/tkdiff/
+mtkdiff:     http://home-tj.org/mtkdiff/files/
+
+---
+~Randy
+
+Thanks to Nick Wilson and Tejun Heo for patches.
+
+Changes for ver. 004:
+* Make sure things get cleaned up if we ctrl-c the sucker.
+* Kill the viewers when the script is killed.
+* Un-hardcode PROG.
+* Add [-s] to usage message.
+* Add support for the mtkdiff viewer.

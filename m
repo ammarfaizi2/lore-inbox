@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVGVAUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVGVAWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVGVAUc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Jul 2005 20:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVGVAUc
+	id S261929AbVGVAWW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Jul 2005 20:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVGVAWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Jul 2005 20:20:32 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:34986 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261836AbVGVAUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Jul 2005 20:20:30 -0400
-Date: Thu, 21 Jul 2005 18:15:05 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: kernel page size explanation
-In-reply-to: <4sSO3-58H-13@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <42E03A89.1040603@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <4sSO3-58H-13@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Thu, 21 Jul 2005 20:22:17 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:21705 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261929AbVGVAWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Jul 2005 20:22:12 -0400
+Subject: Re: [PATCH] serverworks should not take ahold of megaraid'd
+	controllers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       AJ Johnson <blujuice@us.ibm.com>
+In-Reply-To: <42E023B2.5030900@us.ibm.com>
+References: <42E023B2.5030900@us.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 22 Jul 2005 01:46:33 +0100
+Message-Id: <1121993194.854.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gaspar Bakos wrote:
-> Hi,
-> 
-> Sorry for this nursery-school question.
-> 
-> Could someone briefly explain me :
-> 1. what is the kernel page size (any _useful_ pointer on the web is fine),
-> 2. how can one tune it (for 2.6.*)?
-> 3. what kind of effect does it have on system performance, if it is
-> tuneable, and if it worth changing this at all?
+On Iau, 2005-07-21 at 15:37 -0700, Darrick J. Wong wrote:
+> I've noticed what might be a small bug with the serverworks driver in
+> 2.6.12.3.  The IBM HS20 blade has a ServerWorks CSB6 IDE controller with
+> an optional LSI MegaIDE RAID BIOS (BIOS assisted software raid, iow).
 
-This is dependent on the hardware, not really the OS. On x86 the 
-normally used page size is 4KB. 4MB pages are also supported but are 
-usually used only for special purposes (ex: hugetlbfs).
+With a binary only proprietary driver.
 
-As you mentioned some other architectures like Itanium support different 
-page sizes.
+> (ServerWorks) to IBM.  However, the serverworks driver doesn't notice
+> this and will attach to the controller anyway, thus allowing raw access
+> to the disks in the RAID.  An unsuspecting user can then read and write
+> whatever they want to the drive, which could very well degrade or
+> destroy the array, which is clearly not desirable behavior.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+It may be appropriate for some vendor situations but it isn't
+appropriate for the base kernel to default to assuming the user wants to
+use binary only drivers instead of dmraid. Especially as the raid
+formats for this hardware are partially known despite no assistance I
+know of from the vendor.
+
+Alan
 

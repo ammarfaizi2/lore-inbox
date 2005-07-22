@@ -1,41 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbVGVHuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVGVHxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbVGVHuY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 03:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVGVHuY
+	id S262032AbVGVHxL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 03:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVGVHxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 03:50:24 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:18911
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262049AbVGVHuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 03:50:22 -0400
-Date: Fri, 22 Jul 2005 00:50:25 -0700 (PDT)
-Message-Id: <20050722.005025.26277081.davem@davemloft.net>
-To: ncunningham@cyclades.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [QN/PATCH] Why do some archs allocate stack via kmalloc,
- others via get_free_pages?
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1122005477.3033.56.camel@localhost>
-References: <1122005477.3033.56.camel@localhost>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Jul 2005 03:53:11 -0400
+Received: from web25806.mail.ukl.yahoo.com ([217.12.10.191]:16816 "HELO
+	web25806.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262032AbVGVHxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 03:53:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.gr;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=tjKW/SQzAqZ/0bHu6Do2W7/Q6IVvWAj7YY0pyGEDuy0INqH7v4G8Da0vcqQBCZOxGcscxzf6Okwyu/qnV0yCamFyEiblRAW5Qqwg2cQtbtzNOjp2dlQfMjWdHrvGLooFwoTB88mXzL1qcXtMvGrqJ16Ip+NVE1iy5DXjHshif4g=  ;
+Message-ID: <20050722075307.46321.qmail@web25806.mail.ukl.yahoo.com>
+Date: Fri, 22 Jul 2005 00:53:07 -0700 (PDT)
+From: Drosos Kourounis <drososkourounis@yahoo.gr>
+Subject: kernel 2.4.20, 2.4.21, 2.4.22 , ... does not compile with gcc-3.4.X
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Date: Fri, 22 Jul 2005 14:11:17 +1000
+Dear Developers,
+This might be a known issue but it is not known to me!
+I tried to compile kernel 2.4.22 under Crux Linux,
+and the compilation stopped in sched.c. I do not have
+to say much to you because it seems a compiler
+problem!
+I guess that it would compile nicely with gcc-3.3.X.
 
-> In making some modifications to Suspend, we've discovered that some
-> arches use kmalloc and others use get_free_pages to allocate the stack.
-> Is there a reason for the variation? If not, could the following patch
-> be considered for inclusion (tested on x86 only).
+The problem is in the following piece of code:
+#define FASTCALL(x)     x __attribute__((regparm(3)))
 
-Some platforms really need it to be page aligned (sparc32 sun4c needs
-to virtually map the resulting pages into a specific place, for
-example).
+for instance in the following piece of code:
+// file inc.h
+//------------
+#ifndef inc_h
+#define inc_h
 
-But, for the ones that don't have this requirement, they want the
-cache coloring.
+#define FASTCALL(x)     x __attribute__((regparm(3)))
+extern int FASTCALL(wake_up(double a));
+
+#endif
+
+// file inc.c
+//------------
+#include "inc.h"
+inline int wake_up(double a)
+{
+    return (int) a;
+}
+
+root@archon# gcc-3.4.4 inc.c -c 
+inc.c:3: error: conflicting types for 'wake_up'
+inc.h:5: error: previous declaration of 'wake_up' was
+here
+inc.c:3: error: conflicting types for 'wake_up'
+inc.h:5: error: previous declaration of 'wake_up' was
+here
+
+root@archon# gcc-3.3.1 inc.c -c 
+root@archon#
+
+so it is indeed a compiler problem!
+The question is how do I compile a 2.4.X kernel with 
+gcc-3.4.X?
+
+Thanks in advance!
+Best Wishes!
+Drosos,
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

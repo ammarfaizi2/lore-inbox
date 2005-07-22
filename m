@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVGVJJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVGVJQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbVGVJJh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 05:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVGVJJh
+	id S261212AbVGVJQk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 05:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVGVJQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 05:09:37 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:29551 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262071AbVGVJJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 05:09:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=mF+CViJt5povxcNl2oR410gmFGGB9tLX1Jsacx3tTms+pG8HN8QtlKPtYJCXxA30gCoN2lp6zxpdG3wc+ZxwzyzM0j44MrcpnLzGY46nL04tgOAHZ3BvrR8ixUsWqEBTjv5FCkLfQd6ENyLhzSTTwxKPDcSwOpCsVLJLM06vjtc=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: steve_wooding@keysounds.co.uk
-Subject: Re:=?iso-8859-1?Q?[COMPILE_ERROR]_realtime-preempt-2=2E6=2E12-final-V0=2E7=2E51-33_on_x86_64_SMP_system
-Date: Fri, 22 Jul 2005 11:13:02 +0200
-User-Agent: KMail/1.8.1
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+	Fri, 22 Jul 2005 05:16:40 -0400
+Received: from mrqout2.tiscali.it ([195.130.225.12]:1207 "EHLO
+	mrqout2.tiscali.it") by vger.kernel.org with ESMTP id S261212AbVGVJQj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 05:16:39 -0400
+Date: Fri, 22 Jul 2005 11:16:35 +0200
+Message-ID: <42D7AA0C000145DB@mail-8.mail.tiscali.sys>
+In-Reply-To: <20050722084805.GA10207@merlin.emma.line.org>
+From: sampei02@tiscali.it
+Subject: Re: DriveStatusError BadCRC
+To: "Matthias Andree" <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507221113.02246.annabellesgarden@yahoo.de>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve,
+I already used 80-wire cable and my Maxtor HD plugs are seated properly.
+My Kernel is 2.6.12-1.1372 on Fedora Core 3
+HD is 80 GB Maxtor ATA/133
+With hdparm command I can see hda is set in "udma5" mode, but why is'it not
+udma6 (133 Mhz) ? Can it be problem ?!
 
-to make it compile and build replace
- arch/x86_64/kernel/smpboot.c: line 191
-with this:
-<snip>
-static __cpuinitdata raw_spinlock_t tsc_sync_lock = RAW_SPIN_LOCK_UNLOCKED;
-</snip>
+Sampei
 
-or alternativly:
-<snip>
-static DEFINE_RAW_SPINLOCK(tsc_sync_lock);
-</snip>
 
-    Karsten
+>-- Messaggio Originale --
+>Date:	Fri, 22 Jul 2005 10:48:05 +0200
+>From:	Matthias Andree <matthias.andree@gmx.de>
+>To:	linux-kernel@vger.kernel.org
+>Subject: Re: DriveStatusError BadCRC
+>
+>
+>On Fri, 22 Jul 2005, sampei02@tiscali.it wrote:
+>
+>> I bought new Maxtor HD 80 GB but somthing Fedora Core 3 crashes giving
+>this
+>> message:
+>> 
+>> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+>> hda: dma_intr: Error=0x84 { DriveStatusError BadCRC }
+>
+>> How can I solve it ?
+>
+>Check your hardware. ATA cables must not exceed 45 cm in length; for
+>Ultra DMA 4, 5 or 6 (66 MByte/s and faster), you need to use 80-wire
+>cables (they need extra ground lines for shielding), and check if all
+>plugs are seated properly.
+>
+>WRT the backtrace you showed, someone else will have to answer - which
+>kernel version are you using? If it's a Fedora-patched kernel, report
+>the problem to the Fedora project. If it's an older unmodified kernel,
+>retry with a newer kernel (2.6.12.3) first and see if the problem is
+>still present.
+>
+>-- 
+>Matthias Andree
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-	
 
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+__________________________________________________________________
+TISCALI ADSL 1.25 MEGA
+Solo con Tiscali Adsl navighi senza limiti e telefoni senza canone Telecom
+a partire da  19,95 Euro/mese.
+Attivala entro il 28 luglio, il primo MESE è GRATIS! CLICCA QUI.
+http://abbonati.tiscali.it/adsl/sa/1e25flat_tc/
+
+
+

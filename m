@@ -1,101 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVGVMCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVGVMRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVGVMCK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 08:02:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVGVMCK
+	id S261256AbVGVMRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 08:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVGVMRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 08:02:10 -0400
-Received: from smtp-30.ig.com.br ([200.226.132.30]:37281 "EHLO
-	smtp-30.ig.com.br") by vger.kernel.org with ESMTP id S261259AbVGVMCJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 08:02:09 -0400
-To: bernd@firmix.at
-From: Vinicius <jdob@ig.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Kernel doesn't free Cached Memory
-Date: Fri, 22 Jul 2005 09:02:05 -0300
-X-Priority: 3 (Normal)
-Message-ID: <20050722_120205_006490.jdob@ig.com.br>
-X-Originating-IP: [10.17.1.76]172.31.47.254, 201.6.254.70
-X-Mailer: iGMail [www.ig.com.br]
-X-user: jdob@ig.com.br
-Teste: asaes
+	Fri, 22 Jul 2005 08:17:09 -0400
+Received: from smtp2.belwue.de ([129.143.2.15]:16321 "EHLO smtp2.BelWue.DE")
+	by vger.kernel.org with ESMTP id S261256AbVGVMRI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 08:17:08 -0400
+From: Oliver Tennert <O.Tennert@science-computing.de>
+To: linux-kernel@vger.kernel.org
+Subject: IDE disk and HPA
+Date: Fri, 22 Jul 2005 14:17:04 +0200
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-Content-type: multipart/mixed;
-	boundary="Message-Boundary-by-Mail-Sender-1122033724"
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507221417.04640.tennert@science-computing.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Hello,
 
---Message-Boundary-by-Mail-Sender-1122033724
-Content-type: text/plain; charset=ISO-8859-1
-Content-description: Mail message body
-Content-transfer-encoding: 8bit
-Content-disposition: inline
+I have a question concerning the handling of HPA (Host-protected areas) in 
+current Linux kernels.
 
-On Fri, 2005-07-22 at 08:27 -0300, Vinicius wrote: 
-[...] 
->>    I have a server with 2 Pentium 4 HT processors and 32 GB of >>RAM, 
-this 
->> server runs lots of applications that consume lots of memory to. >>When I 
->>stop 
->> this applications, the kernel doesn't free memory (the  memory >>still in 
->>use) 
->> and the server cache lots of memory (~27GB). When I start this 
->>applications, 
->> the kernel sends  "Out of Memory" messages and kill some random 
->> applications. 
->> 
->>    Anyone know how can I reduce the kernel cached memory on RHEL >>3 
-(kernel 
->> 2.4.21-32.ELsmp - Trial version)? There is a way to reduce the >>kernel 
->>cached 
->> memory utilization? 
+Have a look at drivers/ide/ide-disk.c:
 
->Probably RedHat's support can answer this for RHEL 3. 
-> 
->	Bernd 
->-- 
-> Firmix Software GmbH                   http://www.firmix.at/ 
->mobil: +43 664 4416156                 fax: +43 1 7890849-55 
->          Embedded Linux Development and Services 
 
-Bernd, 
+static inline void idedisk_check_hpa(ide_drive_t *drive)
+{
+        unsigned long long capacity, set_max;
+        int lba48 = idedisk_supports_lba48(drive->id);
 
-   The server runs RHEL Trial Version, without support... for tests purpose. 
+        capacity = drive->capacity64;
+        if (lba48)
+                set_max = idedisk_read_native_max_address_ext(drive);
+        else
+                set_max = idedisk_read_native_max_address(drive);
 
-   When I compile and run the following tester program: 
+        if (set_max <= capacity)
+                return;
 
-#include <stdio.h> 
-#include <string.h> 
-#include <stdlib.h> 
+        printk(KERN_INFO "%s: Host Protected Area detected.\n"
+                         "\tcurrent capacity is %llu sectors (%llu MB)\n"
+                         "\tnative  capacity is %llu sectors (%llu MB)\n",
+                         drive->name,
+                         capacity, sectors_to_MB(capacity),
+                         set_max, sectors_to_MB(set_max));
 
-int main (void) { 
-        int n = 0; 
-        char *p; 
+        if (lba48)
+                set_max = idedisk_set_max_address_ext(drive, set_max);
+        else
+                set_max = idedisk_set_max_address(drive, set_max);
+        if (set_max) {
+                drive->capacity64 = set_max;
+                printk(KERN_INFO "%s: Host Protected Area disabled.\n",
+                                 drive->name);
+        }
+}
 
-        while (1) { 
-                if ((p = malloc(1<<20)) == NULL) { 
-                        printf("malloc failure after %d MiB\n", n); 
-                        return 0; 
-                } 
-                memset (p, 0, (1<<20)); 
-                printf ("got %d MiB\n", ++n); 
-        } 
-} 
+Do I interpret it right that the following is done in the above function:
 
-   The server alocates lots of free memory (including swap) to the tester 
-program and when its finish, lots of cached memory are freed. 
+1.) The current capacity of the disk is detected.
+2.) The "native max. address size" of the disk is detected and stored in 
+set_max.
+3.) If capacity < set_max then it is rightly stated that an HPA is detected.
+4.) If an HPA is detected, then that HPA is disabled, i.e. the maximum address 
+size is set to the "native max. address size". Afterwards, the HPA is no 
+more!
 
-   Have someone an idea why it's happens? Or how can I force the kernel to 
-frees cached memory? 
+My question is now: why is an HPA disabled i.e. disprotected when detected? 
+Why not let the HPA alone, because a certain set of disk sectors shall not be 
+accessible by the OS?
 
-Thanks again (sorry my bad eglish again!) 
+Best regards
 
-Vinicius. 
-Protolink Consultoria. 
+Oliver
+-- 
 
---Message-Boundary-by-Mail-Sender-1122033724--
+Acid -- better living through chemistry.
+--
+__
+________________________________________creating IT solutions
+
+Dr. Oliver Tennert
+Senior Solutions Engineer
+CAx Professional Services
+                                        science + computing ag
+phone   +49(0)7071 9457-598             Hagellocher Weg 71-75	
+fax     +49(0)7071 9457-411             D-72070 Tuebingen, Germany
+O.Tennert@science-computing.de          www.science-computing.de
+
 

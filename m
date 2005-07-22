@@ -1,127 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbVGVO3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVGVObb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbVGVO3I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 10:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVGVO3H
+	id S262097AbVGVObb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 10:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVGVO3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 10:29:07 -0400
-Received: from science.horizon.com ([192.35.100.1]:59213 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S262100AbVGVO1x
+	Fri, 22 Jul 2005 10:29:15 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:59879 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262104AbVGVO1W convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 10:27:53 -0400
-Date: 22 Jul 2005 10:38:57 -0000
-Message-ID: <20050722103857.17907.qmail@science.horizon.com>
-From: linux@horizon.com
-To: naber@inl.nl
-Subject: Re: a 15 GB file on tmpfs
+	Fri, 22 Jul 2005 10:27:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=q2kUKpu7bToqXjbIsMDO8aCRVDH/P3cMIcclXN7EVKD3nR8tgtT5NbuYoVTixIm39jr3WgswtUkyawBo9CqIBQmT/3mL+FD3W4A7L3zPdAHASnAlvGxNxYFUWu0ZGEYoZ5HA1p0r62gndQ2BGriA4FRQ5klFT9pNVLlABI8gV64=
+Message-ID: <7d15175e050722072727a7f539@mail.gmail.com>
+Date: Fri, 22 Jul 2005 19:57:14 +0530
+From: Bhanu Kalyan Chetlapalli <chbhanukalyan@gmail.com>
+Reply-To: Bhanu Kalyan Chetlapalli <chbhanukalyan@gmail.com>
+To: vamsi krishna <vamsi.krishnak@gmail.com>
+Subject: Re: Whats in this vaddr segment 0xffffe000-0xfffff000 ---p ?
 Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3faf0568050721232547aa2482@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3faf0568050721232547aa2482@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a 15 GB file which I want to place in memory via tmpfs. I want to do 
-> this because I need to have this data accessible with a very low seek time.
+To the best of my knowledge, It is the vsyscall page. The manner in
+which system calls were implemented has changed from using the 80h
+interrupt directly to using the vsyscall page (on the x86 arch). This
+makes for better throughput while running frequently used system calls
+which do not affect the kernel, but merely retrieve the information. A
+very good example is the system call to retrieve the current time,
+which is used extensively esp during logging. Google for vsyscall page
+and you will get more information.
 
-It should work fine.  tmpfs has the same limits as any other file system,
-2 TB or more, and more than that with CONFIG_LBD.
+> on a 64-bit(uname --all == 'Linux host 2.6.5-7.97.smp #1 <time stamp>
+> x86_64 x86_64 x86_64 GNU/Linux) machine which is running the same
+> kernel, I try to write the contents of the virtual address on to file
+> with (r = write(fd,0xffffe000,4096) ). The write on this machine is
+> successful. But if I try to write the same segment on 32-bit machine
+> (uname --all == Linux host 2.6.5-7.97-smp #1 <timestamp> i686 i686
+> i386 GNU/Linux).
 
-NOTE, however, that tmpfs does NOT guarantee the data will be in RAM!  It
-uses the page cache just like any other file system, and pages out unused
-data just like any other file system.  If you just want average-case fast,
-it'll work fine.  If you want guaranteed fast, you'll have to work harder.
+The location of the vsyscall page is different on 32 and 64 bit
+machines. So 0xffffe000 is NOT the address you are looking for while
+dealing with the 64 bit machine.  Rather 0xffffffffff600000 is the
+correct location (on x86-64).
 
-> I want to know if this is possible before spending 10,000 euros on a machine 
-> that has 16 GB of memory. 
-
-So create a 15 GB file on an existing machine.  Make it sparse, so you
-don't need so much RAM, but test to verify that the kernel doesn't
-wrap at 4 GB, and can keep the data at offsets 0, 4 GB, 8 GB, and 12 GB
-separate.
-
-Works for me (test code below).
-
-> The machine we plan to buy is a HP Proliant Xeon machine and I want to run a 
-> 32 bit linux kernel on it (the xeon we want doesn't have the 64-bit stuff 
-> yet)
-
-If you're working with > 4GB data sets, I would recommend you think VERY hard
-before deciding not to get a 64-bit machine.  If you could just put all 15 GB
-into your application's address space:
-- The application would be much simpler and faster.
-- The kernel wouldn't be slowed by HIGHMEM workarounds.  It's not that bad,
-  but it's definitely noticeable.
-- Your expensive new machine won't be obsolete quite as fast.
-
-I'd also like to mention that AMD's large L2 TLB is enormously helpful when
-working with large data sets.  It's not discussed much on the web sites that
-benchmark with games, but it really helps crunch a lot of data.
+Regards,
+Bhanu.
 
 
+On 7/22/05, vamsi krishna <vamsi.krishnak@gmail.com> wrote:
+> Hello All,
+> 
+> Sorry to interrupt you.
+> 
+> I have been facing a wierd problem on same kernel version
+> (2.6.5-7.97.smp) but running on different machines 32-bit and 64-bit
+> (which can run 32-bit also).
+> 
+> I found that every process running in this kernel version has a
+> virtual address mapping in /proc/<pid>/maps file as follows
+> <-------------------------------------------------------------------------------------------------->
+> ffffe000-ffff000 ---p 00000000 00:00 0
+> <-------------------------------------------------------------------------------------------------->
+> 
+> You can find this vaddr mapping at end of maps file.
+> 
+> on a 64-bit(uname --all == 'Linux host 2.6.5-7.97.smp #1 <time stamp>
+> x86_64 x86_64 x86_64 GNU/Linux) machine which is running the same
+> kernel, I try to write the contents of the virtual address on to file
+> with
+> (r = write(fd,0xffffe000,4096) ). The write on this machine is
+> successful. But if I try to write the same segment on 32-bit machine
+> (uname --all == Linux host 2.6.5-7.97-smp #1 <timestamp> i686 i686
+> i386 GNU/Linux).
+> 
+> The write on this 32-bit machine fails with EFAULT(14), but if memcpy
+> to a buffer from this virtual address seems to work fine i.e if I do
+> 'memcpy(buf1,0xffffe000,4096)' it write perfectly the contents of this
+> virtual address segment into the buf1.
+> 
+> I had a hard time googling about this I could'nt find any information
+> on why this happens. May be some mm hackers may share some of their
+> thoughts.
+> 
+> Really appreciate your inputs on this.
+> 
+> Sincerely,
+> Vamsi kundeti
+> 
+> PS: BTW I'am running suse distribution and will glibc will have any
+> effect on write behaviour ? (I though that since write is a syscall
+> the issue might be with the kernel the thus skipping the glibc
+> details)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-#define _GNU_SOURCE
-#define _FILE_OFFSET_BITS 64
-#include <sys/types.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
 
-#define STRIDE (1<<20)
-
-int
-main(int argc, char **argv)
-{
-	int fd;
-	off_t off;
-
-	if (argc != 2) {
-		fprintf(stderr, "Wrong number of arguments: %u\n", argc);
-		return 1;
-	}
-	fd = open(argv[1], O_RDWR|O_CREAT|O_LARGEFILE, 0666);
-	if (fd < 0) {
-		perror(argv[1]);
-		return 1;
-	}
-
-	for (off = 0; off < 0x400000000LL; off += STRIDE) {
-		char buf[40];
-		off_t res;
-		ssize_t ss1, ss2;;
-
-		ss1 = sprintf(buf, "%llu", off);
-
-		res = lseek(fd, off, SEEK_SET);
-		if (res == (off_t)-1) {
-			perror("lseek");
-			return 1;
-		}
-		ss2 = write(fd, buf, ++ss1);
-		if (ss2 != ss1) {
-			perror("write");
-			return 1;
-		}
-	}
-
-	for (off = 0; off < 0x400000000LL; off += STRIDE) {
-		char buf[40], buf2[40];
-		off_t res;
-		ssize_t ss1, ss2;;
-
-		ss1 = sprintf(buf, "%lld", off);
-
-		res = lseek(fd, off, SEEK_SET);
-		if (res == (off_t)-1) {
-			perror("lseek");
-			return 1;
-		}
-
-		ss2 = read(fd, buf2, ++ss1);
-		if (ss2 != ss1 || memcmp(buf, buf2, ss1) != 0) {
-			fprintf(stderr, "Mismatch at %llu: %.*s vs. %s\n", off, (int)ss2, buf2, buf);
-			return 1;
-		}
-	}
-	printf("All tests succeeded.\n");
-	return 0;
-}
-
+-- 
+The difference between Theory and Practice is more so in Practice than
+in Theory.

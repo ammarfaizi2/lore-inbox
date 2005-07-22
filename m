@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVGWDVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVGWDXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262317AbVGWDVG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 23:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVGWDVF
+	id S262324AbVGWDXv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 23:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVGWDXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 23:21:05 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:43932 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262317AbVGWDVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 23:21:04 -0400
-Subject: Re: Giving developers clue how many testers verified
-	certain	kernel version
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: Blaisorblade <blaisorblade@yahoo.it>, LKML <linux-kernel@vger.kernel.org>,
-       Andrian Bunk <bunk@stusta.de>, "H. Peter Anvin" <hpa@zytor.com>,
-       torvalds@osdl.org
-In-Reply-To: <42E1A832.7010604@linuxwireless.org>
-References: <200507230244.11338.blaisorblade@yahoo.it>
-	 <42E1986B.8070202@linuxwireless.org> <1122088160.6510.7.camel@mindpipe>
-	 <42E1A832.7010604@linuxwireless.org>
+	Fri, 22 Jul 2005 23:23:51 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:20626 "EHLO
+	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S262324AbVGWDXu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 23:23:50 -0400
+Subject: Re: [QN/PATCH] Why do some archs allocate stack via kmalloc,
+	others via get_free_pages?
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050722.005025.26277081.davem@davemloft.net>
+References: <1122005477.3033.56.camel@localhost>
+	 <20050722.005025.26277081.davem@davemloft.net>
 Content-Type: text/plain
-Date: Fri, 22 Jul 2005 23:21:02 -0400
-Message-Id: <1122088863.6510.19.camel@mindpipe>
+Organization: Cycades
+Message-Id: <1122044224.3704.0.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 23 Jul 2005 00:57:04 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-07-22 at 21:15 -0500, Alejandro Bonilla wrote:
-> OK, I will, but I first of all need to learn how to tell if benchmarks 
-> are better or worse.
+Hi.
 
-Con's interactivity benchmark looks quite promising for finding
-scheduler related interactivity regressions.  It certainly has confirmed
-what we already knew re: SCHED_FIFO performance, if we extend that to
-SCHED_OTHER which is a more interesting problem then there's serious
-potential for improvement.  AFAIK no one has posted any 2.4 vs 2.6
-interbench results yet...
+On Fri, 2005-07-22 at 17:50, David S. Miller wrote:
+> From: Nigel Cunningham <ncunningham@cyclades.com>
+> Date: Fri, 22 Jul 2005 14:11:17 +1000
+> 
+> > In making some modifications to Suspend, we've discovered that some
+> > arches use kmalloc and others use get_free_pages to allocate the stack.
+> > Is there a reason for the variation? If not, could the following patch
+> > be considered for inclusion (tested on x86 only).
+> 
+> Some platforms really need it to be page aligned (sparc32 sun4c needs
+> to virtually map the resulting pages into a specific place, for
+> example).
+> 
+> But, for the ones that don't have this requirement, they want the
+> cache coloring.
 
-I suspect a lot of the boot time issue is due to userspace.  But, it
-should be trivial to benchmark this one, just use the TSC or whatever to
-measure the time from first kernel entry to execing init().
+Thanks David.
 
-Lee 
+Nigel
+
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
 

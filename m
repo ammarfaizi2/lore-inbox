@@ -1,146 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVGVSME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVGVSNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVGVSME (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 14:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVGVSME
+	id S261332AbVGVSNg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 14:13:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVGVSN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 14:12:04 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:27692 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261316AbVGVSL7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 14:11:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type;
-        b=drHjt10yeeMj9Ian3fRHyfPuX9WcQkjmghsLn0iz+6lKtTvk7oLaA4kgmeCxEPNazY5nN6ZrjmO28z1tvr4GXo004wpk0VJ4voGUApArKbNvD5wpWc/YXWi3cK6aCqu2RrX1J/s+M/PEnpltBsrzoqyCMwdFD0vrXZI3eiG9HD8=
-Message-ID: <355e5e5e050722111141c0bf14@mail.gmail.com>
-Date: Fri, 22 Jul 2005 14:11:57 -0400
-From: Lukasz Kosewski <lkosewsk@gmail.com>
-Reply-To: Lukasz Kosewski <lkosewsk@gmail.com>
-To: jgarzik@pobox.com
-Subject: [PATCH 3/3 RESEND] Add disk hotswap support to libata
-Cc: linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
+	Fri, 22 Jul 2005 14:13:26 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:43093 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261319AbVGVSMF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 14:12:05 -0400
+Date: Fri, 22 Jul 2005 19:46:00 +0000
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Johannes Stezenbach <js@linuxtv.org>, Adrian Bunk <bunk@stusta.de>
+Subject: Re: Why build empty object files in drivers/media?
+Message-ID: <20050722194600.GA8757@mars.ravnborg.org>
+References: <200507212309_MC3-1-A534-95EE@compuserve.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_592_20949589.1122055917483"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507212309_MC3-1-A534-95EE@compuserve.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_592_20949589.1122055917483
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, Jul 21, 2005 at 11:06:21PM -0400, Chuck Ebbert wrote:
+> 
+> I have this in my .config file for 2.6.13-rc3:
+> 
+> 
+> #
+> # Multimedia devices
+> #
+> # CONFIG_VIDEO_DEV is not set
+> 
+> #
+> # Digital Video Broadcasting Devices
+> #
+> # CONFIG_DVB is not set
+> 
+> 
+> And yet these completely empty files are being built:
+> 
+> ...
+kbuild is told to visit these directories - and then it build an empty
+.o file to make linking step possible.
+The only solution is to tell kbuild not to visit these directories
+unless they are in real use.
+Following untested patch should do the trick. But the media people must
+check if before being applied since I have only taken a brief look at
+the Kconfig and Makefile files.
 
-Hey Jeff, everyone.
+	Sam
 
-This is a resend of patch 3 of my libata hotswap series, wherein I
-found a silly flaw in my logic.  I don't know what kind of crack I was
-smoking, but I somehow turned "a =3D a & ~b" in the Promise driver into
-"a =3D a ^ b" in my hotswap code, which is clearly wrong.  I don't know
-how it worked through my testing, but I'm willing to bet this is a
-coincidence.  Please apply this patch instead of the previously sent
-patch 03.
-
-Luke Kosewski
-Human Cannonball
-Net Integration Technologies
-
-------=_Part_592_20949589.1122055917483
-Content-Type: text/x-patch; name="03-promise_hotswap_support-2.6.13-rc3-mm1.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="03-promise_hotswap_support-2.6.13-rc3-mm1.diff"
-
-MjEuMDcuMDUgIEx1a2UgS29zZXdza2kgIDxsa29zZXdza0BuaXQuY2E+CgoJKiBBIGZ1bGwgaW1w
-bGVtZW50YXRpb24gb2YgaG90cGx1ZyBvbiBhIGxpYmF0YSBjb250cm9sbGVyLCB0aGlzIGJlaW5n
-CgkgIHRoZSBQcm9taXNlIFR4NC9UeDIgUGx1cyBjb250cm9sbGVyIGxpbmUgKGJvdGggU0FUQTE1
-MCBhbmQgU0FUQUlJMTUwKS4KCSAgQWxtb3N0IGFsbCBvZiB0aGUgY29kZSBwZXJ0YWluaW5nIHRv
-IGhvdyB0byB0YWxrIHRvIHRoZSBob3RwbHVnCgkgIHJlZ2lzdGVycyBoYXMgYmVlbiBzdG9sZW4g
-ZnJvbSB0aGUgcGRjLXVsc2F0YTIgYW5kIHVsdHJhLTEuMC44IFByb21pc2UKCSAgZHJpdmVycy4g
-IFRoaXMgaW52b2x2ZXMgZGV0ZWN0aW5nIHdoZW4gd2UgaGF2ZSBhbiBpbnRlcnJ1cHQgcGVuZGlu
-ZwoJICBhbmQgb24gd2hhdCBkZXZpY2UsIGFzIHdlbGwgYXMgdGhlIGJpdCB3aGVyZSBhIGhhcmQg
-U0FUQSByZXNldCBnZXRzCgkgIGEgU0FUQUlJMTUwIGNvbnRyb2xsZXIgdG8gcmUtc3BldyBhIHBs
-dWcgaW50ZXJydXB0LgoJKiBOb3RlIHRoYXQgdGhlIGhvdHBsdWcgaGFuZGxpbmcgY29kZSBjb21l
-cyBBRlRFUiB0aGUgbm9ybWFsIGludGVycnVwdAoJICBoYW5kbGluZyBjb2RlIGluIHBkY19pbnRl
-cnJ1cHRfY29tbW9uOyB0aGlzIGlzIGJlY2F1c2Ugd2UncmUgbXVjaAoJICBtb3JlIGxpa2VseSB0
-byByZWNlaXZlIG5vcm1hbCBpbnRlcnJ1cHRzLCBzbyB0aGlzIGRyb3BzIHRoZSBBVkVSQUdFCgkg
-IGludGVycnVwdCBoYW5kbGluZyB0aW1lIGRvd24gYSBsb3QuCgpTaWduZWQtb2ZmLWJ5OiAgTHVr
-ZSBLb3Nld3NraSA8bGtvc2V3c2tAbml0LmNhPgoKLS0tIGxpbnV4LTIuNi4xMy1yYzMvZHJpdmVy
-cy9zY3NpL3NhdGFfcHJvbWlzZS5jLm9sZAkyMDA1LTA3LTIxIDEzOjUyOjEzLjAzNzg5NTYzOSAt
-MDQwMAorKysgbGludXgtMi42LjEzLXJjMy9kcml2ZXJzL3Njc2kvc2F0YV9wcm9taXNlLmMJMjAw
-NS0wNy0yMSAxMzo1NTo1My40OTA5NjQ2NDUgLTA0MDAKQEAgLTg0LDYgKzg0LDcgQEAgc3RhdGlj
-IHZvaWQgcGRjX2VuZ190aW1lb3V0KHN0cnVjdCBhdGFfcAogc3RhdGljIGludCBwZGNfcG9ydF9z
-dGFydChzdHJ1Y3QgYXRhX3BvcnQgKmFwKTsKIHN0YXRpYyB2b2lkIHBkY19wb3J0X3N0b3Aoc3Ry
-dWN0IGF0YV9wb3J0ICphcCk7CiBzdGF0aWMgdm9pZCBwZGNfcGh5X3Jlc2V0KHN0cnVjdCBhdGFf
-cG9ydCAqYXApOworc3RhdGljIHZvaWQgcGRjMl9waHlfcmVzZXQoc3RydWN0IGF0YV9wb3J0ICph
-cCk7CiBzdGF0aWMgdm9pZCBwZGNfcGF0YV9waHlfcmVzZXQoc3RydWN0IGF0YV9wb3J0ICphcCk7
-CiBzdGF0aWMgdm9pZCBwZGNfcGF0YV9jYmxfZGV0ZWN0KHN0cnVjdCBhdGFfcG9ydCAqYXApOwog
-c3RhdGljIHZvaWQgcGRjX3FjX3ByZXAoc3RydWN0IGF0YV9xdWV1ZWRfY21kICpxYyk7CkBAIC0x
-MzksNyArMTQwLDcgQEAgc3RhdGljIHN0cnVjdCBhdGFfcG9ydF9vcGVyYXRpb25zIHBkYzJfYQog
-CS5jaGVja19zdGF0dXMJCT0gYXRhX2NoZWNrX3N0YXR1cywKIAkuZXhlY19jb21tYW5kCQk9IHBk
-Y19leGVjX2NvbW1hbmRfbW1pbywKIAkuZGV2X3NlbGVjdAkJPSBhdGFfc3RkX2Rldl9zZWxlY3Qs
-Ci0JLnBoeV9yZXNldAkJPSBwZGNfcGh5X3Jlc2V0LAorCS5waHlfcmVzZXQJCT0gcGRjMl9waHlf
-cmVzZXQsCiAJLnFjX3ByZXAJCT0gcGRjX3FjX3ByZXAsCiAJLnFjX2lzc3VlCQk9IHBkY19xY19p
-c3N1ZV9wcm90LAogCS5lbmdfdGltZW91dAkJPSBwZGNfZW5nX3RpbWVvdXQsCkBAIC0zMjUsNiAr
-MzI2LDQ4IEBAIHN0YXRpYyB2b2lkIHBkY19waHlfcmVzZXQoc3RydWN0IGF0YV9wb3IKIAkJcGRj
-X3BhdGFfcGh5X3Jlc2V0KGFwKTsKIH0KIAorLyogTWFzayBob3RwbHVnIGludGVycnVwdHMgZm9y
-IG9uZSBjaGFubmVsIChhcCkgKi8KK3N0YXRpYyBpbmxpbmUgdm9pZCBwZGMyX2Rpc2FibGVfY2hh
-bm5lbF9ob3RwbHVnX2ludGVycnVwdHMoc3RydWN0IGF0YV9wb3J0ICphcCkKK3sKKwl2b2lkICpt
-bWlvID0gYXAtPmhvc3Rfc2V0LT5tbWlvX2Jhc2UgKyBQREMyX1NBVEFfUExVR19DU1IgKyAyOwor
-CisJdTggbWFza2ZsYWdzID0gcmVhZGIobW1pbyk7CisJbWFza2ZsYWdzIHw9ICgweDExIDw8ICh1
-OClhcC0+aGFyZF9wb3J0X25vKTsKKwl3cml0ZWIobWFza2ZsYWdzLCBtbWlvKTsKK30KKworc3Rh
-dGljIGlubGluZSB2b2lkIHBkYzJfZW5hYmxlX2NoYW5uZWxfaG90cGx1Z19pbnRlcnJ1cHRzKHN0
-cnVjdCBhdGFfcG9ydCAqYXApCit7CisKKwl2b2lkICptbWlvID0gYXAtPmhvc3Rfc2V0LT5tbWlv
-X2Jhc2UgKyBQREMyX1NBVEFfUExVR19DU1I7CisKKwkvL0NsZWFyIGNoYW5uZWwgaG90cGx1ZyBp
-bnRlcnJ1cHRzCisJdTggbWFza2ZsYWdzID0gcmVhZGIobW1pbyk7CisJbWFza2ZsYWdzID0gKDB4
-MTEgPDwgKHU4KWFwLT5oYXJkX3BvcnRfbm8pOworCXdyaXRlYihtYXNrZmxhZ3MsIG1taW8pOwor
-CisJLy9Vbm1hc2sgY2hhbm5lbCBob3RwbHVnIGludGVycnVwdHMKKwltYXNrZmxhZ3MgPSByZWFk
-YihtbWlvICsgMik7CisJbWFza2ZsYWdzICY9IH4oMHgxMSA8PCAodTgpYXAtPmhhcmRfcG9ydF9u
-byk7CisJd3JpdGViKG1hc2tmbGFncywgbW1pbyArIDIpOworfQorCitzdGF0aWMgdm9pZCBwZGMy
-X3BoeV9yZXNldChzdHJ1Y3QgYXRhX3BvcnQgKmFwKQoreworCS8qIEFzIG9ic2VydmVkIG9uIHRo
-ZSBQcm9taXNlIFNBVEFJSTE1MCBUeDIgUGx1cy9UeDQsIGdpdmluZyB0aGUKKwkgKiBjb250cm9s
-bGVyIGEgaGFyZCByZXNldCB0cmlnZ2VycyBhbm90aGVyIGhvdHBsdWcgaW50ZXJydXB0LiAgU28K
-KwkgKiBkaXNhYmxlIHRoZW0gZm9yIHRoZSBoYXJkIHJlc2V0LCBhbmQgcmUtZW5hYmxlIGFmdGVy
-d2FyZHMuCisJICoKKwkgKiBObyBQQVRBIHN1cHBvcnQgaGVyZSB5ZXQKKwkgKi8KKwlpZiAoYXAt
-PmZsYWdzICYgQVRBX0ZMQUdfU0FUQV9SRVNFVCAmJiBhcC0+ZmxhZ3MgJiBBVEFfRkxBR19TQVRB
-KSB7CisJCXBkYzJfZGlzYWJsZV9jaGFubmVsX2hvdHBsdWdfaW50ZXJydXB0cyhhcCk7CisJCXBk
-Y19waHlfcmVzZXQoYXApOworCQlwZGMyX2VuYWJsZV9jaGFubmVsX2hvdHBsdWdfaW50ZXJydXB0
-cyhhcCk7CisJfSBlbHNlCisJCXBkY19waHlfcmVzZXQoYXApOworfQorCiBzdGF0aWMgdm9pZCBw
-ZGNfcGF0YV9jYmxfZGV0ZWN0KHN0cnVjdCBhdGFfcG9ydCAqYXApCiB7CiAJdTggdG1wOwpAQCAt
-NDgzLDYgKzUyNiw3IEBAIHN0YXRpYyBpbmxpbmUgdW5zaWduZWQgaW50IHBkY19pbnRlcnJ1cHQK
-IAlzdHJ1Y3QgYXRhX2hvc3Rfc2V0ICpob3N0X3NldCA9IGRldl9pbnN0YW5jZTsKIAlzdHJ1Y3Qg
-YXRhX3BvcnQgKmFwOwogCXZvaWQgKm1taW9fYmFzZTsKKwl1OCBwbHVnZGF0YSwgbWFza2ZsYWdz
-OwogCXUzMiBtYXNrID0gMDsKIAl1bnNpZ25lZCBpbnQgaSwgdG1wLCBoYW5kbGVkID0gMDsKIAl1
-bnNpZ25lZCBsb25nIGZsYWdzOwpAQCAtNDkyLDIxICs1MzYsMTggQEAgc3RhdGljIGlubGluZSB1
-bnNpZ25lZCBpbnQgcGRjX2ludGVycnVwdAogCX0KIAogCW1taW9fYmFzZSA9IGhvc3Rfc2V0LT5t
-bWlvX2Jhc2U7Ci0JCisKIAlzcGluX2xvY2tfaXJxc2F2ZSgmaG9zdF9zZXQtPmxvY2ssIGZsYWdz
-KTsKIAogCS8qIHJlYWRpbmcgc2hvdWxkIGFsc28gY2xlYXIgaW50ZXJydXB0cyAqLwogCW1hc2sg
-PSByZWFkbChtbWlvX2Jhc2UgKyBQRENfSU5UX1NFUU1BU0spOwogCi0JaWYgKG1hc2sgPT0gMHhm
-ZmZmZmZmZikgewotCQlWUFJJTlRLKCJRVUlDSyBFWElUIDJcbiIpOwotCQlnb3RvIGRvbmVfaXJx
-OwotCX0KKwlpZiAobWFzayA9PSAweGZmZmZmZmZmKQorCQlnb3RvIHRyeV9ob3RwbHVnOworCiAJ
-bWFzayAmPSAweGZmZmY7CQkvKiBvbmx5IDE2IHRhZ3MgcG9zc2libGUgKi8KLQlpZiAoIW1hc2sp
-IHsKLQkJVlBSSU5USygiUVVJQ0sgRVhJVCAzXG4iKTsKLQkJZ290byBkb25lX2lycTsKLQl9CisJ
-aWYgKCFtYXNrKQorCQlnb3RvIHRyeV9ob3RwbHVnOwogCiAJd3JpdGVsKG1hc2ssIG1taW9fYmFz
-ZSArIFBEQ19JTlRfU0VRTUFTSyk7CiAKQEAgLTUyMiw3ICs1NjMsMzIgQEAgc3RhdGljIGlubGlu
-ZSB1bnNpZ25lZCBpbnQgcGRjX2ludGVycnVwdAogCQkJCWhhbmRsZWQgKz0gcGRjX2hvc3RfaW50
-cihhcCwgcWMpOwogCQl9CiAJfQotICAgICAgIAorCisJaWYgKGhhbmRsZWQpCisJCWdvdG8gZG9u
-ZV9pcnE7CisKK3RyeV9ob3RwbHVnOgorCXBsdWdkYXRhID0gcmVhZGIobW1pb19iYXNlICsgaG90
-cGx1Z19yZWdzKTsKKwltYXNrZmxhZ3MgPSByZWFkYihtbWlvX2Jhc2UgKyBob3RwbHVnX3JlZ3Mg
-KyAyKTsKKwlwbHVnZGF0YSAmPSB+bWFza2ZsYWdzOworCWlmIChwbHVnZGF0YSkgeworCQl3cml0
-ZWIocGx1Z2RhdGEsIG1taW9fYmFzZSArIGhvdHBsdWdfcmVncyk7CisJCWZvciAoaSA9IDA7IGkg
-PCBob3N0X3NldC0+bl9wb3J0czsgKytpKSB7CisJCQlhcCA9IGhvc3Rfc2V0LT5wb3J0c1tpXTsK
-KwkJCWlmICghKGFwLT5mbGFncyAmIEFUQV9GTEFHX1NBVEEpKQorCQkJCWNvbnRpbnVlOyAgLy9O
-byBQQVRBIHN1cHBvcnQgaGVyZS4uLiB5ZXQKKwkJCS8vIENoZWNrIHVucGx1ZyBmbGFnCisJCQlp
-ZiAocGx1Z2RhdGEgJiAweDAxKSB7CisJCQkJYXRhX2hvdHBsdWdfdW5wbHVnKGFwKTsKKwkJCQlo
-YW5kbGVkID0gMTsKKwkJCX0gZWxzZSBpZiAoKHBsdWdkYXRhID4+IDQpICYgMHgwMSkgeyAgLy9D
-aGVjayBwbHVnIGZsYWcKKwkJCQlhdGFfaG90cGx1Z19wbHVnKGFwKTsKKwkJCQloYW5kbGVkID0g
-MTsKKwkJCX0KKwkJCXBsdWdkYXRhID4+PSAxOworCQl9CisJfQorCiBkb25lX2lycToKIAlzcGlu
-X3VubG9ja19pcnFyZXN0b3JlKCZob3N0X3NldC0+bG9jaywgZmxhZ3MpOwogCXJldHVybiBoYW5k
-bGVkOwpAQCAtNjM2LDkgKzcwMiw5IEBAIHN0YXRpYyB2b2lkIHBkY19ob3N0X2luaXQodW5zaWdu
-ZWQgaW50IGMKIAl0bXAgPSByZWFkbChvZmZzZXQpOwogCXdyaXRlbCh0bXAgfCAweGZmLCBvZmZz
-ZXQpOwogCi0JLyogbWFzayBwbHVnL3VucGx1ZyBpbnRzICovCisJLyogdW5tYXNrIHBsdWcvdW5w
-bHVnIGludHMgKi8KIAl0bXAgPSByZWFkbChvZmZzZXQpOwotCXdyaXRlbCh0bXAgfCAweGZmMDAw
-MCwgb2Zmc2V0KTsKKwl3cml0ZWwodG1wICYgMHhmZjAwZmZmZiwgb2Zmc2V0KTsKIAogCS8qIHJl
-ZHVjZSBUQkcgY2xvY2sgdG8gMTMzIE1oei4gKi8KIAl0bXAgPSByZWFkbChtbWlvICsgUERDX1RC
-R19NT0RFKTsK
-------=_Part_592_20949589.1122055917483--
+diff --git a/drivers/media/Makefile b/drivers/media/Makefile
+--- a/drivers/media/Makefile
++++ b/drivers/media/Makefile
+@@ -2,4 +2,7 @@
+ # Makefile for the kernel multimedia device drivers.
+ #
+ 
+-obj-y        := video/ radio/ dvb/ common/
++obj-y                   := common/
++obj-$(CONFIG_VIDEO_DEV) := video/
++obj-$(CONFIG_VIDEO_DEV) := radio/
++obj-$(CONFIG_DVB)       := dvb/

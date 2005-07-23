@@ -1,112 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVGWPqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVGWP4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261781AbVGWPqn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 11:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVGWPoS
+	id S261469AbVGWP4l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 11:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVGWP4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 11:44:18 -0400
-Received: from pop.gmx.net ([213.165.64.20]:61875 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261757AbVGWPnV (ORCPT
+	Sat, 23 Jul 2005 11:56:41 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:31150 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261469AbVGWP4k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 11:43:21 -0400
-X-Authenticated: #2813124
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-Subject: Re: oz6812, yenta_socket and madwifi
-Date: Sat, 23 Jul 2005 17:44:17 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
+	Sat, 23 Jul 2005 11:56:40 -0400
+Date: Sat, 23 Jul 2005 17:56:08 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Nishanth Aravamudan <nacc@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
+Subject: Re: [PATCH] Add schedule_timeout_{interruptible,uninterruptible}{,_msecs}()
+ interfaces
+In-Reply-To: <1122125555.3582.20.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0507231752120.3728@scrub.home>
+References: <20050707213138.184888000@homer>  <20050708160824.10d4b606.akpm@osdl.org>
+ <20050723002658.GA4183@us.ibm.com>  <1122078715.5734.15.camel@localhost.localdomain>
+  <Pine.LNX.4.61.0507231247460.3743@scrub.home>  <1122116986.3582.7.camel@localhost.localdomain>
+  <Pine.LNX.4.61.0507231340070.3743@scrub.home>  <1122123085.3582.13.camel@localhost.localdomain>
+  <Pine.LNX.4.61.0507231456000.3728@scrub.home>  <1122124324.3582.15.camel@localhost.localdomain>
+  <Pine.LNX.4.61.0507231524430.3743@scrub.home> <1122125555.3582.20.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507231744.17519.daniel.ritz@gmx.ch>
-X-Y-GMX-Trusted: 0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Hi,
 
-since i'm the one that put that code there in the first place i guess
-i have to comment on it :)
+On Sat, 23 Jul 2005, Arjan van de Ven wrote:
 
-the attached patch should also fix your problem. and it cleans up the
-magic numbers a bit.
+> > > jiffies/HZ is the more powerful API. The msec one which also sets
+> > > current to (un)interruptible is the simplified wrapper on top.
+> > 
+> > So why do you want to hide it? 
+> 
+> I don't want to hide it at all. I want to provide a simpler variant for
+> it for the cases where a simpler variant is enough.
 
-rgds
--daniel
+Then I don't understand your initial comment and I don't understand the 
+point in adding a ms variant of this interface. If someone does care about 
+the return value, he is better off to convert the initial value into 
+jiffies and continue with that.
 
--------------
+> It really is a
+> helper to take some common task and get that closer to what the
+> programmer wants (wallclock time delay)
 
-[PATCH] disable read prefetch/write burst on old O2Micro bridges
+And that's not what he gets...
 
-older O2Micro bridges have problems with both read prefetch and write burst
-depending on the combination of the chipset, bridge, cardbus card. safest
-is to disable read prefetch and write burst on those old bridges.
-
-Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
-
-diff --git a/drivers/pcmcia/o2micro.h b/drivers/pcmcia/o2micro.h
---- a/drivers/pcmcia/o2micro.h
-+++ b/drivers/pcmcia/o2micro.h
-@@ -120,11 +120,16 @@
- #define  O2_MODE_E_LED_OUT	0x08
- #define  O2_MODE_E_SKTA_ACTV	0x10
- 
-+#define O2_RESERVED1		0x94
-+#define O2_RESERVED2		0xD4
-+#define O2_RES_READ_PREFETCH	0x02
-+#define O2_RES_WRITE_BURST	0x08
-+
- static int o2micro_override(struct yenta_socket *socket)
- {
- 	/*
--	 * 'reserved' register at 0x94/D4. chaning it to 0xCA (8 bit) enables
--	 * read prefetching which for example makes the RME Hammerfall DSP
-+	 * 'reserved' register at 0x94/D4. allows setting read prefetch and write
-+	 * bursting. read prefetching for example makes the RME Hammerfall DSP
- 	 * working. for some bridges it is at 0x94, for others at 0xD4. it's
- 	 * ok to write to both registers on all O2 bridges.
- 	 * from Eric Still, 02Micro.
-@@ -132,20 +137,35 @@ static int o2micro_override(struct yenta
- 	u8 a, b;
- 
- 	if (PCI_FUNC(socket->dev->devfn) == 0) {
--		a = config_readb(socket, 0x94);
--		b = config_readb(socket, 0xD4);
-+		a = config_readb(socket, O2_RESERVED1);
-+		b = config_readb(socket, O2_RESERVED2);
- 
- 		printk(KERN_INFO "Yenta O2: res at 0x94/0xD4: %02x/%02x\n", a, b);
- 
- 		switch (socket->dev->device) {
-+		/*
-+		 * older bridges have problems with both read prefetch and write
-+		 * bursting depending on the combination of the chipset, bridge
-+		 * and the cardbus card. so disable them to be on the safe side.
-+		 */
-+		case PCI_DEVICE_ID_O2_6729:
-+		case PCI_DEVICE_ID_O2_6730:
-+		case PCI_DEVICE_ID_O2_6812:
- 		case PCI_DEVICE_ID_O2_6832:
--			printk(KERN_INFO "Yenta O2: old bridge, not enabling read prefetch / write burst\n");
-+		case PCI_DEVICE_ID_O2_6836:
-+			printk(KERN_INFO "Yenta O2: old bridge, disabling read prefetch/write burst\n");
-+			config_writeb(socket, O2_RESERVED1,
-+			              a & ~(O2_RES_READ_PREFETCH | O2_RES_READ_PREFETCH));
-+			config_writeb(socket, O2_RESERVED2,
-+			              b & ~(O2_RES_READ_PREFETCH | O2_RES_READ_PREFETCH));
- 			break;
- 
- 		default:
- 			printk(KERN_INFO "Yenta O2: enabling read prefetch/write burst\n");
--			config_writeb(socket, 0x94, a | 0x0a);
--			config_writeb(socket, 0xD4, b | 0x0a);
-+			config_writeb(socket, O2_RESERVED1,
-+			              a | O2_RES_READ_PREFETCH | O2_RES_READ_PREFETCH);
-+			config_writeb(socket, O2_RESERVED2,
-+			              b | O2_RES_READ_PREFETCH | O2_RES_READ_PREFETCH);
- 		}
- 	}
- 
+bye, Roman

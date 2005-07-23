@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVGWRfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbVGWRmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbVGWRfW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 13:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVGWRfW
+	id S262375AbVGWRmP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 13:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVGWRmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 13:35:22 -0400
-Received: from gw01.mail.saunalahti.fi ([195.197.172.115]:54184 "EHLO
-	gw01.mail.saunalahti.fi") by vger.kernel.org with ESMTP
-	id S262374AbVGWRfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 13:35:17 -0400
-Message-ID: <42E27FCC.5050601@trn.iki.fi>
-Date: Sat, 23 Jul 2005 20:35:08 +0300
-From: =?UTF-8?B?TGFzc2UgS8Okcmtrw6RpbmVuIC8gVHJvbmlj?= 
-	<tronic@trn.iki.fi>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050712)
-X-Accept-Language: en-us, en
+	Sat, 23 Jul 2005 13:42:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50578 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262375AbVGWRmN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 13:42:13 -0400
+Date: Sat, 23 Jul 2005 10:38:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>
+Subject: Re: [patch 2.6.13-rc3a] i386: inline restore_fpu
+In-Reply-To: <200507230313_MC3-1-A554-6927@compuserve.com>
+Message-ID: <Pine.LNX.4.58.0507231033370.6074@g5.osdl.org>
+References: <200507230313_MC3-1-A554-6927@compuserve.com>
 MIME-Version: 1.0
-To: Oliver Neukum <oliver@neukum.org>
-Cc: =?UTF-8?B?TGFzc2UgS8Okcmtrw6RpbmVuIC8gVHJvbmlj?= 
-	<tronic+lzID=lx43caky45@trn.iki.fi>,
-       ioGL64NX <iogl64nx@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Supermount
-References: <42E00DD3.9060407@trn.iki.fi> <2de37a440507211450501a8378@mail.gmail.com> <42E12105.3090900@trn.iki.fi> <200507231247.17034.oliver@neukum.org>
-In-Reply-To: <200507231247.17034.oliver@neukum.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig99ACFBDBB339801492ED82C2"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig99ACFBDBB339801492ED82C2
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-> To mount on demand use autofs. Unmounting and dealing with media removal
-> is the problem.
 
-Granted, that can get pretty close. However, having to use /auto/*
-instead of mounting directly where required often limits using it quite
-a bit. Thus, I don't see it as a real alternative.
+On Sat, 23 Jul 2005, Chuck Ebbert wrote:
+> 
+> This patch (may not apply cleanly to unpatched -rc3) drops overhead
+> a few more percent:
 
-- Tronic -
+That really is pretty ugly.
 
---------------enig99ACFBDBB339801492ED82C2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+I'd rather hope for something like function-sections to just make games 
+like this be unnecessary. The linker really should be able to do things 
+like this for us (ie if it sees that the only reference to a function is 
+from another function, it should be able to just put them next to each 
+other anyway).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+And yes, I realize that "should be able" isn't the same thing as "does", 
+but the thing is, doing it by hand ends up being a maintenance problem in 
+the long run. It also misses all the other cases where it might be 
+beneficial, but where you don't happen to run the right benchmark or look 
+at the right place.
 
-iD8DBQFC4n/QOBbAI1NE8/ERAkZAAKCRrI96YWikwKLBfWTBgNFhb2hNkgCeNQ1g
-ypX8FWeYI1rdtWu0OoP9hks=
-=v1Rb
------END PGP SIGNATURE-----
+So maybe a few hints to the binutils people might just make them go: "try 
+this patch/cmdline flag", and solve many more problems. They likely have a 
+lot of this kind of code _already_, or have at least been thinking about 
+it.
 
---------------enig99ACFBDBB339801492ED82C2--
+I personally believe that there's likely a lot more to be had from code 
+(and data) layout than there is from things like alias analysis or 
+aggressive inlining.
+
+		Linus

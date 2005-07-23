@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVGWT7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVGWUE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVGWT7B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 15:59:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVGWT7B
+	id S261561AbVGWUE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 16:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVGWUEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 15:59:01 -0400
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:19090 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261556AbVGWT67 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 15:58:59 -0400
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>, dmo@osdl.org
-Subject: Re: [PATCH] kill bio->bi_set
-References: <20050720222949.GE2548@suse.de>
-From: Peter Osterlund <petero2@telia.com>
-Date: 23 Jul 2005 21:58:30 +0200
-In-Reply-To: <20050720222949.GE2548@suse.de>
-Message-ID: <m34qaljnvd.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sat, 23 Jul 2005 16:04:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10515 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261561AbVGWUEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 16:04:24 -0400
+Date: Sat, 23 Jul 2005 22:04:17 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: perex@suse.cz, mulix@mulix.org
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       Alan Cox <alan@redhat.com>
+Subject: Device supported by the OSS trident driver not supported by ALSA
+Message-ID: <20050723200417.GI3160@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
 
-> Dunno why I didn't notice before, but ->bi_set is totally unnecessary
-> bloat of struct bio. Just define a proper destructor for the bio and it
-> already knows what bio_set it belongs too.
+I'm currently creating a list of OSS drivers where all the hardware 
+supported by them is also supported by ALSA. The goal is to schedule 
+them for removal (except someone tells that for one or more of them ALSA 
+support is inferior).
 
-This causes crashes on my computer.
 
-> +void bio_free(struct bio *bio, struct bio_set *bio_set)
->  {
->  	const int pool_idx = BIO_POOL_IDX(bio);
-> -	struct bio_set *bs = bio->bi_set;
->  
->  	BIO_BUG_ON(pool_idx >= BIOVEC_NR_POOLS);
->  
-> -	mempool_free(bio->bi_io_vec, bs->bvec_pools[pool_idx]);
-> -	mempool_free(bio, bs->bio_pool);
-> +	mempool_free(bio->bi_io_vec, fs_bio_set->bvec_pools[pool_idx]);
-> +	mempool_free(bio, fs_bio_set->bio_pool);
-> +}
+The OSS trident driver has 5 different pci_device_id entries.
 
-This function uses fs_bio_set instead of the function parameter
-bio_set.
+For 4 of them there seems to be similar ALSA support, but I can't find 
+any ALSA equivalent for the following entry:
+        {PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_5050,
+         PCI_ANY_ID, PCI_ANY_ID, 0, 0, CYBER5050},
 
-> @@ -171,8 +175,6 @@ struct bio *bio_alloc_bioset(unsigned in
->  			bio->bi_max_vecs = bvec_slabs[idx].nr_vecs;
->  		}
->  		bio->bi_io_vec = bvl;
-> -		bio->bi_destructor = bio_destructor;
-> -		bio->bi_set = bs;
->  	}
+Can anyone tell my why this device is supported by the OSS trident 
+driver but not by ALSA?
 
-This change means that all code that calls bio_alloc_bioset() must now
-set bi_destructor, but this is forgotten in bio_clone() in bio.c and
-in split_bvec() in dm.c.
+
+TIA
+Adrian
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

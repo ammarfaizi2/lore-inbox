@@ -1,106 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVGWDvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVGWD4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbVGWDvi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 23:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbVGWDvi
+	id S262345AbVGWD4u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 23:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVGWD4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 23:51:38 -0400
-Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:58481 "HELO
-	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262328AbVGWDvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 23:51:37 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/2] Touchscreen support for sharp sl-5500
-Date: Fri, 22 Jul 2005 22:51:31 -0500
-User-Agent: KMail/1.8.1
-Cc: Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       rmk@arm.linux.org.uk, vojtech@suse.cz
-References: <20050723002839.GA2077@elf.ucw.cz>
-In-Reply-To: <20050723002839.GA2077@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Jul 2005 23:56:50 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:61452 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262345AbVGWD4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 23:56:49 -0400
+Date: Sat, 23 Jul 2005 05:56:43 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alejandro Bonilla <abonilla@linuxwireless.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Blaisorblade <blaisorblade@yahoo.it>,
+       LKML <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       torvalds@osdl.org
+Subject: Re: Giving developers clue how many testers verified certain	kernel version
+Message-ID: <20050723035643.GD3160@stusta.de>
+References: <200507230244.11338.blaisorblade@yahoo.it> <42E1986B.8070202@linuxwireless.org> <1122088160.6510.7.camel@mindpipe> <42E1A832.7010604@linuxwireless.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507222251.31931.dtor_core@ameritech.net>
+In-Reply-To: <42E1A832.7010604@linuxwireless.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 July 2005 19:28, Pavel Machek wrote:
-> This adds support for touchscreen on Sharp Zaurus sl-5500. Vojtech,
-> please apply,
+On Fri, Jul 22, 2005 at 09:15:14PM -0500, Alejandro Bonilla wrote:
+> Lee Revell wrote:
+> 
+> >On Fri, 2005-07-22 at 20:07 -0500, Alejandro Bonilla wrote:
+> > 
+> >>I will get flames for this, but my laptop boots faster and sometimes 
+> >>responds faster in 2.4.27 than in 2.6.12. Sorry, but this is the fact 
+> >>for me. IBM T42.
+> >
+> >Sorry dude, but there's just no way that any automated process can catch
+> >these.
+> >
+> I'm not looking for an automated process for this. But for all in 
+> general, when moving from 2.6.11 to 2.6.12 or from any version to 
+> another. (At least in the same kernel branch)
+>...
 
-I have couple more commnets...
+You send:
+- a problem description X
+- tell that the last working kernel was Y
+- tell that it is broken in kernel Z
 
-> +static int ucb1x00_thread(void *_ts)
-> +{
-> +	struct ucb1x00_ts *ts = _ts;
-> +	struct task_struct *tsk = current;
-> +	int valid;
-> +
-> +	ts->rtask = tsk;
-> +	allow_signal(SIGKILL);
+The probability of any kernel developer being interested in your problem 
+increases:
+- the better the description X is
+- the nearer versions Y and Z are together
+- the more recent version Y is
 
-This is not needed...
+Ideally, you are able to say that patch A in the latest -mm kernel
+broke it.
 
-> +
-> +	/*
-> +	 * We run as a real-time thread.  However, thus far
-> +	 * this doesn't seem to be necessary.
-> +	 */
-> +	tsk->policy = SCHED_FIFO;
-> +	tsk->rt_priority = 1;
-> +
-> +	complete(&ts->init_exit);
-> +
+It's perfectly OK to send a description X that says:
+- with version Y and the following workload B, everything is working
+  perfectly
+- with version Z and the same workload B, XMMS is stuttering
 
-Neither this one - kthread_create does not return until thread is actually
-created and started.
+If any kernel developer is interested in your bug report, he will tell 
+you which data might be interesting for debugging the problem.
 
-> +
-> +		if (signal_pending(tsk))
-> +			break;
+The problem is that debugging a problem often requires knowledge about 
+possible causes and changes between versions Y and Z in this area. Even 
+a kernel developer who perfectly knows one part of the kernel might not 
+be able to debug a problem in a completely different area of the kernel.
 
-if (kthread_should_stop(..))
-	break;
+> .Alejandro
 
-> +	}
-> +
-> +	ts->rtask = NULL;
-> +	complete_and_exit(&ts->init_exit, 0);
-
-This is not needed.
-
-> +static int ucb1x00_ts_open(struct input_dev *idev)
-> +{
-> +	struct ucb1x00_ts *ts = (struct ucb1x00_ts *)idev;
-> +	int ret = 0;
-> +	struct task_struct *task;
-> +
-> +	if (ts->rtask)
-> +		panic("ucb1x00: rtask running?");
-> +
-
-Do you really need to panic here???
-
-> +
-> +	init_completion(&ts->init_exit);
-> +	task = kthread_run(ucb1x00_thread, ts, "ktsd");
-> +	if (!IS_ERR(task)) {
-> +		wait_for_completion(&ts->init_exit);
-
-Just call kthread_run() and kill that init_exit completion. 
-
-> +static void ucb1x00_ts_close(struct input_dev *idev)
-> +{
-> +	struct ucb1x00_ts *ts = (struct ucb1x00_ts *)idev;
-> +
-> +	if (ts->rtask) {
-> +		send_sig(SIGKILL, ts->rtask, 1);
-> +		wait_for_completion(&ts->init_exit);
-
-kthread_stop().
+cu
+Adrian
 
 -- 
-Dmitry
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

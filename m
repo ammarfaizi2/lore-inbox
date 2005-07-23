@@ -1,82 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVGWSpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVGWSxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVGWSpw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 14:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVGWSpw
+	id S261176AbVGWSxU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 14:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVGWSxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 14:45:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6554 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261447AbVGWSpu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 14:45:50 -0400
-Date: Sat, 23 Jul 2005 14:45:40 -0400
-From: Neil Horman <nhorman@redhat.com>
-To: =?iso-8859-1?Q?M=E1rcio?= Oliveira <moliveira@latinsourcetech.com>
-Cc: Roger Heflin <rheflin@atipa.com>, "'Neil Horman'" <nhorman@redhat.com>,
-       arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Memory Management
-Message-ID: <20050723184540.GA1670@hmsendeavour.rdu.redhat.com>
-References: <EXCHG2003gbLYluLCTa000004d6@EXCHG2003.microtech-ks.com> <42E17FE7.3030205@latinsourcetech.com>
+	Sat, 23 Jul 2005 14:53:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:1498 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261176AbVGWSxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 14:53:18 -0400
+Date: Sat, 23 Jul 2005 19:53:04 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: bert hubert <bert.hubert@netherlabs.nl>, rostedt@goodmis.org,
+       relayfs-devel@lists.sourceforge.net, richardj_moore@uk.ibm.com,
+       varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
+       zanussi@us.ibm.com
+Subject: Re: [PATCH] Re: relayfs documentation sucks?
+Message-ID: <20050723185303.GB7934@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Paul Jackson <pj@sgi.com>, bert hubert <bert.hubert@netherlabs.nl>,
+	rostedt@goodmis.org, relayfs-devel@lists.sourceforge.net,
+	richardj_moore@uk.ibm.com, varap@us.ibm.com, karim@opersys.com,
+	linux-kernel@vger.kernel.org, zanussi@us.ibm.com
+References: <17107.6290.734560.231978@tut.ibm.com> <20050716210759.GA1850@outpost.ds9a.nl> <17113.38067.551471.862551@tut.ibm.com> <20050717090137.GB5161@outpost.ds9a.nl> <17114.31916.451621.501383@tut.ibm.com> <20050717194558.GC27353@outpost.ds9a.nl> <1121693274.12862.15.camel@localhost.localdomain> <20050720142732.761354de.pj@sgi.com> <20050720214519.GA13155@outpost.ds9a.nl> <20050722130132.60f1524e.pj@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42E17FE7.3030205@latinsourcetech.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050722130132.60f1524e.pj@sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 22, 2005 at 08:23:19PM -0300, Márcio Oliveira wrote:
-<snip>
-> >
-> Roger, thanks for the information.
+On Fri, Jul 22, 2005 at 01:01:32PM -0700, Paul Jackson wrote:
+> Another vote in favor of relayfs here ...
 > 
->   I'm using Update 4 kernels (2.4.21-27.ELsmp - This kernel have some 
-> mm / oom fixes) and don't have big problems when create large files, 
-> plus the server is a 32-bit machine. 
-> 
->   Neil said that the problem can be Low Memory and I think it too.
-> 
->   I read the following message on the list:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=112044530919567&w=4
-> 
->   The problem seems like a I/O issue. Can I/O (like storage devices) 
-> consume a large amount of low memory? Neil also said that the kernel is 
-> trying to move lots of data to the disk and it's a module might require 
-> such large memory. Somebody know how can I identify what is using Low 
-> Memory on my system?
-> 
-The best way I can think to do that is take a look at /proc/slabinfo.  That will
-likely give you a pointer to which area of code is eating up your memory.
+> I am reminded by my good colleagues at SGI that relayfs is a key
+> to the Linux Trace Toolkit (LTT), which is in turn an important
+> technology for some product(s) on which SGI is working.
 
->   The older questions in the message are:
-> 
-> The server has 16GB RAM and 16GB swap. When the OOM kill conditions 
-> happens, the system has ~6GB RAM used, ~10GB RAM cached and 16GB free swap. 
-> Is that indicate that the server can't allocate Low Memory and starts OOM 
-> conditions? Because the High Memory is OK, right?
-> 
-Based on the sysrq-m info you posted it looks like due to fragmentation the
-largest chunk of memory you can allocate is 2MB (perhaps less depending on
-address space availability).  If you can build a test kernel to do a show_state
-rather than a show_mem at the beginning of oom_kil, then you should be able to
-tell who is trying to do an allocation that leads to kswapd calling
-out_of_memory.
+I don't think anyone cares for product plans of particular companies.
+That beein said I wish LTT folks would make a little more progress so
+we could actually include it.
 
-> Thanks to all!
-> 
-> Regards,
-> Márcio
-> 
-> 
-
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/

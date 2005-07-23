@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbVGWAT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVGWAXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262247AbVGWAT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 20:19:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVGWAT3
+	id S262248AbVGWAXp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 20:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVGWAXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 20:19:29 -0400
-Received: from smtpauth05.mail.atl.earthlink.net ([209.86.89.65]:8920 "EHLO
-	smtpauth05.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S262247AbVGWAT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 20:19:28 -0400
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.13-rc3: swsusp works (TP 600X)
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 21.4.1
-Date: Fri, 22 Jul 2005 20:19:18 -0400
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1Dw7ja-0002Ge-EF@approximate.corpus.cam.ac.uk>
-X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d47826f234369f82662fd2ec2305d31de11a68fdb9e9071e9a9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 24.41.6.91
+	Fri, 22 Jul 2005 20:23:45 -0400
+Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:44460 "EHLO
+	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S262248AbVGWAXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 20:23:44 -0400
+Date: Fri, 22 Jul 2005 20:23:32 -0400 (EDT)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+X-X-Sender: hahn@coffee.psychology.mcmaster.ca
+To: Matthew Helsley <matthltc@us.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [ckrm-tech] Re: 2.6.13-rc3-mm1 (ckrm)
+In-Reply-To: <1122063487.5242.255.camel@stark>
+Message-ID: <Pine.LNX.4.44.0507221830350.29479-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-PMX-Version-Mac: 4.7.1.128075, Antispam-Engine: 2.0.3.2, Antispam-Data: 2005.7.22.31
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-swsusp now mostly works on my TP 600X.  If I don't eject the pcmcia card
-(usually a prism54 wireless card), swsusp begins the process of
-hibernation, but never gets to the writing pages part.  The eth0 somehow
-tries to reload the firmware (as if it's been woken up), and then
-everything hangs.  If I eject the card and (for safety) stop
-/etc/init.d/pcmcia, then swsusp writes out the memory to swap, and
-waking up works fine.  Thanks for all the improvements!
+> > actually, let me also say that CKRM is on a continuum that includes 
+> > current (global) /proc tuning for various subsystems, ulimits, and 
+> > at the other end, Xen/VMM's.  it's conceivable that CKRM could wind up
+> > being useful and fast enough to subsume the current global and per-proc
+> > tunables.  after all, there are MANY places where the kernel tries to 
+> > maintain some sort of context to allow it to tune/throttle/readahead
+> > based on some process-linked context.  "embracing and extending"
+> > those could make CKRM attractive to people outside the mainframe market.
+> 
+> 	Seems like an excellent suggestion to me! Yeah, it may be possible to
+> maintain the context the kernel keeps on a per-class basis instead of
+> globally or per-process. 
 
-Is there debugging I can do in order to help get the pcmcia system
-hibernating automagically?
+right, but are the CKRM people ready to take this on?  for instance,
+I just grepped 'throttle' in kernel/mm and found a per-task RM in 
+page-writeback.c.  it even has a vaguely class-oriented logic, since
+it exempts RT tasks.  if CKRM can become a way to make this stuff 
+cleaner and more effective (again, for normal tasks), then great.
+but bolting on a big new different, intrusive mechanism that slows
+down all normal jobs by 3% just so someone can run 10K mostly-idle
+guests on a giant Power box, well, that's gross.
 
-One other glitch is that pdnsd (a nameserver caching daemon) has crashed
-when the system wakes up from swsusp.  It also happens when waking up
-from S3, which was working with 2.6.11.4 although not with 2.6.13-rc3.
-Many people have said mysql also does not suspend well.  Is their use of
-a named pipe or socket causing the problem?
+> The real question is what constitutes a useful
+> "extension" :).
 
-System: TP 600X, 2.6.13-rc3 vanilla kernel, fixed DSDT that I used to
-        get S3 working with 2.6.11.4 (see
-        <http://bugme.osdl.org/show_bug.cgi?id=4926> for the DSDT),
-        booted with 
-              idebus=66 apm=off acpi=force pci=noacpi acpi_sleep=s3_bios
+if CKRM is just extensions, I think it should be an external patch.
+if it provides a path towards unifying the many disparate RM mechanisms
+already in the kernel, great!
 
--Sanjoy
+> 	I was thinking that per-class nice values might be a good place to
+> start as well. One advantage of per-class as opposed to per-process nice
+> is the class is less transient than the process since its lifetime is
+> determined solely by the system administrator.
 
-`A society of sheep must in time beget a government of wolves.'
-   - Bertrand de Jouvenal
+but the Linux RM needs to subsume traditional Unix process groups,
+and inherited nice/schd class, and even CAP_ stuff.  I think CKRM
+could start to do this, since classes are very general.
+but merely adding a new, incompatible feature is just Not A Good Idea.
+
+regards, mark hahn.
+

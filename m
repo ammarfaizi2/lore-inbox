@@ -1,69 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVGWAXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVGWA1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262248AbVGWAXp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 20:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVGWAXp
+	id S262251AbVGWA1J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 20:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVGWA1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 20:23:45 -0400
-Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:44460 "EHLO
-	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S262248AbVGWAXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 20:23:44 -0400
-Date: Fri, 22 Jul 2005 20:23:32 -0400 (EDT)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: hahn@coffee.psychology.mcmaster.ca
-To: Matthew Helsley <matthltc@us.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [ckrm-tech] Re: 2.6.13-rc3-mm1 (ckrm)
-In-Reply-To: <1122063487.5242.255.camel@stark>
-Message-ID: <Pine.LNX.4.44.0507221830350.29479-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-PMX-Version-Mac: 4.7.1.128075, Antispam-Engine: 2.0.3.2, Antispam-Data: 2005.7.22.31
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+	Fri, 22 Jul 2005 20:27:09 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:33000 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262252AbVGWA1H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 20:27:07 -0400
+Date: Fri, 22 Jul 2005 17:27:00 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
+Subject: [PATCH] Add schedule_timeout_{interruptible,uninterruptible}{,_msecs}() interfaces
+Message-ID: <20050723002658.GA4183@us.ibm.com>
+References: <20050707213138.184888000@homer> <20050708160824.10d4b606.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050708160824.10d4b606.akpm@osdl.org>
+X-Operating-System: Linux 2.6.12 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > actually, let me also say that CKRM is on a continuum that includes 
-> > current (global) /proc tuning for various subsystems, ulimits, and 
-> > at the other end, Xen/VMM's.  it's conceivable that CKRM could wind up
-> > being useful and fast enough to subsume the current global and per-proc
-> > tunables.  after all, there are MANY places where the kernel tries to 
-> > maintain some sort of context to allow it to tune/throttle/readahead
-> > based on some process-linked context.  "embracing and extending"
-> > those could make CKRM attractive to people outside the mainframe market.
+On 08.07.2005 [16:08:24 -0700], Andrew Morton wrote:
+> domen@coderock.org wrote:
+> >
+> > @@ -655,7 +655,7 @@ i2QueueCommands(int type, i2ChanStrPtr p
+> >  			timeout--;   // So negative values == forever
+> >  		
+> >  		if (!in_interrupt()) {
 > 
-> 	Seems like an excellent suggestion to me! Yeah, it may be possible to
-> maintain the context the kernel keeps on a per-class basis instead of
-> globally or per-process. 
+> I worry about what this driver is trying to do...
+> 
+> > -			current->state = TASK_INTERRUPTIBLE;
+> > +			set_current_state(TASK_INTERRUPTIBLE);
+> >  			schedule_timeout(1);	// short nap 
+> 
+> We do this all over the place.  Adding new schedule_timeout_interruptible()
+> and schedule_timeout_uninterruptible() would reduce kernel size and neaten
+> things up.
 
-right, but are the CKRM people ready to take this on?  for instance,
-I just grepped 'throttle' in kernel/mm and found a per-task RM in 
-page-writeback.c.  it even has a vaguely class-oriented logic, since
-it exempts RT tasks.  if CKRM can become a way to make this stuff 
-cleaner and more effective (again, for normal tasks), then great.
-but bolting on a big new different, intrusive mechanism that slows
-down all normal jobs by 3% just so someone can run 10K mostly-idle
-guests on a giant Power box, well, that's gross.
+How does something like this look? If this looks ok, I'll send out
+bunches of patches to add users of the new interfaces.
 
-> The real question is what constitutes a useful
-> "extension" :).
+Description: Add wrappers for interruptible/uninterruptible
+schedule_timeout() callers. Also add millisecond equivalents.
 
-if CKRM is just extensions, I think it should be an external patch.
-if it provides a path towards unifying the many disparate RM mechanisms
-already in the kernel, great!
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
-> 	I was thinking that per-class nice values might be a good place to
-> start as well. One advantage of per-class as opposed to per-process nice
-> is the class is less transient than the process since its lifetime is
-> determined solely by the system administrator.
+---
 
-but the Linux RM needs to subsume traditional Unix process groups,
-and inherited nice/schd class, and even CAP_ stuff.  I think CKRM
-could start to do this, since classes are very general.
-but merely adding a new, incompatible feature is just Not A Good Idea.
+ include/linux/sched.h |   11 ++++
+ kernel/timer.c        |  125 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 135 insertions(+), 1 deletion(-)
 
-regards, mark hahn.
-
+diff -urpN 2.6.13-rc3/include/linux/sched.h 2.6.13-rc3-new_interfaces/include/linux/sched.h
+--- 2.6.13-rc3/include/linux/sched.h	2005-07-13 15:52:14.000000000 -0700
++++ 2.6.13-rc3-new_interfaces/include/linux/sched.h	2005-07-22 16:28:47.000000000 -0700
+@@ -181,8 +181,17 @@ extern void scheduler_tick(void);
+ /* Is this address in the __sched functions? */
+ extern int in_sched_functions(unsigned long addr);
+ 
+-#define	MAX_SCHEDULE_TIMEOUT	LONG_MAX
++#define	MAX_SCHEDULE_TIMEOUT		LONG_MAX
++#define	MAX_SCHEDULE_TIMEOUT_MSECS	UINT_MAX
+ extern signed long FASTCALL(schedule_timeout(signed long timeout));
++extern signed long FASTCALL(schedule_timeout_interruptible
++							(signed long timeout));
++extern signed long FASTCALL(schedule_timeout_uninterruptible
++							(signed long timeout));
++extern unsigned int FASTCALL(schedule_timeout_interruptible_msecs
++						(unsigned int timeout_msecs));
++extern unsigned int FASTCALL(schedule_timeout_uninterruptible_msecs
++						(unsigned int timeout_msecs));
+ asmlinkage void schedule(void);
+ 
+ struct namespace;
+diff -urpN 2.6.13-rc3/kernel/timer.c 2.6.13-rc3-new_interfaces/kernel/timer.c
+--- 2.6.13-rc3/kernel/timer.c	2005-07-13 15:52:14.000000000 -0700
++++ 2.6.13-rc3-new_interfaces/kernel/timer.c	2005-07-22 16:31:31.000000000 -0700
+@@ -1153,6 +1153,131 @@ fastcall signed long __sched schedule_ti
+ 
+ EXPORT_SYMBOL(schedule_timeout);
+ 
++/**
++ * schedule_timeout_interruptible - sleep until timeout, wait-queue
++ *					 event or signal
++ * @timeout: timeout value in jiffies
++ *
++ * See the comment for schedule_timeout() for details.
++ */
++fastcall signed long __sched schedule_timeout_interruptible(signed long timeout)
++{
++	set_current_state(TASK_INTERRUPTIBLE);
++	return schedule_timeout(timeout);
++}
++
++EXPORT_SYMBOL(schedule_timeout_interruptible);
++
++/**
++ * schedule_timeout_uninterruptible - sleep until timeout or wait-queue
++ * 					event
++ * @timeout: timeout value in jiffies
++ *
++ * See the comment for schedule_timeout() for details.
++ */
++fastcall signed long __sched schedule_timeout_uninterruptible(signed long timeout)
++{
++	set_current_state(TASK_UNINTERRUPTIBLE);
++	return schedule_timeout(timeout);
++}
++
++EXPORT_SYMBOL(schedule_timeout_uninterruptible);
++
++/*
++ * schedule_timeout_msecs - sleep until timeout
++ * @timeout_msecs: timeout value in milliseconds
++ *
++ * A human-time (but otherwise identical) alternative to
++ * schedule_timeout() The state, therefore, *does* need to be set before
++ * calling this function, but this function should *never* be called
++ * directly. Use the nice wrappers, schedule_{interruptible,
++ * uninterruptible}_timeout_msecs().
++ *
++ * See the comment for schedule_timeout() for details.
++ */
++fastcall inline unsigned int __sched schedule_timeout_msecs
++						(unsigned int timeout_msecs)
++{
++	struct timer_list timer;
++	unsigned long expire_jifs;
++	signed long remaining_jifs;
++
++	if (timeout_msecs == MAX_SCHEDULE_TIMEOUT_MSECS) {
++		schedule();
++		goto out;
++	}
++
++	/*
++	 * msecs_to_jiffies() is a unit conversion, which truncates
++	 * (rounds down), so we need to add 1.
++	 */
++	expire_jifs = jiffies + msecs_to_jiffies(timeout_msecs) + 1;
++
++	init_timer(&timer);
++	timer.expires = expire_jifs;
++	timer.data = (unsigned long) current;
++	timer.function = process_timeout;
++
++	add_timer(&timer);
++	schedule();
++	del_singleshot_timer_sync(&timer);
++
++	remaining_jifs = expire_jifs - jiffies;
++	/* if we have woken up *before* we have requested */
++	if (remaining_jifs > 0)
++		/*
++		 * don't need to add 1 here, even though there is
++		 * truncation, because we will add 1 if/when the value
++		 * is sent back in
++		 */
++		timeout_msecs = jiffies_to_msecs(remaining_jifs);
++	else
++		timeout_msecs = 0;
++
++ out:
++	return timeout_msecs;
++}
++
++/**
++ * schedule_timeout_msecs_interruptible - sleep until timeout,
++ *						 wait-queue event, or signal
++ * @timeout_msecs: timeout value in milliseconds
++ *
++ * A nice wrapper for the common
++ * set_current_state()/schedule_timeout_msecs() usage.  The state,
++ * therefore, does *not* need to be set before calling this function.
++ *
++ * See the comment for schedule_timeout() for details.
++ */
++fastcall unsigned int __sched schedule_timeout_msecs_interruptible
++						(unsigned int timeout_msecs)
++{
++	set_current_state(TASK_INTERRUPTIBLE);
++	return schedule_timeout_msecs(timeout_msecs);
++}
++
++EXPORT_SYMBOL_GPL(schedule_timeout_msecs_interruptible);
++
++/**
++ * schedule_timeout_msecs_uninterrutible - sleep until timeout or
++ * 						wait-queue event
++ * @timeout_msecs: timeout value in milliseconds
++ *
++ * A nice wrapper for the common
++ * set_current_state()/schedule_timeout_msecs() usage.  The state,
++ * therefore, does *not* need to be set before calling this function.
++ *
++ * See the comment for schedule_timeout() for details.
++ */
++fastcall unsigned int __sched schedule_timeout_msecs_uninterruptible
++						(unsigned int timeout_msecs)
++{
++	set_current_state(TASK_UNINTERRUPTIBLE);
++	return schedule_timeout_msecs(timeout_msecs);
++}
++
++EXPORT_SYMBOL_GPL(schedule_timeout_msecs_uninterruptible);
++
+ /* Thread ID - the internal kernel "pid" */
+ asmlinkage long sys_gettid(void)
+ {

@@ -1,186 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVGWHJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVGWHNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVGWHJU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 03:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVGWHJT
+	id S261337AbVGWHNX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 03:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVGWHNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 03:09:19 -0400
-Received: from f7.mail.ru ([194.67.57.37]:61707 "EHLO f7.mail.ru")
-	by vger.kernel.org with ESMTP id S261548AbVGWHIe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 03:08:34 -0400
-From: =?koi8-r?Q?=E9=C7=CF=D2=D8=20=E2=CF=C7=CF=CD=C1=DA=CF=D7?= 
-	<ygrex@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Opaque kernel bug in work with bzip2(=?koi8-r?Q?=3F?=)
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 192.168.1.133 via proxy [195.208.236.2]
-Date: Sat, 23 Jul 2005 11:08:33 +0400
-Reply-To: =?koi8-r?Q?=E9=C7=CF=D2=D8=20=E2=CF=C7=CF=CD=C1=DA=CF=D7?= 
-	  <ygrex@mail.ru>
-Content-Type: multipart/mixed;
-	boundary="----AGlNwH8Z-SaYyskZ7URLVQNOX:1122102513"
-Message-Id: <E1DwE7d-0000k0-00.ygrex-mail-ru@f7.mail.ru>
+	Sat, 23 Jul 2005 03:13:23 -0400
+Received: from liaag2ac.mx.compuserve.com ([149.174.40.152]:57796 "EHLO
+	liaag2ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S261337AbVGWHNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 03:13:22 -0400
+Date: Sat, 23 Jul 2005 03:09:27 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.13-rc3a] i386: inline restore_fpu
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200507230313_MC3-1-A554-6928@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Date: Fri, 22 Jul 2005 at 16:19:25 -0700 (PDT), Linus Torvalds wrote:
 
-------AGlNwH8Z-SaYyskZ7URLVQNOX:1122102513
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 8bit
+>       /*
+>        * The "nop" is needed to make the instructions the same
+>        * length.
+>        */
+>       #define restore_fpu(tsk)                        \
+>               alternative_input(                      \
+>                       "nop ; frstor %1",              \
+>                       "fxrstor %1",                   \
+>                       X86_FEATURE_FXSR,               \
+>                       "m" ((tsk)->thread.i387.fsave))
 
-The letter itself is in an attached file.
+   Probably a very minor point, but shouldn't it be
 
-------AGlNwH8Z-SaYyskZ7URLVQNOX:1122102513
-Content-Type: text/plain; name="kernel.txt"
-Content-Disposition: attachment; filename="kernel.txt"
-Content-Transfer-Encoding: base64
+                        "m" ((tsk)->thread.i387.fxsave))
 
-SW50ZW5kZWQgZm9yOiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnCgpIZWxsbyBkZWFyIExp
-bnV4IERldmVsb3Blcgooc29ycnksIEkgZG8gbm90IGtub3cgcHJlY2lzZWx5IHdob20gSSdtIHdy
-aXRpbmcgdG8pLAoKUFJPQkxFTTogT3BhcXVlIGtlcm5lbCBidWcgaW4gd29yayB3aXRoIGJ6aXAy
-KD8pCgpJdCBvY2N1cmVzIGV2ZXJ5IHRpbWUgSSB0cnkgdG8gYnVuemlwMiAoMS4wLjIpIHRoZSBs
-aW51eC0yLjYuMTEuMTAudGFyLmJ6Mgp0YXJiYWxsLiBPZiB0aGlzIGFjdGlvbiBrZXJuZWwgcGFu
-aWNzIHdpdGggYW4gZW52aWFibGUgc3RhYmlsaXR5LiBBdCB0aGUgZmlyc3QKdGltZSBJIHdhcyBh
-bWF6ZWQgYW5kIHJlYm9vdGVkLiBUaGVuLCBpbiB0aGUgc2FtZSBjYXNlLCBJIHB1dCBkb3duIChv
-biB0aGUKcGllY2Ugb2YgcGFwZXIpIGFsbCB0aGF0LCB3aGF0IEkgc2F3IG9uIHRoZSBzY3JlZW4g
-KGZpZy4xKSwgYW5kIHJlYm9vdGVkLgoKQWZ0ZXIgcmVzdGFydCBJIHJlbW92ZWQgYWxsIG1vZHVs
-ZXMsIEkgdGhpbmsgY29uY2VybnMgdGhlIHRpbWVyLCBhbmQgdHJpZWQKdG8gYnVuemlwMiBvbmNl
-IGFnYWluIHdpdGggdGhlIHNhbWUgcmVzdWx0IChmaWcuMikuCgpJbmRlZWQgSSB1c2VkIHRvICJ0
-YXIgLXhwanYgLUMgLiAtZiBsaW51eC0yLjYuMTEuMTAudGFyLmJ6MiIsIGkuZS4gdXNlZCB0bwpy
-dW4gYnVuemlwMiBpbXBsaWNpdGx5LiBHdWVzc2luZyBhbnl0aGluZyBhYm91dCBiemlwMiwgSSB0
-cmllZCB0byBidXppcDIKbXkgdGFyYmFsbCBzdHJpY3RseSB3aXRoICJidW56aXAyIGxpbnV4LTIu
-Ni4xMS4xMC50YXIuYnoyIi4gQW5kIGtlcm5lbAp3YXMgY2FsbSEgQnV0IGV4dHJhY3Rpbmcgd2Fz
-IG5vdCBzdWNjZXNzZnVsLiBJdCBzYWlkLCB0aGUgYXJjaGl2ZSB3YXMKY29ycnVwdGVkLiBJIGZv
-dW5kIGxpbnV4LTIuNi45LnRhci5iejIgb24gb25lIG9mIG15IGZvcmdvdHRlbiBDRC4gVGhlIHJl
-c3VsdAp3YXMgdGhlIHNhbWUuIEJhZCBiemlwMj8gSSByZWluc3RhbGxlZCBpdCwgYnV0IG5vdGhp
-bmcgZXh0cmFvcmRpbmFyeSBoYXBwZW5kLgpBbmQgYWxzbywgcnBtIHdvcmtzIChpdCB1c2VzIGJ6
-aXAyKSEgQnV0IG5vdCB2ZXJ5IHdlbGwuLi4gVGhlIGtlcm5lbCBzb3VyY2VzCndlcmUgbm90IGZ1
-bGx5IGluc3RhbGxlZC4gQnV0IGluIGNvbW1vbiB0aGV5IHdlcmUgaW5zdGFsbGVkIChrZXJuZWwg
-Mi40LjIwKS4KRG9jdW1lbnRhdGlvbiBmb3IgdGhhdCBrZXJuZWwgKGl0IGlzIGluIGFub3RoZXIg
-cnBtIGZpbGUpIHdhcyBpbnN0YWxsZWQKd2l0aG91dCBhbnkgcHJvYmxlbXMhCgpBbm90aGVyIG1p
-c3RlcnkuCkJlaW5nIGxvZ2dlZCBpbiBhcyB1c3VhbCB1c2VyIEkgdHJpZWQgdG8gdW5pbnN0YWxs
-IHR3byBycG0gcGFja2FnZXMuIEkgc2hvdWxkCmRvIGl0IGFzIHN1cGVyLXVzZXIgb25seSwgYnV0
-IEkgZm9yZ290LiBXaGF0IHNob3VsZCBoYXBwZW4/IFNvbWUgZXJyb3JzIGFuZApub3RoaW5nIGVs
-c2UuIFdoYXQgcmVhbGx5IHdhcz8gQ2hhcnNldCBtb2RpZmllZCwgSSBzYXcgcHNldWRvZ3JhcGhp
-Y2FsIGFuZCBzb21lCmVsc2UgZnVubnkgc3ltYm9scyBpbnN0ZWFkIG9mIGFueSBsZXR0ZXJzLgoK
-VGhlbiwgcGxheWluZyB3aXRoIGJ6aXAyLCBJIGdvdCB0aGUgZmlnLjMgd2hlbiBrZXJuZWwgZG9l
-cyBub3QgcGFuaWMuIEkgY29waWVkCml0IHdpdGggbW91c2UgYW5kIGl0IGlzIGFuIG9ubHkgcHJl
-Y2lzZSBzY3JlZW4gc2hvdC4gVGhlIGZpcnN0IHR3byBmaWd1cmVzCndlcmUgc2NyYXRjaGVkIGZy
-b20gc2NyZWVuIHRvIHRoZSBwYXBlciwgYW5kIHJld3JpdHRlbiBmcm9tIHBhcGVyIGFnYWluLgoK
-TWF5IGJlIGJ6aXAyIGlzIG5vdCBndWlsdCBhbmQgdGhlIGFib3ZlIGNhc2VzIGFyZSBjaXJjdW1z
-dGFuY2VzIG9ubHkuIEJ1dAp3aGVuIEkgZG8gbm90IHVzZSBiemlwMiB0aGVyZSBhcmUgbm93IHBy
-b2JsZW1zLgpBbmQgbW9yZSwgcHJvYmxlbSB3YXMgbm90aWNlZCB3aGVuIGtlcm5lbCBmZWx0IGlu
-IHBhbmljIHdoZW4gdGhlcmUgaXMgYSB0aW1lCmZvciB0byBydW4gcmMuc3lzaW5pdCAoYXQgdGhl
-IGJvb3RpbmcpLiBJdCBzYWlkIHNvbWV0aGluZyBhYm91dCB0cmFjZXMgYW5kIGRpZApub3RoaW5n
-IGVsc2UuIEl0IHdhcyBsaW51eC0yLjYuMTEuMTIuIEkgZGVjaWRlZCB0byByZWNvbXBpbGUga2Vy
-bmVsIGFuZCBsb2FkZWQKdGhlIG9uZSBJIHVzZWQgdG8gd29yayB3aXRoIGZvciBhIGxvbmcgdGlt
-ZSAoZm9yIGEgY291cGxlIG1vbnRocykgLQpsaW51eC0yLjYuMTEuMTAuIFRoZW4gSSB0cmllZCB0
-byBidW56aXAyIHRhcmJhbGwgYW5kIC4uLgoKKioqKioqKgoqZmlnLjEqCioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKgoKS2VybmVsIGJ1ZyBhdCBrZXJuZWwvdGltZXIuYzo0MTYhCmludmFsaWQgb3BlcmFu
-ZDogMDAwMCBbIzJdCk1vZHVsZXMgbGlua2VkIGluOiB1c2Jfc3RvcmFnZSBzY3NpX21vZCB1c2Js
-cCB1aGNpX2hjZCB1c2Jjb3JlIHNuZF9zZXFfbWlkaQpzbmRfZW11MTBrMV9zeW50aCBzbmRfZW11
-eF9zeW50aCBzbmRfc2VxX3Zpcm1pZGkgc25kX3NlcV9taWRpX2V2ZW50CnNuZF9zZXFfbWlkaV9l
-bXVsIHNuZF9zZXEgc25kX2VtdTEwazEgc25kX3Jhd21pZGkgc25kX3NlcV9kZXZpY2UKc25kX2Fj
-OTdfY29kZWMgc25kX3BjbSBzbmRfdGltZXIgc25kX3BhZ2VfYWxsb2Mgc25kX3V0aWxfbWVtIHNu
-ZF9od2RlcCBzbmQKc291bmRjb3JlIHBzbW91c2UgYWZfcGFja2V0IHhmcyBleHBvcnRzIG5sc19r
-b2k4X3IgbmxzX2NwODY2IHZmYXQgZmF0Cm5sc19iYXNlIHJ0YwoKQ1BVOiAwCkVJUDogMDA2MDog
-WzxjMDExNzg0Mj5dIE5vdCB0YWludGVkIFZMSQpFRkxBR1M6IDAwMDEwMDA3ICgyLjYuMTEuMTIp
-CkVJUCBpcyBhdCBjYXNjYWRlKzB4NDIvMHg1MAoKZWF4OiBjMTE5YWZjMAllYng6IGMxMTlhZmMw
-CWVjeDogMDAwMmFhMDAJZWR4OiBjMTBkM2ViMAplc2k6IGMwMmZhYTU4CWVkaTogYzAyZmExMDAJ
-ZWJwOiAwMDAwMDAyYQllc3A6IGMwMmYxZmE4CmRzOiAwMDdiCWVzOiAwMDdiCXNzOiAwMDY4CgpQ
-cm9jZXNzIHN3YXBwZXIgKHBpZDogMCwgdGhyZWFkaW5mbz1jMDJmMTAwMCB0YXNrPWMwMjY5YjIw
-KQoKU3RhY2s6IDAwMDAwMDAwIGMwMmY5ZTg4IGMwMmYxZmNjIGMwMmYxMDAwIGMwMTE3ZGQ0IGMw
-MmZhMTAwIGMwMmZhOTA4IDAwMDAwMDJhCiAgICAgICBjMDJmMWZjYyBjMDJmMWZjYyBjMDJmMWZj
-YyBjMDJmYjljMCAwMDAwMDAwMSBjMDJmOWU4OCAwMDAwMDAwYSAwMDMyYjAwNwogICAgICAgYzAx
-MTQ0ZjIgYzAyZjllODggYzAyZDFmYTAgMDAwMDAwNDYgYzAyZWUxMjAgYzAxMDM5ZTkKCkNhbGwg
-VHJhY2U6Cls8YzAxMTdkZDQ+XSBydW5fdGltZXJfc29mdGlycSsweDExNC8weDE5MApbPGMwMTE0
-NGYyPl0gX19kb19zb2Z0aXJxKzB4NDIvMHhhMApbPGMwMTAzOWU5Pl0gZG9fc29mdGlycSsweDM5
-LzB4NDAKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpbPGMwMTAz
-OTA4Pl0gZG9fSVJRKzB4NDgvMHg2MApbPGMwMTAyNDFhPl0gY29tbW9uX2ludGVycnVwdCsweDFh
-LzB4MjAKWzxjMDEwMDU1MD5dIGRlZmF1bHRfaWRsZSsweDAvMHgzMApbPGMwMTAwNTc0Pl0gZGVm
-YXVsdF9pZGxlKzB4MjQvMHgzMApbPGMwMTAwNWRjPl0gY3B1X2lkbGUrMHgxYy8weDYwCls8YzAy
-ZDI2ZTY+XSBzdGFydF9rZXJuZWwrMHgxMzYvMHgxNTAKCkNvZGU6CjAxIGNlIDhiIDFlIGViIDE1
-IDhkIDc2IDAwIDg5IGQ4IDM5IDdiIDE4IDc1IDFiIDhiIDFiIDUwIDU3IGU4IDkwIGZkIGZmIGZm
-CjU4IDVhIDM5IGYzIDc1IGVhIDg5IDM2IDg5IDc2IDA0IDg5IGU4IDViIDVlIDVmIDVkIGMzIDww
-Zj4gMGIgYTAgMDEgMzYgODIgMjQgYzAKZWIgZGIgOGQgNzQgMjYgMDAgMGYgYmYgMDUgZjYgZWIg
-MjYgYzAKCjwwPiBLZXJuZWwgcGFuaWMgLSBub3Qgc3luY2luZzogRmF0YWwgZXhjZXB0aW9uIGlu
-IGludGVycnVwdAoKKioqKioqKgoqZmlnLjIqCioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioKCktlcm5l
-bCBidWcgYXQga2VybmVsL3RpbWVyLmM6NDE2IQppbnZhbGlkIG9wZXJhbmQ6IDAwMDAgWyMyXQpN
-b2R1bGVzIGxpbmtlZCBpbjogZmxvcHB5IHVzYmNvcmUgc25kX3BhZ2VfYWxsb2MgcHNtb3VzZSBh
-Zl9wYWNrZXQgeGZzIGV4cG9ydHMKbmxzX2tvaThfciBubHNfY3A4NjYgbmxzX2Jhc2UKCkNQVTog
-MApFSVA6IDAwNjA6IFs8YzAxMTc4NDI+XSBOb3QgdGFpbnRlZCBWTEkKRUZMQUdTOiAwMDAxMDAw
-NyAoMi42LjExLjEyKQpFSVAgaXMgYXQgY2FzY2FkZSsweDQyLzB4NTAKCmVheDogYzExOWFmYzAJ
-ZWJ4OiBjMTE5YWZjMAllY3g6IDAwMDRiMDAwCWVkeDogYzEwZDNlYjAKZXNpOiBjMDJmYWE4OAll
-ZGk6IGMwMmZhMTAwCWVicDogMDAwMDAwMzAJZXNwOiBjMDJmMWZhOApkczogMDA3YgllczogMDA3
-YglzczogMDA2OAoKUHJvY2VzcyBiemlwMiAocGlkOiA0NzE1LCB0aHJlYWRpbmZvPWMwMmYxMDAw
-IHRhc2s9YzM2YzBhMjApCgpTdGFjazogMDAwMDAwMDAgYzAyZjllODggYzAyZjFmY2MgYzAyZjEw
-MDAgYzAxMTdkZDQgYzAyZmExMDAgYzAyZmE5MDggMDAwMDAwMzAKICAgICAgIGMwMmYxZmNjIGMw
-MmYxZmNjIGMwMmYxZmNjIDAwMDAwMDBhIDAwMDAwMDAxIGMwMmY5ZTg4IDAwMDAwMDBhIGJmZmZk
-MGU4CiAgICAgICBjMDExNDRmMiBjMDJmOWU4OCBjNDhlOWZhYyAwMDAwMDA0NiAwMDAwMDAwMCBj
-MDEwMzllOQoKQ2FsbCBUcmFjZToKWzxjMDExN2RkND5dIHJ1bl90aW1lcl9zb2Z0aXJxKzB4MTE0
-LzB4MTkwCls8YzAxMTQ0ZjI+XSBfX2RvX3NvZnRpcnErMHg0Mi8weGEwCls8YzAxMDM5ZTk+XSBk
-b19zb2Z0aXJxKzB4MzkvMHg0MAo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09Cls8YzAxMDM5MDg+XSBkb19JUlErMHg0OC8weDYwCls8YzAxMDI0MWE+XSBjb21tb25f
-aW50ZXJydXB0KzB4MWEvMHgyMAoKQ29kZToKMDEgY2UgOGIgMWUgZWIgMTUgOGQgNzYgMDAgODkg
-ZDggMzkgN2IgMTggNzUgMWIgOGIgMWIgNTAgNTcgZTggOTAgZmQgZmYgZmYKNTggNWEgMzkgZjMg
-NzUgZWEgODkgMzYgODkgNzYgMDQgODkgZTggNWIgNWUgNWYgNWQgYzMgPDBmPiAwYiBhMCAwMSAz
-NiA4MiAyNCBjMAplYiBkYiA4ZCA3NCAyNiAwMCAwZiBiZiAwNSBmNiBlYiAyNiBjMAoKPDA+IEtl
-cm5lbCBwYW5pYyAtIG5vdCBzeW5jaW5nOiBGYXRhbCBleGNlcHRpb24gaW4gaW50ZXJydXB0Cgoq
-KioqKioqCipmaWcuMyoKKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKgoKVW5hYmxlIHRvIGhhbmRsZSBr
-ZXJuZWwgcGFnaW5nIHJlcXVlc3QgYXQgdmlydHVhbCBhZGRyZXNzIGEyNzRjMjg1CiBwcmludGlu
-ZyBlaXA6CmEyNzRjMjg1CipwZGUgPSAwMDAwMDAwMApPb3BzOiAwMDAwIFsjMV0KTW9kdWxlcyBs
-aW5rZWQgaW46IGlzb2ZzIHpsaWJfaW5mbGF0ZSBubHNfY3AxMjUxIHVkZiBpZGVfY2QgY2Ryb20g
-dXNiX3N0b3JhZ2Ugc2NzaV9tb2QgdWhjaV9oY2QgdXNiY29yZSBzbmRfc2VxX21pZGkgc25kX2Vt
-dTEwazFfc3ludGggc25kX2VtdXhfc3ludGggc25kX3NlcV92aXJtaWRpIHNuZF9zZXFfbWlkaV9l
-dmVudCBzbmRfc2VxX21pZGlfZW11bCBzbmRfc2VxIHNuZF9lbXUxMGsxIHNuZF9yYXdtaWRpIHNu
-ZF9zZXFfZGV2aWNlIHNuZF9hYzk3X2NvZGVjIHNuZF9wY20gc25kX3RpbWVyIHNuZF9wYWdlX2Fs
-bG9jIHNuZF91dGlsX21lbSBzbmRfaHdkZXAgc25kIHNvdW5kY29yZSBwc21vdXNlIGFmX3BhY2tl
-dCB4ZnMgZXhwb3J0ZnMgbmxzX2tvaThfciBubHNfY3A4NjYgdmZhdCBmYXQgbmxzX2Jhc2UgcnRj
-CkNQVTogICAgMApFSVA6ICAgIDAwNjA6WzxhMjc0YzI4NT5dICAgIE5vdCB0YWludGVkIFZMSQpF
-RkxBR1M6IDAwMDEwMjg2ICAgKDIuNi4xMS4xMikKRUlQIGlzIGF0IDB4YTI3NGMyODUKZWF4OiAw
-MDAwMDAwMCAgIGVieDogYzQ2ZDcwMDAgICBlY3g6IDAwMDAwMDAzICAgZWR4OiBjMTBiZjQ2MApl
-c2k6IGM0NmQ3MDAwICAgZWRpOiAwODEzZjZjOCAgIGVicDogYzFkOWEwMDAgICBlc3A6IGMxZDlh
-ZmE4CmRzOiAwMDdiICAgZXM6IDAwN2IgICBzczogMDA2OApQcm9jZXNzIHNldHRlcm0gKHBpZDog
-MjU2NSwgdGhyZWFkaW5mbz1jMWQ5YTAwMCB0YXNrPWMzZjgyYWEwKQpTdGFjazogYzQ2ZDcwMDAg
-NTc1MDA0MjQgMDgxNDAwODggYzFkOWFmYzQgMDgxM2Y2YzggMDAwMDAwMDAgYzAxMDIxZjcgMDAw
-MDAwMDAKICAgICAgIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAw
-IDAwMDAwMDAwIDAwMDAwMDdiIDAwMDAwMDdiCiAgICAgICAwMDAwMDAwYiBiN2ZlZWE3MCAwMDAw
-MDA3MyAwMDAwMDI0NiBiZmZmZmE4MCAwMDAwMDA3YgpDYWxsIFRyYWNlOgogWzxjMDEwMjFmNz5d
-IHN5c2NhbGxfY2FsbCsweDcvMHhiCkNvZGU6ICBCYWQgRUlQIHZhbHVlLgogL2Rldi90dHkyCk9u
-bGluZTogMgrz1cIg6cDMIDIzIDAwOjE2OjA1IEVFU1QgMjAwNQpVcHRpbWU6IDEwIGhvdXJzCgo8
-MT5VbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJl
-c3MgYTI3NGMyODUKIHByaW50aW5nIGVpcDoKYTI3NGMyODUKKnBkZSA9IDAwMDAwMDAwCk9vcHM6
-IDAwMDAgWyMyXQpNb2R1bGVzIGxpbmtlZCBpbjogaXNvZnMgemxpYl9pbmZsYXRlIG5sc19jcDEy
-NTEgdWRmIGlkZV9jZCBjZHJvbSB1c2Jfc3RvcmFnZSBzY3NpX21vZCB1aGNpX2hjZCB1c2Jjb3Jl
-IHNuZF9zZXFfbWlkaSBzbmRfZW11MTBrMV9zeW50aCBzbmRfZW11eF9zeW50aCBzbmRfc2VxX3Zp
-cm1pZGkgc25kX3NlcV9taWRpX2V2ZW50IHNuZF9zZXFfbWlkaV9lbXVsIHNuZF9zZXEgc25kX2Vt
-dTEwazEgc25kX3Jhd21pZGkgc25kX3NlcV9kZXZpY2Ugc25kX2FjOTdfY29kZWMgc25kX3BjbSBz
-bmRfdGltZXIgc25kX3BhZ2VfYWxsb2Mgc25kX3V0aWxfbWVtIHNuZF9od2RlcCBzbmQgc291bmRj
-b3JlIHBzbW91c2UgYWZfcGFja2V0IHhmcyBleHBvcnRmcyBubHNfa29pOF9yIG5sc19jcDg2NiB2
-ZmF0IGZhdCBubHNfYmFzZSBydGMKQ1BVOiAgICAwCkVJUDogICAgMDA2MDpbPGEyNzRjMjg1Pl0g
-ICAgTm90IHRhaW50ZWQgVkxJCkVGTEFHUzogMDAwMTAyODYgICAoMi42LjExLjEyKQpFSVAgaXMg
-YXQgMHhhMjc0YzI4NQplYXg6IDAwMDAwMDAwICAgZWJ4OiBjMWEwNjAwMCAgIGVjeDogMDAwMDAw
-MDMgICBlZHg6IGMxMGJmNDYwCmVzaTogYzFhMDYwMDAgICBlZGk6IDA4MTNmZmM4ICAgZWJwOiBj
-MWQ5YTAwMCAgIGVzcDogYzFkOWFmYTgKZHM6IDAwN2IgICBlczogMDA3YiAgIHNzOiAwMDY4ClBy
-b2Nlc3MgcHJvY2luZm8gKHBpZDogMjU4OSwgdGhyZWFkaW5mbz1jMWQ5YTAwMCB0YXNrPWMzZjgy
-YWEwKQpTdGFjazogYzFhMDYwMDAgNTc1MDA0MjQgMDgxNDAwODggYzFkOWFmYzQgMDgxM2ZmYzgg
-MDAwMDAwMDAgYzAxMDIxZjcgMDAwMDAwMDAKICAgICAgIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAw
-MDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDdiIDAwMDAwMDdiCiAgICAgICAw
-MDAwMDAwYiBiN2ZlZWE3MCAwMDAwMDA3MyAwMDAwMDI0NiBiZmZmZmE0MCAwMDAwMDA3YgpDYWxs
-IFRyYWNlOgogWzxjMDEwMjFmNz5dIHN5c2NhbGxfY2FsbCsweDcvMHhiCkNvZGU6ICBCYWQgRUlQ
-IHZhbHVlLgoKKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKgoKTWF5IGJlIEkgd3JvdGUgdG9vIG11Y2gg
-ZXhjZXNzaXZlIGluZm9ybWF0aW9uLCBhcG9sb2dpZXMgcGxlYXNlLCBmb3IgSSBkbyBub3QKa25v
-dyB3aGF0IGlzIHVzZWZ1bCBhbmQgd2hhdCBpcyBub3QuCgpQLlMuCklmIEkgY2FuIGhlbHAgc29t
-ZWhvdyBlbHNlIHlvdSBhcmUgd2VsY29tZSB0byBlLW1haWwgbWUgKGJ1dCBJIHdpbGwgYW5zd2Vy
-CmFmdGVyIGEgY291cGxlIGRheXMpLgoKUC5TLlMuCk5vdyBJJ20gZ29pbmcgdG8gZG93bmxvYWQg
-bGludXgtMi42LjEyIChnemlwcGVkOikgYW5kIHRoZSBsYXN0IGJ6aXAyIGFuZCB0ZXN0CnRoZW0g
-dG9nZXRoZXIuIEknbGwgaW5mb3JtIHlvdSBvZiBhbnkga2VybmVsIGNyYXNoZXMuCgoKT2JsaWdl
-ZGx5IHlvdXJzCgpJZ29yCgo=
+because that's the largest possible operand that could end up being read?
 
-------AGlNwH8Z-SaYyskZ7URLVQNOX:1122102513--
+
+> Now, we should do the same for "fnsave ; fwait" vs "fxsave ; fnclex" too,
+> but I was lazy. If somebody wants to try that, it would need an 
+> "alternative_output()" define but should otherwise be trivial too.
+
+  Is that function called __save_init_fpu because it saves and then
+initializes the fpu?  Unlike fsave, fxsave does not init the fpu after
+it saves the state; to make the behavior match it should be "fxsave ; fninit"
+
+
+__
+Chuck

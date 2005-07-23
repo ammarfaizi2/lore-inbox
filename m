@@ -1,142 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVGWXVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbVGWXlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbVGWXVb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 19:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVGWXVa
+	id S262010AbVGWXlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 19:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVGWXlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 19:21:30 -0400
-Received: from leyde.iplannetworks.net ([200.69.193.99]:56993 "EHLO
-	proxy3.iplannetworks.net") by vger.kernel.org with ESMTP
-	id S261547AbVGWXVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 19:21:30 -0400
-Message-ID: <42E2CFC4.9030701@latinsourcetech.com>
-Date: Sat, 23 Jul 2005 20:16:20 -0300
-From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@latinsourcetech.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: nhorman@redhat.com
-Cc: rheflin@atipa.com, arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Memory Management
-References: <EXCHG2003gbLYluLCTa000004d6@EXCHG2003.microtech-ks.com> <42E17FE7.3030205@latinsourcetech.com> <20050723184540.GA1670@hmsendeavour.rdu.redhat.com>
-In-Reply-To: <20050723184540.GA1670@hmsendeavour.rdu.redhat.com>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sat, 23 Jul 2005 19:41:07 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:46312 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262010AbVGWXlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 19:41:05 -0400
+Date: Sat, 23 Jul 2005 16:40:46 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: nish.aravamudan@gmail.com, christoph@lameter.com, azarah@nosferatu.za.org,
+       diegocg@gmail.com, mbligh@mbligh.org, linux-kernel@vger.kernel.org,
+       kernel@kolivas.org, davidsen@tmr.com, david.lang@digitalinsight.com,
+       vojtech@suse.cz, dtor_core@ameritech.net, len.brown@intel.com,
+       akpm@osdl.org, cw@f00f.org, torvalds@osdl.org, jesper.juhl@gmail.com
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Message-Id: <20050723164046.4a11d47e.rdunlap@xenotime.net>
+In-Reply-To: <1121572518.14698.1.camel@mindpipe>
+References: <42D3E852.5060704@mvista.com>
+	<20050713134857.354e697c.akpm@osdl.org>
+	<20050713211650.GA12127@taniwha.stupidest.org>
+	<9a874849050714170465c979c3@mail.gmail.com>
+	<1121386505.4535.98.camel@mindpipe>
+	<Pine.LNX.4.58.0507141718350.19183@g5.osdl.org>
+	<42D731A4.40504@gmail.com>
+	<Pine.LNX.4.58.0507142158010.19183@g5.osdl.org>
+	<9a874849050715061247ab4fd8@mail.gmail.com>
+	<9a874849050716191324d2f8b4@mail.gmail.com>
+	<29495f1d0507161935218d798@mail.gmail.com>
+	<1121572518.14698.1.camel@mindpipe>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil,
+On Sat, 16 Jul 2005 23:55:17 -0400 Lee Revell wrote:
 
->The best way I can think to do that is take a look at /proc/slabinfo.  That will
->likely give you a pointer to which area of code is eating up your memory.
->  
->
-OK. I will monitor the /proc/slabinfo file.
+> On Sat, 2005-07-16 at 19:35 -0700, Nish Aravamudan wrote: 
+> > As you've seen, I think it depends on the timesource: for the PIT, it
+> > would be arch/i386/kernel/timers/timer_pit.c::setup_pit_timer().
+> 
+> That one looks pretty straightforward.
+> arch/i386/kernel/timers/timer_tsc.c really looks like fun.  So many
+> corner cases...
+> 
+> BTW shouldn't this code from mark_offset_tsc():
+> 
+> 402         if (pit_latch_buggy) {
+> 403                 /* get center value of last 3 time lutch */
+> 404                 if ((count2 >= count && count >= count1)
+> 405                     || (count1 >= count && count >= count2)) {
+> 406                         count2 = count1; count1 = count;
+> 407                 } else if ((count1 >= count2 && count2 >= count)
+> 408                            || (count >= count2 && count2 >= count1)) {
+> 409                         countmp = count;count = count2;
+> 410                         count2 = count1;count1 = countmp;
+> 411                 } else {
+> 412                         count2 = count1; count1 = count; count = count1;
+> 413                 }
+> 414         }
+> 
+> use an ifdef?  It only applies to cyrix_55x0, and mark_offset_tsc is a
+> pretty hot path.
 
->Based on the sysrq-m info you posted it looks like due to fragmentation the
->largest chunk of memory you can allocate is 2MB (perhaps less depending on
->address space availability).  If you can build a test kernel to do a show_state
->rather than a show_mem at the beginning of oom_kil, then you should be able to
->tell who is trying to do an allocation that leads to kswapd calling
->out_of_memory.
->  
->
-Neil, I'm trying to recompile the kernel source 2.4.21-32.0.1 and get 
-some error messages:
+I see your point, but several distros build kernels that run on
+almost any x86-32 machine, so I think that it's there as is
+for universal-kernel support.
 
-In file included from 
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/prefetch.h:13,
-                 from 
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/list.h:6,
-                 from 
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:12,
-                 from 3w-xxxx.c:172:
-/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:61: warning: 
-parameter names (without types) in function declaration
-/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:61: field 
-`loops_per_jiffy_R_ver_str' declared as a function
-/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:84: invalid 
-suffix on integer constant
-/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:84: syntax error 
-before numeric constant
-/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:84: warning: 
-function declaration isn't a prototype
-/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:269: invalid 
-suffix on integer constant
-/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:269: syntax 
-error before numeric constant
-/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:269: warning: 
-function declaration isn't a prototype
-/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:273: warning: 
-parameter names (without types) in function declaration
-In file included from 3w-xxxx.c:172:
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: invalid 
-suffix on integer constant
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: syntax error 
-before numeric constant
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: 
-`inter_module_register_R_ver_str' declared as function returning a function
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: warning: 
-function declaration isn't a prototype
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: invalid 
-suffix on integer constant
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: syntax error 
-before numeric constant
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: 
-`inter_module_unregister_R_ver_str' declared as function returning a 
-function
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: warning: 
-function declaration isn't a prototype
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:192: 
-`inter_module_get_R_ver_str' declared as function returning a function
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:192: warning: 
-parameter names (without types) in function declaration
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:193: 
-`inter_module_get_request_R_ver_str' declared as function returning a 
-function
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:193: warning: 
-parameter names (without types) in function declaration
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: invalid 
-suffix on integer constant
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: syntax error 
-before numeric constant
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: 
-`inter_module_put_R_ver_str' declared as function returning a function
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: warning: 
-function declaration isn't a prototype
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:203: 
-`try_inc_mod_count_R_ver_str' declared as function returning a function
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:203: warning: 
-parameter names (without types) in function declaration
-make[3]: *** [3w-xxxx_10200033.o] Error 1
-make[3]: Leaving directory 
-`/usr/src/linux-2.4.21-32.0.1.EL/drivers/addon/3w-xxxx_10200033'
-make[2]: *** [_modsubdir_3w-xxxx_10200033] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.21-32.0.1.EL/drivers/addon'
-make[1]: *** [_modsubdir_addon] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.21-32.0.1.EL/drivers'
-make: *** [_mod_drivers] Error 2
-
-Is there any relationship between the sysrq-m changes to do show_state() 
-rather than a show_mem() and the compiling erros?
-
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/prefetch.h, line 13:
-    #include <asm/processor.h>
-
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/list.h ,line 6:
-    #include <linux/prefetch.h>
-
-/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h, line 12:
-    #include <linux/list.h>
-
-3w-xxxx.c, line 172:
-    #include <linux/module.h>
-
-Any ideia about the kernel compiling erros?
-
-(If I try to recompile a kernel.org kernel, it is compiled fine).
-
-Thanks again.
-
-Márcio.
-
+---
+~Randy

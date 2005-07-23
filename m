@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVGWAdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVGWAi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262258AbVGWAdu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 20:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVGWAdl
+	id S262256AbVGWAi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 20:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVGWAgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 20:33:41 -0400
-Received: from [216.208.38.107] ([216.208.38.107]:28551 "EHLO
-	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S262258AbVGWAco
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 20:32:44 -0400
-Subject: Re: [PATCH] Add
-	schedule_timeout_{interruptible,uninterruptible}{,_msecs}() interfaces
-From: Arjan van de Ven <arjan@infradead.org>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, domen@coderock.org,
-       linux-kernel@vger.kernel.org, clucas@rotomalug.org
-In-Reply-To: <20050723002658.GA4183@us.ibm.com>
-References: <20050707213138.184888000@homer>
-	 <20050708160824.10d4b606.akpm@osdl.org>  <20050723002658.GA4183@us.ibm.com>
-Content-Type: text/plain
-Date: Fri, 22 Jul 2005 20:31:55 -0400
-Message-Id: <1122078715.5734.15.camel@localhost.localdomain>
+	Fri, 22 Jul 2005 20:36:04 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:61143 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262256AbVGWAfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 20:35:48 -0400
+Date: Sat, 23 Jul 2005 02:35:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3: swsusp works (TP 600X)
+Message-ID: <20050723003544.GC1988@elf.ucw.cz>
+References: <E1Dw7ja-0002Ge-EF@approximate.corpus.cam.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1Dw7ja-0002Ge-EF@approximate.corpus.cam.ac.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> How does something like this look? If this looks ok, I'll send out
-> bunches of patches to add users of the new interfaces.
+> swsusp now mostly works on my TP 600X.  If I don't eject the pcmcia card
+> (usually a prism54 wireless card), swsusp begins the process of
+> hibernation, but never gets to the writing pages part.  The eth0 somehow
+> tries to reload the firmware (as if it's been woken up), and then
+> everything hangs.  If I eject the card and (for safety) stop
+> /etc/init.d/pcmcia, then swsusp writes out the memory to swap, and
+> waking up works fine.  Thanks for all the improvements!
+> 
+> Is there debugging I can do in order to help get the pcmcia system
+> hibernating automagically?
 
-I'd drop the FASTCALL stuff... nowadays with regparm that's automatic
-and the cost of register-vs-stack isn't too big anyway
+Well, it really may be the firmware loading. Add some printks to
+confirm it, then fix it.
 
+> One other glitch is that pdnsd (a nameserver caching daemon) has crashed
+> when the system wakes up from swsusp.  It also happens when waking up
+> from S3, which was working with 2.6.11.4 although not with 2.6.13-rc3.
+> Many people have said mysql also does not suspend well.  Is their use of
+> a named pipe or socket causing the problem?
 
-Also I'd rather not add the non-msec ones... either you're raw and use
-HZ, or you are "cooked" and use the msec variant.. I dont' see the point
-of adding an "in the middle" one. (Yes this means that several users
-need to be transformed to msecs but... I consider that progress ;)
-
+No idea, strace?
+									Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

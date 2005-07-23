@@ -1,56 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVGWLKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVGWLmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVGWLKr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 07:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVGWLKq
+	id S261188AbVGWLmH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 07:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVGWLmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 07:10:46 -0400
-Received: from [216.208.38.107] ([216.208.38.107]:49280 "EHLO
-	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S261587AbVGWLKo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 07:10:44 -0400
-Subject: Re: [PATCH] Add
-	schedule_timeout_{interruptible,uninterruptible}{,_msecs}() interfaces
-From: Arjan van de Ven <arjan@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
-In-Reply-To: <Pine.LNX.4.61.0507231247460.3743@scrub.home>
-References: <20050707213138.184888000@homer>
-	 <20050708160824.10d4b606.akpm@osdl.org> <20050723002658.GA4183@us.ibm.com>
-	 <1122078715.5734.15.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0507231247460.3743@scrub.home>
-Content-Type: text/plain
-Date: Sat, 23 Jul 2005 07:09:46 -0400
-Message-Id: <1122116986.3582.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Jul 2005 07:42:06 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:45832 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261188AbVGWLmF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 07:42:05 -0400
+Message-ID: <42E22D0C.1010608@domdv.de>
+Date: Sat, 23 Jul 2005 13:42:04 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.13rc3: RLIMIT_RTPRIO broken
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------090305000603040503020101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-23 at 12:50 +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Fri, 22 Jul 2005, Arjan van de Ven wrote:
-> 
-> > Also I'd rather not add the non-msec ones... either you're raw and use
-> > HZ, or you are "cooked" and use the msec variant.. I dont' see the point
-> > of adding an "in the middle" one. (Yes this means that several users
-> > need to be transformed to msecs but... I consider that progress ;)
-> 
-> What's wrong with using jiffies? 
+This is a multi-part message in MIME format.
+--------------090305000603040503020101
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-A lot of the (driver) users want a wallclock based timeout. For that,
-miliseconds is a more obvious API with less chance to get the jiffies/HZ
-conversion wrong by the driver writer.
+RLIMIT_RTPRIO is supposed to grant non privileged users the right to use
+SCHED_FIFO/SCHED_RR scheduling policies with priorites bounded by the
+RLIMIT_RTPRIO value via sched_setscheduler(). This is usually used by
+audio users.
 
-> It's simple and the current timeout 
-> system is based on it. Calling it something else doesn't suddenly give you 
-> more precision.
+Unfortunately this is broken in 2.6.13rc3 as you can see in the excerpt
+from sched_setscheduler below:
 
-It's not about precision, it's about making the new API (which is
-intended to be a simplification already due to sucking in the state
-setting) match the intent closer.
+        /*
+         * Allow unprivileged RT tasks to decrease priority:
+         */
+        if (!capable(CAP_SYS_NICE)) {
+                /* can't change policy */
+                if (policy != p->policy)
+                        return -EPERM;
 
+After the above unconditional test which causes sched_setscheduler to
+fail with no regard to the RLIMIT_RTPRIO value the following check is made:
 
+               /* can't increase priority */
+                if (policy != SCHED_NORMAL &&
+                    param->sched_priority > p->rt_priority &&
+                    param->sched_priority >
+                                p->signal->rlim[RLIMIT_RTPRIO].rlim_cur)
+                        return -EPERM;
+
+Thus I do believe that the RLIMIT_RTPRIO value must be taken into
+account for the policy check, especially as the RLIMIT_RTPRIO limit is
+of no use without this change.
+
+The attached patch fixes this problem. I would appreciate it if the fix
+would make it into 2.6.13.
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+
+--------------090305000603040503020101
+Content-Type: text/plain;
+ name="2.6.13rc3-rtprio.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.6.13rc3-rtprio.patch"
+
+--- linux.orig/kernel/sched.c	2005-07-22 19:45:05.000000000 +0200
++++ linux/kernel/sched.c	2005-07-22 19:45:42.000000000 +0200
+@@ -3528,7 +3528,8 @@
+ 	 */
+ 	if (!capable(CAP_SYS_NICE)) {
+ 		/* can't change policy */
+-		if (policy != p->policy)
++		if (policy != p->policy &&
++			!p->signal->rlim[RLIMIT_RTPRIO].rlim_cur)
+ 			return -EPERM;
+ 		/* can't increase priority */
+ 		if (policy != SCHED_NORMAL &&
+
+--------------090305000603040503020101--

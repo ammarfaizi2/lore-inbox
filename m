@@ -1,131 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVGWJPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVGWJWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbVGWJPM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 05:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVGWJPM
+	id S261653AbVGWJWP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 05:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVGWJWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 05:15:12 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:46829 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261637AbVGWJPJ (ORCPT
+	Sat, 23 Jul 2005 05:22:15 -0400
+Received: from main.gmane.org ([80.91.229.2]:9359 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261653AbVGWJWN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 05:15:09 -0400
-Date: Sat, 23 Jul 2005 13:14:55 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Harald Welte <laforge@netfilter.org>, David Miller <davem@davemloft.net>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 1 Wire drivers illegally overload NETLINK_NFLOG
-Message-ID: <20050723091455.GA12015@2ka.mipt.ru>
-References: <20050723125427.GA11177@rama>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20050723125427.GA11177@rama>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 23 Jul 2005 13:14:56 +0400 (MSD)
+	Sat, 23 Jul 2005 05:22:13 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jesper Krogh <jesper@krogh.cc>
+Subject: Re: Giving developers clue how many testers verified certain kernel version
+Date: Sat, 23 Jul 2005 09:21:49 +0000 (UTC)
+Message-ID: <dbt27d$mre$1@sea.gmane.org>
+References: <200507230244.11338.blaisorblade@yahoo.it>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: linuxnews.dk
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 23, 2005 at 08:54:27AM -0400, Harald Welte (laforge@netfilter.org) wrote:
-> Hi Dave,
-> Hi Evgeniy,
-> 
-> the following patch fixes the illegal use of NETLINK_NFLOG by the
-> 1wire drivers.  It assumes that the netlink tap families can now safely
-> be reclaimed, which is the case according to Dave at netconf'05.
-> 
-> I'm not sure who would be the right person to fix this, but this patch
-> needs to go into both 2.6.12.x and 2.6.13 trees, since it potentially
-> causes a security problem by preventing the iptables ULOG
+I gmane.linux.kernel, skrev Blaisorblade:
+>  Forgot drivers testing? That is where most of the bugs are hidden, and where 
+>  wide user testing is definitely needed because of the various hardware bugs 
+>  and different configurations existing in real world.
 
-Yep.
-Actually w1 uses it only for simple event notifications, 
-which definitely will be replaced with connector stuff...
+A way that could raise the testing upon a particular kernel, would be to
+provide; (debian example follows):
+... example .. 
+An apt-repository with the newest tagged kernel build modular for the
+architecture. 
 
-So I woulf like to ask Dave about it, and if network people are still 
-against it, I have no objection against this patch.
-But I sould definitely prefer to move all such simple events into separate
-event bus.
+Just drop all tagged kernels in a common repository that the users can
+follow, then I'd be happy to test a new kernel on every reboot on my
+system. I'd probably still would respond if anything was broken in the
+new kernel.. 
 
-> This has been the third new piece of code that reuses NETLINK_NFLOG
-> within a couple of months.  I would really appreciate if people would
-> actually ask/apply for a new protocol number instead of just overloading
-> existing values and thereby causing breakage.  
+Then it wouldn't be: "try this patch and see if that solves anything"
+but do:
 
-I even know who added it... :)
+apt-get install kernel-image-386-torvalds-linux-2.6-v2.6.13-rc3
 
-I still have question opened about message bus and connector.
-Andrew has no objection against connector and it lives in -mm
-quite long time, although was several time removed due to GregKH i2c
-tree changes. All objections against it was only type of - "I do not like it"
-Dmitry had some bugfixes which were added.
-It was tested under quite heavy load on different types of systems
-without overhead (with CBUS) and with _very_ convenient way of
-controlling kernelspace from userspace and reverse event bus.
+(automatically build from the "torvalds/linux-2.6"-branch with tag
+"v2.6.13-rc3" using a modular kernel-configuration similar to the one
+used in the stock debian kernels.  
+
+Then I find and report something and "Pavel Machek" releases a "try-fix", by
+tagging a branch ind a tree and tells me to try
+kernel-image-386-pavel-good-2.6-v2.6.13-rc3 
+instead. 
+
+(and variations.. acip/no-acip smp, etc. etc. )
+
+... example end .. 
 
 
-> Thanks,
-> 	Harald
-> 
-> -- 
-> - Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-> ============================================================================
->   "Fragmentation is like classful addressing -- an interesting early
->    architectural error that shows how much experimentation was going
->    on while IP was being designed."                    -- Paul Vixie
+It would be quite a lot central kernel-building, but as far as I can
+see, it can be fully automated. 
 
-> Give the 1-wire driver stack its own netlink protocol number, instead of
-> overloading NETLINK_NFLOG.
-> 
-> I wonder what I have done to people, that they always overload the
-> NETLINK_NFLOG protocol number and thereby effectively prevent the packet
-> filter logging mechanism.  Please don't re-use protocol numbers.
-> 
-> Signed-off-by: Harald Welte <laforge@netfilter.org>
-> 
-> ---
-> commit b4a566c332048b642506eff7de825fce710ff42c
-> tree 07ef162f6d449dd67c586c9c63680004787b86c5
-> parent d5d3fb40b6db511dbd47a84634a1249de6b7b297
-> author laforge <laforge@netfilter.org> Sa, 23 Jul 2005 08:41:24 -0400
-> committer laforge <laforge@netfilter.org> Sa, 23 Jul 2005 08:41:24 -0400
-> 
->  drivers/w1/w1_int.c     |    4 ++--
->  include/linux/netlink.h |    2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
-> --- a/drivers/w1/w1_int.c
-> +++ b/drivers/w1/w1_int.c
-> @@ -88,10 +88,10 @@ static struct w1_master * w1_alloc_dev(u
->  
->  	dev->groups = 23;
->  	dev->seq = 1;
-> -	dev->nls = netlink_kernel_create(NETLINK_NFLOG, NULL);
-> +	dev->nls = netlink_kernel_create(NETLINK_W1, NULL);
->  	if (!dev->nls) {
->  		printk(KERN_ERR "Failed to create new netlink socket(%u) for w1 master %s.\n",
-> -			NETLINK_NFLOG, dev->dev.bus_id);
-> +			NETLINK_W1, dev->dev.bus_id);
->  	}
->  
->  	err = device_register(&dev->dev);
-> diff --git a/include/linux/netlink.h b/include/linux/netlink.h
-> --- a/include/linux/netlink.h
-> +++ b/include/linux/netlink.h
-> @@ -20,7 +20,7 @@
->  #define NETLINK_IP6_FW		13
->  #define NETLINK_DNRTMSG		14	/* DECnet routing messages */
->  #define NETLINK_KOBJECT_UEVENT	15	/* Kernel messages to userspace */
-> -#define NETLINK_TAPBASE		16	/* 16 to 31 are ethertap */
-> +#define NETLINK_W1		16	/* 16 to 31 are ethertap */
->  
->  #define MAX_LINKS 32		
->  
+It would defininately lower the barrier for being able to paticipate in
+testing, but I am not the one to decide if that would be a desirable
+goal?  Or for that matter, worth the work. 
 
-
-
-
+Jesper
 -- 
-	Evgeniy Polyakov
+./Jesper Krogh, jesper@krogh.cc, Jabber ID: jesper@jabbernet.dk
+
+

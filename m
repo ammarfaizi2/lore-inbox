@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVGWUXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVGWU76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVGWUXK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 16:23:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVGWUXK
+	id S261677AbVGWU76 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 16:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVGWU75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 16:23:10 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:37039 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261581AbVGWUXI (ORCPT
+	Sat, 23 Jul 2005 16:59:57 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:17047 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261677AbVGWU75 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 16:23:08 -0400
-Date: Sat, 23 Jul 2005 22:22:37 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
-Subject: Re: [PATCH] Add schedule_timeout_{interruptible,uninterruptible}{,_msecs}()
- interfaces
-In-Reply-To: <20050723190626.GA4345@us.ibm.com>
-Message-ID: <Pine.LNX.4.61.0507232214580.3743@scrub.home>
-References: <20050707213138.184888000@homer> <20050708160824.10d4b606.akpm@osdl.org>
- <20050723002658.GA4183@us.ibm.com> <1122078715.5734.15.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507231247460.3743@scrub.home> <1122116986.3582.7.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507231340070.3743@scrub.home> <20050723163753.GC4951@us.ibm.com>
- <Pine.LNX.4.61.0507231854180.3728@scrub.home> <20050723190626.GA4345@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 23 Jul 2005 16:59:57 -0400
+Date: Sat, 23 Jul 2005 22:59:56 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Peter Osterlund <petero2@telia.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>, dmo@osdl.org
+Subject: Re: [PATCH] kill bio->bi_set
+Message-ID: <20050723205956.GA17370@suse.de>
+References: <20050720222949.GE2548@suse.de> <m34qaljnvd.fsf@telia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m34qaljnvd.fsf@telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, 23 Jul 2005, Nishanth Aravamudan wrote:
-
-> > What's wrong with just:
-> > 
-> > 	schedule_timeout_{,un}interruptible(msecs_to_jiffies(some_constant_msecs));
+On Sat, Jul 23 2005, Peter Osterlund wrote:
+> Jens Axboe <axboe@suse.de> writes:
 > 
-> Nothing, I suppose. I just prefer directly using msecs. I understand
-> your point more now, I think. You are worried about those people that
-> actually use the return value of schedule_timeout().
-
-It's only half the point:
-
-> > The majority of users use a constant, which can already be converted at 
-> > compile tile.
-
-The kernel time unit is and will be jiffies and the kernel time functions 
-should be in ticks with some optional wrappers in other time units, not 
-the other way around.
-
-> 2) Sleep in a loop, keeping track of remaining timeout each iteration:
+> > Dunno why I didn't notice before, but ->bi_set is totally unnecessary
+> > bloat of struct bio. Just define a proper destructor for the bio and it
+> > already knows what bio_set it belongs too.
 > 
-> 	while (timeout) {
-> 		do_some_stuff();
-> 		timeout = schedule_timeout(timeout);
-> 		if (some_condition)
-> 			break;
-> 	}
+> This causes crashes on my computer.
 
-This actually is a pre-preempt construct and should probably use 
-time_before() now.
+Did I neglect to mention it was untested? :)
 
-bye, Roman
+> > +void bio_free(struct bio *bio, struct bio_set *bio_set)
+> >  {
+> >  	const int pool_idx = BIO_POOL_IDX(bio);
+> > -	struct bio_set *bs = bio->bi_set;
+> >  
+> >  	BIO_BUG_ON(pool_idx >= BIOVEC_NR_POOLS);
+> >  
+> > -	mempool_free(bio->bi_io_vec, bs->bvec_pools[pool_idx]);
+> > -	mempool_free(bio, bs->bio_pool);
+> > +	mempool_free(bio->bi_io_vec, fs_bio_set->bvec_pools[pool_idx]);
+> > +	mempool_free(bio, fs_bio_set->bio_pool);
+> > +}
+> 
+> This function uses fs_bio_set instead of the function parameter
+> bio_set.
+
+Clear mistake, thanks.
+
+> > @@ -171,8 +175,6 @@ struct bio *bio_alloc_bioset(unsigned in
+> >  			bio->bi_max_vecs = bvec_slabs[idx].nr_vecs;
+> >  		}
+> >  		bio->bi_io_vec = bvl;
+> > -		bio->bi_destructor = bio_destructor;
+> > -		bio->bi_set = bs;
+> >  	}
+> 
+> This change means that all code that calls bio_alloc_bioset() must now
+
+Correct. The alternative was to require a destructor function passed
+into bio_alloc_bioset().
+
+> set bi_destructor, but this is forgotten in bio_clone() in bio.c and
+> in split_bvec() in dm.c.
+
+Thanks, I'll go over these and submit a fixed version.
+
+-- 
+Jens Axboe
+

@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVGWSGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVGWSpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbVGWSGm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 14:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVGWSGl
+	id S261447AbVGWSpw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 14:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVGWSpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 14:06:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9365 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261423AbVGWSFl (ORCPT
+	Sat, 23 Jul 2005 14:45:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6554 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261447AbVGWSpu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 14:05:41 -0400
-Date: Sat, 23 Jul 2005 11:02:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-Subject: Re: [patch 2.6.13-rc3a] i386: inline restore_fpu
-In-Reply-To: <1122140791.3582.25.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0507231056270.6074@g5.osdl.org>
-References: <200507230313_MC3-1-A554-6927@compuserve.com> 
- <Pine.LNX.4.58.0507231033370.6074@g5.osdl.org> <1122140791.3582.25.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 23 Jul 2005 14:45:50 -0400
+Date: Sat, 23 Jul 2005 14:45:40 -0400
+From: Neil Horman <nhorman@redhat.com>
+To: =?iso-8859-1?Q?M=E1rcio?= Oliveira <moliveira@latinsourcetech.com>
+Cc: Roger Heflin <rheflin@atipa.com>, "'Neil Horman'" <nhorman@redhat.com>,
+       arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Memory Management
+Message-ID: <20050723184540.GA1670@hmsendeavour.rdu.redhat.com>
+References: <EXCHG2003gbLYluLCTa000004d6@EXCHG2003.microtech-ks.com> <42E17FE7.3030205@latinsourcetech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42E17FE7.3030205@latinsourcetech.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 23 Jul 2005, Arjan van de Ven wrote:
+On Fri, Jul 22, 2005 at 08:23:19PM -0300, Márcio Oliveira wrote:
+<snip>
+> >
+> Roger, thanks for the information.
 > 
-> For the kernel the runtime measurement is obviously tricky (kgprof
-> anyone?)
+>   I'm using Update 4 kernels (2.4.21-27.ELsmp - This kernel have some 
+> mm / oom fixes) and don't have big problems when create large files, 
+> plus the server is a 32-bit machine. 
+> 
+>   Neil said that the problem can be Low Memory and I think it too.
+> 
+>   I read the following message on the list:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=112044530919567&w=4
+> 
+>   The problem seems like a I/O issue. Can I/O (like storage devices) 
+> consume a large amount of low memory? Neil also said that the kernel is 
+> trying to move lots of data to the disk and it's a module might require 
+> such large memory. Somebody know how can I identify what is using Low 
+> Memory on my system?
+> 
+The best way I can think to do that is take a look at /proc/slabinfo.  That will
+likely give you a pointer to which area of code is eating up your memory.
 
-Ehh, doesn't "opgprof" do that already?
+>   The older questions in the message are:
+> 
+> The server has 16GB RAM and 16GB swap. When the OOM kill conditions 
+> happens, the system has ~6GB RAM used, ~10GB RAM cached and 16GB free swap. 
+> Is that indicate that the server can't allocate Low Memory and starts OOM 
+> conditions? Because the High Memory is OK, right?
+> 
+Based on the sysrq-m info you posted it looks like due to fragmentation the
+largest chunk of memory you can allocate is 2MB (perhaps less depending on
+address space availability).  If you can build a test kernel to do a show_state
+rather than a show_mem at the beginning of oom_kil, then you should be able to
+tell who is trying to do an allocation that leads to kswapd calling
+out_of_memory.
 
-Anyway, judging by real life, people just don't _do_ profile runs. Any 
-build automation that depends on the user profiling the result is a total 
-wet dream by compiler developers - it just doesn't happen in real life.
+> Thanks to all!
+> 
+> Regards,
+> Márcio
+> 
+> 
 
-So:
-
-> but the static analysis method really shouldn't be too hard.
-
-I really think that the static analysis is the only one that actually 
-would matter in real life. It's also the only one that is repeatable, 
-which is a big big bonus, since at least that way different people are 
-running basically the same code (heisenbugs, anyone?) and benchmarks are 
-actually meaningful, since they don't depend on whatever load was picked 
-to generate the layout.
-
-So dynamic analysis with dynamic profile data is just one big theoretical
-compiler-writer masturbation session, in my not-so-humble opinion. I bet
-static analysis (with possibly some hints from the programmer, the same
-way we use likely/unlikely) gets you 90% of the way, without all the
-downsides.
-
-		Linus
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *Red Hat, Inc.
+ *nhorman@redhat.com
+ *gpg keyid: 1024D / 0x92A74FA1
+ *http://pgp.mit.edu
+ ***************************************************/

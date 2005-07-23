@@ -1,34 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVGWThb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVGWT7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVGWThb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 15:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVGWThb
+	id S261556AbVGWT7B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 15:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVGWT7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 15:37:31 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:55493 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261536AbVGWTha convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 15:37:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TGGi7inuTW1WpwZKlDarkEwdF0GeHZ2VsE2MvyJ52Lx6pDmwOb2cYuYtQ8/OjjwsMT5A922EFSvdMc4y6lxv49IvxTw9zonWT2WUGGAvMq13XcETZ04OlkOV8SQI6Zo0OG9cDNQ/yNYDIFIDR/p5NcpotJa+h+h/hYB33UmriYY=
-Message-ID: <c0140e7605072312377b348743@mail.gmail.com>
-Date: Sat, 23 Jul 2005 21:37:29 +0200
-From: cengizkirli <cengizkirli@gmail.com>
-Reply-To: cengizkirli <cengizkirli@gmail.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: Mouse Freezes in Xorg on ASUS P4C800 Deluxe
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <c0140e7605072308424eb60d57@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <c0140e76050723082730836e7b@mail.gmail.com>
-	 <9a8748490507230836584948c6@mail.gmail.com>
-	 <c0140e7605072308424eb60d57@mail.gmail.com>
+	Sat, 23 Jul 2005 15:59:01 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:19090 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261556AbVGWT67 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 15:58:59 -0400
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>, dmo@osdl.org
+Subject: Re: [PATCH] kill bio->bi_set
+References: <20050720222949.GE2548@suse.de>
+From: Peter Osterlund <petero2@telia.com>
+Date: 23 Jul 2005 21:58:30 +0200
+In-Reply-To: <20050720222949.GE2548@suse.de>
+Message-ID: <m34qaljnvd.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've posted the original mail to xorg@lists.freedesktop.org, too.
+Jens Axboe <axboe@suse.de> writes:
+
+> Dunno why I didn't notice before, but ->bi_set is totally unnecessary
+> bloat of struct bio. Just define a proper destructor for the bio and it
+> already knows what bio_set it belongs too.
+
+This causes crashes on my computer.
+
+> +void bio_free(struct bio *bio, struct bio_set *bio_set)
+>  {
+>  	const int pool_idx = BIO_POOL_IDX(bio);
+> -	struct bio_set *bs = bio->bi_set;
+>  
+>  	BIO_BUG_ON(pool_idx >= BIOVEC_NR_POOLS);
+>  
+> -	mempool_free(bio->bi_io_vec, bs->bvec_pools[pool_idx]);
+> -	mempool_free(bio, bs->bio_pool);
+> +	mempool_free(bio->bi_io_vec, fs_bio_set->bvec_pools[pool_idx]);
+> +	mempool_free(bio, fs_bio_set->bio_pool);
+> +}
+
+This function uses fs_bio_set instead of the function parameter
+bio_set.
+
+> @@ -171,8 +175,6 @@ struct bio *bio_alloc_bioset(unsigned in
+>  			bio->bi_max_vecs = bvec_slabs[idx].nr_vecs;
+>  		}
+>  		bio->bi_io_vec = bvl;
+> -		bio->bi_destructor = bio_destructor;
+> -		bio->bi_set = bs;
+>  	}
+
+This change means that all code that calls bio_alloc_bioset() must now
+set bi_destructor, but this is forgotten in bio_clone() in bio.c and
+in split_bvec() in dm.c.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

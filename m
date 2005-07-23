@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262313AbVGWCdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbVGWCrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262313AbVGWCdp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 22:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbVGWCdj
+	id S262322AbVGWCrm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 22:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVGWCrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 22:33:39 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:20463 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262313AbVGWCcD
+	Fri, 22 Jul 2005 22:47:35 -0400
+Received: from nproxy.gmail.com ([64.233.182.196]:30456 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262317AbVGWCrc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 22:32:03 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17121.44053.855399.587966@tut.ibm.com>
-Date: Fri, 22 Jul 2005 21:31:49 -0500
-To: karim@opersys.com
-Cc: Tom Zanussi <zanussi@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Steven Rostedt <rostedt@goodmis.org>, richardj_moore@uk.ibm.com,
-       varap@us.ibm.com, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Merging relayfs?
-In-Reply-To: <42E17EEC.5070102@opersys.com>
-References: <17107.6290.734560.231978@tut.ibm.com>
-	<20050712022537.GA26128@infradead.org>
-	<20050711193409.043ecb14.akpm@osdl.org>
-	<Pine.LNX.4.61.0507131809120.3743@scrub.home>
-	<17110.32325.532858.79690@tut.ibm.com>
-	<Pine.LNX.4.61.0507171551390.3728@scrub.home>
-	<17114.32450.420164.971783@tut.ibm.com>
-	<1121694275.12862.23.camel@localhost.localdomain>
-	<Pine.LNX.4.61.0507181607410.3743@scrub.home>
-	<42DBBD69.3030300@opersys.com>
-	<Pine.LNX.4.61.0507181706430.3728@scrub.home>
-	<17115.53671.326542.392470@tut.ibm.com>
-	<17121.23125.981162.389667@tut.ibm.com>
-	<42E17EEC.5070102@opersys.com>
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+	Fri, 22 Jul 2005 22:47:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GVq2Z8DO3slMLQtuE2T3aTnnqGsCfehcLybTrf1Dq3C/K7iI9LDNek6rQD4ddkQ4AGT13joRlUXjUchbMLRUK17LVB+Gd73ZeczYRDf2q2IrzI1APv5/KKI3RZnoGS4ty9fAcUFT2h/vZL1ETBeFIVPubEHHFxb/bkIh1WUv0kI=
+Message-ID: <58cb370e0507221947c1b88a4@mail.gmail.com>
+Date: Fri, 22 Jul 2005 22:47:30 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: mdew <some.nzguy@gmail.com>
+Subject: Re: HPT370 errors under 2.6.13-rc3-mm1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1c1c863605072219283716a131@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1c1c863605072219283716a131@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour writes:
- > 
- > Tom Zanussi wrote:
- > > - removed the deliver() callback
- > > - removed the relay_commit() function
- > 
- > This breaks LTT. Any reason why this needed to be removed? In the end,
- > the code will just end up being duplicated in ltt and all other users.
- > IOW, this is not some potential future use, but something that's
- > currently being used.
+Hi,
 
-Because I realized that like the padding and commit arrays, they're
-not really necessary.
+Does vanilla kernel 2.6.12 work for you?
+It doesn't contain hpt366 driver update.
 
-In all the examples, the padding is saved in space reserved at the
-beginning of the sub-buffer via subbuf_start_reserve(), except that
-now the padding is passed into the subbuf_start() callback rather than
-kept in an array.  The padding value passed in is then directly saved
-in the reserved padding space.
+Bartlomiej
 
-Similarly, in the case of the reserve/commit example, extra space is
-also reserved for the commit count using subbuf_start_reserve().
-After space for an event is reserved using relay_reserve() and
-completely written, the event length is added to that commit value.
-In userspace, the sub-buffer reading loop looks at the commit value in
-the sub-buffer, and if it matches (sub-buffer size - padding), the
-buffer has been completely written and can be saved, otherwise it's
-not yet complete and is checked again the next time around.  This way,
-there's no need for a deliver() callback, the relay_commit() is
-replaced with the increment of the reserved commit value, the arrays
-aren't needed and you get the same result in the end in a much simpler
-way, IMHO.
-
-But if you see a problem with it or have any suggestions to make it
-better/different, please let me know...
-
-Tom
-
-
+On 7/22/05, mdew <some.nzguy@gmail.com> wrote:
+> I'm unable to mount an ext2 drive using the hpt370A raid card.
+> 
+> upon mounting the drive, dmesg will spew these errors..I've tried
+> different cables and drive is fine.
+> 
+> Jul 23 01:30:11 localhost kernel: hdf: dma_timer_expiry: dma status == 0x41
+> Jul 23 01:30:21 localhost kernel: hdf: DMA timeout error
+> Jul 23 01:30:21 localhost kernel: hdf: dma timeout error: status=0x25
+> { DeviceFault CorrectedError Error }
+> Jul 23 01:30:21 localhost kernel: hdf: dma timeout error: error=0x25 {
+> DriveStatusError AddrMarkNotFound }, LBAsect=8830589412645,
+> high=526344, low=2434341, sector=390715711
+> Jul 23 01:30:21 localhost kernel: ide: failed opcode was: unknown
+> Jul 23 01:30:21 localhost kernel: hdf: DMA disabled
+> Jul 23 01:30:21 localhost kernel: ide2: reset: master: error (0x0a?)
+> Jul 23 01:30:21 localhost kernel: end_request: I/O error, dev hdf,
+> sector 390715711
+> Jul 23 01:30:21 localhost kernel: end_request: I/O error, dev hdf,
+> sector 390715712
+> [...]

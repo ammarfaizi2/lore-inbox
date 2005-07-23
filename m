@@ -1,111 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVGWWTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVGWWhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbVGWWTG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 18:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVGWWRY
+	id S261913AbVGWWhC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 18:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVGWWhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 18:17:24 -0400
-Received: from siaag2ab.compuserve.com ([149.174.40.132]:26622 "EHLO
-	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S261897AbVGWWPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 18:15:44 -0400
-Date: Sat, 23 Jul 2005 18:09:37 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 2.6.13-rc3] i386: add alternative_output() for
-  altinstructions
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200507231813_MC3-1-A560-460E@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Sat, 23 Jul 2005 18:37:02 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:54001 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261913AbVGWWhA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 18:37:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jyfHwQ3sOjrSOykyi10R8R7WLQce1UmKx8CjTe7kePD++/NHcu1wftJ3f6TGjP6BnRci6xSGH+P3yCkr4jdd3GE3R/mmgfz3MHPq24xEYlo3WzOtBaeuwNxSQFluDQVj0dlmjqB1o1VkK7V2XWYCZsLWuk0Ws3ZTUjqghsRAhjE=
+Message-ID: <21d7e9970507231537713eab0f@mail.gmail.com>
+Date: Sun, 24 Jul 2005 08:37:00 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] reset VGA adapters via BIOS on resume... (non-fbdev/con)
+Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
+In-Reply-To: <1122148537.27629.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <Pine.LNX.4.58.0507221942540.5475@skynet>
+	 <E1Dw6lc-0007IU-00@chiark.greenend.org.uk>
+	 <1122148537.27629.8.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> For Intel at least the recommendation is to use the BIOS "save
+> mode"/"restore mode" interface.
 
-This patch adds alternative_output() for altinstructions that
-have output.  Only one output is allowed.
+I'm going to see about implementing that on my PC when I get back to
+home, it doesn't seem like too bad an idea either...
 
-It also cleans up the comments for alternative_input().
+We are also going to provide some hooks out to userspace as well.. but
+I'd be interested in trying as many in-kernel solutions before going
+down that road...
 
-With this patch in place, I cleaned up the i387 save/restore in
-my local copy so it now looks like this:
-
-===================================================================
-static inline void restore_fpu( struct task_struct *tsk )
-{
-	alternative_input(
-		"frstor %1 ; nop",
-		"fxrstor %1",
-		X86_FEATURE_FXSR,
-		"m" (tsk->thread.i387.fxsave));
-}
-static inline void __save_init_fpu( struct task_struct *tsk )
-{
-	alternative_output(
-		"fnsave %0 ; nop ; fwait ; nop",
-		"fxsave %0 ; fnclex",
-		X86_FEATURE_FXSR,
-		"=m" (tsk->thread.i387.fxsave));
-	tsk->thread_info->status &= ~TS_USEDFPU;
-}
-===================================================================
-
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
-Index: 2.6.13-rc3a/include/asm-i386/system.h
-===================================================================
---- 2.6.13-rc3a.orig/include/asm-i386/system.h	2005-06-24 00:50:33.000000000 -0400
-+++ 2.6.13-rc3a/include/asm-i386/system.h	2005-07-23 15:36:02.000000000 -0400
-@@ -313,13 +313,13 @@
- 
- /*
-  * Alternative inline assembly with input.
-- * 
-- * Pecularities:
-- * No memory clobber here. 
-+ *
-+ * Peculiarities:
-+ * No memory clobber here.
-  * Argument numbers start with 1.
-  * Best is to use constraints that are fixed size (like (%1) ... "r")
-- * If you use variable sized constraints like "m" or "g" in the 
-- * replacement maake sure to pad to the worst case length.
-+ * If you use variable sized constraints like "m" or "g" in the
-+ * replacement make sure to pad to the worst case length.
-  */
- #define alternative_input(oldinstr, newinstr, feature, input...)		\
- 	asm volatile ("661:\n\t" oldinstr "\n662:\n"				\
-@@ -336,6 +336,27 @@
- 		      ".previous" :: "i" (feature), ##input)
- 
- /*
-+ * Alternative inline assembly with output.
-+ *
-+ * Same as alternative_input, except:
-+ *	No inputs.
-+ *	Only one output: 0.
-+ */
-+#define alternative_output(oldinstr, newinstr, feature, output...)		\
-+	asm volatile ("661:\n\t" oldinstr "\n662:\n"				\
-+		      ".section .altinstructions,\"a\"\n"			\
-+		      "  .align 4\n"						\
-+		      "  .long 661b\n"            /* label */			\
-+		      "  .long 663f\n"		  /* new instruction */ 	\
-+		      "  .byte %c1\n"             /* feature bit */		\
-+		      "  .byte 662b-661b\n"       /* sourcelen */		\
-+		      "  .byte 664f-663f\n"       /* replacementlen */ 		\
-+		      ".previous\n"						\
-+		      ".section .altinstr_replacement,\"ax\"\n"			\
-+		      "663:\n\t" newinstr "\n664:\n"   /* replacement */ 	\
-+		      ".previous" : output : "i" (feature))
-+
-+/*
-  * Force strict CPU ordering.
-  * And yes, this is required on UP too when we're talking
-  * to devices.
-__
-Chuck
+Dave.

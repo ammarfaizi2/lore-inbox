@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVGWMbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVGWMez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVGWMbh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 08:31:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVGWMbh
+	id S261569AbVGWMez (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 08:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVGWMez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 08:31:37 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12450 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261544AbVGWMbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 08:31:35 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "John Pearson" <john@illhostit.com>,
-       "Erik Mouw" <erik@harddisk-recovery.com>, "Ashley" <ashleyz@alchip.com>
-Subject: Re: Kernel cached memory
-Date: Sat, 23 Jul 2005 15:31:20 +0300
-User-Agent: KMail/1.5.4
-Cc: <linux-kernel@vger.kernel.org>
-References: <JCEEICIEKCENOEGFMGBACEAGCAAA.john@illhostit.com>
-In-Reply-To: <JCEEICIEKCENOEGFMGBACEAGCAAA.john@illhostit.com>
+	Sat, 23 Jul 2005 08:34:55 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:57025 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261569AbVGWMey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 08:34:54 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.12.3] dyntick 050610-1 breaks makes S3 suspend
+Date: Sat, 23 Jul 2005 14:35:04 +0200
+User-Agent: KMail/1.8.1
+Cc: Pavel Machek <pavel@ucw.cz>, Tony Lindgren <tony@atomide.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="koi8-r"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200507231531.20377.vda@ilport.com.ua>
+Message-Id: <200507231435.05015.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 23 July 2005 00:43, John Pearson wrote:
-> Wouldn't having (practically) all your memory used for cache slow down
-> starting a new program? First it would have to free up that space, and then
-> put stuff in that space, taking potentially twice as long. I think there
-> should be a system call for freeing cached memory, for those that do want to
-> do it.
+Hello,
 
-I think this one is good enough:
+I recently tried out dyntick 050610-1 against 2.6.12.3, works great, it 
+actually makes a noticeable difference on my laptop's battery life. I don't 
+have hard numbers, lets just say that instead of the usual ~3 hours i get out 
+of it, i was ~4 before it started nagging, usual use pattern at work.
 
-#include <stdlib.h>
+The only gripe I have with it that it stops S3 from working. If the patch is 
+compiled in the kernel, it makes S3 suspend correctly, but resuming goes into 
+a solid hang (nothing get's it back alive, have to keep the powerbutton for 
+~5 secs to shutdown the system)
 
-int main() {
-    void *p;
-    unsigned size = 1<<20;
-    unsigned long total=0;
-    while(size) {
-        p = malloc(size);
-        if(!p) size>>=1;
-        else {
-            memset(p, 0x77, size);
-            total+=size;
-            printf("Allocated %9u bytes, %12lu total\n",size,total);
-        }
-    }
-    return 0;
-}
+Anything I could test? The logs don't give anything useful..
 
-You may want to adapt it so that it takes an argument now many megabytes
-to eat before it dies.
---
-vda
+Thanks,
 
+Jan
+-- 
+Yow!  I'm having a quadrophonic sensation of two winos alone in a steel mill!

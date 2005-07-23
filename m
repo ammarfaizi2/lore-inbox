@@ -1,84 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVGWD4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262331AbVGWEaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262345AbVGWD4u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 23:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVGWD4u
+	id S262331AbVGWEaW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 00:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbVGWEaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 23:56:50 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:61452 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262345AbVGWD4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 23:56:49 -0400
-Date: Sat, 23 Jul 2005 05:56:43 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Blaisorblade <blaisorblade@yahoo.it>,
-       LKML <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       torvalds@osdl.org
-Subject: Re: Giving developers clue how many testers verified certain	kernel version
-Message-ID: <20050723035643.GD3160@stusta.de>
-References: <200507230244.11338.blaisorblade@yahoo.it> <42E1986B.8070202@linuxwireless.org> <1122088160.6510.7.camel@mindpipe> <42E1A832.7010604@linuxwireless.org>
+	Sat, 23 Jul 2005 00:30:22 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:22155 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262331AbVGWEaU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 00:30:20 -0400
+Subject: Re: [ckrm-tech] Re: 2.6.13-rc3-mm1 (ckrm)
+From: Matthew Helsley <matthltc@us.ibm.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44.0507221830350.29479-100000@coffee.psychology.mcmaster.ca>
+References: <Pine.LNX.4.44.0507221830350.29479-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain
+Date: Fri, 22 Jul 2005 21:19:57 -0700
+Message-Id: <1122092398.5242.326.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42E1A832.7010604@linuxwireless.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 22, 2005 at 09:15:14PM -0500, Alejandro Bonilla wrote:
-> Lee Revell wrote:
-> 
-> >On Fri, 2005-07-22 at 20:07 -0500, Alejandro Bonilla wrote:
+On Fri, 2005-07-22 at 20:23 -0400, Mark Hahn wrote:
+> > > actually, let me also say that CKRM is on a continuum that includes 
+> > > current (global) /proc tuning for various subsystems, ulimits, and 
+> > > at the other end, Xen/VMM's.  it's conceivable that CKRM could wind up
+> > > being useful and fast enough to subsume the current global and per-proc
+> > > tunables.  after all, there are MANY places where the kernel tries to 
+> > > maintain some sort of context to allow it to tune/throttle/readahead
+> > > based on some process-linked context.  "embracing and extending"
+> > > those could make CKRM attractive to people outside the mainframe market.
 > > 
-> >>I will get flames for this, but my laptop boots faster and sometimes 
-> >>responds faster in 2.4.27 than in 2.6.12. Sorry, but this is the fact 
-> >>for me. IBM T42.
-> >
-> >Sorry dude, but there's just no way that any automated process can catch
-> >these.
-> >
-> I'm not looking for an automated process for this. But for all in 
-> general, when moving from 2.6.11 to 2.6.12 or from any version to 
-> another. (At least in the same kernel branch)
->...
+> > 	Seems like an excellent suggestion to me! Yeah, it may be possible to
+> > maintain the context the kernel keeps on a per-class basis instead of
+> > globally or per-process. 
+> 
+> right, but are the CKRM people ready to take this on?  for instance,
+> I just grepped 'throttle' in kernel/mm and found a per-task RM in 
+> page-writeback.c.  it even has a vaguely class-oriented logic, since
+> it exempts RT tasks.  if CKRM can become a way to make this stuff 
+> cleaner and more effective (again, for normal tasks), then great.
+> but bolting on a big new different, intrusive mechanism that slows
+> down all normal jobs by 3% just so someone can run 10K mostly-idle
+> guests on a giant Power box, well, that's gross.
+> 
+> > The real question is what constitutes a useful
+> > "extension" :).
+> 
+> if CKRM is just extensions, I think it should be an external patch.
+> if it provides a path towards unifying the many disparate RM mechanisms
+> already in the kernel, great!
 
-You send:
-- a problem description X
-- tell that the last working kernel was Y
-- tell that it is broken in kernel Z
+OK, so if it provides a path towards unifying these, what should happen
+to the old interfaces when they conflict with those offered by CKRM?
 
-The probability of any kernel developer being interested in your problem 
-increases:
-- the better the description X is
-- the nearer versions Y and Z are together
-- the more recent version Y is
+For instance, I'm considering how a per-class (re)nice setting would
+work. What should happen when the user (re)nices a process to a
+different value than the nice of the process' class? Should CKRM:
 
-Ideally, you are able to say that patch A in the latest -mm kernel
-broke it.
+a) disable the old interface by
+	i) removing it
+	ii) return an error when CKRM is active
+	iii) return an error when CKRM has specified a nice value for the
+process via membership in a class
+	iv) return an error when the (re)nice value is inconsistent with the
+nice value assigned to the class
 
-It's perfectly OK to send a description X that says:
-- with version Y and the following workload B, everything is working
-  perfectly
-- with version Z and the same workload B, XMMS is stuttering
+b) trust the user, ignore the class nice value, and allow the new nice
+value
 
-If any kernel developer is interested in your bug report, he will tell 
-you which data might be interesting for debugging the problem.
+	I'd be tempted to do a.iv but it would require some modifications to a
+system call. b probably wouldn't require any modifications to non-CKRM
+files/dirs. 
 
-The problem is that debugging a problem often requires knowledge about 
-possible causes and changes between versions Y and Z in this area. Even 
-a kernel developer who perfectly knows one part of the kernel might not 
-be able to debug a problem in a completely different area of the kernel.
+	This sort of question would probably come up for any other CKRM
+"embraced-and-extended" tunables. Should they use the answer to this
+one, or would it go on a case-by-case basis?
 
-> .Alejandro
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Thanks,
+	-Matt Helsley
 

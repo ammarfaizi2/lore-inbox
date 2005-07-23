@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVGWArx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVGWAuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbVGWArx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 20:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVGWArw
+	id S261461AbVGWAuY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 20:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbVGWAuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 20:47:52 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30680 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262262AbVGWArv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 20:47:51 -0400
-Date: Sat, 23 Jul 2005 02:47:45 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reset VGA adapters via BIOS on resume... (non-fbdev/con)
-Message-ID: <20050723004745.GA7868@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.58.0507221942540.5475@skynet> <E1Dw6lc-0007IU-00@chiark.greenend.org.uk> <E1Dw6lc-0007IU-00@chiark.greenend.org.uk> <20050723003140.GB1988@elf.ucw.cz> <E1Dw80M-0001EG-00@chiark.greenend.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1Dw80M-0001EG-00@chiark.greenend.org.uk>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 22 Jul 2005 20:50:24 -0400
+Received: from warden3-p.diginsite.com ([208.147.64.186]:41160 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S261461AbVGWAuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 20:50:22 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrian Bunk <bunk@stusta.de>,
+       "H. Peter Anvin" <hpa@zytor.com>
+X-X-Sender: dlang@dlang.diginsite.com
+Date: Fri, 22 Jul 2005 17:50:03 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: Giving developers clue how many testers verified certain kernel
+ version
+In-Reply-To: <200507230244.11338.blaisorblade@yahoo.it>
+Message-ID: <Pine.LNX.4.62.0507221749260.23492@qynat.qvtvafvgr.pbz>
+References: <200507230244.11338.blaisorblade@yahoo.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 23 Jul 2005, Blaisorblade wrote:
 
-> > Unfortunately, if you only get printk() working after you ran
-> > userspace app... well it makes debugging things like SATA
-> > "interesting". So I quite like this patch.
-> 
-> Most interesting laptop vendors have at least one model in each range
-> with a serial port, which makes this sort of thing a bit easier. 
+> IMHO, I think that publishing statistics about kernel patches downloads would
+> be a very Good Thing(tm) to do. Peter, what's your opinion? I think that was
+> even talked about at Kernel Summit (or at least I thought of it there), but
+> I've not understood if this is going to happen.
 
-Well, we have debugged with beeps, but... It would be cool if someone
-got usb debug mode working but... and there are hardware debuggers.
+remember that most downloads will be from mirrors, and they don't get 
+stats from them.
 
-Anyway, this patch is really good, and enables S3 to work on more
-machines. Thats good. It is not intrusive and I'll probably (try to)
-push it.
+David Lang
 
-								Pavel
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

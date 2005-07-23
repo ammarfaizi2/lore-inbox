@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVGWWhC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVGWWkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbVGWWhC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 18:37:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVGWWhC
+	id S262053AbVGWWkE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 18:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVGWWkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 18:37:02 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:54001 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261913AbVGWWhA convert rfc822-to-8bit
+	Sat, 23 Jul 2005 18:40:04 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:50781 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262053AbVGWWkA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 18:37:00 -0400
+	Sat, 23 Jul 2005 18:40:00 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jyfHwQ3sOjrSOykyi10R8R7WLQce1UmKx8CjTe7kePD++/NHcu1wftJ3f6TGjP6BnRci6xSGH+P3yCkr4jdd3GE3R/mmgfz3MHPq24xEYlo3WzOtBaeuwNxSQFluDQVj0dlmjqB1o1VkK7V2XWYCZsLWuk0Ws3ZTUjqghsRAhjE=
-Message-ID: <21d7e9970507231537713eab0f@mail.gmail.com>
-Date: Sun, 24 Jul 2005 08:37:00 +1000
+        b=IRknVhYT0hkbux8fAk6FdDevyjuOkhid1ZungnZIKrS89Mu0WQJHdbtbLK1VSBm7URORHXRqXait5yS1SJLgZyWKuzgoboGLHVwUtu0/7oabJQq+t8r/+E7wG7u+a+FgXlD4ZK6XyYzrTjxOESWyCl5ddSZR+T0NKVdH3y4dSyE=
+Message-ID: <21d7e997050723154057d36290@mail.gmail.com>
+Date: Sun, 24 Jul 2005 08:40:00 +1000
 From: Dave Airlie <airlied@gmail.com>
 Reply-To: Dave Airlie <airlied@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] reset VGA adapters via BIOS on resume... (non-fbdev/con)
-Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
-In-Reply-To: <1122148537.27629.8.camel@localhost.localdomain>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: fix suspend/resume irq request free for yenta..
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Pavel Machek <pavel@ucw.cz>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       Dave Airlie <airlied@linux.ie>
+In-Reply-To: <Pine.LNX.4.61.0507230941280.16055@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <Pine.LNX.4.58.0507221942540.5475@skynet>
-	 <E1Dw6lc-0007IU-00@chiark.greenend.org.uk>
-	 <1122148537.27629.8.camel@localhost.localdomain>
+References: <Pine.LNX.4.58.0507222331580.15287@skynet>
+	 <200507221816.19424.dtor_core@ameritech.net>
+	 <20050723002924.GA1988@elf.ucw.cz>
+	 <20050723084049.A7921@flint.arm.linux.org.uk>
+	 <Pine.LNX.4.61.0507230941280.16055@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> For Intel at least the recommendation is to use the BIOS "save
-> mode"/"restore mode" interface.
+.
+> >
+> > What if some other driver is sharing the IRQ, and requires IRQs to be
+> > enabled for the resume to complete?
 
-I'm going to see about implementing that on my PC when I get back to
-home, it doesn't seem like too bad an idea either...
+All drivers re-enable IRQs on their way back up in their resume code,
+they shouldn't be doing anything before that point..
 
-We are also going to provide some hooks out to userspace as well.. but
-I'd be interested in trying as many in-kernel solutions before going
-down that road...
+> This certainly is the case on many laptops.
+
+Well at the moment on my laptop without this patch we don't make it
+back, and we've done a lot of talking at OLS about this.. patches like
+this will be popping up for most drivers soon....
 
 Dave.

@@ -1,62 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVGWVIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVGWV2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbVGWVIY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 17:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVGWVIY
+	id S261874AbVGWV2y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 17:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVGWV2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 17:08:24 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:1723 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S261683AbVGWVIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 17:08:23 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-Id: <200507232107.j6NL79OO012064@einhorn.in-berlin.de>
-Date: Sat, 23 Jul 2005 23:07:08 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [2.6 patch] drivers/ieee1394/sbp2.c: fix warnings with -Wundef
-To: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-cc: Adrian Bunk <bunk@stusta.de>
-In-Reply-To: <20050722214756.GY3160@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-X-Spam-Score: (-0.654) AWL,BAYES_00,MSGID_FROM_MTA_ID,UPPERCASE_25_50
+	Sat, 23 Jul 2005 17:28:54 -0400
+Received: from main.gmane.org ([80.91.229.2]:3563 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261874AbVGWV2x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 17:28:53 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-15?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: [cpufreq] ondemand works, conservative doesn't
+Date: Sat, 23 Jul 2005 23:25:04 +0200
+Message-ID: <dbucpq$7ti$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig8447C7DC0D9E309E12E97E5F"
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsl-082-083-000-189.arcor-ip.net
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: de-DE, de, en-us, en
+X-Enigmail-Version: 0.92.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jul, Adrian Bunk wrote:
-> drivers/ieee1394/sbp2.c:202:5: warning: "CONFIG_IEEE1394_SBP2_DEBUG" is not defined
-> drivers/ieee1394/sbp2.c:207:7: warning: "CONFIG_IEEE1394_SBP2_DEBUG" is not defined
-> drivers/ieee1394/sbp2.c:2053:6: warning: "CONFIG_IEEE1394_SBP2_DEBUG" is not defined
-> drivers/ieee1394/sbp2.c:2623:5: warning: "CONFIG_IEEE1394_SBP2_DEBUG" is not defined
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig8447C7DC0D9E309E12E97E5F
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-Here is a minimally improved version of the patch. I kept your sign-off.
+Hi,
 
-- - - - - - - - - - - - 8< - - - - - - - - - - - -
+currently, i'm using the ondemand governor. My CPU supports the
+frequencies 800, 1800 and 2000 MHz (AMD Athlon64 Desktop with
+Cool&Quiet). The simple bash commands
 
+  while true
+  do
+    true
+  done
 
-sbp2: fix compiler warnings with -Wundef
+cause 100% CPU usage, and the CPU immediatly switched from 800 to 2000MHz.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Using the conservative govenor, nothing happens. I would expect, that
+the cpu switches to 1800 and than to 2000 Mhz after some seconds of full
+CPU usage.
 
-Index: linux-2.6.13-rc3/drivers/ieee1394/sbp2.c
-===================================================================
---- linux-2.6.13-rc3/drivers/ieee1394/sbp2.c	(revision 1316)
-+++ linux-2.6.13-rc3/drivers/ieee1394/sbp2.c	(working copy)
-@@ -171,10 +171,12 @@
- 
- /* #define CONFIG_IEEE1394_SBP2_DEBUG_ORBS */
- /* #define CONFIG_IEEE1394_SBP2_DEBUG_DMA */
--/* #define CONFIG_IEEE1394_SBP2_DEBUG 1 */
--/* #define CONFIG_IEEE1394_SBP2_DEBUG 2 */
- /* #define CONFIG_IEEE1394_SBP2_PACKET_DUMP */
- 
-+/* increase to 1 for verbose logging, to 2 for even more logging */
-+#define CONFIG_IEEE1394_SBP2_DEBUG 0
-+
-+
- #ifdef CONFIG_IEEE1394_SBP2_DEBUG_ORBS
- #define SBP2_ORB_DEBUG(fmt, args...)	HPSB_ERR("sbp2(%s): "fmt, __FUNCTION__, ## args)
- static u32 global_outstanding_command_orbs = 0;
+What's wrong?
 
+My guess is, that the conservative govenor would need more frequencies
+between 800 and 1800MHz to work properly.
+
+Thx
+  Sven
+
+--------------enig8447C7DC0D9E309E12E97E5F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (Cygwin)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFC4rWw7Ww7FjRBE4ARAt8iAKCS2iWLPO4aMZSAm8kPvUkoAP0ImwCgmGrs
+j5gjKUgJS6kB0/O8C/8uKy8=
+=lArX
+-----END PGP SIGNATURE-----
+
+--------------enig8447C7DC0D9E309E12E97E5F--
 

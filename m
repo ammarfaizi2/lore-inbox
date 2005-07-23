@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVGWQFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVGWQTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbVGWQFy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 12:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVGWQFx
+	id S261800AbVGWQTI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 12:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVGWQTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 12:05:53 -0400
-Received: from [69.25.196.29] ([69.25.196.29]:42147 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261756AbVGWQFv (ORCPT
+	Sat, 23 Jul 2005 12:19:08 -0400
+Received: from pat.uio.no ([129.240.130.16]:2730 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261800AbVGWQTG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 12:05:51 -0400
-Date: Sat, 23 Jul 2005 11:25:46 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: "Amit S. Kale" <amitkale@linsyssoft.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CheckFS: Checkpoints and Block Level Incremental Backup (BLIB)
-Message-ID: <20050723152546.GA15218@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	"Amit S. Kale" <amitkale@linsyssoft.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200507231130.07208.amitkale@linsyssoft.com>
+	Sat, 23 Jul 2005 12:19:06 -0400
+Subject: Re: HELP: NFS mount hangs when attempting to copy file
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Timothy Miller <theosib@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9871ee5f050720155671cbc376@mail.gmail.com>
+References: <9871ee5f050720155671cbc376@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 23 Jul 2005 12:18:52 -0400
+Message-Id: <1122135532.8203.5.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507231130.07208.amitkale@linsyssoft.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-7.82, required 12,
+	autolearn=disabled, ALL_TRUSTED -2.82, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 23, 2005 at 11:30:07AM +0530, Amit S. Kale wrote:
+on den 20.07.2005 Klokka 18:56 (-0400) skreiv Timothy Miller:
+> My research suggests that NFS client mounting is kernel-based, so
+> that's why I'm posting here.  If there's a more appropriate list to
+> post to, I apologise, but I am not a list member.
 > 
-> We started it from 2.6.7 last year and then it was sitting idle for several 
-> months for lack of resources. We'll go back to that version and generate a 
-> diff that's easier to read.
+> I'm having a bit of a problem doing simple copies over an NFS mount. 
+> The client is running Linux (2.6.11), and the server is running
+> Solaris (5.8).
 > 
-> Yes, changing the name has made the task of rebasing wrt. changing kernels lot 
-> difficult. Our original intention was to make testing easier by keeping ext3 
-> and checkfs filesystems in the same kernel. Had we continued it at that 
-> point, we would have posted differences wrt. ext3 sources themselves. There 
-> was compelling reason to change the name.
+> When I first boot the client, getting NFS directory listings works
+> just fine.  But the instant I try to copy a file (to or from), the NFS
+> mount hangs.  While I can still do other network activity (even rlogin
+> to the server), any NFS access I try to do after that point hangs,
+> including directory listings.
+> 
+> I have had this same client and server working flawlessly for years. 
+> The only change is that the client is now on a VPN (Watchguard SOHO
+> box).  However, I have a Sun machine on the same VPN network segment,
+> and it can copy files with no problem, so it's not the router/SOHO
+> that's blocking anything.  (NIS and DNS also work just fine for both
+> machines.)
 
-One easier way of doing development, particularly for people doing
-filesystem work, is to compile the kernel with the test filesystem
-code using user-mode linux (UML) architecture.  This significantly
-shortens your edit-compile-debug cycle time, and it makes it easier to
-run your filesystem code under a debugger.  That way you also don't
-have to worry about your filesystem changes toasting your system,
-either.  This technique doesn't work all that well for people doing
-architecture-specific code or for device drivers, but for filesystems,
-it's ideal.
+I beg to disagree. A lot of these VPN solutions are unfriendly to MTU
+path discovery over UDP. Sun uses TCP by default when mounting NFS
+partitions. Have you tried this on your Linux box?
 
-Regards,
+Cheers,
+  Trond
 
-						- Ted
+> Also, after it hangs like that, I cannot reboot the machine normally. 
+> When attempting to unmount the network filesystems, the shutdown
+> hangs, and I have to hard-reset the machine.
+>  
+> Is there anyone who could please help me to debug this problem?  As
+> far as I know, I have NFS setup properly, but I don't know enough
+> about it to know what options I might try.  I don't even care if the
+> fix degrades performance; I just want it to not hang.
+> 
+> Does anyone have any ideas? 
+>  
+> Thanks very much in advance!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

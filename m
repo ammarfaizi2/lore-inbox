@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVGWV2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVGWWDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbVGWV2y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 17:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVGWV2y
+	id S261895AbVGWWDL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 18:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVGWWDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 17:28:54 -0400
-Received: from main.gmane.org ([80.91.229.2]:3563 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261874AbVGWV2x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 17:28:53 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-15?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Subject: [cpufreq] ondemand works, conservative doesn't
-Date: Sat, 23 Jul 2005 23:25:04 +0200
-Message-ID: <dbucpq$7ti$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig8447C7DC0D9E309E12E97E5F"
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsl-082-083-000-189.arcor-ip.net
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: de-DE, de, en-us, en
-X-Enigmail-Version: 0.92.0.0
+	Sat, 23 Jul 2005 18:03:11 -0400
+Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:57335 "EHLO
+	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261895AbVGWWDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 18:03:09 -0400
+Message-ID: <00d501c58fd2$50d11130$2800000a@pc365dualp2>
+From: <cutaway@bellsouth.net>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Adrian Bunk" <bunk@stusta.de>, <linux-kernel@vger.kernel.org>
+References: <42E14134.1040804@yahoo.co.uk> <20050722201416.GM3160@stusta.de> <01bd01c58f50$0998c650$2800000a@pc365dualp2> <1122148237.27629.1.camel@localhost.localdomain>
+Subject: Re: kernel optimization
+Date: Sat, 23 Jul 2005 18:03:02 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig8447C7DC0D9E309E12E97E5F
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+I submit that sparse switch jump table's are not an "unusual" construct in
+the Linux kernel/drivers.  GCC only creates a table large enough to cover
+the largest of the sparse values - it doesn't have to be 0...255.  0...60
+with 10 values sparsely scattered would generate a 61 element jump table.
 
-Hi,
+There's many K of locked memory in these sparse jump tables.  About 2K worth
+in the VT102 code alone.
 
-currently, i'm using the ondemand governor. My CPU supports the
-frequencies 800, 1800 and 2000 MHz (AMD Athlon64 Desktop with
-Cool&Quiet). The simple bash commands
+----- Original Message ----- 
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: <cutaway@bellsouth.net>
+Cc: "Adrian Bunk" <bunk@stusta.de>; <linux-kernel@vger.kernel.org>
+Sent: Saturday, July 23, 2005 15:50
+Subject: Re: kernel optimization
 
-  while true
-  do
-    true
-  done
 
-cause 100% CPU usage, and the CPU immediatly switched from 800 to 2000MHz.
-
-Using the conservative govenor, nothing happens. I would expect, that
-the cpu switches to 1800 and than to 2000 Mhz after some seconds of full
-CPU usage.
-
-What's wrong?
-
-My guess is, that the conservative govenor would need more frequencies
-between 800 and 1800MHz to work properly.
-
-Thx
-  Sven
-
---------------enig8447C7DC0D9E309E12E97E5F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Cygwin)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFC4rWw7Ww7FjRBE4ARAt8iAKCS2iWLPO4aMZSAm8kPvUkoAP0ImwCgmGrs
-j5gjKUgJS6kB0/O8C/8uKy8=
-=lArX
------END PGP SIGNATURE-----
-
---------------enig8447C7DC0D9E309E12E97E5F--
+> On Sad, 2005-07-23 at 02:30 -0400, cutaway@bellsouth.net wrote:
+> > Larger does not always mean slower.  If it did, nobody would implement a
+> > loop unrolling optimization.
+>
+> Generally speaking nowdays it does. Almost all loop unrolls are a loss
+> on PIV.
+>
+> > ex. Look at how GCC generates jump tables for switch() when there's
+about
+> > 10-12 (or more) case's sparsely scattered in the rage from 0 through
+255.
+>
+> You are comparing with very expensive jump operations its an unusual
+> case. For the majority of situations the TLB/cache overhead of misses
+> vastly outweighs the odd clock cycle gained by verbose output.
+>
+>
 

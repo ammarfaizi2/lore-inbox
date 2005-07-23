@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVGWAi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVGWAl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbVGWAi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 20:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVGWAgE
+	id S262268AbVGWAl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 20:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVGWAjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 20:36:04 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:61143 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262256AbVGWAfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 20:35:48 -0400
-Date: Sat, 23 Jul 2005 02:35:44 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3: swsusp works (TP 600X)
-Message-ID: <20050723003544.GC1988@elf.ucw.cz>
-References: <E1Dw7ja-0002Ge-EF@approximate.corpus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1Dw7ja-0002Ge-EF@approximate.corpus.cam.ac.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Fri, 22 Jul 2005 20:39:01 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:51342 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S262263AbVGWAgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 20:36:40 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reset VGA adapters via BIOS on resume... (non-fbdev/con)
+In-Reply-To: <20050723003140.GB1988@elf.ucw.cz>
+References: <Pine.LNX.4.58.0507221942540.5475@skynet> <E1Dw6lc-0007IU-00@chiark.greenend.org.uk> <E1Dw6lc-0007IU-00@chiark.greenend.org.uk> <20050723003140.GB1988@elf.ucw.cz>
+Date: Sat, 23 Jul 2005 01:36:38 +0100
+Message-Id: <E1Dw80M-0001EG-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pavel Machek <pavel@ucw.cz> wrote:
 
-> swsusp now mostly works on my TP 600X.  If I don't eject the pcmcia card
-> (usually a prism54 wireless card), swsusp begins the process of
-> hibernation, but never gets to the writing pages part.  The eth0 somehow
-> tries to reload the firmware (as if it's been woken up), and then
-> everything hangs.  If I eject the card and (for safety) stop
-> /etc/init.d/pcmcia, then swsusp writes out the memory to swap, and
-> waking up works fine.  Thanks for all the improvements!
-> 
-> Is there debugging I can do in order to help get the pcmcia system
-> hibernating automagically?
+> Unfortunately, if you only get printk() working after you ran
+> userspace app... well it makes debugging things like SATA
+> "interesting". So I quite like this patch.
 
-Well, it really may be the firmware loading. Add some printks to
-confirm it, then fix it.
+Most interesting laptop vendors have at least one model in each range
+with a serial port, which makes this sort of thing a bit easier. 
 
-> One other glitch is that pdnsd (a nameserver caching daemon) has crashed
-> when the system wakes up from swsusp.  It also happens when waking up
-> from S3, which was working with 2.6.11.4 although not with 2.6.13-rc3.
-> Many people have said mysql also does not suspend well.  Is their use of
-> a named pipe or socket causing the problem?
+> If your BIOS does something wrong, well... your machine crashes.
 
-No idea, strace?
-									Pavel
+I think it's hard to define it as "something wrong" - there's no reason
+for BIOS authors to support the OS calling BIOS setup code after the
+machine has booted. Thinkpads seem to manage this fine, Sonys tend to be
+less good at it. Using the VBE mode setting code tends to be more
+reliable, and is pretty much guaranteed to be there even after boot.
+
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

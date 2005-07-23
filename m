@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVGWHIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVGWHJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbVGWHIa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 03:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVGWHIa
+	id S261548AbVGWHJU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 03:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVGWHJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 03:08:30 -0400
-Received: from f23.mail.ru ([194.67.57.149]:5636 "EHLO f23.mail.ru")
-	by vger.kernel.org with ESMTP id S261542AbVGWHI3 (ORCPT
+	Sat, 23 Jul 2005 03:09:19 -0400
+Received: from f7.mail.ru ([194.67.57.37]:61707 "EHLO f7.mail.ru")
+	by vger.kernel.org with ESMTP id S261548AbVGWHIe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 03:08:29 -0400
+	Sat, 23 Jul 2005 03:08:34 -0400
 From: =?koi8-r?Q?=E9=C7=CF=D2=D8=20=E2=CF=C7=CF=CD=C1=DA=CF=D7?= 
 	<ygrex@mail.ru>
 To: linux-kernel@vger.kernel.org
@@ -16,23 +16,23 @@ Subject: PROBLEM: Opaque kernel bug in work with bzip2(=?koi8-r?Q?=3F?=)
 Mime-Version: 1.0
 X-Mailer: mPOP Web-Mail 2.19
 X-Originating-IP: 192.168.1.133 via proxy [195.208.236.2]
-Date: Sat, 23 Jul 2005 11:08:28 +0400
+Date: Sat, 23 Jul 2005 11:08:33 +0400
 Reply-To: =?koi8-r?Q?=E9=C7=CF=D2=D8=20=E2=CF=C7=CF=CD=C1=DA=CF=D7?= 
 	  <ygrex@mail.ru>
 Content-Type: multipart/mixed;
-	boundary="----AGlNwH8Z-D1ShqWVWOlhrOXUS:1122102508"
-Message-Id: <E1DwE7Y-000D1o-00.ygrex-mail-ru@f23.mail.ru>
+	boundary="----AGlNwH8Z-SaYyskZ7URLVQNOX:1122102513"
+Message-Id: <E1DwE7d-0000k0-00.ygrex-mail-ru@f7.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-------AGlNwH8Z-D1ShqWVWOlhrOXUS:1122102508
+------AGlNwH8Z-SaYyskZ7URLVQNOX:1122102513
 Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 8bit
 
 The letter itself is in an attached file.
 
-------AGlNwH8Z-D1ShqWVWOlhrOXUS:1122102508
+------AGlNwH8Z-SaYyskZ7URLVQNOX:1122102513
 Content-Type: text/plain; name="kernel.txt"
 Content-Disposition: attachment; filename="kernel.txt"
 Content-Transfer-Encoding: base64
@@ -183,4 +183,4 @@ bGludXgtMi42LjEyIChnemlwcGVkOikgYW5kIHRoZSBsYXN0IGJ6aXAyIGFuZCB0ZXN0CnRoZW0g
 dG9nZXRoZXIuIEknbGwgaW5mb3JtIHlvdSBvZiBhbnkga2VybmVsIGNyYXNoZXMuCgoKT2JsaWdl
 ZGx5IHlvdXJzCgpJZ29yCgo=
 
-------AGlNwH8Z-D1ShqWVWOlhrOXUS:1122102508--
+------AGlNwH8Z-SaYyskZ7URLVQNOX:1122102513--

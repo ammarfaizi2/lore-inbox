@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVGWT1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVGWT3B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbVGWT1s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 15:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVGWT1s
+	id S261807AbVGWT3B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 15:29:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVGWT3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 15:27:48 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:985 "EHLO
+	Sat, 23 Jul 2005 15:29:00 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:1497 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261807AbVGWT1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 15:27:46 -0400
-Subject: Re: HPT370 errors under 2.6.13-rc3-mm1
+	id S261807AbVGWT2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 15:28:03 -0400
+Subject: Re: kernel optimization
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: mdew <some.nzguy@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <58cb370e0507221947c1b88a4@mail.gmail.com>
-References: <1c1c863605072219283716a131@mail.gmail.com>
-	 <58cb370e0507221947c1b88a4@mail.gmail.com>
+To: cutaway@bellsouth.net
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <01bd01c58f50$0998c650$2800000a@pc365dualp2>
+References: <42E14134.1040804@yahoo.co.uk> <20050722201416.GM3160@stusta.de>
+	 <01bd01c58f50$0998c650$2800000a@pc365dualp2>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sat, 23 Jul 2005 20:52:22 +0100
-Message-Id: <1122148342.27629.4.camel@localhost.localdomain>
+Date: Sat, 23 Jul 2005 20:50:36 +0100
+Message-Id: <1122148237.27629.1.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-07-22 at 22:47 -0400, Bartlomiej Zolnierkiewicz wrote:
-> Hi,
-> 
-> Does vanilla kernel 2.6.12 work for you?
-> It doesn't contain hpt366 driver update.
+On Sad, 2005-07-23 at 02:30 -0400, cutaway@bellsouth.net wrote:
+> Larger does not always mean slower.  If it did, nobody would implement a
+> loop unrolling optimization.
 
-Its nothing to do with the driver. Read the trace Bartlomiej
+Generally speaking nowdays it does. Almost all loop unrolls are a loss
+on PIV.
 
-> > Jul 23 01:30:21 localhost kernel: hdf: dma timeout error: status=0x25
-> > { DeviceFault CorrectedError Error }
-> > Jul 23 01:30:21 localhost kernel: hdf: dma timeout error: error=0x25 {
-> > DriveStatusError AddrMarkNotFound }, LBAsect=8830589412645,
-> > high=526344, low=2434341, sector=390715711
+> ex. Look at how GCC generates jump tables for switch() when there's about
+> 10-12 (or more) case's sparsely scattered in the rage from 0 through 255.
 
+You are comparing with very expensive jump operations its an unusual
+case. For the majority of situations the TLB/cache overhead of misses
+vastly outweighs the odd clock cycle gained by verbose output.
 
-It timed out because the drive took a very long time to recover a bad
-address mark but was able to do so.
 

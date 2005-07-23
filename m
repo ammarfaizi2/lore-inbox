@@ -1,75 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVGWXpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVGWXsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262089AbVGWXpj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 19:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVGWXpj
+	id S262067AbVGWXsR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 19:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVGWXsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 19:45:39 -0400
-Received: from pop.gmx.net ([213.165.64.20]:22945 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262089AbVGWXpf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 19:45:35 -0400
-X-Authenticated: #2813124
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: Dave Airlie <airlied@linux.ie>
-Subject: Re: fix suspend/resume irq request free for yenta..
-Date: Sun, 24 Jul 2005 01:46:29 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org,
-       Dominik Brodowski <linux@dominikbrodowski.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 23 Jul 2005 19:48:16 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:25325 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262067AbVGWXsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 19:48:15 -0400
+Date: Sat, 23 Jul 2005 16:48:02 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: torvalds@osdl.org, rlrevell@joe-job.com, cw@f00f.org, akpm@osdl.org,
+       len.brown@intel.com, dtor_core@ameritech.net, vojtech@suse.cz,
+       david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
+       linux-kernel@vger.kernel.org, mbligh@mbligh.org, diegocg@gmail.com,
+       azarah@nosferatu.za.org, christoph@lameter.com
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+Message-Id: <20050723164802.70b51b8a.rdunlap@xenotime.net>
+In-Reply-To: <42D731A4.40504@gmail.com>
+References: <42D3E852.5060704@mvista.com>
+	<42D540C2.9060201@tmr.com>
+	<Pine.LNX.4.62.0507131022230.11024@qynat.qvtvafvgr.pbz>
+	<20050713184227.GB2072@ucw.cz>
+	<Pine.LNX.4.58.0507131203300.17536@g5.osdl.org>
+	<1121282025.4435.70.camel@mindpipe>
+	<d120d50005071312322b5d4bff@mail.gmail.com>
+	<1121286258.4435.98.camel@mindpipe>
+	<20050713134857.354e697c.akpm@osdl.org>
+	<20050713211650.GA12127@taniwha.stupidest.org>
+	<9a874849050714170465c979c3@mail.gmail.com>
+	<1121386505.4535.98.camel@mindpipe>
+	<Pine.LNX.4.58.0507141718350.19183@g5.osdl.org>
+	<42D731A4.40504@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507240146.30670.daniel.ritz@gmx.ch>
-X-Y-GMX-Trusted: 0
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+On Fri, 15 Jul 2005 05:46:44 +0200 Jesper Juhl wrote:
 
-the patch is wrong. yenta_request_irq() registers the wrong handler.
-plus yenta_probe_cb_irq() has nothing to do with suspend/resume
-(besides it frees the irq in the very same function). correct patch below.
+> +static int __init jiffies_increment_setup(char *str)
+> +{
+> +	printk(KERN_NOTICE "setting up jiffies_increment : ");
+> +	if (str) {
+> +		printk("kernel_hz = %s, ", str);
+> +	} else {
+> +		printk("kernel_hz is unset, ");
+> +	}
+> +	if (!strncmp("100", str, 3)) {
 
-somebody cares to explain me why the free_irq() is necessary before
-a suspend?
+BTW, if someone enters "kernel_hz=1000", this check (above) for "100"
+matches (detects) 100, not 1000.
 
-rgds
--daniel
+> +		jiffies_increment = 10;
+> +		printk("jiffies_increment set to 10, effective HZ will be 100\n");
+> +	} else if (!strncmp("250", str, 3)) {
+> +		jiffies_increment = 4;
+> +		printk("jiffies_increment set to 4, effective HZ will be 250\n");
+> +	} else {
+> +		jiffies_increment = 1;
+> +		printk("jiffies_increment set to 1, effective HZ will be 1000\n");
+> +	}
+> +
+> +	return 1;
+> +}
 
----------------
-
-[PATCH] yenta: free_irq() on suspend.
-
-Resume doesn't seem to work without.
-
-Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
-
-diff --git a/drivers/pcmcia/yenta_socket.c b/drivers/pcmcia/yenta_socket.c
---- a/drivers/pcmcia/yenta_socket.c
-+++ b/drivers/pcmcia/yenta_socket.c
-@@ -1107,6 +1107,8 @@ static int yenta_dev_suspend (struct pci
- 		pci_read_config_dword(dev, 17*4, &socket->saved_state[1]);
- 		pci_disable_device(dev);
- 
-+		free_irq(dev->irq, socket);
-+
- 		/*
- 		 * Some laptops (IBM T22) do not like us putting the Cardbus
- 		 * bridge into D3.  At a guess, some other laptop will
-@@ -1132,6 +1134,13 @@ static int yenta_dev_resume (struct pci_
- 		pci_enable_device(dev);
- 		pci_set_master(dev);
- 
-+		if (socket->cb_irq)
-+			if (request_irq(socket->cb_irq, yenta_interrupt,
-+			                SA_SHIRQ, "yenta", socket)) {
-+				printk(KERN_WARNING "Yenta: request_irq() failed on resume!\n");
-+				socket->cb_irq = 0;
-+			}
-+
- 		if (socket->type && socket->type->restore_state)
- 			socket->type->restore_state(socket);
- 	}
+---
+~Randy

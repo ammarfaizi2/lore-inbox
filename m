@@ -1,88 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVGWLmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVGWLuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVGWLmH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 07:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVGWLmG
+	id S261298AbVGWLuq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 07:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVGWLuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 07:42:06 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:45832 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261188AbVGWLmF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 07:42:05 -0400
-Message-ID: <42E22D0C.1010608@domdv.de>
-Date: Sat, 23 Jul 2005 13:42:04 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.6.13rc3: RLIMIT_RTPRIO broken
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------090305000603040503020101"
+	Sat, 23 Jul 2005 07:50:46 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:59739 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261298AbVGWLuo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 07:50:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Lu+jepc9ZfQDoYB8ta4UQYE0dtSvf+l6qrT3FNlAYAxHHhSv4QBgymVDkqahiyXcSUv7SWgttq6GnbgxQ5VoE0qzuOrBHOR9g6LPm1GxvtL0nNGZz9aWUSVgwiXk60moj+E8vlNpYskX+6mKi+QAWJYzbff0EYtLuEiITBl7Mr4=
+Message-ID: <1c1c863605072304502cc25424@mail.gmail.com>
+Date: Sat, 23 Jul 2005 23:50:43 +1200
+From: mdew <some.nzguy@gmail.com>
+Reply-To: mdew <some.nzguy@gmail.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: HPT370 errors under 2.6.13-rc3-mm1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <58cb370e0507221947c1b88a4@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1c1c863605072219283716a131@mail.gmail.com>
+	 <58cb370e0507221947c1b88a4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090305000603040503020101
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+looks like 2.6.12 does the same sort of thing..
 
-RLIMIT_RTPRIO is supposed to grant non privileged users the right to use
-SCHED_FIFO/SCHED_RR scheduling policies with priorites bounded by the
-RLIMIT_RTPRIO value via sched_setscheduler(). This is usually used by
-audio users.
 
-Unfortunately this is broken in 2.6.13rc3 as you can see in the excerpt
-from sched_setscheduler below:
-
-        /*
-         * Allow unprivileged RT tasks to decrease priority:
-         */
-        if (!capable(CAP_SYS_NICE)) {
-                /* can't change policy */
-                if (policy != p->policy)
-                        return -EPERM;
-
-After the above unconditional test which causes sched_setscheduler to
-fail with no regard to the RLIMIT_RTPRIO value the following check is made:
-
-               /* can't increase priority */
-                if (policy != SCHED_NORMAL &&
-                    param->sched_priority > p->rt_priority &&
-                    param->sched_priority >
-                                p->signal->rlim[RLIMIT_RTPRIO].rlim_cur)
-                        return -EPERM;
-
-Thus I do believe that the RLIMIT_RTPRIO value must be taken into
-account for the policy check, especially as the RLIMIT_RTPRIO limit is
-of no use without this change.
-
-The attached patch fixes this problem. I would appreciate it if the fix
-would make it into 2.6.13.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
-
---------------090305000603040503020101
-Content-Type: text/plain;
- name="2.6.13rc3-rtprio.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.6.13rc3-rtprio.patch"
-
---- linux.orig/kernel/sched.c	2005-07-22 19:45:05.000000000 +0200
-+++ linux/kernel/sched.c	2005-07-22 19:45:42.000000000 +0200
-@@ -3528,7 +3528,8 @@
- 	 */
- 	if (!capable(CAP_SYS_NICE)) {
- 		/* can't change policy */
--		if (policy != p->policy)
-+		if (policy != p->policy &&
-+			!p->signal->rlim[RLIMIT_RTPRIO].rlim_cur)
- 			return -EPERM;
- 		/* can't increase priority */
- 		if (policy != SCHED_NORMAL &&
-
---------------090305000603040503020101--
+On 7/23/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+> Hi,
+> 
+> Does vanilla kernel 2.6.12 work for you?
+> It doesn't contain hpt366 driver update.
+> 
+> Bartlomiej
+> 
+> On 7/22/05, mdew <some.nzguy@gmail.com> wrote:
+> > I'm unable to mount an ext2 drive using the hpt370A raid card.
+> >
+> > upon mounting the drive, dmesg will spew these errors..I've tried
+> > different cables and drive is fine.
+> >
+> > Jul 23 01:30:11 localhost kernel: hdf: dma_timer_expiry: dma status == 0x41
+> > Jul 23 01:30:21 localhost kernel: hdf: DMA timeout error
+> > Jul 23 01:30:21 localhost kernel: hdf: dma timeout error: status=0x25
+> > { DeviceFault CorrectedError Error }
+> > Jul 23 01:30:21 localhost kernel: hdf: dma timeout error: error=0x25 {
+> > DriveStatusError AddrMarkNotFound }, LBAsect=8830589412645,
+> > high=526344, low=2434341, sector=390715711
+> > Jul 23 01:30:21 localhost kernel: ide: failed opcode was: unknown
+> > Jul 23 01:30:21 localhost kernel: hdf: DMA disabled
+> > Jul 23 01:30:21 localhost kernel: ide2: reset: master: error (0x0a?)
+> > Jul 23 01:30:21 localhost kernel: end_request: I/O error, dev hdf,
+> > sector 390715711
+> > Jul 23 01:30:21 localhost kernel: end_request: I/O error, dev hdf,
+> > sector 390715712
+> > [...]
+>

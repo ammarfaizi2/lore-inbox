@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVGWRC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVGWRIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbVGWRC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 13:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbVGWRC0
+	id S262360AbVGWRIM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 13:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVGWRIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 13:02:26 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:55214 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261863AbVGWRCZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 13:02:25 -0400
-Date: Sat, 23 Jul 2005 19:01:57 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
-Subject: Re: [PATCH] Add schedule_timeout_{interruptible,uninterruptible}{,_msecs}()
- interfaces
-In-Reply-To: <20050723163753.GC4951@us.ibm.com>
-Message-ID: <Pine.LNX.4.61.0507231854180.3728@scrub.home>
-References: <20050707213138.184888000@homer> <20050708160824.10d4b606.akpm@osdl.org>
- <20050723002658.GA4183@us.ibm.com> <1122078715.5734.15.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507231247460.3743@scrub.home> <1122116986.3582.7.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507231340070.3743@scrub.home> <20050723163753.GC4951@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 23 Jul 2005 13:08:12 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5906 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262066AbVGWRIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 13:08:11 -0400
+Date: Sat, 23 Jul 2005 19:08:04 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/net/hamradio/: cleanups
+Message-ID: <20050723170804.GG3160@stusta.de>
+References: <20050502014637.GQ3592@stusta.de> <42BF2BA9.8060502@pobox.com> <20050626155318.7f065d5b.rdunlap@xenotime.net> <42BF337D.1050904@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42BF337D.1050904@pobox.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, 23 Jul 2005, Nishanth Aravamudan wrote:
-
-> 	set_current_state(TASK_{,UN}INTERRUPTIBLE);
-> 	schedule_timeout(msecs_to_jiffies(some_constant_msecs));
+On Sun, Jun 26, 2005 at 07:00:13PM -0400, Jeff Garzik wrote:
+> randy_dunlap wrote:
+> >On Sun, 26 Jun 2005 18:26:49 -0400 Jeff Garzik wrote:
+> >
+> >| Adrian Bunk wrote:
+> >| > This patch contains the following cleanups:
+> >| > - dmascc.c: remove the unused global function dmascc_setup
+> >| 
+> >| Better to use it, then remove it.
+> >
+> >                    than ??
 > 
-> just have an interface that allows
-> 
-> 	schedule_timeout_msecs_{,un}interruptible(some_constant_msecs);
-> 
-> and push the jiffies conversion to common code?
+> Yes.  Use it via __setup() or similar.
 
-What's wrong with just:
+Hi Jeff,
 
-	schedule_timeout_{,un}interruptible(msecs_to_jiffies(some_constant_msecs));
+I still haven't gotten any answer from you regarding the following 
+question:
 
-The majority of users use a constant, which can already be converted at 
-compile tile.
-Additionally such an interface also had to return a ms value and instead 
-of that constant conversion, the user is better off to work with jiffies 
-directly.
+Can you give me a hint how it should be used?
 
-bye, Roman
+Why doesn't dmascc_init together with the MODULE_PARM(io,...) work in
+the non-modular case?
+
+> 	Jeff
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

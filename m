@@ -1,82 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVGWULk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVGWUM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbVGWULk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 16:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVGWULk
+	id S261889AbVGWUM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 16:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVGWULl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 16:11:40 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:44524 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261652AbVGWULj (ORCPT
+	Sat, 23 Jul 2005 16:11:41 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:44268 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261581AbVGWULj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 23 Jul 2005 16:11:39 -0400
-Date: Sat, 23 Jul 2005 21:54:11 +0200
+Date: Sat, 23 Jul 2005 22:11:13 +0200
 From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: akpm@osdl.org, greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] pcibios_bus_to_resource for parisc [Was: Re: [PATCH 8/8] pci and yenta: pcibios_bus_to_resource]
-Message-ID: <20050723195411.GC11065@dominikbrodowski.de>
-Mail-Followup-To: Grant Grundler <grundler@parisc-linux.org>,
-	akpm@osdl.org, greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
+To: Noah Misch <noah@cs.caltech.edu>
+Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13-rc3] pcmcia: pcmcia_request_irq for !IRQ_HANDLE_PRESENT
+Message-ID: <20050723201113.GA12537@dominikbrodowski.de>
+Mail-Followup-To: Noah Misch <noah@cs.caltech.edu>,
 	linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20050711222138.GH30827@isilmar.linta.de> <20050718194216.GC11016@colo.lackof.org>
+References: <20050717035124.GC13529@orchestra.cs.caltech.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050718194216.GC11016@colo.lackof.org>
+In-Reply-To: <20050717035124.GC13529@orchestra.cs.caltech.edu>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 18, 2005 at 01:42:16PM -0600, Grant Grundler wrote:
-> On Tue, Jul 12, 2005 at 12:21:38AM +0200, Dominik Brodowski wrote:
-> > In yenta_socket, we default to using the resource setting of the CardBus
-> > bridge. However, this is a PCI-bus-centric view of resources and thus
-> > needs to be converted to generic resources first. Therefore, add a call
-> > to pcibios_bus_to_resource() call in between. This function is a mere
-> > wrapper on x86 and friends, however on some others it already exists, is
-> > added in this patch (alpha, arm, ppc, ppc64) or still needs to be 
-> > provided (parisc -- where is its pcibios_resource_to_bus() ?).
+Hi,
+
+> When a driver calls pcmcia_request_irq with IRQ_HANDLE_PRESENT unset, it looks
+> for an open IRQ by request_irq()ing with a dummy handler and NULL dev_info.
+> free_irq uses dev_info as a key for identifying the handler to free among those
+> sharing an IRQ, so request_irq returns -EINVAL if dev_info is NULL and the IRQ
+> may be shared.  That unknown error code is the -EINVAL.
 > 
-> in arch/parisc/kernel/pci.c?
-> At least, it seems to be present in the 2.6.13-rc1 tree
-> on cvs.parisc-linux.org tree.
+> It looks like only pcnet_cs and axnet_cs are affected.  Most other drivers let
+> pcmcia_request_irq install their interrupt handlers.  sym53c500_cs requests its
+> IRQ manually, but it cannot share an IRQ.
+> 
+> The appended patch changes pcmcia_request_irq to pass an arbitrary, unique,
+> non-NULL dev_info with the dummy handler.
 
-Oh, yes, I seem to have missed it. Sorry. Does this patch look good?
+Thanks for the excellent debugging. Your patch seems to work, however it
+might be better to do just this:
 
-
-Add pcibios_bus_to_resource for parisc.
-
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
-
-Index: 2.6.13-rc3-git2/arch/parisc/kernel/pci.c
+Index: 2.6.13-rc3-git2/drivers/pcmcia/pcmcia_resource.c
 ===================================================================
---- 2.6.13-rc3-git2.orig/arch/parisc/kernel/pci.c
-+++ 2.6.13-rc3-git2/arch/parisc/kernel/pci.c
-@@ -255,8 +255,26 @@ void __devinit pcibios_resource_to_bus(s
- 	pcibios_link_hba_resources(&hba->lmmio_space, bus->resource[1]);
- }
+--- 2.6.13-rc3-git2.orig/drivers/pcmcia/pcmcia_resource.c
++++ 2.6.13-rc3-git2/drivers/pcmcia/pcmcia_resource.c
+@@ -800,7 +800,7 @@ int pcmcia_request_irq(struct pcmcia_dev
+ 	} else {
+ 		int try;
+ 		u32 mask = s->irq_mask;
+-		void *data = NULL;
++		void *data = test_action;
  
-+void pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
-+			      struct pci_bus_region *region)
-+{
-+	struct pci_bus *bus = dev->bus;
-+	struct pci_hba_data *hba = HBA_DATA(bus->bridge->platform_data);
-+
-+	if (res->flags & IORESOURCE_MEM) {
-+		res->start = PCI_HOST_ADDR(hba, region->start);
-+		res->end = PCI_HOST_ADDR(hba, region->end);
-+	}
-+
-+	if (res->flags & IORESOURCE_IO) {
-+		res->start = region->start;
-+		res->end = region->end;
-+	}
-+}
-+
- #ifdef CONFIG_HOTPLUG
- EXPORT_SYMBOL(pcibios_resource_to_bus);
-+EXPORT_SYMBOL(pcibios_bus_to_resource);
- #endif
- 
- /*
+ 		for (try = 0; try < 64; try++) {
+ 			irq = try % 32;
+
+
+Thanks,
+	Dominik

@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVGWRR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVGWRUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVGWRR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 13:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVGWRR4
+	id S262370AbVGWRUy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 13:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbVGWRUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 13:17:56 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:59822 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261264AbVGWRRz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 13:17:55 -0400
-Date: Sat, 23 Jul 2005 19:17:37 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
-Subject: Re: [PATCH] Add schedule_timeout_{interruptible,uninterruptible}{,_msecs}()
- interfaces
-In-Reply-To: <20050723164310.GD4951@us.ibm.com>
-Message-ID: <Pine.LNX.4.61.0507231911540.3743@scrub.home>
-References: <20050707213138.184888000@homer> <20050708160824.10d4b606.akpm@osdl.org>
- <20050723002658.GA4183@us.ibm.com> <1122078715.5734.15.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507231247460.3743@scrub.home> <1122116986.3582.7.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507231340070.3743@scrub.home> <1122123085.3582.13.camel@localhost.localdomain>
- <Pine.LNX.4.61.0507231456000.3728@scrub.home> <20050723164310.GD4951@us.ibm.com>
+	Sat, 23 Jul 2005 13:20:54 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:64700 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262370AbVGWRUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 13:20:52 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-pm@lists.osdl.org
+Subject: Re: [linux-pm] Re: [RFT] solve "swsusp plays yoyo" with disks
+Date: Sat, 23 Jul 2005 19:20:28 +0200
+User-Agent: KMail/1.8.1
+Cc: Pavel Machek <pavel@ucw.cz>, Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       B.Zolnierkiewicz@elka.pw.edu.pl,
+       kernel list <linux-kernel@vger.kernel.org>
+References: <20050705172953.GA18748@elf.ucw.cz> <42DFBFA8.5060800@stud.feec.vutbr.cz> <20050721192015.GA6367@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20050721192015.GA6367@atrey.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507231920.29336.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Sat, 23 Jul 2005, Nishanth Aravamudan wrote:
-
-> > Keep the thing as simple as possible and jiffies _are_ simple. Please show 
-> > me the problem, that needs to be fixed.
+On Thursday, 21 of July 2005 21:20, Pavel Machek wrote:
+> hi!
 > 
-> I am not sure why jiffies are any simpler than milliseconds. In the
-> millisecond case, conversion happens in common code and only needs to be
-> audited once. In the jiffies case, I have to check *every* caller to see
-> if they are doing stupid math :)
+> > >>I'd like to get this tested under as many configurations as
+> > >>possible. With this, your hdd should no longer do "yoyo" (spindown,
+> > >>spinup, spindown) during suspend...
+> > >
+> > >
+> > >It looks like the patch is now in -mm (I use 2.6.13-rc3-mm1).
+> > >But my disks still yoyo during suspend. What more is needed? Some patch 
+> > >to ide-disk.c ?
+> > 
+> > I think I've found the problem.
+> > The attached patch stops the disks from spinning down and up on suspend.
+> > The patch applies to 2.6.13-rc3-mm1.
+> > 
+> > Signed-off-by: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+> 
+> Thanks, applied, I'll eventually propagate it.
 
-Jiffies are the basic time unit for kernel timers, hiding that fact gives 
-users only wrong expectations about them.
-I don't mind using helper functions, but constant conversion can already 
-happen at compile time and for variable timeouts the user should seriously 
-consider using jiffies directly instead of constantly converting time 
-values.
+FYI, tested and works (on 2.6.13-rc3). :-)
 
-bye, Roman
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

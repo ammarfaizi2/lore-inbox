@@ -1,47 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVGWFmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVGWGAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262362AbVGWFmm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 01:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbVGWFmm
+	id S261325AbVGWGAV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 02:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVGWGAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 01:42:42 -0400
-Received: from dial169-39.awalnet.net ([213.184.169.39]:22023 "EHLO
-	raad.intranet") by vger.kernel.org with ESMTP id S262365AbVGWFk0
+	Sat, 23 Jul 2005 02:00:21 -0400
+Received: from svr68.ehostpros.com ([67.15.48.48]:30897 "EHLO
+	svr68.ehostpros.com") by vger.kernel.org with ESMTP id S261325AbVGWGAT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 01:40:26 -0400
-Message-Id: <200507230535.IAA03518@raad.intranet>
-From: "Al Boldi" <a1426z@gawab.com>
-To: "'Lee Revell'" <rlrevell@joe-job.com>
-Cc: "'Blaisorblade'" <blaisorblade@yahoo.it>,
-       "'LKML'" <linux-kernel@vger.kernel.org>,
-       "'Andrian Bunk'" <bunk@stusta.de>, "'H. Peter Anvin'" <hpa@zytor.com>,
-       <torvalds@osdl.org>, "'Alejandro Bonilla'" <abonilla@linuxwireless.org>
-Subject: RE: Giving developers clue how many testers verifiedcertain	kernel version
-Date: Sat, 23 Jul 2005 08:34:57 +0300
+	Sat, 23 Jul 2005 02:00:19 -0400
+From: "Amit S. Kale" <amitkale@linsyssoft.com>
+Organization: LinSysSoft Technologies Pvt Ltd
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CheckFS: Checkpoints and Block Level Incremental Backup (BLIB)
+Date: Sat, 23 Jul 2005 11:30:07 +0530
+User-Agent: KMail/1.7
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcWPNUJmoEivN52PQNaFOT1fxTqnAQAEawqQ
-In-Reply-To: <1122088863.6510.19.camel@mindpipe>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Disposition: inline
+Message-Id: <200507231130.07208.amitkale@linsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr68.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - linsyssoft.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote: {
-On Fri, 2005-07-22 at 21:15 -0500, Alejandro Bonilla wrote:
-> OK, I will, but I first of all need to learn how to tell if benchmarks 
-> are better or worse.
+Ted,
 
-Con's interactivity benchmark looks quite promising for finding scheduler
-related interactivity regressions.
-}
+Thanks for your suggestions and help.
 
-Scheduler performance does not imply net system performance.
+We started it from 2.6.7 last year and then it was sitting idle for several 
+months for lack of resources. We'll go back to that version and generate a 
+diff that's easier to read.
 
-In fact, a well tuned scheduler hides absolute performance-related issues!
+Yes, changing the name has made the task of rebasing wrt. changing kernels lot 
+difficult. Our original intention was to make testing easier by keeping ext3 
+and checkfs filesystems in the same kernel. Had we continued it at that 
+point, we would have posted differences wrt. ext3 sources themselves. There 
+was compelling reason to change the name.
 
---Al
+Regards.
+-Amit
 
 
+> This looks like very interesting technology, but out of curiosity, why
+> did you develop this as separate filesystem with a new filesystem
+> name, and doing a global search-and-replace of "ext3" with "checkfs"
+> in the source files, instead of simply just modifying ext3 and posting
+> diffs? Especially since that the apparent intention is to keep ext3
+> compatibility using the same ext3 magic numbers, data formats, and
+> user-mode utilities.
+>
+> I'll reserve the superblock fields and compatibility bitmap fields
+> used by your code in e2fsprogs to help avoid the possibility of other
+> folks working on ext3 extensions from colliding with the codepoints
+> which you "borrowed", but in the future, it would be good if people
+> contact me in advance so I ensure that there are no collisions with
+> other development groups.
+>
+> What version of the source base did you originally fork checkfs from?
+> That way we can do a "s/checkfs/ext3/g" search and replace and then
+> generate some diffs to see what you changed, or alternatively, it
+> would be even better if you minimized differences between your version
+> and mainline and generated the diffs yourself.
+> 
+> Thanks, regards,
+> 
+> - Ted

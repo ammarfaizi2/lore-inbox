@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVGWKuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVGWKv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVGWKuh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 06:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVGWKuf
+	id S261334AbVGWKv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 06:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVGWKv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 06:50:35 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:23442 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261657AbVGWKud convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 06:50:33 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Kernel cached memory
-Date: Sat, 23 Jul 2005 12:50:53 +0200
-User-Agent: KMail/1.8
-Cc: lgb@lgb.hu, Ashley <ashleyz@alchip.com>, linux-kernel@vger.kernel.org
-References: <003401c58ea2$4dfd76f0$5601010a@ashley> <20050722132523.GJ20995@vega.lgb.hu> <1122055139.877.9.camel@mindpipe>
-In-Reply-To: <1122055139.877.9.camel@mindpipe>
+	Sat, 23 Jul 2005 06:51:56 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:47532 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261334AbVGWKvQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 06:51:16 -0400
+Date: Sat, 23 Jul 2005 12:50:45 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Nishanth Aravamudan <nacc@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
+Subject: Re: [PATCH] Add schedule_timeout_{interruptible,uninterruptible}{,_msecs}()
+ interfaces
+In-Reply-To: <1122078715.5734.15.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0507231247460.3743@scrub.home>
+References: <20050707213138.184888000@homer>  <20050708160824.10d4b606.akpm@osdl.org>
+  <20050723002658.GA4183@us.ibm.com> <1122078715.5734.15.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200507231250.53562.oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 22. Juli 2005 19:58 schrieb Lee Revell:
-> On Fri, 2005-07-22 at 15:25 +0200, Gábor Lénárt wrote:
-> > Anyway, want to have 'free memory' is a thing like having dozens of cars
-> > in your garage which don't want to be used ...
-> > 
-> 
-> Really?  I thought it was good to leave some memory free to speed up
-> application startup, so we don't have to evict a bunch of pages first.
+Hi,
 
-Eviction is cheap when the pages are clean.
+On Fri, 22 Jul 2005, Arjan van de Ven wrote:
 
-	Regards
-		Oliver
+> Also I'd rather not add the non-msec ones... either you're raw and use
+> HZ, or you are "cooked" and use the msec variant.. I dont' see the point
+> of adding an "in the middle" one. (Yes this means that several users
+> need to be transformed to msecs but... I consider that progress ;)
+
+What's wrong with using jiffies? It's simple and the current timeout 
+system is based on it. Calling it something else doesn't suddenly give you 
+more precision.
+
+bye, Roman

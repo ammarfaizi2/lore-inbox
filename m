@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVGWIwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVGWJEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVGWIwK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 04:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVGWIwJ
+	id S261310AbVGWJEM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 05:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVGWJEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 04:52:09 -0400
-Received: from nproxy.gmail.com ([64.233.182.194]:15385 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261582AbVGWIwI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 04:52:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gvxCPl0/XhFKPaIioeDhwI+mqiWRSylxx18o30VrWsXHKTPlgqEcwgmGyEPjVUB6e8PFhQnh9MEbUhvo/qoPgDeymiMQrBpdeYeCbI8CeGAovSOtO4iDmyMSJhZRmKDD6FuRfDc0g5u33KHjm0ujtQ8XSnEuFKRzsiDWl87/WiU=
-Message-ID: <2cd57c9005072301522c8d6ec9@mail.gmail.com>
-Date: Sat, 23 Jul 2005 16:52:07 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] turn many #if $undefined_string into #ifdef $undefined_string
-Cc: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>, Adrian Bunk <bunk@stusta.de>
-In-Reply-To: <200507230413_MC3-1-A559-7852@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 23 Jul 2005 05:04:12 -0400
+Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:12962 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261310AbVGWJEK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 05:04:10 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Giving developers clue how many testers verified certain kernel version
+Date: Sat, 23 Jul 2005 19:05:25 +1000
+User-Agent: KMail/1.8.1
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Blaisorblade <blaisorblade@yahoo.it>,
+       LKML <linux-kernel@vger.kernel.org>, Andrian Bunk <bunk@stusta.de>,
+       "H. Peter Anvin" <hpa@zytor.com>
+References: <200507230244.11338.blaisorblade@yahoo.it> <Pine.LNX.4.58.0507222029200.6074@g5.osdl.org> <1122089660.6510.29.camel@mindpipe>
+In-Reply-To: <1122089660.6510.29.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <200507230413_MC3-1-A559-7852@compuserve.com>
+Message-Id: <200507231905.26241.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/23/05, Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> On Fri, 22 Jul 2005 at 16:48:05 +0200, Olaf Hering wrote:
-> 
-> > turn many #if $undefined_string into #ifdef $undefined_string
-> > to fix some warnings after -Wno-def was added to global CFLAGS
-> 
-> 
->  Shouldn't that be "#if defined($undefined_string)"?
-> 
->  #ifdef is obsolete...
-> 
+On Sat, 23 Jul 2005 01:34 pm, Lee Revell wrote:
+> On Fri, 2005-07-22 at 20:31 -0700, Linus Torvalds wrote:
+> > On Fri, 22 Jul 2005, Lee Revell wrote:
+> > > Con's interactivity benchmark looks quite promising for finding
+> > > scheduler related interactivity regressions.
+> >
+> > I doubt that _any_ of the regressions that are user-visible are
+> > scheduler-related. They all tend to be disk IO issues (bad scheduling or
+> > just plain bad drivers), and then sometimes just VM misbehaviour.
+> >
+> > People are looking at all these RT patches, when the thing is that most
+> > nobody will ever be able to tell the difference between 10us and 1ms
+> > latencies unless it causes a skip in audio.
+>
+> I agree re: the RT patches, but what makes Con's benchmark useful is
+> that it also tests interactivity (measuring in msecs vs. usecs) with
+> everything running SCHED_NORMAL, which is a much better approximation of
+> a desktop load.  And the numbers do go well up into the range where
+> people would notice, tens and hundreds of ms.
 
-What leads you to believe that?
+Indeed, and the purpose of the benchmark is to quantify something rather than 
+leave it to subjective feeling. Fortunately if I was to quantify the current 
+kernel's situation I would say everything is fine.
 
--- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+Cheers,
+Con

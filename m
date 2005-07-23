@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVGWPfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVGWPhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbVGWPfq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 11:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVGWPfp
+	id S261766AbVGWPhO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 11:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVGWPhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 11:35:45 -0400
-Received: from mx1.suse.de ([195.135.220.2]:10221 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261764AbVGWPfn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 11:35:43 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, 76306.1226@compuserve.com
-Subject: Re: [patch 2.6.13-rc3a] i386: inline restore_fpu
-References: <200507212309_MC3-1-A534-95EF@compuserve.com.suse.lists.linux.kernel>
-	<20050722132756.578acca7.akpm@osdl.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 23 Jul 2005 17:35:38 +0200
-In-Reply-To: <20050722132756.578acca7.akpm@osdl.org.suse.lists.linux.kernel>
-Message-ID: <p73br4tbkmt.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 23 Jul 2005 11:37:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:44973 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261766AbVGWPgW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 11:36:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PrnVV9A2WEOcfA1eb3rx5AP22oN5TH1iSuzWeLb0f/WxA55gOkSA3uED2/8fM6k1gOhep0tyV49v6a5cjuW9u2lR1iIrAZhO6YWZyonPulEsDmmaI3d/X+fjinWX9sKezcsdPfizCc+yl5pfSxCiGTKFjqn8P6dCMw+WV79z0Zs=
+Message-ID: <9a8748490507230836584948c6@mail.gmail.com>
+Date: Sat, 23 Jul 2005 17:36:22 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: cengizkirli <cengizkirli@gmail.com>
+Subject: Re: Mouse Freezes in Xorg on ASUS P4C800 Deluxe
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <c0140e76050723082730836e7b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <c0140e76050723082730836e7b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On 7/23/05, cengizkirli <cengizkirli@gmail.com> wrote:
+> distro: Debian Unstable
+> kernels tested with: 2.6.13-rc3, 2.6.13-rc3-git5, 2.6.13-rc3-mm1
+> compiler used: Debian gcc-4.0.1-2
+> Xorg: Debian xorg-6.8.2-4
+> ASUS P4C800 Deluxe BIOS: 1019 (2005-11-08)
 > 
-> We do have the `used_math' optimisation in there which attempts to avoid
-> doing the FP save/restore if the app isn't actually using math.  But
-> <ancient recollections> there's code in glibc startup which always does a
-> bit of float, so that optimisation is always defeated.  There was some
-> discussion about periodically setting tasks back into !used_math state to
-> try to restore the optimisation for tasks which only do a little bit of FP,
-> but nothing actually got done.
+> with or wihout ACPI enabled (acpi=off or not) the /dev/input/mice USB
+> mouse freezes after not being used for some time and can only be
+> awakened by switching to the text-console and back.
+> 
+What's the last kernel it works OK with?
+Why do you suspect this to be a kernel problem and not a X.org problem?
 
-Actually we reset the flag on every context switch, so that works just fine.
-
-But I was considering to do it less often so that we switch the FP 
-state non lazily for FP intensive processes and avoid the overhead
-of all these exceptions.
-
--Andi
-
-P.S.: Original profile data looks a bit fishy. Normally avoiding a single
-function call should not make tht much difference unless you call
-it in a inner loop, but that is not the case here.
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

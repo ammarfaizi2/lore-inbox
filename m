@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVGWLuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVGWL4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVGWLuq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 07:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVGWLuq
+	id S261335AbVGWL4f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 07:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVGWL4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 07:50:46 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:59739 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261298AbVGWLuo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 07:50:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Lu+jepc9ZfQDoYB8ta4UQYE0dtSvf+l6qrT3FNlAYAxHHhSv4QBgymVDkqahiyXcSUv7SWgttq6GnbgxQ5VoE0qzuOrBHOR9g6LPm1GxvtL0nNGZz9aWUSVgwiXk60moj+E8vlNpYskX+6mKi+QAWJYzbff0EYtLuEiITBl7Mr4=
-Message-ID: <1c1c863605072304502cc25424@mail.gmail.com>
-Date: Sat, 23 Jul 2005 23:50:43 +1200
-From: mdew <some.nzguy@gmail.com>
-Reply-To: mdew <some.nzguy@gmail.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: HPT370 errors under 2.6.13-rc3-mm1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <58cb370e0507221947c1b88a4@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1c1c863605072219283716a131@mail.gmail.com>
-	 <58cb370e0507221947c1b88a4@mail.gmail.com>
+	Sat, 23 Jul 2005 07:56:33 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:10413 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261335AbVGWL4c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 07:56:32 -0400
+Date: Sat, 23 Jul 2005 13:55:58 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Nishanth Aravamudan <nacc@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
+Subject: Re: [PATCH] Add schedule_timeout_{interruptible,uninterruptible}{,_msecs}()
+ interfaces
+In-Reply-To: <1122116986.3582.7.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0507231340070.3743@scrub.home>
+References: <20050707213138.184888000@homer>  <20050708160824.10d4b606.akpm@osdl.org>
+ <20050723002658.GA4183@us.ibm.com>  <1122078715.5734.15.camel@localhost.localdomain>
+  <Pine.LNX.4.61.0507231247460.3743@scrub.home> <1122116986.3582.7.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-looks like 2.6.12 does the same sort of thing..
+Hi,
 
+On Sat, 23 Jul 2005, Arjan van de Ven wrote:
 
-On 7/23/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
-> Hi,
+> > What's wrong with using jiffies? 
 > 
-> Does vanilla kernel 2.6.12 work for you?
-> It doesn't contain hpt366 driver update.
-> 
-> Bartlomiej
-> 
-> On 7/22/05, mdew <some.nzguy@gmail.com> wrote:
-> > I'm unable to mount an ext2 drive using the hpt370A raid card.
-> >
-> > upon mounting the drive, dmesg will spew these errors..I've tried
-> > different cables and drive is fine.
-> >
-> > Jul 23 01:30:11 localhost kernel: hdf: dma_timer_expiry: dma status == 0x41
-> > Jul 23 01:30:21 localhost kernel: hdf: DMA timeout error
-> > Jul 23 01:30:21 localhost kernel: hdf: dma timeout error: status=0x25
-> > { DeviceFault CorrectedError Error }
-> > Jul 23 01:30:21 localhost kernel: hdf: dma timeout error: error=0x25 {
-> > DriveStatusError AddrMarkNotFound }, LBAsect=8830589412645,
-> > high=526344, low=2434341, sector=390715711
-> > Jul 23 01:30:21 localhost kernel: ide: failed opcode was: unknown
-> > Jul 23 01:30:21 localhost kernel: hdf: DMA disabled
-> > Jul 23 01:30:21 localhost kernel: ide2: reset: master: error (0x0a?)
-> > Jul 23 01:30:21 localhost kernel: end_request: I/O error, dev hdf,
-> > sector 390715711
-> > Jul 23 01:30:21 localhost kernel: end_request: I/O error, dev hdf,
-> > sector 390715712
-> > [...]
->
+> A lot of the (driver) users want a wallclock based timeout. For that,
+> miliseconds is a more obvious API with less chance to get the jiffies/HZ
+> conversion wrong by the driver writer.
+
+We have helper functions for that. The point about using jiffies is to 
+make it _very_ clear, that the timeout is imprecise and for most users 
+this is sufficient.
+
+bye, Roman

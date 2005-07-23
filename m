@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVGVXbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbVGWAT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbVGVXbp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Jul 2005 19:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVGVXbo
+	id S262247AbVGWAT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Jul 2005 20:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVGWAT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Jul 2005 19:31:44 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:9375 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S262226AbVGVXaW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Jul 2005 19:30:22 -0400
-Date: Sat, 23 Jul 2005 01:30:17 +0200 (CEST)
-From: Jirka Kosina <jikos@jikos.cz>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: vamsi krishna <vamsi.krishnak@gmail.com>,
-       Bhanu Kalyan Chetlapalli <chbhanukalyan@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Whats in this vaddr segment 0xffffe000-0xfffff000 ---p ?
-In-Reply-To: <Pine.LNX.4.61.0507221515040.18320@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.58.0507230128490.8813@twin.jikos.cz>
-References: <3faf0568050721232547aa2482@mail.gmail.com>
- <7d15175e050722072727a7f539@mail.gmail.com> <3faf0568050722081890a2e@mail.gmail.com>
- <Pine.LNX.4.61.0507221154150.16740@chaos.analogic.com>
- <3faf056805072210563ed8f158@mail.gmail.com> <Pine.LNX.4.61.0507221515040.18320@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Jul 2005 20:19:29 -0400
+Received: from smtpauth05.mail.atl.earthlink.net ([209.86.89.65]:8920 "EHLO
+	smtpauth05.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S262247AbVGWAT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Jul 2005 20:19:28 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.13-rc3: swsusp works (TP 600X)
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 21.4.1
+Date: Fri, 22 Jul 2005 20:19:18 -0400
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1Dw7ja-0002Ge-EF@approximate.corpus.cam.ac.uk>
+X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d47826f234369f82662fd2ec2305d31de11a68fdb9e9071e9a9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 24.41.6.91
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Jul 2005, linux-os (Dick Johnson) wrote:
+swsusp now mostly works on my TP 600X.  If I don't eject the pcmcia card
+(usually a prism54 wireless card), swsusp begins the process of
+hibernation, but never gets to the writing pages part.  The eth0 somehow
+tries to reload the firmware (as if it's been woken up), and then
+everything hangs.  If I eject the card and (for safety) stop
+/etc/init.d/pcmcia, then swsusp writes out the memory to swap, and
+waking up works fine.  Thanks for all the improvements!
 
-> Seems to be readable and starts with 'ELF'. It's something the the 'C'
-> runtime may library use to make syscalls to the kernel. Older libraries
-> used interrupt 0x80, newer ones may use this. Roland McGrath has made
-> patches to this segment so maybe he knows.
+Is there debugging I can do in order to help get the pcmcia system
+hibernating automagically?
 
-This page is a vsyscall page. See http://lwn.net/Articles/30258/
+One other glitch is that pdnsd (a nameserver caching daemon) has crashed
+when the system wakes up from swsusp.  It also happens when waking up
+from S3, which was working with 2.6.11.4 although not with 2.6.13-rc3.
+Many people have said mysql also does not suspend well.  Is their use of
+a named pipe or socket causing the problem?
 
--- 
-JiKos.
+System: TP 600X, 2.6.13-rc3 vanilla kernel, fixed DSDT that I used to
+        get S3 working with 2.6.11.4 (see
+        <http://bugme.osdl.org/show_bug.cgi?id=4926> for the DSDT),
+        booted with 
+              idebus=66 apm=off acpi=force pci=noacpi acpi_sleep=s3_bios
+
+-Sanjoy
+
+`A society of sheep must in time beget a government of wolves.'
+   - Bertrand de Jouvenal

@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVGCQE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVGCQFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbVGCQE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Jul 2005 12:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVGCQE6
+	id S261468AbVGCQFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Jul 2005 12:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVGCQFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Jul 2005 12:04:58 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:18440 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261461AbVGCPtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Jul 2005 11:49:09 -0400
-To: frankvm@frankvm.com
-CC: akpm@osdl.org, aia21@cam.ac.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <20050703141028.GB1298@janus> (message from Frank van Maarseveen
-	on Sun, 3 Jul 2005 16:10:28 +0200)
-Subject: Re: FUSE merging? (2)
-References: <20050701130510.GA5805@janus> <E1DoLSx-0002sR-00@dorka.pomaz.szeredi.hu> <20050701152003.GA7073@janus> <E1DoOwc-000368-00@dorka.pomaz.szeredi.hu> <20050701180415.GA7755@janus> <E1DojJ6-00047F-00@dorka.pomaz.szeredi.hu> <20050702160002.GA13730@janus> <E1DoxmP-0004gV-00@dorka.pomaz.szeredi.hu> <20050703112541.GA32288@janus> <E1Dp4S4-0004ub-00@dorka.pomaz.szeredi.hu> <20050703141028.GB1298@janus>
-Message-Id: <E1Dp6hK-00056d-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sun, 03 Jul 2005 17:47:58 +0200
+	Sun, 3 Jul 2005 12:05:16 -0400
+Received: from ozlabs.org ([203.10.76.45]:60613 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261468AbVGCPzf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Jul 2005 11:55:35 -0400
+Date: Sun, 24 Jul 2005 01:02:10 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] quieten OOM killer noise
+Message-ID: <20050723150209.GA15055@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > But that's not really acceptable (see previous audit case) unless FUSE
-> > > refuses to mount on non-leaf dirs.
-> > 
-> > I don't think the audit case is important.  It's easy to work around
-> > it manually by the sysadmin, and for the automatic case it doesn't
-> > really matter (as detailed above).
-> 
-> Note that the audit case "as user" is less important than the root case. I
-> consider the latter very important and EACCES will break it when FUSE
-> permits mounting on non-leaf dirs.
 
-OK.  Can you tell me, why you consider it important?  And what's your
-proposal for dealing with it?
+We now print statistics when invoking the OOM killer, however this
+information is not rate limited and you can get into situations where
+the console is continually spammed.
 
-Refusing to mount on non-leaf dir is not a solution, since it would
-still allow arbitrary hiding.
+For example, when a task is exiting the OOM killer will simply return
+(waiting for that task to exit and clear up memory). If the VM
+continually calls back into the OOM killer we get thousands of copies of
+show_mem() on the console.
 
-Miklos
+Use printk_ratelimit() to quieten it.
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+
+Index: foobar2/mm/oom_kill.c
+===================================================================
+--- foobar2.orig/mm/oom_kill.c	2005-07-02 15:56:13.000000000 +1000
++++ foobar2/mm/oom_kill.c	2005-07-04 01:38:59.474324542 +1000
+@@ -258,9 +258,11 @@
+ 	struct mm_struct *mm = NULL;
+ 	task_t * p;
+ 
+-	printk("oom-killer: gfp_mask=0x%x\n", gfp_mask);
+-	/* print memory stats */
+-	show_mem();
++	if (printk_ratelimit()) {
++		printk("oom-killer: gfp_mask=0x%x\n", gfp_mask);
++		/* print memory stats */
++		show_mem();
++	}
+ 
+ 	read_lock(&tasklist_lock);
+ retry:

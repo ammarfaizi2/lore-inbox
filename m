@@ -1,69 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVGXUjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVGXUlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVGXUjl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 16:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVGXUjk
+	id S261284AbVGXUlK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 16:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVGXUlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 16:39:40 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:33292 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261254AbVGXUjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 16:39:40 -0400
-Date: Sun, 24 Jul 2005 22:39:32 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Grant Coady <lkml@dodo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3 test: finding compile errors with make randconfig
-Message-ID: <20050724203932.GX3160@stusta.de>
-References: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com> <20050724091327.GQ3160@stusta.de> <glq7e1ttejp2sh7uuo6nil2vafljdprkpk@4ax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <glq7e1ttejp2sh7uuo6nil2vafljdprkpk@4ax.com>
-User-Agent: Mutt/1.5.9i
+	Sun, 24 Jul 2005 16:41:09 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:36142 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261284AbVGXUlD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 16:41:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=RyTNhBVeeuFZ1inwBTqU7l8qCPL13fWAP8q3+5bsUUc270hRNO9SkqheMbmfvGXcnF0ThxVA8gvc0EHw8DS/lF8PNOVrjRICBzeYeOAVHR2HNFWGsVIKCdwR2MF/mZ1mOrwwXQptcjm1BtXVNmVy7IoP/vfx7SffhP7yPz96tpY=
+Message-ID: <42E3FCD1.40102@gmail.com>
+Date: Sun, 24 Jul 2005 16:40:49 -0400
+From: Puneet Vyas <vyas.puneet@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ciprian <cipicip@yahoo.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6 speed
+References: <20050724191211.48495.qmail@web53608.mail.yahoo.com>
+In-Reply-To: <20050724191211.48495.qmail@web53608.mail.yahoo.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 05:42:58AM +1000, Grant Coady wrote:
-> On Sun, 24 Jul 2005 11:13:27 +0200, Adrian Bunk <bunk@stusta.de> wrote:
-> >
-> >it's generally useful, but the target kernel should be the latest -mm
-> >kernel. 
-> 097-error:drivers/char/drm/drm_memory.h:163: error: redefinition of `drm_ioremap_nocache'
-> 097-error:drivers/char/drm/drm_memory.h:163: error: `drm_ioremap_nocache' previously defined here
-> 097-error:drivers/char/drm/drm_memory.h:174: error: redefinition of `drm_ioremapfree'
-> 097-error:drivers/char/drm/drm_memory.h:174: error: `drm_ioremapfree' previously defined here
+Ciprian wrote:
 
-This requires the .config for debugging.
+>Hi guys!
+>
+>I got a question for you. Apparently kernel 2.6 is
+>much slower then 2.4 and about 30 times slower then
+>the windows one.
+>
+>I'm not an OS guru, but I ran a little and very simple
+>test. The program bellow, as you can see, measures the
+>number of cycles performed in 30 seconds.
+>
+>//----------------- START CODE --------------------
+>
+>#include <stdio.h>
+>#include <time.h>
+>
+>
+>int main()
+>{
+>time_t initialTime;
+>time_t testTime;
+>long counter = 0;
+>double test = 1;
+>
+>
+>time(&initialTime);
+>testTime = initialTime;
+>
+>printf("Here we go...\n");
+>
+>while((testTime-initialTime) < 30)
+>{
+>time(&testTime);
+>test /= 10;
+>test *= 10;
+>test += 10;
+>test -= 10;
+>
+>counter ++;
+>
+>}
+>
+>printf("No. of cycles: %ld\n", counter);
+>
+>return 0;
+>}
+>
+>//---------------- END CODE -------------------
+>
+>
+>In windows were performed about 300 millions cycles,
+>while in Linux about 10 millions. This test was run on
+>Fedora 4 and Suse 9.2 as Linux machines, and Windows
+>XP Pro with VS .Net 2003 on the MS side. My CPU is a
+>P4 @3GHz HT 800MHz bus.
+>
+>I published my little test on several forums and I
+>wasn't the only one who got these results. All the
+>other users using 2.6 kernel obtained similar results
+>regardless of the CPU they had (Intel or AMD). 
+>
+>Also I downloaded the latest kernel (2.6.12),
+>configured it specifically for my machine, disabled
+>all the modules I don't need and compiled it. The
+>result was a 1.7 MB kernel on which KDE moves faster,
+>but the processing speed it's the same - same huge
+>speed ratios.
+>
+>Also, it shouldn't have any importance, but my HDD is
+>SATA so the specific modules were required. I don't
+>think its SCSI modules have any impact on the
+>processing speed, but you know more on the kernel
+>architecture then I do.
+>
+>Now, can anyone explain this and suggest what other
+>optimizations I should use? The 2.4 version was a lot
+>faster. I thought the newer versions were supposed to
+>work faster (or at least just as fast) AND to offer
+>extra features.
+>
+>Any help would appreciate.
+>
+>Thanks,
+>Ciprian
+>
+>
+>
+>__________________________________________________
+>Do You Yahoo!?
+>Tired of spam?  Yahoo! Mail has the best spam protection around 
+>http://mail.yahoo.com 
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-My first guess is that drm_memory.h requires a simple #ifdef to allow 
-multiple inclusions.
+Want to increase the latest kernel "speed" by 5 times ? Use the 
+follwoing code instead. :)
 
-> 098-error:drivers/usb/gadget/ether.c:2510: error: `STATUS_BYTECOUNT' undeclared (first use in this function)
-> 098-error:drivers/usb/gadget/ether.c:2510: error: (Each undeclared identifier is reported only once
-> 098-error:drivers/usb/gadget/ether.c:2510: error: for each function it appears in.)
+// -- Start Code
+#include <stdio.h>
+#include <time.h>
 
-Already fixed in 2.6.13-rc3.
 
-> grant@sempro:/opt/linux/trial4$ grep error *-error |wc -l
-> 2105
-> 
-> With > 2k (raw) errors in 97.something builds of 2.6.12.3, why go 
-> looking for trouble in -mm?  
->...
+int main()
+{
+clock_t initialTime;
+clock_t testTime;
+long counter = 0;
+double test = 1;
 
-You aren't running into problems that are already fixed (see your second 
-example above).
 
-> Grant.
+initialTime = clock() / CLOCKS_PER_SEC;
+testTime = initialTime;
 
-cu
-Adrian
+printf("Here we go...\n");
 
--- 
+while((testTime-initialTime) < 30)
+{
+testTime = clock()/CLOCKS_PER_SEC;
+test /= 10;
+test *= 10;
+test += 10;
+test -= 10;
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+counter ++;
 
+}
+
+printf("No. of cycles: %ld\n", counter);
+
+return 0;
+}
+// ---- End code
+
+so essentially you are timing just the time() function.
+
+HTH,
+Puneet

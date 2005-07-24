@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVGXBHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVGXBxC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbVGXBHx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 21:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVGXBHx
+	id S261758AbVGXBxC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 21:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVGXBxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 21:07:53 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:49378 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S262283AbVGXBHb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 21:07:31 -0400
-Date: Sun, 24 Jul 2005 03:07:30 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Paul Jackson <pj@sgi.com>, rostedt@goodmis.org,
-       relayfs-devel@lists.sourceforge.net, richardj_moore@uk.ibm.com,
-       varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
-       zanussi@us.ibm.com
-Subject: diskstat 0.1: simple tool to study io patterns via relayfs
-Message-ID: <20050724010730.GA22104@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Paul Jackson <pj@sgi.com>, rostedt@goodmis.org,
-	relayfs-devel@lists.sourceforge.net, richardj_moore@uk.ibm.com,
-	varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
-	zanussi@us.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Sat, 23 Jul 2005 21:53:02 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:3853 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S261758AbVGXBxB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 21:53:01 -0400
+Date: Sun, 24 Jul 2005 09:44:41 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: =?UTF-8?B?TGFzc2UgS8Okcmtrw6RpbmVuIC8gVHJvbmlj?= 
+	<tronic@trn.iki.fi>
+cc: Oliver Neukum <oliver@neukum.org>,
+       =?UTF-8?B?TGFzc2UgS8Okcmtrw6RpbmVuIC8gVHJvbmlj?= 
+	<tronic+lzID=lx43caky45@trn.iki.fi>,
+       ioGL64NX <iogl64nx@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Supermount
+In-Reply-To: <42E27FCC.5050601@trn.iki.fi>
+Message-ID: <Pine.LNX.4.63.0507240943590.2284@donald.themaw.net>
+References: <42E00DD3.9060407@trn.iki.fi> <2de37a440507211450501a8378@mail.gmail.com>
+ <42E12105.3090900@trn.iki.fi> <200507231247.17034.oliver@neukum.org>
+ <42E27FCC.5050601@trn.iki.fi>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1629620785-888797358-1122169481=:2284"
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-101.4, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, RCVD_IN_ORBS,
+	RCVD_IN_OSIRUSOFT_COM, REFERENCES, REPLY_WITH_QUOTES,
+	USER_AGENT_PINE, USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is with distinct lack of pride that I release version 0.1 of diskstat
-'Geeks in Black Thorn', a tool that allows you to generate the kinds of
-graphs as presented in my OLS talk 'On faster application startup times:
-Cache stuffing, seek profiling, adaptive preloading'. The lack of pride is
-because this release is more a promise of what is to come than how things
-should be.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-The presentation, paper, and software can be found on
-http://ds9a.nl/diskstat and
-http://ds9a.nl/diskstat/diskstat-0.1.tar.gz
+--1629620785-888797358-1122169481=:2284
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
->From the README:
-The quality of this code is abysmal, for which I squarely blame the fun
-people at OLS who've been keeping me from my code!
-(...)
-The next version will be based on k/jprobes, and will make better use of
-relayfs features. This also means you won't have to patch your kernel
-anymore, as long as you compiled with kprobes support.
+On Sat, 23 Jul 2005, Lasse K=C3=A4rkk=C3=A4inen / Tronic wrote:
 
-Sample command lines:
-   # mkdir /relay
-   # mount -t relayfs none /relay
-   # ./dumpdiskstat /relay/diskstat0  > dump
+> > To mount on demand use autofs. Unmounting and dealing with media remova=
+l
+> > is the problem.
+>=20
+> Granted, that can get pretty close. However, having to use /auto/*
+> instead of mounting directly where required often limits using it quite
+> a bit. Thus, I don't see it as a real alternative.
 
-   This will output something like:
-   I think we skipped at 90867, ret=0
-   I think we hit end at 143016, ret=-1
-   I think we hit the break again 90867, ret=0
+What do you mean "/auto/*"?
 
- Process the stats.
-   $ ./dswalk < dump
+Ian
 
-   It will print out huge latencies encountered:
-
->  Large latency 163.352 on line 14146
-   Total read started: 33888768, total ended: 33888768
-   Total write started: 1372160, total ended: 1372160
-   Waiting time: 10.695 seconds
-
- Make pretty plots
-   gnuplot
-   plot 'startplaces.dat', 'headplaces.dat'
-   plot 'inflight.dat'
-
-Continue reading on http://ds9a.nl/diskstat/README
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+--1629620785-888797358-1122169481=:2284--

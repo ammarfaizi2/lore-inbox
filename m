@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVGXTBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVGXTKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbVGXTBK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 15:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVGXTBK
+	id S261445AbVGXTKn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 15:10:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVGXTKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 15:01:10 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:41860 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261444AbVGXTBK convert rfc822-to-8bit
+	Sun, 24 Jul 2005 15:10:43 -0400
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:25560 "EHLO
+	aquarius.doma") by vger.kernel.org with ESMTP id S261445AbVGXTKl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 15:01:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dHYZ6+4zCxYT4TZDT4eoZdaZ13HuL0cpDZ9hS3EudqSzsZPLPElHD4eiIryWp2dpEuoxfYX9xjiAO/N2B/kzPA/sKaA/6zfJzdQXv0Sx4dPrrksk5GHtJH83gO0rDsW3LEdUa9yVYuHVKjkflySSvq8tEL+DBvUMjmD3UcfipFg=
-Message-ID: <4536bb7305072412011fbeaf59@mail.gmail.com>
-Date: Mon, 25 Jul 2005 00:31:07 +0530
-From: VASM <vasm85@gmail.com>
-Reply-To: VASM <vasm85@gmail.com>
-To: Nix <nix@esperi.org.uk>
-Subject: Re: kernel page size explanation
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, gbakos@cfa.harvard.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <87d5p8aw4h.fsf@amaterasu.srvr.nix>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.SOL.4.58.0507211925170.28852@titan.cfa.harvard.edu>
-	 <9a87484905072118207a85970e@mail.gmail.com>
-	 <87d5p8aw4h.fsf@amaterasu.srvr.nix>
+	Sun, 24 Jul 2005 15:10:41 -0400
+Message-ID: <42E3E7AC.2040209@ribosome.natur.cuni.cz>
+Date: Sun, 24 Jul 2005 21:10:36 +0200
+From: =?windows-1252?Q?Martin_MOKREJ=8A?= 
+	<mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Giving developers clue how many testers verified certain kernel
+ version
+References: <42E04D11.20005@ribosome.natur.cuni.cz> <20050722231126.GB3160@stusta.de> <42E3E1BC.2050509@ribosome.natur.cuni.cz> <20050724185419.GV3160@stusta.de>
+In-Reply-To: <20050724185419.GV3160@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i had one question 
-does the linux kernel support only one default page size even if the
-processor on which it is working supports multiple ?
+Hi Adrian,
+  I think you don't understand me. I do report bugs and will always
+do. The point was that developers could be "assured" there is possibly
+no problem when people do NOT report bugs in that piece of code
+because they would know that it _was_ tested by 1000 people on 357 different
+HW's. And they could even check the .configs, lshw etc. Sure the people
+would report a problem, but if you do NOT hear of one then there is either no
+problem or nobody cared to report that or nobody tested. So you known
+just nothing and you better wait some days, weeks so the patch get's lost
+in lkml archives if it doesn't happend it gets into -ac or -mm.
 
-On 7/25/05, Nix <nix@esperi.org.uk> wrote:
-> On 22 Jul 2005, Jesper Juhl suggested tentatively:
-> > You can
-> >  A) look in the .config file for your current kernel (if your arch
-> > supports different page sizes at all).
-> >  B) You can use the  getpagesize(2) syscall at runtime. getpagesize()
-> > returns the nr of bytes in a page - man getpagesize - I'm not sure
-> > that's universally supported though.
-> >  C) You can look at /proc/cpuinfo or /proc/meminfo , IIRC some archs
-> > report page size there - not quite sure, can't remember...
+  And that is exactly why I proposed this. Then you will know that 1000
+people really cared and used that and most probably then it is reasonable
+to expect there is really no bug in the code.
+
+  Take it the other way around. You may be reluctant to commit some
+patch to the official tree. ;) The guy who wrote the patch says "It was tested,
+please apply". ;-) If he says the patch is lying in -mm or -ac tree for
+a while - like 2 months you might be more in favor to commit, right?
+If you know the patch was tested between -git5 and -git6 by 1000 people
+within 5 days you wouldn't wait either, right?
+Martin
+
+Adrian Bunk wrote:
+> On Sun, Jul 24, 2005 at 08:45:16PM +0200, Martin MOKREJ? wrote:
+>> well, the idea was to give you a clue how many people did NOT complain
+>>because it either worked or they did not realize/care. The goal
+>>was different. For example, I have 2 computers and both need current acpi
+>>patch to work fine. I went to bugzilla and found nobody has filed such bugs
+>>before - so I did and said it is already fixed in current acpi patch.
+>>But you'd never know that I tested that successfully. And I don't believe
+>>to get emails from lkml that I installed a patch and it did not break
+>>anything. I hope you get the idea now. ;)
 > 
-> D) getconf PAGE_SIZE should work, although what it does on arches
->   with variable page sizes isn't clear to me.
 > 
-> --
-> `But of course, GR is the very best relativity for the masses.'
->  --- Wayne Throop
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> in your ACPI example there is a bug/problem (ACPI needs updating).
+> 
+> And ACPI is a good example where even 1000 success reports wouldn't help 
+> because a slightly different hardware or BIOS version might make the 
+> difference.
+> 
+> Usually "no bug report" indicates that something is OK.
+> And if you are unsure whether an unusual setup or hardware is actually 
+> tested, it's usually the best to ask on linux-kernel whether someone 
+> could test it.

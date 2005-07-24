@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVGXNBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVGXNQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbVGXNBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 09:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVGXNBZ
+	id S261201AbVGXNQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 09:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVGXNQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 09:01:25 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:19560 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261935AbVGXNBX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 09:01:23 -0400
+	Sun, 24 Jul 2005 09:16:09 -0400
+Received: from web33308.mail.mud.yahoo.com ([68.142.206.123]:42894 "HELO
+	web33308.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S261201AbVGXNQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 09:16:08 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=W0qpfAwnItskil5yEqj4MkcpG8r+QVgy8x41zXml+pr3b1YyV3zpOTR1aKEAkgTkIC5DUCWIgeaKthJK2cpjZgB5hH4ZevK3MQYXmR7WvDaz0XjBkaINxJ22ZjpfHvwqbqX5t1eaev+HvqbFx8xtRrsIPcx4i34M7x+8DjFHX1c=
-Message-ID: <9a8748490507240601ec7a940@mail.gmail.com>
-Date: Sun, 24 Jul 2005 15:01:22 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: lkml@dodo.com.au
-Subject: Re: 2.6.13-rc3 test: finding compile errors with make randconfig
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com>
-Mime-Version: 1.0
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=BeVXmkzPNSfdK+Nh8+p1OSigwM4irsKvwWX1Cuwkicr0ZaEdjX1/qtitPZ9KRQYf4kFhKAEqFP4UnmnNG7A9ZRZDJpU/5zD5hZuCAQ769vZP7sKnW2q4L7Y5AlmtT6VVu6RhLI3TNPCMTkjhWyiymI21rLaRqqCxxsx1pv8MMsM=  ;
+Message-ID: <20050724131604.89173.qmail@web33308.mail.mud.yahoo.com>
+Date: Sun, 24 Jul 2005 06:16:04 -0700 (PDT)
+From: li nux <lnxluv@yahoo.com>
+Subject: ext2: buffer_head usage with and without O_DIRECT
+To: linux <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/24/05, Grant Coady <lkml@dodo.com.au> wrote:
-> Greetings,
-> 
-> Few days ago I compiled 241 random configurations of 2.6.13-rc3, today
-> I finally got around to parsing the results, top 40, sorted by name.
-> Percentage is error_builds / total_builds.
-> 
-> build script similar to:
-> count=0
-> while [ $((++count)) -le $limit ]; do
->         trial=$(printf %003d $count)
->         make randconfig
->         cp .config "$store/$trial-config"
->         make clean
->         make -j2 2> "$store/$trial-error"
-> done
-> 
-> Curious whether this is worth doing, I'm about to start a run for 2.6.12.3,
-> any interesting errors I can find the particular config + error to recover
-> context.  Deliberately simplistic for traceability at the moment, truncated
-> error length for this post.
-> 
-If you could put the data online somewhere I'd be interrested in
-taking a look at it.
-An easy way to look at the build log and grab the matching .config for
-any given run would be great.
+This is with respect to 2.4.28 on
+http://lxr.linux.no/source/?v=2.4.18 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+When i do read/write on ext2 without opening files
+with O_DIRECT, i can see buffer_head constantly
+increasing in /proc/slabinfo.
+
+But when I open files with O_DIRECT, the i/o is done
+without using buffer_head, /proc/slabinfo shows this
+as constant throughout the i/o.
+There is no other i/o activity on the box.
+
+Stacks below show that both of them creates
+buffer_head's. Any idea why this is happening ?
+
+As per the code, Without O_DIRECT, stack is:
+(See fs/buffer.c)
+submit_bh_rsector
+submit_bh
+block_read_full_page (This calls create_buffers to
+create buffer_head's)
+ext2_readpage
+do_generic_file_read
+generic_file_new_read
+generic_file_read
+
+With O_DIRECT:
+brw_kiovec (This creates buffer_head's)
+generic_direct_sector_IO (cals
+prepare_direct_IO_iobuf)
+ext2_direct_IO
+generic_file_direct_IO 
+generic_file_new_read
+generic_file_read
+
+-Thanks.
+
+
+		
+____________________________________________________
+Start your day with Yahoo! - make it your home page 
+http://www.yahoo.com/r/hs 
+ 

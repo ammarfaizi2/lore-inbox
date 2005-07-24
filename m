@@ -1,175 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVGXUlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVGXVEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVGXUlK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 16:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVGXUlJ
+	id S261305AbVGXVEF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 17:04:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVGXVEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 16:41:09 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:36142 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261284AbVGXUlD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 16:41:03 -0400
+	Sun, 24 Jul 2005 17:04:04 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:59556 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261305AbVGXVED convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 17:04:03 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=RyTNhBVeeuFZ1inwBTqU7l8qCPL13fWAP8q3+5bsUUc270hRNO9SkqheMbmfvGXcnF0ThxVA8gvc0EHw8DS/lF8PNOVrjRICBzeYeOAVHR2HNFWGsVIKCdwR2MF/mZ1mOrwwXQptcjm1BtXVNmVy7IoP/vfx7SffhP7yPz96tpY=
-Message-ID: <42E3FCD1.40102@gmail.com>
-Date: Sun, 24 Jul 2005 16:40:49 -0400
-From: Puneet Vyas <vyas.puneet@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EQeBprf2VSRzEEtoHCZUZRJzuCfx5jmzvEuTPISHu0YCjLBhzoXQ7mMoONkz/rola/nvHrjQghPVOFqsedvzK4735Y/gxqrvL6ETxu6YFjfQZiKYXa2+LFRO3BTEDLtuyX9gc4YNNZRGCWlyhVjXRjFGVB+gWV8iyMDUvLmSYGg=
+Message-ID: <f89941150507241403234949be@mail.gmail.com>
+Date: Sun, 24 Jul 2005 17:03:59 -0400
+From: Florin Malita <fmalita@gmail.com>
+Reply-To: Florin Malita <fmalita@gmail.com>
 To: Ciprian <cipicip@yahoo.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: kernel 2.6 speed
-References: <20050724191211.48495.qmail@web53608.mail.yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <20050724191211.48495.qmail@web53608.mail.yahoo.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050724191211.48495.qmail@web53608.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ciprian wrote:
+On 7/24/05, Ciprian <cipicip@yahoo.com> wrote:
+> test /= 10;
+> test *= 10;
+> test += 10;
+> test -= 10;
 
->Hi guys!
->
->I got a question for you. Apparently kernel 2.6 is
->much slower then 2.4 and about 30 times slower then
->the windows one.
->
->I'm not an OS guru, but I ran a little and very simple
->test. The program bellow, as you can see, measures the
->number of cycles performed in 30 seconds.
->
->//----------------- START CODE --------------------
->
->#include <stdio.h>
->#include <time.h>
->
->
->int main()
->{
->time_t initialTime;
->time_t testTime;
->long counter = 0;
->double test = 1;
->
->
->time(&initialTime);
->testTime = initialTime;
->
->printf("Here we go...\n");
->
->while((testTime-initialTime) < 30)
->{
->time(&testTime);
->test /= 10;
->test *= 10;
->test += 10;
->test -= 10;
->
->counter ++;
->
->}
->
->printf("No. of cycles: %ld\n", counter);
->
->return 0;
->}
->
->//---------------- END CODE -------------------
->
->
->In windows were performed about 300 millions cycles,
->while in Linux about 10 millions. This test was run on
->Fedora 4 and Suse 9.2 as Linux machines, and Windows
->XP Pro with VS .Net 2003 on the MS side. My CPU is a
->P4 @3GHz HT 800MHz bus.
->
->I published my little test on several forums and I
->wasn't the only one who got these results. All the
->other users using 2.6 kernel obtained similar results
->regardless of the CPU they had (Intel or AMD). 
->
->Also I downloaded the latest kernel (2.6.12),
->configured it specifically for my machine, disabled
->all the modules I don't need and compiled it. The
->result was a 1.7 MB kernel on which KDE moves faster,
->but the processing speed it's the same - same huge
->speed ratios.
->
->Also, it shouldn't have any importance, but my HDD is
->SATA so the specific modules were required. I don't
->think its SCSI modules have any impact on the
->processing speed, but you know more on the kernel
->architecture then I do.
->
->Now, can anyone explain this and suggest what other
->optimizations I should use? The 2.4 version was a lot
->faster. I thought the newer versions were supposed to
->work faster (or at least just as fast) AND to offer
->extra features.
->
->Any help would appreciate.
->
->Thanks,
->Ciprian
->
->
->
->__________________________________________________
->Do You Yahoo!?
->Tired of spam?  Yahoo! Mail has the best spam protection around 
->http://mail.yahoo.com 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+You're not trying to benchmark the kernel with those arithmetic
+operations are you?! That's completely bogus, the kernel is not
+involved in any of that.
 
-Want to increase the latest kernel "speed" by 5 times ? Use the 
-follwoing code instead. :)
+As it has been already pointed out, the only OS-dependent and (by far)
+the most expensive operation in your loop is the time() function call
+- so that's the only thing you're really benchmarking there (besides
+compiler optimizations).
 
-// -- Start Code
-#include <stdio.h>
-#include <time.h>
+> In windows were performed about 300 millions cycles,
+> while in Linux about 10 millions. This test was run on
+> Fedora 4 and Suse 9.2 as Linux machines, and Windows
+> XP Pro with VS .Net 2003 on the MS side. My CPU is a
+> P4 @3GHz HT 800MHz bus.
+
+I can only speculate as of why the windoze time() call seems so much
+faster: maybe it is implemented in userspace and doesn't involve a
+system call. Somebody with more knowledge in the area might
+confirm/infirm this.
+
+Even in Linux your results will vary a lot depending on whether the
+kernel and glibc support vsyscalls. The FC kernels disable vsyscall
+because it's incompatible with NX, not sure about the Suse kernels.
+Here's what I get on a P4 1.7 with a vsyscall enabled kernel
+(2.6.11.12):
+
+No. of cycles: 65688977
+
+Check this thread for a FC4 kernel performance discussion:
+http://www.redhat.com/archives/fedora-devel-list/2005-June/msg01126.html
 
 
-int main()
-{
-clock_t initialTime;
-clock_t testTime;
-long counter = 0;
-double test = 1;
+> Now, can anyone explain this and suggest what other
+> optimizations I should use? The 2.4 version was a lot
+> faster. 
 
-
-initialTime = clock() / CLOCKS_PER_SEC;
-testTime = initialTime;
-
-printf("Here we go...\n");
-
-while((testTime-initialTime) < 30)
-{
-testTime = clock()/CLOCKS_PER_SEC;
-test /= 10;
-test *= 10;
-test += 10;
-test -= 10;
-
-counter ++;
-
-}
-
-printf("No. of cycles: %ld\n", counter);
-
-return 0;
-}
-// ---- End code
-
-so essentially you are timing just the time() function.
-
-HTH,
-Puneet
+Your bogus test aside, a certain userland performance degradation when
+moving from 2.4 to 2.6 is expected as the x86 timer interrupt
+frequency has increased from 100Hz to 1KHz (it's about to be lowered
+to 250Hz) - so your apps are interrupted more often. But I wouldn't
+expect that degradation to be substantial. If you want to dig in and
+measure it you should use asm/rdtsc instead of time().

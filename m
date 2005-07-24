@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVGXXJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVGXXUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbVGXXJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 19:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVGXXJ0
+	id S261338AbVGXXUv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 19:20:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVGXXUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 19:09:26 -0400
-Received: from pat.uio.no ([129.240.130.16]:61103 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261295AbVGXXJY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 19:09:24 -0400
-Subject: Re: [PATCH NFS 3/3] Replace nfs_block_bits() with
-	roundup_pow_of_two()
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050724143640.GA19941@lsrfire.ath.cx>
-References: <20050724143640.GA19941@lsrfire.ath.cx>
+	Sun, 24 Jul 2005 19:20:51 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:4019 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261338AbVGXXUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 19:20:49 -0400
+Subject: Re: Device supported by the OSS trident driver not supported by
+	ALSA
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: perex@suse.cz, mulix@mulix.org, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, Alan Cox <alan@redhat.com>
+In-Reply-To: <20050723200417.GI3160@stusta.de>
+References: <20050723200417.GI3160@stusta.de>
 Content-Type: text/plain
-Date: Sun, 24 Jul 2005 19:09:09 -0400
-Message-Id: <1122246549.8322.3.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.406, required 12,
-	autolearn=disabled, AWL 2.41, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Date: Mon, 25 Jul 2005 00:42:49 +0100
+Message-Id: <1122248569.10835.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-su den 24.07.2005 Klokka 16:36 (+0200) skreiv Rene Scharfe:
-> [PATCH NFS 3/3] Replace nfs_block_bits() with roundup_pow_of_two()
+On Sad, 2005-07-23 at 22:04 +0200, Adrian Bunk wrote:
+> The OSS trident driver has 5 different pci_device_id entries.
 > 
-> Function nfs_block_bits() an open-coded version of (the non-existing)
-> rounddown_pow_of_two().  That means that for non-power-of-two target
-> sizes it returns half the size needed for a block to fully contain
-> the target.  I guess this is wrong. :-)  The patch uses the built-in
-> roundup_pow_of_two() instead.
+> For 4 of them there seems to be similar ALSA support, but I can't find 
+> any ALSA equivalent for the following entry:
+>         {PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_5050,
+>          PCI_ANY_ID, PCI_ANY_ID, 0, 0, CYBER5050},
+> 
+> Can anyone tell my why this device is supported by the OSS trident 
+> driver but not by ALSA?
 
-What non-power-of-two target? Anything _not_ aligned to a power of two
-boundary is a BUG!
+The OSS driver supports the CyberPro T-squared core integrated into the
+cyberpro chipset while the ALSA driver only supports the others. Should
+be easy for someone to resolve. I don't have any 5000 hardware to test
+it however.
 
-Cheers,
-  Trond
+Alan
 

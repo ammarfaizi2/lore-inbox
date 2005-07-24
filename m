@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVGXVIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVGXVNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVGXVIh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 17:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVGXVIh
+	id S261359AbVGXVNO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 17:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVGXVNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 17:08:37 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:63366 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261315AbVGXVIe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 17:08:34 -0400
-Message-ID: <42E40350.203@drzeus.cx>
-Date: Sun, 24 Jul 2005 23:08:32 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-0.1.fc5 (X11/20050719)
-X-Accept-Language: en-us, en
+	Sun, 24 Jul 2005 17:13:14 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:27856 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S261359AbVGXVNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 17:13:13 -0400
+From: Grant Coady <lkml@dodo.com.au>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3 test: finding compile errors with make randconfig
+Date: Mon, 25 Jul 2005 07:13:02 +1000
+Organization: www.scatter.mine.nu
+Reply-To: lkml@dodo.com.au
+Message-ID: <0fv7e11ejvimjkfqib95n93hl34icavnbu@4ax.com>
+References: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com> <20050724091327.GQ3160@stusta.de> <glq7e1ttejp2sh7uuo6nil2vafljdprkpk@4ax.com> <20050724203932.GX3160@stusta.de>
+In-Reply-To: <20050724203932.GX3160@stusta.de>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <greg@kroah.com>
-Subject: Re: IRQ routing problem in 2.6.10-rc2
-References: <42E395F6.8070301@drzeus.cx> <9a87484905072407164f0e0eb5@mail.gmail.com>
-In-Reply-To: <9a87484905072407164f0e0eb5@mail.gmail.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
+On Sun, 24 Jul 2005 22:39:32 +0200, Adrian Bunk <bunk@stusta.de> wrote:
 
+>On Mon, Jul 25, 2005 at 05:42:58AM +1000, Grant Coady wrote:
+>> On Sun, 24 Jul 2005 11:13:27 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+>> >
+>> >it's generally useful, but the target kernel should be the latest -mm
+>> >kernel. 
+>> 097-error:drivers/char/drm/drm_memory.h:163: error: redefinition of `drm_ioremap_nocache'
+>> 097-error:drivers/char/drm/drm_memory.h:163: error: `drm_ioremap_nocache' previously defined here
+>> 097-error:drivers/char/drm/drm_memory.h:174: error: redefinition of `drm_ioremapfree'
+>> 097-error:drivers/char/drm/drm_memory.h:174: error: `drm_ioremapfree' previously defined here
 >
->Have you tried the suggestion given "... As a temporary workaround,
->the "pci=routeirq" argument..." ?
->You could also try the pci=noacpi boot option to see if that changes anything.
->  
->
+>This requires the .config for debugging.
+Here:
+  ftp://ftp.scatter.mine.nu/develop/trial4-097-config.gz
 
-No, I missed that one. The machine works fine with either of those two
-options. I sent a comment with lspci to Bjorn Helgaas as suggested.
+>My first guess is that drm_memory.h requires a simple #ifdef to allow 
+>multiple inclusions.
 
->Also, that's a fairly old kernel you have there, could you try
->2.6.13-rc3, 2.6.13-rc3-git6 or 2.6.13-rc3-mm1 ?
->
->  
->
+I can tell you:
+--- linux-2.6.12.3b/drivers/char/drm/drm_memory.h.orig	2005-06-18 05:48:29.000000000 +1000
++++ linux-2.6.12.3b/drivers/char/drm/drm_memory.h	2005-07-25 06:57:41.000000000 +1000
+@@ -33,6 +33,9 @@
+  * OTHER DEALINGS IN THE SOFTWARE.
+  */
+ 
++#ifndef DRM_MEMORY_H
++#define DRM_MEMORY_H
++
+ #include <linux/config.h>
+ #include <linux/highmem.h>
+ #include <linux/vmalloc.h>
+@@ -194,4 +197,5 @@
+ 	iounmap(pt);
+ }
+ 
++#endif
 
-I discovered the problem running 2.6.12. I only tried these kernels to
-pinpoint where the problem began.
+does not fix it, though it's probably not what you had in mind, first try...
+Simple fix didn't...  Now I got to read the code, takes a little more 
+effort :)
+...
+>You aren't running into problems that are already fixed (see your second 
+>example above).
+I see your point, thanks for feedback.  
 
-Rgds
-Pierre
-
+Grant.
 

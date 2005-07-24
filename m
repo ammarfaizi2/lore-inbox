@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVGXQIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVGXQKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbVGXQIP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 12:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVGXQIP
+	id S261388AbVGXQKs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 12:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVGXQKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 12:08:15 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20490 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261381AbVGXQIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 12:08:13 -0400
-Date: Sun, 24 Jul 2005 18:08:05 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Greg KH <greg@kroah.com>, Francois Romieu <romieu@fr.zoreil.com>,
-       Greg KH <gregkh@suse.de>, torvalds@osdl.org, akpm@osdl.org,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, netdev@vger.kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, jgarzik@pobox.com,
-       stable@kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [stable] Re: [05/11] SMP fix for 6pack driver
-Message-ID: <20050724160805.GS3160@stusta.de>
-References: <20050713184130.GA9330@kroah.com> <20050713184331.GG9330@kroah.com> <20050713220123.GA3292@electric-eye.fr.zoreil.com> <20050713221311.GA30039@kroah.com> <20050715193556.GB18059@stusta.de> <20050717210939.GA11884@linux-mips.org>
+	Sun, 24 Jul 2005 12:10:48 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:18123 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261383AbVGXQKq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 12:10:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hYKkxO+xH5XrjiMrg/zO39sjzerELJqRcZ1eHvozi6xKOV0WNYmQMEjgwmA7VCDwGWFLmSW0vhgGsxDWgLUKPgmlvaG9sbwyaj7UHvTst/D3muFrNoSsNnmwSpyRZFhumNU3esNi18DG4OPx2M36CpR8RkrBcugxP3FdLgh/ugM=
+Message-ID: <9a874849050724091051b62a81@mail.gmail.com>
+Date: Sun, 24 Jul 2005 18:10:45 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: IRQ routing problem in 2.6.10-rc2
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <greg@kroah.com>
+In-Reply-To: <Pine.LNX.4.61.0507241711040.11580@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050717210939.GA11884@linux-mips.org>
-User-Agent: Mutt/1.5.9i
+References: <42E395F6.8070301@drzeus.cx>
+	 <9a87484905072407164f0e0eb5@mail.gmail.com>
+	 <Pine.LNX.4.61.0507241711040.11580@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 17, 2005 at 05:09:39PM -0400, Ralf Baechle wrote:
-> On Fri, Jul 15, 2005 at 09:35:56PM +0200, Adrian Bunk wrote:
+On 7/24/05, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> >> PCI: Using ACPI for IRQ routing
+> >> ** PCI interrupts are no longer routed automatically.  If this
+> >> ** causes a device to stop working, it is probably because the
+> >> ** driver failed to call pci_enable_device().  As a temporary
+> >> ** workaround, the "pci=routeirq" argument restores the old
+> >> ** behavior.  If this argument makes the device work again,
+> >> ** please email the output of "lspci" to bjorn.helgaas@hp.com
+> >> ** so I can fix the driver.
+> >Have you tried the suggestion given "... As a temporary workaround,
+> >the "pci=routeirq" argument..." ?
+> >You could also try the pci=noacpi boot option to see if that changes anything.
 > 
-> > I do agree with Francois regarding this issue:
-> > 
-> > AFAIR, there has been not one 2.6 kernel where this driver was available 
-> > for SMP kernels.
+> Hi,
 > 
-> Eh...  That after all is the raison d'etre for this patch :)
+> and what's the proper fix for pci=routeirq? I got a driver that is only
+> maintained by myself and would like to fix up the issue.
 > 
-> > It's therefore untested which problems might arise with 
-> > this driver on SMP systems. I'm not arguing against including this 
-> > driver in 2.6.13, but 2.6.12.3 isn't the right place.
-> 
-> Nonsense.  Most development activity for this stuff happens not on the
-> internet and you won't be able to follow it unless you're a licensed ham.
-> I've been circulating things patch since a while and nobody has been unhappy.
-
-So why was it important to get it into 2.6.12.3?
-
-I must have missed the announcement that the original -stable goals have 
-been declared obsolete.
-
-> > What surprises me most is that you accepted this patch is neither in 
-> > 2.6.13-rc3 nor in 2.6.13-rc3-mm1. There seems to be either an
-> > (IMHO unfortunate) change in your policy of what patches to accept,
-> > or there's a serious problem in your patch review process.
-> 
-> I've sent it to jgarzik so it's somewhere on it's long way there.
-> 
->   Ralf
-
-cu
-Adrian
+While I don't /know/ exactely what the proper fix is I'll venture a
+guess based on the information in the text above : The driver probably
+doesn't call pci_enable_device().
+Quoting the message at bootup time "If this causes a device to stop
+working, it is probably because the driver failed to call
+pci_enable_device().".
+Also, the Kernel Janitors TODO list
+(http://janitor.kernelnewbies.org/TODO) has this to say about
+pci_enable_device() :
+  - ALL PCI drivers should call pci_enable_device --before-- reading
+    pdev->irq or pdev->resource[].  irq and resource[] may not have correct
+    values until after PCI hotplug setup occurs at pci_enable_device()
+    time.  Many PCI drivers need to be evaluated and checked for this.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

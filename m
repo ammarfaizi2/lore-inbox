@@ -1,161 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVGXCUN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVGXCwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262295AbVGXCUN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 22:20:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVGXCUN
+	id S261839AbVGXCwY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 22:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVGXCwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 22:20:13 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:9229 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S261839AbVGXCUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 22:20:10 -0400
-Date: Sun, 24 Jul 2005 10:12:15 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       Jeff Moyer <jmoyer@redhat.com>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       Andreas Gruenbacher <agruen@suse.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] autofs4 - fix infamous "Busy inodes after umount ..." message.
-Message-ID: <Pine.LNX.4.63.0507241000120.2330@donald.themaw.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-99.4, required 8,
-	PATCH_UNIFIED_DIFF, RCVD_IN_ORBS, RCVD_IN_OSIRUSOFT_COM,
-	USER_AGENT_PINE, USER_IN_WHITELIST)
+	Sat, 23 Jul 2005 22:52:24 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:39965 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261839AbVGXCwX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 22:52:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eEwAA9IAxT0wJTufjnSuVRoLbfuzITwREJDDu4nNLKXgBRAoUYWSAFCmYholD3c5tuZ+5Hi2U3uxV32IA3ZzLiRVwgBcmy9tv4XC04b5OojO2jhxQa+pWU397wpUAs1NCoFnosK4RzjJLP9TRIw5qAwNwoe5b5AgLE2cuyY9Yl8=
+Message-ID: <9871ee5f05072319523528f2de@mail.gmail.com>
+Date: Sat, 23 Jul 2005 22:52:21 -0400
+From: Timothy Miller <theosib@gmail.com>
+Reply-To: Timothy Miller <theosib@gmail.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: HELP: NFS mount hangs when attempting to copy file
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1122135532.8203.5.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9871ee5f050720155671cbc376@mail.gmail.com>
+	 <1122135532.8203.5.camel@lade.trondhjem.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/23/05, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-If the automount daemon receives a signal which causes it to sumarily 
-terminate the autofs4 module leaks dentries. The same problem exists with 
-detached mount requests without the warning.
+> I beg to disagree. A lot of these VPN solutions are unfriendly to MTU
+> path discovery over UDP. Sun uses TCP by default when mounting NFS
+> partitions. Have you tried this on your Linux box?
 
-This patch cleans these dentries at umount.
+I changed the protocol to TCP and changed rsize and wsize to 1024.  I
+don't know which of those fixed it, but I'm going to leave it for now.
 
-Signed-off-by: Ian Kent <raven@themaw.net>
+As for MTU, yeah, the Watchguard box seems to have some hard-coded
+limits, and for whatever reason KDE and GNOME graphical logins do
+something that exceeds those limits, completely independent of NFS,
+and hang up hard.
 
-diff -Nurp linux-2.6.11.orig/fs/autofs4/autofs_i.h linux-2.6.11/fs/autofs4/autofs_i.h
---- linux-2.6.11.orig/fs/autofs4/autofs_i.h	2005-07-02 19:23:37.000000000 +0800
-+++ linux-2.6.11/fs/autofs4/autofs_i.h	2005-07-02 19:15:11.000000000 +0800
-@@ -92,6 +92,7 @@
- 
- struct autofs_sb_info {
- 	u32 magic;
-+	struct dentry *root;
- 	struct file *pipe;
- 	pid_t oz_pgrp;
- 	int catatonic;
---- linux-2.6.11.orig/fs/autofs4/inode.c	2005-07-02 19:19:37.000000000 +0800
-+++ linux-2.6.11/fs/autofs4/inode.c	2005-07-09 13:16:13.000000000 +0800
-@@ -16,6 +16,7 @@
- #include <linux/pagemap.h>
- #include <linux/parser.h>
- #include <linux/bitops.h>
-+#include <linux/smp_lock.h>
- #include "autofs_i.h"
- #include <linux/module.h>
- 
-@@ -76,6 +77,66 @@
- 	kfree(ino);
- }
- 
-+/*
-+ * Deal with the infamous "Busy inodes after umount ..." message.
-+ *
-+ * Clean up the dentry tree. This happens with autofs if the user
-+ * space program goes away due to a SIGKILL, SIGSEGV etc.
-+ */
-+static void autofs4_force_release(struct autofs_sb_info *sbi)
-+{
-+	struct dentry *this_parent = sbi->root;
-+	struct list_head *next;
-+
-+	spin_lock(&dcache_lock);
-+repeat:
-+	next = this_parent->d_subdirs.next;
-+resume:
-+	while (next != &this_parent->d_subdirs) {
-+		struct dentry *dentry = list_entry(next, struct dentry, d_child);
-+
-+		/* Negative dentry - don`t care */
-+		if (!simple_positive(dentry)) {
-+			next = next->next;
-+			continue;
-+		}
-+
-+		if (!list_empty(&dentry->d_subdirs)) {
-+			this_parent = dentry;
-+			goto repeat;
-+		}
-+
-+		next = next->next;
-+		spin_unlock(&dcache_lock);
-+
-+		DPRINTK("dentry %p %.*s",
-+			dentry, (int)dentry->d_name.len, dentry->d_name.name);
-+
-+		dput(dentry);
-+		spin_lock(&dcache_lock);
-+	}
-+
-+	if (this_parent != sbi->root) {
-+		struct dentry *dentry = this_parent;
-+
-+		next = this_parent->d_child.next;
-+		this_parent = this_parent->d_parent;
-+		spin_unlock(&dcache_lock);
-+		DPRINTK("parent dentry %p %.*s",
-+			dentry, (int)dentry->d_name.len, dentry->d_name.name);
-+		dput(dentry);
-+		spin_lock(&dcache_lock);
-+		goto resume;
-+	}
-+	spin_unlock(&dcache_lock);
-+
-+	dput(sbi->root);
-+	sbi->root = NULL;
-+	shrink_dcache_sb(sbi->sb);
-+
-+	return;
-+}
-+
- static void autofs4_put_super(struct super_block *sb)
- {
- 	struct autofs_sb_info *sbi = autofs4_sbi(sb);
-@@ -85,6 +146,10 @@
- 	if ( !sbi->catatonic )
- 		autofs4_catatonic_mode(sbi); /* Free wait queues, close pipe */
- 
-+	/* Clean up and release dangling references */
-+	if (sbi)
-+		autofs4_force_release(sbi);
-+
- 	kfree(sbi);
- 
- 	DPRINTK("shutting down");
-@@ -199,6 +264,7 @@
- 
- 	s->s_fs_info = sbi;
- 	sbi->magic = AUTOFS_SBI_MAGIC;
-+	sbi->root = NULL;
- 	sbi->catatonic = 0;
- 	sbi->exp_timeout = 0;
- 	sbi->oz_pgrp = process_group(current);
-@@ -267,6 +333,13 @@
- 	sbi->pipe = pipe;
- 
- 	/*
-+	 * Take a reference to the root dentry so we get a chance to
-+	 * clean up the dentry tree on umount.
-+	 * See autofs4_force_release.
-+	 */
-+	sbi->root = dget(root);
-+
-+	/*
- 	 * Success! Install the root dentry now to indicate completion.
- 	 */
- 	s->s_root = root;
-
+Thanks.

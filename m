@@ -1,153 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVGXNqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVGXOCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbVGXNqo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 09:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVGXNqo
+	id S261229AbVGXOCO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 10:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVGXOCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 09:46:44 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:28303 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261285AbVGXNql
+	Sun, 24 Jul 2005 10:02:14 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:58199 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261229AbVGXOCM convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 09:46:41 -0400
-Message-ID: <42E39BB8.1040602@linuxtv.org>
-Date: Sun, 24 Jul 2005 15:46:32 +0200
-From: Michael Hunold <hunold@linuxtv.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------020901070408010709060308"
-X-SA-Exim-Connect-IP: 84.137.135.76
-Subject: [PATCH][V4L] fix tuning with MXB driver
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+	Sun, 24 Jul 2005 10:02:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IeZpYKaV0ocnqXdzxoRW54dWlcyU6hoZHrziUbCNoxH+YLQ6r79O1er8jGepSEqLpOnH2QfBSW7LB4uYwY7b8K5nQ3Rt/wckpkrg7AkANXRdwfVzqtH/oxa5JLwY6arBzCMIPoCTyhuPhI8wVAIs0eH6HL4np18KkS0XfZpcq+I=
+Message-ID: <9a8748490507240702593372d4@mail.gmail.com>
+Date: Sun, 24 Jul 2005 16:02:12 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: UmaMaheswari Devi <uma@cs.unc.edu>
+Subject: Re: kernel debugging
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42E3946E.4010009@cs.unc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42E3946E.4010009@cs.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020901070408010709060308
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+On 7/24/05, UmaMaheswari Devi <uma@cs.unc.edu> wrote:
+> I am new to kernel hacking and am facing problems in trying to peek at the
+> runtime values of some kernel variables using gdb.
+> 
+> I am issuing the gdb command as follows:
+>      gdb vmlinux /proc/kcore
+> This displays the message
+>     /proc/kcore: Operation not permitted
+> before the (gdb) prompt is displayed.
+> gdb then prints a value of 0 for any valid variable that is requested.
+> 
+> vmlinux appears to be OK, as gdb correctly identifies undefined variables.
+> The problem seems to be with /proc/kcore. This file has a permission of 400. I
+> am using the Red Hat distribution.
+> 
+> Any help is appreciated.
+> 
+If you want to use gdb to debug the kernel you should probably
+investigate UML (User Mode Linux). Take a look at this link :
+http://user-mode-linux.sourceforge.net/debugging.html
 
-Hello Linus, Andrew,
+Alternatives include kgdb - http://kgdb.sourceforge.net/ 
+and kdb - http://oss.sgi.com/projects/kdb/
 
-I noticed that some past changes to the gerneric Video4Linux tuner
-module for analog tuners broke my "Multimedia eXtension Board" driver.
+You can also find many documents on Linux Kernel debugging aids and
+techniques via google.
 
-The tuner driver was made aware of Video4Linux2 tuning ioctls, but my
-driver was not ported and still uses the Video4Linux1 ioctls. This does
-not work anymore as intendend, the tuning is currently broken.
-
-The attached patch fixes non-working tuning in MXB driver introduced by
-some recent generic tuner changes by replacing Video4Linux1 tuner ioctls
-with proper Video4Linux2 tuner ioctls.
-
-Please apply.
-
-Thanks!
-Michael.
-
-
---------------020901070408010709060308
-Content-Type: text/x-patch;
- name="v4l2-mxb-tuning-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="v4l2-mxb-tuning-fix.patch"
-
-- fix non-working tuning in MXB driver introduced by some recent generic tuner changes
-by replacing Video4Linux1 tuner ioctls with proper Video4Linux2 tuner ioctls
-
-Signed-off-by: Michael Hunold <hunold@linuxtv.org>
-
-diff -ura xx-linux-2.6.12.1/drivers/media/video/mxb.c linux-2.6.12.1/drivers/media/video/mxb.c
---- xx-linux-2.6.12.1/drivers/media/video/mxb.c	2005-07-24 13:00:17.000000000 +0200
-+++ linux-2.6.12.1/drivers/media/video/mxb.c	2005-07-24 13:08:02.000000000 +0200
-@@ -142,8 +142,8 @@
- 
- 	int	cur_mode;	/* current audio mode (mono, stereo, ...) */
- 	int	cur_input;	/* current input */
--	int	cur_freq;	/* current frequency the tuner is tuned to */
- 	int	cur_mute;	/* current mute status */
-+	struct v4l2_frequency	cur_freq;	/* current frequency the tuner is tuned to */
- };
- 
- static struct saa7146_extension extension;
-@@ -349,8 +349,13 @@
- 	mxb->saa7111a->driver->command(mxb->saa7111a,DECODER_SET_VBI_BYPASS, &i);
- 
- 	/* select a tuner type */
--	i = 5; 
-+	i = TUNER_PHILIPS_PAL; 
- 	mxb->tuner->driver->command(mxb->tuner,TUNER_SET_TYPE, &i);
-+	/* tune in some frequency on tuner */
-+	mxb->cur_freq.tuner = 0;
-+	mxb->cur_freq.type = V4L2_TUNER_ANALOG_TV;
-+	mxb->cur_freq.frequency = freq;
-+	mxb->tuner->driver->command(mxb->tuner, VIDIOC_S_FREQUENCY, &mxb->cur_freq);
- 	
- 	/* mute audio on tea6420s */
- 	mxb->tea6420_1->driver->command(mxb->tea6420_1,TEA6420_SWITCH, &TEA6420_line[6][0]);
-@@ -368,12 +373,8 @@
- 	vm.out = 13;
- 	mxb->tea6415c->driver->command(mxb->tea6415c,TEA6415C_SWITCH, &vm);
- 				
--	/* tune in some frequency on tuner */
--	mxb->tuner->driver->command(mxb->tuner, VIDIOCSFREQ, &freq);
--
- 	/* the rest for mxb */
- 	mxb->cur_input = 0;
--	mxb->cur_freq = freq;
- 	mxb->cur_mute = 1;
- 
- 	mxb->cur_mode = V4L2_TUNER_MODE_STEREO;
-@@ -816,18 +817,14 @@
- 			return -EINVAL;
- 		}
- 
--		memset(f,0,sizeof(*f));
--		f->type = V4L2_TUNER_ANALOG_TV;
--		f->frequency =  mxb->cur_freq;
-+		*f = mxb->cur_freq;
- 
--		DEB_EE(("VIDIOC_G_FREQ: freq:0x%08x.\n", mxb->cur_freq));
-+		DEB_EE(("VIDIOC_G_FREQ: freq:0x%08x.\n", mxb->cur_freq.frequency));
- 		return 0;
- 	}
- 	case VIDIOC_S_FREQUENCY:
- 	{
- 		struct v4l2_frequency *f = arg;
--		int t_locked = 0;
--		int v_byte = 0;
- 
- 		if (0 != f->tuner)
- 			return -EINVAL;
-@@ -840,20 +837,11 @@
- 			return -EINVAL;
- 		}
- 
--		DEB_EE(("VIDIOC_S_FREQUENCY: freq:0x%08x.\n",f->frequency));
--
--		mxb->cur_freq = f->frequency;
-+		mxb->cur_freq = *f;
-+		DEB_EE(("VIDIOC_S_FREQUENCY: freq:0x%08x.\n", mxb->cur_freq.frequency));
- 
- 		/* tune in desired frequency */			
--		mxb->tuner->driver->command(mxb->tuner, VIDIOCSFREQ, &mxb->cur_freq);
--
--		/* check if pll of tuner & saa7111a is locked */
--//		mxb->tuner->driver->command(mxb->tuner,TUNER_IS_LOCKED, &t_locked);
--		mxb->saa7111a->driver->command(mxb->saa7111a,DECODER_GET_STATUS, &v_byte);
--
--		/* not locked -- anything to do here ? */
--		if( 0 == t_locked || 0 == (v_byte & DECODER_STATUS_GOOD)) {
--		}
-+		mxb->tuner->driver->command(mxb->tuner, VIDIOC_S_FREQUENCY, &mxb->cur_freq);
- 
- 		/* hack: changing the frequency should invalidate the vbi-counter (=> alevt) */
- 		spin_lock(&dev->slock);
-
---------------020901070408010709060308--
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

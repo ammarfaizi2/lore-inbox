@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVGXOGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVGXOQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVGXOGE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 10:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVGXODw
+	id S261965AbVGXOQH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 10:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVGXOQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 10:03:52 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:57990 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261954AbVGXODp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 10:03:45 -0400
-Message-ID: <42E39FBD.1080204@drzeus.cx>
-Date: Sun, 24 Jul 2005 16:03:41 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-2079-1122213821-0001-2"
-To: LKML <linux-kernel@vger.kernel.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: Greg Kroah-Hartman <greg@kroah.com>
+	Sun, 24 Jul 2005 10:16:07 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:65319 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261965AbVGXOQF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 10:16:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XWp/nbAoRSwo9Se64d2S9ILfdrUd254uzAHYjJPcGmuZvYHqpEV6+MCo+Ad365yddFElImRNlaeaEpuGdwkHNpRSwogqNE+G3zzTigtT7Rf6ochK9dxWOJ3RjN+Ja0Oe1aHZxGMvEbwnzDNsInG81ICWKvqjMMDg3WPV9dKrems=
+Message-ID: <9a87484905072407164f0e0eb5@mail.gmail.com>
+Date: Sun, 24 Jul 2005 16:16:05 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
 Subject: Re: IRQ routing problem in 2.6.10-rc2
-References: <42E395F6.8070301@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <greg@kroah.com>
 In-Reply-To: <42E395F6.8070301@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42E395F6.8070301@drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
-
---=_hermes.drzeus.cx-2079-1122213821-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-
-Pierre Ossman wrote:
+On 7/24/05, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+> Sorry about reporting this error so late but the machine in question had
+> gone some time without upgrades.
+> 
+> The problem I'm seeing is that IRQs stop working for one of the IRQ
+> slots on the machine. It's only that slot, not the entire IRQ, since the
+> two slots (it's a small machine) both get routed to IRQ 10.
+> 
+> I've included dmesg from 2.6.10-rc1 (which works) and 2.6.10-rc2 (which
+> doesn't).
+> 
+> I've also tried reverting the patches that modifies
+> arch/i386/kernel/irq.c and arch/i386/pci/irq.c but it didn't solve the
+> problem. So now I need some more input on which patches to try.
+> 
+[snip]
+> 
+> Linux version 2.6.10-rc2 (root@natasha.craffe.se) (gcc version 3.3.3 20040412 (Red Hat Linux 3.3.3-7)) #8 Wed Jul 20 02:57:15 CEST 2005
+[snip]
+> ACPI: Using PIC for interrupt routing
+[snip]
+> PCI: Using ACPI for IRQ routing
 > ** PCI interrupts are no longer routed automatically.  If this
 > ** causes a device to stop working, it is probably because the
 > ** driver failed to call pci_enable_device().  As a temporary
@@ -41,116 +58,15 @@ Pierre Ossman wrote:
 > ** behavior.  If this argument makes the device work again,
 > ** please email the output of "lspci" to bjorn.helgaas@hp.com
 > ** so I can fix the driver.
+[snip]
+Have you tried the suggestion given "... As a temporary workaround,
+the "pci=routeirq" argument..." ?
+You could also try the pci=noacpi boot option to see if that changes anything.
 
-If I had just bothered to diff the dmesg:es properly I would have found
-the problem... Sorry for the noice.
+Also, that's a fairly old kernel you have there, could you try
+2.6.13-rc3, 2.6.13-rc3-git6 or 2.6.13-rc3-mm1 ?
 
-Bjorn, the 3c59x driver breaks on this system, but only in one specific
-slot. lspci -vv included.
-
-(The problem is still present on 2.6.12 so I haven't just tried 2.6.10.)
-
-Rgds
-Pierre
-
---=_hermes.drzeus.cx-2079-1122213821-0001-2
-Content-Type: text/plain; name=lspci-natasha; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lspci-natasha"
-
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 64
-	Region 0: Memory at f4000000 (32-bit, prefetchable)
-	Capabilities: [a0] AGP version 1.0
-		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
-		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
-
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-	I/O behind bridge: 0000e000-0000efff
-	Memory behind bridge: fc000000-feffffff
-	Prefetchable memory behind bridge: f9000000-f9ffffff
-	Expansion ROM at 0000e000 [disabled] [size=4K]
-	BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B+
-
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) (prog-if 80 [Master])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32
-	Region 4: I/O ports at ffa0 [size=16]
-
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Interrupt: pin D routed to IRQ 11
-	Region 4: I/O ports at dce0 [size=32]
-
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin ? routed to IRQ 9
-
-00:0d.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
-	Subsystem: 3Com Corporation 3C905C-TX Fast Etherlink for PC Management NIC
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (2500ns min, 2500ns max), Cache Line Size 08
-	Interrupt: pin A routed to IRQ 10
-	Region 0: I/O ports at dc00 [size=fb000000]
-	Region 1: Memory at ff000400 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at 00020000 [disabled]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-00:0e.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
-	Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (3000ns min, 32000ns max)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at dc80
-	Capabilities: [dc] Power Management version 1
-		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0+,D1-,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)
-	Subsystem: Dell Computer Corporation 3C905B Fast Etherlink XL 10/100
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (2500ns min, 2500ns max), Cache Line Size 08
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at d880 [size=fb000000]
-	Region 1: Memory at ff000000 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at 00020000 [disabled]
-	Capabilities: [dc] Power Management version 1
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c) (prog-if 00 [VGA])
-	Subsystem: Dell Computer Corporation Optiplex GX1 Onboard Display Adapter
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (2000ns min), Cache Line Size 08
-	Interrupt: pin A routed to IRQ 10
-	Region 0: Memory at fd000000 (32-bit, non-prefetchable)
-	Region 1: I/O ports at ec00 [size=256]
-	Region 2: Memory at fcfff000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [50] AGP version 1.0
-		Status: RQ=256 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
-		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
-
-
---=_hermes.drzeus.cx-2079-1122213821-0001-2--
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

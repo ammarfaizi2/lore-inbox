@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVGXWQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVGXWRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVGXWQI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 18:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVGXWQH
+	id S261451AbVGXWRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 18:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVGXWRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 18:16:07 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:18581 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261441AbVGXWQG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 18:16:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=beAWe1u/OAEnzxrQ5mAtqvkwh8U4MR32ne+OpmduwDvOxA500Hx9s8e8kRvaKnctCi2CLIgvvIwRbo0C2nrGWmJggI8ybUqzcr9/oZiQbSY+wwHLvyS+dTjrvYk5gamBifCsJAYjXxGVw3pkjwsjs5lL7ndQyeB3TMMByTV7N9w=
-Message-ID: <42E4131D.6090605@gmail.com>
-Date: Sun, 24 Jul 2005 18:15:57 -0400
-From: Puneet Vyas <vyas.puneet@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Grant Coady <lkml@dodo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: xor as a lazy comparison
-References: <Pine.LNX.4.61.0507241835360.18474@yvahk01.tjqt.qr> <kis7e1d4khtde78oajl017900pmn9407u4@4ax.com> <Pine.LNX.4.61.0507242342080.9022@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0507242342080.9022@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Jul 2005 18:17:15 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:10423 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261451AbVGXWRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 18:17:08 -0400
+Date: Sun, 24 Jul 2005 23:17:02 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, bcrl@kvack.org,
+       wli@holomorphy.com, zab@zabbo.net, mason@suse.com
+Subject: Re: [PATCH 2/6] Rename __lock_page to lock_page_slow
+Message-ID: <20050724221702.GA9620@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Suparna Bhattacharya <suparna@in.ibm.com>, linux-aio@kvack.org,
+	linux-kernel@vger.kernel.org, bcrl@kvack.org, wli@holomorphy.com,
+	zab@zabbo.net, mason@suse.com
+References: <20050620120154.GA4810@in.ibm.com> <20050620160126.GA5271@in.ibm.com> <20050620162404.GB5380@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050620162404.GB5380@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+On Mon, Jun 20, 2005 at 09:54:04PM +0530, Suparna Bhattacharya wrote:
+> In order to allow for interruptible and asynchronous versions of
+> lock_page in conjunction with the wait_on_bit changes, we need to
+> define low-level lock page routines which take an additional
+> argument, i.e a wait queue entry and may return non-zero status,
+> e.g -EINTR, -EIOCBRETRY, -EWOULDBLOCK etc. This patch renames 
+> __lock_page to lock_page_slow, so that __lock_page and 
+> __lock_page_slow can denote the versions which take a wait queue 
+> parameter.
 
->>To confuse you, coders with assembly or hardware background throw in 
->>    
->>
->
->I doubt that. I'm good enough assembly to see this :)
->
->  
->
->>equivalent bit operations to succinctly describe their visualisation 
->>of solution space...  Perhaps the writer _wanted_ you to pause and 
->>think?  Maybe the compiler produces better code?  Try it and see.
->>    
->>
->
->It produces a simple CMP. Should not be inefficient, though.
->
->
->Jan Engelhardt
->  
->
-I just compiled two identical program , one with "!=" and other with 
-"^". The assembly output is identical.
+How many users that don't use a waitqueue parameter will be left
+once all AIO patches go in?
+

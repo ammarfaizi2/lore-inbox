@@ -1,32 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVGXRB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVGXRIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVGXRB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 13:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVGXRBZ
+	id S261244AbVGXRIG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 13:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVGXRIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 13:01:25 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:12960 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S261404AbVGXRBW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 13:01:22 -0400
-Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
-From: Richard Purdie <rpurdie@rpsys.net>
+	Sun, 24 Jul 2005 13:08:06 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:41624 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261244AbVGXRHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 13:07:49 -0400
+Date: Sun, 24 Jul 2005 10:07:33 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
 To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Pavel Machek <pavel@suse.cz>, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Cc: pavel@suse.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
+Message-Id: <20050724100733.3b363599.rdunlap@xenotime.net>
 In-Reply-To: <20050724174756.A20019@flint.arm.linux.org.uk>
 References: <20050722180109.GA1879@elf.ucw.cz>
-	 <20050724174756.A20019@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Sun, 24 Jul 2005 18:01:12 +0100
-Message-Id: <1122224472.7585.82.camel@localhost.localdomain>
+	<20050724174756.A20019@flint.arm.linux.org.uk>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-07-24 at 17:47 +0100, Russell King wrote:
+On Sun, 24 Jul 2005 17:47:56 +0100 Russell King wrote:
+
 > On Fri, Jul 22, 2005 at 08:01:09PM +0200, Pavel Machek wrote:
 > > This adds support for reading ADCs (etc), neccessary to operate touch
 > > screen on Sharp Zaurus sl-5500.
@@ -40,29 +51,12 @@ On Sun, 2005-07-24 at 17:47 +0100, Russell King wrote:
 > that drivers/misc should remain completely empty - which makes this
 > set of miscellaneous drivers homeless.
 
-I've been wondering about suggesting the creation of a drivers/soc
-directory. The idea would be for it to contain "system on chip" type
-support code. I use that description loosely to fit any code which needs
-to support drivers in multiple driver subsections.
+but clearly drivers/misc/ is not empty, unless you mean at its
+top level.
 
-An example use in my Zaurus tree is the TSC2101 which contains a
-touchscreen, battery monitoring and sound. Handhelds.org has devices
-such as the ASIC2/ASIC3 in the ipaqs (and other handhelds) which cover
-many different drivers subsections.
+The IBM ASM service processor driver is there (added in 2.6.x)
+as well as some hdpuftrs/ driver, which is not in any Kconfig file
+or defconfig file.  :(
 
-Where practical, the sub drivers such as the touchscreen could be placed
-into the specific driver areas such as drivers/input/touchscreen/ but
-the core chip specific support would be in drivers/soc and the files
-would be connected. 
-
-Would that be acceptable in mainline?
-
-Richard
-
-
-
-
-
-
-
-
+---
+~Randy

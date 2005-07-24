@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVGXTar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVGXTmC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbVGXTar (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 15:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVGXTaq
+	id S261170AbVGXTmC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 15:42:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVGXTmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 15:30:46 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:26022 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261483AbVGXTao convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 15:30:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=L2jn1E0xaT+U9cwNdYxlBuhaws+nSZRR8Z3HiR+PkOJTy/hYY6H1Vn9F4DULlU7KyJZjZ1wCuswdvAOr1mn//yHCmKgJDe11DBEd32vjXLvvser1X+GM1Bo+pY4ou6fr/1xE0f+ktYHLSdOC9icyn0gCo+57InjLxLnGxbSghc8=
-Message-ID: <9a8748490507241230179ff7f4@mail.gmail.com>
-Date: Sun, 24 Jul 2005 21:30:43 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: lkml@dodo.com.au
-Subject: Re: 2.6.13-rc3 test: finding compile errors with make randconfig
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <2vn7e1lfujeei07rocnr1sbavpbtpbcm6a@4ax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com>
-	 <9a8748490507240601ec7a940@mail.gmail.com>
-	 <2vn7e1lfujeei07rocnr1sbavpbtpbcm6a@4ax.com>
+	Sun, 24 Jul 2005 15:42:02 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:45274 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261170AbVGXTmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 15:42:00 -0400
+Message-ID: <42E3EEFD.8090907@ens-lyon.org>
+Date: Sun, 24 Jul 2005 21:41:49 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Ciprian <cipicip@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6 speed
+References: <20050724191211.48495.qmail@web53608.mail.yahoo.com>
+In-Reply-To: <20050724191211.48495.qmail@web53608.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/24/05, Grant Coady <lkml@dodo.com.au> wrote:
-> On Sun, 24 Jul 2005 15:01:22 +0200, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> >> context.  Deliberately simplistic for traceability at the moment, truncated
-> >> error length for this post.
-> >>
-> >If you could put the data online somewhere I'd be interrested in
-> >taking a look at it.
-> 7.4MB raw data --> low info content.  Needs garbage removal.  Good
-> test case for gzip vs bzip2 --> 1.4MB vs 481kB,
+Le 24.07.2005 21:12, Ciprian a écrit :
+> while((testTime-initialTime) < 30)
+> {
+> time(&testTime);
+> test /= 10;
+> test *= 10;
+> test += 10;
+> test -= 10;
 > 
->   ftp://ftp.scatter.mine.nu/develop/first_run.tar.bz2 (481kB)
+> counter ++;
 > 
-> If you mean online info-sys, I don't have bandwidth for that :(
-> 
-Ok. Would you be able to bzip2 the raw data and email it to me off list ?
+> }
 
+> In windows were performed about 300 millions cycles,
+> while in Linux about 10 millions. This test was run on
+> Fedora 4 and Suse 9.2 as Linux machines, and Windows
+> XP Pro with VS .Net 2003 on the MS side. My CPU is a
+> P4 @3GHz HT 800MHz bus.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Hi,
+
+This test gives you the price of the time function on each OS
+since the 4 arithmetical operations are shorter to compute
+(several cycles against tons of cycles). It appears that the time
+function costs about 3 us on Linux against 0.1 us on Windows.
+This function is probably very OS-dependant since it depends on
+how the kernel handles timing. You can't compare anything as small
+as these arithmetical operations like this.  Using rdtsc would be
+much better.
+
+Anyway, if you just want to measure the cost of arithmetic
+operations, there shouldn't be any difference in the results
+between Linux and Windows (with a safe timing method).
+
+Brice

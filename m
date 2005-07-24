@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVGXTnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVGXTro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVGXTnU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 15:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVGXTnU
+	id S261347AbVGXTro (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 15:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVGXTrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 15:43:20 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:26550 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S261254AbVGXTnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 15:43:11 -0400
-From: Grant Coady <lkml@dodo.com.au>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3 test: finding compile errors with make randconfig
-Date: Mon, 25 Jul 2005 05:42:58 +1000
-Organization: www.scatter.mine.nu
-Reply-To: lkml@dodo.com.au
-Message-ID: <glq7e1ttejp2sh7uuo6nil2vafljdprkpk@4ax.com>
-References: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com> <20050724091327.GQ3160@stusta.de>
-In-Reply-To: <20050724091327.GQ3160@stusta.de>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Sun, 24 Jul 2005 15:47:43 -0400
+Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:703 "HELO
+	dag.newtech.fi") by vger.kernel.org with SMTP id S261182AbVGXTri
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 15:47:38 -0400
+Message-ID: <20050724194737.30199.qmail@dag.newtech.fi>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-0.27
+To: Ciprian <cipicip@yahoo.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dag@newtech.fi
+Subject: Re: kernel 2.6 speed 
+In-Reply-To: Message from Ciprian <cipicip@yahoo.com> 
+   of "Sun, 24 Jul 2005 12:12:11 PDT." <20050724191211.48495.qmail@web53608.mail.yahoo.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 24 Jul 2005 22:47:37 +0300
+From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Jul 2005 11:13:27 +0200, Adrian Bunk <bunk@stusta.de> wrote:
->
->it's generally useful, but the target kernel should be the latest -mm
->kernel. 
-097-error:drivers/char/drm/drm_memory.h:163: error: redefinition of `drm_ioremap_nocache'
-097-error:drivers/char/drm/drm_memory.h:163: error: `drm_ioremap_nocache' previously defined here
-097-error:drivers/char/drm/drm_memory.h:174: error: redefinition of `drm_ioremapfree'
-097-error:drivers/char/drm/drm_memory.h:174: error: `drm_ioremapfree' previously defined here
-098-error:drivers/usb/gadget/ether.c:2510: error: `STATUS_BYTECOUNT' undeclared (first use in this function)
-098-error:drivers/usb/gadget/ether.c:2510: error: (Each undeclared identifier is reported only once
-098-error:drivers/usb/gadget/ether.c:2510: error: for each function it appears in.)
-grant@sempro:/opt/linux/trial4$ grep error *-error |wc -l
-2105
 
-With > 2k (raw) errors in 97.something builds of 2.6.12.3, why go 
-looking for trouble in -mm?  
->
->And doing the compilations is really the trivial part of the work, the 
-Got to start somewhere :)  
+> In windows were performed about 300 millions cycles,
+> while in Linux about 10 millions. This test was run on
+> Fedora 4 and Suse 9.2 as Linux machines, and Windows
+> XP Pro with VS .Net 2003 on the MS side. My CPU is a
+> P4 @3GHz HT 800MHz bus.
+> 
+> I published my little test on several forums and I
+> wasn't the only one who got these results. All the
+> other users using 2.6 kernel obtained similar results
+> regardless of the CPU they had (Intel or AMD). 
 
-Grant.
+Looking at the gcc-produced code from youe test program I 
+can see the floating point math beeing optimized away all
+together as you are not using the result and the rest more
+or less boils down to the call to time() and a few moves
+and compares of the time values.
+In other words it seems like you are testing the efficiency of
+the time() function...
+
+BRGDS
+Dag
 

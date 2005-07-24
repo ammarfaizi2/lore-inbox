@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVGXJNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVGXJio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVGXJNf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 05:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVGXJNf
+	id S261864AbVGXJio (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 05:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVGXJin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 05:13:35 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:27143 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261546AbVGXJNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 05:13:34 -0400
-Date: Sun, 24 Jul 2005 11:13:27 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Grant Coady <lkml@dodo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3 test: finding compile errors with make randconfig
-Message-ID: <20050724091327.GQ3160@stusta.de>
-References: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com>
-User-Agent: Mutt/1.5.9i
+	Sun, 24 Jul 2005 05:38:43 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:22475 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261864AbVGXJim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 05:38:42 -0400
+Date: Sun, 24 Jul 2005 11:39:52 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Bodo Eggert <7eggert@gmx.de>, perex@suse.cz, akpm@osdl.org,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org
+Subject: Re: [2.6 patch] sound drivers select'ing ISAPNP must depend on PNP
+ && ISA
+In-Reply-To: <20050723164801.GE3160@stusta.de>
+Message-ID: <Pine.LNX.4.58.0507241112150.5658@be1.lrz>
+References: <Pine.LNX.4.58.0507171702030.12446@be1.lrz> <20050719163640.GK5031@stusta.de>
+ <Pine.LNX.4.58.0507192232230.4182@be1.lrz> <20050723164801.GE3160@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 24, 2005 at 04:28:54PM +1000, Grant Coady wrote:
+On Sat, 23 Jul 2005, Adrian Bunk wrote:
+> On Tue, Jul 19, 2005 at 10:50:53PM +0200, Bodo Eggert wrote:
 
-> Greetings,
-
-Hi Grant,
-
-> Few days ago I compiled 241 random configurations of 2.6.13-rc3, today 
-> I finally got around to parsing the results, top 40, sorted by name.  
-> Percentage is error_builds / total_builds.
+> > OTOH, the build system
+> > should automatically propagate the dependencies. I asume that should be
+> > easy, except for having the time to implement that.
+> >...
 > 
-> build script similar to:
-> count=0
-> while [ $((++count)) -le $limit ]; do
->         trial=$(printf %003d $count)
->         make randconfig
->         cp .config "$store/$trial-config"
->         make clean
->         make -j2 2> "$store/$trial-error"
-> done
-> 
-> Curious whether this is worth doing, I'm about to start a run for 2.6.12.3, 
-> any interesting errors I can find the particular config + error to recover 
-> context.  Deliberately simplistic for traceability at the moment, truncated 
-> error length for this post.
->...
+> There are nontrivial problems:
+> E.g. what should happen if you select option A that depends on (B || C)?
 
-it's generally useful, but the target kernel should be the latest -mm
-kernel. 
+You should in effect depend on ($original_depends) && (B || C). You'll 
+just need to append all (recursive) dependencies in the selecting option.
 
-And doing the compilations is really the trivial part of the work, the 
-main work is to analyze what causes the build failures and sending 
-patches.
 
-> Grant.
+last_length:=-1; /* impossible value */
+while |options_with_unresolved_selects| > 0 do begin
+	if |options_with_unresolved_selects| == last_length
+	then goto circular_recursion_detected;
+	last_length:=|options_with_unresolved_selects|;
 
-cu
-Adrian
+	for i in options_with_unresolved_selects do begin
+		for s in i->unresolved_selects do
+			if 0 == |s->unresolved_selects|
+			then begin
+				add(i->depends, s->depends)
+				delete_from(i->unresolved_selects, s)
+			end
+		if 0 == |i->unresolved_selects|
+		then delete_from(options_with_unresolved_selects, i);
+	end
+end
+
+> There's one opinion that options should be either select'able _or_ user 
+> visible.
+
+That would only result in ugly workarounds. Think about the kernel 
+libraries. You'll want to manually select them, and you'll want to 
+automatically select them, and you want both to be visible.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Funny quotes:
+22. When everything's going your way, you're in the wrong lane and and going
+    the wrong way.

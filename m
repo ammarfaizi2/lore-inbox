@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVGXNQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVGXNRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVGXNQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 09:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVGXNQJ
+	id S261936AbVGXNRY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 09:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVGXNRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 09:16:09 -0400
-Received: from web33308.mail.mud.yahoo.com ([68.142.206.123]:42894 "HELO
-	web33308.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261201AbVGXNQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 09:16:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=BeVXmkzPNSfdK+Nh8+p1OSigwM4irsKvwWX1Cuwkicr0ZaEdjX1/qtitPZ9KRQYf4kFhKAEqFP4UnmnNG7A9ZRZDJpU/5zD5hZuCAQ769vZP7sKnW2q4L7Y5AlmtT6VVu6RhLI3TNPCMTkjhWyiymI21rLaRqqCxxsx1pv8MMsM=  ;
-Message-ID: <20050724131604.89173.qmail@web33308.mail.mud.yahoo.com>
-Date: Sun, 24 Jul 2005 06:16:04 -0700 (PDT)
-From: li nux <lnxluv@yahoo.com>
-Subject: ext2: buffer_head usage with and without O_DIRECT
-To: linux <linux-kernel@vger.kernel.org>
+	Sun, 24 Jul 2005 09:17:24 -0400
+Received: from listserv0.isis.unc.edu ([152.2.0.38]:13983 "EHLO smtp.unc.edu")
+	by vger.kernel.org with ESMTP id S261936AbVGXNQ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 09:16:28 -0400
+Message-ID: <42E3946E.4010009@cs.unc.edu>
+Date: Sun, 24 Jul 2005 09:15:26 -0400
+From: UmaMaheswari Devi <uma@cs.unc.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: kernel debugging
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is with respect to 2.4.28 on
-http://lxr.linux.no/source/?v=2.4.18 
+I am new to kernel hacking and am facing problems in trying to peek at the
+runtime values of some kernel variables using gdb.
 
-When i do read/write on ext2 without opening files
-with O_DIRECT, i can see buffer_head constantly
-increasing in /proc/slabinfo.
+I am issuing the gdb command as follows:
+     gdb vmlinux /proc/kcore
+This displays the message
+    /proc/kcore: Operation not permitted
+before the (gdb) prompt is displayed.
+gdb then prints a value of 0 for any valid variable that is requested.
 
-But when I open files with O_DIRECT, the i/o is done
-without using buffer_head, /proc/slabinfo shows this
-as constant throughout the i/o.
-There is no other i/o activity on the box.
+vmlinux appears to be OK, as gdb correctly identifies undefined variables.
+The problem seems to be with /proc/kcore. This file has a permission of 400. I
+am using the Red Hat distribution.
 
-Stacks below show that both of them creates
-buffer_head's. Any idea why this is happening ?
+Any help is appreciated. 
 
-As per the code, Without O_DIRECT, stack is:
-(See fs/buffer.c)
-submit_bh_rsector
-submit_bh
-block_read_full_page (This calls create_buffers to
-create buffer_head's)
-ext2_readpage
-do_generic_file_read
-generic_file_new_read
-generic_file_read
-
-With O_DIRECT:
-brw_kiovec (This creates buffer_head's)
-generic_direct_sector_IO (cals
-prepare_direct_IO_iobuf)
-ext2_direct_IO
-generic_file_direct_IO 
-generic_file_new_read
-generic_file_read
-
--Thanks.
+Thanks,
+Uma.
 
 
-		
-____________________________________________________
-Start your day with Yahoo! - make it your home page 
-http://www.yahoo.com/r/hs 
- 

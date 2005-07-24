@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVGXTro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVGXUCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVGXTro (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 15:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVGXTrn
+	id S261182AbVGXUCn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 16:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVGXUCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 15:47:43 -0400
-Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:703 "HELO
-	dag.newtech.fi") by vger.kernel.org with SMTP id S261182AbVGXTri
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 15:47:38 -0400
-Message-ID: <20050724194737.30199.qmail@dag.newtech.fi>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-0.27
-To: Ciprian <cipicip@yahoo.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dag@newtech.fi
-Subject: Re: kernel 2.6 speed 
-In-Reply-To: Message from Ciprian <cipicip@yahoo.com> 
-   of "Sun, 24 Jul 2005 12:12:11 PDT." <20050724191211.48495.qmail@web53608.mail.yahoo.com> 
+	Sun, 24 Jul 2005 16:02:30 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:61162 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261182AbVGXUC2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 16:02:28 -0400
+Date: Sun, 24 Jul 2005 22:02:27 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Noah Misch <noah@cs.caltech.edu>, linux-pcmcia@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13-rc3] pcmcia: pcmcia_request_irq for !IRQ_HANDLE_PRESENT
+Message-ID: <20050724200227.GA26872@isilmar.linta.de>
+Mail-Followup-To: Noah Misch <noah@cs.caltech.edu>,
+	linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
+References: <20050717035124.GC13529@orchestra.cs.caltech.edu> <20050723201113.GA12537@dominikbrodowski.de> <20050724124040.C4908@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 24 Jul 2005 22:47:37 +0300
-From: Dag Nygren <dag@newtech.fi>
+Content-Disposition: inline
+In-Reply-To: <20050724124040.C4908@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> In windows were performed about 300 millions cycles,
-> while in Linux about 10 millions. This test was run on
-> Fedora 4 and Suse 9.2 as Linux machines, and Windows
-> XP Pro with VS .Net 2003 on the MS side. My CPU is a
-> P4 @3GHz HT 800MHz bus.
+On Sun, Jul 24, 2005 at 12:40:40PM +0100, Russell King wrote:
+> On Sat, Jul 23, 2005 at 10:11:13PM +0200, Dominik Brodowski wrote:
+> > Thanks for the excellent debugging. Your patch seems to work, however it
+> > might be better to do just this:
 > 
-> I published my little test on several forums and I
-> wasn't the only one who got these results. All the
-> other users using 2.6 kernel obtained similar results
-> regardless of the CPU they had (Intel or AMD). 
+> This can be racy if two drivers are simultaneously trying to request an
+> IRQ.  'data' must be unique to different threads if they are to avoid
+> interfering with each other.
 
-Looking at the gcc-produced code from youe test program I 
-can see the floating point math beeing optimized away all
-together as you are not using the result and the rest more
-or less boils down to the call to time() and a few moves
-and compares of the time values.
-In other words it seems like you are testing the efficiency of
-the time() function...
+As it's enough to keep PCMCIA functions apart (there can't be two drivers
+registering with the same PCMCIA function at the same moment), I'll use that
+now.
+	void *data = &p_dev->dev.driver; /* something unique to this device */
 
-BRGDS
-Dag
 
+Thanks,
+	Dominik

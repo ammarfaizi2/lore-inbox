@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVGXITP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVGXJNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbVGXITP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 04:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVGXITP
+	id S261546AbVGXJNf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 05:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVGXJNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 04:19:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2313 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261927AbVGXITN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 04:19:13 -0400
-Date: Sun, 24 Jul 2005 09:19:02 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Pavel Machek <pavel@ucw.cz>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Dave Airlie <airlied@linux.ie>
-Subject: Re: fix suspend/resume irq request free for yenta..
-Message-ID: <20050724091902.A4908@flint.arm.linux.org.uk>
-Mail-Followup-To: Dave Airlie <airlied@gmail.com>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Pavel Machek <pavel@ucw.cz>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>
-References: <Pine.LNX.4.58.0507222331580.15287@skynet> <200507221816.19424.dtor_core@ameritech.net> <20050723002924.GA1988@elf.ucw.cz> <20050723084049.A7921@flint.arm.linux.org.uk> <Pine.LNX.4.61.0507230941280.16055@montezuma.fsmlabs.com> <21d7e997050723154057d36290@mail.gmail.com>
+	Sun, 24 Jul 2005 05:13:35 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:27143 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261546AbVGXJNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 05:13:34 -0400
+Date: Sun, 24 Jul 2005 11:13:27 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Grant Coady <lkml@dodo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3 test: finding compile errors with make randconfig
+Message-ID: <20050724091327.GQ3160@stusta.de>
+References: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <21d7e997050723154057d36290@mail.gmail.com>; from airlied@gmail.com on Sun, Jul 24, 2005 at 08:40:00AM +1000
+In-Reply-To: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 24, 2005 at 08:40:00AM +1000, Dave Airlie wrote:
-> > > What if some other driver is sharing the IRQ, and requires IRQs to be
-> > > enabled for the resume to complete?
+On Sun, Jul 24, 2005 at 04:28:54PM +1000, Grant Coady wrote:
+
+> Greetings,
+
+Hi Grant,
+
+> Few days ago I compiled 241 random configurations of 2.6.13-rc3, today 
+> I finally got around to parsing the results, top 40, sorted by name.  
+> Percentage is error_builds / total_builds.
 > 
-> All drivers re-enable IRQs on their way back up in their resume code,
-> they shouldn't be doing anything before that point..
+> build script similar to:
+> count=0
+> while [ $((++count)) -le $limit ]; do
+>         trial=$(printf %003d $count)
+>         make randconfig
+>         cp .config "$store/$trial-config"
+>         make clean
+>         make -j2 2> "$store/$trial-error"
+> done
+> 
+> Curious whether this is worth doing, I'm about to start a run for 2.6.12.3, 
+> any interesting errors I can find the particular config + error to recover 
+> context.  Deliberately simplistic for traceability at the moment, truncated 
+> error length for this post.
+>...
 
-I think you missed the point.  If a driver resume method requires
-to send some commands to the chip to restore it to the state it was
-before it was suspended, and requires interrupts to complete that
-operation.
+it's generally useful, but the target kernel should be the latest -mm
+kernel. 
 
-This is quite possible if a device has child devices which will be
-resumed after it has been resumed, and they share this interrupt.
+And doing the compilations is really the trivial part of the work, the 
+main work is to analyze what causes the build failures and sending 
+patches.
 
-This is why I think request_irq/free_irq is a better solution.
+> Grant.
 
-Alternatively, we need to go to a two stage resume model - 1st
-stage to re-setup the devices such that they are in a quiescent
-state, 2nd stage to complete.
+cu
+Adrian
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

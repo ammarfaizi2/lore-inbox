@@ -1,91 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVGXV1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVGXV3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbVGXV1b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 17:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVGXV1b
+	id S261361AbVGXV3N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 17:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVGXV3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 17:27:31 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:7693 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261354AbVGXV13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 17:27:29 -0400
-Date: Sun, 24 Jul 2005 23:27:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Grant Coady <lkml@dodo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3 test: finding compile errors with make randconfig
-Message-ID: <20050724212721.GA3160@stusta.de>
-References: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com> <20050724091327.GQ3160@stusta.de> <glq7e1ttejp2sh7uuo6nil2vafljdprkpk@4ax.com> <20050724203932.GX3160@stusta.de> <0fv7e11ejvimjkfqib95n93hl34icavnbu@4ax.com>
-Mime-Version: 1.0
+	Sun, 24 Jul 2005 17:29:13 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:14350 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261361AbVGXV3J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 17:29:09 -0400
+To: VASM <vasm85@gmail.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, gbakos@cfa.harvard.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel page size explanation
+References: <Pine.SOL.4.58.0507211925170.28852@titan.cfa.harvard.edu>
+	<9a87484905072118207a85970e@mail.gmail.com>
+	<87d5p8aw4h.fsf@amaterasu.srvr.nix>
+	<4536bb7305072412011fbeaf59@mail.gmail.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: Lovecraft was an optimist.
+Date: Sun, 24 Jul 2005 22:28:59 +0100
+In-Reply-To: <4536bb7305072412011fbeaf59@mail.gmail.com> (VASM's message of
+ "Mon, 25 Jul 2005 00:31:07 +0530")
+Message-ID: <878xzvc2qs.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0fv7e11ejvimjkfqib95n93hl34icavnbu@4ax.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 07:13:02AM +1000, Grant Coady wrote:
-> On Sun, 24 Jul 2005 22:39:32 +0200, Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> >On Mon, Jul 25, 2005 at 05:42:58AM +1000, Grant Coady wrote:
-> >> On Sun, 24 Jul 2005 11:13:27 +0200, Adrian Bunk <bunk@stusta.de> wrote:
-> >> >
-> >> >it's generally useful, but the target kernel should be the latest -mm
-> >> >kernel. 
-> >> 097-error:drivers/char/drm/drm_memory.h:163: error: redefinition of `drm_ioremap_nocache'
-> >> 097-error:drivers/char/drm/drm_memory.h:163: error: `drm_ioremap_nocache' previously defined here
-> >> 097-error:drivers/char/drm/drm_memory.h:174: error: redefinition of `drm_ioremapfree'
-> >> 097-error:drivers/char/drm/drm_memory.h:174: error: `drm_ioremapfree' previously defined here
-> >
-> >This requires the .config for debugging.
-> Here:
->   ftp://ftp.scatter.mine.nu/develop/trial4-097-config.gz
-> 
-> >My first guess is that drm_memory.h requires a simple #ifdef to allow 
-> >multiple inclusions.
-> 
-> I can tell you:
-> --- linux-2.6.12.3b/drivers/char/drm/drm_memory.h.orig	2005-06-18 05:48:29.000000000 +1000
-> +++ linux-2.6.12.3b/drivers/char/drm/drm_memory.h	2005-07-25 06:57:41.000000000 +1000
-> @@ -33,6 +33,9 @@
->   * OTHER DEALINGS IN THE SOFTWARE.
->   */
->  
-> +#ifndef DRM_MEMORY_H
-> +#define DRM_MEMORY_H
-> +
->  #include <linux/config.h>
->  #include <linux/highmem.h>
->  #include <linux/vmalloc.h>
-> @@ -194,4 +197,5 @@
->  	iounmap(pt);
->  }
->  
-> +#endif
-> 
-> does not fix it, though it's probably not what you had in mind, first try...
+On Mon, 25 Jul 2005, VASM wrote:
+> i had one question 
+> does the linux kernel support only one default page size even if the
+> processor on which it is working supports multiple ?
 
-That's what I had in mind.
+No. Some architectures have compile-time support for multiple different
+page sizes (e.g. Itanium, SPARC64); many have support for a
+(non-swappable) `large pages) system, and a filesystem backed by huge
+pages. (Often, the kernel is stored in huge pages, to keep the number
+of page table entries wasted by the nonswappable kernel to a minimum.)
 
-> Simple fix didn't...  Now I got to read the code, takes a little more 
-> effort :)
->...
-
-Looking at the .config, the problem is actually:
-  CONFIG_BROKEN=y
-
-You should edit init/Kconfig to disallow CONFIG_CLEAN_COMPILE=n, since 
-any errors you see with CONFIG_BROKEN=y aren't interesting.
-
-> Grant.
-
-cu
-Adrian
+What is *not* presently supported is using multiple page sizes to
+back userspace processes; that size is currently fixed at compile-time,
+even on architectures supporting multiple variably-sized pages.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+`But of course, GR is the very best relativity for the masses.'
+ --- Wayne Throop

@@ -1,45 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVGXShz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVGXSpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVGXShz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 14:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVGXShz
+	id S261433AbVGXSpV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 14:45:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVGXSpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 14:37:55 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:9234 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261418AbVGXSha
+	Sun, 24 Jul 2005 14:45:21 -0400
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:59545 "EHLO
+	aquarius.doma") by vger.kernel.org with ESMTP id S261433AbVGXSpS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 14:37:30 -0400
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: gbakos@cfa.harvard.edu, linux-kernel@vger.kernel.org
-Subject: Re: kernel page size explanation
-References: <Pine.SOL.4.58.0507211925170.28852@titan.cfa.harvard.edu>
-	<9a87484905072118207a85970e@mail.gmail.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: no job too big... no job.
-Date: Sun, 24 Jul 2005 19:37:18 +0100
-In-Reply-To: <9a87484905072118207a85970e@mail.gmail.com> (Jesper Juhl's
- message of "22 Jul 2005 02:22:04 +0100")
-Message-ID: <87d5p8aw4h.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Sun, 24 Jul 2005 14:45:18 -0400
+Message-ID: <42E3E1BC.2050509@ribosome.natur.cuni.cz>
+Date: Sun, 24 Jul 2005 20:45:16 +0200
+From: =?windows-1252?Q?Martin_MOKREJ=8A?= 
+	<mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Giving developers clue how many testers verified certain kernel
+ version
+References: <42E04D11.20005@ribosome.natur.cuni.cz> <20050722231126.GB3160@stusta.de>
+In-Reply-To: <20050722231126.GB3160@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jul 2005, Jesper Juhl suggested tentatively:
-> You can
->  A) look in the .config file for your current kernel (if your arch
-> supports different page sizes at all).
->  B) You can use the  getpagesize(2) syscall at runtime. getpagesize()
-> returns the nr of bytes in a page - man getpagesize - I'm not sure
-> that's universally supported though.
->  C) You can look at /proc/cpuinfo or /proc/meminfo , IIRC some archs
-> report page size there - not quite sure, can't remember...
+Hi Adrian,
+  well, the idea was to give you a clue how many people did NOT complain
+because it either worked or they did not realize/care. The goal
+was different. For example, I have 2 computers and both need current acpi
+patch to work fine. I went to bugzilla and found nobody has filed such bugs
+before - so I did and said it is already fixed in current acpi patch.
+But you'd never know that I tested that successfully. And I don't believe
+to get emails from lkml that I installed a patch and it did not break
+anything. I hope you get the idea now. ;)
+Martin
 
-D) getconf PAGE_SIZE should work, although what it does on arches
-   with variable page sizes isn't clear to me.
+Adrian Bunk wrote:
+> On Fri, Jul 22, 2005 at 03:34:09AM +0200, Martin MOKREJ? wrote:
+> 
+> 
+>>Hi,
+> 
+> 
+> Hi Martin,
+> 
+> 
+>> I think the discussion going on here in another thread about lack
+>>of positive information on how many testers successfully tested certain
+>>kernel version can be easily solved with real solution.
+>>
+>> How about opening separate "project" in bugzilla.kernel.org named
+>>kernel-testers or whatever, where whenever cvs/svn/bk gatekeepers
+>>would release some kernel patch, would open an empty "bugreport"
+>>for that version, say for 2.6.13-rc3-git4.
+>>
+>> Anybody willing to join the crew who cared to download the patch
+>>and tested the kernel would post just a single comment/follow-up
+>>to _that_ "bugreport" with either "positive" rating or URL
+>>of his own bugreport with some new bug. When the bug get's closed
+>>it would be immediately obvious in the 2.6.13-rc3-git4 bug ticket
+>>as that bug will be striked-through as closed.
+>>
+>> Then, we could easily just browse through and see that 2.6.13-rc2
+>>was tested by 33 fellows while 3 of them found a problem and 2 such
+>>problems were closed since then.
+>>...
+> 
+> 
+> most likely, only a small minory of the people downloading a patch would 
+> register at such a "project".
+> 
+> The important part of the work, the bug reports, can already today go to 
+> lnux-kernel and/or the Bugzilla.
+> 
+> You'd spend efforts for such a "project" that would only produce some 
+> numbers of questionable value.
+> 
+> 
+>>Martin
+> 
+> 
+> cu
+> Adrian
+> 
 
 -- 
-`But of course, GR is the very best relativity for the masses.'
- --- Wayne Throop
+Martin Mokrejs
+Email: 'bW9rcmVqc21Acmlib3NvbWUubmF0dXIuY3VuaS5jeg==\n'.decode('base64')
+GPG key is at http://www.natur.cuni.cz/~mmokrejs

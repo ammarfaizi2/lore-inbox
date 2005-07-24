@@ -1,50 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVGXV3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVGXVcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVGXV3N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 17:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVGXV3N
+	id S261400AbVGXVcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 17:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVGXVcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 17:29:13 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:14350 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261361AbVGXV3J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 17:29:09 -0400
-To: VASM <vasm85@gmail.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, gbakos@cfa.harvard.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel page size explanation
-References: <Pine.SOL.4.58.0507211925170.28852@titan.cfa.harvard.edu>
-	<9a87484905072118207a85970e@mail.gmail.com>
-	<87d5p8aw4h.fsf@amaterasu.srvr.nix>
-	<4536bb7305072412011fbeaf59@mail.gmail.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: Lovecraft was an optimist.
-Date: Sun, 24 Jul 2005 22:28:59 +0100
-In-Reply-To: <4536bb7305072412011fbeaf59@mail.gmail.com> (VASM's message of
- "Mon, 25 Jul 2005 00:31:07 +0530")
-Message-ID: <878xzvc2qs.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 24 Jul 2005 17:32:15 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:46543 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S261374AbVGXVa2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 17:30:28 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RTC Timezone
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <Pine.LNX.4.61.0507241707140.11580@yvahk01.tjqt.qr>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1Dwo2s-0003M3-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sun, 24 Jul 2005 23:30:02 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jul 2005, VASM wrote:
-> i had one question 
-> does the linux kernel support only one default page size even if the
-> processor on which it is working supports multiple ?
+In article <Pine.LNX.4.61.0507241707140.11580@yvahk01.tjqt.qr> you wrote:
+> My RTC clock is set to the local timezone. However, when I boot linux using 
+> the -b option, to stop by a shell before the bootscripts begin, the clock is 
+> exaclty two hours ahead.
 
-No. Some architectures have compile-time support for multiple different
-page sizes (e.g. Itanium, SPARC64); many have support for a
-(non-swappable) `large pages) system, and a filesystem backed by huge
-pages. (Often, the kernel is stored in huge pages, to keep the number
-of page table entries wasted by the nonswappable kernel to a minimum.)
+The problem is that the clock is correct, but the timezone of your system is
+not set yet. You can fix this by running the clock in UTC or not stop the boot
+process that early.
 
-What is *not* presently supported is using multiple page sizes to
-back userspace processes; that size is currently fixed at compile-time,
-even on architectures supporting multiple variably-sized pages.
-
--- 
-`But of course, GR is the very best relativity for the masses.'
- --- Wayne Throop
+Greetings
+Bernd

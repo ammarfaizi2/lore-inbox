@@ -1,68 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVGWXwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVGXAAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbVGWXwF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Jul 2005 19:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVGWXwF
+	id S262099AbVGXAAm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Jul 2005 20:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVGXAAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Jul 2005 19:52:05 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:1562 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262093AbVGWXwD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Jul 2005 19:52:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tBd8k3eSxommdpAN2xk4NXM6QjOtPmDQTq2sUDW0d7i0+qYcVNmUG9YjBNOzoi+rpYU3VsK6jEDj0cJNV5nWlITeRVGD5wZpGaj4alASgUcRH4a8tgPW6rF00h/nFFsY344U5sW3L9PTsZWMj3gh46/ZcJfX7A+c3VEzM31TVaQ=
-Message-ID: <9a874849050723165276f73cdf@mail.gmail.com>
-Date: Sun, 24 Jul 2005 01:52:03 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: randy_dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
-Cc: torvalds@osdl.org, rlrevell@joe-job.com, cw@f00f.org, akpm@osdl.org,
-       len.brown@intel.com, dtor_core@ameritech.net, vojtech@suse.cz,
-       david.lang@digitalinsight.com, davidsen@tmr.com, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, mbligh@mbligh.org, diegocg@gmail.com,
-       azarah@nosferatu.za.org, christoph@lameter.com
-In-Reply-To: <20050723164802.70b51b8a.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42D3E852.5060704@mvista.com>
-	 <d120d50005071312322b5d4bff@mail.gmail.com>
-	 <1121286258.4435.98.camel@mindpipe>
-	 <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-	 <9a874849050714170465c979c3@mail.gmail.com>
-	 <1121386505.4535.98.camel@mindpipe>
-	 <Pine.LNX.4.58.0507141718350.19183@g5.osdl.org>
-	 <42D731A4.40504@gmail.com>
-	 <20050723164802.70b51b8a.rdunlap@xenotime.net>
+	Sat, 23 Jul 2005 20:00:42 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:58721 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S262099AbVGXAAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Jul 2005 20:00:39 -0400
+Message-ID: <42E2DA27.9050402@krufky.com>
+Date: Sat, 23 Jul 2005 20:00:39 -0400
+From: Michael Krufky <mike@krufky.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>,
+       Mauro Carvalho Chehab <mchehab@brturbo.com.br>, mike@krufky.com
+Subject: [-mm PATCH] v4l: hybrid dvb: fix warnings with -Wundef
+Content-Type: multipart/mixed;
+ boundary="------------090400020608080903040102"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - krufky.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/24/05, randy_dunlap <rdunlap@xenotime.net> wrote:
-> On Fri, 15 Jul 2005 05:46:44 +0200 Jesper Juhl wrote:
-> 
-> > +static int __init jiffies_increment_setup(char *str)
-> > +{
-> > +     printk(KERN_NOTICE "setting up jiffies_increment : ");
-> > +     if (str) {
-> > +             printk("kernel_hz = %s, ", str);
-> > +     } else {
-> > +             printk("kernel_hz is unset, ");
-> > +     }
-> > +     if (!strncmp("100", str, 3)) {
-> 
-> BTW, if someone enters "kernel_hz=1000", this check (above) for "100"
-> matches (detects) 100, not 1000.
-> 
-ouch. You are right - thanks. I'll be sure to fix that.
-I haven't had time to look more at this little thing for the last few
-days, but I'll get back to it soon. Thank you for the feedback.
+This is a multi-part message in MIME format.
+--------------090400020608080903040102
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+
+--------------090400020608080903040102
+Content-Type: text/plain;
+ name="v4l-dvb-01-fix-warnings-with-Wundef.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="v4l-dvb-01-fix-warnings-with-Wundef.patch"
+
+This patch adds a missing #ifdef to saa7134-dvb.c
+(thanks to Mauro Carvalho Chehab)
+and changes #if to #ifdef in both files.
+
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+ linux/drivers/media/video/cx88/cx88-dvb.c       |   24 ++++++++--------
+ linux/drivers/media/video/saa7134/saa7134-dvb.c |   15 +++++-----
+ 2 files changed, 20 insertions(+), 19 deletions(-)
+
+diff -u linux-2.6.13/drivers/media/video/cx88/cx88-dvb.c linux/drivers/media/video/cx88/cx88-dvb.c
+--- linux-2.6.13/drivers/media/video/cx88/cx88-dvb.c	2005-07-23 18:54:34.000000000 +0000
++++ linux/drivers/media/video/cx88/cx88-dvb.c	2005-07-23 19:06:49.000000000 +0000
+@@ -38,17 +38,17 @@
+ #include "cx88.h"
+ #include "dvb-pll.h"
+ 
+-#if CONFIG_DVB_MT352
++#ifdef CONFIG_DVB_MT352
+ # include "mt352.h"
+ # include "mt352_priv.h"
+ #endif
+-#if CONFIG_DVB_CX22702
++#ifdef CONFIG_DVB_CX22702
+ # include "cx22702.h"
+ #endif
+-#if CONFIG_DVB_OR51132
++#ifdef CONFIG_DVB_OR51132
+ # include "or51132.h"
+ #endif
+-#if CONFIG_DVB_LGDT3302
++#ifdef CONFIG_DVB_LGDT3302
+ # include "lgdt3302.h"
+ #endif
+ 
+@@ -107,7 +107,7 @@
+ 
+ /* ------------------------------------------------------------------ */
+ 
+-#if CONFIG_DVB_MT352
++#ifdef CONFIG_DVB_MT352
+ static int dvico_fusionhdtv_demod_init(struct dvb_frontend* fe)
+ {
+ 	static u8 clock_config []  = { CLOCK_CTL,  0x38, 0x39 };
+@@ -177,7 +177,7 @@
+ };
+ #endif
+ 
+-#if CONFIG_DVB_CX22702
++#ifdef CONFIG_DVB_CX22702
+ static struct cx22702_config connexant_refboard_config = {
+ 	.demod_address = 0x43,
+ 	.pll_address   = 0x60,
+@@ -191,7 +191,7 @@
+ };
+ #endif
+ 
+-#if CONFIG_DVB_OR51132
++#ifdef CONFIG_DVB_OR51132
+ static int or51132_set_ts_param(struct dvb_frontend* fe,
+ 				int is_punctured)
+ {
+@@ -208,7 +208,7 @@
+ };
+ #endif
+ 
+-#if CONFIG_DVB_LGDT3302
++#ifdef CONFIG_DVB_LGDT3302
+ static int lgdt3302_pll_set(struct dvb_frontend* fe,
+ 			    struct dvb_frontend_parameters* params,
+ 			    u8* pllbuf)
+@@ -259,7 +259,7 @@
+ 
+ 	/* init frontend */
+ 	switch (dev->core->board) {
+-#if CONFIG_DVB_CX22702
++#ifdef CONFIG_DVB_CX22702
+ 	case CX88_BOARD_HAUPPAUGE_DVB_T1:
+ 		dev->dvb.frontend = cx22702_attach(&hauppauge_novat_config,
+ 						   &dev->core->i2c_adap);
+@@ -270,7 +270,7 @@
+ 						   &dev->core->i2c_adap);
+ 		break;
+ #endif
+-#if CONFIG_DVB_MT352
++#ifdef CONFIG_DVB_MT352
+ 	case CX88_BOARD_DVICO_FUSIONHDTV_DVB_T1:
+ 		dev->core->pll_addr = 0x61;
+ 		dev->core->pll_desc = &dvb_pll_lg_z201;
+@@ -292,13 +292,13 @@
+ 						 &dev->core->i2c_adap);
+ 		break;
+ #endif
+-#if CONFIG_DVB_OR51132
++#ifdef CONFIG_DVB_OR51132
+ 	case CX88_BOARD_PCHDTV_HD3000:
+ 		dev->dvb.frontend = or51132_attach(&pchdtv_hd3000,
+ 						 &dev->core->i2c_adap);
+ 		break;
+ #endif
+-#if CONFIG_DVB_LGDT3302
++#ifdef CONFIG_DVB_LGDT3302
+ 	case CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q:
+ 		dev->ts_gen_cntrl = 0x08;
+ 		{
+diff -u linux-2.6.13/drivers/media/video/saa7134/saa7134-dvb.c linux/drivers/media/video/saa7134/saa7134-dvb.c
+--- linux-2.6.13/drivers/media/video/saa7134/saa7134-dvb.c	2005-07-23 18:39:40.000000000 +0000
++++ linux/drivers/media/video/saa7134/saa7134-dvb.c	2005-07-23 19:06:49.000000000 +0000
+@@ -36,11 +36,11 @@
+ #include "saa7134-reg.h"
+ #include "saa7134.h"
+ 
+-#if CONFIG_DVB_MT352
++#ifdef CONFIG_DVB_MT352
+ # include "mt352.h"
+ # include "mt352_priv.h" /* FIXME */
+ #endif
+-#if CONFIG_DVB_TDA1004X
++#ifdef CONFIG_DVB_TDA1004X
+ # include "tda1004x.h"
+ #endif
+ 
+@@ -54,7 +54,7 @@
+ 
+ /* ------------------------------------------------------------------ */
+ 
+-#if CONFIG_DVB_MT352
++#ifdef CONFIG_DVB_MT352
+ static int pinnacle_antenna_pwr(struct saa7134_dev *dev, int on)
+ {
+ 	u32 ok;
+@@ -153,7 +153,7 @@
+ 
+ /* ------------------------------------------------------------------ */
+ 
+-#if CONFIG_DVB_TDA1004X
++#ifdef CONFIG_DVB_TDA1004X
+ static int philips_tu1216_pll_init(struct dvb_frontend *fe)
+ {
+ 	struct saa7134_dev *dev = fe->dvb->priv;
+@@ -385,7 +385,7 @@
+ 	return 0;
+ }
+ 
+-
++#ifdef CONFIG_DVB_TDA1004X
+ static struct tda1004x_config medion_cardbus = {
+ 	.demod_address = 0x08,
+ 	.invert        = 1,
+@@ -398,6 +398,7 @@
+ 	.pll_sleep	   = philips_fmd1216_analog,
+ 	.request_firmware = NULL,
+ };
++#endif
+ 
+ /* ------------------------------------------------------------------ */
+ 
+@@ -547,14 +548,14 @@
+ 			    dev);
+ 
+ 	switch (dev->board) {
+-#if CONFIG_DVB_MT352
++#ifdef CONFIG_DVB_MT352
+ 	case SAA7134_BOARD_PINNACLE_300I_DVBT_PAL:
+ 		printk("%s: pinnacle 300i dvb setup\n",dev->name);
+ 		dev->dvb.frontend = mt352_attach(&pinnacle_300i,
+ 						 &dev->i2c_adap);
+ 		break;
+ #endif
+-#if CONFIG_DVB_TDA1004X
++#ifdef CONFIG_DVB_TDA1004X
+ 	case SAA7134_BOARD_MD7134:
+ 		dev->dvb.frontend = tda10046_attach(&medion_cardbus,
+ 						    &dev->i2c_adap);
+
+--------------090400020608080903040102--

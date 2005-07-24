@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVGXVEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVGXVIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVGXVEF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 17:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVGXVEE
+	id S261315AbVGXVIh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 17:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVGXVIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 17:04:04 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:59556 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261305AbVGXVED convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 17:04:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EQeBprf2VSRzEEtoHCZUZRJzuCfx5jmzvEuTPISHu0YCjLBhzoXQ7mMoONkz/rola/nvHrjQghPVOFqsedvzK4735Y/gxqrvL6ETxu6YFjfQZiKYXa2+LFRO3BTEDLtuyX9gc4YNNZRGCWlyhVjXRjFGVB+gWV8iyMDUvLmSYGg=
-Message-ID: <f89941150507241403234949be@mail.gmail.com>
-Date: Sun, 24 Jul 2005 17:03:59 -0400
-From: Florin Malita <fmalita@gmail.com>
-Reply-To: Florin Malita <fmalita@gmail.com>
-To: Ciprian <cipicip@yahoo.com>
-Subject: Re: kernel 2.6 speed
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050724191211.48495.qmail@web53608.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050724191211.48495.qmail@web53608.mail.yahoo.com>
+	Sun, 24 Jul 2005 17:08:37 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:63366 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S261315AbVGXVIe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 17:08:34 -0400
+Message-ID: <42E40350.203@drzeus.cx>
+Date: Sun, 24 Jul 2005 23:08:32 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.6-0.1.fc5 (X11/20050719)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <greg@kroah.com>
+Subject: Re: IRQ routing problem in 2.6.10-rc2
+References: <42E395F6.8070301@drzeus.cx> <9a87484905072407164f0e0eb5@mail.gmail.com>
+In-Reply-To: <9a87484905072407164f0e0eb5@mail.gmail.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/24/05, Ciprian <cipicip@yahoo.com> wrote:
-> test /= 10;
-> test *= 10;
-> test += 10;
-> test -= 10;
+Jesper Juhl wrote:
 
-You're not trying to benchmark the kernel with those arithmetic
-operations are you?! That's completely bogus, the kernel is not
-involved in any of that.
+>
+>Have you tried the suggestion given "... As a temporary workaround,
+>the "pci=routeirq" argument..." ?
+>You could also try the pci=noacpi boot option to see if that changes anything.
+>  
+>
 
-As it has been already pointed out, the only OS-dependent and (by far)
-the most expensive operation in your loop is the time() function call
-- so that's the only thing you're really benchmarking there (besides
-compiler optimizations).
+No, I missed that one. The machine works fine with either of those two
+options. I sent a comment with lspci to Bjorn Helgaas as suggested.
 
-> In windows were performed about 300 millions cycles,
-> while in Linux about 10 millions. This test was run on
-> Fedora 4 and Suse 9.2 as Linux machines, and Windows
-> XP Pro with VS .Net 2003 on the MS side. My CPU is a
-> P4 @3GHz HT 800MHz bus.
+>Also, that's a fairly old kernel you have there, could you try
+>2.6.13-rc3, 2.6.13-rc3-git6 or 2.6.13-rc3-mm1 ?
+>
+>  
+>
 
-I can only speculate as of why the windoze time() call seems so much
-faster: maybe it is implemented in userspace and doesn't involve a
-system call. Somebody with more knowledge in the area might
-confirm/infirm this.
+I discovered the problem running 2.6.12. I only tried these kernels to
+pinpoint where the problem began.
 
-Even in Linux your results will vary a lot depending on whether the
-kernel and glibc support vsyscalls. The FC kernels disable vsyscall
-because it's incompatible with NX, not sure about the Suse kernels.
-Here's what I get on a P4 1.7 with a vsyscall enabled kernel
-(2.6.11.12):
-
-No. of cycles: 65688977
-
-Check this thread for a FC4 kernel performance discussion:
-http://www.redhat.com/archives/fedora-devel-list/2005-June/msg01126.html
+Rgds
+Pierre
 
 
-> Now, can anyone explain this and suggest what other
-> optimizations I should use? The 2.4 version was a lot
-> faster. 
-
-Your bogus test aside, a certain userland performance degradation when
-moving from 2.4 to 2.6 is expected as the x86 timer interrupt
-frequency has increased from 100Hz to 1KHz (it's about to be lowered
-to 250Hz) - so your apps are interrupted more often. But I wouldn't
-expect that degradation to be substantial. If you want to dig in and
-measure it you should use asm/rdtsc instead of time().

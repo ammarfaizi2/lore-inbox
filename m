@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVGXJta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVGXKr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVGXJta (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 05:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVGXJt3
+	id S261892AbVGXKr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 06:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVGXKr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 05:49:29 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:15080 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261945AbVGXJt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 05:49:28 -0400
-Date: Sun, 24 Jul 2005 11:50:46 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: randy_dunlap <rdunlap@xenotime.net>
-cc: Bodo Eggert <7eggert@gmx.de>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [1/5+1] menu -> menuconfig part 1
-In-Reply-To: <20050721225226.4fbd64f7.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.58.0507241141060.5658@be1.lrz>
-References: <Pine.LNX.4.58.0507171311400.5931@be1.lrz>
- <Pine.LNX.4.58.0507171326470.6041@be1.lrz> <20050721225226.4fbd64f7.rdunlap@xenotime.net>
+	Sun, 24 Jul 2005 06:47:58 -0400
+Received: from mx1.suse.de ([195.135.220.2]:52688 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261287AbVGXKr5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 06:47:57 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Ian Kent <raven@themaw.net>
+Subject: Re: [PATCH] autofs4 - fix infamous "Busy inodes after umount ..." message.
+Date: Sun, 24 Jul 2005 12:48:28 +0200
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       Jeff Moyer <jmoyer@redhat.com>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg Edwards <edwardsg@sgi.com>, Greg Banks <gnb@sgi.com>
+References: <Pine.LNX.4.63.0507241000120.2330@donald.themaw.net>
+In-Reply-To: <Pine.LNX.4.63.0507241000120.2330@donald.themaw.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507241248.29501.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jul 2005, randy_dunlap wrote:
-> On Sun, 17 Jul 2005 13:29:03 +0200 (CEST) Bodo Eggert wrote:
+Hi Ian,
 
-> > > These patches change some menus into menuconfig options.
+On Sunday 24 July 2005 04:12, Ian Kent wrote:
+> If the automount daemon receives a signal which causes it to sumarily
+> terminate the autofs4 module leaks dentries. The same problem exists with
+> detached mount requests without the warning.
+>
+> This patch cleans these dentries at umount.
 
-> When using xconfig (not menuconfig), the drivers/MTD menu
-> needs some help IMO, but it's not clear where/why.
-> 
-> Before the patch, there was only "Memory Technology
-> Devices (MTD)" in the left xconfig panel.  After the patch,
-> under that heading there are 4 other MTD entries,
-> which are in the right-side panel before the patch and should
-> remain there.  These are:
-> 
->   RAM/ROM/Flash chip drivers
->   Mapping drivers for chip access
->   Self-contained MTD device drivers
->   NAND Flash Device support
+thanks for working on this. For credits, SGI reported this bug, helped with 
+debugging, and verified the fix.
 
-That's because of the xconfig way of handling menus. Off cause this should 
-not happen, but I'll need something like a submenuconfig option to 
-resolve that issue. It would need to be like a menu in menuconfig, and 
-like a config in xconfig.
-
-
-BTW: Thanks for testing.
+Cheers,
 -- 
-Top 100 things you don't want the sysadmin to say:
-83. Damn, and I just bought that pop...
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX PRODUCTS GMBH

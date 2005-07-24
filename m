@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVGXPLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVGXPNV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVGXPLM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 11:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVGXPLM
+	id S261372AbVGXPNV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 11:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVGXPNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 11:11:12 -0400
-Received: from poros.telenet-ops.be ([195.130.132.44]:4562 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S261367AbVGXPLI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 11:11:08 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.12.3] dyntick 050610-1 breaks makes S3 suspend
-Date: Sun, 24 Jul 2005 17:11:22 +0200
-User-Agent: KMail/1.8.1
-Cc: Pavel Machek <pavel@ucw.cz>, Christian Hesse <mail@earthworm.de>,
-       Tony Lindgren <tony@atomide.com>
-References: <200507231435.05015.lkml@kcore.org> <200507231451.04630.mail@earthworm.de> <20050724142318.GA1778@elf.ucw.cz>
-In-Reply-To: <20050724142318.GA1778@elf.ucw.cz>
+	Sun, 24 Jul 2005 11:13:21 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:50112 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261372AbVGXPNQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 11:13:16 -0400
+Date: Sun, 24 Jul 2005 17:13:05 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <greg@kroah.com>
+Subject: Re: IRQ routing problem in 2.6.10-rc2
+In-Reply-To: <9a87484905072407164f0e0eb5@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0507241711040.11580@yvahk01.tjqt.qr>
+References: <42E395F6.8070301@drzeus.cx> <9a87484905072407164f0e0eb5@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507241711.23217.lkml@kcore.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 July 2005 16:23, Pavel Machek wrote:
-> Hi!
->
-> > > I recently tried out dyntick 050610-1 against 2.6.12.3, works great, it
-> > > actually makes a noticeable difference on my laptop's battery life. I
-> > > don't have hard numbers, lets just say that instead of the usual ~3
-> > > hours i get out of it, i was ~4 before it started nagging, usual use
-> > > pattern at work.
-> > >
-> > > The only gripe I have with it that it stops S3 from working. If the
-> > > patch is compiled in the kernel, it makes S3 suspend correctly, but
-> > > resuming goes into a solid hang (nothing get's it back alive, have to
-> > > keep the powerbutton for ~5 secs to shutdown the system)
-> > >
-> > > Anything I could test? The logs don't give anything useful..
-> >
-> > I reported this some time ago [1], but there's no sulution so far...
-> >
-> > [1] http://groups.google.com/groups?selm=4b4NI-7mJ-9%40gated-at.bofh.it
->
-> Does it also break if swsusp? Does it break if you replace enter sleep
-> function with some kind of dummy functions? (Or perhaps S1 is enough
-> for this test?)
+>> PCI: Using ACPI for IRQ routing
+>> ** PCI interrupts are no longer routed automatically.  If this
+>> ** causes a device to stop working, it is probably because the
+>> ** driver failed to call pci_enable_device().  As a temporary
+>> ** workaround, the "pci=routeirq" argument restores the old
+>> ** behavior.  If this argument makes the device work again,
+>> ** please email the output of "lspci" to bjorn.helgaas@hp.com
+>> ** so I can fix the driver.
+>Have you tried the suggestion given "... As a temporary workaround,
+>the "pci=routeirq" argument..." ?
+>You could also try the pci=noacpi boot option to see if that changes anything.
 
-I have only tried with S3.. how do I test with S1?
+Hi,
 
-Jan
+and what's the proper fix for pci=routeirq? I got a driver that is only 
+maintained by myself and would like to fix up the issue.
 
+
+
+Jan Engelhardt
 -- 
-YOW!!  I'm in a very clever and adorable INSANE ASYLUM!!

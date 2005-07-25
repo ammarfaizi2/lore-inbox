@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVGYHsC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVGYH5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVGYHsC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 03:48:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVGYHsC
+	id S261750AbVGYH5S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 03:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVGYH5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 03:48:02 -0400
-Received: from mx2.suse.de ([195.135.220.15]:3260 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261190AbVGYHsA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 03:48:00 -0400
-Message-ID: <42E49948.7020201@suse.de>
-Date: Mon, 25 Jul 2005 09:48:24 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.9) Gecko/20050712 Thunderbird/1.0.5 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Airlie <airlied@linux.ie>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Subject: Re: [PATCH] reset VGA adapters via BIOS on resume... (non-fbdev/con)
-References: <Pine.LNX.4.58.0507221942540.5475@skynet> <E1Dw6lc-0007IU-00@chiark.greenend.org.uk> <E1Dw6lc-0007IU-00@chiark.greenend.org.uk> <20050723003140.GB1988@elf.ucw.cz> <E1Dw80M-0001EG-00@chiark.greenend.org.uk> <20050723004745.GA7868@atrey.karlin.mff.cuni.cz> <42E4890C.2010801@suse.de> <Pine.LNX.4.58.0507250834090.11451@skynet>
-In-Reply-To: <Pine.LNX.4.58.0507250834090.11451@skynet>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 25 Jul 2005 03:57:18 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:8641
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S261750AbVGYH5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 03:57:16 -0400
+Date: Mon, 25 Jul 2005 03:56:48 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: bert hubert <bert.hubert@netherlabs.nl>, Paul Jackson <pj@sgi.com>,
+       rostedt@goodmis.org, relayfs-devel@lists.sourceforge.net,
+       richardj_moore@uk.ibm.com, varap@us.ibm.com, karim@opersys.com,
+       linux-kernel@vger.kernel.org, zanussi@us.ibm.com
+Subject: Re: diskstat 0.1: simple tool to study io patterns via relayfs
+Message-ID: <20050725075648.GA32238@kevlar.burdell.org>
+References: <20050724010730.GA22104@outpost.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050724010730.GA22104@outpost.ds9a.nl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Airlie wrote:
->> > Anyway, this patch is really good, and enables S3 to work on more
->> > machines. Thats good. It is not intrusive and I'll probably (try to)
->> > push it.
->>
->> which acpi_sleep=... parameter enables it? I have machines resuming
->> perfectly fine without it that i don't want to break ;-)
+On Sun, Jul 24, 2005 at 03:07:30AM +0200, bert hubert wrote:
+> It is with distinct lack of pride that I release version 0.1 of diskstat
+> 'Geeks in Black Thorn', a tool that allows you to generate the kinds of
+> graphs as presented in my OLS talk 'On faster application startup times:
+> Cache stuffing, seek profiling, adaptive preloading'. The lack of pride is
+> because this release is more a promise of what is to come than how things
+> should be.
 > 
-> I'll clean it up to add that stuff soon, but I've hit a problem with it on
-> my main desktop, it won't come out of suspend using my patch, however
+> The presentation, paper, and software can be found on
+> http://ds9a.nl/diskstat and
+> http://ds9a.nl/diskstat/diskstat-0.1.tar.gz
+> 
+> >From the README:
+> The quality of this code is abysmal, for which I squarely blame the fun
+> people at OLS who've been keeping me from my code!
+> (...)
+> The next version will be based on k/jprobes, and will make better use of
+> relayfs features. This also means you won't have to patch your kernel
+> anymore, as long as you compiled with kprobes support.
 
-this is why it needs a boot-parameter :-)
--- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+Hi, I had some trouble compiling it, I figured out that one needs
+libboost, but then I've also discovered that g++-3.4.4 and g++-4.0.1
+don't want to compile it while g++-3.3.5 works.  (FYI, all of these were
+Ubuntu versions)
+
+You might want to document some of this in the README :)
+
+Thanks,
+Sonny

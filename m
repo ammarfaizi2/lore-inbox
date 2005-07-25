@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVGYVB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVGYVL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbVGYVB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 17:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVGYVB7
+	id S261454AbVGYVL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 17:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVGYVL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 17:01:59 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:20313 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S261442AbVGYVBe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 17:01:34 -0400
-Date: Mon, 25 Jul 2005 23:01:33 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Andreas Baer <lnx1@gmx.net>, Willy Tarreau <willy@w.ods.org>,
-       linux-kernel@vger.kernel.org, pmarques@grupopie.com
-Subject: Re: Problem with Asus P4C800-DX and P4 -Northwood-
-Message-ID: <20050725210132.GC20811@harddisk-recovery.com>
-References: <42E4373D.1070607@gmx.net> <20050725051236.GS8907@alpha.home.local> <42E4E4B0.6050904@gmx.net> <20050725152425.GA24568@alpha.home.local> <42E542D5.3080905@gmx.net> <20050725200330.GA20811@harddisk-recovery.nl> <9a874849050725133853953bd4@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a874849050725133853953bd4@mail.gmail.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+	Mon, 25 Jul 2005 17:11:29 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:20230 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261454AbVGYVL2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 17:11:28 -0400
+Message-ID: <42E5567A.80501@tmr.com>
+Date: Mon, 25 Jul 2005 17:15:38 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ACPI oddity
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 10:38:25PM +0200, Jesper Juhl wrote:
-> It's even more complex than that as far as I know, you also have the
-> issue of seek times - tracks near the middle of the platter will be
-> nearer the head more often (on average) then tracks at the edge.
-> 
-> For people who like visuals, IBM has a nice little picture in their
-> AIX performance tuning guide :
-> http://publib.boulder.ibm.com/infocenter/pseries/index.jsp?topic=/com.ibm.aix.doc/aixbman/prftungd/diskperf2.htm
+On a HT system, why does ACPI recognize CPU0 and CPU1, refer to them as 
+such in dmesg, and then call them CPU1 and CPU2 in /proc/acpi/processor?
 
-Quote from that document:
+In uni kernels the single processor is CPU0.
 
- "Data is more dense as it moves toward the center, resulting in less
-  physical movement of the head. This results in faster overall
-  throughput"
+This is a 2.6.10 kernel, the machine has been up since then. I have 
+other 2.6 machines and other SMP and/or HT machines, but all of the HT 
+machines running 2.6 are behind a hard firewall except one.
 
-This is not true. The whole idea of different recording zones with
-different sectors/track is to keep the overall data density (in
-bits/square mm) more or less constant.
-
-I'd say it's even the other way around from what IBM pictures: there
-are more sectors/track in outer zones, so that means there is simply
-more data in the outer zones. If you want less physical movement of the
-head, you should make sure the data is in the zone(s) with the largest
-number of sectors/track.
-
-
-Erik
+It's running the ASUS P4P800 board which is why I looked, BIOS 1086.
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

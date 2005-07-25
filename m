@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVGYTBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVGYTB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbVGYTBK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 15:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVGYTBK
+	id S261435AbVGYTB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 15:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVGYTB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 15:01:10 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:24079 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261430AbVGYTBJ
+	Mon, 25 Jul 2005 15:01:59 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:24591 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261431AbVGYTBV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 15:01:09 -0400
-Message-ID: <42E52FD5.7050705@tmr.com>
-Date: Mon, 25 Jul 2005 14:30:45 -0400
+	Mon, 25 Jul 2005 15:01:21 -0400
+Message-ID: <42E537D1.6000100@tmr.com>
+Date: Mon, 25 Jul 2005 15:04:49 -0400
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tony Lindgren <tony@atomide.com>
-CC: Pavel Machek <pavel@ucw.cz>, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3 Battery times at 100/250/1000 Hz = Zero difference
-References: <20050721200448.5c4a2ea0.lista1@telia.com> <9a8748490507211114227720b0@mail.gmail.com> <20050722144855.GA2036@elf.ucw.cz> <20050722191510.5e120515.voluspa@telia.com> <20050722180236.GA615@atrey.karlin.mff.cuni.cz> <20050722204439.54a63a00.lista1@telia.com> <20050725102103.GG5837@atomide.com>
-In-Reply-To: <20050725102103.GG5837@atomide.com>
+To: george@mvista.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: itimer oddness in 2.6.12
+References: <20050722171657.GG4311@real.com> <42E14735.1090205@grupopie.com> <20050722205825.GB6476@real.com> <42E1A208.8060408@mvista.com>
+In-Reply-To: <42E1A208.8060408@mvista.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Lindgren wrote:
-> * Voluspa <lista1@telia.com> [050722 11:46]:
+George Anzinger wrote:
+> Tom Marshall wrote:
 > 
->>On Fri, 22 Jul 2005 20:02:36 +0200 Pavel Machek wrote:
+>> On Fri, Jul 22, 2005 at 08:21:25PM +0100, Paulo Marques wrote:
 >>
->>>will not help. It seems like your machine is simply not able to do
->>>reasonable powersaving.
->>
->>Digging up this patch from last month regarding C2 on a AMD K7 implies
->>that the whole blame can be put on kernel acpi:
->>
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=111933745131301&w=2
+>>> Tom Marshall wrote:
+>>>
+>>>> The patch to fix "setitimer timer expires too early" is causing 
+>>>> issues for
+>>>> the Helix server.  We have a timer processs that updates the server's
+>>>> timestamp on an itimer and it expects the signal to be delivered at 
+>>>> roughly
+>>>> the interval retrieved from getitimer.  This is very consistent on 
+>>>> every
+>>>> platform, including Linux up to 2.6.11, but breaks on 2.6.12.  On 
+>>>> 2.6.12,
+>>>> setting the itimer to 10ms and retrieving the actual interval from 
+>>>> getitimer
+>>>> reports 10.998ms, but the timer interrupts are consistently 
+>>>> delivered at
+>>>> roughly 11.998ms.  
+>>>
+>>>
+>>> Unfortunately, this is not so clear cut as it seems :(
 > 
 > 
-> AFAIK Linux ACPI expects BIOS to contain all the necessary stuff to enable
-> C2 and C3. Otherwise they won't get enabled, and you have to create a custom
-> module like the amd76x_pm is.
+> Oops!  That patch is wrong.  The +1 should be applied to the initial 
+> interval _only_.  We KNOW when the repeating intervals start (i.e. at 
+> the jiffie edge) and don't need to adjust them.  The patch, however, 
+> incorrectly, rolls them all into one.  The attach patch should fix the 
+> problem.  Warnning, it compiles and boots, but I have not tested it.
 
-Does that imply that Windows actually has such non-BIOS code, or just 
-knows how to find the BIOS code better, or knows how to do other things, 
-or ???
-> 
-> There's been some talk on adding a module to enable C2 and C3 states for
-> various chipsets, but nobody seems to have enough time to do it...
-
-I like your first thought better, "Linux ACPI expects BIOS to contain 
-all the necessary stuff" I have a bunch of laptops of various ages, and 
-I would expect at least the most recent, an ASUS 16??, using a 
-"Centrino" chipset, to be supported. It's one of the top few laptopl 
-chipsets, and Windows can suspecd it. Can also not only detect but use 
-the 1400x1050 screen, but that's another issue :-(
-
-Is it possible that the code to find these capabilities is not fully 
-functional? That seems more likely than the system not having the 
-capability. NOTE: "seems" as in experienced guess unsupported by other 
-relevant information.
+Can this get into 2.6.13? Or stable if it's too late? This would appear 
+to be a fix to a visible problem.
 
 -- 
     -bill davidsen (davidsen@tmr.com)

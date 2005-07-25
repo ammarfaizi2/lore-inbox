@@ -1,79 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVGYT1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVGYTpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVGYT1f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 15:27:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVGYTZE
+	id S261472AbVGYTpy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 15:45:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVGYToA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 15:25:04 -0400
-Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:24975 "EHLO smtp.unc.edu")
-	by vger.kernel.org with ESMTP id S261468AbVGYTYA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 15:24:00 -0400
-Message-ID: <20050725152348.6o1f03u9r4k8cgk0@webmail1.isis.unc.edu>
-Date: Mon, 25 Jul 2005 15:23:48 -0400
-From: uma@email.unc.edu
-To: linux-kernel@vger.kernel.org
-Cc: anderegg@cs.unc.edu
-Subject: Re: kernel debugging
-References: <42E3946E.4010009@cs.unc.edu>
-In-Reply-To: <42E3946E.4010009@cs.unc.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format="flowed"
-Content-Disposition: inline
+	Mon, 25 Jul 2005 15:44:00 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:61861
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261472AbVGYTml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 15:42:41 -0400
+Date: Mon, 25 Jul 2005 12:42:57 -0700 (PDT)
+Message-Id: <20050725.124257.109907504.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] net/ipv4/: possible cleanups
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050723220530.GO3160@stusta.de>
+References: <20050723220530.GO3160@stusta.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-User-Agent: UNC-CH Webmail 2.0
-X-Organization: University of North Carolina at Chapel Hill
-X-Originating-IP: 152.2.128.169
-X-Remote-Browser: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10)
-	Gecko/20050719 Red Hat/1.0.6-1.4.1 Firefox/1.0.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using Red Hat sources, which has function open_kcore() hardcoded to
-return -EPERM always.
+From: Adrian Bunk <bunk@stusta.de>
+Date: Sun, 24 Jul 2005 00:05:30 +0200
 
-Changing this function to the way it is defined in the public sources (as
-shown below) did the trick.
+> This patch contains the following possible cleanups:
+> - make needlessly global code static
+> - #if 0 the following unused global function:
+>   - xfrm4_state.c: xfrm4_state_fini
+> - remove the following unneeded EXPORT_SYMBOL's:
+>   - ip_output.c: ip_finish_output
+>   - ip_output.c: sysctl_ip_default_ttl
+>   - fib_frontend.c: ip_dev_find
+>   - inetpeer.c: inet_peer_idlock
+>   - ip_options.c: ip_options_compile
+>   - ip_options.c: ip_options_undo
+>   - net/core/request_sock.c: sysctl_max_syn_backlog
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-open_kcore(struct inode * inode, struct file * filp)
-{
-    return capable(CAP_SYS_RAWIO) ? 0 : -EPERM;
-}
-
-I am now able to use gdb to examine kernel symbols.
-
-Uma.
-
-
-Quoting UmaMaheswari Devi <uma@cs.unc.edu>:
-
-> I am new to kernel hacking and am facing problems in tryingstatic int
-to peek at the
-> runtime values of some kernel variables using gdb.
->
-> I am issuing the gdb command as follows:
->     gdb vmlinux /proc/kcore
-> This displays the message
->    /proc/kcore: Operation not permitted
-> before the (gdb) prompt is displayed.
-> gdb then prints a value of 0 for any valid variable that is requested.
->
-> vmlinux appears to be OK, as gdb correctly identifies undefined variables.
-> The problem seems to be with /proc/kcore. This file has a permission 
-> of 400. I
-> am using the Red Hat distribution.
->
-> Any help is appreciated. Thanks,
-> Uma.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+Queued up to my net-2.6.14 tree, thanks Adrian.

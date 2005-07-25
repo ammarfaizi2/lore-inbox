@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVGYRSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVGYR15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbVGYRSg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 13:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVGYRSf
+	id S261393AbVGYR15 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 13:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVGYR15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 13:18:35 -0400
-Received: from hammer.engin.umich.edu ([141.213.40.79]:64723 "EHLO
-	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
-	id S261407AbVGYRSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 13:18:31 -0400
-Date: Mon, 25 Jul 2005 13:18:29 -0400 (EDT)
-From: Christopher Allen Wing <wingc@engin.umich.edu>
-To: "Budde, Marco" <budde_at_telos.de@engin.umich.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Stripping in module
-Message-ID: <Pine.LNX.4.63.0507251314440.16515@hammer.engin.umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 25 Jul 2005 13:27:57 -0400
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:54539 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S261393AbVGYR14
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 13:27:56 -0400
+Date: Mon, 25 Jul 2005 19:28:27 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>
+Subject: Re: [PATCH 2.6] I2C: Separate non-i2c hwmon drivers from i2c-core
+ (2/9)
+Message-Id: <20050725192827.0b166d1e.khali@linux-fr.org>
+In-Reply-To: <20050725003551.GE9824@kroah.com>
+References: <20050719233902.40282559.khali@linux-fr.org>
+	<20050719234843.14cfb1ec.khali@linux-fr.org>
+	<20050720042755.GD26552@kroah.com>
+	<20050720234603.2b66560d.khali@linux-fr.org>
+	<20050725003551.GE9824@kroah.com>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco:
+Hi Greg,
 
-FWIW, the Red Hat kernel RPMs effectively do the following when they 
-package kernel modules:
+> Ah, much better, thanks.  Sounds like a great plan, I'll go apply your
+> patches in a day or so when I catch up from my travels.
 
- 	strip -g <module.ko>
+OK, thanks.
 
+Note that there are a few patches which you should apply before this
+series, in particular Mark Hoffman's 3 hwmon class patches. There are no
+hard dependencies between both series but applying them in order is
+likely to ease your work.
 
-This is done via the script:
+You can take a look at my current stack here for reference:
+http://khali.linux-fr.org/devel/i2c/linux-2.6/series
 
- 	/usr/lib/rpm/brp-strip
+Not everything is i2c or hwmon related, but that should give you an idea
+of which order you should apply them in to keep the noise to a minimum
+level. There might be a number of individual patches that I did not post
+yet, because I was waiting for you to apply Mark's stuff first. Just let
+me know when you're done with the hwmon class patches and everything
+else you might have on your end, and I'll post all other patches - after
+I checked that they properly apply on top of what you have.
 
-
-which is implicitly run on all executable files packaged in the RPM.
-
-
-If you ensure that the module .ko file is executable, then RPM will strip 
-it for you automatically.
-
-
--Chris Wing
-wingc@engin.umich.edu
-
-
-
----
-Budde, Marco <budde_at_telos.de> wrote:
-
-> Hi,
-> 
-> at the moment I am packaging a Linux module as an RPM archive.
-> 
-> Therefor I would like to remove some of the not exported/needed
-> symbols (like e.g. static functions or constants) from the
-> Linux module.
-> 
-> What is the best way to do this with v2.6.
+Thanks,
+-- 
+Jean Delvare

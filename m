@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVGYG7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVGYHJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbVGYG7P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 02:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVGYFyg
+	id S261681AbVGYHJx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 03:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVGYHHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 01:54:36 -0400
-Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:61821 "HELO
-	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261636AbVGYFxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 01:53:20 -0400
-Message-Id: <20050725054533.053885000.dtor_core@ameritech.net>
-References: <20050725053449.483098000.dtor_core@ameritech.net>
-Date: Mon, 25 Jul 2005 00:35:07 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 18/24] joydev - remove MSECS macro
-Content-Disposition: inline; filename=joydev-msecs.patch
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Jul 2005 03:07:05 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:62368 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261636AbVGYHGl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 03:06:41 -0400
+Date: Mon, 25 Jul 2005 11:06:04 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: James Morris <jmorris@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Harald Welte <laforge@netfilter.org>,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, netdev@redhat.com,
+       netdev@vger.kernel.org
+Subject: Re: Netlink connector
+Message-ID: <20050725070603.GA28023@2ka.mipt.ru>
+References: <20050723125427.GA11177@rama> <20050723091455.GA12015@2ka.mipt.ru> <20050724.191756.105797967.davem@davemloft.net> <Lynx.SEL.4.62.0507250154000.21934@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Lynx.SEL.4.62.0507250154000.21934@thoron.boston.redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 25 Jul 2005 11:06:05 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tobias Klauser <tklauser@nuerscht.ch>
+On Mon, Jul 25, 2005 at 02:02:10AM -0400, James Morris (jmorris@redhat.com) wrote:
+> On Sun, 24 Jul 2005, David S. Miller wrote:
+> >From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> >Date: Sat, 23 Jul 2005 13:14:55 +0400
+> >
+> >>Andrew has no objection against connector and it lives in -mm
+> >
+> >A patch sitting in -mm has zero significance.
 
-Input: joydev - remove custom conversion from jiffies to msecs
+That is why I'm asking netdev@ people again...
 
-Replace the MSECS() macro with the jiffies_to_msecs() function provided
-in jiffies.h
+> The significance I think is that Andrew is trying to gently encourage some 
+> further progress in the area.
+>
+> I recall some netconf discussion about TIPC over Netlink, or more likely a 
+> variation thereof, which may be a better way forward.
+> 
+> It's cool stuff http://tipc.sourceforge.net/
 
-Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+I read it quite long ago - I'm sure you do not want to use that monster
+for event bus.
+It was designed and implemented for heavy intermachine communications,
+and it is quite hard to setup for userspace <-> kernelspace message bus.
 
- drivers/input/joydev.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+> 
+> - James
+> -- 
+> James Morris
+> <jmorris@redhat.com>
 
-Index: work/drivers/input/joydev.c
-===================================================================
---- work.orig/drivers/input/joydev.c
-+++ work/drivers/input/joydev.c
-@@ -37,8 +37,6 @@ MODULE_LICENSE("GPL");
- #define JOYDEV_MINORS		16
- #define JOYDEV_BUFFER_SIZE	64
- 
--#define MSECS(t)	(1000 * ((t) / HZ) + 1000 * ((t) % HZ) / HZ)
--
- struct joydev {
- 	int exist;
- 	int open;
-@@ -117,7 +115,7 @@ static void joydev_event(struct input_ha
- 			return;
- 	}
- 
--	event.time = MSECS(jiffies);
-+	event.time = jiffies_to_msecs(jiffies);
- 
- 	list_for_each_entry(list, &joydev->list, node) {
- 
-@@ -245,7 +243,7 @@ static ssize_t joydev_read(struct file *
- 
- 		struct js_event event;
- 
--		event.time = MSECS(jiffies);
-+		event.time = jiffies_to_msecs(jiffies);
- 
- 		if (list->startup < joydev->nkey) {
- 			event.type = JS_EVENT_BUTTON | JS_EVENT_INIT;
-
+-- 
+	Evgeniy Polyakov

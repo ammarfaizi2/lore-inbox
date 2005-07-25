@@ -1,39 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVGYVL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVGYVQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVGYVL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 17:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVGYVL3
+	id S261486AbVGYVQO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 17:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVGYVQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 17:11:29 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:20230 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261454AbVGYVL2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 17:11:28 -0400
-Message-ID: <42E5567A.80501@tmr.com>
-Date: Mon, 25 Jul 2005 17:15:38 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: ACPI oddity
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Jul 2005 17:16:14 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:46603 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261486AbVGYVQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 17:16:13 -0400
+Date: Mon, 25 Jul 2005 23:16:04 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Gaspar Bakos <gbakos@cfa.harvard.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: elvtune with 2.6 kernels (under FC3)
+Message-ID: <20050725211604.GG3160@stusta.de>
+References: <Pine.SOL.4.58.0507251629130.2429@titan.cfa.harvard.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.58.0507251629130.2429@titan.cfa.harvard.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a HT system, why does ACPI recognize CPU0 and CPU1, refer to them as 
-such in dmesg, and then call them CPU1 and CPU2 in /proc/acpi/processor?
+On Mon, Jul 25, 2005 at 04:31:56PM -0400, Gaspar Bakos wrote:
 
-In uni kernels the single processor is CPU0.
+> Hi,
 
-This is a 2.6.10 kernel, the machine has been up since then. I have 
-other 2.6 machines and other SMP and/or HT machines, but all of the HT 
-machines running 2.6 are behind a hard firewall except one.
 
-It's running the ASUS P4P800 board which is why I looked, BIOS 1086.
+Hi Gaspar,
+
+
+> I am cc-ing this to the kernel list, a i have the suspicion that it may
+> be a kernel related feature.
+> 
+> --------------
+> I noticed that elvtune does not work on FC3 with a 2.6.12.3
+> (self-compiled, pristine) kernel. I also tried it with other 2.6.* kernels.
+> 
+> elvtune /dev/sde
+> ioctl get: Invalid argument
+> 
+> In fact, I get the same message for all disks, either those on a 3ware
+> controller, or SATA disks directly attached to the motherboard.
+> The hw is a dual opteron mb with 4Gb RAM.
+> 
+> Did this command become obsoleted?
+> Is there alternativ?
+
+
+util-linux >= 2.12h gives you a better error message:
+
+
+# elvtune /dev/hda
+ioctl get: Invalid argument
+
+elvtune is only useful on older kernels;
+for 2.6 use IO scheduler sysfs tunables instead..
+# 
+
+
+> Cheers
+> Gaspar
+
+
+cu
+Adrian
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

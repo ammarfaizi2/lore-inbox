@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVGYOgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVGYOjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbVGYOgN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 10:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVGYOeD
+	id S261237AbVGYOjI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 10:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVGYOd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 10:34:03 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:15914 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261237AbVGYOcC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 10:32:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=DrqA7aizzCZACa4f5LwORfYIdFAIdDEVCCxWBhZkp9BiCOr8oS2CKIRSSGOM9oP23tt6j76I+DnXvt2sRKqtyFoeGtBt23B+OVTagDuwBthKToImkOUx/Q9mpMniaxM0t9acx4z041JDJGlxl0CazuqsnJunW5n/1fXTBuqK+3A=
-Message-ID: <105c793f05072507315cfd1878@mail.gmail.com>
-Date: Mon, 25 Jul 2005 10:31:37 -0400
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: BUG: Yamaha OPL3SA2 does not work with ALSA on 2.6 kernels.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Mon, 25 Jul 2005 10:33:58 -0400
+Received: from p54A0B012.dip0.t-ipconnect.de ([84.160.176.18]:51453 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261238AbVGYOdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 10:33:12 -0400
+Message-ID: <42E4F800.1010908@trash.net>
+Date: Mon, 25 Jul 2005 16:32:32 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: James Morris <jmorris@redhat.com>, "David S. Miller" <davem@davemloft.net>,
+       Harald Welte <laforge@netfilter.org>,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, netdev@redhat.com,
+       netdev@vger.kernel.org
+Subject: Re: Netlink connector
+References: <20050723125427.GA11177@rama> <20050723091455.GA12015@2ka.mipt.ru> <20050724.191756.105797967.davem@davemloft.net> <Lynx.SEL.4.62.0507250154000.21934@thoron.boston.redhat.com> <20050725070603.GA28023@2ka.mipt.ru>
+In-Reply-To: <20050725070603.GA28023@2ka.mipt.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Evgeniy Polyakov wrote:
+> On Mon, Jul 25, 2005 at 02:02:10AM -0400, James Morris (jmorris@redhat.com) wrote:
+> 
+>>On Sun, 24 Jul 2005, David S. Miller wrote:
+>>
+>>>From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+>>>Date: Sat, 23 Jul 2005 13:14:55 +0400
+>>>
+>>>
+>>>>Andrew has no objection against connector and it lives in -mm
+>>>
+>>>A patch sitting in -mm has zero significance.
+> 
+> That is why I'm asking netdev@ people again...
 
-I have a 5 year old Gateway Solo 2500 that is currently running Linux
-2.6.12.2. If I install ALSA and try to have alsaconf bruteforce-detect
-the OPL3SA2 sound card, it will say that it has detected it, but
-loading the modules will fail. If I install Linux 2.4 and
-recompile/rerun alsaconf, the detection works fine and the card works.
-Copying the configuration detected under 2.4 into a modprobe.conf on
-2.6 allows me to use the card in 2.6 with occasional crashes (which
-might be due to suspend2).
-
-Searching around the net, I find many other people having trouble with
-these cards and the ALSA-Linux2.6 combination. On one page, someone
-suggested that there were changes made between 2.4 and 2.6 to the ISA
-code that broke ALSA's detection routines.
-
-I'm not sure what information might be needed in order to get this
-card working well once and for all, but if someone will let me know,
-I'd be happy to provide.
-
-Thanks.
-
--Andy
+If I understand correctly it tries to workaround some netlink
+limitations (limited number of netlink families and multicast groups)
+by sending everything to userspace and demultiplexing it there.
+Same in the other direction, an additional layer on top of netlink
+does basically the same thing netlink already does. This looks like
+a step in the wrong direction to me, netlink should instead be fixed
+to support what is needed.

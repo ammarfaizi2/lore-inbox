@@ -1,253 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVGYGb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVGYF5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbVGYGb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 02:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVGYGbz
+	id S261630AbVGYF5I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 01:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVGYFzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 02:31:55 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:45456 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261661AbVGYGbI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 02:31:08 -0400
-In-Reply-To: <877jfhnxrp.fsf@devron.myhome.or.jp>
-References: <e93921519c29efda5b7a304d019dcc94@helenandmark.org> <877jfhnxrp.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <4e427d7187338fdc6012b8ae6a458040@helenandmark.org>
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Jul 2005 01:55:13 -0400
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:36193 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S261661AbVGYFxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 01:53:24 -0400
+Message-Id: <20050725054533.484329000.dtor_core@ameritech.net>
+References: <20050725053449.483098000.dtor_core@ameritech.net>
+Date: Mon, 25 Jul 2005 00:35:09 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
 Cc: linux-kernel@vger.kernel.org
-From: Mark Burton <mark@helenandmark.org>
-Subject: Re: tx queue start entry x dirty entry y (was 8139too PCI IRQ issues)
-Date: Mon, 25 Jul 2005 08:30:34 +0200
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-X-Mailer: Apple Mail (2.622)
-X-Spam-Virus: No
+Subject: [patch 20/24] HID - only report events coming from interrupts to hiddev
+Content-Disposition: inline; filename=hiddev-no-ctrl-in-read.patch
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Adam Kropelin <akropel1@rochester.rr.com>
 
+Input: HID - only report events coming from interrupts to hiddev
 
-[I'm currently having nasty ISP problems, so I've removed myself from 
-the list for the time-being, as e-mail is struggling to get through to 
-me -- hence the delay in my reply to this, SORRY]
+Currently hid-core follows the same code path for input reports
+regardless of whether they are a result of interrupt transfers or
+control transfers. That leads to interrupt events erroneously being
+reported to hiddev for regular control transfers.
 
->
-> Probably it's the miss config of PIC. Can you post more info?
+Prior to 2.6.12 the problem was mitigated by the fact that
+reporting to hiddev is supressed if the field value has not changed,
+which is often the case. Said filtering was removed in 2.6.12-rc1 which
+means any input reports fetched via control transfers result in hiddev
+interrupt events. This behavior can quickly lead to a feedback loop
+where a userspace app, in response to interrupt events, issues control
+transfers which in turn create more interrupt events.
 
-Thanks for helping! :-)))
+This patch prevents input reports that arrive via control transfers from
+being reported to hiddev as interrupt events.
 
->
->   - /proc/interrupt
+Signed-off-by: Adam Kropelin <akropel1@rochester.rr.com>
+Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-more /proc/interrupts
-            CPU0
-   0:     473349    IO-APIC-edge  timer
-   1:         10    IO-APIC-edge  i8042
-   2:          0          XT-PIC  cascade
-   5:          1    IO-APIC-edge  soundblaster
-   7:          2    IO-APIC-edge  parport0
-   9:       8152    IO-APIC-edge  aic7xxx
-  10:      19988    IO-APIC-edge  eth0
-  11:        577    IO-APIC-edge  ohci_hcd, ohci_hcd, ohci_hcd, 
-ohci_hcd, eth1
-  12:        101    IO-APIC-edge  i8042
-  14:      51421    IO-APIC-edge  ide0
-NMI:          0
-LOC:     473350
-ERR:          0
-MIS:          0
+ drivers/usb/input/hid-core.c |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
 
->   - mptable
-
-I'm running a single (old) processor, and I dont have mptable 
-installed.... I can't even find a package for it, am I missing 
-something? Sorry!
-
->   - 8259A.pl
-
-perl 8259A.pl
-irq 0: 00, edge
-irq 1: 00, edge
-irq 2: 00, edge
-irq 3: 00, edge
-irq 4: 00, edge
-irq 5: 00, edge
-irq 6: 00, edge
-irq 7: 00, edge
-irq 8: 0a, edge
-irq 9: 0a, level
-irq 10: 0a, edge
-irq 11: 0a, level
-irq 12: 0a, edge
-irq 13: 0a, edge
-irq 14: 0a, edge
-irq 15: 0a, edge
-
-
->   - lspci -vvv
-
-0000:00:00.0 Non-VGA unclassified device: Intel Corp. 82378ZB/IB, 
-82379AB (SIO, SIO.A) PCI to ISA Bridge (rev 88)
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 0
-
-0000:00:01.0 IDE interface: Silicon Image, Inc. (formerly CMD 
-Technology Inc) PCI0646 (rev 01) (prog-if 8a [Master SecP PriP])
-         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64 (500ns min, 1000ns max)
-         Interrupt: pin A routed to IRQ 14
-         Region 0: I/O ports at <ignored>
-         Region 1: I/O ports at <ignored>
-         Region 2: I/O ports at <ignored>
-         Region 3: I/O ports at <ignored>
-         Region 4: I/O ports at fc00 [size=16]
-
-0000:00:02.0 SCSI storage controller: Adaptec AIC-7880U
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 248 (2000ns min, 2000ns max), Cache Line Size: 0x08 
-(32 bytes)
-         Interrupt: pin A routed to IRQ 9
-         Region 0: I/O ports at f800 [disabled] [size=256]
-         Region 1: Memory at ffbfc000 (32-bit, non-prefetchable) 
-[size=4K]
-
-0000:00:0b.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2064W 
-[Millennium] (rev 01) (prog-if 00 [VGA])
-         Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping+ SERR- FastB2B-
-         Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Interrupt: pin A routed to IRQ 11
-         Region 0: Memory at a0000000 (32-bit, non-prefetchable) 
-[size=16K]
-         Region 1: Memory at a0800000 (32-bit, prefetchable) [size=8M]
-         Expansion ROM at d0000000 [disabled] [size=64K]
-
-0000:00:0d.0 USB Controller: Lucent Microelectronics USS-344S USB 
-Controller (rev 11) (prog-if 10 [OHCI])
-         Subsystem: Lucent Microelectronics USS-344S USB Controller
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 248 (750ns min, 21500ns max)
-         Interrupt: pin A routed to IRQ 11
-         Region 0: Memory at ffbec000 (32-bit, non-prefetchable) 
-[size=4K]
-         Capabilities: [50] Power Management version 2
-                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0-,D1+,D2+,D3hot+,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=1 PME-
-
-0000:00:0d.1 USB Controller: Lucent Microelectronics USS-344S USB 
-Controller (rev 11) (prog-if 10 [OHCI])
-         Subsystem: Lucent Microelectronics USS-344S USB Controller
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 248 (750ns min, 21500ns max)
-         Interrupt: pin A routed to IRQ 11
-         Region 0: Memory at ffbdc000 (32-bit, non-prefetchable) 
-[size=4K]
-         Capabilities: [50] Power Management version 2
-                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0-,D1+,D2+,D3hot+,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=1 PME-
-
-0000:00:0d.2 USB Controller: Lucent Microelectronics USS-344S USB 
-Controller (rev 11) (prog-if 10 [OHCI])
-         Subsystem: Lucent Microelectronics USS-344S USB Controller
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 248 (750ns min, 21500ns max)
-         Interrupt: pin A routed to IRQ 11
-         Region 0: Memory at ffbcc000 (32-bit, non-prefetchable) 
-[size=4K]
-         Capabilities: [50] Power Management version 2
-                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0-,D1+,D2+,D3hot+,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=1 PME-
-
-0000:00:0d.3 USB Controller: Lucent Microelectronics USS-344S USB 
-Controller (rev 11) (prog-if 10 [OHCI])
-         Subsystem: Lucent Microelectronics USS-344S USB Controller
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 248 (750ns min, 21500ns max)
-         Interrupt: pin A routed to IRQ 11
-         Region 0: Memory at ffbbc000 (32-bit, non-prefetchable) 
-[size=4K]
-         Capabilities: [50] Power Management version 2
-                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0-,D1+,D2+,D3hot+,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=1 PME-
-
-0000:00:0e.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-         Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 248 (8000ns min, 16000ns max)
-         Interrupt: pin A routed to IRQ 11
-         Region 0: I/O ports at f400 [size=256]
-         Region 1: Memory at ffbac000 (32-bit, non-prefetchable) 
-[size=256]
-         Capabilities: [50] Power Management version 2
-                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0-,D1+,D2+,D3hot+,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-0000:00:14.0 RAM memory: Intel Corp. 450KX/GX [Orion] - 82453KX/GX 
-Memory controller (rev 04)
-         Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-
-0000:00:19.0 Host bridge: Intel Corp. 450KX/GX [Orion] - 82454KX/GX PCI 
-bridge (rev 04)
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr+ Stepping- SERR+ FastB2B-
-         Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-         Latency: 32, Cache Line Size: 0x08 (32 bytes)
-
-
-> -- 
-
-On 23 Jul 2005, at 21:11, OGAWA Hirofumi wrote:
-
-> Mark Burton <mark@helenandmark.org> writes:
->
->> Hi,
->> I'm getting similar results to Nick Warne, in that when my ethernet is
->> stressed at all (for instance by NFS), I end up with
->> nfs: server..... not responding, still trying
->> nfs: server .... OK
->>
->> With a realtec card, I get errors in /var/spool/messages along the
->> lines of:
->> Jul  3 14:31:13 localhost kernel: eth1: Transmit timeout, status 0c
->> 0005 c07f media 00.
->> Jul  3 14:31:13 localhost kernel: eth1: Tx queue start entry 1160
->> dirty entry 1156.
->> Jul  3 14:31:13 localhost kernel: eth1:  Tx descriptor 0 is
->> 0008a03c. (queue head)
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Index: work/drivers/usb/input/hid-core.c
+===================================================================
+--- work.orig/drivers/usb/input/hid-core.c
++++ work/drivers/usb/input/hid-core.c
+@@ -789,12 +789,12 @@ static __inline__ int search(__s32 *arra
+ 	return -1;
+ }
+ 
+-static void hid_process_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, struct pt_regs *regs)
++static void hid_process_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, int interrupt, struct pt_regs *regs)
+ {
+ 	hid_dump_input(usage, value);
+ 	if (hid->claimed & HID_CLAIMED_INPUT)
+ 		hidinput_hid_event(hid, field, usage, value, regs);
+-	if (hid->claimed & HID_CLAIMED_HIDDEV)
++	if (hid->claimed & HID_CLAIMED_HIDDEV && interrupt)
+ 		hiddev_hid_event(hid, field, usage, value, regs);
+ }
+ 
+@@ -804,7 +804,7 @@ static void hid_process_event(struct hid
+  * reporting to the layer).
+  */
+ 
+-static void hid_input_field(struct hid_device *hid, struct hid_field *field, __u8 *data, struct pt_regs *regs)
++static void hid_input_field(struct hid_device *hid, struct hid_field *field, __u8 *data, int interrupt, struct pt_regs *regs)
+ {
+ 	unsigned n;
+ 	unsigned count = field->report_count;
+@@ -831,19 +831,19 @@ static void hid_input_field(struct hid_d
+ 	for (n = 0; n < count; n++) {
+ 
+ 		if (HID_MAIN_ITEM_VARIABLE & field->flags) {
+-			hid_process_event(hid, field, &field->usage[n], value[n], regs);
++			hid_process_event(hid, field, &field->usage[n], value[n], interrupt, regs);
+ 			continue;
+ 		}
+ 
+ 		if (field->value[n] >= min && field->value[n] <= max
+ 			&& field->usage[field->value[n] - min].hid
+ 			&& search(value, field->value[n], count))
+-				hid_process_event(hid, field, &field->usage[field->value[n] - min], 0, regs);
++				hid_process_event(hid, field, &field->usage[field->value[n] - min], 0, interrupt, regs);
+ 
+ 		if (value[n] >= min && value[n] <= max
+ 			&& field->usage[value[n] - min].hid
+ 			&& search(field->value, value[n], count))
+-				hid_process_event(hid, field, &field->usage[value[n] - min], 1, regs);
++				hid_process_event(hid, field, &field->usage[value[n] - min], 1, interrupt, regs);
+ 	}
+ 
+ 	memcpy(field->value, value, count * sizeof(__s32));
+@@ -851,7 +851,7 @@ exit:
+ 	kfree(value);
+ }
+ 
+-static int hid_input_report(int type, struct urb *urb, struct pt_regs *regs)
++static int hid_input_report(int type, struct urb *urb, int interrupt, struct pt_regs *regs)
+ {
+ 	struct hid_device *hid = urb->context;
+ 	struct hid_report_enum *report_enum = hid->report_enum + type;
+@@ -899,7 +899,7 @@ static int hid_input_report(int type, st
+ 		hiddev_report_event(hid, report);
+ 
+ 	for (n = 0; n < report->maxfield; n++)
+-		hid_input_field(hid, report->field[n], data, regs);
++		hid_input_field(hid, report->field[n], data, interrupt, regs);
+ 
+ 	if (hid->claimed & HID_CLAIMED_INPUT)
+ 		hidinput_report_event(hid, report);
+@@ -918,7 +918,7 @@ static void hid_irq_in(struct urb *urb, 
+ 
+ 	switch (urb->status) {
+ 		case 0:			/* success */
+-			hid_input_report(HID_INPUT_REPORT, urb, regs);
++			hid_input_report(HID_INPUT_REPORT, urb, 1, regs);
+ 			break;
+ 		case -ECONNRESET:	/* unlink */
+ 		case -ENOENT:
+@@ -1142,7 +1142,7 @@ static void hid_ctrl(struct urb *urb, st
+ 	switch (urb->status) {
+ 		case 0:			/* success */
+ 			if (hid->ctrl[hid->ctrltail].dir == USB_DIR_IN)
+-				hid_input_report(hid->ctrl[hid->ctrltail].report->type, urb, regs);
++				hid_input_report(hid->ctrl[hid->ctrltail].report->type, urb, 0, regs);
+ 		case -ESHUTDOWN:	/* unplug */
+ 		case -EILSEQ:		/* unplug timectrl on uhci */
+ 			unplug = 1;
 

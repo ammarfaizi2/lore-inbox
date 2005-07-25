@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVGYI2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVGYI5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbVGYI2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 04:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVGYI2Y
+	id S261154AbVGYI5o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 04:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVGYI5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 04:28:24 -0400
-Received: from nproxy.gmail.com ([64.233.182.203]:55603 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261755AbVGYI2X convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 04:28:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=fEnaNHTKLie+SpUQaB5HTPt551c+HC43zskiMS3vLjxHc/XiaSXFtqrZSJugTq04FDPqxEni9MQs5zxmwt/STULJUe/NBwqCFD9v8yczzLqfmqy6KhQc5z4OZttWNbUQw+A4D1KzcP2ujsAh5Cgr7mw3EN/HFB77poFKwUR5n9c=
-Message-ID: <958d5cd1050725012845d76286@mail.gmail.com>
-Date: Mon, 25 Jul 2005 10:28:21 +0200
-From: =?ISO-8859-1?Q?Lo=EFc_MARTIN?= <martinloik@gmail.com>
-Reply-To: =?ISO-8859-1?Q?Lo=EFc_MARTIN?= <martinloik@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: int pci_register_driver(&pci_driver) and void driver_attach(struct device_driver * drv)
+	Mon, 25 Jul 2005 04:57:43 -0400
+Received: from ns.firmix.at ([62.141.48.66]:27814 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S261154AbVGYI5e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 04:57:34 -0400
+Subject: Re: xor as a lazy comparison
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Puneet Vyas <vyas.puneet@gmail.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Grant Coady <lkml@dodo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42E4131D.6090605@gmail.com>
+References: <Pine.LNX.4.61.0507241835360.18474@yvahk01.tjqt.qr>
+	 <kis7e1d4khtde78oajl017900pmn9407u4@4ax.com>
+	 <Pine.LNX.4.61.0507242342080.9022@yvahk01.tjqt.qr>
+	 <42E4131D.6090605@gmail.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Mon, 25 Jul 2005 10:57:13 +0200
+Message-Id: <1122281833.10780.32.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel: 2.6.11.10
+On Sun, 2005-07-24 at 18:15 -0400, Puneet Vyas wrote:
+[...]
+> I just compiled two identical program , one with "!=" and other with 
+> "^". The assembly output is identical.
 
-Currently writting down a pci driver, I notice that
-"pci_register_driver(&pci_driver)" don't forward my "probe" function
-errors.
-Actually errors are noticed in the kernel ring buffer but don't make
-pci_register_driver  fail. It returns a zero value in any case.
-I traced back to the kernel in order to try to understand this problem
-and find the "void driver_attach(struct device_driver * drv)" function
-in the "linux-2.6.11.10/drivers/base/bus.c" file which, obviously, can
-not returns an error.
+Hmm, which compiler and which version?
+You might want to try much older and other compilers.
 
-So I just wish to know why this function only print this message :
-
-				/* driver matched but the probe failed */
- 				printk(KERN_WARNING
- 				    "%s: probe of %s failed with error %d\n",
- 				    drv->name, dev->bus_id, error);
-
-but don't return the error.
-Actually I don't understand why the module is loaded (because
-pci_register_driver, which is called during __init, don't fail) while
-my pci card could not have been initialized by "probe" function
-because it failed for such reasons.
-
-Thanks
-
+	Bernd
 -- 
-Loïc Martin
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

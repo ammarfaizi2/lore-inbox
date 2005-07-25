@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVGYI5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVGYJgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVGYI5o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 04:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVGYI5n
+	id S261163AbVGYJgP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 05:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVGYJgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 04:57:43 -0400
-Received: from ns.firmix.at ([62.141.48.66]:27814 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S261154AbVGYI5e (ORCPT
+	Mon, 25 Jul 2005 05:36:15 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:8336 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S261163AbVGYJgO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 04:57:34 -0400
-Subject: Re: xor as a lazy comparison
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Puneet Vyas <vyas.puneet@gmail.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Grant Coady <lkml@dodo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <42E4131D.6090605@gmail.com>
-References: <Pine.LNX.4.61.0507241835360.18474@yvahk01.tjqt.qr>
-	 <kis7e1d4khtde78oajl017900pmn9407u4@4ax.com>
-	 <Pine.LNX.4.61.0507242342080.9022@yvahk01.tjqt.qr>
-	 <42E4131D.6090605@gmail.com>
+	Mon, 25 Jul 2005 05:36:14 -0400
+Subject: [patch] Stop the nand functions triggering false softlockup reports
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dirk@opfer-online.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20050724234238.2141e828.akpm@osdl.org>
+References: <20050715013653.36006990.akpm@osdl.org>
+	 <1122222021.7585.64.camel@localhost.localdomain>
+	 <20050724234238.2141e828.akpm@osdl.org>
 Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Mon, 25 Jul 2005 10:57:13 +0200
-Message-Id: <1122281833.10780.32.camel@tara.firmix.at>
+Date: Mon, 25 Jul 2005 10:35:43 +0100
+Message-Id: <1122284143.7942.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-07-24 at 18:15 -0400, Puneet Vyas wrote:
-[...]
-> I just compiled two identical program , one with "!=" and other with 
-> "^". The assembly output is identical.
+Stop the nand functions triggering false softlockup reports.
 
-Hmm, which compiler and which version?
-You might want to try much older and other compilers.
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+Index: linux-2.6.12/drivers/mtd/nand/nand_base.c
+===================================================================
+--- linux-2.6.12.orig/drivers/mtd/nand/nand_base.c	2005-07-24 18:49:35.000000000 +0100
++++ linux-2.6.12/drivers/mtd/nand/nand_base.c	2005-07-25 09:31:51.000000000 +0100
+@@ -526,6 +526,7 @@
+ 	do {
+ 		if (this->dev_ready(mtd))
+ 			return;
++		touch_softlockup_watchdog();
+ 	} while (time_before(jiffies, timeo));	
+ }
+ 
+
 

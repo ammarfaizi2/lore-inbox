@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVGYWHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVGYWI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVGYWHO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 18:07:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVGYWHN
+	id S261195AbVGYWI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 18:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVGYWI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 18:07:13 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22944 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261192AbVGYWHL (ORCPT
+	Mon, 25 Jul 2005 18:08:56 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23968 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261195AbVGYWHi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 18:07:11 -0400
-Date: Tue, 26 Jul 2005 00:06:59 +0200
+	Mon, 25 Jul 2005 18:07:38 -0400
+Date: Tue, 26 Jul 2005 00:07:29 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+To: dtor_core@ameritech.net, rpurdie@rpsys.net, lenz@cs.wisc.edu,
        kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
 Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
-Message-ID: <20050725220659.GF8684@elf.ucw.cz>
-References: <20050722180109.GA1879@elf.ucw.cz> <20050724174756.A20019@flint.arm.linux.org.uk> <20050725045607.GA1851@elf.ucw.cz> <20050725170419.C7629@flint.arm.linux.org.uk>
+Message-ID: <20050725220729.GG8684@elf.ucw.cz>
+References: <20050722180109.GA1879@elf.ucw.cz> <20050724174756.A20019@flint.arm.linux.org.uk> <20050725045607.GA1851@elf.ucw.cz> <d120d500050725081664cd73fe@mail.gmail.com> <20050725165014.B7629@flint.arm.linux.org.uk> <d120d50005072509022ccbdd0a@mail.gmail.com> <20050725171311.D7629@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050725170419.C7629@flint.arm.linux.org.uk>
+In-Reply-To: <20050725171311.D7629@flint.arm.linux.org.uk>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,74 +27,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > This adds support for reading ADCs (etc), neccessary to operate touch
-> > > > screen on Sharp Zaurus sl-5500.
-> > > 
-> > > I would like to know what the diffs are between my version (attached)
-> > > and this version before they get applied.
+> > > The problem is that the parent doesn't actually know how many
+> > > devices to create nor what to call them, and they're logically
+> > > indistinguishable from each other so there's no logical naming
+> > > system.
 > > 
-> > Hmm, diff looks quite big (attached), and I got it from lenz for 99%
-> > part.
+> > Then we should probably not try to force them into driver model. Have
+> > parent device register struct device and when sub-drivers register
+> > they could attach class devices (like input devices) directly to the
+> > "main" device thus hiding presence of sub-sections of the chip from
+> > sysfs completely. My point is that we should not be using
+> > class_interface here - its purpose is diferent.
 > 
-> It looks like John's version is actually based on a previous revision
-> of this driver. 8/
-
-Oops.
-
-> > I have made quite a lot of cleanups to touchscreen part, and it seems
-> > to be acceptable by input people. I think it should go into
-> > drivers/input/touchscreen/collie_ts.c...
+> If you look at _my_ version, you'll notice that it doesn't use the
+> class interface stuff.  A previous version of it did, and this seems
+> to be what the collie stuff is based upon.
 > 
-> Err, why should my assabet touchscreen be called "collie_ts" ?
-> collie is just a platform which happens to use it - it's got
-> no relevance to the driver naming at all.
+> What I suggest is that the collie folk need to update their driver
+> to my version so that we don't have two different forks of the same
 
-Okay, I did not quite realized it was shared.
-
-> > Also it looks to me like mcp.h should go into asm/arch-sa1100, so
-> > that other drivers can use it...
-> 
-> That doesn't make sense when you have other non-SA1100 devices using
-> mcp-core.c.  Whether that happens or not I've no idea - I can't see
-> what everyone's using out there (just like I've absolutely zero
-> idea what collie folk are doing or not doing.)
-
-set_telecom_divisor relies on CONFIG_SA1100 being set (otherwise it
-breaks compilation, because struct members will not be available; at
-least in this version), so I doubt it has many non-SA1100 users...
-
-> > > The only reason my version has not been submitted is because it lives
-> > > in the drivers/misc directory, and mainline kernel folk don't like
-> > > drivers which clutter up that directory.  In fact, I had been told
-> > > that drivers/misc should remain completely empty - which makes this
-> > > set of miscellaneous drivers homeless.
-> > 
-> > Could they simply live in arch/arm/mach-sa1100? Or is arch/arm/soc
-> > better place?
-> 
-> arch/arm/soc?  That means that (a) we end up with another directory to
-> accumulate crap, (b) it's not a SoC so doesn't belong in a directory
-> named as such, (c) it means that the MCP and UCB drivers get their
-> individual files scattered throughout the kernel tree, one in this
-> directory, one in that directory, one in another random directory.
-> That's far from ideal.
-
-Well, I believe that UCB layer is quite well define and it looks quite
-okay for touchscreen driver to be near other touchscreens... ucb-core
-still needs to go somewhere, if drivers/misc was vetoed, perhaps
-arch/arm/misc would be okay?
-
-> Anyway, summarising this, the results are that what we have here is
-> a complete and utter mess. ;(
-
-Yep :-(.
-
-> So, if the collie folk would like to clean their changes up and send
-> them to me as the driver author, I'll see about integrating them into
-> my version and we'll take it from there.
-
-Okay, will do. [Is there chance to pull your tree using git? It would
-help a bit...]
+Yep, will do, and sorry for the confusion.
 								Pavel
 -- 
 teflon -- maybe it is a trademark, but it should not be.

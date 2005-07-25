@@ -1,210 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVGYOdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVGYOgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVGYOdx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 10:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVGYObd
+	id S261232AbVGYOgN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 10:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVGYOeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 10:31:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32385 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261238AbVGYOah (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 10:30:37 -0400
-Date: Mon, 25 Jul 2005 10:30:29 -0400
-From: Neil Horman <nhorman@redhat.com>
-To: =?iso-8859-1?Q?M=E1rcio?= Oliveira <moliveira@latinsourcetech.com>
-Cc: Neil Horman <nhorman@redhat.com>, rheflin@atipa.com, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Memory Management
-Message-ID: <20050725143029.GD29640@hmsendeavour.rdu.redhat.com>
-References: <EXCHG2003gbLYluLCTa000004d6@EXCHG2003.microtech-ks.com> <42E17FE7.3030205@latinsourcetech.com> <20050723184540.GA1670@hmsendeavour.rdu.redhat.com> <42E2CFC4.9030701@latinsourcetech.com> <20050724185432.GA28617@hmsendeavour.rdu.redhat.com> <42E44303.2030207@latinsourcetech.com>
+	Mon, 25 Jul 2005 10:34:03 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:15914 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261237AbVGYOcC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 10:32:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=DrqA7aizzCZACa4f5LwORfYIdFAIdDEVCCxWBhZkp9BiCOr8oS2CKIRSSGOM9oP23tt6j76I+DnXvt2sRKqtyFoeGtBt23B+OVTagDuwBthKToImkOUx/Q9mpMniaxM0t9acx4z041JDJGlxl0CazuqsnJunW5n/1fXTBuqK+3A=
+Message-ID: <105c793f05072507315cfd1878@mail.gmail.com>
+Date: Mon, 25 Jul 2005 10:31:37 -0400
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: BUG: Yamaha OPL3SA2 does not work with ALSA on 2.6 kernels.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42E44303.2030207@latinsourcetech.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 24, 2005 at 10:40:19PM -0300, Márcio Oliveira wrote:
-> Neil Horman wrote:
-> 
-> >On Sat, Jul 23, 2005 at 08:16:20PM -0300, Márcio Oliveira wrote:
-> > 
-> >
-> >>Neil,
-> >>
-> >>   
-> >>
-> >>>The best way I can think to do that is take a look at /proc/slabinfo.  
-> >>>That will
-> >>>likely give you a pointer to which area of code is eating up your memory.
-> >>>
-> >>>
-> >>>     
-> >>>
-> >>OK. I will monitor the /proc/slabinfo file.
-> >>
-> >>   
-> >>
-> >>>Based on the sysrq-m info you posted it looks like due to fragmentation 
-> >>>the
-> >>>largest chunk of memory you can allocate is 2MB (perhaps less depending 
-> >>>on
-> >>>address space availability).  If you can build a test kernel to do a 
-> >>>show_state
-> >>>rather than a show_mem at the beginning of oom_kil, then you should be 
-> >>>able to
-> >>>tell who is trying to do an allocation that leads to kswapd calling
-> >>>out_of_memory.
-> >>>
-> >>>
-> >>>     
-> >>>
-> >>Neil, I'm trying to recompile the kernel source 2.4.21-32.0.1 and get 
-> >>some error messages:
-> >>
-> >>In file included from 
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/prefetch.h:13,
-> >>               from 
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/list.h:6,
-> >>               from 
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:12,
-> >>               from 3w-xxxx.c:172:
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:61: warning: 
-> >>parameter names (without types) in function declaration
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:61: field 
-> >>`loops_per_jiffy_R_ver_str' declared as a function
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:84: invalid 
-> >>suffix on integer constant
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:84: syntax error 
-> >>before numeric constant
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:84: warning: 
-> >>function declaration isn't a prototype
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:269: invalid 
-> >>suffix on integer constant
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:269: syntax 
-> >>error before numeric constant
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:269: warning: 
-> >>function declaration isn't a prototype
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:273: warning: 
-> >>parameter names (without types) in function declaration
-> >>In file included from 3w-xxxx.c:172:
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: invalid 
-> >>suffix on integer constant
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: syntax error 
-> >>before numeric constant
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: 
-> >>`inter_module_register_R_ver_str' declared as function returning a 
-> >>function
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: warning: 
-> >>function declaration isn't a prototype
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: invalid 
-> >>suffix on integer constant
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: syntax error 
-> >>before numeric constant
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: 
-> >>`inter_module_unregister_R_ver_str' declared as function returning a 
-> >>function
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: warning: 
-> >>function declaration isn't a prototype
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:192: 
-> >>`inter_module_get_R_ver_str' declared as function returning a function
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:192: warning: 
-> >>parameter names (without types) in function declaration
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:193: 
-> >>`inter_module_get_request_R_ver_str' declared as function returning a 
-> >>function
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:193: warning: 
-> >>parameter names (without types) in function declaration
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: invalid 
-> >>suffix on integer constant
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: syntax error 
-> >>before numeric constant
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: 
-> >>`inter_module_put_R_ver_str' declared as function returning a function
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: warning: 
-> >>function declaration isn't a prototype
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:203: 
-> >>`try_inc_mod_count_R_ver_str' declared as function returning a function
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:203: warning: 
-> >>parameter names (without types) in function declaration
-> >>make[3]: *** [3w-xxxx_10200033.o] Error 1
-> >>make[3]: Leaving directory 
-> >>`/usr/src/linux-2.4.21-32.0.1.EL/drivers/addon/3w-xxxx_10200033'
-> >>make[2]: *** [_modsubdir_3w-xxxx_10200033] Error 2
-> >>make[2]: Leaving directory `/usr/src/linux-2.4.21-32.0.1.EL/drivers/addon'
-> >>make[1]: *** [_modsubdir_addon] Error 2
-> >>make[1]: Leaving directory `/usr/src/linux-2.4.21-32.0.1.EL/drivers'
-> >>make: *** [_mod_drivers] Error 2
-> >>
-> >>Is there any relationship between the sysrq-m changes to do show_state() 
-> >>rather than a show_mem() and the compiling erros?
-> >>
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/prefetch.h, line 13:
-> >>  #include <asm/processor.h>
-> >>
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/list.h ,line 6:
-> >>  #include <linux/prefetch.h>
-> >>
-> >>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h, line 12:
-> >>  #include <linux/list.h>
-> >>
-> >>3w-xxxx.c, line 172:
-> >>  #include <linux/module.h>
-> >>
-> >>Any ideia about the kernel compiling erros?
-> >>
-> >>(If I try to recompile a kernel.org kernel, it is compiled fine).
-> >>
-> >>Thanks again.
-> >>
-> >>Márcio.
-> >>
-> >>   
-> >>
-> >I honestly don't know.  I expect you haven't patched something correctly, 
-> >have
-> >you built the source tree with rpmbuild, or are you just extracting the 
-> >tar file
-> >from the rpm?
-> >Neil
-> >
-> > 
-> >
-I honestly have no idea.  Suffice it to say, I never build out of the
-kernel-source package.  Better to use the kernel src rpm, do an rpmbuild -bp on
-the kernel src rpm, setting your target arch accordingly.  I have no problems
-with that on any RHEL kernels.
-Neil
+Hello.
 
->     I'm using the kernel-source package and trying to compiling the 
-> source (in /usr/src/linux-2.4 directory) with "make config", "make dep", 
-> "make clean", "make bzImage", "make modules" and "make 
-> modules_install".  I also try to compile a RHEL3 kernel-source without 
-> the sysrq-m changes on other RHEL3 systems and get the same errors...
-> 
->    If I try to compile a kernel source provide by kernel.org, I don't 
-> get the errors above, and the kernel compile works. When I try to 
-> compile the RHEL3 kernel-source, the "make config", "make dep", "make 
-> clean" and "make bzImage" commands works fine but when I run "make 
-> modules" command I get the errors above. I think that is some issue with 
-> the RHEL3 kernel-source package because other kernel sources (not Red 
-> Hat kernel) compile without problems.
-> 
->   I will try to compile the kernel using rpmbuild and check the 
-> results, plus the slabinfo informations.
-> 
-> Thanks again,
-> 
-> Márcio.
+I have a 5 year old Gateway Solo 2500 that is currently running Linux
+2.6.12.2. If I install ALSA and try to have alsaconf bruteforce-detect
+the OPL3SA2 sound card, it will say that it has detected it, but
+loading the modules will fail. If I install Linux 2.4 and
+recompile/rerun alsaconf, the detection works fine and the card works.
+Copying the configuration detected under 2.4 into a modprobe.conf on
+2.6 allows me to use the card in 2.6 with occasional crashes (which
+might be due to suspend2).
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+Searching around the net, I find many other people having trouble with
+these cards and the ALSA-Linux2.6 combination. On one page, someone
+suggested that there were changes made between 2.4 and 2.6 to the ISA
+code that broke ALSA's detection routines.
+
+I'm not sure what information might be needed in order to get this
+card working well once and for all, but if someone will let me know,
+I'd be happy to provide.
+
+Thanks.
+
+-Andy

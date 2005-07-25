@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVGYWI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVGYWLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVGYWI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 18:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVGYWI4
+	id S261221AbVGYWLy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 18:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVGYWLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 18:08:56 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23968 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261195AbVGYWHi (ORCPT
+	Mon, 25 Jul 2005 18:11:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30666 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261221AbVGYWLr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 18:07:38 -0400
-Date: Tue, 26 Jul 2005 00:07:29 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: dtor_core@ameritech.net, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
-Message-ID: <20050725220729.GG8684@elf.ucw.cz>
-References: <20050722180109.GA1879@elf.ucw.cz> <20050724174756.A20019@flint.arm.linux.org.uk> <20050725045607.GA1851@elf.ucw.cz> <d120d500050725081664cd73fe@mail.gmail.com> <20050725165014.B7629@flint.arm.linux.org.uk> <d120d50005072509022ccbdd0a@mail.gmail.com> <20050725171311.D7629@flint.arm.linux.org.uk>
+	Mon, 25 Jul 2005 18:11:47 -0400
+Date: Mon, 25 Jul 2005 15:10:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: James.Bottomley@SteelEye.com, Eric.Moore@lsil.com, bharata@in.ibm.com,
+       Roy.Wade@lsil.com, Jared.Hayes@lsil.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [IBM] RE: [BUG] Fusion MPT Base Driver initialization failure
+ wit h kdum p
+Message-Id: <20050725151033.25196965.akpm@osdl.org>
+In-Reply-To: <1121858719.42de349feb815@imap.linux.ibm.com>
+References: <1121858719.42de349feb815@imap.linux.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050725171311.D7629@flint.arm.linux.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > The problem is that the parent doesn't actually know how many
-> > > devices to create nor what to call them, and they're logically
-> > > indistinguishable from each other so there's no logical naming
-> > > system.
-> > 
-> > Then we should probably not try to force them into driver model. Have
-> > parent device register struct device and when sub-drivers register
-> > they could attach class devices (like input devices) directly to the
-> > "main" device thus hiding presence of sub-sections of the chip from
-> > sysfs completely. My point is that we should not be using
-> > class_interface here - its purpose is diferent.
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
+>
+> > If you don't stop the DMA engines before you boot the new kernel, the
+>  > addresses they have to send data to will now be random points in that
+>  > kernel's memory, leading to potential corruption of the new kernel
+>  > image.
 > 
-> If you look at _my_ version, you'll notice that it doesn't use the
-> class interface stuff.  A previous version of it did, and this seems
-> to be what the collie stuff is based upon.
+>  [Copying it to fastboot and linux-kernel mailing lists]
 > 
-> What I suggest is that the collie folk need to update their driver
-> to my version so that we don't have two different forks of the same
+>  We are booting second kernel (capture kernel) from a reserved memory location
+>  to take care of on-going DMA issues. So even if some DMA transactions are going
+>  on after the crash they will not corrupt the new kernel.
+> 
+>  > 
+>  > The interrupt panic of the fusion is probably a symptom of this: I bet a
+>  > DMA transfer has just completed and the interrupt is to inform us of
+>  > this (however, in the new kernel we're not expecting any transfers).
+> 
+>  That might very well be the case. So driver should simply ignore the interrupt
+>  when it is not expecting it or it should reset the device if it finds that 
+>  some interrupts are pending when it should not have been there.
+> 
+>  Basically it is a matter of hardening the driver so that it can handle/
+>  initialize the device even if the device is not in reset state. 
 
-Yep, will do, and sorry for the confusion.
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+I'd expect that a lot of these problems could be reduced by simply pausing
+for a while in the crash handler, wait for I/O to complete.
+
+Other times these failures point at flaws and dubious assumptions in
+drivers themselves, fixing of which tends to collaterally help platform
+power mangement operations.
+
+However, I expect that it will always be the case that setups which try to
+perform crashdumps to their main production disks will be less reliable
+than setups which set aside hardware for the dumping.
+
+If it was me, and if I really cared about reliable dumps, I'd make sure
+that each machine had a $6 NIC set aside for crashdumping, and the dump
+kernel uses that NIC for an NFS dump and has no other device drivers
+configured.

@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVGYPu3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVGYPzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVGYPu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 11:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVGYPu3
+	id S261166AbVGYPzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 11:55:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVGYPzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 11:50:29 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11792 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261165AbVGYPu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 11:50:27 -0400
-Date: Mon, 25 Jul 2005 16:50:14 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: dtor_core@ameritech.net
-Cc: Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
-Message-ID: <20050725165014.B7629@flint.arm.linux.org.uk>
-Mail-Followup-To: dtor_core@ameritech.net, Pavel Machek <pavel@suse.cz>,
-	rpurdie@rpsys.net, lenz@cs.wisc.edu,
-	kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-References: <20050722180109.GA1879@elf.ucw.cz> <20050724174756.A20019@flint.arm.linux.org.uk> <20050725045607.GA1851@elf.ucw.cz> <d120d500050725081664cd73fe@mail.gmail.com>
+	Mon, 25 Jul 2005 11:55:09 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54191 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261166AbVGYPzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 11:55:07 -0400
+Date: Mon, 25 Jul 2005 17:53:22 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Marc Ballarin <Ballarin.Marc@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ250 vs. HZ1000
+Message-ID: <20050725155322.GA1046@openzaurus.ucw.cz>
+References: <20050725161333.446fe265.Ballarin.Marc@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <d120d500050725081664cd73fe@mail.gmail.com>; from dmitry.torokhov@gmail.com on Mon, Jul 25, 2005 at 10:16:05AM -0500
+In-Reply-To: <20050725161333.446fe265.Ballarin.Marc@gmx.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 10:16:05AM -0500, Dmitry Torokhov wrote:
-> If the problem is that you have a single piece of hardware you need to
-> bind several drivers to - I guess you will have to create a new
-> sub-device bus for that. Or just register sub-devices on the same bus
-> the parent device is registered on - I am not sure what is best in
-> this particular case - I am not familiar with the arch.
+Hi!
 
-That is exactly the problem - these kinds of devices do _not_ fit
-well into the device model.  A struct device for every different
-possible sub-unit is completely overkill.
+> I did some measurements in order to compare power drain with HZ250 and
+> HZ1000.
+> To measure the actual drain, I used the "smart" battery's internal measurement.
+> (Available with acpi-sbs in /proc/acpi/sbs/SBS0/SB0/state.)
+> No clue how accurate this is.
+> 
+> Here some battery details, in case someone knows:
+> charge reporting error:  25%
+> SB specification:        v1.1 (with PEC)
+> manufacturer name:       Panasonic
+> manufacture date:        2004-11-27
+> device name:             02ZL
+> device chemistry:        Lion
+> 
+> Kernel: 2.6.13-rc3-mm1 + acpi-sbs
+> 
+> CPU:
+> cpu family	: 6
+> model		: 13
+> model name	: Intel(R) Pentium(R) M processor 1.60GHz
+> stepping		: 6
+> 
+> The "ondemand" governor was running, using acpi_cpufreq. (Idle at 600MHz).
+> 
+> Systems was running X11/KDE to get a more or less realistic scenario. No
+> cron jobs, network traffic or additional applications. WLAN and built-in
+> display were disabled completely, all fans and LEDs were off, internal hard
+> disc was running. Additional peripherals: external keyboard, mouse, display
+> and externally-powered hard disk (USB).
 
-For instance, you may logically use one ADC and some GPIO lines
-on the device for X and something else for Y and they logically
-end up in different drivers.
 
-The problem is that the parent doesn't actually know how many
-devices to create nor what to call them, and they're logically
-indistinguishable from each other so there's no logical naming
-system.
-
-> Can we change this to "while (!kthread_should_stop())" to make me
-> completely happy?
-
-I still ask, and I'll keep repeating this.  What is the difference
-between this and the reference implementation which is known to
-work on other hardware.
-
-Let's not go all out on one implementation for one set of hardware,
-but try to work out what we need to do to the generic reference
-implementation to make it work on this hardware.
-
-IOW, you're working on the wrong version.
-
+USB devices prevent entering C3 and any interesting powersaving,
+try without USB...
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

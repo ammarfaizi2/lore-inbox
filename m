@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVGYQZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVGYQaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVGYQZa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 12:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVGYQZ3
+	id S261353AbVGYQaq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 12:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVGYQaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 12:25:29 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:2565 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261341AbVGYQZ1
+	Mon, 25 Jul 2005 12:30:46 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:32107 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261353AbVGYQao convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 12:25:27 -0400
-Message-ID: <42E5134A.30001@tmr.com>
-Date: Mon, 25 Jul 2005 12:28:58 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: "'Bernd Petrovitsch'" <bernd@firmix.at>,
-       "'Linux kernel'" <linux-kernel@vger.kernel.org>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       "'Vinicius'" <jdob@ig.com.br>
-Subject: Re: Kernel doesn't free Cached Memory
-References: <Pine.LNX.4.61.0507220904280.15626@chaos.analogic.com> <200507230536.IAA03542@raad.intranet>
-In-Reply-To: <200507230536.IAA03542@raad.intranet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Jul 2005 12:30:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pDB2275r86nE7ybjm4UvcYQB5RpprM8xVLyMAcWXONVL4Ra/a+WOQCd+yjupVlr9bXSnQ3BqqpKuUuBRIbXp+SuXRKVO0H//+IuWFmIp30o4gkJhCRaqrA5IQbHX7bQU9+LDNFHO0LD8XjWn5AM+Ve2JvyHU9gcqJIsDq4+PNg8=
+Message-ID: <9e47339105072509307386818b@mail.gmail.com>
+Date: Mon, 25 Jul 2005 12:30:43 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: dtor_core@ameritech.net
+Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+In-Reply-To: <d120d5000507250748136a1e71@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9e47339105072421095af5d37a@mail.gmail.com>
+	 <200507242358.12597.dtor_core@ameritech.net>
+	 <9e4733910507250728a7882d4@mail.gmail.com>
+	 <d120d5000507250748136a1e71@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Dick Johnson wrote: { 
+On 7/25/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On 7/25/05, Jon Smirl <jonsmirl@gmail.com> wrote:
+> > On 7/25/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> > > On Sunday 24 July 2005 23:09, Jon Smirl wrote:
+> > > > I just pulled from GIT to test bind/unbind. I couldn't get it to work;
+> > > > it isn't taking into account the CR on the end of the input value of
+> > > > the sysfs attribute.  This patch will fix it but I'm sure there is a
+> > > > cleaner solution.
+> > > >
+> > >
+> > > "echo -n" should take care of this problem I think.
+> >
+> > That will work around it but I think we should fix it.  Changing to
+> > strncmp() fixes most cases.
+> >
+> > -       if (strcmp(name, dev->bus_id) == 0)
+> > +       if (strncmp(name, dev->bus_id, strlen(dev->bus_id)) == 0)
+> >
 > 
->>On Fri, 2005-07-22 at 08:27 -0300, Vinicius wrote:
->>[...]
->>
->>>   I have a server with 2 Pentium 4 HT processors and 32 GB of RAM, 
->>>this server runs lots of applications that consume lots of memory to. 
->>>When I stop this applications, the kernel doesn't free memory (the  
->>>memory still in use) and the server cache lots of memory (~27GB). 
->>>When I start this applications, the kernel sends  "Out of Memory" 
->>>messages and kill some random applications.
-> 
-> 
-> ...you might even need to turn memory over-commit off:
->   echo "0" > /proc/sys/vm/overcommit_memory
-> }
-> 
-> That's in 2.4. In 2.6 it's:
->   echo "2" > /proc/sys/vm/overcommit_memory
+> This will produce "interesting results" if you have both "blah-1" and
+> "blah-10" devices on the bus.
 
-RHEL3 *is* a 2.4 kernel.
-> 
-> But the kernel doesn't honor no-overcommit in either version, i.e. it still
-> overcommits/pages-out loaded/running procs, thus invoking OOM!
-> 
-> Is there a way to make the kernel strictly honor the no-overcommit request?
-> 
-
-Don't have swap?
+Then the better solution is to fix the generic attribute set code to
+strip leading and trailing white space.
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Jon Smirl
+jonsmirl@gmail.com

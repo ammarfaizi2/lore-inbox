@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVGYUNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVGYUHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbVGYUNV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 16:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVGYUNS
+	id S261539AbVGYUHB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 16:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVGYUE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 16:13:18 -0400
-Received: from mail.gmx.net ([213.165.64.20]:63885 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261507AbVGYULD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 16:11:03 -0400
-X-Authenticated: #28678167
-Message-ID: <42E547CA.90108@gmx.net>
-Date: Mon, 25 Jul 2005 22:12:58 +0200
-From: Andreas Baer <lnx1@gmx.net>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050725)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Erik Mouw <erik@harddisk-recovery.com>
-CC: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
-       pmarques@grupopie.com
-Subject: Re: Problem with Asus P4C800-DX and P4 -Northwood-
-References: <42E4373D.1070607@gmx.net> <20050725051236.GS8907@alpha.home.local> <42E4E4B0.6050904@gmx.net> <20050725152425.GA24568@alpha.home.local> <42E542D5.3080905@gmx.net> <20050725200330.GA20811@harddisk-recovery.nl>
-In-Reply-To: <20050725200330.GA20811@harddisk-recovery.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 25 Jul 2005 16:04:28 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:6889 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261521AbVGYUCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 16:02:40 -0400
+Subject: Re: kernel debugging
+From: Lee Revell <rlrevell@joe-job.com>
+To: uma@email.unc.edu
+Cc: linux-kernel@vger.kernel.org, anderegg@cs.unc.edu
+In-Reply-To: <20050725152348.6o1f03u9r4k8cgk0@webmail1.isis.unc.edu>
+References: <42E3946E.4010009@cs.unc.edu>
+	 <20050725152348.6o1f03u9r4k8cgk0@webmail1.isis.unc.edu>
+Content-Type: text/plain
+Date: Mon, 25 Jul 2005 16:02:37 -0400
+Message-Id: <1122321758.1472.29.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-07-25 at 15:23 -0400, uma@email.unc.edu wrote:
+> I am using Red Hat sources, which has function open_kcore() hardcoded to
+> return -EPERM always.
+> 
+> Changing this function to the way it is defined in the public sources (as
+> shown below) did the trick.
 
+All these Red Hat / RHEL threads are completely OT.  Please take it to a
+Red Hat list.
 
-Erik Mouw wrote:
-> On Mon, Jul 25, 2005 at 09:51:49PM +0200, Andreas Baer wrote:
-> 
->>Willy Tarreau wrote:
->>
->>>On Mon, Jul 25, 2005 at 03:10:08PM +0200, Andreas Baer wrote:
->>>
->>>>Here I have
->>>>
->>>>       /dev/hda:  26.91 MB/sec
->>>>       /dev/hda1: 26.90 MB/sec    (Windows FAT32)
->>>>       /dev/hda7: 17.89 MB/sec    (Linux EXT3)
->>>>
->>>>Could you give me a reason how this is possible?
->>>
->>>
->>>a reason for what ? the fact that the notebook performs faster than the
->>>desktop while slower on I/O ?
->>
->>No, a reason why the partition with Linux (ReiserFS or Ext3) is always 
->>slower
->>than the Windows partition?
-> 
-> 
-> Easy: Drives don't have the same speed on all tracks. The platters are
-> built-up from zones with different recording densities: zones near the
-> center of the platters have a lower recording density and hence a lower
-> datarate (less bits/second pass under the head). Zones at the outer
-> diameter have a higher recording density and a higher datarate.
-> 
-> 
-> Erik
-> 
+Lee
 
-So it has definitely nothing to do with filesystem? I also thought about 
-physical reasons because I don't think the hdparm depends on filesystems...

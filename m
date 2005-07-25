@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVGYT1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVGYUEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVGYT1e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 15:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVGYTZK
+	id S261520AbVGYUEN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 16:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVGYUEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 15:25:10 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:44954 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261472AbVGYTXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 15:23:22 -0400
-Message-ID: <42E53C25.10100@grupopie.com>
-Date: Mon, 25 Jul 2005 20:23:17 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Bernd Petrovitsch <bernd@firmix.at>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Grant Coady <lkml@dodo.com.au>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Puneet Vyas <vyas.puneet@gmail.com>
-Subject: Re: xor as a lazy comparison
-References: <Pine.LNX.4.61.0507241835360.18474@yvahk01.tjqt.qr>	 <kis7e1d4khtde78oajl017900pmn9407u4@4ax.com>	 <Pine.LNX.4.61.0507242342080.9022@yvahk01.tjqt.qr>	 <42E4131D.6090605@gmail.com>  <1122281833.10780.32.camel@tara.firmix.at>	 <1122314150.6019.58.camel@localhost.localdomain> <1122318659.1472.14.camel@mindpipe>
-In-Reply-To: <1122318659.1472.14.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 25 Jul 2005 16:04:10 -0400
+Received: from h80ad251a.async.vt.edu ([128.173.37.26]:135 "EHLO
+	h80ad251a.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261503AbVGYUDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 16:03:52 -0400
+Message-Id: <200507252003.j6PK3bcS022382@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Andreas Baer <lnx1@gmx.net>
+Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
+       pmarques@grupopie.com
+Subject: Re: Problem with Asus P4C800-DX and P4 -Northwood- 
+In-Reply-To: Your message of "Mon, 25 Jul 2005 21:51:49 +0200."
+             <42E542D5.3080905@gmx.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <42E4373D.1070607@gmx.net> <20050725051236.GS8907@alpha.home.local> <42E4E4B0.6050904@gmx.net> <20050725152425.GA24568@alpha.home.local>
+            <42E542D5.3080905@gmx.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1122321816_2774P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Jul 2005 16:03:36 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Mon, 2005-07-25 at 13:55 -0400, Steven Rostedt wrote: 
+--==_Exmh_1122321816_2774P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 25 Jul 2005 21:51:49 +0200, Andreas Baer said:
+
+> > a reason for what ? the fact that the notebook performs faster than the
+> > desktop while slower on I/O ?
 > 
->>Doesn't matter. The cycles saved for old compilers is not rational to
->>have obfuscated code.
-> 
-> Where do we draw the line with this?  Is x *= 2 preferable to x <<= 2 as
-> well?
+> No, a reason why the partition with Linux (ReiserFS or Ext3) is always slower
+> than the Windows partition?
 
-I guess this depends on what you logically want to do. If the problem 
-requires you to shift some value N bits, then you should use a shift 
-operation.
+My first guess is that ReiserFS and EXT3 are journalled, and FAT32 isn't.
+Try ext2, which is the non-journalled variant of ext3, and see if the speed
+is comparable to fat32.
 
-If what you want is to multiply a value by a certain ammount, you should 
-just use a multiplication.
+--==_Exmh_1122321816_2774P
+Content-Type: application/pgp-signature
 
-Using a shift to perform the multiplication should be left to the 
-compiler IMHO.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-The proof that the shift is not so clear is that even you got the shift 
-wrong in your own example ;)
+iD8DBQFC5UWYcC3lWbTT17ARApvwAKDNO7cYe+vPs2xR1DEFULDWLVOgbACgwORU
+vfhkwFSpvnBx2vKvR5ls8Ss=
+=mlgz
+-----END PGP SIGNATURE-----
 
--- 
-Paulo Marques - www.grupopie.com
-
-It is a mistake to think you can solve any major problems
-just with potatoes.
-Douglas Adams
+--==_Exmh_1122321816_2774P--

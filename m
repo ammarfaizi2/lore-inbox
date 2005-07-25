@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVGYMUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVGYMcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbVGYMUR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 08:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVGYMUR
+	id S261155AbVGYMcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 08:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVGYMcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 08:20:17 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:26336 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261234AbVGYMUO (ORCPT
+	Mon, 25 Jul 2005 08:32:25 -0400
+Received: from thunk.org ([69.25.196.29]:47042 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261155AbVGYMcX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 08:20:14 -0400
-Date: Mon, 25 Jul 2005 14:20:13 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Sonny Rao <sonny@burdell.org>
-Cc: Paul Jackson <pj@sgi.com>, rostedt@goodmis.org,
-       relayfs-devel@lists.sourceforge.net, richardj_moore@uk.ibm.com,
-       varap@us.ibm.com, karim@opersys.com, linux-kernel@vger.kernel.org,
-       zanussi@us.ibm.com
-Subject: Re: diskstat 0.1: simple tool to study io patterns via relayfs
-Message-ID: <20050725122013.GA5843@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Sonny Rao <sonny@burdell.org>, Paul Jackson <pj@sgi.com>,
-	rostedt@goodmis.org, relayfs-devel@lists.sourceforge.net,
-	richardj_moore@uk.ibm.com, varap@us.ibm.com, karim@opersys.com,
-	linux-kernel@vger.kernel.org, zanussi@us.ibm.com
-References: <20050724010730.GA22104@outpost.ds9a.nl> <20050725075648.GA32238@kevlar.burdell.org>
+	Mon, 25 Jul 2005 08:32:23 -0400
+Date: Mon, 25 Jul 2005 08:32:04 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: "Amit S. Kale" <amitkale@linsyssoft.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CheckFS: Checkpoints and Block Level Incremental Backup (BLIB)
+Message-ID: <20050725123204.GB7925@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	"Amit S. Kale" <amitkale@linsyssoft.com>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Pavel Machek <pavel@ucw.cz>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200507231130.07208.amitkale@linsyssoft.com> <20050724142352.GB1778@elf.ucw.cz> <Pine.LNX.4.61.0507241713210.11580@yvahk01.tjqt.qr> <200507251124.43898.amitkale@linsyssoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050725075648.GA32238@kevlar.burdell.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200507251124.43898.amitkale@linsyssoft.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 03:56:48AM -0400, Sonny Rao wrote:
-> Hi, I had some trouble compiling it, I figured out that one needs
-> libboost, but then I've also discovered that g++-3.4.4 and g++-4.0.1
-> don't want to compile it while g++-3.3.5 works.  (FYI, all of these were
-> Ubuntu versions)
+On Mon, Jul 25, 2005 at 11:24:43AM +0530, Amit S. Kale wrote:
+> On Sunday 24 Jul 2005 8:44 pm, Jan Engelhardt wrote:
+> > >Maybe you want to put your development machines on ext*2* while doing
+> > >this ;-). Or perhaps reiserfs/xfs/something.
+> >
+> > Or perhaps into at the VFS level, so any fs can benefit from it.
+> 
+> We thought about that. While it's possible to do that, it would need
+> hooks into all filesystems etc. Definitely worth trying once we get
+> some more basic stuff working for ext3
+> 
+> After all the things that need to be saved at the time of taking a
+> checkpoint for any filesystem would be the superblock and inode
+> table (or their equivalents). Everything else is automatically taken
+> care of.
 
-Yes, you are right. I'll fix the Boost thing, but it really should compile
-using all those gcc's. Would you mind sending me the errors you get with the
-other compilers (privately)?
+You are aware of the block-device-level snapshot solutions, right?
+They can be more painful to use, although that's mostly a UI issue,
+and they have the added advantage that you can safely run e2fsck on
+the snapshot image if you want to check the consistency of the
+filesystem while it is mounted.  (If it is clean, you can then use
+tune2fs to reset the max-mount-count and last-checked-time on the
+original filesystem image; if it is not clean, you can send e-mail to
+the system administrator suggesting that she schedule downtime ASAP
+and do a e2fsck on the filesystem image.  This is a good thing that a
+paranoid sysadmin might schedule via cron every Saturday morning at
+3am, for example.)
 
-> You might want to document some of this in the README :)
-
-This is the least of what needs fixing hehe. Thanks.
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+							- Ted

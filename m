@@ -1,97 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVGYTWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVGYTY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVGYTWz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 15:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVGYTUE
+	id S261471AbVGYTY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 15:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVGYTY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 15:20:04 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:51130 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261464AbVGYTSc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 15:18:32 -0400
-Date: Mon, 25 Jul 2005 15:18:29 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Michel Bouissou <michel@bouissou.net>
-cc: bjorn.helgaas@hp.com,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: VIA KT400 + Kernel 2.6.12 + IO-APIC + uhci_hcd = IRQ trouble
-In-Reply-To: <200507252006.17330@totor.bouissou.net>
-Message-ID: <Pine.LNX.4.44L0.0507251500270.8043-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Jul 2005 15:24:57 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:65243 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261471AbVGYTYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 15:24:19 -0400
+Subject: Re: xor as a lazy comparison
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Philippe Troin <phil@fifi.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Bernd Petrovitsch <bernd@firmix.at>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Grant Coady <lkml@dodo.com.au>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Puneet Vyas <vyas.puneet@gmail.com>
+In-Reply-To: <87ackaitlj.fsf@ceramic.fifi.org>
+References: <Pine.LNX.4.61.0507241835360.18474@yvahk01.tjqt.qr>
+	 <kis7e1d4khtde78oajl017900pmn9407u4@4ax.com>
+	 <Pine.LNX.4.61.0507242342080.9022@yvahk01.tjqt.qr>
+	 <42E4131D.6090605@gmail.com> <1122281833.10780.32.camel@tara.firmix.at>
+	 <1122314150.6019.58.camel@localhost.localdomain>
+	 <1122318659.1472.14.camel@mindpipe>  <87ackaitlj.fsf@ceramic.fifi.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 25 Jul 2005 15:24:03 -0400
+Message-Id: <1122319443.6019.69.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jul 2005, Michel Bouissou wrote:
-
-> 1/ rmmod ehci-hcd
+On Mon, 2005-07-25 at 12:16 -0700, Philippe Troin wrote:
+> Lee Revell <rlrevell@joe-job.com> writes:
 > 
-> 2/ Plugged the mouse in each and every USB connector I have, in turn. The 
-> mouse was working good on each of them. IRQ 21 showed nicely incrementing 
-> each time I plugged / unplugged or moved the plugged mouse. System was happy 
-> and didn't log anything abnormal.
-
-So it's definite that all three UHCI controllers use IRQ 21.
-
-> 3/ Unplugged the mouse
+> > On Mon, 2005-07-25 at 13:55 -0400, Steven Rostedt wrote: 
+> > > Doesn't matter. The cycles saved for old compilers is not rational to
+> > > have obfuscated code.
+> > 
+> > Where do we draw the line with this?  Is x *= 2 preferable to x <<= 2 as
+> > well?
 > 
-> 4/ modprobe ehci-hcd
-> 
-> 5/ Plugged the mouse. Immediately got "IRQ21: Nobody cared" and "Disabling IRQ 
-> 21" messages.
+> Depends if you want to multiply by 2 or 4 :-)
 
-I'm not aware under what circumstances the EHCI controller generates 
-interrupt requests upon plugging in a new device, but apparently it did so 
-for you.  Maybe because there were no other devices plugged in and the 
-controller was suspended.
+I guess this proves my point :-)
 
-Clearly the EHCI controller also uses IRQ 21, even though the system 
-thinks it is mapped to a different IRQ.
+But lets look at the signal.c code as well:
 
-> => Noticed IRQ21 count has suddenly been set to exactly 200000
+        if ((!info || ((unsigned long)info != 1 &&
+                        (unsigned long)info != 2 && SI_FROMUSER(info)))
+            && ((sig != SIGCONT) ||
+                (current->signal->session != t->signal->session))
+            && (current->euid ^ t->suid) && (current->euid ^ t->uid)
+            && (current->uid ^ t->suid) && (current->uid ^ t->uid)
+            && !capable(CAP_KILL))
+                return error;
 
-This is an artifact of the way the system detects and reports unhandled 
-IRQs.
+Why did they do the (current->signal->session != t->signal->session) and
+not also do (current->signal->session ^ t->signal->session)?
 
-> After this, the mouse was now behaving slowly and erratically (USB polled 
-> without interrupts ?)
+Bit shifting for doubling (or quadrupling) may or may not be confusing,
+(I don't mind that), but using xor for non-equal is IMO past that line.
+Since, I usually use xor for bit masks. Looking at the above code,
+especially since it is not always used, I would think that euid, uid,
+and suid are all bitmasks.
 
-Probably.
+-- Steve
 
-> 6/ Unplugged the mouse, then:
-> - rmmod ehci-hcd
-> - rmmod uhci-hcd
-> - modprobe ehci-hcd
-
-Do you really mean "modprobe ehci-hcd" here?  So the EHCI driver was
-loaded and not the UHCI driver?  Or was that a typo?
-
-> 7/ Plugged the mouse back. It was working happily again.
-
-With no UHCI driver?
-
-> 8/ Keeping the mouse plugged:
-> - modprobe ehci-hcd
-
-But you had just previously loaded ehci-hcd.  Unless the earlier line was 
-a typo.
-
-> => Immediately got the IRQ21 insults again.
-> => Noticed IRQ21 count has suddenly been set to exactly 400000
-> Mouse behaviour was slow and erratical again.
-> 
-> Repeated steps 6-8 using another USB socket, with the exact same results.
-> 
-> What do you think about this ?
-
-It seems quite clear that the EHCI controller's IRQ line is causing the
-problems.  Just out of curiousity, what happens if you really do remove
-the UHCI driver, keeping only the EHCI driver, and then plug in the mouse?  
-Off hand I would expect nothing much to happen -- maybe a line or two in
-the system log, no change to the IRQ counters, and the mouse doesn't work
-(not even erratically).
-
-Alan Stern
 

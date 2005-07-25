@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVGYH1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVGYH32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVGYH1n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 03:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVGYH1m
+	id S261735AbVGYH32 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 03:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVGYH32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 03:27:42 -0400
-Received: from bay17-f4.bay17.hotmail.com ([64.4.43.54]:37537 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261735AbVGYH1d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 03:27:33 -0400
-Message-ID: <BAY17-F4D75DC4B383C374A1BCD3BCCA0@phx.gbl>
-X-Originating-IP: [212.199.150.124]
-X-Originating-Email: [zvidubitzki@hotmail.com]
-From: "zvi Dubitzki" <zvidubitzki@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: accessing CD fs from initrd
-Date: Mon, 25 Jul 2005 07:27:32 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 25 Jul 2005 07:27:32.0468 (UTC) FILETIME=[5222B340:01C590EA]
+	Mon, 25 Jul 2005 03:29:28 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:38550 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261655AbVGYH3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 03:29:24 -0400
+Date: Mon, 25 Jul 2005 09:29:22 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Budde, Marco" <budde@telos.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Stripping in module
+In-Reply-To: <809C13DD6142E74ABE20C65B11A24398020882@www.telos.de>
+Message-ID: <Pine.LNX.4.61.0507250928300.18209@yvahk01.tjqt.qr>
+References: <809C13DD6142E74ABE20C65B11A24398020882@www.telos.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there
+>What is the best way to do this with v2.6.
+>
+>I have tried e.g. to remove all symbols starting with "telos"
+>from the module like this (after kbuild):
+>
+>  strip -w -K '!telos*' -K 'telosi2c_usb_driver' telosi2c_linux.ko
 
-I want to be CC-ed on a possible answer to the following question.
-I have not found yet an answer to the question in the Linux archives.
+Yes, I'd also be interested in what sections can actually be stripped, if any.
+Userspace shared libs for example can be `strip -s`'ed and they still work as 
+expected, does not look like this holds for kernel modules.
 
-In need access the CD filesystem (iso9660) from within the Linux initrd or 
-right after that (make it root fs).
-I need an example for that since allocating enough ramdisk space 
-(ramdisk_size=90k in kernel command line)  + loading the cdrom.o
-module at the initrd did not help  mount the CD device (/dev/cdrom)  at the 
-initrd
-Also I need know how to pivot between the initrd and the CD filesystem
 
-I am actually using Isolinux/syslinux, but can make test on a regular Linux 
-.
-Any pointer to a literature will also be welcomed .
 
-thanks
-
-Zvi Dubitzki
-
-_________________________________________________________________
-FREE pop-up blocking with the new MSN Toolbar - get it now! 
-http://toolbar.msn.click-url.com/go/onm00200415ave/direct/01/
-
+Jan Engelhardt
+-- 

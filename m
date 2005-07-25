@@ -1,67 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVGYQDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVGYQEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbVGYQDo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 12:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVGYQDo
+	id S261239AbVGYQEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 12:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVGYQEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 12:03:44 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:62552 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261214AbVGYQDn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 12:03:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SEstiZciCSZEYfHrxY44jtSOjBCHA0XfQVYXk4n1m1m/eu0S7Eycv273Q3dRH6sjZqREC670dyF+WtYFCbJ1mMKvyWOnUfN+vJuA0zHovmYM1sqiLxBY4skIPZdDGPcKWC4PBe7fKSRELjzw09vozHLDYCfC9Dkaes7UcNFnPQ8=
-Message-ID: <d120d50005072509022ccbdd0a@mail.gmail.com>
-Date: Mon, 25 Jul 2005 11:02:43 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: dtor_core@ameritech.net, Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net,
-       lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
+	Mon, 25 Jul 2005 12:04:51 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1289 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261239AbVGYQEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 12:04:24 -0400
+Date: Mon, 25 Jul 2005 17:04:19 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
 Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
-In-Reply-To: <20050725165014.B7629@flint.arm.linux.org.uk>
+Message-ID: <20050725170419.C7629@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net,
+	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+	vojtech@suse.cz
+References: <20050722180109.GA1879@elf.ucw.cz> <20050724174756.A20019@flint.arm.linux.org.uk> <20050725045607.GA1851@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050722180109.GA1879@elf.ucw.cz>
-	 <20050724174756.A20019@flint.arm.linux.org.uk>
-	 <20050725045607.GA1851@elf.ucw.cz>
-	 <d120d500050725081664cd73fe@mail.gmail.com>
-	 <20050725165014.B7629@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050725045607.GA1851@elf.ucw.cz>; from pavel@suse.cz on Mon, Jul 25, 2005 at 06:56:07AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/25/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> On Mon, Jul 25, 2005 at 10:16:05AM -0500, Dmitry Torokhov wrote:
-> > If the problem is that you have a single piece of hardware you need to
-> > bind several drivers to - I guess you will have to create a new
-> > sub-device bus for that. Or just register sub-devices on the same bus
-> > the parent device is registered on - I am not sure what is best in
-> > this particular case - I am not familiar with the arch.
+On Mon, Jul 25, 2005 at 06:56:07AM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> That is exactly the problem - these kinds of devices do _not_ fit
-> well into the device model.  A struct device for every different
-> possible sub-unit is completely overkill.
+> > > This adds support for reading ADCs (etc), neccessary to operate touch
+> > > screen on Sharp Zaurus sl-5500.
+> > 
+> > I would like to know what the diffs are between my version (attached)
+> > and this version before they get applied.
 > 
-> For instance, you may logically use one ADC and some GPIO lines
-> on the device for X and something else for Y and they logically
-> end up in different drivers.
-> 
-> The problem is that the parent doesn't actually know how many
-> devices to create nor what to call them, and they're logically
-> indistinguishable from each other so there's no logical naming
-> system.
-> 
+> Hmm, diff looks quite big (attached), and I got it from lenz for 99%
+> part.
 
-Then we should probably not try to force them into driver model. Have
-parent device register struct device and when sub-drivers register
-they could attach class devices (like input devices) directly to the
-"main" device thus hiding presence of sub-sections of the chip from
-sysfs completely. My point is that we should not be using
-class_interface here - its purpose is diferent.
+It looks like John's version is actually based on a previous revision
+of this driver. 8/
+
+> I have made quite a lot of cleanups to touchscreen part, and it seems
+> to be acceptable by input people. I think it should go into
+> drivers/input/touchscreen/collie_ts.c...
+
+Err, why should my assabet touchscreen be called "collie_ts" ?
+collie is just a platform which happens to use it - it's got
+no relevance to the driver naming at all.
+
+> Also it looks to me like mcp.h should go into asm/arch-sa1100, so
+> that other drivers can use it...
+
+That doesn't make sense when you have other non-SA1100 devices using
+mcp-core.c.  Whether that happens or not I've no idea - I can't see
+what everyone's using out there (just like I've absolutely zero
+idea what collie folk are doing or not doing.)
+
+> > The only reason my version has not been submitted is because it lives
+> > in the drivers/misc directory, and mainline kernel folk don't like
+> > drivers which clutter up that directory.  In fact, I had been told
+> > that drivers/misc should remain completely empty - which makes this
+> > set of miscellaneous drivers homeless.
+> 
+> Could they simply live in arch/arm/mach-sa1100? Or is arch/arm/soc
+> better place?
+
+arch/arm/soc?  That means that (a) we end up with another directory to
+accumulate crap, (b) it's not a SoC so doesn't belong in a directory
+named as such, (c) it means that the MCP and UCB drivers get their
+individual files scattered throughout the kernel tree, one in this
+directory, one in that directory, one in another random directory.
+That's far from ideal.
+
+Anyway, summarising this, the results are that what we have here is
+a complete and utter mess. ;(
+
+So, if the collie folk would like to clean their changes up and send
+them to me as the driver author, I'll see about integrating them into
+my version and we'll take it from there.
 
 -- 
-Dmitry
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

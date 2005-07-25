@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVGYTs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbVGYTxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbVGYTs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 15:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVGYTsU
+	id S261515AbVGYTxI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 15:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVGYTvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 15:48:20 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:13316 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261370AbVGYTsN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 15:48:13 -0400
-Message-ID: <42E542F4.8020808@tmr.com>
-Date: Mon, 25 Jul 2005 15:52:20 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ciprian <cipicip@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.6 speed
-References: <20050724191211.48495.qmail@web53608.mail.yahoo.com>	 <f89941150507241403234949be@mail.gmail.com> <1122245346.27064.4.camel@mindpipe>
-In-Reply-To: <1122245346.27064.4.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 25 Jul 2005 15:51:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:56809 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261503AbVGYTux (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 15:50:53 -0400
+Date: Mon, 25 Jul 2005 12:50:46 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: <marcelo.tosatti@cyclades.com>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: usb: printer double up()
+Message-Id: <20050725125046.36398aae.zaitcev@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Sun, 2005-07-24 at 17:03 -0400, Florin Malita wrote:
-> 
->>the x86 timer interrupt
->>frequency has increased from 100Hz to 1KHz (it's about to be lowered
->>to 250Hz)
-> 
-> 
-> This is by no means a done deal.  So far no one has posted ANY evidence
-> that dropping HZ to 250 helps (except one result on a atypically large
-> system), and there's plenty of evidence that it doesn't.
+Doing a double up() is actually safe in Linux, but still, it's a bug.
+This fix is present in 2.6.13-rc3.
 
-If nothing else it does seem to make media applications unhappy under 
-some loads.
+By Domen Puncer <domen@coderock.org>
+up(&usblp->sem) was called twice in a row in this code path.
 
-I personally think 1k should stay the default and let people with 
-special needs use the other. Nice to select at boot time, people who 
-need accuracy above all could use 866 (or whatever tick rate near that 
-was the lowest error).
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+--- linux-2.4.31/drivers/usb/printer.c	2004-08-10 13:43:36.000000000 -0700
++++ linux-2.4.31-usb/drivers/usb/printer.c	2005-06-05 11:21:12.000000000 -0700
+@@ -740,6 +740,7 @@ static ssize_t usblp_read(struct file *f
+ 				schedule();
+ 			} else {
+ 				set_current_state(TASK_RUNNING);
++				down (&usblp->sem);
+ 				break;
+ 			}
+ 			down (&usblp->sem);

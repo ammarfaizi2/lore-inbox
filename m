@@ -1,67 +1,254 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVGYTB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVGYTEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVGYTB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 15:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVGYTB7
+	id S261449AbVGYTEW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 15:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVGYTEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 15:01:59 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:24591 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261431AbVGYTBV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 15:01:21 -0400
-Message-ID: <42E537D1.6000100@tmr.com>
-Date: Mon, 25 Jul 2005 15:04:49 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: george@mvista.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: itimer oddness in 2.6.12
-References: <20050722171657.GG4311@real.com> <42E14735.1090205@grupopie.com> <20050722205825.GB6476@real.com> <42E1A208.8060408@mvista.com>
-In-Reply-To: <42E1A208.8060408@mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 25 Jul 2005 15:04:22 -0400
+Received: from imap.gmx.net ([213.165.64.20]:58800 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261454AbVGYTDY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 15:03:24 -0400
+X-Authenticated: #1725425
+Date: Mon, 25 Jul 2005 21:02:53 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ250 vs. HZ1000
+Message-Id: <20050725210253.61d2da13.Ballarin.Marc@gmx.de>
+In-Reply-To: <20050725155322.GA1046@openzaurus.ucw.cz>
+References: <20050725161333.446fe265.Ballarin.Marc@gmx.de>
+	<20050725155322.GA1046@openzaurus.ucw.cz>
+X-Mailer: Sylpheed version 2.0.0rc (GTK+ 2.6.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
-> Tom Marshall wrote:
-> 
->> On Fri, Jul 22, 2005 at 08:21:25PM +0100, Paulo Marques wrote:
->>
->>> Tom Marshall wrote:
->>>
->>>> The patch to fix "setitimer timer expires too early" is causing 
->>>> issues for
->>>> the Helix server.  We have a timer processs that updates the server's
->>>> timestamp on an itimer and it expects the signal to be delivered at 
->>>> roughly
->>>> the interval retrieved from getitimer.  This is very consistent on 
->>>> every
->>>> platform, including Linux up to 2.6.11, but breaks on 2.6.12.  On 
->>>> 2.6.12,
->>>> setting the itimer to 10ms and retrieving the actual interval from 
->>>> getitimer
->>>> reports 10.998ms, but the timer interrupts are consistently 
->>>> delivered at
->>>> roughly 11.998ms.  
->>>
->>>
->>> Unfortunately, this is not so clear cut as it seems :(
-> 
-> 
-> Oops!  That patch is wrong.  The +1 should be applied to the initial 
-> interval _only_.  We KNOW when the repeating intervals start (i.e. at 
-> the jiffie edge) and don't need to adjust them.  The patch, however, 
-> incorrectly, rolls them all into one.  The attach patch should fix the 
-> problem.  Warnning, it compiles and boots, but I have not tested it.
+On Mon, 25 Jul 2005 17:53:22 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
+ 
+> USB devices prevent entering C3 and any interesting powersaving,
+> try without USB...
 
-Can this get into 2.6.13? Or stable if it's too late? This would appear 
-to be a fix to a visible problem.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Hmm, just did. I even tried the rather minimalistic configuration below.
+Still no C3. (And what seems even stranger: no C1.)
 
+Is this a BIOS Issue?
+
+Regards
+
+
+Tested config:
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+
+CONFIG_LOCALVERSION="-hztest"
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_BSD_PROCESS_ACCT_V3=y
+
+CONFIG_SYSCTL=y
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_BASE_SMALL=0
+
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMM=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_PREEMPT_NONE=y
+CONFIG_X86_TSC=y
+
+CONFIG_EDD=y
+CONFIG_NOHIGHMEM=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_MTRR=y
+CONFIG_REGPARM=y
+CONFIG_SECCOMP=y
+CONFIG_HZ_250=y
+CONFIG_HZ=250
+CONFIG_PHYSICAL_START=0x100000
+
+CONFIG_PM=y
+
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_VIDEO=y
+CONFIG_ACPI_HOTKEY=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA_DMA_API=y
+CONFIG_ISA=y
+
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+
+CONFIG_NET=y
+
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_TCPDIAG=y
+CONFIG_TCP_CONG_BIC=y
+
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+
+CONFIG_PNP=y
+
+CONFIG_PNPACPI=y
+
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_INITRAMFS_SOURCE=""
+
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=800
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_LIBPS2=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+CONFIG_UNIX98_PTYS=y
+
+CONFIG_VIDEO_SELECT=y
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+
+CONFIG_SPEAKUP_DEFAULT="none"
+
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_FS_POSIX_ACL=y
+
+CONFIG_DNOTIFY=y
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_DEVPTS_FS_XATTR=y
+CONFIG_DEVPTS_FS_SECURITY=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+
+CONFIG_MSDOS_PARTITION=y
+
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_CODEPAGE_1250=y
+CONFIG_NLS_ASCII=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_UTF8=y
+
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_EARLY_PRINTK=y
+
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y

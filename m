@@ -1,87 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVGYPRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVGYPW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVGYPRE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 11:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVGYPRE
+	id S261215AbVGYPW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 11:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVGYPW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 11:17:04 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:22830 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261326AbVGYPRC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 11:17:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LYNiZyg/Ur1bZ6mBvzjRuu7mMRotg1Hq5X6TCeGQkwvd/BkZkgxvLyruFj3eJ1kRgOIykcPYkyFknwYLvX+nrdQH7oZlp+zmSLG7nTjf5po9KDZTiBYN8hcikwvHznbfxuT+1nSHUk60ByPDuYVZlPZOBRQkMYYH4j1L/9Nn45U=
-Message-ID: <d120d500050725081664cd73fe@mail.gmail.com>
-Date: Mon, 25 Jul 2005 10:16:05 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
-Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-In-Reply-To: <20050725045607.GA1851@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050722180109.GA1879@elf.ucw.cz>
-	 <20050724174756.A20019@flint.arm.linux.org.uk>
-	 <20050725045607.GA1851@elf.ucw.cz>
+	Mon, 25 Jul 2005 11:22:27 -0400
+Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:34588 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S261215AbVGYPWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 11:22:25 -0400
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'zvi Dubitzki'" <zvidubitzki@hotmail.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: accessing CD fs from initrd
+Date: Mon, 25 Jul 2005 10:25:20 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <BAY17-F4D75DC4B383C374A1BCD3BCCA0@phx.gbl>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+thread-index: AcWQ4djX7vvA1GztSXiJLv1JaXMfeAASq99w
+Message-ID: <EXCHG2003yxdZjfNLnl00000512@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 25 Jul 2005 14:20:21.0220 (UTC) FILETIME=[FD765240:01C59123]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
 
-On 7/24/05, Pavel Machek <pavel@suse.cz> wrote:
+/dev/cdrom is a link to the proper device, if that link is not
+on the initrd /dev/cdrom won't work.
+
+I previously had some statically linked linuxrc C code (I don't
+have the code anymore- it was a work-for-hire), that scanned
+the various locations that the cd could be (/dev/hd[abcd...])
+and looked for specific files that it expected to be on the
+cd, once it found it it setup real-root-dev to be proper for
+that device.
+
+This work rather nicely in situations where the location of
+the cd drive was not the same from one machine to another,
+and was rather simple to write.
+
+                        Roger 
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of zvi Dubitzki
+> Sent: Monday, July 25, 2005 2:28 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: accessing CD fs from initrd
 > 
-> I have made quite a lot of cleanups to touchscreen part, and it seems
-> to be acceptable by input people. I think it should go into
-> drivers/input/touchscreen/collie_ts.c... Also it looks to me like
-> mcp.h should go into asm/arch-sa1100, so that other drivers can use it...
+> Hi there
+> 
+> I want to be CC-ed on a possible answer to the following question.
+> I have not found yet an answer to the question in the Linux archives.
+> 
+> In need access the CD filesystem (iso9660) from within the 
+> Linux initrd or right after that (make it root fs).
+> I need an example for that since allocating enough ramdisk 
+> space (ramdisk_size=90k in kernel command line)  + loading 
+> the cdrom.o module at the initrd did not help  mount the CD 
+> device (/dev/cdrom)  at the initrd Also I need know how to 
+> pivot between the initrd and the CD filesystem
+> 
+> I am actually using Isolinux/syslinux, but can make test on a 
+> regular Linux .
+> Any pointer to a literature will also be welcomed .
+> 
+> thanks
+> 
+> Zvi Dubitzki
+> 
+> _________________________________________________________________
+> FREE pop-up blocking with the new MSN Toolbar - get it now! 
+> http://toolbar.msn.click-url.com/go/onm00200415ave/direct/01/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to 
+> majordomo@vger.kernel.org More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I have couple of nitpicks (below) and one bigger concern - I am
-surprised that a driver for a physical device is implemented as an
-interface to a class device. This precludes implementing any kind of
-power management in the driver and pushes it into the parent and is
-generally speaking is a wrong thing to do (IMHO).
-
-If the problem is that you have a single piece of hardware you need to
-bind several drivers to - I guess you will have to create a new
-sub-device bus for that. Or just register sub-devices on the same bus
-the parent device is registered on - I am not sure what is best in
-this particular case - I am not familiar with the arch. It is my
-understanding that the purpose of interfaces to to present different
-"views" to userspace and therefore they are not quie suited for what
-you are trying to do...
-
-> +static int ucb1x00_thread(void *_ts)
-> +{
-> +       struct ucb1x00_ts *ts = _ts;
-> +       struct task_struct *tsk = current;
-> +       int valid;
-> +
-> +       ts->rtask = tsk;
-
-Just move that assignment into ucb1x00_input_open and kill all this
-"current" stuff.
-
-> +
-> +       /*
-> +        * We run as a real-time thread.  However, thus far
-> +        * this doesn't seem to be necessary.
-> +        */
-> +       tsk->policy = SCHED_FIFO;
-> +       tsk->rt_priority = 1;
-> +
-> +       valid = 0;
-> +       for (;;) {
-
-Can we change this to "while (!kthread_should_stop())" to make me
-completely happy?
-
-Thanks!
-
--- 
-Dmitry

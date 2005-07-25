@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVGYXzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVGYX4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbVGYXzj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 19:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVGYXzj
+	id S261513AbVGYX4o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 19:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVGYX4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 19:55:39 -0400
-Received: from opersys.com ([64.40.108.71]:60432 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261470AbVGYXzh (ORCPT
+	Mon, 25 Jul 2005 19:56:43 -0400
+Received: from postel.suug.ch ([195.134.158.23]:20104 "EHLO postel.suug.ch")
+	by vger.kernel.org with ESMTP id S261482AbVGYX4F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 19:55:37 -0400
-Message-ID: <42E57A21.6020002@opersys.com>
-Date: Mon, 25 Jul 2005 19:47:45 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Paul Jackson <pj@sgi.com>, bert hubert <bert.hubert@netherlabs.nl>,
-       rostedt@goodmis.org, relayfs-devel@lists.sourceforge.net,
-       richardj_moore@uk.ibm.com, varap@us.ibm.com,
-       linux-kernel@vger.kernel.org, zanussi@us.ibm.com
-Subject: Re: [PATCH] Re: relayfs documentation sucks?
-References: <17107.6290.734560.231978@tut.ibm.com> <20050716210759.GA1850@outpost.ds9a.nl> <17113.38067.551471.862551@tut.ibm.com> <20050717090137.GB5161@outpost.ds9a.nl> <17114.31916.451621.501383@tut.ibm.com> <20050717194558.GC27353@outpost.ds9a.nl> <1121693274.12862.15.camel@localhost.localdomain> <20050720142732.761354de.pj@sgi.com> <20050720214519.GA13155@outpost.ds9a.nl> <20050722130132.60f1524e.pj@sgi.com> <20050723185303.GB7934@infradead.org>
-In-Reply-To: <20050723185303.GB7934@infradead.org>
+	Mon, 25 Jul 2005 19:56:05 -0400
+Date: Tue, 26 Jul 2005 01:56:26 +0200
+From: Thomas Graf <tgraf@suug.ch>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Andrew Morton <akpm@osdl.org>,
+       Harald Welte <laforge@netfilter.org>, netdev@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: Netlink connector
+Message-ID: <20050725235626.GX10481@postel.suug.ch>
+References: <20050723125427.GA11177@rama> <20050723091455.GA12015@2ka.mipt.ru> <20050724.191756.105797967.davem@davemloft.net> <Lynx.SEL.4.62.0507250154000.21934@thoron.boston.redhat.com> <20050725070603.GA28023@2ka.mipt.ru> <42E4F800.1010908@trash.net> <20050725192853.GA30567@2ka.mipt.ru> <42E579BC.8000701@trash.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <42E579BC.8000701@trash.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Patrick McHardy <42E579BC.8000701@trash.net> 2005-07-26 01:46
+> Netlink users don't have to care about shared or cloned skbs. I don't
+> think its a big issue to use alloc_skb and then the usual netlink
+> macros. Thomas added a number of macros that simplfiy use a lot.
 
-Christoph Hellwig wrote:
-> That beein said I wish LTT folks would make a little more progress so
-> we could actually include it.
+Once I've finished the generic netlink attribute macros the
+usage will be even simpler. I wrote down all the things I want
+to do today in a park and I intend to write the code once I'm
+back from my vacation.
 
-We're working on it. On the topic of revamping LTT, 3 different people
-came up with 3 different implementations.
+> But my main objection is that it sends everything to userspace even
+> if noone is listening. This can't be used for things that generate
+> lots of events, and also will get problematic is the number of users
+> increases.
 
-Following your feedback on the patch I sent a few weeks back, I headed
-out asking myself "what is the bare-minimum tracing functionality that
-will actually fly while still being flexible enough to add to it?" I
-spent some time at the OLS comparing notes with others interested in this
-area, and I think we've got something that should fit the bill. We should
-be able to post something sooner rather than later.
+My patches will include a new function netlink_nr_subscribers()
+taking the socket and a mask of groups. I posted something
+simliar during an earlier connector discussion already.
 
-Now if only I could remember what I talked about after I left the Black
-Thorn at 2h45am and the guy in the elevator at Les Suites pressed on a
-button and said "'M' for more beer" ...
+> You still have to take care of mixed 64/32 bit environments, u64 fields
+> for example are differently alligned.
 
-Thanks,
+My solution to this (in the same patchset) is that we never
+derference u64s but instead copy them.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+> Then fix it so we can use more families and groups. I started some work
+> on this, but I'm not sure if I have time to complete it.
+
+Great, this is one of the remaining issues I haven't solved yet.
+If you want me to take over just hand over your unfinished work
+and I'll integrate it into my patchset.
+
+I'm sorry to not being able to provide any code yet, it's
+one of the first things I'll do once I'm back.

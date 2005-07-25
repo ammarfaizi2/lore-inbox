@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVGYUi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVGYUkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVGYUi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 16:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVGYUi1
+	id S261524AbVGYUkO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 16:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVGYUkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 16:38:27 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:44339 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261282AbVGYUi0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 16:38:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LdSfZczXAZA7i3egIGwHxV6dEgEtP8OQ5WPLvByV1ML1yo1lnw6QTweZn4KzkJxGf8op1z0zlHsUFhVYj7NLB4L+3rmnhvSubdhX01p6ImholwP+AGzRny3mbmIuoViMWtH0LbaUPDQqPOhPKBA7kn0U6r2i1/OfG8BncrGsiPo=
-Message-ID: <9a874849050725133853953bd4@mail.gmail.com>
-Date: Mon, 25 Jul 2005 22:38:25 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Subject: Re: Problem with Asus P4C800-DX and P4 -Northwood-
-Cc: Andreas Baer <lnx1@gmx.net>, Willy Tarreau <willy@w.ods.org>,
-       linux-kernel@vger.kernel.org, pmarques@grupopie.com
-In-Reply-To: <20050725200330.GA20811@harddisk-recovery.nl>
+	Mon, 25 Jul 2005 16:40:14 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:2176 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261524AbVGYUkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 16:40:11 -0400
+Subject: Re: [PATCH] fix (again) MAX_USER_RT_PRIO and MAX_RT_PRIO (was:
+	MAX_USER_RT_PRIO and MAX_RT_PRIO are wrong!)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Dean Nelson <dcn@SGI.com>
+In-Reply-To: <1122323319.4895.3.camel@localhost.localdomain>
+References: <1122323319.4895.3.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 25 Jul 2005 16:40:09 -0400
+Message-Id: <1122324010.1472.44.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42E4373D.1070607@gmx.net> <20050725051236.GS8907@alpha.home.local>
-	 <42E4E4B0.6050904@gmx.net> <20050725152425.GA24568@alpha.home.local>
-	 <42E542D5.3080905@gmx.net>
-	 <20050725200330.GA20811@harddisk-recovery.nl>
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/25/05, Erik Mouw <erik@harddisk-recovery.com> wrote:
-> On Mon, Jul 25, 2005 at 09:51:49PM +0200, Andreas Baer wrote:
-> >
-> > Willy Tarreau wrote:
-> > >On Mon, Jul 25, 2005 at 03:10:08PM +0200, Andreas Baer wrote:
-> > >>Here I have
-> > >>
-> > >>        /dev/hda:  26.91 MB/sec
-> > >>        /dev/hda1: 26.90 MB/sec    (Windows FAT32)
-> > >>        /dev/hda7: 17.89 MB/sec    (Linux EXT3)
-> > >>
-> > >>Could you give me a reason how this is possible?
-> > >
-> > >
-> > >a reason for what ? the fact that the notebook performs faster than the
-> > >desktop while slower on I/O ?
-> >
-> > No, a reason why the partition with Linux (ReiserFS or Ext3) is always
-> > slower
-> > than the Windows partition?
+On Mon, 2005-07-25 at 16:28 -0400, Steven Rostedt wrote:
+> Ingo,
 > 
-> Easy: Drives don't have the same speed on all tracks. The platters are
-> built-up from zones with different recording densities: zones near the
-> center of the platters have a lower recording density and hence a lower
-> datarate (less bits/second pass under the head). Zones at the outer
-> diameter have a higher recording density and a higher datarate.
+> I've CC you just because you are the schedule maintainer.  You already
+> accepted this patch into your RT tree.
 > 
-It's even more complex than that as far as I know, you also have the
-issue of seek times - tracks near the middle of the platter will be
-nearer the head more often (on average) then tracks at the edge.
 
-For people who like visuals, IBM has a nice little picture in their
-AIX performance tuning guide :
-http://publib.boulder.ibm.com/infocenter/pseries/index.jsp?topic=/com.ibm.aix.doc/aixbman/prftungd/diskperf2.htm
+Please make sure to pick up this patch from Andreas Steinmetz too,
+otherwise the rlimits are broken:
 
+--- linux.orig/kernel/sched.c   2005-07-22 19:45:05.000000000 +0200
++++ linux/kernel/sched.c        2005-07-22 19:45:42.000000000 +0200
+@@ -3528,7 +3528,8 @@
+         */
+        if (!capable(CAP_SYS_NICE)) {
+                /* can't change policy */
+-               if (policy != p->policy)
++               if (policy != p->policy &&
++                       !p->signal->rlim[RLIMIT_RTPRIO].rlim_cur)
+                        return -EPERM;
+                /* can't increase priority */
+                if (policy != SCHED_NORMAL &&
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Lee
+

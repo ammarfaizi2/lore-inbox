@@ -1,89 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVGYVBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVGYVB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVGYVBM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 17:01:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVGYVBM
+	id S261442AbVGYVB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 17:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVGYVB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 17:01:12 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:6148 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261420AbVGYVBL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 17:01:11 -0400
-Message-ID: <42E5540D.1030709@tmr.com>
-Date: Mon, 25 Jul 2005 17:05:17 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Brown, Len" <len.brown@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Variable ticks
-References: <F7DC2337C7631D4386A2DF6E8FB22B300424AA2D@hdsmsx401.amr.corp.intel.com>
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B300424AA2D@hdsmsx401.amr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Jul 2005 17:01:59 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:20313 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S261442AbVGYVBe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 17:01:34 -0400
+Date: Mon, 25 Jul 2005 23:01:33 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Andreas Baer <lnx1@gmx.net>, Willy Tarreau <willy@w.ods.org>,
+       linux-kernel@vger.kernel.org, pmarques@grupopie.com
+Subject: Re: Problem with Asus P4C800-DX and P4 -Northwood-
+Message-ID: <20050725210132.GC20811@harddisk-recovery.com>
+References: <42E4373D.1070607@gmx.net> <20050725051236.GS8907@alpha.home.local> <42E4E4B0.6050904@gmx.net> <20050725152425.GA24568@alpha.home.local> <42E542D5.3080905@gmx.net> <20050725200330.GA20811@harddisk-recovery.nl> <9a874849050725133853953bd4@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a874849050725133853953bd4@mail.gmail.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brown, Len wrote:
->  
+On Mon, Jul 25, 2005 at 10:38:25PM +0200, Jesper Juhl wrote:
+> It's even more complex than that as far as I know, you also have the
+> issue of seek times - tracks near the middle of the platter will be
+> nearer the head more often (on average) then tracks at the edge.
 > 
->>I was thinking about variable tick times, and I can think of three 
->>classes of action needing CPU attention.
->>- device interrupts, which occur at no predictable time but would pull 
->>the CPU out of a HLT or low power state.
->>- process sleeps of various kinds, which have a known time of 
->>occurence.
->>- polled devices...
->>
->>Question one, are there other actions to consider?
-> 
-> 
-> Yes.
-> Speaking for ACPI C3 state, note that DMA also
-> wakes up the CPU -- even if there was no device interrupt.
-> (aka, "the trouble with USB")
+> For people who like visuals, IBM has a nice little picture in their
+> AIX performance tuning guide :
+> http://publib.boulder.ibm.com/infocenter/pseries/index.jsp?topic=/com.ibm.aix.doc/aixbman/prftungd/diskperf2.htm
 
-Trouble? Why would USB do DMA unless there was a device activity?
-> 
-> 
->>Question two, what about those polled devices?
-> 
-> 
-> it is a real challenge to save power under such conditions,
-> unless you can throttle the polling rate such that
-> the processor can actually enters idle while polling
-> is underway.
-> 
-> 
->>I've been asked to give a high level overview of the recent discussion 
->>for a meeting, and while I want to keep it at the level of "slower 
->>clock, fewer interrupts" and "faster clock, better sleep 
->>resolution," I 
->>don't want to leave out any important issues, or be asked a question 
->>(like how to handle polling devices) when I have no idea what 
->>people are thinking in an area.
-> 
-> 
-> From a power management point of view, what is important
-> is what we do when idle.  ie. on my laptop, from a power
-> savings point of view, I wouldn't care
-> much if HZ=1000 all the time if HZ=0 when in idle.
+Quote from that document:
 
-That could hurt the polling performance, all right. ;-)
-> 
-> Outside of idle, the tick rate is much less important to
-> power savings, unless the change in tick rate was significant
-> enough to change the load enough that we'd want to change the
-> target non-idle MHz of the processor.
+ "Data is more dense as it moves toward the center, resulting in less
+  physical movement of the head. This results in faster overall
+  throughput"
 
-Isn't that more or less what on demand does?
+This is not true. The whole idea of different recording zones with
+different sectors/track is to keep the overall data density (in
+bits/square mm) more or less constant.
 
-Thanks for the feedback, I can probably just say that DMA wakes the CPU 
-from C3 and let it ride, I don't want to skip it, but neither do I need 
-to go into detail.
+I'd say it's even the other way around from what IBM pictures: there
+are more sectors/track in outer zones, so that means there is simply
+more data in the outer zones. If you want less physical movement of the
+head, you should make sure the data is in the zone(s) with the largest
+number of sectors/track.
+
+
+Erik
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,88 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVGYQEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVGYQLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVGYQEv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 12:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVGYQEv
+	id S261289AbVGYQLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 12:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVGYQLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 12:04:51 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1289 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261239AbVGYQEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 12:04:24 -0400
-Date: Mon, 25 Jul 2005 17:04:19 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
-Message-ID: <20050725170419.C7629@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net,
-	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-	vojtech@suse.cz
-References: <20050722180109.GA1879@elf.ucw.cz> <20050724174756.A20019@flint.arm.linux.org.uk> <20050725045607.GA1851@elf.ucw.cz>
+	Mon, 25 Jul 2005 12:11:16 -0400
+Received: from animx.eu.org ([216.98.75.249]:21472 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261289AbVGYQLP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 12:11:15 -0400
+Date: Mon, 25 Jul 2005 12:27:13 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stripping in module
+Message-ID: <20050725162713.GA2021@animx.eu.org>
+Mail-Followup-To: Michael Tokarev <mjt@tls.msk.ru>,
+	linux-kernel@vger.kernel.org
+References: <809C13DD6142E74ABE20C65B11A24398020882@www.telos.de> <Pine.LNX.4.61.0507250928300.18209@yvahk01.tjqt.qr> <20050725112622.GA1537@animx.eu.org> <42E4CBAC.6020301@tls.msk.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050725045607.GA1851@elf.ucw.cz>; from pavel@suse.cz on Mon, Jul 25, 2005 at 06:56:07AM +0200
+In-Reply-To: <42E4CBAC.6020301@tls.msk.ru>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 06:56:07AM +0200, Pavel Machek wrote:
-> Hi!
+Michael Tokarev wrote:
+> Wakko Warner wrote:
+> []
+> > I would also be interested in this.  For instance the AIC7xxx driver has
+> > every PCI id in the module I think in the .modinfo section which is not
+> > truely required once depmod has been run. []
 > 
-> > > This adds support for reading ADCs (etc), neccessary to operate touch
-> > > screen on Sharp Zaurus sl-5500.
-> > 
-> > I would like to know what the diffs are between my version (attached)
-> > and this version before they get applied.
-> 
-> Hmm, diff looks quite big (attached), and I got it from lenz for 99%
-> part.
+> The .modinfo section, for example the PCI IDs, IS required for the
+> module to function properly.  The kernel and the module uses that
+> tables to determime which devices to work with, and with which paramteres.
 
-It looks like John's version is actually based on a previous revision
-of this driver. 8/
-
-> I have made quite a lot of cleanups to touchscreen part, and it seems
-> to be acceptable by input people. I think it should go into
-> drivers/input/touchscreen/collie_ts.c...
-
-Err, why should my assabet touchscreen be called "collie_ts" ?
-collie is just a platform which happens to use it - it's got
-no relevance to the driver naming at all.
-
-> Also it looks to me like mcp.h should go into asm/arch-sa1100, so
-> that other drivers can use it...
-
-That doesn't make sense when you have other non-SA1100 devices using
-mcp-core.c.  Whether that happens or not I've no idea - I can't see
-what everyone's using out there (just like I've absolutely zero
-idea what collie folk are doing or not doing.)
-
-> > The only reason my version has not been submitted is because it lives
-> > in the drivers/misc directory, and mainline kernel folk don't like
-> > drivers which clutter up that directory.  In fact, I had been told
-> > that drivers/misc should remain completely empty - which makes this
-> > set of miscellaneous drivers homeless.
-> 
-> Could they simply live in arch/arm/mach-sa1100? Or is arch/arm/soc
-> better place?
-
-arch/arm/soc?  That means that (a) we end up with another directory to
-accumulate crap, (b) it's not a SoC so doesn't belong in a directory
-named as such, (c) it means that the MCP and UCB drivers get their
-individual files scattered throughout the kernel tree, one in this
-directory, one in that directory, one in another random directory.
-That's far from ideal.
-
-Anyway, summarising this, the results are that what we have here is
-a complete and utter mess. ;(
-
-So, if the collie folk would like to clean their changes up and send
-them to me as the driver author, I'll see about integrating them into
-my version and we'll take it from there.
+I stripped out the section that had alias= and other vars from aic7xxx and
+it still worked.  Not all modules worked doing that.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+ Lab tests show that use of micro$oft causes cancer in lab animals

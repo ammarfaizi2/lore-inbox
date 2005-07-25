@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVGYHTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVGYHZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVGYHTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 03:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVGYHTR
+	id S261673AbVGYHZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 03:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVGYHZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 03:19:17 -0400
-Received: from mx1.suse.de ([195.135.220.2]:46541 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261196AbVGYHR4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 03:17:56 -0400
-Message-ID: <42E4890C.2010801@suse.de>
-Date: Mon, 25 Jul 2005 08:39:08 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.9) Gecko/20050712 Thunderbird/1.0.5 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Subject: Re: [PATCH] reset VGA adapters via BIOS on resume... (non-fbdev/con)
-References: <Pine.LNX.4.58.0507221942540.5475@skynet> <E1Dw6lc-0007IU-00@chiark.greenend.org.uk> <E1Dw6lc-0007IU-00@chiark.greenend.org.uk> <20050723003140.GB1988@elf.ucw.cz> <E1Dw80M-0001EG-00@chiark.greenend.org.uk> <20050723004745.GA7868@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20050723004745.GA7868@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 25 Jul 2005 03:25:25 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:41942 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261673AbVGYHZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 03:25:23 -0400
+Date: Mon, 25 Jul 2005 09:25:24 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Joern Engel <joern@wh.fh-wedel.de>, dwmw2@infradead.org
+Subject: Re: [PATCH] vfree and kfree cleanup in drivers/
+Message-ID: <20050725072524.GA10616@wohnheim.fh-wedel.de>
+References: <200507232228.00554.jesper.juhl@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <200507232228.00554.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On Sat, 23 July 2005 22:27:58 +0200, Jesper Juhl wrote:
+>
+>  drivers/mtd/devices/mtdram.c        |    3 +--
+>  drivers/mtd/ftl.c                   |   11 -----------
 
-> Anyway, this patch is really good, and enables S3 to work on more
-> machines. Thats good. It is not intrusive and I'll probably (try to)
-> push it.
+This part of the patch has my blessing.
 
-which acpi_sleep=... parameter enables it? I have machines resuming
-perfectly fine without it that i don't want to break ;-)
+Jörn
+
 -- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
-
+The grand essentials of happiness are: something to do, something to
+love, and something to hope for.
+-- Allan K. Chalmers

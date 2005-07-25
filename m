@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVGYIEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVGYIYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbVGYIEU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 04:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVGYIEU
+	id S261812AbVGYIYn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 04:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVGYIYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 04:04:20 -0400
-Received: from ms005msg.fastwebnet.it ([213.140.2.50]:11661 "EHLO
-	ms005msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S261754AbVGYIES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 04:04:18 -0400
-Date: Mon, 25 Jul 2005 10:02:54 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Lack of Documentation about SA_RESTART...
-Message-ID: <20050725100254.4b27279e@localhost>
-In-Reply-To: <20050724145608.GA6132@thunk.org>
-References: <20050711123237.787dfcde@localhost>
-	<20050711143427.GC14529@thunk.org>
-	<Pine.LNX.4.58.0507231723270.6074@g5.osdl.org>
-	<20050724145608.GA6132@thunk.org>
-X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-pc-linux-gnu)
+	Mon, 25 Jul 2005 04:24:42 -0400
+Received: from smtp.seznam.cz ([212.80.76.43]:58090 "HELO smtp.seznam.cz")
+	by vger.kernel.org with SMTP id S261812AbVGYIYk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 04:24:40 -0400
+Date: Mon, 25 Jul 2005 10:24:36 +0200
+To: Greg KH <gregkh@suse.de>
+Cc: James Chapman <jchapman@katalix.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] I2C: ds1337 - fix 12/24 hour mode bug
+Message-ID: <20050725082436.GA10186@orphique>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: Ladislav Michl <ladis@linux-mips.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Jul 2005 10:56:08 -0400
-Theodore Ts'o <tytso@mit.edu> wrote:
+DS1339 manual, page 6, chapter Date and time operation:
+  The DS1339 can be run in either 12-hour or 24-hour mode. Bit 6 of the
+  hours register is defined as the 12-hour or 24-hour mode-select bit.
+  When high, the 12-hour mode is selected.
+ 
+Patch below makes ds1337 driver work as documented in manual.
 
-> The spect says "unless otherwise specified".  The description for
-> pause() states that the process will sleep until receiving a signal
-> that terminates the process or causes it to call signal-handling
-> function.  That would presumably count as an "otherwise specified".
+Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
 
-I don't think that way for at least 2 reasons:
-
-
-1) SA_RESTART is an XSI extension, so every exception to the rule
-"everything automatically restarted" should be under an XSI section
-(like it is on the "select()" page).
-
-
-2) The same thing that you claim for "pause()" (that isn't restarted)
-can be claimed for other syscalls that _ARE_ restarted.
-
-Example: wait()
-
-SUSV3 DOC: "... The wait() function shall suspend execution of the
-calling thread until status information for one of the terminated child
-processes of the calling process is available, or until delivery of a
-signal whose action is either to execute a signal-catching function or
-to terminate the process ..."
-
-And wait() is actually RESTARTED because:
-
-	- it makes sense
-	- FreeBSD sigaction() mapage says it is retarted
-
-	- Linux does it (see kernel/exit.c)
-
-	...
-                retval = -ERESTARTSYS;
-                if (signal_pending(current))
-                        goto end;
-	...
-
-
-See?
-
--- 
-	Paolo Ornati
-	Linux 2.6.13-rc3 on x86_64
+drivers/i2c/chips/ds1337.c: needs update
+Index: drivers/i2c/chips/ds1337.c
+===================================================================
+--- 19f75ba1af6b4b16744159e62fbb7decab5553ef/drivers/i2c/chips/ds1337.c  (mode:100644)
++++ uncommitted/drivers/i2c/chips/ds1337.c  (mode:100644)
+@@ -165,7 +165,7 @@
+ 	buf[0] = 0;		/* reg offset */
+ 	buf[1] = BIN2BCD(dt->tm_sec);
+ 	buf[2] = BIN2BCD(dt->tm_min);
+-	buf[3] = BIN2BCD(dt->tm_hour) | (1 << 6);
++	buf[3] = BIN2BCD(dt->tm_hour);
+ 	buf[4] = BIN2BCD(dt->tm_wday) + 1;
+ 	buf[5] = BIN2BCD(dt->tm_mday);
+ 	buf[6] = BIN2BCD(dt->tm_mon) + 1;
+@@ -344,9 +344,9 @@
+ 
+ 	/* Ensure that device is set in 24-hour mode */
+ 	val = i2c_smbus_read_byte_data(client, DS1337_REG_HOUR);
+-	if ((val >= 0) && (val & (1 << 6)) == 0)
++	if ((val >= 0) && (val & (1 << 6)))
+ 		i2c_smbus_write_byte_data(client, DS1337_REG_HOUR,
+-					  val | (1 << 6));
++					  val & 0x3f);
+ }
+ 
+ static int ds1337_detach_client(struct i2c_client *client)

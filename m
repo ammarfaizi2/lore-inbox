@@ -1,52 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVGYGsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVGYGu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbVGYGsX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 02:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVGYGqM
+	id S261654AbVGYGu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 02:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVGYGs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 02:46:12 -0400
-Received: from svr68.ehostpros.com ([67.15.48.48]:23767 "EHLO
-	svr68.ehostpros.com") by vger.kernel.org with ESMTP id S261695AbVGYFy6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 01:54:58 -0400
-From: "Amit S. Kale" <amitkale@linsyssoft.com>
-Organization: LinSysSoft Technologies Pvt Ltd
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: CheckFS: Checkpoints and Block Level Incremental Backup (BLIB)
-Date: Mon, 25 Jul 2005 11:24:43 +0530
-User-Agent: KMail/1.7
-Cc: Pavel Machek <pavel@ucw.cz>, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200507231130.07208.amitkale@linsyssoft.com> <20050724142352.GB1778@elf.ucw.cz> <Pine.LNX.4.61.0507241713210.11580@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0507241713210.11580@yvahk01.tjqt.qr>
+	Mon, 25 Jul 2005 02:48:26 -0400
+Received: from web53609.mail.yahoo.com ([206.190.37.42]:8884 "HELO
+	web53609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261636AbVGYGrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 02:47:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=fdpr2wuV583y8qfsPQM4jksZYu+Ho2j+M+gwDy44poL7X+4iyMXefnS9AETgFXNqis/y4k0nrzNEC2i/c8H5tr0+5Tdn/i0OSFwsxYkvL00vZfDFeHLHu/rK8TLf8sMrldv33p43UPDoxyyGZxB1n3vmG1Z60+OthIdYaR05+YI=  ;
+Message-ID: <20050725064735.53648.qmail@web53609.mail.yahoo.com>
+Date: Sun, 24 Jul 2005 23:47:35 -0700 (PDT)
+From: Ciprian <cipicip@yahoo.com>
+Subject: Re: kernel 2.6 speed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <f8994115050724211071a3dbe1@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507251124.43898.amitkale@linsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr68.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - linsyssoft.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 Jul 2005 8:44 pm, Jan Engelhardt wrote:
-> >Maybe you want to put your development machines on ext*2* while doing
-> >this ;-). Or perhaps reiserfs/xfs/something.
->
-> Or perhaps into at the VFS level, so any fs can benefit from it.
+Thanks guys for your help. I should have asked you
+this right from the beginning. :)
 
-We thought about that. While it's possible to do that, it would need hooks 
-into all filesystems etc. Definitely worth trying once we get some more basic 
-stuff working for ext3
+Ciprian
 
-After all the things that need to be saved at the time of taking a checkpoint 
-for any filesystem would be the superblock and inode table (or their 
-equivalents). Everything else is automatically taken care of.
-
--Amit
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

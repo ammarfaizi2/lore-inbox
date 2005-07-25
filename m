@@ -1,190 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVGYBpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVGYCAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261213AbVGYBpc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 21:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVGYBpc
+	id S261566AbVGYCAG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 22:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVGYCAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 21:45:32 -0400
-Received: from alerce2.iplannetworks.net ([200.69.193.90]:41130 "EHLO
-	alerce2.iplannetworks.net") by vger.kernel.org with ESMTP
-	id S261213AbVGYBp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 21:45:29 -0400
-Message-ID: <42E44303.2030207@latinsourcetech.com>
-Date: Sun, 24 Jul 2005 22:40:19 -0300
-From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@latinsourcetech.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+	Sun, 24 Jul 2005 22:00:06 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:30363 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261566AbVGYCAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 22:00:04 -0400
+Message-ID: <42E4479F.90609@comcast.net>
+Date: Sun, 24 Jul 2005 21:59:59 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Neil Horman <nhorman@redhat.com>
-Cc: rheflin@atipa.com, arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Memory Management
-References: <EXCHG2003gbLYluLCTa000004d6@EXCHG2003.microtech-ks.com> <42E17FE7.3030205@latinsourcetech.com> <20050723184540.GA1670@hmsendeavour.rdu.redhat.com> <42E2CFC4.9030701@latinsourcetech.com> <20050724185432.GA28617@hmsendeavour.rdu.redhat.com>
-In-Reply-To: <20050724185432.GA28617@hmsendeavour.rdu.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-iplan-Al-Info: iplan networks - Proteccion contra spam y virus en e-mail
-X-iplan-Al-MRId: 29c51bbe6a3e53cb0d25a2465517208a
-X-iplan-Al-From: moliveira@latinsourcetech.com
+To: linux-kernel@vger.kernel.org
+Subject: Fault tolerance. . .
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Horman wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->On Sat, Jul 23, 2005 at 08:16:20PM -0300, Márcio Oliveira wrote:
->  
->
->>Neil,
->>
->>    
->>
->>>The best way I can think to do that is take a look at /proc/slabinfo.  
->>>That will
->>>likely give you a pointer to which area of code is eating up your memory.
->>>
->>>
->>>      
->>>
->>OK. I will monitor the /proc/slabinfo file.
->>
->>    
->>
->>>Based on the sysrq-m info you posted it looks like due to fragmentation the
->>>largest chunk of memory you can allocate is 2MB (perhaps less depending on
->>>address space availability).  If you can build a test kernel to do a 
->>>show_state
->>>rather than a show_mem at the beginning of oom_kil, then you should be 
->>>able to
->>>tell who is trying to do an allocation that leads to kswapd calling
->>>out_of_memory.
->>>
->>>
->>>      
->>>
->>Neil, I'm trying to recompile the kernel source 2.4.21-32.0.1 and get 
->>some error messages:
->>
->>In file included from 
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/prefetch.h:13,
->>                from 
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/list.h:6,
->>                from 
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:12,
->>                from 3w-xxxx.c:172:
->>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:61: warning: 
->>parameter names (without types) in function declaration
->>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:61: field 
->>`loops_per_jiffy_R_ver_str' declared as a function
->>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:84: invalid 
->>suffix on integer constant
->>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:84: syntax error 
->>before numeric constant
->>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:84: warning: 
->>function declaration isn't a prototype
->>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:269: invalid 
->>suffix on integer constant
->>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:269: syntax 
->>error before numeric constant
->>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:269: warning: 
->>function declaration isn't a prototype
->>/usr/src/linux-2.4.21-32.0.1.EL/include/asm/processor.h:273: warning: 
->>parameter names (without types) in function declaration
->>In file included from 3w-xxxx.c:172:
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: invalid 
->>suffix on integer constant
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: syntax error 
->>before numeric constant
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: 
->>`inter_module_register_R_ver_str' declared as function returning a function
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:190: warning: 
->>function declaration isn't a prototype
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: invalid 
->>suffix on integer constant
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: syntax error 
->>before numeric constant
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: 
->>`inter_module_unregister_R_ver_str' declared as function returning a 
->>function
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:191: warning: 
->>function declaration isn't a prototype
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:192: 
->>`inter_module_get_R_ver_str' declared as function returning a function
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:192: warning: 
->>parameter names (without types) in function declaration
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:193: 
->>`inter_module_get_request_R_ver_str' declared as function returning a 
->>function
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:193: warning: 
->>parameter names (without types) in function declaration
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: invalid 
->>suffix on integer constant
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: syntax error 
->>before numeric constant
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: 
->>`inter_module_put_R_ver_str' declared as function returning a function
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:194: warning: 
->>function declaration isn't a prototype
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:203: 
->>`try_inc_mod_count_R_ver_str' declared as function returning a function
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h:203: warning: 
->>parameter names (without types) in function declaration
->>make[3]: *** [3w-xxxx_10200033.o] Error 1
->>make[3]: Leaving directory 
->>`/usr/src/linux-2.4.21-32.0.1.EL/drivers/addon/3w-xxxx_10200033'
->>make[2]: *** [_modsubdir_3w-xxxx_10200033] Error 2
->>make[2]: Leaving directory `/usr/src/linux-2.4.21-32.0.1.EL/drivers/addon'
->>make[1]: *** [_modsubdir_addon] Error 2
->>make[1]: Leaving directory `/usr/src/linux-2.4.21-32.0.1.EL/drivers'
->>make: *** [_mod_drivers] Error 2
->>
->>Is there any relationship between the sysrq-m changes to do show_state() 
->>rather than a show_mem() and the compiling erros?
->>
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/prefetch.h, line 13:
->>   #include <asm/processor.h>
->>
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/list.h ,line 6:
->>   #include <linux/prefetch.h>
->>
->>/usr/src/linux-2.4.21-32.0.1.EL/include/linux/module.h, line 12:
->>   #include <linux/list.h>
->>
->>3w-xxxx.c, line 172:
->>   #include <linux/module.h>
->>
->>Any ideia about the kernel compiling erros?
->>
->>(If I try to recompile a kernel.org kernel, it is compiled fine).
->>
->>Thanks again.
->>
->>Márcio.
->>
->>    
->>
->I honestly don't know.  I expect you haven't patched something correctly, have
->you built the source tree with rpmbuild, or are you just extracting the tar file
->from the rpm?
->Neil
->
->  
->
-     I'm using the kernel-source package and trying to compiling the 
-source (in /usr/src/linux-2.4 directory) with "make config", "make dep", 
-"make clean", "make bzImage", "make modules" and "make 
-modules_install".  I also try to compile a RHEL3 kernel-source without 
-the sysrq-m changes on other RHEL3 systems and get the same errors...
+I'm playing Skies of Arcadia Legends on my GameCube and noticing that
+software bugs continuously produce errors (no scratch on the disk; I can
+have an error, reset, play through it easy).  This leads me on and on,
+but now it's lead me into thinking about fault tolerance.
 
-    If I try to compile a kernel source provide by kernel.org, I don't 
-get the errors above, and the kernel compile works. When I try to 
-compile the RHEL3 kernel-source, the "make config", "make dep", "make 
-clean" and "make bzImage" commands works fine but when I run "make 
-modules" command I get the errors above. I think that is some issue with 
-the RHEL3 kernel-source package because other kernel sources (not Red 
-Hat kernel) compile without problems.
+Leaving the GameCube and moving to my computer, I'm wondering if
+something could be done kernel-end to provide automatic application and
+system fault recovery.  Thinking about it, I can come up with a few cute
+ideas, though they don't really seem all that realistic.  Still, it
+might be fun to share them and see what kinds of comments I get.
 
-   I will try to compile the kernel using rpmbuild and check the 
-results, plus the slabinfo informations.
+I'm thinking of application level fault tolerance using roll-back states
+or something weird, to restore the system as affected by that
+application to a point before the error.  The obvious visual effect
+would be that if an application were to crash, it and potentially
+interrelated applications would suddenly reset to a state a few seconds
+to a few minutes earlier.
 
-Thanks again,
+Like I said, this is a really dumb idea, but it's kind of cute to think
+about.  In the 5 minutes I think about this, I'll type some crap here,
+then go back to my game and leave this for you all so you can take a
+break from real work and read something mildly ammusing.
 
-Márcio.
+Interrelating applications:
+
+ - Tasks sharing memory are synchronized at state saves
+ - Tasks having mappings to files where writing to the mapping writes to
+the file have state saves synchronized starting where one could affect
+another and ending where they no longer can affect eachother
+  - When a process opens a file another process has open for writing,
+the two both have a state save made
+  - Following state saves are sychronized temporally between the tasks
+  - When neither task can affect the other by writing to said file, the
+state saves no longer are required to be synchronized
+ - Tasks communicating over sockets are synchronized at save states
+ - Tasks communicating via pipes are synchronized at save states
+ - When a parent is rolled back to precede a fork(), the fork() child dies
+
+"Synchronized" means that when the state is set to be saved for
+roll-back in one task, interrelated tasks are also frozen and saved at
+the same time.
+
+Saving a state is easy:
+
+ - Lock a spinlock
+ - Add an entry to a linked list for a state save, with registers and such
+ - Remove entries older than the limit for the oldest save
+ - Open spinlock
+
+Maintaining the state is also easy:
+
+ - When a file is changed, track the changes and attach them to the last
+state save
+ - When memory pages are written to, cache the old copies first
+(unfortunately each page has to be made CoW after every state save)
+
+Restoring a state is also easy:
+
+ - At untrapped sigsegv, sigabrt, roll back changes and related changes
+ - Repeted incident means rolling back farther
+
+This of course raises many questions and concerns that make this
+rediculous and probably not entirely possible:
+
+ - What about huge modifications to files in a short time?  Make a new
+file, then write 10,000,000,000 bytes past the end and watch it crash.
+ - What about lost work in interrelated applications?
+ - Will the system state remain consistent?
+ - Will it crash over and over and over?
+ - Connecting to named pipes? (easily handled, not discussed here)
+ - Crashes are usually trappable, and then programs exit cleanly.  They
+won't care about this
+ - How does a process know to change course if it gets restored?
+ - We can probably use this to do some deep-and-dirty espionage, relying
+on the fault tolerance when we crash something trying to leak information
+ - Darth Vader will use this to find Luke Skywalker
+
+Anyway, whatever.  Comment if you want, I just thought the idea was
+cute.  Not practical, but cute.
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFC5EeehDd4aOud5P8RAhK/AJ90BXofS/XPJcr5xsGFhqlf9jJiBQCfcbSG
+v2Di7VqKv29jlRjoJiphy0c=
+=5H6M
+-----END PGP SIGNATURE-----

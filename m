@@ -1,69 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVGYWLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVGYWOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbVGYWLy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 18:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVGYWLx
+	id S261184AbVGYWOP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 18:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVGYWOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 18:11:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30666 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261221AbVGYWLr (ORCPT
+	Mon, 25 Jul 2005 18:14:15 -0400
+Received: from mail.gmx.de ([213.165.64.20]:19901 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261184AbVGYWNT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 18:11:47 -0400
-Date: Mon, 25 Jul 2005 15:10:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: James.Bottomley@SteelEye.com, Eric.Moore@lsil.com, bharata@in.ibm.com,
-       Roy.Wade@lsil.com, Jared.Hayes@lsil.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [IBM] RE: [BUG] Fusion MPT Base Driver initialization failure
- wit h kdum p
-Message-Id: <20050725151033.25196965.akpm@osdl.org>
-In-Reply-To: <1121858719.42de349feb815@imap.linux.ibm.com>
-References: <1121858719.42de349feb815@imap.linux.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 25 Jul 2005 18:13:19 -0400
+X-Authenticated: #2813124
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: Peter Staubach <staubach@redhat.com>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: oz6812, yenta_socket and madwifi
+Date: Tue, 26 Jul 2005 00:14:13 +0200
+User-Agent: KMail/1.7.2
+Cc: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>,
+       linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+References: <200507231744.17519.daniel.ritz@gmx.ch> <42E53FC0.5050205@redhat.com>
+In-Reply-To: <42E53FC0.5050205@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507260014.14081.daniel.ritz@gmx.ch>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
->
-> > If you don't stop the DMA engines before you boot the new kernel, the
->  > addresses they have to send data to will now be random points in that
->  > kernel's memory, leading to potential corruption of the new kernel
->  > image.
+On Monday 25 July 2005 21.38, Peter Staubach wrote:
+> Daniel Ritz wrote:
+[...]
 > 
->  [Copying it to fastboot and linux-kernel mailing lists]
+> Shouldn't the two pairs of calls to config_writeb() be using
+> "O2_RES_READ_PREFETCH | O2_RES_WRITE_BURST" instead of
+> "O2_RES_READ_PREFETCH | O2_RES_READ_PREFETCH"?
 > 
->  We are booting second kernel (capture kernel) from a reserved memory location
->  to take care of on-going DMA issues. So even if some DMA transactions are going
->  on after the crash they will not corrupt the new kernel.
-> 
->  > 
->  > The interrupt panic of the fusion is probably a symptom of this: I bet a
->  > DMA transfer has just completed and the interrupt is to inform us of
->  > this (however, in the new kernel we're not expecting any transfers).
-> 
->  That might very well be the case. So driver should simply ignore the interrupt
->  when it is not expecting it or it should reset the device if it finds that 
->  some interrupts are pending when it should not have been there.
-> 
->  Basically it is a matter of hardening the driver so that it can handle/
->  initialize the device even if the device is not in reset state. 
 
-I'd expect that a lot of these problems could be reduced by simply pausing
-for a while in the crash handler, wait for I/O to complete.
+yes, of course. thanks for noticing. updated patch attached.
+dominik/akpm, please drop the other and use this one instead...
 
-Other times these failures point at flaws and dubious assumptions in
-drivers themselves, fixing of which tends to collaterally help platform
-power mangement operations.
+thx, rgds
+-daniel
 
-However, I expect that it will always be the case that setups which try to
-perform crashdumps to their main production disks will be less reliable
-than setups which set aside hardware for the dumping.
+-------------
+[PATCH 11/11] pcmcia: disable read prefetch/write burst on old O2Micro bridges
 
-If it was me, and if I really cared about reliable dumps, I'd make sure
-that each machine had a $6 NIC set aside for crashdumping, and the dump
-kernel uses that NIC for an NFS dump and has no other device drivers
-configured.
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+
+older O2Micro bridges have problems with both read prefetch and write burst
+depending on the combination of the chipset, bridge, cardbus card. safest
+is to disable read prefetch and write burst on those old bridges.
+
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+
+----------
+
+diff --git a/drivers/pcmcia/o2micro.h b/drivers/pcmcia/o2micro.h
+--- a/drivers/pcmcia/o2micro.h
++++ b/drivers/pcmcia/o2micro.h
+@@ -120,11 +120,16 @@
+ #define  O2_MODE_E_LED_OUT	0x08
+ #define  O2_MODE_E_SKTA_ACTV	0x10
+ 
++#define O2_RESERVED1		0x94
++#define O2_RESERVED2		0xD4
++#define O2_RES_READ_PREFETCH	0x02
++#define O2_RES_WRITE_BURST	0x08
++
+ static int o2micro_override(struct yenta_socket *socket)
+ {
+ 	/*
+-	 * 'reserved' register at 0x94/D4. chaning it to 0xCA (8 bit) enables
+-	 * read prefetching which for example makes the RME Hammerfall DSP
++	 * 'reserved' register at 0x94/D4. allows setting read prefetch and write
++	 * bursting. read prefetching for example makes the RME Hammerfall DSP
+ 	 * working. for some bridges it is at 0x94, for others at 0xD4. it's
+ 	 * ok to write to both registers on all O2 bridges.
+ 	 * from Eric Still, 02Micro.
+@@ -132,20 +137,35 @@ static int o2micro_override(struct yenta
+ 	u8 a, b;
+ 
+ 	if (PCI_FUNC(socket->dev->devfn) == 0) {
+-		a = config_readb(socket, 0x94);
+-		b = config_readb(socket, 0xD4);
++		a = config_readb(socket, O2_RESERVED1);
++		b = config_readb(socket, O2_RESERVED2);
+ 
+ 		printk(KERN_INFO "Yenta O2: res at 0x94/0xD4: %02x/%02x\n", a, b);
+ 
+ 		switch (socket->dev->device) {
++		/*
++		 * older bridges have problems with both read prefetch and write
++		 * bursting depending on the combination of the chipset, bridge
++		 * and the cardbus card. so disable them to be on the safe side.
++		 */
++		case PCI_DEVICE_ID_O2_6729:
++		case PCI_DEVICE_ID_O2_6730:
++		case PCI_DEVICE_ID_O2_6812:
+ 		case PCI_DEVICE_ID_O2_6832:
+-			printk(KERN_INFO "Yenta O2: old bridge, not enabling read prefetch / write burst\n");
++		case PCI_DEVICE_ID_O2_6836:
++			printk(KERN_INFO "Yenta O2: old bridge, disabling read prefetch/write burst\n");
++			config_writeb(socket, O2_RESERVED1,
++			              a & ~(O2_RES_READ_PREFETCH | O2_RES_WRITE_BURST));
++			config_writeb(socket, O2_RESERVED2,
++			              b & ~(O2_RES_READ_PREFETCH | O2_RES_WRITE_BURST));
+ 			break;
+ 
+ 		default:
+ 			printk(KERN_INFO "Yenta O2: enabling read prefetch/write burst\n");
+-			config_writeb(socket, 0x94, a | 0x0a);
+-			config_writeb(socket, 0xD4, b | 0x0a);
++			config_writeb(socket, O2_RESERVED1,
++			              a | O2_RES_READ_PREFETCH | O2_RES_WRITE_BURST);
++			config_writeb(socket, O2_RESERVED2,
++			              b | O2_RES_READ_PREFETCH | O2_RES_WRITE_BURST);
+ 		}
+ 	}
+ 
+

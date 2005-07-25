@@ -1,126 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVGYWOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVGYW3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVGYWOP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 18:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVGYWOP
+	id S261246AbVGYW3p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 18:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVGYW3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 18:14:15 -0400
-Received: from mail.gmx.de ([213.165.64.20]:19901 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261184AbVGYWNT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 18:13:19 -0400
-X-Authenticated: #2813124
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: Peter Staubach <staubach@redhat.com>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: oz6812, yenta_socket and madwifi
-Date: Tue, 26 Jul 2005 00:14:13 +0200
+	Mon, 25 Jul 2005 18:29:45 -0400
+Received: from totor.bouissou.net ([82.67.27.165]:28121 "EHLO
+	totor.bouissou.net") by vger.kernel.org with ESMTP id S261246AbVGYW3o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 18:29:44 -0400
+From: Michel Bouissou <michel@bouissou.net>
+Organization: Me, Myself and I
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: VIA KT400 + Kernel 2.6.12 + IO-APIC + uhci_hcd = IRQ trouble
+Date: Tue, 26 Jul 2005 00:29:41 +0200
 User-Agent: KMail/1.7.2
-Cc: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>,
-       linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-References: <200507231744.17519.daniel.ritz@gmx.ch> <42E53FC0.5050205@redhat.com>
-In-Reply-To: <42E53FC0.5050205@redhat.com>
+Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0507251635510.8043-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0507251635510.8043-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-Message-Id: <200507260014.14081.daniel.ritz@gmx.ch>
-X-Y-GMX-Trusted: 0
+Message-Id: <200507260029.41709@totor.bouissou.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 July 2005 21.38, Peter Staubach wrote:
-> Daniel Ritz wrote:
-[...]
-> 
-> Shouldn't the two pairs of calls to config_writeb() be using
-> "O2_RES_READ_PREFETCH | O2_RES_WRITE_BURST" instead of
-> "O2_RES_READ_PREFETCH | O2_RES_READ_PREFETCH"?
-> 
+Le Lundi 25 Juillet 2005 22:44, Alan Stern a écrit :
+>
+> Now that's strange.  When you plug the high-speed device into the
+> integrated ports, which IRQ counter changes?  Since nothing is using IRQ
+> 21, it should be disabled and its counter should remain constant.  Does
+> this mean the interrupts show up on IRQ 19 (used by ehci-hcd), or do they
+> not show up at all (i.e., is the USB connection just being polled)?
 
-yes, of course. thanks for noticing. updated patch attached.
-dominik/akpm, please drop the other and use this one instead...
+I assume it's IRQ 19.
 
-thx, rgds
--daniel
+cat /proc/interrupts doesn't show IRQ21 at all when uhci isn't loaded.
 
--------------
-[PATCH 11/11] pcmcia: disable read prefetch/write burst on old O2Micro bridges
+IRQ 19 being shared with 4 IDE controllers that controls my hard drives, 
+that's hard to isolate interrupts counts due to USB activity from interrupts 
+counts due to disks activity...
 
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-
-older O2Micro bridges have problems with both read prefetch and write burst
-depending on the combination of the chipset, bridge, cardbus card. safest
-is to disable read prefetch and write burst on those old bridges.
-
-Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
-
-----------
-
-diff --git a/drivers/pcmcia/o2micro.h b/drivers/pcmcia/o2micro.h
---- a/drivers/pcmcia/o2micro.h
-+++ b/drivers/pcmcia/o2micro.h
-@@ -120,11 +120,16 @@
- #define  O2_MODE_E_LED_OUT	0x08
- #define  O2_MODE_E_SKTA_ACTV	0x10
- 
-+#define O2_RESERVED1		0x94
-+#define O2_RESERVED2		0xD4
-+#define O2_RES_READ_PREFETCH	0x02
-+#define O2_RES_WRITE_BURST	0x08
-+
- static int o2micro_override(struct yenta_socket *socket)
- {
- 	/*
--	 * 'reserved' register at 0x94/D4. chaning it to 0xCA (8 bit) enables
--	 * read prefetching which for example makes the RME Hammerfall DSP
-+	 * 'reserved' register at 0x94/D4. allows setting read prefetch and write
-+	 * bursting. read prefetching for example makes the RME Hammerfall DSP
- 	 * working. for some bridges it is at 0x94, for others at 0xD4. it's
- 	 * ok to write to both registers on all O2 bridges.
- 	 * from Eric Still, 02Micro.
-@@ -132,20 +137,35 @@ static int o2micro_override(struct yenta
- 	u8 a, b;
- 
- 	if (PCI_FUNC(socket->dev->devfn) == 0) {
--		a = config_readb(socket, 0x94);
--		b = config_readb(socket, 0xD4);
-+		a = config_readb(socket, O2_RESERVED1);
-+		b = config_readb(socket, O2_RESERVED2);
- 
- 		printk(KERN_INFO "Yenta O2: res at 0x94/0xD4: %02x/%02x\n", a, b);
- 
- 		switch (socket->dev->device) {
-+		/*
-+		 * older bridges have problems with both read prefetch and write
-+		 * bursting depending on the combination of the chipset, bridge
-+		 * and the cardbus card. so disable them to be on the safe side.
-+		 */
-+		case PCI_DEVICE_ID_O2_6729:
-+		case PCI_DEVICE_ID_O2_6730:
-+		case PCI_DEVICE_ID_O2_6812:
- 		case PCI_DEVICE_ID_O2_6832:
--			printk(KERN_INFO "Yenta O2: old bridge, not enabling read prefetch / write burst\n");
-+		case PCI_DEVICE_ID_O2_6836:
-+			printk(KERN_INFO "Yenta O2: old bridge, disabling read prefetch/write burst\n");
-+			config_writeb(socket, O2_RESERVED1,
-+			              a & ~(O2_RES_READ_PREFETCH | O2_RES_WRITE_BURST));
-+			config_writeb(socket, O2_RESERVED2,
-+			              b & ~(O2_RES_READ_PREFETCH | O2_RES_WRITE_BURST));
- 			break;
- 
- 		default:
- 			printk(KERN_INFO "Yenta O2: enabling read prefetch/write burst\n");
--			config_writeb(socket, 0x94, a | 0x0a);
--			config_writeb(socket, 0xD4, b | 0x0a);
-+			config_writeb(socket, O2_RESERVED1,
-+			              a | O2_RES_READ_PREFETCH | O2_RES_WRITE_BURST);
-+			config_writeb(socket, O2_RESERVED2,
-+			              b | O2_RES_READ_PREFETCH | O2_RES_WRITE_BURST);
- 		}
- 	}
- 
-
+-- 
+Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E

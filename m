@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVGYR4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVGYSAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbVGYR4U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 13:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVGYR4U
+	id S261413AbVGYSAq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 14:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVGYSAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 13:56:20 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:12696 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261403AbVGYR4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 13:56:17 -0400
-Subject: Re: xor as a lazy comparison
+	Mon, 25 Jul 2005 14:00:46 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:15840 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261413AbVGYSAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 14:00:43 -0400
+Subject: [PATCH] make signal.c more readable (was: Re: xor as a lazy
+	comparison)
 From: Steven Rostedt <rostedt@goodmis.org>
 To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Grant Coady <lkml@dodo.com.au>,
+Cc: Linus Torvalds <torvalds@osdl.org>, Puneet Vyas <vyas.puneet@gmail.com>,
        Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Puneet Vyas <vyas.puneet@gmail.com>
+       Grant Coady <lkml@dodo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
 In-Reply-To: <1122281833.10780.32.camel@tara.firmix.at>
 References: <Pine.LNX.4.61.0507241835360.18474@yvahk01.tjqt.qr>
 	 <kis7e1d4khtde78oajl017900pmn9407u4@4ax.com>
@@ -24,13 +25,15 @@ References: <Pine.LNX.4.61.0507241835360.18474@yvahk01.tjqt.qr>
 	 <42E4131D.6090605@gmail.com>  <1122281833.10780.32.camel@tara.firmix.at>
 Content-Type: text/plain
 Organization: Kihon Technologies
-Date: Mon, 25 Jul 2005 13:55:50 -0400
-Message-Id: <1122314150.6019.58.camel@localhost.localdomain>
+Date: Mon, 25 Jul 2005 14:00:05 -0400
+Message-Id: <1122314405.6019.61.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Sorry for the double post. I added [PATCH] and changed the subject, and added Linus.
 
 On Mon, 2005-07-25 at 10:57 +0200, Bernd Petrovitsch wrote:
 > On Sun, 2005-07-24 at 18:15 -0400, Puneet Vyas wrote:

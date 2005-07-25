@@ -1,50 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVGXXrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVGYAr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbVGXXrm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 19:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVGXXrm
+	id S261562AbVGYAr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 20:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVGYAr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 19:47:42 -0400
-Received: from THUNK.ORG ([69.25.196.29]:12984 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261437AbVGXXrg (ORCPT
+	Sun, 24 Jul 2005 20:47:56 -0400
+Received: from imap.gmx.net ([213.165.64.20]:29402 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261562AbVGYAr4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 19:47:36 -0400
-Date: Sun, 24 Jul 2005 10:56:08 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paolo Ornati <ornati@fastwebnet.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Lack of Documentation about SA_RESTART...
-Message-ID: <20050724145608.GA6132@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Paolo Ornati <ornati@fastwebnet.it>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050711123237.787dfcde@localhost> <20050711143427.GC14529@thunk.org> <Pine.LNX.4.58.0507231723270.6074@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0507231723270.6074@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
+	Sun, 24 Jul 2005 20:47:56 -0400
+X-Authenticated: #28678167
+Message-ID: <42E4373D.1070607@gmx.net>
+Date: Mon, 25 Jul 2005 02:50:05 +0200
+From: Andreas Baer <lnx1@gmx.net>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050725)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Problem with Asus P4C800-DX and P4 -Northwood-
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 23, 2005 at 05:30:42PM -0700, Linus Torvalds wrote:
-> On Mon, 11 Jul 2005, Theodore Ts'o wrote:
-> > 
-> > According to the Single Unix Specification V3, all functions that
-> > return EINTR are supposed to restart if a process receives a signal
-> > where signal handler has been installed with the SA_RESTART flag.  
-> 
-> That can't be right.
-> 
-> Some operations, like "select()" and "pause()" always return EINTR, and 
-> indeed, real applications will break if you always restart. Restarting a 
-> pause() would be nonsensical.
+Hi everyone,
 
-The spect says "unless otherwise specified".  The description for
-pause() states that the process will sleep until receiving a signal
-that terminates the process or causes it to call signal-handling
-function.  That would presumably count as an "otherwise specified".
+First I want to say sorry for this BIG post, but it seems that I have no 
+other chance. :)
 
-						- Ted
+I have a Asus P4C800-DX with a P4 2,4 GHz 512 KB L2 Cache "Northwood" 
+Processor (lowest Processor that supports HyperThreading) and 1GB DDR400 
+RAM. I'm also running S-ATA disks with about 50 MB/s (just to show that 
+it shouldn't be due to hard disk speed). Everything was bought back in 
+2003 and I recently upgraded to the lastest BIOS Version. I've installed 
+Gentoo Linux and WinXP with dual-boot on this system.
+
+Now to my problem:
+
+I'm currently developing a little database in C++ (runs currently under 
+Windows and Linux) that internally builds up an R-Tree and does a lot of 
+equality tests and other time consuming checks. For perfomance issue I 
+ran a test with 200000 entries and it took me about 3 minutes to 
+complete under Gentoo Linux.
+
+So I ran the same test in Windows on the same platform and it took about 
+30(!) seconds. I was a little bit surprised about this result so I 
+started to run several tests on different machines like an Athlon XP 
+2000+ platform and on my P4 3GHz "Prescott" Notebook and they all showed 
+something about 30 seconds or below. Then I began to search for errors 
+or any misconfiguration in Gentoo, in my code and also for people that 
+have made equal experiences with that hardware configuration on the 
+internet. I thought I have a problem with a broken gcc or libraries like 
+glibc or libstdc++ and so I recompiled my whole system with the stable 
+gcc 3.3.5 release, but that didn't make any changes. I also tried an 
+Ubuntu and a Suse LiveCD to verify that it has nothing to do with Gentoo 
+and my kernel version and they had the same problem and ran the test in 
+about 3 min.
+
+Currently I'm at a loss what to do. I'm beginning to think that this is 
+maybe a kernel problem because I have no problems under Windows and it 
+doesn't matter whether I change any software or any configuration in 
+Gentoo. I'm currently running kernel-2.6.12, but the Livecd's had other 
+kernels.
+
+HyperThreading(HT) is also not the reason for the loss of power, because 
+I tried to disable it and to create a uniprocessor kernel, but that 
+didn't solve the problem.
+
+If you need some output of my configuration/log files or anything like 
+that, just mail me.
+
+Is it possible that the kernel has a lack of support for P4 with 
+"Northwood" core? Maybe only this one? Could I solve the problem if I 
+change the processor to a "Prescott" core? Perhaps someone could provide 
+any information if this would make any sense or not.
+
+Thanks in advance for anything that could help.
+
+...sorry for bad english :)

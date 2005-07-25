@@ -1,55 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVGYOxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVGYO5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVGYOxP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 10:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVGYOud
+	id S261273AbVGYO5X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 10:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVGYO5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 10:50:33 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:56825 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261280AbVGYOtY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 10:49:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ec0Wup5ZtF8qNXgEarLPFEKSVyfN8qxrW4OCF3VXqziSqgx590xv7G9eNZK7teKlC37cvYLGT4wMSdFExv+1EPXZLJTGDxuNCNvRt/moW4uDt22vfewpC/ZhXl3vt1dgKw8uNeDukfWR5Ru042NWJzkBJ8lrBHeKl8AcTSuUbNU=
-Message-ID: <d120d5000507250748136a1e71@mail.gmail.com>
-Date: Mon, 25 Jul 2005 09:48:37 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-In-Reply-To: <9e4733910507250728a7882d4@mail.gmail.com>
+	Mon, 25 Jul 2005 10:57:23 -0400
+Received: from h80ad251a.async.vt.edu ([128.173.37.26]:10412 "EHLO
+	h80ad251a.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261273AbVGYO5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 10:57:22 -0400
+Message-Id: <200507251457.j6PEv8Ts006937@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fault tolerance. . . 
+In-Reply-To: Your message of "Sun, 24 Jul 2005 21:59:59 EDT."
+             <42E4479F.90609@comcast.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <42E4479F.90609@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e47339105072421095af5d37a@mail.gmail.com>
-	 <200507242358.12597.dtor_core@ameritech.net>
-	 <9e4733910507250728a7882d4@mail.gmail.com>
+Content-Type: multipart/signed; boundary="==_Exmh_1122303426_2774P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Jul 2005 10:57:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/25/05, Jon Smirl <jonsmirl@gmail.com> wrote:
-> On 7/25/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > On Sunday 24 July 2005 23:09, Jon Smirl wrote:
-> > > I just pulled from GIT to test bind/unbind. I couldn't get it to work;
-> > > it isn't taking into account the CR on the end of the input value of
-> > > the sysfs attribute.  This patch will fix it but I'm sure there is a
-> > > cleaner solution.
-> > >
-> >
-> > "echo -n" should take care of this problem I think.
-> 
-> That will work around it but I think we should fix it.  Changing to
-> strncmp() fixes most cases.
-> 
-> -       if (strcmp(name, dev->bus_id) == 0)
-> +       if (strncmp(name, dev->bus_id, strlen(dev->bus_id)) == 0)
-> 
+--==_Exmh_1122303426_2774P
+Content-Type: text/plain; charset=us-ascii
 
-This will produce "interesting results" if you have both "blah-1" and
-"blah-10" devices on the bus.
--- 
-Dmitry
+On Sun, 24 Jul 2005 21:59:59 EDT, John Richard Moser said:
+
+> I'm thinking of application level fault tolerance using roll-back states
+> or something weird, to restore the system as affected by that
+> application to a point before the error.  The obvious visual effect
+> would be that if an application were to crash, it and potentially
+> interrelated applications would suddenly reset to a state a few seconds
+> to a few minutes earlier.
+
+Google for "checkpoint-restart" - it's a big field in scientific
+computing, where you don't want to lose the results of a 3 week run on a
+supercomputer just because the system crashes 5 minutes before it's done.
+
+(Just think - if they'd had a proper checkpointing scheme, most of the
+Hitchhiker's trilogy wouldn't have happened... :)
+
+> Maintaining the state is also easy:
+> 
+>  - When a file is changed, track the changes and attach them to the last
+> state save
+>  - When memory pages are written to, cache the old copies first
+> (unfortunately each page has to be made CoW after every state save)
+
+This is actually a lot harder than it looks - most of the real-life applications
+of checkpoint-restart have been to programs that were designed to play nice
+with checkpointing.  It's *really* hard to do it with a program that wasn't
+designed to to be checkpointed, as you noticed yourself:
+
+> This of course raises many questions and concerns that make this
+> rediculous and probably not entirely possible:
+> 
+>  - What about huge modifications to files in a short time?  Make a new
+> file, then write 10,000,000,000 bytes past the end and watch it crash.
+>  - What about lost work in interrelated applications?
+>  - Will the system state remain consistent?
+>  - Will it crash over and over and over?
+>  - Connecting to named pipes? (easily handled, not discussed here)
+>  - Crashes are usually trappable, and then programs exit cleanly.  They
+> won't care about this
+>  - How does a process know to change course if it gets restored?
+
+Exactly the sort of things that make it hard...
+
+--==_Exmh_1122303426_2774P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFC5P3CcC3lWbTT17ARApcRAJ9vC5Uyl3I2yck4nV6GvJDxhSC4cwCg6Kya
+LzU8Qr0pqiTWz97pydh8UUw=
+=nd3y
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1122303426_2774P--

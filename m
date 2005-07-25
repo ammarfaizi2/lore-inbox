@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVGYGqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVGYGqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVGYGqE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 02:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVGYFyr
+	id S261604AbVGYGqD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 02:46:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVGYFyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 01:54:47 -0400
-Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:50351 "HELO
-	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261640AbVGYFxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 01:54:52 -0400
+Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:37566 "HELO
+	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S261604AbVGYFxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 25 Jul 2005 01:53:21 -0400
-Message-Id: <20050725054533.550847000.dtor_core@ameritech.net>
+Message-Id: <20050725054533.796185000.dtor_core@ameritech.net>
 References: <20050725053449.483098000.dtor_core@ameritech.net>
-Date: Mon, 25 Jul 2005 00:35:10 -0500
+Date: Mon, 25 Jul 2005 00:35:12 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 21/24] psmouse: wheel mice always have middle button
-Content-Disposition: inline; filename=psmouse-wheel-mice-have-middle-button.patch
+Subject: [patch 23/24] Input - check keycodesize when adjusting keymaps
+Content-Disposition: inline; filename=input-check-keycodesize.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,58 +24,46 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Vojtech Pavlik <vojtech@suse.cz>
 
-Input: psmouse - wheel mice (imps, exps) always have 3rd button
+Input: check keycodesize when adjusting keymaps
 
-There are wheel mice that respond to Logitech probes and report
-that they have only 2 buttons (such as e-Aser mouse) and this
-stops the wheel from being used as a middle button. Change the
-driver to always report BTN_MIDDLE capability if a wheel is
-present.
-
-Also, never reset BTN_RIGHT capability in logips2pp code - there
-are no Logitech mice that have only one button and if some other
-mice happen to respond to Logitech's query we could do the wrong
-thing.
+When changing key mappings we need to make sure that the new
+keycode value can be stored in dev->keycodesize bytes.
 
 Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/mouse/logips2pp.c    |    2 --
- drivers/input/mouse/psmouse-base.c |    2 ++
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/keyboard.c |    4 ++--
+ drivers/input/evdev.c   |    1 +
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-Index: work/drivers/input/mouse/logips2pp.c
+Index: work/drivers/char/keyboard.c
 ===================================================================
---- work.orig/drivers/input/mouse/logips2pp.c
-+++ work/drivers/input/mouse/logips2pp.c
-@@ -385,8 +385,6 @@ int ps2pp_init(struct psmouse *psmouse, 
+--- work.orig/drivers/char/keyboard.c
++++ work/drivers/char/keyboard.c
+@@ -198,10 +198,10 @@ int setkeycode(unsigned int scancode, un
  
- 		if (buttons < 3)
- 			clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
--		if (buttons < 2)
--			clear_bit(BTN_RIGHT, psmouse->dev.keybit);
+ 	if (scancode >= dev->keycodemax)
+ 		return -EINVAL;
+-	if (keycode > KEY_MAX)
+-		return -EINVAL;
+ 	if (keycode < 0 || keycode > KEY_MAX)
+ 		return -EINVAL;
++	if (keycode >> (dev->keycodesize * 8))
++		return -EINVAL;
  
- 		if (model_info)
- 			ps2pp_set_model_properties(psmouse, model_info, use_ps2pp);
-Index: work/drivers/input/mouse/psmouse-base.c
+ 	oldkey = SET_INPUT_KEYCODE(dev, scancode, keycode);
+ 
+Index: work/drivers/input/evdev.c
 ===================================================================
---- work.orig/drivers/input/mouse/psmouse-base.c
-+++ work/drivers/input/mouse/psmouse-base.c
-@@ -344,6 +344,7 @@ static int intellimouse_detect(struct ps
- 		return -1;
- 
- 	if (set_properties) {
-+		set_bit(BTN_MIDDLE, psmouse->dev.keybit);
- 		set_bit(REL_WHEEL, psmouse->dev.relbit);
- 
- 		if (!psmouse->vendor) psmouse->vendor = "Generic";
-@@ -376,6 +377,7 @@ static int im_explorer_detect(struct psm
- 		return -1;
- 
- 	if (set_properties) {
-+		set_bit(BTN_MIDDLE, psmouse->dev.keybit);
- 		set_bit(REL_WHEEL, psmouse->dev.relbit);
- 		set_bit(BTN_SIDE, psmouse->dev.keybit);
- 		set_bit(BTN_EXTRA, psmouse->dev.keybit);
+--- work.orig/drivers/input/evdev.c
++++ work/drivers/input/evdev.c
+@@ -320,6 +320,7 @@ static long evdev_ioctl(struct file *fil
+ 			if (t < 0 || t >= dev->keycodemax || !dev->keycodesize) return -EINVAL;
+ 			if (get_user(v, ip + 1)) return -EFAULT;
+ 			if (v < 0 || v > KEY_MAX) return -EINVAL;
++			if (v >> (dev->keycodesize * 8)) return -EINVAL;
+ 			u = SET_INPUT_KEYCODE(dev, t, v);
+ 			clear_bit(u, dev->keybit);
+ 			set_bit(v, dev->keybit);
 

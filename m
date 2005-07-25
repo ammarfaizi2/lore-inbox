@@ -1,183 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVGYFSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVGYFYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVGYFSY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 01:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVGYFSN
+	id S261684AbVGYFYH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 01:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVGYFYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 01:18:13 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:24291 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261362AbVGYFSL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 01:18:11 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: 2.6.11-rc5 and 2.6.12: cannot transmit anything
-Date: Mon, 25 Jul 2005 08:17:37 +0300
-User-Agent: KMail/1.5.4
-Cc: "David S. Miller" <davem@davemloft.net>, Jeff Garzik <jgarzik@pobox.com>
-MIME-Version: 1.0
+	Mon, 25 Jul 2005 01:24:06 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:33550 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261684AbVGYFYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 01:24:05 -0400
+Date: Mon, 25 Jul 2005 07:12:36 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Andreas Baer <lnx1@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with Asus P4C800-DX and P4 -Northwood-
+Message-ID: <20050725051236.GS8907@alpha.home.local>
+References: <42E4373D.1070607@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507242125.36082.vda@ilport.com.ua>
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <42E4373D.1070607@gmx.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[resend. Did not reach mailing lists, most probably due
-to KMail's unstoppable desire to use base64 encoding :)]
+Hi,
 
-Hi folks,
+On Mon, Jul 25, 2005 at 02:50:05AM +0200, Andreas Baer wrote:
+> Hi everyone,
+> 
+> First I want to say sorry for this BIG post, but it seems that I have no 
+> other chance. :)
 
-I reported earlied that around linux-2.6.11-rc5 my home box sometimes
-does not want to send anything over ethetnet. That report is repeated below
-sig.
+It's not big enough, you did not explain us what your database does nor
+how it does work, what type of resource it consumes most, any vmstat
+capture during operation. There are so many possibilities here :
+  - poor optimisation from gcc => CPU bound
 
-I finally managed to nail down where this happens.
-I instrumented sch_generic.c to trace what happens with packets
-to be sent over interface named "if". 
+  - many random disk accesses => I/O bound, but changing/tuning the I/O
+    scheduler could help
 
-On 'good' boot, I see   
+  - intensive disk reads => perhaps your windows and linux partitions are
+    on the same disk and windows is the first one, then you have 50 MB/s
+    on the windows one and 25 MB/s on the linux one ?
 
-2005-07-12_17:26:29.72158 kern.info: qdisc_restart: start
-2005-07-12_17:26:29.72164 kern.info: qdisc_restart: skb!=NULL
-2005-07-12_17:26:29.72166 kern.info: qdisc_restart: if !netif_queue_stopped...
-2005-07-12_17:26:29.72167 kern.info: qdisc_restart: ...hard_start_xmit
+  - task scheduling : if your application is multi-process/multi-thread,
+    it is possible that you hit some corner cases. 
 
-in the log, on 'bad' one only "qdisc_restart: start".
+So please start "vmstat 1" before your 3min request, and stop it at the
+end, so that it covers all the work. It will tell us many more useful
+information.
 
-Below is first report and instrumented part of sch_generic.c.
---
-vda
+Regards,
+Willy
 
-Subject: linux-2.6.11-rc5: mysterious loss of tx
-
-My home box has onboard via-rhine NIC.
-
-Several days ago my father called me and said that
-it does not send anything (tcpdump shows only rx'ed pkts
-despite pings being attempted etc). I did not investigate
-then.
-
-Yesterday I've seen it myself. I bumped up ethtool msglvl.
-Looks like via-rhine's hard_start_xmit was not called at all
-from network core code! (I did not see debug printks from
-rhine's hard_stat_xmit routine)
-
-Whatever I tried (ifconfig down/up, reinit IP config from scratch),
-nothing helped. No tx whatsoever was attempted by kernel, it seems.
-
-Reboot 'fixed' things.
-
-It hever happened on the same hardware before I switched to rc5.
-
-int qdisc_restart(struct net_device *dev)
-{
-        struct Qdisc *q = dev->qdisc;
-        struct sk_buff *skb;
-int track = (dev->name[0]=='i' && dev->name[1]=='f' && dev->name[2]=='\0');
-
-//'via rhine bug':
-//I see ONLY "qdisc_restart: start",
-//but not any of below msgs.
-//On 'good' boots, it looks like this:
-//...
-//2005-07-12_17:26:29.72158 kern.info: qdisc_restart: start
-//2005-07-12_17:26:29.72164 kern.info: qdisc_restart: skb!=NULL
-//2005-07-12_17:26:29.72166 kern.info: qdisc_restart: if !netif_queue_stopped...
-//2005-07-12_17:26:29.72167 kern.info: qdisc_restart: ...hard_start_xmit
-//...
-if(track) { printk("qdisc_restart: start\n"); }
-        /* Dequeue packet */
-        if ((skb = q->dequeue(q)) != NULL) {
-if(track) { printk("qdisc_restart: skb!=NULL\n"); }
-                unsigned nolock = (dev->features & NETIF_F_LLTX);
-                /*
-                 * When the driver has LLTX set it does its own locking
-                 * in start_xmit. No need to add additional overhead by
-                 * locking again. These checks are worth it because
-                 * even uncongested locks can be quite expensive.
-                 * The driver can do trylock like here too, in case
-                 * of lock congestion it should return -1 and the packet
-                 * will be requeued.
-                 */
-                if (!nolock) {
-                        if (!spin_trylock(&dev->xmit_lock)) {
-                        collision:
-if(track) { printk("qdisc_restart: collision\n"); }
-                                /* So, someone grabbed the driver. */
-
-                                /* It may be transient configuration error,
-                                   when hard_start_xmit() recurses. We detect
-                                   it by checking xmit owner and drop the
-                                   packet when deadloop is detected.
-                                */
-                                if (dev->xmit_lock_owner == smp_processor_id()) {
-                                        kfree_skb(skb);
-                                        if (net_ratelimit())
-                                                printk(KERN_DEBUG "Dead loop on netdevice %s, fix it urgently!\n", dev->name);
-                                        return -1;
-                                }
-                                __get_cpu_var(netdev_rx_stat).cpu_collision++;
-                                goto requeue;
-                        }
-                        /* Remember that the driver is grabbed by us. */
-                        dev->xmit_lock_owner = smp_processor_id();
-                }
-
-                {
-                        /* And release queue */
-                        spin_unlock(&dev->queue_lock);
-
-
-//vda
-if(track) { printk("qdisc_restart: if !netif_queue_stopped...\n"); }
-                        if (!netif_queue_stopped(dev)) {
-                                int ret;
-                                if (netdev_nit)
-                                        dev_queue_xmit_nit(skb, dev);
-if(track) { printk("qdisc_restart: ...hard_start_xmit\n"); }
-                                ret = dev->hard_start_xmit(skb, dev);
-                                if (ret == NETDEV_TX_OK) {
-                                        if (!nolock) {
-                                                dev->xmit_lock_owner = -1;
-                                                spin_unlock(&dev->xmit_lock);
-                                        }
-                                        spin_lock(&dev->queue_lock);
-                                        return -1;
-                                }
-                                if (ret == NETDEV_TX_LOCKED && nolock) {
-                                        spin_lock(&dev->queue_lock);
-                                        goto collision; 
-                                }
-                        }
-
-                        /* NETDEV_TX_BUSY - we need to requeue */
-                        /* Release the driver */
-                        if (!nolock) { 
-                                dev->xmit_lock_owner = -1;
-                                spin_unlock(&dev->xmit_lock);
-                        }
-                        spin_lock(&dev->queue_lock);
-                        q = dev->qdisc;
-                }
-
-                /* Device kicked us out :(
-                   This is possible in three cases:
-
-                   0. driver is locked
-                   1. fastroute is enabled
-                   2. device cannot determine busy state
-                      before start of transmission (f.e. dialout)
-                   3. device is buggy (ppp)
-                 */
-
-requeue:
-                q->ops->requeue(skb, q);
-                netif_schedule(dev);
-                return 1;
-        }
-        BUG_ON((int) q->q.qlen < 0);
-        return q->q.qlen;
-}
-
+> I have a Asus P4C800-DX with a P4 2,4 GHz 512 KB L2 Cache "Northwood" 
+> Processor (lowest Processor that supports HyperThreading) and 1GB DDR400 
+> RAM. I'm also running S-ATA disks with about 50 MB/s (just to show that 
+> it shouldn't be due to hard disk speed). Everything was bought back in 
+> 2003 and I recently upgraded to the lastest BIOS Version. I've installed 
+> Gentoo Linux and WinXP with dual-boot on this system.
+> 
+> Now to my problem:
+> 
+> I'm currently developing a little database in C++ (runs currently under 
+> Windows and Linux) that internally builds up an R-Tree and does a lot of 
+> equality tests and other time consuming checks. For perfomance issue I 
+> ran a test with 200000 entries and it took me about 3 minutes to 
+> complete under Gentoo Linux.
+> 
+> So I ran the same test in Windows on the same platform and it took about 
+> 30(!) seconds. I was a little bit surprised about this result so I 
+> started to run several tests on different machines like an Athlon XP 
+> 2000+ platform and on my P4 3GHz "Prescott" Notebook and they all showed 
+> something about 30 seconds or below. Then I began to search for errors 
+> or any misconfiguration in Gentoo, in my code and also for people that 
+> have made equal experiences with that hardware configuration on the 
+> internet. I thought I have a problem with a broken gcc or libraries like 
+> glibc or libstdc++ and so I recompiled my whole system with the stable 
+> gcc 3.3.5 release, but that didn't make any changes. I also tried an 
+> Ubuntu and a Suse LiveCD to verify that it has nothing to do with Gentoo 
+> and my kernel version and they had the same problem and ran the test in 
+> about 3 min.
+> 
+> Currently I'm at a loss what to do. I'm beginning to think that this is 
+> maybe a kernel problem because I have no problems under Windows and it 
+> doesn't matter whether I change any software or any configuration in 
+> Gentoo. I'm currently running kernel-2.6.12, but the Livecd's had other 
+> kernels.
+> 
+> HyperThreading(HT) is also not the reason for the loss of power, because 
+> I tried to disable it and to create a uniprocessor kernel, but that 
+> didn't solve the problem.
+> 
+> If you need some output of my configuration/log files or anything like 
+> that, just mail me.
+> 
+> Is it possible that the kernel has a lack of support for P4 with 
+> "Northwood" core? Maybe only this one? Could I solve the problem if I 
+> change the processor to a "Prescott" core? Perhaps someone could provide 
+> any information if this would make any sense or not.
+> 
+> Thanks in advance for anything that could help.
+> 
+> ...sorry for bad english :)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

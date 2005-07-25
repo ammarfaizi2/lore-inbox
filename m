@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVGYUSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVGYUWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVGYUSD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 16:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVGYUPZ
+	id S261518AbVGYUWs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 16:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVGYUWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 16:15:25 -0400
-Received: from totor.bouissou.net ([82.67.27.165]:51611 "EHLO
-	totor.bouissou.net") by vger.kernel.org with ESMTP id S261497AbVGYUOL
+	Mon, 25 Jul 2005 16:22:47 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:16902 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261497AbVGYUUX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 16:14:11 -0400
-From: Michel Bouissou <michel@bouissou.net>
-Organization: Me, Myself and I
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: VIA KT400 + Kernel 2.6.12 + IO-APIC + uhci_hcd = IRQ trouble
-Date: Mon, 25 Jul 2005 22:14:06 +0200
-User-Agent: KMail/1.7.2
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0507251500270.8043-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0507251500270.8043-100000@iolanthe.rowland.org>
+	Mon, 25 Jul 2005 16:20:23 -0400
+Message-ID: <42E54A64.7010107@tmr.com>
+Date: Mon, 25 Jul 2005 16:24:04 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200507252214.06802@totor.bouissou.net>
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Bernd Petrovitsch <bernd@firmix.at>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Grant Coady <lkml@dodo.com.au>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Puneet Vyas <vyas.puneet@gmail.com>
+Subject: Re: xor as a lazy comparison
+References: <Pine.LNX.4.61.0507241835360.18474@yvahk01.tjqt.qr>	 <kis7e1d4khtde78oajl017900pmn9407u4@4ax.com>	 <Pine.LNX.4.61.0507242342080.9022@yvahk01.tjqt.qr>	 <42E4131D.6090605@gmail.com>  <1122281833.10780.32.camel@tara.firmix.at>	 <1122314150.6019.58.camel@localhost.localdomain> <1122318659.1472.14.camel@mindpipe>
+In-Reply-To: <1122318659.1472.14.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Lundi 25 Juillet 2005 21:18, Alan Stern a écrit :
->
-> It seems quite clear that the EHCI controller's IRQ line is causing the
-> problems.  Just out of curiousity, what happens if you really do remove
-> the UHCI driver, keeping only the EHCI driver, and then plug in the mouse?
-> Off hand I would expect nothing much to happen -- maybe a line or two in
-> the system log, no change to the IRQ counters, and the mouse doesn't work
-> (not even erratically).
+Lee Revell wrote:
+> On Mon, 2005-07-25 at 13:55 -0400, Steven Rostedt wrote: 
+> 
+>>Doesn't matter. The cycles saved for old compilers is not rational to
+>>have obfuscated code.
+> 
+> 
+> Where do we draw the line with this?  Is x *= 2 preferable to x <<= 2 as
+> well?
 
-As you expect, in such a condition (with only ehci loaded), absolutely nothing 
-happens when plugging the mouse.
+In addition to the obvious error, let's not use x += x as well. If you 
+want to multiple by two, do it.
 
-OTOH, a high-speed device is recognized, althouh it generates messages like:
-
-totor kernel: usb 1-5: device not accepting address 3, error -71
-totor kernel: usb 1-5: new high speed USB device using ehci_hcd and address 4
-totor kernel: usb 1-5: device not accepting address 4, error -71
-totor kernel: usb 1-5: new high speed USB device using ehci_hcd and address 5
-
-If plugged to any USB socket, except the two integrated to the motherboard 
-connectors plate. There only it fully succeeds without such errors.
-
-Cheers.
+Wasn't there a CPU where multiple was faster than add? Doesn't matter, 
+let the compiler make the optimizations so you don't have to.
 
 -- 
-Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

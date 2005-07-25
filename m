@@ -1,113 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVGYP45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVGYQDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVGYP45 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 11:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVGYP44
+	id S261214AbVGYQDo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 12:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVGYQDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 11:56:56 -0400
-Received: from neapel230.server4you.de ([217.172.187.230]:15557 "EHLO
-	neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S261243AbVGYP4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 11:56:12 -0400
-Date: Mon, 25 Jul 2005 17:56:11 +0200
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH NFS 3/3] Replace nfs_block_bits() with roundup_pow_of_two()
-Message-ID: <20050725155611.GA12856@lsrfire.ath.cx>
-References: <20050724143640.GA19941@lsrfire.ath.cx> <1122246549.8322.3.camel@lade.trondhjem.org> <1122247463.8322.19.camel@lade.trondhjem.org>
+	Mon, 25 Jul 2005 12:03:44 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:62552 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261214AbVGYQDn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 12:03:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SEstiZciCSZEYfHrxY44jtSOjBCHA0XfQVYXk4n1m1m/eu0S7Eycv273Q3dRH6sjZqREC670dyF+WtYFCbJ1mMKvyWOnUfN+vJuA0zHovmYM1sqiLxBY4skIPZdDGPcKWC4PBe7fKSRELjzw09vozHLDYCfC9Dkaes7UcNFnPQ8=
+Message-ID: <d120d50005072509022ccbdd0a@mail.gmail.com>
+Date: Mon, 25 Jul 2005 11:02:43 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: dtor_core@ameritech.net, Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net,
+       lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz
+Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
+In-Reply-To: <20050725165014.B7629@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1122247463.8322.19.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.9i
+References: <20050722180109.GA1879@elf.ucw.cz>
+	 <20050724174756.A20019@flint.arm.linux.org.uk>
+	 <20050725045607.GA1851@elf.ucw.cz>
+	 <d120d500050725081664cd73fe@mail.gmail.com>
+	 <20050725165014.B7629@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 24, 2005 at 07:24:23PM -0400, Trond Myklebust wrote:
-> su den 24.07.2005 Klokka 19:09 (-0400) skreiv Trond Myklebust:
-> > What non-power-of-two target? Anything _not_ aligned to a power of two
-> > boundary is a BUG!
-
-So we could simply replace the loop in nfs_block_bits() with call to
-BUG()? :->
-
-> Furthermore, rounding UP in order to "correct" this non-alignment would
-> definitely be a bug.
+On 7/25/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> On Mon, Jul 25, 2005 at 10:16:05AM -0500, Dmitry Torokhov wrote:
+> > If the problem is that you have a single piece of hardware you need to
+> > bind several drivers to - I guess you will have to create a new
+> > sub-device bus for that. Or just register sub-devices on the same bus
+> > the parent device is registered on - I am not sure what is best in
+> > this particular case - I am not familiar with the arch.
 > 
-> If users choose to override the default rsize/wsize, that is almost
-> always in order to limit the UDP fragmentation per read/write request on
-> lossy networks. By rounding up, you are doubling the number of fragments
-> that the user requested instead of respecting the limit.
+> That is exactly the problem - these kinds of devices do _not_ fit
+> well into the device model.  A struct device for every different
+> possible sub-unit is completely overkill.
+> 
+> For instance, you may logically use one ADC and some GPIO lines
+> on the device for X and something else for Y and they logically
+> end up in different drivers.
+> 
+> The problem is that the parent doesn't actually know how many
+> devices to create nor what to call them, and they're logically
+> indistinguishable from each other so there's no logical naming
+> system.
+> 
 
-OK.  Either way, this function can be cleaned up.  Apparently the Plan 9
-filesystem guys thought it rounds up.
+Then we should probably not try to force them into driver model. Have
+parent device register struct device and when sub-drivers register
+they could attach class devices (like input devices) directly to the
+"main" device thus hiding presence of sub-sections of the chip from
+sysfs completely. My point is that we should not be using
+class_interface here - its purpose is diferent.
 
-What's your opinion of the following patch, which explicitly states the
-intent of nfs_block_bits()?  It still needs patch 1 and 2.
-
-Thanks,
-Rene
-
-
-
-[PATCH 3/4] Simplify and rename nfs_block_bits() to rounddown_pow_of_two()
-
-nfs_block_bits() doesn't have a lot to do with bits anymore.  It can
-also be implemented simpler and clearer with fls().
-
-Signed-off-by: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
----
-
- fs/nfs/inode.c |   21 +++++----------------
- 1 files changed, 5 insertions(+), 16 deletions(-)
-
-1388b63224334877b1b154e38ad9ee17f1726bca
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -185,20 +185,9 @@ nfs_umount_begin(struct super_block *sb)
- 		rpc_killall_tasks(rpc);
- }
- 
--
--static inline unsigned long
--nfs_block_bits(unsigned long bsize)
-+static inline unsigned long rounddown_pow_of_two(unsigned long x)
- {
--	/* make sure blocksize is a power of two */
--	if (bsize & (bsize - 1)) {
--		unsigned char	nrbits;
--
--		for (nrbits = 31; nrbits && !(bsize & (1 << nrbits)); nrbits--)
--			;
--		bsize = 1 << nrbits;
--	}
--
--	return bsize;
-+	return x ? (1UL << (fls(x) - 1)) : 0;
- }
- 
- /*
-@@ -222,7 +211,7 @@ nfs_block_size(unsigned long bsize)
- 	else if (bsize >= NFS_MAX_FILE_IO_BUFFER_SIZE)
- 		bsize = NFS_MAX_FILE_IO_BUFFER_SIZE;
- 
--	return nfs_block_bits(bsize);
-+	return rounddown_pow_of_two(bsize);
- }
- 
- /*
-@@ -319,10 +308,10 @@ nfs_sb_init(struct super_block *sb, rpc_
- 	}
- 
- 	if (sb->s_blocksize == 0) {
--		sb->s_blocksize = nfs_block_bits(server->wsize);
-+		sb->s_blocksize = rounddown_pow_of_two(server->wsize);
- 		sb->s_blocksize_bits = fls(sb->s_blocksize - 1);
- 	}
--	server->wtmult = nfs_block_bits(fsinfo.wtmult);
-+	server->wtmult = rounddown_pow_of_two(fsinfo.wtmult);
- 
- 	server->dtsize = nfs_block_size(fsinfo.dtpref);
- 	if (server->dtsize > PAGE_CACHE_SIZE)
+-- 
+Dmitry

@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVGYHOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVGYHTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVGYHOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 03:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVGYFyT
+	id S261196AbVGYHTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 03:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVGYHTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 01:54:19 -0400
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:55133 "HELO
-	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261673AbVGYFxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 01:53:25 -0400
-Message-Id: <20050725054533.912636000.dtor_core@ameritech.net>
-References: <20050725053449.483098000.dtor_core@ameritech.net>
-Date: Mon, 25 Jul 2005 00:35:13 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 24/24] Synaptics - fix setting packet size on passthrough port
-Content-Disposition: inline; filename=synaptics-ptsize.patch
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Jul 2005 03:19:17 -0400
+Received: from mx1.suse.de ([195.135.220.2]:46541 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261196AbVGYHR4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 03:17:56 -0400
+Message-ID: <42E4890C.2010801@suse.de>
+Date: Mon, 25 Jul 2005 08:39:08 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.9) Gecko/20050712 Thunderbird/1.0.5 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
+       Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Subject: Re: [PATCH] reset VGA adapters via BIOS on resume... (non-fbdev/con)
+References: <Pine.LNX.4.58.0507221942540.5475@skynet> <E1Dw6lc-0007IU-00@chiark.greenend.org.uk> <E1Dw6lc-0007IU-00@chiark.greenend.org.uk> <20050723003140.GB1988@elf.ucw.cz> <E1Dw80M-0001EG-00@chiark.greenend.org.uk> <20050723004745.GA7868@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20050723004745.GA7868@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Sergey Vlasov <vsu@altlinux.ru>
+Pavel Machek wrote:
 
-Input: synaptics - fix setting packet size on passthrough port.
+> Anyway, this patch is really good, and enables S3 to work on more
+> machines. Thats good. It is not intrusive and I'll probably (try to)
+> push it.
 
-Synaptics driver used child->type to select either 3-byte or 4-byte
-packet size for the pass-through port; this gives wrong results for
-the newer protocols. Change the check to use child->pktsize instead.
-
-Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/mouse/synaptics.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-Index: work/drivers/input/mouse/synaptics.c
-===================================================================
---- work.orig/drivers/input/mouse/synaptics.c
-+++ work/drivers/input/mouse/synaptics.c
-@@ -219,7 +219,7 @@ static void synaptics_pass_pt_packet(str
- 		serio_interrupt(ptport, packet[1], 0, NULL);
- 		serio_interrupt(ptport, packet[4], 0, NULL);
- 		serio_interrupt(ptport, packet[5], 0, NULL);
--		if (child->type >= PSMOUSE_GENPS)
-+		if (child->pktsize == 4)
- 			serio_interrupt(ptport, packet[2], 0, NULL);
- 	} else
- 		serio_interrupt(ptport, packet[1], 0, NULL);
-@@ -233,7 +233,7 @@ static void synaptics_pt_activate(struct
- 
- 	/* adjust the touchpad to child's choice of protocol */
- 	if (child) {
--		if (child->type >= PSMOUSE_GENPS)
-+		if (child->pktsize == 4)
- 			priv->mode |= SYN_BIT_FOUR_BYTE_CLIENT;
- 		else
- 			priv->mode &= ~SYN_BIT_FOUR_BYTE_CLIENT;
+which acpi_sleep=... parameter enables it? I have machines resuming
+perfectly fine without it that i don't want to break ;-)
+-- 
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
 

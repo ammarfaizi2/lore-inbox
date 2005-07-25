@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVGYQNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVGYQPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVGYQNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 12:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVGYQNZ
+	id S261318AbVGYQPO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 12:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVGYQPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 12:13:25 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18445 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261309AbVGYQNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 12:13:18 -0400
-Date: Mon, 25 Jul 2005 17:13:11 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: dtor_core@ameritech.net
-Cc: Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
-Message-ID: <20050725171311.D7629@flint.arm.linux.org.uk>
-Mail-Followup-To: dtor_core@ameritech.net, Pavel Machek <pavel@suse.cz>,
-	rpurdie@rpsys.net, lenz@cs.wisc.edu,
-	kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-References: <20050722180109.GA1879@elf.ucw.cz> <20050724174756.A20019@flint.arm.linux.org.uk> <20050725045607.GA1851@elf.ucw.cz> <d120d500050725081664cd73fe@mail.gmail.com> <20050725165014.B7629@flint.arm.linux.org.uk> <d120d50005072509022ccbdd0a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <d120d50005072509022ccbdd0a@mail.gmail.com>; from dmitry.torokhov@gmail.com on Mon, Jul 25, 2005 at 11:02:43AM -0500
+	Mon, 25 Jul 2005 12:15:13 -0400
+Received: from scl-ims.phoenix.com ([216.148.212.222]:15227 "EHLO
+	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
+	id S261339AbVGYQOj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 12:14:39 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Stripping in module
+Date: Mon, 25 Jul 2005 09:14:46 -0700
+Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C33D2880@scl-exch2k3.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Stripping in module
+thread-index: AcWQ4WsynMBVnWr4Sh+4D/jY5pOl9wAUmUXw
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "Budde, Marco" <budde@telos.de>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Jul 2005 16:14:39.0570 (UTC) FILETIME=[F55B7B20:01C59133]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 11:02:43AM -0500, Dmitry Torokhov wrote:
-> On 7/25/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > On Mon, Jul 25, 2005 at 10:16:05AM -0500, Dmitry Torokhov wrote:
-> > > If the problem is that you have a single piece of hardware you need to
-> > > bind several drivers to - I guess you will have to create a new
-> > > sub-device bus for that. Or just register sub-devices on the same bus
-> > > the parent device is registered on - I am not sure what is best in
-> > > this particular case - I am not familiar with the arch.
-> > 
-> > That is exactly the problem - these kinds of devices do _not_ fit
-> > well into the device model.  A struct device for every different
-> > possible sub-unit is completely overkill.
-> > 
-> > For instance, you may logically use one ADC and some GPIO lines
-> > on the device for X and something else for Y and they logically
-> > end up in different drivers.
-> > 
-> > The problem is that the parent doesn't actually know how many
-> > devices to create nor what to call them, and they're logically
-> > indistinguishable from each other so there's no logical naming
-> > system.
-> > 
-> 
-> Then we should probably not try to force them into driver model. Have
-> parent device register struct device and when sub-drivers register
-> they could attach class devices (like input devices) directly to the
-> "main" device thus hiding presence of sub-sections of the chip from
-> sysfs completely. My point is that we should not be using
-> class_interface here - its purpose is diferent.
+Well, the best you can do is
+strip -R .note -R .comment --strip-unneeded.
 
-If you look at _my_ version, you'll notice that it doesn't use the
-class interface stuff.  A previous version of it did, and this seems
-to be what the collie stuff is based upon.
+ If you go for more, module might not be loaded/initialized properlly
 
-What I suggest is that the collie folk need to update their driver
-to my version so that we don't have two different forks of the same
-driver in existance.  Then we can start discussing whether things
-should be using kthreads or not.
+Aleks.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Budde, Marco
+>Sent: Sunday, July 24, 2005 11:24 PM
+>To: linux-kernel@vger.kernel.org
+>Subject: Stripping in module
+>
+>Hi,
+>
+>at the moment I am packaging a Linux module as an RPM archive.
+>
+>Therefor I would like to remove some of the not exported/needed
+>symbols (like e.g. static functions or constants) from the
+>Linux module.
+>
+>What is the best way to do this with v2.6.
+>
+>I have tried e.g. to remove all symbols starting with "telos"
+>from the module like this (after kbuild):
+>
+>  strip -w -K '!telos*' -K 'telosi2c_usb_driver' telosi2c_linux.ko
+>
+>When I try to load such a module, insmod dies with a segmentation
+>fault or the complete kernel dies (with "invalid operand: 0000").
+>What is the reason for this problem?
+>
+>What is the correct way using kbuild to remove some symbols?
+>
+>cu, Marco
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>

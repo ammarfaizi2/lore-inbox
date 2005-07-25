@@ -1,81 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVGYAr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVGYBXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVGYAr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Jul 2005 20:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVGYAr4
+	id S261260AbVGYBXu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Jul 2005 21:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVGYBXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 20:47:56 -0400
-Received: from imap.gmx.net ([213.165.64.20]:29402 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261562AbVGYAr4 (ORCPT
+	Sun, 24 Jul 2005 21:23:50 -0400
+Received: from colo.lackof.org ([198.49.126.79]:27585 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261260AbVGYBXt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 20:47:56 -0400
-X-Authenticated: #28678167
-Message-ID: <42E4373D.1070607@gmx.net>
-Date: Mon, 25 Jul 2005 02:50:05 +0200
-From: Andreas Baer <lnx1@gmx.net>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050725)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problem with Asus P4C800-DX and P4 -Northwood-
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sun, 24 Jul 2005 21:23:49 -0400
+Date: Sun, 24 Jul 2005 19:28:40 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org, greg@kroah.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-pcmcia@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcibios_bus_to_resource for parisc [Was: Re: [PATCH 8/8] pci and yenta: pcibios_bus_to_resource]
+Message-ID: <20050725012840.GB18659@colo.lackof.org>
+References: <20050711222138.GH30827@isilmar.linta.de> <20050718194216.GC11016@colo.lackof.org> <20050723195411.GC11065@dominikbrodowski.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050723195411.GC11065@dominikbrodowski.de>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+On Sat, Jul 23, 2005 at 09:54:11PM +0200, Dominik Brodowski wrote:
+> Oh, yes, I seem to have missed it. Sorry. Does this patch look good?
 
-First I want to say sorry for this BIG post, but it seems that I have no 
-other chance. :)
+Yes.
 
-I have a Asus P4C800-DX with a P4 2,4 GHz 512 KB L2 Cache "Northwood" 
-Processor (lowest Processor that supports HyperThreading) and 1GB DDR400 
-RAM. I'm also running S-ATA disks with about 50 MB/s (just to show that 
-it shouldn't be due to hard disk speed). Everything was bought back in 
-2003 and I recently upgraded to the lastest BIOS Version. I've installed 
-Gentoo Linux and WinXP with dual-boot on this system.
+Acked-by: Grant Grundler <grundler@parisc-linux.org>
 
-Now to my problem:
+I'll commit this to the cvs.parisc-linux.org tree as well.
+Willy can let me deal with the collision if it's not trivial
+on his next merge.
 
-I'm currently developing a little database in C++ (runs currently under 
-Windows and Linux) that internally builds up an R-Tree and does a lot of 
-equality tests and other time consuming checks. For perfomance issue I 
-ran a test with 200000 entries and it took me about 3 minutes to 
-complete under Gentoo Linux.
+thanks,
+grant
 
-So I ran the same test in Windows on the same platform and it took about 
-30(!) seconds. I was a little bit surprised about this result so I 
-started to run several tests on different machines like an Athlon XP 
-2000+ platform and on my P4 3GHz "Prescott" Notebook and they all showed 
-something about 30 seconds or below. Then I began to search for errors 
-or any misconfiguration in Gentoo, in my code and also for people that 
-have made equal experiences with that hardware configuration on the 
-internet. I thought I have a problem with a broken gcc or libraries like 
-glibc or libstdc++ and so I recompiled my whole system with the stable 
-gcc 3.3.5 release, but that didn't make any changes. I also tried an 
-Ubuntu and a Suse LiveCD to verify that it has nothing to do with Gentoo 
-and my kernel version and they had the same problem and ran the test in 
-about 3 min.
-
-Currently I'm at a loss what to do. I'm beginning to think that this is 
-maybe a kernel problem because I have no problems under Windows and it 
-doesn't matter whether I change any software or any configuration in 
-Gentoo. I'm currently running kernel-2.6.12, but the Livecd's had other 
-kernels.
-
-HyperThreading(HT) is also not the reason for the loss of power, because 
-I tried to disable it and to create a uniprocessor kernel, but that 
-didn't solve the problem.
-
-If you need some output of my configuration/log files or anything like 
-that, just mail me.
-
-Is it possible that the kernel has a lack of support for P4 with 
-"Northwood" core? Maybe only this one? Could I solve the problem if I 
-change the processor to a "Prescott" core? Perhaps someone could provide 
-any information if this would make any sense or not.
-
-Thanks in advance for anything that could help.
-
-...sorry for bad english :)
+> 
+> 
+> Add pcibios_bus_to_resource for parisc.
+> 
+> Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+> 
+> Index: 2.6.13-rc3-git2/arch/parisc/kernel/pci.c
+> ===================================================================
+> --- 2.6.13-rc3-git2.orig/arch/parisc/kernel/pci.c
+> +++ 2.6.13-rc3-git2/arch/parisc/kernel/pci.c
+> @@ -255,8 +255,26 @@ void __devinit pcibios_resource_to_bus(s
+>  	pcibios_link_hba_resources(&hba->lmmio_space, bus->resource[1]);
+>  }
+>  
+> +void pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
+> +			      struct pci_bus_region *region)
+> +{
+> +	struct pci_bus *bus = dev->bus;
+> +	struct pci_hba_data *hba = HBA_DATA(bus->bridge->platform_data);
+> +
+> +	if (res->flags & IORESOURCE_MEM) {
+> +		res->start = PCI_HOST_ADDR(hba, region->start);
+> +		res->end = PCI_HOST_ADDR(hba, region->end);
+> +	}
+> +
+> +	if (res->flags & IORESOURCE_IO) {
+> +		res->start = region->start;
+> +		res->end = region->end;
+> +	}
+> +}
+> +
+>  #ifdef CONFIG_HOTPLUG
+>  EXPORT_SYMBOL(pcibios_resource_to_bus);
+> +EXPORT_SYMBOL(pcibios_bus_to_resource);
+>  #endif
+>  
+>  /*

@@ -1,83 +1,294 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVGYXG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVGYW7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVGYXG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 19:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVGYXEO
+	id S261278AbVGYW7v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 18:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVGYW7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 19:04:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12810 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261212AbVGYXDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 19:03:55 -0400
-Date: Tue, 26 Jul 2005 00:03:47 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
-Message-ID: <20050726000347.A913@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net,
-	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-	vojtech@suse.cz
-References: <20050722180109.GA1879@elf.ucw.cz> <20050724174756.A20019@flint.arm.linux.org.uk> <20050725045607.GA1851@elf.ucw.cz> <20050725170419.C7629@flint.arm.linux.org.uk> <20050725220659.GF8684@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050725220659.GF8684@elf.ucw.cz>; from pavel@suse.cz on Tue, Jul 26, 2005 at 12:06:59AM +0200
+	Mon, 25 Jul 2005 18:59:46 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:63110 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261259AbVGYW7W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 18:59:22 -0400
+Message-Id: <20050725225908.458209000@localhost>
+References: <20050725224417.501066000@localhost>
+Date: Mon, 25 Jul 2005 15:44:22 -0700
+From: Ram Pai <linuxram@us.ibm.com>
+To: akpm@osdl.org, Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Avantika Mathur <mathurav@us.ibm.com>, Mike Waychison <mike@waychison.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 12:06:59AM +0200, Pavel Machek wrote:
-> > > Also it looks to me like mcp.h should go into asm/arch-sa1100, so
-> > > that other drivers can use it...
-> > 
-> > That doesn't make sense when you have other non-SA1100 devices using
-> > mcp-core.c.  Whether that happens or not I've no idea - I can't see
-> > what everyone's using out there (just like I've absolutely zero
-> > idea what collie folk are doing or not doing.)
-> 
-> set_telecom_divisor relies on CONFIG_SA1100 being set (otherwise it
-> breaks compilation, because struct members will not be available; at
-> least in this version), so I doubt it has many non-SA1100 users...
+, miklos@szeredi.hu, Janak Desai <janak@us.ibm.com>, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 5/7] shared subtree
+Content-Type: text/x-patch; name=umount.patch
+Content-Disposition: inline; filename=umount.patch
 
-That's not conclusive in itself - if it's only usable on SA1100
-platforms, why was that ifdef added?
+Adds ability to unmount a shared/slave/unclone/private tree
 
-> > So, if the collie folk would like to clean their changes up and send
-> > them to me as the driver author, I'll see about integrating them into
-> > my version and we'll take it from there.
-> 
-> Okay, will do. [Is there chance to pull your tree using git? It would
-> help a bit...]
+RP
 
-My git usage is limited to the final stage of my development - iow
-providing an integration and test bed for merging upstream.  My work
-prior to that is all patch based (as per the tarball of patches I
-posted previously) with scripts to manage them - I like the power to
-re-order, split, merge, insert and remove patches at random, which
-includes whole series of patches vs individual patches themselves.
+Signed by Ram Pai (linuxram@us.ibm.com)
 
-Consequently, if I were to publish my git trees, what you'll find is
-that they're indentical copies of Linus' tree except for maybe when
-Linus is away, or hasn't pulled that night, or...
+ fs/namespace.c        |   76 ++++++++++++++++++++++++++++++++++++++++----------
+ fs/pnode.c            |   66 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/fs.h    |    3 +
+ include/linux/pnode.h |    9 ++++-
+ 4 files changed, 138 insertions(+), 16 deletions(-)
 
-What you're actually seeing with the UCB stuff is the effect of me
-stopping maintaining the -rmk trees - code effectively got "dropped"
-from public view at that point, and I'm not going to start publishing
-such a tree any time soon.  It completely detracts from the task of
-ensuring mainline kernels work for ARM - since the -rmk tree is/was
-seen as the tree for everything ARM to be merged into, and hence
-upstream merging became my problem.  No, never again will I make a
-fool of myself like that.  Hence, I'll never again publish a kernel
-tree myself, except maybe for very limited purposes.
-
-However, if the UCB stuff is going to get worked on, I don't mind
-setting up, maintaining and publishing a git tree for that that,
-provided it then vanishes once merged into mainline.  That falls
-within the "very limited purposes" clause above.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Index: 2.6.12.work2/fs/pnode.c
+===================================================================
+--- 2.6.12.work2.orig/fs/pnode.c
++++ 2.6.12.work2/fs/pnode.c
+@@ -666,3 +666,69 @@ int pnode_abort_mount(struct vfspnode *p
+ 			NULL, (void *)NULL, NULL, NULL,
+ 			vfs_abort_mount_func, exception_mnt);
+ }
++
++static int vfs_busy(struct vfsmount *mnt, enum pnode_vfs_type flag,
++		void *indata, va_list args)
++{
++	struct dentry *dentry = va_arg(args, struct dentry *);
++	struct dentry *rootdentry = va_arg(args, struct dentry *);
++	struct vfsmount *origmnt = va_arg(args, struct vfsmount *);
++	struct vfsmount *child_mnt;
++	int ret=0;
++
++	spin_unlock(&vfsmount_lock);
++	child_mnt = __lookup_mnt(mnt, dentry, rootdentry);
++	spin_lock(&vfsmount_lock);
++
++	if (!child_mnt)
++		return 0;
++
++	if (list_empty(&child_mnt->mnt_mounts)) {
++		if (origmnt == child_mnt)
++			ret = do_refcount_check(child_mnt, 3);
++		else
++			ret = do_refcount_check(child_mnt, 2);
++	}
++	mntput(child_mnt);
++	return ret;
++}
++
++int pnode_mount_busy(struct vfspnode *pnode, struct dentry *mntpt,
++		struct dentry *root, struct vfsmount *mnt)
++{
++	return pnode_traverse(pnode, NULL, NULL,
++			NULL, NULL, vfs_busy, mntpt, root, mnt);
++}
++
++
++int vfs_umount(struct vfsmount *mnt, enum pnode_vfs_type flag,
++		void *indata, va_list args)
++{
++	struct vfsmount *child_mnt;
++	struct dentry *dentry, *rootdentry;
++
++
++	dentry = va_arg(args, struct dentry *);
++	rootdentry = va_arg(args, struct dentry *);
++
++	spin_unlock(&vfsmount_lock);
++	child_mnt = __lookup_mnt(mnt, dentry, rootdentry);
++	spin_lock(&vfsmount_lock);
++	mntput(child_mnt);
++	if (child_mnt && list_empty(&child_mnt->mnt_mounts)) {
++		if (IS_MNT_SHARED(child_mnt) ||
++				IS_MNT_SLAVE(child_mnt)) {
++			BUG_ON(!child_mnt->mnt_pnode);
++			pnode_disassociate_mnt(child_mnt);
++		}
++		do_detach_mount(child_mnt);
++	}
++	return 0;
++}
++
++int pnode_umount(struct vfspnode *pnode, struct dentry *dentry,
++			struct dentry *rootdentry)
++{
++	return pnode_traverse(pnode, NULL, (void *)NULL,
++			NULL, NULL, vfs_umount, dentry, rootdentry);
++}
+Index: 2.6.12.work2/fs/namespace.c
+===================================================================
+--- 2.6.12.work2.orig/fs/namespace.c
++++ 2.6.12.work2/fs/namespace.c
+@@ -395,6 +395,20 @@ resume:
+ 
+ EXPORT_SYMBOL(may_umount_tree);
+ 
++int mount_busy(struct vfsmount *mnt)
++{
++	struct vfspnode *parent_pnode;
++
++	if (mnt == mnt->mnt_parent || !IS_MNT_SHARED(mnt->mnt_parent))
++		return do_refcount_check(mnt, 2);
++
++	parent_pnode = mnt->mnt_parent->mnt_pnode;
++	BUG_ON(!parent_pnode);
++	return pnode_mount_busy(parent_pnode,
++			mnt->mnt_mountpoint,
++			mnt->mnt_root, mnt);
++}
++
+ /**
+  * may_umount - check if a mount point is busy
+  * @mnt: root of mount
+@@ -410,14 +424,28 @@ EXPORT_SYMBOL(may_umount_tree);
+  */
+ int may_umount(struct vfsmount *mnt)
+ {
+-	if (atomic_read(&mnt->mnt_count) > 2)
++	if (mount_busy(mnt))
+ 		return -EBUSY;
+ 	return 0;
+ }
+ 
+ EXPORT_SYMBOL(may_umount);
+ 
+-void umount_tree(struct vfsmount *mnt)
++void do_detach_mount(struct vfsmount *mnt)
++{
++	struct nameidata old_nd;
++	if (mnt != mnt->mnt_parent) {
++		detach_mnt(mnt, &old_nd);
++		path_release(&old_nd);
++	}
++	list_del_init(&mnt->mnt_list);
++	list_del_init(&mnt->mnt_fslink);
++	spin_unlock(&vfsmount_lock);
++	mntput(mnt);
++	spin_lock(&vfsmount_lock);
++}
++
++void __umount_tree(struct vfsmount *mnt, int propogate)
+ {
+ 	struct vfsmount *p;
+ 	LIST_HEAD(kill);
+@@ -431,20 +459,40 @@ void umount_tree(struct vfsmount *mnt)
+ 		mnt = list_entry(kill.next, struct vfsmount, mnt_list);
+ 		list_del_init(&mnt->mnt_list);
+ 		list_del_init(&mnt->mnt_fslink);
+-		if (mnt->mnt_parent == mnt) {
+-			spin_unlock(&vfsmount_lock);
++		if (propogate && mnt->mnt_parent != mnt &&
++			IS_MNT_SHARED(mnt->mnt_parent)) {
++			struct vfspnode *parent_pnode
++				= mnt->mnt_parent->mnt_pnode;
++			BUG_ON(!parent_pnode);
++			pnode_umount(parent_pnode,
++				mnt->mnt_mountpoint,
++				mnt->mnt_root);
+ 		} else {
+-			struct nameidata old_nd;
+-			detach_mnt(mnt, &old_nd);
+-			spin_unlock(&vfsmount_lock);
+-			path_release(&old_nd);
++			if (IS_MNT_SHARED(mnt) || IS_MNT_SLAVE(mnt)) {
++				BUG_ON(!mnt->mnt_pnode);
++				pnode_disassociate_mnt(mnt);
++			}
++			do_detach_mount(mnt);
+ 		}
+-		mntput(mnt);
+-		spin_lock(&vfsmount_lock);
+ 	}
+ }
+ 
+-static int do_umount(struct vfsmount *mnt, int flags)
++void umount_tree(struct vfsmount *mnt)
++{
++	__umount_tree(mnt, 1);
++}
++
++/*
++ * return true if the refcount is greater than count
++ */
++int do_refcount_check(struct vfsmount *mnt, int count)
++{
++
++	int mycount = atomic_read(&mnt->mnt_count);
++	return (mycount > count);
++}
++
++int do_umount(struct vfsmount *mnt, int flags)
+ {
+ 	struct super_block * sb = mnt->mnt_sb;
+ 	int retval;
+@@ -525,7 +573,7 @@ static int do_umount(struct vfsmount *mn
+ 		spin_lock(&vfsmount_lock);
+ 	}
+ 	retval = -EBUSY;
+-	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
++	if (flags & MNT_DETACH || !mount_busy(mnt)) {
+ 		if (!list_empty(&mnt->mnt_list))
+ 			umount_tree(mnt);
+ 		retval = 0;
+@@ -659,7 +707,7 @@ static struct vfsmount *copy_tree(struct
+  Enomem:
+ 	if (res) {
+ 		spin_lock(&vfsmount_lock);
+-		umount_tree(res);
++		__umount_tree(res, 0);
+ 		spin_unlock(&vfsmount_lock);
+ 	}
+ 	return NULL;
+@@ -1341,7 +1389,7 @@ static int do_loopback(struct nameidata 
+ 		err = graft_tree(mnt, nd);
+ 		if (err) {
+  			spin_lock(&vfsmount_lock);
+- 			umount_tree(mnt);
++ 			__umount_tree(mnt, 0);
+  			spin_unlock(&vfsmount_lock);
+ 			/*
+ 			 * ok we failed! so undo any overlay
+Index: 2.6.12.work2/include/linux/fs.h
+===================================================================
+--- 2.6.12.work2.orig/include/linux/fs.h
++++ 2.6.12.work2/include/linux/fs.h
+@@ -1216,12 +1216,15 @@ extern struct vfsmount *kern_mount(struc
+ extern int may_umount_tree(struct vfsmount *);
+ extern int may_umount(struct vfsmount *);
+ extern long do_mount(char *, char *, char *, unsigned long, void *);
++extern int do_umount(struct vfsmount *, int);
+ extern struct vfsmount *do_attach_prepare_mnt(struct vfsmount *,
+ 		struct dentry *, struct vfsmount *, int);
+ extern void do_attach_commit_mnt(struct vfsmount *);
+ extern struct vfsmount *do_make_mounted(struct vfsmount *, struct dentry *);
+ extern int do_make_unmounted(struct vfsmount *);
+ extern void do_detach_prepare_mnt(struct vfsmount *, int);
++extern void do_detach_mount(struct vfsmount *);
++extern int do_refcount_check(struct vfsmount *, int );
+ 
+ extern int vfs_statfs(struct super_block *, struct kstatfs *);
+ 
+Index: 2.6.12.work2/include/linux/pnode.h
+===================================================================
+--- 2.6.12.work2.orig/include/linux/pnode.h
++++ 2.6.12.work2/include/linux/pnode.h
+@@ -63,13 +63,15 @@ put_pnode_locked(struct vfspnode *pnode)
+ {
+ 	if (!pnode)
+ 		return;
+-	if (atomic_dec_and_test(&pnode->pnode_count)) {
++	if (atomic_dec_and_test(&pnode->pnode_count))
+ 		__put_pnode(pnode);
+-	}
+ }
+ 
+ void __init pnode_init(unsigned long );
+ struct vfspnode * pnode_alloc(void);
++void pnode_free(struct vfspnode *);
++int pnode_is_busy(struct vfspnode *);
++int pnode_umount_vfs(struct vfspnode *, struct dentry *, struct dentry *, int);
+ void pnode_add_slave_mnt(struct vfspnode *, struct vfsmount *);
+ void pnode_add_member_mnt(struct vfspnode *, struct vfsmount *);
+ void pnode_del_slave_mnt(struct vfsmount *);
+@@ -87,4 +89,7 @@ int pnode_prepare_mount(struct vfspnode 
+ 		struct vfsmount *, struct vfsmount *);
+ int pnode_commit_mount(struct vfspnode *, int);
+ int pnode_abort_mount(struct vfspnode *, struct vfsmount *);
++int pnode_umount(struct vfspnode *, struct dentry *, struct dentry *);
++int pnode_mount_busy(struct vfspnode *, struct dentry *, struct dentry *,
++		struct vfsmount *);
+ #endif /* _LINUX_PNODE_H */

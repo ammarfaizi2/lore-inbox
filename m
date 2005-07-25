@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVGYVT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVGYVWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVGYVT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 17:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVGYVT7
+	id S261389AbVGYVWH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 17:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVGYVWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 17:19:59 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:22679 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261490AbVGYVTz convert rfc822-to-8bit (ORCPT
+	Mon, 25 Jul 2005 17:22:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28607 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261389AbVGYVVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 17:19:55 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 25 Jul 2005 17:21:48 -0400
+Date: Mon, 25 Jul 2005 14:21:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Rodrigo Ramos <rodrigo.ramos@triforsec.com.br>
+cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de,
+       haible@ma2s2.mathematik.uni-karlsruhe.de, bradh@frogmouth.net,
+       orc@pell.chi.il.us, jrs@world.std.com, linux-kernel@vger.kernel.org
+Subject: Re: data + pendrive + memory
+In-Reply-To: <1122321721.2817.75.camel@ZeroOne>
+Message-ID: <Pine.LNX.4.58.0507251418030.6074@g5.osdl.org>
+References: <1122321721.2817.75.camel@ZeroOne>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Variable ticks
-Date: Mon, 25 Jul 2005 17:19:23 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B300424AC59@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Variable ticks
-Thread-Index: AcWRW/21b92rhU09RrOc/wp7O+kxWQAAg8gA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Bill Davidsen" <davidsen@tmr.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 25 Jul 2005 21:19:52.0595 (UTC) FILETIME=[98C55630:01C5915E]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->>>Question one, are there other actions to consider?
->> 
->> 
->> Yes.
->> Speaking for ACPI C3 state, note that DMA also
->> wakes up the CPU -- even if there was no device interrupt.
->> (aka, "the trouble with USB")
->
->Trouble? Why would USB do DMA unless there was a device activity?
 
-look here:
-http://www.google.com/search?hl=en&q=usb+selective+suspend
 
-Linux is working on it too, but it is in development.
+On Mon, 25 Jul 2005, Rodrigo Ramos wrote:
+> 
+> IMHO, if a lack of memory happens the Linux will start using swap, then
+> the file will end in the hard drive. When I am working with a file in a
+> pendrive any information of it is sent to the hard drive ? If it happens
+> what is/are the reason(s).
 
-cheers,
--Len
+If you always access the file only with mmap(..MAP_SHARED..) (or
+MAP_PRIVATE in a read-only manner), or if you always make sure that any
+programs that access the data use mlock() to protect it, you'll never hit
+the regular disk.
+
+mmap() is generally the better option, since locking down memory may not
+be available to normal users.
+
+		Linus

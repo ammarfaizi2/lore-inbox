@@ -1,27 +1,26 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbVGXSjO (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 24 Jul 2005 14:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVGXSix
+	id S261589AbVGYCNb (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 24 Jul 2005 22:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVGYCNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Jul 2005 14:38:53 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:58755 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261419AbVGXSi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Jul 2005 14:38:27 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
+	Sun, 24 Jul 2005 22:13:31 -0400
+Received: from magi.lpbproductions.com ([66.90.101.74]:55982 "EHLO
+	magi.lpbproductions.com") by vger.kernel.org with ESMTP
+	id S261589AbVGYCNa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Jul 2005 22:13:30 -0400
+From: Matt <matt@lpbproductions.com>
 To: linux-kernel@vger.kernel.org
-Subject: mail testing, please disregard
-Date: Sun, 24 Jul 2005 21:38:06 +0300
-User-Agent: KMail/1.5.4
+User-Agent: KMail/1.5.93
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200507242138.06179.vda@ilport.com.ua>
+Date: Sun, 24 Jul 2005 22:08:28 -0400
+Message-Id: <200507242208.28594.matt@lpbproductions.com>
+Reply-To: matt@lpbproductions.com
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261419AbVGXSjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261589AbVGYCNb@vger.kernel.org>
 
-test test test
-
+subscribe linux-kernel

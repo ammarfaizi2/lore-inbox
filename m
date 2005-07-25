@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVGYRxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVGYR4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVGYRxi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 13:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVGYRxi
+	id S261403AbVGYR4U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 13:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVGYR4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 13:53:38 -0400
-Received: from mail.tmr.com ([64.65.253.246]:41419 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261345AbVGYRxi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 13:53:38 -0400
-Message-ID: <42E5292B.9080703@tmr.com>
-Date: Mon, 25 Jul 2005 14:02:19 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paolo Ornati <ornati@fastwebnet.it>
-CC: lgb@lgb.hu, linux-kernel@vger.kernel.org
-Subject: Re: Kernel cached memory
-References: <003401c58ea2$4dfd76f0$5601010a@ashley>	<20050722132523.GJ20995@vega.lgb.hu>	<42E517B6.1010704@tmr.com> <20050725190731.0d634842@localhost>
-In-Reply-To: <20050725190731.0d634842@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 25 Jul 2005 13:56:20 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:12696 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261403AbVGYR4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 13:56:17 -0400
+Subject: Re: xor as a lazy comparison
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Bernd Petrovitsch <bernd@firmix.at>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Grant Coady <lkml@dodo.com.au>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Puneet Vyas <vyas.puneet@gmail.com>
+In-Reply-To: <1122281833.10780.32.camel@tara.firmix.at>
+References: <Pine.LNX.4.61.0507241835360.18474@yvahk01.tjqt.qr>
+	 <kis7e1d4khtde78oajl017900pmn9407u4@4ax.com>
+	 <Pine.LNX.4.61.0507242342080.9022@yvahk01.tjqt.qr>
+	 <42E4131D.6090605@gmail.com>  <1122281833.10780.32.camel@tara.firmix.at>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 25 Jul 2005 13:55:50 -0400
+Message-Id: <1122314150.6019.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ornati wrote:
+On Mon, 2005-07-25 at 10:57 +0200, Bernd Petrovitsch wrote:
+> On Sun, 2005-07-24 at 18:15 -0400, Puneet Vyas wrote:
+> [...]
+> > I just compiled two identical program , one with "!=" and other with 
+> > "^". The assembly output is identical.
+> 
+> Hmm, which compiler and which version?
+> You might want to try much older and other compilers.
+> 
 
->On Mon, 25 Jul 2005 12:47:50 -0400
->Bill Davidsen <davidsen@tmr.com> wrote:
->
->  
->
->>And IMHO Linux is *way* too willing to evicy clean pages of my 
->>programs to use as disk buffer, so that when system memory is full I
->>pay  the overhead of TWO disk i/o's, one to finally write the data to
->>the  disk and one to read my program back in. If free software is
->>about  choice, I wish there was more in the area of how memory is
->>used.
->>    
->>
->
->isn't this tuned enough by "/proc/sys/vm/swappiness" ?
->
->  
->
-Let me generate some data points for discussion. But the general answer 
-is no, I just want to try to have some numbers to discuss. I also want 
-to go back to some 2.4.xx-aa kernels, Andrea had some very nice things 
-in his bdflush code, and he was kind enough to explain to me how to tune 
-them so I avoided the worst case events.
+Doesn't matter. The cycles saved for old compilers is not rational to
+have obfuscated code.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+Here's the patch to make the code more readable.
+
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+
+--- linux-2.6.13-rc3/kernel/signal.c.orig	2005-07-25 13:50:20.000000000 -0400
++++ linux-2.6.13-rc3/kernel/signal.c	2005-07-25 13:50:51.000000000 -0400
+@@ -665,8 +665,8 @@ static int check_kill_permission(int sig
+ 			(unsigned long)info != 2 && SI_FROMUSER(info)))
+ 	    && ((sig != SIGCONT) ||
+ 		(current->signal->session != t->signal->session))
+-	    && (current->euid ^ t->suid) && (current->euid ^ t->uid)
+-	    && (current->uid ^ t->suid) && (current->uid ^ t->uid)
++	    && (current->euid != t->suid) && (current->euid != t->uid)
++	    && (current->uid != t->suid) && (current->uid != t->uid)
+ 	    && !capable(CAP_KILL))
+ 		return error;
+ 
+
 

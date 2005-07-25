@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVGYGjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVGYGqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261526AbVGYGjU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 02:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVGYFzC
+	id S261517AbVGYGqD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 02:46:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVGYGpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 01:55:02 -0400
-Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:18809 "HELO
-	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261654AbVGYFxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 01:53:23 -0400
-Message-Id: <20050725054532.587479000.dtor_core@ameritech.net>
-References: <20050725053449.483098000.dtor_core@ameritech.net>
-Date: Mon, 25 Jul 2005 00:35:03 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 14/24] synaptics - limit rate on Toshiba Dynabooks
-Content-Disposition: inline; filename=synaptics-dynabook.patch
+	Mon, 25 Jul 2005 02:45:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18395 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261218AbVGYGns (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 02:43:48 -0400
+Date: Sun, 24 Jul 2005 23:42:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: dirk@opfer-online.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm1
+Message-Id: <20050724234238.2141e828.akpm@osdl.org>
+In-Reply-To: <1122222021.7585.64.camel@localhost.localdomain>
+References: <20050715013653.36006990.akpm@osdl.org>
+	<1122222021.7585.64.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Simon Horman <horms@valinux.co.jp>
+Richard Purdie <rpurdie@rpsys.net> wrote:
+>
+> On Fri, 2005-07-15 at 01:36 -0700, Andrew Morton wrote:
+>  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
+> 
+>  On the Zaurus I'm seeing a couple of false "BUG: soft lockup detected on
+>  CPU#0!" reports. These didn't show under 2.6.12-mm1 which was the last
+>  -mm kernel I tested. softlockup.c seems identical between these versions
+>  so it looks like some other change has caused this to appear...
+> 
+>  Both of these are triggered from the nand driver. The functions
+>  concerned (nand_wait_ready and nand_read_buf) are known to be slow (they
+>  wait on hardware).
 
-Input: synaptics - limit rate to 40pps on Toshiba Dynabooks
-
-Toshiba Dynabooks require the same workaround as Satellites -
-Synaptics report rate should be lowered to 40pps (from 80),
-otherwise KBC starts losing keypresses.
-
-Signed-off-by: Simon Horman <horms@valinux.co.jp>
-Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/mouse/synaptics.c |   10 +++++++++-
- 1 files changed, 9 insertions(+), 1 deletion(-)
-
-Index: work/drivers/input/mouse/synaptics.c
-===================================================================
---- work.orig/drivers/input/mouse/synaptics.c
-+++ work/drivers/input/mouse/synaptics.c
-@@ -608,6 +608,13 @@ static struct dmi_system_id toshiba_dmi_
- 			DMI_MATCH(DMI_PRODUCT_NAME , "Satellite"),
- 		},
- 	},
-+	{
-+		.ident = "Toshiba Dynabook",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME , "dynabook"),
-+		},
-+	},
- 	{ }
- };
- #endif
-@@ -656,7 +663,8 @@ int synaptics_init(struct psmouse *psmou
- 	 * thye same as rate of standard PS/2 mouse.
- 	 */
- 	if (psmouse->rate >= 80 && dmi_check_system(toshiba_dmi_table)) {
--		printk(KERN_INFO "synaptics: Toshiba Satellite detected, limiting rate to 40pps.\n");
-+		printk(KERN_INFO "synaptics: Toshiba %s detected, limiting rate to 40pps.\n",
-+			dmi_get_system_info(DMI_PRODUCT_NAME));
- 		psmouse->rate = 40;
- 	}
- #endif
-
+OK, thanks.  We can stick a touch_softlockup_watchdog() into those two
+functions to tell them that we know what we're doing.  If you have time to
+write-and-test a patch then please do so - otherwise I'll take an untested
+shot at it.

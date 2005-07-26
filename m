@@ -1,43 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVGZWbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbVGZWdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbVGZWbW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 18:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVGZWbU
+	id S262302AbVGZWdo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 18:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbVGZWdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 18:31:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43720 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262301AbVGZWbO (ORCPT
+	Tue, 26 Jul 2005 18:33:38 -0400
+Received: from mail.kroah.org ([69.55.234.183]:52460 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262306AbVGZWcw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 18:31:14 -0400
-Date: Tue, 26 Jul 2005 15:32:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: mkrufky@m1k.net, astralstorm@gorzow.mm.pl, linux-kernel@vger.kernel.org
-Subject: Re: MM kernels - how to keep on the bleeding edge?
-Message-Id: <20050726153251.5e721f0c.akpm@osdl.org>
-In-Reply-To: <20050726144149.0dc7b008.akpm@osdl.org>
-References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
-	<42E692E4.4070105@m1k.net>
-	<20050726221506.416e6e76.astralstorm@gorzow.mm.pl>
-	<42E69C5B.80109@m1k.net>
-	<20050726144149.0dc7b008.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 18:32:52 -0400
+Subject: patch i2c-hwmon-split-09.patch added to gregkh-2.6 tree
+To: khali@linux-fr.org, greg@kroah.com, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+From: <gregkh@suse.de>
+Date: Tue, 26 Jul 2005 15:33:18 -0700
+In-Reply-To: <20050720000903.2f2cf8e3.khali@linux-fr.org>
+Message-ID: <1DxXzD-0g7-00@press.kroah.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> I spose I could emit a broken-out.tar.gz file occasionally (it'd be up to 5
-> times a day), but there's no guarantee that it'll compile, let alone run. 
-> I could also send a notification to mm-commits when I do so.  Would that
-> help?
 
-OK, I did that.
+This is a note to let you know that I've just added the patch titled
 
-The directory at kernel.org will get quite large, so I'll probably manually
-delete things occasionally.
+     Subject: I2C: Separate non-i2c hwmon drivers from i2c-core (9/9)
 
-The kernel.org propagation delay is a bit of a hassle.  I could use
-zip.com.au but I suspect they hate me enough already.
+to my gregkh-2.6 tree.  Its filename is
+
+     i2c-hwmon-split-09.patch
+
+This tree can be found at 
+    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
+
+Patches currently in gregkh-2.6 which might be from khali@linux-fr.org are
+
+i2c/i2c-max6875-documentation-update.patch
+i2c/i2c-max6875-simplify.patch
+i2c/i2c-hwmon-class-01.patch
+i2c/i2c-hwmon-class-02.patch
+i2c/i2c-hwmon-class-03.patch
+i2c/i2c-missing-space.patch
+i2c/i2c-nforce2-cleanup.patch
+i2c/i2c-hwmon-split-01.patch
+i2c/i2c-hwmon-split-02.patch
+i2c/i2c-hwmon-split-03.patch
+i2c/i2c-hwmon-split-04.patch
+i2c/i2c-hwmon-split-05.patch
+i2c/i2c-hwmon-split-06.patch
+i2c/i2c-hwmon-split-07.patch
+i2c/i2c-hwmon-split-08.patch
+i2c/i2c-hwmon-split-09.patch
+
+
+>From khali@linux-fr.org Tue Jul 19 18:12:04 2005
+Date: Wed, 20 Jul 2005 00:09:03 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>, LM Sensors
+ <lm-sensors@lm-sensors.org>
+Cc: Greg KH <greg@kroah.com>
+Subject: I2C: Separate non-i2c hwmon drivers from i2c-core (9/9)
+Message-Id: <20050720000903.2f2cf8e3.khali@linux-fr.org>
+
+Move the definitions of i2c_is_isa_client and i2c_is_isa_adapter from
+i2c.h to i2c-isa.h. Only hybrid drivers still need them.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ include/linux/i2c-isa.h |    7 +++++++
+ include/linux/i2c.h     |    7 -------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+--- gregkh-2.6.orig/include/linux/i2c-isa.h	2005-07-26 15:14:08.000000000 -0700
++++ gregkh-2.6/include/linux/i2c-isa.h	2005-07-26 15:16:51.000000000 -0700
+@@ -26,4 +26,11 @@
+ extern int i2c_isa_add_driver(struct i2c_driver *driver);
+ extern int i2c_isa_del_driver(struct i2c_driver *driver);
+ 
++/* Detect whether we are on the isa bus. This is only useful to hybrid
++   (i2c+isa) drivers. */
++#define i2c_is_isa_client(clientptr) \
++        ((clientptr)->adapter->algo->id == I2C_ALGO_ISA)
++#define i2c_is_isa_adapter(adapptr) \
++        ((adapptr)->algo->id == I2C_ALGO_ISA)
++
+ #endif /* _LINUX_I2C_ISA_H */
+--- gregkh-2.6.orig/include/linux/i2c.h	2005-07-26 15:16:45.000000000 -0700
++++ gregkh-2.6/include/linux/i2c.h	2005-07-26 15:16:51.000000000 -0700
+@@ -575,11 +575,4 @@
+ 			.force =		force,			\
+ 		}
+ 
+-/* Detect whether we are on the isa bus. If this returns true, all i2c
+-   access will fail! */
+-#define i2c_is_isa_client(clientptr) \
+-        ((clientptr)->adapter->algo->id == I2C_ALGO_ISA)
+-#define i2c_is_isa_adapter(adapptr) \
+-        ((adapptr)->algo->id == I2C_ALGO_ISA)
+-
+ #endif /* _LINUX_I2C_H */

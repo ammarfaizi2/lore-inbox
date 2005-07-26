@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVGZAUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVGZA0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbVGZAUl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 20:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVGZAUl
+	id S261564AbVGZA0T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 20:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVGZA0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 20:20:41 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:18101 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261521AbVGZAUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 20:20:39 -0400
-Subject: Re: [patch 2.6.13-rc3] i386: clean up user_mode macros
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>
-In-Reply-To: <Pine.LNX.4.58.0507251608430.6074@g5.osdl.org>
-References: <200507251901_MC3-1-A589-A433@compuserve.com>
-	 <Pine.LNX.4.58.0507251608430.6074@g5.osdl.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 25 Jul 2005 20:20:12 -0400
-Message-Id: <1122337212.4895.7.camel@localhost.localdomain>
+	Mon, 25 Jul 2005 20:26:19 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:49828 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S261564AbVGZA0S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 20:26:18 -0400
+Date: Mon, 25 Jul 2005 20:26:57 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] make kmalloc() fail for swapped size / GFP flags
+Message-ID: <20050726002657.GA13125@kvack.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-25 at 16:13 -0700, Linus Torvalds wrote:
+The patch below makes kmalloc() fail for swapped flags and size arguments 
+as mention in Dave Jones keynote at OLS.  This is done by adding a new flag, 
+__GFP_VALID, which is checked for in kmalloc(), that results in the size 
+being too large.  Please apply.
 
-> I _really_ prefer
-> 
-> 	x != 0
-> 
-> over 
-> 
-> 	!!x
+		-ben
 
-Good to hear.  This means that you should have no problem accepting my
-previous patch for signal.c that changed the x ^ y to x != y.  And I
-would also assume that you prefer x *= 2 over x <<= 1 (also since the
-first person to show this example used x <<= 2. Right Lee? :-)
-
--- Steve
-
-
+diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+--- a/include/linux/gfp.h
++++ b/include/linux/gfp.h
+@@ -40,6 +40,7 @@ struct vm_area_struct;
+ #define __GFP_ZERO	0x8000u	/* Return zeroed page on success */
+ #define __GFP_NOMEMALLOC 0x10000u /* Don't use emergency reserves */
+ #define __GFP_NORECLAIM  0x20000u /* No realy zone reclaim during allocation */
++#define __GFP_VALID	0x80000000u /* valid GFP flags */
+ 
+ #define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
+ #define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
+@@ -50,12 +51,12 @@ struct vm_area_struct;
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+ 			__GFP_NOMEMALLOC|__GFP_NORECLAIM)
+ 
+-#define GFP_ATOMIC	(__GFP_HIGH)
+-#define GFP_NOIO	(__GFP_WAIT)
+-#define GFP_NOFS	(__GFP_WAIT | __GFP_IO)
+-#define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
+-#define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS)
+-#define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM)
++#define GFP_ATOMIC	(__GFP_VALID | __GFP_HIGH)
++#define GFP_NOIO	(__GFP_VALID | __GFP_WAIT)
++#define GFP_NOFS	(__GFP_VALID | __GFP_WAIT | __GFP_IO)
++#define GFP_KERNEL	(__GFP_VALID | __GFP_WAIT | __GFP_IO | __GFP_FS)
++#define GFP_USER	(__GFP_VALID | __GFP_WAIT | __GFP_IO | __GFP_FS)
++#define GFP_HIGHUSER	(__GFP_VALID | __GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM)
+ 
+ /* Flag - indicates that the buffer will be suitable for DMA.  Ignored on some
+    platforms, used as appropriate on others */
+diff --git a/include/linux/slab.h b/include/linux/slab.h
+--- a/include/linux/slab.h
++++ b/include/linux/slab.h
+@@ -78,6 +78,10 @@ extern void *__kmalloc(size_t, unsigned 
+ 
+ static inline void *kmalloc(size_t size, unsigned int __nocast flags)
+ {
++	if (__builtin_constant_p(flags) && !(flags & __GFP_VALID)) {
++		extern void __your_kmalloc_flags_are_not_valid(void);
++		__your_kmalloc_flags_are_not_valid();
++	}
+ 	if (__builtin_constant_p(size)) {
+ 		int i = 0;
+ #define CACHE(x) \

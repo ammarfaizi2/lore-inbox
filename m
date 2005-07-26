@@ -1,143 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVGZNf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVGZN40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbVGZNf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 09:35:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVGZNf5
+	id S261775AbVGZN40 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 09:56:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVGZN4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 09:35:57 -0400
-Received: from [194.90.237.34] ([194.90.237.34]:4460 "EHLO mtlex01.yok.mtl.com")
-	by vger.kernel.org with ESMTP id S261772AbVGZNfz (ORCPT
+	Tue, 26 Jul 2005 09:56:25 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:47497 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261775AbVGZN4Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 09:35:55 -0400
-Date: Tue, 26 Jul 2005 16:35:53 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Roland Dreier <roland@topspin.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH repost] PROT_DONTCOPY: ifiniband uverbs fork support
-Message-ID: <20050726133553.GA22276@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20050719165542.GB16028@mellanox.co.il> <20050725171928.GC12206@mellanox.co.il> <Pine.LNX.4.61.0507261312460.16985@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0507261312460.16985@goblin.wat.veritas.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 26 Jul 2005 09:56:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:user-agent:content-type:subject:message-id:date;
+        b=YWG4jrhuchIN8rXAAKMALBqhX7EqW2JK0PYrVko2wIKicMTb2kyV6dgWeOolYNk0N3izt+kk16A+Jy/pXBWMjanXPPMH8CfUsWetwoNjHigm9SCDTtitsfiZ5av7fpu6UJk70C50Wkc/ELdoYGAY62SOGIyvs+f6ltoFFPRcoGc=
+From: Tejun Heo <htejun@gmail.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+User-Agent: lksp 0.3
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH linux-2.6-block:master 00/05] blk: generic dispatch queue
+Message-ID: <20050726135502.D83FC6EE@htj.dyndns.org>
+Date: Tue, 26 Jul 2005 22:56:17 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Hugh!
-Thanks for the comments.
+ Hello, Jens.
 
-Quoting Hugh Dickins <hugh@veritas.com>:
-> Subject: Re: [PATCH repost] PROT_DONTCOPY: ifiniband uverbs fork support
-> 
-> On Mon, 25 Jul 2005, Michael S. Tsirkin wrote:
-> > 
-> > This patch adds PROT_DONTCOPY to mmap and mprotect, to set VM_DONTCOPY on vma.
-> > This is needed for infiniband userspace i/o, where we need to protect against
-> >   - the child process accessing the parent hardware page
-> >   - the parent registered address (on which the driver did get_user_pages)
-> >     getting remapped to another page by COW
-> > One can imagine other uses, e.g. combined with mlock for real-time or security.
-> 
-> I don't much like it, but it does solve a real problem in an efficient way.
-> 
-> Partly I don't like it because of "PROT_DONTCOPY" itself: I'm queasy
-> about protection flags which are not protection flags, though I find
-> you're not the first to go down that road.
+ This patchset implements generic dispatch queue.  The patches are
+against the master head of linux-2.6-block tree.
 
-Yes. Compare with PROT_GROWSDOWN and such.
+ Changes from the first posting of this patchset are...
 
-> Is the patch tested?  I've not tried, but suspect the newflags shift
-> and mask won't work for it.
+ * elevator_activate_req_fn is now called when the driver first sees
+   the request (the first elv_next_request() of a request) not when
+   the request is removed.  This makes iosched's accounting identical
+   to before.  There should be no noticeable behavior change.
+ * All ioscheds are updated
+ * Doc update
+ * Misc comment/code changes
 
-I tested this patch. I didnt test all thinkable configurations of
-flags though - what do you mean by "newflags shift and mask"?
+ This patchset is composed of three parts.
 
-> And I don't look forward to your adding
-> VM_MAYDONTCOPY - ugh!
+ * Implementation of generic dispatch queue & updating individual
+   elevators.
+ * Move last_merge handling into generic elevator.
+ * biodoc update
 
-We already have VM_DONTCOPY. Why would we need VM_MAYDONTCOPY and what
-would it do?
+ Currently, each specific iosched maintains its own dispatch queue to
+handle ordering, requeueing, cluster dispatching, etc...  This causes
+the following problems.
 
->
->
-> > @@ -246,7 +246,7 @@ sys_mprotect(unsigned long start, size_t
-> >  			goto out;
-> >  		}
-> >  
-> > -		newflags = vm_flags | (vma->vm_flags & ~(VM_READ | VM_WRITE | VM_EXEC));
-> > +		newflags = vm_flags | (vma->vm_flags & ~(VM_READ | VM_WRITE | VM_EXEC | VM_DONTCOPY));
-> >  
-> >  		if ((newflags & ~(newflags >> 4)) & 0xf) {
-> >  			error = -EACCES;
-> 
-> I rather think it would all be more cleanly handled by dropping the mmap
-> and mprotect changes,
+ * duplicated codes
+ * difficult to enforce semantics over dispatch queue (request
+   ordering, requeueing, ...)
+ * specific ioscheds have to deal with non-fs or ordered requests.
 
-Well, mmap would be much better off if VM_DONTCOPY is set atomically, since
-a process may fork after mmap is called but before madvise.
+ With generic dispatch queue, specific ioscheds are guaranteed to be
+handed only non-barrier fs requests, such that ioscheds only have to
+implement ordering logic of normal fs requests.  Also, callback
+invocation is stricter now.  Each fs request follows one of the
+following paths.
 
-> adding an madvise instead.
+ set_req_fn ->
 
-I'm not opposed to this, on principle. But see below.
+ i.   add_req_fn -> (merged_fn ->)* -> dispatch_fn -> activate_req_fn ->
+      (deactivate_req_fn -> activate_req_fn ->)* -> completed_req_fn
+ ii.  add_req_fn -> (merged_fn ->)* -> merge_req_fn
+ iii. [none]
 
-> Though you may object
-> that madvise is for optional behaviours, and this should be mandatory.
+ -> put_req_fn
 
-What about a new system call?
-Or a flag for mprotect that effectively turns it into a new system call?
-Something like PROT_EXTENDED?
+ Previously, elv_remove_request() and elv_completed_request() weren't
+invoked for requests which are allocated outside blk layer (!rq->rl);
+however, other elevator/iosched functions are called for such requests
+making things a bit confusing.  As this patchset prevents non-fs
+requests from going into specific ioscheds and removing the
+inconsistency is necessary for implementation.  rq->rl tests in those
+places are removed.
 
-> The other reason I dislike the patch is that the problem it fixes is
-> an old one, and I'd much rather have get_user_pages fix it for itself,
+ With generic dispatch queue implemented, last_merge handling can be
+moved into generic elevator proper.  The second part of this patchset
+does that.  One problem this change introduces is that, noop iosched
+loses its ability to merge requests (as no merging is allowed for
+requests on a generic dispatch queue).  To add it back cleanly, we
+need to make noop use a separate list instead of q->queue_head to keep
+requests before dispatching.  I don't know how meaningful this would
+be.  The change should be simple & easy.  If merging capability of
+noop iosched is important, plz let me know.
 
-Please note that the problem this attempts to solve is not limited
-to pages locked by get_user_pages: in an infiniband userspace initiator,
-a hardware page is mapped into process memory and must not be inherited
-by a child processes, otherwise hardware protection breaks.
+[ Start of patch descriptions ]
 
-> than ask the developer to do some additional magic to get around it.
->
-> But I've failed to work out a simple efficient alternative, which won't
-> burden the vast majority of get_user_pages usages which never hit the
-> issue.
+01_blk_implement-generic-dispatch-queue.patch
+	: implement generic dispatch queue
 
-They dont hit it if they keep the mm semaphore, or if they only lock
-pages for read.
+	Implements generic dispatch queue which can replace all
+        dispatch queues implemented by each iosched.  This reduces
+        code duplication, eases enforcing semantics over dispatch
+        queue, and simplifies specific ioscheds.
 
-> So your way is probably appropriate, but I'd prefer madvise.
+02_blk_generic-dispatch-queue-update-for-ioscheds.patch
+	: update ioscheds to use generic dispatch queue
 
-The difficulty with changing get_user_pages, as I see it, is that
-you wont be able to get away with a single DONTCOPY bit - you'll need
-a full reference count for each page, no less.
+	This patch updates all four ioscheds to use generic dispatch
+	queue.  There's one behavior change in as-iosched.
 
-> (Sorry, I won't be able to discuss further for a couple of days.)
-> 
-> Hugh
-> 
+	* In as-iosched, when force dispatching
+	  (ELEVATOR_INSERT_BACK), batch_data_dir is reset to REQ_SYNC
+	  and changed_batch and new_batch are cleared to zero.  This
+	  prevernts AS from doing incorrect update_write_batch after
+	  the forced dispatched requests are finished.
 
-Well, madvise currently cant break/merge VMAs, which is required
-for VM_DONTCOPY. And it seems like making madvise do this opens
-a whole cans of worms.
+03_blk_generic-last_merge-handling.patch
+	: move last_merge handling into generic elevator code
 
-Hugh, so the patch is likely to be bigger in the madvise approach.
-Considering this, and the fact that a full solution has to add
-a flag to mmap, anyway, do you still think madvise is really the best way
-to do it?
+	Currently, both generic elevator code and specific ioscheds
+        participate in the management and usage of last_merge.  This
+        and the following patches move last_merge handling into
+        generic elevator code.
 
+04_blk_generic-last_merge-handling-update-for-ioscheds.patch
+	: remove last_merge handling from ioscheds
 
-Regarding solving the problem automagically by get_user_pages:
+	Remove last_merge handling from all ioscheds.  This patch
+	removes merging capability of noop iosched.
 
-What about a new VM_COPYONFORK flag, to trigger the old unix
-behaviour of copying the vma on fork and a flag for get_user_pages that sets it?
-Only users that dont keep the mm semaphore around
-the get_user_pages/put_page operation would use this flag, others
-would be unaffected. The flag will stay on until the VMA is destroyed.
+05_blk_update-biodoc.patch
+	: update biodoc
 
-MST
+	Updates biodoc to reflect changes in elevator API.
 
+[ End of patch descriptions ]
 
--- 
-MST
+ Thanks.
+
+--
+tejun
+

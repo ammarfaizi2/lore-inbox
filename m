@@ -1,76 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVGZQJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVGZQGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbVGZQJK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 12:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVGZQGP
+	id S261922AbVGZQGG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 12:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVGZQEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 12:06:15 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:30470 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261940AbVGZQEb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 12:04:31 -0400
-Date: Tue, 26 Jul 2005 18:04:20 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, perex@suse.cz, alsa-devel@alsa-project.org,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20050726160420.GV3160@stusta.de>
-References: <20050726150837.GT3160@stusta.de> <42E65B34.9080700@pobox.com>
+	Tue, 26 Jul 2005 12:04:08 -0400
+Received: from ns1.suse.de ([195.135.220.2]:13273 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261929AbVGZQDU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 12:03:20 -0400
+Date: Tue, 26 Jul 2005 18:03:19 +0200
+From: Andi Kleen <ak@suse.de>
+To: James Cleverdon <jamesclv@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Subject: Re: [RFC][2.6.13-rc3-mm1] IRQ compression/sharing patch
+Message-ID: <20050726160319.GB5353@wotan.suse.de>
+References: <200507260012.41968.jamesclv@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42E65B34.9080700@pobox.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200507260012.41968.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 11:48:04AM -0400, Jeff Garzik wrote:
-> Adrian Bunk wrote:
-> >This patch schedules obsolete OSS drivers (with ALSA drivers that 
-> >support the same hardware) for removal.
-> >
-> >
-> >Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> >
-> >---
-> >
-> >I've Cc'ed the people listed in MAINTAINERS as being responsible for one 
-> >or more of these drivers, and I've also Cc'ed the ALSA people.
-> >
-> >Please tell if any my driver selections is wrong.
-> >
-> > Documentation/feature-removal-schedule.txt |    7 +
-> > sound/oss/Kconfig                          |   79 ++++++++++++---------
-> > 2 files changed, 54 insertions(+), 32 deletions(-)
+On Tue, Jul 26, 2005 at 12:12:41AM -0700, James Cleverdon wrote:
+> Here's a patch that builds on Natalie Protasevich's IRQ compression 
+> patch and tries to work for MPS boots as well as ACPI.  It is meant for 
+> a 4-node IBM x460 NUMA box, which was dying because it had interrupt 
+> pins with GSI numbers > NR_IRQS and thus overflowed irq_desc.
 > 
-> Please CHECK before doing this.
+> The problem is that this system has 270 GSIs (which are 1:1 mapped with 
+> I/O APIC RTEs) and an 8-node box would have 540.  This is much bigger 
+> than NR_IRQS (224 for both i386 and x86_64).  Also, there aren't enough 
+> vectors to go around.  There are about 190 usable vectors, not counting 
+> the reserved ones and the unused vectors at 0x20 to 0x2F.  So, my patch 
+> attempts to compress the GSI range and share vectors by sharing IRQs.
+> 
+> Important safety note:  While the SLES 9 version of this patch works, I 
+> haven't been able to test the -rc3-mm1 patch enclosed.  I keep getting 
+> errors from the adp94xx driver.  8-(
+> 
+> (Sorry about doing an attachment, but KMail is steadfastly word wrapping 
+> inserted files.  I need to upgrade....)
 
-I did (but I don't claim that I didn't miss anything).
+The patch seems to have lots of unrelated stuff. Can you please 
+split it out? 
 
-> ACK for via82cxxx.
+BTW I plan to implement per CPU IDT vectors similar to Zwane's i386 patch
+for x86-64 soon, hopefully with that things will be easier too.
 
-Thanks.
+Andrew: this is not 2.6.13 material.
 
-> NAK for i810_audio:  ALSA doesn't have all the PCI IDs (which must be 
-> verified -- you cannot just add the PCI IDs for some hardware)
+> @@ -276,13 +276,13 @@ config HAVE_DEC_LOCK
+>  	default y
+>  
+>  config NR_CPUS
+> -	int "Maximum number of CPUs (2-256)"
+> -	range 2 256
+> +	int "Maximum number of CPUs (2-255)"
+> +	range 2 255
+>  	depends on SMP
+> -	default "8"
+> +	default "64"
 
-I though I found every single PCI ID from this driver in ALSA.
-Which PCI IDs did I miss?
+Please don't change that,
 
-> 	Jeff
+> +/*
+> + * Check the APIC IDs in MADT table header and choose the APIC mode.
+> + */
+> +void acpi_madt_oem_check(char *oem_id, char *oem_table_id)
+> +{
+> +	/* May need to check OEM strings in the future. */
+> +}
+> +
+> +/*
+> + * Check the IDs in MPS header and choose the APIC mode.
+> + */
+> +void mps_oem_check(struct mp_config_table *mpc, char *oem, char *productid)
+> +{
+> +	/* May need to check OEM strings in the future. */
+> +}
 
-cu
-Adrian
+Can you perhaps add it then later, not now? 
 
--- 
+> +static u8 gsi_2_irq[NR_IRQ_VECTORS] = { [0 ... NR_IRQ_VECTORS-1] = 0xFF };
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+With the per cpu IDTs we'll likely need more than 8 bits here.
 
+> -	char str[16];
+> +	char oem[9], str[16];
+>  	int count=sizeof(*mpc);
+>  	unsigned char *mpt=((unsigned char *)mpc)+count;
+> +	extern void mps_oem_check(struct mp_config_table *mpc, char *oem, char *productid);
+
+That would belong in some header if it was needed.
+
+But please just remove it for now.
+
+The rest looks ok.
+
+-Andi

@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVGZKnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVGZKqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVGZKnc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 06:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVGZKnc
+	id S261670AbVGZKqf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 06:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbVGZKqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 06:43:32 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:4742 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261665AbVGZKnb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 06:43:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hyYZKUlH7W+x2gfQX8+DbeG9NPmZvzdFPuJ7GaX0Q4S8fVmjdKkcbvAKTDFy335GPzdtHqnGVkzcr4+SBkrMKXelJfSi/Oc0pKpIu5tgySSvNZ3DZNro8Jpb+MZsk5narvvDlnGzwBnRR93TizqegAUmh0mGmSKhuLMYMhvyY0c=
-Message-ID: <105c793f0507260343389ce2e4@mail.gmail.com>
-Date: Tue, 26 Jul 2005 06:43:31 -0400
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: Jaroslav Kysela <perex@suse.cz>
-Subject: Re: BUG: Yamaha OPL3SA2 does not work with ALSA on 2.6 kernels.
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <105c793f050726033672560fd4@mail.gmail.com>
+	Tue, 26 Jul 2005 06:46:35 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:61352 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261670AbVGZKqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 06:46:34 -0400
+Subject: Re: Linux tty layer hackery: Heads up and RFC
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mark Underwood <basicmark@yahoo.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050726095535.95521.qmail@web30308.mail.mud.yahoo.com>
+References: <20050726095535.95521.qmail@web30308.mail.mud.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 26 Jul 2005 12:11:31 +0100
+Message-Id: <1122376291.2542.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <105c793f05072507315cfd1878@mail.gmail.com>
-	 <Pine.LNX.4.61.0507260828030.8190@tm8103-a.perex-int.cz>
-	 <105c793f050726033672560fd4@mail.gmail.com>
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/26/05, Andrew Haninger <ahaning@gmail.com> wrote:
-> I'll report what I know in bug #879.
-*Durr* I didn't scroll down. I've already reported my current
-semi-working (works+oopses) setup in that bug report
+On Maw, 2005-07-26 at 10:55 +0100, Mark Underwood wrote:
+> What my driver would like to do is to handle its own
+> input buffers. It would pass the buffer to the tty
+> layer when it is full and the tty layer would pass the
 
-I'm reporting this here now because of the part of that bug report
-that suggests that it might actually be a kernel bug.
+In theory you can do that already, although the locking is a bit screwed
+up for it. Actually all the tty locking is broken for rx I believe.
+Everyone should be holding the tty read lock when updating flip buffers
+but right now we don't
 
--Andy
+> buffer back once it has drained the data from it.
+> The problem is that I don't always receive a block
+> worth of characters so I also need to pass the tty
+> layer a buffer (which I'm still DMAing into) with a
+> count of how many chars there are in the buffer and a
+> offset of where to start from.
+
+You can do this now providing you don't do it blindly from IRQ context.
+
+>From a workqueue do
+
+	struct tty_ldisc *ld = tty_ldisc_ref(tty);
+	int space;
+
+	if(ld == NULL)	/* Bin/defer */
+		return;
+	space = ld->receive_room(tty);
+	if(count > space) count = space;
+
+	ld->receive_buf(tty, charbuf, flagbuf, count);
+
+
+There is a corner case if TTY_DONT_FLIP is set where you should queue
+but not all drivers do this and the DONT_FLIP hack 'has to die' 
+

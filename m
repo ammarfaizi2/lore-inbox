@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVGZK5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVGZK5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVGZK5B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 06:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVGZKye
+	id S261727AbVGZK5U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 06:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVGZK5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 06:54:34 -0400
-Received: from dwdmx4.dwd.de ([141.38.3.230]:43202 "EHLO dwdmx4.dwd.de")
-	by vger.kernel.org with ESMTP id S261783AbVGZKwo (ORCPT
+	Tue, 26 Jul 2005 06:57:03 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:14786 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S261747AbVGZK4a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 06:52:44 -0400
-Date: Tue, 26 Jul 2005 10:52:30 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@praktifix.dwd.de
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: linux-scsi@vger.kernel.org
-Subject: As of 2.6.13-rc1 Fusion-MPT very slow
-Message-ID: <Pine.LNX.4.61.0507261025000.22613@praktifix.dwd.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 26 Jul 2005 06:56:30 -0400
+Subject: Should activate_page()/__set_page_dirty_buffers() use _irqsave
+	locking?
+From: Richard Purdie <rpurdie@rpsys.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 26 Jul 2005 11:56:24 +0100
+Message-Id: <1122375384.7642.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+I've been experimenting with oprofile on an arm system without a PMU.
+Whenever I enable callgraphing I see a BUG from run_posix_cpu_timers()
+due to irqs being enabled when they should be disabled.
 
-On a four CPU Opteron with Fusion-MPT compiled in, I get the following
-results (up to 2.6.13-rc3-git7) with hdparm on the first channel with
-four disks:
+Tracing this back shows interrupts are enabled after the arm backtrace
+code completes. Further tracing reveals its the call to
+check_user_page_readable() (within an interrupt) that is causing the
+problem.
 
-            sdc    74 MB/s
-            sdd     2 MB/s
-            sde     2 MB/s
-            sdf     2 MB/s
+check_user_page_readable() can potentially result in calls to
+activate_page() (mm/swap.c) and __set_page_dirty_buffers()
+(fs/buffer.c). Both functions use *_lock_irq()/*_unlock_irq rather than
+the *_lock_irqsave/*_unlock_irqrestore counterparts.
 
-On the second channel also with the same type of disks:
+Switching them to use the save/restore locks makes everything work. Is
+there a reason for not using these here? Would such a patch be accepted?
 
-            sdg    74 MB/s
-            sdh    74 MB/s
-            sdi    74 MB/s
-            sdj    74 MB/s
+Both the arm and i386 backtrace code would seem to be vulnerable to this
+problem.
 
-All disk are of the same type. Compiling Fusion-MPT as module for the
-same kernel I get 74 MB/s for all eight disks. Taking kernel 2.6.12.2 and
-compile it in, all eigth disks give the expected performance of 74 MB/s.
-When I exchange the two cables, put the first cable on second channel and
-second cable on first channel, always sdd, sde and sdf will only get
-approx. 2 MB/s with any 2.6.13-* kernels.
-
-Another problem observed with 2.6.13-rc3-git7 and Fusion-MPT compiled in
-is when making a ext3 filesystem over those eight disks (software Raid10),
-makes mke2fs hang for a very long time in D-state and /var/log/messages
-writting a lot of these messages:
-
-        mptscsih: ioc0: >> Attempting task abort! (sc=ffff81014ead3ac0)
-        mptscsih: ioc0: >> Attempting task abort! (sc=ffff81014ead38c0)
-        mptscsih: ioc0: >> Attempting task abort! (sc=ffff81014ead36c0)
-        mptscsih: ioc0: >> Attempting task abort! (sc=ffff81014ead34c0)
-           .
-           .
-           .
-
-And finally, when I do a halt or powerdown just after all filesystems
-are unmounted the fusion driver tells me that it puts the two controllers
-in power save mode. Then kernel whants to flush the SCSI disks but
-hangs forever. This does not happen when doing a reboot.
-
-Holger
--- 
+Richard
 

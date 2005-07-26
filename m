@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVGZQuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVGZPt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbVGZQuo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 12:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVGZQua
+	id S261682AbVGZPt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 11:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVGZPsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 12:50:30 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:30378 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261904AbVGZQtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 12:49:49 -0400
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org, perex@suse.cz,
-       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com
-In-Reply-To: <42E65B34.9080700@pobox.com>
-References: <20050726150837.GT3160@stusta.de>  <42E65B34.9080700@pobox.com>
-Content-Type: text/plain
-Date: Tue, 26 Jul 2005 12:49:46 -0400
-Message-Id: <1122396587.18884.34.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+	Tue, 26 Jul 2005 11:48:10 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:60166 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261682AbVGZPpy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 11:45:54 -0400
+Message-ID: <42E65BAB.7030806@tmr.com>
+Date: Tue, 26 Jul 2005 11:50:03 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Brown, Len" <len.brown@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Variable ticks
+References: <F7DC2337C7631D4386A2DF6E8FB22B300424AC59@hdsmsx401.amr.corp.intel.com>
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B300424AC59@hdsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-26 at 11:48 -0400, Jeff Garzik wrote:
-> NAK for i810_audio:  ALSA doesn't have all the PCI IDs (which must be 
-> verified -- you cannot just add the PCI IDs for some hardware)
+Brown, Len wrote:
+>  
+> 
+>>>>Question one, are there other actions to consider?
+>>>
+>>>
+>>>Yes.
+>>>Speaking for ACPI C3 state, note that DMA also
+>>>wakes up the CPU -- even if there was no device interrupt.
+>>>(aka, "the trouble with USB")
+>>
+>>Trouble? Why would USB do DMA unless there was a device activity?
+> 
+> 
+> look here:
+> http://www.google.com/search?hl=en&q=usb+selective+suspend
+> 
+> Linux is working on it too, but it is in development.
 
-Some of them might be in snd-hda-intel in addition to snd-intel8x0.
+Somehow I didn't ask that right... The stuff on selective disable is 
+interesting, but my question is why a USB device, call it a keyboard, 
+would do DMA unless I press a key, at which point response will be 
+better if the CPU wakes up out of C3.
 
-Lee
-
+I understand that specialty attachments may send what amounts to keep 
+alives, or gather data (webcam) you don't want, but the typical mouse 
+and KB would seem to be things which generate DMA at user initiation, 
+and would not be blocked for low power, only for suspend.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVGZG3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVGZGbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbVGZG3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 02:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVGZG3P
+	id S261788AbVGZGbq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 02:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVGZGbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 02:29:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6059 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261768AbVGZG2m (ORCPT
+	Tue, 26 Jul 2005 02:31:46 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59319 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261791AbVGZGas (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 02:28:42 -0400
-Date: Tue, 26 Jul 2005 08:28:39 +0200
+	Tue, 26 Jul 2005 02:30:48 -0400
+Date: Tue, 26 Jul 2005 08:30:43 +0200
 From: Pavel Machek <pavel@suse.cz>
 To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/2] Touchscreen support for sharp sl-5500
-Message-ID: <20050726062839.GH8684@elf.ucw.cz>
-References: <20050722180109.GA1879@elf.ucw.cz> <20050724174756.A20019@flint.arm.linux.org.uk> <20050725045607.GA1851@elf.ucw.cz> <20050725170419.C7629@flint.arm.linux.org.uk> <20050725220659.GF8684@elf.ucw.cz> <20050726000347.A913@flint.arm.linux.org.uk>
+       kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk
+Subject: [patch] Fix compilation in locomo.c
+Message-ID: <20050726063043.GI8684@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050726000347.A913@flint.arm.linux.org.uk>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Do not access children in struct device directly, use
+device_for_each_child helper instead. It fixes compilation.
 
-> > > So, if the collie folk would like to clean their changes up and send
-> > > them to me as the driver author, I'll see about integrating them into
-> > > my version and we'll take it from there.
-> > 
-> > Okay, will do. [Is there chance to pull your tree using git? It would
-> > help a bit...]
-...
-> However, if the UCB stuff is going to get worked on, I don't mind
-> setting up, maintaining and publishing a git tree for that that,
-> provided it then vanishes once merged into mainline.  That falls
-> within the "very limited purposes" clause above.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-Yes, that would help a lot, because I'd have a tree to diff against.
+---
+commit 3d7f15c66bc66c480d468e2c4d623949bba0d41f
+tree 9734f5a58c31dade74b1b35c1ce0b0d6d44da589
+parent 6cd7322dce560001570713269630390754881e5d
+author <pavel@amd.(none)> Tue, 26 Jul 2005 08:29:38 +0200
+committer <pavel@amd.(none)> Tue, 26 Jul 2005 08:29:38 +0200
 
-							Pavel
+ arch/arm/common/locomo.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/common/locomo.c b/arch/arm/common/locomo.c
+--- a/arch/arm/common/locomo.c
++++ b/arch/arm/common/locomo.c
+@@ -651,15 +651,15 @@ __locomo_probe(struct device *me, struct
+ 	return ret;
+ }
+ 
+-static void __locomo_remove(struct locomo *lchip)
++static int locomo_remove_child(struct device *dev, void *data)
+ {
+-	struct list_head *l, *n;
+-
+-	list_for_each_safe(l, n, &lchip->dev->children) {
+-		struct device *d = list_to_dev(l);
++	device_unregister(dev);
++	return 0;
++} 
+ 
+-		device_unregister(d);
+-	}
++static void __locomo_remove(struct locomo *lchip)
++{
++	device_for_each_child(lchip->dev, NULL, locomo_remove_child);
+ 
+ 	if (lchip->irq != NO_IRQ) {
+ 		set_irq_chained_handler(lchip->irq, NULL);
+
 -- 
 teflon -- maybe it is a trademark, but it should not be.

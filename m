@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbVGZPAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVGZO6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbVGZPAy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 11:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVGZO7F
+	id S261837AbVGZO6t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 10:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVGZO4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 10:59:05 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:16389 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261850AbVGZO5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 10:57:10 -0400
-Date: Tue, 26 Jul 2005 16:56:59 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: netfilter-devel@lists.netfilter.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fix ip_conntrack_put prototype
-Message-ID: <20050726145659.GR3160@stusta.de>
+	Tue, 26 Jul 2005 10:56:50 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:16535 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261837AbVGZOzg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 10:55:36 -0400
+Date: Tue, 26 Jul 2005 16:55:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: john cooper <john.cooper@timesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 PREEMPT_RT && PPC
+Message-ID: <20050726145500.GA18752@elte.hu>
+References: <200507200816.11386.kernel@kolivas.org> <20050719223216.GA4194@elte.hu> <1121819037.26927.75.camel@dhcp153.mvista.com> <200507201104.48249.kernel@kolivas.org> <1121822524.26927.85.camel@dhcp153.mvista.com> <42DF293A.4050702@timesys.com> <20050726120015.GB9224@elte.hu> <42E64C43.2050104@cybsft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <42E64C43.2050104@cybsft.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The function is not inline.
 
+* K.R. Foley <kr@cybsft.com> wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> <snip>
+> 
+> On X86 -51-36 won't build with CONFIG_BLOCKER=Y without the attached 
+> patch.
 
---- linux-2.6.13-rc3-mm1-full/include/linux/netfilter_ipv4/ip_conntrack.h.old	2005-07-26 13:44:20.000000000 +0200
-+++ linux-2.6.13-rc3-mm1-full/include/linux/netfilter_ipv4/ip_conntrack.h	2005-07-26 13:45:41.000000000 +0200
-@@ -236,7 +236,7 @@
- }
- 
- /* decrement reference count on a conntrack */
--extern inline void ip_conntrack_put(struct ip_conntrack *ct);
-+extern void ip_conntrack_put(struct ip_conntrack *ct);
- 
- /* call to create an explicit dependency on ip_conntrack. */
- extern void need_ip_conntrack(void);
+thanks. I changed the include to asm/rtc.h, this should give what PPC 
+wants to have, and should work on all architectures. Released the -37 
+patch.
 
+	Ingo

@@ -1,68 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVGZA4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVGZBBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVGZA4v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 20:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVGZA4u
+	id S261579AbVGZBBB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 21:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVGZBBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 20:56:50 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:14153 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261580AbVGZA4R convert rfc822-to-8bit
+	Mon, 25 Jul 2005 21:01:01 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:52621 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261579AbVGZBA7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 20:56:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VuqMVnry/FAg/cT0bqsahod1dNTB1DCKzZK9lleJPExWjLqRAzmhSja/ClUuph4kv0RqnPow49pefjsldoG4v8U3k7mokU5S0JxxTcJWO6J1GyzxBr3Nv9XMPQeW5ro3ukHSzpgIuiRHUYNKvHI4Xw4jCvkTzckmoxDTyt+NPO4=
-Message-ID: <9e47339105072517561f53b2f9@mail.gmail.com>
-Date: Mon, 25 Jul 2005 20:56:17 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
-Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20050726003018.GA24089@kroah.com>
+	Mon, 25 Jul 2005 21:00:59 -0400
+Date: Tue, 26 Jul 2005 06:40:04 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org, bcrl@kvack.org, wli@holomorphy.com,
+       zab@zabbo.net, mason@suse.com
+Subject: Re: [PATCH 2/6] Rename __lock_page to lock_page_slow
+Message-ID: <20050726011004.GA4472@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20050620120154.GA4810@in.ibm.com> <20050620160126.GA5271@in.ibm.com> <20050620162404.GB5380@in.ibm.com> <20050724221702.GA9620@infradead.org> <20050724223634.GB9620@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9e47339105072421095af5d37a@mail.gmail.com>
-	 <200507242358.12597.dtor_core@ameritech.net>
-	 <9e4733910507250728a7882d4@mail.gmail.com>
-	 <d120d5000507250748136a1e71@mail.gmail.com>
-	 <9e47339105072509307386818b@mail.gmail.com>
-	 <20050726000024.GA23858@kroah.com>
-	 <9e473391050725172833617aca@mail.gmail.com>
-	 <20050726003018.GA24089@kroah.com>
+In-Reply-To: <20050724223634.GB9620@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/25/05, Greg KH <greg@kroah.com> wrote:
-> On Mon, Jul 25, 2005 at 08:28:10PM -0400, Jon Smirl wrote:
-> > I didn't realize that echo was adding the CR, I thought that it always
-> > appeared on the end of a sysfs attribute set. So now I have to go add
-> > white space stripping to a dozen fbdev/drm sysfs attribute
-> > implementations. Given that the param is const I may have to allocate
-> > new buffers and copy. I also wonder how many other people have made
-> > the same mistake.
-> 
-> Nah, just zero out that \n character :)
+On Sun, Jul 24, 2005 at 11:36:34PM +0100, Christoph Hellwig wrote:
+> On Sun, Jul 24, 2005 at 11:17:02PM +0100, Christoph Hellwig wrote:
+> > On Mon, Jun 20, 2005 at 09:54:04PM +0530, Suparna Bhattacharya wrote:
+> > > In order to allow for interruptible and asynchronous versions of
+> > > lock_page in conjunction with the wait_on_bit changes, we need to
+> > > define low-level lock page routines which take an additional
+> > > argument, i.e a wait queue entry and may return non-zero status,
+> > > e.g -EINTR, -EIOCBRETRY, -EWOULDBLOCK etc. This patch renames 
+> > > __lock_page to lock_page_slow, so that __lock_page and 
+> > > __lock_page_slow can denote the versions which take a wait queue 
+> > > parameter.
+> > 
+> > How many users that don't use a waitqueue parameter will be left
+> > once all AIO patches go in?
 
-The input buffer is "const char * buf". I will have to override the
-const to zero it out.
+Since these patches are intended only for aio reads and (O_SYNC) writes,
+that still leaves most other users of regular lock_page() as they are.
 
 > 
-> > Are you sure it would break other things? These are supposed to be
-> > text attributes, not binary ones.
+> Actually looking at the later patches we always seem to pass
+> current->io_wait anyway, so is there a real point for having the
+> argument?
 > 
-> I agree, I don't know what would break.  Care to make a patch so we
-> could find out?
 
-I'll put one together to trim leading/trailing white space from the
-buffer before it is passed into the attribute functions. Now that I
-think about this I believe the attributes should have always had the
-leading/trailing white space removed. If we don't do it in the sysfs
-code then every driver has to do it.
+Having the parameter enables issual of synchronous lock_page() within
+an AIO path, overriding current->io_wait, (for example, consider the case
+of a page fault during AIO !), and thus avoids the need to convert and audit
+more paths to handle -EIOCBRETRY propagation (though it is possible to
+do so as and when the need arises). This is why I decided to keep this
+parameter explicit at the low level, and let the caller decide how to
+invoke it and handle the return value propagation.
+
+Does that make sense ?
+
+BTW, there is also a potential secondary benefit of a low level
+primitive for asynchronous page IO operations etc directly usable
+by kernel threads, without having to use the whole gamut of AIO
+interfaces.
+
+Thanks for reviewing the code !
+
+Regards
+Suparna
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

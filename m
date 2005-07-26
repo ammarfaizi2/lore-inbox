@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVGZXLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVGZXLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbVGZXLl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 19:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbVGZXLg
+	id S262338AbVGZXLu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 19:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbVGZXLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 19:11:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27348 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261915AbVGZXKB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 19:10:01 -0400
-Date: Tue, 26 Jul 2005 16:11:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl>
-Cc: mkrufky@m1k.net, linux-kernel@vger.kernel.org
-Subject: Re: MM kernels - how to keep on the bleeding edge?
-Message-Id: <20050726161149.0c9c36fa.akpm@osdl.org>
-In-Reply-To: <20050727004932.1b25fc5d.astralstorm@gorzow.mm.pl>
-References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
-	<42E692E4.4070105@m1k.net>
-	<20050726221506.416e6e76.astralstorm@gorzow.mm.pl>
-	<42E69C5B.80109@m1k.net>
-	<20050726144149.0dc7b008.akpm@osdl.org>
-	<20050727004932.1b25fc5d.astralstorm@gorzow.mm.pl>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+	Tue, 26 Jul 2005 19:11:43 -0400
+Received: from chretien.genwebhost.com ([209.59.175.22]:21615 "EHLO
+	chretien.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262311AbVGZWgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 18:36:37 -0400
+Message-ID: <16727.134.134.136.2.1122417419.squirrel@chretien.genwebhost.com>
+In-Reply-To: <ee588a54050726152014f56899@mail.gmail.com>
+References: <ee588a54050726152014f56899@mail.gmail.com>
+Date: Tue, 26 Jul 2005 15:36:59 -0700 (PDT)
+Subject: Re: [PATCH 2.6.12 1/1] docs: updated some code docs
+From: "Randy Dunlap" <rdunlap@xenotime.net>
+To: "Xose Vazquez Perez" <xose.vazquez@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-ClamAntiVirus-Scanner: This mail is clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl> wrote:
+
+Xose Vazquez Perez said:
+> Updated docs about how to write and submit patches/code.
 >
-> On Tue, 26 Jul 2005 14:41:49 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > Michael Krufky <mkrufky@m1k.net> wrote:
-> > >
-> > > [ tracking mm stuff ]
-> > >
-> > 
-> > Sigh, sorry.  It's hard.  -mm is always in flux.  I no longer send out the
-> > `patch was dropped' message because it disturbs people. 
-> 
-> There were too many? 
-> Or you were receiving a lot of mail from particular developers with
-> requests of explanation? :)
 
-I got lots of "waah, why did you drop my patch" from people whose patches
-had been merged by Linus.  Which is a bit odd given that those people were
-previously cc'ed on the me->linus patch anyway.  Ho hum.  Adding a "why
-this was dropped" to the email seemed too tricky.
+Parts of this should conflict with a patch in -mm from a few weeks ago.
+then I check and don't see it there.... hrm, wonder what happened to it.
 
-> > The mm-commits
-> > list does not resend a patch when it is changed (other patches folded into
-> > it, rejects fixed, changelog updated, rediffed, etc).  
-> 
-> This isn't so much a problem as the previous point. When there are rejects,
-> it's easy (most of the time) to fix them by hand anyway as I pull the tree.
-> 
-> > Sometimes I'll comment out a patch but not fully drop it.  
-> 
-> Now I can see that, I can diff the series. 
-> But if the change was large, the diff isn't very instructive.
 
-OK.  I'm uploading the stripped series file at present (all the comments
-are removed) because some versions of quilt don't like my new
-comments-at-the-end-of-the-line feature.  That actually breaks some of my
-stuff too, so I'll probably stop using it ;)
+-Separate each logical change into its own patch.
++Separate each _logical changes_ into its own patch.
+                        change
+or drop "each" and change "its own patch"
+to "a single patch file."
 
-> > 
-> > I spose I could emit a broken-out.tar.gz file occasionally (it'd be up to 5
-> > times a day), but there's no guarantee that it'll compile, let alone run. 
-> > I could also send a notification to mm-commits when I do so.  Would that
-> > help?
-> > 
-> 
-> Really, it would. Especially if it contained an up-to-date series file.
-> I'd be very grateful. (And would test and fix it up some more.)
+ On the other hand, if you make a single change to numerous files,
+-group those changes into a single patch.  Thus a single logical change
+-is contained within a single patch.
++group those changes into a single patch.  Thus single logical changes
++are contained within a single patch.
 
-All done - let me know if it needs anything else.
+It's better in the original form.
+
++Do not send more than 15 patches at once to the vger mailing lists!!!
+
+Only in one place, please.
+
+-- 
+~Randy
+

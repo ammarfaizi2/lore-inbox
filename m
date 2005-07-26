@@ -1,43 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVGZFDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVGZFFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbVGZFDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 01:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVGZFDY
+	id S261711AbVGZFFc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 01:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVGZFDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 01:03:24 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:5295 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261720AbVGZFDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 01:03:10 -0400
-Date: Mon, 25 Jul 2005 23:03:06 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Kernel cached memory
-In-reply-to: <4tdIU-479-9@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <42E5C40A.7000709@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <4t5s8-68A-33@gated-at.bofh.it> <4tdIU-479-9@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Tue, 26 Jul 2005 01:03:31 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:47793 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261700AbVGZFCY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 01:02:24 -0400
+Date: Tue, 26 Jul 2005 09:01:56 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Patrick McHardy <kaber@trash.net>, James Morris <jmorris@redhat.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       Harald Welte <laforge@netfilter.org>,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org
+Subject: Re: Netlink connector
+Message-ID: <20050726050156.GA15653@2ka.mipt.ru>
+References: <20050723125427.GA11177@rama> <20050723091455.GA12015@2ka.mipt.ru> <20050724.191756.105797967.davem@davemloft.net> <Lynx.SEL.4.62.0507250154000.21934@thoron.boston.redhat.com> <20050725070603.GA28023@2ka.mipt.ru> <42E4F800.1010908@trash.net> <20050725192853.GA30567@2ka.mipt.ru> <42E579BC.8000701@trash.net> <20050726044547.GA32006@2ka.mipt.ru> <42E5C298.8010209@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <42E5C298.8010209@osdl.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 26 Jul 2005 09:01:57 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Pearson wrote:
-> Wouldn't having (practically) all your memory used for cache slow down
-> starting a new program? First it would have to free up that space, and then
-> put stuff in that space, taking potentially twice as long.
+On Mon, Jul 25, 2005 at 09:56:56PM -0700, Stephen Hemminger (shemminger@osdl.org) wrote:
+> Evgeniy Polyakov wrote:
+> 
+> >On Tue, Jul 26, 2005 at 01:46:04AM +0200, Patrick McHardy 
+> >(kaber@trash.net) wrote:
+> > 
+> >
+> >>Evgeniy Polyakov wrote:
+> >>   
+> >>
+> >>>On Mon, Jul 25, 2005 at 04:32:32PM +0200, Patrick McHardy 
+> >>>(kaber@trash.net) wrote:
+> >>>
+> >>>     
+> >>>
+> >>>>If I understand correctly it tries to workaround some netlink
+> >>>>limitations (limited number of netlink families and multicast groups)
+> >>>>by sending everything to userspace and demultiplexing it there.
+> >>>>Same in the other direction, an additional layer on top of netlink
+> >>>>does basically the same thing netlink already does. This looks like
+> >>>>a step in the wrong direction to me, netlink should instead be fixed
+> >>>>to support what is needed.
+> >>>>       
+> >>>>
+> >>>Not only it.
+> >>>The main _first_ idea was to simplify userspace mesasge handling as much
+> >>>as possible.
+> >>>In first releases I called it ioctl-ng - any module that want ot
+> >>>communicate with userspace in the way ioctl does, 
+> >>>     
+> >>>
+> >>Usually netlink is easily extendable by using nested TLVs. By hiding
+> >>this you basically remove this extensibility.
+> >>   
+> >>
+> >
+> >Current netlink is not extensible for _many_ different users.
+> >It has only 32 sockets.
+> >
+> > 
+> >
+> >>>requires skb allocation/freeing/handling.
+> >>>Does RTC driver writer need to know what is the difference between
+> >>>shared and cloned skb? Should kernel user of such message bus
+> >>>have to know about skb at all?
+> >>>     
+> >>>
+> >>Netlink users don't have to care about shared or cloned skbs. I don't
+> >>think its a big issue to use alloc_skb and then the usual netlink
+> >>macros. Thomas added a number of macros that simplfiy use a lot.
+> >>   
+> >>
+> >
+> >Kernel user also must know about difference between unicast/broadcast,
+> >how to dequeue the skb, how to free it and in what context.
+> >ioctl users do not need to know how file_operations is bound to file.
+> >
+> > 
+> >
+> >>But my main objection is that it sends everything to userspace even
+> >>if noone is listening. This can't be used for things that generate
+> >>lots of events, and also will get problematic is the number of users
+> >>increases.
+> >>   
+> >>
+> >
+> >It is a problem for existing netlink - either check in bind time, 
+> >what could be done for connector, or in socket creation time.
+> >
+> >Actually it is not even a problem, since checking is being done, 
+> >but after allocation and message filling, such check can be moved into
+> >cn_netlink_send() in connector, but different netlink users, 
+> >who prefers to use different sockets, must perform it by itself in each
+> >place, where skb is allocated...
+> >
+> >Connector is a solution for current situation, 
+> >it can be deployed with few casualties.
+> >Creating a new netlink2 socket for device, which wants to replace ioctl
+> >controlling or broadcast it's state is a wrong way.
+> >Different sockets/flows does not allow easy flow control.
+> >
+> >We have one pipe - ethernet, and many protocols inside this pipe
+> >with different headers - it is the same here - netlink is such a pipe,
+> >and with connector it allows to have different protocols in it.
+> >
+> > 
+> >
+> >>>With char device I only need to register my callback - with kernel
+> >>>connector it is the same, but allows to use the whole power of netlink,
+> >>>especially without nice ioctl features like different pointer size 
+> >>>in userspace and kernelspace.
+> >>>     
+> >>>
+> >>You still have to take care of mixed 64/32 bit environments, u64 fields
+> >>for example are differently alligned.
+> >>   
+> >>
+> >
+> >Connector has a size in it's header - ioctl does not.
+> >
+> > 
+> >
+> >>>And number of free netlink sockets is _very_ small, especially
+> >>>if allocate new one for simple notifications, which can be easily done
+> >>>using connector.
+> >>>     
+> >>>
+> >>Then fix it so we can use more families and groups. I started some work
+> >>on this, but I'm not sure if I have time to complete it.
+> >>   
+> >>
+> >
+> >It does not "fix" the "problem" of skb management knowledge, which I
+> >described.
+> >Netlink is a transport protocol, some general logic must be created on
+> >top of it, like it is done in TCP/IP.
+> >
+> > 
+> >
+> >>>And netlink can be extended to support it - netlink is a transport
+> >>>protocol, it should not care about higher layer message handling,
+> >>>connector instead will deliver message to the end user in a very
+> >>>convenient form.
+> >>>     
+> >>>
+> >>You can still built this stuff on top, but the workarounds for netlink
+> >>limitations need to be fixed in netlink.
+> >>   
+> >>
+> >
+> >I could not call it workaround, I think it is a management layer,
+> >which allows :
+> >1. easy usage. Just register a callback and that is all. Callback will
+> >be invoced each time new message arrives. No need to
+> >dequeue/free/anything.
+> >2. easy usage. Call one function for message delivering, which can
+> >care of nonexistent users, perform flow control, congestion control,
+> >guarantee delivery and any other.
+> >3. Easily deployable - current implementation is so simple, and it does
+> >work with existing netlink.
+> >4. It is logical level on top of transport protocol, it is UDP/IP over
+> >ethernet :)
+> >
+> > 
+> >
+> If it is a transport, then it should be in the kernel. Otherwise, it 
+> becomes painful
+> for applications with multiple input sources.  Think of 
+> epoll/poll/select and threads,
+> doing the demultiplexing in user space would be a pain for applications 
+> and libraries.
 
-If the cache pages are clean (not been modified since they were read 
-from the disk), then evicting that data will not take very long. If the 
-program you are just starting is not in the cache, then the time taken 
-to load it from disk will dwarf the time needed to evict cached pages. 
-And there's also the possibility that the cache contains the data you 
-are loading, which definitely will speed things up..
+It _is_ in the kernel - multiplexing is being done in a send time, 
+userspace does not receive messages for different ID's.
+Currently it is done using netlink groups, and I would like to change
+it, but conenctor layer itself will not be changed, so no application
+will be changed - they bound before and will only bound after.
+one socket, different groups.
+
+Ok, now application bound to -1 group will receive all traffic, but I
+posted proof-of-concept patch to remove such behaviour.
+
+> The other way to go is to use something like dbus/hal and use a higher level
+> application oriented interface. The problem with that approach, is it 
+> assumes
+> every management app wants to drag in gnome..
+
+No need to parse headers there.
+When we read from UDP socket, we do not get headers - connector users
+do not read netlink header, and it is possible to completely remove
+even connector header, although I would like to have it - some kind of
+HDRINCL option...
 
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+	Evgeniy Polyakov

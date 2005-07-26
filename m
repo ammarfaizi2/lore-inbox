@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVGZIVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVGZIXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbVGZIVu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 04:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVGZITh
+	id S261861AbVGZIXt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 04:23:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVGZIWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 04:19:37 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:13723 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261851AbVGZIRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 04:17:37 -0400
+	Tue, 26 Jul 2005 04:22:30 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:20147 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261859AbVGZITp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 04:19:45 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=EsUo1s+g/3gNWzHKDVvHhHirJKpCNuLYyckO0nUT7PJ8LHbcZ/ygnYqkZ6frXCgwi1Z/odqKUQmdUIbBE41fWNJjDBN6vGuoeQUObsHQvWbgxBMJam9yOVCNUpEYAplY05UNMt5is4d6WbrmQ3/o87+5MbDwdVp4aGFMIeH5C1w=  ;
-Message-ID: <42E5F19A.6050407@yahoo.com.au>
-Date: Tue, 26 Jul 2005 18:17:30 +1000
+  b=5Yld8Ibi6T4pwplkzOIgfpCZBGJGoLGwflkyo19zDwof59HXbvkkcOtUx9nyOuZk7S28cboPQZAm9yi2rlWt5ys/cVIjsgqnHmOQjLbVByTJ8xWmsDBp/zL1Qp8dql3zORVcQCg3Oinqj98rxuNCyLTpvv50sfnn35Z4YlVUYSw=  ;
+Message-ID: <42E5F21B.8090900@yahoo.com.au>
+Date: Tue, 26 Jul 2005 18:19:39 +1000
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
 X-Accept-Language: en
@@ -23,73 +23,63 @@ To: Andrew Morton <akpm@osdl.org>
 CC: Hugh Dickins <hugh@veritas.com>,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [patch 2/6] mm: micro-optimise rmap
-References: <42E5F139.70002@yahoo.com.au> <42E5F173.3010409@yahoo.com.au>
-In-Reply-To: <42E5F173.3010409@yahoo.com.au>
+Subject: [patch 4/6] mm: remove atomic
+References: <42E5F139.70002@yahoo.com.au> <42E5F173.3010409@yahoo.com.au> <42E5F19A.6050407@yahoo.com.au> <42E5F1BF.7060604@yahoo.com.au>
+In-Reply-To: <42E5F1BF.7060604@yahoo.com.au>
 Content-Type: multipart/mixed;
- boundary="------------050907090800090702080303"
+ boundary="------------000907000908000308050602"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050907090800090702080303
+--------------000907000908000308050602
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-2/6
+4/6
+
+OK, these first 4 patches don't have much to do with removing
+PageReserved, but I put them in this series because that's how
+I have them arranged.
 
 
---------------050907090800090702080303
+--------------000907000908000308050602
 Content-Type: text/plain;
- name="mm-microopt-rmap.patch"
+ name="mm-remove-atomic-bitop.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="mm-microopt-rmap.patch"
+ filename="mm-remove-atomic-bitop.patch"
 
-Microoptimise page_add_anon_rmap. Although these expressions are used only
-in the taken branch of the if() statement, the compiler can't reorder them
-inside because atomic_inc_and_test is a barrier.
+This bitop does not need to be atomic because it is performed when
+there will be no references to the page (ie. the page is being freed).
 
 Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-Index: linux-2.6/mm/rmap.c
+Index: linux-2.6/mm/page_alloc.c
 ===================================================================
---- linux-2.6.orig/mm/rmap.c
-+++ linux-2.6/mm/rmap.c
-@@ -442,22 +442,23 @@ int page_referenced(struct page *page, i
- void page_add_anon_rmap(struct page *page,
- 	struct vm_area_struct *vma, unsigned long address)
- {
--	struct anon_vma *anon_vma = vma->anon_vma;
--	pgoff_t index;
--
- 	BUG_ON(PageReserved(page));
--	BUG_ON(!anon_vma);
+--- linux-2.6.orig/mm/page_alloc.c
++++ linux-2.6/mm/page_alloc.c
+@@ -329,7 +329,7 @@ static inline void free_pages_check(cons
+ 			1 << PG_writeback )))
+ 		bad_page(function, page);
+ 	if (PageDirty(page))
+-		ClearPageDirty(page);
++		__ClearPageDirty(page);
+ }
  
- 	inc_mm_counter(vma->vm_mm, anon_rss);
+ /*
+Index: linux-2.6/include/linux/page-flags.h
+===================================================================
+--- linux-2.6.orig/include/linux/page-flags.h
++++ linux-2.6/include/linux/page-flags.h
+@@ -194,6 +194,7 @@ extern void __mod_page_state(unsigned lo
+ #define SetPageDirty(page)	set_bit(PG_dirty, &(page)->flags)
+ #define TestSetPageDirty(page)	test_and_set_bit(PG_dirty, &(page)->flags)
+ #define ClearPageDirty(page)	clear_bit(PG_dirty, &(page)->flags)
++#define __ClearPageDirty(page)	__clear_bit(PG_dirty, &(page)->flags)
+ #define TestClearPageDirty(page) test_and_clear_bit(PG_dirty, &(page)->flags)
  
--	anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
--	index = (address - vma->vm_start) >> PAGE_SHIFT;
--	index += vma->vm_pgoff;
--	index >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
--
- 	if (atomic_inc_and_test(&page->_mapcount)) {
--		page->index = index;
-+		struct anon_vma *anon_vma = vma->anon_vma;
-+		pgoff_t index;
-+
-+		BUG_ON(!anon_vma);
-+		anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
- 		page->mapping = (struct address_space *) anon_vma;
-+
-+		index = (address - vma->vm_start) >> PAGE_SHIFT;
-+		index += vma->vm_pgoff;
-+		index >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
-+		page->index = index;
-+
- 		inc_page_state(nr_mapped);
- 	}
- 	/* else checking page index and mapping is racy */
+ #define SetPageLRU(page)	set_bit(PG_lru, &(page)->flags)
 
---------------050907090800090702080303--
+--------------000907000908000308050602--
 Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,62 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVGZTwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVGZTzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbVGZTwY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 15:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVGZTwY
+	id S261960AbVGZTzo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 15:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVGZTzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 15:52:24 -0400
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:55714 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S261886AbVGZTuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 15:50:04 -0400
-Date: Tue, 26 Jul 2005 12:49:53 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Dan Malek <dan@embeddededge.com>
-Subject: [PATCH 2.6.13-rc3] Change PowerPC MPC8xx maintainer
-Message-ID: <20050726194953.GB8817@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Tue, 26 Jul 2005 15:55:43 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:61574 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S261960AbVGZTzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 15:55:40 -0400
+To: Len Brown <len.brown@intel.com>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: ACPI buttons in 2.6.12-rc4-mm2
+In-Reply-To: <1122407079.13241.4.camel@toshiba.lenb.intel.com>
+References: <b6d0f5fb0505220425146d481a@mail.gmail.com> <b6d0f5fb0505220425146d481a@mail.gmail.com> <1122407079.13241.4.camel@toshiba.lenb.intel.com>
+Date: Tue, 26 Jul 2005 20:55:37 +0100
+Message-Id: <E1DxVWb-0002Sx-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As Marcelo has been spending a great deal of time working on MPC8xx
-systems of late (thanks!) and has more time than I do now for it, I'm
-handing this over to him.
+Len Brown <len.brown@intel.com> wrote:
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+> I deleted /proc/acpi/button on purpose,
+> did you have a use for those files?
 
-diff --git a/MAINTAINERS b/MAINTAINERS
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1416,13 +1416,20 @@ W:	http://www.penguinppc.org/
- L:	linuxppc-embedded@ozlabs.org
- S:	Maintained
- 
--LINUX FOR POWERPC EMBEDDED PPC8XX AND BOOT CODE
-+LINUX FOR POWERPC BOOT CODE
- P:	Tom Rini
- M:	trini@kernel.crashing.org
- W:	http://www.penguinppc.org/
- L:	linuxppc-embedded@ozlabs.org
- S:	Maintained
- 
-+LINUX FOR POWERPC EMBEDDED PPC8XX
-+P:	Marcelo Tosatti
-+M:	marcelo.tosatti@cyclades.com
-+W:	http://www.penguinppc.org/
-+L:	linuxppc-embedded@ozlabs.org
-+S:	Maintained
-+
- LINUX FOR POWERPC EMBEDDED PPC83XX AND PPC85XX
- P:     Kumar Gala
- M:     kumar.gala@freescale.com
+There are various cases where it's useful to know whether a laptop is
+shut or not, and /proc/acpi/button seems to be the only place where that
+information is made available at the moment.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

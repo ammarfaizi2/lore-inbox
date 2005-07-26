@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVGZNCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVGZNDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVGZNCF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 09:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVGZNCF
+	id S261760AbVGZNDg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 09:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVGZNDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 09:02:05 -0400
-Received: from mail1.tuniv.szczecin.pl ([212.14.26.3]:25578 "EHLO
-	mail1.tuniv.szczecin.pl") by vger.kernel.org with ESMTP
-	id S261405AbVGZNCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 09:02:03 -0400
-Message-ID: <1122382920.42e6344831310@www.ps.pl>
-Date: Tue, 26 Jul 2005 15:02:00 +0200
-From: robertk@ps.pl
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.4
-X-Originating-IP: 83.22.237.47
+	Tue, 26 Jul 2005 09:03:35 -0400
+Received: from styx.suse.cz ([82.119.242.94]:27544 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261761AbVGZNDa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 09:03:30 -0400
+Date: Tue, 26 Jul 2005 15:03:29 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [INPUT] simple question on driver initialisation.
+Message-ID: <20050726130329.GA3215@ucw.cz>
+References: <20050726120108.GA2101@ucw.cz> <20050726122602.22799.qmail@web25810.mail.ukl.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050726122602.22799.qmail@web25810.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 26, 2005 at 02:26:02PM +0200, moreau francis wrote:
+> Thanks Vojtech for your answers !
+> 
+> --- Vojtech Pavlik <vojtech@suse.cz> a écrit :
+> 
+> > It's also available via an ioctl() and in sysfs. This allows you to
+> > specify in an application that you want a device plugged into a specific
+> > port of the machine. Not many applications can use it at the moment, but
+> > udev can use it to assign a name of the device node.
+> > 
+> 
+> hmm, how can I use ioctl to find the location device since I need the location
+> to pass it to ioctl ?
+> 
+> I can't find "pinpad/input0" in sysfs, does that mean I need to add sysfs
+> suppport in my driver, and it's not done in input module when I register 
+> my input driver ?
 
-Hi,
+I'm sorry, I thought it's already in mainline, but that bit is still
+missing from the sysfs support in input. It'll get there soon.
 
-I am currently using Slackware 10.1 with 2.4.29 kernel and encountered following
-problem:
+> > "pinpad/input0" doesn't sound right. What port is your pinpad connected
+> > to?
+> 
+> Actually I'm working on an embedded system which owns a pinpad controller.
+> This controller is accessed by using io mem and it talks to the pinpad through
+> a dedicated bus. So I accessed it through io space.
 
-I use Sagem Fast 800 ADSL modem of my provider and use my linux station as a
-router (iptables+masquerade). The problem is that after a few hours of working
-my linux crashes with the message:
+In that case, you'll likely want something like io0200/input0, where
+0x200 would be the io address of the device. On the other hand, if it's
+really embedded and there can't be two pinpads in the system, it's not a
+problem to use basically any string there, since it only needs to be
+system-unique.
 
-"
-
-serwer login: Unable to handle kernel NULL pointer dereference at virtual
-address 00000020
-*pde = 00000000
-0opss: 0002
-CPU: 0
-EIP: 0010:[<c4958ca3>] Not tainted
-EFLAGS: 00010087
-eax: c11c56 ebx:c11c56c8 ecx:c11a1604 edx: c3139e34
-esi: 00000000 edi: c3139e34 ebp: c11c56dc esp: c3385f50
-ds: 0018 es: 0018 ss: 0018
-Process klogd (pid: 63, stackpage=c3385000)
-Stack: 0000246 00000000 c111c5660 00000001 0000ff80 c4958d51 c11c5660 c11c5660
-c3527ee0 04000001 c3385fc4 0000000a c0109fbd 0000000a c11c55660 c3385fc4
-c03829a0 0000000a c3527ee0 c3385fc4 c010a138 0000000a c3385fc4  c3527ee0
-Call Trace: [<c4958d51>] [<c0109fbd>] [<c010a138>] [<c010c428>]
-
-Code: c7 46 20 98 ff ff ff 8b 43 10 8b 80 d8 00 00 00 8b 40 2c 8b
-<0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing"
-
-I tried rekompiling the kernel and chose MMX architekture in "Processor Type and
-Features -> Processor Family" but it did not help. I also tried different
-versions of Sagem drivers but the problem is still present.
-
-I am a newbie to linux and would be very thankful for any solutions or just
-hints about solving this problem. I don't know if the problem is caused by
-sagem drivers but on the second PC station (Athlon Xp2000+, 384 MB RAM, 80GB
-Samsung) nothing like this happened.
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

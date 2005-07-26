@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVGZAHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVGZAQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVGZAHu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 20:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVGZAG0
+	id S261162AbVGZAQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 20:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVGZAQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 20:06:26 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18889 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261521AbVGZAGV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 20:06:21 -0400
-Date: Mon, 25 Jul 2005 17:06:00 -0700
-From: Greg KH <greg@kroah.com>
-To: Rajat Jain <rajat.noida.india@gmail.com>
-Cc: kernelnewbies@nl.linux.org, linux-scsi@vger.kernel.org,
-       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Incorrect driver getting loaded for Qlogic FC-HBA
-Message-ID: <20050726000600.GB23858@kroah.com>
-References: <b115cb5f0507241902653b6f72@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b115cb5f0507241902653b6f72@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+	Mon, 25 Jul 2005 20:16:26 -0400
+Received: from p54A093C3.dip0.t-ipconnect.de ([84.160.147.195]:1271 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261162AbVGZAQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 20:16:25 -0400
+Message-ID: <42E580CF.4010800@trash.net>
+Date: Tue, 26 Jul 2005 02:16:15 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Thomas Graf <tgraf@suug.ch>
+CC: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Andrew Morton <akpm@osdl.org>,
+       Harald Welte <laforge@netfilter.org>, netdev@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: Netlink connector
+References: <20050723125427.GA11177@rama> <20050723091455.GA12015@2ka.mipt.ru>	<20050724.191756.105797967.davem@davemloft.net>	<Lynx.SEL.4.62.0507250154000.21934@thoron.boston.redhat.com>	<20050725070603.GA28023@2ka.mipt.ru> <42E4F800.1010908@trash.net>	<20050725192853.GA30567@2ka.mipt.ru> <42E579BC.8000701@trash.net> <20050725235626.GX10481@postel.suug.ch>
+In-Reply-To: <20050725235626.GX10481@postel.suug.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 11:02:39AM +0900, Rajat Jain wrote:
-> I'm using Kernel 2.6.9 and am having a Qlogic QLE2362 FC-HBA in my
-> system. I selected all the Qlogic SCSI drivers while buiding the
-> kernel. Now the problem is that every time I reboot, I have to
-> MANUALLY modprobe the qla2322.ko module in the kernel and only then my
-> HBA works. By default, the kernel loads qla2300.ko, which is not the
-> correct driver for the card, and hence the HBA does not work. Here is
-> the lspci output:
+Thomas Graf wrote:
+> * Patrick McHardy <42E579BC.8000701@trash.net> 2005-07-26 01:46
+>
+>>You still have to take care of mixed 64/32 bit environments, u64 fields
+>>for example are differently alligned.
+> 
+> My solution to this (in the same patchset) is that we never
+> derference u64s but instead copy them.
 
-"by default" the kernel does not load any modules.  That's up to the
-hotplug system, or some other package.
+I don't understand. The problem is mainly u64 embedded in structures,
+the structs have different sizes if the u64 is not 8 byte aligned
+and the structure size padded to a multiple of 8.
 
-thanks,
+>>Then fix it so we can use more families and groups. I started some work
+>>on this, but I'm not sure if I have time to complete it.
+>  
+> Great, this is one of the remaining issues I haven't solved yet.
+> If you want me to take over just hand over your unfinished work
+> and I'll integrate it into my patchset.
 
-greg k-h
+I started working on it after the OLS party, so no postable code yet :)
+The idea for more groups is basically to remove the fixed groups
+bitmask from struct sockaddr_nl and use setsockopt to add/remove
+multicast subscriptions. If we add the limitation that a packet
+can only be multicasted to a single group we can support an arbitary
+number of groups, otherwise we would still be limited by size of
+skb->cb. This limitation shouldn't be a problem, AFAIK nothing is
+multicasting to multiple groups at once right now and the increased
+number of groups will allow a better granularity anyway. The main
+problem is keeping it backwards-compatible for current netlink users.
+If this isn't possible we may need to call it netlink2.
+
+Regards
+Patrick

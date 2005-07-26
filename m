@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVGZO6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVGZPIB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbVGZO6t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 10:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVGZO4u
+	id S261866AbVGZPIB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 11:08:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVGZO6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 10:56:50 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:16535 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261837AbVGZOzg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 10:55:36 -0400
-Date: Tue, 26 Jul 2005 16:55:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: john cooper <john.cooper@timesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 PREEMPT_RT && PPC
-Message-ID: <20050726145500.GA18752@elte.hu>
-References: <200507200816.11386.kernel@kolivas.org> <20050719223216.GA4194@elte.hu> <1121819037.26927.75.camel@dhcp153.mvista.com> <200507201104.48249.kernel@kolivas.org> <1121822524.26927.85.camel@dhcp153.mvista.com> <42DF293A.4050702@timesys.com> <20050726120015.GB9224@elte.hu> <42E64C43.2050104@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42E64C43.2050104@cybsft.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 26 Jul 2005 10:58:54 -0400
+Received: from web25802.mail.ukl.yahoo.com ([217.12.10.187]:65133 "HELO
+	web25802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261849AbVGZO6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 10:58:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=aY5IPoF8nV/VOgJoNAk0CExEL3T/5W6lEZWOycY9IiZdH6H5kToDhtpxG6+rEoKaLfSeA1Do5PiVbYcmVoxtbuobqDGzSOxxJ2Nazd0xBflatfDahOAwRa9C0noK2ZQKR1u0+Suqll4NpZDlVaKy7Fii8EdSGLpumNQe8vORMDk=  ;
+Message-ID: <20050726145830.5412.qmail@web25802.mail.ukl.yahoo.com>
+Date: Tue, 26 Jul 2005 16:58:30 +0200 (CEST)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: [INPUT] simple question on driver initialisation.
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050726130329.GA3215@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* K.R. Foley <kr@cybsft.com> wrote:
-
-> <snip>
+--- Vojtech Pavlik <vojtech@suse.cz> a écrit :
+> > 
+> > I can't find "pinpad/input0" in sysfs, does that mean I need to add sysfs
+> > suppport in my driver, and it's not done in input module when I register 
+> > my input driver ?
 > 
-> On X86 -51-36 won't build with CONFIG_BLOCKER=Y without the attached 
-> patch.
+> I'm sorry, I thought it's already in mainline, but that bit is still
+> missing from the sysfs support in input. It'll get there soon.
+> 
 
-thanks. I changed the include to asm/rtc.h, this should give what PPC 
-wants to have, and should work on all architectures. Released the -37 
-patch.
+cool.
 
-	Ingo
+> > > "pinpad/input0" doesn't sound right. What port is your pinpad connected
+> > > to?
+> > 
+> > Actually I'm working on an embedded system which owns a pinpad controller.
+> > This controller is accessed by using io mem and it talks to the pinpad
+> through
+> > a dedicated bus. So I accessed it through io space.
+> 
+> In that case, you'll likely want something like io0200/input0, where
+> 0x200 would be the io address of the device. On the other hand, if it's
+> really embedded and there can't be two pinpads in the system, it's not a
+> problem to use basically any string there, since it only needs to be
+> system-unique.
+> 
+
+It will be the case: only one embedded pinpad in the system. So something
+like "kbdport/input0" should be ok...
+
+thanks Vojtech for your time.
+
+         Francis
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

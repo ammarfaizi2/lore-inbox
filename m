@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVGZK5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVGZK5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVGZK5U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 06:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVGZK5D
+	id S261744AbVGZK5T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 06:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVGZK5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 06:57:03 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:14786 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S261747AbVGZK4a (ORCPT
+	Tue, 26 Jul 2005 06:57:08 -0400
+Received: from styx.suse.cz ([82.119.242.94]:11411 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261744AbVGZKz6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 06:56:30 -0400
-Subject: Should activate_page()/__set_page_dirty_buffers() use _irqsave
-	locking?
-From: Richard Purdie <rpurdie@rpsys.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 26 Jul 2005 11:56:24 +0100
-Message-Id: <1122375384.7642.15.camel@localhost.localdomain>
+	Tue, 26 Jul 2005 06:55:58 -0400
+Date: Tue, 26 Jul 2005 12:55:57 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [INPUT] simple question on driver initialisation.
+Message-ID: <20050726105557.GB1588@ucw.cz>
+References: <20050726102340.44709.qmail@web25805.mail.ukl.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050726102340.44709.qmail@web25805.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been experimenting with oprofile on an arm system without a PMU.
-Whenever I enable callgraphing I see a BUG from run_posix_cpu_timers()
-due to irqs being enabled when they should be disabled.
+On Tue, Jul 26, 2005 at 12:23:40PM +0200, moreau francis wrote:
 
-Tracing this back shows interrupts are enabled after the arm backtrace
-code completes. Further tracing reveals its the call to
-check_user_page_readable() (within an interrupt) that is causing the
-problem.
+> I'm currently developping a very simple driver for a pinpad by using
+> Input module. I'm using Event handler to pass events from pinpad to userland.
+> In this simple case, I'm wondering if I really need to initialise
+> "phys" field in in "input_dev" struct before calling "input_register_device".
 
-check_user_page_readable() can potentially result in calls to
-activate_page() (mm/swap.c) and __set_page_dirty_buffers()
-(fs/buffer.c). Both functions use *_lock_irq()/*_unlock_irq rather than
-the *_lock_irqsave/*_unlock_irqrestore counterparts.
+Yes, it is required.
 
-Switching them to use the save/restore locks makes everything work. Is
-there a reason for not using these here? Would such a patch be accepted?
+> What is this field for ?
+ 
+It is intended for identifying the device based on "location" in the
+system.
 
-Both the arm and i386 backtrace code would seem to be vulnerable to this
-problem.
-
-Richard
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

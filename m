@@ -1,153 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVGZWUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbVGZW0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262172AbVGZWUk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 18:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVGZWUj
+	id S262143AbVGZW0M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 18:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVGZW0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 18:20:39 -0400
-Received: from nproxy.gmail.com ([64.233.182.196]:23383 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262172AbVGZWUI (ORCPT
+	Tue, 26 Jul 2005 18:26:12 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54686 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262143AbVGZW0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 18:20:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=O6BND+59CR4Z6uN+KFtxOSg6COAW1Wh8zMhZ5wnFm7NYQ1c7nrXNZ28oE4I0j+0kirhMiIrrSFCgzaH4vlJNVAwrqeKet/9leMVgVK3GqZPvxSkOVM+VpW0EHPowh+g9lgWLkj/O+RfJ3i7gnJXW0mkJ85ZhCIdkCG/9IlQTyJg=
-Message-ID: <ee588a54050726152014f56899@mail.gmail.com>
-Date: Wed, 27 Jul 2005 00:20:06 +0200
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Reply-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH 2.6.12 1/1] docs: updated some code docs
+	Tue, 26 Jul 2005 18:26:11 -0400
+Date: Wed, 27 Jul 2005 00:26:06 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andreas Steinmetz <ast@domdv.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [swsusp] encrypt suspend data for easy wiping
+Message-ID: <20050726222606.GA29638@elf.ucw.cz>
+References: <20050703213519.GA6750@elf.ucw.cz> <20050706020251.2ba175cc.akpm@osdl.org> <42DA7B12.7030307@domdv.de> <20050725201036.2205cac3.akpm@osdl.org> <20050726220428.GA7425@waste.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_9320_1239999.1122416406977"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050726220428.GA7425@waste.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_9320_1239999.1122416406977
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi!
 
-Updated docs about how to write and submit patches/code.
+> > > the attached patches are acked by Pavel and signed off by me
+> > 
+> > OK, well I queued this up, without a changelog.  Because you didn't send
+> > one.  Please do so.  As it adds a new feature, quite a bit of info is
+> > relevant.
+> 
+> I don't like this patch. It reinvents a fair amount of dm_crypt and
+> cryptoloop but badly. 
+> 
+> Further, the model of security it's using is silly. In case anyone
+> hasn't noticed, it stores the password on disk in the clear. This is
+> so it can erase it after resume and thereby make recovery of the
+> suspend image hard.
+> 
+> But laptops get stolen while they're suspended, not while they're up
+> and running. And if your box is up and running and an attacker gains
+> access, the contents of your suspend partition are the least of your
+> worries. It makes no sense to expend any effort defending against this
+> case, especially as it's liable to become a barrier to doing this
+> right, namely with real dm_crypt encrypted swap.
 
-------=_Part_9320_1239999.1122416406977
-Content-Type: text/x-patch; name="code_docs.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="code_docs.diff"
+I do not see why it should be liability. Even if you "properly"
+encrypt the swap, you'll want to wipe old data after resume.
 
-ZGlmZiAtTnVhciBvbGQvRG9jdW1lbnRhdGlvbi9Db2RpbmdTdHlsZSBuZXcvRG9jdW1lbnRhdGlv
-bi9Db2RpbmdTdHlsZQotLS0gb2xkL0RvY3VtZW50YXRpb24vQ29kaW5nU3R5bGUJMjAwNS0wNy0y
-NiAwMDoxMDo1NS4wMDAwMDAwMDAgKzAyMDAKKysrIG5ldy9Eb2N1bWVudGF0aW9uL0NvZGluZ1N0
-eWxlCTIwMDUtMDctMjUgMjM6NTg6MzcuMDAwMDAwMDAwICswMjAwCkBAIC00MjIsMTAgKzQyMiwx
-MyBAQAogVVJMOiBodHRwOi8vY20uYmVsbC1sYWJzLmNvbS9jbS9jcy90cG9wLwogCiBHTlUgbWFu
-dWFscyAtIHdoZXJlIGluIGNvbXBsaWFuY2Ugd2l0aCBLJlIgYW5kIHRoaXMgdGV4dCAtIGZvciBj
-cHAsIGdjYywKLWdjYyBpbnRlcm5hbHMgYW5kIGluZGVudCwgYWxsIGF2YWlsYWJsZSBmcm9tIGh0
-dHA6Ly93d3cuZ251Lm9yZworZ2NjIGludGVybmFscyBhbmQgaW5kZW50LCBhbGwgYXZhaWxhYmxl
-IGZyb20gaHR0cDovL3d3dy5nbnUub3JnL21hbnVhbC8KIAogV0cxNCBpcyB0aGUgaW50ZXJuYXRp
-b25hbCBzdGFuZGFyZGl6YXRpb24gd29ya2luZyBncm91cCBmb3IgdGhlIHByb2dyYW1taW5nCiBs
-YW5ndWFnZSBDLCBVUkw6IGh0dHA6Ly9zdGQuZGt1dWcuZGsvSlRDMS9TQzIyL1dHMTQvCiAKK0tl
-cm5lbCBDb2RpbmdTdHlsZSBieSBncmVnQGtyb2FoLmNvbSBhdCBPTFMgMjAwMjoKK2h0dHA6Ly93
-d3cua3JvYWguY29tL2xpbnV4L3RhbGtzL29sc18yMDAyX2tlcm5lbF9jb2RpbmdzdHlsZV90YWxr
-L2h0bWwvCisKIC0tCiBMYXN0IHVwZGF0ZWQgb24gMTYgRmVicnVhcnkgMjAwNCBieSBhIGNvbW11
-bml0eSBlZmZvcnQgb24gTEtNTC4KZGlmZiAtTnVhciBvbGQvRG9jdW1lbnRhdGlvbi9TdWJtaXR0
-aW5nRHJpdmVycyBuZXcvRG9jdW1lbnRhdGlvbi9TdWJtaXR0aW5nRHJpdmVycwotLS0gb2xkL0Rv
-Y3VtZW50YXRpb24vU3VibWl0dGluZ0RyaXZlcnMJMjAwNS0wNy0yNiAwMDoxMTowMS4wMDAwMDAw
-MDAgKzAyMDAKKysrIG5ldy9Eb2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdEcml2ZXJzCTIwMDUtMDct
-MjcgMDA6MDc6MTAuMDAwMDAwMDAwICswMjAwCkBAIC0yNiwxNyArMjYsMTcgQEAKIC0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLQogCiBMaW51eCAyLjA6Ci0JTm8gbmV3IGRyaXZlcnMgYXJlIGFjY2Vw
-dGVkIGZvciB0aGlzIGtlcm5lbCB0cmVlCisJTm8gbmV3IGRyaXZlcnMgYXJlIGFjY2VwdGVkIGZv
-ciB0aGlzIGtlcm5lbCB0cmVlLgogCiBMaW51eCAyLjI6CisJTm8gbmV3IGRyaXZlcnMgYXJlIGFj
-Y2VwdGVkIGZvciB0aGlzIGtlcm5lbCB0cmVlLgorCitMaW51eCAyLjQ6CiAJSWYgdGhlIGNvZGUg
-YXJlYSBoYXMgYSBnZW5lcmFsIG1haW50YWluZXIgdGhlbiBwbGVhc2Ugc3VibWl0IGl0IHRvCiAJ
-dGhlIG1haW50YWluZXIgbGlzdGVkIGluIE1BSU5UQUlORVJTIGluIHRoZSBrZXJuZWwgZmlsZS4g
-SWYgdGhlCiAJbWFpbnRhaW5lciBkb2VzIG5vdCByZXNwb25kIG9yIHlvdSBjYW5ub3QgZmluZCB0
-aGUgYXBwcm9wcmlhdGUKLQltYWludGFpbmVyIHRoZW4gcGxlYXNlIGNvbnRhY3QgQWxhbiBDb3gg
-PGFsYW5AbHhvcmd1ay51a3V1Lm9yZy51az4KLQotTGludXggMi40OgotCVRoZSBzYW1lIHJ1bGVz
-IGFwcGx5IGFzIDIuMi4gVGhlIGZpbmFsIGNvbnRhY3QgcG9pbnQgZm9yIExpbnV4IDIuNAotCXN1
-Ym1pc3Npb25zIGlzIE1hcmNlbG8gVG9zYXR0aSA8bWFyY2Vsby50b3NhdHRpQGN5Y2xhZGVzLmNv
-bT4uCisJbWFpbnRhaW5lciB0aGVuIHBsZWFzZSBjb250YWN0IE1hcmNlbG8gVG9zYXR0aQorCTxt
-YXJjZWxvLnRvc2F0dGlAY3ljbGFkZXMuY29tPi4KIAogTGludXggMi42OgogCVRoZSBzYW1lIHJ1
-bGVzIGFwcGx5IGFzIDIuNCBleGNlcHQgdGhhdCB5b3Ugc2hvdWxkIGZvbGxvdyBsaW51eC1rZXJu
-ZWwKQEAgLTUxLDYgKzUxLDcgQEAKIAkJb2YgZXhjbHVzaXZlbHkgR1BMIGxpY2Vuc2luZywgYW5k
-IGlmIHlvdSB3aXNoIHRoZSBkcml2ZXIKIAkJdG8gYmUgdXNlZnVsIHRvIG90aGVyIGNvbW11bml0
-aWVzIHN1Y2ggYXMgQlNEIHlvdSBtYXkgd2VsbAogCQl3aXNoIHRvIHJlbGVhc2UgdW5kZXIgbXVs
-dGlwbGUgbGljZW5zZXMuCisJCVNlZSBhY2NlcHRlZCBsaWNlbnNlcyBhdCBpbmNsdWRlL2xpbnV4
-L21vZHVsZS5oCiAKIENvcHlyaWdodDoJVGhlIGNvcHlyaWdodCBvd25lciBtdXN0IGFncmVlIHRv
-IHVzZSBvZiBHUEwuCiAJCUl0J3MgYmVzdCBpZiB0aGUgc3VibWl0dGVyIGFuZCBjb3B5cmlnaHQg
-b3duZXIKQEAgLTE0MSw1ICsxNDIsMTMgQEAKIAlodHRwOi8va2VybmVsbmV3Ymllcy5vcmcvCiAK
-IExpbnV4IFVTQiBwcm9qZWN0OgotCWh0dHA6Ly9zb3VyY2Vmb3JnZS5uZXQvcHJvamVjdHMvbGlu
-dXgtdXNiLworCWh0dHA6Ly9saW51eC11c2Iuc291cmNlZm9yZ2UubmV0LworCitIb3cgdG8gTk9U
-IHdyaXRlIGtlcm5lbCBkcml2ZXIgYnkgYXJqYW52QHJlZGhhdC5jb20KKwlodHRwOi8vcGVvcGxl
-LnJlZGhhdC5jb20vYXJqYW52L29sc3BhcGVyLnBkZgorCitLZXJuZWwgSmFuaXRvcjoKKwlodHRw
-Oi8vamFuaXRvci5rZXJuZWxuZXdiaWVzLm9yZy8KIAorLS0KK0xhc3QgdXBkYXRlZCBvbiAyNSBK
-dWwgMjAwNS4KZGlmZiAtTnVhciBvbGQvRG9jdW1lbnRhdGlvbi9TdWJtaXR0aW5nUGF0Y2hlcyBu
-ZXcvRG9jdW1lbnRhdGlvbi9TdWJtaXR0aW5nUGF0Y2hlcwotLS0gb2xkL0RvY3VtZW50YXRpb24v
-U3VibWl0dGluZ1BhdGNoZXMJMjAwNS0wNy0yNiAwMDoxMTowMS4wMDAwMDAwMDAgKzAyMDAKKysr
-IG5ldy9Eb2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdQYXRjaGVzCTIwMDUtMDctMjcgMDA6MDM6NTYu
-MDAwMDAwMDAwICswMjAwCkBAIC0zNSw3ICszNSw3IEBACiAKIFRvIGNyZWF0ZSBhIHBhdGNoIGZv
-ciBhIHNpbmdsZSBmaWxlLCBpdCBpcyBvZnRlbiBzdWZmaWNpZW50IHRvIGRvOgogCi0JU1JDVFJF
-RT0gbGludXgtMi40CisJU1JDVFJFRT0gbGludXgtMi42CiAJTVlGSUxFPSAgZHJpdmVycy9uZXQv
-bXlkcml2ZXIuYwogCiAJY2QgJFNSQ1RSRUUKQEAgLTQ4LDkgKzQ4LDkgQEAKIG9yIHVubW9kaWZp
-ZWQga2VybmVsIHNvdXJjZSB0cmVlLCBhbmQgZ2VuZXJhdGUgYSBkaWZmIGFnYWluc3QgeW91cgog
-b3duIHNvdXJjZSB0cmVlLiAgRm9yIGV4YW1wbGU6CiAKLQlNWVNSQz0gL2RldmVsL2xpbnV4LTIu
-NAorCU1ZU1JDPSAvZGV2ZWwvbGludXgtMi42CiAKLQl0YXIgeHZmeiBsaW51eC0yLjQuMC10ZXN0
-MTEudGFyLmd6CisJdGFyIHh2ZnogbGludXgtMi42LjAudGFyLmd6CiAJbXYgbGludXggbGludXgt
-dmFuaWxsYQogCXdnZXQgaHR0cDovL3d3dy5tb3Nlcy51a2xpbnV4Lm5ldC9wYXRjaGVzL2RvbnRk
-aWZmCiAJZGlmZiAtdXByTiAtWCBkb250ZGlmZiBsaW51eC12YW5pbGxhICRNWVNSQyA+IC90bXAv
-cGF0Y2gKQEAgLTc3LDcgKzc3LDcgQEAKIGh0dHA6Ly9kZXZlbG9wZXIub3NkbC5vcmcvcmRkdW5s
-YXAvc2NyaXB0cy9wYXRjaGluZy1zY3JpcHRzLnRnegogCiBBbmRyZXcgTW9ydG9uJ3MgcGF0Y2gg
-c2NyaXB0czoKLWh0dHA6Ly93d3cuemlwLmNvbS5hdS9+YWtwbS9saW51eC9wYXRjaGVzL3BhdGNo
-LXNjcmlwdHMtMC4xNgoraHR0cDovL3d3dy56aXAuY29tLmF1L35ha3BtL2xpbnV4L3BhdGNoZXMv
-CiAKIDIpIERlc2NyaWJlIHlvdXIgY2hhbmdlcy4KIApAQCAtOTQsNyArOTQsNyBAQAogCiAzKSBT
-ZXBhcmF0ZSB5b3VyIGNoYW5nZXMuCiAKLVNlcGFyYXRlIGVhY2ggbG9naWNhbCBjaGFuZ2UgaW50
-byBpdHMgb3duIHBhdGNoLgorU2VwYXJhdGUgZWFjaCBfbG9naWNhbCBjaGFuZ2VzXyBpbnRvIGl0
-cyBvd24gcGF0Y2guCiAKIEZvciBleGFtcGxlLCBpZiB5b3VyIGNoYW5nZXMgaW5jbHVkZSBib3Ro
-IGJ1ZyBmaXhlcyBhbmQgcGVyZm9ybWFuY2UKIGVuaGFuY2VtZW50cyBmb3IgYSBzaW5nbGUgZHJp
-dmVyLCBzZXBhcmF0ZSB0aG9zZSBjaGFuZ2VzIGludG8gdHdvCkBAIC0xMDIsMTMgKzEwMiwxNyBA
-QAogZHJpdmVyIHdoaWNoIHVzZXMgdGhhdCBuZXcgQVBJLCBzZXBhcmF0ZSB0aG9zZSBpbnRvIHR3
-byBwYXRjaGVzLgogCiBPbiB0aGUgb3RoZXIgaGFuZCwgaWYgeW91IG1ha2UgYSBzaW5nbGUgY2hh
-bmdlIHRvIG51bWVyb3VzIGZpbGVzLAotZ3JvdXAgdGhvc2UgY2hhbmdlcyBpbnRvIGEgc2luZ2xl
-IHBhdGNoLiAgVGh1cyBhIHNpbmdsZSBsb2dpY2FsIGNoYW5nZQotaXMgY29udGFpbmVkIHdpdGhp
-biBhIHNpbmdsZSBwYXRjaC4KK2dyb3VwIHRob3NlIGNoYW5nZXMgaW50byBhIHNpbmdsZSBwYXRj
-aC4gIFRodXMgc2luZ2xlIGxvZ2ljYWwgY2hhbmdlcworYXJlIGNvbnRhaW5lZCB3aXRoaW4gYSBz
-aW5nbGUgcGF0Y2guCiAKIElmIG9uZSBwYXRjaCBkZXBlbmRzIG9uIGFub3RoZXIgcGF0Y2ggaW4g
-b3JkZXIgZm9yIGEgY2hhbmdlIHRvIGJlCiBjb21wbGV0ZSwgdGhhdCBpcyBPSy4gIFNpbXBseSBu
-b3RlICJ0aGlzIHBhdGNoIGRlcGVuZHMgb24gcGF0Y2ggWCIKIGluIHlvdXIgcGF0Y2ggZGVzY3Jp
-cHRpb24uCiAKK0lmIHlvdSBjYW5ub3QgY29uZGVuc2UgeW91ciBwYXRjaCBzZXQgaW50byBhIHNt
-YWxsZXIgc2V0IG9mIHBhdGNoZXMsCit0aGVuIG9ubHkgcG9zdCBzYXkgMTUgb3Igc28gYXQgYSB0
-aW1lIGFuZCB3YWl0IGZvciByZXZpZXcgYW5kIGludGVncmF0aW9uLgorCisKIAogNCkgU2VsZWN0
-IGUtbWFpbCBkZXN0aW5hdGlvbi4KIApAQCAtMTIxLDYgKzEyNSw4IEBACiBsaW51eC1rZXJuZWxA
-dmdlci5rZXJuZWwub3JnLiAgTW9zdCBrZXJuZWwgZGV2ZWxvcGVycyBtb25pdG9yIHRoaXMKIGUt
-bWFpbCBsaXN0LCBhbmQgY2FuIGNvbW1lbnQgb24geW91ciBjaGFuZ2VzLgogCitEbyBub3Qgc2Vu
-ZCBtb3JlIHRoYW4gMTUgcGF0Y2hlcyBhdCBvbmNlIHRvIHRoZSB2Z2VyIG1haWxpbmcgbGlzdHMh
-ISEKKwogTGludXMgVG9ydmFsZHMgaXMgdGhlIGZpbmFsIGFyYml0ZXIgb2YgYWxsIGNoYW5nZXMg
-YWNjZXB0ZWQgaW50byB0aGUKIExpbnV4IGtlcm5lbC4gIEhpcyBlLW1haWwgYWRkcmVzcyBpcyA8
-dG9ydmFsZHNAb3NkbC5vcmc+LiAgSGUgZ2V0cwogYSBsb3Qgb2YgZS1tYWlsLCBzbyB0eXBpY2Fs
-bHkgeW91IHNob3VsZCBkbyB5b3VyIGJlc3QgdG8gLWF2b2lkLSBzZW5kaW5nCkBAIC0xNTMsNiAr
-MTU5LDggQEAKIAogVW5sZXNzIHlvdSBoYXZlIGEgcmVhc29uIE5PVCB0byBkbyBzbywgQ0MgbGlu
-dXgta2VybmVsQHZnZXIua2VybmVsLm9yZy4KIAorRG8gbm90IHNlbmQgbW9yZSB0aGFuIDE1IHBh
-dGNoZXMgYXQgb25jZSB0byB0aGUgdmdlciBtYWlsaW5nIGxpc3RzISEhCisKIE90aGVyIGtlcm5l
-bCBkZXZlbG9wZXJzIGJlc2lkZXMgTGludXMgbmVlZCB0byBiZSBhd2FyZSBvZiB5b3VyIGNoYW5n
-ZSwKIHNvIHRoYXQgdGhleSBtYXkgY29tbWVudCBvbiBpdCBhbmQgb2ZmZXIgY29kZSByZXZpZXcg
-YW5kIHN1Z2dlc3Rpb25zLgogbGludXgta2VybmVsIGlzIHRoZSBwcmltYXJ5IExpbnV4IGtlcm5l
-bCBkZXZlbG9wZXIgbWFpbGluZyBsaXN0LgpAQCAtMTYxLDYgKzE2OSw5IEBACiBNQUlOVEFJTkVS
-UyBmaWxlIGZvciBhIG1haWxpbmcgbGlzdCB0aGF0IHJlbGF0ZXMgc3BlY2lmaWNhbGx5IHRvCiB5
-b3VyIGNoYW5nZS4KIAorTWFqb3Jkb21vIGxpc3RzIG9mIFZHRVIuS0VSTkVMLk9SRyBhdDoKKwlo
-dHRwOi8vdmdlci5rZXJuZWwub3JnL3ZnZXItbGlzdHMuaHRtbAorCiBFdmVuIGlmIHRoZSBtYWlu
-dGFpbmVyIGRpZCBub3QgcmVzcG9uZCBpbiBzdGVwICM0LCBtYWtlIHN1cmUgdG8gQUxXQVlTCiBj
-b3B5IHRoZSBtYWludGFpbmVyIHdoZW4geW91IGNoYW5nZSB0aGVpciBjb2RlLgogCkBAIC0zNzgs
-MyArMzg5LDI0IEBACiAKIAogCistLS0tLS0tLS0tLS0tLS0tLS0tLS0tCitTRUNUSU9OIDMgLSBS
-RUZFUkVOQ0VTCistLS0tLS0tLS0tLS0tLS0tLS0tLS0tCisKKworJ1RoZSBwZXJmZWN0IHBhdGNo
-JyBieSBha3BtQG9zZGwub3JnOiAKKwlodHRwOi8vd3d3LnppcC5jb20uYXUvfmFrcG0vbGludXgv
-cGF0Y2hlcy9zdHVmZi90cHAudHh0CisKKydMaW51eCBrZXJuZWwgcGF0Y2ggc3VibWlzc2lvbiBm
-b3JtYXQnIGJ5IGpnYXJ6aWtAcG9ib3guY29tOgorCWh0dHA6Ly9saW51eC55eXoudXMvcGF0Y2gt
-Zm9ybWF0Lmh0bWwKKworJ0hvdyB0byBwaXNzIG9mZiBhIGtlcm5lbCBzdWJzeXN0ZW0gbWFpbnRh
-aW5lcicgYnkgZ3JlZ0Brcm9haC5jb206CisJaHR0cDovL3d3dy5rcm9haC5jb20vbG9nLzIwMDUv
-MDMvMzEvCisJaHR0cDovL3d3dy5rcm9haC5jb20vbG9nLzIwMDUvMDcvMDgvCisKK05PISEhISBO
-byBtb3JlIGh1Z2UgcGF0Y2ggYm9tYnMgdG8gbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZyBw
-ZW9wbGUhOgoraHR0cDovL21hcmMudGhlYWltc2dyb3VwLmNvbS8/bD1saW51eC1rZXJuZWwmbT0x
-MTIxMTI3NDk5MTI5NDQmdz0yCisKKworLS0KK0xhc3QgdXBkYXRlZCBvbiAyNSBKdWwgMjAwNS4K
-
-------=_Part_9320_1239999.1122416406977--
+If you take the random key (currently used), and encrypt with public
+key; then ask for private key on reboot; it should do the trick.
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

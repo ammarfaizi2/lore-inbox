@@ -1,149 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVGZRDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVGZRH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVGZRDP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 13:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVGZPrW
+	id S261890AbVGZRH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 13:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVGZRFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 11:47:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:17184 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261877AbVGZPqi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 11:46:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=VxDIty7LaOje4OP53vMuO/jB/bHZjNbt53IlcCtZvwL+9tiiD/qLPqKJ4T+F4l6T4zZsHK6OM2n9I3hwx3w5Sf9NkBEaMsNDFWhOx+Hmk9Tdsxps15NLIl/7SFWf7fJMqh6KAiKAYKSsTjP4RzsuQbad/tXV4qg3MQaCIDRV87Y=
-From: Tejun Heo <htejun@gmail.com>
-To: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
-       bzolnier@gmail.com
-Cc: linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
-Content-Type: text/plain; charset=US-ASCII
-References: <20050726154457.38D60C67@htj.dyndns.org>
-In-Reply-To: <20050726154457.38D60C67@htj.dyndns.org>
-Subject: Re: [PATCH linux-2.6-block:master 08/10] blk: update IDE to use new blk_ordered
-Message-ID: <20050726154457.F58C5D60@htj.dyndns.org>
-Date: Wed, 27 Jul 2005 00:46:31 +0900 (KST)
+	Tue, 26 Jul 2005 13:05:01 -0400
+Received: from vms046pub.verizon.net ([206.46.252.46]:59347 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261634AbVGZRDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 13:03:44 -0400
+Date: Tue, 26 Jul 2005 13:03:39 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+In-reply-to: <42E65B34.9080700@pobox.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <200507261303.40052.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050726150837.GT3160@stusta.de> <42E65B34.9080700@pobox.com>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-08_blk_ide-update-ordered.patch
+On Tuesday 26 July 2005 11:48, Jeff Garzik wrote:
+>Adrian Bunk wrote:
+>> This patch schedules obsolete OSS drivers (with ALSA drivers that
+>> support the same hardware) for removal.
+>>
+>>
+>> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>>
+>> ---
+>>
+>> I've Cc'ed the people listed in MAINTAINERS as being responsible
+>> for one or more of these drivers, and I've also Cc'ed the ALSA
+>> people.
+>>
+>> Please tell if any my driver selections is wrong.
+>>
+>>  Documentation/feature-removal-schedule.txt |    7 +
+>>  sound/oss/Kconfig                          |   79
+>> ++++++++++++--------- 2 files changed, 54 insertions(+), 32
+>> deletions(-)
+>
+>Please CHECK before doing this.
+>
+>ACK for via82cxxx.
 
-	Update IDE to use new blk_ordered.
+I'm still running a box that needs this one.  The darned thing refuses 
+to die. :)
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+>NAK for i810_audio:  ALSA doesn't have all the PCI IDs (which must
+> be verified -- you cannot just add the PCI IDs for some hardware)
+>
+> Jeff
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
- ide-disk.c |   57 +++++++++------------------------------------------------
- ide-io.c   |    5 +----
- 2 files changed, 10 insertions(+), 52 deletions(-)
-
-Index: blk-fixes/drivers/ide/ide-disk.c
-===================================================================
---- blk-fixes.orig/drivers/ide/ide-disk.c	2005-07-27 00:44:48.000000000 +0900
-+++ blk-fixes/drivers/ide/ide-disk.c	2005-07-27 00:44:52.000000000 +0900
-@@ -677,50 +677,9 @@ static ide_proc_entry_t idedisk_proc[] =
- 
- #endif	/* CONFIG_PROC_FS */
- 
--static void idedisk_end_flush(request_queue_t *q, struct request *flush_rq)
-+static void idedisk_prepare_flush(request_queue_t *q, struct request *rq)
- {
- 	ide_drive_t *drive = q->queuedata;
--	struct request *rq = flush_rq->end_io_data;
--	int good_sectors = rq->hard_nr_sectors;
--	int bad_sectors;
--	sector_t sector;
--
--	if (flush_rq->errors & ABRT_ERR) {
--		printk(KERN_ERR "%s: barrier support doesn't work\n", drive->name);
--		blk_queue_ordered(drive->queue, QUEUE_ORDERED_NONE);
--		blk_queue_issue_flush_fn(drive->queue, NULL);
--		good_sectors = 0;
--	} else if (flush_rq->errors) {
--		good_sectors = 0;
--		if (blk_barrier_preflush(rq)) {
--			sector = ide_get_error_location(drive,flush_rq->buffer);
--			if ((sector >= rq->hard_sector) &&
--			    (sector < rq->hard_sector + rq->hard_nr_sectors))
--				good_sectors = sector - rq->hard_sector;
--		}
--	}
--
--	if (flush_rq->errors)
--		printk(KERN_ERR "%s: failed barrier write: "
--				"sector=%Lx(good=%d/bad=%d)\n",
--				drive->name, (unsigned long long)rq->sector,
--				good_sectors,
--				(int) (rq->hard_nr_sectors-good_sectors));
--
--	bad_sectors = rq->hard_nr_sectors - good_sectors;
--
--	if (good_sectors)
--		__ide_end_request(drive, rq, 1, good_sectors);
--	if (bad_sectors)
--		__ide_end_request(drive, rq, 0, bad_sectors);
--}
--
--static int idedisk_prepare_flush(request_queue_t *q, struct request *rq)
--{
--	ide_drive_t *drive = q->queuedata;
--
--	if (!drive->wcache)
--		return 0;
- 
- 	memset(rq->cmd, 0, sizeof(rq->cmd));
- 
-@@ -731,9 +690,8 @@ static int idedisk_prepare_flush(request
- 		rq->cmd[0] = WIN_FLUSH_CACHE;
- 
- 
--	rq->flags |= REQ_DRIVE_TASK | REQ_SOFTBARRIER;
-+	rq->flags |= REQ_DRIVE_TASK;
- 	rq->buffer = rq->cmd;
--	return 1;
- }
- 
- static int idedisk_issue_flush(request_queue_t *q, struct gendisk *disk,
-@@ -1008,11 +966,12 @@ static void idedisk_setup (ide_drive_t *
- 	printk(KERN_INFO "%s: cache flushes %ssupported\n",
- 		drive->name, barrier ? "" : "not ");
- 	if (barrier) {
--		blk_queue_ordered(drive->queue, QUEUE_ORDERED_FLUSH);
--		drive->queue->prepare_flush_fn = idedisk_prepare_flush;
--		drive->queue->end_flush_fn = idedisk_end_flush;
-+		blk_queue_ordered(drive->queue, QUEUE_ORDERED_DRAIN_FLUSH,
-+				  idedisk_prepare_flush, GFP_KERNEL);
- 		blk_queue_issue_flush_fn(drive->queue, idedisk_issue_flush);
--	}
-+	} else if (!drive->wcache)
-+		blk_queue_ordered(drive->queue, QUEUE_ORDERED_DRAIN,
-+				  NULL, GFP_KERNEL);
- }
- 
- static void ide_cacheflush_p(ide_drive_t *drive)
-@@ -1030,6 +989,8 @@ static int ide_disk_remove(struct device
- 	struct ide_disk_obj *idkp = drive->driver_data;
- 	struct gendisk *g = idkp->disk;
- 
-+	blk_queue_ordered(drive->queue, QUEUE_ORDERED_NONE, NULL, 0);
-+
- 	ide_cacheflush_p(drive);
- 
- 	ide_unregister_subdriver(drive, idkp->driver);
-Index: blk-fixes/drivers/ide/ide-io.c
-===================================================================
---- blk-fixes.orig/drivers/ide/ide-io.c	2005-07-27 00:44:50.000000000 +0900
-+++ blk-fixes/drivers/ide/ide-io.c	2005-07-27 00:44:52.000000000 +0900
-@@ -119,10 +119,7 @@ int ide_end_request (ide_drive_t *drive,
- 	if (!nr_sectors)
- 		nr_sectors = rq->hard_cur_sectors;
- 
--	if (blk_complete_barrier_rq_locked(drive->queue, rq, nr_sectors))
--		ret = rq->nr_sectors != 0;
--	else
--		ret = __ide_end_request(drive, rq, uptodate, nr_sectors);
-+	ret = __ide_end_request(drive, rq, uptodate, nr_sectors);
- 
- 	spin_unlock_irqrestore(&ide_lock, flags);
- 	return ret;
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

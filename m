@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVGZU6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVGZVAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbVGZU6A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 16:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbVGZU5z
+	id S262013AbVGZVAk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 17:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbVGZVAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 16:57:55 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:5033 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S262022AbVGZU5m (ORCPT
+	Tue, 26 Jul 2005 17:00:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20159 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262045AbVGZVAf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 16:57:42 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Subject: Re: [ACPI] Re: [PATCH] 2.6.13-rc3-git5: fix Bug #4416 (2/2)
-Date: Tue, 26 Jul 2005 23:02:36 +0200
-User-Agent: KMail/1.8.1
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+	Tue, 26 Jul 2005 17:00:35 -0400
+Date: Tue, 26 Jul 2005 16:59:57 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Badari Pulavarty <pbadari@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
        Andrew Morton <akpm@osdl.org>
-References: <200507261247.05684.rjw@sisk.pl> <200507261254.05507.rjw@sisk.pl> <42E62BB0.6010409@gmx.net>
-In-Reply-To: <42E62BB0.6010409@gmx.net>
+Subject: Re: Memory pressure handling with iSCSI
+In-Reply-To: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0507261659250.1786@chimarrao.boston.redhat.com>
+References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507262302.37488.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.61.0507261659252.1786@chimarrao.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 26 of July 2005 14:25, Carl-Daniel Hailfinger wrote:
-> Rafael J. Wysocki schrieb:
-> > The following patch adds basic suspend/resume support to the sk98lin
-> > network driver.
-> [snipped]
-> 
-> The current in-kernel sk98lin driver is years behind the version
-> downloadable from Syskonnect. Maybe it would make sense to update
-> it first before applying any new patches.
-> http://www.syskonnect.com/support/driver/d0102_driver.html
+On Tue, 26 Jul 2005, Badari Pulavarty wrote:
 
-You are right, but I don't know who should do this.  I have only submitted
-the patch to eliminate a problem with the current kernel.
+> After KS & OLS discussions about memory pressure, I wanted to re-do
+> iSCSI testing with "dd"s to see if we are throttling writes.  
 
-Greets,
-Rafael
-
+Could you also try with shared writable mmap, to see if that
+works ok or triggers a deadlock ?
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+The Theory of Escalating Commitment: "The cost of continuing mistakes is
+borne by others, while the cost of admitting mistakes is borne by yourself."
+  -- Joseph Stiglitz, Nobel Laureate in Economics

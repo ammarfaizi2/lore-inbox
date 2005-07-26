@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVGZPAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVGZPAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbVGZPAx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 11:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVGZO7L
+	id S261847AbVGZPAy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 11:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVGZO67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 10:59:11 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:23312 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261841AbVGZO4o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 10:56:44 -0400
-Message-ID: <42E65023.8060209@tmr.com>
-Date: Tue, 26 Jul 2005 11:00:51 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel cached memory
-References: <4t5s8-68A-33@gated-at.bofh.it> <4tdIU-479-9@gated-at.bofh.it> <42E5C40A.7000709@shaw.ca>
-In-Reply-To: <42E5C40A.7000709@shaw.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 10:58:59 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18181 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261847AbVGZO6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 10:58:08 -0400
+Date: Tue, 26 Jul 2005 16:57:59 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: reiserfs-dev@namesys.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] "extern inline" -> "static inline"
+Message-ID: <20050726145759.GS3160@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> John Pearson wrote:
-> 
->> Wouldn't having (practically) all your memory used for cache slow down
->> starting a new program? First it would have to free up that space, and 
->> then
->> put stuff in that space, taking potentially twice as long.
-> 
-> 
-> If the cache pages are clean (not been modified since they were read 
-> from the disk), then evicting that data will not take very long. If the 
-> program you are just starting is not in the cache, then the time taken 
-> to load it from disk will dwarf the time needed to evict cached pages. 
-> And there's also the possibility that the cache contains the data you 
-> are loading, which definitely will speed things up..
-> 
-The problem lies with data write evicting program pages in many cases. 
-You are right that they don't need to be written, but they do need to be 
-read back, so when I unhide a window there's a large delay while the 
-underlying program is read back in. If the pages are dirty, then there's 
-the delay while they are written.
+"extern inline" doesn't make much sense.
 
-It's exactly the benefit from having cached pages which is lost.
 
-I would love more control in this area, but short of maintaining a patch 
-I don't see it happening.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+---
+
+ include/linux/reiserfs_fs.h |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+--- linux-2.6.13-rc3-mm1-full/include/linux/reiserfs_fs.h.old	2005-07-26 13:42:59.000000000 +0200
++++ linux-2.6.13-rc3-mm1-full/include/linux/reiserfs_fs.h	2005-07-26 13:43:37.000000000 +0200
+@@ -2097,7 +2097,7 @@
+ 			 b_blocknr_t, int for_unformatted);
+ int reiserfs_allocate_blocknrs(reiserfs_blocknr_hint_t *, b_blocknr_t *, int,
+ 			       int);
+-extern inline int reiserfs_new_form_blocknrs(struct tree_balance *tb,
++static inline int reiserfs_new_form_blocknrs(struct tree_balance *tb,
+ 					     b_blocknr_t * new_blocknrs,
+ 					     int amount_needed)
+ {
+@@ -2113,7 +2113,7 @@
+ 					  0);
+ }
+ 
+-extern inline int reiserfs_new_unf_blocknrs(struct reiserfs_transaction_handle
++static inline int reiserfs_new_unf_blocknrs(struct reiserfs_transaction_handle
+ 					    *th, struct inode *inode,
+ 					    b_blocknr_t * new_blocknrs,
+ 					    struct path *path, long block)
+@@ -2130,7 +2130,7 @@
+ }
+ 
+ #ifdef REISERFS_PREALLOCATE
+-extern inline int reiserfs_new_unf_blocknrs2(struct reiserfs_transaction_handle
++static inline int reiserfs_new_unf_blocknrs2(struct reiserfs_transaction_handle
+ 					     *th, struct inode *inode,
+ 					     b_blocknr_t * new_blocknrs,
+ 					     struct path *path, long block)
+

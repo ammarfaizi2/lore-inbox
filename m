@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVGZM6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVGZNCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbVGZM6S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 08:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVGZM6K
+	id S261405AbVGZNCF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 09:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVGZNCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 08:58:10 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:9198 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S261731AbVGZM6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 08:58:08 -0400
-Date: Tue, 26 Jul 2005 05:48:28 -0400
-From: Harald Welte <laforge@netfilter.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: johnpol@2ka.mipt.ru, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 1 Wire drivers illegally overload NETLINK_NFLOG
-Message-ID: <20050726094828.GJ7925@rama>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	"David S. Miller" <davem@davemloft.net>, johnpol@2ka.mipt.ru,
-	netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-References: <20050723125427.GA11177@rama> <20050722.230559.123762041.yoshfuji@linux-ipv6.org> <20050723133353.GB11177@rama> <20050724.191505.69244686.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1E1Oui4vdubnXi3o"
-Content-Disposition: inline
-In-Reply-To: <20050724.191505.69244686.davem@davemloft.net>
-User-Agent: mutt-ng devel-20050619 (Debian)
+	Tue, 26 Jul 2005 09:02:05 -0400
+Received: from mail1.tuniv.szczecin.pl ([212.14.26.3]:25578 "EHLO
+	mail1.tuniv.szczecin.pl") by vger.kernel.org with ESMTP
+	id S261405AbVGZNCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 09:02:03 -0400
+Message-ID: <1122382920.42e6344831310@www.ps.pl>
+Date: Tue, 26 Jul 2005 15:02:00 +0200
+From: robertk@ps.pl
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.4
+X-Originating-IP: 83.22.237.47
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1E1Oui4vdubnXi3o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-On Sun, Jul 24, 2005 at 07:15:05PM -0700, David S. Miller wrote:
-=20
-> > I strongly disrecommend increasing NPROTO.  Maybe we should look into
-> > reusing NETLINK_FIREWALL (which was an old 2.2.x kernel interface).
->=20
-> ip_queue.c still uses NETLINK_FIREWALL so we really can't use
-> that.
+I am currently using Slackware 10.1 with 2.4.29 kernel and encountered following
+problem:
 
-sorry, I didn't remember that ip_queue reused the 2.2.x netlink number
-:(  We should have renamed it to make it clear.
+I use Sagem Fast 800 ADSL modem of my provider and use my linux station as a
+router (iptables+masquerade). The problem is that after a few hours of working
+my linux crashes with the message:
 
-> So instead, as in the patch below, I solved this for now by using
-> the NETLINK_SKIP value which was reserved years ago yet never
-> made use of.
+"
 
-thanks.
+serwer login: Unable to handle kernel NULL pointer dereference at virtual
+address 00000020
+*pde = 00000000
+0opss: 0002
+CPU: 0
+EIP: 0010:[<c4958ca3>] Not tainted
+EFLAGS: 00010087
+eax: c11c56 ebx:c11c56c8 ecx:c11a1604 edx: c3139e34
+esi: 00000000 edi: c3139e34 ebp: c11c56dc esp: c3385f50
+ds: 0018 es: 0018 ss: 0018
+Process klogd (pid: 63, stackpage=c3385000)
+Stack: 0000246 00000000 c111c5660 00000001 0000ff80 c4958d51 c11c5660 c11c5660
+c3527ee0 04000001 c3385fc4 0000000a c0109fbd 0000000a c11c55660 c3385fc4
+c03829a0 0000000a c3527ee0 c3385fc4 c010a138 0000000a c3385fc4  c3527ee0
+Call Trace: [<c4958d51>] [<c0109fbd>] [<c010a138>] [<c010c428>]
 
---=20
-- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+Code: c7 46 20 98 ff ff ff 8b 43 10 8b 80 d8 00 00 00 8b 40 2c 8b
+<0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing"
 
---1E1Oui4vdubnXi3o
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I tried rekompiling the kernel and chose MMX architekture in "Processor Type and
+Features -> Processor Family" but it did not help. I also tried different
+versions of Sagem drivers but the problem is still present.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFC5gbsXaXGVTD0i/8RAtYtAJ9LdzcNPEEV4Mf6Wdzgo7Z5Tn6UswCdFlS6
-jpXJiTFRaAEDNVvc/IoKh1M=
-=COO+
------END PGP SIGNATURE-----
-
---1E1Oui4vdubnXi3o--
+I am a newbie to linux and would be very thankful for any solutions or just
+hints about solving this problem. I don't know if the problem is caused by
+sagem drivers but on the second PC station (Athlon Xp2000+, 384 MB RAM, 80GB
+Samsung) nothing like this happened.

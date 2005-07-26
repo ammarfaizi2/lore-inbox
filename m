@@ -1,67 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVGZXLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbVGZXQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbVGZXLu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 19:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbVGZXLn
+	id S262310AbVGZXQP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 19:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVGZXNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 19:11:43 -0400
-Received: from chretien.genwebhost.com ([209.59.175.22]:21615 "EHLO
-	chretien.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262311AbVGZWgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 18:36:37 -0400
-Message-ID: <16727.134.134.136.2.1122417419.squirrel@chretien.genwebhost.com>
-In-Reply-To: <ee588a54050726152014f56899@mail.gmail.com>
-References: <ee588a54050726152014f56899@mail.gmail.com>
-Date: Tue, 26 Jul 2005 15:36:59 -0700 (PDT)
-Subject: Re: [PATCH 2.6.12 1/1] docs: updated some code docs
-From: "Randy Dunlap" <rdunlap@xenotime.net>
-To: "Xose Vazquez Perez" <xose.vazquez@gmail.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-User-Agent: SquirrelMail/1.4.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-ClamAntiVirus-Scanner: This mail is clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - chretien.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 26 Jul 2005 19:13:51 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11744 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262310AbVGZXNA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 19:13:00 -0400
+Date: Wed, 27 Jul 2005 01:12:49 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andreas Steinmetz <ast@domdv.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [swsusp] encrypt suspend data for easy wiping
+Message-ID: <20050726231249.GB29638@elf.ucw.cz>
+References: <20050703213519.GA6750@elf.ucw.cz> <20050706020251.2ba175cc.akpm@osdl.org> <42DA7B12.7030307@domdv.de> <20050725201036.2205cac3.akpm@osdl.org> <20050726220428.GA7425@waste.org> <20050726221446.GA24196@elf.ucw.cz> <20050726225808.GL12006@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050726225808.GL12006@waste.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Xose Vazquez Perez said:
-> Updated docs about how to write and submit patches/code.
->
+> > Well, "how long are my keys going to stay in swap after
+> > swsusp"... that's pretty scary.
+> 
+> Either they're likely in RAM _anyway_ and are thus already trivially
+> accessible to the attacker (for things like dm_crypt or IPSEC or
+> ssh-agent), or the application took care to zero them out, or the
+> application has a security bug.
+> 
+> There are about 4 attack cases, in order of likelihood:
+> 
+> 1) An attacker steals your suspended laptop. He has access to all your
+> suspended data. This patch gets us exactly nothing.
 
-Parts of this should conflict with a patch in -mm from a few weeks ago.
-then I check and don't see it there.... hrm, wonder what happened to it.
+Wrong. Without this Andreas' patch, he'll get access to your
+half-a-year-old GPG passphrases, too.
 
+> 2) An attacker breaks into your machine remotely while you're using
+> it. He has access to all your RAM, which if you're actually using it,
+> very likely including the same IPSEC, dm_crypt, and ssh-agent keys as
+> are saved on suspend. Further, he can trivially capture your
+> keystrokes and thus capture any keys you use from that point forward.
+> This patch gets us very close to nothing.
+> 
+> 3) An attacker steals your unsuspended laptop. He has access to all
+> your RAM, which in all likelihood includes your IPSEC, dm_crypt, and
+> ssh-agent keys. Odds are good that he invokes swsusp by closing the
+> laptop. This patch gets us very close to nothing.
+> 
+> 4) You suspend your laptop between typing your GPG key password and
+> hitting enter, thus leaving your password in memory when it would
+> otherwise be cleared. Then you resume your laptop and hit enter, thus
+> clearing the password from RAM but leaving it on the suspend
+> partition. Then an attacker steals your machine (without re-suspending
+> it!) and manages to recover the swsusp image which contains the
 
--Separate each logical change into its own patch.
-+Separate each _logical changes_ into its own patch.
-                        change
-or drop "each" and change "its own patch"
-to "a single patch file."
+Why without resuspending it? Position of critical data in swap is
+pretty much random. 
 
- On the other hand, if you make a single change to numerous files,
--group those changes into a single patch.  Thus a single logical change
--is contained within a single patch.
-+group those changes into a single patch.  Thus single logical changes
-+are contained within a single patch.
+What I'm worried is: attacker steals your laptop after you were using
+swsusp for half a year. Now your swap partition contains random pieces
+of GPG keys you were using for last half a year. That's bad.
 
-It's better in the original form.
+Current GPG keys can be found in RAM; unfortunately your swap
+partition can contain current and old GPG keys that were never
+supposed to be on disk. That's bad and I think we can agree on
+that. Andreas's patch solves it; if it was not supposed to go on disk,
+it will be erased after you resume. You can not do much better.
 
-+Do not send more than 15 patches at once to the vger mailing lists!!!
-
-Only in one place, please.
-
+It is equivalent of clearing swsusp data from swap after resume, just
+implemented somewhat clever... 
+								Pavel
 -- 
-~Randy
-
+teflon -- maybe it is a trademark, but it should not be.

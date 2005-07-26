@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVGZQ3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVGZQd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbVGZQ3O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 12:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVGZQ1R
+	id S261860AbVGZQd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 12:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVGZQbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 12:27:17 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:50156 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S261942AbVGZQ1E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 12:27:04 -0400
-Message-ID: <42E6645B.30206@zabbo.net>
-Date: Tue, 26 Jul 2005 09:27:07 -0700
-From: Zach Brown <zab@zabbo.net>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
+	Tue, 26 Jul 2005 12:31:51 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55302 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261929AbVGZQaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 12:30:24 -0400
+Date: Tue, 26 Jul 2005 18:30:13 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Lee Revell <rlrevell@joe-job.com>
 Cc: linux-kernel@vger.kernel.org, perex@suse.cz, alsa-devel@alsa-project.org,
        James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, kyle@parisc-linux.org,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
        parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
        Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
        zaitcev@yahoo.com
 Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-References: <20050726150837.GT3160@stusta.de>
-In-Reply-To: <20050726150837.GT3160@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050726163013.GW3160@stusta.de>
+References: <20050726150837.GT3160@stusta.de> <1122393073.18884.29.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1122393073.18884.29.camel@mindpipe>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> This patch schedules obsolete OSS drivers (with ALSA drivers that 
-> support the same hardware) for removal.
+On Tue, Jul 26, 2005 at 11:51:13AM -0400, Lee Revell wrote:
+> On Tue, 2005-07-26 at 17:08 +0200, Adrian Bunk wrote:
+> > This patch schedules obsolete OSS drivers (with ALSA drivers that 
+> > support the same hardware) for removal.
+> 
+> How many non-obsolete OSS drivers were there?
 
-> I've Cc'ed the people listed in MAINTAINERS as being responsible for one 
-> or more of these drivers, and I've also Cc'ed the ALSA people.
+I haven't counted them, but there are still many.
 
-I haven't touched the maestro drivers in so long (for near-total lack of
-docs, etc.) that I can't be considered authoritative for approving it's
-removal.  If people are relying on it I certainly don't know who they
-are.  In better news, Takashi should now have the pile of maestro
-hardware that I used in the first pass to help him maintain the ALSA
-driver..
+> Lee
 
-- z
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVGZNJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVGZNL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbVGZNJu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 09:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVGZNJu
+	id S261749AbVGZNL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 09:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVGZNL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 09:09:50 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:1710 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S261753AbVGZNJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 09:09:49 -0400
-In-Reply-To: <42E5F139.70002@yahoo.com.au>
-References: <42E5F139.70002@yahoo.com.au>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <9AB335F0-28CD-4561-B447-DA09CF44F0AB@freescale.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Hugh Dickins" <hugh@veritas.com>,
-       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
+	Tue, 26 Jul 2005 09:11:56 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:37386 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261749AbVGZNLv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 09:11:51 -0400
+Message-ID: <42E6378E.6050701@tmr.com>
+Date: Tue, 26 Jul 2005 09:15:58 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gbakos@cfa.harvard.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: elvtune with 2.6 kernels (under FC3)
+References: <Pine.SOL.4.58.0507251629130.2429@titan.cfa.harvard.edu>
+In-Reply-To: <Pine.SOL.4.58.0507251629130.2429@titan.cfa.harvard.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [patch 0/6] remove PageReserved
-Date: Tue, 26 Jul 2005 08:09:40 -0500
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gaspar Bakos wrote:
+> Hi,
+> 
+> I am cc-ing this to the kernel list, a i have the suspicion that it may
+> be a kernel related feature.
+> 
+> --------------
+> I noticed that elvtune does not work on FC3 with a 2.6.12.3
+> (self-compiled, pristine) kernel. I also tried it with other 2.6.* kernels.
+> 
+> elvtune /dev/sde
+> ioctl get: Invalid argument
+> 
+> In fact, I get the same message for all disks, either those on a 3ware
+> controller, or SATA disks directly attached to the motherboard.
+> The hw is a dual opteron mb with 4Gb RAM.
+> 
+> Did this command become obsoleted?
+> Is there alternativ?
 
-On Jul 26, 2005, at 3:15 AM, Nick Piggin wrote:
+Not that I ever found. You can play with values in 
+/sys/block/{device}/queue or wherever you have your sysfs mounted.
+Not a great user interface, but at least you can play.
 
-> Hi Andrew,
->
-> If you're feeling like -mm is getting too stable, then you might
-> consider giving these patches a spin? (unless anyone else raises
-> an objection).
->
-> Ben thought I should get moving with them soon.
->
-> Not much change from last time. A bit of ppc64 input from Ben,
-> and some rmap.c input from Hugh. Boots and runs on a few machines
-> I have lying around here.
->
-> The only remaining places that *test* PageReserved are swsusp, a
-> trivial useage in drivers/char/agp/amd64-agp.c, and arch/ code.
->
-> Most of the arch code is just reserved memory reporting, which
-> isn't very interesting and could easily be removed. Some arch users
-> are a bit more subtle, however they *should not* break, because all
-> the places that set and clear PageReserved are basically intact.
-
-What is the desired fix look like for arch users?
-
-- kumar
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbVGZXdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVGZXcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262199AbVGZXdp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 19:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVGZXc4
+	id S261256AbVGZXcx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 19:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbVGZXXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 19:32:56 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:12519
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262352AbVGZXbr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 19:31:47 -0400
-Date: Tue, 26 Jul 2005 16:32:02 -0700 (PDT)
-Message-Id: <20050726.163202.119887768.davem@davemloft.net>
-To: mpm@selenic.com
-Cc: bunk@stusta.de, jgarzik@pobox.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] NETCONSOLE must depend on INET
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050726232043.GB7425@waste.org>
-References: <20050719182919.GA5531@stusta.de>
-	<20050719.140104.68160812.davem@davemloft.net>
-	<20050726232043.GB7425@waste.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 19:23:39 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:12611 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262399AbVGZXX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 19:23:28 -0400
+Date: Tue, 26 Jul 2005 17:23:18 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: problem while executing insmod
+In-reply-to: <4ur7c-6k7-13@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42E6C5E6.3070505@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4ur7c-6k7-13@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Matt Mackall <mpm@selenic.com>
-Date: Tue, 26 Jul 2005 16:20:43 -0700
+deepak jose wrote:
+> sir/madam,
+> 
+> i written a module function similar to hello, world in C .i compiled
+> it.but when i ,m loading the module i'm getting the error that "the
+> kernel compiled is kernel 2.4.20 whereas i'm having 2.4.20-8".
+> wat i have to do to load it properly without forcing it to load.
+> did i have to change my kernel.
+> please suggest me a solution without changing the kernel.
 
-> This problem also exists in PKTGEN. And this fix is incorrect as
-> neither is dependent on the IP part of the networking stack in any
-> substantive way. The right fix is to make inet_aton available outside
-> of CONFIG_INET (preferred) or making private copies of inet_aton.
+Are you compiling against the same kernel version that's actually 
+running on the machine? 2.4.20-8 sounds like a Red Hat 9 kernel version 
+(an out of date one, BTW), you cannot build modules against vanilla 
+2.4.20 kernel sources and load them into the Red Hat 9 version.
 
-Adrian posted a fix, you whine, that's why Adrian's fix
-went in :-)
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-More seriously, please submit a version of whatever you
-believe to be the more correct fix so it can be reviewed
-and integrated.

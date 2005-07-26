@@ -1,88 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVGZUxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVGZUz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVGZUxG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 16:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVGZUxG
+	id S261929AbVGZUz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 16:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbVGZUz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 16:53:06 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15262 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261912AbVGZUxF (ORCPT
+	Tue, 26 Jul 2005 16:55:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49586 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261929AbVGZUzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 16:53:05 -0400
-Date: Tue, 26 Jul 2005 22:52:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [warning: ugly, FYI] battery charging support for sharp sl-5500
-Message-ID: <20050726205257.GA12838@elf.ucw.cz>
-References: <20050725054642.GA6651@elf.ucw.cz> <1122304018.7942.61.camel@localhost.localdomain>
+	Tue, 26 Jul 2005 16:55:53 -0400
+Date: Tue, 26 Jul 2005 13:57:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 16/23] swpsuspend:  Have suspend to disk use factors of
+ sys_reboot
+Message-Id: <20050726135749.14bf26df.akpm@osdl.org>
+In-Reply-To: <m1pst5bg5u.fsf_-_@ebiederm.dsl.xmission.com>
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
+	<m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
+	<m1ek9leb0h.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1ack9eaux.fsf_-_@ebiederm.dsl.xmission.com>
+	<m164uxear0.fsf_-_@ebiederm.dsl.xmission.com>
+	<m11x5leaml.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1wtndcvwe.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1sly1cvnd.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1oe8pcvii.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1k6jdcvgk.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1fyu1cvd7.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1br4pcva4.fsf_-_@ebiederm.dsl.xmission.com>
+	<m17jfdcv79.fsf_-_@ebiederm.dsl.xmission.com>
+	<m13bq1cv3k.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1y87tbgeo.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1u0ihbg85.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1pst5bg5u.fsf_-_@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122304018.7942.61.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > #define        SCP_REG_MCR     SCP_REG(SCP_MCR)
-> > #define        SCP_REG_CDR     SCP_REG(SCP_CDR)
-> > #define        SCP_REG_CSR     SCP_REG(SCP_CSR)
-> > #define        SCP_REG_CPR     SCP_REG(SCP_CPR)
-> > #define        SCP_REG_CCR     SCP_REG(SCP_CCR)
-> > #define        SCP_REG_IRR     SCP_REG(SCP_IRR)
-> > #define        SCP_REG_IRM     SCP_REG(SCP_IRM)
-> > #define        SCP_REG_IMR     SCP_REG(SCP_IMR)
-> > #define        SCP_REG_ISR     SCP_REG(SCP_ISR)
-> > #define        SCP_REG_GPCR    SCP_REG(SCP_GPCR)
-> > #define        SCP_REG_GPWR    SCP_REG(SCP_GPWR)
-> > #define        SCP_REG_GPRR    SCP_REG(SCP_GPRR)
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+>
 > 
-> You'll find the scoop driver deals with the above
-> (arch/arm/common/scoop.c).
-
-Thanks.
-
-> > #define FLASH_MEM_BASE 0xe8ffc000
-> > #define        FLASH_DATA(adr) (*(volatile unsigned int*)(FLASH_MEM_BASE+(adr)))
-> > #define        FLASH_DATA_F(adr) (*(volatile float32 *)(FLASH_MEM_BASE+(adr)))
-> > #define FLASH_MAGIC_CHG(a,b,c,d) ( ( d << 24 ) | ( c << 16 )  | ( b << 8 ) | a )
-> > 
-> > // AD
-> > #define FLASH_AD_MAJIC FLASH_MAGIC_CHG('B','V','A','D')
-> > #define        FLASH_AD_MAGIC_ADR      0x30
-> > #define        FLASH_AD_DATA_ADR       0x34
+> The suspend to disk code was a poor copy of the code in
+> sys_reboot now that we have kernel_power_off, kernel_restart
+> and kernel_halt use them instead of poorly duplicating them inline.
 > 
-> and arch/arm/common/sharpsl_param.c with these.
-
-Hmm, I wonder what it wants there... It seems to read some battery
-correction value? 
-
-> > #define IRQ_GPIO_CO                IRQ_GPIO20
-> > #define IRQ_GPIO_AC_IN             IRQ_GPIO1
+> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+> ---
 > 
-> There will (or if not, there should) be an equivalent in collie.h for
-> the above.
+>  kernel/power/disk.c |    9 +++------
+>  1 files changed, 3 insertions(+), 6 deletions(-)
 > 
-> I have similar problems with the corgi battery driver which is probably
-> even more of a mess than this. My conclusion is the whole lot needs
-> rewriting in a nice fashion before it can be included in mainline. My
-> work so far on the corgi code is here:
-> 
-> http://www.rpsys.net/openzaurus/patches/corgi_power-r24.patch
-> http://www.rpsys.net/openzaurus/patches/corgi_power1-r1.patch
+> 78a2f83d732e327874fe73728d5667875dfeea46
+> diff --git a/kernel/power/disk.c b/kernel/power/disk.c
+> --- a/kernel/power/disk.c
+> +++ b/kernel/power/disk.c
+> @@ -59,16 +59,13 @@ static void power_down(suspend_disk_meth
+>  		error = pm_ops->enter(PM_SUSPEND_DISK);
+>  		break;
+>  	case PM_DISK_SHUTDOWN:
+> -		printk("Powering off system\n");
+> -		device_shutdown();
+> -		machine_power_off();
+> +		kernel_power_off();
+>  		break;
+>  	case PM_DISK_REBOOT:
+> -		device_shutdown();
+> -		machine_restart(NULL);
+> +		kernel_restart(NULL);
+>  		break;
+>  	}
+> -	machine_halt();
+> +	kernel_halt();
+>  	/* Valid image is on the disk, if we continue we risk serious data corruption
+>  	   after resume. */
+>  	printk(KERN_CRIT "Please power me down manually\n");
 
-I'll comment in separate mail.
+This one conflicts in both implementation and intent with the below, from Pavel.  I'll
+drop Pavel's patch.
 
-> I'm making progress in areas but I'm not sure how much can be shared
-> between devices. My plan is to split the above into two sections, a
-> battery driver and some power management code. The powermanagement code
-> can probably then make mainline. The battery driver still needs a lot of
-> work.
 
-It looks pretty similar... on the first look.
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+From: Pavel Machek <pavel@ucw.cz>
+
+Do not call device_shutdown with interrupts disabled.  It is wrong and
+produces ugly warnings.
+
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ kernel/power/disk.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+diff -puN kernel/power/disk.c~call-device_shutdown-with-interrupts-enabled kernel/power/disk.c
+--- devel/kernel/power/disk.c~call-device_shutdown-with-interrupts-enabled	2005-07-08 23:11:23.000000000 -0700
++++ devel-akpm/kernel/power/disk.c	2005-07-08 23:11:23.000000000 -0700
+@@ -52,19 +52,21 @@ static void power_down(suspend_disk_meth
+ 	unsigned long flags;
+ 	int error = 0;
+ 
+-	local_irq_save(flags);
+ 	switch(mode) {
+ 	case PM_DISK_PLATFORM:
+- 		device_shutdown();
++		device_shutdown();
++		local_irq_save(flags);
+ 		error = pm_ops->enter(PM_SUSPEND_DISK);
+ 		break;
+ 	case PM_DISK_SHUTDOWN:
+ 		printk("Powering off system\n");
+ 		device_shutdown();
++		local_irq_save(flags);
+ 		machine_power_off();
+ 		break;
+ 	case PM_DISK_REBOOT:
+ 		device_shutdown();
++		local_irq_save(flags);
+ 		machine_restart(NULL);
+ 		break;
+ 	}
+_

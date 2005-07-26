@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVGZURs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVGZURo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbVGZURs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 16:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVGZUPe
+	id S262051AbVGZURo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 16:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVGZUP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 16:15:34 -0400
-Received: from goliat.kalisz.mm.pl ([217.96.42.226]:44940 "EHLO kalisz.mm.pl")
-	by vger.kernel.org with ESMTP id S261998AbVGZUPU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 16:15:20 -0400
-Date: Tue, 26 Jul 2005 22:15:06 +0200
-From: Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl>
-To: mkrufky@m1k.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MM kernels - how to keep on the bleeding edge?
-Message-Id: <20050726221506.416e6e76.astralstorm@gorzow.mm.pl>
-In-Reply-To: <42E692E4.4070105@m1k.net>
-References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
-	<42E692E4.4070105@m1k.net>
-X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.8; i686-pc-linux-gnu)
+	Tue, 26 Jul 2005 16:15:27 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:21772 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262044AbVGZUPF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 16:15:05 -0400
+Message-Id: <200507262003.j6QK3oZU010061@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       olh@suse.de
+Subject: [PATCH 1/4] UML - Fix rc3-mm1 build
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Tue__26_Jul_2005_22_15_07_+0200_dvpef7=Sd0fJ7WZi"
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 26 Jul 2005 16:03:50 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__26_Jul_2005_22_15_07_+0200_dvpef7=Sd0fJ7WZi
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+From: Olaf Hering <olh@suse.de>
 
-On Tue, 26 Jul 2005 15:45:41 -0400
-Michael Krufky <mkrufky@m1k.net> wrote:
+New in 2.6.13-rc3-git4:
 
-> I have filters set up so that my mailer puts all mm-commits messages=20
-> from the mailing list into a special "mm-commits" folder.  Each time=20
-> Andrew releases an -mm kernel, I rename my "mm-commits" folder to=20
-> "mm-commits-%version%", such as "mm-commits-2.6.13-rc3-mm2"  (I will=20
-> probably have to create a folder like this tomorrow, or in a few=20
-> hours/days ;-) ... Then I create a new "mm-commits" folder to hold all=20
-> new patches not yet in the latest -mm kernel.  As of right now, my=20
-> current "mm-commits" mail folder has 153 patches in it, although I think=
-=20
-> I may have lost a patch or two...
+scripts/Makefile.build:13: /Makefile: No such file or directory
+scripts/Makefile.build:64: kbuild: Makefile.build is included improperly
 
-The problem is detecting if or when the latest -mm got created.
-If I have to do it by hand, it becomes a major PITA.
-I could use RSS to do this, but some patches may still hit the wrong
-folder. What's more it would create unnecessary network load.
-There are sometimes only a few minutes between "patch in -mm1"
-and "patch in -mm2".
+the define was removed, but its still required to build some targets.
 
---=20
-AstralStorm
+Signed-off-by: Olaf Hering <olh@suse.de>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-GPG Key ID =3D 0xD1F10BA2
-GPG Key fingerprint =3D 96E2 304A B9C4 949A 10A0  9105 9543 0453 D1F1 0BA2
-Please encrypt if you can.
+Index: linux-2.6.12/arch/um/Makefile-i386
+===================================================================
+--- linux-2.6.12.orig/arch/um/Makefile-i386	2005-07-18 11:53:17.000000000 -0400
++++ linux-2.6.12/arch/um/Makefile-i386	2005-07-18 11:54:30.000000000 -0400
+@@ -33,6 +33,7 @@
+ ARCH_CFLAGS += -DUM_FASTCALL
+ endif
+ 
++SYS_UTIL_DIR	:= $(ARCH_DIR)/sys-i386/util
+ SYS_HEADERS	:= $(SYS_DIR)/sc.h $(SYS_DIR)/thread.h
+ 
+ prepare: $(SYS_HEADERS)
 
---Signature=_Tue__26_Jul_2005_22_15_07_+0200_dvpef7=Sd0fJ7WZi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQFC5pnSlUMEU9HxC6IRArF7AJ4ioqJt0I0w2ouvDQOyYGB4C+ayHgCgifWH
-3QQ+z/RcUBsKFg/o3sxVy8U=
-=vde5
------END PGP SIGNATURE-----
-
---Signature=_Tue__26_Jul_2005_22_15_07_+0200_dvpef7=Sd0fJ7WZi--

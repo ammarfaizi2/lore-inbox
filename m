@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVGZFCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVGZFDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbVGZFCE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 01:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVGZFCD
+	id S261719AbVGZFDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 01:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVGZFDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 01:02:03 -0400
-Received: from fmr13.intel.com ([192.55.52.67]:24992 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261702AbVGZFCC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 01:02:02 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ACPI oddity
-Date: Tue, 26 Jul 2005 01:01:45 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B300424AE17@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI oddity
-Thread-Index: AcWRXdQWKL2AmaJpSwamF0n96sUawwAQK91w
-From: "Brown, Len" <len.brown@intel.com>
-To: "Bill Davidsen" <davidsen@tmr.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Cc: <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 26 Jul 2005 05:01:48.0006 (UTC) FILETIME=[20717060:01C5919F]
+	Tue, 26 Jul 2005 01:03:24 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:5295 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261720AbVGZFDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 01:03:10 -0400
+Date: Mon, 25 Jul 2005 23:03:06 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Kernel cached memory
+In-reply-to: <4tdIU-479-9@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42E5C40A.7000709@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4t5s8-68A-33@gated-at.bofh.it> <4tdIU-479-9@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On a HT system, why does ACPI recognize CPU0 and CPU1, refer 
->to them as such in dmesg
+John Pearson wrote:
+> Wouldn't having (practically) all your memory used for cache slow down
+> starting a new program? First it would have to free up that space, and then
+> put stuff in that space, taking potentially twice as long.
 
-This is the Linux CPU number. ie the namespace where 0
-is the boot processor and the others are numbered in
-the order that they were started.
+If the cache pages are clean (not been modified since they were read 
+from the disk), then evicting that data will not take very long. If the 
+program you are just starting is not in the cache, then the time taken 
+to load it from disk will dwarf the time needed to evict cached pages. 
+And there's also the possibility that the cache contains the data you 
+are loading, which definitely will speed things up..
 
-> and then call them CPU1 and CPU2 in 
->/proc/acpi/processor?
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-These are arbitrary device identifiers written
-by the BIOS developer and foolishly advertised
-to the user by Linux.  The BIOS writer could have
-also called them ABC9 and XYZ4 and it would be
-equally valid.
-
-We're planning to get rid of all the ACPI stuff
-in /proc and move to sysfs.  At that time we'll
-use device identifies that are deterministic,
-like cpu%d that /sys/devices/system uses today.
-
-cheers,
--Len

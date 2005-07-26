@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVGZTPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVGZRx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbVGZTPk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 15:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVGZTNP
+	id S261898AbVGZRx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 13:53:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVGZRvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 15:13:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20887 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262017AbVGZTLc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 15:11:32 -0400
-Date: Tue, 26 Jul 2005 12:10:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: kaneshige.kenji@jp.fujitsu.com, ambx1@neo.rr.com, greg@kroah.org,
-       pavel@ucw.cz, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [patch] properly stop devices before poweroff
-Message-Id: <20050726121019.0248801c.akpm@osdl.org>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F03FCF24C@scsmsx401.amr.corp.intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F03FCF24C@scsmsx401.amr.corp.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 13:51:13 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34951 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261960AbVGZRt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 13:49:58 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH 11/23] Call emergency_reboot from panic
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
+	<m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
+	<m1ek9leb0h.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1ack9eaux.fsf_-_@ebiederm.dsl.xmission.com>
+	<m164uxear0.fsf_-_@ebiederm.dsl.xmission.com>
+	<m11x5leaml.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1wtndcvwe.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1sly1cvnd.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1oe8pcvii.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1k6jdcvgk.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1fyu1cvd7.fsf_-_@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 26 Jul 2005 11:49:23 -0600
+In-Reply-To: <m1fyu1cvd7.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Tue, 26 Jul 2005 11:47:32 -0600")
+Message-ID: <m1br4pcva4.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Luck, Tony" <tony.luck@intel.com> wrote:
->
-> I started on my OLS homework from Andrew ... and began looking
-> into what is going on here.
-> 
 
-Thanks ;) I guess we'll end up with a better kernel, even though you appear
-to be an innocent victim here.
+We know the system is in trouble so there is no question if this
+is an emergecy :)
 
-> 
-> Andrew: How did you get the squitty font on ia64?  The stack trace
-> from the oops flies off the top of the screen.  I've tried a few
-> "vga=0x0f07" type options, but I keep getting a big font.
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
 
-I put
+ kernel/panic.c |    9 ++++-----
+ 1 files changed, 4 insertions(+), 5 deletions(-)
 
-SYSFONT="iso08.08"
-
-in /etc/sysconfig/i18n
+fd248dd54c86f633bd2618d8c475c39465f8d552
+diff --git a/kernel/panic.c b/kernel/panic.c
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -111,12 +111,11 @@ NORET_TYPE void panic(const char * fmt, 
+ 			mdelay(1);
+ 			i++;
+ 		}
+-		/*
+-		 *	Should we run the reboot notifier. For the moment Im
+-		 *	choosing not too. It might crash, be corrupt or do
+-		 *	more harm than good for other reasons.
++		/*	This will not be a clean reboot, with everything
++		 *	shutting down.  But if there is a chance of
++		 *	rebooting the system it will be rebooted.
+ 		 */
+-		machine_restart(NULL);
++		emergency_restart();
+ 	}
+ #ifdef __sparc__
+ 	{

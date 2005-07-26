@@ -1,116 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVGZSoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVGZSxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVGZSoI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 14:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbVGZSl1
+	id S262027AbVGZSxA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 14:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbVGZSw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 14:41:27 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:51144 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262035AbVGZSjd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 14:39:33 -0400
-Subject: Re: Memory pressure handling with iSCSI
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20050726111110.6b9db241.akpm@osdl.org>
-References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
-	 <20050726111110.6b9db241.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 26 Jul 2005 11:39:11 -0700
-Message-Id: <1122403152.6433.39.camel@dyn9047017102.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Tue, 26 Jul 2005 14:52:58 -0400
+Received: from lugor.de ([212.112.242.222]:9392 "EHLO solar.mylinuxtime.de")
+	by vger.kernel.org with ESMTP id S262022AbVGZSuC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 14:50:02 -0400
+From: Christian Hesse <mail@earthworm.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: list patches in kernel
+Date: Tue, 26 Jul 2005 20:49:47 +0200
+User-Agent: KMail/1.8.1
+References: <1122400185.9035.1.camel@athop1.ath.vt.edu>
+In-Reply-To: <1122400185.9035.1.camel@athop1.ath.vt.edu>
+X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart4065134.V4IP2N4avL";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200507262049.54812.mail@earthworm.de>
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-26 at 11:11 -0700, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > After KS & OLS discussions about memory pressure, I wanted to re-do
-> >  iSCSI testing with "dd"s to see if we are throttling writes.  
-> > 
-> >  I created 50 10-GB ext3 filesystems on iSCSI luns. Test is simple
-> >  50 dds (one per filesystem). System seems to throttle memory properly
-> >  and making progress. (Machine doesn't respond very well for anything
-> >  else, but my vmstat keeps running - 100% sys time).
-> 
-> It's important to monitor /proc/meminfo too - the amount of dirty/writeback
-> pages, etc.
-> 
-> btw, 100% system time is quite appalling.  Are you sure vmstat is telling
-> the truth?  If so, where's it all being spent?
-> 
-> 
+--nextPart4065134.V4IP2N4avL
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Well, profile doesn't show any time in "default_idle". So
-I believe, vmstat is telling the truth.
+On Tuesday 26 July 2005 19:49, Brad Tilley wrote:
+> Is there an easy way to make a running kernel display how it has been
+> patched from vanilla? Probably not, but I thought I'd ask.
 
-# cat /proc/meminfo
-MemTotal:      7143628 kB
-MemFree:         43252 kB
-Buffers:         16736 kB
-Cached:        6683348 kB
-SwapCached:       5336 kB
-Active:          14460 kB
-Inactive:      6686928 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:      7143628 kB
-LowFree:         43252 kB
-SwapTotal:     1048784 kB
-SwapFree:      1017920 kB
-Dirty:         6225664 kB
-Writeback:      447272 kB
-Mapped:          10460 kB
-Slab:           362136 kB
-CommitLimit:   4620596 kB
-Committed_AS:   168616 kB
-PageTables:       2452 kB
-VmallocTotal: 34359738367 kB
-VmallocUsed:      9888 kB
-VmallocChunk: 34359728447 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     2048 kB
+I provided a patch some time ago (search google groups for "kernel .patches=
+=20
+support"), that works like the config.gz in /proc. But the majority didn't=
+=20
+like it...
 
+=2D-=20
+Christian
 
+--nextPart4065134.V4IP2N4avL
+Content-Type: application/pgp-signature
 
-# echo 2 > /proc/profile; sleep 5;  readprofile -
-m /usr/src/*12.3/System.map | sort -nr
-1634737 total                                      0.5464
-1468569 shrink_zone                              390.5769
- 21203 unlock_page                              331.2969
- 19497 release_pages                             46.8678
- 19061 __wake_up_bit                            397.1042
- 17936 page_referenced                           53.3810
- 10679 lru_add_drain                            133.4875
-  7348 page_waitqueue                            76.5417
-  5877 tg3_poll                                   2.4007
-  4650 cond_resched                              41.5179
-  4476 copy_user_generic                         15.0201
-  1973 do_get_write_access                        1.2583
-  1858 __mod_page_state                          38.7083
-  1754 tg3_start_xmit                             0.9876
-  1348 journal_dirty_metadata                     2.1063
-  1250 __find_get_block                           2.7902
-  1224 journal_add_journal_head                   2.6379
-  1082 kmem_cache_free                           11.2708
-  1077 tcp_sendpage                               0.3580
-  1076 tcp_ack                                    0.1431
-  1075 __make_request                             0.7999
-  1035 tg3_interrupt_tagged                       2.5875
-  1022 __pagevec_lru_add                          4.5625
-   928 tcp_transmit_skb                           0.4677
-   924 kmem_cache_alloc                          14.4375
-   900 thread_return                              3.5294
-   819 __ext3_get_inode_loc                       0.9307
-   754 established_get_next                       2.2440
-   711 journal_cancel_revoke                      1.4335
-   684 file_send_actor                            7.1250
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.15 (GNU/Linux)
 
+iD8DBQBC5oXSlZfG2c8gdSURAlQDAJ9zH1kG4TQXYEj+E0dZ4kLhN9yHoACgjhEH
+pnN8LJrGmi7aTvMa+oIeaoQ=
+=4ZXb
+-----END PGP SIGNATURE-----
 
-Thanks,
-Badari
-
+--nextPart4065134.V4IP2N4avL--

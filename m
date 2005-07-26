@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVGZRx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVGZRip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVGZRx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 13:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVGZRvU
+	id S261957AbVGZRip (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 13:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVGZR2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 13:51:20 -0400
-Received: from pat.uio.no ([129.240.130.16]:58859 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261898AbVGZRtB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 13:49:01 -0400
-Subject: Re: [PATCH NFS 3/3] Replace nfs_block_bits() with
-	roundup_pow_of_two()
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050725155611.GA12856@lsrfire.ath.cx>
-References: <20050724143640.GA19941@lsrfire.ath.cx>
-	 <1122246549.8322.3.camel@lade.trondhjem.org>
-	 <1122247463.8322.19.camel@lade.trondhjem.org>
-	 <20050725155611.GA12856@lsrfire.ath.cx>
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 26 Jul 2005 13:48:46 -0400
-Message-Id: <1122400127.6894.32.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8BIT
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.424, required 12,
-	autolearn=disabled, AWL 2.39, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Tue, 26 Jul 2005 13:28:39 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13959 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261914AbVGZR2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 13:28:10 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH 3/23] Make ctrl_alt_del call kernel_restart to get a proper
+ reboot.
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
+	<m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
+	<m1ek9leb0h.fsf_-_@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 26 Jul 2005 11:27:34 -0600
+In-Reply-To: <m1ek9leb0h.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Tue, 26 Jul 2005 11:24:14 -0600")
+Message-ID: <m1ack9eaux.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-må den 25.07.2005 Klokka 17:56 (+0200) skreiv Rene Scharfe:
 
-> What's your opinion of the following patch, which explicitly states the
-> intent of nfs_block_bits()?  It still needs patch 1 and 2.
+It is obvious we wanted to call kernel_restart here
+but since we don't have it the code was expanded inline and hasn't
+been correct since sometime in 2.4.
 
-I really don't like the choice of name. If you feel you must change the
-name, then make it something like nfs_blocksize_align(). That describes
-its function, instead of the implementation details.
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
 
-Cheers,
-  Trond
+ kernel/sys.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
+252e08b37dc29ce42a0aef357b75ec1882eb634c
+diff --git a/kernel/sys.c b/kernel/sys.c
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -502,8 +502,7 @@ asmlinkage long sys_reboot(int magic1, i
+ 
+ static void deferred_cad(void *dummy)
+ {
+-	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
+-	machine_restart(NULL);
++	kernel_restart(NULL);
+ }
+ 
+ /*

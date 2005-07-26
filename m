@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbVGZTjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVGZTod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbVGZTjv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 15:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVGZTju
+	id S261841AbVGZTod (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 15:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVGZTod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 15:39:50 -0400
-Received: from [216.148.227.85] ([216.148.227.85]:36491 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261747AbVGZTjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 15:39:44 -0400
-Subject: Re: ACPI buttons in 2.6.12-rc4-mm2
-From: Len Brown <len.brown@intel.com>
-To: Cameron Harris <thecwin@gmail.com>
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <b6d0f5fb0505220425146d481a@mail.gmail.com>
-References: <b6d0f5fb0505220425146d481a@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 26 Jul 2005 15:44:39 -0400
-Message-Id: <1122407079.13241.4.camel@toshiba.lenb.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 15:44:33 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:21689 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S261841AbVGZToa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 15:44:30 -0400
+From: Michel Bouissou <michel@bouissou.net>
+Organization: Me, Myself and I
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [SOLVED ?] VIA KT400 + Kernel 2.6.12 + IO-APIC + ehci_hcd = IRQ trouble
+Date: Tue, 26 Jul 2005 21:44:10 +0200
+User-Agent: KMail/1.7.2
+Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0507261450160.4914-100000@iolanthe.rowland.org> <200507262139.27150@totor.bouissou.net>
+In-Reply-To: <200507262139.27150@totor.bouissou.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200507262144.10865@totor.bouissou.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-22 at 07:25 -0400, Cameron Harris wrote:
-> I just upgraded from 2.6.11.3 and now my /proc/acpi/button directory
-> doesn't exist...
+Le Mardi 26 Juillet 2005 21:39, Michel Bouissou a écrit :
+> Alas, today it hanged completely 3 times :-(
+>
+> When I say completely, I mean complete system hang, display frozen,
+> keyboard dead (even the Magic SysRQ key doesn't respond), network dead
+> (doen't ping back), no visible activity of any kind :-((
+>
+> ...and of course nothing got logged.
+>
+> This happened 4 times. The 3 first times, I was running with IO-APIC
+> enabled and the system was under high disk activity:
+>
+> 1/ 1st time, I was copying the complete contents of a loopback-mounted ISO
+> image to a directory. The system hanged.
+>
+> 2/ 2nd time, I tried the same. The system hanged again.
+[...]
+> Now I'm running with IO-APIC enabled, bus USB 2.0 adn ehci completely
+> disabled (both in BIOS and modprobe.conf).
+>
+> The system hasn't hanged again, but I haven't tried to play with on-disk
+> ISO filesystems since...
 
-I deleted /proc/acpi/button on purpose,
-did you have a use for those files?
+I just did the same as 1/ and 2/ again, with USB 2.0 disabled, to make my 
+mind. It didn't hang (otherwise I would need to reboot before writing this 
+message ;-)
 
-Note that over time everything in /proc/acpi is
-going away.  In this case, there didn't seem to be
-a case for making appear in /sys.
-
-thanks,
--Len
-
-
+-- 
+Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E

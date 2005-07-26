@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVGZQ1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVGZQ3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbVGZQ1J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 12:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVGZQ1F
+	id S261924AbVGZQ3O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 12:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVGZQ1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 12:27:05 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:38293 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261930AbVGZQYy (ORCPT
+	Tue, 26 Jul 2005 12:27:17 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:50156 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S261942AbVGZQ1E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 12:24:54 -0400
-Date: Tue, 26 Jul 2005 12:24:52 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: John Ronciak <john.ronciak@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Developer Manual for the Intel PRO/1000 Gigabit Ethernet controllers is available
-Message-ID: <20050726162452.GA20914@havoc.gtf.org>
-References: <56a8daef05072609085cb67930@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <56a8daef05072609085cb67930@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 26 Jul 2005 12:27:04 -0400
+Message-ID: <42E6645B.30206@zabbo.net>
+Date: Tue, 26 Jul 2005 09:27:07 -0700
+From: Zach Brown <zab@zabbo.net>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, perex@suse.cz, alsa-devel@alsa-project.org,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+References: <20050726150837.GT3160@stusta.de>
+In-Reply-To: <20050726150837.GT3160@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 09:08:00AM -0700, John Ronciak wrote:
-> At long last the software developers manual for the Intel PRO/1000
-> Gigabit Ethernet controllers is now available on our Sourceforge web
-> site.  The URL is: http://sourceforge.net/projects/e1000
+Adrian Bunk wrote:
+> This patch schedules obsolete OSS drivers (with ALSA drivers that 
+> support the same hardware) for removal.
 
-Yay!
+> I've Cc'ed the people listed in MAINTAINERS as being responsible for one 
+> or more of these drivers, and I've also Cc'ed the ALSA people.
 
+I haven't touched the maestro drivers in so long (for near-total lack of
+docs, etc.) that I can't be considered authoritative for approving it's
+removal.  If people are relying on it I certainly don't know who they
+are.  In better news, Takashi should now have the pile of maestro
+hardware that I used in the first pass to help him maintain the ALSA
+driver..
 
-> The manual covers all of the PCI/PCI-X controllers supported by the
-> e1000 driver.  We will be following this release up with another
-> manual which covers our PCI-Express controllers.
-
-Are the PCI-Express controllers the 10gige ones?
-
-	Jeff
-
-
-
+- z

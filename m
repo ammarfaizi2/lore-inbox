@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVGZNDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVGZNJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbVGZNDg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 09:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVGZNDf
+	id S261753AbVGZNJu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 09:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVGZNJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 09:03:35 -0400
-Received: from styx.suse.cz ([82.119.242.94]:27544 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261761AbVGZNDa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 09:03:30 -0400
-Date: Tue, 26 Jul 2005 15:03:29 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [INPUT] simple question on driver initialisation.
-Message-ID: <20050726130329.GA3215@ucw.cz>
-References: <20050726120108.GA2101@ucw.cz> <20050726122602.22799.qmail@web25810.mail.ukl.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050726122602.22799.qmail@web25810.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 26 Jul 2005 09:09:50 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:1710 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S261753AbVGZNJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 09:09:49 -0400
+In-Reply-To: <42E5F139.70002@yahoo.com.au>
+References: <42E5F139.70002@yahoo.com.au>
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <9AB335F0-28CD-4561-B447-DA09CF44F0AB@freescale.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Hugh Dickins" <hugh@veritas.com>,
+       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: [patch 0/6] remove PageReserved
+Date: Tue, 26 Jul 2005 08:09:40 -0500
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 02:26:02PM +0200, moreau francis wrote:
-> Thanks Vojtech for your answers !
-> 
-> --- Vojtech Pavlik <vojtech@suse.cz> a écrit :
-> 
-> > It's also available via an ioctl() and in sysfs. This allows you to
-> > specify in an application that you want a device plugged into a specific
-> > port of the machine. Not many applications can use it at the moment, but
-> > udev can use it to assign a name of the device node.
-> > 
-> 
-> hmm, how can I use ioctl to find the location device since I need the location
-> to pass it to ioctl ?
-> 
-> I can't find "pinpad/input0" in sysfs, does that mean I need to add sysfs
-> suppport in my driver, and it's not done in input module when I register 
-> my input driver ?
 
-I'm sorry, I thought it's already in mainline, but that bit is still
-missing from the sysfs support in input. It'll get there soon.
+On Jul 26, 2005, at 3:15 AM, Nick Piggin wrote:
 
-> > "pinpad/input0" doesn't sound right. What port is your pinpad connected
-> > to?
-> 
-> Actually I'm working on an embedded system which owns a pinpad controller.
-> This controller is accessed by using io mem and it talks to the pinpad through
-> a dedicated bus. So I accessed it through io space.
+> Hi Andrew,
+>
+> If you're feeling like -mm is getting too stable, then you might
+> consider giving these patches a spin? (unless anyone else raises
+> an objection).
+>
+> Ben thought I should get moving with them soon.
+>
+> Not much change from last time. A bit of ppc64 input from Ben,
+> and some rmap.c input from Hugh. Boots and runs on a few machines
+> I have lying around here.
+>
+> The only remaining places that *test* PageReserved are swsusp, a
+> trivial useage in drivers/char/agp/amd64-agp.c, and arch/ code.
+>
+> Most of the arch code is just reserved memory reporting, which
+> isn't very interesting and could easily be removed. Some arch users
+> are a bit more subtle, however they *should not* break, because all
+> the places that set and clear PageReserved are basically intact.
 
-In that case, you'll likely want something like io0200/input0, where
-0x200 would be the io address of the device. On the other hand, if it's
-really embedded and there can't be two pinpads in the system, it's not a
-problem to use basically any string there, since it only needs to be
-system-unique.
+What is the desired fix look like for arch users?
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+- kumar
+

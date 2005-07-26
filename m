@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVGZVn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVGZVqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbVGZVn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 17:43:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVGZVmA
+	id S262162AbVGZVqL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 17:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVGZVoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 17:42:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1727 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262064AbVGZVj7 (ORCPT
+	Tue, 26 Jul 2005 17:44:18 -0400
+Received: from khc.piap.pl ([195.187.100.11]:1796 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S262139AbVGZVmB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 17:39:59 -0400
-Date: Tue, 26 Jul 2005 14:41:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: mkrufky@m1k.net
-Cc: astralstorm@gorzow.mm.pl, linux-kernel@vger.kernel.org
-Subject: Re: MM kernels - how to keep on the bleeding edge?
-Message-Id: <20050726144149.0dc7b008.akpm@osdl.org>
-In-Reply-To: <42E69C5B.80109@m1k.net>
-References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
-	<42E692E4.4070105@m1k.net>
-	<20050726221506.416e6e76.astralstorm@gorzow.mm.pl>
-	<42E69C5B.80109@m1k.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 17:42:01 -0400
+To: Zach Brown <zab@zabbo.net>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org, perex@suse.cz,
+       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       jgarzik@pobox.com, Thorsten Knabe <linux@thorsten-knabe.de>,
+       zwane@commfireservices.com, zaitcev@yahoo.com
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+References: <20050726150837.GT3160@stusta.de> <42E6645B.30206@zabbo.net>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 26 Jul 2005 23:41:15 +0200
+In-Reply-To: <42E6645B.30206@zabbo.net> (Zach Brown's message of "Tue, 26
+ Jul 2005 09:27:07 -0700")
+Message-ID: <m3zms91c04.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Krufky <mkrufky@m1k.net> wrote:
->
-> [ tracking mm stuff ]
->
+Zach Brown <zab@zabbo.net> writes:
 
-Sigh, sorry.  It's hard.  -mm is always in flux.  I no longer send out the
-`patch was dropped' message because it disturbs people.  The mm-commits
-list does not resend a patch when it is changed (other patches folded into
-it, rejects fixed, changelog updated, rediffed, etc).  Sometimes I'll
-comment out a patch but not fully drop it.  I pull all the git trees at
-least twice a day and that's not reflected on the mm-commits list either.
+> I haven't touched the maestro drivers in so long (for near-total lack of
+> docs, etc.) that I can't be considered authoritative for approving it's
+> removal.
 
-You can always tell when a -mm release is coming by watching the shower of
-stupid compile fixes emerging :(
-
-I spose I could emit a broken-out.tar.gz file occasionally (it'd be up to 5
-times a day), but there's no guarantee that it'll compile, let alone run. 
-I could also send a notification to mm-commits when I do so.  Would that
-help?
+Maestro3 ALSA does work fine for me.
+-- 
+Krzysztof Halasa

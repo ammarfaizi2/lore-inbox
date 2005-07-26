@@ -1,103 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVGZBq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVGZByS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbVGZBq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 21:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVGZBq7
+	id S261522AbVGZByS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 21:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVGZByS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 21:46:59 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:30063 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261482AbVGZBq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 21:46:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.br;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:X-Enigmail-Version:X-Enigmail-Supports:Content-Type:Content-Transfer-Encoding;
-  b=O2kRE/Pi6jmvlcVRuvDroC8hylv0RBuxApd/et07njqKRicQgw68ncK4TxFfUUv2wUYU+bNKH7Zh6mpeIomRIfnT7mfv6RcW9Gtuke2V8bsd4wz582kqqizwDkb+Nix4L9Vi4OpbiYC74Sno3W8msY90Cs33TguZPCK/Q6VqYkY=  ;
-Message-ID: <42E59E0E.5030306@yahoo.com.br>
-Date: Mon, 25 Jul 2005 23:21:02 -0300
-From: "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Haninger <ahaning@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: "seeing minute plus hangs during boot" - 2.6.12 and 2.6.13
-References: <20050722182848.8028.qmail@web60715.mail.yahoo.com> <105c793f05072507426fb6d4c9@mail.gmail.com>
-In-Reply-To: <105c793f05072507426fb6d4c9@mail.gmail.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Jul 2005 21:54:18 -0400
+Received: from mail.kroah.org ([69.55.234.183]:28554 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261522AbVGZByQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 21:54:16 -0400
+Date: Mon, 25 Jul 2005 18:54:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
+Message-ID: <20050726015401.GA25015@kroah.com>
+References: <9e47339105072421095af5d37a@mail.gmail.com> <200507242358.12597.dtor_core@ameritech.net> <9e4733910507250728a7882d4@mail.gmail.com> <d120d5000507250748136a1e71@mail.gmail.com> <9e47339105072509307386818b@mail.gmail.com> <20050726000024.GA23858@kroah.com> <9e473391050725172833617aca@mail.gmail.com> <20050726003018.GA24089@kroah.com> <9e47339105072517561f53b2f9@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e47339105072517561f53b2f9@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Andrew Haninger wrote:
-> On 7/22/05, Francisco Figueiredo Jr. <fxjrlists@yahoo.com.br> wrote:
+On Mon, Jul 25, 2005 at 08:56:17PM -0400, Jon Smirl wrote:
+> On 7/25/05, Greg KH <greg@kroah.com> wrote:
+> > On Mon, Jul 25, 2005 at 08:28:10PM -0400, Jon Smirl wrote:
+> > > I didn't realize that echo was adding the CR, I thought that it always
+> > > appeared on the end of a sysfs attribute set. So now I have to go add
+> > > white space stripping to a dozen fbdev/drm sysfs attribute
+> > > implementations. Given that the param is const I may have to allocate
+> > > new buffers and copy. I also wonder how many other people have made
+> > > the same mistake.
+> > 
+> > Nah, just zero out that \n character :)
 > 
->>Hangs appears just before mounting filesystems message and before configuring
->>system to use udev.
+> The input buffer is "const char * buf". I will have to override the
+> const to zero it out.
+
+Yeah, hence the ":)" above.
+
+> > > Are you sure it would break other things? These are supposed to be
+> > > text attributes, not binary ones.
+> > 
+> > I agree, I don't know what would break.  Care to make a patch so we
+> > could find out?
 > 
-> I don't know if this will help, but there were issues raised earlier
-> about older versions of udev causing hangs on newer kernels. Look for
-> the thread with the subject "2.6.12 udev hangs at boot". Actually,
-> look here: http://marc.theaimsgroup.com/?l=linux-kernel&m=111909806104523&w=2
-> 
-> Basically, upgrade to a newer udev if you're running an older one (I
-> think I had 0.30 at the time; installing 0.58 sped things up
-> noticeably).
-> 
+> I'll put one together to trim leading/trailing white space from the
+> buffer before it is passed into the attribute functions. Now that I
+> think about this I believe the attributes should have always had the
+> leading/trailing white space removed. If we don't do it in the sysfs
+> code then every driver has to do it.
 
+Ok, sounds good.
 
-Hi Andrew!
+thanks,
 
-Thanks!
-
-Indeed udev update solved my problem with "preparing system to use udev"
-hang. It now works like a charm. I had 030 version too.
-
-Only the "mounting filesystem" hangs persists :(
-
-May it have something about I have reiserfs 3.6 as my main filesystem?
-
-I think it may be some type of configuration or update too.
-
-
-Thank you very much.
-
-- --
-Regards,
-
-Francisco Figueiredo Jr.
-Npgsql Lead Developer
-http://gborg.postgresql.org/project/npgsql
-MonoBrasil Project Founder Member
-http://monobrasil.softwarelivre.org
-
-
-- -------------
-"Science without religion is lame;
-religion without science is blind."
-
-                  ~ Albert Einstein
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQEVAwUBQuWeDv7iFmsNzeXfAQJvCQf/Va27h0f9bD1l6c2pL8yaxL6McQABqhcw
-wy+Yh1pt1arltYfAuvvXkF9kHfYO9jkmDztm40r0nCI4EJ1Plr+mcSFm0MYOKEfP
-o1dCV3lsGHiLla7ObxO4DWjO7FqAanOj5VW2dWp8MBgatimDopPxrfdb3ciFyP/h
-HQBJ3rodotm8CnchqFS7sPERaxpG9Q32JyRrsUq4QNh+jcOLsIKjuq32qtQeO10B
-qpMqJ4S2fm5q+rdz5Z5iBIDgRZ0NHcXnwwQcYDkNRpNWN+K4Zk8/hXywd8uJ++lb
-stKOlKoafqWlDYRU3SylSdhY+gsnDfFpIV97o/+/1ekd1x4PlzkOUg==
-=2AMa
------END PGP SIGNATURE-----
-
-	
-	
-		
-_______________________________________________________ 
-Yahoo! Acesso Grátis - Internet rápida e grátis. 
-Instale o discador agora! http://br.acesso.yahoo.com/
+greg k-h

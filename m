@@ -1,60 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVGZClx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVGZCna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVGZClx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 22:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVGZClw
+	id S261613AbVGZCna (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 22:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVGZCna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 22:41:52 -0400
-Received: from opersys.com ([64.40.108.71]:48914 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261597AbVGZClw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 22:41:52 -0400
-Message-ID: <42E5A168.4000600@opersys.com>
-Date: Mon, 25 Jul 2005 22:35:20 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Tom Zanussi <zanussi@us.ibm.com>
-CC: Roman Zippel <zippel@linux-m68k.org>, Steven Rostedt <rostedt@goodmis.org>,
-       richardj_moore@uk.ibm.com, varap@us.ibm.com,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Merging relayfs?
-References: <17107.6290.734560.231978@tut.ibm.com>	<20050712022537.GA26128@infradead.org>	<20050711193409.043ecb14.akpm@osdl.org>	<Pine.LNX.4.61.0507131809120.3743@scrub.home>	<17110.32325.532858.79690@tut.ibm.com>	<Pine.LNX.4.61.0507171551390.3728@scrub.home>	<17114.32450.420164.971783@tut.ibm.com>	<1121694275.12862.23.camel@localhost.localdomain>	<Pine.LNX.4.61.0507181607410.3743@scrub.home>	<42DBBD69.3030300@opersys.com>	<Pine.LNX.4.61.0507181706430.3728@scrub.home>	<17115.53671.326542.392470@tut.ibm.com>	<17121.23125.981162.389667@tut.ibm.com>	<42E17EEC.5070102@opersys.com> <17121.44053.855399.587966@tut.ibm.com>
-In-Reply-To: <17121.44053.855399.587966@tut.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Jul 2005 22:43:30 -0400
+Received: from nproxy.gmail.com ([64.233.182.195]:35763 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261613AbVGZCnZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 22:43:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=K0/g6SnY9POSmbFdJf8AUQ/jI+7sxmn96+cpVipTk0gDnlk3gKHjVIQpxAe1dxGHwlJa4PFV6F/2E5cBeaDecW9fMpC4KlDDPaDC8kGu76IrIwb64Rd2Msy7LEAV9uGEuHA6OZSdvCBxaclqFixqThy3rxyx6udGP0qSzKWzbVc=
+Message-ID: <aee4c5bc05072519431964a561@mail.gmail.com>
+Date: Tue, 26 Jul 2005 04:43:19 +0200
+From: Benoit Dejean <bdejean@gmail.com>
+Reply-To: Benoit Dejean <bdejean@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: mlock oops
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+	i'm using Debian SID kernel-image-2.6.11-powerpc [1] (which is not
+tainted). I've unfortunately started sysutils [2] memtest as user (no caps, no
+sticky bit).
 
-Tom Zanussi wrote:
-> In userspace, the sub-buffer reading loop looks at the commit value in
-> the sub-buffer, and if it matches (sub-buffer size - padding), the
-> buffer has been completely written and can be saved, otherwise it's
-> not yet complete and is checked again the next time around.  This way,
-> there's no need for a deliver() callback, the relay_commit() is
-> replaced with the increment of the reserved commit value, the arrays
-> aren't needed and you get the same result in the end in a much simpler
-> way, IMHO.
+/usr/sbin/memtest all
 
-Actually this has a much greater potential of loosing buffers because
-we have to poll the buffer for completion. Seen another way, the kernel-
-side has got to wait until the user-side has "figured out" that it needs
-to commit content to disk. As it was originally, it was relatively
-straightforward to dertermine why data was lost: ok, we've signaled it
-from kernel space, but the daemon never flushed it out. Without commit/
-deliver, things are much less clear, and I still miss what gain we
-are making by removing them.
+I was expecting the OOMK to rescue my system by killing memtest.
+As expected, a few minutes later, my system was back. But an oops occured.
+Here's dmesg output :
 
-I would very much like to see the commit/deliver functionality back.
-Such mechanisms are required for any sane producer-consumer model.
+oom-killer: gfp_mask=0xd2
+DMA per-cpu:
+cpu 0 hot: low 32, high 96, batch 16
+cpu 0 cold: low 0, high 32, batch 16
+Normal per-cpu: empty
+HighMem per-cpu: empty
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Free pages:        2856kB (0kB HighMem)
+Active:57185 inactive:57079 dirty:0 writeback:0 unstable:0 free:714
+slab:3825 mapped:114890 pagetables:822
+DMA free:2856kB min:2896kB low:3620kB high:4344kB active:228740kB
+inactive:228316kB present:524288kB pages_scanned:538055
+all_unreclaimable? yes
+lowmem_reserve[]: 0 0 0
+Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB
+present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+HighMem free:0kB min:128kB low:160kB high:192kB active:0kB
+inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+DMA: 0*4kB 1*8kB 32*16kB 23*32kB 3*64kB 1*128kB 1*256kB 0*512kB
+1*1024kB 0*2048kB 0*4096kB = 2856kB
+Normal: empty
+HighMem: empty
+Swap cache: add 332526, delete 218150, find 72396/87670, race 0+0
+Free swap  = 219592kB
+Total swap = 976540kB
+Out of Memory: Killed process 2386 (memtest).
+memtest: page allocation failure. order:0, mode:0xd2
+Call trace:
+ [c0007450] dump_stack+0x18/0x28
+ [c003fa2c] __alloc_pages+0x2a4/0x3e4
+ [c004ce80] do_anonymous_page+0x98/0x4c8
+ [c004d320] do_no_page+0x70/0x798
+ [c004dc9c] handle_mm_fault+0xe8/0x1d8
+ [c004afa0] get_user_pages+0x124/0x4c4
+ [c004de20] make_pages_present+0x88/0xbc
+ [c004e4ec] mlock_fixup+0xe4/0xe8
+ [c004e5f0] do_mlock+0x100/0x104
+ [c004e6b8] sys_mlock+0xc4/0x114
+ [c0004290] ret_from_syscall+0x0/0x4c
+
+
+Thanks.
+
+
+[1] http://packages.debian.org/unstable/base/kernel-image-2.6.11-powerpc
+[2] http://packages.debian.org/stable/utils/sysutils

@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbVGZTaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVGZTdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbVGZTaO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 15:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVGZTaI
+	id S261894AbVGZTdR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 15:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbVGZTdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 15:30:08 -0400
-Received: from goliat.kalisz.mm.pl ([217.96.42.226]:16272 "EHLO kalisz.mm.pl")
-	by vger.kernel.org with ESMTP id S261882AbVGZR0A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 13:26:00 -0400
-Date: Tue, 26 Jul 2005 18:58:34 +0200
-From: Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl>
-To: lkml@vger.kernel.org
-Message-Id: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
-X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.8; i686-pc-linux-gnu)
+	Tue, 26 Jul 2005 15:33:17 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:35777
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S261894AbVGZTcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 15:32:19 -0400
+Date: Tue, 26 Jul 2005 15:31:38 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: Memory pressure handling with iSCSI
+Message-ID: <20050726193138.GA32324@kevlar.burdell.org>
+References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com> <20050726111110.6b9db241.akpm@osdl.org> <1122403152.6433.39.camel@dyn9047017102.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Tue__26_Jul_2005_18_58_34_+0200_ViwyhiH7UdB/=7hS"
-Subject: MM kernels - how to keep on the bleeding edge?
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1122403152.6433.39.camel@dyn9047017102.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__26_Jul_2005_18_58_34_+0200_ViwyhiH7UdB/=7hS
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Jul 26, 2005 at 11:39:11AM -0700, Badari Pulavarty wrote:
+> On Tue, 2005-07-26 at 11:11 -0700, Andrew Morton wrote:
+> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > >
+> > > After KS & OLS discussions about memory pressure, I wanted to re-do
+> > >  iSCSI testing with "dd"s to see if we are throttling writes.  
+> > > 
+> > >  I created 50 10-GB ext3 filesystems on iSCSI luns. Test is simple
+> > >  50 dds (one per filesystem). System seems to throttle memory properly
+> > >  and making progress. (Machine doesn't respond very well for anything
+> > >  else, but my vmstat keeps running - 100% sys time).
+> > 
+> > It's important to monitor /proc/meminfo too - the amount of dirty/writeback
+> > pages, etc.
+> > 
+> > btw, 100% system time is quite appalling.  Are you sure vmstat is telling
+> > the truth?  If so, where's it all being spent?
+> > 
+> > 
+> 
+> Well, profile doesn't show any time in "default_idle". So
+> I believe, vmstat is telling the truth.
 
-I've a question on how to keep in touch with all those patches going into mm
-patchset. Yes, I know of and am subscribed to mm-commits list, but it has a
-few shortcomings:=20
-a) It doesn't tell which patches went into the mainline.
-That's not necessary, as there's always git, but comparing on commit messag=
-es
-seems awkward and the contents aren't necessarily the same.
+Badari,
 
-Maybe AM has some algorithm to determine which patches went in and which,
-say, went in only in part?=20
-Or that he redoes all the patches against the newest Linus' tree?
-Anyway, I'd like to know what was the tree version at the time.
+You probably covered this, but just to make sure, if you're on a
+pentium4 machine, I usually boot w/ "idle=poll" to see proper idle
+reporting because otherwise the chip will throttle itself back and
+idle time will be skewed -- at least on oprofile.
 
-b) It doesn't say which -mm version are they in.
-This is a real PITA, because I have to check patch list one after one to
-apply to the newest mm. A message consisting of:=20
-
-Subject: 2.6.x-mmy released
-
-Contains all patches up to:
- abc-fix.patch
-
-Is based on Linus' tree up to commit:
-  xyzabc123
-
-would be more than enough.
-This way it would be easy to update the latest patchset to the latest and
-(hopefully) greatest mailing list patch. As it is now, I have to do a search
-every time I blow up the tree.
-
-It would be much easier for me if there was a mercurial or git tree with mm
-patches available somewhere, but I can live with my mail reading script.
-
-(I'm not subscribed to the list at the time - my mailbox would blow up)
-
---=20
-AstralStorm
-
-GPG Key ID =3D 0xD1F10BA2
-GPG Key fingerprint =3D 96E2 304A B9C4 949A 10A0  9105 9543 0453 D1F1 0BA2
-Please encrypt if you can.
-
---Signature=_Tue__26_Jul_2005_18_58_34_+0200_ViwyhiH7UdB/=7hS
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQFC5mvClUMEU9HxC6IRAoYuAJ0bMQdLqp1AtkguxsjifixpAJOEEACgomix
-EkAu/StTgYKEKuLe7mAzG88=
-=bTgq
------END PGP SIGNATURE-----
-
---Signature=_Tue__26_Jul_2005_18_58_34_+0200_ViwyhiH7UdB/=7hS--
+Sonny

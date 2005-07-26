@@ -1,79 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVGZE2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVGZEbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbVGZE2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 00:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVGZE2Z
+	id S261641AbVGZEbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 00:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVGZEbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 00:28:25 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:47840 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S261632AbVGZE2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 00:28:24 -0400
-Message-ID: <42E5BBEF.6030608@m1k.net>
-Date: Tue, 26 Jul 2005 00:28:31 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Tue, 26 Jul 2005 00:31:25 -0400
+Received: from agminet03.oracle.com ([141.146.126.230]:35919 "EHLO
+	agminet03.oracle.com") by vger.kernel.org with ESMTP
+	id S261641AbVGZEbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 00:31:23 -0400
+Message-ID: <42E5BC9C.8060803@oracle.com>
+Date: Mon, 25 Jul 2005 21:31:24 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: ncunningham@cyclades.com
-CC: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add missing tvaudio try_to_freeze.
-References: <1121659791.13487.74.camel@localhost>	 <42E522B4.2080000@brturbo.com.br> <1122323285.4674.6.camel@localhost>
-In-Reply-To: <1122323285.4674.6.camel@localhost>
+To: linux-kernel@vger.kernel.org
+CC: Jens Axboe <axboe@suse.de>
+Subject: setting task->ioprio from a kernel thread
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
 
->On Tue, 2005-07-26 at 03:34, Mauro Carvalho Chehab wrote:
->  
->
->>Nigel Cunningham wrote:
->>    
->>
->>>The .c gives Gerd Knorr as the maintainer of this file, but no email
->>>address. The MAINTAINERS file doesn't have his name or make it clear who
->>>owns the file. I haven't therefore been able to cc the maintainer.
->>>      
->>>
->>I'm current maintainer of V4L. The patch was tested and it looks ok.
->>    
->>
->Thanks! Would you consider sending a patch to the maintainers file too?
->  
->
-As you can see below, this has already been done.
+In OCFS2 there is currently an in-kernel heartbeat thread that really 
+wants to communicate liveness to other nodes as quickly as possible by 
+writing to a block device.  Setting aside the specific wisdom of a 
+kernel heartbeat thread for a bit, has it been considered that kernel 
+threads might want to set their io priority with the task->ioprio bits? 
+  Neither set_task_ioprio() nor sys_ioprio_set() seem to be accessible 
+to modules and open-coding it is clearly a bad idea.  Would the universe 
+be opposed to a _GPL() export of, say, the sys_() interface?
 
-
-[PATCH] V4L maintainer patch
-author    Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-    Wed, 29 Jun 2005 03:45:20 +0000 (20:45 -0700)
-committer    Linus Torvalds <torvalds@ppc970.osdl.org>
-    Wed, 29 Jun 2005 04:20:36 +0000 (21:20 -0700)
-commit    96b6aba08762f09e5dfa616854cb80ce054a7bf8
-tree    788823ba3676e17b5f376ec6718dcf60662eaf87    tree
-parent    200803dfe4ff772740d63db725ab2f1b185ccf92    commit | commitdiff
-[PATCH] V4L maintainer patch
-
-This patch updates maintainer info for BTTV and V4L.
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Acked-by: Gerd Knorr <kraxel@bytesex.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
--- 
-Michael Krufky
-
+- z

@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVGZFx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVGZGID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVGZFx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 01:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVGZFx5
+	id S261736AbVGZGID (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 02:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVGZGID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 01:53:57 -0400
-Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:36833 "EHLO
-	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261678AbVGZFx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 01:53:56 -0400
-Message-ID: <012401c591a6$9a2e2040$0b00000a@solidwaste>
-From: <cutaway@bellsouth.net>
-To: "Florin Malita" <fmalita@gmail.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <20050724191211.48495.qmail@web53608.mail.yahoo.com> <1122248869.10835.25.camel@localhost.localdomain> <f8994115050724211071a3dbe1@mail.gmail.com>
-Subject: Re: kernel 2.6 speed
-Date: Tue, 26 Jul 2005 01:55:18 -0400
+	Tue, 26 Jul 2005 02:08:03 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:57837 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261736AbVGZGIB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 02:08:01 -0400
+Date: Tue, 26 Jul 2005 08:07:31 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Philippe Troin <phil@fifi.org>, Steven Rostedt <rostedt@goodmis.org>,
+       Bernd Petrovitsch <bernd@firmix.at>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Grant Coady <lkml@dodo.com.au>, Puneet Vyas <vyas.puneet@gmail.com>
+Subject: Re: xor as a lazy comparison
+In-Reply-To: <1122319117.1472.15.camel@mindpipe>
+Message-ID: <Pine.LNX.4.61.0507260804230.26583@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0507241835360.18474@yvahk01.tjqt.qr> 
+ <kis7e1d4khtde78oajl017900pmn9407u4@4ax.com>  <Pine.LNX.4.61.0507242342080.9022@yvahk01.tjqt.qr>
+  <42E4131D.6090605@gmail.com> <1122281833.10780.32.camel@tara.firmix.at> 
+ <1122314150.6019.58.camel@localhost.localdomain>  <1122318659.1472.14.camel@mindpipe>
+  <87ackaitlj.fsf@ceramic.fifi.org> <1122319117.1472.15.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1506
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Florin Malita" <fmalita@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Sent: Monday, July 25, 2005 12:10 AM
-Subject: Re: kernel 2.6 speed
-
-
-> On 7/24/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > time() isn't a hot
-> > path in the real world.
+>> > Where do we draw the line with this?  Is x *= 2 preferable to x <<= 2 as
+>> > well?
+>> 
+>> Depends if you want to multiply by 2 or 4 :-)
 >
-> That's what you would expect but I've straced stuff calling
-> gettimeofday() in huge bursts every other second. Obviously braindead
-> stuff but so is "the real world" most of the time() ... :)
+>I guess I just answered my own question ;-)
 
-Anything time stamping things it processes many of will call some sort of
-time function pretty often.  Could happen frequently with certain classes of
-applications.    OS/2's "infoseg" approach was a pretty "high speed low
-drag" way to eliminate a trip into the kernel for all but the most esoteric
-time requirements.
+To answer for x *= 2 vs x <<= 1:
 
+Use * when you would logically want to do a multiplication,
+<< if you're working on a bitfield. It's just for keeping the code clean 
+enough so that others may understand it.
+
+In the longshot, it does not matter, as gcc will optimize out multiplication 
+with powers of two to bitops.
+
+
+
+Jan Engelhardt
+-- 
+| Alphagate Systems, http://alphagate.hopto.org/

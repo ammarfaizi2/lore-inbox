@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVGZAGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVGZAHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbVGZAGY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 20:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVGZAGY
+	id S261519AbVGZAHu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 20:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVGZAG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 20:06:24 -0400
-Received: from mail.kroah.org ([69.55.234.183]:19145 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261531AbVGZAGV (ORCPT
+	Mon, 25 Jul 2005 20:06:26 -0400
+Received: from mail.kroah.org ([69.55.234.183]:18889 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261521AbVGZAGV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 25 Jul 2005 20:06:21 -0400
-Date: Mon, 25 Jul 2005 17:00:25 -0700
+Date: Mon, 25 Jul 2005 17:06:00 -0700
 From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
-Message-ID: <20050726000024.GA23858@kroah.com>
-References: <9e47339105072421095af5d37a@mail.gmail.com> <200507242358.12597.dtor_core@ameritech.net> <9e4733910507250728a7882d4@mail.gmail.com> <d120d5000507250748136a1e71@mail.gmail.com> <9e47339105072509307386818b@mail.gmail.com>
+To: Rajat Jain <rajat.noida.india@gmail.com>
+Cc: kernelnewbies@nl.linux.org, linux-scsi@vger.kernel.org,
+       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Incorrect driver getting loaded for Qlogic FC-HBA
+Message-ID: <20050726000600.GB23858@kroah.com>
+References: <b115cb5f0507241902653b6f72@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e47339105072509307386818b@mail.gmail.com>
+In-Reply-To: <b115cb5f0507241902653b6f72@mail.gmail.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 12:30:43PM -0400, Jon Smirl wrote:
-> On 7/25/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > On 7/25/05, Jon Smirl <jonsmirl@gmail.com> wrote:
-> > > On 7/25/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > > > On Sunday 24 July 2005 23:09, Jon Smirl wrote:
-> > > > > I just pulled from GIT to test bind/unbind. I couldn't get it to work;
-> > > > > it isn't taking into account the CR on the end of the input value of
-> > > > > the sysfs attribute.  This patch will fix it but I'm sure there is a
-> > > > > cleaner solution.
-> > > > >
-> > > >
-> > > > "echo -n" should take care of this problem I think.
-> > >
-> > > That will work around it but I think we should fix it.  Changing to
-> > > strncmp() fixes most cases.
-> > >
-> > > -       if (strcmp(name, dev->bus_id) == 0)
-> > > +       if (strncmp(name, dev->bus_id, strlen(dev->bus_id)) == 0)
-> > >
-> > 
-> > This will produce "interesting results" if you have both "blah-1" and
-> > "blah-10" devices on the bus.
+On Mon, Jul 25, 2005 at 11:02:39AM +0900, Rajat Jain wrote:
+> I'm using Kernel 2.6.9 and am having a Qlogic QLE2362 FC-HBA in my
+> system. I selected all the Qlogic SCSI drivers while buiding the
+> kernel. Now the problem is that every time I reboot, I have to
+> MANUALLY modprobe the qla2322.ko module in the kernel and only then my
+> HBA works. By default, the kernel loads qla2300.ko, which is not the
+> correct driver for the card, and hence the HBA does not work. Here is
+> the lspci output:
 
-Yes, not a good thing for USB devices specifically.
-
-> Then the better solution is to fix the generic attribute set code to
-> strip leading and trailing white space.
-
-No, that might break other things as we have not been doing this from
-day one.  I'd rather just change these two places, if it's that big of a
-deal.  It was documented (in a lwn.net article) and the changelog entry,
-that you should use "echo -n".
+"by default" the kernel does not load any modules.  That's up to the
+hotplug system, or some other package.
 
 thanks,
 

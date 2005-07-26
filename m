@@ -1,217 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVGZUdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVGZUfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVGZUdF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 16:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVGZUdE
+	id S261883AbVGZUfH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 16:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVGZUdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 16:33:04 -0400
-Received: from mtaout2.barak.net.il ([212.150.49.172]:27975 "EHLO
-	mtaout2.barak.net.il") by vger.kernel.org with ESMTP
-	id S261885AbVGZUcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 16:32:24 -0400
-Date: Tue, 26 Jul 2005 23:36:04 +0300
-From: eliad lubovsky <eliadl@013.net>
-Subject: thread_info and kernel mode stack
-To: linux-kernel@vger.kernel.org
-Message-id: <1122410164.3524.72.camel@localhost.localdomain>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2)
-Content-type: multipart/mixed; boundary="=-WC8yt3haBu/tP+PECycj"
+	Tue, 26 Jul 2005 16:33:12 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:48808 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S261883AbVGZUb4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 16:31:56 -0400
+From: Michel Bouissou <michel@bouissou.net>
+Organization: Me, Myself and I
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [SOLVED ?] VIA KT400 + Kernel 2.6.12 + IO-APIC + ehci_hcd = IRQ trouble
+Date: Tue, 26 Jul 2005 21:39:26 +0200
+User-Agent: KMail/1.7.2
+Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0507261450160.4914-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0507261450160.4914-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200507262139.27150@totor.bouissou.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le Mardi 26 Juillet 2005 20:54, Alan Stern a écrit :
+> >
+> > ...and then, the system feels happy. I've played around with USB devices
+> > of all speeds in all sockets, and there are no "irq 21: nobody cared!"
+> > messages anymore...
+>
+> Not strange at all, since the EHCI controller actually _was_ using IRQ 21!
+> The difference is that now Linux knows this.
+[...]
+> So long as it's working now, that's the important thing.
 
---=-WC8yt3haBu/tP+PECycj
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Yes, but it doesn't tell us why kernels 2.4x felt perfectly happy with the old 
+BIOS...
 
-Hi,
-I am trying to work in a special configuration where the thread_info is
-above the stack pointer. The SP though, start from the 
-base stack address + THREAD_SIZE - THREAD_INFO_SECTION_SIZE (that is 128
-bytes). 
-The INIT_TSS macro looks like:
-.esp0           = sizeof(init_stack)-THREAD_INFO_SECTION_SIZE +
-(long)&init_stack,      \
-So far it works.
+Furthermore, I'm afraid I may have exchanged a problem for a worse one :-(
+Besides this USB/IRQ issue, my system was completely stable and had been for 2 
+years. Never experienced a system hang (except when I tried early 2.6 kernels 
+up to 2.6.8...)
 
+Alas, today it hanged completely 3 times :-(
 
-When I am trying to move the init_thread_info to the top of the stack
-the computer restart itself. What I am doing is replacing the union of
-the init_thread_info with the following structure:
+When I say completely, I mean complete system hang, display frozen, keyboard 
+dead (even the Magic SysRQ key doesn't respond), network dead (doen't ping 
+back), no visible activity of any kind :-((
 
--union thread_union {
--        struct thread_info thread_info;
--        unsigned long stack[THREAD_SIZE/sizeof(long)];
--};
+...and of course nothing got logged.
 
-+struct thread_union {
-+unsigned stack[(THREAD_SIZE-THREAD_INFO_SECTION_SIZE)/sizeof(long)];
-+        struct thread_info thread_info;
-+};
+This happened 4 times. The 3 first times, I was running with IO-APIC enabled 
+and the system was under high disk activity:
 
-it means that when I am referencing the thread_info it is in offset
-(THREAD_SIZE-THREAD_INFO_SECTION_SIZE)/sizeof(long) and not the base
-address as it was when declared with a union.
+1/ 1st time, I was copying the complete contents of a loopback-mounted ISO 
+image to a directory. The system hanged.
 
-I have changed other relevant places as in fork.c and so, although the
-computer even doesn't start, I think its related to the init thread.
-any clues?
+2/ 2nd time, I tried the same. The system hanged again.
+
+3/ 3rd time, I was generating an ISO fs (mkisofs). The system hanged.
+
+The 4th time, I was running the kernel booted with "noapic". The system was 
+doing nothing and had gone to screen saver mode, then to screen off. When I 
+moved the mouse nothing happened. I noticed the system had silently died :-(
+
+Now I'm running with IO-APIC enabled, bus USB 2.0 adn ehci completely disabled 
+(both in BIOS and modprobe.conf).
+
+The system hasn't hanged again, but I haven't tried to play with on-disk ISO 
+filesystems since...
+
+Sigh. I never had any problem with this system for 2 years running kernel 2.4. 
+I've had nothing but problems since running kernel 2.6 :-((
+
+(Not to mention that EVMS snapshots don't work anymore in kernel 2.6 and badly 
+corrupt filesystems [snapshots origins] spitting tons of :
+totor kernel: attempt to access beyond end of device
+totor kernel: dm-5: rw=0, want=990604112, limit=2031614
+totor kernel: attempt to access beyond end of device
+totor kernel: dm-5: rw=0, want=990604112, limit=2031614
+...but this is yet another story...
+I'm afraid I will end hating kernel 2.6 as much as I hate M$ things... )
+
+Cheers.
 
 -- 
-Eliad
-
---=-WC8yt3haBu/tP+PECycj
-Content-Disposition: attachment; filename=ti_and_stack.patch
-Content-Type: text/x-patch; name=ti_and_stack.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -urNp linux-2.6.9.orig/arch/i386/kernel/head.S linux-2.6.9.changes/arch/i386/kernel/head.S
---- linux-2.6.9.orig/arch/i386/kernel/head.S	2004-10-18 23:53:13.000000000 +0200
-+++ linux-2.6.9.changes/arch/i386/kernel/head.S	2005-07-26 15:42:20.000000000 +0300
-@@ -425,7 +425,7 @@ ENTRY(empty_zero_page)
- .data
- 
- ENTRY(stack_start)
--	.long init_thread_union+THREAD_SIZE
-+        .long init_thread_union+THREAD_SIZE-THREAD_INFO_SECTION_SIZE
- 	.long __BOOT_DS
- 
- ready:	.byte 0
-diff -urNp linux-2.6.9.orig/arch/i386/kernel/init_task.c linux-2.6.9.changes/arch/i386/kernel/init_task.c
---- linux-2.6.9.orig/arch/i386/kernel/init_task.c	2004-10-18 23:55:28.000000000 +0200
-+++ linux-2.6.9.changes/arch/i386/kernel/init_task.c	2005-07-26 22:56:29.036709328 +0300
-@@ -25,9 +25,7 @@ EXPORT_SYMBOL(init_mm);
-  * way process stacks are handled. This is done by having a special
-  * "init_task" linker map entry..
-  */
--union thread_union init_thread_union 
--	__attribute__((__section__(".data.init_task"))) =
--		{ INIT_THREAD_INFO(init_task) };
-+struct thread_union init_thread_union = { {0}, INIT_THREAD_INFO(init_task) };
- 
- /*
-  * Initial task structure.
-diff -urNp linux-2.6.9.orig/arch/i386/kernel/process.c linux-2.6.9.changes/arch/i386/kernel/process.c
---- linux-2.6.9.orig/arch/i386/kernel/process.c	2004-10-18 23:53:05.000000000 +0200
-+++ linux-2.6.9.changes/arch/i386/kernel/process.c	2005-07-26 22:55:42.853730208 +0300
-@@ -364,7 +364,7 @@ int copy_thread(int nr, unsigned long cl
- 	struct task_struct *tsk;
- 	int err;
- 
--	childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
-+        childregs = ((struct pt_regs *) ((THREAD_SIZE-THREAD_INFO_SECTION_SIZE) + (unsigned long) p->thread_info)) - 1;
- 	*childregs = *regs;
- 	childregs->eax = 0;
- 	childregs->esp = esp;
-@@ -665,8 +665,8 @@ out:
- 	return error;
- }
- 
--#define top_esp                (THREAD_SIZE - sizeof(unsigned long))
--#define top_ebp                (THREAD_SIZE - 2*sizeof(unsigned long))
-+#define top_esp                ((THREAD_SIZE-THREAD_INFO_SECTION_SIZE) - sizeof(unsigned long))
-+#define top_ebp                ((THREAD_SIZE-THREAD_INFO_SECTION_SIZE) - 2*sizeof(unsigned long))
- 
- unsigned long get_wchan(struct task_struct *p)
- {
-diff -urNp linux-2.6.9.orig/drivers/char/ip2main.c linux-2.6.9.changes/drivers/char/ip2main.c
---- linux-2.6.9.orig/drivers/char/ip2main.c	2004-10-18 23:55:36.000000000 +0200
-+++ linux-2.6.9.changes/drivers/char/ip2main.c	2004-10-18 23:55:36.000000000 +0200
-@@ -1179,7 +1179,7 @@ ip2_interrupt_bh(i2eBordStrPtr pB)
- /* Parameters: irq - interrupt number                                         */
- /*             pointer to optional device ID structure                        */
- /*             pointer to register structure                                  */
--/* Returns:    Nothing              $                                         */
-+/* Returns:    Nothing                                                        */
- /*                                                                            */
- /* Description:                                                               */
- /*                                                                            */
-diff -urNp linux-2.6.9.orig/include/asm-i386/processor.h linux-2.6.9.changes/include/asm-i386/processor.h
---- linux-2.6.9.orig/include/asm-i386/processor.h	2004-10-18 23:53:07.000000000 +0200
-+++ linux-2.6.9.changes/include/asm-i386/processor.h	2005-07-26 15:43:30.000000000 +0300
-@@ -450,7 +450,7 @@ struct thread_struct {
-  * be within the limit.
-  */
- #define INIT_TSS  {							\
--	.esp0		= sizeof(init_stack) + (long)&init_stack,	\
-+	.esp0		= sizeof(init_stack)-THREAD_INFO_SECTION_SIZE + (long)&init_stack,	\
- 	.ss0		= __KERNEL_DS,					\
- 	.ss1		= __KERNEL_CS,					\
- 	.ldt		= GDT_ENTRY_LDT,				\
-diff -urNp linux-2.6.9.orig/include/asm-i386/thread_info.h linux-2.6.9.changes/include/asm-i386/thread_info.h
---- linux-2.6.9.orig/include/asm-i386/thread_info.h	2004-10-18 23:53:21.000000000 +0200
-+++ linux-2.6.9.changes/include/asm-i386/thread_info.h	2005-07-26 23:08:59.000000000 +0300
-@@ -51,11 +51,13 @@ struct thread_info {
- 
- #endif
- 
-+#define THREAD_INFO_SECTION_SIZE	128
-+
- #define PREEMPT_ACTIVE		0x4000000
- #ifdef CONFIG_4KSTACKS
- #define THREAD_SIZE            (4096)
- #else
--#define THREAD_SIZE		(8192)
-+#define THREAD_SIZE		(4096)
- #endif
- 
- #define STACK_WARN             (THREAD_SIZE/8)
-@@ -88,6 +90,7 @@ static inline struct thread_info *curren
- {
- 	struct thread_info *ti;
- 	__asm__("andl %%esp,%0; ":"=r" (ti) : "0" (~(THREAD_SIZE - 1)));
-+	ti = (struct thread_info *)((char*)(ti)+(THREAD_SIZE-THREAD_INFO_SECTION_SIZE));
- 	return ti;
- }
- 
-diff -urNp linux-2.6.9.orig/include/linux/sched.h linux-2.6.9.changes/include/linux/sched.h
---- linux-2.6.9.orig/include/linux/sched.h	2004-10-18 23:53:13.000000000 +0200
-+++ linux-2.6.9.changes/include/linux/sched.h	2005-07-26 23:07:30.000000000 +0300
-@@ -654,9 +654,9 @@ void yield(void);
-  */
- extern struct exec_domain	default_exec_domain;
- 
--union thread_union {
-+struct thread_union {
-+	unsigned long stack[(THREAD_SIZE-THREAD_INFO_SECTION_SIZE)/sizeof(long)];
- 	struct thread_info thread_info;
--	unsigned long stack[THREAD_SIZE/sizeof(long)];
- };
- 
- #ifndef __HAVE_ARCH_KSTACK_END
-@@ -669,7 +669,7 @@ static inline int kstack_end(void *addr)
- }
- #endif
- 
--extern union thread_union init_thread_union;
-+extern struct thread_union init_thread_union;
- extern struct task_struct init_task;
- 
- extern struct   mm_struct init_mm;
-diff -urNp linux-2.6.9.orig/kernel/fork.c linux-2.6.9.changes/kernel/fork.c
---- linux-2.6.9.orig/kernel/fork.c	2004-10-18 23:53:13.000000000 +0200
-+++ linux-2.6.9.changes/kernel/fork.c	2005-07-26 23:06:24.000000000 +0300
-@@ -79,7 +79,9 @@ static kmem_cache_t *task_struct_cachep;
- 
- void free_task(struct task_struct *tsk)
- {
--	free_thread_info(tsk->thread_info);
-+	void * tmp = (void*)(tsk->thread_info);
-+	tmp -= (THREAD_SIZE - THREAD_INFO_SECTION_SIZE);
-+	free_thread_info(tmp);
- 	free_task_struct(tsk);
- }
- EXPORT_SYMBOL(free_task);
-@@ -270,6 +272,8 @@ static struct task_struct *dup_task_stru
- 		return NULL;
- 	}
- 
-+        ti = (struct thread_info*)((char*)ti + (THREAD_SIZE-THREAD_INFO_SECTION_SIZE));
-+
- 	*ti = *orig->thread_info;
- 	*tsk = *orig;
- 	tsk->thread_info = ti;
-
---=-WC8yt3haBu/tP+PECycj--
-
+Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E

@@ -1,81 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVGZPT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVGZPKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbVGZPT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 11:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVGZPKc
+	id S261884AbVGZPKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 11:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVGZPII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 11:10:32 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:39324 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261880AbVGZPJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 11:09:14 -0400
-Date: Tue, 26 Jul 2005 10:08:51 -0500
-From: Dean Nelson <dcn@sgi.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: torvalds@osdl.org, akpm@osdl.org, mingo@elte.hu, dcn@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix (again) MAX_USER_RT_PRIO and MAX_RT_PRIO (was: MAX_USER_RT_PRIO and MAX_RT_PRIO are wrong!)
-Message-ID: <20050726150851.GA3609@sgi.com>
-References: <1122323319.4895.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122323319.4895.3.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+	Tue, 26 Jul 2005 11:08:08 -0400
+Received: from relay00.pair.com ([209.68.1.20]:25103 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S261851AbVGZPGU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 11:06:20 -0400
+X-pair-Authenticated: 209.68.2.107
+Message-ID: <42E65167.7050509@cybsft.com>
+Date: Tue, 26 Jul 2005 10:06:15 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: john cooper <john.cooper@timesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 PREEMPT_RT && PPC
+References: <200507200816.11386.kernel@kolivas.org> <20050719223216.GA4194@elte.hu> <1121819037.26927.75.camel@dhcp153.mvista.com> <200507201104.48249.kernel@kolivas.org> <1121822524.26927.85.camel@dhcp153.mvista.com> <42DF293A.4050702@timesys.com> <20050726120015.GB9224@elte.hu> <42E64C43.2050104@cybsft.com> <20050726145500.GA18752@elte.hu>
+In-Reply-To: <20050726145500.GA18752@elte.hu>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve, your change to XPC looks good. Thanks, Dean
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+> 
+>><snip>
+>>
+>>On X86 -51-36 won't build with CONFIG_BLOCKER=Y without the attached 
+>>patch.
+> 
+> 
+> thanks. I changed the include to asm/rtc.h, this should give what PPC 
+> wants to have, and should work on all architectures. Released the -37 
+> patch.
+> 
+> 	Ingo
+> 
 
-Signed-off-by: Dean Nelson <dcn@sgi.com>
+Sorry I overlooked the get_tbu and get_tbl calls. Thought the include 
+was a leftover or something. :-/
 
-
-On Mon, Jul 25, 2005 at 04:28:39PM -0400, Steven Rostedt wrote:
-> Dean,
-> 
-> I've CC you since it also has the change to
-> linux-2.6.13-rc3/arch/ia64/sn/kernel/xpc_main.c in it. But I don't see
-> this in -mm.  I don't have a ia64 so I can't test it. You tested this
-> for me before, so it should still work. This part should be at least
-> acknowledged by you.
-> 
-> -- Steve
-> 
-> PS. I'm currently running this patched kernel with MAX_RT_USER set to 95
-> and MAX_RT_PRIO set to 100 on an SMP machine.
-> 
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-> 
-> --- linux-2.6.13-rc3/kernel/sched.c.orig	2005-07-25 10:16:31.000000000 -0400
-> +++ linux-2.6.13-rc3/kernel/sched.c	2005-07-25 10:23:35.000000000 -0400
-> @@ -3486,7 +3486,7 @@ static void __setscheduler(struct task_s
->  	p->policy = policy;
->  	p->rt_priority = prio;
->  	if (policy != SCHED_NORMAL)
-> -		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
-> +		p->prio = MAX_RT_PRIO-1 - p->rt_priority;
->  	else
->  		p->prio = p->static_prio;
->  }
-> @@ -3518,7 +3518,8 @@ recheck:
->  	 * 1..MAX_USER_RT_PRIO-1, valid priority for SCHED_NORMAL is 0.
->  	 */
->  	if (param->sched_priority < 0 ||
-> -	    param->sched_priority > MAX_USER_RT_PRIO-1)
-> +	    (p->mm &&  param->sched_priority > MAX_USER_RT_PRIO-1) ||
-> +	    (!p->mm && param->sched_priority > MAX_RT_PRIO-1))
->  		return -EINVAL;
->  	if ((policy == SCHED_NORMAL) != (param->sched_priority == 0))
->  		return -EINVAL;
-> --- linux-2.6.13-rc3/arch/ia64/sn/kernel/xpc_main.c.orig	2005-07-25 10:23:22.000000000 -0400
-> +++ linux-2.6.13-rc3/arch/ia64/sn/kernel/xpc_main.c	2005-07-25 10:23:35.000000000 -0400
-> @@ -420,7 +420,7 @@ xpc_activating(void *__partid)
->  	partid_t partid = (u64) __partid;
->  	struct xpc_partition *part = &xpc_partitions[partid];
->  	unsigned long irq_flags;
-> -	struct sched_param param = { sched_priority: MAX_USER_RT_PRIO - 1 };
-> +	struct sched_param param = { sched_priority: MAX_RT_PRIO - 1 };
->  	int ret;
->  
-> 
-> 
+-- 
+    kr

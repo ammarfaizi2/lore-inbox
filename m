@@ -1,77 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVGZBBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVGZBD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVGZBBB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 21:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVGZBBB
+	id S261588AbVGZBD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 21:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVGZBD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 21:01:01 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:52621 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261579AbVGZBA7
+	Mon, 25 Jul 2005 21:03:26 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:31892 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261588AbVGZBDY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 21:00:59 -0400
-Date: Tue, 26 Jul 2005 06:40:04 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org, bcrl@kvack.org, wli@holomorphy.com,
-       zab@zabbo.net, mason@suse.com
-Subject: Re: [PATCH 2/6] Rename __lock_page to lock_page_slow
-Message-ID: <20050726011004.GA4472@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20050620120154.GA4810@in.ibm.com> <20050620160126.GA5271@in.ibm.com> <20050620162404.GB5380@in.ibm.com> <20050724221702.GA9620@infradead.org> <20050724223634.GB9620@infradead.org>
+	Mon, 25 Jul 2005 21:03:24 -0400
+Subject: Re: [RFC - 0/12] NTP cleanup work (v. B4)
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, George Anzinger <george@mvista.com>,
+       frank@tuxrocks.com, Anton Blanchard <anton@samba.org>,
+       benh@kernel.crashing.org, Nishanth Aravamudan <nacc@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.61.0507210151570.3728@scrub.home>
+References: <1121482517.25236.29.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0507171706490.3728@scrub.home>
+	 <1121876812.4259.14.camel@leatherman>
+	 <Pine.LNX.4.61.0507210151570.3728@scrub.home>
+Content-Type: text/plain
+Date: Mon, 25 Jul 2005 18:03:17 -0700
+Message-Id: <1122339797.30963.48.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050724223634.GB9620@infradead.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 24, 2005 at 11:36:34PM +0100, Christoph Hellwig wrote:
-> On Sun, Jul 24, 2005 at 11:17:02PM +0100, Christoph Hellwig wrote:
-> > On Mon, Jun 20, 2005 at 09:54:04PM +0530, Suparna Bhattacharya wrote:
-> > > In order to allow for interruptible and asynchronous versions of
-> > > lock_page in conjunction with the wait_on_bit changes, we need to
-> > > define low-level lock page routines which take an additional
-> > > argument, i.e a wait queue entry and may return non-zero status,
-> > > e.g -EINTR, -EIOCBRETRY, -EWOULDBLOCK etc. This patch renames 
-> > > __lock_page to lock_page_slow, so that __lock_page and 
-> > > __lock_page_slow can denote the versions which take a wait queue 
-> > > parameter.
-> > 
-> > How many users that don't use a waitqueue parameter will be left
-> > once all AIO patches go in?
-
-Since these patches are intended only for aio reads and (O_SYNC) writes,
-that still leaves most other users of regular lock_page() as they are.
-
+On Thu, 2005-07-21 at 12:39 +0200, Roman Zippel wrote:
+> Hi,
 > 
-> Actually looking at the later patches we always seem to pass
-> current->io_wait anyway, so is there a real point for having the
-> argument?
+> On Wed, 20 Jul 2005, john stultz wrote:
 > 
+> > I really don't think the NTP changes I've mailed is very complex.
+> > Please, be specific and point to something you think is an issue and
+> > I'll do my best to fix it.
+> 
+> Maybe I should explain, in what direction I would take it.
+> Let's first only take tick based updates, one property I don't want to see 
+> go away (and which you remove in the last patch), is to basically update 
+> xtime at every tick by (tick_nsec+time_adj) (and maybe fold time_adjust 
+> into time_adj), no multiply/divide just adds/shifts. Every second (or 
+> maybe even less frequently) we update time_adj, where we even might 
+> integrate a better to way to add previous errors due to SHIFT_HZ.
 
-Having the parameter enables issual of synchronous lock_page() within
-an AIO path, overriding current->io_wait, (for example, consider the case
-of a page fault during AIO !), and thus avoids the need to convert and audit
-more paths to handle -EIOCBRETRY propagation (though it is possible to
-do so as and when the need arises). This is why I decided to keep this
-parameter explicit at the low level, and let the caller decide how to
-invoke it and handle the return value propagation.
+Hmm. Ok, would something like ntp_static_interval_adjustment() or
+whatnot be a decent interface to provide a fixed single tick adjustment
+as precalculated by the NTP state machine?  Similar to what I have in
+patch 10, but via a separate interface?
 
-Does that make sense ?
+> To add support for continous time sources, the generic ntp code would just 
+> provide [tick,frequency,offset] values and the time source converts it 
+> into its internal values. A tick based source calculates [tick_nsec, 
+> time_adj] and a continous source calculates the [offset,multiplier]. These 
+> values should be recalculated as infrequently as possible and not every 
+> single tick as you do with ppc_adjtimex. This also means a continous 
+> source updates xtime basically by calling gettimeofday (what ppc64 already 
+> almost does) and doesn't use update_wall_time() at all.
 
-BTW, there is also a potential secondary benefit of a low level
-primitive for asynchronous page IO operations etc directly usable
-by kernel threads, without having to use the whole gamut of AIO
-interfaces.
+Yep, that sounds doable. Although yes, the ppc_adjtimex is more
+overhead, I went with the worse implementation to scratch out my idea
+adn see if the ppc folks might scream and suggest the proper way.
 
-Thanks for reviewing the code !
 
-Regards
-Suparna
+> Maybe I'm missing something, but I don't see a reason to forcibly merge 
+> both ways to update the clock, keep them seperate and let the generic ntp 
+> code provide the basic parameters which the time source uses to update the 
+> clock. The important thing is to precalculate as much as possible, so that 
+> the runtime overhead is as low as possible and these precalculations 
+> differ between time sources, so what your patches basically do is to 
+> remove all of these precalculations and I can't convince myself to see 
+> this as a good thing.
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+I don't know if that's the case. I am precalculating things, but maybe
+we're misunderstanding each other. Regardless, yes, for the tick based
+systems that can't go continuous I can preserve the existing behavior
+(if not possibly improve it some).
+
+
+> BTW do you have any user space test code for this? This might be useful to 
+> verify that the changes are really correct and a prototype might be a good 
+> way to demonstrate the kernel changes.
+
+I do not right now, after seeing Rusty's talk at OLS this sounds like
+quite a nice idea. I was thinking of a simple simulator that has two
+files: the first a list of hardware time values and and the second a
+list of operations (gettimeofday, timer_interrupt, adjtimex). We can
+then generate time sequences and action sequences and run them through
+the simulator of both the current and old implementations.
+
+Not that this is completely trivial to do, but it did seem like a good
+idea. I'll see what I can do. 
+
+thanks
+-john
 

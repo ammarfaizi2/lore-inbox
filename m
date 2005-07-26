@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVGZVPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVGZVXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbVGZVPj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 17:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVGZVNg
+	id S262088AbVGZVXB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 17:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVGZVUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 17:13:36 -0400
-Received: from 64-60-250-34.cust.telepacific.net ([64.60.250.34]:33199 "EHLO
-	panta-1.pantasys.com") by vger.kernel.org with ESMTP
-	id S262087AbVGZVLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 17:11:16 -0400
-Message-ID: <42E6A6E7.5000402@pantasys.com>
-Date: Tue, 26 Jul 2005 14:11:03 -0700
-From: Peter Buckingham <peter@pantasys.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [ACPI] Re: [PATCH] 2.6.13-rc3-git5: fix Bug #4416 (2/2)
-References: <200507261247.05684.rjw@sisk.pl> <200507261254.05507.rjw@sisk.pl> <42E62BB0.6010409@gmx.net> <200507262302.37488.rjw@sisk.pl>
-In-Reply-To: <200507262302.37488.rjw@sisk.pl>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 26 Jul 2005 17:20:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:953 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262134AbVGZVTb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 17:19:31 -0400
+Date: Tue, 26 Jul 2005 14:21:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: sonny@burdell.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Memory pressure handling with iSCSI
+Message-Id: <20050726142124.44aa0176.akpm@osdl.org>
+In-Reply-To: <1122410256.6433.43.camel@dyn9047017102.beaverton.ibm.com>
+References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
+	<20050726111110.6b9db241.akpm@osdl.org>
+	<1122403152.6433.39.camel@dyn9047017102.beaverton.ibm.com>
+	<20050726193138.GA32324@kevlar.burdell.org>
+	<1122410256.6433.43.camel@dyn9047017102.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Jul 2005 21:11:44.0765 (UTC) FILETIME=[A06A22D0:01C59226]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> On Tuesday, 26 of July 2005 14:25, Carl-Daniel Hailfinger wrote:
->>The current in-kernel sk98lin driver is years behind the version
->>downloadable from Syskonnect. Maybe it would make sense to update
->>it first before applying any new patches.
->>http://www.syskonnect.com/support/driver/d0102_driver.html
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> > You probably covered this, but just to make sure, if you're on a
+> > pentium4 machine, I usually boot w/ "idle=poll" to see proper idle
+> > reporting because otherwise the chip will throttle itself back and
+> > idle time will be skewed -- at least on oprofile.
+> > 
 > 
-> 
-> You are right, but I don't know who should do this.  I have only submitted
-> the patch to eliminate a problem with the current kernel.
+> My machine is AMD64.
 
-have a look at the skge driver, this is a cleaned up version of the 
-sk98lin. Although it doesn't support all of the devices, ie ones based 
-on the Yukon 2.
+I'd expect the problem to which Sonny refers will occur on many
+architectures.
 
-peter
+IIRC, the problem is that many (or all) of the counters which oprofile uses
+are turned off when the CPU does a halt.  So the profiler ends up thinking
+that zero time is spent in the idle handler.  The net effect is that if
+your workload spends 90% of its time idle then all the other profiler hits
+are exaggerated by a factor of ten.  Making the CPU busywait in idle()
+fixes this.
+
+But you're using the old /proc/profile profiler which uses a free-running
+timer which doesn't get stopped by halt, so it is unaffected by this.

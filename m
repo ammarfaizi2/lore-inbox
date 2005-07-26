@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVGZCpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVGZCxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbVGZCpw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 22:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVGZCpw
+	id S261601AbVGZCxN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 22:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVGZCxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 22:45:52 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:4277 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261606AbVGZCpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 22:45:46 -0400
-Subject: Re: [patch 2.6.13-rc3] i386: clean up user_mode macros
-From: Lee Revell <rlrevell@joe-job.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>
-In-Reply-To: <1122337212.4895.7.camel@localhost.localdomain>
-References: <200507251901_MC3-1-A589-A433@compuserve.com>
-	 <Pine.LNX.4.58.0507251608430.6074@g5.osdl.org>
-	 <1122337212.4895.7.camel@localhost.localdomain>
+	Mon, 25 Jul 2005 22:53:12 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:63953 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261598AbVGZCxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 22:53:10 -0400
+Subject: Re: supposed to be shared subtree patches.
+From: Ram Pai <linuxram@us.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: akpm@osdl.org, Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Avantika Mathur <mathurav@us.ibm.com>,
+       Mike Waychison <mike@waychison.com>
+In-Reply-To: <20050725224417.501066000@localhost>
+References: <20050725224417.501066000@localhost>
 Content-Type: text/plain
-Date: Mon, 25 Jul 2005 22:45:41 -0400
-Message-Id: <1122345942.1472.81.camel@mindpipe>
+Organization: IBM 
+Message-Id: <1122346380.12074.133.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 25 Jul 2005 19:53:00 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-07-25 at 20:20 -0400, Steven Rostedt wrote:
-> And I
-> would also assume that you prefer x *= 2 over x <<= 1 (also since the
-> first person to show this example used x <<= 2. Right Lee? :-)
+On Mon, 2005-07-25 at 15:44, Ram Pai wrote:
+> , miklos@szeredi.hu, Janak Desai <janak@us.ibm.com>, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+> Subject: [PATCH 0/7] shared subtree
+> 
+> Hi Andrew/Al Viro,
+> 
+> 	Enclosing a final set of well tested patches that implement
 
-Let us never speak of that again.  These aren't the droids you're
-looking for.
+....my apologies. I screwed up sending the patches through quilt.
 
-Lee
+anyway I have received the following comments from Andrew Morton, which
+I will incorporate before sending out saner looking patches.
+sorry again,
+RP
+
+Andrew's comments follows:
+----------------------------------------
+
+Frankly, I don't even know what these patches _do_, and haven't spent
+the time to try to find out.
+
+If these patches are merged, how do we expect end-users to find out how
+to use the new capabilities?
+
+A few paragraphs in the patch #1 changelog would help.  A high-level
+description of the new capability which explains what it does and why it
+would be a useful thing for Linux.
+
+And maybe some deeper information in a Documentation/ file.
+
+Right now, there might well be a lot of people who could use these new
+features, but they don't even know that these patches provide them! 
+It's all a bit of a mystery, really.
+---------------------------------------------------------------------
+
 

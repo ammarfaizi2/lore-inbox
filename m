@@ -1,220 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVGZN7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVGZOLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbVGZN7f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 09:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVGZN5t
+	id S261779AbVGZOLk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 10:11:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVGZOLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 09:57:49 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:51264 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261799AbVGZN4s (ORCPT
+	Tue, 26 Jul 2005 10:11:40 -0400
+Received: from mivlgu.ru ([81.18.140.87]:12714 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S261779AbVGZOLi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 09:56:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=J7WRpdPCmiiAyWulKNzx55Ie/3VBzemrEnQ4RAe2tJ0UA7p+jpAAZJXflJ+r+ovyVeA5LFjig15TeefEXO3JMc+0ZY2OET6iVelgE9yXLeLrvDvndlompK3dsVFm6JvMJpC1RLxmGQzJysHshuxoMyuZVl5v3iIFbWtzdcZfR7A=
-From: Tejun Heo <htejun@gmail.com>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
-Content-Type: text/plain; charset=US-ASCII
-References: <20050726135502.D83FC6EE@htj.dyndns.org>
-In-Reply-To: <20050726135502.D83FC6EE@htj.dyndns.org>
-Subject: Re: [PATCH linux-2.6-block:master 05/05] blk: update biodoc
-Message-ID: <20050726135502.3A3F3C6C@htj.dyndns.org>
-Date: Tue, 26 Jul 2005 22:56:42 +0900 (KST)
+	Tue, 26 Jul 2005 10:11:38 -0400
+Date: Tue, 26 Jul 2005 18:11:31 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Fw: Oops in hidinput_hid_event
+Message-Id: <20050726181131.451ed691.vsu@altlinux.ru>
+In-Reply-To: <20050719133058.GA7872@ucw.cz>
+References: <20050718141637.074c6f70.zaitcev@redhat.com>
+	<20050719133058.GA7872@ucw.cz>
+X-Mailer: Sylpheed version 1.0.0beta4 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Tue__26_Jul_2005_18_11_31_+0400_B=z4A=mKKSVuirOy"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-05_blk_update-biodoc.patch
+--Signature=_Tue__26_Jul_2005_18_11_31_+0400_B=z4A=mKKSVuirOy
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-	Updates biodoc to reflect changes in elevator API.
+On Tue, 19 Jul 2005 09:30:58 -0400 Vojtech Pavlik wrote:
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+> On Mon, Jul 18, 2005 at 02:16:37PM -0700, Pete Zaitcev wrote:
+> 
+> > I think this patch is rather obvious, so maybe I should ask Andrew to
+> > apply it to -mm for now, to get some testing. Would that help to verify
+> > it for acceptance?
+> 
+> Your patch is perfectly OK, my NULL check was indeed completely wrong.
+> 
+> I need to find out how there can be an input event happening without its
+> associated input structure, though, since the oops actually reveals a
+> deeper problem.
 
- biodoc.txt |  113 ++++++++++++++++++++++++++++---------------------------------
- 1 files changed, 52 insertions(+), 61 deletions(-)
+hidinput_connect() does:
 
-Index: blk-fixes/Documentation/block/biodoc.txt
-===================================================================
---- blk-fixes.orig/Documentation/block/biodoc.txt	2005-07-26 22:54:59.000000000 +0900
-+++ blk-fixes/Documentation/block/biodoc.txt	2005-07-26 22:55:01.000000000 +0900
-@@ -906,9 +906,20 @@ Aside:
- 
- 
- 4. The I/O scheduler
--I/O schedulers are now per queue. They should be runtime switchable and modular
--but aren't yet. Jens has most bits to do this, but the sysfs implementation is
--missing.
-+I/O scheduler, a.k.a. elevator, is implemented in two layers.  Generic dispatch
-+queue and specific I/O schedulers.  Unless stated otherwise, elevator is used
-+to refer to both parts and I/O scheduler to specific I/O schedulers.
-+
-+Block layer implements generic dispatch queue in ll_rw_blk.c and elevator.c.
-+The generic dispatch queue is responsible for properly ordering barrier
-+requests, requeueing, handling non-fs requests and all other subtleties.
-+
-+Specific I/O schedulers are responsible for ordering normal filesystem
-+requests.  They can also choose to delay certain requests to improve
-+throughput or whatever purpose.  As the plural form indicates, there are
-+multiple I/O schedulers.  They can be built as modules but at least one should
-+be built inside the kernel.  Each queue can choose different one and can also
-+change to another one dynamically.
- 
- A block layer call to the i/o scheduler follows the convention elv_xxx(). This
- calls elevator_xxx_fn in the elevator switch (drivers/block/elevator.c). Oh,
-@@ -921,44 +932,36 @@ keeping work.
- The functions an elevator may implement are: (* are mandatory)
- elevator_merge_fn		called to query requests for merge with a bio
- 
--elevator_merge_req_fn		" " "  with another request
-+elevator_merge_req_fn		called when two requests get merged. the one
-+				which gets merged into the other one will be
-+				never seen by I/O scheduler again. IOW, after
-+				being merged, the request is gone.
- 
- elevator_merged_fn		called when a request in the scheduler has been
- 				involved in a merge. It is used in the deadline
- 				scheduler for example, to reposition the request
- 				if its sorting order has changed.
- 
--*elevator_next_req_fn		returns the next scheduled request, or NULL
--				if there are none (or none are ready).
-+elevator_dispatch_fn		fills the dispatch queue with ready requests.
-+				I/O schedulers are free to postpone requests by
-+				not filling the dispatch queue unless @force
-+				is non-zero.  Once dispatched, I/O schedulers
-+				are not allowed to manipulate the requests -
-+				they belong to generic dispatch queue.
- 
--*elevator_add_req_fn		called to add a new request into the scheduler
-+elevator_add_req_fn		called to add a new request into the scheduler
- 
- elevator_queue_empty_fn		returns true if the merge queue is empty.
- 				Drivers shouldn't use this, but rather check
- 				if elv_next_request is NULL (without losing the
- 				request if one exists!)
- 
--elevator_remove_req_fn		This is called when a driver claims ownership of
--				the target request - it now belongs to the
--				driver. It must not be modified or merged.
--				Drivers must not lose the request! A subsequent
--				call of elevator_next_req_fn must  return the
--				_next_ request.
--
--elevator_requeue_req_fn		called to add a request to the scheduler. This
--				is used when the request has alrnadebeen
--				returned by elv_next_request, but hasn't
--				completed. If this is not implemented then
--				elevator_add_req_fn is called instead.
--
- elevator_former_req_fn
- elevator_latter_req_fn		These return the request before or after the
- 				one specified in disk sort order. Used by the
- 				block layer to find merge possibilities.
- 
--elevator_completed_req_fn	called when a request is completed. This might
--				come about due to being merged with another or
--				when the device completes the request.
-+elevator_completed_req_fn	called when a request is completed.
- 
- elevator_may_queue_fn		returns true if the scheduler wants to allow the
- 				current context to queue a new request even if
-@@ -967,13 +970,33 @@ elevator_may_queue_fn		returns true if t
- 
- elevator_set_req_fn
- elevator_put_req_fn		Must be used to allocate and free any elevator
--				specific storate for a request.
-+				specific storage for a request.
-+
-+elevator_activate_req_fn	Called when device driver first sees a request.
-+				I/O schedulers can use this callback to
-+				determine when actual execution of a request
-+				starts.
-+elevator_deactivate_req_fn	Called when device driver decides to delay
-+				a request by requeueing it.
- 
- elevator_init_fn
- elevator_exit_fn		Allocate and free any elevator specific storage
- 				for a queue.
- 
--4.2 I/O scheduler implementation
-+4.2 Request flows seen by I/O schedulers
-+All requests seens by I/O schedulers strictly follow one of the following three
-+flows.
-+
-+ set_req_fn ->
-+
-+ i.   add_req_fn -> (merged_fn ->)* -> dispatch_fn -> activate_req_fn ->
-+      (deactivate_req_fn -> activate_req_fn ->)* -> completed_req_fn
-+ ii.  add_req_fn -> (merged_fn ->)* -> merge_req_fn
-+ iii. [none]
-+
-+ -> put_req_fn
-+
-+4.3 I/O scheduler implementation
- The generic i/o scheduler algorithm attempts to sort/merge/batch requests for
- optimal disk scan and request servicing performance (based on generic
- principles and device capabilities), optimized for:
-@@ -993,18 +1016,7 @@ request in sort order to prevent binary 
- This arrangement is not a generic block layer characteristic however, so
- elevators may implement queues as they please.
- 
--ii. Last merge hint
--The last merge hint is part of the generic queue layer. I/O schedulers must do
--some management on it. For the most part, the most important thing is to make
--sure q->last_merge is cleared (set to NULL) when the request on it is no longer
--a candidate for merging (for example if it has been sent to the driver).
--
--The last merge performed is cached as a hint for the subsequent request. If
--sequential data is being submitted, the hint is used to perform merges without
--any scanning. This is not sufficient when there are multiple processes doing
--I/O though, so a "merge hash" is used by some schedulers.
--
--iii. Merge hash
-+ii. Merge hash
- AS and deadline use a hash table indexed by the last sector of a request. This
- enables merging code to quickly look up "back merge" candidates, even when
- multiple I/O streams are being performed at once on one disk.
-@@ -1013,29 +1025,8 @@ multiple I/O streams are being performed
- are far less common than "back merges" due to the nature of most I/O patterns.
- Front merges are handled by the binary trees in AS and deadline schedulers.
- 
--iv. Handling barrier cases
--A request with flags REQ_HARDBARRIER or REQ_SOFTBARRIER must not be ordered
--around. That is, they must be processed after all older requests, and before
--any newer ones. This includes merges!
--
--In AS and deadline schedulers, barriers have the effect of flushing the reorder
--queue. The performance cost of this will vary from nothing to a lot depending
--on i/o patterns and device characteristics. Obviously they won't improve
--performance, so their use should be kept to a minimum.
--
--v. Handling insertion position directives
--A request may be inserted with a position directive. The directives are one of
--ELEVATOR_INSERT_BACK, ELEVATOR_INSERT_FRONT, ELEVATOR_INSERT_SORT.
--
--ELEVATOR_INSERT_SORT is a general directive for non-barrier requests.
--ELEVATOR_INSERT_BACK is used to insert a barrier to the back of the queue.
--ELEVATOR_INSERT_FRONT is used to insert a barrier to the front of the queue, and
--overrides the ordering requested by any previous barriers. In practice this is
--harmless and required, because it is used for SCSI requeueing. This does not
--require flushing the reorder queue, so does not impose a performance penalty.
--
--vi. Plugging the queue to batch requests in anticipation of opportunities for
--  merge/sort optimizations
-+iii. Plugging the queue to batch requests in anticipation of opportunities for
-+     merge/sort optimizations
- 
- This is just the same as in 2.4 so far, though per-device unplugging
- support is anticipated for 2.5. Also with a priority-based i/o scheduler,
-@@ -1069,7 +1060,7 @@ Aside:
-   blk_kick_queue() to unplug a specific queue (right away ?)
-   or optionally, all queues, is in the plan.
- 
--4.3 I/O contexts
-+4.4 I/O contexts
- I/O contexts provide a dynamically allocated per process data area. They may
- be used in I/O schedulers, and in the block layer (could be used for IO statis,
- priorities for example). See *io_context in drivers/block/ll_rw_blk.c, and
+	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++)
+		... loop which calls hidinput_configure_usage(),
+		    which initializes report->hidinput pointers ...
 
+So ->hidinput is getting set only for fields of input and output
+reports, but the device may also support feature reports, and for their
+fields ->hidinput will remain NULL.  When such report is requested with
+hid_submit_report(hid, report, USB_DIR_IN), the completed urb will be
+handled by hid_ctrl(), which will call hid_input_report() for it; this
+corresponds to the traceback in oops.
+
+BTW, the driver requests all feature reports during initialization (in
+hid_init_reports()), but it does not oops there, because
+hidinput_connect() is called only later, and therefore HID_CLAIMED_INPUT
+is not yet set.
+
+However, I still don't understand where hid_submit_report() gets called
+for a feature report in the reported case (hidinput_input_event() can
+submit only output reports, and a call from hiddev is unlikely to be
+triggered by a NumLock press).
+
+> So that's why I didn't apply the patch yet.
+> 
+> > Begin forwarded message:
+> > 
+> > Date: Tue, 28 Jun 2005 15:00:23 -0700
+> > From: Pete Zaitcev <zaitcev@redhat.com>
+> > To: vojtech@suse.cz
+> > Cc: zaitcev@redhat.com, linux-usb-devel@lists.sourceforge.net
+> > Subject: Oops in hidinput_hid_event
+> > 
+> > Hi, Vojtech:
+> > 
+> > Someone reported a bug in Fedora, which runs a largely unmodified upstream
+> > kernel in this area. Whenever the user hits a key which switches LED,
+> > the system oopses. Here's a trace:
+> > 
+> > Unable to handle kernel NULL pointer dereference at virtual address 000000c8
+> > EFLAGS: 00010006   (2.6.11-1.1369_FC4smp)
+> > EIP is at hidinput_hid_event+0x2d/0x292                                       
+> > Call Trace:           
+> >  [<c02872e0>] hid_process_event+0x57/0x5f
+> >  [<c028758a>] hid_input_field+0x2a2/0x2ac
+> >  [<c0287632>] hid_input_report+0x9e/0xb8
+> >  [<c0287f62>] hid_ctrl+0x14c/0x151
+> >  [<e0a21060>] uhci_destroy_urb_priv+0xb5/0x10a [uhci_hcd]
+> >  [<c027dab5>] usb_hcd_giveback_urb+0x24/0x67
+> >  [<e0a22360>] uhci_finish_urb+0x2d/0x38 [uhci_hcd]
+> >  [<e0a223af>] uhci_finish_completion+0x44/0x56 [uhci_hcd]
+> >  [<e0a224a2>] uhci_scan_schedule+0xaa/0x13a [uhci_hcd]
+> >  [<c023413d>] i8042_interrupt+0x121/0x234
+> >  [<e0a226d0>] uhci_irq+0x47/0x10d [uhci_hcd]
+> > 
+> > Full trace at
+> >  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=160709
+> > 
+> > Any ideas?
+> > 
+> > By the way, it seems that I see a bug in hidinput_hid_event.
+> > The check for NULL can never work, becaue &hidinput->input
+> > is nonzero at all times. How about this?
+> > 
+> > --- linux-2.6.12/drivers/usb/input/hid-input.c	2005-06-21 12:58:47.000000000 -0700
+> > +++ linux-2.6.12-lem/drivers/usb/input/hid-input.c	2005-06-28 14:57:22.000000000 -0700
+> > @@ -397,11 +397,12 @@
+> >  
+> >  void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, struct pt_regs *regs)
+> >  {
+> > -	struct input_dev *input = &field->hidinput->input;
+> > +	struct input_dev *input;
+> >  	int *quirks = &hid->quirks;
+> >  
+> > -	if (!input)
+> > +	if (!field->hidinput)
+> >  		return;
+> > +	input = &field->hidinput->input;
+> >  
+> >  	input_regs(input, regs);
+> >  
+> > 
+> > -- Pete
+> > 
+> 
+> -- 
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
+
+--Signature=_Tue__26_Jul_2005_18_11_31_+0400_B=z4A=mKKSVuirOy
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFC5kSVW82GfkQfsqIRAiG7AJ9ey12L2zZzBnnoSyMf9U+jRu5pAgCeMyx1
+joNtnyDFKfI9usWEAtpDARI=
+=uIPL
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__26_Jul_2005_18_11_31_+0400_B=z4A=mKKSVuirOy--

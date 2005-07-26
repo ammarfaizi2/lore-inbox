@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVGZITY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVGZIVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbVGZITY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 04:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVGZIRW
+	id S261858AbVGZIVu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 04:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVGZITh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 04:17:22 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:63921 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261851AbVGZIQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 04:16:54 -0400
+	Tue, 26 Jul 2005 04:19:37 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:13723 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261851AbVGZIRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 04:17:37 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=hZFlbhH9I7DSwnrgCK2LoNdcDw2TEkmOBvrMiS25NBxlnwpBcw2qHib9dbdKRj+l9n1qfbCjd4eHI0pfyV6r58TKAYylTwoxwzkb3QcZqTyTWagQWyTjYfFM7f5VQa3qwfgcTlNymB5PYhb3zLNqfx+xmKu+hYNQ9ZfPkkIEZkY=  ;
-Message-ID: <42E5F173.3010409@yahoo.com.au>
-Date: Tue, 26 Jul 2005 18:16:51 +1000
+  b=EsUo1s+g/3gNWzHKDVvHhHirJKpCNuLYyckO0nUT7PJ8LHbcZ/ygnYqkZ6frXCgwi1Z/odqKUQmdUIbBE41fWNJjDBN6vGuoeQUObsHQvWbgxBMJam9yOVCNUpEYAplY05UNMt5is4d6WbrmQ3/o87+5MbDwdVp4aGFMIeH5C1w=  ;
+Message-ID: <42E5F19A.6050407@yahoo.com.au>
+Date: Tue, 26 Jul 2005 18:17:30 +1000
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
 X-Accept-Language: en
@@ -23,31 +23,32 @@ To: Andrew Morton <akpm@osdl.org>
 CC: Hugh Dickins <hugh@veritas.com>,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [patch 1/6] mm: comment rmap
-References: <42E5F139.70002@yahoo.com.au>
-In-Reply-To: <42E5F139.70002@yahoo.com.au>
+Subject: [patch 2/6] mm: micro-optimise rmap
+References: <42E5F139.70002@yahoo.com.au> <42E5F173.3010409@yahoo.com.au>
+In-Reply-To: <42E5F173.3010409@yahoo.com.au>
 Content-Type: multipart/mixed;
- boundary="------------030200040706000708090507"
+ boundary="------------050907090800090702080303"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030200040706000708090507
+--------------050907090800090702080303
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-1/6
+2/6
 
 
---------------030200040706000708090507
+--------------050907090800090702080303
 Content-Type: text/plain;
- name="mm-comment-rmap.patch"
+ name="mm-microopt-rmap.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="mm-comment-rmap.patch"
+ filename="mm-microopt-rmap.patch"
 
-Just be clear that VM_RESERVED pages here are a bug, and the test
-is not there because they are expected.
+Microoptimise page_add_anon_rmap. Although these expressions are used only
+in the taken branch of the if() statement, the compiler can't reorder them
+inside because atomic_inc_and_test is a barrier.
 
 Signed-off-by: Nick Piggin <npiggin@suse.de>
 
@@ -55,15 +56,40 @@ Index: linux-2.6/mm/rmap.c
 ===================================================================
 --- linux-2.6.orig/mm/rmap.c
 +++ linux-2.6/mm/rmap.c
-@@ -532,6 +532,8 @@ static int try_to_unmap_one(struct page 
- 	 * If the page is mlock()d, we cannot swap it out.
- 	 * If it's recently referenced (perhaps page_referenced
- 	 * skipped over this mm) then we should reactivate it.
-+	 *
-+	 * Pages belonging to VM_RESERVED regions should not happen here.
- 	 */
- 	if ((vma->vm_flags & (VM_LOCKED|VM_RESERVED)) ||
- 			ptep_clear_flush_young(vma, address, pte)) {
+@@ -442,22 +442,23 @@ int page_referenced(struct page *page, i
+ void page_add_anon_rmap(struct page *page,
+ 	struct vm_area_struct *vma, unsigned long address)
+ {
+-	struct anon_vma *anon_vma = vma->anon_vma;
+-	pgoff_t index;
+-
+ 	BUG_ON(PageReserved(page));
+-	BUG_ON(!anon_vma);
+ 
+ 	inc_mm_counter(vma->vm_mm, anon_rss);
+ 
+-	anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
+-	index = (address - vma->vm_start) >> PAGE_SHIFT;
+-	index += vma->vm_pgoff;
+-	index >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
+-
+ 	if (atomic_inc_and_test(&page->_mapcount)) {
+-		page->index = index;
++		struct anon_vma *anon_vma = vma->anon_vma;
++		pgoff_t index;
++
++		BUG_ON(!anon_vma);
++		anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
+ 		page->mapping = (struct address_space *) anon_vma;
++
++		index = (address - vma->vm_start) >> PAGE_SHIFT;
++		index += vma->vm_pgoff;
++		index >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
++		page->index = index;
++
+ 		inc_page_state(nr_mapped);
+ 	}
+ 	/* else checking page index and mapping is racy */
 
---------------030200040706000708090507--
+--------------050907090800090702080303--
 Send instant messages to your online friends http://au.messenger.yahoo.com 

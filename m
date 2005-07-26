@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVGZX2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbVGZXdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbVGZX2P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 19:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVGZXXn
+	id S262199AbVGZXdp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 19:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVGZXc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 19:23:43 -0400
-Received: from mail.gmx.de ([213.165.64.20]:62140 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262335AbVGZXVr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 19:21:47 -0400
-X-Authenticated: #1725425
-Date: Wed, 27 Jul 2005 01:21:14 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Mike Mohr <akihana@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reclaim space from unused ramdisk?
-Message-Id: <20050727012114.59a33298.Ballarin.Marc@gmx.de>
-In-Reply-To: <4746469c05072615167ca234ce@mail.gmail.com>
-References: <4746469c05072615167ca234ce@mail.gmail.com>
-X-Mailer: Sylpheed version 2.0.0rc (GTK+ 2.6.7; i686-pc-linux-gnu)
+	Tue, 26 Jul 2005 19:32:56 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:12519
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262352AbVGZXbr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 19:31:47 -0400
+Date: Tue, 26 Jul 2005 16:32:02 -0700 (PDT)
+Message-Id: <20050726.163202.119887768.davem@davemloft.net>
+To: mpm@selenic.com
+Cc: bunk@stusta.de, jgarzik@pobox.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] NETCONSOLE must depend on INET
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050726232043.GB7425@waste.org>
+References: <20050719182919.GA5531@stusta.de>
+	<20050719.140104.68160812.davem@davemloft.net>
+	<20050726232043.GB7425@waste.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Jul 2005 15:16:58 -0700
-Mike Mohr <akihana@gmail.com> wrote:
+From: Matt Mackall <mpm@selenic.com>
+Date: Tue, 26 Jul 2005 16:20:43 -0700
 
-> I wonder if it would be possible to somehow reclaim space that has
-> been previously reserved for a ramdisk without rebooting.  I read the
-> ramdisk docs in the latest kernel source and it seems that it is not
-> currently possible.  However, the kernel keeps track of the memory
-> allocated for said ramdisks; would it not be possible with root (or
-> even kernel) permissions to remove the flag that prevents the VM
-> subsystem from reclaiming that space?  I realize that rot permissions
-> may not be high enough.  In that case, could a module be written that
-> takes a device name as a parameter then uses it to look up the
-> reserved memory that device uses, then resets the necessary flag and
-> finally unloads itself?  It would have to check that the filesystem
-> was unmounted, of course.
-> 
-> How difficult would this be to write?
+> This problem also exists in PKTGEN. And this fix is incorrect as
+> neither is dependent on the IP part of the networking stack in any
+> substantive way. The right fix is to make inet_aton available outside
+> of CONFIG_INET (preferred) or making private copies of inet_aton.
 
-Hi,
+Adrian posted a fix, you whine, that's why Adrian's fix
+went in :-)
 
-ramfs (always there) and tmpfs (optional) already do this.
-tmpfs can be swapped out, ramfs always uses physical memory.
-
-mount -t ramfs none /mnt/blah
-mount -t tmpfs none /mnt/blah
-
-Regards
+More seriously, please submit a version of whatever you
+believe to be the more correct fix so it can be reviewed
+and integrated.

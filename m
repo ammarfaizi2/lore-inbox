@@ -1,115 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVG0NCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262237AbVG0NEC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbVG0NCF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 09:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbVG0NCE
+	id S262237AbVG0NEC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 09:04:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbVG0NCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 09:02:04 -0400
-Received: from smtp8.clb.oleane.net ([213.56.31.28]:14225 "EHLO
-	smtp8.clb.oleane.net") by vger.kernel.org with ESMTP
-	id S262236AbVG0NBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 09:01:53 -0400
-Date: Wed, 27 Jul 2005 15:01:15 +0200
-From: Christophe Lucas <clucas@rotomalug.org>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: kernel-janitors@lists.osdl.org, domen@coderock.org, wharms@bfs.de
-Message-ID: <20050727130115.GE5089@rhum.iomeda.fr>
-Mime-Version: 1.0
-Content-Disposition: inline
-X-Operating-System: Debian GNU/Linux / 2.6.13-rc3-kj (i686)
-X-Homepage: http://odie.mcom.fr/~clucas/
-X-Crypto: GnuPG/1.2.4 http://www.gnupg.org
-X-GPG-Key: http://odie.mcom.fr/~clucas/downloads/clucas-public-key.txt
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Mail-From: clucas@rotomalug.org
-Subject: [PATCH][RFC] procfs_failure && possible uses
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 3.1 (built mer oct 29 11:46:13 CET 2003)
+	Wed, 27 Jul 2005 09:02:11 -0400
+Received: from main.gmane.org ([80.91.229.2]:37806 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262237AbVG0NAv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 09:00:51 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Zoran Dzelajlija <jelly+news@srk.fer.hr>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Date: Wed, 27 Jul 2005 01:38:37 +0200
+Organization: Mala leteca gamad
+Message-ID: <20050726233837.459A.3.NOFFLE@islands.iskon.hr>
+References: <20050726150837.GT3160@stusta.de> <42E6645B.30206@zabbo.net>
+Reply-To: Zoran Dzelajlija <jelly+news@srk.fer.hr>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: islands.iskon.hr
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.10-skas3-v7 (i686))
+Cc: linux-sound@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-description:
-audit return code of create_proc_* function is a entry in janitors
-TODO list. Audit this return and printk() when it fails, spams log of
-system without compiled proc support. So this patch can correct it.
+Zach Brown <zab@zabbo.net> wrote:
+> Adrian Bunk wrote:
+> > This patch schedules obsolete OSS drivers (with ALSA drivers that 
+> > support the same hardware) for removal.
 
-Signed-off-by: Christophe Lucas <clucas@rotomalug.org>
+> > I've Cc'ed the people listed in MAINTAINERS as being responsible for one 
+> > or more of these drivers, and I've also Cc'ed the ALSA people.
 
+> I haven't touched the maestro drivers in so long (for near-total lack of
+> docs, etc.) that I can't be considered authoritative for approving it's
+> removal. If people are relying on it I certainly don't know who they
+> are.  In better news, Takashi should now have the pile of maestro
+> hardware that I used in the first pass to help him maintain the ALSA
+> driver..
 
- arch/arm/kernel/apm.c   |    7 ++++---
- arch/arm/kernel/ecard.c |   12 ++++++++++--
- include/linux/proc_fs.h |    5 +++++
- 3 files changed, 19 insertions(+), 5 deletions(-)
+The OSS maestro driver works better on my old Armada E500 laptop.  I tried
+ALSA after switching to 2.6, but the computer hung with 2.6.8.1 or 2.6.10 if
+I touched the volume buttons.  With OSS they just work.  The four separate
+dsp devices also look kind of more useful.
 
-Index: linux-2.6.13-rc3-mm2/include/linux/proc_fs.h
-===================================================================
---- linux-2.6.13-rc3-mm2.orig/include/linux/proc_fs.h
-+++ linux-2.6.13-rc3-mm2/include/linux/proc_fs.h
-@@ -83,6 +83,9 @@ struct vmcore {
- 
- #ifdef CONFIG_PROC_FS
- 
-+#define procfs_failure(fmt,arg...) \
-+	printk(KERN_WARNING fmt,##arg)
-+
- extern struct proc_dir_entry proc_root;
- extern struct proc_dir_entry *proc_root_fs;
- extern struct proc_dir_entry *proc_net;
-@@ -198,6 +201,8 @@ static inline void proc_net_remove(const
- 
- #else
- 
-+#define procfs_failure(fmt,arg...) do { } while(0)
-+
- #define proc_root_driver NULL
- #define proc_net NULL
- #define proc_bus NULL
-Index: linux-2.6.13-rc3-mm2/arch/arm/kernel/ecard.c
-===================================================================
---- linux-2.6.13-rc3-mm2.orig/arch/arm/kernel/ecard.c
-+++ linux-2.6.13-rc3-mm2/arch/arm/kernel/ecard.c
-@@ -776,9 +776,17 @@ static struct proc_dir_entry *proc_bus_e
- 
- static void ecard_proc_init(void)
- {
-+	struct proc_dir_entry *proc_entry;
-+
- 	proc_bus_ecard_dir = proc_mkdir("ecard", proc_bus);
--	create_proc_info_entry("devices", 0, proc_bus_ecard_dir,
--		get_ecard_dev_info);
-+	if (!proc_bus_ecard_dir)
-+		procfs_failure("ecard: Unable to create proc dir entry.\n");
-+	else {
-+		proc_entry = create_proc_info_entry("devices", 0, 
-+				proc_bus_ecard_dir, get_ecard_dev_info);
-+		if (!proc_entry)
-+			procfs_failure("ecard: Unable to create proc entry.\n");
-+	}
- }
- 
- #define ec_set_resource(ec,nr,st,sz)				\
-Index: linux-2.6.13-rc3-mm2/arch/arm/kernel/apm.c
-===================================================================
---- linux-2.6.13-rc3-mm2.orig/arch/arm/kernel/apm.c
-+++ linux-2.6.13-rc3-mm2/arch/arm/kernel/apm.c
-@@ -515,6 +515,7 @@ static int kapmd(void *arg)
- static int __init apm_init(void)
- {
- 	int ret;
-+	struct proc_dir_entry *proc_entry;
- 
- 	if (apm_disabled) {
- 		printk(KERN_NOTICE "apm: disabled on user request.\n");
-@@ -534,9 +535,9 @@ static int __init apm_init(void)
- 		return ret;
- 	}
- 
--#ifdef CONFIG_PROC_FS
--	create_proc_info_entry("apm", 0, NULL, apm_get_info);
--#endif
-+	proc_entry = create_proc_info_entry("apm", 0, NULL, apm_get_info);
-+	if (!proc_entry)
-+		procfs_failure("apm: Unable to create apm proc entry.\n");
- 
- 	ret = misc_register(&apm_device);
- 	if (ret != 0) {
+Zoran
+

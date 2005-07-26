@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVGZJW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVGZJzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVGZJW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 05:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVGZJW3
+	id S261655AbVGZJzP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 05:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVGZJzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 05:22:29 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7441 "HELO
+	Tue, 26 Jul 2005 05:55:15 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29457 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261663AbVGZJW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 05:22:26 -0400
-Date: Tue, 26 Jul 2005 11:22:15 +0200
+	id S261655AbVGZJzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 05:55:13 -0400
+Date: Tue, 26 Jul 2005 11:55:03 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Al Boldi <a1426z@gawab.com>
-Cc: "'Horst von Brand'" <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
-Subject: Re: kernel optimization
-Message-ID: <20050726092215.GJ3160@stusta.de>
-References: <200507231849.j6NInMPO003728@laptop11.inf.utfsm.cl> <200507260524.IAA06931@raad.intranet>
+To: Grant Coady <lkml@dodo.com.au>
+Cc: linux-kernel@vger.kernel.org, Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: 2.6.13-rc3 test: finding compile errors with make randconfig
+Message-ID: <20050726095503.GK3160@stusta.de>
+References: <f8b6e1h2t4tlto7ia8gs8aanpib68mhit6@4ax.com> <20050724091327.GQ3160@stusta.de> <glq7e1ttejp2sh7uuo6nil2vafljdprkpk@4ax.com> <20050724203932.GX3160@stusta.de> <0fv7e11ejvimjkfqib95n93hl34icavnbu@4ax.com> <20050724212721.GA3160@stusta.de> <cm1be15uqfvur80d1f2s3kfuls9koibsoa@4ax.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200507260524.IAA06931@raad.intranet>
+In-Reply-To: <cm1be15uqfvur80d1f2s3kfuls9koibsoa@4ax.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 08:22:59AM +0300, Al Boldi wrote:
-> Dr. Horst H. von Brand wrote: {
-> Al Boldi <a1426z@gawab.com> wrote:
-> >  Adrian Bunk wrote: {
-> > On Fri, Jul 22, 2005 at 07:55:48PM +0100, christos gentsis wrote:
-> > > i would like to ask if it possible to change the optimization of the 
-> > > kernel from -O2 to -O3 :D, how can i do that? if i change it to the 
-> > > top level Makefile does it change to all the Makefiles?
-> > And since it's larger, it's also slower.
-> > }
+On Tue, Jul 26, 2005 at 11:26:33AM +1000, Grant Coady wrote:
+> On Sun, 24 Jul 2005 23:27:22 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> >You should edit init/Kconfig to disallow CONFIG_CLEAN_COMPILE=n, since 
+> >any errors you see with CONFIG_BROKEN=y aren't interesting.
 > 
-> > It's faster but it's flawed.  Root-NFS boot failed!
-> 
-> How do you know that it is faster if it is busted?
-> }
-> 
-> The -O3 compile produces a faster kernel, which seems to work perfectly,
-> albeit the Root-NFS boot flaw!
+> Straight over the top of my head yesterday :)  Is the following 
+> what you had in mind?  (current script does retry if BROKEN)
+>... 
+> -       depends on !CLEAN_COMPILE
+> +       depends on !CLEAN_COMPILE && 0
+>...
 
-How did you measure that you that your -O3 kernel isn't slower?
+I don't know whether this will work, I was thinking about
 
-> Al
+--- linux-2.6.13-rc3-mm1/init/Kconfig.old	2005-07-26 11:47:49.000000000 +0200
++++ linux-2.6.13-rc3-mm1/init/Kconfig	2005-07-26 11:48:01.000000000 +0200
+@@ -32,7 +32,7 @@
+ 	  drivers that are currently considered to be in the alpha-test phase.
+ 
+ config CLEAN_COMPILE
+-	bool "Select only drivers expected to compile cleanly" if EXPERIMENTAL
++	bool
+ 	default y
+ 	help
+ 	  Select this option if you don't even want to see the option
+
+
+> Thanks,
+> Grant.
 
 cu
 Adrian

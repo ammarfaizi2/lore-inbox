@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVGZNNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVGZNPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261765AbVGZNNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 09:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVGZNNQ
+	id S261778AbVGZNPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 09:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVGZNPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 09:13:16 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:52978 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261765AbVGZNMf (ORCPT
+	Tue, 26 Jul 2005 09:15:16 -0400
+Received: from styx.suse.cz ([82.119.242.94]:15001 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261778AbVGZNOk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 09:12:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=V8cPwggXwG4mc6mX9qZVDp/jvfnn8DtkrU+hvt9mFFU9mD5puEQT6rF4JFaA4LFYDTap4MiDKYku09lxd2dfP7tfOB2ovUSmuECCORA9p+/+qc0R/dY/iL/aGengEptOWnmI7nimhHgaas+43/ztrtF/Wu+UyIH7jZNuyAxHp+M=
-Date: Tue, 26 Jul 2005 22:12:26 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH linux-2.6-block:master] overview of soon-to-be-posted patches
-Message-ID: <20050726131215.GA23916@htj.dyndns.org>
+	Tue, 26 Jul 2005 09:14:40 -0400
+Date: Tue, 26 Jul 2005 15:14:39 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Voluspa <lista1@telia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3 Battery times at 100/250/1000 Hz = Zero difference
+Message-ID: <20050726131439.GB2134@ucw.cz>
+References: <20050721200448.5c4a2ea0.lista1@telia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050721200448.5c4a2ea0.lista1@telia.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, Jens.
+On Thu, Jul 21, 2005 at 08:04:48PM +0200, Voluspa wrote:
+> 
+> I'd gladly (ehum..) redo this mind-numbingly boring test if someone can
+> point me to a magic software which unleashes some untapped powersaving
+> feature of the CPU.
+> 
+> _Kernel 2.6.13-rc3 Boot to Death_:
+> 
+> 2h48m at 100 HZ
+> 2h48m at 250 HZ
+> 2h47m at 1000 HZ
 
- I hope you had fun on your vacation and at OLS.  I'm posting 18
-welcome-back patches today. :-p This mail is to show the overview of
-the patches.  All patches are against master head of linux-2.6-block
-tree.
+Is USB loaded? It'll do 1000 interrupts per second if it is. I'm not sure if
+this still is the case on 2.6.13-rc3, please check your /proc/interrupts
+to see the rate at which interrupt counters are increasing.
 
-patch #1	: fix-elevator_find.  remove try_module_get race in
-		  elevator_find.
-patch #2	: fix-cfq_find_next_crq.  fix cfq_find_next_crq bug
-		  in cfq.
-patch #3-7	: generic dispatch queue patchset.  implements generic
-		  dispatch queue.
-patch #8	: reimplement-elevator-switch.  reimplements elevator
-		  switch using generic dispatch queue.  draining isn't
-		  needed anymore.
-patch #9-#18	: ordered reimplementation patchset.  reimplements
-		  I/O barrier handling.
+> Acer Aspire 1520 (1524) WLMi, AMD Athlon 64 3400+ (socket 754 according
+> to dmidecode-2.6). L1 64K/64K, L2 1024K, 512MB DDR RAM. Manufacturing
+> date 18 March 2005. Bought 20 May 2005. Battery used to full drain ca 5
+> times prior to this test (after the initial 3 charge/drains to reach its
+> full potential). "cat /proc/acpi/battery/BAT0/info":
+ 
+This almost looks like a regular Athlon 64, not even the mobile version.
+I wouldn't expect very big deep sleep capabilities on that one. You can
+check the 
 
- Both generic dispatch queue patchset and ordered reimplementation
-patchset were previously posted.  They are reordered (as you asked)
-and I've added missing bits (all elevators are updated, docs are
-updated).  Also, there were a few changes and fixes.  I'll mention
-them when I post those patches.
+	/proc/acpi/processor/CPU1/power
 
- I've tested these changes by running parallelly...
+file for the list of C states. A normal Athlon64 will likely have only
+C0. Mobile chips can go up to C4, which is really deep sleep.
 
-* random raw read (concurrency 8)
-* repeatedly mounting a ext3 fs with -o barrier=1, copying, syncing &
-  checksumming a 128M file, and unmounting the fs.
-* periodic scheduler switch (each iosched runs for 3 minutes and then
-  switched to the next one)
-
- This test has been running for several hours without a problem and I
-will keep it running for today and maybe tomorrow unless I have to use
-the test machine for some other purpose.
-
- Thanks.
-
---
-tejun
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

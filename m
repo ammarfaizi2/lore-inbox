@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVGZTod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVGZTrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbVGZTod (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 15:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVGZTod
+	id S261963AbVGZTrH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 15:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVGZTrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 15:44:33 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:21689 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S261841AbVGZToa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 15:44:30 -0400
-From: Michel Bouissou <michel@bouissou.net>
-Organization: Me, Myself and I
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [SOLVED ?] VIA KT400 + Kernel 2.6.12 + IO-APIC + ehci_hcd = IRQ trouble
-Date: Tue, 26 Jul 2005 21:44:10 +0200
-User-Agent: KMail/1.7.2
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0507261450160.4914-100000@iolanthe.rowland.org> <200507262139.27150@totor.bouissou.net>
-In-Reply-To: <200507262139.27150@totor.bouissou.net>
+	Tue, 26 Jul 2005 15:47:07 -0400
+Received: from kirby.webscope.com ([204.141.84.57]:5042 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S261963AbVGZTq0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 15:46:26 -0400
+Message-ID: <42E692E4.4070105@m1k.net>
+Date: Tue, 26 Jul 2005 15:45:41 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200507262144.10865@totor.bouissou.net>
+To: "Radoslaw \"AstralStorm\" Szkodzinski" <astralstorm@gorzow.mm.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: MM kernels - how to keep on the bleeding edge?
+References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
+In-Reply-To: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Mardi 26 Juillet 2005 21:39, Michel Bouissou a écrit :
-> Alas, today it hanged completely 3 times :-(
->
-> When I say completely, I mean complete system hang, display frozen,
-> keyboard dead (even the Magic SysRQ key doesn't respond), network dead
-> (doen't ping back), no visible activity of any kind :-((
->
-> ...and of course nothing got logged.
->
-> This happened 4 times. The 3 first times, I was running with IO-APIC
-> enabled and the system was under high disk activity:
->
-> 1/ 1st time, I was copying the complete contents of a loopback-mounted ISO
-> image to a directory. The system hanged.
->
-> 2/ 2nd time, I tried the same. The system hanged again.
-[...]
-> Now I'm running with IO-APIC enabled, bus USB 2.0 adn ehci completely
-> disabled (both in BIOS and modprobe.conf).
->
-> The system hasn't hanged again, but I haven't tried to play with on-disk
-> ISO filesystems since...
+Radoslaw AstralStorm Szkodzinski wrote:
 
-I just did the same as 1/ and 2/ again, with USB 2.0 disabled, to make my 
-mind. It didn't hang (otherwise I would need to reboot before writing this 
-message ;-)
+> b) It doesn't say which -mm version are they in.
+> This is a real PITA, because I have to check patch list one after one to
+> apply to the newest mm.
+
+I have filters set up so that my mailer puts all mm-commits messages 
+from the mailing list into a special "mm-commits" folder.  Each time 
+Andrew releases an -mm kernel, I rename my "mm-commits" folder to 
+"mm-commits-%version%", such as "mm-commits-2.6.13-rc3-mm2"  (I will 
+probably have to create a folder like this tomorrow, or in a few 
+hours/days ;-) ... Then I create a new "mm-commits" folder to hold all 
+new patches not yet in the latest -mm kernel.  As of right now, my 
+current "mm-commits" mail folder has 153 patches in it, although I think 
+I may have lost a patch or two...
+
+ALSO, somebody has created a -git tree that pulls from the mm-commits 
+list (i think) ... Anyway, I looked at the git tree last night and it 
+seems to be delayed by a few days.  I dont have that link handy right 
+now.  Does anybody else have it?
 
 -- 
-Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E
+Michael Krufky
+
+

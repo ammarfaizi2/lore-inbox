@@ -1,31 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVGZXJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVGZXLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbVGZXJB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 19:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVGZXGT
+	id S261915AbVGZXLl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 19:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbVGZXLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 19:06:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64721 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262131AbVGZXFh (ORCPT
+	Tue, 26 Jul 2005 19:11:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27348 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261915AbVGZXKB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 19:05:37 -0400
-Date: Tue, 26 Jul 2005 16:07:28 -0700
+	Tue, 26 Jul 2005 19:10:01 -0400
+Date: Tue, 26 Jul 2005 16:11:49 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Memory pressure handling with iSCSI
-Message-Id: <20050726160728.55245dae.akpm@osdl.org>
-In-Reply-To: <1122418089.6433.62.camel@dyn9047017102.beaverton.ibm.com>
-References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
-	<20050726111110.6b9db241.akpm@osdl.org>
-	<1122403152.6433.39.camel@dyn9047017102.beaverton.ibm.com>
-	<20050726114824.136d3dad.akpm@osdl.org>
-	<20050726121250.0ba7d744.akpm@osdl.org>
-	<1122412301.6433.54.camel@dyn9047017102.beaverton.ibm.com>
-	<20050726142410.4ff2e56a.akpm@osdl.org>
-	<1122414300.6433.57.camel@dyn9047017102.beaverton.ibm.com>
-	<20050726151003.6aa3aecb.akpm@osdl.org>
-	<1122418089.6433.62.camel@dyn9047017102.beaverton.ibm.com>
+To: Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl>
+Cc: mkrufky@m1k.net, linux-kernel@vger.kernel.org
+Subject: Re: MM kernels - how to keep on the bleeding edge?
+Message-Id: <20050726161149.0c9c36fa.akpm@osdl.org>
+In-Reply-To: <20050727004932.1b25fc5d.astralstorm@gorzow.mm.pl>
+References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
+	<42E692E4.4070105@m1k.net>
+	<20050726221506.416e6e76.astralstorm@gorzow.mm.pl>
+	<42E69C5B.80109@m1k.net>
+	<20050726144149.0dc7b008.akpm@osdl.org>
+	<20050727004932.1b25fc5d.astralstorm@gorzow.mm.pl>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -33,29 +29,53 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
+Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl> wrote:
 >
-> Here is the data with 5 ext2 filesystems. I also collected /proc/meminfo
-> every 5 seconds. As you can see, we seem to dirty 6GB of data in 20
-> seconds of starting the test. I am not sure if its bad, since we have
-> lots of free memory..
+> On Tue, 26 Jul 2005 14:41:49 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > Michael Krufky <mkrufky@m1k.net> wrote:
+> > >
+> > > [ tracking mm stuff ]
+> > >
+> > 
+> > Sigh, sorry.  It's hard.  -mm is always in flux.  I no longer send out the
+> > `patch was dropped' message because it disturbs people. 
+> 
+> There were too many? 
+> Or you were receiving a lot of mail from particular developers with
+> requests of explanation? :)
 
-It's bad.  The logic in balance_dirty_pages() should block those write()
-callers as soon as we hit 40% dirty memory or whatever is in
-/proc/sys/vm/dirty_ratio.  So something is horridly busted.
+I got lots of "waah, why did you drop my patch" from people whose patches
+had been merged by Linus.  Which is a bit odd given that those people were
+previously cc'ed on the me->linus patch anyway.  Ho hum.  Adding a "why
+this was dropped" to the email seemed too tricky.
 
-Can you try reducing the number of filesystems even further?
+> > The mm-commits
+> > list does not resend a patch when it is changed (other patches folded into
+> > it, rejects fixed, changelog updated, rediffed, etc).  
+> 
+> This isn't so much a problem as the previous point. When there are rejects,
+> it's easy (most of the time) to fix them by hand anyway as I pull the tree.
+> 
+> > Sometimes I'll comment out a patch but not fully drop it.  
+> 
+> Now I can see that, I can diff the series. 
+> But if the change was large, the diff isn't very instructive.
 
-Either the underlying block driver is doing something most bizarre to the
-VFS or something has gone wrong with the arithmetic in page-writeback.c. 
-If total_pages or ratelimit_pages are totally wrong or if
-get_dirty_limits() is returning junk then we'd be seeing something like
-this.
+OK.  I'm uploading the stripped series file at present (all the comments
+are removed) because some versions of quilt don't like my new
+comments-at-the-end-of-the-line feature.  That actually breaks some of my
+stuff too, so I'll probably stop using it ;)
 
-It'll be something simple - if you have time, stick some printks in
-balance_dirty_pages(), work out why it is not remaining in that `for' loop
-until dirty memory has fallen below the 40%.
+> > 
+> > I spose I could emit a broken-out.tar.gz file occasionally (it'd be up to 5
+> > times a day), but there's no guarantee that it'll compile, let alone run. 
+> > I could also send a notification to mm-commits when I do so.  Would that
+> > help?
+> > 
+> 
+> Really, it would. Especially if it contained an up-to-date series file.
+> I'd be very grateful. (And would test and fix it up some more.)
 
-I'll take a shot at reproducing this on my 4G x86_64 box, but this is so
-grossly wrong that I'm sure it would have been noted before now if it was
-commonly happening (famous last words).
+All done - let me know if it needs anything else.

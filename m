@@ -1,74 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVGZSSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVGZSZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbVGZSSu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 14:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVGZSRI
+	id S262026AbVGZSZL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 14:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbVGZSXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 14:17:08 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59783 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262035AbVGZSO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 14:14:56 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 21/23] x86_64 sync machine_power_off with i386
-References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
-	<m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
-	<m1ek9leb0h.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1ack9eaux.fsf_-_@ebiederm.dsl.xmission.com>
-	<m164uxear0.fsf_-_@ebiederm.dsl.xmission.com>
-	<m11x5leaml.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1wtndcvwe.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1sly1cvnd.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1oe8pcvii.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1k6jdcvgk.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1fyu1cvd7.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1br4pcva4.fsf_-_@ebiederm.dsl.xmission.com>
-	<m17jfdcv79.fsf_-_@ebiederm.dsl.xmission.com>
-	<m13bq1cv3k.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1y87tbgeo.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1u0ihbg85.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1pst5bg5u.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1ll3tbg2r.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1hdehbfwa.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1d5p5bft6.fsf_-_@ebiederm.dsl.xmission.com>
-	<m18xztbfr9.fsf_-_@ebiederm.dsl.xmission.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 26 Jul 2005 12:14:16 -0600
-In-Reply-To: <m18xztbfr9.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
- Biederman's message of "Tue, 26 Jul 2005 12:10:02 -0600")
-Message-ID: <m14qahbfk7.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 26 Jul 2005 14:23:36 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:21442 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262026AbVGZSWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 14:22:36 -0400
+Date: Tue, 26 Jul 2005 20:22:58 +0200
+From: johsc@arcor.de
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.31 panics on boot on 486 box: TSC requires pentium
+Message-ID: <20050726182258.GA1719@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.4.31 compiled with -m486, panics on boot (486DX) and says something about
+TSC requires pentium, bang.
+enabling the obscure flag
 
-i386 machine_power_off was disabling the local apic
-and all of it's users wanted to be on the boot cpu.
-So call machine_shutdown which places us on the boot
-cpu and disables the apics.  This keeps us in sync
-and reduces the number of cases we need to worry about in
-the power management code.
+ [*] Unsynced TSC support
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
+seems to fix this - the corresponding .config label name is actually *more*
+helpful than the documentation.
 
- arch/x86_64/kernel/reboot.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
 
-dbc7607f71b4c6e38b141340f7afd33248a4205a
-diff --git a/arch/x86_64/kernel/reboot.c b/arch/x86_64/kernel/reboot.c
---- a/arch/x86_64/kernel/reboot.c
-+++ b/arch/x86_64/kernel/reboot.c
-@@ -153,6 +153,9 @@ void machine_halt(void)
- 
- void machine_power_off(void)
- {
-+	if (!reboot_force) {
-+		machine_shutdown();
-+	}
- 	if (pm_power_off)
- 		pm_power_off();
- }
+- Obscure-sound-bug
+jazz16 on Travelmate 4000M doesn't seem to work either, sb.o 
+complains about DSP version being "only" 3.01.
+
+(#insmod sb type=10 io=0x220 irq={5,7} dma=1 dma16=7)
+
+there is sound but mpg123 says 44100 is impossible.

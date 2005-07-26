@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVGZQW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVGZQMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbVGZQW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 12:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVGZQRh
+	id S261949AbVGZQMW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 12:12:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVGZQJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 12:17:37 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:13324 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261930AbVGZQRS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 12:17:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=moS/jIQTCL3wJ2OYTN532f2ZZG7/A3MS9V7xSSY/2E7/DLgMKki2BjajRihEj7d3cHyD3PHi6HtkkgbCR5nw4QO8YxSox8WXKx9AKLIQO2FQZ2T/K/QXNDJvuEOB4qK41W7Np4GlfAHxW4+khT8yP9c+/4C2sYQbvz5HOUfMLGc=
-Message-ID: <105c793f050726091722f3cbb2@mail.gmail.com>
-Date: Tue, 26 Jul 2005 12:17:14 -0400
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Cc: linux-kernel@vger.kernel.org, perex@suse.cz, alsa-devel@alsa-project.org,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com
-In-Reply-To: <20050726150837.GT3160@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050726150837.GT3160@stusta.de>
+	Tue, 26 Jul 2005 12:09:17 -0400
+Received: from fmr15.intel.com ([192.55.52.69]:23206 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261932AbVGZQIf convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 12:08:35 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Variable ticks
+Date: Tue, 26 Jul 2005 12:08:28 -0400
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B300424B27E@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Variable ticks
+Thread-Index: AcWR+RzML27HiHcERyi9Uoz94GSfDQAAk92w
+From: "Brown, Len" <len.brown@intel.com>
+To: "Bill Davidsen" <davidsen@tmr.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Jul 2005 16:08:31.0960 (UTC) FILETIME=[44A86580:01C591FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/26/05, Adrian Bunk <bunk@stusta.de> wrote:
->  config SOUND_OPL3SA2
->         tristate "Yamaha OPL3-SA2 and SA3 based PnP cards"
-> -       depends on SOUND_OSS
-> +       depends on SOUND_OSS && OBSOLETE_OSS_DRIVER
->         help
->           Say Y or M if you have a card based on one of these Yamaha sound
->           chipsets or the "SAx", which is actually a SA3. Read
-Forgive me if I'm misreading this (I'm hardly a coder and no kernel
-hacker) but, as it stands, the OPL3SA2 driver provided by ALSA and the
-main kernel tree work but are not correctly detected by ALSA's
-detection routines (in alsaconf) on the 2.6 kernel. The OSS drivers
-work, as well, but (AFAIK) there are no methods of automatic
-configuration with the OSS drivers.
+ 
+>>>Trouble? Why would USB do DMA unless there was a device activity?
+>> 
+>> 
+>> look here:
+>> http://www.google.com/search?hl=en&q=usb+selective+suspend
+>> 
+>> Linux is working on it too, but it is in development.
+>
+>Somehow I didn't ask that right... The stuff on selective disable is 
+>interesting, but my question is why a USB device, call it a keyboard, 
+>would do DMA unless I press a key, at which point response will be 
+>better if the CPU wakes up out of C3.
+>
+>I understand that specialty attachments may send what amounts to keep 
+>alives, or gather data (webcam) you don't want, but the typical mouse 
+>and KB would seem to be things which generate DMA at user initiation, 
+>and would not be blocked for low power, only for suspend.
 
-So, for people who don't feel like configuring ALSA with their OPL3SA2
-card, the OSS modules may be easier to configure and thus should be
-left in until the ALSA/2.6 kernel problems are worked out with the
-OPL3SA2.
+USB's hardware architecture was optimized for cost and ease of use,
+it was not optimized for performance or power savings.
 
--Andy
+We need software disable because the USB hardware will keep
+the memory bus busy constantly even if all the
+actual USB devices are idle.  The power cost is that the CPU
+is prevented from deep sleep so that it can snoop USB's
+(idle) memory activity.
+
+-Len

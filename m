@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVGZFrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVGZFx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbVGZFrE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 01:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVGZFrB
+	id S261678AbVGZFx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 01:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVGZFx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 01:47:01 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:49583 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261743AbVGZFpJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 01:45:09 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 26 Jul 2005 01:53:57 -0400
+Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:36833 "EHLO
+	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261678AbVGZFx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 01:53:56 -0400
+Message-ID: <012401c591a6$9a2e2040$0b00000a@solidwaste>
+From: <cutaway@bellsouth.net>
+To: "Florin Malita" <fmalita@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <20050724191211.48495.qmail@web53608.mail.yahoo.com> <1122248869.10835.25.camel@localhost.localdomain> <f8994115050724211071a3dbe1@mail.gmail.com>
+Subject: Re: kernel 2.6 speed
+Date: Tue, 26 Jul 2005 01:55:18 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: fix suspend/resume irq request free for yenta..
-Date: Tue, 26 Jul 2005 01:44:42 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B300424AE38@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: fix suspend/resume irq request free for yenta..
-Thread-Index: AcWPWjR2Mu+QWW5URgef4yOCzgIyigCSfYSg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>, "Pavel Machek" <pavel@ucw.cz>
-Cc: "Dmitry Torokhov" <dtor_core@ameritech.net>,
-       <linux-kernel@vger.kernel.org>, "Dave Airlie" <airlied@linux.ie>,
-       "Li, Shaohua" <shaohua.li@intel.com>
-X-OriginalArrivalTime: 26 Jul 2005 05:44:45.0325 (UTC) FILETIME=[20A51BD0:01C591A5]
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1506
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Sat, Jul 23, 2005 at 02:29:24AM +0200, Pavel Machek wrote:
->> > Is it necessary to do free_irq for suspend? Shouldn't disable_irq
->> > be enough?
->> 
->> Due to recent changes in ACPI, yes, it is neccessary.
+----- Original Message ----- 
+From: "Florin Malita" <fmalita@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Sent: Monday, July 25, 2005 12:10 AM
+Subject: Re: kernel 2.6 speed
+
+
+> On 7/24/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > time() isn't a hot
+> > path in the real world.
 >
->What if some other driver is sharing the IRQ, and requires IRQs to be
->enabled for the resume to complete?
+> That's what you would expect but I've straced stuff calling
+> gettimeofday() in huge bursts every other second. Obviously braindead
+> stuff but so is "the real world" most of the time() ... :)
 
-IRQ sharing is an excellent example, not a counter-example,
-of why it is necessary to disable devices and free IRQs
-on suspend, and acquire them again on resume.
-
-eg. if a device is suspended, but the hardware still causes
-an interrupt on a shared IRQ, another device can
-suffer a screaming IRQ failure.
-
-Documentation/power/pci.txt has as much as we know about
-how to address this -- but I'm certainly open to suggestions
-on how to be less invasive to the drivers while having some
-chance of being robust.
-
-thanks,
--Len
+Anything time stamping things it processes many of will call some sort of
+time function pretty often.  Could happen frequently with certain classes of
+applications.    OS/2's "infoseg" approach was a pretty "high speed low
+drag" way to eliminate a trip into the kernel for all but the most esoteric
+time requirements.
 

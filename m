@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVGZOib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVGZOo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbVGZOib (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 10:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVGZOib
+	id S261814AbVGZOo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 10:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVGZOo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 10:38:31 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:28921 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261809AbVGZOi3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 10:38:29 -0400
-Message-ID: <42E64A76.50504@mvista.com>
-Date: Tue, 26 Jul 2005 07:36:38 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+	Tue, 26 Jul 2005 10:44:28 -0400
+Received: from relay01.pair.com ([209.68.5.15]:24848 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S261817AbVGZOo1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 10:44:27 -0400
+X-pair-Authenticated: 209.68.2.107
+Message-ID: <42E64C43.2050104@cybsft.com>
+Date: Tue, 26 Jul 2005 09:44:19 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: tmarshall@real.com, pmarques@grupopie.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: itimer oddness in 2.6.12
-References: <20050722171657.GG4311@real.com>	<42E14735.1090205@grupopie.com>	<20050722205825.GB6476@real.com>	<42E1A208.8060408@mvista.com> <20050725231720.507d4b38.akpm@osdl.org>
-In-Reply-To: <20050725231720.507d4b38.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Ingo Molnar <mingo@elte.hu>
+CC: john cooper <john.cooper@timesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 PREEMPT_RT && PPC
+References: <200507200816.11386.kernel@kolivas.org> <20050719223216.GA4194@elte.hu> <1121819037.26927.75.camel@dhcp153.mvista.com> <200507201104.48249.kernel@kolivas.org> <1121822524.26927.85.camel@dhcp153.mvista.com> <42DF293A.4050702@timesys.com> <20050726120015.GB9224@elte.hu>
+In-Reply-To: <20050726120015.GB9224@elte.hu>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------010002080600020306010206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> George Anzinger <george@mvista.com> wrote:
-> 
->>+	while (time_before_eq(p->signal->real_timer.expires, jiffies))
->>+		p->signal->real_timer.expires += inc;
-> 
-> 
-> It gives me the creeps when I see timer code doing this, and it seems to be
-> done relatively frequently.
-> 
-> Surely it can be calculated arithmetically?  If not, are you really sure
-> that it is not exploitable by malicious code?
+This is a multi-part message in MIME format.
+--------------010002080600020306010206
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hm.. the system only falls into a loop here if the system is loaded to 
-the point where we are a jiffie or more late.  The prior code just did 
-the "+=" and called add_timer, possibly with a time in the past.  I 
-suspect that way of doing this would never catch up if the user asked 
-for a one jiffie repeat time.  Also, this is faster than the div, mpy if 
-you are not late (or even if you are several jiffies late).
+Ingo Molnar wrote:
+> * john cooper <john.cooper@timesys.com> wrote:
+> 
+> 
+>>Ingo,
+>>    Attached is a patch for 51-28 which brings PPC up to date for 
+>>2.6.12 PREEMPT_RT.  My goal was to get a more recent vintage of this 
+>>work building and minimally booting for PPC.  Yet this has been stable 
+>>even under our internal stress tests.  We now have this running on 
+>>8560 and 8260 PPC targets with a few others in the pipe.
+> 
+> 
+> great. I've applied most of your patch and have released the -51-37 
+> kernel. A couple of generic bits i did not apply.
+> 
+> 
+<snip>
 
-A possible alternative might be:
-	p->signal->real_timer.expires += inc;	
-	if (time_before_eq(p->signal->real_timer.expires, jiffies))
-		p->signal->real_timer.expires += ((jiffies - 
-p->signal->real_timer.expires + inc -1) / inc) * inc;
+On X86 -51-36 won't build with CONFIG_BLOCKER=Y without the attached patch.
 
-Both a div and a mpy in there.  I really think the "while" is ok, but if 
-you prefer...	
 
-The last time you questioned this sort of thing was in the code to 
-correct an absolute timer.  In that case we were adjusting after a clock 
-set and, yes, it was possibly exploitable (assuming you could set the 
-clock).  Here we don't have that possibility, i.e. we only get into the 
-loop if the system is late.
-> -
 -- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+    kr
+
+--------------010002080600020306010206
+Content-Type: text/x-patch;
+ name="blocker.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="blocker.patch"
+
+--- linux-2.6.12/drivers/char/blocker.c.orig	2005-07-26 09:32:28.000000000 -0500
++++ linux-2.6.12/drivers/char/blocker.c	2005-07-26 09:32:33.000000000 -0500
+@@ -4,7 +4,6 @@
+ 
+ #include <linux/fs.h>
+ #include <linux/miscdevice.h>
+-#include <asm/time.h>
+ 
+ #define BLOCKER_MINOR		221
+ 
+
+--------------010002080600020306010206--

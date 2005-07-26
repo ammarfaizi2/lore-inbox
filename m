@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVGZCNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVGZCWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVGZCNs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 22:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVGZCNs
+	id S261576AbVGZCWo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 22:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVGZCWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 22:13:48 -0400
-Received: from usbb-lacimss1.unisys.com ([192.63.108.51]:10769 "EHLO
-	usbb-lacimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S261540AbVGZCNr convert rfc822-to-8bit (ORCPT
+	Mon, 25 Jul 2005 22:22:43 -0400
+Received: from opersys.com ([64.40.108.71]:26130 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261576AbVGZCWn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 22:13:47 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 25 Jul 2005 22:22:43 -0400
+Message-ID: <42E59CF7.9000405@opersys.com>
+Date: Mon, 25 Jul 2005 22:16:23 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: VIA KT400 + Kernel 2.6.12 + IO-APIC + uhci_hcd = IRQ trouble
-Date: Mon, 25 Jul 2005 21:13:18 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04C75@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: VIA KT400 + Kernel 2.6.12 + IO-APIC + uhci_hcd = IRQ trouble
-Thread-Index: AcWRhS4bUPQpScLyQbiKl2FBEPcHpAAAVSCw
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Alan Stern" <stern@rowland.harvard.edu>,
-       "Michel Bouissou" <michel@bouissou.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jul 2005 02:13:19.0352 (UTC) FILETIME=[97373F80:01C59187]
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Weird USB errors on HD
+References: <42DD2EA4.5040507@opersys.com> <200507201553.09602.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200507201553.09602.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > Le Lundi 25 Juillet 2005 22:44, Alan Stern a écrit :
-> > >
-> > > Now that's strange.  When you plug the high-speed device into the 
-> > > integrated ports, which IRQ counter changes?  Since 
-> nothing is using 
-> > > IRQ 21, it should be disabled and its counter should remain 
-> > > constant.  Does this mean the interrupts show up on IRQ 
-> 19 (used by 
-> > > ehci-hcd), or do they not show up at all (i.e., is the 
-> USB connection just being polled)?
-> > 
-> > I assume it's IRQ 19.
-> > 
-> > cat /proc/interrupts doesn't show IRQ21 at all when uhci 
-> isn't loaded.
-> 
-> As it shouldn't, since nothing is supposed to be using that IRQ.
-> 
-> > IRQ 19 being shared with 4 IDE controllers that controls my hard 
-> > drives, that's hard to isolate interrupts counts due to USB 
-> activity 
-> > from interrupts counts due to disks activity...
-> 
-> I was afraid you'd say that...
-> 
-> Natalie, that's all I can think of.  Now it's up to you to 
-> invent a patch Michel can try out, to show just where the 
-> IO-APIC code is going wrong.
+Alistair John Strachan wrote:
+> You can get special USB cables that link two USB ports' 5Vs together in 
+> parallel, which seems to help supply the necessary current; after the HD has 
+> spun up you can remove the second "dummy" USB connector (my laptop only has 
+> two USB ports and I require the second port).
 
-I will sure try... I'm keeping an eye on your exchange don't worry :) 
-just have to get done with urgent work piled up here while on my trip :< ...
+Yeah, there was one of these in the box with the drive, but the first time
+I saw it I remember thinking: what the hell is this thing? Then when I
+figured it out, I found myself wondering whether the USB interface was
+ever planed for such a such and whether it wouldn't have been better to
+just ship a real adapter with the thing ...
 
---N
- 
-> Alan Stern
-> 
-> 
+Anyhow, I will not be using the drive anymore without a powered hub.
+
+Thanks for all those that helped,
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

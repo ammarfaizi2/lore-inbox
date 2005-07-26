@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVGZHd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVGZHea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVGZHd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 03:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVGZHd0
+	id S261835AbVGZHea (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 03:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVGZHe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 03:33:26 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46487 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261834AbVGZHdZ (ORCPT
+	Tue, 26 Jul 2005 03:34:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12504 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261837AbVGZHeZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 03:33:25 -0400
-Date: Tue, 26 Jul 2005 09:33:08 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk
-Subject: [RFC] fix compilation in mcp-core.c
-Message-ID: <20050726073308.GA28837@elf.ucw.cz>
+	Tue, 26 Jul 2005 03:34:25 -0400
+Date: Tue, 26 Jul 2005 00:33:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br>
+Cc: ahaning@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: "seeing minute plus hangs during boot" - 2.6.12 and 2.6.13
+Message-Id: <20050726003322.1bfe17ee.akpm@osdl.org>
+In-Reply-To: <42E59E0E.5030306@yahoo.com.br>
+References: <20050722182848.8028.qmail@web60715.mail.yahoo.com>
+	<105c793f05072507426fb6d4c9@mail.gmail.com>
+	<42E59E0E.5030306@yahoo.com.br>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br> wrote:
+>
+> Indeed udev update solved my problem with "preparing system to use udev"
+>  hang. It now works like a charm. I had 030 version too.
+> 
+>  Only the "mounting filesystem" hangs persists :(
 
-I had to do this to get mcp-core to compile, but it feels wrong. Where
-do I get device_unregister_wait?
-								Pavel
+Please use ALT-SYSRQ-T to generate an all-task backtrace, then send it to the
+list.
 
-
-diff --git a/drivers/misc/mcp-core.c b/drivers/misc/mcp-core.c
---- a/drivers/misc/mcp-core.c
-+++ b/drivers/misc/mcp-core.c
-@@ -198,7 +198,7 @@ int mcp_host_register(struct mcp *mcp, s
- 
- void mcp_host_unregister(struct mcp *mcp)
- {
--	device_unregister_wait(&mcp->attached_device);
-+	device_unregister(&mcp->attached_device);
- }
- 
- int mcp_driver_register(struct mcp_driver *mcpdrv)
-
--- 
-teflon -- maybe it is a trademark, but it should not be.

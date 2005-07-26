@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVGZK5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVGZLDf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbVGZK5T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 06:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVGZK5I
+	id S261723AbVGZLDf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 07:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVGZKwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 06:57:08 -0400
-Received: from styx.suse.cz ([82.119.242.94]:11411 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261744AbVGZKz6 (ORCPT
+	Tue, 26 Jul 2005 06:52:38 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:18839 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S261701AbVGZKv4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 06:55:58 -0400
-Date: Tue, 26 Jul 2005 12:55:57 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [INPUT] simple question on driver initialisation.
-Message-ID: <20050726105557.GB1588@ucw.cz>
-References: <20050726102340.44709.qmail@web25805.mail.ukl.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 26 Jul 2005 06:51:56 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.13-rc3-git5: fix Bug #4416 (1/2)
+Date: Tue, 26 Jul 2005 12:51:47 +0200
+User-Agent: KMail/1.8.1
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, alsa-devel@alsa-project.org
+References: <200507261247.05684.rjw@sisk.pl>
+In-Reply-To: <200507261247.05684.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050726102340.44709.qmail@web25805.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200507261251.48291.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 12:23:40PM +0200, moreau francis wrote:
+The following patch adds free_irq() and request_irq() to the suspend and
+resume, respectively, routines in the snd_intel8x0 driver.
 
-> I'm currently developping a very simple driver for a pinpad by using
-> Input module. I'm using Event handler to pass events from pinpad to userland.
-> In this simple case, I'm wondering if I really need to initialise
-> "phys" field in in "input_dev" struct before calling "input_register_device".
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-Yes, it is required.
-
-> What is this field for ?
+--- linux-2.6.13-rc3-git5/sound/pci/intel8x0.c	2005-07-23 19:26:43.000000000 +0200
++++ patched/sound/pci/intel8x0.c	2005-07-25 18:21:36.000000000 +0200
+@@ -2373,6 +2373,8 @@ static int intel8x0_suspend(snd_card_t *
+ 	for (i = 0; i < 3; i++)
+ 		if (chip->ac97[i])
+ 			snd_ac97_suspend(chip->ac97[i]);
++	if (chip->irq >= 0)
++		free_irq(chip->irq, (void *)chip);
+ 	pci_disable_device(chip->pci);
+ 	return 0;
+ }
+@@ -2384,7 +2386,14 @@ static int intel8x0_resume(snd_card_t *c
  
-It is intended for identifying the device based on "location" in the
-system.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+ 	pci_enable_device(chip->pci);
+ 	pci_set_master(chip->pci);
+-	snd_intel8x0_chip_init(chip, 0);
++	if (request_irq(chip->irq, snd_intel8x0_interrupt, SA_INTERRUPT|SA_SHIRQ, card->shortname, (void *)chip)) {
++		snd_printk("unable to grab IRQ %d\n", chip->irq);
++		chip->irq = -1;
++		pci_disable_device(chip->pci);
++		return -EBUSY;
++	}
++	synchronize_irq(chip->irq);
++	snd_intel8x0_chip_init(chip, 1);
+ 
+ 	/* refill nocache */
+ 	if (chip->fix_nocache)

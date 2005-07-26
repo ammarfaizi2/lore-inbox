@@ -1,228 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbVGZWt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262284AbVGZWwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbVGZWt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 18:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVGZWtW
+	id S262284AbVGZWwD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 18:52:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVGZWwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 18:49:22 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:15253 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262280AbVGZWsY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 18:48:24 -0400
-Subject: Re: Memory pressure handling with iSCSI
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20050726151003.6aa3aecb.akpm@osdl.org>
-References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
-	 <20050726111110.6b9db241.akpm@osdl.org>
-	 <1122403152.6433.39.camel@dyn9047017102.beaverton.ibm.com>
-	 <20050726114824.136d3dad.akpm@osdl.org>
-	 <20050726121250.0ba7d744.akpm@osdl.org>
-	 <1122412301.6433.54.camel@dyn9047017102.beaverton.ibm.com>
-	 <20050726142410.4ff2e56a.akpm@osdl.org>
-	 <1122414300.6433.57.camel@dyn9047017102.beaverton.ibm.com>
-	 <20050726151003.6aa3aecb.akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-QfRwilUKhN6W2dGZQD/R"
-Date: Tue, 26 Jul 2005 15:48:08 -0700
-Message-Id: <1122418089.6433.62.camel@dyn9047017102.beaverton.ibm.com>
+	Tue, 26 Jul 2005 18:52:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54732 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262076AbVGZWuy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 18:50:54 -0400
+Date: Tue, 26 Jul 2005 15:52:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: cmm@us.ibm.com
+Cc: ext2-devel@lists.sourceforge.net, sct@redhat.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       pbadari@us.ibm.com, suparna@in.ibm.com, tytso@mit.edu
+Subject: Re: [RFC] [PATCH 2/4]delayed allocation for ext3
+Message-Id: <20050726155212.750200d3.akpm@osdl.org>
+In-Reply-To: <1121622041.4609.25.camel@localhost.localdomain>
+References: <1110839154.24286.302.camel@dyn318077bld.beaverton.ibm.com>
+	<1121622041.4609.25.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mingming Cao <cmm@us.ibm.com> wrote:
+>
+> Here is the updated patch from Badari for delayed allocation for ext3.
+> Delayed allocation defers block allocation from prepare-write time to
+> page writeout time. 
 
---=-QfRwilUKhN6W2dGZQD/R
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+For data=writeback only, yes?
 
-On Tue, 2005-07-26 at 15:10 -0700, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > On Tue, 2005-07-26 at 14:24 -0700, Andrew Morton wrote:
-> > > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > > >
-> > > > ext2 is incredibly better. Machine is very responsive. 
-> > > > 
-> > > 
-> > > OK.  Please, always monitor and send /proc/meminfo.  I assume that the
-> > > dirty-memory clamping is working OK with ext2 and that perhaps it'll work
-> > > OK with ext3/data=writeback.
-> > 
-> > Nope. Dirty is still very high..
-> 
-> That's a relief in a way.  Can you please try decreasing the number of
-> filesystems now?
+> ...
+> --- linux-2.6.12/fs/ext3/inode.c~ext3-delalloc	2005-07-14 23:15:34.866752480 -0700
+> +++ linux-2.6.12-ming/fs/ext3/inode.c	2005-07-14 23:15:34.889748984 -0700
+> @@ -1340,6 +1340,9 @@ static int ext3_prepare_write(struct fil
+>  	handle_t *handle;
+>  	int retries = 0;
+>  
+> +
+> +	if (test_opt(inode->i_sb, DELAYED_ALLOC))
+> +		return __nobh_prepare_write(page, from, to, ext3_get_block, 0);
 
-Here is the data with 5 ext2 filesystems. I also collected /proc/meminfo
-every 5 seconds. As you can see, we seem to dirty 6GB of data in 20
-seconds of starting the test. I am not sure if its bad, since we have
-lots of free memory..
+Rather than performing this test on each ->prepare_write(), would it not be
+better to set up a new set of address_space_operations for this mode?
 
-Thanks,
-Badari
+__nobh_prepare_write() seems like a poor choice of name?
 
+>  retry:
+>  	handle = ext3_journal_start(inode, needed_blocks);
+>  	if (IS_ERR(handle)) {
+> @@ -1439,6 +1442,9 @@ static int ext3_writeback_commit_write(s
+>  	else
+>  		ret = generic_commit_write(file, page, from, to);
+>  
+> +	if (test_opt(inode->i_sb, DELAYED_ALLOC))
+> +		return ret;
+> +
 
+Here too, perhaps.
 
---=-QfRwilUKhN6W2dGZQD/R
-Content-Disposition: attachment; filename=vmstat-5-ext2.out
-Content-Type: text/plain; name=vmstat-5-ext2.out; charset=utf-8
-Content-Transfer-Encoding: 7bit
+> +		}
+> +	}
+>  	/*
+>  	 * The journal_load will have done any necessary log recovery,
+>  	 * so we can safely mount the rest of the filesystem now.
+> diff -puN fs/buffer.c~ext3-delalloc fs/buffer.c
+> --- linux-2.6.12/fs/buffer.c~ext3-delalloc	2005-07-14 23:15:34.875751112 -0700
+> +++ linux-2.6.12-ming/fs/buffer.c	2005-07-14 23:15:34.903746856 -0700
+> @@ -2337,8 +2337,8 @@ static void end_buffer_read_nobh(struct 
+>   * On entry, the page is fully not uptodate.
+>   * On exit the page is fully uptodate in the areas outside (from,to)
+>   */
+> -int nobh_prepare_write(struct page *page, unsigned from, unsigned to,
+> -			get_block_t *get_block)
+> +int __nobh_prepare_write(struct page *page, unsigned from, unsigned to,
+> +			get_block_t *get_block, int create)
 
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 2 11    120  32912  10624 6813476    0    0     0  6766 10364   485  0  4  0 96
- 0 11    120  33036  10652 6813964    0    0     2  8889 10079   475  0  4  0 96
- 0 11    120  33036  10712 6813904    0    0     0  8077 9984   469  0  4  0 96
- 0 11    120  32912  10752 6814380    0    0     0 15576 10226   514  0  4  0 95
- 0 11    120  33036  10668 6813432    0    0     0 11334 10112   488  0  4  0 96
- 0 11    120  33656  10600 6813500    0    0     0 11811 10238   497  0  4  0 96
- 0 11    120  33036  10596 6814020    0    0     0 12713 10191   489  0  4  0 96
- 0 11    120  33036  10648 6813968    0    0     1 15775 10195   508  0  4  0 96
- 0 10    120  33780  10656 6812928    0    0     2  5390 10265   503  0  3  5 92
- 0 11    120  33036  10660 6813440    0    0     0  9700 10217   518  0  4  2 94
+Suggest you make this static and update the comment.
 
+>  {
+>  	struct inode *inode = page->mapping->host;
+>  	const unsigned blkbits = inode->i_blkbits;
+> @@ -2370,10 +2370,8 @@ int nobh_prepare_write(struct page *page
+>  		  block_start < PAGE_CACHE_SIZE;
+>  		  block_in_page++, block_start += blocksize) {
+>  		unsigned block_end = block_start + blocksize;
+> -		int create;
+>  
+>  		map_bh.b_state = 0;
+> -		create = 1;
+>  		if (block_start >= to)
+>  			create = 0;
+>  		ret = get_block(inode, block_in_file + block_in_page,
 
+What's going on here?  Seems that we'll call get_block() with `create=0'. 
+Is there any point in doing that?  For delayed allocation we shuld be able
+to skip get_block() altogether here and, err, delay it.
 
---=-QfRwilUKhN6W2dGZQD/R
-Content-Disposition: inline; filename=meminfo.out
-Content-Type: text/plain; name=meminfo.out; charset=utf-8
-Content-Transfer-Encoding: 7bit
+> +int nobh_prepare_write(struct page *page, unsigned from, unsigned
+> + 				get_block_t *get_block)
+> +{
+> +	return __nobh_prepare_write(page, from, to, get_block, 1);
+> +}
+> +
+> EXPORT_SYMBOL(nobh_prepare_write);
 
-MemTotal:      7143628 kB
-MemFree:       7001860 kB
-Buffers:          5080 kB
-Cached:          23300 kB
-SwapCached:          0 kB
-Active:          48600 kB
-Inactive:         5872 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:      7143628 kB
-LowFree:       7001860 kB
-SwapTotal:     1048784 kB
-SwapFree:      1048780 kB
-Dirty:               0 kB
-Writeback:           0 kB
-Mapped:          45948 kB
-Slab:            56348 kB
-CommitLimit:   4620596 kB
-Committed_AS:   148436 kB
-PageTables:       1544 kB
-VmallocTotal: 34359738367 kB
-VmallocUsed:      9888 kB
-VmallocChunk: 34359728447 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     2048 kB
-
-MemTotal:      7143628 kB
-MemFree:       4871864 kB
-Buffers:         14564 kB
-Cached:        2091232 kB
-SwapCached:          0 kB
-Active:          51380 kB
-Inactive:      2081780 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:      7143628 kB
-LowFree:       4871864 kB
-SwapTotal:     1048784 kB
-SwapFree:      1048780 kB
-Dirty:         2070752 kB
-Writeback:           0 kB
-Mapped:          46368 kB
-Slab:           107912 kB
-CommitLimit:   4620596 kB
-Committed_AS:   148524 kB
-PageTables:       1608 kB
-VmallocTotal: 34359738367 kB
-VmallocUsed:      9888 kB
-VmallocChunk: 34359728447 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     2048 kB
-
-MemTotal:      7143628 kB
-MemFree:        406384 kB
-Buffers:         18940 kB
-Cached:        6443960 kB
-SwapCached:          0 kB
-Active:          55688 kB
-Inactive:      6435048 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:      7143628 kB
-LowFree:        406384 kB
-SwapTotal:     1048784 kB
-SwapFree:      1048780 kB
-Dirty:         6144652 kB
-Writeback:      252152 kB
-Mapped:          46380 kB
-Slab:           216580 kB
-CommitLimit:   4620596 kB
-Committed_AS:   148756 kB
-PageTables:       1608 kB
-VmallocTotal: 34359738367 kB
-VmallocUsed:      9888 kB
-VmallocChunk: 34359728447 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     2048 kB
-
-MemTotal:      7143628 kB
-MemFree:         32772 kB
-Buffers:         10028 kB
-Cached:        6817680 kB
-SwapCached:          4 kB
-Active:          48180 kB
-Inactive:      6804552 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:      7143628 kB
-LowFree:         32772 kB
-SwapTotal:     1048784 kB
-SwapFree:      1048664 kB
-Dirty:         6489496 kB
-Writeback:      285264 kB
-Mapped:          46000 kB
-Slab:           228172 kB
-CommitLimit:   4620596 kB
-Committed_AS:   148756 kB
-PageTables:       1608 kB
-VmallocTotal: 34359738367 kB
-VmallocUsed:      9888 kB
-VmallocChunk: 34359728447 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     2048 kB
-
-MemTotal:      7143628 kB
-MemFree:         32524 kB
-Buffers:         10056 kB
-Cached:        6816620 kB
-SwapCached:          4 kB
-Active:          48672 kB
-Inactive:      6803212 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:      7143628 kB
-LowFree:         32524 kB
-SwapTotal:     1048784 kB
-SwapFree:      1048664 kB
-Dirty:         6465124 kB
-Writeback:      268876 kB
-Mapped:          46008 kB
-Slab:           229580 kB
-CommitLimit:   4620596 kB
-Committed_AS:   148996 kB
-PageTables:       1608 kB
-VmallocTotal: 34359738367 kB
-VmallocUsed:      9888 kB
-VmallocChunk: 34359728447 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     2048 kB
-
---=-QfRwilUKhN6W2dGZQD/R--
-
+Here you add nobh_dalloc_prepare_write() and remember to export it to
+modules this time ;)

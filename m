@@ -1,106 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVGZWwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVGZWgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbVGZWwR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 18:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVGZWwI
+	id S262308AbVGZWgj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 18:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbVGZWd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 18:52:08 -0400
-Received: from goliat.kalisz.mm.pl ([217.96.42.226]:43993 "EHLO kalisz.mm.pl")
-	by vger.kernel.org with ESMTP id S262312AbVGZWtp (ORCPT
+	Tue, 26 Jul 2005 18:33:57 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50924 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262303AbVGZWcu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 18:49:45 -0400
-Date: Wed, 27 Jul 2005 00:49:32 +0200
-From: Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mkrufky@m1k.net, linux-kernel@vger.kernel.org
-Subject: Re: MM kernels - how to keep on the bleeding edge?
-Message-Id: <20050727004932.1b25fc5d.astralstorm@gorzow.mm.pl>
-In-Reply-To: <20050726144149.0dc7b008.akpm@osdl.org>
-References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
-	<42E692E4.4070105@m1k.net>
-	<20050726221506.416e6e76.astralstorm@gorzow.mm.pl>
-	<42E69C5B.80109@m1k.net>
-	<20050726144149.0dc7b008.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__27_Jul_2005_00_49_32_+0200_CJEzyioBixqXKtw_"
+	Tue, 26 Jul 2005 18:32:50 -0400
+Subject: patch i2c-hwmon-split-08.patch added to gregkh-2.6 tree
+To: khali@linux-fr.org, greg@kroah.com, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+From: <gregkh@suse.de>
+Date: Tue, 26 Jul 2005 15:33:18 -0700
+In-Reply-To: <20050720000533.57ad4953.khali@linux-fr.org>
+Message-ID: <1DxXzC-0ZH-00@press.kroah.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__27_Jul_2005_00_49_32_+0200_CJEzyioBixqXKtw_
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, 26 Jul 2005 14:41:49 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+This is a note to let you know that I've just added the patch titled
 
-> Michael Krufky <mkrufky@m1k.net> wrote:
-> >
-> > [ tracking mm stuff ]
-> >
->=20
-> Sigh, sorry.  It's hard.  -mm is always in flux.  I no longer send out the
-> `patch was dropped' message because it disturbs people.=20
+     Subject: I2C: Separate non-i2c hwmon drivers from i2c-core (8/9)
 
-There were too many?=20
-Or you were receiving a lot of mail from particular developers with
-requests of explanation? :)
+to my gregkh-2.6 tree.  Its filename is
 
-> The mm-commits
-> list does not resend a patch when it is changed (other patches folded into
-> it, rejects fixed, changelog updated, rediffed, etc). =20
+     i2c-hwmon-split-08.patch
 
-This isn't so much a problem as the previous point. When there are rejects,
-it's easy (most of the time) to fix them by hand anyway as I pull the tree.
+This tree can be found at 
+    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
 
-> Sometimes I'll comment out a patch but not fully drop it. =20
+Patches currently in gregkh-2.6 which might be from khali@linux-fr.org are
 
-Now I can see that, I can diff the series.=20
-But if the change was large, the diff isn't very instructive.
+i2c/i2c-max6875-documentation-update.patch
+i2c/i2c-max6875-simplify.patch
+i2c/i2c-hwmon-class-01.patch
+i2c/i2c-hwmon-class-02.patch
+i2c/i2c-hwmon-class-03.patch
+i2c/i2c-missing-space.patch
+i2c/i2c-nforce2-cleanup.patch
+i2c/i2c-hwmon-split-01.patch
+i2c/i2c-hwmon-split-02.patch
+i2c/i2c-hwmon-split-03.patch
+i2c/i2c-hwmon-split-04.patch
+i2c/i2c-hwmon-split-05.patch
+i2c/i2c-hwmon-split-06.patch
+i2c/i2c-hwmon-split-07.patch
+i2c/i2c-hwmon-split-08.patch
+i2c/i2c-hwmon-split-09.patch
 
-> I pull all the git trees at
-> least twice a day and that's not reflected on the mm-commits list either.
->=20
 
-That's not a problem, I can pull them too. They're public.
+>From khali@linux-fr.org Tue Jul 19 18:06:45 2005
+Date: Wed, 20 Jul 2005 00:05:33 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>, LM Sensors
+ <lm-sensors@lm-sensors.org>
+Cc: Greg KH <greg@kroah.com>
+Subject: I2C: Separate non-i2c hwmon drivers from i2c-core (8/9)
+Message-Id: <20050720000533.57ad4953.khali@linux-fr.org>
 
-> You can always tell when a -mm release is coming by watching the shower of
-> stupid compile fixes emerging :(
+Kill all uses of i2c_is_isa_adapter except for the hybrid drivers (it87,
+lm78, w83781d). The i2c-isa adapter not being registered with the i2c
+core anymore, drivers don't have to fear being erroneously attached to
+it.
 
-I do notice that using the RSS already, :) And the usual shower isn't as
-frequent and large nowadays as before.
 
->=20
-> I spose I could emit a broken-out.tar.gz file occasionally (it'd be up to=
- 5
-> times a day), but there's no guarantee that it'll compile, let alone run.=
-=20
-> I could also send a notification to mm-commits when I do so.  Would that
-> help?
->=20
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Really, it would. Especially if it contained an up-to-date series file.
-I'd be very grateful. (And would test and fix it up some more.)
 
---=20
-AstralStorm
+---
+ Documentation/i2c/writing-clients |   11 +++++------
+ drivers/hwmon/adm1021.c           |    9 ---------
+ drivers/hwmon/asb100.c            |    8 --------
+ drivers/hwmon/lm75.c              |   10 ----------
+ drivers/hwmon/lm85.c              |    5 -----
+ 5 files changed, 5 insertions(+), 38 deletions(-)
 
-GPG Key ID =3D 0xD1F10BA2
-GPG Key fingerprint =3D 96E2 304A B9C4 949A 10A0  9105 9543 0453 D1F1 0BA2
-Please encrypt if you can.
-
---Signature=_Wed__27_Jul_2005_00_49_32_+0200_CJEzyioBixqXKtw_
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQFC5r4DlUMEU9HxC6IRAvqQAJ0ZMuRMpF+d8sgqua46uj5RyF2GhACePjTf
-g5AF2qfno2crUrppU9u1654=
-=1von
------END PGP SIGNATURE-----
-
---Signature=_Wed__27_Jul_2005_00_49_32_+0200_CJEzyioBixqXKtw_--
+--- gregkh-2.6.orig/Documentation/i2c/writing-clients	2005-07-26 15:16:45.000000000 -0700
++++ gregkh-2.6/Documentation/i2c/writing-clients	2005-07-26 15:16:46.000000000 -0700
+@@ -315,11 +315,10 @@
+     const char *type_name = "";
+     int is_isa = i2c_is_isa_adapter(adapter);
+ 
+-    if (is_isa) {
++    /* Do this only if the chip can additionally be found on the ISA bus
++       (hybrid chip). */
+ 
+-      /* If this client can't be on the ISA bus at all, we can stop now
+-         (call `goto ERROR0'). But for kicks, we will assume it is all
+-         right. */
++    if (is_isa) {
+ 
+       /* Discard immediately if this ISA range is already used */
+       if (check_region(address,FOO_EXTENT))
+@@ -495,10 +494,10 @@
+       return err;
+     }
+ 
+-    /* SENSORS ONLY START */
++    /* HYBRID SENSORS CHIP ONLY START */
+     if i2c_is_isa_client(client)
+       release_region(client->addr,LM78_EXTENT);
+-    /* SENSORS ONLY END */
++    /* HYBRID SENSORS CHIP ONLY END */
+ 
+     kfree(client); /* Frees client data too, if allocated at the same time */
+     return 0;
+--- gregkh-2.6.orig/drivers/hwmon/adm1021.c	2005-07-26 15:16:45.000000000 -0700
++++ gregkh-2.6/drivers/hwmon/adm1021.c	2005-07-26 15:16:46.000000000 -0700
+@@ -198,15 +198,6 @@
+ 	int err = 0;
+ 	const char *type_name = "";
+ 
+-	/* Make sure we aren't probing the ISA bus!! This is just a safety check
+-	   at this moment; i2c_detect really won't call us. */
+-#ifdef DEBUG
+-	if (i2c_is_isa_adapter(adapter)) {
+-		dev_dbg(&adapter->dev, "adm1021_detect called for an ISA bus adapter?!?\n");
+-		return 0;
+-	}
+-#endif
+-
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
+ 		goto error0;
+ 
+--- gregkh-2.6.orig/drivers/hwmon/asb100.c	2005-07-26 15:16:45.000000000 -0700
++++ gregkh-2.6/drivers/hwmon/asb100.c	2005-07-26 15:16:46.000000000 -0700
+@@ -714,14 +714,6 @@
+ 	struct i2c_client *new_client;
+ 	struct asb100_data *data;
+ 
+-	/* asb100 is SMBus only */
+-	if (i2c_is_isa_adapter(adapter)) {
+-		pr_debug("asb100.o: detect failed, "
+-				"cannot attach to legacy adapter!\n");
+-		err = -ENODEV;
+-		goto ERROR0;
+-	}
+-
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)) {
+ 		pr_debug("asb100.o: detect failed, "
+ 				"smbus byte data not supported!\n");
+--- gregkh-2.6.orig/drivers/hwmon/lm75.c	2005-07-26 15:16:45.000000000 -0700
++++ gregkh-2.6/drivers/hwmon/lm75.c	2005-07-26 15:16:46.000000000 -0700
+@@ -121,16 +121,6 @@
+ 	int err = 0;
+ 	const char *name = "";
+ 
+-	/* Make sure we aren't probing the ISA bus!! This is just a safety check
+-	   at this moment; i2c_detect really won't call us. */
+-#ifdef DEBUG
+-	if (i2c_is_isa_adapter(adapter)) {
+-		dev_dbg(&adapter->dev,
+-			"lm75_detect called for an ISA bus adapter?!?\n");
+-		goto exit;
+-	}
+-#endif
+-
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
+ 				     I2C_FUNC_SMBUS_WORD_DATA))
+ 		goto exit;
+--- gregkh-2.6.orig/drivers/hwmon/lm85.c	2005-07-26 15:16:45.000000000 -0700
++++ gregkh-2.6/drivers/hwmon/lm85.c	2005-07-26 15:16:46.000000000 -0700
+@@ -1033,11 +1033,6 @@
+ 	int err = 0;
+ 	const char *type_name = "";
+ 
+-	if (i2c_is_isa_adapter(adapter)) {
+-		/* This chip has no ISA interface */
+-		goto ERROR0 ;
+-	};
+-
+ 	if (!i2c_check_functionality(adapter,
+ 					I2C_FUNC_SMBUS_BYTE_DATA)) {
+ 		/* We need to be able to do byte I/O */

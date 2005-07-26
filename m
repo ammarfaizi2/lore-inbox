@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVGZRqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVGZRqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVGZRqf (ORCPT <rfc822;willy@w.ods.org>);
+	id S261903AbVGZRqf (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 26 Jul 2005 13:46:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVGZRqW
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVGZRq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 13:46:22 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30855 "EHLO
+	Tue, 26 Jul 2005 13:46:29 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28807 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261903AbVGZRqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 13:46:09 -0400
+	id S261782AbVGZRo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 13:44:59 -0400
 To: Andrew Morton <akpm@osdl.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 9/23] x86_64: Implemenent machine_emergency_restart
+Subject: [PATCH 8/23] x86_64: Fix reboot_force
 References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
 	<m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
 	<m1ek9leb0h.fsf_-_@ebiederm.dsl.xmission.com>
@@ -20,12 +20,11 @@ References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
 	<m11x5leaml.fsf_-_@ebiederm.dsl.xmission.com>
 	<m1wtndcvwe.fsf_-_@ebiederm.dsl.xmission.com>
 	<m1sly1cvnd.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1oe8pcvii.fsf_-_@ebiederm.dsl.xmission.com>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 26 Jul 2005 11:45:31 -0600
-In-Reply-To: <m1oe8pcvii.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
- Biederman's message of "Tue, 26 Jul 2005 11:44:21 -0600")
-Message-ID: <m1k6jdcvgk.fsf_-_@ebiederm.dsl.xmission.com>
+Date: Tue, 26 Jul 2005 11:44:21 -0600
+In-Reply-To: <m1sly1cvnd.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Tue, 26 Jul 2005 11:41:26 -0600")
+Message-ID: <m1oe8pcvii.fsf_-_@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -33,65 +32,38 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-It is not safe to call set_cpus_allowed() in interrupt
-context and disabling the apics is complicated code.
-So unconditionally skip machine_shutdown in machine_emergency_reboot
-on x86_64.
+We only want to shutdown the apics if reboot_force
+is not specified.  Be we are doing this both
+in machine_shutdown which is called unconditionally
+and if (!reboot_force).  So simply call machine_shutdown
+if (!reboot_force).  It looks like something
+went weird with merging some of the kexec patches for
+x86_64, and caused this.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
 
- arch/x86_64/kernel/reboot.c            |   18 +++++++++++-------
- include/asm-x86_64/emergency-restart.h |    2 +-
- 2 files changed, 12 insertions(+), 8 deletions(-)
+ arch/x86_64/kernel/reboot.c |    9 +--------
+ 1 files changed, 1 insertions(+), 8 deletions(-)
 
-c274d84d274bd40c63be01cd6a4ba26ae2be135a
+a044301f20f8e977206a79ade92c6b385f9e2703
 diff --git a/arch/x86_64/kernel/reboot.c b/arch/x86_64/kernel/reboot.c
 --- a/arch/x86_64/kernel/reboot.c
 +++ b/arch/x86_64/kernel/reboot.c
-@@ -109,16 +109,10 @@ void machine_shutdown(void)
- 	local_irq_enable();
- }
+@@ -115,15 +115,8 @@ void machine_restart(char * __unused)
  
--void machine_restart(char * __unused)
-+void machine_emergency_restart(void)
- {
- 	int i;
+ 	printk("machine restart\n");
  
--	printk("machine restart\n");
+-	machine_shutdown();
 -
--	if (!reboot_force) {
--		machine_shutdown();
--	}
--	
- 	/* Tell the BIOS if we want cold or warm reboot */
- 	*((unsigned short *)__va(0x472)) = reboot_mode;
-        
-@@ -143,6 +137,16 @@ void machine_restart(char * __unused)
- 	}      
- }
- 
-+void machine_restart(char * __unused)
-+{
-+	printk("machine restart\n");
-+
-+	if (!reboot_force) {
+ 	if (!reboot_force) {
+-		local_irq_disable();
+-#ifndef CONFIG_SMP
+-		disable_local_APIC();
+-#endif
+-		disable_IO_APIC();
+-		local_irq_enable();
 +		machine_shutdown();
-+	}
-+	machine_emergency_restart();
-+}
-+
- void machine_halt(void)
- {
- }
-diff --git a/include/asm-x86_64/emergency-restart.h b/include/asm-x86_64/emergency-restart.h
---- a/include/asm-x86_64/emergency-restart.h
-+++ b/include/asm-x86_64/emergency-restart.h
-@@ -1,6 +1,6 @@
- #ifndef _ASM_EMERGENCY_RESTART_H
- #define _ASM_EMERGENCY_RESTART_H
- 
--#include <asm-generic/emergency-restart.h>
-+extern void machine_emergency_restart(void);
- 
- #endif /* _ASM_EMERGENCY_RESTART_H */
+ 	}
+ 	
+ 	/* Tell the BIOS if we want cold or warm reboot */

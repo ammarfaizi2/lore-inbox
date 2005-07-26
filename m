@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVGZVAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVGZVC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbVGZVAk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 17:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbVGZVAk
+	id S262081AbVGZVC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 17:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVGZVC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 17:00:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20159 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262045AbVGZVAf (ORCPT
+	Tue, 26 Jul 2005 17:02:57 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7656 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262081AbVGZVCL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 17:00:35 -0400
-Date: Tue, 26 Jul 2005 16:59:57 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Badari Pulavarty <pbadari@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Memory pressure handling with iSCSI
-In-Reply-To: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.61.0507261659250.1786@chimarrao.boston.redhat.com>
-References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.61.0507261659252.1786@chimarrao.boston.redhat.com>
+	Tue, 26 Jul 2005 17:02:11 -0400
+Date: Tue, 26 Jul 2005 23:02:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 16/23] swpsuspend:  Have suspend to disk use factors of sys_reboot
+Message-ID: <20050726210203.GB23224@elf.ucw.cz>
+References: <m1oe8pcvii.fsf_-_@ebiederm.dsl.xmission.com> <m1k6jdcvgk.fsf_-_@ebiederm.dsl.xmission.com> <m1fyu1cvd7.fsf_-_@ebiederm.dsl.xmission.com> <m1br4pcva4.fsf_-_@ebiederm.dsl.xmission.com> <m17jfdcv79.fsf_-_@ebiederm.dsl.xmission.com> <m13bq1cv3k.fsf_-_@ebiederm.dsl.xmission.com> <m1y87tbgeo.fsf_-_@ebiederm.dsl.xmission.com> <m1u0ihbg85.fsf_-_@ebiederm.dsl.xmission.com> <m1pst5bg5u.fsf_-_@ebiederm.dsl.xmission.com> <20050726135749.14bf26df.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050726135749.14bf26df.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Jul 2005, Badari Pulavarty wrote:
+Hi!
 
-> After KS & OLS discussions about memory pressure, I wanted to re-do
-> iSCSI testing with "dd"s to see if we are throttling writes.  
+> > The suspend to disk code was a poor copy of the code in
+> > sys_reboot now that we have kernel_power_off, kernel_restart
+> > and kernel_halt use them instead of poorly duplicating them inline.
+> > 
+> > Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+..
+> This one conflicts in both implementation and intent with the below, from Pavel.  I'll
+> drop Pavel's patch.
+> 
+> 
+> From: Pavel Machek <pavel@ucw.cz>
+> 
+> Do not call device_shutdown with interrupts disabled.  It is wrong and
+> produces ugly warnings.
 
-Could you also try with shared writable mmap, to see if that
-works ok or triggers a deadlock ?
-
+Okay with me.
+								Pavel
 -- 
-The Theory of Escalating Commitment: "The cost of continuing mistakes is
-borne by others, while the cost of admitting mistakes is borne by yourself."
-  -- Joseph Stiglitz, Nobel Laureate in Economics
+teflon -- maybe it is a trademark, but it should not be.

@@ -1,46 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVGZP2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVGZPld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVGZP2K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 11:28:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVGZP2K
+	id S261857AbVGZPld (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 11:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVGZPld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 11:28:10 -0400
-Received: from vmlinux.org ([193.41.214.66]:37301 "EHLO vmlinux.org")
-	by vger.kernel.org with ESMTP id S261826AbVGZP2I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 11:28:08 -0400
-Message-ID: <42E6567C.8090402@vmlinux.org>
-Date: Tue, 26 Jul 2005 17:27:56 +0200
-From: Joachim Nilsson <joachim.nilsson@vmlinux.org>
-Organization: vmlinux:~/
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>,
-       roms@lpg.ticalc.org
-Subject: Re: RFT - gconfig fix
-References: <20050726120841.GA27366@mars.ravnborg.org>
-In-Reply-To: <20050726120841.GA27366@mars.ravnborg.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 11:41:33 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:4401 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261857AbVGZPlb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 11:41:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Cdm1HnKbb7bZklxpWbbh0HxfzV0JFbeA+h7lRVGK9/jE5zfiZ2CQQeqPS3UU59hjVH4nG92hXJlwIG6sahnELhRYyPtGrX302CPn8UBYfZQyIG0J3rZMqKgrys6cMjFKWFj926jr5Z4dCQkyf9DEceEJBHG26ZASGsykLRxWhu8=
+Message-ID: <9a8748490507260841698859e4@mail.gmail.com>
+Date: Tue, 26 Jul 2005 17:41:31 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Cc: linux-kernel@vger.kernel.org, perex@suse.cz, alsa-devel@alsa-project.org,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com
+In-Reply-To: <20050726150837.GT3160@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050726150837.GT3160@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> Joachim - any specific reason why you ifdeffed out usage of stock Gtk icons?
+On 7/26/05, Adrian Bunk <bunk@stusta.de> wrote:
+> This patch schedules obsolete OSS drivers (with ALSA drivers that
+> support the same hardware) for removal.
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+> I've Cc'ed the people listed in MAINTAINERS as being responsible for one
+> or more of these drivers, and I've also Cc'ed the ALSA people.
+> 
+> Please tell if any my driver selections is wrong.
+> 
+>  Documentation/feature-removal-schedule.txt |    7 +
+>  sound/oss/Kconfig                          |   79 ++++++++++++---------
+>  2 files changed, 54 insertions(+), 32 deletions(-)
+> 
+> --- linux-2.6.13-rc3-mm1-full/Documentation/feature-removal-schedule.txt.old    2005-07-26 16:50:05.000000000 +0200
+> +++ linux-2.6.13-rc3-mm1-full/Documentation/feature-removal-schedule.txt        2005-07-26 16:51:24.000000000 +0200
+> @@ -44,0 +45,7 @@
+> +What:  drivers depending on OBSOLETE_OSS_DRIVER
+> +When:  October 2005
+> +Why:   OSS drivers with ALSA replacements
+> +Who:   Adrian Bunk <bunk@stusta.de>
+> +
+> +---------------------------
+> +
+> --- linux-2.6.13-rc3-mm1-modular/sound/oss/Kconfig.old  2005-07-23 21:04:56.000000000 +0200
+> +++ linux-2.6.13-rc3-mm1-modular/sound/oss/Kconfig      2005-07-24 01:22:11.000000000 +0200
+> @@ -4,9 +4,24 @@
+>  # More hacking for modularisation.
+>  #
+>  # Prompt user for primary drivers.
+> +
+> +config OBSOLETE_OSS_DRIVER
+> +       bool "Obsolete OSS drivers"
+> +       depends on SOUND_PRIME
+> +       help
+> +         This patch enables support for obsolete OSS drivers that
 
-Only to have a consistent look between xconfig and gconfig.
-
-A better way would perhaps be to use stock KDE and GNOME icons, but I
-never had the time to make a fix for xconfig so I made this compromise
-instead to let you guys chose/code for me.  Personally I prefer the
-in-kernel icons though...
-
-Regards
- /Jocke
+                      s/patch/option/  ???
 
 -- 
-Joachim Nilsson :: <joachim AT vmlinux DOT org>
-+46(0)21-123348 :: <http://vmlinux.org/joachim/>
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

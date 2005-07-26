@@ -1,32 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVGZVLH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVGZVN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbVGZVLH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 17:11:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVGZVLE
+	id S261962AbVGZVN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 17:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbVGZVI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 17:11:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25014 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262087AbVGZVKe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 17:10:34 -0400
-Date: Tue, 26 Jul 2005 14:12:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: pbadari@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	Tue, 26 Jul 2005 17:08:28 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:10217 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262058AbVGZVGD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 17:06:03 -0400
 Subject: Re: Memory pressure handling with iSCSI
-Message-Id: <20050726141215.691379a2.akpm@osdl.org>
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>
 In-Reply-To: <Pine.LNX.4.61.0507261659250.1786@chimarrao.boston.redhat.com>
 References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
-	<Pine.LNX.4.61.0507261659250.1786@chimarrao.boston.redhat.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	 <Pine.LNX.4.61.0507261659250.1786@chimarrao.boston.redhat.com>
+Content-Type: text/plain
+Date: Tue, 26 Jul 2005 14:05:49 -0700
+Message-Id: <1122411949.6433.50.camel@dyn9047017102.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@redhat.com> wrote:
->
+On Tue, 2005-07-26 at 16:59 -0400, Rik van Riel wrote:
 > On Tue, 26 Jul 2005, Badari Pulavarty wrote:
 > 
 > > After KS & OLS discussions about memory pressure, I wanted to re-do
@@ -34,6 +34,11 @@ Rik van Riel <riel@redhat.com> wrote:
 > 
 > Could you also try with shared writable mmap, to see if that
 > works ok or triggers a deadlock ?
-> 
 
-That'll cause problems for sure, but we need to get `dd' right first :(
+
+I can, but lets finish addressing one issue at a time. Last time,
+I changed too many things at the same time and got no where :(
+
+Thanks,
+Badari
+

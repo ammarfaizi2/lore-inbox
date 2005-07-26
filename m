@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVGZVgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVGZVjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262091AbVGZVgc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 17:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVGZVeN
+	id S262059AbVGZVjS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 17:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVGZVgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 17:34:13 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:23722 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S262139AbVGZVcw (ORCPT
+	Tue, 26 Jul 2005 17:36:39 -0400
+Received: from fmr14.intel.com ([192.55.52.68]:51875 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262131AbVGZVfU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 17:32:52 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: [PATCH] 2.6.13-rc3-git5: fix Bug #4416 (2/2)
-Date: Tue, 26 Jul 2005 23:37:42 +0200
-User-Agent: KMail/1.8.1
-Cc: Peter Buckingham <peter@pantasys.com>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <200507261247.05684.rjw@sisk.pl> <200507262302.37488.rjw@sisk.pl> <42E6A6E7.5000402@pantasys.com>
-In-Reply-To: <42E6A6E7.5000402@pantasys.com>
+	Tue, 26 Jul 2005 17:35:20 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507262337.43208.rjw@sisk.pl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] e1000: no need for reboot notifier
+Date: Tue, 26 Jul 2005 14:35:07 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0400174A@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] e1000: no need for reboot notifier
+Thread-Index: AcWSKRh0SygqXhW2TYyeeV9fHeRfUgAABKkg
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: "cramerj" <cramerj@intel.com>, "Ronciak, John" <john.ronciak@intel.com>,
+       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>, <pavel@ucw.cz>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Jul 2005 21:35:08.0876 (UTC) FILETIME=[E55478C0:01C59229]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 26 of July 2005 23:11, Peter Buckingham wrote:
-> Rafael J. Wysocki wrote:
-> > On Tuesday, 26 of July 2005 14:25, Carl-Daniel Hailfinger wrote:
-> >>The current in-kernel sk98lin driver is years behind the version
-> >>downloadable from Syskonnect. Maybe it would make sense to update
-> >>it first before applying any new patches.
-> >>http://www.syskonnect.com/support/driver/d0102_driver.html
-> > 
-> > 
-> > You are right, but I don't know who should do this.  I have only submitted
-> > the patch to eliminate a problem with the current kernel.
-> 
-> have a look at the skge driver, this is a cleaned up version of the 
-> sk98lin. Although it doesn't support all of the devices, ie ones based 
-> on the Yukon 2.
+>> sys_reboot() now calls device_suspend(), so it is no longer necessary for
+>> the e1000 driver to register a reboot notifier [in fact doing so results
+>> in e1000_suspend() getting called twice].
+>
+>Does this fix the ia64 reboot, or do we still have the 
+>mpt-fusion problem?
 
-Thanks for the hint, I will.  From the first look it's missing the
-free_irq()/request_irq() on suspend/resume however.
+We still have the mpt-fusion problem :-(   That one appears to
+be more convoluted ... we don't seem to be calling the suspend
+functions more than once, but I still see the "Badness" messages
+from iosapic_unregister_intr().  There may also be an ordering
+problem where we shutdown some bits of mpt-fusion, and then later
+call the suspend function for another layer to sync out some
+SCSI stuff, but it is toast because the device is already down.
 
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+-Tony

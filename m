@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVGZHOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVGZHS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbVGZHOX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 03:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVGZHOX
+	id S261832AbVGZHS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 03:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVGZHS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 03:14:23 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:22179 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261821AbVGZHOP (ORCPT
+	Tue, 26 Jul 2005 03:18:56 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49797 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261832AbVGZHSz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 03:14:15 -0400
-Date: Tue, 26 Jul 2005 09:13:46 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] add NULL short circuit to fb_dealloc_cmap()
-In-Reply-To: <9e47339105071715322c558403@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0507260912210.3470@numbat.sonytel.be>
-References: <200507172043.41473.jesper.juhl@gmail.com> 
- <9e473391050717132233347d25@mail.gmail.com>  <Pine.LNX.4.62.0507172314000.4553@numbat.sonytel.be>
- <9e47339105071715322c558403@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Jul 2005 03:18:55 -0400
+Date: Tue, 26 Jul 2005 09:18:45 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk
+Subject: [patch] ucb1x00: driver model fixes
+Message-ID: <20050726071845.GJ8684@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Jul 2005, Jon Smirl wrote:
-> On 7/17/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > >
-> > > struct fb_super_cmap {
-> > >    struct fb_cmap cmap;
-> > >    __u16 red[255];
-> > >    __u16 blue[255];
-> > >    __u16 green[255];
-> > >    __u16 transp[255];
-> >                   ^^^
-> > I assume you meant 256?
-> > 
-> > > }
-> > >
-> > > Then adjust the code as need. Have the embedded cmap struct point to
-> > > the fields in the super_cmap and the drivers don't have to be changed.
-> > 
-> > What if your colormap has more than 256 entries?
-> 
-> I meant 256. Does any hardware exist that takes more that 256 entries? 
+This fixes u32 vs. pm_message_t confusion and uses cleaner
+try_to_freeze() [fixing compilation as a side-effect on newer
+kernels.]
 
-1024 was quite common on high-end graphics hardware.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-> They are __u16 values but I have never seen hardware that take more
-> that __u8 either.
+--- linux-rmk.clean//drivers/misc/mcp.h	2005-07-26 09:15:05.000000000 +0200
++++ linux-rmk/drivers/misc/mcp.h	2005-07-26 08:46:03.000000000 +0200
+@@ -45,7 +45,7 @@
+ 	struct device_driver drv;
+ 	int (*probe)(struct mcp *);
+ 	void (*remove)(struct mcp *);
+-	int (*suspend)(struct mcp *, u32);
++	int (*suspend)(struct mcp *, pm_message_t);
+ 	int (*resume)(struct mcp *);
+ };
+ 
+--- linux-rmk.clean//drivers/misc/ucb1x00-ts.c	2005-07-26 09:15:19.000000000 +0200
++++ linux-rmk/drivers/misc/ucb1x00-ts.c	2005-07-26 08:46:56.000000000 +0200
+@@ -253,8 +253,7 @@
+ 			timeout = HZ / 100;
+ 		}
+ 
+-		if (tsk->flags & PF_FREEZE)
+-			refrigerator();
++		try_to_freeze();
+ 
+ 		schedule_timeout(timeout);
+ 		if (signal_pending(tsk))
 
-10 bit was quite common on high-end graphics hardware.
-
-IIRC, DEC TGA can do at least one of them.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+teflon -- maybe it is a trademark, but it should not be.

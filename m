@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVGZQzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVGZRDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbVGZQzb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 12:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVGZPrk
+	id S261759AbVGZRDO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 13:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVGZPrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 11:47:40 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:23104 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261868AbVGZPqS (ORCPT
+	Tue, 26 Jul 2005 11:47:33 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:53486 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261784AbVGZPq1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 11:46:18 -0400
+	Tue, 26 Jul 2005 11:46:27 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=cddh0t7FQXBvd96kM2E+9nS7VJW30KKUYA5jqZvffLg95GuDrbZ+AEiO+pcW6BsmL3V5KiwpqdoxaPagViOsI+aohmhvtJUB+EmWDjWuXuqYDXP9skHsido+badbNd9LLjFO3ltzYq17dlTbvCn86/Hv0y3e3NzhYzhG+ywxrP8=
+        b=utm5xtJSWjeAzZRt6hxeB7PPxiiAOxspeDP+lF/IxaI1dr1abQVUCz0MxsJza68gaMPr6vWgZcIKQln0WVgOLZBrx8oz/41O1rjWOQXmDxz+A85/+1JnY8a+qaXMiIzJt5xtwTygXJNGasdazR9AXz6YF+9K8KVSQ2mCc7qgAtI=
 From: Tejun Heo <htejun@gmail.com>
 To: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
        bzolnier@gmail.com
@@ -21,271 +21,162 @@ User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
 References: <20050726154457.38D60C67@htj.dyndns.org>
 In-Reply-To: <20050726154457.38D60C67@htj.dyndns.org>
-Subject: Re: [PATCH linux-2.6-block:master 04/10] blk: update SCSI to use new blk_ordered
-Message-ID: <20050726154457.185E00DC@htj.dyndns.org>
-Date: Wed, 27 Jul 2005 00:46:11 +0900 (KST)
+Subject: Re: [PATCH linux-2.6-block:master 06/10] blk: update libata to use new blk_ordered
+Message-ID: <20050726154457.0A5F3806@htj.dyndns.org>
+Date: Wed, 27 Jul 2005 00:46:21 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-04_blk_scsi-update-ordered.patch
+06_blk_libata-update-ordered.patch
 
-	All ordered request related stuff delegated to HLD.  Midlayer
-        now doens't deal with ordered setting or prepare_flush
-        callback.  sd.c updated to deal with blk_queue_ordered
-        setting.  Currently, ordered tag isn't used as SCSI midlayer
-        cannot guarantee request ordering.
+	Reflect changes in SCSI midlayer and updated to use new
+        ordered request implementation
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- drivers/scsi/hosts.c       |    9 ------
- drivers/scsi/scsi_lib.c    |   46 -------------------------------
- drivers/scsi/sd.c          |   66 ++++++++++++++++-----------------------------
- include/scsi/scsi_driver.h |    1 
- include/scsi/scsi_host.h   |    1 
- 5 files changed, 24 insertions(+), 99 deletions(-)
+ ahci.c         |    1 -
+ ata_piix.c     |    1 -
+ sata_nv.c      |    1 -
+ sata_promise.c |    1 -
+ sata_sil.c     |    1 -
+ sata_sis.c     |    1 -
+ sata_svw.c     |    1 -
+ sata_sx4.c     |    1 -
+ sata_uli.c     |    1 -
+ sata_via.c     |    1 -
+ sata_vsc.c     |    1 -
+ 11 files changed, 11 deletions(-)
 
-Index: blk-fixes/drivers/scsi/hosts.c
+Index: blk-fixes/drivers/scsi/ahci.c
 ===================================================================
---- blk-fixes.orig/drivers/scsi/hosts.c	2005-07-27 00:44:48.000000000 +0900
-+++ blk-fixes/drivers/scsi/hosts.c	2005-07-27 00:44:51.000000000 +0900
-@@ -264,17 +264,8 @@ struct Scsi_Host *scsi_host_alloc(struct
- 	shost->cmd_per_lun = sht->cmd_per_lun;
- 	shost->unchecked_isa_dma = sht->unchecked_isa_dma;
- 	shost->use_clustering = sht->use_clustering;
--	shost->ordered_flush = sht->ordered_flush;
- 	shost->ordered_tag = sht->ordered_tag;
- 
--	/*
--	 * hosts/devices that do queueing must support ordered tags
--	 */
--	if (shost->can_queue > 1 && shost->ordered_flush) {
--		printk(KERN_ERR "scsi: ordered flushes don't support queueing\n");
--		shost->ordered_flush = 0;
--	}
--
- 	if (sht->max_host_blocked)
- 		shost->max_host_blocked = sht->max_host_blocked;
- 	else
-Index: blk-fixes/drivers/scsi/scsi_lib.c
-===================================================================
---- blk-fixes.orig/drivers/scsi/scsi_lib.c	2005-07-27 00:44:50.000000000 +0900
-+++ blk-fixes/drivers/scsi/scsi_lib.c	2005-07-27 00:44:51.000000000 +0900
-@@ -717,9 +717,6 @@ void scsi_io_completion(struct scsi_cmnd
- 	int sense_valid = 0;
- 	int sense_deferred = 0;
- 
--	if (blk_complete_barrier_rq(q, req, good_bytes >> 9))
--		return;
--
- 	/*
- 	 * Free up any indirection buffers we allocated for DMA purposes. 
- 	 * For the case of a READ, we need to copy the data out of the
-@@ -983,38 +980,6 @@ static int scsi_init_io(struct scsi_cmnd
- 	return BLKPREP_KILL;
- }
- 
--static int scsi_prepare_flush_fn(request_queue_t *q, struct request *rq)
--{
--	struct scsi_device *sdev = q->queuedata;
--	struct scsi_driver *drv;
--
--	if (sdev->sdev_state == SDEV_RUNNING) {
--		drv = *(struct scsi_driver **) rq->rq_disk->private_data;
--
--		if (drv->prepare_flush)
--			return drv->prepare_flush(q, rq);
--	}
--
--	return 0;
--}
--
--static void scsi_end_flush_fn(request_queue_t *q, struct request *rq)
--{
--	struct scsi_device *sdev = q->queuedata;
--	struct request *flush_rq = rq->end_io_data;
--	struct scsi_driver *drv;
--
--	if (flush_rq->errors) {
--		printk("scsi: barrier error, disabling flush support\n");
--		blk_queue_ordered(q, QUEUE_ORDERED_NONE);
--	}
--
--	if (sdev->sdev_state == SDEV_RUNNING) {
--		drv = *(struct scsi_driver **) rq->rq_disk->private_data;
--		drv->end_flush(q, rq);
--	}
--}
--
- static int scsi_issue_flush_fn(request_queue_t *q, struct gendisk *disk,
- 			       sector_t *error_sector)
- {
-@@ -1442,17 +1407,6 @@ struct request_queue *scsi_alloc_queue(s
- 	blk_queue_segment_boundary(q, shost->dma_boundary);
- 	blk_queue_issue_flush_fn(q, scsi_issue_flush_fn);
- 
--	/*
--	 * ordered tags are superior to flush ordering
--	 */
--	if (shost->ordered_tag)
--		blk_queue_ordered(q, QUEUE_ORDERED_TAG);
--	else if (shost->ordered_flush) {
--		blk_queue_ordered(q, QUEUE_ORDERED_FLUSH);
--		q->prepare_flush_fn = scsi_prepare_flush_fn;
--		q->end_flush_fn = scsi_end_flush_fn;
--	}
--
- 	if (!shost->use_clustering)
- 		clear_bit(QUEUE_FLAG_CLUSTER, &q->queue_flags);
- 	return q;
-Index: blk-fixes/drivers/scsi/sd.c
-===================================================================
---- blk-fixes.orig/drivers/scsi/sd.c	2005-07-27 00:44:50.000000000 +0900
-+++ blk-fixes/drivers/scsi/sd.c	2005-07-27 00:44:51.000000000 +0900
-@@ -122,8 +122,7 @@ static void sd_shutdown(struct device *d
- static void sd_rescan(struct device *);
- static int sd_init_command(struct scsi_cmnd *);
- static int sd_issue_flush(struct device *, sector_t *);
--static void sd_end_flush(request_queue_t *, struct request *);
--static int sd_prepare_flush(request_queue_t *, struct request *);
-+static void sd_prepare_flush(request_queue_t *, struct request *);
- static void sd_read_capacity(struct scsi_disk *sdkp, char *diskname,
- 		 struct scsi_request *SRpnt, unsigned char *buffer);
- 
-@@ -138,8 +137,6 @@ static struct scsi_driver sd_template = 
- 	.rescan			= sd_rescan,
- 	.init_command		= sd_init_command,
- 	.issue_flush		= sd_issue_flush,
--	.prepare_flush		= sd_prepare_flush,
--	.end_flush		= sd_end_flush,
+--- blk-fixes.orig/drivers/scsi/ahci.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/ahci.c	2005-07-27 00:44:51.000000000 +0900
+@@ -206,7 +206,6 @@ static Scsi_Host_Template ahci_sht = {
+ 	.dma_boundary		= AHCI_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
  };
  
- /*
-@@ -739,43 +736,12 @@ static int sd_issue_flush(struct device 
- 	return sd_sync_cache(sdp);
- }
- 
--static void sd_end_flush(request_queue_t *q, struct request *flush_rq)
-+static void sd_prepare_flush(request_queue_t *q, struct request *rq)
- {
--	struct request *rq = flush_rq->end_io_data;
--	struct scsi_cmnd *cmd = rq->special;
--	unsigned int bytes = rq->hard_nr_sectors << 9;
--
--	if (!flush_rq->errors) {
--		spin_unlock(q->queue_lock);
--		scsi_io_completion(cmd, bytes, 0);
--		spin_lock(q->queue_lock);
--	} else if (blk_barrier_postflush(rq)) {
--		spin_unlock(q->queue_lock);
--		scsi_io_completion(cmd, 0, bytes);
--		spin_lock(q->queue_lock);
--	} else {
--		/*
--		 * force journal abort of barriers
--		 */
--		end_that_request_first(rq, -EOPNOTSUPP, rq->hard_nr_sectors);
--		end_that_request_last(rq, -EOPNOTSUPP);
--	}
--}
--
--static int sd_prepare_flush(request_queue_t *q, struct request *rq)
--{
--	struct scsi_device *sdev = q->queuedata;
--	struct scsi_disk *sdkp = dev_get_drvdata(&sdev->sdev_gendev);
--
--	if (sdkp->WCE) {
--		memset(rq->cmd, 0, sizeof(rq->cmd));
--		rq->flags |= REQ_BLOCK_PC | REQ_SOFTBARRIER;
--		rq->timeout = SD_TIMEOUT;
--		rq->cmd[0] = SYNCHRONIZE_CACHE;
--		return 1;
--	}
--
--	return 0;
-+	memset(rq->cmd, 0, sizeof(rq->cmd));
-+	rq->flags |= REQ_BLOCK_PC;
-+	rq->timeout = SD_TIMEOUT;
-+	rq->cmd[0] = SYNCHRONIZE_CACHE;
- }
- 
- static void sd_rescan(struct device *dev)
-@@ -1469,6 +1435,7 @@ static int sd_revalidate_disk(struct gen
- 	struct scsi_device *sdp = sdkp->device;
- 	struct scsi_request *sreq;
- 	unsigned char *buffer;
-+	unsigned ordered;
- 
- 	SCSI_LOG_HLQUEUE(3, printk("sd_revalidate_disk: disk=%s\n", disk->disk_name));
- 
-@@ -1514,7 +1481,21 @@ static int sd_revalidate_disk(struct gen
- 					sreq, buffer);
- 		sd_read_cache_type(sdkp, disk->disk_name, sreq, buffer);
- 	}
--		
-+
-+	/*
-+	 * We now have all cache related info, determine how we deal
-+	 * with ordered requests.  Note that as the current SCSI
-+	 * dispatch function can alter request order, we cannot use
-+	 * QUEUE_ORDERED_TAG_* even when ordered tag is supported.
-+	 */
-+	if (sdkp->WCE)
-+		ordered = QUEUE_ORDERED_DRAIN_FLUSH;
-+	else
-+		ordered = QUEUE_ORDERED_DRAIN;
-+
-+	blk_queue_ordered(sdkp->disk->queue, ordered, sd_prepare_flush,
-+			  GFP_KERNEL);
-+
- 	set_capacity(disk, sdkp->capacity);
- 	kfree(buffer);
- 
-@@ -1615,6 +1596,7 @@ static int sd_probe(struct device *dev)
- 	strcpy(gd->devfs_name, sdp->devfs_name);
- 
- 	gd->private_data = &sdkp->driver;
-+	gd->queue = sdkp->device->request_queue;
- 
- 	sd_revalidate_disk(gd);
- 
-@@ -1622,7 +1604,6 @@ static int sd_probe(struct device *dev)
- 	gd->flags = GENHD_FL_DRIVERFS;
- 	if (sdp->removable)
- 		gd->flags |= GENHD_FL_REMOVABLE;
--	gd->queue = sdkp->device->request_queue;
- 
- 	dev_set_drvdata(dev, sdkp);
- 	add_disk(gd);
-@@ -1657,6 +1638,7 @@ static int sd_remove(struct device *dev)
- {
- 	struct scsi_disk *sdkp = dev_get_drvdata(dev);
- 
-+	blk_queue_ordered(sdkp->disk->queue, QUEUE_ORDERED_NONE, NULL, 0);
- 	del_gendisk(sdkp->disk);
- 	sd_shutdown(dev);
- 	down(&sd_ref_sem);
-Index: blk-fixes/include/scsi/scsi_driver.h
+ static struct ata_port_operations ahci_ops = {
+Index: blk-fixes/drivers/scsi/ata_piix.c
 ===================================================================
---- blk-fixes.orig/include/scsi/scsi_driver.h	2005-07-27 00:44:48.000000000 +0900
-+++ blk-fixes/include/scsi/scsi_driver.h	2005-07-27 00:44:51.000000000 +0900
-@@ -15,7 +15,6 @@ struct scsi_driver {
- 	void (*rescan)(struct device *);
- 	int (*issue_flush)(struct device *, sector_t *);
- 	int (*prepare_flush)(struct request_queue *, struct request *);
--	void (*end_flush)(struct request_queue *, struct request *);
+--- blk-fixes.orig/drivers/scsi/ata_piix.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/ata_piix.c	2005-07-27 00:44:51.000000000 +0900
+@@ -123,7 +123,6 @@ static Scsi_Host_Template piix_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
  };
- #define to_scsi_driver(drv) \
- 	container_of((drv), struct scsi_driver, gendrv)
-Index: blk-fixes/include/scsi/scsi_host.h
-===================================================================
---- blk-fixes.orig/include/scsi/scsi_host.h	2005-07-27 00:44:48.000000000 +0900
-+++ blk-fixes/include/scsi/scsi_host.h	2005-07-27 00:44:51.000000000 +0900
-@@ -391,7 +391,6 @@ struct scsi_host_template {
- 	/*
- 	 * ordered write support
- 	 */
--	unsigned ordered_flush:1;
- 	unsigned ordered_tag:1;
  
- 	/*
+ static struct ata_port_operations piix_pata_ops = {
+Index: blk-fixes/drivers/scsi/sata_nv.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_nv.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_nv.c	2005-07-27 00:44:51.000000000 +0900
+@@ -206,7 +206,6 @@ static Scsi_Host_Template nv_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations nv_ops = {
+Index: blk-fixes/drivers/scsi/sata_promise.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_promise.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_promise.c	2005-07-27 00:44:51.000000000 +0900
+@@ -103,7 +103,6 @@ static Scsi_Host_Template pdc_ata_sht = 
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations pdc_ata_ops = {
+Index: blk-fixes/drivers/scsi/sata_sil.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_sil.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_sil.c	2005-07-27 00:44:51.000000000 +0900
+@@ -135,7 +135,6 @@ static Scsi_Host_Template sil_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations sil_ops = {
+Index: blk-fixes/drivers/scsi/sata_sis.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_sis.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_sis.c	2005-07-27 00:44:51.000000000 +0900
+@@ -90,7 +90,6 @@ static Scsi_Host_Template sis_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations sis_ops = {
+Index: blk-fixes/drivers/scsi/sata_svw.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_svw.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_svw.c	2005-07-27 00:44:51.000000000 +0900
+@@ -288,7 +288,6 @@ static Scsi_Host_Template k2_sata_sht = 
+ 	.proc_info		= k2_sata_proc_info,
+ #endif
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ 
+Index: blk-fixes/drivers/scsi/sata_sx4.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_sx4.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_sx4.c	2005-07-27 00:44:51.000000000 +0900
+@@ -188,7 +188,6 @@ static Scsi_Host_Template pdc_sata_sht =
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations pdc_20621_ops = {
+Index: blk-fixes/drivers/scsi/sata_uli.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_uli.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_uli.c	2005-07-27 00:44:51.000000000 +0900
+@@ -82,7 +82,6 @@ static Scsi_Host_Template uli_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations uli_ops = {
+Index: blk-fixes/drivers/scsi/sata_via.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_via.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_via.c	2005-07-27 00:44:51.000000000 +0900
+@@ -102,7 +102,6 @@ static Scsi_Host_Template svia_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations svia_sata_ops = {
+Index: blk-fixes/drivers/scsi/sata_vsc.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_vsc.c	2005-07-27 00:44:48.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_vsc.c	2005-07-27 00:44:51.000000000 +0900
+@@ -206,7 +206,6 @@ static Scsi_Host_Template vsc_sata_sht =
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ 
 

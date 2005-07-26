@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVGZK10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVGZKgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVGZK10 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 06:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVGZK10
+	id S261662AbVGZKgx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 06:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVGZKgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 06:27:26 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:746 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261618AbVGZK1Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 06:27:25 -0400
-Date: Tue, 26 Jul 2005 12:26:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.13rc3: RLIMIT_RTPRIO broken
-Message-ID: <20050726102638.GA4000@elte.hu>
-References: <42E22D0C.1010608@domdv.de>
+	Tue, 26 Jul 2005 06:36:52 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:19656 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261662AbVGZKgw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 06:36:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=B6rkngrmMegPVNqLvpOIi6Mns3f0gWyRrB6gVAcdIDzLNUhRima1MjNocM//SfbnQRo81A0WY2JyJq4a8QZ19k7i8M41jTRhhFnKlT6giZk2BoGke/qYhVdO+ZqI1f4DV/yS6sdScLL3cgGdJ6WMLB1G5/tozGJHG8FEtEwwLAI=
+Message-ID: <105c793f050726033672560fd4@mail.gmail.com>
+Date: Tue, 26 Jul 2005 06:36:51 -0400
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Subject: Re: BUG: Yamaha OPL3SA2 does not work with ALSA on 2.6 kernels.
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0507260828030.8190@tm8103-a.perex-int.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42E22D0C.1010608@domdv.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <105c793f05072507315cfd1878@mail.gmail.com>
+	 <Pine.LNX.4.61.0507260828030.8190@tm8103-a.perex-int.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/26/05, Jaroslav Kysela <perex@suse.cz> wrote:
+> We have already two similar reports #440 and #879. Please, provide us
+> all info (working manual conf etc.)..
+Yes. #879 is the one that mentions that this might be a kernel bug (so
+I reported it here):
 
-* Andreas Steinmetz <ast@domdv.de> wrote:
+"I suspect this is kernel bug and it conserns ISA support.
+I would be happy if you kick some kernel developers buts because they
+have ignored my bugreport for quite long time now."
 
-> RLIMIT_RTPRIO is supposed to grant non privileged users the right to 
-> use SCHED_FIFO/SCHED_RR scheduling policies with priorites bounded by 
-> the RLIMIT_RTPRIO value via sched_setscheduler(). This is usually used 
-> by audio users.
-> 
-> Unfortunately this is broken in 2.6.13rc3 as you can see in the 
-> excerpt from sched_setscheduler below:
-> 
->         /*
->          * Allow unprivileged RT tasks to decrease priority:
->          */
->         if (!capable(CAP_SYS_NICE)) {
->                 /* can't change policy */
->                 if (policy != p->policy)
->                         return -EPERM;
-> 
-> After the above unconditional test which causes sched_setscheduler to
-> fail with no regard to the RLIMIT_RTPRIO value the following check is made:
-> 
->                /* can't increase priority */
->                 if (policy != SCHED_NORMAL &&
->                     param->sched_priority > p->rt_priority &&
->                     param->sched_priority >
->                                 p->signal->rlim[RLIMIT_RTPRIO].rlim_cur)
->                         return -EPERM;
-> 
-> Thus I do believe that the RLIMIT_RTPRIO value must be taken into 
-> account for the policy check, especially as the RLIMIT_RTPRIO limit is 
-> of no use without this change.
-> 
-> The attached patch fixes this problem. I would appreciate it if the 
-> fix would make it into 2.6.13.
+I don't know how correct/incorrect the above may be, but I figured it
+was possible.
 
-[back from KS/OLS]
+I'll report what I know in bug #879.
 
-indeed. The effect of the bug is that RLIMIT_RTPRIO is completely
-non-functional in 2.6.12.
+Thanks.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+-Andy

@@ -1,105 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVGZMiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVGZM6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbVGZMiH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 08:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVGZMiH
+	id S261731AbVGZM6S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 08:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVGZM6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 08:38:07 -0400
-Received: from web30313.mail.mud.yahoo.com ([68.142.201.231]:1150 "HELO
-	web30313.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261748AbVGZMiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 08:38:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=4CvTHT8QUeZ52vvlXozJR4Lpi/p7PYHeWirDyEY5MkpAHn6vRAwXcVoFyzuvt3i/9hejZhF19t4dMwvY42Q9ITd9Mn1dcy6nGcznSCahnaGhHLI1Fl59Rbcg5rDcqxwCita5OmcPPt7efwpamZujcJRIilqWSbwW91SHC6dtrvo=  ;
-Message-ID: <20050726123802.54412.qmail@web30313.mail.mud.yahoo.com>
-Date: Tue, 26 Jul 2005 13:38:02 +0100 (BST)
-From: Mark Underwood <basicmark@yahoo.com>
-Subject: Re: Linux tty layer hackery: Heads up and RFC
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <1122376291.2542.15.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 26 Jul 2005 08:58:10 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:9198 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S261731AbVGZM6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 08:58:08 -0400
+Date: Tue, 26 Jul 2005 05:48:28 -0400
+From: Harald Welte <laforge@netfilter.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: johnpol@2ka.mipt.ru, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 1 Wire drivers illegally overload NETLINK_NFLOG
+Message-ID: <20050726094828.GJ7925@rama>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	"David S. Miller" <davem@davemloft.net>, johnpol@2ka.mipt.ru,
+	netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+References: <20050723125427.GA11177@rama> <20050722.230559.123762041.yoshfuji@linux-ipv6.org> <20050723133353.GB11177@rama> <20050724.191505.69244686.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1E1Oui4vdubnXi3o"
+Content-Disposition: inline
+In-Reply-To: <20050724.191505.69244686.davem@davemloft.net>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
 
-Thanks for your help, I might give this ago once I've
-fixed some flow control problems in my driver.
+--1E1Oui4vdubnXi3o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On a loosely related topic I have extended
-serial_core.c to handle DMA UARTS (only the TX path is
-effected). Once I'm happy with my changes I post a
-patch.
+On Sun, Jul 24, 2005 at 07:15:05PM -0700, David S. Miller wrote:
+=20
+> > I strongly disrecommend increasing NPROTO.  Maybe we should look into
+> > reusing NETLINK_FIREWALL (which was an old 2.2.x kernel interface).
+>=20
+> ip_queue.c still uses NETLINK_FIREWALL so we really can't use
+> that.
 
-Best Regards,
+sorry, I didn't remember that ip_queue reused the 2.2.x netlink number
+:(  We should have renamed it to make it clear.
 
-Mark
+> So instead, as in the patch below, I solved this for now by using
+> the NETLINK_SKIP value which was reserved years ago yet never
+> made use of.
 
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+thanks.
 
-> On Maw, 2005-07-26 at 10:55 +0100, Mark Underwood
-> wrote:
-> > What my driver would like to do is to handle its
-> own
-> > input buffers. It would pass the buffer to the tty
-> > layer when it is full and the tty layer would pass
-> the
-> 
-> In theory you can do that already, although the
-> locking is a bit screwed
-> up for it. Actually all the tty locking is broken
-> for rx I believe.
-> Everyone should be holding the tty read lock when
-> updating flip buffers
-> but right now we don't
-> 
-> > buffer back once it has drained the data from it.
-> > The problem is that I don't always receive a block
-> > worth of characters so I also need to pass the tty
-> > layer a buffer (which I'm still DMAing into) with
-> a
-> > count of how many chars there are in the buffer
-> and a
-> > offset of where to start from.
-> 
-> You can do this now providing you don't do it
-> blindly from IRQ context.
-> 
-> >From a workqueue do
-> 
-> 	struct tty_ldisc *ld = tty_ldisc_ref(tty);
-> 	int space;
-> 
-> 	if(ld == NULL)	/* Bin/defer */
-> 		return;
-> 	space = ld->receive_room(tty);
-> 	if(count > space) count = space;
-> 
-> 	ld->receive_buf(tty, charbuf, flagbuf, count);
-> 
-> 
-> There is a corner case if TTY_DONT_FLIP is set where
-> you should queue
-> but not all drivers do this and the DONT_FLIP hack
-> 'has to die' 
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
 
+--1E1Oui4vdubnXi3o
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-		
-___________________________________________________________ 
-How much free photo storage do you get? Store your holiday 
-snaps for FREE with Yahoo! Photos http://uk.photos.yahoo.com
+iD8DBQFC5gbsXaXGVTD0i/8RAtYtAJ9LdzcNPEEV4Mf6Wdzgo7Z5Tn6UswCdFlS6
+jpXJiTFRaAEDNVvc/IoKh1M=
+=COO+
+-----END PGP SIGNATURE-----
+
+--1E1Oui4vdubnXi3o--

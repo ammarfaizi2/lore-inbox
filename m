@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVGZWFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVGZWI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbVGZWFG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 18:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbVGZWFF
+	id S262167AbVGZWI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 18:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVGZWIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 18:05:05 -0400
-Received: from waste.org ([216.27.176.166]:49092 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262173AbVGZWFA (ORCPT
+	Tue, 26 Jul 2005 18:08:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43459 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262167AbVGZWIW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 18:05:00 -0400
-Date: Tue, 26 Jul 2005 15:04:28 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andreas Steinmetz <ast@domdv.de>, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [swsusp] encrypt suspend data for easy wiping
-Message-ID: <20050726220428.GA7425@waste.org>
-References: <20050703213519.GA6750@elf.ucw.cz> <20050706020251.2ba175cc.akpm@osdl.org> <42DA7B12.7030307@domdv.de> <20050725201036.2205cac3.akpm@osdl.org>
+	Tue, 26 Jul 2005 18:08:22 -0400
+Date: Tue, 26 Jul 2005 15:10:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Memory pressure handling with iSCSI
+Message-Id: <20050726151003.6aa3aecb.akpm@osdl.org>
+In-Reply-To: <1122414300.6433.57.camel@dyn9047017102.beaverton.ibm.com>
+References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
+	<20050726111110.6b9db241.akpm@osdl.org>
+	<1122403152.6433.39.camel@dyn9047017102.beaverton.ibm.com>
+	<20050726114824.136d3dad.akpm@osdl.org>
+	<20050726121250.0ba7d744.akpm@osdl.org>
+	<1122412301.6433.54.camel@dyn9047017102.beaverton.ibm.com>
+	<20050726142410.4ff2e56a.akpm@osdl.org>
+	<1122414300.6433.57.camel@dyn9047017102.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050725201036.2205cac3.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 08:10:36PM -0700, Andrew Morton wrote:
-> Andreas Steinmetz <ast@domdv.de> wrote:
-> >
-> > the attached patches are acked by Pavel and signed off by me
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> On Tue, 2005-07-26 at 14:24 -0700, Andrew Morton wrote:
+> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > >
+> > > ext2 is incredibly better. Machine is very responsive. 
+> > > 
+> > 
+> > OK.  Please, always monitor and send /proc/meminfo.  I assume that the
+> > dirty-memory clamping is working OK with ext2 and that perhaps it'll work
+> > OK with ext3/data=writeback.
 > 
-> OK, well I queued this up, without a changelog.  Because you didn't send
-> one.  Please do so.  As it adds a new feature, quite a bit of info is
-> relevant.
+> Nope. Dirty is still very high..
 
-I don't like this patch. It reinvents a fair amount of dm_crypt and
-cryptoloop but badly. 
+That's a relief in a way.  Can you please try decreasing the number of
+filesystems now?
 
-Further, the model of security it's using is silly. In case anyone
-hasn't noticed, it stores the password on disk in the clear. This is
-so it can erase it after resume and thereby make recovery of the
-suspend image hard.
-
-But laptops get stolen while they're suspended, not while they're up
-and running. And if your box is up and running and an attacker gains
-access, the contents of your suspend partition are the least of your
-worries. It makes no sense to expend any effort defending against this
-case, especially as it's liable to become a barrier to doing this
-right, namely with real dm_crypt encrypted swap.
- 
-At the very least, this should be renamed SWSUSP_QUICK_WIPE and any
-mention of encryption should be taken out of the description so users
-don't mistakenly think it provides any sort of useful protection.
-
--- 
-Mathematics is the supreme nostalgia of our time.

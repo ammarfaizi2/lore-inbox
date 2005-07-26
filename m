@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVGZNL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVGZNNQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVGZNL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 09:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVGZNL4
+	id S261765AbVGZNNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 09:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVGZNNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 09:11:56 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:37386 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261749AbVGZNLv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 09:11:51 -0400
-Message-ID: <42E6378E.6050701@tmr.com>
-Date: Tue, 26 Jul 2005 09:15:58 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gbakos@cfa.harvard.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: elvtune with 2.6 kernels (under FC3)
-References: <Pine.SOL.4.58.0507251629130.2429@titan.cfa.harvard.edu>
-In-Reply-To: <Pine.SOL.4.58.0507251629130.2429@titan.cfa.harvard.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 09:13:16 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:52978 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261765AbVGZNMf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 09:12:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=V8cPwggXwG4mc6mX9qZVDp/jvfnn8DtkrU+hvt9mFFU9mD5puEQT6rF4JFaA4LFYDTap4MiDKYku09lxd2dfP7tfOB2ovUSmuECCORA9p+/+qc0R/dY/iL/aGengEptOWnmI7nimhHgaas+43/ztrtF/Wu+UyIH7jZNuyAxHp+M=
+Date: Tue, 26 Jul 2005 22:12:26 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH linux-2.6-block:master] overview of soon-to-be-posted patches
+Message-ID: <20050726131215.GA23916@htj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gaspar Bakos wrote:
-> Hi,
-> 
-> I am cc-ing this to the kernel list, a i have the suspicion that it may
-> be a kernel related feature.
-> 
-> --------------
-> I noticed that elvtune does not work on FC3 with a 2.6.12.3
-> (self-compiled, pristine) kernel. I also tried it with other 2.6.* kernels.
-> 
-> elvtune /dev/sde
-> ioctl get: Invalid argument
-> 
-> In fact, I get the same message for all disks, either those on a 3ware
-> controller, or SATA disks directly attached to the motherboard.
-> The hw is a dual opteron mb with 4Gb RAM.
-> 
-> Did this command become obsoleted?
-> Is there alternativ?
+ Hello, Jens.
 
-Not that I ever found. You can play with values in 
-/sys/block/{device}/queue or wherever you have your sysfs mounted.
-Not a great user interface, but at least you can play.
+ I hope you had fun on your vacation and at OLS.  I'm posting 18
+welcome-back patches today. :-p This mail is to show the overview of
+the patches.  All patches are against master head of linux-2.6-block
+tree.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+patch #1	: fix-elevator_find.  remove try_module_get race in
+		  elevator_find.
+patch #2	: fix-cfq_find_next_crq.  fix cfq_find_next_crq bug
+		  in cfq.
+patch #3-7	: generic dispatch queue patchset.  implements generic
+		  dispatch queue.
+patch #8	: reimplement-elevator-switch.  reimplements elevator
+		  switch using generic dispatch queue.  draining isn't
+		  needed anymore.
+patch #9-#18	: ordered reimplementation patchset.  reimplements
+		  I/O barrier handling.
+
+ Both generic dispatch queue patchset and ordered reimplementation
+patchset were previously posted.  They are reordered (as you asked)
+and I've added missing bits (all elevators are updated, docs are
+updated).  Also, there were a few changes and fixes.  I'll mention
+them when I post those patches.
+
+ I've tested these changes by running parallelly...
+
+* random raw read (concurrency 8)
+* repeatedly mounting a ext3 fs with -o barrier=1, copying, syncing &
+  checksumming a 128M file, and unmounting the fs.
+* periodic scheduler switch (each iosched runs for 3 minutes and then
+  switched to the next one)
+
+ This test has been running for several hours without a problem and I
+will keep it running for today and maybe tomorrow unless I have to use
+the test machine for some other purpose.
+
+ Thanks.
+
+--
+tejun

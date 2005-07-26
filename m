@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVGZHUN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVGZHd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVGZHUN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 03:20:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVGZHUM
+	id S261834AbVGZHd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 03:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVGZHd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 03:20:12 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:15068 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261833AbVGZHTC (ORCPT
+	Tue, 26 Jul 2005 03:33:26 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46487 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261834AbVGZHdZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 03:19:02 -0400
-Date: Tue, 26 Jul 2005 04:16:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Peter Osterlund <petero2@telia.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] kill bio->bi_set
-Message-ID: <20050726021655.GA3085@suse.de>
-References: <20050720222949.GE2548@suse.de> <m34qaljnvd.fsf@telia.com> <20050723205956.GA17370@suse.de> <m37jfea0xu.fsf@telia.com>
+	Tue, 26 Jul 2005 03:33:25 -0400
+Date: Tue, 26 Jul 2005 09:33:08 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk
+Subject: [RFC] fix compilation in mcp-core.c
+Message-ID: <20050726073308.GA28837@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m37jfea0xu.fsf@telia.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26 2005, Peter Osterlund wrote:
-> Jens Axboe <axboe@suse.de> writes:
-> 
-> > On Sat, Jul 23 2005, Peter Osterlund wrote:
-> > > Jens Axboe <axboe@suse.de> writes:
-> > > 
-> > > > Dunno why I didn't notice before, but ->bi_set is totally unnecessary
-> > > > bloat of struct bio. Just define a proper destructor for the bio and it
-> > > > already knows what bio_set it belongs too.
-> > > 
-> > > This causes crashes on my computer.
-> > 
-> > Did I neglect to mention it was untested? :)
-> ...
-> > Thanks, I'll go over these and submit a fixed version.
-> 
-> I fixed this myself. The patch below is tested with dm-crypt on top of
-> pktcdvd on top of usb-storage, and worked fine in my tests.
+Hi!
 
-Thanks! I was travelling, so I didn't get to it myself.
+I had to do this to get mcp-core to compile, but it feels wrong. Where
+do I get device_unregister_wait?
+								Pavel
+
+
+diff --git a/drivers/misc/mcp-core.c b/drivers/misc/mcp-core.c
+--- a/drivers/misc/mcp-core.c
++++ b/drivers/misc/mcp-core.c
+@@ -198,7 +198,7 @@ int mcp_host_register(struct mcp *mcp, s
+ 
+ void mcp_host_unregister(struct mcp *mcp)
+ {
+-	device_unregister_wait(&mcp->attached_device);
++	device_unregister(&mcp->attached_device);
+ }
+ 
+ int mcp_driver_register(struct mcp_driver *mcpdrv)
 
 -- 
-Jens Axboe
-
+teflon -- maybe it is a trademark, but it should not be.

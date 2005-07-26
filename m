@@ -1,75 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVGZA0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVGZA2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbVGZA0T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Jul 2005 20:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVGZA0T
+	id S261543AbVGZA2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Jul 2005 20:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVGZA2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Jul 2005 20:26:19 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:49828 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S261564AbVGZA0S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Jul 2005 20:26:18 -0400
-Date: Mon, 25 Jul 2005 20:26:57 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] make kmalloc() fail for swapped size / GFP flags
-Message-ID: <20050726002657.GA13125@kvack.org>
+	Mon, 25 Jul 2005 20:28:16 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:25774 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261543AbVGZA2O convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Jul 2005 20:28:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Dqm2cfEkAmjKM8wnk+uuM8LIP/pizQdQwx6Rcvd6wpszyF5zhnZlLXl4B3vxc8d87F+CMMya4pEHofUorvBchlUmEhNJnL8RRi38hlF0hyvoniIQyg1NnkgVqKrgTPp4aqo44aYg8YH97TV529266RzhZTA7/dS7jqajcFe1IWI=
+Message-ID: <9e473391050725172833617aca@mail.gmail.com>
+Date: Mon, 25 Jul 2005 20:28:10 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20050726000024.GA23858@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+References: <9e47339105072421095af5d37a@mail.gmail.com>
+	 <200507242358.12597.dtor_core@ameritech.net>
+	 <9e4733910507250728a7882d4@mail.gmail.com>
+	 <d120d5000507250748136a1e71@mail.gmail.com>
+	 <9e47339105072509307386818b@mail.gmail.com>
+	 <20050726000024.GA23858@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes kmalloc() fail for swapped flags and size arguments 
-as mention in Dave Jones keynote at OLS.  This is done by adding a new flag, 
-__GFP_VALID, which is checked for in kmalloc(), that results in the size 
-being too large.  Please apply.
+On 7/25/05, Greg KH <greg@kroah.com> wrote:
+> On Mon, Jul 25, 2005 at 12:30:43PM -0400, Jon Smirl wrote:
+> > On 7/25/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > On 7/25/05, Jon Smirl <jonsmirl@gmail.com> wrote:
+> > > > On 7/25/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> > > > > On Sunday 24 July 2005 23:09, Jon Smirl wrote:
+> > > > > > I just pulled from GIT to test bind/unbind. I couldn't get it to work;
+> > > > > > it isn't taking into account the CR on the end of the input value of
+> > > > > > the sysfs attribute.  This patch will fix it but I'm sure there is a
+> > > > > > cleaner solution.
+> > > > > >
+> > > > >
+> > > > > "echo -n" should take care of this problem I think.
+> > > >
+> > > > That will work around it but I think we should fix it.  Changing to
+> > > > strncmp() fixes most cases.
+> > > >
+> > > > -       if (strcmp(name, dev->bus_id) == 0)
+> > > > +       if (strncmp(name, dev->bus_id, strlen(dev->bus_id)) == 0)
+> > > >
+> > >
+> > > This will produce "interesting results" if you have both "blah-1" and
+> > > "blah-10" devices on the bus.
+> 
+> Yes, not a good thing for USB devices specifically.
+> 
+> > Then the better solution is to fix the generic attribute set code to
+> > strip leading and trailing white space.
+> 
+> No, that might break other things as we have not been doing this from
+> day one.  I'd rather just change these two places, if it's that big of a
+> deal.  It was documented (in a lwn.net article) and the changelog entry,
+> that you should use "echo -n".
 
-		-ben
+I didn't realize that echo was adding the CR, I thought that it always
+appeared on the end of a sysfs attribute set. So now I have to go add
+white space stripping to a dozen fbdev/drm sysfs attribute
+implementations. Given that the param is const I may have to allocate
+new buffers and copy. I also wonder how many other people have made
+the same mistake.
 
-diff --git a/include/linux/gfp.h b/include/linux/gfp.h
---- a/include/linux/gfp.h
-+++ b/include/linux/gfp.h
-@@ -40,6 +40,7 @@ struct vm_area_struct;
- #define __GFP_ZERO	0x8000u	/* Return zeroed page on success */
- #define __GFP_NOMEMALLOC 0x10000u /* Don't use emergency reserves */
- #define __GFP_NORECLAIM  0x20000u /* No realy zone reclaim during allocation */
-+#define __GFP_VALID	0x80000000u /* valid GFP flags */
- 
- #define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
- #define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
-@@ -50,12 +51,12 @@ struct vm_area_struct;
- 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
- 			__GFP_NOMEMALLOC|__GFP_NORECLAIM)
- 
--#define GFP_ATOMIC	(__GFP_HIGH)
--#define GFP_NOIO	(__GFP_WAIT)
--#define GFP_NOFS	(__GFP_WAIT | __GFP_IO)
--#define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
--#define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS)
--#define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM)
-+#define GFP_ATOMIC	(__GFP_VALID | __GFP_HIGH)
-+#define GFP_NOIO	(__GFP_VALID | __GFP_WAIT)
-+#define GFP_NOFS	(__GFP_VALID | __GFP_WAIT | __GFP_IO)
-+#define GFP_KERNEL	(__GFP_VALID | __GFP_WAIT | __GFP_IO | __GFP_FS)
-+#define GFP_USER	(__GFP_VALID | __GFP_WAIT | __GFP_IO | __GFP_FS)
-+#define GFP_HIGHUSER	(__GFP_VALID | __GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM)
- 
- /* Flag - indicates that the buffer will be suitable for DMA.  Ignored on some
-    platforms, used as appropriate on others */
-diff --git a/include/linux/slab.h b/include/linux/slab.h
---- a/include/linux/slab.h
-+++ b/include/linux/slab.h
-@@ -78,6 +78,10 @@ extern void *__kmalloc(size_t, unsigned 
- 
- static inline void *kmalloc(size_t size, unsigned int __nocast flags)
- {
-+	if (__builtin_constant_p(flags) && !(flags & __GFP_VALID)) {
-+		extern void __your_kmalloc_flags_are_not_valid(void);
-+		__your_kmalloc_flags_are_not_valid();
-+	}
- 	if (__builtin_constant_p(size)) {
- 		int i = 0;
- #define CACHE(x) \
+Are you sure it would break other things? These are supposed to be
+text attributes, not binary ones.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

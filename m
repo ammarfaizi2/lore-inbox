@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVGZVjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVGZVn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbVGZVjS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 17:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVGZVgj
+	id S262155AbVGZVn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 17:43:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVGZVmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 17:36:39 -0400
-Received: from fmr14.intel.com ([192.55.52.68]:51875 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262131AbVGZVfU convert rfc822-to-8bit (ORCPT
+	Tue, 26 Jul 2005 17:42:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1727 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262064AbVGZVj7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 17:35:20 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Tue, 26 Jul 2005 17:39:59 -0400
+Date: Tue, 26 Jul 2005 14:41:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: mkrufky@m1k.net
+Cc: astralstorm@gorzow.mm.pl, linux-kernel@vger.kernel.org
+Subject: Re: MM kernels - how to keep on the bleeding edge?
+Message-Id: <20050726144149.0dc7b008.akpm@osdl.org>
+In-Reply-To: <42E69C5B.80109@m1k.net>
+References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
+	<42E692E4.4070105@m1k.net>
+	<20050726221506.416e6e76.astralstorm@gorzow.mm.pl>
+	<42E69C5B.80109@m1k.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] e1000: no need for reboot notifier
-Date: Tue, 26 Jul 2005 14:35:07 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0400174A@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] e1000: no need for reboot notifier
-Thread-Index: AcWSKRh0SygqXhW2TYyeeV9fHeRfUgAABKkg
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: "cramerj" <cramerj@intel.com>, "Ronciak, John" <john.ronciak@intel.com>,
-       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>, <pavel@ucw.cz>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jul 2005 21:35:08.0876 (UTC) FILETIME=[E55478C0:01C59229]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> sys_reboot() now calls device_suspend(), so it is no longer necessary for
->> the e1000 driver to register a reboot notifier [in fact doing so results
->> in e1000_suspend() getting called twice].
+Michael Krufky <mkrufky@m1k.net> wrote:
 >
->Does this fix the ia64 reboot, or do we still have the 
->mpt-fusion problem?
+> [ tracking mm stuff ]
+>
 
-We still have the mpt-fusion problem :-(   That one appears to
-be more convoluted ... we don't seem to be calling the suspend
-functions more than once, but I still see the "Badness" messages
-from iosapic_unregister_intr().  There may also be an ordering
-problem where we shutdown some bits of mpt-fusion, and then later
-call the suspend function for another layer to sync out some
-SCSI stuff, but it is toast because the device is already down.
+Sigh, sorry.  It's hard.  -mm is always in flux.  I no longer send out the
+`patch was dropped' message because it disturbs people.  The mm-commits
+list does not resend a patch when it is changed (other patches folded into
+it, rejects fixed, changelog updated, rediffed, etc).  Sometimes I'll
+comment out a patch but not fully drop it.  I pull all the git trees at
+least twice a day and that's not reflected on the mm-commits list either.
 
--Tony
+You can always tell when a -mm release is coming by watching the shower of
+stupid compile fixes emerging :(
+
+I spose I could emit a broken-out.tar.gz file occasionally (it'd be up to 5
+times a day), but there's no guarantee that it'll compile, let alone run. 
+I could also send a notification to mm-commits when I do so.  Would that
+help?

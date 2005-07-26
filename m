@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVGZM0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVGZM3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbVGZM0q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 08:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVGZM0p
+	id S261734AbVGZM3k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 08:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVGZM3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 08:26:45 -0400
-Received: from web25810.mail.ukl.yahoo.com ([217.12.10.195]:41910 "HELO
-	web25810.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261741AbVGZM0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 08:26:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=JOvA7CT277OrCu5J7ueDBcKfiCkVwZORy3wri+zixllTkfhBIEZYTOTLU4kf55XE1QX9kjQFeYKp989t3KZalY1CA7GIcNu+HkwlOeOuUjVjAQ2rV6l1qeu6qrwc4HrfaIlGCT89gmgqfS/LNOWQRXernFD4+9ckOu37K6jWTUQ=  ;
-Message-ID: <20050726122602.22799.qmail@web25810.mail.ukl.yahoo.com>
-Date: Tue, 26 Jul 2005 14:26:02 +0200 (CEST)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re: [INPUT] simple question on driver initialisation.
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050726120108.GA2101@ucw.cz>
+	Tue, 26 Jul 2005 08:29:39 -0400
+Received: from silver.veritas.com ([143.127.12.111]:42542 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S261749AbVGZM3d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 08:29:33 -0400
+Date: Tue, 26 Jul 2005 13:30:32 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+cc: Roland Dreier <roland@topspin.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH repost] PROT_DONTCOPY: ifiniband uverbs fork support
+In-Reply-To: <20050725171928.GC12206@mellanox.co.il>
+Message-ID: <Pine.LNX.4.61.0507261312460.16985@goblin.wat.veritas.com>
+References: <20050719165542.GB16028@mellanox.co.il> <20050725171928.GC12206@mellanox.co.il>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 26 Jul 2005 12:29:30.0840 (UTC) FILETIME=[ABF09D80:01C591DD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Vojtech for your answers !
-
---- Vojtech Pavlik <vojtech@suse.cz> a écrit :
-
-> It's also available via an ioctl() and in sysfs. This allows you to
-> specify in an application that you want a device plugged into a specific
-> port of the machine. Not many applications can use it at the moment, but
-> udev can use it to assign a name of the device node.
+On Mon, 25 Jul 2005, Michael S. Tsirkin wrote:
 > 
+> This patch adds PROT_DONTCOPY to mmap and mprotect, to set VM_DONTCOPY on vma.
+> This is needed for infiniband userspace i/o, where we need to protect against
+>   - the child process accessing the parent hardware page
+>   - the parent registered address (on which the driver did get_user_pages)
+>     getting remapped to another page by COW
+> One can imagine other uses, e.g. combined with mlock for real-time or security.
 
-hmm, how can I use ioctl to find the location device since I need the location
-to pass it to ioctl ?
+I don't much like it, but it does solve a real problem in an efficient way.
 
-I can't find "pinpad/input0" in sysfs, does that mean I need to add sysfs
-suppport in my driver, and it's not done in input module when I register 
-my input driver ?
+Partly I don't like it because of "PROT_DONTCOPY" itself: I'm queasy
+about protection flags which are not protection flags, though I find
+you're not the first to go down that road.
 
-> "pinpad/input0" doesn't sound right. What port is your pinpad connected
-> to?
-> 
+Is the patch tested?  I've not tried, but suspect the newflags shift
+and mask won't work for it.  And I don't look forward to your adding
+VM_MAYDONTCOPY - ugh!
 
-Actually I'm working on an embedded system which owns a pinpad controller.
-This controller is accessed by using io mem and it talks to the pinpad through
-a dedicated bus. So I accessed it through io space.
+> @@ -246,7 +246,7 @@ sys_mprotect(unsigned long start, size_t
+>  			goto out;
+>  		}
+>  
+> -		newflags = vm_flags | (vma->vm_flags & ~(VM_READ | VM_WRITE | VM_EXEC));
+> +		newflags = vm_flags | (vma->vm_flags & ~(VM_READ | VM_WRITE | VM_EXEC | VM_DONTCOPY));
+>  
+>  		if ((newflags & ~(newflags >> 4)) & 0xf) {
+>  			error = -EACCES;
 
-thanks,
+I rather think it would all be more cleanly handled by dropping the mmap
+and mprotect changes, adding an madvise instead.  Though you may object
+that madvise is for optional behaviours, and this should be mandatory.
 
-         Francis.
+The other reason I dislike the patch is that the problem it fixes is
+an old one, and I'd much rather have get_user_pages fix it for itself,
+than ask the developer to do some additional magic to get around it.
 
+But I've failed to work out a simple efficient alternative, which won't
+burden the vast majority of get_user_pages usages which never hit the
+issue.  So your way is probably appropriate, but I'd prefer madvise.
 
-	
+(Sorry, I won't be able to discuss further for a couple of days.)
 
-	
-		
-___________________________________________________________________________ 
-Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
-Téléchargez cette version sur http://fr.messenger.yahoo.com
+Hugh

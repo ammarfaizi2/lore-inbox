@@ -1,50 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVGZQGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVGZQJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbVGZQGF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 12:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVGZQEN
+	id S261940AbVGZQJK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 12:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVGZQGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 12:04:13 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:50337 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261920AbVGZQC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 12:02:59 -0400
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-From: Lee Revell <rlrevell@joe-job.com>
+	Tue, 26 Jul 2005 12:06:15 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:30470 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261940AbVGZQEb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 12:04:31 -0400
+Date: Tue, 26 Jul 2005 18:04:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org, perex@suse.cz,
-       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+Cc: linux-kernel@vger.kernel.org, perex@suse.cz, alsa-devel@alsa-project.org,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org,
        Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
        zaitcev@yahoo.com
-In-Reply-To: <42E65D50.3040808@pobox.com>
-References: <20050726150837.GT3160@stusta.de>
-	 <1122393073.18884.29.camel@mindpipe>  <42E65D50.3040808@pobox.com>
-Content-Type: text/plain
-Date: Tue, 26 Jul 2005 12:02:56 -0400
-Message-Id: <1122393777.18884.32.camel@mindpipe>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20050726160420.GV3160@stusta.de>
+References: <20050726150837.GT3160@stusta.de> <42E65B34.9080700@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42E65B34.9080700@pobox.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-26 at 11:57 -0400, Jeff Garzik wrote:
-> Lee Revell wrote:
-> > On Tue, 2005-07-26 at 17:08 +0200, Adrian Bunk wrote:
-> > 
-> >>This patch schedules obsolete OSS drivers (with ALSA drivers that 
-> >>support the same hardware) for removal.
-> > 
-> > 
-> > How many non-obsolete OSS drivers were there?
+On Tue, Jul 26, 2005 at 11:48:04AM -0400, Jeff Garzik wrote:
+> Adrian Bunk wrote:
+> >This patch schedules obsolete OSS drivers (with ALSA drivers that 
+> >support the same hardware) for removal.
+> >
+> >
+> >Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> >
+> >---
+> >
+> >I've Cc'ed the people listed in MAINTAINERS as being responsible for one 
+> >or more of these drivers, and I've also Cc'ed the ALSA people.
+> >
+> >Please tell if any my driver selections is wrong.
+> >
+> > Documentation/feature-removal-schedule.txt |    7 +
+> > sound/oss/Kconfig                          |   79 ++++++++++++---------
+> > 2 files changed, 54 insertions(+), 32 deletions(-)
 > 
-> someone needs to test the remaining PCI ID(s) that are in i810_audio but 
-> not ALSA.
-> 
+> Please CHECK before doing this.
 
-Good luck finding someone with all that old hardware...
+I did (but I don't claim that I didn't miss anything).
 
-Lee
+> ACK for via82cxxx.
+
+Thanks.
+
+> NAK for i810_audio:  ALSA doesn't have all the PCI IDs (which must be 
+> verified -- you cannot just add the PCI IDs for some hardware)
+
+I though I found every single PCI ID from this driver in ALSA.
+Which PCI IDs did I miss?
+
+> 	Jeff
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

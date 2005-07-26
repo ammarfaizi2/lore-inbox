@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVGZFXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVGZFY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbVGZFXX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 01:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVGZFXX
+	id S261728AbVGZFY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 01:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVGZFYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 01:23:23 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:54667 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261722AbVGZFXU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 01:23:20 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 26 Jul 2005 01:24:25 -0400
+Received: from dial169-98.awalnet.net ([213.184.169.98]:47113 "EHLO
+	raad.intranet") by vger.kernel.org with ESMTP id S261728AbVGZFX3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 01:23:29 -0400
+Message-Id: <200507260524.IAA06931@raad.intranet>
+From: "Al Boldi" <a1426z@gawab.com>
+To: "'Horst von Brand'" <vonbrand@inf.utfsm.cl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: kernel optimization 
+Date: Tue, 26 Jul 2005 08:22:59 +0300
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.13-rc3 Battery times at 100/250/1000 Hz = Zero difference
-Date: Tue, 26 Jul 2005 01:23:08 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B300424AE32@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.13-rc3 Battery times at 100/250/1000 Hz = Zero difference
-Thread-Index: AcWRS4omMVcQV3szTeGFSvdW2+Ti8gAVbzpQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Bill Davidsen" <davidsen@tmr.com>, "Tony Lindgren" <tony@atomide.com>
-Cc: "Pavel Machek" <pavel@ucw.cz>, <jesper.juhl@gmail.com>,
-       <linux-kernel@vger.kernel.org>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-X-OriginalArrivalTime: 26 Jul 2005 05:23:11.0717 (UTC) FILETIME=[1D983150:01C591A2]
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <200507231849.j6NInMPO003728@laptop11.inf.utfsm.cl>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Thread-Index: AcWRj7OhnGffmV4/TkSTCV90OCCInAACm3qg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->>>Digging up this patch from last month regarding C2
->>>on a AMD K7 implies
->>>that the whole blame can be put on kernel acpi:
->>>
->>>http://marc.theaimsgroup.com/?l=linux-kernel&m=111933745131301&w=2
+Dr. Horst H. von Brand wrote: {
+Al Boldi <a1426z@gawab.com> wrote:
+>  Adrian Bunk wrote: {
+> On Fri, Jul 22, 2005 at 07:55:48PM +0100, christos gentsis wrote:
+> > i would like to ask if it possible to change the optimization of the 
+> > kernel from -O2 to -O3 :D, how can i do that? if i change it to the 
+> > top level Makefile does it change to all the Makefiles?
+> And since it's larger, it's also slower.
+> }
 
-The current Linus tree includes generic ACPI support
-for deep C-states on SMP machines. (deep means higher than C1)
+> It's faster but it's flawed.  Root-NFS boot failed!
 
-I don't have any problem with people having platform specific
-modules to handle platform specific features.  However, if
-the system really intends to support SMP ACPI C-states deeper
-than C1 and the generic ACPI code doesn't support it,
-then it is either a Linux/ACPI bug or a BIOS bug -- file away:-)
+How do you know that it is faster if it is busted?
+}
 
-I.e. The whole concept of ACPI is that you shoulud _not_ need
-a platform specific driver to accomplish this.
+The -O3 compile produces a faster kernel, which seems to work perfectly,
+albeit the Root-NFS boot flaw!
 
-cheers,
--Len
+--
+Al
+

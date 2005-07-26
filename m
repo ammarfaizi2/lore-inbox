@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVGZMBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVGZMGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVGZMBy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 08:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVGZMBx
+	id S261720AbVGZMGp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 08:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVGZMGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 08:01:53 -0400
-Received: from styx.suse.cz ([82.119.242.94]:54165 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261720AbVGZMBK (ORCPT
+	Tue, 26 Jul 2005 08:06:45 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:28547 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261720AbVGZMGo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 08:01:10 -0400
-Date: Tue, 26 Jul 2005 14:01:08 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [INPUT] simple question on driver initialisation.
-Message-ID: <20050726120108.GA2101@ucw.cz>
-References: <20050726105557.GB1588@ucw.cz> <20050726114705.54469.qmail@web25802.mail.ukl.yahoo.com>
+	Tue, 26 Jul 2005 08:06:44 -0400
+Date: Tue, 26 Jul 2005 14:06:17 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Andreas Steinmetz <ast@domdv.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.13rc3: RLIMIT_RTPRIO broken
+Message-ID: <20050726120617.GA12338@elte.hu>
+References: <42E22D0C.1010608@domdv.de> <20050726102638.GA4000@elte.hu> <4d8e3fd305072604562c8b30d1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050726114705.54469.qmail@web25802.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <4d8e3fd305072604562c8b30d1@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 01:47:05PM +0200, moreau francis wrote:
-> hello,
-> 
-> --- Vojtech Pavlik <vojtech@suse.cz> a écrit :
-> 
-> > > What is this field for ?
-> >  
-> > It is intended for identifying the device based on "location" in the
-> > system.
+
+* Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+
+> 2005/7/26, Ingo Molnar <mingo@elte.hu>:
+> [...]
+> > [back from KS/OLS]
 > > 
+> > indeed. The effect of the bug is that RLIMIT_RTPRIO is completely
+> > non-functional in 2.6.12.
+> > 
+> > Acked-by: Ingo Molnar <mingo@elte.hu>
 > 
-> hmm, sorry but I don't understand you. I initialised this field with
-> "pinpad/input0" but the only place I can grep or find it, is in
-> /proc/bus/input/devices. I don't see how it can be used for identifiying
-> the device...
+> Ingo, Lee, Andreas,
+> the patch seems to be quite simple and is a fix for a regression.
+> Is anybody going to FW it to the stable team ?
 
-It's also available via an ioctl() and in sysfs. This allows you to
-specify in an application that you want a device plugged into a specific
-port of the machine. Not many applications can use it at the moment, but
-udev can use it to assign a name of the device node.
+i'd not put it into stable just yet - the fact that it has not been 
+tested in 2.6.12 _at all_ up until very recently means there's little QA 
+feedback. Yes, it's simple, but it also triggers something we never did 
+before. 2.6.13 ought to be released soon, that should be good enough.
 
-"pinpad/input0" doesn't sound right. What port is your pinpad connected
-to?
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+	Ingo

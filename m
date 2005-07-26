@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVGZQTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVGZQW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbVGZQTk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 12:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVGZQSH
+	id S261956AbVGZQW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 12:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVGZQRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 12:18:07 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:15116 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261881AbVGZQQQ
+	Tue, 26 Jul 2005 12:17:37 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:13324 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261930AbVGZQRS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 12:16:16 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Stephen Pollei" <stephen.pollei@gmail.com>,
-       "Lee Revell" <rlrevell@joe-job.com>
-Cc: <mmoneta@optonline.net>, <linux-kernel@vger.kernel.org>,
-       <andersen@codepoet.org>
-Subject: RE: ZyXEL Kernel /BusyBox GPL violation?
-Date: Tue, 26 Jul 2005 09:15:31 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEEDMFHAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <feed8cdd050725224213df2d11@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 26 Jul 2005 09:13:47 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 26 Jul 2005 09:13:53 -0700
+	Tue, 26 Jul 2005 12:17:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=moS/jIQTCL3wJ2OYTN532f2ZZG7/A3MS9V7xSSY/2E7/DLgMKki2BjajRihEj7d3cHyD3PHi6HtkkgbCR5nw4QO8YxSox8WXKx9AKLIQO2FQZ2T/K/QXNDJvuEOB4qK41W7Np4GlfAHxW4+khT8yP9c+/4C2sYQbvz5HOUfMLGc=
+Message-ID: <105c793f050726091722f3cbb2@mail.gmail.com>
+Date: Tue, 26 Jul 2005 12:17:14 -0400
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Cc: linux-kernel@vger.kernel.org, perex@suse.cz, alsa-devel@alsa-project.org,
+       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
+       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
+       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com
+In-Reply-To: <20050726150837.GT3160@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050726150837.GT3160@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/26/05, Adrian Bunk <bunk@stusta.de> wrote:
+>  config SOUND_OPL3SA2
+>         tristate "Yamaha OPL3-SA2 and SA3 based PnP cards"
+> -       depends on SOUND_OSS
+> +       depends on SOUND_OSS && OBSOLETE_OSS_DRIVER
+>         help
+>           Say Y or M if you have a card based on one of these Yamaha sound
+>           chipsets or the "SAx", which is actually a SA3. Read
+Forgive me if I'm misreading this (I'm hardly a coder and no kernel
+hacker) but, as it stands, the OPL3SA2 driver provided by ALSA and the
+main kernel tree work but are not correctly detected by ALSA's
+detection routines (in alsaconf) on the 2.6 kernel. The OSS drivers
+work, as well, but (AFAIK) there are no methods of automatic
+configuration with the OSS drivers.
 
-> > Also if they didn't modify the kernel, they don't have to give you
-> > source, they can just refer you to kernel.org.
->
-> Wrong.....
->
-> http://www.fsf.org/licensing/licenses/gpl-faq.html#DistributeWithS
-> ourceOnInternet
-> [[[I want to distribute binaries without accompanying sources. Can I
-> provide source code by FTP instead of by mail order?
->     You're supposed to provide the source code by mail-order on a
-> physical medium, if someone orders it. You are welcome to offer people
-> a way to copy the corresponding source code by FTP, in addition to the
-> mail-order option, but FTP access to the source is not sufficient to
-> satisfy section 3 of the GPL.
->
->     When a user orders the source, you have to make sure to get the
-> source to that user. If a particular user can conveniently get the
-> source from you by anonymous FTP, fine--that does the job. But not
-> every user can do such a download. The rest of the users are just as
-> entitled to get the source code from you, which means you must be
-> prepared to send it to them by post.
->
->     If the FTP access is convenient enough, perhaps no one will choose
-> to mail-order a copy. If so, you will never have to ship one. But you
-> cannot assume that.
->
->     Of course, it's easiest to just send the source with the binary in
-> the first place. ]]]
+So, for people who don't feel like configuring ALSA with their OPL3SA2
+card, the OSS modules may be easier to configure and thus should be
+left in until the ALSA/2.6 kernel problems are worked out with the
+OPL3SA2.
 
-	I'm sorry, this makes no sense. What if a user can't conveniently get the
-source by mail?
-
-	More users can more conveniently get the source by HTTP than can get it by
-mail. This argument may have made sense many years ago, but it doesn't now.
-
-	The GPL does not say you have to mail it. The GPL says you have to provide
-it "on a medium customarily used for software interchange". That means *YOU*
-get to pick the medium, you just can't pick one that's so obscure that
-nobody could decode it. The web is just such a medium.
-
-	DS
-
-
+-Andy

@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVGZKOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVGZKXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbVGZKOp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 06:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVGZKOp
+	id S261629AbVGZKXp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 06:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVGZKXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 06:14:45 -0400
-Received: from ns2.suse.de ([195.135.220.15]:52109 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261398AbVGZKOo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 06:14:44 -0400
-Message-ID: <42E60D29.7010609@suse.de>
-Date: Tue, 26 Jul 2005 12:15:05 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.9) Gecko/20050712 Thunderbird/1.0.5 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en
+	Tue, 26 Jul 2005 06:23:45 -0400
+Received: from web25805.mail.ukl.yahoo.com ([217.12.10.190]:22633 "HELO
+	web25805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261629AbVGZKXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 06:23:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=lxEB77jbAXOHotO7iqK5Rs5V63V9cYWDnPQFz+1LT6T65xzusNE1zZ370pF4aOZ0ON3DHyLm0D9fciukRveesvdhnUI4erYSUh2r0Em6GUoNzNPmG5b6nC9/2KXKAUSMITKHIhx4wQuUSE4hCXtQGWYsrorlxc1ovd8MwSefP08=  ;
+Message-ID: <20050726102340.44709.qmail@web25805.mail.ukl.yahoo.com>
+Date: Tue, 26 Jul 2005 12:23:40 +0200 (CEST)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: [INPUT] simple question on driver initialisation.
+To: linux-kernel@vger.kernel.org, vojtech@suse.cz
 MIME-Version: 1.0
-To: Puneet Vyas <vyas.puneet@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       abonilla@linuxwireless.org
-Subject: Re: PROBLEM:Machine hangs on pulling out USB cd writer on laptop.
-References: <42E58483.2050602@gmail.com> <42E57ACD.8070909@linuxwireless.org> <42E57BD6.4090006@linuxwireless.org> <42E5904A.9050306@gmail.com>
-In-Reply-To: <42E5904A.9050306@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Puneet Vyas wrote:
+Hi,
 
-> ide : failed opcode was : unknown
-> hdc : status error: status 0x00 { }
+I'm currently developping a very simple driver for a pinpad by using
+Input module. I'm using Event handler to pass events from pinpad to userland.
+In this simple case, I'm wondering if I really need to initialise
+"phys" field in in "input_dev" struct before calling "input_register_device".
+What is this field for ?
 
-This is _not_ an USB cd writer but an IDE drive.
-You may not just pull it out.
--- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+Thanks for your answers,
+
+         Francis.
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

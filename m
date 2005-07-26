@@ -1,73 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVGZSQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVGZSSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262021AbVGZSQw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 14:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVGZSO1
+	id S262014AbVGZSSv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 14:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVGZSQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 14:14:27 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13576 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261998AbVGZSNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 14:13:35 -0400
-Date: Tue, 26 Jul 2005 20:13:26 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20050726181326.GY3160@stusta.de>
-References: <20050726150837.GT3160@stusta.de> <42E65B34.9080700@pobox.com> <200507261303.40052.gene.heskett@verizon.net>
-Mime-Version: 1.0
+	Tue, 26 Jul 2005 14:16:58 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61831 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262012AbVGZSQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 14:16:40 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH 22/23] acpi_power_off: Don't switch to the boot cpu
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
+	<m1ek9leb0h.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1ack9eaux.fsf_-_@ebiederm.dsl.xmission.com>
+	<m164uxear0.fsf_-_@ebiederm.dsl.xmission.com>
+	<m11x5leaml.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1wtndcvwe.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1sly1cvnd.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1oe8pcvii.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1k6jdcvgk.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1fyu1cvd7.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1br4pcva4.fsf_-_@ebiederm.dsl.xmission.com>
+	<m17jfdcv79.fsf_-_@ebiederm.dsl.xmission.com>
+	<m13bq1cv3k.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1y87tbgeo.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1u0ihbg85.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1pst5bg5u.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1ll3tbg2r.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1hdehbfwa.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1d5p5bft6.fsf_-_@ebiederm.dsl.xmission.com>
+	<m18xztbfr9.fsf_-_@ebiederm.dsl.xmission.com>
+	<m14qahbfk7.fsf_-_@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 26 Jul 2005 12:16:00 -0600
+In-Reply-To: <m14qahbfk7.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Tue, 26 Jul 2005 12:14:16 -0600")
+Message-ID: <m1zms9a0wv.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507261303.40052.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 01:03:39PM -0400, Gene Heskett wrote:
-> On Tuesday 26 July 2005 11:48, Jeff Garzik wrote:
-> >Adrian Bunk wrote:
-> >> This patch schedules obsolete OSS drivers (with ALSA drivers that
-> >> support the same hardware) for removal.
-> >>
-> >>
-> >> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> >>
-> >> ---
-> >>
-> >> I've Cc'ed the people listed in MAINTAINERS as being responsible
-> >> for one or more of these drivers, and I've also Cc'ed the ALSA
-> >> people.
-> >>
-> >> Please tell if any my driver selections is wrong.
-> >>
-> >>  Documentation/feature-removal-schedule.txt |    7 +
-> >>  sound/oss/Kconfig                          |   79
-> >> ++++++++++++--------- 2 files changed, 54 insertions(+), 32
-> >> deletions(-)
-> >
-> >Please CHECK before doing this.
-> >
-> >ACK for via82cxxx.
-> 
-> I'm still running a box that needs this one.  The darned thing refuses 
-> to die. :)
->...
 
+machine_power_off on i386 and x86_64 now switch to the
+boot cpu out of paranoia and because the MP Specification indicates it
+is a good idea on reboot, so for those architectures it is a noop.
+I can't see anything in the acpi spec that requires you to be on
+the boot cpu to power off the system, so this should not be an issue
+for ia64.  In addition ia64 has the altix a massive multi-node
+system where switching to the boot cpu sounds insane as we may
+hot removed the boot cpu.
 
-Why doesn't the ALSA driver work for you?
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
 
+ drivers/acpi/sleep/poweroff.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-> Cheers, Gene
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+c4ca5713b37cce7fcfdb8f212c789b552fc55e6f
+diff --git a/drivers/acpi/sleep/poweroff.c b/drivers/acpi/sleep/poweroff.c
+--- a/drivers/acpi/sleep/poweroff.c
++++ b/drivers/acpi/sleep/poweroff.c
+@@ -54,7 +54,6 @@ void acpi_power_off(void)
+ 	acpi_sleep_prepare(ACPI_STATE_S5);
+ 	local_irq_disable();
+ 	/* Some SMP machines only can poweroff in boot CPU */
+-	set_cpus_allowed(current, cpumask_of_cpu(0));
+ 	acpi_enter_sleep_state(ACPI_STATE_S5);
+ }
+ 

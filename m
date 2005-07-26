@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVGZVsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVGZVv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbVGZVsj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 17:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVGZVqT
+	id S262156AbVGZVv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 17:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVGZVsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 17:46:19 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:23468 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262161AbVGZVpO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 17:45:14 -0400
-Subject: Re: Memory pressure handling with iSCSI
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20050726142410.4ff2e56a.akpm@osdl.org>
-References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
-	 <20050726111110.6b9db241.akpm@osdl.org>
-	 <1122403152.6433.39.camel@dyn9047017102.beaverton.ibm.com>
-	 <20050726114824.136d3dad.akpm@osdl.org>
-	 <20050726121250.0ba7d744.akpm@osdl.org>
-	 <1122412301.6433.54.camel@dyn9047017102.beaverton.ibm.com>
-	 <20050726142410.4ff2e56a.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 26 Jul 2005 14:45:00 -0700
-Message-Id: <1122414300.6433.57.camel@dyn9047017102.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 17:48:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23488 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262156AbVGZVrU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 17:47:20 -0400
+Date: Tue, 26 Jul 2005 14:47:05 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.13-rc3a] i386: inline restore_fpu
+In-Reply-To: <200507261727_MC3-1-A5A1-F8AB@compuserve.com>
+Message-ID: <Pine.LNX.4.58.0507261438540.19309@g5.osdl.org>
+References: <200507261727_MC3-1-A5A1-F8AB@compuserve.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-26 at 14:24 -0700, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > ext2 is incredibly better. Machine is very responsive. 
-> > 
+
+
+On Tue, 26 Jul 2005, Chuck Ebbert wrote:
 > 
-> OK.  Please, always monitor and send /proc/meminfo.  I assume that the
-> dirty-memory clamping is working OK with ext2 and that perhaps it'll work
-> OK with ext3/data=writeback.
+>  Since fxsave leaves the FPU state intact, there ought to be a better way to do
+> this but it gets tricky.  Maybe using the TSC to put a timestamp in every thread
+> save area?
 
-Nope. Dirty is still very high..
+We used to have totally lazy FP saving, and not toucht he FP state at 
+_all_ in the scheduler except to just set the TS bit.
 
-# cat /proc/meminfo
-MemTotal:      7143628 kB
-MemFree:         33248 kB
-Buffers:          8368 kB
-Cached:        6789932 kB
-SwapCached:          0 kB
-Active:          51316 kB
-Inactive:      6769144 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:      7143628 kB
-LowFree:         33248 kB
-SwapTotal:     1048784 kB
-SwapFree:      1048780 kB
-Dirty:         6605704 kB
-Writeback:      168452 kB
-Mapped:          49724 kB
-Slab:           252200 kB
-CommitLimit:   4620596 kB
-Committed_AS:   163524 kB
-PageTables:       2284 kB
-VmallocTotal: 34359738367 kB
-VmallocUsed:      9888 kB
-VmallocChunk: 34359728447 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     2048 kB
+It worked wonderfully well on UP, but getting it working on SMP is a major
+pain, since the lazy state you want to switch back into might be cached on
+some other CPU's registers, so we never did it on SMP. Eventually it got
+too painful to maintain two totally different logical code-paths between
+UP and SMP, and some bug or other ended up resulting in the current "lazy
+on a time slice level" thing which works well in SMP too.
 
-Thanks,
-Badari
+Also, a lot of the cost is really the save, and before SSE2 the fnsave
+would clear the FPU state, so you couldn't just do a save and try to elide 
+just the restore in the lazy case. In SSE2 (with fxsave) we _could_ try to 
+do that, but the thing is, I doubt it really helps.
 
+First off, 99% of all programs don't hit the nasty case at all, and for
+something broken like volanomark that _does_ hit it, I bet that there i
+smore than one thread using the FP, so you can't just cache the FP state
+in the CPU _anyway_.
+
+So we could enhance the current state by having a "nonlazy" mode like in
+the example patch, except we'd have to make it a dynamic flag. Which could
+either be done by explicitly marking binaries we want to be non-lazy, or
+by just dynamically noticing that the rate of FP restores is very high.
+
+Does anybody really care about volanomark? Quite frankly, I think you'd
+see a _lot_ more performance improvement if you could instead teach the
+Java stuff not to use FP all the time, so it feels a bit like papering
+over the _real_ bug if we'd try to optimize this abnormal and silly case
+in the kernel.
+
+		Linus

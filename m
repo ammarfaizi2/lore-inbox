@@ -1,35 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVGZXcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVGZXuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbVGZXcx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 19:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVGZXaH
+	id S262407AbVGZXuI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 19:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbVGZXtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 19:30:07 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:33973 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S262341AbVGZX2T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 19:28:19 -0400
-Date: Tue, 26 Jul 2005 16:28:16 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Marc Ballarin <Ballarin.Marc@gmx.de>
-cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ250 vs. HZ1000
-In-Reply-To: <20050725210253.61d2da13.Ballarin.Marc@gmx.de>
-Message-ID: <Pine.LNX.4.63.0507261626470.16638@twinlark.arctic.org>
-References: <20050725161333.446fe265.Ballarin.Marc@gmx.de>
- <20050725155322.GA1046@openzaurus.ucw.cz> <20050725210253.61d2da13.Ballarin.Marc@gmx.de>
+	Tue, 26 Jul 2005 19:49:14 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:19855 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S262354AbVGZXol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 19:44:41 -0400
+Date: Tue, 26 Jul 2005 18:44:29 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+Subject: [PATCH] ppc32: Fix building of TQM8260 board
+Message-ID: <Pine.LNX.4.61.0507261843440.9846@nylon.am.freescale.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jul 2005, Marc Ballarin wrote:
+Added missing include of cpm2.h in correct order to allow TQM8260 to build
 
-> Hmm, just did. I even tried the rather minimalistic configuration below.
-> Still no C3. (And what seems even stranger: no C1.)
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-there's no point to going into C1 if the C2 entry/exit latencies are 
-acceptable.  (winxp generally never uses C1 if C2 is available and within 
-the specs msft dictates for C2 latencies...)
+---
+commit 2fd8dd75c93a89c465a08d1d0085772cad225927
+tree b322bf8a4e146fe7c88e39eac88bc923ac1a567e
+parent ca451627946729719d17b7e6c1376ec273a501b5
+author Kumar K. Gala <kumar.gala@freescale.com> Tue, 26 Jul 2005 18:43:16 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Tue, 26 Jul 2005 18:43:16 -0500
 
--dean
+ arch/ppc/platforms/tqm8260_setup.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/ppc/platforms/tqm8260_setup.c b/arch/ppc/platforms/tqm8260_setup.c
+--- a/arch/ppc/platforms/tqm8260_setup.c
++++ b/arch/ppc/platforms/tqm8260_setup.c
+@@ -16,8 +16,8 @@
+ 
+ #include <linux/init.h>
+ 
+-#include <asm/immap_cpm2.h>
+ #include <asm/mpc8260.h>
++#include <asm/cpm2.h>
+ #include <asm/machdep.h>
+ 
+ static int

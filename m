@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVGZJCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVGZJFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVGZJCu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 05:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVGZJCu
+	id S261651AbVGZJFs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 05:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVGZJFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 05:02:50 -0400
-Received: from web8410.mail.in.yahoo.com ([202.43.219.158]:5481 "HELO
-	web8410.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S261551AbVGZJBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 05:01:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=z2w5jgy/Dae3JPMVFEqLFc51CNu1ku03aS1tChOidDKR/kY5Cek6QrdnkU4yNkEKWLCpdCl5kPb3JQ03qggy3tqfFIeyiQ1t9q4VTSxNb7a5F6sAsQL0it5e11V/1IUBIA7sY/HnYhkZ/Qkn726eH8CSGIt3msNMx90PebEJ//4=  ;
-Message-ID: <20050726090145.51305.qmail@web8410.mail.in.yahoo.com>
-Date: Tue, 26 Jul 2005 10:01:45 +0100 (BST)
-From: Rahul Tank <rahul5311@yahoo.co.in>
-Subject: serial driver help
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 26 Jul 2005 05:05:47 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:61090 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261651AbVGZJFn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 05:05:43 -0400
+Subject: [PATCH -mm/-rc] fix xip sparse file handling in ext2
+From: Carsten Otte <cotte@freenet.de>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: paukstad@de.ibm.com, linux-kernel@vger.kernel.org, geraldsc@de.ibm.com,
+       schwidefsky@de.ibm.com
+Content-Type: text/plain
+Date: Tue, 26 Jul 2005 11:05:33 +0200
+Message-Id: <1122368733.1695.21.camel@cotte.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello all,
-  i am a newbee trying to write a device driver for a
-serial port.
- i read the /driver/char/serial.c and have got the
-idea of how the gs_write works.
-  however i am unable to understand how to read or
-write to a serial port.
+[PATCH -mm/-rc] fix xip sparse file handling in ext2
+Oliver Paukstadt from our test department is testing the xip patches in
+Linus' git-tree. He found a problem that shows when reading a file that
+contains sparse blocks (holes) on a -o xip mounted ext2 filesystem: the
+BUG_ON() in fs/ext2/xip.c:40 triggers where it should not. The problem
+was introduced by a cleanup in my previous patch, this patch fixes it.
 
- any pointers,
-  plz help
+Signed-off-by: Carsten Otte <cotte@de.ibm.com>
+---
+diff -ruwN linux-git/fs/ext2/xip.c linux-git-xip-fixup/fs/ext2/xip.c
+--- linux-git/fs/ext2/xip.c	2005-07-25 17:18:38.000000000 +0200
++++ linux-git-xip-fixup/fs/ext2/xip.c	2005-07-26 09:10:49.593563928 +0200
+@@ -36,7 +36,7 @@
+ 	*result = tmp.b_blocknr;
+ 
+ 	/* did we get a sparse block (hole in the file)? */
+-	if (!(*result)) {
++	if (!tmp.b_blocknr && !rc) {
+ 		BUG_ON(create);
+ 		rc = -ENODATA;
+ 	}
 
- thanks in advance.
 
-
-	
-
-	
-		
-__________________________________________________________
-Free antispam, antivirus and 1GB to save all your messages
-Only in Yahoo! Mail: http://in.mail.yahoo.com

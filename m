@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVGZGbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVGZGeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbVGZGbq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 02:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVGZGbq
+	id S261776AbVGZGeI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 02:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVGZGb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 02:31:46 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59319 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261791AbVGZGas (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 02:30:48 -0400
-Date: Tue, 26 Jul 2005 08:30:43 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk
-Subject: [patch] Fix compilation in locomo.c
-Message-ID: <20050726063043.GI8684@elf.ucw.cz>
+	Tue, 26 Jul 2005 02:31:57 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:58358 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261783AbVGZG3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 02:29:46 -0400
+Date: Tue, 26 Jul 2005 08:29:39 +0200
+From: Voluspa <lista1@telia.com>
+To: len.brown@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3 Battery times at 100/250/1000 Hz = Zero difference
+Message-Id: <20050726082939.2a7388cd.lista1@telia.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do not access children in struct device directly, use
-device_for_each_child helper instead. It fixes compilation.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+On 2005-07-26 5:23:08 Len Brown wrote:
 
----
-commit 3d7f15c66bc66c480d468e2c4d623949bba0d41f
-tree 9734f5a58c31dade74b1b35c1ce0b0d6d44da589
-parent 6cd7322dce560001570713269630390754881e5d
-author <pavel@amd.(none)> Tue, 26 Jul 2005 08:29:38 +0200
-committer <pavel@amd.(none)> Tue, 26 Jul 2005 08:29:38 +0200
+>than C1 and the generic ACPI code doesn't support it,
+>then it is either a Linux/ACPI bug or a BIOS bug -- file away:-)
 
- arch/arm/common/locomo.c |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+The issue has made me fume enough to contemplating installing windos for
+the first time in some 10 years. But I'll persevere. Will learn
+ACPI-speak, read bios- and kernelcode. Then return, have no fear (even
+if just to admit that the BIOS is buggy). Speaking of bugs, I was
+directed, off-list, to the patch which mends your latest chip-away of
+C2/C3 for many systems:
 
-diff --git a/arch/arm/common/locomo.c b/arch/arm/common/locomo.c
---- a/arch/arm/common/locomo.c
-+++ b/arch/arm/common/locomo.c
-@@ -651,15 +651,15 @@ __locomo_probe(struct device *me, struct
- 	return ret;
- }
- 
--static void __locomo_remove(struct locomo *lchip)
-+static int locomo_remove_child(struct device *dev, void *data)
- {
--	struct list_head *l, *n;
--
--	list_for_each_safe(l, n, &lchip->dev->children) {
--		struct device *d = list_to_dev(l);
-+	device_unregister(dev);
-+	return 0;
-+} 
- 
--		device_unregister(d);
--	}
-+static void __locomo_remove(struct locomo *lchip)
-+{
-+	device_for_each_child(lchip->dev, NULL, locomo_remove_child);
- 
- 	if (lchip->irq != NO_IRQ) {
- 		set_irq_chained_handler(lchip->irq, NULL);
+http://marc.theaimsgroup.com/?l=acpi4linux&m=112138186129178&w=2
 
--- 
-teflon -- maybe it is a trademark, but it should not be.
+It did however not fix my K8 system.
+
+>I.e. The whole concept of ACPI is that you shoulud _not_ need
+>a platform specific driver to accomplish this.
+
+Indeed. It's supposed to be some kind of neutral non-discrimatory
+standard... I suppose.
+
+Mvh
+Mats Johannesson
+--

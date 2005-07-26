@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVGZSQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVGZSO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbVGZSQv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 14:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVGZSOe
+	id S262016AbVGZSO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 14:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVGZSMb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 14:14:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33673 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262006AbVGZSMX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 14:12:23 -0400
-Date: Tue, 26 Jul 2005 11:11:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Memory pressure handling with iSCSI
-Message-Id: <20050726111110.6b9db241.akpm@osdl.org>
-In-Reply-To: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
-References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 26 Jul 2005 14:12:31 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10504 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262009AbVGZSLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 14:11:10 -0400
+Date: Tue, 26 Jul 2005 20:11:00 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Brad Tilley <rtilley@vt.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: list patches in kernel
+Message-ID: <20050726181100.GX3160@stusta.de>
+References: <1122400185.9035.1.camel@athop1.ath.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1122400185.9035.1.camel@athop1.ath.vt.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> After KS & OLS discussions about memory pressure, I wanted to re-do
->  iSCSI testing with "dd"s to see if we are throttling writes.  
+On Tue, Jul 26, 2005 at 01:49:45PM -0400, Brad Tilley wrote:
+
+> Is there an easy way to make a running kernel display how it has been
+> patched from vanilla? Probably not, but I thought I'd ask.
+
+No, this is not possible.
+
+> Thanks,
 > 
->  I created 50 10-GB ext3 filesystems on iSCSI luns. Test is simple
->  50 dds (one per filesystem). System seems to throttle memory properly
->  and making progress. (Machine doesn't respond very well for anything
->  else, but my vmstat keeps running - 100% sys time).
+> Brad
 
-It's important to monitor /proc/meminfo too - the amount of dirty/writeback
-pages, etc.
+cu
+Adrian
 
-btw, 100% system time is quite appalling.  Are you sure vmstat is telling
-the truth?  If so, where's it all being spent?
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

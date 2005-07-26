@@ -1,35 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVGZUmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVGZUo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVGZUmw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 16:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVGZUkW
+	id S261908AbVGZUo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 16:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVGZUm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 16:40:22 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:10121 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261929AbVGZUjJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 16:39:09 -0400
-Date: Tue, 26 Jul 2005 22:38:55 +0200 (MEST)
-Message-Id: <200507262038.j6QKct92018384@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: johsc@arcor.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.31 panics on boot on 486 box: TSC requires pentium
+	Tue, 26 Jul 2005 16:42:56 -0400
+Received: from neapel230.server4you.de ([217.172.187.230]:52426 "EHLO
+	neapel230.server4you.de") by vger.kernel.org with ESMTP
+	id S261912AbVGZUmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 16:42:21 -0400
+Date: Tue, 26 Jul 2005 22:42:19 +0200
+From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH NFS 3/3] Replace nfs_block_bits() with roundup_pow_of_two()
+Message-ID: <20050726204219.GA5973@lsrfire.ath.cx>
+References: <20050724143640.GA19941@lsrfire.ath.cx> <1122246549.8322.3.camel@lade.trondhjem.org> <1122247463.8322.19.camel@lade.trondhjem.org> <20050725155611.GA12856@lsrfire.ath.cx> <1122400127.6894.32.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1122400127.6894.32.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Jul 2005 20:22:58 +0200, johsc@arcor.de wrote:
->2.4.31 compiled with -m486, panics on boot (486DX) and says something about
->TSC requires pentium, bang.
->enabling the obscure flag
->
-> [*] Unsynced TSC support
->
->seems to fix this - the corresponding .config label name is actually *more*
->helpful than the documentation.
+On Tue, Jul 26, 2005 at 01:48:46PM -0400, Trond Myklebust wrote:
+> I really don't like the choice of name. If you feel you must change the
+> name, then make it something like nfs_blocksize_align(). That describes
+> its function, instead of the implementation details.
 
-Let me guess: you started from the default config and just flipped
-the CPU option to 486? That doesn't work in 2.4 kernels, since it
-leaves the derived "I have TSC" option enabled.
+Yes, rounddown_pow_of_two() belongs in kernel.h next to
+roundup_pow_of_two().  And maybe it should get a shorter name.
 
-A second configuration round (make oldconfig for example) fixes this.
-grep TSC .config to ensure it's not set before compiling.
+Anyway, I also don't like "nfs_blocksize_align".  So let's simply keep
+the old name.  Renaming can be done later if really needed.
+
+Rene
+
+
+[PATCH 3/3] Simplify nfs_block_bits()
+
+Signed-off-by: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+---
+
+ fs/nfs/inode.c |   12 ++----------
+ 1 files changed, 2 insertions(+), 10 deletions(-)
+
+ddad5eadf4c2907842bf9baa2610e0a35ea14137
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -189,16 +189,8 @@ nfs_umount_begin(struct super_block *sb)
+ static inline unsigned long
+ nfs_block_bits(unsigned long bsize)
+ {
+-	/* make sure blocksize is a power of two */
+-	if (bsize & (bsize - 1)) {
+-		unsigned char	nrbits;
+-
+-		for (nrbits = 31; nrbits && !(bsize & (1 << nrbits)); nrbits--)
+-			;
+-		bsize = 1 << nrbits;
+-	}
+-
+-	return bsize;
++	/* round down to the nearest power of two */
++	return bsize ? (1UL << (fls(bsize) - 1)) : 0;
+ }
+ 
+ /*

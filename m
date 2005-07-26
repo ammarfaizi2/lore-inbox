@@ -1,71 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVGZUo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVGZUr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbVGZUo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 16:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVGZUm4
+	id S261976AbVGZUr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 16:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVGZUry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 16:42:56 -0400
-Received: from neapel230.server4you.de ([217.172.187.230]:52426 "EHLO
-	neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S261912AbVGZUmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 16:42:21 -0400
-Date: Tue, 26 Jul 2005 22:42:19 +0200
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH NFS 3/3] Replace nfs_block_bits() with roundup_pow_of_two()
-Message-ID: <20050726204219.GA5973@lsrfire.ath.cx>
-References: <20050724143640.GA19941@lsrfire.ath.cx> <1122246549.8322.3.camel@lade.trondhjem.org> <1122247463.8322.19.camel@lade.trondhjem.org> <20050725155611.GA12856@lsrfire.ath.cx> <1122400127.6894.32.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122400127.6894.32.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.9i
+	Tue, 26 Jul 2005 16:47:54 -0400
+Received: from taxbrain.com ([64.162.14.3]:25108 "EHLO petzent.com")
+	by vger.kernel.org with ESMTP id S261929AbVGZUpg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 16:45:36 -0400
+From: "karl malbrain" <karl@petzent.com>
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.6.9 chrdev_open: serial_core: uart_open
+Date: Tue, 26 Jul 2005 13:45:25 -0700
+Message-ID: <NDBBKFNEMLJBNHKPPFILOEBCCEAA.karl@petzent.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
+In-Reply-To: <20050715225417.E23709@flint.arm.linux.org.uk>
+X-Spam-Processed: petzent.com, Tue, 26 Jul 2005 13:41:42 -0700
+	(not processed: message from valid local sender)
+X-Return-Path: karl@petzent.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: petzent.com, Tue, 26 Jul 2005 13:41:43 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 01:48:46PM -0400, Trond Myklebust wrote:
-> I really don't like the choice of name. If you feel you must change the
-> name, then make it something like nfs_blocksize_align(). That describes
-> its function, instead of the implementation details.
+Successful resolution!! The red-hat engineers monitoring their bugzilla list
+posted a fix for tty_io.c Friday that works.  Thanks again for your help.
+karl m
 
-Yes, rounddown_pow_of_two() belongs in kernel.h next to
-roundup_pow_of_two().  And maybe it should get a shorter name.
+> -----Original Message-----
+> From: Russell King
+> Sent: Friday, July 15, 2005 2:54 PM
+> To: karl malbrain
+> Cc: Linux-Kernel@Vger. Kernel. Org
+> Subject: Re: 2.6.9 chrdev_open: serial_core: uart_open
+>
+>
+> On Fri, Jul 15, 2005 at 02:17:01PM -0700, karl malbrain wrote:
+> > > -----Original Message-----
+> > > From: Russell King
+> > > Sent: Friday, July 15, 2005 1:59 PM
+> > > To: karl malbrain
+> > > Cc: Linux-Kernel@Vger. Kernel. Org
+> > > Subject: Re: 2.6.9 chrdev_open: serial_core: uart_open
+> > >
+> > >
+> > > On Fri, Jul 15, 2005 at 01:52:15PM -0700, karl malbrain wrote:
+> > > > On my 2.6.9-11EL source it clearly shows the up(&tty_sem) after
+> > > the call to
+> > > > uart_open. Init_dev never touches tty_sem.
+> > >
+> > > In which case, I have to say...
+> > >
+> > > Congratulations!  You've found a bug with Red Hat's Enterprise Linux
+> > > kernel!  Go straight to Red Hat's bugzilla!  Do not collect 200$.  Do
+> > > not pass go.
+> > >
+> > > Seriously though, this bug is not present in mainline kernels, so I
+> > > can't resolve this issue for you.  Mainline kernels appear to work
+> > > properly.
+> >
+> > Could tty_io.c be all that changed by a small set of red-hat patches to
+> > 2.6.9?  Why would they need to go in there to make so many
+> changes in the
+> > first place?  Which 2.6 release changed tty_io.c's use of tty_sem so
+> > heavily?
+>
+> These are questions to ask of Red Hat, and can only be answered by
+> their representatives.
+>
+> Thanks anyway, and I'm sorry that this hasn't been resolved given
+> the amount of time put into it by both of us.
+>
+> --
+> Russell King
+>  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 Serial core
 
-Anyway, I also don't like "nfs_blocksize_align".  So let's simply keep
-the old name.  Renaming can be done later if really needed.
-
-Rene
 
 
-[PATCH 3/3] Simplify nfs_block_bits()
 
-Signed-off-by: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
----
-
- fs/nfs/inode.c |   12 ++----------
- 1 files changed, 2 insertions(+), 10 deletions(-)
-
-ddad5eadf4c2907842bf9baa2610e0a35ea14137
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -189,16 +189,8 @@ nfs_umount_begin(struct super_block *sb)
- static inline unsigned long
- nfs_block_bits(unsigned long bsize)
- {
--	/* make sure blocksize is a power of two */
--	if (bsize & (bsize - 1)) {
--		unsigned char	nrbits;
--
--		for (nrbits = 31; nrbits && !(bsize & (1 << nrbits)); nrbits--)
--			;
--		bsize = 1 << nrbits;
--	}
--
--	return bsize;
-+	/* round down to the nearest power of two */
-+	return bsize ? (1UL << (fls(bsize) - 1)) : 0;
- }
- 
- /*

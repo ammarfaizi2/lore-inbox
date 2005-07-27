@@ -1,49 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVG0RPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVG0RTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbVG0RPH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 13:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVG0RPH
+	id S261972AbVG0RTf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 13:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVG0RTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 13:15:07 -0400
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:53733 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S261324AbVG0RPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 13:15:05 -0400
-Date: Wed, 27 Jul 2005 10:15:03 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Michael Richardson <mcr@sandelman.ottawa.on.ca>,
-       Kumar Gala <galak@freescale.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
-Subject: Re: [PATCH 00/14] ppc32: Remove board ports that are no longer maintained
-Message-ID: <20050727101502.B1114@cox.net>
-References: <Pine.LNX.4.61.0507271029480.12237@nylon.am.freescale.net> <1271.1122480803@marajade.sandelman.ottawa.on.ca> <20050727162741.GC28681@gate.ebshome.net>
+	Wed, 27 Jul 2005 13:19:35 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38151 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261972AbVG0RTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 13:19:35 -0400
+Date: Wed, 27 Jul 2005 19:19:23 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: airlied@linux.ie, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/drm/drm_pci.c: fix warnings
+Message-ID: <20050727171923.GG3160@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050727162741.GC28681@gate.ebshome.net>; from ebs@ebshome.net on Wed, Jul 27, 2005 at 09:27:41AM -0700
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 27, 2005 at 09:27:41AM -0700, Eugene Surovegin wrote:
-> On Wed, Jul 27, 2005 at 12:13:23PM -0400, Michael Richardson wrote:
-> > Kumar, I thought that we had some volunteers to take care of some of
-> > those. I know that I still care about ep405, and I'm willing to maintain
-> > the code.
-> 
-> Well, it has been almost two months since Kumar asked about maintenance 
-> for this board. Nothing happened since then.
-> 
-> Why is it not fixed yet? Please, send a patch which fixes it. This is 
-> the _best_ way to keep this board in the tree, not some empty 
-> maintenance _promises_.
+This patch fixes the following warnings:
 
-When we recover our history from the linuxppc-2.4/2.5 trees we can
-show exactly how long it's been since anybody touched ep405.
+<--  snip  -->
 
-Quick googling shows that it's been almost 2 years since the last
-mention of ep405 (exluding removal discussions) on linuxppc-embedded.
-Last ep405-related commits are more than 2 years ago.
+...
+  CC      drivers/char/drm/drm_pci.o
+drivers/char/drm/drm_pci.c:53:5: warning: "DRM_DEBUG_MEMORY" is not defined
+drivers/char/drm/drm_pci.c:84:5: warning: "DRM_DEBUG_MEMORY" is not defined
+drivers/char/drm/drm_pci.c:119:5: warning: "DRM_DEBUG_MEMORY" is not defined
+drivers/char/drm/drm_pci.c:126:5: warning: "DRM_DEBUG_MEMORY" is not defined
+drivers/char/drm/drm_pci.c:134:5: warning: "DRM_DEBUG_MEMORY" is not defined
+...
 
--Matt
+<--  snip  -->
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 22 Jul 2005
+
+ drivers/char/drm/drm_pci.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+--- linux-2.6.13-rc3-mm1-full/drivers/char/drm/drm_pci.c.old	2005-07-22 18:16:02.000000000 +0200
++++ linux-2.6.13-rc3-mm1-full/drivers/char/drm/drm_pci.c	2005-07-22 18:16:24.000000000 +0200
+@@ -50,7 +50,7 @@
+ 				dma_addr_t maxaddr)
+ {
+ 	drm_dma_handle_t *dmah;
+-#if DRM_DEBUG_MEMORY
++#ifdef DRM_DEBUG_MEMORY
+ 	int area = DRM_MEM_DMA;
+ 
+ 	spin_lock(&drm_mem_lock);
+@@ -81,7 +81,7 @@
+ 	dmah->size = size;
+ 	dmah->vaddr = pci_alloc_consistent(dev->pdev, size, &dmah->busaddr);
+ 
+-#if DRM_DEBUG_MEMORY
++#ifdef DRM_DEBUG_MEMORY
+ 	if (dmah->vaddr == NULL) {
+ 		spin_lock(&drm_mem_lock);
+ 		++drm_mem_stats[area].fail_count;
+@@ -116,14 +116,14 @@
+ void
+ __drm_pci_free(drm_device_t * dev, drm_dma_handle_t *dmah)
+ {
+-#if DRM_DEBUG_MEMORY
++#ifdef DRM_DEBUG_MEMORY
+ 	int area = DRM_MEM_DMA;
+ 	int alloc_count;
+ 	int free_count;
+ #endif
+ 
+ 	if (!dmah->vaddr) {
+-#if DRM_DEBUG_MEMORY
++#ifdef DRM_DEBUG_MEMORY
+ 		DRM_MEM_ERROR(area, "Attempt to free address 0\n");
+ #endif
+ 	} else {
+@@ -131,7 +131,7 @@
+ 				    dmah->busaddr);
+ 	}
+ 
+-#if DRM_DEBUG_MEMORY
++#ifdef DRM_DEBUG_MEMORY
+ 	spin_lock(&drm_mem_lock);
+ 	free_count = ++drm_mem_stats[area].free_count;
+ 	alloc_count = drm_mem_stats[area].succeed_count;
+

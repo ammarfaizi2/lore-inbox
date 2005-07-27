@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVG0H6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVG0IA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbVG0H6I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 03:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVG0H6I
+	id S262045AbVG0IA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 04:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVG0IA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 03:58:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56774 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262039AbVG0H5A (ORCPT
+	Wed, 27 Jul 2005 04:00:57 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9408 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262062AbVG0IA4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 03:57:00 -0400
-Date: Wed, 27 Jul 2005 00:55:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: akihana@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Reclaim space from unused ramdisk?
-Message-Id: <20050727005557.6e451f4c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0507270951530.30941@yvahk01.tjqt.qr>
-References: <4746469c05072615167ca234ce@mail.gmail.com>
-	<Pine.LNX.4.61.0507270823490.10780@yvahk01.tjqt.qr>
-	<20050726235624.4f3ca2a8.akpm@osdl.org>
-	<Pine.LNX.4.61.0507270951530.30941@yvahk01.tjqt.qr>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 27 Jul 2005 04:00:56 -0400
+Date: Wed, 27 Jul 2005 10:00:51 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ250 vs. HZ1000
+Message-ID: <20050727080051.GF4115@elf.ucw.cz>
+References: <20050725161333.446fe265.Ballarin.Marc@gmx.de> <20050725155322.GA1046@openzaurus.ucw.cz> <20050727075156.GC25827@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050727075156.GC25827@atomide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
-> >> }
-> >> 
-> >
-> >hmm, yes.  That's a special-case in the ramdisk driver.
-> >
-> >The command `blockdev --flushbufs /dev/ram0' should have the same effect.
-> 
-> Interesting. Command not found, here. URL?
-> 
+Hi!
 
-It ships with util-linux.  Weird that a distro would omit it.
+> > USB devices prevent entering C3 and any interesting powersaving,
+> > try without USB...
+> 
+> Why do USB devices prevent C3? If it was because of the timer polling
+> in the root hub, I believe that should be fixed now.
+> 
+> Or is there some other reason?
+
+Yes. UHCI zas keeps doing DMA all the time.... It can be worked
+around, but it means proper usb powermanagment support.
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbVG0OSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262252AbVG0OTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262249AbVG0OSL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 10:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVG0OSL
+	id S262252AbVG0OTc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 10:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVG0OTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 10:18:11 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:20101 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262249AbVG0OSJ (ORCPT
+	Wed, 27 Jul 2005 10:19:32 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:7443 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262252AbVG0OS6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 10:18:09 -0400
-Date: Wed, 27 Jul 2005 16:17:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
-Message-ID: <20050727141754.GA25356@elte.hu>
-References: <1122473595.29823.60.camel@localhost.localdomain>
+	Wed, 27 Jul 2005 10:18:58 -0400
+Date: Wed, 27 Jul 2005 10:12:04 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Greg KH <greg@kroah.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       "David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
+       matthew@wil.cx, grundler@parisc-linux.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ambx1@neo.rr.com
+Subject: Re: [patch 2.6.13-rc2] pci: restore BAR values from pci_set_power_state for D3hot->D0
+Message-ID: <20050727141202.GA22686@tuxdriver.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	"David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
+	matthew@wil.cx, grundler@parisc-linux.org,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+	linux-kernel@vger.kernel.org, ambx1@neo.rr.com
+References: <20050708095104.A612@den.park.msu.ru> <20050707.233530.85417983.davem@davemloft.net> <20050708110358.A8491@jurassic.park.msu.ru> <20050708.003333.28789082.davem@davemloft.net> <20050708122043.A8779@jurassic.park.msu.ru> <20050708183452.GB13445@tuxdriver.com> <20050726234934.GA6584@kroah.com> <20050727013601.GA13958@tuxdriver.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1122473595.29823.60.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050727013601.GA13958@tuxdriver.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 26, 2005 at 09:36:02PM -0400, John W. Linville wrote:
+> On Tue, Jul 26, 2005 at 04:49:34PM -0700, Greg KH wrote:
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+> > This code doesn't even build, as need_restore isn't a global variable.
+> 
+> Hmmm...you must be missing this hunk from the patch posted on July 8?
 
-> The following patch makes the MAX_RT_PRIO and MAX_USER_RT_PRIO 
-> configurable from the make *config.  This is more of a proposal since 
-> I'm not really sure where in Kconfig this would best fit. I don't see 
-> why these options shouldn't be user configurable without going into 
-> the kernel headers to change them.
+> > Care to redo this patch (and merge it with your other one) and resend
+> > it?
+> 
+> I'll be happy to do so, and include the other comment tweaks that
+> Grant requested.  I should get to it tomorrow morning.
 
-i'd not do this patch, mainly because the '100 priority levels' thing is 
-pretty much an assumption in lots of userspace code. The patch to make 
-it easier to redefine it is of course fine and was accepted, but i dont 
-think we want to make it explicit via .config.
+Looks like there was enough change between 8 July and now that patch
+(the utility) got confused.  When I applied my 8 July patch against a
+current tree, it put the last hunk in some totally different function.
+This probably accounts for the compile failure you saw... :-)
 
-It's a bit like with the 3:1 split: you can redefine it easily via 
-include files, but it's not configurable via .config, because many 
-people would just play with it and would see things break.
+New patch (w/ comment tweaks and symbol export) to follow...
 
-so unless there's really a desire from distributions to actually change 
-the 100 RT-prio levels (and i dont sense such a desire), we shouldnt do 
-this.
-
-	Ingo
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

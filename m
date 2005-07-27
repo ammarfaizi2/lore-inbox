@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVG0IA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVG0IID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbVG0IA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 04:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVG0IA5
+	id S261888AbVG0IID (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 04:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVG0IID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 04:00:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9408 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262062AbVG0IA4 (ORCPT
+	Wed, 27 Jul 2005 04:08:03 -0400
+Received: from fsmlabs.com ([168.103.115.128]:23442 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261888AbVG0IIA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 04:00:56 -0400
-Date: Wed, 27 Jul 2005 10:00:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ250 vs. HZ1000
-Message-ID: <20050727080051.GF4115@elf.ucw.cz>
-References: <20050725161333.446fe265.Ballarin.Marc@gmx.de> <20050725155322.GA1046@openzaurus.ucw.cz> <20050727075156.GC25827@atomide.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050727075156.GC25827@atomide.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 27 Jul 2005 04:08:00 -0400
+Date: Wed, 27 Jul 2005 02:13:12 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: "Brown, Len" <len.brown@intel.com>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: Variable ticks
+In-Reply-To: <1122326750.1472.46.camel@mindpipe>
+Message-ID: <Pine.LNX.4.61.0507270212080.7784@montezuma.fsmlabs.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B300424AC59@hdsmsx401.amr.corp.intel.com>
+ <1122326750.1472.46.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 25 Jul 2005, Lee Revell wrote:
 
-> > USB devices prevent entering C3 and any interesting powersaving,
-> > try without USB...
+> On Mon, 2005-07-25 at 17:19 -0400, Brown, Len wrote:
+> >  >>>Question one, are there other actions to consider?
+> > >> 
+> > >> 
+> > >> Yes.
+> > >> Speaking for ACPI C3 state, note that DMA also
+> > >> wakes up the CPU -- even if there was no device interrupt.
+> > >> (aka, "the trouble with USB")
+> > >
+> > >Trouble? Why would USB do DMA unless there was a device activity?
+> > 
+> > look here:
+> > http://www.google.com/search?hl=en&q=usb+selective+suspend
+> > 
+> > Linux is working on it too, but it is in development.
 > 
-> Why do USB devices prevent C3? If it was because of the timer polling
-> in the root hub, I believe that should be fixed now.
-> 
-> Or is there some other reason?
+> What about audio?  If there is a sound server running then you're going
+> to have a constant stream of interrupts and DMA activity from the sound
+> card even if the machine is idle and there aren't any sounds playing.
 
-Yes. UHCI zas keeps doing DMA all the time.... It can be worked
-around, but it means proper usb powermanagment support.
-								Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+Doesn't artsd at least close the audio device after some configurable idle 
+time? In which case that sounds like a userspace issue.

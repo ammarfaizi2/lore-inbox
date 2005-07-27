@@ -1,42 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbVG0CkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVG0CrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbVG0CkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 22:40:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVG0CkI
+	id S262169AbVG0CrO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 22:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVG0CrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 22:40:08 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:31451 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S262355AbVG0CkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 22:40:02 -0400
-Date: Tue, 26 Jul 2005 20:34:10 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Weird USB errors on HD
-In-reply-to: <4s66H-2ai-19@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <42E6F2A2.7060405@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <4s3BX-8X-7@gated-at.bofh.it> <4s66H-2ai-21@gated-at.bofh.it>
- <4s66H-2ai-19@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Tue, 26 Jul 2005 22:47:14 -0400
+Received: from server3.hostingitnow.com ([202.172.233.146]:61312 "EHLO
+	mail.hostingitnow.com") by vger.kernel.org with ESMTP
+	id S262159AbVG0CrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 22:47:11 -0400
+Message-ID: <42E6F56D.3030305@holidaymarketing.com>
+Date: Wed, 27 Jul 2005 10:46:05 +0800
+From: Pedro Pla <pedropla@holidaymarketing.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pedro Pla <pedropla@holidaymarketing.com>
+CC: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
+Subject: Re: Problem with SMP and NCCH-DL motherboard
+References: <42E5E19E.2090003@holidaymarketing.com>
+In-Reply-To: <42E5E19E.2090003@holidaymarketing.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.135 () AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour wrote:
-> That being said, shouldn't there be a way for the kernel to refuse to
-> use this hd if it's not getting enough power. I don't know enough about
-> USB to say, but isn't there something more elegant that could be done in
-> software?
+Hi Again,
 
-Not really.. It seems like pretty much a matter of the controller saying 
-  it can supply so much power, the drive says it uses so much power, but 
-one of them is lying and the drive ends up tripping the overcurrent.
+I've done some further tests disabling hyperthreading which then lets me
+disable apic on the motherboard and when I disable these I can boot a
+kernel compiled with smp, however it boots detecting only 1 cpu rather
+than the 2 on the motherboard. If I then reenable APIC in the bios with
+hyperthreading still disabled it fails in the same way, so the problem
+seems to be with APIC. Any ideas what more I can try?
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Thanks in advance!!
+Pedro
+
+Pedro Pla wrote:
+
+>Hello,
+>
+>I'm running a system with an Asus NCCH-DL motherboard with dual Nocona
+>Xeon 3.2 GHZ cpu's, when I boot the system with a single cpu kernel with
+>acpi not compiled in it works fine, however when I try to boot a kernel
+>with smp it gives a timeout detecting the cpus and then the machine
+>reboots after I think trying to work out the irq tables, I say I think
+>because it happens so fast that I can barely see what is on the screen
+>before it reboots.
+>
+>I've tried recompiling the kernel with many different options both in
+>and out and the only one that lets me boot is a single cpu without acpi,
+>apic and hpet, I tried googling for similar problems but haven't been
+>able to find anything that applies. I've also tried using an EM64T
+>kernel in case it had to do with the Nocona being incompatible with smp
+>in 32bit mode but that didn't seem to work and gave the same error.
+>
+>Is it a kernel problem or a hardware issue? I tried swapping cpu's in
+>case one was broken but that didn't help, I also tried flashing the bios
+>to the latest one from Asus in case there was some issue with that but
+>no luck either.
+>
+>Also in case this is helpful in locating the problem, when I get it to
+>boot a single cpu 2.6.12.1 kernel without acpi or apic I get the
+>following errors with the PCI:
+>
+>NET: Registered protocol family 16
+>PCI: PCI BIOS revision 2.10 entry at 0xf1d30, last bus=4
+>PCI: Using configuration type 1
+>SCSI subsystem initialized
+>PCI: Probing PCI hardware
+>PCI: Probing PCI hardware (bus 00)
+>PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+>Boot video device is 0000:01:00.0
+>PCI: Transparent bridge - 0000:00:1e.0
+>PCI: Using IRQ router PIIX/ICH [8086/25a1] at 0000:00:1f.0
+>PCI: IRQ 0 for device 0000:00:1f.1 doesn't match PIRQ mask - try
+>pci=usepirqmask
+>PCI: Found IRQ 11 for device 0000:00:1f.1
+>PCI: Cannot allocate resource region 0 of device 0000:01:00.0
+>
+>Any ideas or advice would be greatly appreciated.
+>
+>Best regards,
+>Pedro
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 

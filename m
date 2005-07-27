@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVG0AVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVG0AXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbVG0AVl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 20:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVG0AVk
+	id S262393AbVG0AXb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 20:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVG0AX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 20:21:40 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18059 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262297AbVG0AVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 20:21:38 -0400
-To: Marc Ballarin <Ballarin.Marc@gmx.de>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/23] Don't export machine_restart, machine_halt, or
- machine_power_off.
-References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
-	<m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
-	<m1ek9leb0h.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1ack9eaux.fsf_-_@ebiederm.dsl.xmission.com>
-	<m164uxear0.fsf_-_@ebiederm.dsl.xmission.com>
-	<m11x5leaml.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1wtndcvwe.fsf_-_@ebiederm.dsl.xmission.com>
-	<20050727015519.614dbf2f.Ballarin.Marc@gmx.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 26 Jul 2005 18:20:57 -0600
-In-Reply-To: <20050727015519.614dbf2f.Ballarin.Marc@gmx.de> (Marc Ballarin's
- message of "Wed, 27 Jul 2005 01:55:19 +0200")
-Message-ID: <m1oe8p9k0m.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 26 Jul 2005 20:23:27 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:24691 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262403AbVG0AXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 20:23:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=TzluoHJDi/OGcNW1zidkz7X4lgh0Klp+o8ooKPqV38uZkrXNGj4XbLWMdIKhZMeqFOCASQx3CcjYyNlLW82Vc72XNIXaLdvc8UF1v5lr+JVdJHWBm9KuhJ/Ka/iUpXVnQ79j2kPkUwM1FRZrT5IOXFWQNMjOGdFo3qJeTG+LvCY=  ;
+Message-ID: <42E6D3E2.3050601@yahoo.com.au>
+Date: Wed, 27 Jul 2005 10:22:58 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Kumar Gala <kumar.gala@freescale.com>
+CC: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 0/6] remove PageReserved
+References: <42E5F139.70002@yahoo.com.au> <9AB335F0-28CD-4561-B447-DA09CF44F0AB@freescale.com>
+In-Reply-To: <9AB335F0-28CD-4561-B447-DA09CF44F0AB@freescale.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Ballarin <Ballarin.Marc@gmx.de> writes:
+Kumar Gala wrote:
 
-> On Tue, 26 Jul 2005 11:36:01 -0600
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
+>>
+>> Most of the arch code is just reserved memory reporting, which
+>> isn't very interesting and could easily be removed. Some arch users
+>> are a bit more subtle, however they *should not* break, because all
+>> the places that set and clear PageReserved are basically intact.
 >
->> 
->> machine_restart, machine_halt and machine_power_off are machine
->> specific hooks deep into the reboot logic, that modules
->> have no business messing with. Usually code should be calling
->> kernel_restart, kernel_halt, kernel_power_off, or
->> emergency_restart. So don't export machine_restart,
->> machine_halt, and machine_power_off so we can catch buggy users.
 >
-> The first is reiser4 in fs/reiser4/vfs_ops.c, line 1338.
-> (Are filesystems supposed to restart the machine at all?!)
+> What is the desired fix look like for arch users?
+>
 
-I suspect a call to panic would be more appropriate there.
+It really depends on how it is used.
 
-I actually missed this one as I generated the patches against
-Linus's latest tree.
+Firstly, we want to retain all the places that do SetPageReserved and
+ClearPageReserved to ensure that remaining places that test PageReserved
+will continue to work.
 
-Are we in process context where we can afford to do a clean shutdown
-of the machine?  I would have expected an error handling path to
-not be able to do better than emergency_restart. 
+So users of PageReserved need to be removed. For example, on i386 this
+is simply reserved memory accounting - which isn't very meaningful and
+can probably be simply deleted. i386 ioremap also tests PageReserved to
+ensure it isn't remapping usable RAM, which is a similar need to swsusp's,
+so one solution would likely cover that ioremap and swsusp.
 
-Regardless a panic sounds much more appropriate and will let the action
-taken depend on the users policy.
+For now, the main thing to keep in mind is to not add a new user of
+PageReserved. We can start looking at how to cut down existing users when
+the core patch gets into -mm or further upstream.
 
-Eric
+Nick
+
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

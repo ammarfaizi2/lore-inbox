@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVG0SiX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVG0S7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbVG0SiX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 14:38:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVG0Sf3
+	id S262124AbVG0S7V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 14:59:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbVG0S6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 14:35:29 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:41636 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261290AbVG0Seo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 14:34:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=e7ZhqQUE4o9tEhbBBmBh8NcBitjb/HKi7hJyVtgQySYGAQfIoB6MocPVQq2QO3GcxODzrtBl+29dHOOlHegO6QENBwcALkGA7IKIR/rGd33+Eem6YdRlNdJjCdhi3ew1cHNvXa4VsonRbYV4+E68AbbFkYMpeN30H8oF/74oP8g=
-Message-ID: <90f56e4805072711341bc156d9@mail.gmail.com>
-Date: Wed, 27 Jul 2005 11:34:43 -0700
-From: Ajay Patel <patela@gmail.com>
-Reply-To: Ajay Patel <patela@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: ppc: Sungem auto-negotiation problem
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 27 Jul 2005 14:58:15 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:39081 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262453AbVG0Srv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 14:47:51 -0400
+Date: Wed, 27 Jul 2005 20:47:49 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Capability ingranularity
+Message-ID: <Pine.LNX.4.61.0507272045180.20942@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello developers,
 
-I have a PowerMac G5. (Newer Model with SMU).
-It has a  Sungem ethernet with "PHY ID: 2060d2".
 
-When this ethernet is connected to 
-"Tigon3 [partno(BCM95704A6) rev 2002 PHY(5704)] " or
-to the cisco switch, The PowerMac declares link up with
-100 Mbs, while the other end declares link up  with 1000Mbs.
-In this setup both end cannot ping each other.
+I am currently writing a LSM security module. Because of how many functions 
+work, I have to add CAP_SYS_ADMIN to the effective capabilities of the 
+implemented "medium-privileged root" user. However, CAP_SYS_ADMIN is used in a 
+_lot_ of places, so I need to add security_*() hooks for many functions that 
+just return EPERM should current->euid be MediumPriv.
+If you just look at include/linux/capabilities.h and look at the long list of 
+what CAP_SYS_ADMIN enables, this might sound like an overkill. Is there a 
+better way to do this?
 
-If I lower the speed of Tigon based adapter or Cisco's switch
-port to 100Mbs, both end can ping each other.
 
-Is it a bug? or Am I missing something?
 
-Thanks in advance for the help.
-Ajay
+Jan Engelhardt
+-- 
+| Alphagate Systems, http://alphagate.hopto.org/

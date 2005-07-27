@@ -1,71 +1,577 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVG0Pe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVG0Ph2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbVG0Pe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 11:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVG0PcY
+	id S261824AbVG0Ph2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 11:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbVG0PhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 11:32:24 -0400
-Received: from pop-scotia.atl.sa.earthlink.net ([207.69.195.65]:56198 "EHLO
-	pop-scotia.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S262379AbVG0PbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 11:31:09 -0400
-Message-ID: <42E7A8BA.3080406@earthlink.net>
-Date: Wed, 27 Jul 2005 11:31:06 -0400
-From: Stephen Clark <stephen.clark@earthlink.net>
-Reply-To: sclark46@earthlink.net
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Wed, 27 Jul 2005 11:37:18 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:56776 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S262048AbVG0Pgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 11:36:35 -0400
+Date: Wed, 27 Jul 2005 10:36:20 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+Subject: [PATCH 04/14] ppc32: Remove defconfig for CEDAR
+Message-ID: <Pine.LNX.4.61.0507271035190.12237@nylon.am.freescale.net>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12 sound problem
-References: <42E6C8DB.4090608@earthlink.net> <1122438238.13598.19.camel@mindpipe>
-In-Reply-To: <1122438238.13598.19.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Support for the CEDAR board no longer exists, removing the defconfig for it
 
->On Tue, 2005-07-26 at 19:35 -0400, Stephen Clark wrote:
->  
->
->>Additional info I don't see any interrupts in /proc/interrupts for the
->>Allegro which is on int 5.
->>I just tried the same laptop with knoppix and a 2.4.27 kernel and sound
->>works great and I do
->>see interrupts for Allegro on int 5.
->>    
->>
->
->So the same ALSA driver works on 2.6 but fails on 2.4?  Or are you
->really saying 2.4 + the OSS driver works and 2.6 + ALSA does not?
->
->Lee
->
->  
->
-Hi Lee,
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-Sorry for the confusion - the sound driver with kernel 2.4.27 works - it
-looks like it is oss ( it is a
-german knoppix cd and I don't parse german ), there is no /proc/asound
-directory. Also I dont
-have to provide acpi=off pci=noacpi,usepirqmask with the knoppix cd, but
-I do when I boot the
-2.6.12 kernel.
+---
+commit e5e908e00ead5df5ff84495b79601a2519ed35bd
+tree d994f4efffa0fe4e3bfeae2529c9b90a790ffee1
+parent d705b7bbc49cc238c742ce9a89fbece65e0ab9c2
+author Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 14:53:19 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 14:53:19 -0500
 
-on 2.4.27 the kernel modules for sound are:
-soundcore, ac97_codec, maestro3
+ arch/ppc/configs/cedar_defconfig |  534 --------------------------------------
+ 1 files changed, 0 insertions(+), 534 deletions(-)
 
-
-so i am saying:
-
-  2.4 + the OSS driver works and 2.6 + ALSA does not.
-
-Thanks for the response.
-Steve
-
-
-
-
+diff --git a/arch/ppc/configs/cedar_defconfig b/arch/ppc/configs/cedar_defconfig
+deleted file mode 100644
+--- a/arch/ppc/configs/cedar_defconfig
++++ /dev/null
+@@ -1,534 +0,0 @@
+-#
+-# Automatically generated make config: don't edit
+-#
+-CONFIG_MMU=y
+-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+-CONFIG_HAVE_DEC_LOCK=y
+-
+-#
+-# Code maturity level options
+-#
+-CONFIG_EXPERIMENTAL=y
+-
+-#
+-# General setup
+-#
+-CONFIG_SWAP=y
+-CONFIG_SYSVIPC=y
+-# CONFIG_BSD_PROCESS_ACCT is not set
+-CONFIG_SYSCTL=y
+-CONFIG_LOG_BUF_SHIFT=14
+-CONFIG_EMBEDDED=y
+-CONFIG_FUTEX=y
+-# CONFIG_EPOLL is not set
+-
+-#
+-# Loadable module support
+-#
+-CONFIG_MODULES=y
+-CONFIG_MODULE_UNLOAD=y
+-# CONFIG_MODULE_FORCE_UNLOAD is not set
+-CONFIG_OBSOLETE_MODPARM=y
+-# CONFIG_MODVERSIONS is not set
+-CONFIG_KMOD=y
+-
+-#
+-# Platform support
+-#
+-CONFIG_PPC=y
+-CONFIG_PPC32=y
+-# CONFIG_6xx is not set
+-CONFIG_40x=y
+-# CONFIG_POWER3 is not set
+-# CONFIG_8xx is not set
+-CONFIG_4xx=y
+-
+-#
+-# IBM 4xx options
+-#
+-# CONFIG_ASH is not set
+-# CONFIG_BEECH is not set
+-CONFIG_CEDAR=y
+-# CONFIG_CPCI405 is not set
+-# CONFIG_EP405 is not set
+-# CONFIG_OAK is not set
+-# CONFIG_REDWOOD_4 is not set
+-# CONFIG_REDWOOD_5 is not set
+-# CONFIG_REDWOOD_6 is not set
+-# CONFIG_SYCAMORE is not set
+-# CONFIG_TIVO is not set
+-# CONFIG_WALNUT is not set
+-CONFIG_IBM405_ERR77=y
+-CONFIG_IBM405_ERR51=y
+-CONFIG_IBM_OCP=y
+-CONFIG_NP405L=y
+-CONFIG_BIOS_FIXUP=y
+-CONFIG_IBM_OPENBIOS=y
+-# CONFIG_405_DMA is not set
+-# CONFIG_PM is not set
+-CONFIG_UART0_TTYS0=y
+-# CONFIG_UART0_TTYS1 is not set
+-CONFIG_NOT_COHERENT_CACHE=y
+-# CONFIG_SMP is not set
+-# CONFIG_PREEMPT is not set
+-# CONFIG_MATH_EMULATION is not set
+-# CONFIG_CPU_FREQ is not set
+-
+-#
+-# General setup
+-#
+-# CONFIG_HIGHMEM is not set
+-# CONFIG_PCI is not set
+-# CONFIG_PCI_DOMAINS is not set
+-# CONFIG_PC_KEYBOARD is not set
+-CONFIG_KCORE_ELF=y
+-CONFIG_BINFMT_ELF=y
+-CONFIG_KERNEL_ELF=y
+-# CONFIG_BINFMT_MISC is not set
+-# CONFIG_HOTPLUG is not set
+-
+-#
+-# Parallel port support
+-#
+-# CONFIG_PARPORT is not set
+-# CONFIG_CMDLINE_BOOL is not set
+-
+-#
+-# Advanced setup
+-#
+-# CONFIG_ADVANCED_OPTIONS is not set
+-
+-#
+-# Default settings for advanced configuration options are used
+-#
+-CONFIG_HIGHMEM_START=0xfe000000
+-CONFIG_LOWMEM_SIZE=0x30000000
+-CONFIG_KERNEL_START=0xc0000000
+-CONFIG_TASK_SIZE=0x80000000
+-CONFIG_BOOT_LOAD=0x00400000
+-
+-#
+-# Memory Technology Devices (MTD)
+-#
+-# CONFIG_MTD is not set
+-
+-#
+-# Plug and Play support
+-#
+-# CONFIG_PNP is not set
+-
+-#
+-# Block devices
+-#
+-# CONFIG_BLK_DEV_FD is not set
+-CONFIG_BLK_DEV_LOOP=y
+-# CONFIG_BLK_DEV_NBD is not set
+-CONFIG_BLK_DEV_RAM=y
+-CONFIG_BLK_DEV_RAM_SIZE=4096
+-CONFIG_BLK_DEV_INITRD=y
+-
+-#
+-# Multi-device support (RAID and LVM)
+-#
+-# CONFIG_MD is not set
+-
+-#
+-# ATA/IDE/MFM/RLL support
+-#
+-# CONFIG_IDE is not set
+-
+-#
+-# SCSI support
+-#
+-# CONFIG_SCSI is not set
+-
+-#
+-# Fusion MPT device support
+-#
+-
+-#
+-# I2O device support
+-#
+-
+-#
+-# Networking support
+-#
+-CONFIG_NET=y
+-
+-#
+-# Networking options
+-#
+-# CONFIG_PACKET is not set
+-# CONFIG_NETLINK_DEV is not set
+-# CONFIG_NETFILTER is not set
+-CONFIG_UNIX=y
+-# CONFIG_NET_KEY is not set
+-CONFIG_INET=y
+-CONFIG_IP_MULTICAST=y
+-# CONFIG_IP_ADVANCED_ROUTER is not set
+-CONFIG_IP_PNP=y
+-CONFIG_IP_PNP_DHCP=y
+-CONFIG_IP_PNP_BOOTP=y
+-CONFIG_IP_PNP_RARP=y
+-# CONFIG_NET_IPIP is not set
+-# CONFIG_NET_IPGRE is not set
+-# CONFIG_IP_MROUTE is not set
+-# CONFIG_ARPD is not set
+-# CONFIG_INET_ECN is not set
+-CONFIG_SYN_COOKIES=y
+-# CONFIG_INET_AH is not set
+-# CONFIG_INET_ESP is not set
+-# CONFIG_INET_IPCOMP is not set
+-# CONFIG_IPV6 is not set
+-# CONFIG_XFRM_USER is not set
+-
+-#
+-# SCTP Configuration (EXPERIMENTAL)
+-#
+-CONFIG_IPV6_SCTP__=y
+-# CONFIG_IP_SCTP is not set
+-# CONFIG_ATM is not set
+-# CONFIG_VLAN_8021Q is not set
+-# CONFIG_LLC is not set
+-# CONFIG_DECNET is not set
+-# CONFIG_BRIDGE is not set
+-# CONFIG_X25 is not set
+-# CONFIG_LAPB is not set
+-# CONFIG_NET_DIVERT is not set
+-# CONFIG_ECONET is not set
+-# CONFIG_WAN_ROUTER is not set
+-# CONFIG_NET_HW_FLOWCONTROL is not set
+-
+-#
+-# QoS and/or fair queueing
+-#
+-# CONFIG_NET_SCHED is not set
+-
+-#
+-# Network testing
+-#
+-# CONFIG_NET_PKTGEN is not set
+-CONFIG_NETDEVICES=y
+-# CONFIG_DUMMY is not set
+-# CONFIG_BONDING is not set
+-# CONFIG_EQUALIZER is not set
+-# CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+-
+-#
+-# Ethernet (10 or 100Mbit)
+-#
+-# CONFIG_NET_ETHERNET is not set
+-
+-#
+-# Ethernet (1000 Mbit)
+-#
+-
+-#
+-# Ethernet (10000 Mbit)
+-#
+-# CONFIG_PPP is not set
+-# CONFIG_SLIP is not set
+-
+-#
+-# Wireless LAN (non-hamradio)
+-#
+-# CONFIG_NET_RADIO is not set
+-
+-#
+-# Token Ring devices (depends on LLC=y)
+-#
+-# CONFIG_SHAPER is not set
+-
+-#
+-# Wan interfaces
+-#
+-# CONFIG_WAN is not set
+-
+-#
+-# Amateur Radio support
+-#
+-# CONFIG_HAMRADIO is not set
+-
+-#
+-# IrDA (infrared) support
+-#
+-# CONFIG_IRDA is not set
+-
+-#
+-# ISDN subsystem
+-#
+-# CONFIG_ISDN_BOOL is not set
+-
+-#
+-# Graphics support
+-#
+-# CONFIG_FB is not set
+-
+-#
+-# Old CD-ROM drivers (not SCSI, not IDE)
+-#
+-# CONFIG_CD_NO_IDESCSI is not set
+-
+-#
+-# Input device support
+-#
+-# CONFIG_INPUT is not set
+-
+-#
+-# Userland interfaces
+-#
+-
+-#
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-# CONFIG_SERIO is not set
+-
+-#
+-# Input Device Drivers
+-#
+-
+-#
+-# Macintosh device drivers
+-#
+-
+-#
+-# Character devices
+-#
+-# CONFIG_SERIAL_NONSTANDARD is not set
+-
+-#
+-# Serial drivers
+-#
+-CONFIG_SERIAL_8250=y
+-CONFIG_SERIAL_8250_CONSOLE=y
+-# CONFIG_SERIAL_8250_EXTENDED is not set
+-
+-#
+-# Non-8250 serial port support
+-#
+-CONFIG_SERIAL_CORE=y
+-CONFIG_SERIAL_CORE_CONSOLE=y
+-CONFIG_UNIX98_PTYS=y
+-CONFIG_UNIX98_PTY_COUNT=256
+-
+-#
+-# I2C support
+-#
+-CONFIG_I2C=y
+-# CONFIG_I2C_ALGOBIT is not set
+-# CONFIG_I2C_ALGOPCF is not set
+-CONFIG_I2C_IBM_OCP_ALGO=y
+-CONFIG_I2C_IBM_OCP_ADAP=y
+-# CONFIG_I2C_CHARDEV is not set
+-
+-#
+-# I2C Hardware Sensors Mainboard support
+-#
+-# CONFIG_I2C_AMD756 is not set
+-# CONFIG_I2C_AMD8111 is not set
+-
+-#
+-# I2C Hardware Sensors Chip support
+-#
+-# CONFIG_SENSORS_ADM1021 is not set
+-# CONFIG_SENSORS_IT87 is not set
+-# CONFIG_SENSORS_LM75 is not set
+-# CONFIG_SENSORS_LM85 is not set
+-# CONFIG_SENSORS_VIA686A is not set
+-# CONFIG_SENSORS_W83781D is not set
+-# CONFIG_I2C_SENSOR is not set
+-
+-#
+-# Mice
+-#
+-# CONFIG_BUSMOUSE is not set
+-# CONFIG_QIC02_TAPE is not set
+-
+-#
+-# IPMI
+-#
+-# CONFIG_IPMI_HANDLER is not set
+-
+-#
+-# Watchdog Cards
+-#
+-CONFIG_WATCHDOG=y
+-# CONFIG_WATCHDOG_NOWAYOUT is not set
+-# CONFIG_SOFT_WATCHDOG is not set
+-# CONFIG_WDT is not set
+-# CONFIG_WDTPCI is not set
+-# CONFIG_PCWATCHDOG is not set
+-# CONFIG_ACQUIRE_WDT is not set
+-# CONFIG_ADVANTECH_WDT is not set
+-# CONFIG_EUROTECH_WDT is not set
+-# CONFIG_IB700_WDT is not set
+-# CONFIG_MIXCOMWD is not set
+-# CONFIG_SCx200_WDT is not set
+-# CONFIG_60XX_WDT is not set
+-# CONFIG_W83877F_WDT is not set
+-# CONFIG_MACHZ_WDT is not set
+-# CONFIG_SC520_WDT is not set
+-# CONFIG_AMD7XX_TCO is not set
+-# CONFIG_ALIM7101_WDT is not set
+-# CONFIG_SC1200_WDT is not set
+-# CONFIG_WAFER_WDT is not set
+-# CONFIG_CPU5_WDT is not set
+-# CONFIG_NVRAM is not set
+-# CONFIG_GEN_RTC is not set
+-# CONFIG_DTLK is not set
+-# CONFIG_R3964 is not set
+-# CONFIG_APPLICOM is not set
+-
+-#
+-# Ftape, the floppy tape device driver
+-#
+-# CONFIG_FTAPE is not set
+-# CONFIG_AGP is not set
+-# CONFIG_DRM is not set
+-# CONFIG_RAW_DRIVER is not set
+-# CONFIG_HANGCHECK_TIMER is not set
+-
+-#
+-# Multimedia devices
+-#
+-# CONFIG_VIDEO_DEV is not set
+-
+-#
+-# Digital Video Broadcasting Devices
+-#
+-# CONFIG_DVB is not set
+-
+-#
+-# File systems
+-#
+-CONFIG_EXT2_FS=y
+-# CONFIG_EXT2_FS_XATTR is not set
+-# CONFIG_EXT3_FS is not set
+-# CONFIG_JBD is not set
+-# CONFIG_REISERFS_FS is not set
+-# CONFIG_JFS_FS is not set
+-# CONFIG_XFS_FS is not set
+-# CONFIG_MINIX_FS is not set
+-# CONFIG_ROMFS_FS is not set
+-# CONFIG_QUOTA is not set
+-# CONFIG_AUTOFS_FS is not set
+-# CONFIG_AUTOFS4_FS is not set
+-
+-#
+-# CD-ROM/DVD Filesystems
+-#
+-# CONFIG_ISO9660_FS is not set
+-# CONFIG_UDF_FS is not set
+-
+-#
+-# DOS/FAT/NT Filesystems
+-#
+-# CONFIG_FAT_FS is not set
+-# CONFIG_NTFS_FS is not set
+-
+-#
+-# Pseudo filesystems
+-#
+-CONFIG_PROC_FS=y
+-# CONFIG_DEVFS_FS is not set
+-CONFIG_DEVPTS_FS=y
+-# CONFIG_DEVPTS_FS_XATTR is not set
+-CONFIG_TMPFS=y
+-CONFIG_RAMFS=y
+-
+-#
+-# Miscellaneous filesystems
+-#
+-# CONFIG_ADFS_FS is not set
+-# CONFIG_AFFS_FS is not set
+-# CONFIG_HFS_FS is not set
+-# CONFIG_BEFS_FS is not set
+-# CONFIG_BFS_FS is not set
+-# CONFIG_EFS_FS is not set
+-# CONFIG_CRAMFS is not set
+-# CONFIG_VXFS_FS is not set
+-# CONFIG_HPFS_FS is not set
+-# CONFIG_QNX4FS_FS is not set
+-# CONFIG_SYSV_FS is not set
+-# CONFIG_UFS_FS is not set
+-
+-#
+-# Network File Systems
+-#
+-CONFIG_NFS_FS=y
+-# CONFIG_NFS_V3 is not set
+-# CONFIG_NFS_V4 is not set
+-# CONFIG_NFSD is not set
+-CONFIG_ROOT_NFS=y
+-CONFIG_LOCKD=y
+-# CONFIG_EXPORTFS is not set
+-CONFIG_SUNRPC=y
+-# CONFIG_SUNRPC_GSS is not set
+-# CONFIG_SMB_FS is not set
+-# CONFIG_CIFS is not set
+-# CONFIG_NCP_FS is not set
+-# CONFIG_CODA_FS is not set
+-# CONFIG_INTERMEZZO_FS is not set
+-# CONFIG_AFS_FS is not set
+-
+-#
+-# Partition Types
+-#
+-CONFIG_PARTITION_ADVANCED=y
+-# CONFIG_ACORN_PARTITION is not set
+-# CONFIG_OSF_PARTITION is not set
+-# CONFIG_AMIGA_PARTITION is not set
+-# CONFIG_ATARI_PARTITION is not set
+-# CONFIG_MAC_PARTITION is not set
+-# CONFIG_MSDOS_PARTITION is not set
+-# CONFIG_LDM_PARTITION is not set
+-# CONFIG_NEC98_PARTITION is not set
+-# CONFIG_SGI_PARTITION is not set
+-# CONFIG_ULTRIX_PARTITION is not set
+-# CONFIG_SUN_PARTITION is not set
+-# CONFIG_EFI_PARTITION is not set
+-
+-#
+-# Sound
+-#
+-# CONFIG_SOUND is not set
+-
+-#
+-# IBM 40x options
+-#
+-
+-#
+-# USB support
+-#
+-# CONFIG_USB_GADGET is not set
+-
+-#
+-# Bluetooth support
+-#
+-# CONFIG_BT is not set
+-
+-#
+-# Library routines
+-#
+-CONFIG_CRC32=y
+-
+-#
+-# Kernel hacking
+-#
+-# CONFIG_DEBUG_KERNEL is not set
+-# CONFIG_KALLSYMS is not set
+-# CONFIG_SERIAL_TEXT_DEBUG is not set
+-CONFIG_OCP=y
+-
+-#
+-# Security options
+-#
+-# CONFIG_SECURITY is not set
+-
+-#
+-# Cryptographic options
+-#
+-# CONFIG_CRYPTO is not set

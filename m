@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVG0XXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVG0XXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbVG0XXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 19:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVG0XXR
+	id S261239AbVG0XXY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 19:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVG0XXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 19:23:17 -0400
-Received: from main.gmane.org ([80.91.229.2]:64142 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261239AbVG0XXE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 19:23:04 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alexander Fieroch <fieroch@web.de>
-Subject: Re: driver for Marvell 88E8053 PCI Express Gigabit LAN
-Date: Thu, 28 Jul 2005 01:22:11 +0200
-Message-ID: <dc94v3$40c$1@sea.gmane.org>
-References: <dc9252$tgr$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
-X-Accept-Language: de-de, en-us, en
-In-Reply-To: <dc9252$tgr$1@sea.gmane.org>
+	Wed, 27 Jul 2005 19:23:23 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57241 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261216AbVG0XVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 19:21:43 -0400
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/23] reboot-fixes
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
+	<20050727025923.7baa38c9.akpm@osdl.org>
+	<m1k6jc9sdr.fsf@ebiederm.dsl.xmission.com>
+	<20050727104123.7938477a.akpm@osdl.org>
+	<m18xzs9ktc.fsf@ebiederm.dsl.xmission.com>
+	<20050727224711.GA6671@elf.ucw.cz>
+	<Pine.LNX.4.58.0507271550250.3227@g5.osdl.org>
+	<20050727225334.GC6529@elf.ucw.cz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 27 Jul 2005 17:20:48 -0600
+In-Reply-To: <20050727225334.GC6529@elf.ucw.cz> (Pavel Machek's message of
+ "Thu, 28 Jul 2005 00:53:34 +0200")
+Message-ID: <m1oe8n7s4v.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Fieroch wrote:
-> http://dlsvr01.asus.com/pub/ASUS/lan/marvell/8053/8053_others2.zip
+Pavel Machek <pavel@suse.cz> writes:
 
-Oh, that driver is very old. Here is the latest one which is working 
-with the current kernel:
+> Hi!
+>
+>> > Yes, I think we should do device_suspend(PMSG_FREEZE) in reboot path.
+>> 
+>> Considering how many device drivers that are likely broken, I disagree. 
+>> Especially since Andrew seems to have trivially found a machine where it 
+>> doesn't work.
+>
+> I'm not sure if we want to do that for 2.6.13, but long term, we
+> should just tell drivers to FREEZE instead of inventing reboot
+> notifier lists and similar uglynesses...
 
-http://www.syskonnect.de/syskonnect/support/driver/htm/sk9elin.htm
+Then as part of the patch device_shutdown should disappear.  It
+is silly to have two functions that want to achieve the same
+thing.  
 
-Could you please integrate it to the kernel?
+Right now the device driver model is ugly and over complicated in
+that case and it needs to be simplified so driver writers have
+a chance of getting it correct. 
 
-Regards,
-Alexander
+device_suspend(PMSG_FREEZE) feels more reusable than device_shutdown
+so long term it feels right.
 
+But a simple question is why can't you simply use the shutdown
+method instead of extending the suspend method in the drivers.
 
+Eric

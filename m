@@ -1,68 +1,1593 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVG0Q7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVG0RBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbVG0Q7M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 12:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVG0Q46
+	id S261333AbVG0RBl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 13:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVG0Q7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 12:56:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3528 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262015AbVG0Q4u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 12:56:50 -0400
-Date: Wed, 27 Jul 2005 09:55:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Robert Love <rml@novell.com>
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org, ttb@tentacle.dhs.org
-Subject: Re: [patch] inotify: ppc32 syscalls.
-Message-Id: <20050727095539.602fcc4a.akpm@osdl.org>
-In-Reply-To: <1122479106.21253.158.camel@betsy>
-References: <1122479106.21253.158.camel@betsy>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Jul 2005 12:59:33 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:9672 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S262311AbVG0Pec (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 11:34:32 -0400
+Date: Wed, 27 Jul 2005 10:34:11 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+Subject: [PATCH 01/14] ppc32: Remove board support for ADIR
+Message-ID: <Pine.LNX.4.61.0507271033350.12237@nylon.am.freescale.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@novell.com> wrote:
->
-> Hey, Paulus,
-> 
-> Add inotify system call stubs to PPC32.
-> 
+Support for the ADIR board is no longer maintained and thus being removed
 
-ppc64 likes to keep its 32-bit-syscall table in sync with ppc32 so it'd be
-best to do ppc64 while we're at it (both sys_call_table and
-sys_call_table32)
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-> 
->  arch/ppc/kernel/misc.S   |    3 +++
->  include/asm-ppc/unistd.h |    5 ++++-
->  2 files changed, 7 insertions(+), 1 deletion(-)
-> 
-> diff -urN linux-2.6.13-rc3-git8/arch/ppc/kernel/misc.S linux/arch/ppc/kernel/misc.S
-> --- linux-2.6.13-rc3-git8/arch/ppc/kernel/misc.S	2005-07-27 10:59:31.000000000 -0400
-> +++ linux/arch/ppc/kernel/misc.S	2005-07-27 11:25:43.000000000 -0400
-> @@ -1451,3 +1451,6 @@
->  	.long sys_waitid
->  	.long sys_ioprio_set
->  	.long sys_ioprio_get
-> +	.long sys_inotify_init		/* 275 */
-> +	.long sys_inotify_add_watch
-> +	.long sys_inotify_rm_watch
-> diff -urN linux-2.6.13-rc3-git8/include/asm-ppc/unistd.h linux/include/asm-ppc/unistd.h
-> --- linux-2.6.13-rc3-git8/include/asm-ppc/unistd.h	2005-07-27 10:59:32.000000000 -0400
-> +++ linux/include/asm-ppc/unistd.h	2005-07-27 11:25:26.000000000 -0400
-> @@ -279,8 +279,11 @@
->  #define __NR_waitid		272
->  #define __NR_ioprio_set		273
->  #define __NR_ioprio_get		274
-> +#define __NR_inotify_init	275
-> +#define __NR_inotify_add_watch	276
-> +#define __NR_inotify_rm_watch	277
->  
-> -#define __NR_syscalls		275
-> +#define __NR_syscalls		278
->  
->  #define __NR(n)	#n
->  
+---
+commit 9af0e382541b47e24af0f14624585132166dcd08
+tree 84b02032e1dd4503220500214e53e8246e60508f
+parent 6b6a93c6876ea1c530d5d3f68e3678093a27fab0
+author Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 14:29:44 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 14:29:44 -0500
+
+ arch/ppc/Kconfig                |    3 
+ arch/ppc/configs/adir_defconfig |  805 ---------------------------------------
+ arch/ppc/platforms/Makefile     |    1 
+ arch/ppc/platforms/adir.h       |   95 -----
+ arch/ppc/platforms/adir_pci.c   |  247 ------------
+ arch/ppc/platforms/adir_pic.c   |  130 ------
+ arch/ppc/platforms/adir_setup.c |  210 ----------
+ arch/ppc/syslib/Makefile        |    2 
+ 8 files changed, 0 insertions(+), 1493 deletions(-)
+
+diff --git a/arch/ppc/Kconfig b/arch/ppc/Kconfig
+--- a/arch/ppc/Kconfig
++++ b/arch/ppc/Kconfig
+@@ -637,9 +637,6 @@ config SANDPOINT
+ config RADSTONE_PPC7D
+ 	bool "Radstone Technology PPC7D board"
+ 
+-config ADIR
+-	bool "SBS-Adirondack"
+-
+ config K2
+ 	bool "SBS-K2"
+ 
+diff --git a/arch/ppc/configs/adir_defconfig b/arch/ppc/configs/adir_defconfig
+deleted file mode 100644
+--- a/arch/ppc/configs/adir_defconfig
++++ /dev/null
+@@ -1,805 +0,0 @@
+-#
+-# Automatically generated make config: don't edit
+-#
+-CONFIG_MMU=y
+-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+-CONFIG_HAVE_DEC_LOCK=y
+-
+-#
+-# Code maturity level options
+-#
+-CONFIG_EXPERIMENTAL=y
+-
+-#
+-# General setup
+-#
+-CONFIG_SWAP=y
+-CONFIG_SYSVIPC=y
+-# CONFIG_BSD_PROCESS_ACCT is not set
+-CONFIG_SYSCTL=y
+-CONFIG_LOG_BUF_SHIFT=14
+-# CONFIG_EMBEDDED is not set
+-CONFIG_FUTEX=y
+-CONFIG_EPOLL=y
+-
+-#
+-# Loadable module support
+-#
+-CONFIG_MODULES=y
+-CONFIG_MODULE_UNLOAD=y
+-# CONFIG_MODULE_FORCE_UNLOAD is not set
+-CONFIG_OBSOLETE_MODPARM=y
+-# CONFIG_MODVERSIONS is not set
+-CONFIG_KMOD=y
+-
+-#
+-# Platform support
+-#
+-CONFIG_PPC=y
+-CONFIG_PPC32=y
+-CONFIG_6xx=y
+-# CONFIG_40x is not set
+-# CONFIG_POWER3 is not set
+-# CONFIG_8xx is not set
+-
+-#
+-# IBM 4xx options
+-#
+-# CONFIG_8260 is not set
+-CONFIG_GENERIC_ISA_DMA=y
+-CONFIG_PPC_STD_MMU=y
+-# CONFIG_PPC_MULTIPLATFORM is not set
+-# CONFIG_APUS is not set
+-# CONFIG_WILLOW_2 is not set
+-# CONFIG_PCORE is not set
+-# CONFIG_POWERPMC250 is not set
+-# CONFIG_EV64260 is not set
+-# CONFIG_SPRUCE is not set
+-# CONFIG_LOPEC is not set
+-# CONFIG_MCPN765 is not set
+-# CONFIG_MVME5100 is not set
+-# CONFIG_PPLUS is not set
+-# CONFIG_PRPMC750 is not set
+-# CONFIG_PRPMC800 is not set
+-# CONFIG_SANDPOINT is not set
+-CONFIG_ADIR=y
+-# CONFIG_K2 is not set
+-# CONFIG_PAL4 is not set
+-# CONFIG_GEMINI is not set
+-# CONFIG_SMP is not set
+-# CONFIG_PREEMPT is not set
+-# CONFIG_ALTIVEC is not set
+-# CONFIG_TAU is not set
+-# CONFIG_CPU_FREQ is not set
+-
+-#
+-# General setup
+-#
+-# CONFIG_HIGHMEM is not set
+-CONFIG_PCI=y
+-CONFIG_PCI_DOMAINS=y
+-CONFIG_KCORE_ELF=y
+-CONFIG_BINFMT_ELF=y
+-CONFIG_KERNEL_ELF=y
+-# CONFIG_BINFMT_MISC is not set
+-CONFIG_PCI_LEGACY_PROC=y
+-# CONFIG_PCI_NAMES is not set
+-# CONFIG_HOTPLUG is not set
+-
+-#
+-# Parallel port support
+-#
+-CONFIG_PARPORT=y
+-CONFIG_PARPORT_PC=y
+-CONFIG_PARPORT_PC_CML1=y
+-# CONFIG_PARPORT_SERIAL is not set
+-CONFIG_PARPORT_PC_FIFO=y
+-CONFIG_PARPORT_PC_SUPERIO=y
+-# CONFIG_PARPORT_OTHER is not set
+-CONFIG_PARPORT_1284=y
+-# CONFIG_PPC601_SYNC_FIX is not set
+-CONFIG_CMDLINE_BOOL=y
+-CONFIG_CMDLINE="ip=on"
+-
+-#
+-# Advanced setup
+-#
+-# CONFIG_ADVANCED_OPTIONS is not set
+-
+-#
+-# Default settings for advanced configuration options are used
+-#
+-CONFIG_HIGHMEM_START=0xfe000000
+-CONFIG_LOWMEM_SIZE=0x30000000
+-CONFIG_KERNEL_START=0xc0000000
+-CONFIG_TASK_SIZE=0x80000000
+-CONFIG_BOOT_LOAD=0x00800000
+-
+-#
+-# Memory Technology Devices (MTD)
+-#
+-# CONFIG_MTD is not set
+-
+-#
+-# Plug and Play support
+-#
+-# CONFIG_PNP is not set
+-
+-#
+-# Block devices
+-#
+-CONFIG_BLK_DEV_FD=y
+-# CONFIG_PARIDE is not set
+-# CONFIG_BLK_CPQ_DA is not set
+-# CONFIG_BLK_CPQ_CISS_DA is not set
+-# CONFIG_BLK_DEV_DAC960 is not set
+-# CONFIG_BLK_DEV_UMEM is not set
+-CONFIG_BLK_DEV_LOOP=y
+-# CONFIG_BLK_DEV_NBD is not set
+-CONFIG_BLK_DEV_RAM=y
+-CONFIG_BLK_DEV_RAM_SIZE=4096
+-CONFIG_BLK_DEV_INITRD=y
+-
+-#
+-# Multi-device support (RAID and LVM)
+-#
+-# CONFIG_MD is not set
+-
+-#
+-# ATA/IDE/MFM/RLL support
+-#
+-# CONFIG_IDE is not set
+-
+-#
+-# SCSI support
+-#
+-CONFIG_SCSI=y
+-
+-#
+-# SCSI support type (disk, tape, CD-ROM)
+-#
+-CONFIG_BLK_DEV_SD=y
+-CONFIG_CHR_DEV_ST=y
+-# CONFIG_CHR_DEV_OSST is not set
+-CONFIG_BLK_DEV_SR=y
+-CONFIG_BLK_DEV_SR_VENDOR=y
+-CONFIG_CHR_DEV_SG=y
+-
+-#
+-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+-#
+-# CONFIG_SCSI_MULTI_LUN is not set
+-# CONFIG_SCSI_REPORT_LUNS is not set
+-CONFIG_SCSI_CONSTANTS=y
+-# CONFIG_SCSI_LOGGING is not set
+-
+-#
+-# SCSI low-level drivers
+-#
+-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+-# CONFIG_SCSI_ACARD is not set
+-# CONFIG_SCSI_AACRAID is not set
+-# CONFIG_SCSI_AIC7XXX is not set
+-# CONFIG_SCSI_AIC7XXX_OLD is not set
+-# CONFIG_SCSI_AIC79XX is not set
+-# CONFIG_SCSI_DPT_I2O is not set
+-# CONFIG_SCSI_ADVANSYS is not set
+-# CONFIG_SCSI_IN2000 is not set
+-# CONFIG_SCSI_AM53C974 is not set
+-# CONFIG_SCSI_MEGARAID is not set
+-# CONFIG_SCSI_BUSLOGIC is not set
+-# CONFIG_SCSI_CPQFCTS is not set
+-# CONFIG_SCSI_DMX3191D is not set
+-# CONFIG_SCSI_EATA is not set
+-# CONFIG_SCSI_EATA_PIO is not set
+-# CONFIG_SCSI_FUTURE_DOMAIN is not set
+-# CONFIG_SCSI_GDTH is not set
+-# CONFIG_SCSI_GENERIC_NCR5380 is not set
+-# CONFIG_SCSI_GENERIC_NCR5380_MMIO is not set
+-# CONFIG_SCSI_INITIO is not set
+-# CONFIG_SCSI_INIA100 is not set
+-# CONFIG_SCSI_PPA is not set
+-# CONFIG_SCSI_IMM is not set
+-# CONFIG_SCSI_NCR53C7xx is not set
+-# CONFIG_SCSI_SYM53C8XX_2 is not set
+-CONFIG_SCSI_NCR53C8XX=y
+-CONFIG_SCSI_SYM53C8XX=y
+-CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=8
+-CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+-CONFIG_SCSI_NCR53C8XX_SYNC=20
+-# CONFIG_SCSI_NCR53C8XX_PROFILE is not set
+-# CONFIG_SCSI_NCR53C8XX_IOMAPPED is not set
+-# CONFIG_SCSI_NCR53C8XX_PQS_PDS is not set
+-# CONFIG_SCSI_NCR53C8XX_SYMBIOS_COMPAT is not set
+-# CONFIG_SCSI_PCI2000 is not set
+-# CONFIG_SCSI_PCI2220I is not set
+-# CONFIG_SCSI_QLOGIC_ISP is not set
+-# CONFIG_SCSI_QLOGIC_FC is not set
+-# CONFIG_SCSI_QLOGIC_1280 is not set
+-# CONFIG_SCSI_DC395x is not set
+-# CONFIG_SCSI_DC390T is not set
+-# CONFIG_SCSI_U14_34F is not set
+-# CONFIG_SCSI_NSP32 is not set
+-# CONFIG_SCSI_DEBUG is not set
+-
+-#
+-# Fusion MPT device support
+-#
+-# CONFIG_FUSION is not set
+-
+-#
+-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+-#
+-# CONFIG_IEEE1394 is not set
+-
+-#
+-# I2O device support
+-#
+-# CONFIG_I2O is not set
+-
+-#
+-# Networking support
+-#
+-CONFIG_NET=y
+-
+-#
+-# Networking options
+-#
+-CONFIG_PACKET=y
+-# CONFIG_PACKET_MMAP is not set
+-# CONFIG_NETLINK_DEV is not set
+-CONFIG_NETFILTER=y
+-# CONFIG_NETFILTER_DEBUG is not set
+-CONFIG_UNIX=y
+-# CONFIG_NET_KEY is not set
+-CONFIG_INET=y
+-# CONFIG_IP_MULTICAST is not set
+-# CONFIG_IP_ADVANCED_ROUTER is not set
+-CONFIG_IP_PNP=y
+-CONFIG_IP_PNP_DHCP=y
+-# CONFIG_IP_PNP_BOOTP is not set
+-# CONFIG_IP_PNP_RARP is not set
+-# CONFIG_NET_IPIP is not set
+-# CONFIG_NET_IPGRE is not set
+-# CONFIG_ARPD is not set
+-# CONFIG_INET_ECN is not set
+-# CONFIG_SYN_COOKIES is not set
+-# CONFIG_INET_AH is not set
+-# CONFIG_INET_ESP is not set
+-# CONFIG_INET_IPCOMP is not set
+-
+-#
+-# IP: Netfilter Configuration
+-#
+-CONFIG_IP_NF_CONNTRACK=m
+-CONFIG_IP_NF_FTP=m
+-CONFIG_IP_NF_IRC=m
+-CONFIG_IP_NF_TFTP=m
+-CONFIG_IP_NF_AMANDA=m
+-# CONFIG_IP_NF_QUEUE is not set
+-CONFIG_IP_NF_IPTABLES=m
+-CONFIG_IP_NF_MATCH_LIMIT=m
+-CONFIG_IP_NF_MATCH_MAC=m
+-CONFIG_IP_NF_MATCH_PKTTYPE=m
+-CONFIG_IP_NF_MATCH_MARK=m
+-CONFIG_IP_NF_MATCH_MULTIPORT=m
+-CONFIG_IP_NF_MATCH_TOS=m
+-CONFIG_IP_NF_MATCH_ECN=m
+-CONFIG_IP_NF_MATCH_DSCP=m
+-CONFIG_IP_NF_MATCH_AH_ESP=m
+-CONFIG_IP_NF_MATCH_LENGTH=m
+-CONFIG_IP_NF_MATCH_TTL=m
+-CONFIG_IP_NF_MATCH_TCPMSS=m
+-CONFIG_IP_NF_MATCH_HELPER=m
+-CONFIG_IP_NF_MATCH_STATE=m
+-CONFIG_IP_NF_MATCH_CONNTRACK=m
+-CONFIG_IP_NF_MATCH_UNCLEAN=m
+-CONFIG_IP_NF_MATCH_OWNER=m
+-CONFIG_IP_NF_FILTER=m
+-CONFIG_IP_NF_TARGET_REJECT=m
+-CONFIG_IP_NF_TARGET_MIRROR=m
+-CONFIG_IP_NF_NAT=m
+-CONFIG_IP_NF_NAT_NEEDED=y
+-CONFIG_IP_NF_TARGET_MASQUERADE=m
+-CONFIG_IP_NF_TARGET_REDIRECT=m
+-CONFIG_IP_NF_NAT_SNMP_BASIC=m
+-CONFIG_IP_NF_NAT_IRC=m
+-CONFIG_IP_NF_NAT_FTP=m
+-CONFIG_IP_NF_NAT_TFTP=m
+-CONFIG_IP_NF_NAT_AMANDA=m
+-# CONFIG_IP_NF_MANGLE is not set
+-# CONFIG_IP_NF_TARGET_LOG is not set
+-# CONFIG_IP_NF_TARGET_ULOG is not set
+-CONFIG_IP_NF_TARGET_TCPMSS=m
+-CONFIG_IP_NF_ARPTABLES=m
+-CONFIG_IP_NF_ARPFILTER=m
+-CONFIG_IP_NF_COMPAT_IPCHAINS=m
+-# CONFIG_IP_NF_COMPAT_IPFWADM is not set
+-# CONFIG_IPV6 is not set
+-# CONFIG_XFRM_USER is not set
+-
+-#
+-# SCTP Configuration (EXPERIMENTAL)
+-#
+-CONFIG_IPV6_SCTP__=y
+-# CONFIG_IP_SCTP is not set
+-# CONFIG_ATM is not set
+-# CONFIG_VLAN_8021Q is not set
+-# CONFIG_LLC is not set
+-# CONFIG_DECNET is not set
+-# CONFIG_BRIDGE is not set
+-# CONFIG_X25 is not set
+-# CONFIG_LAPB is not set
+-# CONFIG_NET_DIVERT is not set
+-# CONFIG_ECONET is not set
+-# CONFIG_WAN_ROUTER is not set
+-# CONFIG_NET_HW_FLOWCONTROL is not set
+-
+-#
+-# QoS and/or fair queueing
+-#
+-# CONFIG_NET_SCHED is not set
+-
+-#
+-# Network testing
+-#
+-# CONFIG_NET_PKTGEN is not set
+-CONFIG_NETDEVICES=y
+-
+-#
+-# ARCnet devices
+-#
+-# CONFIG_ARCNET is not set
+-# CONFIG_DUMMY is not set
+-# CONFIG_BONDING is not set
+-# CONFIG_EQUALIZER is not set
+-# CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+-
+-#
+-# Ethernet (10 or 100Mbit)
+-#
+-CONFIG_NET_ETHERNET=y
+-CONFIG_MII=y
+-# CONFIG_OAKNET is not set
+-# CONFIG_HAPPYMEAL is not set
+-# CONFIG_SUNGEM is not set
+-# CONFIG_NET_VENDOR_3COM is not set
+-
+-#
+-# Tulip family network device support
+-#
+-# CONFIG_NET_TULIP is not set
+-# CONFIG_HP100 is not set
+-CONFIG_NET_PCI=y
+-# CONFIG_PCNET32 is not set
+-# CONFIG_AMD8111_ETH is not set
+-# CONFIG_ADAPTEC_STARFIRE is not set
+-# CONFIG_B44 is not set
+-# CONFIG_DGRS is not set
+-CONFIG_EEPRO100=y
+-# CONFIG_EEPRO100_PIO is not set
+-# CONFIG_E100 is not set
+-# CONFIG_FEALNX is not set
+-# CONFIG_NATSEMI is not set
+-# CONFIG_NE2K_PCI is not set
+-# CONFIG_8139CP is not set
+-# CONFIG_8139TOO is not set
+-# CONFIG_SIS900 is not set
+-# CONFIG_EPIC100 is not set
+-# CONFIG_SUNDANCE is not set
+-# CONFIG_TLAN is not set
+-# CONFIG_VIA_RHINE is not set
+-
+-#
+-# Ethernet (1000 Mbit)
+-#
+-# CONFIG_ACENIC is not set
+-# CONFIG_DL2K is not set
+-# CONFIG_E1000 is not set
+-# CONFIG_NS83820 is not set
+-# CONFIG_HAMACHI is not set
+-# CONFIG_YELLOWFIN is not set
+-# CONFIG_R8169 is not set
+-# CONFIG_SK98LIN is not set
+-# CONFIG_TIGON3 is not set
+-
+-#
+-# Ethernet (10000 Mbit)
+-#
+-# CONFIG_IXGB is not set
+-# CONFIG_FDDI is not set
+-# CONFIG_HIPPI is not set
+-# CONFIG_PLIP is not set
+-# CONFIG_PPP is not set
+-# CONFIG_SLIP is not set
+-
+-#
+-# Wireless LAN (non-hamradio)
+-#
+-# CONFIG_NET_RADIO is not set
+-
+-#
+-# Token Ring devices (depends on LLC=y)
+-#
+-# CONFIG_NET_FC is not set
+-# CONFIG_RCPCI is not set
+-# CONFIG_SHAPER is not set
+-
+-#
+-# Wan interfaces
+-#
+-# CONFIG_WAN is not set
+-
+-#
+-# Amateur Radio support
+-#
+-# CONFIG_HAMRADIO is not set
+-
+-#
+-# IrDA (infrared) support
+-#
+-# CONFIG_IRDA is not set
+-
+-#
+-# ISDN subsystem
+-#
+-# CONFIG_ISDN_BOOL is not set
+-
+-#
+-# Graphics support
+-#
+-# CONFIG_FB is not set
+-
+-#
+-# Old CD-ROM drivers (not SCSI, not IDE)
+-#
+-# CONFIG_CD_NO_IDESCSI is not set
+-
+-#
+-# Input device support
+-#
+-# CONFIG_INPUT is not set
+-
+-#
+-# Userland interfaces
+-#
+-
+-#
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-# CONFIG_SERIO is not set
+-
+-#
+-# Input Device Drivers
+-#
+-
+-#
+-# Macintosh device drivers
+-#
+-
+-#
+-# Character devices
+-#
+-# CONFIG_SERIAL_NONSTANDARD is not set
+-
+-#
+-# Serial drivers
+-#
+-CONFIG_SERIAL_8250=y
+-CONFIG_SERIAL_8250_CONSOLE=y
+-# CONFIG_SERIAL_8250_EXTENDED is not set
+-
+-#
+-# Non-8250 serial port support
+-#
+-CONFIG_SERIAL_CORE=y
+-CONFIG_SERIAL_CORE_CONSOLE=y
+-CONFIG_UNIX98_PTYS=y
+-CONFIG_UNIX98_PTY_COUNT=256
+-# CONFIG_PRINTER is not set
+-# CONFIG_PPDEV is not set
+-# CONFIG_TIPAR is not set
+-
+-#
+-# I2C support
+-#
+-# CONFIG_I2C is not set
+-
+-#
+-# I2C Hardware Sensors Mainboard support
+-#
+-
+-#
+-# I2C Hardware Sensors Chip support
+-#
+-# CONFIG_I2C_SENSOR is not set
+-
+-#
+-# Mice
+-#
+-# CONFIG_BUSMOUSE is not set
+-# CONFIG_QIC02_TAPE is not set
+-
+-#
+-# IPMI
+-#
+-# CONFIG_IPMI_HANDLER is not set
+-
+-#
+-# Watchdog Cards
+-#
+-# CONFIG_WATCHDOG is not set
+-# CONFIG_NVRAM is not set
+-CONFIG_GEN_RTC=y
+-# CONFIG_GEN_RTC_X is not set
+-# CONFIG_DTLK is not set
+-# CONFIG_R3964 is not set
+-# CONFIG_APPLICOM is not set
+-
+-#
+-# Ftape, the floppy tape device driver
+-#
+-# CONFIG_FTAPE is not set
+-# CONFIG_AGP is not set
+-# CONFIG_DRM is not set
+-# CONFIG_RAW_DRIVER is not set
+-# CONFIG_HANGCHECK_TIMER is not set
+-
+-#
+-# Multimedia devices
+-#
+-# CONFIG_VIDEO_DEV is not set
+-
+-#
+-# Digital Video Broadcasting Devices
+-#
+-# CONFIG_DVB is not set
+-
+-#
+-# File systems
+-#
+-CONFIG_EXT2_FS=y
+-# CONFIG_EXT2_FS_XATTR is not set
+-CONFIG_EXT3_FS=y
+-CONFIG_EXT3_FS_XATTR=y
+-# CONFIG_EXT3_FS_POSIX_ACL is not set
+-# CONFIG_EXT3_FS_SECURITY is not set
+-CONFIG_JBD=y
+-# CONFIG_JBD_DEBUG is not set
+-CONFIG_FS_MBCACHE=y
+-# CONFIG_REISERFS_FS is not set
+-# CONFIG_JFS_FS is not set
+-# CONFIG_XFS_FS is not set
+-# CONFIG_MINIX_FS is not set
+-# CONFIG_ROMFS_FS is not set
+-# CONFIG_QUOTA is not set
+-# CONFIG_AUTOFS_FS is not set
+-# CONFIG_AUTOFS4_FS is not set
+-
+-#
+-# CD-ROM/DVD Filesystems
+-#
+-# CONFIG_ISO9660_FS is not set
+-# CONFIG_UDF_FS is not set
+-
+-#
+-# DOS/FAT/NT Filesystems
+-#
+-# CONFIG_FAT_FS is not set
+-# CONFIG_NTFS_FS is not set
+-
+-#
+-# Pseudo filesystems
+-#
+-CONFIG_PROC_FS=y
+-# CONFIG_DEVFS_FS is not set
+-CONFIG_DEVPTS_FS=y
+-# CONFIG_DEVPTS_FS_XATTR is not set
+-CONFIG_TMPFS=y
+-CONFIG_RAMFS=y
+-
+-#
+-# Miscellaneous filesystems
+-#
+-# CONFIG_ADFS_FS is not set
+-# CONFIG_AFFS_FS is not set
+-# CONFIG_HFS_FS is not set
+-# CONFIG_BEFS_FS is not set
+-# CONFIG_BFS_FS is not set
+-# CONFIG_EFS_FS is not set
+-# CONFIG_CRAMFS is not set
+-# CONFIG_VXFS_FS is not set
+-# CONFIG_HPFS_FS is not set
+-# CONFIG_QNX4FS_FS is not set
+-# CONFIG_SYSV_FS is not set
+-# CONFIG_UFS_FS is not set
+-
+-#
+-# Network File Systems
+-#
+-CONFIG_NFS_FS=y
+-# CONFIG_NFS_V3 is not set
+-# CONFIG_NFS_V4 is not set
+-# CONFIG_NFSD is not set
+-CONFIG_ROOT_NFS=y
+-CONFIG_LOCKD=y
+-# CONFIG_EXPORTFS is not set
+-CONFIG_SUNRPC=y
+-# CONFIG_SUNRPC_GSS is not set
+-# CONFIG_SMB_FS is not set
+-# CONFIG_CIFS is not set
+-# CONFIG_NCP_FS is not set
+-# CONFIG_CODA_FS is not set
+-# CONFIG_INTERMEZZO_FS is not set
+-# CONFIG_AFS_FS is not set
+-
+-#
+-# Partition Types
+-#
+-# CONFIG_PARTITION_ADVANCED is not set
+-CONFIG_MSDOS_PARTITION=y
+-
+-#
+-# Sound
+-#
+-# CONFIG_SOUND is not set
+-
+-#
+-# USB support
+-#
+-CONFIG_USB=y
+-# CONFIG_USB_DEBUG is not set
+-
+-#
+-# Miscellaneous USB options
+-#
+-CONFIG_USB_DEVICEFS=y
+-# CONFIG_USB_BANDWIDTH is not set
+-CONFIG_USB_DYNAMIC_MINORS=y
+-
+-#
+-# USB Host Controller Drivers
+-#
+-# CONFIG_USB_EHCI_HCD is not set
+-CONFIG_USB_OHCI_HCD=y
+-# CONFIG_USB_UHCI_HCD is not set
+-
+-#
+-# USB Device Class drivers
+-#
+-# CONFIG_USB_BLUETOOTH_TTY is not set
+-CONFIG_USB_ACM=m
+-# CONFIG_USB_PRINTER is not set
+-CONFIG_USB_STORAGE=m
+-# CONFIG_USB_STORAGE_DEBUG is not set
+-# CONFIG_USB_STORAGE_DATAFAB is not set
+-CONFIG_USB_STORAGE_FREECOM=y
+-# CONFIG_USB_STORAGE_ISD200 is not set
+-CONFIG_USB_STORAGE_DPCM=y
+-# CONFIG_USB_STORAGE_HP8200e is not set
+-# CONFIG_USB_STORAGE_SDDR09 is not set
+-# CONFIG_USB_STORAGE_SDDR55 is not set
+-# CONFIG_USB_STORAGE_JUMPSHOT is not set
+-
+-#
+-# USB Human Interface Devices (HID)
+-#
+-CONFIG_USB_HID=m
+-
+-#
+-# Input core support is needed for USB HID input layer or HIDBP support
+-#
+-CONFIG_USB_HIDDEV=y
+-
+-#
+-# USB HID Boot Protocol drivers
+-#
+-
+-#
+-# USB Imaging devices
+-#
+-# CONFIG_USB_MDC800 is not set
+-# CONFIG_USB_SCANNER is not set
+-# CONFIG_USB_MICROTEK is not set
+-# CONFIG_USB_HPUSBSCSI is not set
+-
+-#
+-# USB Multimedia devices
+-#
+-# CONFIG_USB_DABUSB is not set
+-
+-#
+-# Video4Linux support is needed for USB Multimedia device support
+-#
+-
+-#
+-# USB Network adaptors
+-#
+-# CONFIG_USB_CATC is not set
+-# CONFIG_USB_KAWETH is not set
+-# CONFIG_USB_PEGASUS is not set
+-# CONFIG_USB_RTL8150 is not set
+-# CONFIG_USB_USBNET is not set
+-
+-#
+-# USB port drivers
+-#
+-# CONFIG_USB_USS720 is not set
+-
+-#
+-# USB Serial Converter support
+-#
+-CONFIG_USB_SERIAL=m
+-# CONFIG_USB_SERIAL_GENERIC is not set
+-# CONFIG_USB_SERIAL_BELKIN is not set
+-# CONFIG_USB_SERIAL_WHITEHEAT is not set
+-# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
+-# CONFIG_USB_SERIAL_EMPEG is not set
+-# CONFIG_USB_SERIAL_FTDI_SIO is not set
+-CONFIG_USB_SERIAL_VISOR=m
+-# CONFIG_USB_SERIAL_IPAQ is not set
+-# CONFIG_USB_SERIAL_IR is not set
+-# CONFIG_USB_SERIAL_EDGEPORT is not set
+-# CONFIG_USB_SERIAL_EDGEPORT_TI is not set
+-# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
+-CONFIG_USB_SERIAL_KEYSPAN=m
+-# CONFIG_USB_SERIAL_KEYSPAN_MPR is not set
+-CONFIG_USB_SERIAL_KEYSPAN_USA28=y
+-CONFIG_USB_SERIAL_KEYSPAN_USA28X=y
+-# CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set
+-# CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set
+-CONFIG_USB_SERIAL_KEYSPAN_USA19=y
+-CONFIG_USB_SERIAL_KEYSPAN_USA18X=y
+-CONFIG_USB_SERIAL_KEYSPAN_USA19W=y
+-CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
+-CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
+-CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
+-# CONFIG_USB_SERIAL_KEYSPAN_USA49WLC is not set
+-# CONFIG_USB_SERIAL_KLSI is not set
+-# CONFIG_USB_SERIAL_KOBIL_SCT is not set
+-# CONFIG_USB_SERIAL_MCT_U232 is not set
+-# CONFIG_USB_SERIAL_PL2303 is not set
+-# CONFIG_USB_SERIAL_SAFE is not set
+-# CONFIG_USB_SERIAL_CYBERJACK is not set
+-# CONFIG_USB_SERIAL_XIRCOM is not set
+-# CONFIG_USB_SERIAL_OMNINET is not set
+-CONFIG_USB_EZUSB=y
+-
+-#
+-# USB Miscellaneous drivers
+-#
+-# CONFIG_USB_TIGL is not set
+-# CONFIG_USB_AUERSWALD is not set
+-# CONFIG_USB_RIO500 is not set
+-# CONFIG_USB_LCD is not set
+-# CONFIG_USB_TEST is not set
+-# CONFIG_USB_GADGET is not set
+-
+-#
+-# Bluetooth support
+-#
+-# CONFIG_BT is not set
+-
+-#
+-# Library routines
+-#
+-# CONFIG_CRC32 is not set
+-
+-#
+-# Kernel hacking
+-#
+-# CONFIG_DEBUG_KERNEL is not set
+-# CONFIG_KALLSYMS is not set
+-
+-#
+-# Security options
+-#
+-# CONFIG_SECURITY is not set
+-
+-#
+-# Cryptographic options
+-#
+-# CONFIG_CRYPTO is not set
+diff --git a/arch/ppc/platforms/Makefile b/arch/ppc/platforms/Makefile
+--- a/arch/ppc/platforms/Makefile
++++ b/arch/ppc/platforms/Makefile
+@@ -21,7 +21,6 @@ obj-$(CONFIG_CPU_FREQ_PMAC)	+= pmac_cpuf
+ endif
+ obj-$(CONFIG_PMAC_BACKLIGHT)	+= pmac_backlight.o
+ obj-$(CONFIG_PREP_RESIDUAL)	+= residual.o
+-obj-$(CONFIG_ADIR)		+= adir_setup.o adir_pic.o adir_pci.o
+ obj-$(CONFIG_PQ2ADS)		+= pq2ads.o
+ obj-$(CONFIG_TQM8260)		+= tqm8260_setup.o
+ obj-$(CONFIG_CPCI690)		+= cpci690.o
+diff --git a/arch/ppc/platforms/adir.h b/arch/ppc/platforms/adir.h
+deleted file mode 100644
+--- a/arch/ppc/platforms/adir.h
++++ /dev/null
+@@ -1,95 +0,0 @@
+-/*
+- * arch/ppc/platforms/adir.h
+- *
+- * Definitions for SBS Adirondack board support
+- *
+- * By Michael Sokolov <msokolov@ivan.Harhan.ORG>
+- */
+-
+-#ifndef __PPC_PLATFORMS_ADIR_H
+-#define __PPC_PLATFORMS_ADIR_H
+-
+-/*
+- * SBS Adirondack definitions
+- */
+-
+-/* PPC physical address space layout. We use the one set up by the firmware. */
+-#define	ADIR_PCI32_MEM_BASE	0x80000000
+-#define	ADIR_PCI32_MEM_SIZE	0x20000000
+-#define	ADIR_PCI64_MEM_BASE	0xA0000000
+-#define	ADIR_PCI64_MEM_SIZE	0x20000000
+-#define	ADIR_PCI32_IO_BASE	0xC0000000
+-#define	ADIR_PCI32_IO_SIZE	0x10000000
+-#define	ADIR_PCI64_IO_BASE	0xD0000000
+-#define	ADIR_PCI64_IO_SIZE	0x10000000
+-#define	ADIR_PCI64_PHB		0xFF400000
+-#define	ADIR_PCI32_PHB		0xFF500000
+-
+-#define ADIR_PCI64_CONFIG_ADDR	(ADIR_PCI64_PHB + 0x000f8000)
+-#define ADIR_PCI64_CONFIG_DATA	(ADIR_PCI64_PHB + 0x000f8010)
+-
+-#define ADIR_PCI32_CONFIG_ADDR	(ADIR_PCI32_PHB + 0x000f8000)
+-#define ADIR_PCI32_CONFIG_DATA	(ADIR_PCI32_PHB + 0x000f8010)
+-
+-/* System memory as seen from PCI */
+-#define ADIR_PCI_SYS_MEM_BASE	0x80000000
+-
+-/* Static virtual mapping of PCI I/O */
+-#define	ADIR_PCI32_VIRT_IO_BASE	0xFE000000
+-#define	ADIR_PCI32_VIRT_IO_SIZE	0x01000000
+-#define	ADIR_PCI64_VIRT_IO_BASE	0xFF000000
+-#define	ADIR_PCI64_VIRT_IO_SIZE	0x01000000
+-
+-/* Registers */
+-#define	ADIR_NVRAM_RTC_ADDR	0x74
+-#define	ADIR_NVRAM_RTC_DATA	0x75
+-
+-#define	ADIR_BOARD_ID_REG	(ADIR_PCI32_VIRT_IO_BASE + 0x08FFF0)
+-#define	ADIR_CPLD1REV_REG	(ADIR_PCI32_VIRT_IO_BASE + 0x08FFF1)
+-#define	ADIR_CPLD2REV_REG	(ADIR_PCI32_VIRT_IO_BASE + 0x08FFF2)
+-#define	ADIR_FLASHCTL_REG	(ADIR_PCI32_VIRT_IO_BASE + 0x08FFF3)
+-#define	ADIR_CPC710_STAT_REG	(ADIR_PCI32_VIRT_IO_BASE + 0x08FFF4)
+-#define	ADIR_CLOCK_REG		(ADIR_PCI32_VIRT_IO_BASE + 0x08FFF5)
+-#define	ADIR_GPIO_REG		(ADIR_PCI32_VIRT_IO_BASE + 0x08FFF8)
+-#define	ADIR_MISC_REG		(ADIR_PCI32_VIRT_IO_BASE + 0x08FFF9)
+-#define	ADIR_LED_REG		(ADIR_PCI32_VIRT_IO_BASE + 0x08FFFA)
+-
+-#define	ADIR_CLOCK_REG_PD	0x10
+-#define	ADIR_CLOCK_REG_SPREAD	0x08
+-#define	ADIR_CLOCK_REG_SEL133	0x04
+-#define	ADIR_CLOCK_REG_SEL1	0x02
+-#define	ADIR_CLOCK_REG_SEL0	0x01
+-
+-#define	ADIR_PROCA_INT_MASK	(ADIR_PCI32_VIRT_IO_BASE + 0x0EFFF0)
+-#define	ADIR_PROCB_INT_MASK	(ADIR_PCI32_VIRT_IO_BASE + 0x0EFFF2)
+-#define	ADIR_PROCA_INT_STAT	(ADIR_PCI32_VIRT_IO_BASE + 0x0EFFF4)
+-#define	ADIR_PROCB_INT_STAT	(ADIR_PCI32_VIRT_IO_BASE + 0x0EFFF6)
+-
+-/* Linux IRQ numbers */
+-#define	ADIR_IRQ_NONE		-1
+-#define	ADIR_IRQ_SERIAL2	3
+-#define	ADIR_IRQ_SERIAL1	4
+-#define	ADIR_IRQ_FDC		6
+-#define	ADIR_IRQ_PARALLEL	7
+-#define	ADIR_IRQ_VIA_AUDIO	10
+-#define	ADIR_IRQ_VIA_USB	11
+-#define	ADIR_IRQ_IDE0		14
+-#define	ADIR_IRQ_IDE1		15
+-#define	ADIR_IRQ_PCI0_INTA	16
+-#define	ADIR_IRQ_PCI0_INTB	17
+-#define	ADIR_IRQ_PCI0_INTC	18
+-#define	ADIR_IRQ_PCI0_INTD	19
+-#define	ADIR_IRQ_PCI1_INTA	20
+-#define	ADIR_IRQ_PCI1_INTB	21
+-#define	ADIR_IRQ_PCI1_INTC	22
+-#define	ADIR_IRQ_PCI1_INTD	23
+-#define	ADIR_IRQ_MBSCSI		24	/* motherboard SCSI */
+-#define	ADIR_IRQ_MBETH1		25	/* motherboard Ethernet 1 */
+-#define	ADIR_IRQ_MBETH0		26	/* motherboard Ethernet 0 */
+-#define	ADIR_IRQ_CPC710_INT1	27
+-#define	ADIR_IRQ_CPC710_INT2	28
+-#define	ADIR_IRQ_VT82C686_NMI	29
+-#define	ADIR_IRQ_VT82C686_INTR	30
+-#define	ADIR_IRQ_INTERPROC	31
+-
+-#endif /* __PPC_PLATFORMS_ADIR_H */
+diff --git a/arch/ppc/platforms/adir_pci.c b/arch/ppc/platforms/adir_pci.c
+deleted file mode 100644
+--- a/arch/ppc/platforms/adir_pci.c
++++ /dev/null
+@@ -1,247 +0,0 @@
+-/*
+- * arch/ppc/platforms/adir_pci.c
+- *
+- * PCI support for SBS Adirondack
+- *
+- * By Michael Sokolov <msokolov@ivan.Harhan.ORG>
+- * based on the K2 version by Matt Porter <mporter@mvista.com>
+- */
+-
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/pci.h>
+-#include <linux/slab.h>
+-
+-#include <asm/byteorder.h>
+-#include <asm/io.h>
+-#include <asm/uaccess.h>
+-#include <asm/machdep.h>
+-#include <asm/pci-bridge.h>
+-
+-#include <syslib/cpc710.h>
+-#include "adir.h"
+-
+-#undef DEBUG
+-#ifdef DEBUG
+-#define DBG(x...) printk(x)
+-#else
+-#define DBG(x...)
+-#endif /* DEBUG */
+-
+-static inline int __init
+-adir_map_irq(struct pci_dev *dev, unsigned char idsel, unsigned char pin)
+-{
+-#define	PCIIRQ(a,b,c,d)	{ADIR_IRQ_##a,ADIR_IRQ_##b,ADIR_IRQ_##c,ADIR_IRQ_##d},
+-	struct pci_controller *hose = pci_bus_to_hose(dev->bus->number);
+-	/*
+-	 * The three PCI devices on the motherboard have dedicated lines to the
+-	 * CPLD interrupt controller, bypassing the standard PCI INTA-D and the
+-	 * PC interrupt controller. All other PCI devices (slots) have usual
+-	 * staggered INTA-D lines, resulting in 8 lines total (PCI0 INTA-D and
+-	 * PCI1 INTA-D). All 8 go to the CPLD interrupt controller. PCI0 INTA-D
+-	 * also go to the south bridge, so we have the option of taking them
+-	 * via the CPLD interrupt controller or via the south bridge 8259
+-	 * 8258 thingy. PCI1 INTA-D can only be taken via the CPLD interrupt
+-	 * controller. We take all PCI interrupts via the CPLD interrupt
+-	 * controller as recommended by SBS.
+-	 *
+-	 * We also have some monkey business with the PCI devices within the
+-	 * VT82C686B south bridge itself. This chip actually has 7 functions on
+-	 * its IDSEL. Function 0 is the actual south bridge, function 1 is IDE,
+-	 * and function 4 is some special stuff. The other 4 functions are just
+-	 * regular PCI devices bundled in the chip. 2 and 3 are USB UHCIs and 5
+-	 * and 6 are audio (not supported on the Adirondack).
+-	 *
+-	 * This is where the monkey business begins. PCI devices are supposed
+-	 * to signal normal PCI interrupts. But the 4 functions in question are
+-	 * located in the south bridge chip, which is designed with the
+-	 * assumption that it will be fielding PCI INTA-D interrupts rather
+-	 * than generating them. Here's what it does. Each of the functions in
+-	 * question routes its interrupt to one of the IRQs on the 8259 thingy.
+-	 * Which one? It looks at the Interrupt Line register in the PCI config
+-	 * space, even though the PCI spec says it's for BIOS/OS interaction
+-	 * only.
+-	 *
+-	 * How do we deal with this? We take these interrupts via 8259 IRQs as
+-	 * we have to. We return the desired IRQ numbers from this routine when
+-	 * called for the functions in question. The PCI scan code will then
+-	 * stick our return value into the Interrupt Line register in the PCI
+-	 * config space, and the interrupt will actually go there. We identify
+-	 * these functions within the south bridge IDSEL by their interrupt pin
+-	 * numbers, as the VT82C686B has 04 in the Interrupt Pin register for
+-	 * USB and 03 for audio.
+-	 */
+-	if (!hose->index) {
+-		static char pci_irq_table[][4] =
+-		/*
+-		 *             PCI IDSEL/INTPIN->INTLINE
+-		 *             A          B          C          D
+-		 */
+-		{
+-    /* south bridge */	PCIIRQ(IDE0,      NONE,      VIA_AUDIO, VIA_USB)
+-    /* Ethernet 0 */	PCIIRQ(MBETH0,    MBETH0,    MBETH0,    MBETH0)
+-    /* PCI0 slot 1 */	PCIIRQ(PCI0_INTB, PCI0_INTC, PCI0_INTD, PCI0_INTA)
+-    /* PCI0 slot 2 */	PCIIRQ(PCI0_INTC, PCI0_INTD, PCI0_INTA, PCI0_INTB)
+-    /* PCI0 slot 3 */	PCIIRQ(PCI0_INTD, PCI0_INTA, PCI0_INTB, PCI0_INTC)
+-		};
+-		const long min_idsel = 3, max_idsel = 7, irqs_per_slot = 4;
+-		return PCI_IRQ_TABLE_LOOKUP;
+-	} else {
+-		static char pci_irq_table[][4] =
+-		/*
+-		 *             PCI IDSEL/INTPIN->INTLINE
+-		 *             A          B          C          D
+-		 */
+-		{
+-    /* Ethernet 1 */	PCIIRQ(MBETH1,    MBETH1,    MBETH1,    MBETH1)
+-    /* SCSI */		PCIIRQ(MBSCSI,    MBSCSI,    MBSCSI,    MBSCSI)
+-    /* PCI1 slot 1 */	PCIIRQ(PCI1_INTB, PCI1_INTC, PCI1_INTD, PCI1_INTA)
+-    /* PCI1 slot 2 */	PCIIRQ(PCI1_INTC, PCI1_INTD, PCI1_INTA, PCI1_INTB)
+-    /* PCI1 slot 3 */	PCIIRQ(PCI1_INTD, PCI1_INTA, PCI1_INTB, PCI1_INTC)
+-		};
+-		const long min_idsel = 3, max_idsel = 7, irqs_per_slot = 4;
+-		return PCI_IRQ_TABLE_LOOKUP;
+-	}
+-#undef PCIIRQ
+-}
+-
+-static void
+-adir_pcibios_fixup_resources(struct pci_dev *dev)
+-{
+-	int i;
+-
+-	if ((dev->vendor == PCI_VENDOR_ID_IBM) &&
+-			(dev->device == PCI_DEVICE_ID_IBM_CPC710_PCI64))
+-	{
+-		DBG("Fixup CPC710 resources\n");
+-		for (i=0; i<DEVICE_COUNT_RESOURCE; i++)
+-		{
+-			dev->resource[i].start = 0;
+-			dev->resource[i].end = 0;
+-		}
+-	}
+-}
+-
+-/*
+- * CPC710 DD3 has an errata causing it to hang the system if a type 0 config
+- * cycle is attempted on its PCI32 interface with a device number > 21.
+- * CPC710's PCI bridges map device numbers 1 through 21 to AD11 through AD31.
+- * Per the PCI spec it MUST accept all other device numbers and do nothing, and
+- * software MUST scan all device numbers without assuming how IDSELs are
+- * mapped. However, as the CPC710 DD3's errata causes such correct scanning
+- * procedure to hang the system, we have no choice but to introduce this hack
+- * of knowingly avoiding device numbers > 21 on PCI0,
+- */
+-static int
+-adir_exclude_device(u_char bus, u_char devfn)
+-{
+-	if ((bus == 0) && (PCI_SLOT(devfn) > 21))
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+-	else
+-		return PCIBIOS_SUCCESSFUL;
+-}
+-
+-void adir_find_bridges(void)
+-{
+-	struct pci_controller *hose_a, *hose_b;
+-
+-	/* Setup PCI32 hose */
+-	hose_a = pcibios_alloc_controller();
+-	if (!hose_a)
+-		return;
+-
+-	hose_a->first_busno = 0;
+-	hose_a->last_busno = 0xff;
+-	hose_a->pci_mem_offset = ADIR_PCI32_MEM_BASE;
+-	hose_a->io_space.start = 0;
+-	hose_a->io_space.end = ADIR_PCI32_VIRT_IO_SIZE - 1;
+-	hose_a->mem_space.start = 0;
+-	hose_a->mem_space.end = ADIR_PCI32_MEM_SIZE - 1;
+-	hose_a->io_resource.start = 0;
+-	hose_a->io_resource.end = ADIR_PCI32_VIRT_IO_SIZE - 1;
+-	hose_a->io_resource.flags = IORESOURCE_IO;
+-	hose_a->mem_resources[0].start = ADIR_PCI32_MEM_BASE;
+-	hose_a->mem_resources[0].end = ADIR_PCI32_MEM_BASE +
+-					ADIR_PCI32_MEM_SIZE - 1;
+-	hose_a->mem_resources[0].flags = IORESOURCE_MEM;
+-	hose_a->io_base_phys = ADIR_PCI32_IO_BASE;
+-	hose_a->io_base_virt = (void *) ADIR_PCI32_VIRT_IO_BASE;
+-
+-	ppc_md.pci_exclude_device = adir_exclude_device;
+-	setup_indirect_pci(hose_a, ADIR_PCI32_CONFIG_ADDR,
+-			   ADIR_PCI32_CONFIG_DATA);
+-
+-	/* Initialize PCI32 bus registers */
+-	early_write_config_byte(hose_a,
+-			hose_a->first_busno,
+-			PCI_DEVFN(0, 0),
+-			CPC710_BUS_NUMBER,
+-			hose_a->first_busno);
+-	early_write_config_byte(hose_a,
+-			hose_a->first_busno,
+-			PCI_DEVFN(0, 0),
+-			CPC710_SUB_BUS_NUMBER,
+-			hose_a->last_busno);
+-
+-	hose_a->last_busno = pciauto_bus_scan(hose_a, hose_a->first_busno);
+-
+-	/* Write out correct max subordinate bus number for hose A */
+-	early_write_config_byte(hose_a,
+-			hose_a->first_busno,
+-			PCI_DEVFN(0, 0),
+-			CPC710_SUB_BUS_NUMBER,
+-			hose_a->last_busno);
+-
+-	/* Setup PCI64 hose */
+-	hose_b = pcibios_alloc_controller();
+-	if (!hose_b)
+-		return;
+-
+-	hose_b->first_busno = hose_a->last_busno + 1;
+-	hose_b->last_busno = 0xff;
+-	hose_b->pci_mem_offset = ADIR_PCI64_MEM_BASE;
+-	hose_b->io_space.start = 0;
+-	hose_b->io_space.end = ADIR_PCI64_VIRT_IO_SIZE - 1;
+-	hose_b->mem_space.start = 0;
+-	hose_b->mem_space.end = ADIR_PCI64_MEM_SIZE - 1;
+-	hose_b->io_resource.start = 0;
+-	hose_b->io_resource.end = ADIR_PCI64_VIRT_IO_SIZE - 1;
+-	hose_b->io_resource.flags = IORESOURCE_IO;
+-	hose_b->mem_resources[0].start = ADIR_PCI64_MEM_BASE;
+-	hose_b->mem_resources[0].end = ADIR_PCI64_MEM_BASE +
+-					ADIR_PCI64_MEM_SIZE - 1;
+-	hose_b->mem_resources[0].flags = IORESOURCE_MEM;
+-	hose_b->io_base_phys = ADIR_PCI64_IO_BASE;
+-	hose_b->io_base_virt = (void *) ADIR_PCI64_VIRT_IO_BASE;
+-
+-	setup_indirect_pci(hose_b, ADIR_PCI64_CONFIG_ADDR,
+-			   ADIR_PCI64_CONFIG_DATA);
+-
+-	/* Initialize PCI64 bus registers */
+-	early_write_config_byte(hose_b,
+-			0,
+-			PCI_DEVFN(0, 0),
+-			CPC710_SUB_BUS_NUMBER,
+-			0xff);
+-
+-	early_write_config_byte(hose_b,
+-			0,
+-			PCI_DEVFN(0, 0),
+-			CPC710_BUS_NUMBER,
+-			hose_b->first_busno);
+-
+-	hose_b->last_busno = pciauto_bus_scan(hose_b,
+-			hose_b->first_busno);
+-
+-	/* Write out correct max subordinate bus number for hose B */
+-	early_write_config_byte(hose_b,
+-			hose_b->first_busno,
+-			PCI_DEVFN(0, 0),
+-			CPC710_SUB_BUS_NUMBER,
+-			hose_b->last_busno);
+-
+-	ppc_md.pcibios_fixup = NULL;
+-	ppc_md.pcibios_fixup_resources = adir_pcibios_fixup_resources;
+-	ppc_md.pci_swizzle = common_swizzle;
+-	ppc_md.pci_map_irq = adir_map_irq;
+-}
+diff --git a/arch/ppc/platforms/adir_pic.c b/arch/ppc/platforms/adir_pic.c
+deleted file mode 100644
+--- a/arch/ppc/platforms/adir_pic.c
++++ /dev/null
+@@ -1,130 +0,0 @@
+-/*
+- * arch/ppc/platforms/adir_pic.c
+- *
+- * Interrupt controller support for SBS Adirondack
+- *
+- * By Michael Sokolov <msokolov@ivan.Harhan.ORG>
+- * based on the K2 and SCM versions by Matt Porter <mporter@mvista.com>
+- */
+-
+-#include <linux/stddef.h>
+-#include <linux/init.h>
+-#include <linux/sched.h>
+-#include <linux/pci.h>
+-#include <linux/interrupt.h>
+-
+-#include <asm/io.h>
+-#include <asm/i8259.h>
+-#include "adir.h"
+-
+-static void adir_onboard_pic_enable(unsigned int irq);
+-static void adir_onboard_pic_disable(unsigned int irq);
+-
+-__init static void
+-adir_onboard_pic_init(void)
+-{
+-	volatile u_short *maskreg = (volatile u_short *) ADIR_PROCA_INT_MASK;
+-
+-	/* Disable all Adirondack onboard interrupts */
+-	out_be16(maskreg, 0xFFFF);
+-}
+-
+-static int
+-adir_onboard_pic_get_irq(void)
+-{
+-	volatile u_short *statreg = (volatile u_short *) ADIR_PROCA_INT_STAT;
+-	int irq;
+-	u_short int_status, int_test;
+-
+-	int_status = in_be16(statreg);
+-	for (irq = 0, int_test = 1; irq < 16; irq++, int_test <<= 1) {
+-		if (int_status & int_test)
+-			break;
+-	}
+-
+-	if (irq == 16)
+-		return -1;
+-
+-	return (irq+16);
+-}
+-
+-static void
+-adir_onboard_pic_enable(unsigned int irq)
+-{
+-	volatile u_short *maskreg = (volatile u_short *) ADIR_PROCA_INT_MASK;
+-
+-	/* Change irq to Adirondack onboard native value */
+-	irq -= 16;
+-
+-	/* Enable requested irq number */
+-	out_be16(maskreg, in_be16(maskreg) & ~(1 << irq));
+-}
+-
+-static void
+-adir_onboard_pic_disable(unsigned int irq)
+-{
+-	volatile u_short *maskreg = (volatile u_short *) ADIR_PROCA_INT_MASK;
+-
+-	/* Change irq to Adirondack onboard native value */
+-	irq -= 16;
+-
+-	/* Disable requested irq number */
+-	out_be16(maskreg, in_be16(maskreg) | (1 << irq));
+-}
+-
+-static struct hw_interrupt_type adir_onboard_pic = {
+-	" ADIR PIC ",
+-	NULL,
+-	NULL,
+-	adir_onboard_pic_enable,		/* unmask */
+-	adir_onboard_pic_disable,		/* mask */
+-	adir_onboard_pic_disable,		/* mask and ack */
+-	NULL,
+-	NULL
+-};
+-
+-static struct irqaction noop_action = {
+-	.handler	= no_action,
+-	.flags          = SA_INTERRUPT,
+-	.mask           = CPU_MASK_NONE,
+-	.name           = "82c59 primary cascade",
+-};
+-
+-/*
+- * Linux interrupt values are assigned as follows:
+- *
+- * 	0-15		VT82C686 8259 interrupts
+- * 	16-31		Adirondack CPLD interrupts
+- */
+-__init void
+-adir_init_IRQ(void)
+-{
+-	int	i;
+-
+-	/* Initialize the cascaded 8259's on the VT82C686 */
+-	for (i=0; i<16; i++)
+-		irq_desc[i].handler = &i8259_pic;
+-	i8259_init(NULL);
+-
+-	/* Initialize Adirondack CPLD PIC and enable 8259 interrupt cascade */
+-	for (i=16; i<32; i++)
+-		irq_desc[i].handler = &adir_onboard_pic;
+-	adir_onboard_pic_init();
+-
+-	/* Enable 8259 interrupt cascade */
+-	setup_irq(ADIR_IRQ_VT82C686_INTR, &noop_action);
+-}
+-
+-int
+-adir_get_irq(struct pt_regs *regs)
+-{
+-	int	irq;
+-
+-	if ((irq = adir_onboard_pic_get_irq()) < 0)
+-		return irq;
+-
+-	if (irq == ADIR_IRQ_VT82C686_INTR)
+-		irq = i8259_irq(regs);
+-
+-	return irq;
+-}
+diff --git a/arch/ppc/platforms/adir_setup.c b/arch/ppc/platforms/adir_setup.c
+deleted file mode 100644
+--- a/arch/ppc/platforms/adir_setup.c
++++ /dev/null
+@@ -1,210 +0,0 @@
+-/*
+- * arch/ppc/platforms/adir_setup.c
+- *
+- * Board setup routines for SBS Adirondack
+- *
+- * By Michael Sokolov <msokolov@ivan.Harhan.ORG>
+- * based on the K2 version by Matt Porter <mporter@mvista.com>
+- */
+-
+-#include <linux/config.h>
+-#include <linux/stddef.h>
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/errno.h>
+-#include <linux/reboot.h>
+-#include <linux/pci.h>
+-#include <linux/kdev_t.h>
+-#include <linux/types.h>
+-#include <linux/major.h>
+-#include <linux/initrd.h>
+-#include <linux/console.h>
+-#include <linux/delay.h>
+-#include <linux/ide.h>
+-#include <linux/seq_file.h>
+-#include <linux/root_dev.h>
+-
+-#include <asm/system.h>
+-#include <asm/pgtable.h>
+-#include <asm/page.h>
+-#include <asm/dma.h>
+-#include <asm/io.h>
+-#include <asm/machdep.h>
+-#include <asm/time.h>
+-#include <asm/todc.h>
+-#include <asm/bootinfo.h>
+-
+-#include "adir.h"
+-
+-extern void adir_init_IRQ(void);
+-extern int adir_get_irq(struct pt_regs *);
+-extern void adir_find_bridges(void);
+-extern unsigned long loops_per_jiffy;
+-
+-static unsigned int cpu_750cx[16] = {
+-	5, 15, 14, 0, 4, 13, 0, 9, 6, 11, 8, 10, 16, 12, 7, 0
+-};
+-
+-static int
+-adir_get_bus_speed(void)
+-{
+-	if (!(*((u_char *) ADIR_CLOCK_REG) & ADIR_CLOCK_REG_SEL133))
+-		return 100000000;
+-	else
+-		return 133333333;
+-}
+-
+-static int
+-adir_get_cpu_speed(void)
+-{
+-	unsigned long hid1;
+-	int cpu_speed;
+-
+-	hid1 = mfspr(SPRN_HID1) >> 28;
+-
+-	hid1 = cpu_750cx[hid1];
+-
+-	cpu_speed = adir_get_bus_speed()*hid1/2;
+-	return cpu_speed;
+-}
+-
+-static void __init
+-adir_calibrate_decr(void)
+-{
+-	int freq, divisor = 4;
+-
+-	/* determine processor bus speed */
+-	freq = adir_get_bus_speed();
+-	tb_ticks_per_jiffy = freq / HZ / divisor;
+-	tb_to_us = mulhwu_scale_factor(freq/divisor, 1000000);
+-}
+-
+-static int
+-adir_show_cpuinfo(struct seq_file *m)
+-{
+-	seq_printf(m, "vendor\t\t: SBS\n");
+-	seq_printf(m, "machine\t\t: Adirondack\n");
+-	seq_printf(m, "cpu speed\t: %dMhz\n", adir_get_cpu_speed()/1000000);
+-	seq_printf(m, "bus speed\t: %dMhz\n", adir_get_bus_speed()/1000000);
+-	seq_printf(m, "memory type\t: SDRAM\n");
+-
+-	return 0;
+-}
+-
+-extern char cmd_line[];
+-
+-TODC_ALLOC();
+-
+-static void __init
+-adir_setup_arch(void)
+-{
+-	unsigned int cpu;
+-
+-	/* Setup TODC access */
+-	TODC_INIT(TODC_TYPE_MC146818, ADIR_NVRAM_RTC_ADDR, 0,
+-		  ADIR_NVRAM_RTC_DATA, 8);
+-
+-	/* init to some ~sane value until calibrate_delay() runs */
+-        loops_per_jiffy = 50000000/HZ;
+-
+-       /* Setup PCI host bridges */
+-        adir_find_bridges();
+-
+-#ifdef CONFIG_BLK_DEV_INITRD
+-	if (initrd_start)
+-		ROOT_DEV = Root_RAM0;
+-	else
+-#endif
+-#ifdef CONFIG_ROOT_NFS
+-		ROOT_DEV = Root_NFS;
+-#else
+-		ROOT_DEV = Root_SDA1;
+-#endif
+-
+-	/* Identify the system */
+-	printk("System Identification: SBS Adirondack - PowerPC 750CXe @ %d Mhz\n", adir_get_cpu_speed()/1000000);
+-	printk("SBS Adirondack port (C) 2001 SBS Technologies, Inc.\n");
+-
+-	/* Identify the CPU manufacturer */
+-	cpu = mfspr(SPRN_PVR);
+-	printk("CPU manufacturer: IBM [rev=%04x]\n", (cpu & 0xffff));
+-}
+-
+-static void
+-adir_restart(char *cmd)
+-{
+-	local_irq_disable();
+-	/* SRR0 has system reset vector, SRR1 has default MSR value */
+-	/* rfi restores MSR from SRR1 and sets the PC to the SRR0 value */
+-	__asm__ __volatile__
+-	("lis	3,0xfff0\n\t"
+-	 "ori	3,3,0x0100\n\t"
+-	 "mtspr	26,3\n\t"
+-	 "li	3,0\n\t"
+-	 "mtspr	27,3\n\t"
+-	 "rfi\n\t");
+-	for(;;);
+-}
+-
+-static void
+-adir_power_off(void)
+-{
+-	for(;;);
+-}
+-
+-static void
+-adir_halt(void)
+-{
+-	adir_restart(NULL);
+-}
+-
+-static unsigned long __init
+-adir_find_end_of_memory(void)
+-{
+-	return boot_mem_size;
+-}
+-
+-static void __init
+-adir_map_io(void)
+-{
+-	io_block_mapping(ADIR_PCI32_VIRT_IO_BASE, ADIR_PCI32_IO_BASE,
+-				ADIR_PCI32_VIRT_IO_SIZE, _PAGE_IO);
+-	io_block_mapping(ADIR_PCI64_VIRT_IO_BASE, ADIR_PCI64_IO_BASE,
+-				ADIR_PCI64_VIRT_IO_SIZE, _PAGE_IO);
+-}
+-
+-void __init
+-platform_init(unsigned long r3, unsigned long r4, unsigned long r5,
+-	      unsigned long r6, unsigned long r7)
+-{
+-	/*
+-	 * On the Adirondack we use bi_recs and pass the pointer to them in R3.
+-	 */
+-	parse_bootinfo((struct bi_record *) (r3 + KERNELBASE));
+-
+-	/* Remember, isa_io_base is virtual but isa_mem_base is physical! */
+-	isa_io_base = ADIR_PCI32_VIRT_IO_BASE;
+-	isa_mem_base = ADIR_PCI32_MEM_BASE;
+-	pci_dram_offset = ADIR_PCI_SYS_MEM_BASE;
+-
+-	ppc_md.setup_arch = adir_setup_arch;
+-	ppc_md.show_cpuinfo = adir_show_cpuinfo;
+-	ppc_md.irq_canonicalize = NULL;
+-	ppc_md.init_IRQ = adir_init_IRQ;
+-	ppc_md.get_irq = adir_get_irq;
+-	ppc_md.init = NULL;
+-
+-	ppc_md.find_end_of_memory = adir_find_end_of_memory;
+-	ppc_md.setup_io_mappings = adir_map_io;
+-
+-	ppc_md.restart = adir_restart;
+-	ppc_md.power_off = adir_power_off;
+-	ppc_md.halt = adir_halt;
+-
+-	ppc_md.time_init = todc_time_init;
+-	ppc_md.set_rtc_time = todc_set_rtc_time;
+-	ppc_md.get_rtc_time = todc_get_rtc_time;
+-	ppc_md.nvram_read_val = todc_mc146818_read_val;
+-	ppc_md.nvram_write_val = todc_mc146818_write_val;
+-	ppc_md.calibrate_decr = adir_calibrate_decr;
+-}
+diff --git a/arch/ppc/syslib/Makefile b/arch/ppc/syslib/Makefile
+--- a/arch/ppc/syslib/Makefile
++++ b/arch/ppc/syslib/Makefile
+@@ -42,8 +42,6 @@ obj-$(CONFIG_PPC_PMAC)		+= open_pic.o in
+ obj-$(CONFIG_POWER4)		+= open_pic2.o
+ obj-$(CONFIG_PPC_CHRP)		+= open_pic.o indirect_pci.o i8259.o
+ obj-$(CONFIG_PPC_PREP)		+= open_pic.o indirect_pci.o i8259.o todc_time.o
+-obj-$(CONFIG_ADIR)		+= i8259.o indirect_pci.o pci_auto.o \
+-					todc_time.o
+ obj-$(CONFIG_CPCI690)		+= todc_time.o pci_auto.o
+ obj-$(CONFIG_EBONY)		+= indirect_pci.o pci_auto.o todc_time.o
+ obj-$(CONFIG_EV64260)		+= todc_time.o pci_auto.o

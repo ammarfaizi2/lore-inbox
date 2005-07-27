@@ -1,65 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVG0Xic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVG0Xk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVG0Xic (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 19:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVG0Xfw
+	id S261195AbVG0Xk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 19:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVG0Xih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 19:35:52 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:8390 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S261245AbVG0Xeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 19:34:31 -0400
-In-Reply-To: <20050727101502.B1114@cox.net>
-References: <20050727101502.B1114@cox.net>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <3965D4DD-1628-4463-890F-106DB5BC6931@freescale.com>
-Cc: "Michael Richardson" <mcr@sandelman.ottawa.on.ca>,
-       "Gala Kumar K.-galak" <galak@freescale.com>,
-       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       "linuxppc-embedded" <linuxppc-embedded@ozlabs.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [PATCH 00/14] ppc32: Remove board ports that are no longer maintained
-Date: Wed, 27 Jul 2005 18:34:23 -0500
-To: Matt Porter <mporter@kernel.crashing.org>
-X-Mailer: Apple Mail (2.733)
+	Wed, 27 Jul 2005 19:38:37 -0400
+Received: from smtp05.auna.com ([62.81.186.15]:59017 "EHLO smtp05.retemail.es")
+	by vger.kernel.org with ESMTP id S261195AbVG0Xgp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 19:36:45 -0400
+Date: Wed, 27 Jul 2005 23:36:38 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [PATCH] signed char fixes for scripts
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <1121465068l.13352l.0l@werewolf.able.es>
+	<1121465683l.13352l.5l@werewolf.able.es>
+	<20050727202757.GB31180@mars.ravnborg.org>
+In-Reply-To: <20050727202757.GB31180@mars.ravnborg.org> (from
+	sam@ravnborg.org on Wed Jul 27 22:27:57 2005)
+X-Mailer: Balsa 2.3.4
+Message-Id: <1122507398l.19829l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.222.145] Login:jamagallon@able.es Fecha:Thu, 28 Jul 2005 01:36:44 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 27, 2005, at 12:15 PM, Matt Porter wrote:
 
-> On Wed, Jul 27, 2005 at 09:27:41AM -0700, Eugene Surovegin wrote:
->
->> On Wed, Jul 27, 2005 at 12:13:23PM -0400, Michael Richardson wrote:
->>
->>> Kumar, I thought that we had some volunteers to take care of some of
->>> those. I know that I still care about ep405, and I'm willing to
->>>
-> maintain
->
->>> the code.
->>>
->>
->> Well, it has been almost two months since Kumar asked about
->>
-> maintenance
->
->> for this board. Nothing happened since then.
->>
->> Why is it not fixed yet? Please, send a patch which fixes it. This is
->> the _best_ way to keep this board in the tree, not some empty
->> maintenance _promises_.
->>
->
-> When we recover our history from the linuxppc-2.4/2.5 trees we can
-> show exactly how long it's been since anybody touched ep405.
->
-> Quick googling shows that it's been almost 2 years since the last
-> mention of ep405 (exluding removal discussions) on linuxppc-embedded.
-> Last ep405-related commits are more than 2 years ago.
+On 07.27, Sam Ravnborg wrote:
+> On Fri, Jul 15, 2005 at 10:14:43PM +0000, J.A. Magallon wrote:
+> > 
+> > On 07.16, J.A. Magallon wrote:
+> > > 
+> > > On 07.15, Andrew Morton wrote:
+> > > > 
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
+> > > > 
+> > 
+> > This time I did not break anything... and they shut up gcc4 ;)
+> 
+> I have applied it to my tree. There still is a lot left when I compile
+> with -Wsign-compare.
+> 
 
-So we are ok with it being removed.  This seems to be the only board  
-port that I removed that has caused any noise.
+All the problems are born here:
 
-- kumar
+struct sym_entry {
+    unsigned long long addr;
+    unsigned int len;
+    unsigned char *sym;
+};
+
+I suppose you want sym to be an unsigned char to store the type and to do
+the checksum math in there.
+And why use a 64bit address in 32bit archs ?. There is no math involved
+with 'addr', so you can make it a pointer and let the compiler decide its
+size.
+
+Why don't you do something like:
+
+struct sym_entry {
+    void		*addr;
+    unsigned char	type;
+    unsigned short	len;
+    union {
+	unsigned char	data[KSYM_NAME_LEN+1];
+	char		name[KSYM_NAME_LEN+1];
+    };
+};
+
+Option b) is identify the five lines that do the checksum math and plague
+them with (unsigned char) casts...
+Will try to do it...
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.12-jam10 (gcc 4.0.1 (4.0.1-0.2mdk for Mandriva Linux release 2006.0))
+
+

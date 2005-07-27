@@ -1,194 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVG0U3v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVG0UeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbVG0U3v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 16:29:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVG0U2E
+	id S262142AbVG0UeY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 16:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbVG0UdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 16:28:04 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:32578 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262164AbVG0U07 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 16:26:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=sfYXK9Xratf2ld+5EtCLFyYXLZlKYsDwHKSWlihfnmdBlE+OR4QrDGyPq+gk+Bo9NDCXREqRY2hZ9u2Zgq5663PP6og9iwElwnOKOL7np8gsHpxQNVBGXNGfO3uy+HCEI98uE5VErktyR/x+A7ClzGPtMgo7R9p1ZX2L3tr6cv4=
-Message-ID: <86802c440507271326f7d1729@mail.gmail.com>
-Date: Wed, 27 Jul 2005 13:26:59 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-Reply-To: yhlu <yhlu.kernel@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: x86-64 timing patch after 2.6.12-rc5 with 2 cpu above system
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+	Wed, 27 Jul 2005 16:33:13 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:52902 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262314AbVG0Uao (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 16:30:44 -0400
+Subject: Re: [PATCH 3/7] shared subtree
+From: Ram Pai <linuxram@us.ibm.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Avantika Mathur <mathurav@us.ibm.com>, mike@waychison.com,
+       janak@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <E1DxrL8-0001kG-00@dorka.pomaz.szeredi.hu>
+References: <20050725224417.501066000@localhost>
+	 <20050725225908.031752000@localhost>
+	 <E1DxrL8-0001kG-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1122496239.5037.104.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 27 Jul 2005 13:30:39 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+On Wed, 2005-07-27 at 12:13, Miklos Szeredi wrote:
+> > @@ -54,7 +55,7 @@ static inline unsigned long hash(struct 
+> >  
+> >  struct vfsmount *alloc_vfsmnt(const char *name)
+> >  {
+> > -	struct vfsmount *mnt = kmem_cache_alloc(mnt_cache, GFP_KERNEL); 
+> > +	struct vfsmount *mnt = kmem_cache_alloc(mnt_cache, GFP_KERNEL);
+> >  	if (mnt) {
+> >  		memset(mnt, 0, sizeof(struct vfsmount));
+> >  		atomic_set(&mnt->mnt_count,1);
+> 
+> Please make whitespace changes a separate patch.
 
-I verify the timing problem could happen with any x86-64 system with
-more than 2 cpus. ( 2 way dual core, or four way single core).
+ I tried to remove trailing whitespaces in the current code
+whereever I found them. Ok will them a separate patch.
 
-please refer the patch, it will move cpu_set(, cpu_callin_map) from
-smi_callin to start_secondary.
 
---- /home/yhlu/xx1/linux-2.6.13-rc2/arch/x86_64/kernel/smpboot.c.orig
-2005-07-06 18:41:16.789767168 -0700
-+++ /home/yhlu/xx1/linux-2.6.13-rc2/arch/x86_64/kernel/smpboot.c
-2005-07-06 18:45:11.923021480 -0700
-@@ -442,7 +442,7 @@
-        /*
-         * Allow the master to continue.
-         */
-- cpu_set(cpuid, cpu_callin_map);
-+// cpu_set(cpuid, cpu_callin_map); // moved to start_secondary by yhlu
- }
+> 
+> > @@ -128,11 +162,71 @@ static void attach_mnt(struct vfsmount *
+> >  {
+> >  	mnt->mnt_parent = mntget(nd->mnt);
+> >  	mnt->mnt_mountpoint = dget(nd->dentry);
+> > -	list_add(&mnt->mnt_hash, mount_hashtable+hash(nd->mnt, nd->dentry));
+> > +	mnt->mnt_namespace = nd->mnt->mnt_namespace;
+> > +	list_add_tail(&mnt->mnt_hash,
+> > +			mount_hashtable+hash(nd->mnt, nd->dentry));
+> >  	list_add_tail(&mnt->mnt_child, &nd->mnt->mnt_mounts);
+> >  	nd->dentry->d_mounted++;
+> >  }
+> 
+> Why list_add_tail()?  This changes user visible behavior, and seems
+> unnecessary.
 
- static inline void set_cpu_sibling_map(int cpu)
-@@ -529,8 +529,11 @@
-        /* Wait for TSC sync to not schedule things before.
-           We still process interrupts, which could see an inconsistent
-           time in that window unfortunately. */
-+
-        tsc_sync_wait();
+Yes. I was about to send out a mail questioning the existing behavior. I
+will start a seperate thread questioning the current behavoir. My plan
+was to discuss the current behavior before making this change. I thought
+I had reverted this change. But it slipped in. 
 
-+ cpu_set(smp_processor_id(), cpu_callin_map); // moved from smp_callin by yhlu
-+
-        cpu_idle();
- }
+> 
+> > +static void attach_prepare_mnt(struct vfsmount *mnt, struct nameidata *nd)
+> > +{
+> > +	mnt->mnt_parent = mntget(nd->mnt);
+> > +	mnt->mnt_mountpoint = dget(nd->dentry);
+> > +	nd->dentry->d_mounted++;
+> > +}
+> > +
+> > +
+> 
+> You shouldn't add unnecessary newlines.  There are a lot of these,
+> please audit all your patches.
 
-the other solution will be change cpu_callin_map to cpu_online_map in
-do_boot_cpu
+ok. sure.
 
-                /*
-                 * allow APs to start initializing.
-                 */
-                Dprintk("Before Callout %d.\n", cpu);
-                cpu_set(cpu, cpu_callout_map);
-                Dprintk("After Callout %d.\n", cpu);
+> 
+> > +void do_attach_commit_mnt(struct vfsmount *mnt)
+> > +{
+> > +	struct vfsmount *parent = mnt->mnt_parent;
+> > +	BUG_ON(parent==mnt);
+> 
+> 	BUG_ON(parent == mnt);
+> 
+> > +	if(list_empty(&mnt->mnt_hash))
+> 
+> 	if (list_empty(&mnt->mnt_hash))
+> 
+> > +		list_add_tail(&mnt->mnt_hash,
+> > +			mount_hashtable+hash(parent, mnt->mnt_mountpoint));
+> > +	if(list_empty(&mnt->mnt_child))
+> > +		list_add_tail(&mnt->mnt_child, &parent->mnt_mounts);
+> > +	mnt->mnt_namespace = parent->mnt_namespace;
+> > +	list_add_tail(&mnt->mnt_list, &mnt->mnt_namespace->list);
+> > +}
+> 
+> Etc.  Maybe you should run Lindent on your changes, but be careful not
+> to change existing code, even if Lindent would do that!
 
-                /*
-                 * Wait 5s total for a response
-                 */
-                for (timeout = 0; timeout < 50000; timeout++) {
-                        if (cpu_isset(cpu, cpu_callin_map))
---------------------------> cpu_online_map
-                                break; /* It has booted */
-                        udelay(100);
-                }
+sure :)
 
-                if (cpu_isset(cpu, cpu_callin_map)) {
---------------------------------> cpu_online_map
-                        /* number CPUs logically, starting from 1 (BSP is 0)
-*/
-                        Dprintk("CPU has booted.\n");
-                } else {
-                        boot_error = 1;
-                        if (*((volatile unsigned char
-*)phys_to_virt(SMP_TRAMPOLINE_BASE))
-                                        == 0xA5)
-                                /* trampoline started but...? */
-                                printk("Stuck ??\n");
-                        else
-                                /* trampoline code not run */
-                                printk("Not responding.\n");
-#if APIC_DEBUG
-                        inquire_remote_apic(apicid);
-#endif
-                }
+> 
+> > @@ -191,7 +270,7 @@ static void *m_start(struct seq_file *m,
+> >  	struct list_head *p;
+> >  	loff_t l = *pos;
+> >  
+> > -	down_read(&n->sem);
+> > +	down_read(&namespace_sem);
+> >  	list_for_each(p, &n->list)
+> >  		if (!l--)
+> >  			return list_entry(p, struct vfsmount, mnt_list);
+> 
+> This should be a separate patch.  You can just take the one from the
+> detached trees patch-series.
 
-the result will be
+ok. in fact these changes were motivated by that patch.
 
-Booting processor 1/1 rip 6000 rsp ffff81013ff89f58
-Initializing CPU#1
-masked ExtINT on CPU#1
-Calibrating delay using timer specific routine.. 4422.98 BogoMIPS
-(lpj=8845965)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 1(2) -> Node 0 -> Core 1
- stepping 00
-CPU 1: Syncing TSC to CPU 0.
-sync_master: 1 smp_processor_id() = 00, boot_cpu_id= 00
-sync_master: 2 smp_processor_id() = 00, boot_cpu_id= 00
-CPU 1: synchronized TSC with CPU 0 (last diff 0 cycles, maxerr 595 cycles)
----------------------> it is in right place.
-Booting processor 2/2 rip 6000 rsp ffff81023ff1df58
-Initializing CPU#2
-masked ExtINT on CPU#2
-Calibrating delay using timer specific routine.. 4422.99 BogoMIPS
-(lpj=8845997)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 2(2) -> Node 1 -> Core 0
- stepping 00
-CPU 2: Syncing TSC to CPU 0.
-sync_master: 1 smp_processor_id() = 00, boot_cpu_id= 00
-sync_master: 1 smp_processor_id() = 01, boot_cpu_id= 00
-sync_master: 2 smp_processor_id() = 00, boot_cpu_id= 00
-CPU 2: synchronized TSC with CPU 0 (last diff -4 cycles, maxerr 1097 cycles)
-Booting processor 3/3 rip 6000 rsp ffff81013ff53f58
-Initializing CPU#3
-masked ExtINT on CPU#3
-Calibrating delay using timer specific routine.. 4423.03 BogoMIPS
-(lpj=8846075)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 3(2) -> Node 1 -> Core 1
- stepping 00
-CPU 3: Syncing TSC to CPU 0.
-sync_master: 1 smp_processor_id() = 00, boot_cpu_id= 00
-sync_master: 1 smp_processor_id() = 01, boot_cpu_id= 00
-sync_master: 1 smp_processor_id() = 02, boot_cpu_id= 00
-sync_master: 2 smp_processor_id() = 00, boot_cpu_id= 00
-CPU 3: synchronized TSC with CPU 0 (last diff -4 cycles, maxerr 1097 cycles)
-Brought up 4 CPUs
+> 
+> > +/*
+> > + * abort the operations done in attach_recursive_mnt(). run through the mount
+> > + * tree, till vfsmount 'last' and undo the changes.  Ensure that all the mounts
+> > + * in the tree are all back in the mnt_list headed at 'source_mnt'.
+> > + * NOTE: This function is closely tied to the logic in
+> > + * 'attach_recursive_mnt()'
+> > + */
+> > +static void abort_attach_recursive_mnt(struct vfsmount *source_mnt, struct
+> > +		vfsmount *last, struct list_head *head) { struct vfsmount *p =
+> > +	source_mnt, *m; struct vfspnode *src_pnode;
+> 
+> If you want to do proper error handling, instead of doing rollback, it
+> seems better to first do anything that can fail (allocations), then do
+> the actual attaching, which cannot fail.  It isn't nice to have
+> transient states on failure.
 
-> -----Original Message-----
-> From: YhLu
-> Sent: Wednesday, July 06, 2005 3:25 PM
-> To: Andi Kleen
-> Cc: Peter Buckingham; linux-kernel_at_vger.kernel.org
-> Subject: 2.6.13-rc2 with dual way dual core ck804 MB
->
-> andi,
->
-> the core1/node0 take a long while to get TSC synchronized. Is
-> it normal?
-> i guess
-> "CPU 1: synchronized TSC with CPU 0" should be just after
-> "CPU 1: Syncing TSC to CPU0"
->
-> YH
->
->
-> cpu 1: setting up apic clock
-> cpu 1: enabling apic timer
-> CPU 1: Syncing TSC to CPU 0.
-> CPU has booted.
-> waiting for cpu 1
->
-> cpu 2: setting up apic clock
-> cpu 2: enabling apic timer
-> CPU 2: Syncing TSC to CPU 0.
-> CPU 2: synchronized TSC with CPU 0 (last diff -4 cycles,
-> maxerr 1097 cycles) CPU has booted.
-> waiting for cpu 2
->
-> cpu 3: setting up apic clock
-> cpu 3: enabling apic timer
-> CPU 3: Syncing TSC to CPU 0.
-> CPU 3: synchronized TSC with CPU 0 (last diff 1 cycles,
-> maxerr 1087 cycles) CPU has booted.
-> waiting for cpu 3
->
-> testing NMI watchdog ... CPU#1: NMI appears to be stuck (1->1)!
-> checking if image is initramfs...<6>CPU 1: synchronized TSC
-> with CPU 0 (last diff 0 cycles, maxerr 595 cycles) it isn't
-> (no cpio magic); looks like an initrd
->
->
-> the
+yes. it does exactly what you said. In the prepare stage it does not
+touch any of the existing vfstree or the pnode tree.
+
+All it does it builds a new vfstree and pnode tree, does the necessary
+changes to them. And if everthing is successful, it glues the new tree
+to the existing tree (which is the commit phase), and if the prepare
+stage fails allocating memory or any other reason, it goes and destroys
+the new trees (in the abort phase).
+
+Offcourse in the prepare state, it does increase the reference count of
+the vfsmounts to which the new tree will be attached. This is to ensure
+that the vfsmounts have not disappeared by the time we reach the commit
+phase.  I think we are talking the same thing, and the code behaves
+exactly as you said.
+
+
+> 
+> > + /*
+> > + * This operation is equivalent of mount --bind dir dir
+> > + * create a new mount at the dentry, and unmount all child mounts
+> > + * mounted on top of dentries below 'dentry', and mount them
+> > + * under the new mount.
+> > +  */
+> > +struct vfsmount *do_make_mounted(struct vfsmount *mnt, struct dentry *dentry)
+> 
+> Why is this needed?  I thought we agreed, that this can be removed.
+
+yes we agreed on returning EINVAL when a directory is attempted to made
+shared/private/slave/unclonnable.   But this is a different case.
+
+lets say  /mnt is a mountpoint having a vfsmount (say A). 
+now if you run 
+	mount --bind /mnt/a  /tmp
+this operation succeeds currently. 
+
+now lets say /mnt is a mountpoint having a vfsmount which is shared.
+now if you run
+	mount --bind /mnt/a /tmp
+
+we now have a mount at /tmp which gets propogation from mounts under
+/mnt/a. right?
+but /mnt/a is not a mountpoint at all.  if we need to track and
+propogate mounts/unmounts under /tmp or /mnt/a we need to have a mount
+at /mnt/a. WHich means we have to implicitly make /mnt/a as a
+mountpoint. Or the other solution is to return -EINVAL.
+
+But returning -EINVAL is inconsistent with the standard behavior of
+	mount --bind 
+the standard behavior allows bind mounts from any directory; need not be
+a mountpoint. 
+
+We had this exact discussion about the behavior with Mike Waychison, Al
+Viro and Bruce Fields. Mike suggested the above implemented behavior.
+
+RP
+
+
+
+> 
+> Miklos
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

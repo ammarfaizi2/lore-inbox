@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVG0Hi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVG0HlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVG0Hi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 03:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVG0Hi5
+	id S261787AbVG0HlR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 03:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVG0HlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 03:38:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28339 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261810AbVG0Hi4 (ORCPT
+	Wed, 27 Jul 2005 03:41:11 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21157 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261787AbVG0HlF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 03:38:56 -0400
-Date: Wed, 27 Jul 2005 09:38:19 +0200
+	Wed, 27 Jul 2005 03:41:05 -0400
+Date: Wed, 27 Jul 2005 09:40:33 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andreas Steinmetz <ast@domdv.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [swsusp] encrypt suspend data for easy wiping
-Message-ID: <20050727073819.GB4115@elf.ucw.cz>
-References: <20050703213519.GA6750@elf.ucw.cz> <20050706020251.2ba175cc.akpm@osdl.org> <42DA7B12.7030307@domdv.de> <20050725201036.2205cac3.akpm@osdl.org> <20050726220428.GA7425@waste.org> <20050726221446.GA24196@elf.ucw.cz> <20050726225808.GL12006@waste.org> <20050726231249.GB29638@elf.ucw.cz> <20050726235314.GM12006@waste.org>
+To: tony.luck@intel.com
+Cc: Andrew Morton <akpm@osdl.org>, kaneshige.kenji@jp.fujitsu.com,
+       ambx1@neo.rr.com, greg@kroah.org, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, Len Brown <len.brown@intel.com>
+Subject: Re: [patch] properly stop devices before poweroff
+Message-ID: <20050727074033.GC4115@elf.ucw.cz>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F03FCF24C@scsmsx401.amr.corp.intel.com> <200507270014.j6R0EYMv005786@agluck-lia64.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050726235314.GM12006@waste.org>
+In-Reply-To: <200507270014.j6R0EYMv005786@agluck-lia64.sc.intel.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,64 +29,48 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > 2) An attacker breaks into your machine remotely while you're using
-> > > it. He has access to all your RAM, which if you're actually using it,
-> > > very likely including the same IPSEC, dm_crypt, and ssh-agent keys as
-> > > are saved on suspend. Further, he can trivially capture your
-> > > keystrokes and thus capture any keys you use from that point forward.
-> > > This patch gets us very close to nothing.
+> > > I started on my OLS homework from Andrew ... and began looking
+> > > into what is going on here.
 > > > 
-> > > 3) An attacker steals your unsuspended laptop. He has access to all
-> > > your RAM, which in all likelihood includes your IPSEC, dm_crypt, and
-> > > ssh-agent keys. Odds are good that he invokes swsusp by closing the
-> > > laptop. This patch gets us very close to nothing.
-> > > 
-> > > 4) You suspend your laptop between typing your GPG key password and
-> > > hitting enter, thus leaving your password in memory when it would
-> > > otherwise be cleared. Then you resume your laptop and hit enter, thus
-> > > clearing the password from RAM but leaving it on the suspend
-> > > partition. Then an attacker steals your machine (without re-suspending
-> > > it!) and manages to recover the swsusp image which contains the
 > > 
-> > Why without resuspending it? Position of critical data in swap is
-> > pretty much random. 
+> > Thanks ;) I guess we'll end up with a better kernel, even though you appear
+> > to be an innocent victim here.
 > 
-> Typical swap partition sizes are about the same as RAM sizes. So the
-> odds of any given thing in a previous suspend getting overwritten by
-> the next one are high.
-
-Well, if you suspend with 100MB of RAM used, then keep suspending half
-a year with only 50MB of RAM used, you'll have that half-year-old data
-in there.
-
-> > What I'm worried is: attacker steals your laptop after you were using
-> > swsusp for half a year. Now your swap partition contains random pieces
-> > of GPG keys you were using for last half a year. That's bad.
+> The "Badness in iosapic_unregister_intr at arch/ia64/kernel/iosapic.c:851"
+> messages are caused by a missing call to free_irq() in the mpt/fusion driver.
+> I think that it should go here ... but someone with a clue should verify:
 > 
-> And it's incredibly unlikely. Suspending while a supposedly
-> short-lived key is in RAM should be rare. Surviving on disk after half
-> a year of swapping and suspending should be negligible probability.
+> diff --git a/drivers/message/fusion/mptbase.c b/drivers/message/fusion/mptbase.c
+> --- a/drivers/message/fusion/mptbase.c
+> +++ b/drivers/message/fusion/mptbase.c
+> @@ -1384,6 +1384,8 @@ mpt_suspend(struct pci_dev *pdev, pm_mes
+>  	/* Clear any lingering interrupt */
+>  	CHIPREG_WRITE32(&ioc->chip->IntStatus, 0);
+>  
+> +	free_irq(ioc->pci_irq, ioc);
+> +
+>  	pci_disable_device(pdev);
+>  	pci_set_power_state(pdev, device_state);
 
-Disagreed.
+Looks good, but check with Len Brown. He did relevant ACPI changes.
 
-> It's not worth even thinking about when we have real suspended laptops
-> getting stolen every day in REAL LIFE. Anyone who cares about your
-> highly contrived case also cares about 1000 times more about the real
-> life case of the stolen laptop. Otherwise they're fooling themselves.
+> But even this doesn't fix the hang during shutdown :-(
 > 
-> This code is bad. It attacks a very rare problem, gives its users (and
-> apparently its authors) a false sense of security, reimplements
-> dm_crypt functionality apparently without much attention to the
-> subtleties of block device encryption and without serious review, and
-> it stands in the way of doing things right.
+> The remaining problem is cause by the order of the calls in sys_reboot:
+> 
+>                 device_suspend(PMSG_SUSPEND);
+>                 device_shutdown();
+> 
+> The call to device_suspend() shuts down the mpt/fusion driver.  But then
+> device_shutdown() calls sd_shutdown() which prints:
+> 
+>   Synchronizing SCSI cache for disk sdb
 
-Think about current code as really quick disk wiping method. Now, if
-you feel that we are giving false sense of security... we should
-not. Perhaps option should be renamed to CONFIG_SWSUSP_WIPE. Patches
-would certainly be accepted and I believe Andreas is going to cook
-some when he gets back online :-). I'd like to keep it there, because
-it enables us to do it properly in future. Contrary to what you think,
-I believe this is going to be part of a solution.
+Okay, looks to me like sd_shutdown should be done from
+device_suspend(), not device_shutdown [because it needs scsi subsystem
+to be functional]. Also for reboot we probably want PMSG_FREEZE (not
+PMSG_SUSPEND), to keep it slightly faster.
+
 								Pavel
 -- 
 teflon -- maybe it is a trademark, but it should not be.

@@ -1,80 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVG0TQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVG0TSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVG0TQw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 15:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVG0TJp
+	id S261253AbVG0TSz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 15:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVG0TQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 15:09:45 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63240 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261344AbVG0TIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 15:08:52 -0400
-Date: Wed, 27 Jul 2005 21:08:41 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Vinicius <jdob@ig.com.br>
-Cc: bernd@firmix.at, linux-kernel@vger.kernel.org
-Subject: Re: Re: Kernel doesn't free Cached Memory
-Message-ID: <20050727190841.GL3160@stusta.de>
-References: <20050722_120205_006490.jdob@ig.com.br>
+	Wed, 27 Jul 2005 15:16:54 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:51790 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261910AbVG0TQX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 15:16:23 -0400
+Date: Wed, 27 Jul 2005 21:16:45 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm2 (kbuild broken for external modules)
+Message-ID: <20050727191645.GA30081@mars.ravnborg.org>
+References: <20050727024330.78ee32c2.akpm@osdl.org> <E1DxkiX-0001FB-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050722_120205_006490.jdob@ig.com.br>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <E1DxkiX-0001FB-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 22, 2005 at 09:02:05AM -0300, Vinicius wrote:
-Content-Description: Mail message body
-> On Fri, 2005-07-22 at 08:27 -0300, Vinicius wrote: 
-> [...] 
-> >>    I have a server with 2 Pentium 4 HT processors and 32 GB of >>RAM, 
-> this 
-> >> server runs lots of applications that consume lots of memory to. >>When I 
-> >>stop 
-> >> this applications, the kernel doesn't free memory (the  memory >>still in 
-> >>use) 
-> >> and the server cache lots of memory (~27GB). When I start this 
-> >>applications, 
-> >> the kernel sends  "Out of Memory" messages and kill some random 
-> >> applications. 
-> >> 
-> >>    Anyone know how can I reduce the kernel cached memory on RHEL >>3 
-> (kernel 
-> >> 2.4.21-32.ELsmp - Trial version)? There is a way to reduce the >>kernel 
-> >>cached 
-> >> memory utilization? 
+On Wed, Jul 27, 2005 at 02:08:57PM +0200, Miklos Szeredi wrote:
+> >  git-kbuild.patch
 > 
-> >Probably RedHat's support can answer this for RHEL 3. 
-> > 
-> >	Bernd 
+> This breaks building of external modules:
 > 
-> Bernd, 
-> 
->    The server runs RHEL Trial Version, without support... for tests purpose. 
->...
+>    make -C /usr/src/linux-2.6.13-rc3-mm2 M=/home/miko/fuse/kernel modules
+>    make[1]: Entering directory `/usr/src/linux-2.6.13-rc3-mm2'
+>    
+>      WARNING: Symbol version dump /usr/src/linux-2.6.13-rc3-mm2/Module.symvers
+>               is missing; modules will have no dependencies and modversions.
+>    
+>    scripts/Makefile.build:14: /usr/src/linux-2.6.13-rc3-mm2//home/miko/fuse/kernel/Makefile: No such file or directory
+>    make[2]: *** No rule to make target `/usr/src/linux-2.6.13-rc3-mm2//home/miko/fuse/kernel/Makefile'.  Stop.
+>    make[1]: *** [_module_/home/miko/fuse/kernel] Error 2
+>    make[1]: Leaving directory `/usr/src/linux-2.6.13-rc3-mm2'
+>    make: *** [all-spec] Error 2
 
-The answers you already got are:
-- for that much memory, 64bit processors are really recommended
-- 2.6 kernels are a better choice for this scenario
-- linux-kernel doesn't support vendor kernels, does the same problem 
-  occur with kernel 2.6.12 ?
+Thanks for the report. I had overlooked this usage when modifying this
+part of kbuild.
+The following fix it - and work in the following test setups:
+make
+make O=
+make M=
+make O= M=
 
-Another thing that surprises me is that why you are testing an old 
-version of RHEL.
-
-If you want to build a new system, you should better test RHEL 4.
-
-> Vinicius. 
-> Protolink Consultoria. 
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -11,8 +11,8 @@ __build:
+ -include .config
+ 
+ # The filename Kbuild has precedence over Makefile
+-include $(if $(wildcard $(srctree)/$(src)/Kbuild), \
+-                        $(srctree)/$(src)/Kbuild, $(srctree)/$(src)/Makefile)
++kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
++include $(if $(wildcard $(kbuild-dir)/Kbuild), $(kbuild-dir)/Kbuild, $(kbuild-dir)/Makefile)
+ 
+ include scripts/Kbuild.include
+ include scripts/Makefile.lib
+diff --git a/scripts/Makefile.clean b/scripts/Makefile.clean
+--- a/scripts/Makefile.clean
++++ b/scripts/Makefile.clean
+@@ -13,8 +13,8 @@ __clean:
+ clean := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.clean obj
+ 
+ # The filename Kbuild has precedence over Makefile
+-include $(if $(wildcard $(srctree)/$(src)/Kbuild), \
+-                        $(srctree)/$(src)/Kbuild, $(srctree)/$(src)/Makefile)
++kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
++include $(if $(wildcard $(kbuild-dir)/Kbuild), $(kbuild-dir)/Kbuild, $(kbuild-dir)/Makefile)
+ 
+ # Figure out what we need to build from the various variables
+ # ==========================================================================

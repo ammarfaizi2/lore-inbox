@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVG0Vp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVG0VqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVG0Vp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 17:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVG0Vne
+	id S261158AbVG0VqS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 17:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVG0VqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 17:43:34 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:48573 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261230AbVG0VnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 17:43:18 -0400
-Subject: Re: Obsolete files in 2.6 tree
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Jiri Slaby <lnx4us@gmail.com>,
-       Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1122421245.2542.35.camel@localhost.localdomain>
-References: <42DED9F3.4040300@gmail.com> <42DF6F34.4080804@gmail.com>
-	 <20050726120727.GA2134@ucw.cz>
-	 <1122421245.2542.35.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 27 Jul 2005 17:43:15 -0400
-Message-Id: <1122500596.22844.7.camel@mindpipe>
+	Wed, 27 Jul 2005 17:46:06 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9887
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261226AbVG0Vor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 17:44:47 -0400
+Date: Wed, 27 Jul 2005 14:44:47 -0700 (PDT)
+Message-Id: <20050727.144447.66176710.davem@davemloft.net>
+To: n.sillik@temple.edu
+Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org
+Subject: Re: [PATCH 2.6.13-rc3-mm2]net/ipv4/netfilter/ip_conntrack_core.c
+ fix -Wundef error
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <42E7FED7.6070609@temple.edu>
+References: <42E7F377.9040107@temple.edu>
+	<20050727.142458.112852452.davem@davemloft.net>
+	<42E7FED7.6070609@temple.edu>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-27 at 00:40 +0100, Alan Cox wrote:
-> > > sound/oss/skeleton.c
+From: Nick Sillik <n.sillik@temple.edu>
+Date: Wed, 27 Jul 2005 17:38:31 -0400
+
+> Apologies
 > 
-> Reference for writing drivers
+> Signed-off-by: Nick Sillik <n.sillik@temple.edu>
 
-But we're not taking new OSS drivers, right?
+I need it "with" the patch.
 
-Lee
-
+Please resend the patch and the signed-off-by line together to me
+under seperate cover in private email so we don't have to spam
+linux-kernel as we try to get this right :)

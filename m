@@ -1,100 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVG0RGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVG0RPH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbVG0RGp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 13:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVG0REQ
+	id S261324AbVG0RPH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 13:15:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVG0RPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 13:04:16 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:41899 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262314AbVG0RCK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 13:02:10 -0400
-Date: Wed, 27 Jul 2005 19:01:42 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
-In-Reply-To: <42E7B1A4.2070900@cybsft.com>
-Message-Id: <Pine.OSF.4.05.10507271852030.3210-100000@da410.phys.au.dk>
+	Wed, 27 Jul 2005 13:15:07 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:53733 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S261324AbVG0RPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 13:15:05 -0400
+Date: Wed, 27 Jul 2005 10:15:03 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: Michael Richardson <mcr@sandelman.ottawa.on.ca>,
+       Kumar Gala <galak@freescale.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+Subject: Re: [PATCH 00/14] ppc32: Remove board ports that are no longer maintained
+Message-ID: <20050727101502.B1114@cox.net>
+References: <Pine.LNX.4.61.0507271029480.12237@nylon.am.freescale.net> <1271.1122480803@marajade.sandelman.ottawa.on.ca> <20050727162741.GC28681@gate.ebshome.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050727162741.GC28681@gate.ebshome.net>; from ebs@ebshome.net on Wed, Jul 27, 2005 at 09:27:41AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Jul 2005, K.R. Foley wrote:
-
-> Esben Nielsen wrote:
-> > On Wed, 27 Jul 2005, Ingo Molnar wrote:
-> > 
-> > 
-> >>* Steven Rostedt <rostedt@goodmis.org> wrote:
-> >>
-> >>
-> >>>Perfectly understood.  I've had two customers ask me to increase the 
-> >>>priorities for them, but those where custom kernels, and a config 
-> >>>option wasn't necessary. But since I've had customers asking, I 
-> >>>thought that this might be something that others want.  But I deal 
-> >>>with a niche market, and what my customers want might not be what 
-> >>>everyone wants. (hence the RFC in the subject).
-> >>>
-> >>>So if there are others out there that would prefer to change their 
-> >>>priority ranges, speak now otherwise this patch will go by the waste 
-> >>>side.
-> >>
-> >>i'm not excluding that this will become necessary in the future. We 
-> >>should also add the safety check to sched.h - all i'm suggesting is to 
-> >>not make it a .config option just now, because that tends to be fiddled 
-> >>with.
-> >>
-> > 
-> > Isn't there a way to mark it "warning! warning! dangerous!" ?
-> > 
-> > Anyway: I think 100 RT priorities is way overkill - and slowing things
-> > down by making the scheduler checking more empty slots in the runqueue.
-> > Default ought to be 10. In practise it will be very hard to have
-> > a task at the lower RT priority behaving real-time with 99 higher
-> > priority tasks around. I find it hard to believe that somebody has an RT
-> > app needing more than 10 priorities and can't do with RR or FIFO
-> > scheduling within a fewer number of prorities.
-> > 
-> > Esben
-> > 
+On Wed, Jul 27, 2005 at 09:27:41AM -0700, Eugene Surovegin wrote:
+> On Wed, Jul 27, 2005 at 12:13:23PM -0400, Michael Richardson wrote:
+> > Kumar, I thought that we had some volunteers to take care of some of
+> > those. I know that I still care about ep405, and I'm willing to maintain
+> > the code.
 > 
-> Actually, is it really that slow to search a bitmap for a slot that 
-> needs processing? 
-No, it is ultra fast - but done very often.
-
-> I work on real-time test stands which are less of an 
-> embedded system and more of a real Unix system that require determinism. 
-> It is very nice in some cases to have more than 10 RT priorities to work 
-> with.
-
-What for? Why can't you use FIFO at the same priorities for some of your
-tasks? I pretty much quess you have a very few tasks which have some high
-requirements. The rest of you "RT" task could easily share the lowest RT
-priority. FIFO would also be more effective as you will have context
-switches.
-
-This about multiple priorities probably comes from an ordering of tasks:
-You have a lot of task. You have a feeling about which one ought to be
-more important than the other. Thus you end of with an ordered list of
-tasks. BUT when you boil it down to what RT is all about, namely
-meeting your deadlines, it doesn't matter after the 5-10 priorities
-because the 5-10 priorities have introduced a lot of jitter to the rest
-of the tasks anyway. You can just as well just put them at the same
-priority.
-
-Esben
-
+> Well, it has been almost two months since Kumar asked about maintenance 
+> for this board. Nothing happened since then.
 > 
-> -- 
->     kr
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Why is it not fixed yet? Please, send a patch which fixes it. This is 
+> the _best_ way to keep this board in the tree, not some empty 
+> maintenance _promises_.
 
+When we recover our history from the linuxppc-2.4/2.5 trees we can
+show exactly how long it's been since anybody touched ep405.
+
+Quick googling shows that it's been almost 2 years since the last
+mention of ep405 (exluding removal discussions) on linuxppc-embedded.
+Last ep405-related commits are more than 2 years ago.
+
+-Matt

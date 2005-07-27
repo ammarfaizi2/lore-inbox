@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVG0VZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVG0VXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbVG0VZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 17:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVG0VZ2
+	id S262427AbVG0VXB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 17:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbVG0Ucb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 17:25:28 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:24733
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262454AbVG0VZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 17:25:12 -0400
-Date: Wed, 27 Jul 2005 14:24:58 -0700 (PDT)
-Message-Id: <20050727.142458.112852452.davem@davemloft.net>
-To: n.sillik@temple.edu
-Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org
-Subject: Re: [PATCH 2.6.13-rc3-mm2]net/ipv4/netfilter/ip_conntrack_core.c
- fix -Wundef error
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <42E7F377.9040107@temple.edu>
-References: <42E7F377.9040107@temple.edu>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 27 Jul 2005 16:32:31 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:11960 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262367AbVG0UbB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 16:31:01 -0400
+Subject: Re: [patch] inotify: ppc64 syscalls.
+From: Robert Love <rml@novell.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: akpm@osdl.org, paulus@samba.org, linux-kernel@vger.kernel.org,
+       ttb@tentacle.dhs.org
+In-Reply-To: <20050727.132701.115907512.davem@davemloft.net>
+References: <1122479106.21253.158.camel@betsy>
+	 <20050727095539.602fcc4a.akpm@osdl.org> <1122485496.21253.170.camel@betsy>
+	 <20050727.132701.115907512.davem@davemloft.net>
+Content-Type: text/plain
+Date: Wed, 27 Jul 2005 16:31:02 -0400
+Message-Id: <1122496262.21253.190.camel@betsy>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nick Sillik <n.sillik@temple.edu>
-Date: Wed, 27 Jul 2005 16:49:59 -0400
+On Wed, 2005-07-27 at 13:27 -0700, David S. Miller wrote:
 
-> Sorry for the resend and previously bad subject line.
-> 
-> This fixes a single -Wundef error in the file
-> net/ipv4/netfilter/ip_conntrack_core.c ,
+> You'll notice that sys_ppc32.c has a ton of shims which purely
+> exist to sign extend "int" system call arguments.  Sparc64 does
+> something similarly, but in assembler so that we don't eat the
+> overhead of a full stack frame just to sign extend arguments.
 
-Please supply a proper Signed-off-by: line with your
-patch.
+Yah, but it looked like they did the sign extend thing for every int but
+file descriptors, and fd's are the only int's we have.
+
+	Robert Love
+
+

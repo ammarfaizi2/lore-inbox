@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVG0PU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVG0PaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261209AbVG0PU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 11:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVG0PU5
+	id S261297AbVG0PaK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 11:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVG0PaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 11:20:57 -0400
-Received: from main.gmane.org ([80.91.229.2]:35496 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261209AbVG0PU4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 11:20:56 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Hans-Juergen Tappe (SYSGO AG)" <hjt@sysgo.com>
-Subject: [PATCH] 2.6 net/ipv4 Kconfig syntax fix
-Date: Wed, 27 Jul 2005 17:10:08 +0200
-Message-ID: <42E7A3D0.8050907@sysgo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Complaints-To: usenet@sea.gmane.org
-Cc: akpm@osdl.org, torvalds@osdl.org
-X-Gmane-NNTP-Posting-Host: 62.8.134.2
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: de, en
+	Wed, 27 Jul 2005 11:30:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33461 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261253AbVG0PaH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 11:30:07 -0400
+Date: Wed, 27 Jul 2005 08:29:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: tglx@linutronix.de, Git Mailing List <git@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux BKCVS kernel history git import..
+In-Reply-To: <1122457238.3027.37.camel@baythorne.infradead.org>
+Message-ID: <Pine.LNX.4.58.0507270819550.3227@g5.osdl.org>
+References: <Pine.LNX.4.58.0507261136280.19309@g5.osdl.org>
+ <1122457238.3027.37.camel@baythorne.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Just a small patch to fix an LKC syntax error.
-
-Yours,
-Hans-Juergen
 
 
+On Wed, 27 Jul 2005, David Woodhouse wrote:
 
---- linux/net/ipv4/Kconfig.orig	2005-06-17 21:48:29.000000000 +0200
-+++ linux/net/ipv4/Kconfig	2005-07-27 16:29:56.215398144 +0200
-@@ -92,7 +92,7 @@
+> On Tue, 2005-07-26 at 11:57 -0700, Linus Torvalds wrote:
+> > If somebody adds some logic to "parse_commit()" to do the "fake parent"
+> > thing, you can stitch the histories together and see the end result as one
+> > big tree. Even without that, you can already do things like
+> > 
+> >         git diff v2.6.10..v2.6.12
+> 
+> That's a bit of a hack which really doesn't belong in the git tools.
 
- config IP_ROUTE_MULTIPATH_CACHED
- 	bool "IP: equal cost multipath with caching support (EXPERIMENTAL)"
--	depends on: IP_ROUTE_MULTIPATH
-+	depends on IP_ROUTE_MULTIPATH
- 	help
- 	  Normally, equal cost multipath routing is not supported by the
- 	  routing cache. If you say Y here, alternative routes are cached
+Actually, it's not a hack at all. It's very fundamentally how git works: 
+you give it two trees that it knows about, and it will show the 
+differences between them - regardless of whether they share any common 
+ancestry or not.
 
+> It's not particularly hard to reparent the tree for real -- I'd much
+> rather see a tool added to git which can _actually_ change the
+> 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 commit to have a parent of
+> 0bcc493c633d78373d3fcf9efc29d6a710637519, and ripple the corresponding
+> SHA1 changes up to the current HEAD.
 
+I used to think I wanted to, but these days I really don't. One of the
+reasons is that I expect to try to pretty up the old bkcvs conversion some
+time: use the name translation from the old "shortlog" scripts etc, and
+see if I can do some other improvements on the conversion (I think I'll
+remove the BK files - "ChangeSet" etc).
 
--- 
-Hans-Jürgen Tappe
-SYSGO AG
-Am Pfaffenstein 14
-D-55270 Klein-Winternheim
-Germany
-Phone: +49-61 36-99 48-0
-Fax:   +49-61 36-99 48-10
-hjtappe@sysgo.com
-www.sysgo.com
-www.elinos.com
+And it's really much easier and more general to have a "graft" facility.  
+It's something that git can do trivially (literally a hook in
+"parse_commit" to add a special parent), and it's actually a generic
+mechanism exactly for issues like this ("project had old history in some
+other format").
 
+Somebody already asked for having the import history for old historic 
+patches - which we _do_ actually have as patches, but which obviously 
+don't have any changelogs except for the version information. Most people 
+may not want that, but the thing is, with a "graft" facility, the people 
+who _do_ want that can easily see it all, and it is totally seamless.
 
+So it's not even a one-time hack - it's a real feature that just in the 
+kernel would have several cases we'd be able to use it for, and the same 
+is likely true for almost any other project that wasn't started purely 
+from git..
+
+		Linus

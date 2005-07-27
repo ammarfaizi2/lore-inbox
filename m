@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVG0T6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261997AbVG0UBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262141AbVG0T6s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 15:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbVG0T4n
+	id S261997AbVG0UBU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 16:01:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVG0UBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 15:56:43 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:39608 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262150AbVG0Tym
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 15:54:42 -0400
-Date: Wed, 27 Jul 2005 14:54:56 -0500
-From: serue@us.ibm.com
-To: James Morris <jmorris@redhat.com>
-Cc: serue@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Andrew Morton <akpm@osdl.org>, Michael Halcrow <mhalcrow@us.ibm.com>
-Subject: Re: [patch 0/15] lsm stacking v0.3: intro
-Message-ID: <20050727195456.GC23040@serge.austin.ibm.com>
-References: <20050727181732.GA22483@serge.austin.ibm.com> <Lynx.SEL.4.62.0507271527390.1844@thoron.boston.redhat.com>
+	Wed, 27 Jul 2005 16:01:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33680 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262311AbVG0T67 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 15:58:59 -0400
+Date: Wed, 27 Jul 2005 12:57:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kumar Gala <galak@freescale.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH 00/14] ppc32: Remove board ports that are no longer
+ maintained
+Message-Id: <20050727125746.54329281.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0507271029480.12237@nylon.am.freescale.net>
+References: <Pine.LNX.4.61.0507271029480.12237@nylon.am.freescale.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Lynx.SEL.4.62.0507271527390.1844@thoron.boston.redhat.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, James.  I'll give this a shot and send out performance results
-this weekend or next week.
+Kumar Gala <galak@freescale.com> wrote:
+>
+> The following board ports are no longer maintained or have become 
+>  obsolete:
+> 
+>  adir
+>  ash
+>  beech
+>  cedar
+>  ep405
+>  k2
+>  mcpn765
+>  menf1
+>  oak
+>  pcore
+>  rainier
+>  redwood
+>  sm850
+>  spd823ts
+> 
+>  We are there for removing support for them.
 
-thanks,
--serge
-
-Quoting James Morris (jmorris@redhat.com):
-> On Wed, 27 Jul 2005 serue@us.ibm.com wrote:
-> 
-> > if interested in the performance results.  I am certainly interested in
-> > ways to further speed up security_get_value.
-> 
-> What about having a small static array of security blob pointers for the 
-> common case (e.g. SELinux + capabilities + perhaps something else), the 
-> total number of which is compile-time configurable.  Reserve one pointer 
-> at the end for the hlist.
-> 
-> When a module registers with stacker, if there's room in the array, it 
-> reserves a slot for the module.  This slot value can be stored by stacker 
-> in a handle held by the module (along with the stacker ID etc. perhaps).
-> 
-> Calls to security_get_value() etc. can then be very fast and simple for 
-> the common case, where the security blob is a pointer offset by an index 
-> in a small array.  The arbitrarily sized hlist would then be a fallback 
-> with a higher performance hit.
-> 
-> 
-> - James
-> -- 
-> James Morris
-> <jmorris@redhat.com>
-> 
-> 
+I'll merge all these into -mm for now, but will hold off sending any of
+them upstream pending confirmation of which patches we really want to
+proceed with.

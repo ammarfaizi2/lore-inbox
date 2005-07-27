@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVG0WWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVG0WWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVG0WWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 18:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVG0WTj
+	id S261190AbVG0WWU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 18:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVG0WWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 18:19:39 -0400
-Received: from ms-smtp-01-smtplb.rdc-nyc.rr.com ([24.29.109.5]:13003 "EHLO
-	ms-smtp-01.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id S261188AbVG0WSL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 18:18:11 -0400
-Message-ID: <42E807FC.4050508@temple.edu>
-Date: Wed, 27 Jul 2005 18:17:32 -0400
-From: Nick Sillik <n.sillik@temple.edu>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: [PATCH 2.6.13-rc3-mm2] fs/reiser4/plugin/node/node40.h fix warning
- with -Wundef
-Content-Type: multipart/mixed;
- boundary="------------000303060705080407000103"
+	Wed, 27 Jul 2005 18:22:14 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17419 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261190AbVG0WUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 18:20:34 -0400
+Date: Thu, 28 Jul 2005 00:20:33 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm2 doesn't boot
+Message-ID: <20050727222033.GA3528@stusta.de>
+References: <20050727024330.78ee32c2.akpm@osdl.org> <20050727203527.GA3679@stusta.de> <20050727141646.1852a505.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050727141646.1852a505.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000303060705080407000103
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Jul 27, 2005 at 02:16:46PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> >  2.6.13-rc3-mm2 doesn't boot on my computer:
+> >    Badness in nr_blockdev_pages at fs/block_dev.c:399
+> >    ...
+> >    kmem_cache_create: Early error in slab inet_peer_cache
+> > 
+> >  A screenshot is available at [1].
+> > 
+> >  My .config is attached.
+> > 
+> >  2.6.13-rc3-mm1 boots and works without problems.
+> > 
+> >  cu
+> >  Adrian
+> > 
+> >  [1] http://www.fs.tum.de/~bunk/kernel/boot_failure.jpg
+> 
+> I'd be suspecting there's been a huge preempt_count() windup and the kernel
+> thinks that it's running in_interrupt(), so various checks are triggering.
+> 
+> Please try this one:
+>...
 
-Fixes another -Wundef warning in ReiserFS code.
+Thanks, this fixed it.
 
+> And if that doesn't fix, enable CONFIG_DEBUG_PREEMPT and see if the
+> sub_preempt_count() check triggers.
 
-Nick Sillik
-n.sillik@temple.edu
+This wouldn't have been possible since I'm using CONFIG_PREEMPT_NONE=y.
 
-Signed-off-by: Nick Sillik <n.sillik@temple.edu>
+cu
+Adrian
 
---------------000303060705080407000103
-Content-Type: text/plain;
- name="reiser_node40_wundef.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="reiser_node40_wundef.patch"
+-- 
 
-diff -urN a/fs/reiser4/plugin/node/node40.h b/fs/reiser4/plugin/node/node40.h
---- a/fs/reiser4/plugin/node/node40.h	2005-07-27 18:14:04.000000000 -0400
-+++ b/fs/reiser4/plugin/node/node40.h	2005-07-27 18:14:53.000000000 -0400
-@@ -80,7 +80,7 @@
- int check_node40(const znode * node, __u32 flags, const char **error);
- int parse_node40(znode * node);
- int init_node40(znode * node);
--#if GUESS_EXISTS
-+#ifdef GUESS_EXISTS
- int guess_node40(const znode * node);
- #endif
- void change_item_size_node40(coord_t * coord, int by);
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
---------------000303060705080407000103--

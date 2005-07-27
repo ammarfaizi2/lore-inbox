@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVG0RzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVG0R7f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVG0RzU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 13:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVG0RzU
+	id S261292AbVG0R7f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 13:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVG0R7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 13:55:20 -0400
-Received: from hera.kernel.org ([209.128.68.125]:65163 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262121AbVG0RzR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 13:55:17 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: 2.6.12.3 network slowdown?
-Date: Wed, 27 Jul 2005 10:55:06 -0700
-Organization: OSDL
-Message-ID: <20050727105506.78b82aaa@dxpl.pdx.osdl.net>
-References: <1122452018.772579.63900@g49g2000cwa.googlegroups.com>
-	<20050727082020.C73AC5F7CA@attila.bofh.it>
-	<42E7497B.5040202@highlandsun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1122486890 1496 10.8.0.74 (27 Jul 2005 17:54:50 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Wed, 27 Jul 2005 17:54:50 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 1.9.11 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
+	Wed, 27 Jul 2005 13:59:35 -0400
+Received: from totor.bouissou.net ([82.67.27.165]:44476 "EHLO
+	totor.bouissou.net") by vger.kernel.org with ESMTP id S261292AbVG0R7d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 13:59:33 -0400
+From: Michel Bouissou <michel@bouissou.net>
+Organization: Me, Myself and I
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [SOLVED ?] VIA KT400 + Kernel 2.6.12 + IO-APIC + ehci_hcd = IRQ trouble
+Date: Wed, 27 Jul 2005 19:59:30 +0200
+User-Agent: KMail/1.7.2
+Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0507261450160.4914-100000@iolanthe.rowland.org> <200507262139.27150@totor.bouissou.net> <200507262144.10865@totor.bouissou.net>
+In-Reply-To: <200507262144.10865@totor.bouissou.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200507271959.31302@totor.bouissou.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Jul 2005 01:44:43 -0700
-Howard Chu <hyc@highlandsun.com> wrote:
+Le Mardi 26 Juillet 2005 21:44, Michel Bouissou a écrit :
+>
+> > Now I'm running with IO-APIC enabled, bus USB 2.0 and ehci completely
+> > disabled (both in BIOS and modprobe.conf).
+> >
+> > The system hasn't hanged again, but I haven't tried to play with on-disk
+> > ISO filesystems since...
+>
+> I just did the same as 1/ and 2/ again, with USB 2.0 disabled, to make my
+> mind. It didn't hang (otherwise I would need to reboot before writing this
+> message ;-)
 
-> I just recently compiled the 2.6.12.3 kernel for my x86_64 machine
-> (Asus A8V motherboard); was previously running a SuSE-compiled 2.6.8
-> kernel (SuSE 9.2 distro). I'm now seeing extremely slow throughput on
-> the onboard Yukon (Marvell) ethernet interface, but only in certain
-> conditions. Going back to the 2.6.8 kernel shows no slowdown.
-> 
-> I have a few machines connected to a Linksys 5 port 10/100 hub. There
-> is also a Linksys WRT54G wireless router on this hub. When doing a
-> raw ftp transfer of a large (600MB) file (using a Windows XP client
-> to do a GET) with both machines plugged into the hub, I see transfer
-> rates only as high as 1MB/sec initially, which quickly degrades to
-> ~200KB/sec over a span of 20-30 seconds. Going the opposite
-> direction, a PUT runs at a steady 7.5MB/sec.
-> 
-> If I unplug the Windows client and just connect via the wireless 
-> network, I see GETs run a steady 2.8MB/sec and PUTs run a steady 
-> 3.2MB/sec, which is about the same as I saw with the 2.6.8 kernel, so 
-> that all appears normal. (But it's still odd, that adding one hop
-> like this avoids the throughput degradation.)
-> 
-> I don't see any collisions or any other errors on the ifconfig 
-> statistics, just a very slow transmit rate. Does anyone recognize
-> this symptom? Any suggestions on tunables to tweak, etc.? (Please cc:
-> me directly when replying, thanks.)
-> 
+Update: The system hasn't hanged anymore and has shown stable and fast since 
+I've disabled USB 2.0.
 
-There a couple of possibilities, one is driver differences. SUSE ships
-the SysKonnect vendor driver vs the older version in 2.6.12, and the
-TCP congestion and TSO code has changed since 2.6.8.
+Today I've stressed it quite a lot, played with ISOFS, loopback FS, performed 
+disk-to-disk backups, burned CDs, used wine and dosemu etc. and it worked 
+perfectly. None of the things that caused it to hang yesterday when USB 2.0 
+was enabled caused any problem today.
 
-What is the output of ethtool (ethtool -i and ethtool -k)?
-Perhaps one driver has checksum offload on and the other off?
-Could you get a tcpdump capture of a slow transfer?
+So now it summarizes as :
+
+- Old BIOS, kernel 2.4.x : System perfectly stable (with IO-APIC and USB 2.0)
+
+- Old BIOS, kernel 2.6.12 : With IO-APIC and USB 2.0, "IRQ 21 - nobody cared" 
+problems. Disabling either IO-APIC or USB 2.0 causes the problem to 
+disappear.
+
+- New BIOS, kernel 2.6.12 : With IO-APIC and USB 2.0, uhci and ehci are now on 
+the same IRQ. System doesn't complain anymore about USB or IRQ lost, BUT it 
+may completely *HANG* (is unstable) especially under high activity. Nothing 
+gets logged or displayed as the system purely and simply hangs.
+=> With USB 2.0 completely disabled, the problem seems to disappear and the 
+system looks stable again.
+
+Cheers.
+
+-- 
+Michel Bouissou <michel@bouissou.net> OpenPGP ID 0xDDE8AC6E

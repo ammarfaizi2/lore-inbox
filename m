@@ -1,80 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVG0CAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVG0Ce6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVG0CAm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 22:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVG0CAm
+	id S262135AbVG0Ce6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 22:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVG0Ce6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 22:00:42 -0400
-Received: from siaag2af.compuserve.com ([149.174.40.136]:2450 "EHLO
-	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
-	id S261964AbVG0CAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 22:00:39 -0400
-Date: Tue, 26 Jul 2005 21:57:24 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch 2.6.13-rc3] i386: clean up user_mode macros
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200507262159_MC3-1-A5A2-A862@compuserve.com>
-MIME-Version: 1.0
+	Tue, 26 Jul 2005 22:34:58 -0400
+Received: from h80ad249c.async.vt.edu ([128.173.36.156]:48535 "EHLO
+	h80ad249c.async.vt.edu") by vger.kernel.org with ESMTP
+	id S262135AbVG0Ce5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 22:34:57 -0400
+Message-Id: <200507270234.j6R2YEW4009061@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Kurt Wall <kwall@kurtwerks.com>, webmaster@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Question re the dot releases such as 2.6.12.3 
+In-Reply-To: Your message of "Tue, 26 Jul 2005 21:50:50 EDT."
+             <1122429050.29823.44.camel@localhost.localdomain> 
+From: Valdis.Kletnieks@vt.edu
+References: <200507251020.08894.gene.heskett@verizon.net> <42E51593.7070902@didntduck.org> <20050727012853.GA2354@kurtwerks.com>
+            <1122429050.29823.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1122431652_3335P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Date: Tue, 26 Jul 2005 22:34:13 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jul 2005 at 16:13:13 -0700 (PDT), Linus Torvalds wrote:
+--==_Exmh_1122431652_3335P
+Content-Type: text/plain; charset=us-ascii
 
-> On Mon, 25 Jul 2005, Chuck Ebbert wrote:
-> > 
-> > Recent patches from the Xen group changed the X86 user_mode macros.
-> > 
-> > This patch does the following:
-> > 
-> >         1. Makes the new user_mode() return 0 or 1 (same as x86_64)
->
-> I _really_ prefer
-> 
->       x != 0
-> 
-> over 
-> 
->       !!x
+On Tue, 26 Jul 2005 21:50:50 EDT, Steven Rostedt said:
 
+> Someone should also fix the home page of kernel.org. Since there's no
+> link on that page that points to the full 2.6.12. Since a lot of the
+> patches on that page go directly against the 2.6.12 kernel and not
+> 2.6.12.3, it would be nice to get the full source of that kernel from
+> the home page.
 
-  Take 2:  compile tested only.
+Even more to the point - when 2.6.13 comes out, there will be a patch against
+2.6.12, not 2.6.12.N, which means you get to download the 2.6.12.N tarball,
+the 2.6.12.N patch, patch -R that, and *then* apply the 2.6.13 patch.
 
+Blegga. :)
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-===================================================================
---- 2.6.13-rc3.orig/include/asm-i386/ptrace.h
-+++ 2.6.13-rc3/include/asm-i386/ptrace.h
-@@ -57,14 +57,21 @@
- #ifdef __KERNEL__
- struct task_struct;
- extern void send_sigtrap(struct task_struct *tsk, struct pt_regs *regs, int error_code);
--#define user_mode(regs)		(3 & (regs)->xcs)
--#define user_mode_vm(regs)	((VM_MASK & (regs)->eflags) || user_mode(regs))
-+
-+static inline int user_mode(struct pt_regs *regs)
-+{
-+	return (regs->xcs & 3) != 0;
-+}
-+static inline int user_mode_vm(struct pt_regs *regs)
-+{
-+	return ((regs->xcs & 3) | (regs->eflags & VM_MASK)) != 0;
-+}
- #define instruction_pointer(regs) ((regs)->eip)
- #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
- extern unsigned long profile_pc(struct pt_regs *regs);
- #else
- #define profile_pc(regs) instruction_pointer(regs)
- #endif
--#endif
-+#endif /* __KERNEL__ */
- 
- #endif
-__
-Chuck
+--==_Exmh_1122431652_3335P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFC5vKkcC3lWbTT17ARAvupAKD+rU8ssZSiMIajEKB54CkKF8KLLgCgq2Ml
+aNF8hPd7MZeTIGq/9TTAKWc=
+=kiJK
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1122431652_3335P--

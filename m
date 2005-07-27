@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVG0AXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVG0AZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVG0AXb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 20:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVG0AX1
+	id S262409AbVG0AZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 20:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVG0AZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 20:23:27 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:24691 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262403AbVG0AXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 20:23:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=TzluoHJDi/OGcNW1zidkz7X4lgh0Klp+o8ooKPqV38uZkrXNGj4XbLWMdIKhZMeqFOCASQx3CcjYyNlLW82Vc72XNIXaLdvc8UF1v5lr+JVdJHWBm9KuhJ/Ka/iUpXVnQ79j2kPkUwM1FRZrT5IOXFWQNMjOGdFo3qJeTG+LvCY=  ;
-Message-ID: <42E6D3E2.3050601@yahoo.com.au>
-Date: Wed, 27 Jul 2005 10:22:58 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kumar Gala <kumar.gala@freescale.com>
-CC: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 0/6] remove PageReserved
-References: <42E5F139.70002@yahoo.com.au> <9AB335F0-28CD-4561-B447-DA09CF44F0AB@freescale.com>
-In-Reply-To: <9AB335F0-28CD-4561-B447-DA09CF44F0AB@freescale.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 26 Jul 2005 20:25:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27110 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262408AbVG0AYh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 20:24:37 -0400
+Date: Tue, 26 Jul 2005 17:23:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: tony.luck@intel.com
+Cc: kaneshige.kenji@jp.fujitsu.com, ambx1@neo.rr.com, greg@kroah.org,
+       pavel@ucw.cz, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [patch] properly stop devices before poweroff
+Message-Id: <20050726172328.1bb5c812.akpm@osdl.org>
+In-Reply-To: <200507270014.j6R0EYMv005786@agluck-lia64.sc.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F03FCF24C@scsmsx401.amr.corp.intel.com>
+	<200507270014.j6R0EYMv005786@agluck-lia64.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kumar Gala wrote:
-
->>
->> Most of the arch code is just reserved memory reporting, which
->> isn't very interesting and could easily be removed. Some arch users
->> are a bit more subtle, however they *should not* break, because all
->> the places that set and clear PageReserved are basically intact.
+tony.luck@intel.com wrote:
 >
->
-> What is the desired fix look like for arch users?
->
+> Andrew Morton wrote:
+> > "Luck, Tony" <tony.luck@intel.com> wrote:
+> > >
+> > > I started on my OLS homework from Andrew ... and began looking
+> > > into what is going on here.
+> > > 
+> > 
+> > Thanks ;) I guess we'll end up with a better kernel, even though you appear
+> > to be an innocent victim here.
+> 
+> The "Badness in iosapic_unregister_intr at arch/ia64/kernel/iosapic.c:851"
+> messages are caused by a missing call to free_irq() in the mpt/fusion driver.
+> I think that it should go here ... but someone with a clue should verify:
+> 
+> diff --git a/drivers/message/fusion/mptbase.c b/drivers/message/fusion/mptbase.c
+> --- a/drivers/message/fusion/mptbase.c
+> +++ b/drivers/message/fusion/mptbase.c
+> @@ -1384,6 +1384,8 @@ mpt_suspend(struct pci_dev *pdev, pm_mes
+>  	/* Clear any lingering interrupt */
+>  	CHIPREG_WRITE32(&ioc->chip->IntStatus, 0);
+>  
+> +	free_irq(ioc->pci_irq, ioc);
+> +
+>  	pci_disable_device(pdev);
+>  	pci_set_power_state(pdev, device_state);
+>  
 
-It really depends on how it is used.
+OK, great.  Pavel, can you check this over please?
 
-Firstly, we want to retain all the places that do SetPageReserved and
-ClearPageReserved to ensure that remaining places that test PageReserved
-will continue to work.
+> But even this doesn't fix the hang during shutdown :-(
+> 
+> The remaining problem is cause by the order of the calls in sys_reboot:
+> 
+>                 device_suspend(PMSG_SUSPEND);
+>                 device_shutdown();
+> 
+> The call to device_suspend() shuts down the mpt/fusion driver.  But then
+> device_shutdown() calls sd_shutdown() which prints:
+> 
+>   Synchronizing SCSI cache for disk sdb
+> 
+> and then calls sd_sync_cache().  Now since we suspended mpt/fusion, this is
+> going to go nowhere.
+> 
+> I don't know how to fix this.  Re-ordering the suspend & shutdown just looks
+> wrong.
 
-So users of PageReserved need to be removed. For example, on i386 this
-is simply reserved memory accounting - which isn't very meaningful and
-can probably be simply deleted. i386 ioremap also tests PageReserved to
-ensure it isn't remapping usable RAM, which is a similar need to swsusp's,
-so one solution would likely cover that ioremap and swsusp.
+Again, Pavel has been working on this code and might be able to suggest
+something which is appropriate for 2.6.13...
 
-For now, the main thing to keep in mind is to not add a new user of
-PageReserved. We can start looking at how to cut down existing users when
-the core patch gets into -mm or further upstream.
-
-Nick
-
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

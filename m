@@ -1,80 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVG0AZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVG0A2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbVG0AZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 20:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVG0AZ1
+	id S262413AbVG0A2J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 20:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVG0A2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 20:25:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27110 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262408AbVG0AYh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 20:24:37 -0400
-Date: Tue, 26 Jul 2005 17:23:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: tony.luck@intel.com
-Cc: kaneshige.kenji@jp.fujitsu.com, ambx1@neo.rr.com, greg@kroah.org,
-       pavel@ucw.cz, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [patch] properly stop devices before poweroff
-Message-Id: <20050726172328.1bb5c812.akpm@osdl.org>
-In-Reply-To: <200507270014.j6R0EYMv005786@agluck-lia64.sc.intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F03FCF24C@scsmsx401.amr.corp.intel.com>
-	<200507270014.j6R0EYMv005786@agluck-lia64.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 26 Jul 2005 20:28:03 -0400
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:61524 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S262403AbVG0A0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 20:26:13 -0400
+Date: Tue, 26 Jul 2005 17:26:08 -0700
+From: "H. J. Lu" <hjl@lucon.org>
+To: akpm@osdl.org
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: define-auxiliary-vector-size-at_vector_size.patch added to -mm tree
+Message-ID: <20050727002608.GA7469@lucon.org>
+References: <200507262144.j6QLiJVC015284@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
+Content-Disposition: inline
+In-Reply-To: <200507262144.j6QLiJVC015284@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tony.luck@intel.com wrote:
->
-> Andrew Morton wrote:
-> > "Luck, Tony" <tony.luck@intel.com> wrote:
-> > >
-> > > I started on my OLS homework from Andrew ... and began looking
-> > > into what is going on here.
-> > > 
-> > 
-> > Thanks ;) I guess we'll end up with a better kernel, even though you appear
-> > to be an innocent victim here.
-> 
-> The "Badness in iosapic_unregister_intr at arch/ia64/kernel/iosapic.c:851"
-> messages are caused by a missing call to free_irq() in the mpt/fusion driver.
-> I think that it should go here ... but someone with a clue should verify:
-> 
-> diff --git a/drivers/message/fusion/mptbase.c b/drivers/message/fusion/mptbase.c
-> --- a/drivers/message/fusion/mptbase.c
-> +++ b/drivers/message/fusion/mptbase.c
-> @@ -1384,6 +1384,8 @@ mpt_suspend(struct pci_dev *pdev, pm_mes
->  	/* Clear any lingering interrupt */
->  	CHIPREG_WRITE32(&ioc->chip->IntStatus, 0);
->  
-> +	free_irq(ioc->pci_irq, ioc);
-> +
->  	pci_disable_device(pdev);
->  	pci_set_power_state(pdev, device_state);
->  
 
-OK, great.  Pavel, can you check this over please?
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> But even this doesn't fix the hang during shutdown :-(
+On Tue, Jul 26, 2005 at 02:46:20PM -0700, akpm@osdl.org wrote:
 > 
-> The remaining problem is cause by the order of the calls in sys_reboot:
+> The patch titled
 > 
->                 device_suspend(PMSG_SUSPEND);
->                 device_shutdown();
+>      Define auxiliary vector size, AT_VECTOR_SIZE
 > 
-> The call to device_suspend() shuts down the mpt/fusion driver.  But then
-> device_shutdown() calls sd_shutdown() which prints:
+> has been added to the -mm tree.  Its filename is
 > 
->   Synchronizing SCSI cache for disk sdb
+>      define-auxiliary-vector-size-at_vector_size.patch
 > 
-> and then calls sd_sync_cache().  Now since we suspended mpt/fusion, this is
-> going to go nowhere.
+> Patches currently in -mm which might be from hjl@lucon.org are
 > 
-> I don't know how to fix this.  Re-ordering the suspend & shutdown just looks
-> wrong.
+> define-auxiliary-vector-size-at_vector_size.patch
+> 
+> 
 
-Again, Pavel has been working on this code and might be able to suggest
-something which is appropriate for 2.6.13...
+My patch breaks x86_64 build. This patch will fix x86_64 build. I am
+also enclosing the updated full patch.
 
+
+H.J.
+----
+--- linux/arch/x86_64/ia32/ia32_binfmt.c.auxv	2005-07-08 11:50:04.000000000 -0700
++++ linux/arch/x86_64/ia32/ia32_binfmt.c	2005-07-26 16:13:58.312017331 -0700
+@@ -9,6 +9,7 @@
+ #include <linux/config.h> 
+ #include <linux/stddef.h>
+ #include <linux/rwsem.h>
++#define __ASM_X86_64_ELF_H 1
+ #include <linux/sched.h>
+ #include <linux/compat.h>
+ #include <linux/string.h>
+@@ -181,10 +182,7 @@ struct elf_prpsinfo
+ 
+ #define user user32
+ 
+-#define __ASM_X86_64_ELF_H 1
+ #define elf_read_implies_exec(ex, have_pt_gnu_stack)	(!(have_pt_gnu_stack))
+-//#include <asm/ia32.h>
+-#include <linux/elf.h>
+ 
+ typedef struct user_i387_ia32_struct elf_fpregset_t;
+ typedef struct user32_fxsr_struct elf_fpxregset_t;
+
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.6.12-auxv-1.patch"
+
+--- linux/arch/x86_64/ia32/ia32_binfmt.c.auxv	2005-07-08 11:50:04.000000000 -0700
++++ linux/arch/x86_64/ia32/ia32_binfmt.c	2005-07-26 16:13:58.312017331 -0700
+@@ -9,6 +9,7 @@
+ #include <linux/config.h> 
+ #include <linux/stddef.h>
+ #include <linux/rwsem.h>
++#define __ASM_X86_64_ELF_H 1
+ #include <linux/sched.h>
+ #include <linux/compat.h>
+ #include <linux/string.h>
+@@ -181,10 +182,7 @@ struct elf_prpsinfo
+ 
+ #define user user32
+ 
+-#define __ASM_X86_64_ELF_H 1
+ #define elf_read_implies_exec(ex, have_pt_gnu_stack)	(!(have_pt_gnu_stack))
+-//#include <asm/ia32.h>
+-#include <linux/elf.h>
+ 
+ typedef struct user_i387_ia32_struct elf_fpregset_t;
+ typedef struct user32_fxsr_struct elf_fpxregset_t;
+--- linux/include/linux/elf.h.auxv	2005-03-01 23:37:49.000000000 -0800
++++ linux/include/linux/elf.h	2005-07-26 16:13:24.185651900 -0700
+@@ -181,6 +181,8 @@ typedef __s64	Elf64_Sxword;
+ 
+ #define AT_SECURE 23   /* secure mode boolean */
+ 
++#define AT_VECTOR_SIZE  42 /* Size of auxiliary table.  */
++
+ typedef struct dynamic{
+   Elf32_Sword d_tag;
+   union{
+--- linux/include/linux/sched.h.auxv	2005-07-08 11:50:09.000000000 -0700
++++ linux/include/linux/sched.h	2005-07-26 16:13:24.204648764 -0700
+@@ -35,6 +35,8 @@
+ #include <linux/topology.h>
+ #include <linux/seccomp.h>
+ 
++#include <linux/elf.h>	/* For AT_VECTOR_SIZE */
++
+ struct exec_domain;
+ 
+ /*
+@@ -243,7 +245,7 @@ struct mm_struct {
+ 	mm_counter_t _rss;
+ 	mm_counter_t _anon_rss;
+ 
+-	unsigned long saved_auxv[42]; /* for /proc/PID/auxv */
++	unsigned long saved_auxv[AT_VECTOR_SIZE]; /* for /proc/PID/auxv */
+ 
+ 	unsigned dumpable:1;
+ 	cpumask_t cpu_vm_mask;
+
+--BXVAT5kNtrzKuDFl--

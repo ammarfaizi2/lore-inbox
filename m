@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVG0Olt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVG0Ooj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262102AbVG0Olt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 10:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVG0Olh
+	id S261288AbVG0Ooj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 10:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbVG0Ooj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 10:41:37 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:53894 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262289AbVG0Oju (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 10:39:50 -0400
-Date: Wed, 27 Jul 2005 16:38:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
-Message-ID: <20050727143843.GB26303@elte.hu>
-References: <1122473595.29823.60.camel@localhost.localdomain> <20050727141754.GA25356@elte.hu> <1122474539.29823.68.camel@localhost.localdomain>
+	Wed, 27 Jul 2005 10:44:39 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:20206 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261288AbVG0Ooh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 10:44:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L+tOUtzCe3gGtcHcWae10bT6S/W2aJ8Adjvte0sAq0fxAYzbmFtYeLw2mNsVabKu9cpRfkvOm267ZlF1IiH0JEOjUQGVUXFo7LA8dSUlqFUUdxsEcUJA4K2gyMqdbg+MxMaXEzjj0V8x6QiXSj0QjPaauIQzmLM88bigUlfckLo=
+Message-ID: <88e823ff050727074411651351@mail.gmail.com>
+Date: Wed, 27 Jul 2005 08:44:35 -0600
+From: Brad Davis <enrock@gmail.com>
+Reply-To: Brad Davis <enrock@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: US Robotics (Hardware) Modem Not Detected
+In-Reply-To: <20050727145747.A29785@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1122474539.29823.68.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <88e823ff0507270645613b1ca@mail.gmail.com>
+	 <20050727145747.A29785@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/27/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> serial8250_init does not contain any such message, so you're not
+> running a mainline kernel, but some patched version.  Are these
+> patches available somewhere?
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+I'm compiling from the Ubuntu (based on Debian) sources. I'll either
+download a clean kernel source tonight and try it out or try remove
+the patches to the serial driver and try that.
+ 
+> I guess these patches are your problem, and it seems that there's
+> at least one which is completely unnecessary or inappropriate.
 
-> On Wed, 2005-07-27 at 16:17 +0200, Ingo Molnar wrote:
-> > i'd not do this patch, mainly because the '100 priority levels' thing is 
-> > pretty much an assumption in lots of userspace code. 
-> 
-> I must argue though, any user app that assumes 100 is the max prio is 
-> already broken.  That's why there are system calls to get the actual 
-> range.  Maybe it would be good to change the range to find the apps 
-> that break. And then fix them.
+Thanks for the help, I'll post my results.
 
-a fair number of apps assume that there's _at least_ 100 levels of 
-priorities. The moment you have a custom kernel that offers more than 
-100 priorities, there will be apps that assume that there are more than 
-100 priority levels, and will break if there are less.
-
-	Ingo
+Brad
+-- 
+enrock@gmail.com

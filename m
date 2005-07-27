@@ -1,52 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbVG0Pmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVG0Qh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbVG0Pmt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 11:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVG0Pka
+	id S261322AbVG0Qh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 12:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVG0PkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 11:40:30 -0400
-Received: from de01egw01.freescale.net ([192.88.165.102]:11926 "EHLO
-	de01egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S262344AbVG0Pik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 11:38:40 -0400
-Date: Wed, 27 Jul 2005 10:38:16 -0500 (CDT)
+	Wed, 27 Jul 2005 11:40:12 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:52681 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S262388AbVG0PjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 11:39:04 -0400
+Date: Wed, 27 Jul 2005 10:38:51 -0500 (CDT)
 From: Kumar Gala <galak@freescale.com>
 X-X-Sender: galak@nylon.am.freescale.net
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org,
        linuxppc-embedded <linuxppc-embedded@ozlabs.org>
-Subject: [PATCH 08/14] ppc32: Remove board support for OAK
-Message-ID: <Pine.LNX.4.61.0507271037450.12237@nylon.am.freescale.net>
+Subject: [PATCH 09/14] ppc32: Remove board support for RAINIER  
+Message-ID: <Pine.LNX.4.61.0507271038170.12237@nylon.am.freescale.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Support for the OAK board is no longer maintained and thus being removed
+Support for the RAINIER board is no longer maintained and thus being removed
 
 Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
 ---
-commit e36f8d751bbac7114de804eae35a8013a3dd45ce
-tree ee9cd737022b32aca08fc2fb30e6dcf41dd2c4f7
-parent 9762d809e90f09f4507b7415fe1853c0fcc92ccb
-author Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 15:47:55 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 15:47:55 -0500
+commit 82101a77550f5cd9c35efe787c5eaa8f82672c36
+tree 1da0a285c77011aeed199a293fdbab7fdea4631f
+parent e36f8d751bbac7114de804eae35a8013a3dd45ce
+author Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 15:51:50 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 15:51:50 -0500
 
- arch/ppc/configs/oak_defconfig     |  485 ------------------------------------
- arch/ppc/platforms/4xx/Kconfig     |    6 
- arch/ppc/platforms/4xx/Makefile    |    1 
- arch/ppc/platforms/4xx/oak.c       |  255 -------------------
- arch/ppc/platforms/4xx/oak.h       |   96 -------
- arch/ppc/platforms/4xx/oak_setup.h |   50 ----
- include/asm-ppc/ibm4xx.h           |    4 
- 7 files changed, 1 insertions(+), 896 deletions(-)
+ arch/ppc/boot/simple/embed_config.c |   36 --
+ arch/ppc/configs/rainier_defconfig  |  599 -----------------------------------
+ 2 files changed, 0 insertions(+), 635 deletions(-)
 
-diff --git a/arch/ppc/configs/oak_defconfig b/arch/ppc/configs/oak_defconfig
+diff --git a/arch/ppc/boot/simple/embed_config.c b/arch/ppc/boot/simple/embed_config.c
+--- a/arch/ppc/boot/simple/embed_config.c
++++ b/arch/ppc/boot/simple/embed_config.c
+@@ -926,39 +926,3 @@ embed_config(bd_t **bdp)
+ #endif
+ }
+ #endif
+-
+-#ifdef CONFIG_RAINIER
+-/* Rainier uses vxworks bootrom */
+-void
+-embed_config(bd_t **bdp)
+-{
+-	u_char	*cp;
+-	int	i;
+-	bd_t	*bd;
+-	
+-	bd = &bdinfo;
+-	*bdp = bd;
+-	
+-	for(i=0;i<8192;i+=32) {
+-		__asm__("dccci 0,%0" :: "r" (i));
+-	}
+-	__asm__("iccci 0,0");
+-	__asm__("sync;isync");
+-
+-	/* init ram for parity */
+-	memset(0, 0,0x400000);  /* Lo memory */
+-
+-
+-	bd->bi_memsize   = (32 * 1024 * 1024) ;
+-	bd->bi_intfreq = 133000000; //the internal clock is 133 MHz
+-	bd->bi_busfreq   = 100000000;
+-	bd->bi_pci_busfreq= 33000000;
+-
+-	cp = (u_char *)def_enet_addr;
+-	for (i=0; i<6; i++) {
+-		bd->bi_enetaddr[i] = *cp++;
+-	}
+-
+-}
+-#endif
+-
+diff --git a/arch/ppc/configs/rainier_defconfig b/arch/ppc/configs/rainier_defconfig
 deleted file mode 100644
---- a/arch/ppc/configs/oak_defconfig
+--- a/arch/ppc/configs/rainier_defconfig
 +++ /dev/null
-@@ -1,485 +0,0 @@
+@@ -1,599 +0,0 @@
 -#
 -# Automatically generated make config: don't edit
 -#
@@ -62,7 +100,7 @@ deleted file mode 100644
 -#
 -# General setup
 -#
--CONFIG_SWAP=y
+-# CONFIG_SWAP is not set
 -CONFIG_SYSVIPC=y
 -# CONFIG_BSD_PROCESS_ACCT is not set
 -CONFIG_SYSCTL=y
@@ -75,10 +113,9 @@ deleted file mode 100644
 -# Loadable module support
 -#
 -CONFIG_MODULES=y
--CONFIG_MODULE_UNLOAD=y
--# CONFIG_MODULE_FORCE_UNLOAD is not set
+-# CONFIG_MODULE_UNLOAD is not set
 -CONFIG_OBSOLETE_MODPARM=y
--# CONFIG_MODVERSIONS is not set
+-CONFIG_MODVERSIONS=y
 -CONFIG_KMOD=y
 -
 -#
@@ -100,16 +137,20 @@ deleted file mode 100644
 -# CONFIG_CEDAR is not set
 -# CONFIG_CPCI405 is not set
 -# CONFIG_EP405 is not set
--CONFIG_OAK=y
+-# CONFIG_OAK is not set
 -# CONFIG_REDWOOD_4 is not set
 -# CONFIG_REDWOOD_5 is not set
 -# CONFIG_REDWOOD_6 is not set
 -# CONFIG_SYCAMORE is not set
 -# CONFIG_TIVO is not set
--# CONFIG_WALNUT is not set
+-CONFIG_WALNUT=y
+-CONFIG_IBM405_ERR77=y
 -CONFIG_IBM405_ERR51=y
--CONFIG_403GCX=y
--# CONFIG_405_DMA is not set
+-CONFIG_IBM_OCP=y
+-CONFIG_BIOS_FIXUP=y
+-CONFIG_405GP=y
+-CONFIG_IBM_OPENBIOS=y
+-CONFIG_405_DMA=y
 -# CONFIG_PM is not set
 -CONFIG_UART0_TTYS0=y
 -# CONFIG_UART0_TTYS1 is not set
@@ -123,13 +164,15 @@ deleted file mode 100644
 -# General setup
 -#
 -# CONFIG_HIGHMEM is not set
--# CONFIG_PCI is not set
--# CONFIG_PCI_DOMAINS is not set
+-CONFIG_PCI=y
+-CONFIG_PCI_DOMAINS=y
 -# CONFIG_PC_KEYBOARD is not set
 -CONFIG_KCORE_ELF=y
 -CONFIG_BINFMT_ELF=y
 -CONFIG_KERNEL_ELF=y
 -# CONFIG_BINFMT_MISC is not set
+-# CONFIG_PCI_LEGACY_PROC is not set
+-CONFIG_PCI_NAMES=y
 -# CONFIG_HOTPLUG is not set
 -
 -#
@@ -166,8 +209,12 @@ deleted file mode 100644
 -# Block devices
 -#
 -# CONFIG_BLK_DEV_FD is not set
+-# CONFIG_BLK_CPQ_DA is not set
+-# CONFIG_BLK_CPQ_CISS_DA is not set
+-# CONFIG_BLK_DEV_DAC960 is not set
+-# CONFIG_BLK_DEV_UMEM is not set
 -CONFIG_BLK_DEV_LOOP=y
--# CONFIG_BLK_DEV_NBD is not set
+-CONFIG_BLK_DEV_NBD=y
 -CONFIG_BLK_DEV_RAM=y
 -CONFIG_BLK_DEV_RAM_SIZE=4096
 -CONFIG_BLK_DEV_INITRD=y
@@ -192,8 +239,14 @@ deleted file mode 100644
 -#
 -
 -#
+-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+-#
+-# CONFIG_IEEE1394 is not set
+-
+-#
 -# I2O device support
 -#
+-# CONFIG_I2O is not set
 -
 -#
 -# Networking support
@@ -203,7 +256,8 @@ deleted file mode 100644
 -#
 -# Networking options
 -#
--# CONFIG_PACKET is not set
+-CONFIG_PACKET=y
+-# CONFIG_PACKET_MMAP is not set
 -# CONFIG_NETLINK_DEV is not set
 -# CONFIG_NETFILTER is not set
 -CONFIG_UNIX=y
@@ -254,6 +308,11 @@ deleted file mode 100644
 -#
 -# CONFIG_NET_PKTGEN is not set
 -CONFIG_NETDEVICES=y
+-
+-#
+-# ARCnet devices
+-#
+-# CONFIG_ARCNET is not set
 -# CONFIG_DUMMY is not set
 -# CONFIG_BONDING is not set
 -# CONFIG_EQUALIZER is not set
@@ -264,17 +323,64 @@ deleted file mode 100644
 -# Ethernet (10 or 100Mbit)
 -#
 -CONFIG_NET_ETHERNET=y
--# CONFIG_MII is not set
--CONFIG_OAKNET=y
+-CONFIG_MII=y
+-# CONFIG_OAKNET is not set
+-# CONFIG_HAPPYMEAL is not set
+-# CONFIG_SUNGEM is not set
+-# CONFIG_NET_VENDOR_3COM is not set
+-
+-#
+-# Tulip family network device support
+-#
+-# CONFIG_NET_TULIP is not set
+-# CONFIG_HP100 is not set
+-CONFIG_NET_PCI=y
+-CONFIG_PCNET32=y
+-# CONFIG_AMD8111_ETH is not set
+-# CONFIG_ADAPTEC_STARFIRE is not set
+-# CONFIG_B44 is not set
+-# CONFIG_DGRS is not set
+-CONFIG_EEPRO100=y
+-# CONFIG_EEPRO100_PIO is not set
+-# CONFIG_E100 is not set
+-# CONFIG_FEALNX is not set
+-# CONFIG_NATSEMI is not set
+-# CONFIG_NE2K_PCI is not set
+-# CONFIG_8139CP is not set
+-# CONFIG_8139TOO is not set
+-# CONFIG_SIS900 is not set
+-# CONFIG_EPIC100 is not set
+-# CONFIG_SUNDANCE is not set
+-# CONFIG_TLAN is not set
+-# CONFIG_VIA_RHINE is not set
 -
 -#
 -# Ethernet (1000 Mbit)
 -#
+-# CONFIG_ACENIC is not set
+-# CONFIG_DL2K is not set
+-# CONFIG_E1000 is not set
+-# CONFIG_NS83820 is not set
+-# CONFIG_HAMACHI is not set
+-# CONFIG_YELLOWFIN is not set
+-# CONFIG_R8169 is not set
+-# CONFIG_SK98LIN is not set
+-# CONFIG_TIGON3 is not set
 -
 -#
 -# Ethernet (10000 Mbit)
 -#
--# CONFIG_PPP is not set
+-# CONFIG_IXGB is not set
+-# CONFIG_FDDI is not set
+-# CONFIG_HIPPI is not set
+-CONFIG_PPP=y
+-# CONFIG_PPP_MULTILINK is not set
+-# CONFIG_PPP_FILTER is not set
+-# CONFIG_PPP_ASYNC is not set
+-# CONFIG_PPP_SYNC_TTY is not set
+-# CONFIG_PPP_DEFLATE is not set
+-# CONFIG_PPP_BSDCOMP is not set
+-# CONFIG_PPPOE is not set
 -# CONFIG_SLIP is not set
 -
 -#
@@ -285,6 +391,7 @@ deleted file mode 100644
 -#
 -# Token Ring devices (depends on LLC=y)
 -#
+-# CONFIG_RCPCI is not set
 -# CONFIG_SHAPER is not set
 -
 -#
@@ -331,7 +438,10 @@ deleted file mode 100644
 -#
 -# CONFIG_GAMEPORT is not set
 -CONFIG_SOUND_GAMEPORT=y
--# CONFIG_SERIO is not set
+-CONFIG_SERIO=y
+-CONFIG_SERIO_I8042=y
+-CONFIG_SERIO_SERPORT=y
+-# CONFIG_SERIO_CT82C710 is not set
 -
 -#
 -# Input Device Drivers
@@ -349,35 +459,49 @@ deleted file mode 100644
 -#
 -# Serial drivers
 -#
--CONFIG_SERIAL_8250=y
--CONFIG_SERIAL_8250_CONSOLE=y
--# CONFIG_SERIAL_8250_EXTENDED is not set
+-# CONFIG_SERIAL_8250 is not set
 -
 -#
 -# Non-8250 serial port support
 -#
--CONFIG_SERIAL_CORE=y
--CONFIG_SERIAL_CORE_CONSOLE=y
--# CONFIG_UNIX98_PTYS is not set
+-CONFIG_UNIX98_PTYS=y
+-CONFIG_UNIX98_PTY_COUNT=256
 -
 -#
 -# I2C support
 -#
--# CONFIG_I2C is not set
+-CONFIG_I2C=y
+-# CONFIG_I2C_ALGOBIT is not set
+-# CONFIG_I2C_ALGOPCF is not set
+-# CONFIG_I2C_IBM_OCP_ALGO is not set
+-CONFIG_I2C_CHARDEV=y
 -
 -#
 -# I2C Hardware Sensors Mainboard support
 -#
+-# CONFIG_I2C_ALI15X3 is not set
+-# CONFIG_I2C_AMD756 is not set
+-# CONFIG_I2C_AMD8111 is not set
+-# CONFIG_I2C_I801 is not set
+-# CONFIG_I2C_PIIX4 is not set
+-# CONFIG_I2C_SIS96X is not set
+-# CONFIG_I2C_VIAPRO is not set
 -
 -#
 -# I2C Hardware Sensors Chip support
 -#
+-# CONFIG_SENSORS_ADM1021 is not set
+-# CONFIG_SENSORS_IT87 is not set
+-# CONFIG_SENSORS_LM75 is not set
+-# CONFIG_SENSORS_LM85 is not set
+-# CONFIG_SENSORS_VIA686A is not set
+-# CONFIG_SENSORS_W83781D is not set
 -# CONFIG_I2C_SENSOR is not set
 -
 -#
 -# Mice
 -#
--# CONFIG_BUSMOUSE is not set
+-CONFIG_BUSMOUSE=y
 -# CONFIG_QIC02_TAPE is not set
 -
 -#
@@ -388,7 +512,27 @@ deleted file mode 100644
 -#
 -# Watchdog Cards
 -#
--# CONFIG_WATCHDOG is not set
+-CONFIG_WATCHDOG=y
+-# CONFIG_WATCHDOG_NOWAYOUT is not set
+-# CONFIG_SOFT_WATCHDOG is not set
+-# CONFIG_WDT is not set
+-# CONFIG_WDTPCI is not set
+-# CONFIG_PCWATCHDOG is not set
+-# CONFIG_ACQUIRE_WDT is not set
+-# CONFIG_ADVANTECH_WDT is not set
+-# CONFIG_EUROTECH_WDT is not set
+-# CONFIG_IB700_WDT is not set
+-# CONFIG_MIXCOMWD is not set
+-# CONFIG_SCx200_WDT is not set
+-# CONFIG_60XX_WDT is not set
+-# CONFIG_W83877F_WDT is not set
+-# CONFIG_MACHZ_WDT is not set
+-# CONFIG_SC520_WDT is not set
+-# CONFIG_AMD7XX_TCO is not set
+-# CONFIG_ALIM7101_WDT is not set
+-# CONFIG_SC1200_WDT is not set
+-# CONFIG_WAFER_WDT is not set
+-# CONFIG_CPU5_WDT is not set
 -# CONFIG_NVRAM is not set
 -CONFIG_GEN_RTC=y
 -# CONFIG_GEN_RTC_X is not set
@@ -428,13 +572,15 @@ deleted file mode 100644
 -# CONFIG_MINIX_FS is not set
 -# CONFIG_ROMFS_FS is not set
 -# CONFIG_QUOTA is not set
--# CONFIG_AUTOFS_FS is not set
+-CONFIG_AUTOFS_FS=y
 -# CONFIG_AUTOFS4_FS is not set
 -
 -#
 -# CD-ROM/DVD Filesystems
 -#
--# CONFIG_ISO9660_FS is not set
+-CONFIG_ISO9660_FS=y
+-# CONFIG_JOLIET is not set
+-# CONFIG_ZISOFS is not set
 -# CONFIG_UDF_FS is not set
 -
 -#
@@ -448,6 +594,8 @@ deleted file mode 100644
 -#
 -CONFIG_PROC_FS=y
 -# CONFIG_DEVFS_FS is not set
+-CONFIG_DEVPTS_FS=y
+-# CONFIG_DEVPTS_FS_XATTR is not set
 -CONFIG_TMPFS=y
 -CONFIG_RAMFS=y
 -
@@ -473,10 +621,12 @@ deleted file mode 100644
 -CONFIG_NFS_FS=y
 -# CONFIG_NFS_V3 is not set
 -# CONFIG_NFS_V4 is not set
--# CONFIG_NFSD is not set
+-CONFIG_NFSD=y
+-# CONFIG_NFSD_V3 is not set
+-# CONFIG_NFSD_TCP is not set
 -CONFIG_ROOT_NFS=y
 -CONFIG_LOCKD=y
--# CONFIG_EXPORTFS is not set
+-CONFIG_EXPORTFS=y
 -CONFIG_SUNRPC=y
 -# CONFIG_SUNRPC_GSS is not set
 -# CONFIG_SMB_FS is not set
@@ -504,6 +654,7 @@ deleted file mode 100644
 -#
 -# USB support
 -#
+-# CONFIG_USB is not set
 -# CONFIG_USB_GADGET is not set
 -
 -#
@@ -522,6 +673,7 @@ deleted file mode 100644
 -# CONFIG_DEBUG_KERNEL is not set
 -# CONFIG_KALLSYMS is not set
 -# CONFIG_SERIAL_TEXT_DEBUG is not set
+-CONFIG_OCP=y
 -
 -#
 -# Security options
@@ -532,467 +684,3 @@ deleted file mode 100644
 -# Cryptographic options
 -#
 -# CONFIG_CRYPTO is not set
-diff --git a/arch/ppc/platforms/4xx/Kconfig b/arch/ppc/platforms/4xx/Kconfig
---- a/arch/ppc/platforms/4xx/Kconfig
-+++ b/arch/ppc/platforms/4xx/Kconfig
-@@ -26,11 +26,6 @@ config EP405
- 	help
- 	  This option enables support for the EP405/EP405PC boards.
- 
--config OAK
--	bool "Oak"
--	help
--	  This option enables support for the IBM 403GCX evaluation board.
--
- config REDWOOD_5
- 	bool "Redwood-5"
- 	help
-@@ -155,6 +150,7 @@ config BIOS_FIXUP
- 	depends on BUBINGA || EP405 || SYCAMORE || WALNUT
- 	default y
- 
-+# OAK doesn't exist but wanted to keep this around for any future 403GCX boards
- config 403GCX
- 	bool
- 	depends OAK
-diff --git a/arch/ppc/platforms/4xx/Makefile b/arch/ppc/platforms/4xx/Makefile
---- a/arch/ppc/platforms/4xx/Makefile
-+++ b/arch/ppc/platforms/4xx/Makefile
-@@ -6,7 +6,6 @@ obj-$(CONFIG_EBONY)		+= ebony.o
- obj-$(CONFIG_EP405)		+= ep405.o
- obj-$(CONFIG_BUBINGA)		+= bubinga.o
- obj-$(CONFIG_LUAN)		+= luan.o
--obj-$(CONFIG_OAK)		+= oak.o
- obj-$(CONFIG_OCOTEA)		+= ocotea.o
- obj-$(CONFIG_REDWOOD_5)		+= redwood5.o
- obj-$(CONFIG_REDWOOD_6)		+= redwood6.o
-diff --git a/arch/ppc/platforms/4xx/oak.c b/arch/ppc/platforms/4xx/oak.c
-deleted file mode 100644
---- a/arch/ppc/platforms/4xx/oak.c
-+++ /dev/null
-@@ -1,255 +0,0 @@
--/*
-- *
-- *    Copyright (c) 1999-2000 Grant Erickson <grant@lcse.umn.edu>
-- *
-- *    Module name: oak.c
-- *
-- *    Description:
-- *      Architecture- / platform-specific boot-time initialization code for
-- *      the IBM PowerPC 403GCX "Oak" evaluation board. Adapted from original
-- *      code by Gary Thomas, Cort Dougan <cort@fsmlabs.com>, and Dan Malek
-- *      <dan@net4x.com>.
-- *
-- */
--
--#include <linux/config.h>
--#include <linux/init.h>
--#include <linux/smp.h>
--#include <linux/threads.h>
--#include <linux/param.h>
--#include <linux/string.h>
--#include <linux/initrd.h>
--#include <linux/irq.h>
--#include <linux/seq_file.h>
--
--#include <asm/board.h>
--#include <asm/machdep.h>
--#include <asm/page.h>
--#include <asm/bootinfo.h>
--#include <asm/ppc4xx_pic.h>
--#include <asm/time.h>
--
--#include "oak.h"
--
--/* Function Prototypes */
--
--extern void abort(void);
--
--/* Global Variables */
--
--unsigned char __res[sizeof(bd_t)];
--
--
--/*
-- * void __init oak_init()
-- *
-- * Description:
-- *   This routine...
-- *
-- * Input(s):
-- *   r3 - Optional pointer to a board information structure.
-- *   r4 - Optional pointer to the physical starting address of the init RAM
-- *        disk.
-- *   r5 - Optional pointer to the physical ending address of the init RAM
-- *        disk.
-- *   r6 - Optional pointer to the physical starting address of any kernel
-- *        command-line parameters.
-- *   r7 - Optional pointer to the physical ending address of any kernel
-- *        command-line parameters.
-- *
-- * Output(s):
-- *   N/A
-- *
-- * Returns:
-- *   N/A
-- *
-- */
--void __init
--platform_init(unsigned long r3, unsigned long r4, unsigned long r5,
--	      unsigned long r6, unsigned long r7)
--{
--	parse_bootinfo(find_bootinfo());
--
--	/*
--	 * If we were passed in a board information, copy it into the
--	 * residual data area.
--	 */
--	if (r3) {
--		memcpy((void *)__res, (void *)(r3 + KERNELBASE), sizeof(bd_t));
--	}
--
--#if defined(CONFIG_BLK_DEV_INITRD)
--	/*
--	 * If the init RAM disk has been configured in, and there's a valid
--	 * starting address for it, set it up.
--	 */
--	if (r4) {
--		initrd_start = r4 + KERNELBASE;
--		initrd_end = r5 + KERNELBASE;
--	}
--#endif /* CONFIG_BLK_DEV_INITRD */
--
--	/* Copy the kernel command line arguments to a safe place. */
--
--	if (r6) {
-- 		*(char *)(r7 + KERNELBASE) = 0;
--		strcpy(cmd_line, (char *)(r6 + KERNELBASE));
--	}
--
--	/* Initialize machine-dependency vectors */
--
--	ppc_md.setup_arch	 	= oak_setup_arch;
--	ppc_md.show_percpuinfo	 	= oak_show_percpuinfo;
--	ppc_md.irq_canonicalize 	= NULL;
--	ppc_md.init_IRQ		 	= ppc4xx_pic_init;
--	ppc_md.get_irq		 	= NULL;  /* Set in ppc4xx_pic_init() */
--	ppc_md.init		 	= NULL;
--
--	ppc_md.restart		 	= oak_restart;
--	ppc_md.power_off	 	= oak_power_off;
--	ppc_md.halt		 	= oak_halt;
--
--	ppc_md.time_init	 	= oak_time_init;
--	ppc_md.set_rtc_time	 	= oak_set_rtc_time;
--	ppc_md.get_rtc_time	 	= oak_get_rtc_time;
--	ppc_md.calibrate_decr	 	= oak_calibrate_decr;
--}
--
--/*
-- * Document me.
-- */
--void __init
--oak_setup_arch(void)
--{
--	/* XXX - Implement me */
--}
--
--/*
-- * int oak_show_percpuinfo()
-- *
-- * Description:
-- *   This routine pretty-prints the platform's internal CPU and bus clock
-- *   frequencies into the buffer for usage in /proc/cpuinfo.
-- *
-- * Input(s):
-- *  *buffer - Buffer into which CPU and bus clock frequencies are to be
-- *            printed.
-- *
-- * Output(s):
-- *  *buffer - Buffer with the CPU and bus clock frequencies.
-- *
-- * Returns:
-- *   The number of bytes copied into 'buffer' if OK, otherwise zero or less
-- *   on error.
-- */
--int
--oak_show_percpuinfo(struct seq_file *m, int i)
--{
--	bd_t *bp = (bd_t *)__res;
--
--	seq_printf(m, "clock\t\t: %dMHz\n"
--		   "bus clock\t\t: %dMHz\n",
--		   bp->bi_intfreq / 1000000,
--		   bp->bi_busfreq / 1000000);
--
--	return 0;
--}
--
--/*
-- * Document me.
-- */
--void
--oak_restart(char *cmd)
--{
--	abort();
--}
--
--/*
-- * Document me.
-- */
--void
--oak_power_off(void)
--{
--	oak_restart(NULL);
--}
--
--/*
-- * Document me.
-- */
--void
--oak_halt(void)
--{
--	oak_restart(NULL);
--}
--
--/*
-- * Document me.
-- */
--long __init
--oak_time_init(void)
--{
--	/* XXX - Implement me */
--	return 0;
--}
--
--/*
-- * Document me.
-- */
--int __init
--oak_set_rtc_time(unsigned long time)
--{
--	/* XXX - Implement me */
--
--	return (0);
--}
--
--/*
-- * Document me.
-- */
--unsigned long __init
--oak_get_rtc_time(void)
--{
--	/* XXX - Implement me */
--
--	return (0);
--}
--
--/*
-- * void __init oak_calibrate_decr()
-- *
-- * Description:
-- *   This routine retrieves the internal processor frequency from the board
-- *   information structure, sets up the kernel timer decrementer based on
-- *   that value, enables the 403 programmable interval timer (PIT) and sets
-- *   it up for auto-reload.
-- *
-- * Input(s):
-- *   N/A
-- *
-- * Output(s):
-- *   N/A
-- *
-- * Returns:
-- *   N/A
-- *
-- */
--void __init
--oak_calibrate_decr(void)
--{
--	unsigned int freq;
--	bd_t *bip = (bd_t *)__res;
--
--	freq = bip->bi_intfreq;
--
--	decrementer_count = freq / HZ;
--	count_period_num = 1;
--	count_period_den = freq;
--
--	/* Enable the PIT and set auto-reload of its value */
--
--	mtspr(SPRN_TCR, TCR_PIE | TCR_ARE);
--
--	/* Clear any pending timer interrupts */
--
--	mtspr(SPRN_TSR, TSR_ENW | TSR_WIS | TSR_PIS | TSR_FIS);
--}
-diff --git a/arch/ppc/platforms/4xx/oak.h b/arch/ppc/platforms/4xx/oak.h
-deleted file mode 100644
---- a/arch/ppc/platforms/4xx/oak.h
-+++ /dev/null
-@@ -1,96 +0,0 @@
--/*
-- *
-- *    Copyright (c) 1999 Grant Erickson <grant@lcse.umn.edu>
-- *
-- *    Module name: oak.h
-- *
-- *    Description:
-- *	Macros, definitions, and data structures specific to the IBM PowerPC
-- *      403G{A,B,C,CX} "Oak" evaluation board. Anything specific to the pro-
-- *      cessor itself is defined elsewhere.
-- *
-- */
--
--#ifdef __KERNEL__
--#ifndef __ASM_OAK_H__
--#define __ASM_OAK_H__
--
--/* We have an IBM 403G{A,B,C,CX} core */
--#include <asm/ibm403.h>
--
--#define _IO_BASE	0
--#define _ISA_MEM_BASE	0
--#define PCI_DRAM_OFFSET	0
--
--/* Memory map for the "Oak" evaluation board */
--
--#define	PPC403SPU_IO_BASE	0x40000000	/* 403 On-chip serial port */
--#define	PPC403SPU_IO_SIZE	0x00000008
--#define	OAKSERIAL_IO_BASE	0x7E000000	/* NS16550DV serial port */
--#define	OAKSERIAL_IO_SIZE	0x00000008
--#define	OAKNET_IO_BASE		0xF4000000	/* NS83902AV Ethernet */
--#define	OAKNET_IO_SIZE		0x00000040
--#define	OAKPROM_IO_BASE		0xFFFE0000	/* AMD 29F010 Flash ROM */
--#define	OAKPROM_IO_SIZE		0x00020000
--
--
--/* Interrupt assignments fixed by the hardware implementation */
--
--/* This is annoying kbuild-2.4 problem. -- Tom */
--
--#define	PPC403SPU_RX_INT	4	/* AIC_INT4 */
--#define	PPC403SPU_TX_INT	5	/* AIC_INT5 */
--#define	OAKNET_INT		27	/* AIC_INT27 */
--#define	OAKSERIAL_INT		28	/* AIC_INT28 */
--
--#ifndef __ASSEMBLY__
--/*
-- * Data structure defining board information maintained by the boot
-- * ROM on IBM's "Oak" evaluation board. An effort has been made to
-- * keep the field names consistent with the 8xx 'bd_t' board info
-- * structures.
-- */
--
--typedef struct board_info {
--	unsigned char	 bi_s_version[4];	/* Version of this structure */
--	unsigned char	 bi_r_version[30];	/* Version of the IBM ROM */
--	unsigned int	 bi_memsize;		/* DRAM installed, in bytes */
--	unsigned char	 bi_enetaddr[6];	/* Ethernet MAC address */
--	unsigned int	 bi_intfreq;		/* Processor speed, in Hz */
--	unsigned int	 bi_busfreq;		/* Bus speed, in Hz */
--} bd_t;
--
--#ifdef __cplusplus
--extern "C" {
--#endif
--
--extern void		 oak_init(unsigned long r3,
--				  unsigned long ird_start,
--				  unsigned long ird_end,
--				  unsigned long cline_start,
--				  unsigned long cline_end);
--extern void		 oak_setup_arch(void);
--extern int		 oak_setup_residual(char *buffer);
--extern void		 oak_init_IRQ(void);
--extern int		 oak_get_irq(struct pt_regs *regs);
--extern void		 oak_restart(char *cmd);
--extern void		 oak_power_off(void);
--extern void		 oak_halt(void);
--extern void		 oak_time_init(void);
--extern int		 oak_set_rtc_time(unsigned long now);
--extern unsigned long	 oak_get_rtc_time(void);
--extern void		 oak_calibrate_decr(void);
--
--#ifdef __cplusplus
--}
--#endif
--
--/* Some 4xx parts use a different timebase frequency from the internal clock.
--*/
--#define bi_tbfreq bi_intfreq
--
--#define PPC4xx_MACHINE_NAME	"IBM Oak"
--
--#endif /* !__ASSEMBLY__ */
--#endif /* __ASM_OAK_H__ */
--#endif /* __KERNEL__ */
-diff --git a/arch/ppc/platforms/4xx/oak_setup.h b/arch/ppc/platforms/4xx/oak_setup.h
-deleted file mode 100644
---- a/arch/ppc/platforms/4xx/oak_setup.h
-+++ /dev/null
-@@ -1,50 +0,0 @@
--/*
-- *
-- *    Copyright (c) 1999-2000 Grant Erickson <grant@lcse.umn.edu>
-- *
-- *    Module name: oak_setup.h
-- *
-- *    Description:
-- *      Architecture- / platform-specific boot-time initialization code for
-- *      the IBM PowerPC 403GCX "Oak" evaluation board. Adapted from original
-- *      code by Gary Thomas, Cort Dougan <cort@cs.nmt.edu>, and Dan Malek
-- *      <dan@netx4.com>.
-- *
-- */
--
--#ifndef	__OAK_SETUP_H__
--#define	__OAK_SETUP_H__
--
--#include <asm/ptrace.h>
--#include <asm/board.h>
--
--
--#ifdef __cplusplus
--extern "C" {
--#endif
--
--extern unsigned char	 __res[sizeof(bd_t)];
--
--extern void		 oak_init(unsigned long r3,
--				  unsigned long ird_start,
--				  unsigned long ird_end,
--				  unsigned long cline_start,
--				  unsigned long cline_end);
--extern void		 oak_setup_arch(void);
--extern int		 oak_setup_residual(char *buffer);
--extern void		 oak_init_IRQ(void);
--extern int		 oak_get_irq(struct pt_regs *regs);
--extern void		 oak_restart(char *cmd);
--extern void		 oak_power_off(void);
--extern void		 oak_halt(void);
--extern void		 oak_time_init(void);
--extern int		 oak_set_rtc_time(unsigned long now);
--extern unsigned long	 oak_get_rtc_time(void);
--extern void		 oak_calibrate_decr(void);
--
--
--#ifdef __cplusplus
--}
--#endif
--
--#endif /* __OAK_SETUP_H__ */
-diff --git a/include/asm-ppc/ibm4xx.h b/include/asm-ppc/ibm4xx.h
---- a/include/asm-ppc/ibm4xx.h
-+++ b/include/asm-ppc/ibm4xx.h
-@@ -31,10 +31,6 @@
- #include <platforms/4xx/ep405.h>
- #endif
- 
--#if defined(CONFIG_OAK)
--#include <platforms/4xx/oak.h>
--#endif
--
- #if defined(CONFIG_REDWOOD_4)
- #include <platforms/4xx/redwood.h>
- #endif

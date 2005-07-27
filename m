@@ -1,89 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVG0B1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVG0B2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbVG0B1q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 21:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVG0B1q
+	id S262347AbVG0B2s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 21:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVG0B2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 21:27:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9090 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262323AbVG0B1i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 21:27:38 -0400
-Date: Tue, 26 Jul 2005 18:26:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: pbadari@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Memory pressure handling with iSCSI
-Message-Id: <20050726182631.668e2da2.akpm@osdl.org>
-In-Reply-To: <194200000.1122427210@flay>
-References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com>
-	<20050726111110.6b9db241.akpm@osdl.org>
-	<1122403152.6433.39.camel@dyn9047017102.beaverton.ibm.com>
-	<20050726114824.136d3dad.akpm@osdl.org>
-	<20050726121250.0ba7d744.akpm@osdl.org>
-	<1122412301.6433.54.camel@dyn9047017102.beaverton.ibm.com>
-	<20050726142410.4ff2e56a.akpm@osdl.org>
-	<1122414300.6433.57.camel@dyn9047017102.beaverton.ibm.com>
-	<20050726151003.6aa3aecb.akpm@osdl.org>
-	<1122418089.6433.62.camel@dyn9047017102.beaverton.ibm.com>
-	<20050726160728.55245dae.akpm@osdl.org>
-	<1122420376.6433.68.camel@dyn9047017102.beaverton.ibm.com>
-	<20050726173126.5368266b.akpm@osdl.org>
-	<194200000.1122427210@flay>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 26 Jul 2005 21:28:48 -0400
+Received: from dsl017-059-136.wdc2.dsl.speakeasy.net ([69.17.59.136]:39826
+	"EHLO luther.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S262347AbVG0B1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 21:27:55 -0400
+Date: Tue, 26 Jul 2005 21:28:53 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Question re the dot releases such as 2.6.12.3
+Message-ID: <20050727012853.GA2354@kurtwerks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200507251020.08894.gene.heskett@verizon.net> <42E51593.7070902@didntduck.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42E51593.7070902@didntduck.org>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.12.2
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@mbligh.org> wrote:
->
+On Mon, Jul 25, 2005 at 12:38:43PM -0400, Brian Gerst took 21 lines to write:
+> Gene Heskett wrote:
+> >Greetings;
+> >
+> >I just built what I thought was 2.6.12.3, but my script got a tummy 
+> >ache because I didn't check the Makefile's EXTRA_VERSION, which was 
+> >set to .2 in the .2 patch.  Now my 2.6.12 modules will need a refresh 
+> >build. :(
+> >
+> >So whats the proper patching sequence to build a 2.6.12.3?
+> >
 > 
-> > It happens here, a bit.  My machine goes up to 60% dirty when it should be
-> > clamping at 40%.
-> > 
-> > The variable `total_pages' in page-writeback.c (from
-> > nr_free_pagecache_pages()) is too high.  I trace it back to here:
-> > 
-> > On node 0 totalpages: 1572864
-> >   DMA zone: 4096 pages, LIFO batch:1
-> >   Normal zone: 1568768 pages, LIFO batch:31
-> >   HighMem zone: 0 pages, LIFO batch:1
-> > 
-> > This machine only has 4G of memory, so the platform code is overestimating
-> > the number of pages by 50%.  Can you please check your dmesg, see if your
-> > system is also getting this wrong?
-> 
-> I think we're repeatedly iterating over the same zones by walking the 
-> zonelists:
-> 
-> static unsigned int nr_free_zone_pages(int offset)
-> {
->         pg_data_t *pgdat;
->         unsigned int sum = 0;
->         int i;
-> 
->         for_each_pgdat(pgdat) {
->                 struct zone *zone;
-> 
->                 for (i = 0; i < MAX_NR_ZONES; i++) {
->                         unsigned long size, high;
-> 
->                         zone = pgdat->node_zones[i];
->                         size = zone->present_pages;
->                         high = zone->pages_high;
-> 
->                         if (size > high)
->                                 sum += size - high;
->                 }
->         }
-> }
+> The dot-release patches are not incremental.  You apply each one to the 
+> base 2.6.12 tree.
 
-I don't think so.  We're getting the wrong answer out of
-calculate_zone_totalpages() which is an init-time thing.
+This bit me a while back, too. I'll submit a patch to the top-level
+README to spell it out.
 
-Maybe nr_free_zone_pages() is supposed to fix that up post-facto somehow,
-but calculate_zone_totalpages() sure as heck shouldn't be putting 1568768
-into my ZONE_NORMAL's ->node_present_pages.
-
+Kurt
+-- 
+You cannot propel yourself forward by patting yourself on the back.

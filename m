@@ -1,68 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbVG0VAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262473AbVG0U6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262448AbVG0VAR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 17:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVG0U6s
+	id S262473AbVG0U6o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 16:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbVG0U4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 16:58:48 -0400
-Received: from www.tuxrocks.com ([64.62.190.123]:5640 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S262448AbVG0U5k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 16:57:40 -0400
-Message-ID: <42E7F53E.9050604@tuxrocks.com>
-Date: Wed, 27 Jul 2005 14:57:34 -0600
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Wed, 27 Jul 2005 16:56:49 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:4007 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S261933AbVG0UyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 16:54:15 -0400
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, rolandd@cisco.com
+Subject: Re: [PATCH 18/82] remove linux/version.h from drivers/infiniband/
+X-Message-Flag: Warning: May contain useful information
+References: <20050710193526.18.UYMiOz2756.2247.olh@nectarine.suse.de>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Wed, 27 Jul 2005 13:53:57 -0700
+In-Reply-To: <20050710193526.18.UYMiOz2756.2247.olh@nectarine.suse.de> (Olaf
+ Hering's message of "Sun, 10 Jul 2005 19:35:26 +0000")
+Message-ID: <52y87sug0q.fsf@cisco.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] Fix up i386 compile after the "i386: clean up user_mode macros"
- patch
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 27 Jul 2005 20:54:08.0597 (UTC) FILETIME=[554D7050:01C592ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Thanks, I've finally applied this to our repository, and will merge it
+upstream for 2.6.14 (unless it shows up by some other route first).
 
-The "i386: clean up user_mode macros" patch that recently went into the
-kernel doesn't know the definition of VM_MASK, so the current -git
-doesn't compile.  This patch includes the header where VM_MASK is defined.
-
-Signed-off-by: Frank Sorenson <frank@tuxrocks.com>
-
-Fix up i386 compile after the "i386: clean up user_mode macros" patch
-
-diff --git a/include/asm-i386/ptrace.h b/include/asm-i386/ptrace.h
-- --- a/include/asm-i386/ptrace.h
-+++ b/include/asm-i386/ptrace.h
-@@ -1,8 +1,10 @@
- #ifndef _I386_PTRACE_H
- #define _I386_PTRACE_H
-
-+#include <asm-i386/vm86.h>
-+
- #define EBX 0
- #define ECX 1
- #define EDX 2
- #define ESI 3
- #define EDI 4
-
-
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFC5/U+aI0dwg4A47wRAsdOAJ9hzY9aQ0pQTY1QikQ0MzobJzJG7QCeI9C7
-zU+Gyxyp933jK0ahLWDhzq0=
-=90nz
------END PGP SIGNATURE-----
+ - R.

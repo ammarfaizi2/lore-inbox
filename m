@@ -1,113 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVG0Qh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVG0QkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVG0Qh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 12:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVG0PkM
+	id S261301AbVG0QkG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 12:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbVG0QiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 11:40:12 -0400
-Received: from de01egw02.freescale.net ([192.88.165.103]:52681 "EHLO
+	Wed, 27 Jul 2005 12:38:23 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:20938 "EHLO
 	de01egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S262388AbVG0PjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 11:39:04 -0400
-Date: Wed, 27 Jul 2005 10:38:51 -0500 (CDT)
+	id S262389AbVG0PkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 11:40:10 -0400
+Date: Wed, 27 Jul 2005 10:39:44 -0500 (CDT)
 From: Kumar Gala <galak@freescale.com>
 X-X-Sender: galak@nylon.am.freescale.net
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org,
        linuxppc-embedded <linuxppc-embedded@ozlabs.org>
-Subject: [PATCH 09/14] ppc32: Remove board support for RAINIER  
-Message-ID: <Pine.LNX.4.61.0507271038170.12237@nylon.am.freescale.net>
+Subject: [PATCH 10/14] ppc32: Remove board support for REDWOOD
+Message-ID: <Pine.LNX.4.61.0507271038520.12237@nylon.am.freescale.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Support for the RAINIER board is no longer maintained and thus being removed
+Support for the REDWOOD board is no longer maintained and thus being removed
 
 Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
 ---
-commit 82101a77550f5cd9c35efe787c5eaa8f82672c36
-tree 1da0a285c77011aeed199a293fdbab7fdea4631f
-parent e36f8d751bbac7114de804eae35a8013a3dd45ce
-author Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 15:51:50 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 15:51:50 -0500
+commit 7dbed1f92ee7eeaee439e82f7dae6e43c410ef22
+tree 9cdb6db7eedd12a58007466e3193800c46a414ba
+parent 82101a77550f5cd9c35efe787c5eaa8f82672c36
+author Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 16:00:04 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Mon, 25 Jul 2005 16:00:04 -0500
 
- arch/ppc/boot/simple/embed_config.c |   36 --
- arch/ppc/configs/rainier_defconfig  |  599 -----------------------------------
- 2 files changed, 0 insertions(+), 635 deletions(-)
+ arch/ppc/boot/simple/Makefile      |    2 
+ arch/ppc/boot/simple/head.S        |    9 -
+ arch/ppc/configs/redwood_defconfig |  540 ------------------------------------
+ include/asm-ppc/ibm4xx.h           |    4 
+ 4 files changed, 0 insertions(+), 555 deletions(-)
 
-diff --git a/arch/ppc/boot/simple/embed_config.c b/arch/ppc/boot/simple/embed_config.c
---- a/arch/ppc/boot/simple/embed_config.c
-+++ b/arch/ppc/boot/simple/embed_config.c
-@@ -926,39 +926,3 @@ embed_config(bd_t **bdp)
+diff --git a/arch/ppc/boot/simple/Makefile b/arch/ppc/boot/simple/Makefile
+--- a/arch/ppc/boot/simple/Makefile
++++ b/arch/ppc/boot/simple/Makefile
+@@ -148,8 +148,6 @@ zimageinitrd-$(CONFIG_LITE5200)		:= zIma
+ 
+ # This is a treeboot that needs init functions until the
+ # boot rom is sorted out (i.e. this is short lived)
+-extra-aflags-$(CONFIG_REDWOOD_4)	:= -Wa,-m405
+-extra.o-$(CONFIG_REDWOOD_4)		:= rw4/rw4_init.o rw4/rw4_init_brd.o
+ EXTRA_AFLAGS := $(extra-aflags-y)
+ # head.o needs to get the cacheflags defined.
+ AFLAGS_head.o				+= $(cacheflag-y)
+diff --git a/arch/ppc/boot/simple/head.S b/arch/ppc/boot/simple/head.S
+--- a/arch/ppc/boot/simple/head.S
++++ b/arch/ppc/boot/simple/head.S
+@@ -120,15 +120,6 @@ haveOF:
+ 	mtspr	SPRN_DER,r4
  #endif
- }
- #endif
--
--#ifdef CONFIG_RAINIER
--/* Rainier uses vxworks bootrom */
--void
--embed_config(bd_t **bdp)
--{
--	u_char	*cp;
--	int	i;
--	bd_t	*bd;
--	
--	bd = &bdinfo;
--	*bdp = bd;
--	
--	for(i=0;i<8192;i+=32) {
--		__asm__("dccci 0,%0" :: "r" (i));
--	}
--	__asm__("iccci 0,0");
--	__asm__("sync;isync");
--
--	/* init ram for parity */
--	memset(0, 0,0x400000);  /* Lo memory */
--
--
--	bd->bi_memsize   = (32 * 1024 * 1024) ;
--	bd->bi_intfreq = 133000000; //the internal clock is 133 MHz
--	bd->bi_busfreq   = 100000000;
--	bd->bi_pci_busfreq= 33000000;
--
--	cp = (u_char *)def_enet_addr;
--	for (i=0; i<6; i++) {
--		bd->bi_enetaddr[i] = *cp++;
--	}
--
--}
+ 
+-#ifdef CONFIG_REDWOOD_4
+-	/* All of this Redwood 4 stuff will soon disappear when the
+-	 * boot rom is straightened out.
+-	 */
+-	mr	r29, r3		/* Easier than changing the other code */
+-	bl	HdwInit
+-	mr	r3, r29
 -#endif
 -
-diff --git a/arch/ppc/configs/rainier_defconfig b/arch/ppc/configs/rainier_defconfig
+ #if defined(CONFIG_MBX) || defined(CONFIG_RPX8260) || defined(CONFIG_PPC_PREP)
+ 	mr	r4,r29	/* put the board info pointer where the relocate
+ 			 * routine will find it
+diff --git a/arch/ppc/configs/redwood_defconfig b/arch/ppc/configs/redwood_defconfig
 deleted file mode 100644
---- a/arch/ppc/configs/rainier_defconfig
+--- a/arch/ppc/configs/redwood_defconfig
 +++ /dev/null
-@@ -1,599 +0,0 @@
+@@ -1,540 +0,0 @@
 -#
 -# Automatically generated make config: don't edit
 -#
 -CONFIG_MMU=y
 -CONFIG_RWSEM_XCHGADD_ALGORITHM=y
 -CONFIG_HAVE_DEC_LOCK=y
+-CONFIG_PPC=y
+-CONFIG_PPC32=y
 -
 -#
 -# Code maturity level options
 -#
 -CONFIG_EXPERIMENTAL=y
+-CONFIG_CLEAN_COMPILE=y
+-# CONFIG_STANDALONE is not set
+-CONFIG_BROKEN_ON_SMP=y
 -
 -#
 -# General setup
 -#
--# CONFIG_SWAP is not set
+-CONFIG_SWAP=y
 -CONFIG_SYSVIPC=y
 -# CONFIG_BSD_PROCESS_ACCT is not set
 -CONFIG_SYSCTL=y
 -CONFIG_LOG_BUF_SHIFT=14
+-# CONFIG_IKCONFIG is not set
 -CONFIG_EMBEDDED=y
+-# CONFIG_KALLSYMS is not set
 -CONFIG_FUTEX=y
 -# CONFIG_EPOLL is not set
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
 -
 -#
 -# Loadable module support
@@ -115,18 +115,20 @@ deleted file mode 100644
 -CONFIG_MODULES=y
 -# CONFIG_MODULE_UNLOAD is not set
 -CONFIG_OBSOLETE_MODPARM=y
--CONFIG_MODVERSIONS=y
+-# CONFIG_MODVERSIONS is not set
 -CONFIG_KMOD=y
 -
 -#
--# Platform support
+-# Processor
 -#
--CONFIG_PPC=y
--CONFIG_PPC32=y
 -# CONFIG_6xx is not set
 -CONFIG_40x=y
+-# CONFIG_44x is not set
 -# CONFIG_POWER3 is not set
+-# CONFIG_POWER4 is not set
 -# CONFIG_8xx is not set
+-# CONFIG_MATH_EMULATION is not set
+-# CONFIG_CPU_FREQ is not set
 -CONFIG_4xx=y
 -
 -#
@@ -138,48 +140,47 @@ deleted file mode 100644
 -# CONFIG_CPCI405 is not set
 -# CONFIG_EP405 is not set
 -# CONFIG_OAK is not set
--# CONFIG_REDWOOD_4 is not set
+-CONFIG_REDWOOD_4=y
 -# CONFIG_REDWOOD_5 is not set
 -# CONFIG_REDWOOD_6 is not set
 -# CONFIG_SYCAMORE is not set
 -# CONFIG_TIVO is not set
--CONFIG_WALNUT=y
+-# CONFIG_WALNUT is not set
 -CONFIG_IBM405_ERR77=y
 -CONFIG_IBM405_ERR51=y
 -CONFIG_IBM_OCP=y
--CONFIG_BIOS_FIXUP=y
--CONFIG_405GP=y
+-CONFIG_STB03xxx=y
 -CONFIG_IBM_OPENBIOS=y
--CONFIG_405_DMA=y
+-# CONFIG_405_DMA is not set
 -# CONFIG_PM is not set
 -CONFIG_UART0_TTYS0=y
 -# CONFIG_UART0_TTYS1 is not set
+-# CONFIG_SERIAL_SICC is not set
 -CONFIG_NOT_COHERENT_CACHE=y
--# CONFIG_SMP is not set
--# CONFIG_PREEMPT is not set
--# CONFIG_MATH_EMULATION is not set
--# CONFIG_CPU_FREQ is not set
 -
 -#
--# General setup
+-# Platform options
 -#
--# CONFIG_HIGHMEM is not set
--CONFIG_PCI=y
--CONFIG_PCI_DOMAINS=y
 -# CONFIG_PC_KEYBOARD is not set
--CONFIG_KCORE_ELF=y
--CONFIG_BINFMT_ELF=y
+-# CONFIG_SMP is not set
+-# CONFIG_PREEMPT is not set
+-# CONFIG_HIGHMEM is not set
 -CONFIG_KERNEL_ELF=y
+-CONFIG_BINFMT_ELF=y
 -# CONFIG_BINFMT_MISC is not set
--# CONFIG_PCI_LEGACY_PROC is not set
--CONFIG_PCI_NAMES=y
+-# CONFIG_CMDLINE_BOOL is not set
+-
+-#
+-# Bus options
+-#
+-# CONFIG_PCI is not set
+-# CONFIG_PCI_DOMAINS is not set
 -# CONFIG_HOTPLUG is not set
 -
 -#
 -# Parallel port support
 -#
 -# CONFIG_PARPORT is not set
--# CONFIG_CMDLINE_BOOL is not set
 -
 -#
 -# Advanced setup
@@ -196,6 +197,10 @@ deleted file mode 100644
 -CONFIG_BOOT_LOAD=0x00400000
 -
 -#
+-# Generic Driver Options
+-#
+-
+-#
 -# Memory Technology Devices (MTD)
 -#
 -# CONFIG_MTD is not set
@@ -208,16 +213,13 @@ deleted file mode 100644
 -#
 -# Block devices
 -#
--# CONFIG_BLK_DEV_FD is not set
--# CONFIG_BLK_CPQ_DA is not set
--# CONFIG_BLK_CPQ_CISS_DA is not set
--# CONFIG_BLK_DEV_DAC960 is not set
--# CONFIG_BLK_DEV_UMEM is not set
 -CONFIG_BLK_DEV_LOOP=y
--CONFIG_BLK_DEV_NBD=y
+-# CONFIG_BLK_DEV_CRYPTOLOOP is not set
+-# CONFIG_BLK_DEV_NBD is not set
 -CONFIG_BLK_DEV_RAM=y
 -CONFIG_BLK_DEV_RAM_SIZE=4096
 -CONFIG_BLK_DEV_INITRD=y
+-# CONFIG_LBD is not set
 -
 -#
 -# Multi-device support (RAID and LVM)
@@ -225,12 +227,12 @@ deleted file mode 100644
 -# CONFIG_MD is not set
 -
 -#
--# ATA/IDE/MFM/RLL support
+-# ATA/ATAPI/MFM/RLL support
 -#
 -# CONFIG_IDE is not set
 -
 -#
--# SCSI support
+-# SCSI device support
 -#
 -# CONFIG_SCSI is not set
 -
@@ -239,14 +241,8 @@ deleted file mode 100644
 -#
 -
 -#
--# IEEE 1394 (FireWire) support (EXPERIMENTAL)
--#
--# CONFIG_IEEE1394 is not set
--
--#
 -# I2O device support
 -#
--# CONFIG_I2O is not set
 -
 -#
 -# Networking support
@@ -256,17 +252,15 @@ deleted file mode 100644
 -#
 -# Networking options
 -#
--CONFIG_PACKET=y
--# CONFIG_PACKET_MMAP is not set
+-# CONFIG_PACKET is not set
 -# CONFIG_NETLINK_DEV is not set
--# CONFIG_NETFILTER is not set
 -CONFIG_UNIX=y
 -# CONFIG_NET_KEY is not set
 -CONFIG_INET=y
 -CONFIG_IP_MULTICAST=y
 -# CONFIG_IP_ADVANCED_ROUTER is not set
 -CONFIG_IP_PNP=y
--# CONFIG_IP_PNP_DHCP is not set
+-CONFIG_IP_PNP_DHCP=y
 -CONFIG_IP_PNP_BOOTP=y
 -CONFIG_IP_PNP_RARP=y
 -# CONFIG_NET_IPIP is not set
@@ -279,7 +273,9 @@ deleted file mode 100644
 -# CONFIG_INET_ESP is not set
 -# CONFIG_INET_IPCOMP is not set
 -# CONFIG_IPV6 is not set
--# CONFIG_XFRM_USER is not set
+-# CONFIG_DECNET is not set
+-# CONFIG_BRIDGE is not set
+-# CONFIG_NETFILTER is not set
 -
 -#
 -# SCTP Configuration (EXPERIMENTAL)
@@ -288,9 +284,9 @@ deleted file mode 100644
 -# CONFIG_IP_SCTP is not set
 -# CONFIG_ATM is not set
 -# CONFIG_VLAN_8021Q is not set
--# CONFIG_LLC is not set
--# CONFIG_DECNET is not set
--# CONFIG_BRIDGE is not set
+-# CONFIG_LLC2 is not set
+-# CONFIG_IPX is not set
+-# CONFIG_ATALK is not set
 -# CONFIG_X25 is not set
 -# CONFIG_LAPB is not set
 -# CONFIG_NET_DIVERT is not set
@@ -308,79 +304,26 @@ deleted file mode 100644
 -#
 -# CONFIG_NET_PKTGEN is not set
 -CONFIG_NETDEVICES=y
--
--#
--# ARCnet devices
--#
--# CONFIG_ARCNET is not set
 -# CONFIG_DUMMY is not set
 -# CONFIG_BONDING is not set
 -# CONFIG_EQUALIZER is not set
 -# CONFIG_TUN is not set
--# CONFIG_ETHERTAP is not set
 -
 -#
 -# Ethernet (10 or 100Mbit)
 -#
 -CONFIG_NET_ETHERNET=y
 -CONFIG_MII=y
--# CONFIG_OAKNET is not set
--# CONFIG_HAPPYMEAL is not set
--# CONFIG_SUNGEM is not set
--# CONFIG_NET_VENDOR_3COM is not set
--
--#
--# Tulip family network device support
--#
--# CONFIG_NET_TULIP is not set
--# CONFIG_HP100 is not set
--CONFIG_NET_PCI=y
--CONFIG_PCNET32=y
--# CONFIG_AMD8111_ETH is not set
--# CONFIG_ADAPTEC_STARFIRE is not set
--# CONFIG_B44 is not set
--# CONFIG_DGRS is not set
--CONFIG_EEPRO100=y
--# CONFIG_EEPRO100_PIO is not set
--# CONFIG_E100 is not set
--# CONFIG_FEALNX is not set
--# CONFIG_NATSEMI is not set
--# CONFIG_NE2K_PCI is not set
--# CONFIG_8139CP is not set
--# CONFIG_8139TOO is not set
--# CONFIG_SIS900 is not set
--# CONFIG_EPIC100 is not set
--# CONFIG_SUNDANCE is not set
--# CONFIG_TLAN is not set
--# CONFIG_VIA_RHINE is not set
+-CONFIG_OAKNET=y
 -
 -#
 -# Ethernet (1000 Mbit)
 -#
--# CONFIG_ACENIC is not set
--# CONFIG_DL2K is not set
--# CONFIG_E1000 is not set
--# CONFIG_NS83820 is not set
--# CONFIG_HAMACHI is not set
--# CONFIG_YELLOWFIN is not set
--# CONFIG_R8169 is not set
--# CONFIG_SK98LIN is not set
--# CONFIG_TIGON3 is not set
 -
 -#
 -# Ethernet (10000 Mbit)
 -#
--# CONFIG_IXGB is not set
--# CONFIG_FDDI is not set
--# CONFIG_HIPPI is not set
--CONFIG_PPP=y
--# CONFIG_PPP_MULTILINK is not set
--# CONFIG_PPP_FILTER is not set
--# CONFIG_PPP_ASYNC is not set
--# CONFIG_PPP_SYNC_TTY is not set
--# CONFIG_PPP_DEFLATE is not set
--# CONFIG_PPP_BSDCOMP is not set
--# CONFIG_PPPOE is not set
+-# CONFIG_PPP is not set
 -# CONFIG_SLIP is not set
 -
 -#
@@ -389,9 +332,8 @@ deleted file mode 100644
 -# CONFIG_NET_RADIO is not set
 -
 -#
--# Token Ring devices (depends on LLC=y)
+-# Token Ring devices
 -#
--# CONFIG_RCPCI is not set
 -# CONFIG_SHAPER is not set
 -
 -#
@@ -410,6 +352,11 @@ deleted file mode 100644
 -# CONFIG_IRDA is not set
 -
 -#
+-# Bluetooth support
+-#
+-# CONFIG_BT is not set
+-
+-#
 -# ISDN subsystem
 -#
 -# CONFIG_ISDN_BOOL is not set
@@ -420,18 +367,18 @@ deleted file mode 100644
 -# CONFIG_FB is not set
 -
 -#
--# Old CD-ROM drivers (not SCSI, not IDE)
--#
--# CONFIG_CD_NO_IDESCSI is not set
--
--#
 -# Input device support
 -#
--# CONFIG_INPUT is not set
+-CONFIG_INPUT=y
 -
 -#
 -# Userland interfaces
 -#
+-# CONFIG_INPUT_MOUSEDEV is not set
+-# CONFIG_INPUT_JOYDEV is not set
+-# CONFIG_INPUT_TSDEV is not set
+-# CONFIG_INPUT_EVDEV is not set
+-# CONFIG_INPUT_EVBUG is not set
 -
 -#
 -# Input I/O drivers
@@ -439,13 +386,18 @@ deleted file mode 100644
 -# CONFIG_GAMEPORT is not set
 -CONFIG_SOUND_GAMEPORT=y
 -CONFIG_SERIO=y
--CONFIG_SERIO_I8042=y
--CONFIG_SERIO_SERPORT=y
+-# CONFIG_SERIO_I8042 is not set
+-# CONFIG_SERIO_SERPORT is not set
 -# CONFIG_SERIO_CT82C710 is not set
 -
 -#
 -# Input Device Drivers
 -#
+-# CONFIG_INPUT_KEYBOARD is not set
+-# CONFIG_INPUT_MOUSE is not set
+-# CONFIG_INPUT_JOYSTICK is not set
+-# CONFIG_INPUT_TOUCHSCREEN is not set
+-# CONFIG_INPUT_MISC is not set
 -
 -#
 -# Macintosh device drivers
@@ -454,54 +406,60 @@ deleted file mode 100644
 -#
 -# Character devices
 -#
+-# CONFIG_VT is not set
 -# CONFIG_SERIAL_NONSTANDARD is not set
 -
 -#
 -# Serial drivers
 -#
--# CONFIG_SERIAL_8250 is not set
+-CONFIG_SERIAL_8250=y
+-CONFIG_SERIAL_8250_CONSOLE=y
+-CONFIG_SERIAL_8250_NR_UARTS=4
+-# CONFIG_SERIAL_8250_EXTENDED is not set
 -
 -#
 -# Non-8250 serial port support
 -#
--CONFIG_UNIX98_PTYS=y
--CONFIG_UNIX98_PTY_COUNT=256
+-CONFIG_SERIAL_CORE=y
+-CONFIG_SERIAL_CORE_CONSOLE=y
+-# CONFIG_UNIX98_PTYS is not set
 -
 -#
 -# I2C support
 -#
 -CONFIG_I2C=y
--# CONFIG_I2C_ALGOBIT is not set
--# CONFIG_I2C_ALGOPCF is not set
--# CONFIG_I2C_IBM_OCP_ALGO is not set
--CONFIG_I2C_CHARDEV=y
+-# CONFIG_I2C_CHARDEV is not set
 -
 -#
--# I2C Hardware Sensors Mainboard support
+-# I2C Algorithms
 -#
--# CONFIG_I2C_ALI15X3 is not set
+-# CONFIG_I2C_ALGOBIT is not set
+-# CONFIG_I2C_ALGOPCF is not set
+-
+-#
+-# I2C Hardware Bus support
+-#
 -# CONFIG_I2C_AMD756 is not set
 -# CONFIG_I2C_AMD8111 is not set
--# CONFIG_I2C_I801 is not set
--# CONFIG_I2C_PIIX4 is not set
--# CONFIG_I2C_SIS96X is not set
--# CONFIG_I2C_VIAPRO is not set
+-CONFIG_I2C_IBM_IIC=y
 -
 -#
 -# I2C Hardware Sensors Chip support
 -#
+-# CONFIG_I2C_SENSOR is not set
 -# CONFIG_SENSORS_ADM1021 is not set
+-# CONFIG_SENSORS_EEPROM is not set
 -# CONFIG_SENSORS_IT87 is not set
 -# CONFIG_SENSORS_LM75 is not set
+-# CONFIG_SENSORS_LM78 is not set
 -# CONFIG_SENSORS_LM85 is not set
 -# CONFIG_SENSORS_VIA686A is not set
 -# CONFIG_SENSORS_W83781D is not set
--# CONFIG_I2C_SENSOR is not set
 -
 -#
 -# Mice
 -#
--CONFIG_BUSMOUSE=y
+-# CONFIG_BUSMOUSE is not set
 -# CONFIG_QIC02_TAPE is not set
 -
 -#
@@ -512,27 +470,7 @@ deleted file mode 100644
 -#
 -# Watchdog Cards
 -#
--CONFIG_WATCHDOG=y
--# CONFIG_WATCHDOG_NOWAYOUT is not set
--# CONFIG_SOFT_WATCHDOG is not set
--# CONFIG_WDT is not set
--# CONFIG_WDTPCI is not set
--# CONFIG_PCWATCHDOG is not set
--# CONFIG_ACQUIRE_WDT is not set
--# CONFIG_ADVANTECH_WDT is not set
--# CONFIG_EUROTECH_WDT is not set
--# CONFIG_IB700_WDT is not set
--# CONFIG_MIXCOMWD is not set
--# CONFIG_SCx200_WDT is not set
--# CONFIG_60XX_WDT is not set
--# CONFIG_W83877F_WDT is not set
--# CONFIG_MACHZ_WDT is not set
--# CONFIG_SC520_WDT is not set
--# CONFIG_AMD7XX_TCO is not set
--# CONFIG_ALIM7101_WDT is not set
--# CONFIG_SC1200_WDT is not set
--# CONFIG_WAFER_WDT is not set
--# CONFIG_CPU5_WDT is not set
+-# CONFIG_WATCHDOG is not set
 -# CONFIG_NVRAM is not set
 -CONFIG_GEN_RTC=y
 -# CONFIG_GEN_RTC_X is not set
@@ -547,7 +485,6 @@ deleted file mode 100644
 -# CONFIG_AGP is not set
 -# CONFIG_DRM is not set
 -# CONFIG_RAW_DRIVER is not set
--# CONFIG_HANGCHECK_TIMER is not set
 -
 -#
 -# Multimedia devices
@@ -564,23 +501,26 @@ deleted file mode 100644
 -#
 -CONFIG_EXT2_FS=y
 -# CONFIG_EXT2_FS_XATTR is not set
--# CONFIG_EXT3_FS is not set
--# CONFIG_JBD is not set
+-CONFIG_EXT3_FS=y
+-CONFIG_EXT3_FS_XATTR=y
+-# CONFIG_EXT3_FS_POSIX_ACL is not set
+-# CONFIG_EXT3_FS_SECURITY is not set
+-CONFIG_JBD=y
+-# CONFIG_JBD_DEBUG is not set
+-CONFIG_FS_MBCACHE=y
 -# CONFIG_REISERFS_FS is not set
 -# CONFIG_JFS_FS is not set
 -# CONFIG_XFS_FS is not set
 -# CONFIG_MINIX_FS is not set
 -# CONFIG_ROMFS_FS is not set
 -# CONFIG_QUOTA is not set
--CONFIG_AUTOFS_FS=y
+-# CONFIG_AUTOFS_FS is not set
 -# CONFIG_AUTOFS4_FS is not set
 -
 -#
 -# CD-ROM/DVD Filesystems
 -#
--CONFIG_ISO9660_FS=y
--# CONFIG_JOLIET is not set
--# CONFIG_ZISOFS is not set
+-# CONFIG_ISO9660_FS is not set
 -# CONFIG_UDF_FS is not set
 -
 -#
@@ -593,10 +533,10 @@ deleted file mode 100644
 -# Pseudo filesystems
 -#
 -CONFIG_PROC_FS=y
+-CONFIG_PROC_KCORE=y
 -# CONFIG_DEVFS_FS is not set
--CONFIG_DEVPTS_FS=y
--# CONFIG_DEVPTS_FS_XATTR is not set
 -CONFIG_TMPFS=y
+-# CONFIG_HUGETLB_PAGE is not set
 -CONFIG_RAMFS=y
 -
 -#
@@ -621,12 +561,10 @@ deleted file mode 100644
 -CONFIG_NFS_FS=y
 -# CONFIG_NFS_V3 is not set
 -# CONFIG_NFS_V4 is not set
--CONFIG_NFSD=y
--# CONFIG_NFSD_V3 is not set
--# CONFIG_NFSD_TCP is not set
+-# CONFIG_NFSD is not set
 -CONFIG_ROOT_NFS=y
 -CONFIG_LOCKD=y
--CONFIG_EXPORTFS=y
+-# CONFIG_EXPORTFS is not set
 -CONFIG_SUNRPC=y
 -# CONFIG_SUNRPC_GSS is not set
 -# CONFIG_SMB_FS is not set
@@ -654,25 +592,18 @@ deleted file mode 100644
 -#
 -# USB support
 -#
--# CONFIG_USB is not set
 -# CONFIG_USB_GADGET is not set
--
--#
--# Bluetooth support
--#
--# CONFIG_BT is not set
 -
 -#
 -# Library routines
 -#
--# CONFIG_CRC32 is not set
+-CONFIG_CRC32=y
 -
 -#
 -# Kernel hacking
 -#
 -# CONFIG_DEBUG_KERNEL is not set
--# CONFIG_KALLSYMS is not set
--# CONFIG_SERIAL_TEXT_DEBUG is not set
+-CONFIG_SERIAL_TEXT_DEBUG=y
 -CONFIG_OCP=y
 -
 -#
@@ -684,3 +615,17 @@ deleted file mode 100644
 -# Cryptographic options
 -#
 -# CONFIG_CRYPTO is not set
+diff --git a/include/asm-ppc/ibm4xx.h b/include/asm-ppc/ibm4xx.h
+--- a/include/asm-ppc/ibm4xx.h
++++ b/include/asm-ppc/ibm4xx.h
+@@ -31,10 +31,6 @@
+ #include <platforms/4xx/ep405.h>
+ #endif
+ 
+-#if defined(CONFIG_REDWOOD_4)
+-#include <platforms/4xx/redwood.h>
+-#endif
+-
+ #if defined(CONFIG_REDWOOD_5)
+ #include <platforms/4xx/redwood5.h>
+ #endif

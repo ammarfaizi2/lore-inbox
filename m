@@ -1,78 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVG0P6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVG0QEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbVG0P6P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 11:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbVG0PzD
+	id S261307AbVG0QEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 12:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVG0QCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 11:55:03 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:18050 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S262432AbVG0PxJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 11:53:09 -0400
-Subject: [patch 1/1] Ptrace - i386: fix "syscall audit" interaction with singlestep
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it,
-       bstroesser@fujitsu-siemens.com, roland@redhat.com
-From: blaisorblade@yahoo.it
-Date: Tue, 26 Jul 2005 20:43:06 +0200
-Message-Id: <20050726184306.A104421DC16@zion.home.lan>
+	Wed, 27 Jul 2005 12:02:22 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:38838 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262405AbVG0P6U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 11:58:20 -0400
+Subject: [patch] inotify: ia64 syscalls.
+From: Robert Love <rml@novell.com>
+To: tony.luck@intel.com
+Cc: The Cutch <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 27 Jul 2005 11:58:17 -0400
+Message-Id: <1122479897.21253.160.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Tony.
 
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-CC: Roland McGrath <roland@redhat.com>
+Attached patch adds the inotify syscalls to ia64.
 
-Avoid giving two traps for singlestep instead of one, when syscall auditing is
-enabled.
+Signed-off-by: Robert Love <rml@novell.com>
 
-In fact no singlestep trap is sent on syscall entry, only on syscall exit, as
-can be seen in entry.S:
+ arch/ia64/kernel/entry.S  |    6 +++---
+ include/asm-ia64/unistd.h |    3 +++
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-# Note that in this mask _TIF_SINGLESTEP is not tested !!! <<<<<<<<<<<<<<
-        testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),TI_flags(%ebp)
-        jnz syscall_trace_entry
-	...
-syscall_trace_entry:
-	...
-	call do_syscall_trace
-
-But auditing a SINGLESTEP'ed process causes do_syscall_trace to be called, so
-the tracer will get one more trap on the syscall entry path, which it
-shouldn't.
-
-This does not affect (to my knowledge) UML, nor is critical, so this shouldn't
-IMHO go in 2.6.13.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.git-paolo/arch/i386/kernel/ptrace.c |   15 +++++++++++++--
- 1 files changed, 13 insertions(+), 2 deletions(-)
-
-diff -puN arch/i386/kernel/ptrace.c~sysaudit-singlestep-non-umlhost arch/i386/kernel/ptrace.c
---- linux-2.6.git/arch/i386/kernel/ptrace.c~sysaudit-singlestep-non-umlhost	2005-07-26 20:22:40.000000000 +0200
-+++ linux-2.6.git-paolo/arch/i386/kernel/ptrace.c	2005-07-26 20:23:44.000000000 +0200
-@@ -683,8 +683,19 @@ void do_syscall_trace(struct pt_regs *re
- 	/* do the secure computing check first */
- 	secure_computing(regs->orig_eax);
+diff -urN linux-2.6.13-rc3-git8/arch/ia64/kernel/entry.S linux/arch/ia64/kernel/entry.S
+--- linux-2.6.13-rc3-git8/arch/ia64/kernel/entry.S	2005-07-27 10:59:31.000000000 -0400
++++ linux/arch/ia64/kernel/entry.S	2005-07-27 11:51:20.000000000 -0400
+@@ -1574,8 +1574,8 @@
+ 	data8 sys_ioprio_set
+ 	data8 sys_ioprio_get			// 1275
+ 	data8 sys_set_zone_reclaim
+-	data8 sys_ni_syscall
+-	data8 sys_ni_syscall
+-	data8 sys_ni_syscall
++	data8 sys_inotify_init
++	data8 sys_inotify_add_watch
++	data8 sys_inotify_rm_watch
  
--	if (unlikely(current->audit_context) && entryexit)
--		audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);
-+	if (unlikely(current->audit_context)) {
-+		if (entryexit)
-+			audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);
-+
-+		/* Debug traps, when using PTRACE_SINGLESTEP, must be sent only
-+		 * on the syscall exit path. Normally, when TIF_SYSCALL_AUDIT is
-+		 * not used, entry.S will call us only on syscall exit, not
-+		 * entry ; so when TIF_SYSCALL_AUDIT is used we must avoid
-+		 * calling send_sigtrap() on syscall entry.
-+		 */
-+		else if (is_singlestep)
-+			goto out;
-+	}
+ 	.org sys_call_table + 8*NR_syscalls	// guard against failures to increase NR_syscalls
+diff -urN linux-2.6.13-rc3-git8/include/asm-ia64/unistd.h linux/include/asm-ia64/unistd.h
+--- linux-2.6.13-rc3-git8/include/asm-ia64/unistd.h	2005-07-27 10:59:32.000000000 -0400
++++ linux/include/asm-ia64/unistd.h	2005-07-27 11:56:43.000000000 -0400
+@@ -266,6 +266,9 @@
+ #define __NR_ioprio_set			1274
+ #define __NR_ioprio_get			1275
+ #define __NR_set_zone_reclaim		1276
++#define __NR_inotify_init		1277
++#define __NR_inotify_add_watch		1278
++#define __NR_inotify_rm_watch		1279
  
- 	if (!(current->ptrace & PT_PTRACED))
- 		goto out;
-_
+ #ifdef __KERNEL__
+ 
+
+

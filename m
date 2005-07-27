@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbVG0AKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVG0AMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbVG0AKa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 20:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbVGZXuB
+	id S262410AbVG0AMz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 20:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVG0AKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 19:50:01 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:14863 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262354AbVGZXtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 19:49:15 -0400
-Date: Wed, 27 Jul 2005 01:36:47 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: johsc@arcor.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.31 panics on boot on 486 box: TSC requires pentium
-Message-ID: <20050726233647.GU8907@alpha.home.local>
-References: <20050726182258.GA1719@localhost>
+	Tue, 26 Jul 2005 20:10:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58595 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262409AbVG0AKW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 20:10:22 -0400
+Date: Tue, 26 Jul 2005 17:08:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl>
+Cc: mkrufky@m1k.net, linux-kernel@vger.kernel.org
+Subject: Re: MM kernels - how to keep on the bleeding edge?
+Message-Id: <20050726170855.2e866abb.akpm@osdl.org>
+In-Reply-To: <20050727020010.14852c38.astralstorm@gorzow.mm.pl>
+References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
+	<42E692E4.4070105@m1k.net>
+	<20050726221506.416e6e76.astralstorm@gorzow.mm.pl>
+	<42E69C5B.80109@m1k.net>
+	<20050726144149.0dc7b008.akpm@osdl.org>
+	<20050727004932.1b25fc5d.astralstorm@gorzow.mm.pl>
+	<20050726161149.0c9c36fa.akpm@osdl.org>
+	<20050727012558.5661d071.astralstorm@gorzow.mm.pl>
+	<20050726163521.73c7ed08.akpm@osdl.org>
+	<20050727020010.14852c38.astralstorm@gorzow.mm.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050726182258.GA1719@localhost>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 08:22:58PM +0200, johsc@arcor.de wrote:
-> 2.4.31 compiled with -m486, panics on boot (486DX) and says something about
-> TSC requires pentium, bang.
-
-The processor type is wrong, you're on at least a pentium instead of a 486.
-If you changed the config by hand (vi .config), you must do "make oldconfig"
-after, to propagate values along the options.
-
-> enabling the obscure flag
-> 
->  [*] Unsynced TSC support
+Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl> wrote:
 >
-> seems to fix this - the corresponding .config label name is actually *more*
-> helpful than the documentation.
-
-Seems to me that it simply disables use of TSC. But if you see this option,
-it means that your kernel has been compiled with SMP enabled, which is not
-possible on 486 (I may be wrong here). Most probably, you took a config from
-an inadequate kernel for your machine.
-
-> - Obscure-sound-bug
-> jazz16 on Travelmate 4000M doesn't seem to work either, sb.o 
-> complains about DSP version being "only" 3.01.
+> On Tue, 26 Jul 2005 16:35:21 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> (#insmod sb type=10 io=0x220 irq={5,7} dma=1 dma16=7)
+> > 
+> > I did?
+> > 
 > 
-> there is sound but mpg123 says 44100 is impossible.
+> Exactly, I did untar it and I already had a directory called patches.
+> Of course cleaning it up took no time, as fortunately I had no patches with
+> exactly the same name and no series file in the directory above,
+> 
 
-mpg123 requires at least around 486 DX4-100 to play mp3 at 44100, so
-perhaps it fails a self-test and complains because of that ?
-
-Willy
+hmm, I'll replace patches/ with broken-out/ to make those files the same as
+the broken-out.tar.gz from -mm releases.
 

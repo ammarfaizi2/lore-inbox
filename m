@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVG0Hxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVG0Hzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262025AbVG0Hxg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 03:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVG0Hxc
+	id S262044AbVG0Hzn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 03:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVG0Hzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 03:53:32 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:5869 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262025AbVG0Hwr (ORCPT
+	Wed, 27 Jul 2005 03:55:42 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:17133 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262044AbVG0Hy2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 03:52:47 -0400
-Date: Wed, 27 Jul 2005 09:52:29 +0200 (MEST)
+	Wed, 27 Jul 2005 03:54:28 -0400
+Date: Wed, 27 Jul 2005 09:54:23 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: akihana@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Reclaim space from unused ramdisk?
-In-Reply-To: <20050726235624.4f3ca2a8.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0507270951530.30941@yvahk01.tjqt.qr>
-References: <4746469c05072615167ca234ce@mail.gmail.com>
- <Pine.LNX.4.61.0507270823490.10780@yvahk01.tjqt.qr> <20050726235624.4f3ca2a8.akpm@osdl.org>
+To: Vikas <vikas.g@ap.sony.com>
+cc: Michael Berger <mikeb1@t-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: Why this is not working ....
+In-Reply-To: <GOEALLDEHIHLBCJFMCOOAEMBCBAA.vikas.g@ap.sony.com>
+Message-ID: <Pine.LNX.4.61.0507270952400.30941@yvahk01.tjqt.qr>
+References: <GOEALLDEHIHLBCJFMCOOAEMBCBAA.vikas.g@ap.sony.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> }
->> 
->
->hmm, yes.  That's a special-case in the ramdisk driver.
->
->The command `blockdev --flushbufs /dev/ram0' should have the same effect.
 
-Interesting. Command not found, here. URL?
+>PATH=' \ /home\ / $2 \ / $3 \ / lib '
+>Why $2 and $3 are not replaced by user passed argument
+
+Because it is in single quotes, and single quotes do not provide 
+interpolation^1.
+
+
+^1 The term used by by perlop(1), section "Quote and Quote-like Operators". 
+Interpolation yes/no holds true for bash, too.
 
 
 
 Jan Engelhardt
 -- 
+| Alphagate Systems, http://alphagate.hopto.org/

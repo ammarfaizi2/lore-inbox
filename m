@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVG0Fc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVG0Frp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261527AbVG0Fc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 01:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVG0Fc1
+	id S261970AbVG0Frp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 01:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVG0Frp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 01:32:27 -0400
-Received: from smtp10.wanadoo.fr ([193.252.22.21]:15544 "EHLO
-	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S261527AbVG0Fc0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 01:32:26 -0400
-X-ME-UUID: 20050727053225427.01050280013B@mwinf1007.wanadoo.fr
-Subject: Re: PATCH: Assume PM Timer to be reliable on broken board/BIOS
-From: Olivier Fourdan <fourdan@xfce.org>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42E6C86F.3010503@shaw.ca>
-References: <4uGpt-2Y3-15@gated-at.bofh.it>  <42E6C86F.3010503@shaw.ca>
-Content-Type: text/plain
-Organization: http://www.xfce.org
-Date: Wed, 27 Jul 2005 07:32:24 +0200
-Message-Id: <1122442345.5849.5.camel@shuttle>
+	Wed, 27 Jul 2005 01:47:45 -0400
+Received: from ozlabs.org ([203.10.76.45]:1159 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261970AbVG0Fro (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 01:47:44 -0400
+Date: Wed, 27 Jul 2005 15:47:23 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PPC64] Remove nested feature sections
+Message-ID: <20050727054723.GH27870@localhost.localdomain>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Paul Mackerras <paulus@samba.org>,
+	Anton Blanchard <anton@samba.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-26 at 17:34 -0600, Robert Hancock wrote:
-> > In a nutshell, sometimes, the PIT/TSC timer runs 3x too fast [1]. That
-> > causes many issues, including DMA errors, MCE, and clock running way too
-> > fast (making the laptop unusable for any software development). So far,
-> > no BIOS update was able to fix the issue for me.
-> 
-> Shouldn't this be looked into further rather than adding this 
-> workaround? Surely Windows is using the PIT as well, so there must be 
-> some way to get it to behave properly..
+Andrew, please apply:
 
-Surely, but I've been desesperatly trying to find the cause w/out
-success for months.
+The {BEGIN,END}_FTR_SECTION asm macros used in ppc64 to nop out
+sections of code at runtime cannot be nested.  However, we do nest
+them in hash_low.S.  We get away with it there, because there is
+nothing between the BEGIN markers for each section.  However, that's
+confusing to someone reading the code.
 
-My first idea was that the BIOS doesn't set the CPU voltage properly at
-boot, so I made up a patch that sets the right fid/vid before any
-calibration but that didn't help.
+This patch removes the nested ifset and ifclr feature sections,
+replacing them with a single feature section in the full mask/value
+form.
 
-The BIOS is wrong (ie the BIOS reports a 1/3 of the actual CPU speed),
-memtest86+ which doesn't use any ACPI or whatever reports wrong time
-too, so it's definitely not a Linux bug.
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
 
-My guess is that Windows reinitialize some register but it's hard to
-tell.
+Index: working-2.6/arch/ppc64/mm/hash_low.S
+===================================================================
+--- working-2.6.orig/arch/ppc64/mm/hash_low.S	2005-07-26 10:36:48.000000000 +1000
++++ working-2.6/arch/ppc64/mm/hash_low.S	2005-07-26 17:35:49.000000000 +1000
+@@ -129,12 +129,10 @@
+ 	 * code rather than call a C function...) 
+ 	 */
+ BEGIN_FTR_SECTION
+-BEGIN_FTR_SECTION
+ 	mr	r4,r30
+ 	mr	r5,r7
+ 	bl	.hash_page_do_lazy_icache
+-END_FTR_SECTION_IFSET(CPU_FTR_NOEXECUTE)
+-END_FTR_SECTION_IFCLR(CPU_FTR_COHERENT_ICACHE)
++END_FTR_SECTION(CPU_FTR_NOEXECUTE|CPU_FTR_COHERENT_ICACHE, CPU_FTR_NOEXECUTE)
+ 
+ 	/* At this point, r3 contains new PP bits, save them in
+ 	 * place of "access" in the param area (sic)
 
-Cheers,
-Olivier.
 
-
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/people/dgibson

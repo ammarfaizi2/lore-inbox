@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbVG0UBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbVG0UHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262311AbVG0UBY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 16:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVG0UBW
+	id S262503AbVG0UHN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 16:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVG0UGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 16:01:22 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:23309 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S262462AbVG0T6y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 15:58:54 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <1122488682.7051.239374398@webmail.messagingengine.com>
-References: <1122488682.7051.239374398@webmail.messagingengine.com>
-X-OriginalArrivalTime: 27 Jul 2005 19:58:50.0688 (UTC) FILETIME=[9BACB400:01C592E5]
-Content-class: urn:content-classes:message
-Subject: Re: xor as a lazy comparison
-Date: Wed, 27 Jul 2005 15:58:48 -0400
-Message-ID: <Pine.LNX.4.61.0507271547580.7346@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: xor as a lazy comparison
-thread-index: AcWS5ZvQesCvr+AgQmWIeli3Asd6/w==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Clayton Weaver" <cgweav@fastmail.fm>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 27 Jul 2005 16:06:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60346 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262485AbVG0UDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 16:03:51 -0400
+Date: Wed, 27 Jul 2005 05:05:12 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.32-pre2
+Message-ID: <20050727080512.GD7368@dmt.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Wed, 27 Jul 2005, Clayton Weaver wrote:
+Here goes another -pre, after a long period.
 
-> Is not xor (^) typically compiled to a
-> one cycle instruction regardless of
-> requested optimization level? (May not
-> always have been the case on every
-> target architecture for != equality
-> tests.)
-> Clayton Weaver
-> cgweav at fastmail dot fm
->
+A couple of USB corrections, a socket hashing bugfix and ipvs race
+condition, avoidance of rare inode cache SMP race. 
 
-I think the XOR thread was started by somebody as a ruse or
-a joke. XOR will always destroy the value of an operand. This
-means that it needs to be loaded and perhaps reloaded. A 'TEST'
-instruction or a 'CMP' instruction never destroys anything and
-only affects the flags. TEST is an AND in which the result is
-not saved, only the flags get changed. A CMP is a subtract in
-which the result is not saved, only the flags. These are
-ix86 instructions, but similar instructions exist for other
-CPUs.
+And a zlib security update (erratic changelog for that one, my fault), 
+whose CAN number is: CAN-2005-1849
 
-All these instructions in their simplest form (using registers)
-are two-byte instructions!
+Summary of changes from v2.4.32-pre1 to v2.4.32-pre2
+============================================
 
-Disassembly of section .text:
+Alan Stern:
+  file_storage and UHCI bugfixes
 
-00000000 <.text>:
-    0:	39 c3                	cmp    %eax,%ebx
-    2:	31 c3                	xor    %eax,%ebx
-    4:	85 d8                	test   %ebx,%eax
+David S. Miller:
+  [NETLINK]: Fix two socket hashing bugs.
 
-Instructions that access memory use more bytes...
+Jakub Bogusz:
+  [SPARC64]: fix sys32_utimes(somefile, NULL)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
+Larry Woodman:
+  workaround inode cache (prune_icache/__refile_inode) SMP races
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+Marcelo Tosatti:
+  Change VERSION to 2.4.32-pre2
+  Merge with rsync://rsync.kernel.org/.../davem/net-2.4.git
+  Revert [NETLINK]: Fix two socket hashing bugs.
 
-Thank you.
+Neil Horman:
+  [IPVS]: Close race conditions on ip_vs_conn_tab list modification
+
+Pete Zaitcev:
+  usb: printer double up()
+
+Tim Yamin:
+  Merge with rsync://rsync.kernel.org/.../davem/sparc-2.4.git/
+  The gzip description is as good as the ChangeLog says it is -: "Set n to
+

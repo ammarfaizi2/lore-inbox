@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262237AbVG0NEC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVG0NIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262237AbVG0NEC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 09:04:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbVG0NCL
+	id S262238AbVG0NIF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 09:08:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbVG0NIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 09:02:11 -0400
-Received: from main.gmane.org ([80.91.229.2]:37806 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262237AbVG0NAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 09:00:51 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Zoran Dzelajlija <jelly+news@srk.fer.hr>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Date: Wed, 27 Jul 2005 01:38:37 +0200
-Organization: Mala leteca gamad
-Message-ID: <20050726233837.459A.3.NOFFLE@islands.iskon.hr>
-References: <20050726150837.GT3160@stusta.de> <42E6645B.30206@zabbo.net>
-Reply-To: Zoran Dzelajlija <jelly+news@srk.fer.hr>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: islands.iskon.hr
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.10-skas3-v7 (i686))
-Cc: linux-sound@vger.kernel.org
+	Wed, 27 Jul 2005 09:08:05 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:45959 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262238AbVG0NHn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 09:07:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XQAe4zlZ7nJxu/7xxzXHcP76LTEvM8Tp/nPs7qkNII7RYE/RxHqoXW51QtIweUim0Mp2zyH8Hy/CeLmwCKRZ1yTx1n/QkjdOpiJB0DfR9dHzR7aqtfAsmyFpApj3ApoSggf7jktqqlN0SrtMt3RPeX1K2r0vH6Z3BACsRGJuDQM=
+Message-ID: <b8bf377805072706076992d5ac@mail.gmail.com>
+Date: Wed, 27 Jul 2005 10:07:43 -0300
+From: =?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?= <andre.goddard@gmail.com>
+Reply-To: =?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?= <andre.goddard@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [ck] 2.6.12-ck4
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+In-Reply-To: <200507272111.27757.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <200507272111.27757.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown <zab@zabbo.net> wrote:
-> Adrian Bunk wrote:
-> > This patch schedules obsolete OSS drivers (with ALSA drivers that 
-> > support the same hardware) for removal.
+> Apply to 2.6.12 (This includes all patches in 2.6.12.3):
+> http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck4/patch-2.6.12-ck4.bz2
+> or for server version:
+> http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck4/patch-2.6.12-ck4-server.bz2
 
-> > I've Cc'ed the people listed in MAINTAINERS as being responsible for one 
-> > or more of these drivers, and I've also Cc'ed the ALSA people.
+Someone has a version who applies to 2.6.13.-rc3?
 
-> I haven't touched the maestro drivers in so long (for near-total lack of
-> docs, etc.) that I can't be considered authoritative for approving it's
-> removal. If people are relying on it I certainly don't know who they
-> are.  In better news, Takashi should now have the pile of maestro
-> hardware that I used in the first pass to help him maintain the ALSA
-> driver..
+Thanks!
 
-The OSS maestro driver works better on my old Armada E500 laptop.  I tried
-ALSA after switching to 2.6, but the computer hung with 2.6.8.1 or 2.6.10 if
-I touched the volume buttons.  With OSS they just work.  The four separate
-dsp devices also look kind of more useful.
+-- 
+[]s,
 
-Zoran
-
+André Goddard

@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVG0Um7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbVG0UrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbVG0Um7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 16:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbVG0Uj4
+	id S262455AbVG0UrX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 16:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVG0UpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 16:39:56 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:50181 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261247AbVG0UjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 16:39:07 -0400
-Date: Wed, 27 Jul 2005 16:31:52 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, perex@suse.cz,
-       alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20050727203150.GF22686@tuxdriver.com>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Jeff Garzik <jgarzik@pobox.com>, Lee Revell <rlrevell@joe-job.com>,
-	linux-kernel@vger.kernel.org, perex@suse.cz,
-	alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-	sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-	kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-	Thorsten Knabe <linux@thorsten-knabe.de>,
-	zwane@commfireservices.com, zaitcev@yahoo.com
-References: <20050726150837.GT3160@stusta.de> <1122393073.18884.29.camel@mindpipe> <42E65D50.3040808@pobox.com> <20050727182427.GH3160@stusta.de>
+	Wed, 27 Jul 2005 16:45:01 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:55732 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262433AbVG0UnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 16:43:12 -0400
+Subject: RE: Variable ticks
+From: Lee Revell <rlrevell@joe-job.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: "Brown, Len" <len.brown@intel.com>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0507270212080.7784@montezuma.fsmlabs.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B300424AC59@hdsmsx401.amr.corp.intel.com>
+	 <1122326750.1472.46.camel@mindpipe>
+	 <Pine.LNX.4.61.0507270212080.7784@montezuma.fsmlabs.com>
+Content-Type: text/plain
+Date: Wed, 27 Jul 2005 16:43:07 -0400
+Message-Id: <1122496987.22844.3.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050727182427.GH3160@stusta.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 27, 2005 at 08:24:28PM +0200, Adrian Bunk wrote:
+On Wed, 2005-07-27 at 02:13 -0600, Zwane Mwaikambo wrote: 
+> > What about audio?  If there is a sound server running then you're going
+> > to have a constant stream of interrupts and DMA activity from the sound
+> > card even if the machine is idle and there aren't any sounds playing.
+> 
+> Doesn't artsd at least close the audio device after some configurable idle 
+> time? In which case that sounds like a userspace issue.
 
-> I've grep'ed a second time for every single PCI ID in the OSS 
-> i810_audio, and I still haven't found WTF you are talking about.
+Well, as of ALSA 1.0.9 which does software mixing and volume control by
+default, all the sound servers are obsolete.  So this should be a
+non-issue with a modern distro.
 
-I looked as well, and I found nothing either.
+As far as legacy support, AFAIK esd and artsd both grab the sound device
+on startup and never release it.
 
-Jeff, can you enlighten us?
+Lee
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com

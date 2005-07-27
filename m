@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVG0EYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVG0Eyo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbVG0EYB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 00:24:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVG0EYB
+	id S261259AbVG0Eyo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 00:54:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVG0Eyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 00:24:01 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:64165 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261287AbVG0EYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 00:24:00 -0400
-Subject: Re: 2.6.12 sound problem
-From: Lee Revell <rlrevell@joe-job.com>
-To: sclark46@earthlink.net
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42E6C8DB.4090608@earthlink.net>
-References: <42E6C8DB.4090608@earthlink.net>
-Content-Type: text/plain
-Date: Wed, 27 Jul 2005 00:23:58 -0400
-Message-Id: <1122438238.13598.19.camel@mindpipe>
+	Wed, 27 Jul 2005 00:54:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40869 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261259AbVG0Eyn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 00:54:43 -0400
+Date: Tue, 26 Jul 2005 21:53:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "H. J. Lu" <hjl@lucon.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: define-auxiliary-vector-size-at_vector_size.patch added to -mm
+ tree
+Message-Id: <20050726215323.0070c867.akpm@osdl.org>
+In-Reply-To: <20050727002608.GA7469@lucon.org>
+References: <200507262144.j6QLiJVC015284@shell0.pdx.osdl.net>
+	<20050727002608.GA7469@lucon.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-26 at 19:35 -0400, Stephen Clark wrote:
-> Additional info I don't see any interrupts in /proc/interrupts for the
-> Allegro which is on int 5.
-> I just tried the same laptop with knoppix and a 2.4.27 kernel and sound
-> works great and I do
-> see interrupts for Allegro on int 5.
+"H. J. Lu" <hjl@lucon.org> wrote:
+>
+> My patch breaks x86_64 build. This patch will fix x86_64 build. I am
+>  also enclosing the updated full patch.
 
-So the same ALSA driver works on 2.6 but fails on 2.4?  Or are you
-really saying 2.4 + the OSS driver works and 2.6 + ALSA does not?
+It now breaks ppc64
 
-Lee
+include/asm/elf.h: In function `dump_task_regs':
+include/asm/elf.h:177: error: dereferencing pointer to incomplete type
 
+That's because pt_regs isn't known, because sched.h is including elf.h
+before pt_regs gets defined.  This is a pretty fragile area I'm afraid.

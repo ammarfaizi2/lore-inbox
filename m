@@ -1,98 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVG0ONn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbVG0OSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbVG0ONn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 10:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVG0ONn
+	id S262249AbVG0OSL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 10:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVG0OSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 10:13:43 -0400
-Received: from [24.24.2.55] ([24.24.2.55]:18914 "EHLO ms-smtp-01.nyroc.rr.com")
-	by vger.kernel.org with ESMTP id S262246AbVG0ONi (ORCPT
+	Wed, 27 Jul 2005 10:18:11 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:20101 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262249AbVG0OSJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 10:13:38 -0400
-Subject: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 27 Jul 2005 10:13:15 -0400
-Message-Id: <1122473595.29823.60.camel@localhost.localdomain>
+	Wed, 27 Jul 2005 10:18:09 -0400
+Date: Wed, 27 Jul 2005 16:17:54 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
+Message-ID: <20050727141754.GA25356@elte.hu>
+References: <1122473595.29823.60.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1122473595.29823.60.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch makes the MAX_RT_PRIO and MAX_USER_RT_PRIO
-configurable from the make *config.  This is more of a proposal since
-I'm not really sure where in Kconfig this would best fit. I don't see
-why these options shouldn't be user configurable without going into the
-kernel headers to change them.
 
-Also, is there a way in the Kconfig to force the checking of
-MAX_USER_RT_PRIO <= MAX_RT_PRIO?
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
--- Steve
+> The following patch makes the MAX_RT_PRIO and MAX_USER_RT_PRIO 
+> configurable from the make *config.  This is more of a proposal since 
+> I'm not really sure where in Kconfig this would best fit. I don't see 
+> why these options shouldn't be user configurable without going into 
+> the kernel headers to change them.
 
-(Patched against 2.6.12.2)
+i'd not do this patch, mainly because the '100 priority levels' thing is 
+pretty much an assumption in lots of userspace code. The patch to make 
+it easier to redefine it is of course fine and was accepted, but i dont 
+think we want to make it explicit via .config.
 
-Index: vanilla_kernel/include/linux/sched.h
-===================================================================
---- vanilla_kernel/include/linux/sched.h	(revision 263)
-+++ vanilla_kernel/include/linux/sched.h	(working copy)
-@@ -389,9 +389,13 @@
-  * MAX_RT_PRIO must not be smaller than MAX_USER_RT_PRIO.
-  */
- 
--#define MAX_USER_RT_PRIO	100
--#define MAX_RT_PRIO		MAX_USER_RT_PRIO
-+#define MAX_USER_RT_PRIO	CONFIG_MAX_USER_RT_PRIO
-+#define MAX_RT_PRIO		CONFIG_MAX_RT_PRIO
- 
-+#if MAX_USER_RT_PRIO > MAX_RT_PRIO
-+#error MAX_USER_RT_PRIO must not be greater than MAX_RT_PRIO
-+#endif
-+
- #define MAX_PRIO		(MAX_RT_PRIO + 40)
- 
- #define rt_task(p)		(unlikely((p)->prio < MAX_RT_PRIO))
-Index: vanilla_kernel/init/Kconfig
-===================================================================
---- vanilla_kernel/init/Kconfig	(revision 263)
-+++ vanilla_kernel/init/Kconfig	(working copy)
-@@ -162,6 +162,32 @@
- 	  building a kernel for install/rescue disks or your system is very
- 	  limited in memory.
- 
-+config MAX_RT_PRIO
-+	int "Maximum RT priority"
-+	default 100
-+	help
-+	  The real-time priority of threads that have the policy of SCHED_FIFO
-+	  or SCHED_RR have a priority higher than normal threads.  This range
-+	  can be set here, where the range starts from 0 to MAX_RT_PRIO-1.
-+	  If this range is higher than MAX_USER_RT_PRIO than kernel threads
-+	  may have a higher priority than any user thread.
-+
-+	  This may be the same as MAX_USER_RT_PRIO, but do not set this 
-+	  to be less than MAX_USER_RT_PRIO.
-+
-+config MAX_USER_RT_PRIO
-+	int "Maximum User RT priority"
-+	default 100
-+	help
-+	  The real-time priority of threads that have the policy of SCHED_FIFO
-+	  or SCHED_RR have a priority higher than normal threads.  This range
-+	  can be set here, where the range starts from 0 to MAX_USER_RT_PRIO-1.
-+	  If this range is lower than MAX_RT_PRIO, than kernel threads may have
-+	  a higher priority than any user thread.
-+
-+	  This may be the same as MAX_RT_PRIO, but do not set this to be
-+	  greater than MAX_RT_PRIO.
-+	  
- config AUDIT
- 	bool "Auditing support"
- 	default y if SECURITY_SELINUX
+It's a bit like with the 3:1 split: you can redefine it easily via 
+include files, but it's not configurable via .config, because many 
+people would just play with it and would see things break.
 
+so unless there's really a desire from distributions to actually change 
+the 100 RT-prio levels (and i dont sense such a desire), we shouldnt do 
+this.
 
+	Ingo

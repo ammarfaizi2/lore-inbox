@@ -1,133 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVG0A2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVG0AaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262413AbVG0A2J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 20:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVG0A2D
+	id S262403AbVG0AaR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 20:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVG0A2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 20:28:03 -0400
-Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:61524 "HELO
-	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S262403AbVG0A0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 20:26:13 -0400
-Date: Tue, 26 Jul 2005 17:26:08 -0700
-From: "H. J. Lu" <hjl@lucon.org>
-To: akpm@osdl.org
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: define-auxiliary-vector-size-at_vector_size.patch added to -mm tree
-Message-ID: <20050727002608.GA7469@lucon.org>
-References: <200507262144.j6QLiJVC015284@shell0.pdx.osdl.net>
+	Tue, 26 Jul 2005 20:28:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58342 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262412AbVG0A1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 20:27:40 -0400
+Date: Tue, 26 Jul 2005 17:26:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Ballarin.Marc@gmx.de, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/23] Don't export machine_restart, machine_halt, or
+ machine_power_off.
+Message-Id: <20050726172640.5803950d.akpm@osdl.org>
+In-Reply-To: <m1oe8p9k0m.fsf@ebiederm.dsl.xmission.com>
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
+	<m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
+	<m1ek9leb0h.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1ack9eaux.fsf_-_@ebiederm.dsl.xmission.com>
+	<m164uxear0.fsf_-_@ebiederm.dsl.xmission.com>
+	<m11x5leaml.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1wtndcvwe.fsf_-_@ebiederm.dsl.xmission.com>
+	<20050727015519.614dbf2f.Ballarin.Marc@gmx.de>
+	<m1oe8p9k0m.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
-Content-Disposition: inline
-In-Reply-To: <200507262144.j6QLiJVC015284@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Jul 26, 2005 at 02:46:20PM -0700, akpm@osdl.org wrote:
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+>
+> Marc Ballarin <Ballarin.Marc@gmx.de> writes:
 > 
-> The patch titled
+> > On Tue, 26 Jul 2005 11:36:01 -0600
+> > ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >
+> >> 
+> >> machine_restart, machine_halt and machine_power_off are machine
+> >> specific hooks deep into the reboot logic, that modules
+> >> have no business messing with. Usually code should be calling
+> >> kernel_restart, kernel_halt, kernel_power_off, or
+> >> emergency_restart. So don't export machine_restart,
+> >> machine_halt, and machine_power_off so we can catch buggy users.
+> >
+> > The first is reiser4 in fs/reiser4/vfs_ops.c, line 1338.
+> > (Are filesystems supposed to restart the machine at all?!)
 > 
->      Define auxiliary vector size, AT_VECTOR_SIZE
-> 
-> has been added to the -mm tree.  Its filename is
-> 
->      define-auxiliary-vector-size-at_vector_size.patch
-> 
-> Patches currently in -mm which might be from hjl@lucon.org are
-> 
-> define-auxiliary-vector-size-at_vector_size.patch
-> 
+> I suspect a call to panic would be more appropriate there.
 > 
 
-My patch breaks x86_64 build. This patch will fix x86_64 build. I am
-also enclosing the updated full patch.
-
-
-H.J.
-----
---- linux/arch/x86_64/ia32/ia32_binfmt.c.auxv	2005-07-08 11:50:04.000000000 -0700
-+++ linux/arch/x86_64/ia32/ia32_binfmt.c	2005-07-26 16:13:58.312017331 -0700
-@@ -9,6 +9,7 @@
- #include <linux/config.h> 
- #include <linux/stddef.h>
- #include <linux/rwsem.h>
-+#define __ASM_X86_64_ELF_H 1
- #include <linux/sched.h>
- #include <linux/compat.h>
- #include <linux/string.h>
-@@ -181,10 +182,7 @@ struct elf_prpsinfo
- 
- #define user user32
- 
--#define __ASM_X86_64_ELF_H 1
- #define elf_read_implies_exec(ex, have_pt_gnu_stack)	(!(have_pt_gnu_stack))
--//#include <asm/ia32.h>
--#include <linux/elf.h>
- 
- typedef struct user_i387_ia32_struct elf_fpregset_t;
- typedef struct user32_fxsr_struct elf_fpxregset_t;
-
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.6.12-auxv-1.patch"
-
---- linux/arch/x86_64/ia32/ia32_binfmt.c.auxv	2005-07-08 11:50:04.000000000 -0700
-+++ linux/arch/x86_64/ia32/ia32_binfmt.c	2005-07-26 16:13:58.312017331 -0700
-@@ -9,6 +9,7 @@
- #include <linux/config.h> 
- #include <linux/stddef.h>
- #include <linux/rwsem.h>
-+#define __ASM_X86_64_ELF_H 1
- #include <linux/sched.h>
- #include <linux/compat.h>
- #include <linux/string.h>
-@@ -181,10 +182,7 @@ struct elf_prpsinfo
- 
- #define user user32
- 
--#define __ASM_X86_64_ELF_H 1
- #define elf_read_implies_exec(ex, have_pt_gnu_stack)	(!(have_pt_gnu_stack))
--//#include <asm/ia32.h>
--#include <linux/elf.h>
- 
- typedef struct user_i387_ia32_struct elf_fpregset_t;
- typedef struct user32_fxsr_struct elf_fpxregset_t;
---- linux/include/linux/elf.h.auxv	2005-03-01 23:37:49.000000000 -0800
-+++ linux/include/linux/elf.h	2005-07-26 16:13:24.185651900 -0700
-@@ -181,6 +181,8 @@ typedef __s64	Elf64_Sxword;
- 
- #define AT_SECURE 23   /* secure mode boolean */
- 
-+#define AT_VECTOR_SIZE  42 /* Size of auxiliary table.  */
-+
- typedef struct dynamic{
-   Elf32_Sword d_tag;
-   union{
---- linux/include/linux/sched.h.auxv	2005-07-08 11:50:09.000000000 -0700
-+++ linux/include/linux/sched.h	2005-07-26 16:13:24.204648764 -0700
-@@ -35,6 +35,8 @@
- #include <linux/topology.h>
- #include <linux/seccomp.h>
- 
-+#include <linux/elf.h>	/* For AT_VECTOR_SIZE */
-+
- struct exec_domain;
- 
- /*
-@@ -243,7 +245,7 @@ struct mm_struct {
- 	mm_counter_t _rss;
- 	mm_counter_t _anon_rss;
- 
--	unsigned long saved_auxv[42]; /* for /proc/PID/auxv */
-+	unsigned long saved_auxv[AT_VECTOR_SIZE]; /* for /proc/PID/auxv */
- 
- 	unsigned dumpable:1;
- 	cpumask_t cpu_vm_mask;
-
---BXVAT5kNtrzKuDFl--
+That's all stuff which the reiser4 team are supposed to be removing, so
+I'll add this patch to -mm for now just to keep things happy, thanks.

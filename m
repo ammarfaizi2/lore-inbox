@@ -1,54 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVG0SdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVG0SfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbVG0SdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 14:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVG0Sad
+	id S261977AbVG0SfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 14:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVG0SdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 14:30:33 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:30414 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262132AbVG0S3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 14:29:25 -0400
-Date: Wed, 27 Jul 2005 14:30:19 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: REALTIME-PREEMPT, mode 4 cs X, X loses.
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200507271430.19718.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Wed, 27 Jul 2005 14:33:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22756 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262450AbVG0Sag (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 14:30:36 -0400
+Date: Wed, 27 Jul 2005 11:29:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, pavel@ucw.cz
+Subject: Re: [PATCH 0/23] reboot-fixes
+Message-Id: <20050727112934.0a20fffd.akpm@osdl.org>
+In-Reply-To: <m18xzs9ktc.fsf@ebiederm.dsl.xmission.com>
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
+	<20050727025923.7baa38c9.akpm@osdl.org>
+	<m1k6jc9sdr.fsf@ebiederm.dsl.xmission.com>
+	<20050727104123.7938477a.akpm@osdl.org>
+	<m18xzs9ktc.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings Ingo;
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+>
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> > ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >>
+> >> Andrew Morton <akpm@osdl.org> writes:
+> >> 
+> >>  > My fairly ordinary x86 test box gets stuck during reboot on the
+> >>  > wait_for_completion() in ide_do_drive_cmd():
+> >> 
+> >>  Hmm. The only thing I can think of is someone started adding calls
+> >>  to device_suspend() before device_shutdown().  Not understanding
+> >>  where it was a good idea I made certain the calls were in there
+> >>  consistently.  
+> >> 
+> >>  Andrew can you remove the call to device_suspend from kernel_restart
+> >>  and see if this still happens?
+> >
+> > yup, that fixes it.
+> >
+> > --- devel/kernel/sys.c~a	2005-07-27 10:36:06.000000000 -0700
+> > +++ devel-akpm/kernel/sys.c	2005-07-27 10:36:26.000000000 -0700
+> > @@ -371,7 +371,6 @@ void kernel_restart(char *cmd)
+> >  {
+> >  	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, cmd);
+> >  	system_state = SYSTEM_RESTART;
+> > -	device_suspend(PMSG_FREEZE);
+> >  	device_shutdown();
+> >  	if (!cmd) {
+> >  		printk(KERN_EMERG "Restarting system.\n");
+> > _
+> >
+> >
+> > Presumably it unfixes Pavel's patch?
+> 
+> Good question.  I'm not certain if Pavel intended to add
+> device_suspend(PMSG_FREEZE) to the reboot path.  It was
+> there in only one instance.  Pavel comments talk only about
+> the suspend path.
+> 
+> My gut feel is the device_suspend calls are the right direction
+> as it allows us to remove code from the drivers and possible
+> kill device_shutdown completely. 
+> 
+> But this close to 2.6.13 I'm not certain what the correct solution
+> is.  With this we have had issues with both ide and the e1000.
+> But those are among the few drivers that do anything in either
+> device_shutdown() or the reboot_notifier.
+>
+> The e1000 has been fixed.
 
-I had to back away from this patch series in order to burn some cd's 
-about a week ago, the symptoms were that X got really slow, and then 
-hangs, but it does rapidly respond to a ctl-alt-backspace exit.  I've 
-since built and tested -28, -33, -37 & am now on -38, and all seem to 
-suffer an X lockup, can't switch screens but the mouse works 
-normally, when attempting to run something thats a heavy IRQ user, 
-like xawtv, or k3b.  I also made about a dozen coasters while burning 
-the debian-3.1 14 disk set, finally rebooting to 2.6.12.1 to finish 
-the last 3 or 4.
-
-Also, the hangs in kmail's composer are definitely worse, but I can't 
-place an exact version number when this occurred other than in the 
-later 51-20's on.
-
-Ideas?  More clues from someplace?  The logs appear clean except for 
-the attempt to run tvtime.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+By "fixed" do you mean Tony Luck's patch which I added to rc3-mm2?  If so,
+do you think that's needed for 2.6.13?  Getting patches into e100[0] is a
+bit of an exercise :(

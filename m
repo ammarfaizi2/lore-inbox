@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVG0XXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVG0XJ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVG0XXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 19:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVG0XUn
+	id S261166AbVG0XJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 19:09:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVG0XGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 19:20:43 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:33723 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261216AbVG0XUH convert rfc822-to-8bit (ORCPT
+	Wed, 27 Jul 2005 19:06:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9155 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261153AbVG0XEy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 19:20:07 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ACPI buttons in 2.6.12-rc4-mm2
-Date: Wed, 27 Jul 2005 19:19:48 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B300428CA9E@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI buttons in 2.6.12-rc4-mm2
-Thread-Index: AcWTAFfwCKFNd5znSkuMk7ijioHF6wAAB6rA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <thecwin@gmail.com>, <acpi-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Jul 2005 23:19:50.0236 (UTC) FILETIME=[AFB9B1C0:01C59301]
+	Wed, 27 Jul 2005 19:04:54 -0400
+Date: Wed, 27 Jul 2005 16:03:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: mporter@kernel.crashing.org, wfarnsworth@mvista.com,
+       linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/3] ppc32: add 440ep support
+Message-Id: <20050727160315.02df6a75.akpm@osdl.org>
+In-Reply-To: <17128.4407.838024.111955@cargo.ozlabs.ibm.com>
+References: <11224856623638@foobar.com>
+	<20050727131857.78a56972.akpm@osdl.org>
+	<17128.4407.838024.111955@cargo.ozlabs.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->Len Brown <len.brown@intel.com> wrote:
->> I deleted /proc/acpi/button on purpose,
->> did you have a use for those files?
+Paul Mackerras <paulus@samba.org> wrote:
 >
->Can we put it back, please?
+> Andrew Morton writes:
+> 
+> > Matt Porter <mporter@kernel.crashing.org> wrote:
+> > >
+> > > +static u64 dma_mask = 0xffffffffULL;
+> > 
+> > I'm sure you're totally uninterested in this, but the above will probably
+> > generate warnings on (say) ppc64, where u64 is implemented as unsigned
+> > long.
+> > 
+> > I usually chuck a simple `-1' in there and the compiler always gets it
+> > right, regardless of signedness and size and architecture.
+> 
+> Umm, I think we actually want 2^32-1 not -1, don't we?
 
-of course.
+Doh.  Cant coun't.
 
->We cannot go ripping out stuff which applications and users 
->are currently using without quite a lot of preparation.
-
-Agreed.  Although the implementation of the /proc lid status
-file is fundamentally flawed in that even its name in /proc
-is able to change and thus it is a totally bogus user-space API,
-it was not thoughtful to delete it.
-
-I'm open to suggestions on how to approach this transition.
-I can make ACPI_PROC a static build option -- what else
-can I do to ease the transition in this, our stable release?
-
-thanks,
--Len

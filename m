@@ -1,47 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVG0UtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262411AbVG0Uc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbVG0UtH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 16:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVG0Urb
+	id S262411AbVG0Uc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 16:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVG0U3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 16:47:31 -0400
-Received: from waste.org ([216.27.176.166]:10940 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262433AbVG0Uqm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 16:46:42 -0400
-Date: Wed, 27 Jul 2005 13:46:22 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: bunk@stusta.de, jgarzik@pobox.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, shemminger@osdl.org
-Subject: Re: [2.6 patch] NETCONSOLE must depend on INET
-Message-ID: <20050727204622.GI12006@waste.org>
-References: <20050726235824.GN12006@waste.org> <20050726.170349.10935659.davem@davemloft.net> <20050727023636.GP12006@waste.org> <20050727.131900.59654701.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050727.131900.59654701.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
+	Wed, 27 Jul 2005 16:29:55 -0400
+Received: from ms-smtp-03-smtplb.rdc-nyc.rr.com ([24.29.109.7]:14263 "EHLO
+	ms-smtp-03.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S261366AbVG0U2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 16:28:43 -0400
+Message-ID: <42E7EE54.2080906@temple.edu>
+Date: Wed, 27 Jul 2005 16:28:04 -0400
+From: Nick Sillik <n.sillik@temple.edu>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Sillik <n.sillik@temple.edu>
+CC: linux-kernel@vger.kernel.org, David Borowski <david575@golden.net>
+Subject: Re: drivers/char/speakup/synthlist.h fix -Wundef errors
+References: <42E7EBA9.5070404@temple.edu>
+In-Reply-To: <42E7EBA9.5070404@temple.edu>
+Content-Type: multipart/mixed;
+ boundary="------------000807020008080109030707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 27, 2005 at 01:19:00PM -0700, David S. Miller wrote:
-> From: Matt Mackall <mpm@selenic.com>
-> Date: Tue, 26 Jul 2005 19:36:37 -0700
-> 
-> > # HG changeset patch
-> > # User mpm@selenic.com
-> > # Node ID 6cdd6f36d53678a016cfbf5ce667cbd91504d538
-> > # Parent  75716ae25f9d87ee2a5ef7c4df2d8f86e0f3f762
-> > Move in_aton from net/ipv4/utils.c to net/core/utils.c
-> 
-> This patch doesn't apply, in the current 2.6.x GIT tree
-> NETCONSOLE does not depend on NETDEVICES.
+This is a multi-part message in MIME format.
+--------------000807020008080109030707
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Odd, gitweb of Linus' tree seems to disagree. I see it depends on
-NETDEVICES && INET && EXPERIMENTAL. NETDEVICES has been there since
-the beginning of git history and according to my Mercurial import from
-BKCVS, it's been dependent on NETDEVICES since I first submitted it.
+Nick Sillik wrote:
+> This patch should fix a slew of -Wundef errors in the synthlist.h file 
+> used by the speakup driver.
+> 
+> Nick Sillik
+> n.sillik@temple.edu
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Or maybe we could just eliminate the CFG_TEST from the file all 
+together.... This patch follows that avenue.
+
+--------------000807020008080109030707
+Content-Type: text/plain;
+ name="synthlist_wundef.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="synthlist_wundef.patch"
+
+diff -urN a/drivers/char/speakup/synthlist.h b/drivers/char/speakup/synthlist.h
+--- a/drivers/char/speakup/synthlist.h	2005-07-27 16:10:04.000000000 -0400
++++ b/drivers/char/speakup/synthlist.h	2005-07-27 16:24:02.000000000 -0400
+@@ -7,46 +7,45 @@
+ /* declare extern built in synths */
+ #define SYNTH_DECL(who) extern struct spk_synth synth_##who;
+ #define PASS2
+-#define  CFG_TEST(name) (name)
+ #endif
+ 
+-#if CFG_TEST(CONFIG_SPEAKUP_ACNTPC)
++#ifdef CONFIG_SPEAKUP_ACNTPC
+ SYNTH_DECL(acntpc)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_ACNTSA)
++#ifdef CONFIG_SPEAKUP_ACNTSA
+ SYNTH_DECL(acntsa)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_APOLLO)
++#ifdef CONFIG_SPEAKUP_APOLLO
+ SYNTH_DECL(apollo)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_AUDPTR)
++#ifdef CONFIG_SPEAKUP_AUDPTR
+ SYNTH_DECL(audptr)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_BNS)
++#ifdef CONFIG_SPEAKUP_BNS
+ SYNTH_DECL(bns)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_DECEXT)
++#ifdef CONFIG_SPEAKUP_DECEXT
+ SYNTH_DECL(decext)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_DECTLK)
++#ifdef CONFIG_SPEAKUP_DECTLK
+ SYNTH_DECL(dectlk)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_DTLK)
++#ifdef CONFIG_SPEAKUP_DTLK
+ SYNTH_DECL(dtlk)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_KEYPC)
++#ifdef CONFIG_SPEAKUP_KEYPC
+ SYNTH_DECL(keypc)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_LTLK)
++#ifdef CONFIG_SPEAKUP_LTLK
+ SYNTH_DECL(ltlk)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_SFTSYN)
++#ifdef CONFIG_SPEAKUP_SFTSYN
+ SYNTH_DECL(sftsyn)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_SPKOUT)
++#ifdef CONFIG_SPEAKUP_SPKOUT
+ SYNTH_DECL(spkout)
+ #endif
+-#if CFG_TEST(CONFIG_SPEAKUP_TXPRT)
++#ifdef CONFIG_SPEAKUP_TXPRT
+ SYNTH_DECL(txprt)
+ #endif
+ 
+
+--------------000807020008080109030707--

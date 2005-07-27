@@ -1,78 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVG0BNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbVG0BUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbVG0BNo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 21:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVG0BNo
+	id S262318AbVG0BUU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 21:20:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbVG0BUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 21:13:44 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:22654 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S262306AbVG0BNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 21:13:43 -0400
-Message-ID: <42E6DFD2.6050101@m1k.net>
-Date: Tue, 26 Jul 2005 21:13:54 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Tue, 26 Jul 2005 21:20:20 -0400
+Received: from dvhart.com ([64.146.134.43]:37561 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S262318AbVG0BUS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 21:20:18 -0400
+Date: Tue, 26 Jul 2005 18:20:10 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>, Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Memory pressure handling with iSCSI
+Message-ID: <194200000.1122427210@flay>
+In-Reply-To: <20050726173126.5368266b.akpm@osdl.org>
+References: <1122399331.6433.29.camel@dyn9047017102.beaverton.ibm.com><20050726111110.6b9db241.akpm@osdl.org><1122403152.6433.39.camel@dyn9047017102.beaverton.ibm.com><20050726114824.136d3dad.akpm@osdl.org><20050726121250.0ba7d744.akpm@osdl.org><1122412301.6433.54.camel@dyn9047017102.beaverton.ibm.com><20050726142410.4ff2e56a.akpm@osdl.org><1122414300.6433.57.camel@dyn9047017102.beaverton.ibm.com><20050726151003.6aa3aecb.akpm@osdl.org><1122418089.6433.62.camel@dyn9047017102.beaverton.ibm.com><20050726160728.55245dae.akpm@osdl.org><1122420376.6433.68.camel@dyn9047017102.beaverton.ibm.com> <20050726173126.5368266b.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: astralstorm@gorzow.mm.pl, linux-kernel@vger.kernel.org
-Subject: Re: MM kernels - how to keep on the bleeding edge?
-References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>	<42E692E4.4070105@m1k.net>	<20050726221506.416e6e76.astralstorm@gorzow.mm.pl>	<42E69C5B.80109@m1k.net>	<20050726144149.0dc7b008.akpm@osdl.org>	<42E6D7E9.2080408@m1k.net> <20050726180452.3bdec6df.akpm@osdl.org>
-In-Reply-To: <20050726180452.3bdec6df.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
 
->Michael Krufky <mkrufky@m1k.net> wrote:
->  
->
->>However, sometimes there are patches in -mm that are incompatable with 
->>-linus.  An example of this is "Pavel's pm_message_t mangling" ... 
->>    
->>
->OK.  The way I handle an exceptional case like that is to merge the
->-linus-compatible patch into -mm and then have another patch on top of that
->which fixes things up for the -mm tree.  Later, that patch gets folded into
->your patch if Pavel's stuff gets merged.  Or gets dropped if it doesn't get
->merged.  Or gets folded into Pavel's stuff if your patch goes in first.
->
->IOW: for a bunch of reasons we really do want to make the "fix up V4l for
->-mm differences" patch be a separate patch file.
->
->And I very much prefer that people work against -linus and when these
->things occasionally pop up I'll just fix stuff up.  It's only if someone is
->explicitly working against a patch which is only in -mm that they should
->have to care about -mm vs -linus differences.
->
-I think you may have misunderstood me here.  v4l didnt make the 
-patches... You (akpm) did... We included them in our cvs when you merged 
-them into -mm:
+> It happens here, a bit.  My machine goes up to 60% dirty when it should be
+> clamping at 40%.
+> 
+> The variable `total_pages' in page-writeback.c (from
+> nr_free_pagecache_pages()) is too high.  I trace it back to here:
+> 
+> On node 0 totalpages: 1572864
+>   DMA zone: 4096 pages, LIFO batch:1
+>   Normal zone: 1568768 pages, LIFO batch:31
+>   HighMem zone: 0 pages, LIFO batch:1
+> 
+> This machine only has 4G of memory, so the platform code is overestimating
+> the number of pages by 50%.  Can you please check your dmesg, see if your
+> system is also getting this wrong?
 
-add-type-checking-to-pm_message_t-bttv-fix.patch added to -mm tree
-add-type-checking-to-pm_message_t-tuner-core-fix.patch added to -mm tree
-add-type-checking-to-pm_message_t-msp-fix.patch added to -mm tree
-add-type-checking-to-pm_message_t-tda9887-fix.patch added to -mm tree
+I think we're repeatedly iterating over the same zones by walking the 
+zonelists:
 
-Trust me, nobody did anything wrong here, and everything that needs to 
-be done with regards to this is already done, AFAIK.
+static unsigned int nr_free_zone_pages(int offset)
+{
+        pg_data_t *pgdat;
+        unsigned int sum = 0;
+        int i;
 
-I'm just saying it would be handy for the cvs to be able to compile 
-separately with both -mm and -linus trees automatically.  I just sent 
-you a patch that solves the issue.
+        for_each_pgdat(pgdat) {
+                struct zone *zone;
 
--- 
-Michael Krufky
+                for (i = 0; i < MAX_NR_ZONES; i++) {
+                        unsigned long size, high;
+
+                        zone = pgdat->node_zones[i];
+                        size = zone->present_pages;
+                        high = zone->pages_high;
+
+                        if (size > high)
+                                sum += size - high;
+                }
+        }
+}
+
+Does that look more sensible? I'd send you a real patch, except the
+box just crashed ;-)
+
+M.
 

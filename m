@@ -1,166 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVG0Rnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVG0Rnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbVG0Rnx (ORCPT <rfc822;willy@w.ods.org>);
+	id S262213AbVG0Rnx (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 27 Jul 2005 13:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVG0Rnm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbVG0Rnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 13:43:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19928 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262293AbVG0RmZ (ORCPT
+	Wed, 27 Jul 2005 13:43:46 -0400
+Received: from relay01.pair.com ([209.68.5.15]:46097 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S262213AbVG0RmR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 13:42:25 -0400
-Date: Wed, 27 Jul 2005 10:41:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 0/23] reboot-fixes
-Message-Id: <20050727104123.7938477a.akpm@osdl.org>
-In-Reply-To: <m1k6jc9sdr.fsf@ebiederm.dsl.xmission.com>
-References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
-	<20050727025923.7baa38c9.akpm@osdl.org>
-	<m1k6jc9sdr.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 27 Jul 2005 13:42:17 -0400
+X-pair-Authenticated: 209.68.2.107
+Message-ID: <42E7C777.7010400@cybsft.com>
+Date: Wed, 27 Jul 2005 12:42:15 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Esben Nielsen <simlo@phys.au.dk>
+CC: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
+References: <Pine.OSF.4.05.10507271852030.3210-100000@da410.phys.au.dk>
+In-Reply-To: <Pine.OSF.4.05.10507271852030.3210-100000@da410.phys.au.dk>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) wrote:
->
-> Andrew Morton <akpm@osdl.org> writes:
+Esben Nielsen wrote:
+> On Wed, 27 Jul 2005, K.R. Foley wrote:
 > 
->  > My fairly ordinary x86 test box gets stuck during reboot on the
->  > wait_for_completion() in ide_do_drive_cmd():
 > 
->  Hmm. The only thing I can think of is someone started adding calls
->  to device_suspend() before device_shutdown().  Not understanding
->  where it was a good idea I made certain the calls were in there
->  consistently.  
+>>Esben Nielsen wrote:
+>>
+>>>On Wed, 27 Jul 2005, Ingo Molnar wrote:
+>>>
+>>>
+>>>
+>>>>* Steven Rostedt <rostedt@goodmis.org> wrote:
+>>>>
+>>>>
+>>>>
+>>>>>Perfectly understood.  I've had two customers ask me to increase the 
+>>>>>priorities for them, but those where custom kernels, and a config 
+>>>>>option wasn't necessary. But since I've had customers asking, I 
+>>>>>thought that this might be something that others want.  But I deal 
+>>>>>with a niche market, and what my customers want might not be what 
+>>>>>everyone wants. (hence the RFC in the subject).
+>>>>>
+>>>>>So if there are others out there that would prefer to change their 
+>>>>>priority ranges, speak now otherwise this patch will go by the waste 
+>>>>>side.
+>>>>
+>>>>i'm not excluding that this will become necessary in the future. We 
+>>>>should also add the safety check to sched.h - all i'm suggesting is to 
+>>>>not make it a .config option just now, because that tends to be fiddled 
+>>>>with.
+>>>>
+>>>
+>>>Isn't there a way to mark it "warning! warning! dangerous!" ?
+>>>
+>>>Anyway: I think 100 RT priorities is way overkill - and slowing things
+>>>down by making the scheduler checking more empty slots in the runqueue.
+>>>Default ought to be 10. In practise it will be very hard to have
+>>>a task at the lower RT priority behaving real-time with 99 higher
+>>>priority tasks around. I find it hard to believe that somebody has an RT
+>>>app needing more than 10 priorities and can't do with RR or FIFO
+>>>scheduling within a fewer number of prorities.
+>>>
+>>>Esben
+>>>
+>>
+>>Actually, is it really that slow to search a bitmap for a slot that 
+>>needs processing? 
 > 
->  Andrew can you remove the call to device_suspend from kernel_restart
->  and see if this still happens?
+> No, it is ultra fast - but done very often.
+> 
 
-yup, that fixes it.
+:-) I'm not going to argue this. You could definitely save a few 
+instructions if you had fewer priorities and it probably wouldn't be 
+very hard to create a patch to do this.
 
---- devel/kernel/sys.c~a	2005-07-27 10:36:06.000000000 -0700
-+++ devel-akpm/kernel/sys.c	2005-07-27 10:36:26.000000000 -0700
-@@ -371,7 +371,6 @@ void kernel_restart(char *cmd)
- {
- 	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, cmd);
- 	system_state = SYSTEM_RESTART;
--	device_suspend(PMSG_FREEZE);
- 	device_shutdown();
- 	if (!cmd) {
- 		printk(KERN_EMERG "Restarting system.\n");
-_
+> 
+>>I work on real-time test stands which are less of an 
+>>embedded system and more of a real Unix system that require determinism. 
+>>It is very nice in some cases to have more than 10 RT priorities to work 
+>>with.
+> 
+> 
+> What for? Why can't you use FIFO at the same priorities for some of your
+> tasks? I pretty much quess you have a very few tasks which have some high
+> requirements. The rest of you "RT" task could easily share the lowest RT
+> priority. FIFO would also be more effective as you will have context
+> switches.
+> 
+> This about multiple priorities probably comes from an ordering of tasks:
+> You have a lot of task. You have a feeling about which one ought to be
+> more important than the other. Thus you end of with an ordered list of
+> tasks. BUT when you boil it down to what RT is all about, namely
+> meeting your deadlines, it doesn't matter after the 5-10 priorities
+> because the 5-10 priorities have introduced a lot of jitter to the rest
+> of the tasks anyway. You can just as well just put them at the same
+> priority.
+> 
+> Esben
+
+All of the RT priorities that we have are not absolutely necessary. As I 
+think Steven pointed out in another email, it is nice though to be able 
+to priortize tasks using large jumps in priorities and then being able 
+to fill in tasks that are dependent on other tasks in between. Even if 
+you think of nothing but the IRQ handlers, the 5-10 priorities quickly 
+get crowded without any user tasks.
 
 
-Presumably it unfixes Pavel's patch?
-
-
-From: Pavel Machek <pavel@ucw.cz>
-
-Without this patch, Linux provokes emergency disk shutdowns and
-similar nastiness. It was in SuSE kernels for some time, IIRC.
-
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- include/linux/pm.h |   33 +++++++++++++++++++++------------
- kernel/sys.c       |    3 +++
- 2 files changed, 24 insertions(+), 12 deletions(-)
-
-diff -puN kernel/sys.c~properly-stop-devices-before-poweroff kernel/sys.c
---- 25/kernel/sys.c~properly-stop-devices-before-poweroff	2005-06-25 14:47:00.000000000 -0700
-+++ 25-akpm/kernel/sys.c	2005-06-25 14:50:53.000000000 -0700
-@@ -405,6 +405,7 @@ asmlinkage long sys_reboot(int magic1, i
- 	case LINUX_REBOOT_CMD_HALT:
- 		notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
- 		system_state = SYSTEM_HALT;
-+		device_suspend(PMSG_SUSPEND);
- 		device_shutdown();
- 		printk(KERN_EMERG "System halted.\n");
- 		machine_halt();
-@@ -415,6 +416,7 @@ asmlinkage long sys_reboot(int magic1, i
- 	case LINUX_REBOOT_CMD_POWER_OFF:
- 		notifier_call_chain(&reboot_notifier_list, SYS_POWER_OFF, NULL);
- 		system_state = SYSTEM_POWER_OFF;
-+		device_suspend(PMSG_SUSPEND);
- 		device_shutdown();
- 		printk(KERN_EMERG "Power down.\n");
- 		machine_power_off();
-@@ -431,6 +433,7 @@ asmlinkage long sys_reboot(int magic1, i
- 
- 		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, buffer);
- 		system_state = SYSTEM_RESTART;
-+		device_suspend(PMSG_FREEZE);
- 		device_shutdown();
- 		printk(KERN_EMERG "Restarting system with command '%s'.\n", buffer);
- 		machine_restart(buffer);
-diff -puN include/linux/pm.h~properly-stop-devices-before-poweroff include/linux/pm.h
---- 25/include/linux/pm.h~properly-stop-devices-before-poweroff	2005-06-25 14:47:00.000000000 -0700
-+++ 25-akpm/include/linux/pm.h	2005-06-25 14:47:00.000000000 -0700
-@@ -103,7 +103,8 @@ extern int pm_active;
- /*
-  * Register a device with power management
-  */
--struct pm_dev __deprecated *pm_register(pm_dev_t type, unsigned long id, pm_callback callback);
-+struct pm_dev __deprecated *
-+pm_register(pm_dev_t type, unsigned long id, pm_callback callback);
- 
- /*
-  * Unregister a device with power management
-@@ -190,17 +191,18 @@ typedef u32 __bitwise pm_message_t;
- /*
-  * There are 4 important states driver can be in:
-  * ON     -- driver is working
-- * FREEZE -- stop operations and apply whatever policy is applicable to a suspended driver
-- *           of that class, freeze queues for block like IDE does, drop packets for
-- *           ethernet, etc... stop DMA engine too etc... so a consistent image can be
-- *           saved; but do not power any hardware down.
-- * SUSPEND - like FREEZE, but hardware is doing as much powersaving as possible. Roughly
-- *           pci D3.
-+ * FREEZE -- stop operations and apply whatever policy is applicable to a
-+ *           suspended driver of that class, freeze queues for block like IDE
-+ *           does, drop packets for ethernet, etc... stop DMA engine too etc...
-+ *           so a consistent image can be saved; but do not power any hardware
-+ *           down.
-+ * SUSPEND - like FREEZE, but hardware is doing as much powersaving as
-+ *           possible. Roughly pci D3.
-  *
-- * Unfortunately, current drivers only recognize numeric values 0 (ON) and 3 (SUSPEND).
-- * We'll need to fix the drivers. So yes, putting 3 to all diferent defines is intentional,
-- * and will go away as soon as drivers are fixed. Also note that typedef is neccessary,
-- * we'll probably want to switch to
-+ * Unfortunately, current drivers only recognize numeric values 0 (ON) and 3
-+ * (SUSPEND).  We'll need to fix the drivers. So yes, putting 3 to all different
-+ * defines is intentional, and will go away as soon as drivers are fixed.  Also
-+ * note that typedef is neccessary, we'll probably want to switch to
-  *   typedef struct pm_message_t { int event; int flags; } pm_message_t
-  * or something similar soon.
-  */
-@@ -222,11 +224,18 @@ struct dev_pm_info {
- 
- extern void device_pm_set_parent(struct device * dev, struct device * parent);
- 
--extern int device_suspend(pm_message_t state);
- extern int device_power_down(pm_message_t state);
- extern void device_power_up(void);
- extern void device_resume(void);
- 
-+#ifdef CONFIG_PM
-+extern int device_suspend(pm_message_t state);
-+#else
-+static inline int device_suspend(pm_message_t state)
-+{
-+	return 0;
-+}
-+#endif
- 
- #endif /* __KERNEL__ */
- 
-_
-
+-- 
+    kr

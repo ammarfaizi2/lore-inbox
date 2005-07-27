@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVG0HwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVG0Hxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbVG0HwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 03:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVG0HwJ
+	id S262025AbVG0Hxg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 03:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVG0Hxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 03:52:09 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:37824 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261979AbVG0HwH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 03:52:07 -0400
-Date: Wed, 27 Jul 2005 00:51:57 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ250 vs. HZ1000
-Message-ID: <20050727075156.GC25827@atomide.com>
-References: <20050725161333.446fe265.Ballarin.Marc@gmx.de> <20050725155322.GA1046@openzaurus.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050725155322.GA1046@openzaurus.ucw.cz>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 27 Jul 2005 03:53:32 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:5869 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262025AbVG0Hwr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 03:52:47 -0400
+Date: Wed, 27 Jul 2005 09:52:29 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: akihana@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: Reclaim space from unused ramdisk?
+In-Reply-To: <20050726235624.4f3ca2a8.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0507270951530.30941@yvahk01.tjqt.qr>
+References: <4746469c05072615167ca234ce@mail.gmail.com>
+ <Pine.LNX.4.61.0507270823490.10780@yvahk01.tjqt.qr> <20050726235624.4f3ca2a8.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pavel Machek <pavel@ucw.cz> [050725 08:57]:
-> 
-> USB devices prevent entering C3 and any interesting powersaving,
-> try without USB...
+>> }
+>> 
+>
+>hmm, yes.  That's a special-case in the ramdisk driver.
+>
+>The command `blockdev --flushbufs /dev/ram0' should have the same effect.
 
-Why do USB devices prevent C3? If it was because of the timer polling
-in the root hub, I believe that should be fixed now.
+Interesting. Command not found, here. URL?
 
-Or is there some other reason?
 
-Tony
+
+Jan Engelhardt
+-- 

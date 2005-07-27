@@ -1,150 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVG0P6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVG0QMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbVG0P6O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 11:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbVG0PzZ
+	id S262159AbVG0QMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 12:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVG0QJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 11:55:25 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:17282 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S262422AbVG0PxI (ORCPT
+	Wed, 27 Jul 2005 12:09:42 -0400
+Received: from relay00.pair.com ([209.68.1.20]:20496 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S262405AbVG0QJL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 11:53:08 -0400
-Subject: [patch 2/4] Uml support: reorganize PTRACE_SYSEMU support
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
-       bstroesser@fujitsu-siemens.com
-From: blaisorblade@yahoo.it
-Date: Tue, 26 Jul 2005 20:43:49 +0200
-Message-Id: <20050726184349.53E4D21DC1C@zion.home.lan>
+	Wed, 27 Jul 2005 12:09:11 -0400
+X-pair-Authenticated: 209.68.2.107
+Message-ID: <42E7B1A4.2070900@cybsft.com>
+Date: Wed, 27 Jul 2005 11:09:08 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Esben Nielsen <simlo@phys.au.dk>
+CC: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
+References: <Pine.OSF.4.05.10507271645210.24769-100000@da410.phys.au.dk>
+In-Reply-To: <Pine.OSF.4.05.10507271645210.24769-100000@da410.phys.au.dk>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Esben Nielsen wrote:
+> On Wed, 27 Jul 2005, Ingo Molnar wrote:
+> 
+> 
+>>* Steven Rostedt <rostedt@goodmis.org> wrote:
+>>
+>>
+>>>Perfectly understood.  I've had two customers ask me to increase the 
+>>>priorities for them, but those where custom kernels, and a config 
+>>>option wasn't necessary. But since I've had customers asking, I 
+>>>thought that this might be something that others want.  But I deal 
+>>>with a niche market, and what my customers want might not be what 
+>>>everyone wants. (hence the RFC in the subject).
+>>>
+>>>So if there are others out there that would prefer to change their 
+>>>priority ranges, speak now otherwise this patch will go by the waste 
+>>>side.
+>>
+>>i'm not excluding that this will become necessary in the future. We 
+>>should also add the safety check to sched.h - all i'm suggesting is to 
+>>not make it a .config option just now, because that tends to be fiddled 
+>>with.
+>>
+> 
+> Isn't there a way to mark it "warning! warning! dangerous!" ?
+> 
+> Anyway: I think 100 RT priorities is way overkill - and slowing things
+> down by making the scheduler checking more empty slots in the runqueue.
+> Default ought to be 10. In practise it will be very hard to have
+> a task at the lower RT priority behaving real-time with 99 higher
+> priority tasks around. I find it hard to believe that somebody has an RT
+> app needing more than 10 priorities and can't do with RR or FIFO
+> scheduling within a fewer number of prorities.
+> 
+> Esben
+> 
 
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Actually, is it really that slow to search a bitmap for a slot that 
+needs processing? I work on real-time test stands which are less of an 
+embedded system and more of a real Unix system that require determinism. 
+It is very nice in some cases to have more than 10 RT priorities to work 
+with.
 
-With this patch, we change the way we handle switching from PTRACE_SYSEMU to
-PTRACE_{SINGLESTEP,SYSCALL}, to free TIF_SYSCALL_EMU from double use as a
-preparation for PTRACE_SYSEMU_SINGLESTEP extension, without changing the
-behavior of the host kernel.
-
-Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.git-paolo/arch/i386/kernel/entry.S  |    8 ++++
- linux-2.6.git-paolo/arch/i386/kernel/ptrace.c |   43 ++++++++------------------
- 2 files changed, 21 insertions(+), 30 deletions(-)
-
-diff -puN arch/i386/kernel/entry.S~sysemu-reorganize arch/i386/kernel/entry.S
---- linux-2.6.git/arch/i386/kernel/entry.S~sysemu-reorganize	2005-07-26 20:25:58.000000000 +0200
-+++ linux-2.6.git-paolo/arch/i386/kernel/entry.S	2005-07-26 20:25:58.000000000 +0200
-@@ -339,12 +339,18 @@ syscall_trace_entry:
- 	xorl %edx,%edx
- 	call do_syscall_trace
- 	cmpl $0, %eax
--	jne syscall_exit		# ret != 0 -> running under PTRACE_SYSEMU,
-+	jne syscall_skip		# ret != 0 -> running under PTRACE_SYSEMU,
- 					# so must skip actual syscall
- 	movl ORIG_EAX(%esp), %eax
- 	cmpl $(nr_syscalls), %eax
- 	jnae syscall_call
- 	jmp syscall_exit
-+syscall_skip:
-+	cli				# make sure we don't miss an interrupt
-+					# setting need_resched or sigpending
-+					# between sampling and the iret
-+	movl TI_flags(%ebp), %ecx
-+	jmp work_pending
- 
- 	# perform syscall exit tracing
- 	ALIGN
-diff -puN arch/i386/kernel/ptrace.c~sysemu-reorganize arch/i386/kernel/ptrace.c
---- linux-2.6.git/arch/i386/kernel/ptrace.c~sysemu-reorganize	2005-07-26 20:25:58.000000000 +0200
-+++ linux-2.6.git-paolo/arch/i386/kernel/ptrace.c	2005-07-26 20:39:57.000000000 +0200
-@@ -515,21 +515,14 @@ asmlinkage int sys_ptrace(long request, 
- 		ret = -EIO;
- 		if (!valid_signal(data))
- 			break;
--		/* If we came here with PTRACE_SYSEMU and now continue with
--		 * PTRACE_SYSCALL, entry.S used to intercept the syscall return.
--		 * But it shouldn't!
--		 * So we don't clear TIF_SYSCALL_EMU, which is always unused in
--		 * this special case, to remember, we came from SYSEMU. That
--		 * flag will be cleared by do_syscall_trace().
--		 */
- 		if (request == PTRACE_SYSEMU) {
- 			set_tsk_thread_flag(child, TIF_SYSCALL_EMU);
--		} else if (request == PTRACE_CONT) {
--			clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
--		}
--		if (request == PTRACE_SYSCALL) {
-+			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
-+		} else if (request == PTRACE_SYSCALL) {
- 			set_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
-+			clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
- 		} else {
-+			clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
- 			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
- 		}
- 		child->exit_code = data;
-@@ -558,8 +551,7 @@ asmlinkage int sys_ptrace(long request, 
- 		ret = -EIO;
- 		if (!valid_signal(data))
- 			break;
--		/*See do_syscall_trace to know why we don't clear
--		 * TIF_SYSCALL_EMU.*/
-+		clear_tsk_thread_flag(child, TIF_SYSCALL_EMU);
- 		clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
- 		set_singlestep(child);
- 		child->exit_code = data;
-@@ -694,7 +686,7 @@ void send_sigtrap(struct task_struct *ts
- __attribute__((regparm(3)))
- int do_syscall_trace(struct pt_regs *regs, int entryexit)
- {
--	int is_sysemu, is_systrace, is_singlestep, ret = 0;
-+	int is_sysemu, is_singlestep, ret = 0;
- 	/* do the secure computing check first */
- 	secure_computing(regs->orig_eax);
- 
-@@ -705,25 +697,13 @@ int do_syscall_trace(struct pt_regs *reg
- 		goto out;
- 
- 	is_sysemu = test_thread_flag(TIF_SYSCALL_EMU);
--	is_systrace = test_thread_flag(TIF_SYSCALL_TRACE);
- 	is_singlestep = test_thread_flag(TIF_SINGLESTEP);
- 
--	/* We can detect the case of coming from PTRACE_SYSEMU and now running
--	 * with PTRACE_SYSCALL or PTRACE_SINGLESTEP, by TIF_SYSCALL_EMU being
--	 * set additionally.
--	 * If so let's reset the flag and return without action (no singlestep
--	 * nor syscall tracing, since no actual step has been executed).
--	 */
--	if (is_sysemu && (is_systrace || is_singlestep)) {
--		clear_thread_flag(TIF_SYSCALL_EMU);
--		goto out;
--	}
--
- 	/* Fake a debug trap */
--	if (test_thread_flag(TIF_SINGLESTEP))
-+	if (is_singlestep)
- 		send_sigtrap(current, regs, 0);
- 
--	if (!is_systrace && !is_sysemu)
-+ 	if (!test_thread_flag(TIF_SYSCALL_TRACE) && !is_sysemu)
- 		goto out;
- 
- 	/* the 0x80 provides a way for the tracing parent to distinguish
-@@ -745,5 +725,10 @@ int do_syscall_trace(struct pt_regs *reg
- 	if (unlikely(current->audit_context) && !entryexit)
- 		audit_syscall_entry(current, AUDIT_ARCH_I386, regs->orig_eax,
- 				    regs->ebx, regs->ecx, regs->edx, regs->esi);
--	return ret;
-+	if (ret == 0)
-+		return 0;
-+
-+	if (unlikely(current->audit_context))
-+		audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);
-+	return 1;
- }
-_
+-- 
+    kr

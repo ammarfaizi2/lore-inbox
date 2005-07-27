@@ -1,102 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVG0LLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbVG0LMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbVG0LLd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 07:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVG0LLd
+	id S262188AbVG0LMY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 07:12:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVG0LMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 07:11:33 -0400
-Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:13228 "EHLO
-	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261999AbVG0LLc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 07:11:32 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.12-ck4
-Date: Wed, 27 Jul 2005 21:11:25 +1000
-User-Agent: KMail/1.8.1
-Cc: ck list <ck@vds.kolivas.org>
-MIME-Version: 1.0
-X-Length: 1470
-Content-Type: multipart/signed;
-  boundary="nextPart8022134.38GPnJ8k9g";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 27 Jul 2005 07:12:23 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:52118 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262188AbVG0LLv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 07:11:51 -0400
+Subject: Re: Question re the dot releases such as 2.6.12.3
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: Kurt Wall <kwall@kurtwerks.com>, webmaster@kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200507270234.j6R2YEW4009061@turing-police.cc.vt.edu>
+References: <200507251020.08894.gene.heskett@verizon.net>
+	 <42E51593.7070902@didntduck.org> <20050727012853.GA2354@kurtwerks.com>
+	 <1122429050.29823.44.camel@localhost.localdomain>
+	 <200507270234.j6R2YEW4009061@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 27 Jul 2005 07:11:43 -0400
+Message-Id: <1122462703.29823.51.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200507272111.27757.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart8022134.38GPnJ8k9g
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 2005-07-26 at 22:34 -0400, Valdis.Kletnieks@vt.edu wrote:
+> 
+> Even more to the point - when 2.6.13 comes out, there will be a patch against
+> 2.6.12, not 2.6.12.N, which means you get to download the 2.6.12.N tarball,
+> the 2.6.12.N patch, patch -R that, and *then* apply the 2.6.13 patch.
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck* patch is aimed at th=
-e=20
-desktop and ck*-server is available with more emphasis on serverspace.
+The sad part of this, is that I have actually done that :-/ (when 2.6.12
+came out s/\.12/.11/ s/\.13/.12/).
 
-Apply to 2.6.12 (This includes all patches in 2.6.12.3):
-http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck4/patch-2.6.12-ck4.bz2
-or for server version:
-http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck4/patch-2.6.12-ck4-server=
-=2Ebz2
+-- Steve
 
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
-
-
-Changes since 2.6.12-ck3:
-
-Added:
-+s11.3_s11.4.diff=20
-Staircase cpu scheduler update. Change rr intervals to 5ms minimum. With=20
-interbench I can confidently say there is objective evidence of interactive=
-=20
-improvement in the human perceptible range with this change :)
-
-HZ-864.diff=20
-+My take on the never ending config HZ debate. Apart from the number not be=
-ing=20
-pleasing on the eyes, a HZ value that isn't a multiple of 10 is perfectly=20
-valid. Setting HZ to 864 gives us very similar low latency performance to a=
-=20
-1000HZ kernel, decreases overhead ever so slightly, and minimises clock dri=
-ft=20
-substantially. The -server patch uses HZ=3D82 for similar reasons, with the=
-=20
-emphasis on throughput rather than low latency. Madness? Probably, but then=
- I=20
-can't see any valid argument against using these values.
-
-
-Changed:
-=2Dpatch-2.6.12.2
-+patch-2.6.12.3
-Latest stable version.
-
-=2D2612ck3-version.diff
-+2612ck4-version.diff
-Version.
-
-
-Cheers,
-Con
-
---nextPart8022134.38GPnJ8k9g
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC52vfZUg7+tp6mRURAm15AJ9hd89Wq2vOJ/vbO2nEBSXkjtIO9wCffGhb
-wRw2KlH8tsoboPKYBPS3UKo=
-=j8we
------END PGP SIGNATURE-----
-
---nextPart8022134.38GPnJ8k9g--

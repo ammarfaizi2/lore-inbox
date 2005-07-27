@@ -1,86 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVG0Q1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVG0QcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbVG0Q1e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 12:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVG0QYy
+	id S262437AbVG0QcW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 12:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVG0Q3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 12:24:54 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62470 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262422AbVG0QXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 12:23:46 -0400
-Date: Wed, 27 Jul 2005 18:23:34 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Kimball Murray <kmurray@redhat.com>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] include/linux/bio.h: "extern inline" -> "static inline"
-Message-ID: <20050727162334.GF3160@stusta.de>
-References: <20050726145344.GO3160@stusta.de> <20050727142912.GJ6920@suse.de> <42E7A157.3080508@redhat.com>
+	Wed, 27 Jul 2005 12:29:46 -0400
+Received: from gate.ebshome.net ([64.81.67.12]:25318 "EHLO gate.ebshome.net")
+	by vger.kernel.org with ESMTP id S262437AbVG0Q1m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 12:27:42 -0400
+Date: Wed, 27 Jul 2005 09:27:41 -0700
+From: Eugene Surovegin <ebs@ebshome.net>
+To: Michael Richardson <mcr@sandelman.ottawa.on.ca>
+Cc: Kumar Gala <galak@freescale.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+Subject: Re: [PATCH 00/14] ppc32: Remove board ports that are no longer maintained
+Message-ID: <20050727162741.GC28681@gate.ebshome.net>
+Mail-Followup-To: Michael Richardson <mcr@sandelman.ottawa.on.ca>,
+	Kumar Gala <galak@freescale.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org,
+	linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+References: <Pine.LNX.4.61.0507271029480.12237@nylon.am.freescale.net> <1271.1122480803@marajade.sandelman.ottawa.on.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42E7A157.3080508@redhat.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1271.1122480803@marajade.sandelman.ottawa.on.ca>
+X-ICQ-UIN: 1193073
+X-Operating-System: Linux i686
+X-PGP-Key: http://www.ebshome.net/pubkey.asc
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 27, 2005 at 10:59:35AM -0400, Kimball Murray wrote:
-> Jens Axboe wrote:
-> 
-> >On Tue, Jul 26 2005, Adrian Bunk wrote:
-> > 
-> >
-> >>"extern inline" doesn't make much sense.
-> >>   
-> >>
-> >
-> >Yep, thanks.
-> >
-> > 
-> >
-> IIRC, there was a time when the extern inline construct was used to 
-> catch cases where the compiler did not inline the function (you'd get a 
-> link error).  Seems like it still works.  Try building the attached 
-> files in each of the following ways:
-> 
-> gcc -o foo foo.c
-> 
->    and
-> 
-> gcc -O2 -o foo foo.c
-> 
-> In the first case, you get a link error, because there is no inlining.
+On Wed, Jul 27, 2005 at 12:13:23PM -0400, Michael Richardson wrote:
+> Kumar, I thought that we had some volunteers to take care of some of
+> those. I know that I still care about ep405, and I'm willing to maintain
+> the code.
 
-In the kernel, we have a
-  # define inline         inline          __attribute__((always_inline))
+Well, it has been almost two months since Kumar asked about maintenance 
+for this board. Nothing happened since then.
 
-This doesn't leave gcc any choice to not inline the function.
-
-> -kimball
-
-> #include "bar.h"
-> 
-> void foo(void) {
-> 	bar();
-> }
-> 
-> int main(int argc, char *argv[])
-> {
-> 	foo();
-> 	return 0;
-> }
-
-> extern inline void bar(void)
-> {
-> }
-
-cu
-Adrian
+Why is it not fixed yet? Please, send a patch which fixes it. This is 
+the _best_ way to keep this board in the tree, not some empty 
+maintenance _promises_.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Eugene
 

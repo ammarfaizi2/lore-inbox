@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVG0NIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVG0NJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262238AbVG0NIF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 09:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbVG0NIF
+	id S262240AbVG0NJv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 09:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbVG0NJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 09:08:05 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:45959 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262238AbVG0NHn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 09:07:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XQAe4zlZ7nJxu/7xxzXHcP76LTEvM8Tp/nPs7qkNII7RYE/RxHqoXW51QtIweUim0Mp2zyH8Hy/CeLmwCKRZ1yTx1n/QkjdOpiJB0DfR9dHzR7aqtfAsmyFpApj3ApoSggf7jktqqlN0SrtMt3RPeX1K2r0vH6Z3BACsRGJuDQM=
-Message-ID: <b8bf377805072706076992d5ac@mail.gmail.com>
-Date: Wed, 27 Jul 2005 10:07:43 -0300
-From: =?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?= <andre.goddard@gmail.com>
-Reply-To: =?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?= <andre.goddard@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [ck] 2.6.12-ck4
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>
-In-Reply-To: <200507272111.27757.kernel@kolivas.org>
+	Wed, 27 Jul 2005 09:09:51 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:3908 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S262241AbVG0NJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 09:09:42 -0400
+From: Ian Campbell <ijc@hellion.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050628155158.396f676c.akpm@osdl.org>
+References: <1119948144.10852.10.camel@icampbell-debian>
+	 <20050628155158.396f676c.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 27 Jul 2005 14:09:22 +0100
+Message-Id: <1122469762.29501.253.camel@icampbell-debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <200507272111.27757.kernel@kolivas.org>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 192.168.3.3
+X-SA-Exim-Mail-From: ijc@hellion.org.uk
+Subject: Re: [PATCH 1/1] cs89x0 collect tx_bytes statistics.
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Apply to 2.6.12 (This includes all patches in 2.6.12.3):
-> http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck4/patch-2.6.12-ck4.bz2
-> or for server version:
-> http://ck.kolivas.org/patches/2.6/2.6.12/2.6.12-ck4/patch-2.6.12-ck4-server.bz2
+On Tue, 2005-06-28 at 15:51 -0700, Andrew Morton wrote:
+> Ian Campbell <ijc@hellion.org.uk> wrote:
+> >
+> > The cs89x0 driver does not collect tx_bytes statistics which breaks
+> > traffic monitoring on my firewall.
+> 
+> The patch looks odd.  It records the length of the current outgoing frame
+> in the device-global netdev structure and then, at tx interupt time it adds
+> that value into the stats field.
+> 
+> Why not just do:
 
-Someone has a version who applies to 2.6.13.-rc3?
+I finally got a hold of the device I needed to test this and it works
+fine, not that anyone would have expected differently...
 
-Thanks!
+Signed-off-by: Ian Campbell <icampbell@arcom.com>
+
+%patch
+Index: 2.6/drivers/net/cs89x0.c
+===================================================================
+--- 2.6.orig/drivers/net/cs89x0.c	2005-07-25 16:39:53.000000000 +0100
++++ 2.6/drivers/net/cs89x0.c	2005-07-27 13:34:11.000000000 +0100
+@@ -1450,6 +1450,7 @@
+ 	/* Write the contents of the packet */
+ 	outsw(dev->base_addr + TX_FRAME_PORT,skb->data,(skb->len+1) >>1);
+ 	spin_unlock_irq(&lp->lock);
++	lp->stats.tx_bytes += skb->len;
+ 	dev->trans_start = jiffies;
+ 	dev_kfree_skb (skb);
+ 
+
 
 -- 
-[]s,
+Ian Campbell
+Current Noise: Enslaved - Return to Yggdrasill
 
-André Goddard
+Dentist, n.:
+	A Prestidigitator who, putting metal in one's mouth, pulls
+	coins out of one's pockets.
+		-- Ambrose Bierce, "The Devil's Dictionary"
+

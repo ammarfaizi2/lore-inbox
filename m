@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVG0CxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbVG0DTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbVG0CxG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 22:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbVG0CxG
+	id S261980AbVG0DTp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 23:19:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVG0DTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 22:53:06 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:5594
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261979AbVG0CxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 22:53:04 -0400
-Date: Tue, 26 Jul 2005 19:53:20 -0700 (PDT)
-Message-Id: <20050726.195320.89085462.davem@davemloft.net>
-To: mpm@selenic.com
-Cc: bunk@stusta.de, jgarzik@pobox.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, shemminger@osdl.org
-Subject: Re: [2.6 patch] NETCONSOLE must depend on INET
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050727023636.GP12006@waste.org>
-References: <20050726235824.GN12006@waste.org>
-	<20050726.170349.10935659.davem@davemloft.net>
-	<20050727023636.GP12006@waste.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 23:19:45 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:51413 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261980AbVG0DTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 23:19:44 -0400
+Date: Tue, 26 Jul 2005 23:19:35 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+In-reply-to: <20050726181326.GY3160@stusta.de>
+To: linux-kernel@vger.kernel.org
+Message-id: <200507262319.35891.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050726150837.GT3160@stusta.de>
+ <200507261303.40052.gene.heskett@verizon.net> <20050726181326.GY3160@stusta.de>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Matt Mackall <mpm@selenic.com>
-Date: Tue, 26 Jul 2005 19:36:37 -0700
+On Tuesday 26 July 2005 14:13, Adrian Bunk wrote:
+>On Tue, Jul 26, 2005 at 01:03:39PM -0400, Gene Heskett wrote:
+>> On Tuesday 26 July 2005 11:48, Jeff Garzik wrote:
+>> >Adrian Bunk wrote:
+>> >> This patch schedules obsolete OSS drivers (with ALSA drivers
+>> >> that support the same hardware) for removal.
+[...]
+>> >ACK for via82cxxx.
+>>
+>> I'm still running a box that needs this one.  The darned thing
+>> refuses to die. :)
+>>...
+>
+>Why doesn't the ALSA driver work for you?
 
-> [sch added to cc: as I think he's the effective pktgen maintainer]
+Humm, I missread that it was OSS you were talking about, my bad.
 
-No, that would be Robert Olsson.
+I'll go quietly officer. :(
 
-> Move in_aton from net/ipv4/utils.c to net/core/utils.c
-
-Fair enough.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

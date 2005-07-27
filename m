@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVG0Wh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVG0VXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVG0Wh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 18:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVG0WfN
+	id S262261AbVG0VXB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 17:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbVG0Uor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 18:35:13 -0400
-Received: from main.gmane.org ([80.91.229.2]:6624 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261161AbVG0Weo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 18:34:44 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alexander Fieroch <fieroch@web.de>
-Subject: driver for Marvell 88E8053 PCI Express Gigabit LAN
-Date: Thu, 28 Jul 2005 00:34:09 +0200
-Message-ID: <dc9252$tgr$1@sea.gmane.org>
+	Wed, 27 Jul 2005 16:44:47 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:63412 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262441AbVG0UoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 16:44:14 -0400
+Subject: Re: 2.6.12: no sound on SPDIF with emu10k1
+From: Lee Revell <rlrevell@joe-job.com>
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1122493585.3137.14.camel@hostmaster.org>
+References: <1122493585.3137.14.camel@hostmaster.org>
+Content-Type: text/plain
+Date: Wed, 27 Jul 2005 16:44:11 -0400
+Message-Id: <1122497052.22844.5.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
-X-Accept-Language: de-de, en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 2005-07-27 at 21:46 +0200, Thomas Zehetbauer wrote:
+> Hi!
+> 
+> I cannot get my SB Live! 5.1's SPDIF (digital) output to work with
+> kernel > 2.6.12. I have not changed my mixer configuration and it is
+> still working when I boot 2.6.11.12 or earlier. I am using FC4 with
+> alsa-lib-1.0.9rf-2.FC4 installed.
 
-there are GPL driver for the Marvell 88E8053 GLAN:
+FC4 shipped a buggy ALSA version, I can't believe there are no updated
+RPMs yet.
 
-http://dlsvr01.asus.com/pub/ASUS/lan/marvell/8053/8053_others2.zip
+You need a newer ALSA.
 
-The problem is that they are not compiling with the current kernel. 
-Could you please adapt and integrate the drivers to the current kernel?
-
-Thanks & regards,
-Alexander
+Lee
 

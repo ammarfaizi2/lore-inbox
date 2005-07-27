@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVG0W2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbVG0V2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVG0W2u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 18:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVG0WWU
+	id S262442AbVG0V2J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 17:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVG0VZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 18:22:20 -0400
-Received: from smtprelay04.ispgateway.de ([80.67.18.16]:22732 "EHLO
-	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261201AbVG0WUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 18:20:02 -0400
-Date: Thu, 28 Jul 2005 00:22:44 +0200
-From: Florian Engelhardt <flo@dotbox.org>
-To: linux-kernel@vger.kernel.org
-Subject: system freezes for 0.2 to 0.5 seconds when reading
- /proc/acpi/thermal_zone/THRM/temperature
-Message-ID: <20050728002244.5163ac4a@localhost>
-X-Mailer: Sylpheed-Claws 1.9.13cvs2 (GTK+ 2.6.7; x86_64-pc-linux-gnu)
+	Wed, 27 Jul 2005 17:25:45 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63660 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262442AbVG0VXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 17:23:25 -0400
+Date: Wed, 27 Jul 2005 22:52:49 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, alsa-devel@alsa-project.org
+Subject: Re: [ACPI] Re: [Alsa-devel] [PATCH] 2.6.13-rc3-git5: fix Bug #4416 (1/2)
+Message-ID: <20050727205249.GA708@openzaurus.ucw.cz>
+References: <200507261247.05684.rjw@sisk.pl> <200507261251.48291.rjw@sisk.pl> <s5hmzo8ljf6.wl%tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hmzo8ljf6.wl%tiwai@suse.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
 
-first of all, sorry for the long headline.
-second:
-Every time, i try to do the following:
-cat /proc/acpi/thermal_zone/THRM/temperature
-the whole system looks up for a short period of time (something about
-0.5s). realy everything, video and audio encoding, mouse and keyboard
-input, firefox playing a flash animation, ...
-I am also getting the following:
-Losing some ticks... checking if CPU frequency changed.
+> > The following patch adds free_irq() and request_irq() to the suspend and
+> > resume, respectively, routines in the snd_intel8x0 driver.
+> 
+> The patch looks OK to me although I have some concerns.
+> 
+> - The error in resume can't be handled properly.
+> 
+>   What should we do for the error of request_irq()?
+> 
+> - Adding this to all drivers seem too much.
 
-maybe these two things are belonging to each other.
+There's probably no other way. Talk to Len Brown.
 
-I am using a 2.6.12-rc3-mm1 kernel on a amd64 with a nvidia nforce4
-mainboard.
+>   We just need to stop the irq processing until resume, so something
+>   like suspend_irq(irq, dev_id) and resume_irq(irq, dev_id) would be
+>   more uesful?
 
-
-kind regards
-
-flo
-
+Its more complex than that. Irq numbers may change during resume.
 -- 
-"I may have invented it, but Bill made it famous"
-David Bradley, who invented the (in)famous ctrl-alt-del key combination
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

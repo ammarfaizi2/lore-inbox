@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVG0LVC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVG0L24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbVG0LVC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 07:21:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVG0LVC
+	id S262192AbVG0L24 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 07:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVG0L2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 07:21:02 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:45011 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262189AbVG0LU7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 07:20:59 -0400
-X-ORBL: [67.117.73.34]
-Date: Wed, 27 Jul 2005 04:20:47 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ250 vs. HZ1000
-Message-ID: <20050727112046.GI16709@atomide.com>
-References: <20050725161333.446fe265.Ballarin.Marc@gmx.de> <20050725155322.GA1046@openzaurus.ucw.cz> <20050727075156.GC25827@atomide.com> <20050727080051.GF4115@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050727080051.GF4115@elf.ucw.cz>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 27 Jul 2005 07:28:55 -0400
+Received: from lugor.de ([212.112.242.222]:27043 "EHLO solar.mylinuxtime.de")
+	by vger.kernel.org with ESMTP id S262192AbVG0L2z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 07:28:55 -0400
+From: Christian Hesse <mail@earthworm.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-ck4
+Date: Wed, 27 Jul 2005 13:28:38 +0200
+User-Agent: KMail/1.8.1
+Cc: Con Kolivas <kernel@kolivas.org>, ck list <ck@vds.kolivas.org>
+References: <200507272111.27757.kernel@kolivas.org>
+In-Reply-To: <200507272111.27757.kernel@kolivas.org>
+X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1871518.OHG5m8KYU5";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507271328.45324.mail@earthworm.de>
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pavel Machek <pavel@ucw.cz> [050727 01:00]:
-> Hi!
-> 
-> > > USB devices prevent entering C3 and any interesting powersaving,
-> > > try without USB...
-> > 
-> > Why do USB devices prevent C3? If it was because of the timer polling
-> > in the root hub, I believe that should be fixed now.
-> > 
-> > Or is there some other reason?
-> 
-> Yes. UHCI zas keeps doing DMA all the time.... It can be worked
-> around, but it means proper usb powermanagment support.
+--nextPart1871518.OHG5m8KYU5
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-OK, thanks for clarifying that.
+On Wednesday 27 July 2005 13:11, Con Kolivas wrote:
+> HZ-864.diff
+> +My take on the never ending config HZ debate. Apart from the number not
+> being pleasing on the eyes, a HZ value that isn't a multiple of 10 is
+> perfectly valid. Setting HZ to 864 gives us very similar low latency
+> performance to a 1000HZ kernel, decreases overhead ever so slightly, and
+> minimises clock drift substantially. The -server patch uses HZ=3D82 for
+> similar reasons, with the emphasis on throughput rather than low latency.
+> Madness? Probably, but then I can't see any valid argument against using
+> these values.
 
-Tony
+Some time ago I tried with HZ=3D209, but the system then freezes after a fe=
+w=20
+minutes... Any ideas what could be the reason? Are only even numbers allowe=
+d?
+
+=2D-=20
+Christian
+
+--nextPart1871518.OHG5m8KYU5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.15 (GNU/Linux)
+
+iD8DBQBC52/slZfG2c8gdSURAvQrAJ9KPMUhMVjn5vSHEQL+DY4EksueowCgr8KO
+ZhgEP97/ypEDa7bJRU5gesA=
+=Y5ny
+-----END PGP SIGNATURE-----
+
+--nextPart1871518.OHG5m8KYU5--

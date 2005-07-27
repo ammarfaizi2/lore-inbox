@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVG0VXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVG0Vcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbVG0VXB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 17:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbVG0Ucb
+	id S262149AbVG0Vcz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 17:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVG0V2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 16:32:31 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:11960 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262367AbVG0UbB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 16:31:01 -0400
-Subject: Re: [patch] inotify: ppc64 syscalls.
-From: Robert Love <rml@novell.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: akpm@osdl.org, paulus@samba.org, linux-kernel@vger.kernel.org,
-       ttb@tentacle.dhs.org
-In-Reply-To: <20050727.132701.115907512.davem@davemloft.net>
-References: <1122479106.21253.158.camel@betsy>
-	 <20050727095539.602fcc4a.akpm@osdl.org> <1122485496.21253.170.camel@betsy>
-	 <20050727.132701.115907512.davem@davemloft.net>
-Content-Type: text/plain
-Date: Wed, 27 Jul 2005 16:31:02 -0400
-Message-Id: <1122496262.21253.190.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Wed, 27 Jul 2005 17:28:23 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:18039 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262186AbVG0V0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 17:26:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.es;
+  h=Received:Message-ID:From:To:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE;
+  b=Z5VuSMSOC9n742ZMa5uANYfw6Ar2y9dMwqIG53ISizmtmB5XAQuMowM5eLKUvNYvJnM5MFwNdBJ34s5kAeolnWs6CqKNMUq5/SiofbKIKJ063o/9CQwknopBadRECwpOq2guEf/6noT8SFkRolBdTaEgremRt1AqSt0YzVdmZbo=  ;
+Message-ID: <009b01c592f1$e81f34a0$0801a8c0@SEBAS>
+From: "gabri" <metadistros@yahoo.es>
+To: <linux-kernel@vger.kernel.org>
+Subject: Helpme WitCh Cpu Scaling. Hi People
+Date: Wed, 27 Jul 2005 23:26:49 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-27 at 13:27 -0700, David S. Miller wrote:
-
-> You'll notice that sys_ppc32.c has a ton of shims which purely
-> exist to sign extend "int" system call arguments.  Sparc64 does
-> something similarly, but in assembler so that we don't eat the
-> overhead of a full stack frame just to sign extend arguments.
-
-Yah, but it looked like they did the sign extend thing for every int but
-file descriptors, and fd's are the only int's we have.
-
-	Robert Love
+It is the first mail that I write. I call gabri and I am 18 years old. I am 
+Spanish. I want to comment that me program does not work ningun to regulate 
+the Mhz of the processor. " Cpufreq, cpuydn, powernow ". I do not manage to 
+load ningun module from the kernel inside cpuscalig in that it(he,she) 
+fences with an amd mobile sempron.
+The modules of athlon do not go.
+Do they work to give support to the mobile sempron in the future versions of 
+the kernel?
+what can I do ? 
 
 
+		
+______________________________________________ 
+Renovamos el Correo Yahoo! 
+Nuevos servicios, más seguridad 
+http://correo.yahoo.es

@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVG0AMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbVG0APx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbVG0AMz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 20:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVG0AKc
+	id S262207AbVG0APx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 20:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbVG0APr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 20:10:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58595 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262409AbVG0AKW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 20:10:22 -0400
-Date: Tue, 26 Jul 2005 17:08:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl>
-Cc: mkrufky@m1k.net, linux-kernel@vger.kernel.org
-Subject: Re: MM kernels - how to keep on the bleeding edge?
-Message-Id: <20050726170855.2e866abb.akpm@osdl.org>
-In-Reply-To: <20050727020010.14852c38.astralstorm@gorzow.mm.pl>
-References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
-	<42E692E4.4070105@m1k.net>
-	<20050726221506.416e6e76.astralstorm@gorzow.mm.pl>
-	<42E69C5B.80109@m1k.net>
-	<20050726144149.0dc7b008.akpm@osdl.org>
-	<20050727004932.1b25fc5d.astralstorm@gorzow.mm.pl>
-	<20050726161149.0c9c36fa.akpm@osdl.org>
-	<20050727012558.5661d071.astralstorm@gorzow.mm.pl>
-	<20050726163521.73c7ed08.akpm@osdl.org>
-	<20050727020010.14852c38.astralstorm@gorzow.mm.pl>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Jul 2005 20:15:47 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:20399 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262332AbVG0AOy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 20:14:54 -0400
+Date: Tue, 26 Jul 2005 17:14:34 -0700
+Message-Id: <200507270014.j6R0EYMv005786@agluck-lia64.sc.intel.com>
+To: Andrew Morton <akpm@osdl.org>
+From: tony.luck@intel.com
+Cc: kaneshige.kenji@jp.fujitsu.com, ambx1@neo.rr.com, greg@kroah.org,
+       pavel@ucw.cz, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [patch] properly stop devices before poweroff
+In-Reply-To: <20050726121019.0248801c.akpm@osdl.org>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F03FCF24C@scsmsx401.amr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl> wrote:
->
-> On Tue, 26 Jul 2005 16:35:21 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > 
-> > I did?
+Andrew Morton wrote:
+> "Luck, Tony" <tony.luck@intel.com> wrote:
+> >
+> > I started on my OLS homework from Andrew ... and began looking
+> > into what is going on here.
 > > 
 > 
-> Exactly, I did untar it and I already had a directory called patches.
-> Of course cleaning it up took no time, as fortunately I had no patches with
-> exactly the same name and no series file in the directory above,
-> 
+> Thanks ;) I guess we'll end up with a better kernel, even though you appear
+> to be an innocent victim here.
 
-hmm, I'll replace patches/ with broken-out/ to make those files the same as
-the broken-out.tar.gz from -mm releases.
+The "Badness in iosapic_unregister_intr at arch/ia64/kernel/iosapic.c:851"
+messages are caused by a missing call to free_irq() in the mpt/fusion driver.
+I think that it should go here ... but someone with a clue should verify:
 
+diff --git a/drivers/message/fusion/mptbase.c b/drivers/message/fusion/mptbase.c
+--- a/drivers/message/fusion/mptbase.c
++++ b/drivers/message/fusion/mptbase.c
+@@ -1384,6 +1384,8 @@ mpt_suspend(struct pci_dev *pdev, pm_mes
+ 	/* Clear any lingering interrupt */
+ 	CHIPREG_WRITE32(&ioc->chip->IntStatus, 0);
+ 
++	free_irq(ioc->pci_irq, ioc);
++
+ 	pci_disable_device(pdev);
+ 	pci_set_power_state(pdev, device_state);
+ 
+
+But even this doesn't fix the hang during shutdown :-(
+
+The remaining problem is cause by the order of the calls in sys_reboot:
+
+                device_suspend(PMSG_SUSPEND);
+                device_shutdown();
+
+The call to device_suspend() shuts down the mpt/fusion driver.  But then
+device_shutdown() calls sd_shutdown() which prints:
+
+  Synchronizing SCSI cache for disk sdb
+
+and then calls sd_sync_cache().  Now since we suspended mpt/fusion, this is
+going to go nowhere.
+
+I don't know how to fix this.  Re-ordering the suspend & shutdown just looks
+wrong.
+
+-Tony

@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVG0Ooj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVG0Oq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbVG0Ooj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 10:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbVG0Ooj
+	id S262096AbVG0Oq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 10:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVG0Oq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 10:44:39 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:20206 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261288AbVG0Ooh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 10:44:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=L+tOUtzCe3gGtcHcWae10bT6S/W2aJ8Adjvte0sAq0fxAYzbmFtYeLw2mNsVabKu9cpRfkvOm267ZlF1IiH0JEOjUQGVUXFo7LA8dSUlqFUUdxsEcUJA4K2gyMqdbg+MxMaXEzjj0V8x6QiXSj0QjPaauIQzmLM88bigUlfckLo=
-Message-ID: <88e823ff050727074411651351@mail.gmail.com>
-Date: Wed, 27 Jul 2005 08:44:35 -0600
-From: Brad Davis <enrock@gmail.com>
-Reply-To: Brad Davis <enrock@gmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: US Robotics (Hardware) Modem Not Detected
-In-Reply-To: <20050727145747.A29785@flint.arm.linux.org.uk>
+	Wed, 27 Jul 2005 10:46:58 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:39661 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262096AbVG0Oq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 10:46:56 -0400
+Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050727143843.GB26303@elte.hu>
+References: <1122473595.29823.60.camel@localhost.localdomain>
+	 <20050727141754.GA25356@elte.hu>
+	 <1122474539.29823.68.camel@localhost.localdomain>
+	 <20050727143843.GB26303@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 27 Jul 2005 10:46:31 -0400
+Message-Id: <1122475591.29823.76.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <88e823ff0507270645613b1ca@mail.gmail.com>
-	 <20050727145747.A29785@flint.arm.linux.org.uk>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/27/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> serial8250_init does not contain any such message, so you're not
-> running a mainline kernel, but some patched version.  Are these
-> patches available somewhere?
+On Wed, 2005-07-27 at 16:38 +0200, Ingo Molnar wrote:
 
-I'm compiling from the Ubuntu (based on Debian) sources. I'll either
-download a clean kernel source tonight and try it out or try remove
-the patches to the serial driver and try that.
- 
-> I guess these patches are your problem, and it seems that there's
-> at least one which is completely unnecessary or inappropriate.
+> a fair number of apps assume that there's _at least_ 100 levels of 
+> priorities. The moment you have a custom kernel that offers more than 
+> 100 priorities, there will be apps that assume that there are more than 
+> 100 priority levels, and will break if there are less.
 
-Thanks for the help, I'll post my results.
+That's not the same. The apps on my computer right now should not assume
+that I have 100 priorities.  Since I'm free to work with any kernel that
+I want.  The customers that ask for a custom kernel are also writing
+custom apps for a specific product.  Things can be assumed more since
+the apps are not generic tools that are running on desktops.  In fact,
+some of these apps require special hardware to work (at least a driver
+to imitate the hardware).
 
-Brad
--- 
-enrock@gmail.com
+-- Steve
+
+

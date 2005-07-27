@@ -1,46 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVG0U6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbVG0VAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbVG0U6p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 16:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVG0U4g
+	id S262448AbVG0VAR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 17:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVG0U6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 16:56:36 -0400
-Received: from graphe.net ([209.204.138.32]:63140 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262473AbVG0UzP (ORCPT
+	Wed, 27 Jul 2005 16:58:48 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:5640 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S262448AbVG0U5k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 16:55:15 -0400
-Date: Wed, 27 Jul 2005 13:55:13 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] mm/slab: unexport kmem_cache_alloc_node
-In-Reply-To: <20050727205028.GB3679@stusta.de>
-Message-ID: <Pine.LNX.4.62.0507271351420.20601@graphe.net>
-References: <20050727195107.GC29092@stusta.de> <20050727130355.08a534b7.akpm@osdl.org>
- <Pine.LNX.4.62.0507271317400.12883@graphe.net> <20050727205028.GB3679@stusta.de>
+	Wed, 27 Jul 2005 16:57:40 -0400
+Message-ID: <42E7F53E.9050604@tuxrocks.com>
+Date: Wed, 27 Jul 2005 14:57:34 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Fix up i386 compile after the "i386: clean up user_mode macros"
+ patch
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Jul 2005, Adrian Bunk wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > I fully agree. Drivers will have to use that call in the future in order 
-> > to properly place their control structures. The e1000 in your tree already 
-> > does so and may be compiled as a module. Thus applying this patch will 
-> > break mm.
-> 
-> I don't see e1000 in 2.6.13-rc3-mm2 using it.
+The "i386: clean up user_mode macros" patch that recently went into the
+kernel doesn't know the definition of VM_MASK, so the current -git
+doesn't compile.  This patch includes the header where VM_MASK is defined.
 
-Hmmm. Ok. e1000 only uses kmalloc_node which is based on 
-kmem_cache_alloc_node. However, kmalloc_node will likely become a 
-macro like kmalloc.
+Signed-off-by: Frank Sorenson <frank@tuxrocks.com>
 
-Applying the patch would mean that modules would only be 
-able to use kmalloc_node and not able to allocate node specific memory 
-from one of the slab caches.
+Fix up i386 compile after the "i386: clean up user_mode macros" patch
+
+diff --git a/include/asm-i386/ptrace.h b/include/asm-i386/ptrace.h
+- --- a/include/asm-i386/ptrace.h
++++ b/include/asm-i386/ptrace.h
+@@ -1,8 +1,10 @@
+ #ifndef _I386_PTRACE_H
+ #define _I386_PTRACE_H
+
++#include <asm-i386/vm86.h>
++
+ #define EBX 0
+ #define ECX 1
+ #define EDX 2
+ #define ESI 3
+ #define EDI 4
 
 
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFC5/U+aI0dwg4A47wRAsdOAJ9hzY9aQ0pQTY1QikQ0MzobJzJG7QCeI9C7
+zU+Gyxyp933jK0ahLWDhzq0=
+=90nz
+-----END PGP SIGNATURE-----

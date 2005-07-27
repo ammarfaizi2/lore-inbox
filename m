@@ -1,114 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262411AbVG0Uc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVG0VZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262411AbVG0Uc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 16:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVG0U3z
+	id S262443AbVG0VZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 17:25:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVG0VZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 16:29:55 -0400
-Received: from ms-smtp-03-smtplb.rdc-nyc.rr.com ([24.29.109.7]:14263 "EHLO
-	ms-smtp-03.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id S261366AbVG0U2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 16:28:43 -0400
-Message-ID: <42E7EE54.2080906@temple.edu>
-Date: Wed, 27 Jul 2005 16:28:04 -0400
-From: Nick Sillik <n.sillik@temple.edu>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Sillik <n.sillik@temple.edu>
-CC: linux-kernel@vger.kernel.org, David Borowski <david575@golden.net>
-Subject: Re: drivers/char/speakup/synthlist.h fix -Wundef errors
-References: <42E7EBA9.5070404@temple.edu>
-In-Reply-To: <42E7EBA9.5070404@temple.edu>
-Content-Type: multipart/mixed;
- boundary="------------000807020008080109030707"
+	Wed, 27 Jul 2005 17:25:28 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:24733
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262454AbVG0VZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 17:25:12 -0400
+Date: Wed, 27 Jul 2005 14:24:58 -0700 (PDT)
+Message-Id: <20050727.142458.112852452.davem@davemloft.net>
+To: n.sillik@temple.edu
+Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org
+Subject: Re: [PATCH 2.6.13-rc3-mm2]net/ipv4/netfilter/ip_conntrack_core.c
+ fix -Wundef error
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <42E7F377.9040107@temple.edu>
+References: <42E7F377.9040107@temple.edu>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000807020008080109030707
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Nick Sillik <n.sillik@temple.edu>
+Date: Wed, 27 Jul 2005 16:49:59 -0400
 
-Nick Sillik wrote:
-> This patch should fix a slew of -Wundef errors in the synthlist.h file 
-> used by the speakup driver.
+> Sorry for the resend and previously bad subject line.
 > 
-> Nick Sillik
-> n.sillik@temple.edu
+> This fixes a single -Wundef error in the file
+> net/ipv4/netfilter/ip_conntrack_core.c ,
 
-Or maybe we could just eliminate the CFG_TEST from the file all 
-together.... This patch follows that avenue.
-
---------------000807020008080109030707
-Content-Type: text/plain;
- name="synthlist_wundef.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="synthlist_wundef.patch"
-
-diff -urN a/drivers/char/speakup/synthlist.h b/drivers/char/speakup/synthlist.h
---- a/drivers/char/speakup/synthlist.h	2005-07-27 16:10:04.000000000 -0400
-+++ b/drivers/char/speakup/synthlist.h	2005-07-27 16:24:02.000000000 -0400
-@@ -7,46 +7,45 @@
- /* declare extern built in synths */
- #define SYNTH_DECL(who) extern struct spk_synth synth_##who;
- #define PASS2
--#define  CFG_TEST(name) (name)
- #endif
- 
--#if CFG_TEST(CONFIG_SPEAKUP_ACNTPC)
-+#ifdef CONFIG_SPEAKUP_ACNTPC
- SYNTH_DECL(acntpc)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_ACNTSA)
-+#ifdef CONFIG_SPEAKUP_ACNTSA
- SYNTH_DECL(acntsa)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_APOLLO)
-+#ifdef CONFIG_SPEAKUP_APOLLO
- SYNTH_DECL(apollo)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_AUDPTR)
-+#ifdef CONFIG_SPEAKUP_AUDPTR
- SYNTH_DECL(audptr)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_BNS)
-+#ifdef CONFIG_SPEAKUP_BNS
- SYNTH_DECL(bns)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_DECEXT)
-+#ifdef CONFIG_SPEAKUP_DECEXT
- SYNTH_DECL(decext)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_DECTLK)
-+#ifdef CONFIG_SPEAKUP_DECTLK
- SYNTH_DECL(dectlk)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_DTLK)
-+#ifdef CONFIG_SPEAKUP_DTLK
- SYNTH_DECL(dtlk)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_KEYPC)
-+#ifdef CONFIG_SPEAKUP_KEYPC
- SYNTH_DECL(keypc)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_LTLK)
-+#ifdef CONFIG_SPEAKUP_LTLK
- SYNTH_DECL(ltlk)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_SFTSYN)
-+#ifdef CONFIG_SPEAKUP_SFTSYN
- SYNTH_DECL(sftsyn)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_SPKOUT)
-+#ifdef CONFIG_SPEAKUP_SPKOUT
- SYNTH_DECL(spkout)
- #endif
--#if CFG_TEST(CONFIG_SPEAKUP_TXPRT)
-+#ifdef CONFIG_SPEAKUP_TXPRT
- SYNTH_DECL(txprt)
- #endif
- 
-
---------------000807020008080109030707--
+Please supply a proper Signed-off-by: line with your
+patch.

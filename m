@@ -1,74 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVG0PaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVG0PcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVG0PaK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 11:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVG0PaK
+	id S262340AbVG0PcU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 11:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVG0PcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 11:30:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33461 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261253AbVG0PaH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 11:30:07 -0400
-Date: Wed, 27 Jul 2005 08:29:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: tglx@linutronix.de, Git Mailing List <git@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux BKCVS kernel history git import..
-In-Reply-To: <1122457238.3027.37.camel@baythorne.infradead.org>
-Message-ID: <Pine.LNX.4.58.0507270819550.3227@g5.osdl.org>
-References: <Pine.LNX.4.58.0507261136280.19309@g5.osdl.org>
- <1122457238.3027.37.camel@baythorne.infradead.org>
+	Wed, 27 Jul 2005 11:32:19 -0400
+Received: from pop-scotia.atl.sa.earthlink.net ([207.69.195.65]:60551 "EHLO
+	pop-scotia.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S262388AbVG0Pbh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 11:31:37 -0400
+Message-ID: <42E7A8D8.1030809@earthlink.net>
+Date: Wed, 27 Jul 2005 11:31:36 -0400
+From: Stephen Clark <stephen.clark@earthlink.net>
+Reply-To: sclark46@earthlink.net
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12 sound problem
+References: <42E6C8DB.4090608@earthlink.net> <s5hr7dklko4.wl%tiwai@suse.de>
+In-Reply-To: <s5hr7dklko4.wl%tiwai@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Takashi Iwai wrote:
 
+>At Tue, 26 Jul 2005 19:35:55 -0400,
+>Stephen Clark wrote:
+>  
+>
+>>Hello List,
+>>
+>>
+>>I recently upgraded my laptop, HP Pavilion N5430, from a 2.4.21 kernel
+>>to 2.6.12. As a result of
+>>doing this my sound no longer works correctly. It plays the same thing
+>>repeatedly some number
+>>of times - if it plays at all.
+>>
+>>Any ideas on how to debug this would be appreciated.
+>>
+>>Additional info I don't see any interrupts in /proc/interrupts for the
+>>Allegro which is on int 5.
+>>I just tried the same laptop with knoppix and a 2.4.27 kernel and sound
+>>works great and I do
+>>see interrupts for Allegro on int 5.
+>>    
+>>
+>
+>The irq problem is likely related with ACPI.
+>Try to boot once with pci=noacpi.
+>
+>
+>Takashi
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Hi Takashi,
 
-On Wed, 27 Jul 2005, David Woodhouse wrote:
+I have boot the 2.6.12 kernel with acpi=off pci=noacpi,usepirqmask or I
+get a panic or a hang.
 
-> On Tue, 2005-07-26 at 11:57 -0700, Linus Torvalds wrote:
-> > If somebody adds some logic to "parse_commit()" to do the "fake parent"
-> > thing, you can stitch the histories together and see the end result as one
-> > big tree. Even without that, you can already do things like
-> > 
-> >         git diff v2.6.10..v2.6.12
-> 
-> That's a bit of a hack which really doesn't belong in the git tools.
+I don't have to do this with 2.4.27, anybody know why?
 
-Actually, it's not a hack at all. It's very fundamentally how git works: 
-you give it two trees that it knows about, and it will show the 
-differences between them - regardless of whether they share any common 
-ancestry or not.
+Steve
 
-> It's not particularly hard to reparent the tree for real -- I'd much
-> rather see a tool added to git which can _actually_ change the
-> 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 commit to have a parent of
-> 0bcc493c633d78373d3fcf9efc29d6a710637519, and ripple the corresponding
-> SHA1 changes up to the current HEAD.
-
-I used to think I wanted to, but these days I really don't. One of the
-reasons is that I expect to try to pretty up the old bkcvs conversion some
-time: use the name translation from the old "shortlog" scripts etc, and
-see if I can do some other improvements on the conversion (I think I'll
-remove the BK files - "ChangeSet" etc).
-
-And it's really much easier and more general to have a "graft" facility.  
-It's something that git can do trivially (literally a hook in
-"parse_commit" to add a special parent), and it's actually a generic
-mechanism exactly for issues like this ("project had old history in some
-other format").
-
-Somebody already asked for having the import history for old historic 
-patches - which we _do_ actually have as patches, but which obviously 
-don't have any changelogs except for the version information. Most people 
-may not want that, but the thing is, with a "graft" facility, the people 
-who _do_ want that can easily see it all, and it is totally seamless.
-
-So it's not even a one-time hack - it's a real feature that just in the 
-kernel would have several cases we'd be able to use it for, and the same 
-is likely true for almost any other project that wasn't started purely 
-from git..
-
-		Linus

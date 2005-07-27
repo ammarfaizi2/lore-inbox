@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbVG0V2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVG0Wh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbVG0V2G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 17:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVG0VZk
+	id S261161AbVG0Wh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 18:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVG0WfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 17:25:40 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63916 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262447AbVG0VX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 17:23:26 -0400
-Date: Wed, 27 Jul 2005 23:18:49 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Cc: Len Brown <len.brown@intel.com>, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] Re: ACPI buttons in 2.6.12-rc4-mm2
-Message-ID: <20050727211849.GC708@openzaurus.ucw.cz>
-References: <b6d0f5fb0505220425146d481a@mail.gmail.com> <b6d0f5fb0505220425146d481a@mail.gmail.com> <1122407079.13241.4.camel@toshiba.lenb.intel.com> <E1DxVWb-0002Sx-00@chiark.greenend.org.uk>
+	Wed, 27 Jul 2005 18:35:13 -0400
+Received: from main.gmane.org ([80.91.229.2]:6624 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261161AbVG0Weo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 18:34:44 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Alexander Fieroch <fieroch@web.de>
+Subject: driver for Marvell 88E8053 PCI Express Gigabit LAN
+Date: Thu, 28 Jul 2005 00:34:09 +0200
+Message-ID: <dc9252$tgr$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DxVWb-0002Sx-00@chiark.greenend.org.uk>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
+X-Accept-Language: de-de, en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-> Len Brown <len.brown@intel.com> wrote:
-> 
-> > I deleted /proc/acpi/button on purpose,
-> > did you have a use for those files?
-> 
-> There are various cases where it's useful to know whether a laptop is
-> shut or not, and /proc/acpi/button seems to be the only place where that
-> information is made available at the moment.
-> 
+there are GPL driver for the Marvell 88E8053 GLAN:
 
-Unless it was in obsolete-feature-removal file for a year.... changing userspace
-interface is bad idea in the middle of stable series.
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+http://dlsvr01.asus.com/pub/ASUS/lan/marvell/8053/8053_others2.zip
+
+The problem is that they are not compiling with the current kernel. 
+Could you please adapt and integrate the drivers to the current kernel?
+
+Thanks & regards,
+Alexander
 

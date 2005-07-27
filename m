@@ -1,72 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVG0V2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVG0VlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbVG0V2J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 17:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbVG0VXG
+	id S261222AbVG0VlY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 17:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVG0VlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 17:23:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63912 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262183AbVG0VU6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 17:20:58 -0400
-Date: Wed, 27 Jul 2005 14:16:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm2 doesn't boot
-Message-Id: <20050727141646.1852a505.akpm@osdl.org>
-In-Reply-To: <20050727203527.GA3679@stusta.de>
-References: <20050727024330.78ee32c2.akpm@osdl.org>
-	<20050727203527.GA3679@stusta.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Jul 2005 17:41:18 -0400
+Received: from ms-smtp-01-smtplb.rdc-nyc.rr.com ([24.29.109.5]:6126 "EHLO
+	ms-smtp-01.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S261222AbVG0VjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 17:39:15 -0400
+Message-ID: <42E7FED7.6070609@temple.edu>
+Date: Wed, 27 Jul 2005 17:38:31 -0400
+From: Nick Sillik <n.sillik@temple.edu>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: linux-kernel@vger.kernel.org, coreteam@netfilter.org
+Subject: Re: [PATCH 2.6.13-rc3-mm2]net/ipv4/netfilter/ip_conntrack_core.c
+ fix -Wundef error
+References: <42E7F377.9040107@temple.edu> <20050727.142458.112852452.davem@davemloft.net>
+In-Reply-To: <20050727.142458.112852452.davem@davemloft.net>
+Content-Type: multipart/mixed;
+ boundary="------------050604050609040309090500"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
->  2.6.13-rc3-mm2 doesn't boot on my computer:
->    Badness in nr_blockdev_pages at fs/block_dev.c:399
->    ...
->    kmem_cache_create: Early error in slab inet_peer_cache
-> 
->  A screenshot is available at [1].
-> 
->  My .config is attached.
-> 
->  2.6.13-rc3-mm1 boots and works without problems.
-> 
->  cu
->  Adrian
-> 
->  [1] http://www.fs.tum.de/~bunk/kernel/boot_failure.jpg
+This is a multi-part message in MIME format.
+--------------050604050609040309090500
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I'd be suspecting there's been a huge preempt_count() windup and the kernel
-thinks that it's running in_interrupt(), so various checks are triggering.
+Apologies
 
-Please try this one:
+Signed-off-by: Nick Sillik <n.sillik@temple.edu>
 
---- devel/net/netlink/af_netlink.c~netlink-locking-fix	2005-07-27 14:10:07.000000000 -0700
-+++ devel-akpm/net/netlink/af_netlink.c	2005-07-27 14:10:16.000000000 -0700
-@@ -349,12 +349,12 @@ static int netlink_create(struct socket 
- 
- 	netlink_table_grab();
- 	if (!nl_table[protocol].hash.entries) {
--		netlink_table_ungrab();
- #ifdef CONFIG_KMOD
- 		/* We do 'best effort'.  If we find a matching module,
- 		 * it is loaded.  If not, we don't return an error to
- 		 * allow pure userspace<->userspace communication. -HW
- 		 */
-+		netlink_table_ungrab();
- 		request_module("net-pf-%d-proto-%d", PF_NETLINK, protocol);
- 		netlink_table_grab();
+David S. Miller wrote:
+> From: Nick Sillik <n.sillik@temple.edu>
+> Date: Wed, 27 Jul 2005 16:49:59 -0400
+> 
+> 
+>>Sorry for the resend and previously bad subject line.
+>>
+>>This fixes a single -Wundef error in the file
+>>net/ipv4/netfilter/ip_conntrack_core.c ,
+> 
+> 
+> Please supply a proper Signed-off-by: line with your
+> patch.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+--------------050604050609040309090500
+Content-Type: text/plain;
+ name="ipconntrack_wundef.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipconntrack_wundef.patch"
+
+diff -urN a/net/ipv4/netfilter/ip_conntrack_core.c b/net/ipv4/netfilter/ip_conntrack_core.c
+--- a/net/ipv4/netfilter/ip_conntrack_core.c	2005-07-27 16:40:16.000000000 -0400
++++ b/net/ipv4/netfilter/ip_conntrack_core.c	2005-07-27 16:41:00.000000000 -0400
+@@ -723,7 +723,7 @@
+ 		/* Welcome, Mr. Bond.  We've been expecting you... */
+ 		__set_bit(IPS_EXPECTED_BIT, &conntrack->status);
+ 		conntrack->master = exp->master;
+-#if CONFIG_IP_NF_CONNTRACK_MARK
++#ifdef CONFIG_IP_NF_CONNTRACK_MARK
+ 		conntrack->mark = exp->master->mark;
  #endif
-_
+ 		nf_conntrack_get(&conntrack->master->ct_general);
 
-
-And if that doesn't fix, enable CONFIG_DEBUG_PREEMPT and see if the
-sub_preempt_count() check triggers.
-
+--------------050604050609040309090500--

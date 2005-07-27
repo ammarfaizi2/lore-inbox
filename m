@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbVG0BvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVG0CAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262346AbVG0BvD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 21:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVG0BvD
+	id S261964AbVG0CAm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 22:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVG0CAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 21:51:03 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:24036 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262346AbVG0BvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 21:51:01 -0400
-Subject: Re: Question re the dot releases such as 2.6.12.3
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Kurt Wall <kwall@kurtwerks.com>
-Cc: webmaster@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050727012853.GA2354@kurtwerks.com>
-References: <200507251020.08894.gene.heskett@verizon.net>
-	 <42E51593.7070902@didntduck.org>  <20050727012853.GA2354@kurtwerks.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 26 Jul 2005 21:50:50 -0400
-Message-Id: <1122429050.29823.44.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 26 Jul 2005 22:00:42 -0400
+Received: from siaag2af.compuserve.com ([149.174.40.136]:2450 "EHLO
+	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
+	id S261964AbVG0CAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 22:00:39 -0400
+Date: Tue, 26 Jul 2005 21:57:24 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.13-rc3] i386: clean up user_mode macros
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200507262159_MC3-1-A5A2-A862@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-07-26 at 21:28 -0400, Kurt Wall wrote:
-> On Mon, Jul 25, 2005 at 12:38:43PM -0400, Brian Gerst took 21 lines to write:
-> > Gene Heskett wrote:
-> > >Greetings;
-> > >
-> > >I just built what I thought was 2.6.12.3, but my script got a tummy 
-> > >ache because I didn't check the Makefile's EXTRA_VERSION, which was 
-> > >set to .2 in the .2 patch.  Now my 2.6.12 modules will need a refresh 
-> > >build. :(
-> > >
-> > >So whats the proper patching sequence to build a 2.6.12.3?
-> > >
+On Mon, 25 Jul 2005 at 16:13:13 -0700 (PDT), Linus Torvalds wrote:
+
+> On Mon, 25 Jul 2005, Chuck Ebbert wrote:
 > > 
-> > The dot-release patches are not incremental.  You apply each one to the 
-> > base 2.6.12 tree.
+> > Recent patches from the Xen group changed the X86 user_mode macros.
+> > 
+> > This patch does the following:
+> > 
+> >         1. Makes the new user_mode() return 0 or 1 (same as x86_64)
+>
+> I _really_ prefer
 > 
-> This bit me a while back, too. I'll submit a patch to the top-level
-> README to spell it out.
-
-Someone should also fix the home page of kernel.org. Since there's no
-link on that page that points to the full 2.6.12. Since a lot of the
-patches on that page go directly against the 2.6.12 kernel and not
-2.6.12.3, it would be nice to get the full source of that kernel from
-the home page.
-
-If I want to incremently build the 2.6.13-rc3-mm1, would I need to
-download the 2.6.12 tar ball, followed by the 2.6.13-rc3 patch and then
-the 2.6.13-rc3-mm1 patch and apply them that way?  If so, I can get all
-the patches but the starting point.  Yes I could also download the full
-version of any of these, but it still seems to make sense to include the
-starting point of the patches on the home page.
-
-Just a thought,
-
--- Steve
+>       x != 0
+> 
+> over 
+> 
+>       !!x
 
 
+  Take 2:  compile tested only.
+
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+===================================================================
+--- 2.6.13-rc3.orig/include/asm-i386/ptrace.h
++++ 2.6.13-rc3/include/asm-i386/ptrace.h
+@@ -57,14 +57,21 @@
+ #ifdef __KERNEL__
+ struct task_struct;
+ extern void send_sigtrap(struct task_struct *tsk, struct pt_regs *regs, int error_code);
+-#define user_mode(regs)		(3 & (regs)->xcs)
+-#define user_mode_vm(regs)	((VM_MASK & (regs)->eflags) || user_mode(regs))
++
++static inline int user_mode(struct pt_regs *regs)
++{
++	return (regs->xcs & 3) != 0;
++}
++static inline int user_mode_vm(struct pt_regs *regs)
++{
++	return ((regs->xcs & 3) | (regs->eflags & VM_MASK)) != 0;
++}
+ #define instruction_pointer(regs) ((regs)->eip)
+ #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
+ extern unsigned long profile_pc(struct pt_regs *regs);
+ #else
+ #define profile_pc(regs) instruction_pointer(regs)
+ #endif
+-#endif
++#endif /* __KERNEL__ */
+ 
+ #endif
+__
+Chuck

@@ -1,98 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262260AbVG0OZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVG0O1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262260AbVG0OZY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 10:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVG0OZR
+	id S262276AbVG0O1T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 10:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVG0O1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 10:25:17 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:39546 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262260AbVG0OZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 10:25:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.br;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:References:In-Reply-To:X-Enigmail-Version:X-Enigmail-Supports:Content-Type:Content-Transfer-Encoding;
-  b=jOO8ISjCetprpDtwoBlIn8iQSC3ibCvKEdK40JqPJsKUuO4df5DRnsdEQx3gJmQDxVg+8IZJWDRM9WYsEu3yUoZl0Ybgf7wWtpQcx+TyStkl/xY8senQqunNMeJigcJ1qldriqk2XD1S7r2E4KtGRMdlFCVHw4jxOXpp5Pvk+eo=  ;
-Message-ID: <42E7A153.6060307@yahoo.com.br>
-Date: Wed, 27 Jul 2005 11:59:31 -0300
-From: "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: "seeing minute plus hangs during boot" - 2.6.12 and 2.6.13
-References: <20050722182848.8028.qmail@web60715.mail.yahoo.com>	<105c793f05072507426fb6d4c9@mail.gmail.com>	<42E59E0E.5030306@yahoo.com.br> <20050726003322.1bfe17ee.akpm@osdl.org>
-In-Reply-To: <20050726003322.1bfe17ee.akpm@osdl.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 27 Jul 2005 10:27:18 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:19099 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262276AbVG0O0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 10:26:45 -0400
+Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050727141754.GA25356@elte.hu>
+References: <1122473595.29823.60.camel@localhost.localdomain>
+	 <20050727141754.GA25356@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 27 Jul 2005 10:26:35 -0400
+Message-Id: <1122474396.29823.65.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Andrew Morton wrote:
-> "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br> wrote:
+On Wed, 2005-07-27 at 16:17 +0200, Ingo Molnar wrote:
+> i'd not do this patch, mainly because the '100 priority levels' thing is 
+> pretty much an assumption in lots of userspace code. The patch to make 
+> it easier to redefine it is of course fine and was accepted, but i dont 
+> think we want to make it explicit via .config.
 > 
->>Indeed udev update solved my problem with "preparing system to use udev"
->> hang. It now works like a charm. I had 030 version too.
->>
->> Only the "mounting filesystem" hangs persists :(
+> It's a bit like with the 3:1 split: you can redefine it easily via 
+> include files, but it's not configurable via .config, because many 
+> people would just play with it and would see things break.
 > 
-> 
-> Please use ALT-SYSRQ-T to generate an all-task backtrace, then send it to the
-> list.
-> 
+> so unless there's really a desire from distributions to actually change 
+> the 100 RT-prio levels (and i dont sense such a desire), we shouldnt do 
+> this.
+
+Perfectly understood.  I've had two customers ask me to increase the
+priorities for them, but those where custom kernels, and a config option
+wasn't necessary. But since I've had customers asking, I thought that
+this might be something that others want.  But I deal with a niche
+market, and what my customers want might not be what everyone wants.
+(hence the RFC in the subject).
+
+So if there are others out there that would prefer to change their
+priority ranges,  speak now otherwise this patch will go by the waste
+side.
+
+-- Steve
 
 
-Hi Andrew.
-I was not able to get anything when I press this key sequence.
-
-I checked my sysrq key with showkey -s as this doc
-(http://snafu.freedom.org/linux2.2/docs/sysrq.txt) says and I could
-confirm that alt+sysrq is sending 0x54.
-
-I also noted that many said that this option has to be compiled in
-kernel, but I couldn't find this option.
-
-Can you give me some tips?
-
-Thanks in advance.
-
-
-- --
-Regards,
-
-Francisco Figueiredo Jr.
-Npgsql Lead Developer
-http://gborg.postgresql.org/project/npgsql
-MonoBrasil Project Founder Member
-http://monobrasil.softwarelivre.org
-
-
-- -------------
-"Science without religion is lame;
-religion without science is blind."
-
-                  ~ Albert Einstein
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQEVAwUBQuehU/7iFmsNzeXfAQJbwAgAnlu+IG3R1N5lgcs0lMMbXEx98HQ4uFGe
-XucX6so0ncZh8n0Y0jSpBJNniFtdY0WCV8ferUrYjYiflgP+0LtWbW398yjicJ2P
-wvRoVplzLH3L5/cIPd5HzFjhBzwKAcveMJrwcV6TZmCH/cCzd13MhrhpkcqunWez
-9RG30xffKTeOyleqbsceTeGmge+tvNw07knU0jcyuo9Fa7n9FD4yMoxabk0BibZM
-TL001SqqtUKSeyog9kG80Ub6AeAYSVQtD5HV4/AQVXPxyG0SN0X18Umf2EF1X7Px
-m1v2yMeTmhtgpXzwRCgg+TkS7y/RbOfBHhoUliYvuqFSLFSey9g7SA==
-=cpAL
------END PGP SIGNATURE-----
-
-	
-	
-		
-_______________________________________________________ 
-Yahoo! Acesso Grátis - Internet rápida e grátis. 
-Instale o discador agora! http://br.acesso.yahoo.com/

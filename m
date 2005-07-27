@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVG0DZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVG0Dbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVG0DZG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Jul 2005 23:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVG0DZF
+	id S262047AbVG0Dbu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Jul 2005 23:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVG0Dbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Jul 2005 23:25:05 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:32932 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262069AbVG0DZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Jul 2005 23:25:03 -0400
-Date: Tue, 26 Jul 2005 23:25:02 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Question re the dot releases such as 2.6.12.3
-In-reply-to: <1122429050.29823.44.camel@localhost.localdomain>
-To: linux-kernel@vger.kernel.org
-Message-id: <200507262325.02186.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200507251020.08894.gene.heskett@verizon.net>
- <20050727012853.GA2354@kurtwerks.com>
- <1122429050.29823.44.camel@localhost.localdomain>
-User-Agent: KMail/1.7
+	Tue, 26 Jul 2005 23:31:50 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:14274 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S262047AbVG0Dbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Jul 2005 23:31:49 -0400
+From: Grant Coady <lkml@dodo.com.au>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Weird USB errors on HD
+Date: Wed, 27 Jul 2005 13:31:44 +1000
+Organization: www.scatter.mine.nu
+Reply-To: lkml@dodo.com.au
+Message-ID: <rkvde1dchs07uar897vtu2vriv0b3p8q5p@4ax.com>
+References: <4s3BX-8X-7@gated-at.bofh.it> <4s66H-2ai-21@gated-at.bofh.it> <4s66H-2ai-19@gated-at.bofh.it> <42E6F2A2.7060405@shaw.ca>
+In-Reply-To: <42E6F2A2.7060405@shaw.ca>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 July 2005 21:50, Steven Rostedt wrote:
->On Tue, 2005-07-26 at 21:28 -0400, Kurt Wall wrote:
->> On Mon, Jul 25, 2005 at 12:38:43PM -0400, Brian Gerst took 21 lines 
-to write:
->> > Gene Heskett wrote:
->> > >Greetings;
->> > >
->> > >I just built what I thought was 2.6.12.3, but my script got a
->> > > tummy ache because I didn't check the Makefile's
->> > > EXTRA_VERSION, which was set to .2 in the .2 patch.  Now my
->> > > 2.6.12 modules will need a refresh build. :(
->> > >
->> > >So whats the proper patching sequence to build a 2.6.12.3?
->> >
->> > The dot-release patches are not incremental.  You apply each one
->> > to the base 2.6.12 tree.
->>
->> This bit me a while back, too. I'll submit a patch to the
->> top-level README to spell it out.
->
->Someone should also fix the home page of kernel.org. Since there's
-> no link on that page that points to the full 2.6.12. Since a lot of
-> the patches on that page go directly against the 2.6.12 kernel and
-> not 2.6.12.3, it would be nice to get the full source of that
-> kernel from the home page.
->
-Apparently you are useing a browser to suck that stuff?  Use gftp and 
-walk right up the dir structure to it.  Its not hidden at all that 
-way.
+On Tue, 26 Jul 2005 20:34:10 -0600, Robert Hancock <hancockr@shaw.ca> wrote:
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+>Karim Yaghmour wrote:
+>> That being said, shouldn't there be a way for the kernel to refuse to
+>> use this hd if it's not getting enough power. I don't know enough about
+>> USB to say, but isn't there something more elegant that could be done in
+>> software?
+>
+>Not really.. It seems like pretty much a matter of the controller saying 
+>  it can supply so much power, the drive says it uses so much power, but 
+>one of them is lying and the drive ends up tripping the overcurrent.
+
+The drive itself may shutdown until power cycled.  I sorted this issue 
+some months ago with a 2.5" 6GB drive in USB enclosure and the fix was 
+hardware, adding bypass capacitors to supply peak HDD current.  Software 
+cannot fix that.  No dataloss, just apparent lockup from OS point of view.
+
+Drive fails to work on one laptop with a single USB port, but asking for 
+700mA from a 500mA USB port is too much, needs external 5V instead.
+
+Grant.
+

@@ -1,83 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVG0WvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVG0WvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVG0WvN (ORCPT <rfc822;willy@w.ods.org>);
+	id S261208AbVG0WvN (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 27 Jul 2005 18:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVG0WtP
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVG0WtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 18:49:15 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:22447 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S261215AbVG0WrX (ORCPT
+	Wed, 27 Jul 2005 18:49:20 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65233 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261212AbVG0WrW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 18:47:23 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Russell King <rmk+serial@arm.linux.org.uk>, linux-serial@vger.kernel.org
-Subject: [PATCH] SERIAL: add MMIO support to 8250_pnp
-Date: Wed, 27 Jul 2005 16:47:12 -0600
-User-Agent: KMail/1.8.1
-Cc: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Jul 2005 18:47:22 -0400
+Date: Thu, 28 Jul 2005 00:47:11 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/23] reboot-fixes
+Message-ID: <20050727224711.GA6671@elf.ucw.cz>
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com> <20050727025923.7baa38c9.akpm@osdl.org> <m1k6jc9sdr.fsf@ebiederm.dsl.xmission.com> <20050727104123.7938477a.akpm@osdl.org> <m18xzs9ktc.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507271647.12882.bjorn.helgaas@hp.com>
+In-Reply-To: <m18xzs9ktc.fsf@ebiederm.dsl.xmission.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for UARTs in MMIO space and clean up a little whitespace.
+Hi!
 
-HP legacy-free ia64 machines need this.
+> >>  > My fairly ordinary x86 test box gets stuck during reboot on the
+> >>  > wait_for_completion() in ide_do_drive_cmd():
+> >> 
+> >>  Hmm. The only thing I can think of is someone started adding calls
+> >>  to device_suspend() before device_shutdown().  Not understanding
+> >>  where it was a good idea I made certain the calls were in there
+> >>  consistently.  
+> >> 
+> >>  Andrew can you remove the call to device_suspend from kernel_restart
+> >>  and see if this still happens?
+> >
+> > yup, that fixes it.
+> >
+> > --- devel/kernel/sys.c~a	2005-07-27 10:36:06.000000000 -0700
+> > +++ devel-akpm/kernel/sys.c	2005-07-27 10:36:26.000000000 -0700
+> > @@ -371,7 +371,6 @@ void kernel_restart(char *cmd)
+> >  {
+> >  	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, cmd);
+> >  	system_state = SYSTEM_RESTART;
+> > -	device_suspend(PMSG_FREEZE);
+> >  	device_shutdown();
+> >  	if (!cmd) {
+> >  		printk(KERN_EMERG "Restarting system.\n");
+> > _
+> >
+> >
+> > Presumably it unfixes Pavel's patch?
+> 
+> Good question.  I'm not certain if Pavel intended to add
+> device_suspend(PMSG_FREEZE) to the reboot path.  It was
+> there in only one instance.  Pavel comments talk only about
+> the suspend path.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Yes, I think we should do device_suspend(PMSG_FREEZE) in reboot path.
 
-Index: work/drivers/serial/8250_pnp.c
-===================================================================
---- work.orig/drivers/serial/8250_pnp.c	2005-07-27 09:57:10.000000000 -0600
-+++ work/drivers/serial/8250_pnp.c	2005-07-27 10:07:09.000000000 -0600
-@@ -394,7 +394,7 @@
- }
- 
- static int __devinit
--serial_pnp_probe(struct pnp_dev * dev, const struct pnp_device_id *dev_id)
-+serial_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *dev_id)
- {
- 	struct uart_port port;
- 	int ret, line, flags = dev_id->driver_data;
-@@ -406,15 +406,23 @@
- 	}
- 
- 	memset(&port, 0, sizeof(struct uart_port));
--	port.irq = pnp_irq(dev,0);
--	port.iobase = pnp_port_start(dev, 0);
-+	port.irq = pnp_irq(dev, 0);
-+	if (pnp_port_valid(dev, 0)) {
-+		port.iobase = pnp_port_start(dev, 0);
-+		port.iotype = UPIO_PORT;
-+	} else if (pnp_mem_valid(dev, 0)) {
-+		port.mapbase = pnp_mem_start(dev, 0);
-+		port.iotype = UPIO_MEM;
-+		port.flags = UPF_IOREMAP;
-+	} else
-+		return -ENODEV;
- 
- #ifdef SERIAL_DEBUG_PNP
--	printk("Setup PNP port: port %x, irq %d, type %d\n",
--	       port.iobase, port.irq, port.iotype);
-+	printk("Setup PNP port: port %x, mem 0x%lx, irq %d, type %d\n",
-+	       port.iobase, port.mapbase, port.irq, port.iotype);
- #endif
- 
--	port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF;
-+	port.flags |= UPF_SKIP_TEST | UPF_BOOT_AUTOCONF;
- 	port.uartclk = 1843200;
- 	port.dev = &dev->dev;
- 
-@@ -426,7 +434,7 @@
- 
- }
- 
--static void __devexit serial_pnp_remove(struct pnp_dev * dev)
-+static void __devexit serial_pnp_remove(struct pnp_dev *dev)
- {
- 	long line = (long)pnp_get_drvdata(dev);
- 	if (line)
+> My gut feel is the device_suspend calls are the right direction
+> as it allows us to remove code from the drivers and possible
+> kill device_shutdown completely. 
+> 
+> But this close to 2.6.13 I'm not certain what the correct solution
+> is.  With this we have had issues with both ide and the e1000.
+> But those are among the few drivers that do anything in either
+> device_shutdown() or the reboot_notifier.
+..
+> Looking at it more closely the code is confusing because
+> FREEZE and SUSPEND are actually the same message, and in
+> addition to what shutdown does they place the device in
+
+Not in -mm; I was finally able to fix that one.
+
+> My gut feel is that device_suspend(PMSG_FREEZE) should be
+> removed from kernel_restart until is a different message
+> from PMSG_SUSPEND at which point it should be equivalent
+> to device_shutdown and we can remove that case.
+
+PMSG_FREEZE != PMSG_SUSPEND in current -mm, but I'm not sure if we can
+push that to 2.6.13...
+							Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

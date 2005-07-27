@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVG0TyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVG0T6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262043AbVG0TyP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 15:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVG0Tw0
+	id S262141AbVG0T6s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 15:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbVG0T4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 15:52:26 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25097 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262043AbVG0TvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 15:51:11 -0400
-Date: Wed, 27 Jul 2005 21:51:00 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jgarzik@pobox.com, jkmaline@cc.hut.fi, hostap@shmoo.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [-mm patch] include/net/ieee80211.h must #include <linux/wireless.h>
-Message-ID: <20050727195100.GA29092@stusta.de>
+	Wed, 27 Jul 2005 15:56:43 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:39608 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262150AbVG0Tym
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 15:54:42 -0400
+Date: Wed, 27 Jul 2005 14:54:56 -0500
+From: serue@us.ibm.com
+To: James Morris <jmorris@redhat.com>
+Cc: serue@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton <akpm@osdl.org>, Michael Halcrow <mhalcrow@us.ibm.com>
+Subject: Re: [patch 0/15] lsm stacking v0.3: intro
+Message-ID: <20050727195456.GC23040@serge.austin.ibm.com>
+References: <20050727181732.GA22483@serge.austin.ibm.com> <Lynx.SEL.4.62.0507271527390.1844@thoron.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Lynx.SEL.4.62.0507271527390.1844@thoron.boston.redhat.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc found an (although perhaps harmless) bug:
+Thanks, James.  I'll give this a shot and send out performance results
+this weekend or next week.
 
-<--  snip  -->
+thanks,
+-serge
 
-...
-  CC      net/ieee80211/ieee80211_crypt.o
-In file included from net/ieee80211/ieee80211_crypt.c:21:
-include/net/ieee80211.h:26:5: warning: "WIRELESS_EXT" is not defined
-  CC      net/ieee80211/ieee80211_crypt_wep.o
-In file included from net/ieee80211/ieee80211_crypt_wep.c:20:
-include/net/ieee80211.h:26:5: warning: "WIRELESS_EXT" is not defined
-  CC      net/ieee80211/ieee80211_crypt_ccmp.o
-  CC      net/ieee80211/ieee80211_crypt_tkip.o
-In file included from net/ieee80211/ieee80211_crypt_tkip.c:23:
-include/net/ieee80211.h:26:5: warning: "WIRELESS_EXT" is not defined
-...
-
-<--  snip  -->
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was already sent on:
-- 22 Jul 2005
-
---- linux-2.6.13-rc3-mm1-full/include/net/ieee80211.h.old	2005-07-22 18:37:57.000000000 +0200
-+++ linux-2.6.13-rc3-mm1-full/include/net/ieee80211.h	2005-07-22 18:38:10.000000000 +0200
-@@ -22,6 +22,7 @@
- #define IEEE80211_H
- #include <linux/if_ether.h> /* ETH_ALEN */
- #include <linux/kernel.h>   /* ARRAY_SIZE */
-+#include <linux/wireless.h>
- 
- #if WIRELESS_EXT < 17
- #define IW_QUAL_QUAL_INVALID   0x10
-
+Quoting James Morris (jmorris@redhat.com):
+> On Wed, 27 Jul 2005 serue@us.ibm.com wrote:
+> 
+> > if interested in the performance results.  I am certainly interested in
+> > ways to further speed up security_get_value.
+> 
+> What about having a small static array of security blob pointers for the 
+> common case (e.g. SELinux + capabilities + perhaps something else), the 
+> total number of which is compile-time configurable.  Reserve one pointer 
+> at the end for the hlist.
+> 
+> When a module registers with stacker, if there's room in the array, it 
+> reserves a slot for the module.  This slot value can be stored by stacker 
+> in a handle held by the module (along with the stacker ID etc. perhaps).
+> 
+> Calls to security_get_value() etc. can then be very fast and simple for 
+> the common case, where the security blob is a pointer offset by an index 
+> in a small array.  The arbitrarily sized hlist would then be a fallback 
+> with a higher performance hit.
+> 
+> 
+> - James
+> -- 
+> James Morris
+> <jmorris@redhat.com>
+> 
+> 

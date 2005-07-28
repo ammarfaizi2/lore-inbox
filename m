@@ -1,47 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVG1RVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVG1R2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVG1RVb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 13:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVG1RTC
+	id S261913AbVG1R2f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 13:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVG1R01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 13:19:02 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48332 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261756AbVG1RSP (ORCPT
+	Thu, 28 Jul 2005 13:26:27 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:54182 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S261757AbVG1RZO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 13:18:15 -0400
-Date: Thu, 28 Jul 2005 10:17:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-cc: Steven Rostedt <rostedt@goodmis.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [PATCH] speed up on find_first_bit for i386 (let compiler do
- the work)
-In-Reply-To: <Pine.LNX.4.61L.0507281725010.31805@blysk.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.58.0507281017130.3227@g5.osdl.org>
-References: <1122473595.29823.60.camel@localhost.localdomain> 
- <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
- <1122513928.29823.150.camel@localhost.localdomain> 
- <1122519999.29823.165.camel@localhost.localdomain> 
- <1122521538.29823.177.camel@localhost.localdomain> 
- <1122522328.29823.186.camel@localhost.localdomain>  <42E8564B.9070407@yahoo.com.au>
-  <1122551014.29823.205.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0507280823210.3227@g5.osdl.org> <1122565640.29823.242.camel@localhost.localdomain>
- <Pine.LNX.4.61L.0507281725010.31805@blysk.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Jul 2005 13:25:14 -0400
+Subject: [patch 1/1] uml: implement hostfs syncing
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Thu, 28 Jul 2005 19:42:06 +0200
+Message-Id: <20050728174208.A017EA3@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-On Thu, 28 Jul 2005, Maciej W. Rozycki wrote:
-> 
->  Since you're considering GCC-generated code for ffs(), ffz() and friends, 
-> how about trying __builtin_ffs(), __builtin_clz() and __builtin_ctz() as 
-> apropriate?
+Actually implement the hostfs "sync" method.
 
-Please don't. Try again in three years when everybody has them.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-		Linus
+ linux-2.6.git-paolo/arch/um/os-Linux/user_syms.c |    3 +++
+ linux-2.6.git-paolo/fs/hostfs/hostfs.h           |    1 +
+ linux-2.6.git-paolo/fs/hostfs/hostfs_kern.c      |    2 +-
+ linux-2.6.git-paolo/fs/hostfs/hostfs_user.c      |   16 +++++++++++++++-
+ 4 files changed, 20 insertions(+), 2 deletions(-)
+
+diff -puN fs/hostfs/hostfs_kern.c~uml-hostfs-syncing fs/hostfs/hostfs_kern.c
+--- linux-2.6.git/fs/hostfs/hostfs_kern.c~uml-hostfs-syncing	2005-07-28 18:27:31.000000000 +0200
++++ linux-2.6.git-paolo/fs/hostfs/hostfs_kern.c	2005-07-28 18:27:31.000000000 +0200
+@@ -382,7 +382,7 @@ int hostfs_file_open(struct inode *ino, 
+ 
+ int hostfs_fsync(struct file *file, struct dentry *dentry, int datasync)
+ {
+-	return(0);
++	return fsync_file(HOSTFS_I(dentry->d_inode)->fd, datasync);
+ }
+ 
+ static struct file_operations hostfs_file_fops = {
+diff -puN fs/hostfs/hostfs_user.c~uml-hostfs-syncing fs/hostfs/hostfs_user.c
+--- linux-2.6.git/fs/hostfs/hostfs_user.c~uml-hostfs-syncing	2005-07-28 18:27:31.000000000 +0200
++++ linux-2.6.git-paolo/fs/hostfs/hostfs_user.c	2005-07-28 18:27:31.000000000 +0200
+@@ -153,10 +153,24 @@ int lseek_file(int fd, long long offset,
+ 	int ret;
+ 
+ 	ret = lseek64(fd, offset, whence);
+-	if(ret < 0) return(-errno);
++	if(ret < 0)
++		return(-errno);
+ 	return(0);
+ }
+ 
++int fsync_file(int fd, int datasync)
++{
++	int ret;
++	if (datasync)
++		ret = fdatasync(fd);
++	else
++		ret = fsync(fd);
++
++	if (ret < 0)
++		return -errno;
++	return 0;
++}
++
+ void close_file(void *stream)
+ {
+ 	close(*((int *) stream));
+diff -puN fs/hostfs/hostfs.h~uml-hostfs-syncing fs/hostfs/hostfs.h
+--- linux-2.6.git/fs/hostfs/hostfs.h~uml-hostfs-syncing	2005-07-28 18:27:31.000000000 +0200
++++ linux-2.6.git-paolo/fs/hostfs/hostfs.h	2005-07-28 18:27:31.000000000 +0200
+@@ -69,6 +69,7 @@ extern int read_file(int fd, unsigned lo
+ extern int write_file(int fd, unsigned long long *offset, const char *buf,
+ 		      int len);
+ extern int lseek_file(int fd, long long offset, int whence);
++extern int fsync_file(int fd, int datasync);
+ extern int file_create(char *name, int ur, int uw, int ux, int gr,
+ 		       int gw, int gx, int or, int ow, int ox);
+ extern int set_attr(const char *file, struct hostfs_iattr *attrs);
+diff -puN arch/um/os-Linux/user_syms.c~uml-hostfs-syncing arch/um/os-Linux/user_syms.c
+--- linux-2.6.git/arch/um/os-Linux/user_syms.c~uml-hostfs-syncing	2005-07-28 18:27:31.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/os-Linux/user_syms.c	2005-07-28 18:27:31.000000000 +0200
+@@ -83,6 +83,9 @@ EXPORT_SYMBOL_PROTO(statfs64);
+ 
+ EXPORT_SYMBOL_PROTO(getuid);
+ 
++EXPORT_SYMBOL_PROTO(fsync);
++EXPORT_SYMBOL_PROTO(fdatasync);
++
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+  * Emacs will notice this stuff at the end of the file and automatically
+_

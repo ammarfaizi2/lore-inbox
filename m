@@ -1,56 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVG1NtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVG1NwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVG1NtY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 09:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVG1NpZ
+	id S261454AbVG1NwU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 09:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVG1NwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 09:45:25 -0400
-Received: from gate.perex.cz ([82.113.61.162]:56495 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S261437AbVG1Nnv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 09:43:51 -0400
-Date: Thu, 28 Jul 2005 15:43:49 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       Adrian Bunk <bunk@stusta.de>, Lee Revell <rlrevell@joe-job.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net, kyle@parisc-linux.org,
-       parisc-linux@lists.parisc-linux.org,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com, Takashi Iwai <tiwai@suse.de>
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-In-Reply-To: <1122559208.32126.8.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0507281542420.8458@tm8103.perex-int.cz>
-References: <20050726150837.GT3160@stusta.de>  <1122393073.18884.29.camel@mindpipe>
- <42E65D50.3040808@pobox.com>  <20050727182427.GH3160@stusta.de>
- <20050727203150.GF22686@tuxdriver.com>  <42E7F1F9.2050105@pobox.com>
- <1122559208.32126.8.camel@localhost.localdomain>
+	Thu, 28 Jul 2005 09:52:12 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:59016 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261437AbVG1Nu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 09:50:26 -0400
+Message-ID: <42E8E29E.5030205@gmail.com>
+Date: Thu, 28 Jul 2005 15:50:22 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] New include file for marking old style api files
+References: <42E8E0C2.5010302@gmail.com>
+In-Reply-To: <42E8E0C2.5010302@gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------010609010507070201030903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2005, Alan Cox wrote:
+This is a multi-part message in MIME format.
+--------------010609010507070201030903
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Mer, 2005-07-27 at 16:43 -0400, Jeff Garzik wrote:
-> > ISTR Alan saying there was some ALi hardware that either wasn't in ALSA, 
-> > or most likely didn't work in ALSA.  If Alan says I'm smoking crack, 
-> > then you all can ignore me :)
-> 
-> The only big thing I know that still needed OSS (and may still do so) is
-> the support for AC97 wired touchscreens and the like. Has that been
-> ported to ALSA ?
+Jiri Slaby napsal(a):
 
-We're working on this issue right now.
+> Hi.
+> Do you think, that this would be useful in the kernel tree?
+> I have an idea to mark old drivers, which should I or somebody rewrite.
+> For example drivers/isdn/hisax/gazel.c.
+>
+>------------------------------------------------------------------------
+>
+>diff --git a/include/linux/oldapi.h b/include/linux/oldapi.h
+>new file mode 100644
+>--- /dev/null
+>+++ b/include/linux/oldapi.h
+>@@ -0,0 +1,2 @@
+>+#warning This driver uses old style API and needs to be rewritten or removed \
+>+	from kernel
+>  
+>
+Maybe this would be better (license and comments added).
 
-						Jaroslav
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+
+--------------010609010507070201030903
+Content-Type: text/plain;
+ name="lnx-oldapi-6.13r3m3_1.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="lnx-oldapi-6.13r3m3_1.txt"
+
+diff --git a/include/linux/oldapi.h b/include/linux/oldapi.h
+new file mode 100644
+--- /dev/null
++++ b/include/linux/oldapi.h
+@@ -0,0 +1,13 @@
++/**
++  * Include this file, if you think that the driver is old API styled
++  *
++  * Version:	1.0		28 Jul 2005	Initial version
++  *
++  * Author		Jiri Slaby <xslaby@fi.muni.cz>
++  *
++  * This software may be used and distributed according to the terms
++  * of the GNU General Public License, incorporated herein by reference.
++  */
++
++#warning This driver uses old style API and needs to be rewritten or removed \
++	from kernel
+
+--------------010609010507070201030903--

@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVG1Wik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVG1Wnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbVG1Wik (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 18:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVG1Wfw
+	id S261827AbVG1Wnt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 18:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVG1Wnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 18:35:52 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:25728 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S261934AbVG1Wfe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 18:35:34 -0400
-Message-ID: <5ad101c59416$a4f26eb0$daff8610@atwork>
-Reply-To: <atwork@shinyfeet.com>
-From: <atwork@shinyfeet.com>
-To: "Webmaster" <linux-kernel@vger.kernel.org>
-Subject: F.ree movies, music and more
-Date: Fri, 29 Jul 2005 08:22:22 +0300
+	Thu, 28 Jul 2005 18:43:49 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:15710 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261827AbVG1Wno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 18:43:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=RdFwDcP1PDGhGh+2cfE4AJNwpzawyO/UbyF13QmLhQ2xiHRDKnxn3sav1joiLIMAtX468f86yqdKPpSrBcuNhC6E3KoU8b6gEeu5ZVbGiu8xrnHU6q9Gb2UOwoljOWdkBbO+8M2j0VZZZb5HnvjlVPPZGT1aHA9LvD50J5yzrPU=  ;
+Message-ID: <42E95F95.2000608@yahoo.com.au>
+Date: Fri, 29 Jul 2005 08:43:33 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: "Brown, Len" <len.brown@intel.com>
+CC: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VIA PCI routing problem
+References: <F7DC2337C7631D4386A2DF6E8FB22B30042CFE47@hdsmsx401.amr.corp.intel.com>
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30042CFE47@hdsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1123
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Brown, Len wrote:
 
-Get Unlimited downloads - 100% F.ree, 100% Legal 
+> 
+> Fix two systems, break another...
+> 
+> Nick, can you open a bugzilla on this and put your lspci -vv
+> and dmesg into it.  Apparently the quirk is good for some
+> machines and not as good for others and we need to get smarter
+> about when to apply it.
+> 
 
-Get the #1 download software, with a step by step 
-guide on how to access unlimited free downloads of 
-your favorite music, movies, software, games and more. 
+OK, done. I put it under ACPI though I'm not sure whether that's
+the right place for it.
 
-Start Downloading Now, visit the link below:
-http://www.expandingyourbrand.com/php/ct.php?c=1
+-- 
+SUSE Labs, Novell Inc.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-============================================
-Kindly note: This is a commercial solicitation, if 
-you wish to be excluded from future notifications 
-visit the link below for exclusion:
-http://www.expandingyourbrand.com/unsubscribe.htm
-
-Respire Marketing BP 2371 C/15 Av Rwakadingi Kinshasa
-===========================================
-
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

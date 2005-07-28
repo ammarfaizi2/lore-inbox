@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVG1IMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVG1I0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVG1IMu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 04:12:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVG1IM1
+	id S261248AbVG1I0u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 04:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVG1I0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 04:12:27 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:43401 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261327AbVG1IMI (ORCPT
+	Thu, 28 Jul 2005 04:26:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36261 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261248AbVG1IZv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 04:12:08 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Ingo Molnar <mingo@elte.hu>
-cc: David.Mosberger@acm.org, Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Add prefetch switch stack hook in scheduler function
-In-reply-to: Your message of "Thu, 28 Jul 2005 09:41:18 +0200."
-             <20050728074118.GA20581@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 28 Jul 2005 18:09:08 +1000
-Message-ID: <10613.1122538148@kao2.melbourne.sgi.com>
+	Thu, 28 Jul 2005 04:25:51 -0400
+From: Roland McGrath <roland@redhat.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: John Reiser <jreiser@BitWagon.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] i386: clean up vDSO alignment padding
+X-Antipastobozoticataclysm: Bariumenemanilow
+Message-Id: <20050728082546.7864A180EB8@magilla.sf.frob.com>
+Date: Thu, 28 Jul 2005 01:25:46 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2005 09:41:18 +0200,
-Ingo Molnar <mingo@elte.hu> wrote:
->
->* david mosberger <dmosberger@gmail.com> wrote:
->
->> Also, should this be called prefetch_stack() or perhaps even just
->> prefetch_task()?  Not every architecture defines a switch_stack
->> structure.
->
->yeah. I'd too suggest to call it prefetch_stack(), and not make it a
->macro & hook but something defined on all arches, with for now only ia64
->having any real code in the inline function.
->
->i'm wondering, is the switch_stack at the same/similar place as
->next->thread_info? If yes then we could simply do a
->prefetch(next->thread_info).
+This makes the vDSO use nops for all its padding around instructions,
+rather than sometimes zeros, and nop-pads the end of the area containing
+instructions to a 32-byte cache line, to keep text and data in separate lines.
 
-No, they can be up to 30K apart.  See include/asm-ia64/ptrace.h.
-thread_info is at ~0xda0, depending on the config.  The switch_stack
-can be as high as 0x7bd0 in the kernel stack, depending on why the task
-is sleeping.
+Signed-off-by: Roland McGrath <roland@redhat.com>
 
+--- a/arch/i386/kernel/vsyscall-sigreturn.S
++++ b/arch/i386/kernel/vsyscall-sigreturn.S
+@@ -15,7 +15,7 @@
+ */
+ 
+ 	.text
+-	.org	__kernel_vsyscall+32
++	.org __kernel_vsyscall+32,0x90
+ 	.globl __kernel_sigreturn
+ 	.type __kernel_sigreturn,@function
+ __kernel_sigreturn:
+@@ -35,6 +35,7 @@ __kernel_rt_sigreturn:
+ 	int $0x80
+ .LEND_rt_sigreturn:
+ 	.size __kernel_rt_sigreturn,.-.LSTART_rt_sigreturn
++	.balign 32
+ 	.previous
+ 
+ 	.section .eh_frame,"a",@progbits

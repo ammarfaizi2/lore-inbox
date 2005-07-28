@@ -1,57 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVG1QCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVG1QCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVG1QCq (ORCPT <rfc822;willy@w.ods.org>);
+	id S261451AbVG1QCq (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 28 Jul 2005 12:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVG1P6Q
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVG1PtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 11:58:16 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:15591 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261573AbVG1P5Q (ORCPT
+	Thu, 28 Jul 2005 11:49:17 -0400
+Received: from mail.kroah.org ([69.55.234.183]:8083 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261575AbVG1Prn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 11:57:16 -0400
-Date: Thu, 28 Jul 2005 17:56:40 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] fbdev: colormap fixes
-In-Reply-To: <9e473391050728074573e40038@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0507281755350.24391@numbat.sonytel.be>
-References: <200507280031.j6S0V3L3016861@hera.kernel.org> 
- <Pine.LNX.4.62.0507280952140.24391@numbat.sonytel.be>
- <9e473391050728074573e40038@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Jul 2005 11:47:43 -0400
+Date: Thu, 28 Jul 2005 08:46:59 -0700
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [git pull] Final InfiniBand updates for 2.6.13
+Message-ID: <20050728154659.GA23065@kroah.com>
+References: <52hdefsgsn.fsf@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52hdefsgsn.fsf@cisco.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2005, Jon Smirl wrote:
-> Can you review this fix for the issues below? I fixed things to
-> automatically adjust the number of entries to whatever fits in
-> PAGE_SIZE.
+On Wed, Jul 27, 2005 at 09:20:08PM -0700, Roland Dreier wrote:
+> Linus, please pull from
+> 
+>     rsync://rsync.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
-Looks OK, but...
+Not to be a pain, but didn't we say that we would only do email patches
+after -rc1 comes out at the last kernel summit instead of git pulls?
 
-> @@ -317,18 +317,18 @@ static ssize_t show_cmap(struct class_de
->  	   !fb_info->cmap.green)
->  		return -EINVAL;
->  
-> -	if (PAGE_SIZE < 4096)
-> +	if (fb_info->cmap.len > PAGE_SIZE / 16)
->  		return -EINVAL;
+Just curious...
 
-... perhaps you want to just return the first PAGE_SIZE/16 entries, instead of
-failing?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+greg k-h

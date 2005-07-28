@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVG1Wnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVG1WtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVG1Wnt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 18:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVG1Wnt
+	id S261582AbVG1WtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 18:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVG1WtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 18:43:49 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:15710 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261827AbVG1Wno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 18:43:44 -0400
+	Thu, 28 Jul 2005 18:49:09 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:63387 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261582AbVG1WtI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 18:49:08 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=RdFwDcP1PDGhGh+2cfE4AJNwpzawyO/UbyF13QmLhQ2xiHRDKnxn3sav1joiLIMAtX468f86yqdKPpSrBcuNhC6E3KoU8b6gEeu5ZVbGiu8xrnHU6q9Gb2UOwoljOWdkBbO+8M2j0VZZZb5HnvjlVPPZGT1aHA9LvD50J5yzrPU=  ;
-Message-ID: <42E95F95.2000608@yahoo.com.au>
-Date: Fri, 29 Jul 2005 08:43:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Brown, Len" <len.brown@intel.com>
-CC: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VIA PCI routing problem
-References: <F7DC2337C7631D4386A2DF6E8FB22B30042CFE47@hdsmsx401.amr.corp.intel.com>
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30042CFE47@hdsmsx401.amr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=CedPzY61yWz0mA1l5IOFbdgBwRMbwXiN0Uuev344NwGHgULBofmNdHxZv5/2S5a5Eg3Y38grQosS5eNWKr/e+5MfILP0nxBKtdX98UQ0ykq+4FjEXJc6yUy/oAacyT/67dw0Y1oRiRVqIQJzpXH/inI4NsEiU1aFB00fp2E0sdw=
+Message-ID: <564d96fb050728154923ba8663@mail.gmail.com>
+Date: Thu, 28 Jul 2005 22:49:07 +0000
+From: =?ISO-8859-1?Q?Rafael_Esp=EDndola?= <rafael.espindola@gmail.com>
+Reply-To: =?ISO-8859-1?Q?Rafael_Esp=EDndola?= <rafael.espindola@gmail.com>
+To: gentoo-dev@gentoo.org, gentoo-catalyst@gentoo.org,
+       linux-kernel@vger.kernel.org
+Subject: unmounting a filesystem mounted by /init (initramfs)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brown, Len wrote:
+I am trying to build a system that uses a unionfs as root. The init
+script is based on the one used by gentoo and uses initramfs. The
+problem is how to remount the unionfs constituents read only during
+halt.
 
-> 
-> Fix two systems, break another...
-> 
-> Nick, can you open a bugzilla on this and put your lspci -vv
-> and dmesg into it.  Apparently the quirk is good for some
-> machines and not as good for others and we need to get smarter
-> about when to apply it.
-> 
+cat /proc/mounts displays /dev/hda1 (ext2) mounted rw in /memory. The
+problem is that /memory is no longer visible after the init script did
+a chroot and a
 
-OK, done. I put it under ACPI though I'm not sure whether that's
-the right place for it.
+mount -o remount,ro /dev/hda1
 
--- 
-SUSE Labs, Novell Inc.
+says that /dev/hda1 is not mounted!
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+does any anyone has an idea?
+
+Thanks,
+Rafael

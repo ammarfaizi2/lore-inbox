@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVG1UoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVG1UgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbVG1UoL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 16:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVG1Unf
+	id S262231AbVG1UgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 16:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVG1Ud6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 16:43:35 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11785 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262216AbVG1Umk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 16:42:40 -0400
-Date: Thu, 28 Jul 2005 22:42:38 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Radoslaw AstralStorm Szkodzinski <astralstorm@gorzow.mm.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm3 question
-Message-ID: <20050728204238.GC4790@stusta.de>
-References: <20050728194334.4f5b3f22.astralstorm@gorzow.mm.pl> <20050728105551.57f3183c.akpm@osdl.org> <20050728203133.0a03dbda.astralstorm@gorzow.mm.pl>
+	Thu, 28 Jul 2005 16:33:58 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:23839 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S261664AbVG1UcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 16:32:05 -0400
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [PATCH 1/2] [IB/cm]: Correct CM port redirect reject codes
+In-Reply-To: <20057281331.dR47KhjBsU48JfGE@cisco.com>
+X-Mailer: Roland's Patchbomber
+Date: Thu, 28 Jul 2005 13:31:45 -0700
+Message-Id: <20057281331.7vqhiAJ1Yc0um2je@cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050728203133.0a03dbda.astralstorm@gorzow.mm.pl>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+To: akpm@osdl.org
+Content-Transfer-Encoding: 7BIT
+From: Roland Dreier <rolandd@cisco.com>
+X-OriginalArrivalTime: 28 Jul 2005 20:31:56.0855 (UTC) FILETIME=[65EF7C70:01C593B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2005 at 08:31:33PM +0200, Radoslaw AstralStorm Szkodzinski wrote:
-> On Thu, 28 Jul 2005 10:55:51 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
->...
-> > There are always glitches, I'm afraid.
-> 
-> But there could be less build breakers at least.
+Reject code 24 is port and CM redirection, not just port redirection.
+Port redirection alone is code 25.
 
-The -mm kernels are the result of mixing the latest developments from a 
-dozen subsystem trees with a few hundred random patches from 
-linux-kernel resulting in the most unstable kernel available. [1]
+Therefore we should rename code 24 to IB_CM_REJ_PORT_CM_REDIRECT and
+use IB_CM_REJ_PORT_REDIRECT for code 25.
 
-I'm surprised that you are that much concerned about compile errors when 
-using a kernel that might regularly exchange the contents of /dev/hda 
-and /dev/null .
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
+---
 
-cu
-Adrian
+ drivers/infiniband/include/ib_cm.h |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-[1] that's a bit exaggerated and not meant against Andrew
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+4e38d36d88ead4e56f3155573976da84d5df18b3
+diff --git a/drivers/infiniband/include/ib_cm.h b/drivers/infiniband/include/ib_cm.h
+--- a/drivers/infiniband/include/ib_cm.h
++++ b/drivers/infiniband/include/ib_cm.h
+@@ -169,7 +169,8 @@ enum ib_cm_rej_reason {
+ 	IB_CM_REJ_INVALID_ALT_TRAFFIC_CLASS	= __constant_htons(21),
+ 	IB_CM_REJ_INVALID_ALT_HOP_LIMIT		= __constant_htons(22),
+ 	IB_CM_REJ_INVALID_ALT_PACKET_RATE	= __constant_htons(23),
+-	IB_CM_REJ_PORT_REDIRECT			= __constant_htons(24),
++	IB_CM_REJ_PORT_CM_REDIRECT		= __constant_htons(24),
++	IB_CM_REJ_PORT_REDIRECT			= __constant_htons(25),
+ 	IB_CM_REJ_INVALID_MTU			= __constant_htons(26),
+ 	IB_CM_REJ_INSUFFICIENT_RESP_RESOURCES	= __constant_htons(27),
+ 	IB_CM_REJ_CONSUMER_DEFINED		= __constant_htons(28),

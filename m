@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVG1V55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVG1V7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVG1V55 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 17:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbVG1V55
+	id S261953AbVG1V7h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 17:59:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVG1V7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 17:57:57 -0400
-Received: from graphe.net ([209.204.138.32]:61374 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261579AbVG1V5h (ORCPT
+	Thu, 28 Jul 2005 17:59:37 -0400
+Received: from mail.gmx.de ([213.165.64.20]:42472 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261953AbVG1V7c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 17:57:37 -0400
-Date: Thu, 28 Jul 2005 14:57:35 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Pavel Machek <pavel@ucw.cz>
-cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] Task notifier: Implement todo list in task_struct
-In-Reply-To: <20050728213254.GA1844@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.62.0507281456240.14677@graphe.net>
-References: <200507260340.j6Q3eoGh029135@shell0.pdx.osdl.net>
- <Pine.LNX.4.62.0507272018060.11863@graphe.net> <20050728074116.GF6529@elf.ucw.cz>
- <Pine.LNX.4.62.0507280804310.23907@graphe.net> <20050728193433.GA1856@elf.ucw.cz>
- <Pine.LNX.4.62.0507281251040.12675@graphe.net> <Pine.LNX.4.62.0507281254380.12781@graphe.net>
- <20050728212715.GA2783@elf.ucw.cz> <20050728213254.GA1844@elf.ucw.cz>
+	Thu, 28 Jul 2005 17:59:32 -0400
+X-Authenticated: #1347008
+Message-ID: <42E9560A.6080205@gmx.net>
+Date: Fri, 29 Jul 2005 00:02:50 +0200
+From: Dirk <noisyb@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+To: Michael Thonke <iogl64nx@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3
+References: <20050728025840.0596b9cb.akpm@osdl.org> <42E96A42.7060405@gmail.com>
+In-Reply-To: <42E96A42.7060405@gmail.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2005, Pavel Machek wrote:
+Michael Thonke wrote:
 
-> Hi!
-> 
-> > > Introduce a todo notifier in the task_struct so that a task can be told to do
-> > > certain things. Abuse the suspend hooks try_to_freeze, freezing and refrigerator
-> > > to establish checkpoints where the todo list is processed. This will break software
-> > > suspend (next patch fixes and cleans up software suspend).
-> > 
-> > Ugh, this conflicts with stuff in -mm tree rather badly... In part
-> > thanks to patch by you that was already applied.
-> > 
-> > I fixed up rejects manually (but probably lost fix or two in
-> > progress), and will test.
+> Hello Andrew,
+>
+> here again I have two problems. With 2.6.13-rc3-mm3 I have problems
+> using my SATA drives on Intel ICH6.
+> The kernel can't route there IRQs or can't discover them. the option
+> irqpoll got them to work now.
+> The problem is new because 2.6.13-rc3[-mm1,mm2] work without any
+> problems.
+>
+> The SATA drives are Samsung HD160JJ SATAII. The mainboard I use is a
+> ASUS P4GPL-X.
+>
+> Second one is about Intel HD-Codec (snd-hda-intel) on modprobe when
+> loading the module it gives me
+>
+> ---> snip
+> hda_codec: Unknown model for ALC880, trying auto-probe from BIOS...
+> Unable to handle kernel NULL pointer dereference at virtual address
+> 00000000
 
-Dont fix it up. Remove the ealier patch.
 
-> > 
-> > You are doing rather intrusive changes. Is testing them too much to
-> > ask? I'm pretty sure you can get i386 machine to test swsusp on...
-> 
-> (And yes, I did apply the whole series. It would be nice if next
-> series was relative to -mm, it already contains some of your changes).
+Hi!
+Sorry for interfering but I have the Asus P5RD1-VD with the Realtek
+ALC861 (10b9:5461) and with 2.6.13.3 I've got the problem that he
+doesn't find /dev/mixer or anything after modprobe snd-hda-intel...
 
-mm contains the TIF_FREEZE changes that need to be undone. And yes I 
-tested it on a i386 with suspend to disk and it worked fine.
+After I attached
+http://dlsvr01.asus.com/pub/ASUS/mb/socket775/P5RD1-V/Audio_Linux.zip
+(which doesn't work) to a mail in alsa-devel they told me...
+
+"[...]
+
+It tries to access the ALi controller in the same way as the Intel
+controller.
+
+It may be possible that the ALi chip was designed to be compatible
+with Intel's, but that they got some detail wrong.  Or that the driver
+gets some detail wrong.  There's no way to know without docs[...]"
+
+(not in the archive, yet...)
+
+
+Dirk
+
 

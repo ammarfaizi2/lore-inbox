@@ -1,108 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVG1Vwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVG1V55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbVG1Vwe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 17:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVG1Vwe
+	id S261584AbVG1V55 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 17:57:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbVG1V55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 17:52:34 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:2690 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S261531AbVG1Vuv (ORCPT
+	Thu, 28 Jul 2005 17:57:57 -0400
+Received: from graphe.net ([209.204.138.32]:61374 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261579AbVG1V5h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 17:50:51 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Thu, 28 Jul 2005 17:57:37 -0400
+Date: Thu, 28 Jul 2005 14:57:35 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
 To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: 2.6.13-rc3: swsusp works (TP 600X)
-Date: Thu, 28 Jul 2005 23:55:48 +0200
-User-Agent: KMail/1.8.1
-Cc: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, linux-kernel@vger.kernel.org
-References: <20050723003544.GC1988@elf.ucw.cz> <E1DyEok-0000pa-SX@approximate.corpus.cam.ac.uk> <20050728213650.GA1872@elf.ucw.cz>
-In-Reply-To: <20050728213650.GA1872@elf.ucw.cz>
+cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4] Task notifier: Implement todo list in task_struct
+In-Reply-To: <20050728213254.GA1844@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.62.0507281456240.14677@graphe.net>
+References: <200507260340.j6Q3eoGh029135@shell0.pdx.osdl.net>
+ <Pine.LNX.4.62.0507272018060.11863@graphe.net> <20050728074116.GF6529@elf.ucw.cz>
+ <Pine.LNX.4.62.0507280804310.23907@graphe.net> <20050728193433.GA1856@elf.ucw.cz>
+ <Pine.LNX.4.62.0507281251040.12675@graphe.net> <Pine.LNX.4.62.0507281254380.12781@graphe.net>
+ <20050728212715.GA2783@elf.ucw.cz> <20050728213254.GA1844@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_lRV6CipUE9lyd8M"
-Message-Id: <200507282355.49356.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_lRV6CipUE9lyd8M
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thu, 28 Jul 2005, Pavel Machek wrote:
 
-On Thursday, 28 of July 2005 23:36, Pavel Machek wrote:
 > Hi!
 > 
-> > >>If I don't eject the pcmcia card (usually a prism54 wireless card),
-> > >>swsusp begins the process of hibernation, but never gets to the
-> > >>writing pages part.
+> > > Introduce a todo notifier in the task_struct so that a task can be told to do
+> > > certain things. Abuse the suspend hooks try_to_freeze, freezing and refrigerator
+> > > to establish checkpoints where the todo list is processed. This will break software
+> > > suspend (next patch fixes and cleans up software suspend).
 > > 
-> > > Well, it really may be the firmware loading. Add some printks to
-> > > confirm it, then fix it.
+> > Ugh, this conflicts with stuff in -mm tree rather badly... In part
+> > thanks to patch by you that was already applied.
 > > 
-> > I did more tests, this time with 2.6.13-rc3-mm2 (machine is a TP 600X),
-> > and I don't think the problem is related to firmware loading.  If I
-> > first physically eject the card (an Intersil wireless card), swsusp
-> > prints
+> > I fixed up rejects manually (but probably lost fix or two in
+> > progress), and will test.
+
+Dont fix it up. Remove the ealier patch.
+
 > > 
-> ..
-> > 
-> > then it writes pages to swap and all is well.  Well, almost 100%; the
-> > one glitch is that sometimes X comes back blank and I have to
-> > ctrl-alt-F7 to bring back the display; or X comes back with the keyboard
-> > acting strange (<ENTER> shifts the display left by a few hundred
-> > pixels), and again ctrl-alt-F7 fixes it.  This is with XFree86
-> > 4.3.0.dfsg.1-14, and maybe after I upgrade (?) to the xorg server, that
-> > glitch will go away.  Anyway, it's easy to work around.
+> > You are doing rather intrusive changes. Is testing them too much to
+> > ask? I'm pretty sure you can get i386 machine to test swsusp on...
 > 
-> So, in short, problem is that if you leave prism54 card in, even with
-> module removed, swsusp hangs, right?
-> 
-> Okay then, start looking into pcmcia layer ;-).
+> (And yes, I did apply the whole series. It would be nice if next
+> series was relative to -mm, it already contains some of your changes).
 
-Perhaps the patch from Daniel Ritz to free the yenta IRQ on suspend (attached)
-will help?
+mm contains the TIF_FREEZE changes that need to be undone. And yes I 
+tested it on a i386 with suspend to disk and it worked fine.
 
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
-
---Boundary-00=_lRV6CipUE9lyd8M
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="2.6.13-rc3-git5-yenta-suspend_resume.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.13-rc3-git5-yenta-suspend_resume.patch"
-
---- linux-2.6.13-rc3-git5/drivers/pcmcia/yenta_socket.c	2005-07-23 19:26:30.000000000 +0200
-+++ patched/drivers/pcmcia/yenta_socket.c	2005-07-24 11:44:04.000000000 +0200
-@@ -1107,6 +1107,8 @@ static int yenta_dev_suspend (struct pci
- 		pci_read_config_dword(dev, 17*4, &socket->saved_state[1]);
- 		pci_disable_device(dev);
- 
-+		free_irq(dev->irq, socket);
-+
- 		/*
- 		 * Some laptops (IBM T22) do not like us putting the Cardbus
- 		 * bridge into D3.  At a guess, some other laptop will
-@@ -1132,6 +1134,13 @@ static int yenta_dev_resume (struct pci_
- 		pci_enable_device(dev);
- 		pci_set_master(dev);
- 
-+		if (socket->cb_irq)
-+			if (request_irq(socket->cb_irq, yenta_interrupt,
-+			                SA_SHIRQ, "yenta", socket)) {
-+				printk(KERN_WARNING "Yenta: request_irq() failed on resume!\n");
-+				socket->cb_irq = 0;
-+			}
-+
- 		if (socket->type && socket->type->restore_state)
- 			socket->type->restore_state(socket);
- 	}
-
---Boundary-00=_lRV6CipUE9lyd8M--

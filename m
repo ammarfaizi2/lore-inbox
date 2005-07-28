@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVG1JMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVG1JQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVG1JMG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 05:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVG1JMG
+	id S261389AbVG1JQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 05:16:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVG1JQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 05:12:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:461 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261379AbVG1JMA (ORCPT
+	Thu, 28 Jul 2005 05:16:59 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:44488 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261389AbVG1JQ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 05:12:00 -0400
-Date: Thu, 28 Jul 2005 02:10:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm2
-Message-Id: <20050728021048.53bf56c9.akpm@osdl.org>
-In-Reply-To: <42E89F4C.5010507@reub.net>
-References: <fa.gdh870p.1pmsr31@ifi.uio.no>
-	<42E89F4C.5010507@reub.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 28 Jul 2005 05:16:58 -0400
+Date: Thu, 28 Jul 2005 11:16:38 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
+       Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Add prefetch switch stack hook in scheduler function
+Message-ID: <20050728091638.GA25846@elte.hu>
+References: <10613.1122538148@kao2.melbourne.sgi.com> <42E897FD.6060506@yahoo.com.au> <20050728083544.GA22740@elte.hu> <42E89BE6.6040304@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42E89BE6.6040304@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
->
-> On 27/07/2005 9:45 a.m., Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm2/
-> > 
-> > 
-> > - Lots of fixes and updates all over the place.  There are probably over 100
-> >   patches here which need to go into 2.6.13.
-> > 
-> > - A reminder that -mm commit activity may be monitored by subscribing to
-> >   the mm-commits list.  Do
-> > 
-> > 	echo subscribe mm-commits | mail majordomo@vger.kernel.org
-> > 
+
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+> >>Just a minor point, I agree with David: I'd like it to be called 
+> >>prefetch_task(), because some architecture may want to prefetch other 
+> >>memory.
+> >
+> >such as?
 > 
-> Also seeing this during boot-up:
+> Not sure. thread_info? Maybe next->timestamp or some other fields in 
+> next, something in next->mm?
 
-This was happening in earlier -mm's was it not?
+next->thread_info we could and should prefetch - but from the generic 
+scheduler code (see the patch i just sent).
 
-> last sysfs file:
+i'm not sure what you mean by prefetching next->timestamp, it's an 
+inline field to 'next', in the first cacheline of it, which we've 
+already used so it's present. (If you mean the value of next->timestamp, 
+that has no address meaning at all so would lead to unpredictable 
+results on some arches.)
 
-grr, I need to fix that.
+next->mm we might want to prefetch, but it's probably not worth it 
+because we are referencing it too soon, in context_switch(). (while the 
+kernel stack itself wont be referenced until the full context-switch is 
+done) But might be worth trying - but even then, it should be done from 
+the generic code, like the thread_info and kernel-stack prefetching.
 
->   [<c0103983>] show_stack+0x94/0xca
->   [<c0103b37>] show_registers+0x165/0x1f9
->   [<c0103d5d>] die+0x108/0x183
->   [<c0318c3a>] do_page_fault+0x1ea/0x63d
->   [<c0103657>] error_code+0x4f/0x54
->   [<c018b5c3>] fill_read_buffer+0x2e/0x74
->   [<c018b6fe>] sysfs_read_file+0x46/0x76
+> I didn't really have a concrete example, but in the interests of being 
+> future proof...
 
-some dud sysfs file.
+i'd like to keep generic bits in generic code, and only move things to 
+per-arch include files if absolutely necessary. next->mm is generic.
 
+	Ingo

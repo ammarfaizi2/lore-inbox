@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVG1TJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVG1TQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbVG1TJL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 15:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVG1TGM
+	id S262061AbVG1TQp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 15:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVG1TQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 15:06:12 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:7883 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262010AbVG1TFy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 15:05:54 -0400
-Message-ID: <42E92C88.9000501@pobox.com>
-Date: Thu, 28 Jul 2005 15:05:44 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Doug Maxey <dwm@maxeymade.com>
-CC: Lukasz Kosewski <lkosewsk@nit.ca>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: [PATCH 0/3] Add disk hotswap support to libata
-References: <200507281854.j6SIsJ87006310@falcon30.maxeymade.com>
-In-Reply-To: <200507281854.j6SIsJ87006310@falcon30.maxeymade.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 28 Jul 2005 15:16:44 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:18575 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262061AbVG1TGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 15:06:08 -0400
+Subject: Re: [ALSA PATCH] 1.0.9b+
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jaroslav Kysela <perex@suse.cz>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, tiwai@suse.de
+In-Reply-To: <20050728102525.234e6511.akpm@osdl.org>
+References: <Pine.LNX.4.61.0507281546040.8458@tm8103.perex-int.cz>
+	 <20050728102525.234e6511.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 28 Jul 2005 15:06:02 -0400
+Message-Id: <1122577563.2772.17.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Maxey wrote:
-> On Thu, 21 Jul 2005 21:35:24 EDT, Jeff Garzik wrote:
+On Thu, 2005-07-28 at 10:25 -0700, Andrew Morton wrote:
+> Jaroslav Kysela <perex@suse.cz> wrote:
+> >
+> > Linus, please do an update from:
+> > 
+> >    rsync://rsync.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
+> > 
+> > ...
+> >   65 files changed, 5059 insertions(+), 1122 deletions(-)
 > 
->>As soon as I finish SATA ATAPI (this week[end]), I'll take a look at 
->>this.  A quick review of the patches didn't turn up anything terribly 
->>objectionable, though :)
->>
+> The git-alsa.patch in -mm which I obtain from
+> master.kernel.org:/pub/scm/linux/kernel/git/perex/alsa-current.git is
+> empty.  So we're now wanting to merge 4,000 lines of unreviewed code which
+> hasn't been tested in -mm at approximately the -rc4 stage.
 > 
-> 
-> I would like to offer to test when you are ready.  Some older and new SATAPI 
-> drives, various chipsets (ICH{5,6}, TX4 on the way).  And a SATA analyzer 
-> for anything really odd. 
 
-Great!
+Lots of people install ALSA independently from the kernel (like all the
+audio oriented distro users), probably a lot more than run -mm, so it's
+not completely unreviewed.
 
-It'll be posted here on linux-ide, so just keep an eye out.
-
-Analysis of any portion of libata, with a SATA analyzer, would be much 
-appreciated.
-
-	Jeff
-
+Lee
 

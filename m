@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVG1Amx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVG1AyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbVG1Amx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 20:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVG1Amx
+	id S261185AbVG1AyH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 20:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVG1AyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 20:42:53 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:11978 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S261457AbVG1Amx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 20:42:53 -0400
-Date: Wed, 27 Jul 2005 17:42:41 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, shai@scalex86.org
-Subject: [patch] mm: Ensure proper alignment for node_remap_start_pfn
-Message-ID: <20050728004241.GA16073@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 27 Jul 2005 20:54:07 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:43634 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261185AbVG1AyF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 20:54:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=pmlejzeSoGNNTM3s6YPIofryFZ9G3XxNOdCPzC545aXZgKBjfAEY0LKTzpZ9bTtX8TNWix82nNCsQ2e3aB7LsMwqySIZsHuRkVcaIM38xIeeVraRiZyFqwuyWIVT3X//31nXpOlVy5kQm/tX44wtJJU/SoxhncYb8pug9alHrGo=  ;
+Message-ID: <42E82CA0.9080408@yahoo.com.au>
+Date: Thu, 28 Jul 2005 10:53:52 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alexander Nyberg <alexn@telia.com>
+CC: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/6] mm: micro-optimise rmap
+References: <42E5F139.70002@yahoo.com.au> <42E5F173.3010409@yahoo.com.au>	 <42E5F19A.6050407@yahoo.com.au> <1122463805.1166.3.camel@localhost.localdomain>
+In-Reply-To: <1122463805.1166.3.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While reserving KVA for lmem_maps of node, we have to make sure that
-node_remap_start_pfn[] is aligned to a proper pmd boundary.
-(node_remap_start_pfn[] gets its value from node_end_pfn[])
+Alexander Nyberg wrote:
+>> void page_add_anon_rmap(struct page *page,
 
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
+> 
+> linear_page_index() here too?
+> 
 
-Index: linux-2.6.13-rc3/arch/i386/mm/discontig.c
-===================================================================
---- linux-2.6.13-rc3.orig/arch/i386/mm/discontig.c	2005-07-26 15:10:25.000000000 -0700
-+++ linux-2.6.13-rc3/arch/i386/mm/discontig.c	2005-07-26 16:27:43.000000000 -0700
-@@ -243,6 +243,14 @@
- 		/* now the roundup is correct, convert to PAGE_SIZE pages */
- 		size = size * PTRS_PER_PTE;
- 
-+		if (node_end_pfn[nid] & (PTRS_PER_PTE-1)) {
-+			/* 
-+			 * Adjust size if node_end_pfn is not on a proper 
-+			 * pmd boundary. remap_numa_kva will barf otherwise.
-+			 */
-+			size +=  node_end_pfn[nid] & (PTRS_PER_PTE-1);
-+		}
-+
- 		/*
- 		 * Validate the region we are allocating only contains valid
- 		 * pages.
+Hi Alexander,
+
+Yes, that's what patch 3/6 did :)
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

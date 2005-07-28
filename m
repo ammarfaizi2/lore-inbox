@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVG1Xs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVG1X4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVG1Xs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 19:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVG1Xs6
+	id S261497AbVG1X4v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 19:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVG1X4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 19:48:58 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:32226 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262171AbVG1XsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 19:48:25 -0400
-Message-Id: <200507282348.j6SNmLg02429@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-Subject: RE: Delete scheduler SD_WAKE_AFFINE and SD_WAKE_BALANCE flags
-Date: Thu, 28 Jul 2005 16:48:20 -0700
+	Thu, 28 Jul 2005 19:56:51 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:22029 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S261497AbVG1X4u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 19:56:50 -0400
+Message-ID: <42E970BE.1040004@snapgear.com>
+Date: Fri, 29 Jul 2005 09:56:46 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Jan Dittmer <jdittmer@ppp0.net>
+CC: Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: v850, which gcc and binutils version?
+References: <42E78474.8070300@ppp0.net>	<buo64uvit4p.fsf@mctpc71.ucom.lsi.nec.co.jp>	<42E896EC.7030503@ppp0.net> <buoek9jgvxh.fsf@mctpc71.ucom.lsi.nec.co.jp> <42E8CE48.5090301@snapgear.com> <42E92B7B.8080304@ppp0.net>
+In-Reply-To: <42E92B7B.8080304@ppp0.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcWTzO/Z0mbz+OreSQiOKP8Bp6ovgQAAPQOA
-In-Reply-To: <42E96B8C.6010005@yahoo.com.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote on Thursday, July 28, 2005 4:35 PM
-> Wake balancing provides an opportunity to provide some input bias
-> into the load balancer.
+Hi Jan,
+
+Jan Dittmer wrote:
+> Greg Ungerer wrote:
 > 
-> For example, if you started 100 pairs of tasks which communicate
-> through a pipe. On a 2 CPU system without wake balancing, probably
-> half of the pairs will be on different CPUs. With wake balancing,
-> it should be much better.
+>>>If you care to try applying the uClinux patches, they should be available
+>>
+>>>from (fill in "$ver" with "2.6.12-uc0" and "$maj_ver" with "2.6"):
+>>
+>>>   http://www.uclinux.org/pub/uClinux/uClinux-$maj_ver.x/linux-$ver.patch.gz
+>>>
+>>>Greg, do you have any status on merging the current uClinux patch set?
+>>
+>>
+>>I sent a bunch of the 2.6.12-uc0 changes to Linus earlier this week
+>>(the critical fixes), but according to his GIT log he didn't merge them.
+>>I am going to resend tomorrow.
+> 
+> 
+> Greg you might consider adding the attached patch to update the defconfig for
+> m68nommu, especially
+> 
+> +#
+> +# Console display driver support
+> +#
+> +# CONFIG_VGA_CONSOLE is not set
+> +CONFIG_DUMMY_CONSOLE=y
+> 
+> which allows the m68knommu defconfig to be buildable without further invention.
+> Patch is against 2.6.12-uc0
 
-Shouldn't the pipe code use synchronous wakeup?
+Done. I'll add it to my list of patches to send.
+
+Regards
+Greg
 
 
-> I hear you might be having problems with recent 2.6.13 kernels? If so,
-> it would be really good to have a look that before 2.6.13 goes out the
-> door.
 
-Yes I do :-(, apparently bumping up cache_hot_time won't give us the
-performance boost we used to see.
-
-- Ken
-
+-- 
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

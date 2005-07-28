@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVG1Pea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVG1Pju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVG1Pea (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 11:34:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVG1Pcd
+	id S261232AbVG1Pju (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 11:39:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVG1Pjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 11:32:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19122 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261567AbVG1Paq (ORCPT
+	Thu, 28 Jul 2005 11:39:37 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:16857 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S261529AbVG1Phj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 11:30:46 -0400
-Date: Thu, 28 Jul 2005 08:30:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [PATCH] speed up on find_first_bit for i386 (let compiler do
- the work)
-In-Reply-To: <1122551014.29823.205.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0507280823210.3227@g5.osdl.org>
-References: <1122473595.29823.60.camel@localhost.localdomain> 
- <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
- <1122513928.29823.150.camel@localhost.localdomain> 
- <1122519999.29823.165.camel@localhost.localdomain> 
- <1122521538.29823.177.camel@localhost.localdomain> 
- <1122522328.29823.186.camel@localhost.localdomain>  <42E8564B.9070407@yahoo.com.au>
- <1122551014.29823.205.camel@localhost.localdomain>
+	Thu, 28 Jul 2005 11:37:39 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: VIA PCI routing problem
+Date: Thu, 28 Jul 2005 09:37:33 -0600
+User-Agent: KMail/1.8.1
+Cc: "Brown, Len" <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <42E8CB27.4010100@yahoo.com.au>
+In-Reply-To: <42E8CB27.4010100@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507280937.33971.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 28 July 2005 6:10 am, Nick Piggin wrote:
+> I have a VIA SMP system and somewhere between 2.6.12-rc3 and 2.6.12
+> the USB mouse started moving around really slowly. Anyway, it turns
+> out that the attached patch (against 2.6.13-rc3-git8) fixes the problem.
+
+Can you try this:
+
+Index: work/drivers/pci/quirks.c
+===================================================================
+--- work.orig/drivers/pci/quirks.c	2005-07-25 15:04:26.000000000 -0600
++++ work/drivers/pci/quirks.c	2005-07-28 09:26:09.000000000 -0600
+@@ -503,7 +503,7 @@
+ 
+ 	new_irq = dev->irq & 0xf;
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
+-	if (new_irq != irq) {
++	if (1 || new_irq != irq) {
+ 		printk(KERN_INFO "PCI: Via IRQ fixup for %s, from %d to %d\n",
+ 			pci_name(dev), irq, new_irq);
+ 		udelay(15);	/* unknown if delay really needed */
 
 
-On Thu, 28 Jul 2005, Steven Rostedt wrote:
->
-> In the thread "[RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO
-> configurable" I discovered that a C version of find_first_bit is faster
-> than the asm version now when compiled against gcc 3.3.6 and gcc 4.0.1
-> (both from versions of Debian unstable).  I wrote a benchmark (attached)
-> that runs the code 1,000,000 times.
+If that doesn't help, remove it and see if this does:
 
-I suspect the old "rep scas" has always been slower than 
-compiler-generated code, at least under your test conditions. Many of the 
-old asm's are actually _very_ old, and some of them come from pre-0.01 
-days and are more about me learning the i386 (and gcc inline asm).
+Index: work/drivers/pci/quirks.c
+===================================================================
+--- work.orig/drivers/pci/quirks.c	2005-07-25 15:04:26.000000000 -0600
++++ work/drivers/pci/quirks.c	2005-07-28 09:27:23.000000000 -0600
+@@ -510,7 +510,7 @@
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
+ }
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
++DECLARE_PCI_FIXUP_ENABLE(PCI_ANY_ID, PCI_ANY_ID, quirk_via_irq);
+ 
+ /*
+  * PIIX3 USB: We have to disable USB interrupts that are
 
-That said, I don't much like your benchmarking methodology. I suspect that 
-quite often, the code in question runs from L2 cache, not in a tight loop, 
-and so that "run a million times" approach is not necessarily the best 
-one.
 
-I'll apply this one as obvious: I doubt the compiler generates bigger code
-or has any real downsides, but I just wanted to say that in general I just
-wish people didn't always time the hot-cache case ;)
-
-		Linus
+Can you also include "lspci" output?

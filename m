@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVG1NnC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVG1NpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbVG1NnC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 09:43:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVG1NnB
+	id S261426AbVG1NpS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 09:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVG1NnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 09:43:01 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:38340 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261395AbVG1Nl4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 09:41:56 -0400
-Date: Thu, 28 Jul 2005 15:40:43 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] fbdev: colormap fixes
-In-Reply-To: <9e473391050728060741040424@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0507281540210.24391@numbat.sonytel.be>
-References: <200507280031.j6S0V3L3016861@hera.kernel.org> 
- <Pine.LNX.4.62.0507280952140.24391@numbat.sonytel.be>
- <9e473391050728060741040424@mail.gmail.com>
+	Thu, 28 Jul 2005 09:43:06 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:16001 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261426AbVG1Nma (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 09:42:30 -0400
+Message-ID: <42E8E0C2.5010302@gmail.com>
+Date: Thu, 28 Jul 2005 15:42:26 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] New include file for marking old style api files
+Content-Type: multipart/mixed;
+ boundary="------------030004000104000903000409"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2005, Jon Smirl wrote:
-> On 7/28/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > On Wed, 27 Jul 2005, Linux Kernel Mailing List wrote:
-> 
-> There are a couple of ways to fix this. 
-> 
-> 1) Add a check to limit use of the sysfs attributes to 256 entries. If
-> you want more you have to use /dev/fb0 and the ioctl. More is an
-> uncommon case.
-> 2) Switch this to a binary parameter. Now you have to use tools like
-> hexdump instead of cat to work with the data. It was nice to be able
-> to use cat to see the current map.
-> 
-> Does anyone have preferences for which way to fix it?
+This is a multi-part message in MIME format.
+--------------030004000104000903000409
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I prefer the first way.
+Hi.
+Do you think, that this would be useful in the kernel tree?
+I have an idea to mark old drivers, which should I or somebody rewrite.
+For example drivers/isdn/hisax/gazel.c.
 
-> Thanks for catching the problems. I'm posting these patches to fbdev
-> for review first so it is best to catch bugs there.
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
 
-Sorry, sometimes I miss a few things...
 
-Gr{oetje,eeting}s,
+--------------030004000104000903000409
+Content-Type: text/plain;
+ name="lnx-oldapi-6.13r3m3.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="lnx-oldapi-6.13r3m3.txt"
 
-						Geert
+diff --git a/include/linux/oldapi.h b/include/linux/oldapi.h
+new file mode 100644
+--- /dev/null
++++ b/include/linux/oldapi.h
+@@ -0,0 +1,2 @@
++#warning This driver uses old style API and needs to be rewritten or removed \
++	from kernel
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+--------------030004000104000903000409--

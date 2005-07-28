@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVG1PIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVG1PFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbVG1PIh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 11:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVG1PGO
+	id S261553AbVG1PFr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 11:05:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVG1PDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 11:06:14 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:10463 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261530AbVG1PEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 11:04:16 -0400
-Date: Thu, 28 Jul 2005 11:04:15 -0400
-To: gabri <metadistros@yahoo.es>
+	Thu, 28 Jul 2005 11:03:49 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:33245 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261552AbVG1PD1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 11:03:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=a7q2aGn3BDmKkolCxg75tbxhthaUWhaN8p3tOiKe5dp8yziobi4n9IP4zfKhv9aniTgCAiPLeRA+OMR9tp5SAfdoE2tJ8QWunvRTGTVlQSpWaiZRRXRwRhOaMEAi6Zms+KIhSfWiC96X8bIyXKIRW3UNqMJOD1rvARrgAE6WpoM=
+Message-ID: <3b0ffc1f05072808024968324@mail.gmail.com>
+Date: Thu, 28 Jul 2005 11:02:48 -0400
+From: Kevin Radloff <radsaq@gmail.com>
+Reply-To: Kevin Radloff <radsaq@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: ACPI processor C-state regression in 2.6.13-rc3?
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Helpme WitCh Cpu Scaling. Hi People
-Message-ID: <20050728150415.GD6714@csclub.uwaterloo.ca>
-References: <00ca01c592f2$da9eac60$0801a8c0@SEBAS> <20050728135234.GB31019@csclub.uwaterloo.ca> <001e01c5937c$3553cf80$0801a8c0@SEBAS> <20050728141321.GC6714@csclub.uwaterloo.ca> <005601c5937f$81165020$0801a8c0@SEBAS>
+In-Reply-To: <20050728145254.GL3528@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <005601c5937f$81165020$0801a8c0@SEBAS>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+References: <3b0ffc1f05071309396353066b@mail.gmail.com>
+	 <20050728145254.GL3528@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2005 at 04:20:10PM +0200, gabri wrote:
-> In windows i have a driver that regulate the mhz of amd mobile sempron but 
-> in linux i can not load any module for amd. The laptop is "supratech 
-> xpert2601"and procesor is amd mobile sempron
+On 7/28/05, Adrian Bunk <bunk@stusta.de> wrote:
+> On Wed, Jul 13, 2005 at 12:39:13PM -0400, Kevin Radloff wrote:
+> 
+> > With the ACPI merge in 2.6.13-rc3, C2 and C3 processor states are no
+> > longer detected/enabled on my Fujitsu Lifebook P7010D. Enabling ACPI
+> > debugging doesn't result in any extra info about this being reported.
+> > I assume it's related to the changes to enable C2/3 on SMP..
+> >
+> > Please CC me with any followups, as I'm not on the list.
+> 
+> Is this problem still present in 2.6.13-rc3-mm3?
+> 
+> If yes, please file a bug report at the kernel Bugzilla [1].
 
-Well the website for the company sure looks useless (not that I
-understand spanish).  Do they actually offer bios upgrades?  Do they
-actually say what chipset the laptop uses anywhere?  Is it ATI, nvidia,
-amd, via, or what?
+I just downloaded the 2.6.13-rc3-mm3 patch and I see the fix in there.
 
-Len Sorensen
+-- 
+Kevin 'radsaq' Radloff
+radsaq@gmail.com
+http://saqataq.us/

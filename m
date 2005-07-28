@@ -1,43 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVG1RMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVG1QRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbVG1RMv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 13:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVG1RM1
+	id S261637AbVG1QRt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 12:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVG1QOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 13:12:27 -0400
-Received: from graphe.net ([209.204.138.32]:32232 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261698AbVG1RLT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 13:11:19 -0400
-Date: Thu, 28 Jul 2005 10:11:18 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm3
-In-Reply-To: <20050728025840.0596b9cb.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0507281006320.1262@graphe.net>
-References: <20050728025840.0596b9cb.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Thu, 28 Jul 2005 12:14:33 -0400
+Received: from blackhole.adamant.ua ([212.26.128.69]:35384 "EHLO
+	blackhole.adamant.ua") by vger.kernel.org with ESMTP
+	id S261456AbVG1QNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 12:13:18 -0400
+Date: Thu, 28 Jul 2005 19:13:17 +0300
+From: Alexander Trotsai <mage@adamant.ua>
+To: linux-kernel@vger.kernel.org
+Subject: routing/shaping vs smp
+Message-ID: <20050728161317.GE3990@blackhole.adamant.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2005, Andrew Morton wrote:
+Hi
 
->   I remain fairly dubious about this - it seems a fairly specific and
->   complex piece of work to speed up one extremely specific part of one type of
->   computer's one type of workload.   Surely there's a better way :(
+Is that possible use power of 2 or more CPU (smp) for
+routing/shaping/accounting (iptables rules) with 2.4.x or
+may be 2.6.x linux kernel?
 
-The patches provide the basis for more work on this issue. But we need to 
-start somewhere. The specific issue addresses in the initial patchset is 
-becoming a common case for multi-core applications.
-
->   The patches at present spit warnings or don't compile on lots of
->   architectures.  x86, x86_64, ppc64 and ia64 are OK.
-
-I have just sent a fix to you this morning when I got your messages. 
-Sadly I do not have access to the architectures that failed (arm, alpha 
-and ppc32) but the fix simply removes code that is not used for these 
-arches.
+-- 
+Best regard, Aleksander Trotsai aka MAGE-RIPE aka MAGE-UANIC
+My PGP key at ftp://blackhole.adamant.ua/pgp/trotsai.key[.asc]
+Big trouble - Daemon escaped from pentagram

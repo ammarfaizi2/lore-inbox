@@ -1,81 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVG1A5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVG1BAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbVG1A5o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 20:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVG1A5o
+	id S261229AbVG1BAi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 21:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVG1BAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 20:57:44 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:65206 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261216AbVG1A5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 20:57:43 -0400
-Subject: Re: [PATCH 1/23] Add missing device_suspsend(PMSG_FREEZE) calls.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-In-Reply-To: <m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
-References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
-	 <m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
+	Wed, 27 Jul 2005 21:00:38 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:7409 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261229AbVG1BAg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 21:00:36 -0400
+Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
+From: Daniel Walker <dwalker@mvista.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1122473595.29823.60.camel@localhost.localdomain>
+References: <1122473595.29823.60.camel@localhost.localdomain>
 Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1122400462.4382.13.camel@localhost>
+Date: Wed, 27 Jul 2005 18:00:20 -0700
+Message-Id: <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 27 Jul 2005 03:54:23 +1000
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-Could you please send PMSG_* related patches to linux-pm at
-lists.osdl.org as well?
+Don't you break sched_find_first_bit() , seems it's dependent on a 
+140-bit bitmap .
 
-Thanks!
+Daniel
 
-Nigel
 
-On Wed, 2005-07-27 at 03:21, Eric W. Biederman wrote:
-> In the recent addition of device_suspend calls into
-> sys_reboot two code paths were missed.
+On Wed, 2005-07-27 at 10:13 -0400, Steven Rostedt wrote:
+> The following patch makes the MAX_RT_PRIO and MAX_USER_RT_PRIO
+> configurable from the make *config.  This is more of a proposal since
+> I'm not really sure where in Kconfig this would best fit. I don't see
+> why these options shouldn't be user configurable without going into the
+> kernel headers to change them.
 > 
-> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-> ---
+> Also, is there a way in the Kconfig to force the checking of
+> MAX_USER_RT_PRIO <= MAX_RT_PRIO?
 > 
->  kernel/sys.c |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
+> -- Steve
 > 
-> 5f0fb00783b94248b5a76c161f1c30a033fce4d3
-> diff --git a/kernel/sys.c b/kernel/sys.c
-> --- a/kernel/sys.c
-> +++ b/kernel/sys.c
-> @@ -391,6 +391,7 @@ asmlinkage long sys_reboot(int magic1, i
->  	case LINUX_REBOOT_CMD_RESTART:
->  		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
->  		system_state = SYSTEM_RESTART;
-> +		device_suspend(PMSG_FREEZE);
->  		device_shutdown();
->  		printk(KERN_EMERG "Restarting system.\n");
->  		machine_restart(NULL);
-> @@ -452,6 +453,7 @@ asmlinkage long sys_reboot(int magic1, i
->  		}
->  		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
->  		system_state = SYSTEM_RESTART;
-> +		device_suspend(PMSG_FREEZE);
->  		device_shutdown();
->  		printk(KERN_EMERG "Starting new kernel\n");
->  		machine_shutdown();
+> (Patched against 2.6.12.2)
+> 
+> Index: vanilla_kernel/include/linux/sched.h
+> ===================================================================
+> --- vanilla_kernel/include/linux/sched.h	(revision 263)
+> +++ vanilla_kernel/include/linux/sched.h	(working copy)
+> @@ -389,9 +389,13 @@
+>   * MAX_RT_PRIO must not be smaller than MAX_USER_RT_PRIO.
+>   */
+>  
+> -#define MAX_USER_RT_PRIO	100
+> -#define MAX_RT_PRIO		MAX_USER_RT_PRIO
+> +#define MAX_USER_RT_PRIO	CONFIG_MAX_USER_RT_PRIO
+> +#define MAX_RT_PRIO		CONFIG_MAX_RT_PRIO
+>  
+> +#if MAX_USER_RT_PRIO > MAX_RT_PRIO
+> +#error MAX_USER_RT_PRIO must not be greater than MAX_RT_PRIO
+> +#endif
+> +
+>  #define MAX_PRIO		(MAX_RT_PRIO + 40)
+>  
+>  #define rt_task(p)		(unlikely((p)->prio < MAX_RT_PRIO))
+> Index: vanilla_kernel/init/Kconfig
+> ===================================================================
+> --- vanilla_kernel/init/Kconfig	(revision 263)
+> +++ vanilla_kernel/init/Kconfig	(working copy)
+> @@ -162,6 +162,32 @@
+>  	  building a kernel for install/rescue disks or your system is very
+>  	  limited in memory.
+>  
+> +config MAX_RT_PRIO
+> +	int "Maximum RT priority"
+> +	default 100
+> +	help
+> +	  The real-time priority of threads that have the policy of SCHED_FIFO
+> +	  or SCHED_RR have a priority higher than normal threads.  This range
+> +	  can be set here, where the range starts from 0 to MAX_RT_PRIO-1.
+> +	  If this range is higher than MAX_USER_RT_PRIO than kernel threads
+> +	  may have a higher priority than any user thread.
+> +
+> +	  This may be the same as MAX_USER_RT_PRIO, but do not set this 
+> +	  to be less than MAX_USER_RT_PRIO.
+> +
+> +config MAX_USER_RT_PRIO
+> +	int "Maximum User RT priority"
+> +	default 100
+> +	help
+> +	  The real-time priority of threads that have the policy of SCHED_FIFO
+> +	  or SCHED_RR have a priority higher than normal threads.  This range
+> +	  can be set here, where the range starts from 0 to MAX_USER_RT_PRIO-1.
+> +	  If this range is lower than MAX_RT_PRIO, than kernel threads may have
+> +	  a higher priority than any user thread.
+> +
+> +	  This may be the same as MAX_RT_PRIO, but do not set this to be
+> +	  greater than MAX_RT_PRIO.
+> +	  
+>  config AUDIT
+>  	bool "Auditing support"
+>  	default y if SECURITY_SELINUX
+> 
+> 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
 

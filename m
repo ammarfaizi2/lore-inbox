@@ -1,67 +1,1217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVG1SJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVG1RM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbVG1SJU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 14:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVG1SD7
+	id S261684AbVG1RM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 13:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVG1QhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 14:03:59 -0400
-Received: from gaz.sfgoth.com ([69.36.241.230]:6138 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S261870AbVG1SDn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 14:03:43 -0400
-Date: Thu, 28 Jul 2005 11:09:07 -0700
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Greg KH <greg@kroah.com>, dtor_core@ameritech.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
-Message-ID: <20050728180907.GI9985@gaz.sfgoth.com>
-References: <20050726015401.GA25015@kroah.com> <9e473391050725201553f3e8be@mail.gmail.com> <9e47339105072719057c833e62@mail.gmail.com> <20050728034610.GA12123@kroah.com> <9e473391050727205971b0aee@mail.gmail.com> <20050728040544.GA12476@kroah.com> <9e47339105072721495d3788a8@mail.gmail.com> <20050728054914.GA13904@kroah.com> <20050728070455.GF9985@gaz.sfgoth.com> <9e47339105072805545766f97d@mail.gmail.com>
+	Thu, 28 Jul 2005 12:37:22 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:48141 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261653AbVG1Qet
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 12:34:49 -0400
+Message-Id: <200507281626.j6SGQpoV009497@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 6/7] UML - Rename Kconfig files to be like the other arches
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e47339105072805545766f97d@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Thu, 28 Jul 2005 11:09:08 -0700 (PDT)
+Date: Thu, 28 Jul 2005 12:26:51 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> Do we need to deal with UTF8 here? I did the forward loop because you
-> can't parse UTF8 backwards. If UTF8 is possible I need to change the
-> pointer inc function.
+To the extent that sub-Kconfig files exist elsewhere in the tree, they
+are named Kconfig.foo, rather than the Kconfig_foo that UML has.
+This patch brings the names in line with the rest of the tree.
 
-As others have mentioned there shouldn't be a UTF8 problem with isspace().
-However, even if you wanted to scan going forwards you can do it without
-the complexity of a nested loop:
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-	char *real_end;
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig	2005-07-28 12:26:17.000000000 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig	2005-07-28 12:27:49.000000000 -0400
+@@ -73,7 +73,7 @@
+ 	to CONFIG_MODE_TT).  Otherwise, it is safe to say Y.  Disabling this
+ 	option will shrink the UML binary slightly.
+ 
+-source "arch/um/Kconfig_arch"
++source "arch/um/Kconfig.arch"
+ source "mm/Kconfig"
+ 
+ config LD_SCRIPT_STATIC
+@@ -279,7 +279,7 @@
+ 
+ source "drivers/base/Kconfig"
+ 
+-source "arch/um/Kconfig_char"
++source "arch/um/Kconfig.char"
+ 
+ source "drivers/block/Kconfig"
+ 
+@@ -287,7 +287,7 @@
+ 	bool
+ 	default NET
+ 
+-source "arch/um/Kconfig_net"
++source "arch/um/Kconfig.net"
+ 
+ source "drivers/net/Kconfig"
+ 
+@@ -311,7 +311,7 @@
+ 	depends on SCSI
+ 	default y
+ 
+-source "arch/um/Kconfig_scsi"
++source "arch/um/Kconfig.scsi"
+ 
+ endmenu
+ 
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig.char
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig.char	2005-07-28 05:04:34.593890552 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig.char	2005-07-28 12:27:49.000000000 -0400
+@@ -0,0 +1,214 @@
++
++menu "Character Devices"
++
++config STDERR_CONSOLE
++	bool "stderr console"
++	default y
++	help
++	console driver which dumps all printk messages to stderr.
++
++config STDIO_CONSOLE
++	bool
++	default y
++
++config SSL
++	bool "Virtual serial line"
++	help
++        The User-Mode Linux environment allows you to create virtual serial
++        lines on the UML that are usually made to show up on the host as
++        ttys or ptys.
++
++        See <http://user-mode-linux.sourceforge.net/input.html> for more
++        information and command line examples of how to use this facility.
++
++        Unless you have a specific reason for disabling this, say Y.
++
++config NULL_CHAN
++	bool "null channel support"
++	help
++        This option enables support for attaching UML consoles and serial
++        lines to a device similar to /dev/null.  Data written to it disappears
++        and there is never any data to be read.
++
++config PORT_CHAN
++	bool "port channel support"
++	help
++        This option enables support for attaching UML consoles and serial
++        lines to host portals.  They may be accessed with 'telnet <host>
++        <port number>'.  Any number of consoles and serial lines may be
++        attached to a single portal, although what UML device you get when
++        you telnet to that portal will be unpredictable.
++        It is safe to say 'Y' here.
++
++config PTY_CHAN
++	bool "pty channel support"
++	help
++        This option enables support for attaching UML consoles and serial
++        lines to host pseudo-terminals.  Access to both traditional
++        pseudo-terminals (/dev/pty*) and pts pseudo-terminals are controlled
++        with this option.  The assignment of UML devices to host devices
++        will be announced in the kernel message log.
++        It is safe to say 'Y' here.
++
++config TTY_CHAN
++	bool "tty channel support"
++	help
++        This option enables support for attaching UML consoles and serial
++        lines to host terminals.  Access to both virtual consoles
++        (/dev/tty*) and the slave side of pseudo-terminals (/dev/ttyp* and
++        /dev/pts/*) are controlled by this option.
++        It is safe to say 'Y' here.
++
++config XTERM_CHAN
++	bool "xterm channel support"
++	help
++        This option enables support for attaching UML consoles and serial
++        lines to xterms.  Each UML device so assigned will be brought up in
++        its own xterm.
++        If you disable this option, then CONFIG_PT_PROXY will be disabled as
++        well, since UML's gdb currently requires an xterm.
++        It is safe to say 'Y' here.
++
++config NOCONFIG_CHAN
++	bool
++	default !(XTERM_CHAN && TTY_CHAN && PTY_CHAN && PORT_CHAN && NULL_CHAN)
++
++config CON_ZERO_CHAN
++	string "Default main console channel initialization"
++	default "fd:0,fd:1"
++	help
++        This is the string describing the channel to which the main console
++        will be attached by default.  This value can be overridden from the
++        command line.  The default value is "fd:0,fd:1", which attaches the
++        main console to stdin and stdout.
++        It is safe to leave this unchanged.
++
++config CON_CHAN
++	string "Default console channel initialization"
++	default "xterm"
++	help
++        This is the string describing the channel to which all consoles
++        except the main console will be attached by default.  This value can
++        be overridden from the command line.  The default value is "xterm",
++        which brings them up in xterms.
++        It is safe to leave this unchanged, although you may wish to change
++        this if you expect the UML that you build to be run in environments
++        which don't have X or xterm available.
++
++config SSL_CHAN
++	string "Default serial line channel initialization"
++	default "pty"
++	help
++        This is the string describing the channel to which the serial lines
++        will be attached by default.  This value can be overridden from the
++        command line.  The default value is "pty", which attaches them to
++        traditional pseudo-terminals.
++        It is safe to leave this unchanged, although you may wish to change
++        this if you expect the UML that you build to be run in environments
++        which don't have a set of /dev/pty* devices.
++
++config UNIX98_PTYS
++	bool "Unix98 PTY support"
++	---help---
++	  A pseudo terminal (PTY) is a software device consisting of two
++	  halves: a master and a slave. The slave device behaves identical to
++	  a physical terminal; the master device is used by a process to
++	  read data from and write data to the slave, thereby emulating a
++	  terminal. Typical programs for the master side are telnet servers
++	  and xterms.
++
++	  Linux has traditionally used the BSD-like names /dev/ptyxx for
++	  masters and /dev/ttyxx for slaves of pseudo terminals. This scheme
++	  has a number of problems. The GNU C library glibc 2.1 and later,
++	  however, supports the Unix98 naming standard: in order to acquire a
++	  pseudo terminal, a process opens /dev/ptmx; the number of the pseudo
++	  terminal is then made available to the process and the pseudo
++	  terminal slave can be accessed as /dev/pts/<number>. What was
++	  traditionally /dev/ttyp2 will then be /dev/pts/2, for example.
++
++	  All modern Linux systems use the Unix98 ptys.  Say Y unless
++	  you're on an embedded system and want to conserve memory.
++
++config LEGACY_PTYS
++	bool "Legacy (BSD) PTY support"
++	default y
++	---help---
++	  A pseudo terminal (PTY) is a software device consisting of two
++	  halves: a master and a slave. The slave device behaves identical to
++	  a physical terminal; the master device is used by a process to
++	  read data from and write data to the slave, thereby emulating a
++	  terminal. Typical programs for the master side are telnet servers
++	  and xterms.
++
++	  Linux has traditionally used the BSD-like names /dev/ptyxx
++	  for masters and /dev/ttyxx for slaves of pseudo
++	  terminals. This scheme has a number of problems, including
++	  security.  This option enables these legacy devices; on most
++	  systems, it is safe to say N.
++
++
++config LEGACY_PTY_COUNT
++	int "Maximum number of legacy PTY in use"
++	depends on LEGACY_PTYS
++	default "256"
++	---help---
++	  The maximum number of legacy PTYs that can be used at any one time.
++	  The default is 256, and should be more than enough.  Embedded
++	  systems may want to reduce this to save memory.
++
++	  When not in use, each legacy PTY occupies 12 bytes on 32-bit
++	  architectures and 24 bytes on 64-bit architectures.
++
++config WATCHDOG
++	bool "Watchdog Timer Support"
++
++config WATCHDOG_NOWAYOUT
++	bool "Disable watchdog shutdown on close"
++	depends on WATCHDOG
++
++config SOFT_WATCHDOG
++	tristate "Software Watchdog"
++	depends on WATCHDOG
++
++config UML_WATCHDOG
++	tristate "UML watchdog"
++	depends on WATCHDOG
++
++config UML_SOUND
++	tristate "Sound support"
++	help
++        This option enables UML sound support.  If enabled, it will pull in
++        soundcore and the UML hostaudio relay, which acts as a intermediary
++        between the host's dsp and mixer devices and the UML sound system.
++        It is safe to say 'Y' here.
++
++config SOUND
++	tristate
++	default UML_SOUND
++
++config HOSTAUDIO
++	tristate
++	default UML_SOUND
++
++config UML_RANDOM
++	tristate "Hardware random number generator"
++	help
++	This option enables UML's "hardware" random number generator.  It
++	attaches itself to the host's /dev/random, supplying as much entropy
++	as the host has, rather than the small amount the UML gets from its
++	own drivers.  It registers itself as a standard hardware random number
++	generator, major 10, minor 183, and the canonical device name is
++	/dev/hwrng.
++	The way to make use of this is to install the rng-tools package
++	(check your distro, or download from
++	http://sourceforge.net/projects/gkernel/).  rngd periodically reads
++	/dev/hwrng and injects the entropy into /dev/random.
++
++config MMAPPER
++	tristate "iomem emulation driver"
++	help
++	This driver allows a host file to be used as emulated IO memory inside
++	UML.
++
++endmenu
++
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig.i386
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig.i386	2005-07-28 05:04:34.593890552 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig.i386	2005-07-28 12:27:49.000000000 -0400
+@@ -0,0 +1,44 @@
++config UML_X86
++	bool
++	default y
++
++config 64BIT
++	bool
++	default n
++
++config SEMAPHORE_SLEEPERS
++	bool
++	default y
++
++config TOP_ADDR
++ 	hex
++ 	default 0xc0000000 if !HOST_2G_2G
++ 	default 0x80000000 if HOST_2G_2G
++
++config 3_LEVEL_PGTABLES
++	bool "Three-level pagetables"
++	default n
++	help
++	Three-level pagetables will let UML have more than 4G of physical
++	memory.  All the memory that can't be mapped directly will be treated
++	as high memory.
++
++config STUB_CODE
++	hex
++	default 0xbfffe000
++
++config STUB_DATA
++	hex
++	default 0xbffff000
++
++config STUB_START
++	hex
++	default STUB_CODE
++
++config ARCH_HAS_SC_SIGNALS
++	bool
++	default y
++
++config ARCH_REUSE_HOST_VSYSCALL_AREA
++	bool
++	default y
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig.net
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig.net	2005-07-28 05:04:34.593890552 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig.net	2005-07-28 12:27:49.000000000 -0400
+@@ -0,0 +1,180 @@
++
++menu "UML Network Devices"
++	depends on NET
++
++# UML virtual driver
++config UML_NET
++	bool "Virtual network device"
++	help
++        While the User-Mode port cannot directly talk to any physical
++        hardware devices, this choice and the following transport options
++        provide one or more virtual network devices through which the UML
++        kernels can talk to each other, the host, and with the host's help,
++        machines on the outside world.
++
++        For more information, including explanations of the networking and
++        sample configurations, see
++        <http://user-mode-linux.sourceforge.net/networking.html>.
++
++        If you'd like to be able to enable networking in the User-Mode
++        linux environment, say Y; otherwise say N.  Note that you must
++        enable at least one of the following transport options to actually
++        make use of UML networking.
++
++config UML_NET_ETHERTAP
++	bool "Ethertap transport"
++	depends on UML_NET
++	help
++        The Ethertap User-Mode Linux network transport allows a single
++        running UML to exchange packets with its host over one of the
++        host's Ethertap devices, such as /dev/tap0.  Additional running
++        UMLs can use additional Ethertap devices, one per running UML.
++        While the UML believes it's on a (multi-device, broadcast) virtual
++        Ethernet network, it's in fact communicating over a point-to-point
++        link with the host.
++
++        To use this, your host kernel must have support for Ethertap
++        devices.  Also, if your host kernel is 2.4.x, it must have 
++        CONFIG_NETLINK_DEV configured as Y or M.
++
++        For more information, see
++        <http://user-mode-linux.sourceforge.net/networking.html>  That site
++        has examples of the UML command line to use to enable Ethertap
++        networking.
++
++        If you'd like to set up an IP network with the host and/or the
++        outside world, say Y to this, the Daemon Transport and/or the 
++        Slip Transport.  You'll need at least one of them, but may choose
++        more than one without conflict.  If you don't need UML networking,
++        say N.
++
++config UML_NET_TUNTAP
++	bool "TUN/TAP transport"
++	depends on UML_NET
++	help
++        The UML TUN/TAP network transport allows a UML instance to exchange
++        packets with the host over a TUN/TAP device.  This option will only
++        work with a 2.4 host, unless you've applied the TUN/TAP patch to
++        your 2.2 host kernel.
++
++        To use this transport, your host kernel must have support for TUN/TAP
++        devices, either built-in or as a module.
++
++config UML_NET_SLIP
++	bool "SLIP transport"
++	depends on UML_NET
++	help
++        The slip User-Mode Linux network transport allows a running UML to
++        network with its host over a point-to-point link.  Unlike Ethertap,
++        which can carry any Ethernet frame (and hence even non-IP packets),
++        the slip transport can only carry IP packets.
++
++        To use this, your host must support slip devices.
++
++        For more information, see
++        <http://user-mode-linux.sourceforge.net/networking.html>.  That site
++        has examples of the UML command line to use to enable slip
++        networking, and details of a few quirks with it.
++
++        The Ethertap Transport is preferred over slip because of its
++        limitations.  If you prefer slip, however, say Y here.  Otherwise
++        choose the Multicast transport (to network multiple UMLs on 
++        multiple hosts), Ethertap (to network with the host and the
++        outside world), and/or the Daemon transport (to network multiple
++        UMLs on a single host).  You may choose more than one without
++        conflict.  If you don't need UML networking, say N.
++
++config UML_NET_DAEMON
++	bool "Daemon transport"
++	depends on UML_NET
++	help
++        This User-Mode Linux network transport allows one or more running
++        UMLs on a single host to communicate with each other, but not to
++        the host.
++
++        To use this form of networking, you'll need to run the UML
++        networking daemon on the host.
++
++        For more information, see
++        <http://user-mode-linux.sourceforge.net/networking.html>  That site
++        has examples of the UML command line to use to enable Daemon
++        networking.
++
++        If you'd like to set up a network with other UMLs on a single host,
++        say Y.  If you need a network between UMLs on multiple physical
++        hosts, choose the Multicast Transport.  To set up a network with
++        the host and/or other IP machines, say Y to the Ethertap or Slip
++        transports.  You'll need at least one of them, but may choose
++        more than one without conflict.  If you don't need UML networking,
++        say N.
++
++config UML_NET_MCAST
++	bool "Multicast transport"
++	depends on UML_NET
++	help
++        This Multicast User-Mode Linux network transport allows multiple
++        UMLs (even ones running on different host machines!) to talk to
++        each other over a virtual ethernet network.  However, it requires
++        at least one UML with one of the other transports to act as a
++        bridge if any of them need to be able to talk to their hosts or any
++        other IP machines.
++
++        To use this, your host kernel(s) must support IP Multicasting.
++
++        For more information, see
++        <http://user-mode-linux.sourceforge.net/networking.html>  That site
++        has examples of the UML command line to use to enable Multicast
++        networking, and notes about the security of this approach.
++
++        If you need UMLs on multiple physical hosts to communicate as if
++        they shared an Ethernet network, say Y.  If you need to communicate
++        with other IP machines, make sure you select one of the other
++        transports (possibly in addition to Multicast; they're not
++        exclusive).  If you don't need to network UMLs say N to each of
++        the transports.
++
++config UML_NET_PCAP
++	bool "pcap transport"
++	depends on UML_NET && EXPERIMENTAL
++	help
++	The pcap transport makes a pcap packet stream on the host look
++	like an ethernet device inside UML.  This is useful for making 
++	UML act as a network monitor for the host.  You must have libcap
++	installed in order to build the pcap transport into UML.
++
++        For more information, see
++        <http://user-mode-linux.sourceforge.net/networking.html>  That site
++        has examples of the UML command line to use to enable this option.
++
++	If you intend to use UML as a network monitor for the host, say
++	Y here.  Otherwise, say N.
++
++config UML_NET_SLIRP
++	bool "SLiRP transport"
++	depends on UML_NET
++	help
++        The SLiRP User-Mode Linux network transport allows a running UML
++        to network by invoking a program that can handle SLIP encapsulated
++        packets.  This is commonly (but not limited to) the application
++        known as SLiRP, a program that can re-socket IP packets back onto
++        the host on which it is run.  Only IP packets are supported,
++        unlike other network transports that can handle all Ethernet
++        frames.  In general, slirp allows the UML the same IP connectivity
++        to the outside world that the host user is permitted, and unlike
++        other transports, SLiRP works without the need of root level
++        privleges, setuid binaries, or SLIP devices on the host.  This
++        also means not every type of connection is possible, but most
++        situations can be accomodated with carefully crafted slirp
++        commands that can be passed along as part of the network device's
++        setup string.  The effect of this transport on the UML is similar
++        that of a host behind a firewall that masquerades all network
++        connections passing through it (but is less secure).
++	
++        To use this you should first have slirp compiled somewhere
++        accessible on the host, and have read its documentation.  If you
++        don't need UML networking, say N.
++	
++        Startup example: "eth0=slirp,FE:FD:01:02:03:04,/usr/local/bin/slirp"
++
++endmenu
++
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig.scsi
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig.scsi	2005-07-28 05:04:34.593890552 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig.scsi	2005-07-28 12:27:49.000000000 -0400
+@@ -0,0 +1,58 @@
++comment "SCSI support type (disk, tape, CD-ROM)"
++	depends on SCSI
++
++config BLK_DEV_SD
++	tristate "SCSI disk support"
++	depends on SCSI
++
++config SD_EXTRA_DEVS
++	int "Maximum number of SCSI disks that can be loaded as modules"
++	depends on BLK_DEV_SD
++	default "40"
++
++config CHR_DEV_ST
++	tristate "SCSI tape support"
++	depends on SCSI
++
++config BLK_DEV_SR
++	tristate "SCSI CD-ROM support"
++	depends on SCSI
++
++config BLK_DEV_SR_VENDOR
++	bool "Enable vendor-specific extensions (for SCSI CDROM)"
++	depends on BLK_DEV_SR
++
++config SR_EXTRA_DEVS
++	int "Maximum number of CDROM devices that can be loaded as modules"
++	depends on BLK_DEV_SR
++	default "2"
++
++config CHR_DEV_SG
++	tristate "SCSI generic support"
++	depends on SCSI
++
++comment "Some SCSI devices (e.g. CD jukebox) support multiple LUNs"
++	depends on SCSI
++
++#if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
++config SCSI_DEBUG_QUEUES
++	bool "Enable extra checks in new queueing code"
++	depends on SCSI
++
++#fi
++config SCSI_MULTI_LUN
++	bool "Probe all LUNs on each SCSI device"
++	depends on SCSI
++
++config SCSI_CONSTANTS
++	bool "Verbose SCSI error reporting (kernel size +=12K)"
++	depends on SCSI
++
++config SCSI_LOGGING
++	bool "SCSI logging facility"
++	depends on SCSI
++
++config SCSI_DEBUG
++	tristate "SCSI debugging host simulator (EXPERIMENTAL)"
++	depends on SCSI
++
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig.x86_64
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig.x86_64	2005-07-28 05:04:34.593890552 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig.x86_64	2005-07-28 12:27:49.000000000 -0400
+@@ -0,0 +1,39 @@
++config UML_X86
++	bool
++	default y
++
++config 64BIT
++	bool
++	default y
++
++config SEMAPHORE_SLEEPERS
++	bool
++	default y
++
++config TOP_ADDR
++ 	hex
++	default 0x80000000
++
++config 3_LEVEL_PGTABLES
++       bool
++       default y
++
++config STUB_CODE
++	hex
++	default 0x7fbfffe000
++
++config STUB_DATA
++	hex
++	default 0x7fbffff000
++
++config STUB_START
++	hex
++	default STUB_CODE
++
++config ARCH_HAS_SC_SIGNALS
++	bool
++	default n
++
++config ARCH_REUSE_HOST_VSYSCALL_AREA
++	bool
++	default n
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig_char
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig_char	2005-07-28 12:26:17.000000000 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig_char	2005-07-28 05:04:34.593890552 -0400
+@@ -1,214 +0,0 @@
+-
+-menu "Character Devices"
+-
+-config STDERR_CONSOLE
+-	bool "stderr console"
+-	default y
+-	help
+-	console driver which dumps all printk messages to stderr.
+-
+-config STDIO_CONSOLE
+-	bool
+-	default y
+-
+-config SSL
+-	bool "Virtual serial line"
+-	help
+-        The User-Mode Linux environment allows you to create virtual serial
+-        lines on the UML that are usually made to show up on the host as
+-        ttys or ptys.
+-
+-        See <http://user-mode-linux.sourceforge.net/input.html> for more
+-        information and command line examples of how to use this facility.
+-
+-        Unless you have a specific reason for disabling this, say Y.
+-
+-config NULL_CHAN
+-	bool "null channel support"
+-	help
+-        This option enables support for attaching UML consoles and serial
+-        lines to a device similar to /dev/null.  Data written to it disappears
+-        and there is never any data to be read.
+-
+-config PORT_CHAN
+-	bool "port channel support"
+-	help
+-        This option enables support for attaching UML consoles and serial
+-        lines to host portals.  They may be accessed with 'telnet <host>
+-        <port number>'.  Any number of consoles and serial lines may be
+-        attached to a single portal, although what UML device you get when
+-        you telnet to that portal will be unpredictable.
+-        It is safe to say 'Y' here.
+-
+-config PTY_CHAN
+-	bool "pty channel support"
+-	help
+-        This option enables support for attaching UML consoles and serial
+-        lines to host pseudo-terminals.  Access to both traditional
+-        pseudo-terminals (/dev/pty*) and pts pseudo-terminals are controlled
+-        with this option.  The assignment of UML devices to host devices
+-        will be announced in the kernel message log.
+-        It is safe to say 'Y' here.
+-
+-config TTY_CHAN
+-	bool "tty channel support"
+-	help
+-        This option enables support for attaching UML consoles and serial
+-        lines to host terminals.  Access to both virtual consoles
+-        (/dev/tty*) and the slave side of pseudo-terminals (/dev/ttyp* and
+-        /dev/pts/*) are controlled by this option.
+-        It is safe to say 'Y' here.
+-
+-config XTERM_CHAN
+-	bool "xterm channel support"
+-	help
+-        This option enables support for attaching UML consoles and serial
+-        lines to xterms.  Each UML device so assigned will be brought up in
+-        its own xterm.
+-        If you disable this option, then CONFIG_PT_PROXY will be disabled as
+-        well, since UML's gdb currently requires an xterm.
+-        It is safe to say 'Y' here.
+-
+-config NOCONFIG_CHAN
+-	bool
+-	default !(XTERM_CHAN && TTY_CHAN && PTY_CHAN && PORT_CHAN && NULL_CHAN)
+-
+-config CON_ZERO_CHAN
+-	string "Default main console channel initialization"
+-	default "fd:0,fd:1"
+-	help
+-        This is the string describing the channel to which the main console
+-        will be attached by default.  This value can be overridden from the
+-        command line.  The default value is "fd:0,fd:1", which attaches the
+-        main console to stdin and stdout.
+-        It is safe to leave this unchanged.
+-
+-config CON_CHAN
+-	string "Default console channel initialization"
+-	default "xterm"
+-	help
+-        This is the string describing the channel to which all consoles
+-        except the main console will be attached by default.  This value can
+-        be overridden from the command line.  The default value is "xterm",
+-        which brings them up in xterms.
+-        It is safe to leave this unchanged, although you may wish to change
+-        this if you expect the UML that you build to be run in environments
+-        which don't have X or xterm available.
+-
+-config SSL_CHAN
+-	string "Default serial line channel initialization"
+-	default "pty"
+-	help
+-        This is the string describing the channel to which the serial lines
+-        will be attached by default.  This value can be overridden from the
+-        command line.  The default value is "pty", which attaches them to
+-        traditional pseudo-terminals.
+-        It is safe to leave this unchanged, although you may wish to change
+-        this if you expect the UML that you build to be run in environments
+-        which don't have a set of /dev/pty* devices.
+-
+-config UNIX98_PTYS
+-	bool "Unix98 PTY support"
+-	---help---
+-	  A pseudo terminal (PTY) is a software device consisting of two
+-	  halves: a master and a slave. The slave device behaves identical to
+-	  a physical terminal; the master device is used by a process to
+-	  read data from and write data to the slave, thereby emulating a
+-	  terminal. Typical programs for the master side are telnet servers
+-	  and xterms.
+-
+-	  Linux has traditionally used the BSD-like names /dev/ptyxx for
+-	  masters and /dev/ttyxx for slaves of pseudo terminals. This scheme
+-	  has a number of problems. The GNU C library glibc 2.1 and later,
+-	  however, supports the Unix98 naming standard: in order to acquire a
+-	  pseudo terminal, a process opens /dev/ptmx; the number of the pseudo
+-	  terminal is then made available to the process and the pseudo
+-	  terminal slave can be accessed as /dev/pts/<number>. What was
+-	  traditionally /dev/ttyp2 will then be /dev/pts/2, for example.
+-
+-	  All modern Linux systems use the Unix98 ptys.  Say Y unless
+-	  you're on an embedded system and want to conserve memory.
+-
+-config LEGACY_PTYS
+-	bool "Legacy (BSD) PTY support"
+-	default y
+-	---help---
+-	  A pseudo terminal (PTY) is a software device consisting of two
+-	  halves: a master and a slave. The slave device behaves identical to
+-	  a physical terminal; the master device is used by a process to
+-	  read data from and write data to the slave, thereby emulating a
+-	  terminal. Typical programs for the master side are telnet servers
+-	  and xterms.
+-
+-	  Linux has traditionally used the BSD-like names /dev/ptyxx
+-	  for masters and /dev/ttyxx for slaves of pseudo
+-	  terminals. This scheme has a number of problems, including
+-	  security.  This option enables these legacy devices; on most
+-	  systems, it is safe to say N.
+-
+-
+-config LEGACY_PTY_COUNT
+-	int "Maximum number of legacy PTY in use"
+-	depends on LEGACY_PTYS
+-	default "256"
+-	---help---
+-	  The maximum number of legacy PTYs that can be used at any one time.
+-	  The default is 256, and should be more than enough.  Embedded
+-	  systems may want to reduce this to save memory.
+-
+-	  When not in use, each legacy PTY occupies 12 bytes on 32-bit
+-	  architectures and 24 bytes on 64-bit architectures.
+-
+-config WATCHDOG
+-	bool "Watchdog Timer Support"
+-
+-config WATCHDOG_NOWAYOUT
+-	bool "Disable watchdog shutdown on close"
+-	depends on WATCHDOG
+-
+-config SOFT_WATCHDOG
+-	tristate "Software Watchdog"
+-	depends on WATCHDOG
+-
+-config UML_WATCHDOG
+-	tristate "UML watchdog"
+-	depends on WATCHDOG
+-
+-config UML_SOUND
+-	tristate "Sound support"
+-	help
+-        This option enables UML sound support.  If enabled, it will pull in
+-        soundcore and the UML hostaudio relay, which acts as a intermediary
+-        between the host's dsp and mixer devices and the UML sound system.
+-        It is safe to say 'Y' here.
+-
+-config SOUND
+-	tristate
+-	default UML_SOUND
+-
+-config HOSTAUDIO
+-	tristate
+-	default UML_SOUND
+-
+-config UML_RANDOM
+-	tristate "Hardware random number generator"
+-	help
+-	This option enables UML's "hardware" random number generator.  It
+-	attaches itself to the host's /dev/random, supplying as much entropy
+-	as the host has, rather than the small amount the UML gets from its
+-	own drivers.  It registers itself as a standard hardware random number
+-	generator, major 10, minor 183, and the canonical device name is
+-	/dev/hwrng.
+-	The way to make use of this is to install the rng-tools package
+-	(check your distro, or download from
+-	http://sourceforge.net/projects/gkernel/).  rngd periodically reads
+-	/dev/hwrng and injects the entropy into /dev/random.
+-
+-config MMAPPER
+-	tristate "iomem emulation driver"
+-	help
+-	This driver allows a host file to be used as emulated IO memory inside
+-	UML.
+-
+-endmenu
+-
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig_i386
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig_i386	2005-07-28 11:20:50.000000000 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig_i386	2005-07-28 05:04:34.593890552 -0400
+@@ -1,44 +0,0 @@
+-config UML_X86
+-	bool
+-	default y
+-
+-config 64BIT
+-	bool
+-	default n
+-
+-config SEMAPHORE_SLEEPERS
+-	bool
+-	default y
+-
+-config TOP_ADDR
+- 	hex
+- 	default 0xc0000000 if !HOST_2G_2G
+- 	default 0x80000000 if HOST_2G_2G
+-
+-config 3_LEVEL_PGTABLES
+-	bool "Three-level pagetables"
+-	default n
+-	help
+-	Three-level pagetables will let UML have more than 4G of physical
+-	memory.  All the memory that can't be mapped directly will be treated
+-	as high memory.
+-
+-config STUB_CODE
+-	hex
+-	default 0xbfffe000
+-
+-config STUB_DATA
+-	hex
+-	default 0xbffff000
+-
+-config STUB_START
+-	hex
+-	default STUB_CODE
+-
+-config ARCH_HAS_SC_SIGNALS
+-	bool
+-	default y
+-
+-config ARCH_REUSE_HOST_VSYSCALL_AREA
+-	bool
+-	default y
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig_net
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig_net	2005-07-28 11:20:50.000000000 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig_net	2005-07-28 05:04:34.593890552 -0400
+@@ -1,180 +0,0 @@
+-
+-menu "UML Network Devices"
+-	depends on NET
+-
+-# UML virtual driver
+-config UML_NET
+-	bool "Virtual network device"
+-	help
+-        While the User-Mode port cannot directly talk to any physical
+-        hardware devices, this choice and the following transport options
+-        provide one or more virtual network devices through which the UML
+-        kernels can talk to each other, the host, and with the host's help,
+-        machines on the outside world.
+-
+-        For more information, including explanations of the networking and
+-        sample configurations, see
+-        <http://user-mode-linux.sourceforge.net/networking.html>.
+-
+-        If you'd like to be able to enable networking in the User-Mode
+-        linux environment, say Y; otherwise say N.  Note that you must
+-        enable at least one of the following transport options to actually
+-        make use of UML networking.
+-
+-config UML_NET_ETHERTAP
+-	bool "Ethertap transport"
+-	depends on UML_NET
+-	help
+-        The Ethertap User-Mode Linux network transport allows a single
+-        running UML to exchange packets with its host over one of the
+-        host's Ethertap devices, such as /dev/tap0.  Additional running
+-        UMLs can use additional Ethertap devices, one per running UML.
+-        While the UML believes it's on a (multi-device, broadcast) virtual
+-        Ethernet network, it's in fact communicating over a point-to-point
+-        link with the host.
+-
+-        To use this, your host kernel must have support for Ethertap
+-        devices.  Also, if your host kernel is 2.4.x, it must have 
+-        CONFIG_NETLINK_DEV configured as Y or M.
+-
+-        For more information, see
+-        <http://user-mode-linux.sourceforge.net/networking.html>  That site
+-        has examples of the UML command line to use to enable Ethertap
+-        networking.
+-
+-        If you'd like to set up an IP network with the host and/or the
+-        outside world, say Y to this, the Daemon Transport and/or the 
+-        Slip Transport.  You'll need at least one of them, but may choose
+-        more than one without conflict.  If you don't need UML networking,
+-        say N.
+-
+-config UML_NET_TUNTAP
+-	bool "TUN/TAP transport"
+-	depends on UML_NET
+-	help
+-        The UML TUN/TAP network transport allows a UML instance to exchange
+-        packets with the host over a TUN/TAP device.  This option will only
+-        work with a 2.4 host, unless you've applied the TUN/TAP patch to
+-        your 2.2 host kernel.
+-
+-        To use this transport, your host kernel must have support for TUN/TAP
+-        devices, either built-in or as a module.
+-
+-config UML_NET_SLIP
+-	bool "SLIP transport"
+-	depends on UML_NET
+-	help
+-        The slip User-Mode Linux network transport allows a running UML to
+-        network with its host over a point-to-point link.  Unlike Ethertap,
+-        which can carry any Ethernet frame (and hence even non-IP packets),
+-        the slip transport can only carry IP packets.
+-
+-        To use this, your host must support slip devices.
+-
+-        For more information, see
+-        <http://user-mode-linux.sourceforge.net/networking.html>.  That site
+-        has examples of the UML command line to use to enable slip
+-        networking, and details of a few quirks with it.
+-
+-        The Ethertap Transport is preferred over slip because of its
+-        limitations.  If you prefer slip, however, say Y here.  Otherwise
+-        choose the Multicast transport (to network multiple UMLs on 
+-        multiple hosts), Ethertap (to network with the host and the
+-        outside world), and/or the Daemon transport (to network multiple
+-        UMLs on a single host).  You may choose more than one without
+-        conflict.  If you don't need UML networking, say N.
+-
+-config UML_NET_DAEMON
+-	bool "Daemon transport"
+-	depends on UML_NET
+-	help
+-        This User-Mode Linux network transport allows one or more running
+-        UMLs on a single host to communicate with each other, but not to
+-        the host.
+-
+-        To use this form of networking, you'll need to run the UML
+-        networking daemon on the host.
+-
+-        For more information, see
+-        <http://user-mode-linux.sourceforge.net/networking.html>  That site
+-        has examples of the UML command line to use to enable Daemon
+-        networking.
+-
+-        If you'd like to set up a network with other UMLs on a single host,
+-        say Y.  If you need a network between UMLs on multiple physical
+-        hosts, choose the Multicast Transport.  To set up a network with
+-        the host and/or other IP machines, say Y to the Ethertap or Slip
+-        transports.  You'll need at least one of them, but may choose
+-        more than one without conflict.  If you don't need UML networking,
+-        say N.
+-
+-config UML_NET_MCAST
+-	bool "Multicast transport"
+-	depends on UML_NET
+-	help
+-        This Multicast User-Mode Linux network transport allows multiple
+-        UMLs (even ones running on different host machines!) to talk to
+-        each other over a virtual ethernet network.  However, it requires
+-        at least one UML with one of the other transports to act as a
+-        bridge if any of them need to be able to talk to their hosts or any
+-        other IP machines.
+-
+-        To use this, your host kernel(s) must support IP Multicasting.
+-
+-        For more information, see
+-        <http://user-mode-linux.sourceforge.net/networking.html>  That site
+-        has examples of the UML command line to use to enable Multicast
+-        networking, and notes about the security of this approach.
+-
+-        If you need UMLs on multiple physical hosts to communicate as if
+-        they shared an Ethernet network, say Y.  If you need to communicate
+-        with other IP machines, make sure you select one of the other
+-        transports (possibly in addition to Multicast; they're not
+-        exclusive).  If you don't need to network UMLs say N to each of
+-        the transports.
+-
+-config UML_NET_PCAP
+-	bool "pcap transport"
+-	depends on UML_NET && EXPERIMENTAL
+-	help
+-	The pcap transport makes a pcap packet stream on the host look
+-	like an ethernet device inside UML.  This is useful for making 
+-	UML act as a network monitor for the host.  You must have libcap
+-	installed in order to build the pcap transport into UML.
+-
+-        For more information, see
+-        <http://user-mode-linux.sourceforge.net/networking.html>  That site
+-        has examples of the UML command line to use to enable this option.
+-
+-	If you intend to use UML as a network monitor for the host, say
+-	Y here.  Otherwise, say N.
+-
+-config UML_NET_SLIRP
+-	bool "SLiRP transport"
+-	depends on UML_NET
+-	help
+-        The SLiRP User-Mode Linux network transport allows a running UML
+-        to network by invoking a program that can handle SLIP encapsulated
+-        packets.  This is commonly (but not limited to) the application
+-        known as SLiRP, a program that can re-socket IP packets back onto
+-        the host on which it is run.  Only IP packets are supported,
+-        unlike other network transports that can handle all Ethernet
+-        frames.  In general, slirp allows the UML the same IP connectivity
+-        to the outside world that the host user is permitted, and unlike
+-        other transports, SLiRP works without the need of root level
+-        privleges, setuid binaries, or SLIP devices on the host.  This
+-        also means not every type of connection is possible, but most
+-        situations can be accomodated with carefully crafted slirp
+-        commands that can be passed along as part of the network device's
+-        setup string.  The effect of this transport on the UML is similar
+-        that of a host behind a firewall that masquerades all network
+-        connections passing through it (but is less secure).
+-	
+-        To use this you should first have slirp compiled somewhere
+-        accessible on the host, and have read its documentation.  If you
+-        don't need UML networking, say N.
+-	
+-        Startup example: "eth0=slirp,FE:FD:01:02:03:04,/usr/local/bin/slirp"
+-
+-endmenu
+-
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig_scsi
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig_scsi	2005-07-28 12:26:17.000000000 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig_scsi	2005-07-28 05:04:34.593890552 -0400
+@@ -1,58 +0,0 @@
+-comment "SCSI support type (disk, tape, CD-ROM)"
+-	depends on SCSI
+-
+-config BLK_DEV_SD
+-	tristate "SCSI disk support"
+-	depends on SCSI
+-
+-config SD_EXTRA_DEVS
+-	int "Maximum number of SCSI disks that can be loaded as modules"
+-	depends on BLK_DEV_SD
+-	default "40"
+-
+-config CHR_DEV_ST
+-	tristate "SCSI tape support"
+-	depends on SCSI
+-
+-config BLK_DEV_SR
+-	tristate "SCSI CD-ROM support"
+-	depends on SCSI
+-
+-config BLK_DEV_SR_VENDOR
+-	bool "Enable vendor-specific extensions (for SCSI CDROM)"
+-	depends on BLK_DEV_SR
+-
+-config SR_EXTRA_DEVS
+-	int "Maximum number of CDROM devices that can be loaded as modules"
+-	depends on BLK_DEV_SR
+-	default "2"
+-
+-config CHR_DEV_SG
+-	tristate "SCSI generic support"
+-	depends on SCSI
+-
+-comment "Some SCSI devices (e.g. CD jukebox) support multiple LUNs"
+-	depends on SCSI
+-
+-#if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+-config SCSI_DEBUG_QUEUES
+-	bool "Enable extra checks in new queueing code"
+-	depends on SCSI
+-
+-#fi
+-config SCSI_MULTI_LUN
+-	bool "Probe all LUNs on each SCSI device"
+-	depends on SCSI
+-
+-config SCSI_CONSTANTS
+-	bool "Verbose SCSI error reporting (kernel size +=12K)"
+-	depends on SCSI
+-
+-config SCSI_LOGGING
+-	bool "SCSI logging facility"
+-	depends on SCSI
+-
+-config SCSI_DEBUG
+-	tristate "SCSI debugging host simulator (EXPERIMENTAL)"
+-	depends on SCSI
+-
+Index: linux-2.6.12-rc3-mm2/arch/um/Kconfig_x86_64
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Kconfig_x86_64	2005-07-28 11:20:50.000000000 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Kconfig_x86_64	2005-07-28 05:04:34.593890552 -0400
+@@ -1,39 +0,0 @@
+-config UML_X86
+-	bool
+-	default y
+-
+-config 64BIT
+-	bool
+-	default y
+-
+-config SEMAPHORE_SLEEPERS
+-	bool
+-	default y
+-
+-config TOP_ADDR
+- 	hex
+-	default 0x80000000
+-
+-config 3_LEVEL_PGTABLES
+-       bool
+-       default y
+-
+-config STUB_CODE
+-	hex
+-	default 0x7fbfffe000
+-
+-config STUB_DATA
+-	hex
+-	default 0x7fbffff000
+-
+-config STUB_START
+-	hex
+-	default STUB_CODE
+-
+-config ARCH_HAS_SC_SIGNALS
+-	bool
+-	default n
+-
+-config ARCH_REUSE_HOST_VSYSCALL_AREA
+-	bool
+-	default n
+Index: linux-2.6.12-rc3-mm2/arch/um/Makefile
+===================================================================
+--- linux-2.6.12-rc3-mm2.orig/arch/um/Makefile	2005-07-28 12:26:17.000000000 -0400
++++ linux-2.6.12-rc3-mm2/arch/um/Makefile	2005-07-28 12:27:49.000000000 -0400
+@@ -101,10 +101,10 @@
+ endef
+ 
+ ifneq ($(KBUILD_SRC),)
+-$(shell mkdir -p $(ARCH_DIR) && ln -fsn $(srctree)/$(ARCH_DIR)/Kconfig_$(SUBARCH) $(ARCH_DIR)/Kconfig_arch)
+-CLEAN_FILES += $(ARCH_DIR)/Kconfig_arch
++$(shell mkdir -p $(ARCH_DIR) && ln -fsn $(srctree)/$(ARCH_DIR)/Kconfig.$(SUBARCH) $(ARCH_DIR)/Kconfig.arch)
++CLEAN_FILES += $(ARCH_DIR)/Kconfig.arch
+ else
+-$(shell cd $(ARCH_DIR) && ln -sf Kconfig_$(SUBARCH) Kconfig_arch)
++$(shell cd $(ARCH_DIR) && ln -sf Kconfig.$(SUBARCH) Kconfig.arch)
+ endif
+ 
+ prepare: $(ARCH_SYMLINKS) $(SYS_HEADERS) $(GEN_HEADERS)
+@@ -147,7 +147,7 @@
+ 
+ MRPROPER_FILES += $(SYMLINK_HEADERS) $(ARCH_SYMLINKS) \
+ 	$(addprefix $(ARCH_DIR)/kernel/,$(KERN_SYMLINKS)) $(ARCH_DIR)/os \
+-	$(ARCH_DIR)/Kconfig_arch
++	$(ARCH_DIR)/Kconfig.arch
+ 
+ archclean:
+ 	$(Q)$(MAKE) $(clean)=$(ARCH_DIR)/util
 
-	for (real_end = x; x - buffer->page < count; x++)
-		if (!isspace(*x))
-			real_end = x + 1;
-	*real_end = '\0';
-	// then fix "count"
-
-BTW, my code I posted yesterday is incomplete since I neglected to notice
-that the "count = z - x" at the end is used to repair "count" damage from
-both the leading and trailing whitespace stripping.  Its actually easier
-to strip the trailing whitespace first, like:
-
-	while (count > 0 && isspace(buffer->page[count - 1]))
-		count--;	/* strip trailing whitespace */
-	if (count > 0 && isspace(buffer->page[0])) {
-		/*
-		 * We have leading whitespace but also at least one
-		 * non-whitespace character
-		 */
-		const char *x = buffer->page;
-		do {
-			x++;
-			count--;
-		} while (isspace(*x));
-		memmove(buffer->page, x, count);
-	}
-	buffer->page[count] = '\0';
-
--Mitch

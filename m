@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVG1TGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVG1TJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbVG1TGX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 15:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVG1TGU
+	id S262093AbVG1TJX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 15:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVG1TJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 15:06:20 -0400
-Received: from mail.kroah.org ([69.55.234.183]:61834 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261876AbVG1TEY (ORCPT
+	Thu, 28 Jul 2005 15:09:19 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:58346 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S262093AbVG1TGg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 15:04:24 -0400
-Date: Thu, 28 Jul 2005 12:03:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Mitchell Blank Jr <mitch@sfgoth.com>, dtor_core@ameritech.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
-Message-ID: <20050728190352.GA29092@kroah.com>
-References: <20050726015401.GA25015@kroah.com> <9e473391050725201553f3e8be@mail.gmail.com> <9e47339105072719057c833e62@mail.gmail.com> <20050728034610.GA12123@kroah.com> <9e473391050727205971b0aee@mail.gmail.com> <20050728040544.GA12476@kroah.com> <9e47339105072721495d3788a8@mail.gmail.com> <20050728054914.GA13904@kroah.com> <20050728070455.GF9985@gaz.sfgoth.com> <9e47339105072805545766f97d@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Jul 2005 15:06:36 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.13-rc3-mm3
+Date: Thu, 28 Jul 2005 21:11:32 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+References: <20050728025840.0596b9cb.akpm@osdl.org>
+In-Reply-To: <20050728025840.0596b9cb.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <9e47339105072805545766f97d@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200507282111.32970.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2005 at 08:54:53AM -0400, Jon Smirl wrote:
-> On 7/28/05, Mitchell Blank Jr <mitch@sfgoth.com> wrote:
-> > Greg KH wrote:
-> > > > +   /* locate trailng white space */
-> > > > +   z = y = x;
-> > > > +   while (y - buffer->page < count) {
-> > > > +           y++;
-> > > > +           z = y;
-> > > > +           while (isspace(*y) && (y - buffer->page < count)) {
-> > > > +                   y++;
-> > > > +           }
-> > > > +   }
-> > > > +   count = z - x;
-> > >
-> > > Hm, I _think_ this works, but I need someone else to verify this...
-> > > Anyone else?
-> > 
-> > It looks sane-ish to me, but also more complicated than need be.  Why can't
-> > you just do something like:
-> > 
-> >         while (count > 0 && isspace(x[count - 1]))
-> >                 count--;
-> > 
-> > -Mitch
-> > 
+On Thursday, 28 of July 2005 11:58, Andrew Morton wrote:
 > 
-> Do we need to deal with UTF8 here? I did the forward loop because you
-> can't parse UTF8 backwards. If UTF8 is possible I need to change the
-> pointer inc function.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm3/
+> 
+> - Added the anonymous pagefault scalability enhancement patches.
+> 
+>   I remain fairly dubious about this - it seems a fairly specific and
+>   complex piece of work to speed up one extremely specific part of one type of
+>   computer's one type of workload.   Surely there's a better way :(
+> 
+>   The patches at present spit warnings or don't compile on lots of
+>   architectures.  x86, x86_64, ppc64 and ia64 are OK.
+> 
+> - There's a pretty large x86_64 update here which naughty maintainer wants
+>   in 2.6.13.  Extra testing, please.
 
-No, we don't need to handle UTF8.  Or if we do, then we better not make
-a general filter function, as it will be a mess.
+There are two problems with the compilation of arch/x86_64/kernel/nmi.c.
+The following patch fixes them.
 
-thanks,
+Greets,
+Rafael
 
-greg k-h
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+--- linux-2.6.13-rc3-mm3/arch/x86_64/kernel/nmi.c	2005-07-28 21:05:53.000000000 +0200
++++ patched/arch/x86_64/kernel/nmi.c	2005-07-28 18:58:02.000000000 +0200
+@@ -152,8 +152,10 @@ int __init check_nmi_watchdog (void)
+ 
+ 	printk(KERN_INFO "testing NMI watchdog ... ");
+ 
++#ifdef CONFIG_SMP
+ 	if (nmi_watchdog == NMI_LOCAL_APIC)
+ 		smp_call_function(nmi_cpu_busy, (void *)&endflag, 0, 0);
++#endif
+ 
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++)
+ 		counts[cpu] = cpu_pda[cpu].__nmi_count; 
+@@ -290,7 +292,7 @@ void enable_timer_nmi_watchdog(void)
+ 
+ static int nmi_pm_active; /* nmi_active before suspend */
+ 
+-static int lapic_nmi_suspend(struct sys_device *dev, u32 state)
++static int lapic_nmi_suspend(struct sys_device *dev, pm_message_t state)
+ {
+ 	nmi_pm_active = nmi_active;
+ 	disable_lapic_nmi_watchdog();

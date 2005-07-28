@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVG1NCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVG1NDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbVG1NCU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 09:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVG1NCU
+	id S261273AbVG1NDi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 09:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVG1NDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 09:02:20 -0400
-Received: from coderock.org ([193.77.147.115]:2495 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261217AbVG1NCT (ORCPT
+	Thu, 28 Jul 2005 09:03:36 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:15549 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S261258AbVG1NC5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 09:02:19 -0400
-Date: Thu, 28 Jul 2005 15:02:19 +0200
-From: Domen Puncer <domen@coderock.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Andrew Morton <akpm@osdl.org>, Matt Porter <mporter@kernel.crashing.org>,
-       wfarnsworth@mvista.com, linuxppc-embedded@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/3] ppc32: add 440ep support
-Message-ID: <20050728130219.GB2249@homer.coderock.org>
-References: <11224856623638@foobar.com> <20050727131857.78a56972.akpm@osdl.org> <17128.4407.838024.111955@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
+	Thu, 28 Jul 2005 09:02:57 -0400
+Message-Id: <200507281302.j6SD2jbb013276@zeus1.kernel.org>
+From: "selim" <selwess11@yahoo.com>
+Reply-To: ahuvi@mynet.com
+To: linux-fsdevel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, linux-msdos@vger.kernel.org,
+       linux-newbie@vger.kernel.org, linux-raid@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Date: Thu, 28 Jul 2005 16:02:55 +0300
+Subject: e-maillist...
+X-Mailer: Microsoft Outlook Express 5.50.4522.1500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17128.4407.838024.111955@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/07/05 18:56 -0400, Paul Mackerras wrote:
-> Andrew Morton writes:
-> 
-> > Matt Porter <mporter@kernel.crashing.org> wrote:
-> > >
-> > > +static u64 dma_mask = 0xffffffffULL;
+Bazen bir musteri ya da tuketiciye ulasmak zahmetli ve masrafli olabilir.
+Sirketler satis ekipleriyle ancak sinirli sayida musteriye ulasabilmektedir.
+Basindan ve televizyonlardan yapilacak reklamlara guc yeter mi?
+Sitenizin arama motorlarina yillik kayit ucretlerini karsilayabilir misiniz?
+INTERNET'TEN E-TICARET VE E-REKLAM ICIN IHTIYACINIZ OLAN E- MAIL LISTELERI ILE ... daha yaygin bir musteri portfoyu olusturabilirsiniz.
+Firmanizin tanitimi,
+Urunlerinizin tanitimi,
+Web sitenizin tanitimi ile 
+Kampanya ve promosyonlarinizi duyurabilmeniz icin;
+Amerika,Asya,Avrupa,Avusturalya ve Afrika kitalarina ulasin!
+ULKELER VE SEKTORLER
+300.000.000 ADEDIN UZERINDE e-mail adresi (5 KITA)
+8.000.000 ADEDIN UZERINDE e-mail adresi (TURKIYE)
+(hotmail,yahoo,mynet vd...adresler)
+KOLAY KURULUM VE HIZLI KULLANIM AVANTAJI ILE
+Yabanci e-mail adresleri:50.YTL
+Turkiye e-mail adresleri:25.YTL
+ikisi beraber:60 YTL
+Sizi ilgilendiren insanlar da bu mesaji almis olabilir!
+ahuvi@mynet.com <mailto:ahuvi@mynet.com>
 
-How about just DMA_32BIT_MASK from dma-mapping.h, that one has to be
-correct. ;-)
 
-> > 
-> > I'm sure you're totally uninterested in this, but the above will probably
-> > generate warnings on (say) ppc64, where u64 is implemented as unsigned
-> > long.
-> > 
-> > I usually chuck a simple `-1' in there and the compiler always gets it
-> > right, regardless of signedness and size and architecture.
-> 
-> Umm, I think we actually want 2^32-1 not -1, don't we?  In which case
-> I think Matt's code is what we have to have.
-> 
-> I tried a little test compile with gcc 4.0 with -m64 -Wall and it
-> didn't generate a warning with the 0xffffffffULL constant.

@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVG1Lwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVG1LyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVG1Lwo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 07:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVG1Lwo
+	id S261413AbVG1LyY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 07:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVG1LyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 07:52:44 -0400
-Received: from web40710.mail.yahoo.com ([66.218.78.167]:61732 "HELO
-	web40710.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261245AbVG1Lwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 07:52:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=j+VsycuE/WD69j6prkAjlrwIp0uAQBujWxuzKKuS8r/ADmKZzS7CeOTq0ud9p5/ekle5eHJXx9kznyuvOgAc26Ruqfx7jifsoiaKcBinknvDI0KKpLtPC+i0JgJxW2o4r5K6J2X4afVpvIPRY9IVwo+QET94tIx6cvI1vAhUxN0=  ;
-Message-ID: <20050728115242.60695.qmail@web40710.mail.yahoo.com>
-Date: Thu, 28 Jul 2005 04:52:42 -0700 (PDT)
-From: dipankar das <dipankar_dd@yahoo.com>
-Subject: core file not generated when kernel is crashed with Sysrq key
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 28 Jul 2005 07:54:24 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:18657 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261404AbVG1LyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 07:54:20 -0400
+Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Esben Nielsen <simlo@phys.au.dk>, "K.R. Foley" <kr@cybsft.com>,
+       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050728072210.GA20055@elte.hu>
+References: <Pine.OSF.4.05.10507271852030.3210-100000@da410.phys.au.dk>
+	 <1122485137.29823.109.camel@localhost.localdomain>
+	 <20050728072210.GA20055@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 28 Jul 2005 07:53:56 -0400
+Message-Id: <1122551636.29823.209.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-core file is not generated when kernel is crashed with
-Sysrq key ?
+On Thu, 2005-07-28 at 09:22 +0200, Ingo Molnar wrote:
 
- What could be the reason for this ?
+> nitpicking: i guess the answer also depends on what the precise 
+> requirement is. If the requirement is 'run for 4 seconds every 10 
+> seconds, uninterrupted, else the power plant melts down', i'd sure not 
+> make the washing machine process the higher priority one ;-)
+> 
+> (also, i'd give the power plant process higher priority even if the 
+> requirement is not as strict, just from a risk POV: what if the washing 
+> machine control program is buggy and got into an infinite loop 
+> somewhere.)
 
-  Br,
-   Dipankar.
- 
+Doug also said that you're an idiot if you run a washing machine from
+the same computer you run a nuclear power plant from :-) 
+
+The point that he was making though is that if you want a system that
+runs without flaws, you don't always prioritize the same way the real
+world would prioritize.  You need to do it with math.
+
+-- Steve
 
 
-		
-____________________________________________________
-Start your day with Yahoo! - make it your home page 
-http://www.yahoo.com/r/hs 
- 

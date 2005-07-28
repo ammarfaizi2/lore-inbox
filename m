@@ -1,97 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVG1UHI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVG1UT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVG1UHI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 16:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVG1UEb
+	id S261902AbVG1UT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 16:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVG1URS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 16:04:31 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:20377 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261583AbVG1UE0 (ORCPT
+	Thu, 28 Jul 2005 16:17:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34963 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261838AbVG1UQb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 16:04:26 -0400
-Date: Thu, 28 Jul 2005 22:03:52 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: "Antonino A. Daplas" <adaplas@gmail.com>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: colormap fixes
-In-Reply-To: <9e47339105072811183ac0f008@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0507282202450.29876@numbat.sonytel.be>
-References: <200507280031.j6S0V3L3016861@hera.kernel.org> 
- <Pine.LNX.4.62.0507280952140.24391@numbat.sonytel.be> 
- <9e473391050728060741040424@mail.gmail.com>  <42E8F0CD.6070500@gmail.com> 
- <Pine.LNX.4.62.0507281758080.24391@numbat.sonytel.be> 
- <9e473391050728092936794718@mail.gmail.com> <9e47339105072811183ac0f008@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Jul 2005 16:16:31 -0400
+Date: Thu, 28 Jul 2005 13:15:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Thonke <iogl64nx@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3
+Message-Id: <20050728131525.31fa8640.akpm@osdl.org>
+In-Reply-To: <42E957B5.8040606@gmail.com>
+References: <20050728025840.0596b9cb.akpm@osdl.org>
+	<42E957B5.8040606@gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2005, Jon Smirl wrote:
-> I can't see a way to query how long of cmap the device supports using
-> the current fbdev ioctls.
+Michael Thonke <iogl64nx@gmail.com> wrote:
+>
+> Hello Andrew,
+> 
+> I have some questions :-)
+> Reiser4:
+> 
+> why there are undefined functions implemented that currently not in use?
+> This messages appeared first time in 2.6.13-rc3-mm2.
+> 
+> Any why it complains even CONFIG_REISER4_DEBUG is not set?
 
-Look at the lengths of the color bitfields?
+That's due to the code using `#if CONFIG_xx' instead of `#ifdef'.
 
-> I wouldn't even be messing with cmap except for the true/direct color
-> support and gamma ramps. Don't I need to know how long the cmap is in
-> order to set the right gamma ramp?
+> 
+> SCSI:
+> 
+> CONFIG_SCSI_QLA2XXX=y ? I haven't choose that one..I never did..and 
+> where is the config located?
 
-Of course.
+Someone was doing wrong things in the Makefile.  I think that has been
+subsequently fixed.
 
-> If I set a 256 entry gamma ramp on a card with 1024 entries, will it
-> still work right? Or do I need to set all 1024 entries?
-
-No, you have to set all 1024 entries. And you will notice, because the lengths
-of the color bitfields will be 10, not 8.
-
-> On 7/28/05, Jon Smirl <jonsmirl@gmail.com> wrote:
-> > On 7/28/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > > On Thu, 28 Jul 2005, Antonino A. Daplas wrote:
-> > > > Jon Smirl wrote:
-> > > > > On 7/28/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > > > > > On Wed, 27 Jul 2005, Linux Kernel Mailing List wrote:
-> > > > >
-> > > > > There are a couple of ways to fix this.
-> > > > > 1) Add a check to limit use of the sysfs attributes to 256 entries. If
-> > > > > you want more you have to use /dev/fb0 and the ioctl. More is an
-> > > > > uncommon case.
-> > > > > 2) Switch this to a binary parameter. Now you have to use tools like
-> > > > > hexdump instead of cat to work with the data. It was nice to be able
-> > > > > to use cat to see the current map.
-> > > > >
-> > > > > Does anyone have preferences for which way to fix it?
-> > > >
-> > > > Or...
-> > > >
-> > > >  3) Add another file in sysfs which specifies at what index and how many
-> > > > entries will be read or written from or to the cmap. With this additional
-> > > > sysfs file, it should be able to handle any reasonable cmap length, but
-> > > > it will take more than one reading of the color_map file. Another
-> > > > advantage is that the entire color map need not be read or written if
-> > > > only one field needs to be changed.
-> > > >
-> > > > I've attached a test patch.  Let me know what you think.
-> > >
-> > > I like it! ... But, a disadvantages is that it needs to store state between two
-> > > non-atomic operations. E.g. imagine two processes doing this at the same time.
-> > 
-> > Two attributes is a big problem with atomicity. If you want access to
-> > the full cmap I would switch to a binary attribute or use the existing
-> > IOCTL.
-> > 
-> > Note that you can set the entire map with the new patch, you just
-> > can't read it. You can store 1-N entries at any base you want.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVG1VLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVG1VOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbVG1VLk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 17:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVG1VJQ
+	id S262328AbVG1VOA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 17:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVG1VOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 17:09:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3030 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262296AbVG1VHy (ORCPT
+	Thu, 28 Jul 2005 17:14:00 -0400
+Received: from nproxy.gmail.com ([64.233.182.200]:19354 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262331AbVG1VNn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 17:07:54 -0400
-Date: Thu, 28 Jul 2005 17:07:38 -0400
-From: Dave Jones <davej@redhat.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jaroslav Kysela <perex@suse.cz>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: [ALSA PATCH] 1.0.9b+
-Message-ID: <20050728210738.GC2231@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-	Jaroslav Kysela <perex@suse.cz>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org, tiwai@suse.de
-References: <Pine.LNX.4.61.0507281546040.8458@tm8103.perex-int.cz> <20050728102525.234e6511.akpm@osdl.org> <1122577563.2772.17.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122577563.2772.17.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+	Thu, 28 Jul 2005 17:13:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=BSfWJjdyPqaB7j3nenBNrHWjXGRqv1qK2sa+ORmOB6KnQef1HHqFLkPOO3dSovb+TV2xE8BU2jn9e4kc7V08FWw521rokew6233+xcC7W06OorGKxNE5J97hQ9GO/AvWCHjSkXTRmBoGLsqScrcxLuPh6iw/xBQiWLBb08uT2ow=
+Message-ID: <42E96738.4090800@gmail.com>
+Date: Thu, 28 Jul 2005 23:16:08 +0000
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050726)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Nick Sillik <n.sillik@temple.edu>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3
+References: <20050728025840.0596b9cb.akpm@osdl.org>	<42E957B5.8040606@gmail.com> <20050728131525.31fa8640.akpm@osdl.org> <42E94679.2020009@temple.edu>
+In-Reply-To: <42E94679.2020009@temple.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2005 at 03:06:02PM -0400, Lee Revell wrote:
+Nick Sillik schrieb:
 
- > > The git-alsa.patch in -mm which I obtain from
- > > master.kernel.org:/pub/scm/linux/kernel/git/perex/alsa-current.git is
- > > empty.  So we're now wanting to merge 4,000 lines of unreviewed code which
- > > hasn't been tested in -mm at approximately the -rc4 stage.
- > 
- > Lots of people install ALSA independently from the kernel (like all the
- > audio oriented distro users), probably a lot more than run -mm, so it's
- > not completely unreviewed.
-
-There's a big difference between 'unreviewed' and 'untested'.
-With drivers that support n variants of a piece of hardware,
-hearing back that a driver works fine from someone isn't really
-worth anything if the changes break for all the other users
-of that driver that have a different variant, which haven't tested it yet.
-
-We have a testing/review process in place, attempts to short-circuit
-it should be prevented. Especially from a subsystem that
-historically has had a number of issues wrt regressions each release.
-
-		Dave
+> Andrew Morton wrote:
+>
+>> Michael Thonke <iogl64nx@gmail.com> wrote:
+>>
+>>> Hello Andrew,
+>>>
+>>> I have some questions :-)
+>>> Reiser4:
+>>>
+>>> why there are undefined functions implemented that currently not in 
+>>> use?
+>>> This messages appeared first time in 2.6.13-rc3-mm2.
+>>>
+>>> Any why it complains even CONFIG_REISER4_DEBUG is not set?
+>>
+>>
+>>
+>> That's due to the code using `#if CONFIG_xx' instead of `#ifdef'.
+>>
+>
+> I previously posted a patch that got rid of one of these, find it 
+> attached again below.
+>
+> Signed-off-by: Nick Sillik <n.sillik@temple.edu>
+>
+>------------------------------------------------------------------------
+>
+>diff -urN a/fs/reiser4/plugin/node/node40.h b/fs/reiser4/plugin/node/node40.h
+>--- a/fs/reiser4/plugin/node/node40.h	2005-07-27 18:14:04.000000000 -0400
+>+++ b/fs/reiser4/plugin/node/node40.h	2005-07-27 18:14:53.000000000 -0400
+>@@ -80,7 +80,7 @@
+> int check_node40(const znode * node, __u32 flags, const char **error);
+> int parse_node40(znode * node);
+> int init_node40(znode * node);
+>-#if GUESS_EXISTS
+>+#ifdef GUESS_EXISTS
+> int guess_node40(const znode * node);
+> #endif
+> void change_item_size_node40(coord_t * coord, int by);
+>  
+>
+Thanks, this fixed the complains on compiling kernel :-)
 

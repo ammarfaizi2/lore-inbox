@@ -1,98 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVG1TJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVG1TJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbVG1TJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 15:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVG1TJ1
+	id S261889AbVG1TJL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 15:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVG1TGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 15:09:27 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:10487 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262082AbVG1TGd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 15:06:33 -0400
-Message-ID: <42E92C42.8000003@mvista.com>
-Date: Thu, 28 Jul 2005 12:04:34 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+	Thu, 28 Jul 2005 15:06:12 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:7883 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262010AbVG1TFy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 15:05:54 -0400
+Message-ID: <42E92C88.9000501@pobox.com>
+Date: Thu, 28 Jul 2005 15:05:44 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] fix normalize problem in posix timers.
-Content-Type: multipart/mixed;
- boundary="------------040203090206030202080002"
+To: Doug Maxey <dwm@maxeymade.com>
+CC: Lukasz Kosewski <lkosewsk@nit.ca>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: [PATCH 0/3] Add disk hotswap support to libata
+References: <200507281854.j6SIsJ87006310@falcon30.maxeymade.com>
+In-Reply-To: <200507281854.j6SIsJ87006310@falcon30.maxeymade.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Doug Maxey wrote:
+> On Thu, 21 Jul 2005 21:35:24 EDT, Jeff Garzik wrote:
+> 
+>>As soon as I finish SATA ATAPI (this week[end]), I'll take a look at 
+>>this.  A quick review of the patches didn't turn up anything terribly 
+>>objectionable, though :)
+>>
+> 
+> 
+> I would like to offer to test when you are ready.  Some older and new SATAPI 
+> drives, various chipsets (ICH{5,6}, TX4 on the way).  And a SATA analyzer 
+> for anything really odd. 
 
-This is a multi-part message in MIME format.
---------------040203090206030202080002
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Great!
 
-We found this (after a customer complained) and it is in the kernel.org 
-kernel.  Seems that for CLOCK_MONOTONIC absolute timers and 
-clock_nanosleep calls both the request time and wall_to_monotonic are 
-subtracted prior to the normalize resulting in an overflow in the 
-existing normalize test.  This causes the result to be shifted ~4 
-seconds ahead instead of ~2 seconds back in time.  Patch is attached.
--
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+It'll be posted here on linux-ide, so just keep an eye out.
 
---------------040203090206030202080002
-Content-Type: text/plain;
- name="normalize.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="normalize.patch"
+Analysis of any portion of libata, with a SATA analyzer, would be much 
+appreciated.
 
-Source: MontaVista Software, Inc. George Anzinger <george@mvista.com>
-Type: Defect Fix 
-Description:
-	The normalize code in posix-timers.c fails when the tv_nsec 
-	member is ~1.2 seconds negative.  This can happen on absolute
-	timers (and clock_nanosleeps) requested on CLOCK_MONOTONIC
-	(both the request time and wall_to_monotonic are subtracted
-	resulting in the possibility of a number close to -2 seconds.)
+	Jeff
 
-	This fix uses the set_normalized_timespec() (which does not 
-	have an overflow problem) to fix the problem and as a side
-	effect makes the code cleaner.
 
-Signed-off-by: George Anzinger <george@mvista.com>
-    
- posix-timers.c |   17 +++--------------
- 1 files changed, 3 insertions(+), 14 deletions(-)
-
-Index: linux-2.6.13-rc/kernel/posix-timers.c
-===================================================================
---- linux-2.6.13-rc.orig/kernel/posix-timers.c
-+++ linux-2.6.13-rc/kernel/posix-timers.c
-@@ -915,21 +915,10 @@ static int adjust_abs_time(struct k_cloc
- 			jiffies_64_f = get_jiffies_64();
- 		}
- 		/*
--		 * Take away now to get delta
-+		 * Take away now to get delta and normalize
- 		 */
--		oc.tv_sec -= now.tv_sec;
--		oc.tv_nsec -= now.tv_nsec;
--		/*
--		 * Normalize...
--		 */
--		while ((oc.tv_nsec - NSEC_PER_SEC) >= 0) {
--			oc.tv_nsec -= NSEC_PER_SEC;
--			oc.tv_sec++;
--		}
--		while ((oc.tv_nsec) < 0) {
--			oc.tv_nsec += NSEC_PER_SEC;
--			oc.tv_sec--;
--		}
-+		set_normalized_timespec(&oc, oc.tv_sec - now.tv_sec,
-+					oc.tv_nsec - now.tv_nsec);
- 	}else{
- 		jiffies_64_f = get_jiffies_64();
- 	}
-
---------------040203090206030202080002--

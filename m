@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVG1O7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbVG1O7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVG1O7D (ORCPT <rfc822;willy@w.ods.org>);
+	id S261515AbVG1O7D (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 28 Jul 2005 10:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVG1Ox5
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVG1OyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 10:53:57 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:56020 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261541AbVG1OxC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 10:53:02 -0400
-Date: Fri, 29 Jul 2005 00:53:02 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: hch@infradead.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] compat_sys_read/write
-Message-Id: <20050729005302.70f96ef5.sfr@canb.auug.org.au>
-In-Reply-To: <20050729004838.116e8361.sfr@canb.auug.org.au>
-References: <20050728234341.3303d5fe.sfr@canb.auug.org.au>
-	<20050728141653.GA22173@infradead.org>
-	<20050729004838.116e8361.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 28 Jul 2005 10:54:02 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27909 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261534AbVG1Ow4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 10:52:56 -0400
+Date: Thu, 28 Jul 2005 16:52:54 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Kevin Radloff <radsaq@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI processor C-state regression in 2.6.13-rc3?
+Message-ID: <20050728145254.GL3528@stusta.de>
+References: <3b0ffc1f05071309396353066b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__29_Jul_2005_00_53_02_+1000_6rA5eOZEbWxblO1_"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3b0ffc1f05071309396353066b@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__29_Jul_2005_00_53_02_+1000_6rA5eOZEbWxblO1_
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jul 13, 2005 at 12:39:13PM -0400, Kevin Radloff wrote:
 
-On Fri, 29 Jul 2005 00:48:38 +1000 Stephen Rothwell <sfr@canb.auug.org.au> =
-wrote:
->
-> readv/writev were done ages ago (since they are necessary for other
+> With the ACPI merge in 2.6.13-rc3, C2 and C3 processor states are no
+> longer detected/enabled on my Fujitsu Lifebook P7010D. Enabling ACPI
+> debugging doesn't result in any extra info about this being reported.
+> I assume it's related to the changes to enable C2/3 on SMP..
+> 
+> Please CC me with any followups, as I'm not on the list.
 
-But you are right, compat_sys_readv/writev need adjusting to call the
-compat_read/write method if they exist ...
+Is this problem still present in 2.6.13-rc3-mm3?
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+If yes, please file a bug report at the kernel Bugzilla [1].
 
---Signature=_Fri__29_Jul_2005_00_53_02_+1000_6rA5eOZEbWxblO1_
-Content-Type: application/pgp-signature
+> Kevin 'radsaq' Radloff
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+cu
+Adrian
 
-iD8DBQFC6PFOFdBgD/zoJvwRAk3aAJ0dJTQzQQYl5nUITV4dNuiumE21yACgoefi
-KGmhCzr7dh6wKMD+cO9SAqw=
-=xfEV
------END PGP SIGNATURE-----
+[1] http://bugzilla.kernel.org/
 
---Signature=_Fri__29_Jul_2005_00_53_02_+1000_6rA5eOZEbWxblO1_--
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

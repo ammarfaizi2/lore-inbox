@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVG1PGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVG1PGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVG1PGG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 11:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVG1PF7
+	id S261525AbVG1PGM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 11:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVG1PGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 11:05:59 -0400
-Received: from imap.gmx.net ([213.165.64.20]:13508 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261534AbVG1PEZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 11:04:25 -0400
-Date: Thu, 28 Jul 2005 17:04:24 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net, akpm@osdl.org
+	Thu, 28 Jul 2005 11:06:08 -0400
+Received: from mail.thorsten-knabe.de ([82.141.44.28]:16904 "EHLO
+	mail.thorsten-knabe.de") by vger.kernel.org with ESMTP
+	id S261525AbVG1PEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 11:04:21 -0400
+Date: Thu, 28 Jul 2005 17:04:20 +0200 (CEST)
+From: Thorsten Knabe <linux@thorsten-knabe.de>
+X-X-Sender: tek@tek01.intern.thorsten-knabe.de
+To: Adrian Bunk <bunk@stusta.de>
+cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       linux-sound@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+In-Reply-To: <20050726150837.GT3160@stusta.de>
+Message-ID: <Pine.LNX.4.61.0507281636040.20815@tek01.intern.thorsten-knabe.de>
+References: <20050726150837.GT3160@stusta.de>
 MIME-Version: 1.0
-Subject: =?ISO-8859-1?Q?Broke_nice_range_for_RLIMIT_NICE?=
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <32710.1122563064@www32.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Spam-Report: SpamAssassin@thorsten-knabe.de
+	Content analysis details:   (-5.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ingo,
+On Tue, 26 Jul 2005, Adrian Bunk wrote:
 
-I'm guessing that it was you that added the RLIMIT_NICE resource 
-limit in 2.6.12.  (A passing note to all kernel developers: when 
-making changes that affect userland-kernel interfaces, please 
-send me a man-pages patch, or at least a notification of the 
-change, so that some information makes its way into the manual 
-pages).
+> This patch schedules obsolete OSS drivers (with ALSA drivers that
+> support the same hardware) for removal.
 
-I started documenting RLIMIT_NICE and then noticed an 
-inconsistency between the use of this limit and the nice
-value as manipulated by [sg]etpriority().
+Hello Adrian.
 
-This is the documentation I've drafted for RLIMIT_NICE
-in getrlimit.2:
+I'm the maintainer of the OSS AD1816 sound driver. I'm aware of two 
+problems of the ALSA AD1816 driver, that do not show up with the OSS 
+driver:
+- According to my own experience and user reports audio is choppy with 
+some VoIP Softphones like gnophone at least when used with the ALSA OSS 
+emulation layer, whereas the OSS driver is crystal clear.
+- Users reported, that on some HP Kayak systems the on-board AD1816A 
+was not properly detected by the ALSA driver or was detected, but 
+there was no audio output. I'm not sure if the problem is still present in 
+the current ALSA driver, as I do not own such a system.
 
-   RLIMIT_NICE(since kernel 2.6.12)
-      Specifies  a  ceiling  to  which  the process nice
-      value  can  be  raised  using  setpriority(2)   or
-      nice(2).  The actual ceiling for the nice value is
-      calculated as  19 - rlim_cur.
-                     ^^^^^^^^^^^^^
+Maybe the OSS driver should stay in the kernel, until those problems are 
+fixed in the ALSA driver.
 
-And recently I've redrafted the discussion of the nice value
-in getpriority.2 and it now reads:
-
-      Since kernel 1.3.43 Linux has  the  range  -20..19.
-      Within  the kernel, nice values are actually repre-
-      sented using the corresponding range  40..1  (since
-      negative numbers are error codes) and these are the
-      values employed by the setpriority and  getpriority
-      system  calls.   The  glibc  wrapper  functions for
-      these system calls handle the translations  between
-      the  user-land  and  kernel  representations of the
-      nice    value    according    to    the     formula
-      user_nice = 20 - kernel_nice.
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In other words, there is an off-by-one mismatch between 
-these two interfaces: RLIMIT_NICE is expecting to deal 
-with values in the range 39..0, while [gs]etpriority() 
-works with the range 40..1.
-
-I suppose that glibc could paper over the cracks here in
-a wrapper for getrlimit(), but it seems more sensible 
-to make RLIMIT_NICE consistent with [gs]etpriority() --
-i.e., change the RLIMIT_NICE interface in 2.6.13 before it 
-sees wide use in userland.  What do you think?
-
-Cheers,
-
-Michael
+Regards
+Thorsten
 
 -- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  Grab the latest
-tarball at ftp://ftp.win.tue.nl/pub/linux-local/manpages/
-and grep the source files for 'FIXME'.
+___
+  |        | /                 E-Mail: linux@thorsten-knabe.de
+  |horsten |/\nabe                WWW: http://linux.thorsten-knabe.de

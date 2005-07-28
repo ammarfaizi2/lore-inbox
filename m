@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVG1PvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVG1P4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVG1PvC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 11:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVG1PtY
+	id S261570AbVG1P4G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 11:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVG1Pxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 11:49:24 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:46572 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261570AbVG1Pri convert rfc822-to-8bit
+	Thu, 28 Jul 2005 11:53:34 -0400
+Received: from spirit.analogic.com ([208.224.221.4]:48907 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S261570AbVG1Pwd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 11:47:38 -0400
-Subject: [PATCH 0/5] Add kernel AIO support for POSIX AIO
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: "linux-aio kvack.org" <linux-aio@kvack.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Thu, 28 Jul 2005 17:46:28 +0200
-Message-Id: <1122565588.2019.79.camel@frecb000686>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 28/07/2005 17:59:42,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 28/07/2005 17:59:44,
-	Serialize complete at 28/07/2005 17:59:44
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 28 Jul 2005 11:52:33 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20050728145353.GL11644@mellanox.co.il>
+References: <20050728145353.GL11644@mellanox.co.il>
+X-OriginalArrivalTime: 28 Jul 2005 15:52:32.0184 (UTC) FILETIME=[5D69B380:01C5938C]
+Content-class: urn:content-classes:message
+Subject: Re: kernel guide to space (updated)
+Date: Thu, 28 Jul 2005 11:52:25 -0400
+Message-ID: <Pine.LNX.4.61.0507281148250.17921@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kernel guide to space (updated)
+thread-index: AcWTjF2NntNjCVaGTKybiIPEtWhFgw==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This set of patches adds functionality to the kernel AIO 
-infrastructure to be used by user level libraries aiming at implementing
-a POSIX compliant API on top of this kernel support.
 
-  This patchset is comprised of 5 patches, each implementing a specific
-functionality:
+On Thu, 28 Jul 2005, Michael S. Tsirkin wrote:
 
-	- aiomaxevents: adds a sysctl variable for setting the default 
-	  AIO context event ring size at runtime. This tunable is 
-	  accessible via /proc/sys/fs/posix-aio-default-max-nr.
+>
+> 7. Comments
+> 	Don't use C99 // comments.
 
-	- aioevent: adds support for request completion notification.
+I don't think this is correct. In fact, I remember a discussion
+where // was preferred for new code.
 
-	- lioevent: adds support for list of requests completion 
-	  notification.
 
-	- liowait: adds support for the POSIX listio LIO_WAIT mechanism.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
 
-	- cancelfd: adds support for cancellation against a file 
-	  descriptor.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
- These patches apply cleanly on a vanilla 2.6.12 kernel tree and should 
-be applied in the order shown before.
-
--- 
-------------------------------------------------------
-
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
-
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-  
-------------------------------------------------------
-
+Thank you.

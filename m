@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVG1NyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVG1N4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVG1NyF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 09:54:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVG1NyE
+	id S261430AbVG1N4N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 09:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVG1NyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 09:54:04 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:48744 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261492AbVG1Nx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 09:53:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.es;
-  h=Received:Message-ID:From:To:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE;
-  b=krhCApfPvuvH3hEbYFeq1kJxIkfZ2oHG9SFQ4s2/GzsALIqzWOlqMp8FF8fWEN40675gxfPGhSedtyoq4dYkDpS9j/rGfCk1Q7cheEvxGeq4J+M9LqdcUuAmacnwRWGAtAbHQYbH7teK0/Un/1ATS+zX48nSMxR45pkgci9rxwk=  ;
-Message-ID: <001701c5937b$ca708780$0801a8c0@SEBAS>
-From: "gabri" <metadistros@yahoo.es>
-To: <linux-kernel@vger.kernel.org>
-Subject: Help Me Please
-Date: Thu, 28 Jul 2005 15:53:45 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+	Thu, 28 Jul 2005 09:54:11 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:16081 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261447AbVG1Nwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 09:52:34 -0400
+Date: Thu, 28 Jul 2005 09:52:34 -0400
+To: gabri <metadistros@yahoo.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Helpme WitCh Cpu Scaling. Hi People
+Message-ID: <20050728135234.GB31019@csclub.uwaterloo.ca>
+References: <00ca01c592f2$da9eac60$0801a8c0@SEBAS>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <00ca01c592f2$da9eac60$0801a8c0@SEBAS>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a laptop. Is amd mobile SEMPRON but when I
- ejecute cpufreq say this:
- 
- analyzing CPU 0:
-   no or unknown cpufreq driver is active on this CPU
- 
- I remcompiled a lot of kernel" 2.6.12.3 2.6.8 etc"
- witch support for cpu scaling but when i am triying
- load a module powernow-k8 say this error:
- powernow-k8: Found 1 AMD Athlon 64 / Opteron
- processors (version 1.00.09b)
- powernow-k8: BIOS error: maxvid exceeded with pstate
- 0
- 
- and with powernow-k7: powernow: This module only
- works
- with AMD K7 CPUs
- mi claptop isn't overcloked and i don't know how fix
- the problem.
-_____________________________________ 
- 
+On Wed, Jul 27, 2005 at 11:33:36PM +0200, gabri wrote:
+> It is the first mail that I write. I call gabri and I am 18 years old. I am
+> Spanish. I want to comment that me program does not work ningun to regulate
+> the Mhz of the processor. " Cpufreq, cpuydn, powernow ". I do not manage to
+> load ningun module from the kernel inside cpuscalig in that it(he,she)
+> fences with an amd mobile sempron.
+> The modules of athlon do not go.
+> Do they work to give support to the mobile sempron in the future versions of
+> the kernel?
+> what can I do ?
 
+Is this your message?
+08:44 < gabri> Jul 28 16:25:26 debian kernel: powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.00.09b)
+08:45 < gabri> Jul 28 16:25:26 debian kernel: powernow-k8: BIOS error: maxvid exceeded with pstate 0
 
-		
-______________________________________________ 
-Renovamos el Correo Yahoo! 
-Nuevos servicios, más seguridad 
-http://correo.yahoo.es
+You should probably also list the kernel version(s) (uname -a) and cpuinfo
+(cat /proc/cpuinfo) just to have some more info to go on.
+
+I don't actually know anything about the cpu frequency scaling myself,
+since I just leave my systems running full speed all the time (I use
+desktop machines, not laptops).
+
+Len Sorensen

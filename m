@@ -1,75 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVG1TJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVG1TJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbVG1TJX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 15:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVG1TJT
+	id S261864AbVG1TJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 15:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVG1TJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 15:09:19 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:58346 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S262093AbVG1TGg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 15:06:36 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.13-rc3-mm3
-Date: Thu, 28 Jul 2005 21:11:32 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-References: <20050728025840.0596b9cb.akpm@osdl.org>
-In-Reply-To: <20050728025840.0596b9cb.akpm@osdl.org>
+	Thu, 28 Jul 2005 15:09:27 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:10487 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262082AbVG1TGd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 15:06:33 -0400
+Message-ID: <42E92C42.8000003@mvista.com>
+Date: Thu, 28 Jul 2005 12:04:34 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507282111.32970.rjw@sisk.pl>
+To: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] fix normalize problem in posix timers.
+Content-Type: multipart/mixed;
+ boundary="------------040203090206030202080002"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 28 of July 2005 11:58, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm3/
-> 
-> - Added the anonymous pagefault scalability enhancement patches.
-> 
->   I remain fairly dubious about this - it seems a fairly specific and
->   complex piece of work to speed up one extremely specific part of one type of
->   computer's one type of workload.   Surely there's a better way :(
-> 
->   The patches at present spit warnings or don't compile on lots of
->   architectures.  x86, x86_64, ppc64 and ia64 are OK.
-> 
-> - There's a pretty large x86_64 update here which naughty maintainer wants
->   in 2.6.13.  Extra testing, please.
 
-There are two problems with the compilation of arch/x86_64/kernel/nmi.c.
-The following patch fixes them.
+This is a multi-part message in MIME format.
+--------------040203090206030202080002
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Greets,
-Rafael
+We found this (after a customer complained) and it is in the kernel.org 
+kernel.  Seems that for CLOCK_MONOTONIC absolute timers and 
+clock_nanosleep calls both the request time and wall_to_monotonic are 
+subtracted prior to the normalize resulting in an overflow in the 
+existing normalize test.  This causes the result to be shifted ~4 
+seconds ahead instead of ~2 seconds back in time.  Patch is attached.
+-
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
 
+--------------040203090206030202080002
+Content-Type: text/plain;
+ name="normalize.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="normalize.patch"
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Source: MontaVista Software, Inc. George Anzinger <george@mvista.com>
+Type: Defect Fix 
+Description:
+	The normalize code in posix-timers.c fails when the tv_nsec 
+	member is ~1.2 seconds negative.  This can happen on absolute
+	timers (and clock_nanosleeps) requested on CLOCK_MONOTONIC
+	(both the request time and wall_to_monotonic are subtracted
+	resulting in the possibility of a number close to -2 seconds.)
 
---- linux-2.6.13-rc3-mm3/arch/x86_64/kernel/nmi.c	2005-07-28 21:05:53.000000000 +0200
-+++ patched/arch/x86_64/kernel/nmi.c	2005-07-28 18:58:02.000000000 +0200
-@@ -152,8 +152,10 @@ int __init check_nmi_watchdog (void)
- 
- 	printk(KERN_INFO "testing NMI watchdog ... ");
- 
-+#ifdef CONFIG_SMP
- 	if (nmi_watchdog == NMI_LOCAL_APIC)
- 		smp_call_function(nmi_cpu_busy, (void *)&endflag, 0, 0);
-+#endif
- 
- 	for (cpu = 0; cpu < NR_CPUS; cpu++)
- 		counts[cpu] = cpu_pda[cpu].__nmi_count; 
-@@ -290,7 +292,7 @@ void enable_timer_nmi_watchdog(void)
- 
- static int nmi_pm_active; /* nmi_active before suspend */
- 
--static int lapic_nmi_suspend(struct sys_device *dev, u32 state)
-+static int lapic_nmi_suspend(struct sys_device *dev, pm_message_t state)
- {
- 	nmi_pm_active = nmi_active;
- 	disable_lapic_nmi_watchdog();
+	This fix uses the set_normalized_timespec() (which does not 
+	have an overflow problem) to fix the problem and as a side
+	effect makes the code cleaner.
+
+Signed-off-by: George Anzinger <george@mvista.com>
+    
+ posix-timers.c |   17 +++--------------
+ 1 files changed, 3 insertions(+), 14 deletions(-)
+
+Index: linux-2.6.13-rc/kernel/posix-timers.c
+===================================================================
+--- linux-2.6.13-rc.orig/kernel/posix-timers.c
++++ linux-2.6.13-rc/kernel/posix-timers.c
+@@ -915,21 +915,10 @@ static int adjust_abs_time(struct k_cloc
+ 			jiffies_64_f = get_jiffies_64();
+ 		}
+ 		/*
+-		 * Take away now to get delta
++		 * Take away now to get delta and normalize
+ 		 */
+-		oc.tv_sec -= now.tv_sec;
+-		oc.tv_nsec -= now.tv_nsec;
+-		/*
+-		 * Normalize...
+-		 */
+-		while ((oc.tv_nsec - NSEC_PER_SEC) >= 0) {
+-			oc.tv_nsec -= NSEC_PER_SEC;
+-			oc.tv_sec++;
+-		}
+-		while ((oc.tv_nsec) < 0) {
+-			oc.tv_nsec += NSEC_PER_SEC;
+-			oc.tv_sec--;
+-		}
++		set_normalized_timespec(&oc, oc.tv_sec - now.tv_sec,
++					oc.tv_nsec - now.tv_nsec);
+ 	}else{
+ 		jiffies_64_f = get_jiffies_64();
+ 	}
+
+--------------040203090206030202080002--

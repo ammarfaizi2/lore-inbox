@@ -1,103 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVG1MoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVG1Mqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVG1MoP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 08:44:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVG1MoO
+	id S261406AbVG1Mqc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 08:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVG1Mqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 08:44:14 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:49365 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261435AbVG1MnS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 08:43:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=KQkl6ScmXZ9vpBiSyS32LpqWHFQEEGDUqkdIDY8GsT43BNQ2IA0XH5sDb7hSjwUEErtq+TzC5GG6cgDNGhyMLKMMrKoVZE55ORVYkqYEJUE6sWhgTIr8cpWbuO34+v8uSJ4OpIjf6QJdp8Y+HEDuTgT91laguj+Mk3a3/dEo+/g=
-Message-ID: <ada605fb05072805434ab861f4@mail.gmail.com>
-Date: Thu, 28 Jul 2005 08:43:16 -0400
-From: John Que <qwejohn@gmail.com>
-Reply-To: John Que <qwejohn@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 
+	Thu, 28 Jul 2005 08:46:31 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:19174 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261406AbVG1Mpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 08:45:31 -0400
+Subject: Re: [PATCH] speed up on find_first_bit for i386 (let compiler do
+	the work)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Daniel Walker <dwalker@mvista.com>, LKML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1122551014.29823.205.camel@localhost.localdomain>
+References: <1122473595.29823.60.camel@localhost.localdomain>
+	 <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <1122513928.29823.150.camel@localhost.localdomain>
+	 <1122519999.29823.165.camel@localhost.localdomain>
+	 <1122521538.29823.177.camel@localhost.localdomain>
+	 <1122522328.29823.186.camel@localhost.localdomain>
+	 <42E8564B.9070407@yahoo.com.au>
+	 <1122551014.29823.205.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 28 Jul 2005 08:45:06 -0400
+Message-Id: <1122554706.29823.228.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+[snip]
+>  static inline int find_first_bit(const unsigned long *addr, unsigned size)
+>  {
+[snip]
+> +	int x = 0;
+> +	do {
+> +		if (*addr)
+> +			return __ffs(*addr) + x;
+> +		addr++;
+> +		if (x >= size)
+> +			break;
+> +		x += 32;
+The 32 looks like it may be problamatic.  Is there any i386 64 bit
+machines.  Or is hard coding 32 OK?
 
-I want ,for tracing and debugging purposes, to be able to generate a single 
-interrupt on a device which (unlike the timer or ide devices, for example) does 
-not get interrupts very frequently.
+> +	} while (1);
+> +	return x;
+>  }
+>  
 
-Looking at the output of /proc/interrupts (and look at IRQ 6 of the
-floppy) shows
-that the floppy device interrupt counter is not incremented during time if you
-are not constatntly working with it.
+Just in case, I've updated the patch to use (sizeof(*addr)<<3)
 
-So a good candidate for generating a single interrupt can be a floppy.
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-Is there a way to generate a single interrupt on a floppy device?
+Index: vanilla_kernel/include/asm-i386/bitops.h
+===================================================================
+--- vanilla_kernel/include/asm-i386/bitops.h	(revision 263)
++++ vanilla_kernel/include/asm-i386/bitops.h	(working copy)
+@@ -311,6 +311,20 @@
+ int find_next_zero_bit(const unsigned long *addr, int size, int offset);
+ 
+ /**
++ * __ffs - find first bit in word.
++ * @word: The word to search
++ *
++ * Undefined if no bit exists, so code should check against 0 first.
++ */
++static inline unsigned long __ffs(unsigned long word)
++{
++	__asm__("bsfl %1,%0"
++		:"=r" (word)
++		:"rm" (word));
++	return word;
++}
++
++/**
+  * find_first_bit - find the first set bit in a memory region
+  * @addr: The address to start the search at
+  * @size: The maximum size to search
+@@ -320,22 +334,16 @@
+  */
+ static inline int find_first_bit(const unsigned long *addr, unsigned size)
+ {
+-	int d0, d1;
+-	int res;
+-
+-	/* This looks at memory. Mark it volatile to tell gcc not to move it around */
+-	__asm__ __volatile__(
+-		"xorl %%eax,%%eax\n\t"
+-		"repe; scasl\n\t"
+-		"jz 1f\n\t"
+-		"leal -4(%%edi),%%edi\n\t"
+-		"bsfl (%%edi),%%eax\n"
+-		"1:\tsubl %%ebx,%%edi\n\t"
+-		"shll $3,%%edi\n\t"
+-		"addl %%edi,%%eax"
+-		:"=a" (res), "=&c" (d0), "=&D" (d1)
+-		:"1" ((size + 31) >> 5), "2" (addr), "b" (addr) : "memory");
+-	return res;
++	int x = 0;
++	do {
++		if (*addr)
++			return __ffs(*addr) + x;
++		addr++;
++		if (x >= size)
++			break;
++		x += (sizeof(*addr)<<3);
++	} while (1);
++	return x;
+ }
+ 
+ /**
+@@ -360,20 +368,6 @@
+ 	return word;
+ }
+ 
+-/**
+- * __ffs - find first bit in word.
+- * @word: The word to search
+- *
+- * Undefined if no bit exists, so code should check against 0 first.
+- */
+-static inline unsigned long __ffs(unsigned long word)
+-{
+-	__asm__("bsfl %1,%0"
+-		:"=r" (word)
+-		:"rm" (word));
+-	return word;
+-}
+-
+ /*
+  * fls: find last bit set.
+  */
 
-I had tried the following:
 
-I mount the floppy;
-I see that during the time, sometimes after running ls on a floppy
-2 interrupts are generated; and sometimes after ls on a floppy
-no interrupts are generated. The same is with
-creating a file/reading a file: sometimes there
-are interrupts and sometimes there are no interrupts.
-
-
-So I wrote the following little program:
-
-#define BUFFER_SIZE 2048
-
-char buffer[BUFFER_SIZE] __attribute__((aligned(4096)));
-
-int main()
-        {
-
-        int fd;
-        int bytes_read;
-        int i;
-        fd = open("/dev/fd0",O_DIRECT);
-
-        void* data;
-
-        if (fd < 0 )
-          printf("could not open device\n");
-
-       else
-
-        printf("device opened\n");
-
-                {
-                bytes_read = read(fd,buffer,512);
-
-                //fseek(fd,SEEK_CUR,1);
-                printf("bytes_read = %d\n",bytes_read);
-                }
-
-        close(fd);
-        }
-
-Each time I ran it I got course :
-device opened
-bytes_read = 512
-
-But running this program again and again ***DOES NOT*** increase the
-number of interrupt on the floppy device IRQ (6).
-
-Any ideas?
-
-Which user space code I should write / Which operation should I do so that each
-time I will do it,(again and again) it will generate an interrupt on the 
-floppy IRQ (6) ?
-
-(BTW I build this program by  gcc -D_GNU_SOURCE floppy.c)
-
-Regards,
-John

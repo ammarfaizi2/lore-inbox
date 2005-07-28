@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVG1Wya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVG1XAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVG1Wya (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 18:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVG1Wya
+	id S261863AbVG1XAw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 19:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbVG1XAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 18:54:30 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55172 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261703AbVG1Wy2 (ORCPT
+	Thu, 28 Jul 2005 19:00:52 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62854 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261863AbVG1XAu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 18:54:28 -0400
-Date: Thu, 28 Jul 2005 15:54:05 -0700
-From: Paul Jackson <pj@sgi.com>
-To: nagar@watson.ibm.com
-Cc: mbligh@mbligh.org, matthltc@us.ibm.com, akpm@osdl.org, hch@infradead.org,
-       linux-kernel@vger.kernel.org, gh@us.ibm.com
-Subject: Re: 2.6.13-rc3-mm1 (ckrm)
-Message-Id: <20050728155405.201292e6.pj@sgi.com>
-In-Reply-To: <42E93CC5.5060001@watson.ibm.com>
-References: <20050715013653.36006990.akpm@osdl.org>
-	<20050715150034.GA6192@infradead.org>
-	<20050715131610.25c25c15.akpm@osdl.org>
-	<20050717082000.349b391f.pj@sgi.com>
-	<1121985448.5242.90.camel@stark>
-	<20050721163227.661a5169.pj@sgi.com>
-	<42E03DD2.6020308@mbligh.org>
-	<20050721204631.1fb4d9a5.pj@sgi.com>
-	<42E070F9.6010009@watson.ibm.com>
-	<20050722125335.10b3ee0b.pj@sgi.com>
-	<42E93CC5.5060001@watson.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.6.4; i686-pc-linux-gnu)
+	Thu, 28 Jul 2005 19:00:50 -0400
+Date: Fri, 29 Jul 2005 01:00:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Richard Hubbell <richard.hubbell@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where's the list of needed hardware for donating?
+Message-ID: <20050728230047.GA4385@elf.ucw.cz>
+References: <c25b253205072710481c157e4c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c25b253205072710481c157e4c@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your well worded response, Shailabh.
+Hi!
 
-Others will have to make further comments and
-decisions here.  You have understood what I had
-to say, and responded well.  I have nothing to
-add at this point that would help further.
+> Does a list exist describing the hardware needed or wished for to
+> extend coverage for kernel development?  I saw such a list at openbsd
+> and thought it was a good idea.
 
+Heh, second zaurus for testing would certainly help ;-).
+								Pavel
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+teflon -- maybe it is a trademark, but it should not be.

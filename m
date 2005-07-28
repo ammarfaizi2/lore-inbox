@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVG1Psy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVG1Tne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVG1Psy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 11:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVG1PqR
+	id S261174AbVG1Tne (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 15:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVG1Tnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 11:46:17 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:40868 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S261469AbVG1Po3 (ORCPT
+	Thu, 28 Jul 2005 15:43:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6310 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261174AbVG1TnK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 11:44:29 -0400
-Subject: [patch 1/1] x86_64: remove duplicated sys_time64
-To: torvalds@osdl.org
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, blaisorblade@yahoo.it,
-       ak@suse.de
-From: blaisorblade@yahoo.it
-Date: Thu, 28 Jul 2005 17:46:49 +0200
-Message-Id: <20050728154654.2F242187CF@zion.home.lan>
+	Thu, 28 Jul 2005 15:43:10 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <42B02004.6020306@xfs.org> 
+References: <42B02004.6020306@xfs.org>  <42AAE5C8.9060609@xfs.org> <20050611150525.GI17639@ojjektum.uhulinux.hu> <42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org> <42AEDCFB.8080002@xfs.org> <42AEF979.2000207@cybsft.com> <42AF080A.1000307@xfs.org> <42AF0FA2.2050407@cybsft.com> <42AF165E.1020702@xfs.org> <42AF2088.3090605@sgi.com> <20050614205933.GC7082@ojjektum.uhulinux.hu> <42B010C0.90707@sgi.com> 
+To: Stephen Lord <lord@xfs.org>
+Cc: Prarit Bhargava <prarit@sgi.com>,
+       =?ISO-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>,
+       linux-kernel@vger.kernel.org, davej@redhat.com, ak@suse.de
+Subject: Re: Race condition in module load causing undefined symbols 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
+Date: Thu, 28 Jul 2005 20:42:48 +0100
+Message-ID: <28920.1122579768@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-CC: Andi Kleen <ak@suse.de>
+Hi Steve,
 
-I'm resending this patch again for 4th time since it wasn't merged nor it is
-in -mm. The first time it didn't look right because of Andi looking at an
-older tree, but it later was sorted out, and he Acked the patch.
+Someone's finally waved this discussion in my direction.
 
-Keeping this function does not makes sense because it's a copied (and buggy)
-copy of sys_time. The only difference is that now.tv_sec (which is a time_t,
-i.e. a 64-bit long) is copied (and truncated) into a int (32-bit).
+> Still puzzled about what could have been fixed in user space since this
+> appears to affect more than one shell. Module loading appears to be
+> very synchronous, so unless the shell was not waiting for exit status
+> on children correctly, it seems hard to explain in user space.
 
-The prototype is the same (they both take a long __user *), so let's drop this
-and redirect it to sys_time (and make sure it exists by defining
-__ARCH_WANT_SYS_TIME).
+The problem with nash is very simple, and may be duplicated in other shells:
 
-Only disadvantage is that the sys_stime definition is also compiled (may be
-fixed if needed by adding a separate __ARCH_WANT_SYS_STIME macro, and defining
-it for all arch's defining __ARCH_WANT_SYS_TIME except x86_64).
+ (1) The patch to the module wangling patch that I made makes use of
+     stop_machine_run() to insert a module into the module list or remove it
+     from the module list.
 
-Not compile-tested, sorry.
+     This is done because certain things that look at the list have to run
+     without locks, so the only way to be certain they aren't going to run is
+     to ensure that _nothing_ else is going to run.
 
-Acked-by: Andi Kleen <ak@suse.de>
+ (2) stop_machine_run() creates a bunch of kernel threads to hog the other
+     CPUs with interrupts disabled whilst one CPU does the actual work.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+ (3) These kernel threads are reparented to the init process (PID 1).
 
- linux-2.6.git-paolo/arch/x86_64/kernel/sys_x86_64.c |   14 --------------
- linux-2.6.git-paolo/include/asm-x86_64/unistd.h     |    3 ++-
- 2 files changed, 2 insertions(+), 15 deletions(-)
+ (4) When "parentless" threads exit, whatever process is running as PID 1 gets
+     to deal with the zombies and will get a wait() event for each.
 
-diff -puN include/asm-x86_64/unistd.h~x86_64-remove-sys-time-x86-64 include/asm-x86_64/unistd.h
---- linux-2.6.git/include/asm-x86_64/unistd.h~x86_64-remove-sys-time-x86-64	2005-07-28 17:45:26.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-x86_64/unistd.h	2005-07-28 17:45:26.000000000 +0200
-@@ -462,7 +462,7 @@ __SYSCALL(__NR_fremovexattr, sys_fremove
- #define __NR_tkill	200
- __SYSCALL(__NR_tkill, sys_tkill) 
- #define __NR_time      201
--__SYSCALL(__NR_time, sys_time64)
-+__SYSCALL(__NR_time, sys_time)
- #define __NR_futex     202
- __SYSCALL(__NR_futex, sys_futex)
- #define __NR_sched_setaffinity    203
-@@ -608,6 +608,7 @@ do { \
- #define __ARCH_WANT_SYS_SIGPENDING
- #define __ARCH_WANT_SYS_SIGPROCMASK
- #define __ARCH_WANT_SYS_RT_SIGACTION
-+#define __ARCH_WANT_SYS_TIME
- #define __ARCH_WANT_COMPAT_SYS_TIME
- #endif
- 
-diff -puN arch/x86_64/kernel/sys_x86_64.c~x86_64-remove-sys-time-x86-64 arch/x86_64/kernel/sys_x86_64.c
---- linux-2.6.git/arch/x86_64/kernel/sys_x86_64.c~x86_64-remove-sys-time-x86-64	2005-07-28 17:45:26.000000000 +0200
-+++ linux-2.6.git-paolo/arch/x86_64/kernel/sys_x86_64.c	2005-07-28 17:45:26.000000000 +0200
-@@ -161,17 +161,3 @@ asmlinkage long sys_uname(struct new_uts
- 		err |= copy_to_user(&name->machine, "i686", 5); 		
- 	return err ? -EFAULT : 0;
- }
--
--asmlinkage long sys_time64(long __user * tloc)
--{
--	struct timeval now; 
--	int i; 
--
--	do_gettimeofday(&now);
--	i = now.tv_sec;
--	if (tloc) {
--		if (put_user(i,tloc))
--			i = -EFAULT;
--	}
--	return i;
--}
-_
+ (5) nash runs as PID 1 during boot.
+
+ (6) nash was NOT checking the pid returned by its calls to wait(); in
+     especial, when it forked off an insmod process, it would then simply wait
+     for the first wait event to happen and continue on, without checking that
+     the process it was waiting for had actually finished.
+
+That is the basic problem being seen. It's just that it rarely happens without
+this patch, but the problem is still there in nash, and could be triggered due
+to other parentless processes exiting or dying.
+
+I got nash patched, but it seems to be taking awhile to percolate.
+
+David

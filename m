@@ -1,36 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVG1IlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVG1InZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVG1IlL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 04:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVG1Iis
+	id S261370AbVG1InZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 04:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVG1IlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 04:38:48 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:44247 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S261370AbVG1IiQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 04:38:16 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Thu, 28 Jul 2005 04:41:18 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:62189 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261370AbVG1Iiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 04:38:50 -0400
+Subject: Re: [ACPI] Re: [Alsa-devel] [PATCH] 2.6.13-rc3-git5: fix Bug #4416
+	(1/2)
+From: Shaohua Li <shaohua.li@intel.com>
 To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [ACPI] Re: [Alsa-devel] [PATCH] 2.6.13-rc3-git5: fix Bug #4416 (1/2)
-Date: Thu, 28 Jul 2005 10:43:13 +0200
-User-Agent: KMail/1.8.1
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+Cc: Pavel Machek <pavel@suse.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       LKML <linux-kernel@vger.kernel.org>,
        ACPI mailing list <acpi-devel@lists.sourceforge.net>,
        Andrew Morton <akpm@osdl.org>, alsa-devel@alsa-project.org
-References: <200507261247.05684.rjw@sisk.pl> <20050727205249.GA708@openzaurus.ucw.cz> <s5hr7djtkvo.wl%tiwai@suse.de>
 In-Reply-To: <s5hr7djtkvo.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+References: <200507261247.05684.rjw@sisk.pl>
+	 <200507261251.48291.rjw@sisk.pl> <s5hmzo8ljf6.wl%tiwai@suse.de>
+	 <20050727205249.GA708@openzaurus.ucw.cz>  <s5hr7djtkvo.wl%tiwai@suse.de>
+Content-Type: text/plain
+Date: Thu, 28 Jul 2005 16:37:29 +0800
+Message-Id: <1122539849.2903.3.camel@linux-hp.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507281043.14697.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thursday, 28 of July 2005 10:06, Takashi Iwai wrote:
+On Thu, 2005-07-28 at 10:06 +0200, Takashi Iwai wrote:
 > At Wed, 27 Jul 2005 22:52:49 +0200,
 > Pavel Machek wrote:
 > > 
@@ -57,16 +57,13 @@ On Thursday, 28 of July 2005 10:06, Takashi Iwai wrote:
 > 
 > Hmm, then the patch looks wrong.  It assumes that the irq number is
 > as same as before suspend.
+> 
+> Sorry for ignorance, but, is only irq affected?  Are the other
+> resources like ioport consistent after resume?
+Resource changes might be helpful for resource balance (device hotplug).
+But suspend/resume doesn't use it. So resources are consistent after
+resume except irq to me.
 
-Well, that''s the theory, but frankly I don't see a practical reason.  I have never
-seen this happening.  Practically, for this to happen, you'll have to reconfigure
-the BIOS accross suspend/resume which is dangerous anyway.
+Thanks,
+Shaohua
 
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

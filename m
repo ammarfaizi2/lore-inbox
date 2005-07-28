@@ -1,71 +1,292 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVG1UYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVG1UYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbVG1UYW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 16:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVG1UWT
+	id S261812AbVG1UYb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 16:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVG1UY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 16:22:19 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:54905 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261726AbVG1UVU convert rfc822-to-8bit
+	Thu, 28 Jul 2005 16:24:28 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:12783 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S262179AbVG1UXq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 16:21:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uTAAAOZRxFXPjVbfomH/5FhNhy1qjDuvimwyUX2ndoqm8xzNHs2wIT2W47Ad1tLZG+SDFR2ct0oFmDmBcBJJgf6k1n+lk9RzMvUO92I1nyUxGA2+NZCGV0qn6LlZwxQ6VSKn64tR7Ap6HuxprZ/9rhYfQitUtM1xhYkpSJC8hmQ=
-Message-ID: <9e47339105072813213db7cee4@mail.gmail.com>
-Date: Thu, 28 Jul 2005 16:21:19 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: colormap fixes
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e4733910507281315419c3c12@mail.gmail.com>
+	Thu, 28 Jul 2005 16:23:46 -0400
+Date: Thu, 28 Jul 2005 22:26:01 +0200
+From: Frank Pavlic <pavlic@de.ibm.com>
+To: jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 1/1] s390: use klist in qeth driver
+Message-ID: <20050728202601.GA6589@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200507280031.j6S0V3L3016861@hera.kernel.org>
-	 <Pine.LNX.4.62.0507280952140.24391@numbat.sonytel.be>
-	 <9e473391050728060741040424@mail.gmail.com>
-	 <42E8F0CD.6070500@gmail.com>
-	 <Pine.LNX.4.62.0507281758080.24391@numbat.sonytel.be>
-	 <9e473391050728092936794718@mail.gmail.com>
-	 <9e47339105072811183ac0f008@mail.gmail.com>
-	 <Pine.LNX.4.62.0507282202450.29876@numbat.sonytel.be>
-	 <9e4733910507281315419c3c12@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/28/05, Jon Smirl <jonsmirl@gmail.com> wrote:
-> On 7/28/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > On Thu, 28 Jul 2005, Jon Smirl wrote:
-> > > I can't see a way to query how long of cmap the device supports using
-> > > the current fbdev ioctls.
-> >
-> > Look at the lengths of the color bitfields?
-> 
-> Which color bitfields? Does hardware that supports 10bit cmap also
-> support a 10:10:10 framebuffer? If you can't do 10:10:10 how do the
-> 10bit cmaps work?  Does alpha matter in a 10:10:10 scanout buffer?
+[patch 1/1] s390: use klist in qeth driver.
 
->From the OpenGL headers I can see the answer to my questions...
-#define GL_RGB10                                0x8052
-#define GL_RGB10_A2                          0x8059
+From: Cornelia Huck <cohuck@de.ibm.com>
+From: Martin Schwidesky <schwidefsky@de.ibm.com>
+ 
+ Convert qeth to the new klist interface and make it compiling again. 
 
-OpenGL supports all of these:
-#define GL_RGB10                                0x8052
-#define GL_RGB12                                0x8053
-#define GL_RGB16                                0x8054
-#define GL_RGB10_A2                          0x8059
-#define GL_RGBA12                               0x805A
-#define GL_RGBA16                               0x805B
+Signed-off-by: Frank Pavlic <pavlic@de.ibm.com>
 
-Are there 12 and 16 bit cmaps too?
+diffstat:
+ qeth_main.c |   24 ++++++-----
+ qeth_proc.c |  126 ++++++++++++++++++++++++++++++++----------------------------
+ 2 files changed, 82 insertions(+), 68 deletions(-)
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_main.c linux-2.6-patched/drivers/s390/net/qeth_main.c
+--- linux-2.6-orig/drivers/s390/net/qeth_main.c	2005-07-28 11:06:56.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_main.c	2005-07-28 11:31:55.000000000 +0200
+@@ -8120,20 +8120,22 @@ static struct notifier_block qeth_ip6_no
+ #endif
+ 
+ static int
+-qeth_reboot_event(struct notifier_block *this, unsigned long event, void *ptr)
++__qeth_reboot_event_card(struct device *dev, void *data)
+ {
+-
+-	struct device *entry;
+ 	struct qeth_card *card;
+ 
+-	down_read(&qeth_ccwgroup_driver.driver.bus->subsys.rwsem);
+-	       list_for_each_entry(entry, &qeth_ccwgroup_driver.driver.devices,
+-			           driver_list) {
+-	               card = (struct qeth_card *) entry->driver_data;
+-		       qeth_clear_ip_list(card, 0, 0);
+-		       qeth_qdio_clear_card(card, 0);
+-	       }
+-	up_read(&qeth_ccwgroup_driver.driver.bus->subsys.rwsem);
++	card = (struct qeth_card *) dev->driver_data;
++	qeth_clear_ip_list(card, 0, 0);
++	qeth_qdio_clear_card(card, 0);
++	return 0;
++}
++
++static int
++qeth_reboot_event(struct notifier_block *this, unsigned long event, void *ptr)
++{
++
++	driver_for_each_device(&qeth_ccwgroup_driver.driver, NULL, NULL,
++			       __qeth_reboot_event_card);
+ 	return NOTIFY_DONE;
+ }
+ 
+diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_proc.c linux-2.6-patched/drivers/s390/net/qeth_proc.c
+--- linux-2.6-orig/drivers/s390/net/qeth_proc.c	2005-07-28 11:06:56.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_proc.c	2005-07-28 11:32:02.000000000 +0200
+@@ -27,23 +27,33 @@ const char *VERSION_QETH_PROC_C = "$Revi
+ #define QETH_PROCFILE_NAME "qeth"
+ static struct proc_dir_entry *qeth_procfile;
+ 
++static int
++qeth_procfile_seq_match(struct device *dev, void *data)
++{
++	return 1;
++}
++
+ static void *
+ qeth_procfile_seq_start(struct seq_file *s, loff_t *offset)
+ {
+-	struct list_head *next_card = NULL;
+-	int i = 0;
++	struct device *dev;
++	loff_t nr;
+ 
+ 	down_read(&qeth_ccwgroup_driver.driver.bus->subsys.rwsem);
+ 
+-	if (*offset == 0)
++	nr = *offset;
++	if (nr == 0)
+ 		return SEQ_START_TOKEN;
+ 
+-	/* get card at pos *offset */
+-	list_for_each(next_card, &qeth_ccwgroup_driver.driver.devices)
+-		if (++i == *offset)
+-			return next_card;
++	dev = driver_find_device(&qeth_ccwgroup_driver.driver, NULL,
++				 NULL, qeth_procfile_seq_match);
+ 
+-	return NULL;
++	/* get card at pos *offset */
++	nr = *offset;
++	while (nr-- > 1 && dev)
++		dev = driver_find_device(&qeth_ccwgroup_driver.driver, dev,
++					 NULL, qeth_procfile_seq_match);
++	return (void *) dev;
+ }
+ 
+ static void
+@@ -55,23 +65,21 @@ qeth_procfile_seq_stop(struct seq_file *
+ static void *
+ qeth_procfile_seq_next(struct seq_file *s, void *it, loff_t *offset)
+ {
+-	struct list_head *next_card = NULL;
+-	struct list_head *current_card;
++	struct device *prev, *next;
+ 
+ 	if (it == SEQ_START_TOKEN) {
+-		next_card = qeth_ccwgroup_driver.driver.devices.next;
+-		if (next_card->next == next_card) /* list empty */
+-			return NULL;
+-		(*offset)++;
+-	} else {
+-		current_card = (struct list_head *)it;
+-		if (current_card->next == &qeth_ccwgroup_driver.driver.devices)
+-			return NULL; /* end of list reached */
+-		next_card = current_card->next;
+-		(*offset)++;
++		next = driver_find_device(&qeth_ccwgroup_driver.driver,
++					  NULL, NULL, qeth_procfile_seq_match);
++		if (next)
++			(*offset)++;
++		return (void *) next;
+ 	}
+-
+-	return next_card;
++	prev = (struct device *) it;
++	next = driver_find_device(&qeth_ccwgroup_driver.driver,
++				  prev, NULL, qeth_procfile_seq_match);
++	if (next)
++		(*offset)++;
++	return (void *) next;
+ }
+ 
+ static inline const char *
+@@ -126,7 +134,7 @@ qeth_procfile_seq_show(struct seq_file *
+ 			      "-------------- ---- ------ ---------- ---- "
+ 			      "---- ----- -----\n");
+ 	} else {
+-		device = list_entry(it, struct device, driver_list);
++		device = (struct device *) it;
+ 		card = device->driver_data;
+ 		seq_printf(s, "%s/%s/%s x%02X   %-10s %-14s %-4i ",
+ 				CARD_RDEV_ID(card),
+@@ -180,17 +188,20 @@ static struct proc_dir_entry *qeth_perf_
+ static void *
+ qeth_perf_procfile_seq_start(struct seq_file *s, loff_t *offset)
+ {
+-	struct list_head *next_card = NULL;
+-	int i = 0;
++	struct device *dev = NULL;
++	int nr;
+ 
+ 	down_read(&qeth_ccwgroup_driver.driver.bus->subsys.rwsem);
+ 	/* get card at pos *offset */
+-	list_for_each(next_card, &qeth_ccwgroup_driver.driver.devices){
+-		if (i == *offset)
+-			return next_card;
+-		i++;
+-	}
+-	return NULL;
++	dev = driver_find_device(&qeth_ccwgroup_driver.driver, NULL, NULL,
++				 qeth_procfile_seq_match);
++
++	/* get card at pos *offset */
++	nr = *offset;
++	while (nr-- > 1 && dev)
++		dev = driver_find_device(&qeth_ccwgroup_driver.driver, dev,
++					 NULL, qeth_procfile_seq_match);
++	return (void *) dev;
+ }
+ 
+ static void
+@@ -202,12 +213,14 @@ qeth_perf_procfile_seq_stop(struct seq_f
+ static void *
+ qeth_perf_procfile_seq_next(struct seq_file *s, void *it, loff_t *offset)
+ {
+-	struct list_head *current_card = (struct list_head *)it;
++	struct device *prev, *next;
+ 
+-	if (current_card->next == &qeth_ccwgroup_driver.driver.devices)
+-		return NULL; /* end of list reached */
+-	(*offset)++;
+-	return current_card->next;
++	prev = (struct device *) it;
++	next = driver_find_device(&qeth_ccwgroup_driver.driver, prev,
++				  NULL, qeth_procfile_seq_match);
++	if (next)
++		(*offset)++;
++	return (void *) next;
+ }
+ 
+ static int
+@@ -216,7 +229,7 @@ qeth_perf_procfile_seq_show(struct seq_f
+ 	struct device *device;
+ 	struct qeth_card *card;
+ 
+-	device = list_entry(it, struct device, driver_list);
++	device = (struct device *) it;
+ 	card = device->driver_data;
+ 	seq_printf(s, "For card with devnos %s/%s/%s (%s):\n",
+ 			CARD_RDEV_ID(card),
+@@ -318,8 +331,8 @@ static struct proc_dir_entry *qeth_ipato
+ static void *
+ qeth_ipato_procfile_seq_start(struct seq_file *s, loff_t *offset)
+ {
+-	struct list_head *next_card = NULL;
+-	int i = 0;
++	struct device *dev;
++	loff_t nr;
+ 
+ 	down_read(&qeth_ccwgroup_driver.driver.bus->subsys.rwsem);
+ 	/* TODO: finish this */
+@@ -328,13 +341,16 @@ qeth_ipato_procfile_seq_start(struct seq
+ 	 * output driver settings then;
+ 	 * else output setting for respective card
+ 	 */
++
++	dev = driver_find_device(&qeth_ccwgroup_driver.driver, NULL, NULL,
++				 qeth_procfile_seq_match);
++
+ 	/* get card at pos *offset */
+-	list_for_each(next_card, &qeth_ccwgroup_driver.driver.devices){
+-		if (i == *offset)
+-			return next_card;
+-		i++;
+-	}
+-	return NULL;
++	nr = *offset;
++	while (nr-- > 1 && dev)
++		dev = driver_find_device(&qeth_ccwgroup_driver.driver, dev,
++					 NULL, qeth_procfile_seq_match);
++	return (void *) dev;
+ }
+ 
+ static void
+@@ -346,18 +362,14 @@ qeth_ipato_procfile_seq_stop(struct seq_
+ static void *
+ qeth_ipato_procfile_seq_next(struct seq_file *s, void *it, loff_t *offset)
+ {
+-	struct list_head *current_card = (struct list_head *)it;
++	struct device *prev, *next;
+ 
+-	/* TODO: finish this */
+-	/*
+-	 * maybe SEQ_SATRT_TOKEN can be returned for offset 0
+-	 * output driver settings then;
+-	 * else output setting for respective card
+-	 */
+-	if (current_card->next == &qeth_ccwgroup_driver.driver.devices)
+-		return NULL; /* end of list reached */
+-	(*offset)++;
+-	return current_card->next;
++	prev = (struct device *) it;
++	next = driver_find_device(&qeth_ccwgroup_driver.driver, prev,
++				  NULL, qeth_procfile_seq_match);
++	if (next)
++		(*offset)++;
++	return (void *) next;
+ }
+ 
+ static int
+@@ -372,7 +384,7 @@ qeth_ipato_procfile_seq_show(struct seq_
+ 	 * output driver settings then;
+ 	 * else output setting for respective card
+ 	 */
+-	device = list_entry(it, struct device, driver_list);
++	device = (struct device *) it;
+ 	card = device->driver_data;
+ 
+ 	return 0;

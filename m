@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVG1Oc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVG1OhI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbVG1Oc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 10:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVG1OVd
+	id S261492AbVG1OhI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 10:37:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVG1OTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 10:21:33 -0400
-Received: from reserv5.univ-lille1.fr ([193.49.225.19]:11183 "EHLO
-	reserv5.univ-lille1.fr") by vger.kernel.org with ESMTP
-	id S261509AbVG1OVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 10:21:14 -0400
-Message-ID: <42E8E9D1.4070705@lifl.fr>
-Date: Thu, 28 Jul 2005 16:21:05 +0200
-From: Eric Piel <Eric.Piel@lifl.fr>
-User-Agent: Mozilla Thunderbird 1.0.6-1mdk (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gabri <metadistros@yahoo.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Help Me Please
-References: <001701c5937b$ca708780$0801a8c0@SEBAS>
-In-Reply-To: <001701c5937b$ca708780$0801a8c0@SEBAS>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-USTL-MailScanner-Information: Please contact the ISP for more information
-X-USTL-MailScanner: Found to be clean
-X-MailScanner-From: eric.piel@lifl.fr
+	Thu, 28 Jul 2005 10:19:04 -0400
+Received: from xenotime.net ([66.160.160.81]:49866 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S261492AbVG1OS4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 10:18:56 -0400
+Date: Thu, 28 Jul 2005 07:18:50 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk>
+Cc: gregkh@suse.de, rolandd@cisco.com, mst@mellanox.co.il,
+       linux-pci@atrey.karlin.mff.cuni.cz, openib-general@openib.org,
+       linux-kernel@vger.kernel.org, mj@ucw.cz, ian.pratt@cl.cam.ac.uk
+Subject: Re: [openib-general] Re: [PATCH] arch/xx/pci: remap_pfn_range ->
+ io_remap_pfn_range
+Message-Id: <20050728071850.6bed3966.rdunlap@xenotime.net>
+In-Reply-To: <A95E2296287EAD4EB592B5DEEFCE0E9D282808@liverpoolst.ad.cl.cam.ac.uk>
+References: <A95E2296287EAD4EB592B5DEEFCE0E9D282808@liverpoolst.ad.cl.cam.ac.uk>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-07/28/2005 03:53 PM, gabri wrote/a écrit:
-> I have a laptop. Is amd mobile SEMPRON but when I
-> ejecute cpufreq say this:
+On Thu, 28 Jul 2005 12:57:51 +0100 Ian Pratt wrote:
+
+> > >     Greg> Hm, you do realize that io_remap_pfn_range() is the same
+> > >     Greg> thing as remap_pfn_range() on i386, right?
+> > > 
+> > >     Greg> So, why would this patch change anything?
+> > > 
+> > > It's not the same thing under Xen.  I think this patch 
+> > fixes userspace 
+> > > access to PCI memory for XenLinux.
+> > 
+> > But Xen is a separate arch, and hence, will get different pci 
+> > arch specific functions, right?
+> > 
+> > In short, what is this patch trying to fix?  What is the 
+> > problem anyone is seeing with the existing code?
 > 
-> analyzing CPU 0:
->   no or unknown cpufreq driver is active on this CPU
+> As I understand it, remap_pfn_range should be used for mapping pages
+> that are backed by memory, and io_remap_pfn_range should be used for
+> mapping MMIO regions.
+> There's a distinciton between the two for architectures like Sparc and
+> xen/x86. 
 > 
-> I remcompiled a lot of kernel" 2.6.12.3 2.6.8 etc"
-> witch support for cpu scaling but when i am triying
-> load a module powernow-k8 say this error:
-> powernow-k8: Found 1 AMD Athlon 64 / Opteron
-> processors (version 1.00.09b)
-> powernow-k8: BIOS error: maxvid exceeded with pstate
-> 0
-> 
-> and with powernow-k7: powernow: This module only
-> works
-> with AMD K7 CPUs
-> mi claptop isn't overcloked and i don't know how fix
-> the problem.
+> For example, drivers/char/mem.c uses io_remap_pfn_range for mmap'ing
+> /dev/mem
 
-Hello,
+That is my (limited) understanding also, but when I built
+io_remap_pfn_range(), I didn't search all callers of
+remap_pfn_range() to see which ones that I could fix (or break)
+by changing them.  Mostly due to the possible breakage part.
 
-According to the message, it's clear that powernow-k8 fits your CPU. I 
-don't know the meaning of the error message, though.
-
-First, have you upgraded your BIOS to the latest available version?
-
-Also, you might have better feedback if you contact the cpufreq 
-mailing-list: cpufreq@lists.linux.org.uk
-
-Eric
+---
+~Randy

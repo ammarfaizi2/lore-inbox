@@ -1,34 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVG1Stp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVG1RMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVG1Stp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 14:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVG1Sth
+	id S261715AbVG1RMz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 13:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVG1RMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 14:49:37 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:23698 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261493AbVG1Stb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 14:49:31 -0400
-Message-Id: <200507281849.j6SInQZY022446@laptop11.inf.utfsm.cl>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.13-rc3 current git 
-In-Reply-To: Message from Horst von Brand <vonbrand@inf.utfsm.cl> 
-   of "Thu, 28 Jul 2005 13:53:21 -0400." <200507281753.j6SHrLBt025986@laptop11.inf.utfsm.cl> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 28 Jul 2005 14:49:26 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Thu, 28 Jul 2005 13:12:32 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:29320 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S261696AbVG1RKv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 13:10:51 -0400
+Message-ID: <42E91191.60603@cosmosbay.com>
+Date: Thu, 28 Jul 2005 19:10:41 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] x86_64 : prefetchw() can fall back to prefetch() if !3DNOW
+References: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com> <86802c44050728092275e28a9a@mail.gmail.com>
+In-Reply-To: <86802c44050728092275e28a9a@mail.gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------000207070800090802020608"
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 28 Jul 2005 19:10:40 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> In arch/i386/kernel/cpu/mtrr/main.c at line 225 it references
-> ipi_handler(), a function that is only declared under CONFIG_SMP (from line
-> 139 onwards). As a result, the build fails.
+This is a multi-part message in MIME format.
+--------------000207070800090802020608
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Sorry for the noise, a few minutes later the updated git version works.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+[PATCH] x86_64 : prefetchw() can fall back to prefetch() if !3DNOW
+
+If the cpu lacks 3DNOW feature, we can use a normal prefetcht0 instruction instead of NOP5.
+"prefetchw (%rxx)" and "prefetcht0 (%rxx)" have the same length, ranging from 3 to 5 bytes
+depending on the register. So this patch even helps AMD64, shortening the length of the code.
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+--------------000207070800090802020608
+Content-Type: text/plain;
+ name="x86_64.prefetchw"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x86_64.prefetchw"
+
+--- linux-2.6.13-rc3/include/asm-x86_64/processor.h	2005-07-13 06:46:46.000000000 +0200
++++ linux-2.6.13-rc3-ed/include/asm-x86_64/processor.h	2005-07-28 18:47:39.000000000 +0200
+@@ -398,7 +398,7 @@
+ #define ARCH_HAS_PREFETCHW 1
+ static inline void prefetchw(void *x) 
+ { 
+-	alternative_input(ASM_NOP5,
++	alternative_input("prefetcht0 (%1)",
+ 			  "prefetchw (%1)",
+ 			  X86_FEATURE_3DNOW,
+ 			  "r" (x));
+
+--------------000207070800090802020608--

@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVG1Hq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVG1Hq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVG1Hq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 03:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVG1Hoo
+	id S261330AbVG1Hq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 03:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVG1Hoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 03:44:44 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20647 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261334AbVG1Hmx (ORCPT
+	Thu, 28 Jul 2005 03:44:38 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:57280 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261336AbVG1Hmy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 03:42:53 -0400
-Date: Thu, 28 Jul 2005 09:42:44 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/23] reboot-fixes
-Message-ID: <20050728074244.GG6529@elf.ucw.cz>
-References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com> <20050727025923.7baa38c9.akpm@osdl.org> <m1k6jc9sdr.fsf@ebiederm.dsl.xmission.com> <20050727104123.7938477a.akpm@osdl.org> <m18xzs9ktc.fsf@ebiederm.dsl.xmission.com> <20050727224711.GA6671@elf.ucw.cz> <m1y87r7sqf.fsf@ebiederm.dsl.xmission.com>
+	Thu, 28 Jul 2005 03:42:54 -0400
+Date: Thu, 28 Jul 2005 09:42:25 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Luca Falavigna <dktrkranz@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][TRIVIAL] Real-Time Preemption V0.7.51-38: fix compile bug in drivers/block/paride/pseudo.h
+Message-ID: <20050728074225.GA20777@elte.hu>
+References: <42E7AF99.8070509@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1y87r7sqf.fsf@ebiederm.dsl.xmission.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <42E7AF99.8070509@gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> So unless you are really ambitious I'd like to take
-> device_suspend(PMSG_FREEZE) out of the reboot path for
-> 2.6.13, put in -mm where people can bang on it for a bit
-> and see that it is coming and delay the merge with the stable
-> branch until the bugs with common hardware have been sorted out.
+* Luca Falavigna <dktrkranz@gmail.com> wrote:
 
-Works for me. I may feel ambitious, but I don't feel like debugging
-every reboot problem or every strange architecture for 2.6.13 :-).
+> This patch, built against kernel version 2.6.13-rc3, fixes a small bug 
+> in drivers/block/paride/pseudo.h which prevents its related drivers 
+> from being compiled successfully when RT patch (version 0.7.51-38) is 
+> compiled in. This is due to the new definition of DEFINE_SPINLOCK 
+> macro, which does not longer accept additional attributes.
 
-							Pavel
--- 
-teflon -- maybe it is a trademark, but it should not be.
+thanks - applied.
+
+	Ingo

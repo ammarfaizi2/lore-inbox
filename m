@@ -1,188 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVG1UTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVG1UYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVG1UTr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 16:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVG1UTd
+	id S261721AbVG1UYW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 16:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVG1UWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 16:19:33 -0400
-Received: from smtpauth03.mail.atl.earthlink.net ([209.86.89.63]:405 "EHLO
-	smtpauth03.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S261838AbVG1URf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 16:17:35 -0400
-To: Pavel Machek <pavel@ucw.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3: swsusp works (TP 600X) 
-In-Reply-To: Your message of "Sat, 23 Jul 2005 02:35:44 +0200."
-             <20050723003544.GC1988@elf.ucw.cz> 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 21.4.1
-Date: Thu, 28 Jul 2005 16:17:22 -0400
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1DyEok-0000pa-SX@approximate.corpus.cam.ac.uk>
-X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d47826f234369f82662f8ea4b6895fcc2009ca9877bae1c30167350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 24.41.6.91
+	Thu, 28 Jul 2005 16:22:19 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:54905 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261726AbVG1UVU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 16:21:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uTAAAOZRxFXPjVbfomH/5FhNhy1qjDuvimwyUX2ndoqm8xzNHs2wIT2W47Ad1tLZG+SDFR2ct0oFmDmBcBJJgf6k1n+lk9RzMvUO92I1nyUxGA2+NZCGV0qn6LlZwxQ6VSKn64tR7Ap6HuxprZ/9rhYfQitUtM1xhYkpSJC8hmQ=
+Message-ID: <9e47339105072813213db7cee4@mail.gmail.com>
+Date: Thu, 28 Jul 2005 16:21:19 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: colormap fixes
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e4733910507281315419c3c12@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200507280031.j6S0V3L3016861@hera.kernel.org>
+	 <Pine.LNX.4.62.0507280952140.24391@numbat.sonytel.be>
+	 <9e473391050728060741040424@mail.gmail.com>
+	 <42E8F0CD.6070500@gmail.com>
+	 <Pine.LNX.4.62.0507281758080.24391@numbat.sonytel.be>
+	 <9e473391050728092936794718@mail.gmail.com>
+	 <9e47339105072811183ac0f008@mail.gmail.com>
+	 <Pine.LNX.4.62.0507282202450.29876@numbat.sonytel.be>
+	 <9e4733910507281315419c3c12@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>If I don't eject the pcmcia card (usually a prism54 wireless card),
->>swsusp begins the process of hibernation, but never gets to the
->>writing pages part.
+On 7/28/05, Jon Smirl <jonsmirl@gmail.com> wrote:
+> On 7/28/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> > On Thu, 28 Jul 2005, Jon Smirl wrote:
+> > > I can't see a way to query how long of cmap the device supports using
+> > > the current fbdev ioctls.
+> >
+> > Look at the lengths of the color bitfields?
+> 
+> Which color bitfields? Does hardware that supports 10bit cmap also
+> support a 10:10:10 framebuffer? If you can't do 10:10:10 how do the
+> 10bit cmaps work?  Does alpha matter in a 10:10:10 scanout buffer?
 
-> Well, it really may be the firmware loading. Add some printks to
-> confirm it, then fix it.
+>From the OpenGL headers I can see the answer to my questions...
+#define GL_RGB10                                0x8052
+#define GL_RGB10_A2                          0x8059
 
-I did more tests, this time with 2.6.13-rc3-mm2 (machine is a TP 600X),
-and I don't think the problem is related to firmware loading.  If I
-first physically eject the card (an Intersil wireless card), swsusp
-prints
+OpenGL supports all of these:
+#define GL_RGB10                                0x8052
+#define GL_RGB12                                0x8053
+#define GL_RGB16                                0x8054
+#define GL_RGB10_A2                          0x8059
+#define GL_RGBA12                               0x805A
+#define GL_RGBA16                               0x805B
 
-PM: Writing image
-PCI: Found IRQ 11 for device .....
-PCI: Sharing IRQ 11 with ...
-PCI: Sharing IRQ 11 with ...
-PCI: Found IRQ 11 for device .....
+Are there 12 and 16 bit cmaps too?
 
-then it writes pages to swap and all is well.  Well, almost 100%; the
-one glitch is that sometimes X comes back blank and I have to
-ctrl-alt-F7 to bring back the display; or X comes back with the keyboard
-acting strange (<ENTER> shifts the display left by a few hundred
-pixels), and again ctrl-alt-F7 fixes it.  This is with XFree86
-4.3.0.dfsg.1-14, and maybe after I upgrade (?) to the xorg server, that
-glitch will go away.  Anyway, it's easy to work around.
-
-But, if I leave the card in and prepare the hibernation with
-
-ifdown eth0
-cardctl eject
-modprobe -r prism54
-
-(so eject the module for and stop all uses of the card), then swsusp
-prints the PCI messages above, but hangs before writing the pages to
-swap.  I'm using a hibernate.sh script (included below) for those steps.
-It does a few others like stopping the hotplug system.
-
-After 'cardctl eject' and removing the module, there's no evidence of
-the hardware available to the kernel, as far as I can tell.  lspci
-doesn't show it, for example.  So the system is not loading firmware
-during the hibernate attempt, and I'm not sure what step is hanging.
-
-[Should this report go to acpi-devel and/or the ACPI or kernel bugzilla,
-or is that more for S1/S3 rather than for hibernation?]
-
-Here is lspci with the card inserted:
-
-  0000:00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
-  0000:00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
-  0000:00:02.0 CardBus bridge: Texas Instruments PCI1450 (rev 03)
-  0000:00:02.1 CardBus bridge: Texas Instruments PCI1450 (rev 03)
-  0000:00:03.0 Communication controller: Agere Systems (former Lucent Microelectronics) WinModem 56k (rev 01)
-  0000:00:06.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator] (rev 01)
-  0000:00:07.0 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-  0000:00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-  0000:00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-  0000:00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
-  0000:01:00.0 VGA compatible controller: Neomagic Corporation NM2360 [MagicMedia 256ZX]
-  0000:06:00.0 Network controller: Intersil Corporation Intersil ISL3890 [Prism GT/Prism Duette] (rev 01)
-
-Here's the lspci -v for just the card:
-
-  0000:06:00.0 Network controller: Intersil Corporation Intersil ISL3890 [Prism GT/Prism Duette] (rev 01)
-	  Subsystem: Intersil Corporation: Unknown device 0000
-	  Flags: bus master, medium devsel, latency 80, IRQ 11
-	  Memory at 24800000 (32-bit, non-prefetchable) [size=8K]
-	  Capabilities: [dc] Power Management version 1
-
-And lspci -vv for just the card:
-
-  0000:06:00.0 Network controller: Intersil Corporation Intersil ISL3890 [Prism GT/Prism Duette] (rev 01)
-	  Subsystem: Intersil Corporation: Unknown device 0000
-	  Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	  Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	  Latency: 80 (2500ns min, 7000ns max), Cache Line Size: 0x08 (32 bytes)
-	  Interrupt: pin A routed to IRQ 11
-	  Region 0: Memory at 24800000 (32-bit, non-prefetchable) [size=8K]
-	  Capabilities: [dc] Power Management version 1
-		  Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-
-Here is the list of modules present just before the (working and
-non-working) hibernation (for debugging, the hibernate.sh script does
-'lsmod |logger' before hibernating):
-
-  ip_conntrack_ftp
-  snd_mixer_oss
-  ipv6
-  pcmcia
-  crc32
-  parport_pc
-  lp
-  parport
-  thermal
-  fan
-  button
-  processor
-  ac
-  battery
-  ipt_state
-  ipt_LOG
-  iptable_filter
-  iptable_nat
-  ip_conntrack
-  ip_tables
-  8250
-  serial_core
-  intel_agp
-  firmware_class
-  snd_cs46xx
-  snd_rawmidi
-  snd_seq_device
-  snd_ac97_codec
-  snd_pcm
-  snd_timer
-  snd
-  soundcore
-  snd_page_alloc
-  yenta_socket
-  rsrc_nonstatic
-  pcmcia_core
-  agpgart
-  speedstep_lib
-
-I don't think any of those modules intrinsically are a problem, since
-swsusp works with all of them (as long as the Intersil card is not
-inserted).  And here is the hibernate.sh script:
-
-
-#!/bin/bash
-
-# suspend to disk (hibernate), stopping drivers that might break the
-#   hibernation setup
-
-to_stop='chrony pdnsd mysql hotplug'
-to_start='hotplug pdnsd chrony'
-unload='prism54'
-
-ifdown eth0
-cardctl eject
-for s in $to_stop ; do /etc/init.d/$s stop ; done
-for m in $unload ; do modprobe -r $m ; done
-hwclock --systohc
-
-logger -t hibernate.sh About to hibernate
-ps axwww   | logger -t "hibernate.sh ps"
-lsmod | logger -t "hibernate.sh lsmod"
-sync
-sleep 2
-echo -n disk > /sys/power/state
-hwclock --hctosys
-logger -t hibernate.sh Returning from hibernation
-for s in $to_start ; do
-  /etc/init.d/$s start
-done
-
-
-
--Sanjoy
-
-`A society of sheep must in time beget a government of wolves.'
-   - Bertrand de Jouvenal
+-- 
+Jon Smirl
+jonsmirl@gmail.com

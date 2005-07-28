@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVG1B2D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVG1B1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbVG1B2D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 21:28:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVG1B2A
+	id S261504AbVG1B1y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 21:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVG1B1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 21:28:00 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:24776 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261489AbVG1BZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 21:25:48 -0400
-Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-References: <1122473595.29823.60.camel@localhost.localdomain>
-	 <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	Wed, 27 Jul 2005 21:27:51 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:64741 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261504AbVG1B0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 21:26:46 -0400
+Subject: Re: 2.6.12: no sound on SPDIF with emu10k1
+From: Lee Revell <rlrevell@joe-job.com>
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Cc: fedora-list@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1122513715.13792.22.camel@hostmaster.org>
+References: <1122493585.3137.14.camel@hostmaster.org>
+	 <1122497052.22844.5.camel@mindpipe>
+	 <1122513715.13792.22.camel@hostmaster.org>
 Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 27 Jul 2005 21:25:28 -0400
-Message-Id: <1122513928.29823.150.camel@localhost.localdomain>
+Date: Wed, 27 Jul 2005 21:26:45 -0400
+Message-Id: <1122514005.22844.17.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-07-27 at 18:00 -0700, Daniel Walker wrote:
-> Don't you break sched_find_first_bit() , seems it's dependent on a 
-> 140-bit bitmap .
+On Thu, 2005-07-28 at 03:21 +0200, Thomas Zehetbauer wrote:
+> On Wed, 2005-07-27 at 16:44 -0400, Lee Revell wrote:
+> > On Wed, 2005-07-27 at 21:46 +0200, Thomas Zehetbauer wrote:
+> > > I cannot get my SB Live! 5.1's SPDIF (digital) output to work with
+> > > kernel > 2.6.12. I have not changed my mixer configuration and it is
+> > > still working when I boot 2.6.11.12 or earlier. I am using FC4 with
+> > > alsa-lib-1.0.9rf-2.FC4 installed.
+> > 
+> > FC4 shipped a buggy ALSA version, I can't believe there are no updated
+> > RPMs yet.
+> > 
+> > You need a newer ALSA.
+> 
+> alsa-lib-1.0.9rf-2 is the latest update available:
 
-Oops! I forgot about that. With my custom kernels I had to change this
-to use the generic find_first_bit routine. It's been a while since I
-made these changes.  So when we really need to have custom settings, we
-would have to change this.  I should have remembered this, since it did
-cause me couple of days of debugging.  Anyway, I never did the
-measurements, but does anyone know what the performance difference is
-between find_first_bit and sched_find_first_bit? I guess I'll do it and
-report back later.  This should also be in a comment around changing
-these settings.
+You have to update all alsa packages, not just alsa-lib.
 
-Thanks,
-
--- Steve
-
+Lee
 

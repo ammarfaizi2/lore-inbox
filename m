@@ -1,113 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVG1BAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVG1BNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbVG1BAi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 21:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVG1BAi
+	id S261246AbVG1BNP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 21:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVG1BNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 21:00:38 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:7409 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261229AbVG1BAg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 21:00:36 -0400
-Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
-From: Daniel Walker <dwalker@mvista.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1122473595.29823.60.camel@localhost.localdomain>
-References: <1122473595.29823.60.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 27 Jul 2005 18:00:20 -0700
-Message-Id: <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Jul 2005 21:13:15 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13211 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261246AbVG1BNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 21:13:13 -0400
+To: ncunningham@cyclades.com
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [PATCH 1/23] Add missing device_suspsend(PMSG_FREEZE) calls.
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
+	<m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
+	<1122400462.4382.13.camel@localhost>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 27 Jul 2005 19:12:30 -0600
+In-Reply-To: <1122400462.4382.13.camel@localhost> (Nigel Cunningham's
+ message of "Wed, 27 Jul 2005 03:54:23 +1000")
+Message-ID: <m1k6jb7myp.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nigel Cunningham <ncunningham@cyclades.com> writes:
 
-Don't you break sched_find_first_bit() , seems it's dependent on a 
-140-bit bitmap .
+> Hi.
+>
+> Could you please send PMSG_* related patches to linux-pm at
+> lists.osdl.org as well?
 
-Daniel
+I'll try.  My goal was not to add or change not functionality but to
+make what the kernel was already doing be consistent.
 
+It turns out the device_suspend(PMSG_FREEZE) is a major pain
+sitting in the reboot path and I will be submitting a patch to
+remove it from the reboot path in 2.6.13 completely.
 
-On Wed, 2005-07-27 at 10:13 -0400, Steven Rostedt wrote:
-> The following patch makes the MAX_RT_PRIO and MAX_USER_RT_PRIO
-> configurable from the make *config.  This is more of a proposal since
-> I'm not really sure where in Kconfig this would best fit. I don't see
-> why these options shouldn't be user configurable without going into the
-> kernel headers to change them.
-> 
-> Also, is there a way in the Kconfig to force the checking of
-> MAX_USER_RT_PRIO <= MAX_RT_PRIO?
-> 
-> -- Steve
-> 
-> (Patched against 2.6.12.2)
-> 
-> Index: vanilla_kernel/include/linux/sched.h
-> ===================================================================
-> --- vanilla_kernel/include/linux/sched.h	(revision 263)
-> +++ vanilla_kernel/include/linux/sched.h	(working copy)
-> @@ -389,9 +389,13 @@
->   * MAX_RT_PRIO must not be smaller than MAX_USER_RT_PRIO.
->   */
->  
-> -#define MAX_USER_RT_PRIO	100
-> -#define MAX_RT_PRIO		MAX_USER_RT_PRIO
-> +#define MAX_USER_RT_PRIO	CONFIG_MAX_USER_RT_PRIO
-> +#define MAX_RT_PRIO		CONFIG_MAX_RT_PRIO
->  
-> +#if MAX_USER_RT_PRIO > MAX_RT_PRIO
-> +#error MAX_USER_RT_PRIO must not be greater than MAX_RT_PRIO
-> +#endif
-> +
->  #define MAX_PRIO		(MAX_RT_PRIO + 40)
->  
->  #define rt_task(p)		(unlikely((p)->prio < MAX_RT_PRIO))
-> Index: vanilla_kernel/init/Kconfig
-> ===================================================================
-> --- vanilla_kernel/init/Kconfig	(revision 263)
-> +++ vanilla_kernel/init/Kconfig	(working copy)
-> @@ -162,6 +162,32 @@
->  	  building a kernel for install/rescue disks or your system is very
->  	  limited in memory.
->  
-> +config MAX_RT_PRIO
-> +	int "Maximum RT priority"
-> +	default 100
-> +	help
-> +	  The real-time priority of threads that have the policy of SCHED_FIFO
-> +	  or SCHED_RR have a priority higher than normal threads.  This range
-> +	  can be set here, where the range starts from 0 to MAX_RT_PRIO-1.
-> +	  If this range is higher than MAX_USER_RT_PRIO than kernel threads
-> +	  may have a higher priority than any user thread.
-> +
-> +	  This may be the same as MAX_USER_RT_PRIO, but do not set this 
-> +	  to be less than MAX_USER_RT_PRIO.
-> +
-> +config MAX_USER_RT_PRIO
-> +	int "Maximum User RT priority"
-> +	default 100
-> +	help
-> +	  The real-time priority of threads that have the policy of SCHED_FIFO
-> +	  or SCHED_RR have a priority higher than normal threads.  This range
-> +	  can be set here, where the range starts from 0 to MAX_USER_RT_PRIO-1.
-> +	  If this range is lower than MAX_RT_PRIO, than kernel threads may have
-> +	  a higher priority than any user thread.
-> +
-> +	  This may be the same as MAX_RT_PRIO, but do not set this to be
-> +	  greater than MAX_RT_PRIO.
-> +	  
->  config AUDIT
->  	bool "Auditing support"
->  	default y if SECURITY_SELINUX
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+At the very least the ide driver breaks, and the e1000 driver
+is affected.
+
+And there is of course the puzzle of why there exists simultaneously
+driver shutdown() and suspend(PMSG_FREEZE) methods as I believed they
+are defined to do exactly the same thing.
+
+Eric
 

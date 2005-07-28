@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVG1Hm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVG1Hod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVG1Hm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 03:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVG1HmV
+	id S261337AbVG1Hod (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 03:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVG1Hoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 03:42:21 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:53184 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261319AbVG1Hl4 (ORCPT
+	Thu, 28 Jul 2005 03:44:32 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21415 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261337AbVG1Hnv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 03:41:56 -0400
-Date: Thu, 28 Jul 2005 09:41:18 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: David.Mosberger@acm.org
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Add prefetch switch stack hook in scheduler function
-Message-ID: <20050728074118.GA20581@elte.hu>
-References: <200507272207.j6RM7fg18695@unix-os.sc.intel.com> <20050727161316.0593d762.akpm@osdl.org> <ed5aea4305072716233491f7f8@mail.gmail.com>
+	Thu, 28 Jul 2005 03:43:51 -0400
+Date: Thu, 28 Jul 2005 09:43:44 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/23] reboot-fixes
+Message-ID: <20050728074344.GH6529@elf.ucw.cz>
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com> <20050727025923.7baa38c9.akpm@osdl.org> <m1k6jc9sdr.fsf@ebiederm.dsl.xmission.com> <20050727104123.7938477a.akpm@osdl.org> <m18xzs9ktc.fsf@ebiederm.dsl.xmission.com> <20050727224711.GA6671@elf.ucw.cz> <Pine.LNX.4.58.0507271550250.3227@g5.osdl.org> <20050727225334.GC6529@elf.ucw.cz> <m1oe8n7s4v.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ed5aea4305072716233491f7f8@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <m1oe8n7s4v.fsf@ebiederm.dsl.xmission.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* david mosberger <dmosberger@gmail.com> wrote:
+> >> > Yes, I think we should do device_suspend(PMSG_FREEZE) in reboot path.
+> >> 
+> >> Considering how many device drivers that are likely broken, I disagree. 
+> >> Especially since Andrew seems to have trivially found a machine where it 
+> >> doesn't work.
+> >
+> > I'm not sure if we want to do that for 2.6.13, but long term, we
+> > should just tell drivers to FREEZE instead of inventing reboot
+> > notifier lists and similar uglynesses...
+> 
+> Then as part of the patch device_shutdown should disappear.  It
+> is silly to have two functions that want to achieve the same
+> thing.  
 
-> Also, should this be called prefetch_stack() or perhaps even just 
-> prefetch_task()?  Not every architecture defines a switch_stack 
-> structure.
-
-yeah. I'd too suggest to call it prefetch_stack(), and not make it a 
-macro & hook but something defined on all arches, with for now only ia64 
-having any real code in the inline function.
-
-i'm wondering, is the switch_stack at the same/similar place as 
-next->thread_info? If yes then we could simply do a 
-prefetch(next->thread_info).
-
-	Ingo
+I always thought that device_shutdown is different phase -- the one
+with interrupts disabled...
+								Pavel
+-- 
+teflon -- maybe it is a trademark, but it should not be.

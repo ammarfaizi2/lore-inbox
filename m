@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVG1T2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVG1RMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbVG1T2u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 15:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVG1TQc
+	id S261823AbVG1RMv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 13:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVG1RM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 15:16:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51330 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261931AbVG1TPE (ORCPT
+	Thu, 28 Jul 2005 13:12:27 -0400
+Received: from graphe.net ([209.204.138.32]:32232 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261698AbVG1RLT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 15:15:04 -0400
-Date: Thu, 28 Jul 2005 12:13:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: perex@suse.cz, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       tiwai@suse.de
-Subject: Re: [ALSA PATCH] 1.0.9b+
-Message-Id: <20050728121356.3b873bdc.akpm@osdl.org>
-In-Reply-To: <1122577563.2772.17.camel@mindpipe>
-References: <Pine.LNX.4.61.0507281546040.8458@tm8103.perex-int.cz>
-	<20050728102525.234e6511.akpm@osdl.org>
-	<1122577563.2772.17.camel@mindpipe>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Jul 2005 13:11:19 -0400
+Date: Thu, 28 Jul 2005 10:11:18 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3
+In-Reply-To: <20050728025840.0596b9cb.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0507281006320.1262@graphe.net>
+References: <20050728025840.0596b9cb.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
->
-> On Thu, 2005-07-28 at 10:25 -0700, Andrew Morton wrote:
-> > Jaroslav Kysela <perex@suse.cz> wrote:
-> > >
-> > > Linus, please do an update from:
-> > > 
-> > >    rsync://rsync.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
-> > > 
-> > > ...
-> > >   65 files changed, 5059 insertions(+), 1122 deletions(-)
-> > 
-> > The git-alsa.patch in -mm which I obtain from
-> > master.kernel.org:/pub/scm/linux/kernel/git/perex/alsa-current.git is
-> > empty.  So we're now wanting to merge 4,000 lines of unreviewed code which
-> > hasn't been tested in -mm at approximately the -rc4 stage.
-> > 
-> 
-> Lots of people install ALSA independently from the kernel (like all the
-> audio oriented distro users),
+On Thu, 28 Jul 2005, Andrew Morton wrote:
 
-In the past week?
+>   I remain fairly dubious about this - it seems a fairly specific and
+>   complex piece of work to speed up one extremely specific part of one type of
+>   computer's one type of workload.   Surely there's a better way :(
 
-> so it's not completely unreviewed.
+The patches provide the basis for more work on this issue. But we need to 
+start somewhere. The specific issue addresses in the initial patchset is 
+becoming a common case for multi-core applications.
 
-tested != reviewed.
+>   The patches at present spit warnings or don't compile on lots of
+>   architectures.  x86, x86_64, ppc64 and ia64 are OK.
+
+I have just sent a fix to you this morning when I got your messages. 
+Sadly I do not have access to the architectures that failed (arm, alpha 
+and ppc32) but the fix simply removes code that is not used for these 
+arches.

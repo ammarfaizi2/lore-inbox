@@ -1,109 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVG1FLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVG1Gom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVG1FLD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 01:11:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVG1FLD
+	id S261274AbVG1Gom (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 02:44:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVG1Gol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 01:11:03 -0400
-Received: from pat.qlogic.com ([198.70.193.2]:33768 "EHLO avexch01.qlogic.com")
-	by vger.kernel.org with ESMTP id S261201AbVG1FK7 (ORCPT
+	Thu, 28 Jul 2005 02:44:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:26787 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261274AbVG1Gol (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 01:10:59 -0400
-Date: Wed, 27 Jul 2005 22:10:59 -0700
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux-SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fix up qla2xxx configuration bogosity
-Message-ID: <20050728051058.GA567@plap.qlogic.org>
+	Thu, 28 Jul 2005 02:44:41 -0400
+Date: Wed, 27 Jul 2005 22:49:14 -0700
+From: Greg KH <greg@kroah.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
+Message-ID: <20050728054914.GA13904@kroah.com>
+References: <9e473391050725172833617aca@mail.gmail.com> <20050726003018.GA24089@kroah.com> <9e47339105072517561f53b2f9@mail.gmail.com> <20050726015401.GA25015@kroah.com> <9e473391050725201553f3e8be@mail.gmail.com> <9e47339105072719057c833e62@mail.gmail.com> <20050728034610.GA12123@kroah.com> <9e473391050727205971b0aee@mail.gmail.com> <20050728040544.GA12476@kroah.com> <9e47339105072721495d3788a8@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: QLogic Corporation
-User-Agent: Mutt/1.5.9i
-X-OriginalArrivalTime: 28 Jul 2005 05:10:58.0956 (UTC) FILETIME=[BDA93CC0:01C59332]
+In-Reply-To: <9e47339105072721495d3788a8@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Thu, Jul 28, 2005 at 12:49:21AM -0400, Jon Smirl wrote:
+> @@ -207,6 +208,28 @@ flush_write_buffer(struct dentry * dentr
+>  	struct attribute * attr = to_attr(dentry);
+>  	struct kobject * kobj = to_kobj(dentry->d_parent);
+>  	struct sysfs_ops * ops = buffer->ops;
+> +	char *x, *y, *z;
+> +
+> +	/* locate leading white space */
+> +	x = buffer->page;
+> +	while (isspace(*x) && (x - buffer->page < count))
+> +		x++;
 
-In looking through your latest git-pull and update of the Kconfig
-quirks in qla2xxx:
+Ok, I can follow this.  For example
+buffer->page = "  foo  "
 
-Fix up qla2xxx configuration bogosity
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=e0aa8afd97536a9d94f82a07b4c4b3f05aef6f82;hp=e4ff4d7f9d85a2bc714307eb9113617182e62845
+then x = "foo  " at the end of that .
+
+> +	/* locate trailng white space */
+> +	z = y = x;
+> +	while (y - buffer->page < count) {
+> +		y++;
+> +		z = y;
+> +		while (isspace(*y) && (y - buffer->page < count)) {
+> +			y++;
+> +		}
+> +	}
+> +	count = z - x;
+
+Hm, I _think_ this works, but I need someone else to verify this...
+Anyone else?
 
 
-Would you also apply the attached patch which adds the appropriate
-FW_LOADER pre-requisite and a separate entry for ISP24xx support.
+> +
+> +	/* strip the white space */
+> +	if (buffer->page != x)
+> +		memmove(buffer->page, x, count);
+> +	buffer->page[count] = '\0';
 
-Thanks to Adrian Bunk and Jesper Juhl for their efforts in fixing this
-quirk.
+Why move the buffer?  Why not just pass in a pointer to the start of the
+"non-whitespace filled" buffer to the store() function?
 
-Regards,
-Andrew Vasquez
+thanks,
 
----
-
-diff --git a/drivers/scsi/qla2xxx/Kconfig b/drivers/scsi/qla2xxx/Kconfig
---- a/drivers/scsi/qla2xxx/Kconfig
-+++ b/drivers/scsi/qla2xxx/Kconfig
-@@ -7,6 +7,7 @@ config SCSI_QLA21XX
- 	tristate "QLogic ISP2100 host adapter family support"
- 	depends on SCSI_QLA2XXX
-         select SCSI_FC_ATTRS
-+	select FW_LOADER
- 	---help---
- 	This driver supports the QLogic 21xx (ISP2100) host adapter family.
- 
-@@ -14,6 +15,7 @@ config SCSI_QLA22XX
- 	tristate "QLogic ISP2200 host adapter family support"
- 	depends on SCSI_QLA2XXX
-         select SCSI_FC_ATTRS
-+	select FW_LOADER
- 	---help---
- 	This driver supports the QLogic 22xx (ISP2200) host adapter family.
- 
-@@ -21,6 +23,7 @@ config SCSI_QLA2300
- 	tristate "QLogic ISP2300 host adapter family support"
- 	depends on SCSI_QLA2XXX
-         select SCSI_FC_ATTRS
-+	select FW_LOADER
- 	---help---
- 	This driver supports the QLogic 2300 (ISP2300 and ISP2312) host
- 	adapter family.
-@@ -29,6 +32,7 @@ config SCSI_QLA2322
- 	tristate "QLogic ISP2322 host adapter family support"
- 	depends on SCSI_QLA2XXX
-         select SCSI_FC_ATTRS
-+	select FW_LOADER
- 	---help---
- 	This driver supports the QLogic 2322 (ISP2322) host adapter family.
- 
-@@ -36,6 +40,16 @@ config SCSI_QLA6312
- 	tristate "QLogic ISP63xx host adapter family support"
- 	depends on SCSI_QLA2XXX
-         select SCSI_FC_ATTRS
-+	select FW_LOADER
- 	---help---
- 	This driver supports the QLogic 63xx (ISP6312 and ISP6322) host
- 	adapter family.
-+
-+config SCSI_QLA24XX
-+	tristate "QLogic ISP24xx host adapter family support"
-+	depends on SCSI_QLA2XXX
-+	select SCSI_FC_ATTRS
-+	select FW_LOADER
-+	---help---
-+	This driver supports the QLogic 24xx (ISP2422 and ISP2432) host
-+	adapter family.
-diff --git a/drivers/scsi/qla2xxx/Makefile b/drivers/scsi/qla2xxx/Makefile
---- a/drivers/scsi/qla2xxx/Makefile
-+++ b/drivers/scsi/qla2xxx/Makefile
-@@ -1,5 +1,4 @@
- EXTRA_CFLAGS += -DUNIQUE_FW_NAME
--EXTRA_CFLAGS += -DCONFIG_SCSI_QLA24XX -DCONFIG_SCSI_QLA24XX_MODULE
- 
- qla2xxx-y := qla_os.o qla_init.o qla_mbx.o qla_iocb.o qla_isr.o qla_gs.o \
- 		qla_dbg.o qla_sup.o qla_rscn.o qla_attr.o
+greg k-h

@@ -1,82 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVG1Xgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbVG1Xru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbVG1Xgb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 19:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVG1Xgb
+	id S262150AbVG1Xru (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 19:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVG1Xru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 19:36:31 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:20052 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262125AbVG1Xes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 19:34:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=kTors6O6cMuf7701kqG6Rqm9b/Pnbrr8QLljzxtOWM3ufq8qrxFFnn1R5SL/Cael6n1c5iT4+YUZ2ur1ZBr4cLakosuOgEOxhl4lDFA0W2HS12xZV5/06LsLtPiQcPj0CVm/R3AYMhe8c2hxfsPVNjBmAXRFG3cByL//OYsZOEw=  ;
-Message-ID: <42E96B8C.6010005@yahoo.com.au>
-Date: Fri, 29 Jul 2005 09:34:36 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: Delete scheduler SD_WAKE_AFFINE and SD_WAKE_BALANCE flags
-References: <200507282308.j6SN8Tg01993@unix-os.sc.intel.com>
-In-Reply-To: <200507282308.j6SN8Tg01993@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 28 Jul 2005 19:47:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49869 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262150AbVG1Xrm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 19:47:42 -0400
+Date: Thu, 28 Jul 2005 16:46:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Thonke <iogl64nx@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3
+Message-Id: <20050728164640.062286fe.akpm@osdl.org>
+In-Reply-To: <42E96A42.7060405@gmail.com>
+References: <20050728025840.0596b9cb.akpm@osdl.org>
+	<42E96A42.7060405@gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote:
-> What sort of workload needs SD_WAKE_AFFINE and SD_WAKE_BALANCE?
-> SD_WAKE_AFFINE are not useful in conjunction with interrupt binding.
-> In fact, it creates more harm than usefulness, causing detrimental
-> process migration and destroy process cache affinity etc.  Also
-> SD_WAKE_BALANCE is giving us performance grief with our industry
-> standard OLTP workload.
+Michael Thonke <iogl64nx@gmail.com> wrote:
+>
+> here again I have two problems. With 2.6.13-rc3-mm3 I have problems 
+>  using my SATA drives on Intel ICH6.
+>  The kernel can't route there IRQs or can't discover them. the option 
+>  irqpoll got them to work now.
+>  The problem is new because 2.6.13-rc3[-mm1,mm2] work without any problems.
+
+OK.  Please generate the full dmesg output for -mm2 and for -mm3 and run
+`diff -u dmesg.mm2 dmesg.mm3' and send it?  And keep those files because we
+may end up needing to add them to an acpi bugzilla entry ;)
+
+>  The SATA drives are Samsung HD160JJ SATAII. The mainboard I use is a 
+>  ASUS P4GPL-X.
 > 
-
-The periodic load balancer basically makes completely undirected,
-random choices when picking which tasks to move where.
-
-Wake balancing provides an opportunity to provide some input bias
-into the load balancer.
-
-For example, if you started 100 pairs of tasks which communicate
-through a pipe. On a 2 CPU system without wake balancing, probably
-half of the pairs will be on different CPUs. With wake balancing,
-it should be much better.
-
-I've also been told that it impoves IO efficiency significantly -
-obviously that depends on the system and workload.
-
-> To demonstrate the problem, we turned off these two flags in the cpu
-> sd domain and measured a stunning 2.15% performance gain!  And deleting
-> all the code in the try_to_wake_up() pertain to load balancing gives us
-> another 0.2% gain.
+>  Second one is about Intel HD-Codec (snd-hda-intel) on modprobe when 
+>  loading the module it gives me
 > 
-> The wake up patch should be made simple, just put the waking task on
-> the previously ran cpu runqueue.  Simple and elegant.
-> 
-> I'm proposing we either delete these two flags or make them run time
-> configurable.
-> 
+>  ---> snip
+>  hda_codec: Unknown model for ALC880, trying auto-probe from BIOS...
 
-There have been lots of changes since 2.6.12. Including less aggressive
-wake balancing.
+Does -mm2 print that `unknown model' message?
 
-I hear you might be having problems with recent 2.6.13 kernels? If so,
-it would be really good to have a look that before 2.6.13 goes out the
-door.
+>  Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>   printing eip:
+>  f88713f4
+>  *pde = 00000000
+>  Oops: 0002 [#1]
+>  PREEMPT
+>  last sysfs file:
+>  Modules linked in: snd_hda_intel snd_hda_codec nvidia
+>  CPU:    0
+>  EIP:    0060:[<f88713f4>]    Tainted: P      VLI
 
-I appreciate all the effort you're putting into this!
+Please verify that it happens without the nvidia module loaded.
 
-Nick
+>  EFLAGS: 00010293   (2.6.13-rc3-mm3pm)
+>  eax: fffffffe   ebx: f3b33548   ecx: 00000000   edx: 00000000
+>  esi: f3b33400   edi: 00000000   ebp: 00000006   esp: f0371ddc
+>  ds: 007b   es: 007b   ss: 0068
+>  Process modprobe (pid: 7398, threadinfo=f0370000 task=f4183560)
+>  Stack: 00000000 00000000 00000000 00000000 f3b33400 f3b33548 f0f1d000 
+>  f8871933
+>         f3b33400 f0f1d000 f8871bbd f8875478 f88748f6 00000001 f886d77e 
+>  00000f00
+>         00000005 00000000 f0f1d000 f54d04c0 00000000 f886d984 00000f00 
+>  00000002
+>  Call Trace:
+>   [<f8871933>]
+>   [<f8871bbd>]
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Odd trace.  Do you have CONFIG_KALLSYMS enabled?  If not, please turn it on.

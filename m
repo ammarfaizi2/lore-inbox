@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVG1RMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVG1SQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVG1RMz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 13:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVG1RMg
+	id S262099AbVG1SQh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 14:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVG1SOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 13:12:36 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:27822 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261726AbVG1RMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 13:12:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=muOgW4khrWyoSUjpI2c8NNMNZc+xV9SDsYeG+sviRaKVbibEGJAgEKOEdmYrP8nBgc+WIIjsh5x+5qTefI+O6D72ulPGqKlAcLnjisrpzH+wKPa+6ofMo3KfJoiJYqH+5X7eRbMSlT94KbwbmNOni0yeSkSQNxIu2LfQoWfPRJA=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: akpm@osdl.org
-Subject: Re: [uml-devel] [PATCH 1/7] UML - -mm3 compile fix
-Date: Thu, 28 Jul 2005 19:29:25 +0200
-User-Agent: KMail/1.7.2
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <200507281626.j6SGQgsI009471@ccure.user-mode-linux.org>
-In-Reply-To: <200507281626.j6SGQgsI009471@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Jul 2005 14:14:08 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:62948 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S261889AbVG1SOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 14:14:01 -0400
+Date: Thu, 28 Jul 2005 11:14:21 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, shai@scalex86.org
+Subject: Re: [patch] mm: Ensure proper alignment for node_remap_start_pfn
+Message-ID: <20050728181421.GA3842@localhost.localdomain>
+References: <20050728004241.GA16073@localhost.localdomain> <20050727181724.36bd28ed.akpm@osdl.org> <20050728013134.GB23923@localhost.localdomain> <1122571226.23386.44.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507281929.26273.blaisorblade@yahoo.it>
+In-Reply-To: <1122571226.23386.44.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 July 2005 18:26, Jeff Dike wrote:
-> -mm3 adds an include of asm/vm86.h in include/asm-i386/ptrace.h.  Since UML
-> includes the underlying arch's ptrace.h, it needs an asm/vm86.h in order
-> to build.
-Note for both Jeff and Akpm: this is also for the current Linus' git 
-repository (just since today).
+On Thu, Jul 28, 2005 at 10:20:26AM -0700, Dave Hansen wrote:
+> On Wed, 2005-07-27 at 18:31 -0700, Ravikiran G Thirumalai wrote:
+> > On Wed, Jul 27, 2005 at 06:17:24PM -0700, Andrew Morton wrote:
+> > > Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+> > > >
+> > Yes, it does cause a crash.
+> 
+> I don't know of any NUMA x86 sub-arches that have nodes which are
+> aligned on any less than 2MB.  Is this an architecture that's supported
+> in the tree, today?
 
-> Signed-off-by: Jeff Dike <jdike@addtoit.com>
+SRAT need not guarantee any alignment at all in the memory affinity 
+structure (the address in 64-bit byte address).   And yes, there are x86-numa
+machines that run the latest kernel tree and face this problem.
 
-> Index: linux-2.6.12-rc3-mm2/include/asm-um/vm86.h
-> ===================================================================
-> --- linux-2.6.12-rc3-mm2.orig/include/asm-um/vm86.h	2005-07-28
-> 05:04:34.593890552 -0400 +++
-> linux-2.6.12-rc3-mm2/include/asm-um/vm86.h	2005-07-28 11:13:32.000000000
-> -0400 @@ -0,0 +1,6 @@
-> +#ifndef __UM_VM86_H
-> +#define __UM_VM86_H
-> +
-> +#include "asm/arch/vm86.h"
-> +
-> +#endif
-
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+Thanks,
+Kiran

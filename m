@@ -1,73 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVG1WX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVG1W0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbVG1WX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 18:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVG1WXz
+	id S261717AbVG1W0V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 18:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVG1WYC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 18:23:55 -0400
-Received: from hostmaster.org ([212.186.110.32]:57287 "EHLO hostmaster.org")
-	by vger.kernel.org with ESMTP id S261724AbVG1WWp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 18:22:45 -0400
-Subject: Re: 2.6.12: no sound on SPDIF with emu10k1
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: Avuton Olrich <avuton@gmail.com>
-Cc: fedora-list@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3aa654a4050728031376bb7a9b@mail.gmail.com>
-References: <1122493585.3137.14.camel@hostmaster.org>
-	 <3aa654a4050728031376bb7a9b@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NK7RGC2eh2i8FbVW8dKw"
-Date: Fri, 29 Jul 2005 00:22:44 +0200
-Message-Id: <1122589364.2649.6.camel@hostmaster.org>
+	Thu, 28 Jul 2005 18:24:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61064 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261582AbVG1WWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 18:22:03 -0400
+Date: Thu, 28 Jul 2005 07:22:25 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Grant Coady <lkml@dodo.com.au>
+Cc: linux-kernel@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: Linux 2.4.32-pre2
+Message-ID: <20050728102225.GA7661@dmt.cnet>
+References: <20050727080512.GD7368@dmt.cnet> <2i7he1lgg2237n66ec5p3e007tdsjos531@4ax.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-1.fc4) 
+Content-Type: multipart/mixed; boundary="UlVJffcvxoiEqYs2"
+Content-Disposition: inline
+In-Reply-To: <2i7he1lgg2237n66ec5p3e007tdsjos531@4ax.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-NK7RGC2eh2i8FbVW8dKw
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, 2005-07-28 at 03:13 -0700, Avuton Olrich wrote:
-> After upgrading to 1.0.9, I thought my emu10k1 board was broken until
-> I toggled 'IEC958 Optical Raw' to Off.
+On Thu, Jul 28, 2005 at 07:02:30PM +1000, Grant Coady wrote:
+> On Wed, 27 Jul 2005 05:05:12 -0300, Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> >
+> >Here goes another -pre, after a long period.
+> 
+> Breaks Toshiba laptop: hard lockup --> what is on screen is same as 
+> working dmesg up to point: "host/uhci.c: detected 2 port"
+> 
+> Same .config as for 2.4.31-hf3 or 2.4.32-pre1
+> http://scatter.mine.nu/test/linux-2.4/tosh/
 
-Many thanks, that did the trick! I have now tried to only load the
-emu10k1 driver modules and found that 2.6.12's ALSA is VERY different
-from all previous versions in that it does not mute all channels by
-default any more.
+Please try to revert the attached? 
 
-Tom
-
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
-
------BEGIN GEEK CODE BLOCK-----
-GS/IT d-- s: a-- C++++ UL++++ P+>$ L++>$ E--- W+ N+ o? !K w++$ O M-
-V? PS+++ PE++ Y+ PGP+++ t+ 5 X R- tv b- DI(+) D+ G>++ e h! !r y+
-------END GEEK CODE BLOCK------
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="2.4.32-pre2-usbuhci.diff"
 
 
+    [PATCH] file_storage and UHCI bugfixes
 
+    The patch below (as547) corrects two minor errors, one in the
+    file_storage gadget driver (need to send a length-zero packet if a
+    control response is short) and one in the alternate UHCI driver (need
+    to set the QH bit in the frame list). Both of these are back-ports of
+    things that have been in 2.6 for several releases.
 
---=-NK7RGC2eh2i8FbVW8dKw
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+diff --git a/drivers/usb/gadget/file_storage.c b/drivers/usb/gadget/file_storage.c
+--- a/drivers/usb/gadget/file_storage.c
++++ b/drivers/usb/gadget/file_storage.c
+@@ -1454,6 +1454,7 @@ static int fsg_setup(struct usb_gadget *
+ 	/* Respond with data/status or defer until later? */
+ 	if (rc >= 0 && rc != DELAYED_STATUS) {
+ 		fsg->ep0req->length = rc;
++		fsg->ep0req->zero = (rc < ctrl->wLength);
+ 		fsg->ep0req_name = (ctrl->bRequestType & USB_DIR_IN ?
+ 				"ep0-in" : "ep0-out");
+ 		rc = ep0_queue(fsg);
+diff --git a/drivers/usb/host/uhci.c b/drivers/usb/host/uhci.c
+--- a/drivers/usb/host/uhci.c
++++ b/drivers/usb/host/uhci.c
+@@ -2924,7 +2924,7 @@ static int alloc_uhci(struct pci_dev *de
+ 		}
+ 
+ 		/* Only place we don't use the frame list routines */
+-		uhci->fl->frame[i] =  uhci->skeltd[irq]->dma_handle;
++		uhci->fl->frame[i] = uhci->skeltd[irq]->dma_handle | UHCI_PTR_QH;
+ 	}
+ 
+ 	start_hc(uhci);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iQEVAwUAQulatGD1OYqW/8uJAQJ+kwgAhqMzB+Id7b8ML+Xi03zBADGei7bhrm3o
-D1WwaUOLOODGpTKftkMfZMGpgi4bKgaGnfqiSJHnkMeBFqsM9C2RGDgwFbTP/e9n
-pYenxo7It7ztGrVK+T5GxABaVS8ZrpUvblHfzIMP1VdkkpQJ0IjYeI3jPLFlquyJ
-jKefqnPNtV4vMec2E79HUTw9o3lDXEfw+L8h773WLHKWKI/SeS/5P9ue6HpUaU7C
-Fmibw8sXoWF06j21aiSYAmKp8Frdm94dCq4tTP565KjlnAYUrS0bbozcPA8afzse
-IUTcSAJfElpIhAm7UwPHLr1vfXrrtK57Bdihc+JkNa77cNsRa0rP+A==
-=UxY0
------END PGP SIGNATURE-----
-
---=-NK7RGC2eh2i8FbVW8dKw--
-
+--UlVJffcvxoiEqYs2--

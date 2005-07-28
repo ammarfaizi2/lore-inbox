@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVG1CWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVG1CoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVG1CWS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 22:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVG1CWS
+	id S261264AbVG1CoU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 22:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVG1CoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 22:22:18 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:27875 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261252AbVG1CWQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 22:22:16 -0400
-X-ORBL: [69.107.32.110]
-DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
-	h=received:date:from:to:subject:cc:references:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:message-id;
-	b=qTk6e2DOA28dM5jc+Dhn/oqj8xsGSFZ3ywk9mjowV14ojceAFQpZiDAn3cDpi37ay
-	g79jW95sS7BUJEJhGwORw==
-Date: Wed, 27 Jul 2005 19:21:51 -0700
-From: david-b@pacbell.net
-To: ncunningham@cyclades.com, ebiederm@xmission.com
-Subject: Re: [linux-pm] Re: [PATCH 1/23] Add missing 
- device_suspsend(PMSG_FREEZE) calls.
-Cc: torvalds@osdl.org, linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
- <m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
- <1122400462.4382.13.camel@localhost>
- <m1k6jb7myp.fsf@ebiederm.dsl.xmission.com>
+	Wed, 27 Jul 2005 22:44:20 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:24795 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261264AbVG1CoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 22:44:18 -0400
+Subject: Re: [linux-pm] Re: [PATCH 1/23] Add missing
+	device_suspsend(PMSG_FREEZE) calls.
+From: Shaohua Li <shaohua.li@intel.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: ncunningham@cyclades.com, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <m1k6jb7myp.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
+	 <m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
+	 <1122400462.4382.13.camel@localhost>
+	 <m1k6jb7myp.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Thu, 28 Jul 2005 10:44:17 +0800
+Message-Id: <1122518657.2925.4.camel@linux-hp.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <20050728022151.3B048DAA01@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-07-27 at 19:12 -0600, Eric W. Biederman wrote:
+> Nigel Cunningham <ncunningham@cyclades.com> writes:
+> 
+> > Hi.
+> >
+> > Could you please send PMSG_* related patches to linux-pm at
+> > lists.osdl.org as well?
+> 
+> I'll try.  My goal was not to add or change not functionality but to
+> make what the kernel was already doing be consistent.
+> 
+> It turns out the device_suspend(PMSG_FREEZE) is a major pain
+> sitting in the reboot path and I will be submitting a patch to
+> remove it from the reboot path in 2.6.13 completely.
+> 
+> At the very least the ide driver breaks, and the e1000 driver
+> is affected.
+> 
 > And there is of course the puzzle of why there exists simultaneously
 > driver shutdown() and suspend(PMSG_FREEZE) methods as I believed they
 > are defined to do exactly the same thing.
+I would expect more driver breakage and for the shutdown either. In
+current stage, suspend(PMSG_FREEZE) might put devices into D3 state. How
+can a shutdown() be done again?
 
-No puzzle; that's not how they're defined.  Both of them cause the
-device to quiesce that device's activity.  But:
-
- - shutdown() is a "dirty shutdown OK" heads-up for some level
-   of restart/reboot; hardware will be completely re-initialized
-   later, normally with hardware level resets and OS rebooting.
-
- - freeze() is a "clean shutdown only" that normally sees hardware
-   state preserved, and is followed by suspend() or resume().
-
-Or so I had understood.  That does suggest why having FREEZE in the
-reboot path could be trouble:  you could be rebooting because that
-hardware won't do a clean shutdown!
-
-- Dave
+Thanks,
+Shaohua
 

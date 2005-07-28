@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVG1KKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVG1KMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbVG1KKO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 06:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVG1KKI
+	id S261399AbVG1KMs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 06:12:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVG1KKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 06:10:08 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:58249 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261325AbVG1KIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 06:08:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.es;
-  h=Received:Message-ID:From:To:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE;
-  b=Myu7FmrQWnbmhS8VuGDQVxVJxXClBlkRTR0FS8GQQgerUyRr/i46/WoKuTFIAMORS/C0wV+FwrYrxNRvpYzPS7F5qqlK/M7G8hfs2PfwcNhF+7JCZY9SVby1GDCTB8BJu9Xunxl8OeM+OrHdyMR9SM+3xGI8UtSLhIJy6WbutIw=  ;
-Message-ID: <006801c5935c$579a4710$0801a8c0@SEBAS>
-From: "gabri" <metadistros@yahoo.es>
-To: <linux-kernel@vger.kernel.org>
-Subject: Cpu Scaling. Hi People
-Date: Thu, 28 Jul 2005 12:08:43 +0200
+	Thu, 28 Jul 2005 06:10:16 -0400
+Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:27547 "EHLO
+	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
+	id S261399AbVG1KHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 06:07:39 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: deepak jose <deepakpjose@gmail.com>
+Subject: Re: any one knows device driver programming
+Date: Thu, 28 Jul 2005 12:07:45 +0200
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <77dc1b2205072800311f72527d@mail.gmail.com>
+In-Reply-To: <77dc1b2205072800311f72527d@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Content-Disposition: inline
+Message-Id: <200507281207.45289.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- It is the first mail that I write. I call gabri and I am 18 years old. I am
- Spanish. I want to comment that me program does not work ningun to regulate
- the Mhz of the processor. " Cpufreq, cpuydn, powernow ". I do not manage to
- load ningun module from the kernel inside cpuscalig in that it(he,she)
- fences with an amd mobile sempron.
- The modules of athlon do not go.
- Do they work to give support to the mobile sempron in the future versions 
-of
- the kernel?
- what can I do ?
+On Thursday 28 July 2005 09:31, deepak jose wrote:
+> hello,
+>
+> is ther anyone capable me to help in writing device driver programming?
+> if so i'll be very greatful to you.
+>
+> waiting 4 a +ve reply.
+> deepak
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
- ______________________________________________
+http://lwn.net/Kernel/LDD3/
 
-
-		
-______________________________________________ 
-Renovamos el Correo Yahoo! 
-Nuevos servicios, más seguridad 
-http://correo.yahoo.es
+-- 
+Regards,
+Borislav Petkov.

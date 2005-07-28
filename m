@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVG1Pcc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVG1OAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbVG1Pcc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 11:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVG1OOe
+	id S261455AbVG1OAf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 10:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVG1N6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 10:14:34 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:52228 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261485AbVG1OOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 10:14:23 -0400
-Date: Thu, 28 Jul 2005 16:14:19 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Kyle McMartin <kyle@parisc-linux.org>
-Cc: linux-kernel@vger.kernel.org, perex@suse.cz, alsa-devel@alsa-project.org,
-       James@superbug.demon.co.uk, sailer@ife.ee.ethz.ch,
-       linux-sound@vger.kernel.org, zab@zabbo.net,
-       parisc-linux@lists.parisc-linux.org, jgarzik@pobox.com,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20050728141419.GH3528@stusta.de>
-References: <20050726150837.GT3160@stusta.de> <20050727183942.GA2964@roadwarrior.mcmartin.ca>
+	Thu, 28 Jul 2005 09:58:34 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:43529 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261455AbVG1N5E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 09:57:04 -0400
+Date: Thu, 28 Jul 2005 09:56:58 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] New include file for marking old style api files
+Message-ID: <20050728135656.GA9110@tuxdriver.com>
+Mail-Followup-To: Jiri Slaby <jirislaby@gmail.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <42E8E0C2.5010302@gmail.com> <42E8E29E.5030205@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050727183942.GA2964@roadwarrior.mcmartin.ca>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <42E8E29E.5030205@gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 27, 2005 at 02:39:42PM -0400, Kyle McMartin wrote:
-> On Tue, Jul 26, 2005 at 05:08:37PM +0200, Adrian Bunk wrote:
-> > This patch schedules obsolete OSS drivers (with ALSA drivers that 
-> > support the same hardware) for removal.
+On Thu, Jul 28, 2005 at 03:50:22PM +0200, Jiri Slaby wrote:
+> Jiri Slaby napsal(a):
 > 
-> oss/harmony.c can probably go, unless someone from parisc-linux
-> objects. I've written a (working) replacement[1] for oss/ad1889.c
-> which is in our cvs, and will go upstream shortly. oss/ad1889.c
-> doesn't (and hasn't ever) worked, so it should probably be removed.
->...
+> >Hi.
+> >Do you think, that this would be useful in the kernel tree?
+> >I have an idea to mark old drivers, which should I or somebody rewrite.
+> >For example drivers/isdn/hisax/gazel.c.
 
-:-)
+Anyway you could modify this so that people could indicate which
+"old" APIs are in use?
 
-The sooner your driver goes through the ALSA people in Linus' tree, the 
-sooner we can schedule the OSS driver for removal.
+Just a thought...
 
-> Cheers,
-> Kyle McMartin
-
-cu
-Adrian
-
+John
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+John W. Linville
+linville@tuxdriver.com

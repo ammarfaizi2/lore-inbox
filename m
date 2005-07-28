@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVG1RM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVG1SJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbVG1RM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 13:12:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVG1RJ4
+	id S261774AbVG1SJU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 14:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVG1SD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 13:09:56 -0400
-Received: from 66.Red-80-38-104.pooles.rima-tde.net ([80.38.104.66]:53136 "EHLO
-	fulanito.nisupu.com") by vger.kernel.org with ESMTP id S261763AbVG1RIv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 13:08:51 -0400
-Message-ID: <42E91182.4050608@nisupu.com>
-Date: Thu, 28 Jul 2005 19:10:26 +0200
-From: Carlos Fernandez Sanz <cfs-lk@nisupu.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: mdew <some.nzguy@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HPT370 errors under 2.6.13-rc3-mm1
-References: <1c1c863605072219283716a131@mail.gmail.com> <1122148440.27629.6.camel@localhost.localdomain>
-In-Reply-To: <1122148440.27629.6.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Jul 2005 14:03:59 -0400
+Received: from gaz.sfgoth.com ([69.36.241.230]:6138 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S261870AbVG1SDn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 14:03:43 -0400
+Date: Thu, 28 Jul 2005 11:09:07 -0700
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Greg KH <greg@kroah.com>, dtor_core@ameritech.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
+Message-ID: <20050728180907.GI9985@gaz.sfgoth.com>
+References: <20050726015401.GA25015@kroah.com> <9e473391050725201553f3e8be@mail.gmail.com> <9e47339105072719057c833e62@mail.gmail.com> <20050728034610.GA12123@kroah.com> <9e473391050727205971b0aee@mail.gmail.com> <20050728040544.GA12476@kroah.com> <9e47339105072721495d3788a8@mail.gmail.com> <20050728054914.GA13904@kroah.com> <20050728070455.GF9985@gaz.sfgoth.com> <9e47339105072805545766f97d@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e47339105072805545766f97d@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Thu, 28 Jul 2005 11:09:08 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I experienced this same thing (with an HPT too, I might say), and the 
-problem seemed to be an underpowered system. Replaced the power supply 
-and the problem went away.
+Jon Smirl wrote:
+> Do we need to deal with UTF8 here? I did the forward loop because you
+> can't parse UTF8 backwards. If UTF8 is possible I need to change the
+> pointer inc function.
 
-My box had 7 HDs, all of them worked fine using a different system but I 
-got these errors when they where together. I thought it was the HTP card 
-but replacing it didn't help. Turned out it was the PS...
+As others have mentioned there shouldn't be a UTF8 problem with isspace().
+However, even if you wanted to scan going forwards you can do it without
+the complexity of a nested loop:
 
-Alan Cox wrote:
+	char *real_end;
 
->On Sad, 2005-07-23 at 14:28 +1200, mdew wrote:
->  
->
->>I'm unable to mount an ext2 drive using the hpt370A raid card.
->>
->>upon mounting the drive, dmesg will spew these errors..I've tried
->>different cables and drive is fine.
->>    
->>
->
->  
->
->>Jul 23 01:30:21 localhost kernel: hdf: dma timeout error: status=0x25
->>{ DeviceFault CorrectedError Error }
->>Jul 23 01:30:21 localhost kernel: hdf: dma timeout error: error=0x25 {
->>DriveStatusError AddrMarkNotFound }, LBAsect=8830589412645,
->>high=526344, low=2434341, sector=390715711
->>    
->>
->
->Your drive disagrees with you. Note that it said
->
->"Device fault"
->"Error"
->"Drive Status Error"
->"Address Mark Not Found"
->
->
->that came from the drive not the OS.
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+	for (real_end = x; x - buffer->page < count; x++)
+		if (!isspace(*x))
+			real_end = x + 1;
+	*real_end = '\0';
+	// then fix "count"
+
+BTW, my code I posted yesterday is incomplete since I neglected to notice
+that the "count = z - x" at the end is used to repair "count" damage from
+both the leading and trailing whitespace stripping.  Its actually easier
+to strip the trailing whitespace first, like:
+
+	while (count > 0 && isspace(buffer->page[count - 1]))
+		count--;	/* strip trailing whitespace */
+	if (count > 0 && isspace(buffer->page[0])) {
+		/*
+		 * We have leading whitespace but also at least one
+		 * non-whitespace character
+		 */
+		const char *x = buffer->page;
+		do {
+			x++;
+			count--;
+		} while (isspace(*x));
+		memmove(buffer->page, x, count);
+	}
+	buffer->page[count] = '\0';
+
+-Mitch

@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVG1ItA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVG1IxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVG1ItA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 04:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVG1ItA
+	id S261308AbVG1IxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 04:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVG1IxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 04:49:00 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:22912 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261336AbVG1Is6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 04:48:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=TvcVFVSYIyOuwZ/DutAQAdjxOe9m+2sX0Re5U5TW0jhTbkDaBhK+x0wXULK8Kal2rqUxSUM8GxfkQxr6EFxQKn2p1fqWRVrE1sd7Dp/oWHlY/QVkSwMLjQoMNca1qmOSXV/TqGf0YbOrI+1RTDH6F/Em7f9eEtZGhbqRGpg68FE=  ;
-Message-ID: <42E89BE6.6040304@yahoo.com.au>
-Date: Thu, 28 Jul 2005 18:48:38 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
-       Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Add prefetch switch stack hook in scheduler function
-References: <10613.1122538148@kao2.melbourne.sgi.com> <42E897FD.6060506@yahoo.com.au> <20050728083544.GA22740@elte.hu>
-In-Reply-To: <20050728083544.GA22740@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 28 Jul 2005 04:53:16 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:16261 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261308AbVG1IxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 04:53:14 -0400
+Subject: Re: [ACPI] Re: [Alsa-devel] [PATCH] 2.6.13-rc3-git5: fix Bug #4416
+	(1/2)
+From: Shaohua Li <shaohua.li@intel.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Takashi Iwai <tiwai@suse.de>, Pavel Machek <pavel@suse.cz>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, alsa-devel@alsa-project.org
+In-Reply-To: <200507281043.14697.rjw@sisk.pl>
+References: <200507261247.05684.rjw@sisk.pl>
+	 <20050727205249.GA708@openzaurus.ucw.cz> <s5hr7djtkvo.wl%tiwai@suse.de>
+	 <200507281043.14697.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Thu, 28 Jul 2005 16:48:06 +0800
+Message-Id: <1122540486.2903.8.camel@linux-hp.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Thu, 2005-07-28 at 10:43 +0200, Rafael J. Wysocki wrote:
+> Hi,
 > 
+> On Thursday, 28 of July 2005 10:06, Takashi Iwai wrote:
+> > At Wed, 27 Jul 2005 22:52:49 +0200,
+> > Pavel Machek wrote:
+> > > 
+> > > Hi!
+> > > 
+> > > > > The following patch adds free_irq() and request_irq() to the suspend and
+> > > > > resume, respectively, routines in the snd_intel8x0 driver.
+> > > > 
+> > > > The patch looks OK to me although I have some concerns.
+> > > > 
+> > > > - The error in resume can't be handled properly.
+> > > > 
+> > > >   What should we do for the error of request_irq()?
+> > > > 
+> > > > - Adding this to all drivers seem too much.
+> > > 
+> > > There's probably no other way. Talk to Len Brown.
+> > > 
+> > > >   We just need to stop the irq processing until resume, so something
+> > > >   like suspend_irq(irq, dev_id) and resume_irq(irq, dev_id) would be
+> > > >   more uesful?
+> > > 
+> > > Its more complex than that. Irq numbers may change during resume.
+> > 
+> > Hmm, then the patch looks wrong.  It assumes that the irq number is
+> > as same as before suspend.
 > 
->>>No, they can be up to 30K apart.  See include/asm-ia64/ptrace.h.
->>>thread_info is at ~0xda0, depending on the config.  The switch_stack
->>>can be as high as 0x7bd0 in the kernel stack, depending on why the task
->>>is sleeping.
->>>
->>
->>Just a minor point, I agree with David: I'd like it to be called 
->>prefetch_task(), because some architecture may want to prefetch other 
->>memory.
-> 
-> 
-> such as?
-> 
+> Well, that''s the theory, but frankly I don't see a practical reason.  I have never
+> seen this happening.  Practically, for this to happen, you'll have to reconfigure
+> the BIOS accross suspend/resume which is dangerous anyway.
+>From my understanding, we should not have such assumption. Say all
+device drivers with the same ioapic pin have freed irq. We might mask
+the ioapic pin and even free the vector. Then after you request_irq
+again, the interrupt might get different vector. If you enable MSI, then
+it's broken.
+In IA64, we already have such staff (mask ioapic pin and free vector).
 
-Not sure. thread_info? Maybe next->timestamp or some other fields
-in next, something in next->mm?
+Thanks,
+Shaohua
 
-I didn't really have a concrete example, but in the interests of
-being future proof...
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

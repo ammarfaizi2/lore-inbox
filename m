@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVG1XCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVG1XIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVG1XCp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 19:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVG1XCp
+	id S261594AbVG1XIf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 19:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVG1XIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 19:02:45 -0400
-Received: from graphe.net ([209.204.138.32]:10142 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261875AbVG1XCn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 19:02:43 -0400
-Date: Thu, 28 Jul 2005 16:02:41 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Pavel Machek <pavel@ucw.cz>
-cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] Task notifier: Implement todo list in task_struct
-In-Reply-To: <20050728221228.GB1872@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.62.0507281559400.15569@graphe.net>
-References: <200507260340.j6Q3eoGh029135@shell0.pdx.osdl.net>
- <Pine.LNX.4.62.0507272018060.11863@graphe.net> <20050728074116.GF6529@elf.ucw.cz>
- <Pine.LNX.4.62.0507280804310.23907@graphe.net> <20050728193433.GA1856@elf.ucw.cz>
- <Pine.LNX.4.62.0507281251040.12675@graphe.net> <Pine.LNX.4.62.0507281254380.12781@graphe.net>
- <20050728212715.GA2783@elf.ucw.cz> <20050728213254.GA1844@elf.ucw.cz>
- <Pine.LNX.4.62.0507281456240.14677@graphe.net> <20050728221228.GB1872@elf.ucw.cz>
+	Thu, 28 Jul 2005 19:08:35 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:36261 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261594AbVG1XId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 19:08:33 -0400
+Message-Id: <200507282308.j6SN8Tg01993@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>, "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+Subject: Delete scheduler SD_WAKE_AFFINE and SD_WAKE_BALANCE flags
+Date: Thu, 28 Jul 2005 16:08:28 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcWTyUO9l0PnRh7iTzOAjITKfBPpFg==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jul 2005, Pavel Machek wrote:
+What sort of workload needs SD_WAKE_AFFINE and SD_WAKE_BALANCE?
+SD_WAKE_AFFINE are not useful in conjunction with interrupt binding.
+In fact, it creates more harm than usefulness, causing detrimental
+process migration and destroy process cache affinity etc.  Also
+SD_WAKE_BALANCE is giving us performance grief with our industry
+standard OLTP workload.
 
-> > Dont fix it up. Remove the ealier patch.
-> 
-> Oops. Do you happen to have patch relative to -mm or something? I'd
-> prefer not to mess it up second time...
+To demonstrate the problem, we turned off these two flags in the cpu
+sd domain and measured a stunning 2.15% performance gain!  And deleting
+all the code in the try_to_wake_up() pertain to load balancing gives us
+another 0.2% gain.
 
-Ok. I will make a patch against mm tomorrow. Patches 
-are typically against Linus latest and if you test against mm then you may 
-see breakage from other patches. Plus there will be dependencies with 
-other patches in mm.
+The wake up patch should be made simple, just put the waking task on
+the previously ran cpu runqueue.  Simple and elegant.
+
+I'm proposing we either delete these two flags or make them run time
+configurable.
+
+- Ken
+
+
+
+--- linux-2.6.12/include/linux/topology.h.orig	2005-07-28 15:54:05.007399685 -0700
++++ linux-2.6.12/include/linux/topology.h	2005-07-28 15:54:39.292555515 -0700
+@@ -118,9 +118,7 @@
+ 	.flags			= SD_LOAD_BALANCE	\
+ 				| SD_BALANCE_NEWIDLE	\
+ 				| SD_BALANCE_EXEC	\
+-				| SD_WAKE_AFFINE	\
+-				| SD_WAKE_IDLE		\
+-				| SD_WAKE_BALANCE,	\
++				| SD_WAKE_IDLE,		\
+ 	.last_balance		= jiffies,		\
+ 	.balance_interval	= 1,			\
+ 	.nr_balance_failed	= 0,			\
 

@@ -1,224 +1,688 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVG1R2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVG1RM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVG1R2f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 13:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVG1R0W
+	id S261683AbVG1RM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 13:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVG1Q1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 13:26:22 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:53926 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S261725AbVG1RZO (ORCPT
+	Thu, 28 Jul 2005 12:27:15 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:58328 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261625AbVG1QZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 13:25:14 -0400
-Subject: [patch 1/1] uml: fix TT mode by reverting "use fork instead of clone"
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Thu, 28 Jul 2005 18:05:25 +0200
-Message-Id: <20050728160527.5A33D3ED@zion.home.lan>
+	Thu, 28 Jul 2005 12:25:44 -0400
+Date: Fri, 29 Jul 2005 02:19:09 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 4/6] Clean up the fcntl operations
+Message-Id: <20050729021909.1911fd04.sfr@canb.auug.org.au>
+In-Reply-To: <20050729020802.22b7656c.sfr@canb.auug.org.au>
+References: <20050729020802.22b7656c.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch puts the most popular of each fcntl operation/flag into
+asm-generic/fcntl.h and cleans up the arch files.
 
-From: Jeff Dike <jdike@addtoit.com>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-Revert the following patch, because of miscompilation problems in different
-environments leading to UML not working *at all* in TT mode; it was merged
-lately in 2.6 development cycle, a little after being written, and has caused
-problems to lots of people; I know it's a bit too long, but it shouldn't have
-been merged in first place, so I still apply for inclusion in the -stable
-tree. Anyone using this feature currently is either using some older kernel
-(some reports even used 2.6.12-rc4-mm2) or using this patch, as included in my
--bs patchset.
-
-For now there's not yet a fix for this patch, so for now the best thing is to
-drop it (which was widely reported to give a working kernel, and as such was
-even merged in -stable tree).
-
-"Convert the boot-time host ptrace testing from clone to fork.  They were
-essentially doing fork anyway.  This cleans up the code a bit, and makes
-valgrind a bit happier about grinding it."
-
-URL:
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=98fdffccea6cc3fe9dba32c0fcc310bcb5d71529
-
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.git-paolo/arch/um/kernel/process.c |   48 ++++++++++++++++-----------
- 1 files changed, 29 insertions(+), 19 deletions(-)
-
-diff -puN arch/um/kernel/process.c~uml-revert-fork-instead-of-clone arch/um/kernel/process.c
---- linux-2.6.git/arch/um/kernel/process.c~uml-revert-fork-instead-of-clone	2005-07-28 18:01:39.000000000 +0200
-+++ linux-2.6.git-paolo/arch/um/kernel/process.c	2005-07-28 18:01:39.000000000 +0200
-@@ -131,7 +131,7 @@ int start_fork_tramp(void *thread_arg, u
- 	return(arg.pid);
- }
+diff -ruNp linus-fcntl.3/include/asm-arm/fcntl.h linus-fcntl.4/include/asm-arm/fcntl.h
+--- linus-fcntl.3/include/asm-arm/fcntl.h	2005-07-26 16:06:12.000000000 +1000
++++ linus-fcntl.4/include/asm-arm/fcntl.h	2005-07-26 16:47:14.000000000 +1000
+@@ -6,31 +6,10 @@
+ #define O_DIRECT	0200000	/* direct disk access hint - currently ignored */
+ #define O_LARGEFILE	0400000
  
--static int ptrace_child(void)
-+static int ptrace_child(void *arg)
- {
- 	int ret;
- 	int pid = os_getpid(), ppid = getppid();
-@@ -160,16 +160,20 @@ static int ptrace_child(void)
- 	_exit(ret);
- }
- 
--static int start_ptraced_child(void)
-+static int start_ptraced_child(void **stack_out)
- {
-+	void *stack;
-+	unsigned long sp;
- 	int pid, n, status;
- 	
--	pid = fork();
--	if(pid == 0)
--		ptrace_child();
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
 -
-+	stack = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC,
-+		     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-+	if(stack == MAP_FAILED)
-+		panic("check_ptrace : mmap failed, errno = %d", errno);
-+	sp = (unsigned long) stack + PAGE_SIZE - sizeof(void *);
-+	pid = clone(ptrace_child, (void *) sp, SIGCHLD, NULL);
- 	if(pid < 0)
--		panic("check_ptrace : fork failed, errno = %d", errno);
-+		panic("check_ptrace : clone failed, errno = %d", errno);
- 	CATCH_EINTR(n = waitpid(pid, &status, WUNTRACED));
- 	if(n < 0)
- 		panic("check_ptrace : wait failed, errno = %d", errno);
-@@ -177,6 +181,7 @@ static int start_ptraced_child(void)
- 		panic("check_ptrace : expected SIGSTOP, got status = %d",
- 		      status);
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
  
-+	*stack_out = stack;
- 	return(pid);
- }
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-arm26/fcntl.h linus-fcntl.4/include/asm-arm26/fcntl.h
+--- linus-fcntl.3/include/asm-arm26/fcntl.h	2005-07-26 16:07:11.000000000 +1000
++++ linus-fcntl.4/include/asm-arm26/fcntl.h	2005-07-26 16:47:44.000000000 +1000
+@@ -8,31 +8,10 @@
+ #define O_DIRECT	0200000	/* direct disk access hint - currently ignored */
+ #define O_LARGEFILE	0400000
  
-@@ -184,12 +189,12 @@ static int start_ptraced_child(void)
-  * just avoid using sysemu, not panic, but only if SYSEMU features are broken.
-  * So only for SYSEMU features we test mustpanic, while normal host features
-  * must work anyway!*/
--static int stop_ptraced_child(int pid, int exitcode, int mustexit)
-+static int stop_ptraced_child(int pid, void *stack, int exitcode, int mustpanic)
- {
- 	int status, n, ret = 0;
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
  
- 	if(ptrace(PTRACE_CONT, pid, 0, 0) < 0)
--		panic("stop_ptraced_child : ptrace failed, errno = %d", errno);
-+		panic("check_ptrace : ptrace failed, errno = %d", errno);
- 	CATCH_EINTR(n = waitpid(pid, &status, 0));
- 	if(!WIFEXITED(status) || (WEXITSTATUS(status) != exitcode)) {
- 		int exit_with = WEXITSTATUS(status);
-@@ -200,13 +205,15 @@ static int stop_ptraced_child(int pid, i
- 		printk("check_ptrace : child exited with exitcode %d, while "
- 		      "expecting %d; status 0x%x", exit_with,
- 		      exitcode, status);
--		if (mustexit)
-+		if (mustpanic)
- 			panic("\n");
- 		else
- 			printk("\n");
- 		ret = -1;
- 	}
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-cris/fcntl.h linus-fcntl.4/include/asm-cris/fcntl.h
+--- linus-fcntl.3/include/asm-cris/fcntl.h	2005-07-26 16:08:24.000000000 +1000
++++ linus-fcntl.4/include/asm-cris/fcntl.h	2005-07-26 16:48:19.000000000 +1000
+@@ -1,31 +1,10 @@
+ #ifndef _CRIS_FCNTL_H
+ #define _CRIS_FCNTL_H
  
-+	if(munmap(stack, PAGE_SIZE) < 0)
-+		panic("check_ptrace : munmap failed, errno = %d", errno);
- 	return ret;
- }
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #define F_GETLK64      12      /*  using 'struct flock64' */
+ #define F_SETLK64      13
+ #define F_SETLKW64     14
  
-@@ -228,11 +235,12 @@ __uml_setup("nosysemu", nosysemu_cmd_par
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS   16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-frv/fcntl.h linus-fcntl.4/include/asm-frv/fcntl.h
+--- linus-fcntl.3/include/asm-frv/fcntl.h	2005-07-26 16:09:12.000000000 +1000
++++ linus-fcntl.4/include/asm-frv/fcntl.h	2005-07-26 16:48:50.000000000 +1000
+@@ -1,31 +1,10 @@
+ #ifndef _ASM_FCNTL_H
+ #define _ASM_FCNTL_H
  
- static void __init check_sysemu(void)
- {
-+	void *stack;
- 	int pid, syscall, n, status, count=0;
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
  
- 	printk("Checking syscall emulation patch for ptrace...");
- 	sysemu_supported = 0;
--	pid = start_ptraced_child();
-+	pid = start_ptraced_child(&stack);
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-generic/fcntl.h linus-fcntl.4/include/asm-generic/fcntl.h
+--- linus-fcntl.3/include/asm-generic/fcntl.h	2005-07-26 16:29:43.000000000 +1000
++++ linus-fcntl.4/include/asm-generic/fcntl.h	2005-07-26 17:02:11.000000000 +1000
+@@ -55,10 +55,41 @@
+ #define F_SETFD		2	/* set/clear close_on_exec */
+ #define F_GETFL		3	/* get file->f_flags */
+ #define F_SETFL		4	/* set file->f_flags */
++#ifndef F_GETLK
++#define F_GETLK		5
++#define F_SETLK		6
++#define F_SETLKW	7
++#endif
++#ifndef F_SETOWN
++#define F_SETOWN	8	/* for sockets. */
++#define F_GETOWN	9	/* for sockets. */
++#endif
++#ifndef F_SETSIG
++#define F_SETSIG	10	/* for sockets. */
++#define F_GETSIG	11	/* for sockets. */
++#endif
  
- 	if(ptrace(PTRACE_SYSEMU, pid, 0, 0) < 0)
- 		goto fail;
-@@ -250,7 +258,7 @@ static void __init check_sysemu(void)
- 		panic("check_sysemu : failed to modify system "
- 		      "call return, errno = %d", errno);
+ /* for F_[GET|SET]FL */
+ #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
  
--	if (stop_ptraced_child(pid, 0, 0) < 0)
-+	if (stop_ptraced_child(pid, stack, 0, 0) < 0)
- 		goto fail_stopped;
++/* for posix fcntl() and lockf() */
++#ifndef F_RDLCK
++#define F_RDLCK		0
++#define F_WRLCK		1
++#define F_UNLCK		2
++#endif
++
++/* for old implementation of bsd flock () */
++#ifndef F_EXLCK
++#define F_EXLCK		4	/* or 3 */
++#define F_SHLCK		8	/* or 4 */
++#endif
++
++/* for leases */
++#ifndef F_INPROGRESS
++#define F_INPROGRESS	16
++#endif
++
+ /* operations for bsd flock(), also used by the kernel implementation */
+ #define LOCK_SH		1	/* shared lock */
+ #define LOCK_EX		2	/* exclusive lock */
+diff -ruNp linus-fcntl.3/include/asm-h8300/fcntl.h linus-fcntl.4/include/asm-h8300/fcntl.h
+--- linus-fcntl.3/include/asm-h8300/fcntl.h	2005-07-26 16:10:15.000000000 +1000
++++ linus-fcntl.4/include/asm-h8300/fcntl.h	2005-07-26 16:49:30.000000000 +1000
+@@ -6,31 +6,10 @@
+ #define O_DIRECT	0200000	/* direct disk access hint - currently ignored */
+ #define O_LARGEFILE	0400000
  
- 	sysemu_supported = 1;
-@@ -258,7 +266,7 @@ static void __init check_sysemu(void)
- 	set_using_sysemu(!force_sysemu_disabled);
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
  
- 	printk("Checking advanced syscall emulation patch for ptrace...");
--	pid = start_ptraced_child();
-+	pid = start_ptraced_child(&stack);
- 	while(1){
- 		count++;
- 		if(ptrace(PTRACE_SYSEMU_SINGLESTEP, pid, 0, 0) < 0)
-@@ -283,7 +291,7 @@ static void __init check_sysemu(void)
- 			break;
- 		}
- 	}
--	if (stop_ptraced_child(pid, 0, 0) < 0)
-+	if (stop_ptraced_child(pid, stack, 0, 0) < 0)
- 		goto fail_stopped;
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-i386/fcntl.h linus-fcntl.4/include/asm-i386/fcntl.h
+--- linus-fcntl.3/include/asm-i386/fcntl.h	2005-07-26 16:11:05.000000000 +1000
++++ linus-fcntl.4/include/asm-i386/fcntl.h	2005-07-26 16:50:00.000000000 +1000
+@@ -1,31 +1,10 @@
+ #ifndef _I386_FCNTL_H
+ #define _I386_FCNTL_H
  
- 	sysemu_supported = 2;
-@@ -294,17 +302,18 @@ static void __init check_sysemu(void)
- 	return;
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
  
- fail:
--	stop_ptraced_child(pid, 1, 0);
-+	stop_ptraced_child(pid, stack, 1, 0);
- fail_stopped:
- 	printk("missing\n");
- }
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-ia64/fcntl.h linus-fcntl.4/include/asm-ia64/fcntl.h
+--- linus-fcntl.3/include/asm-ia64/fcntl.h	2005-07-26 16:12:06.000000000 +1000
++++ linus-fcntl.4/include/asm-ia64/fcntl.h	2005-07-26 16:50:15.000000000 +1000
+@@ -5,27 +5,6 @@
+  *	David Mosberger-Tang <davidm@hpl.hp.com>, Hewlett-Packard Co.
+  */
  
- void __init check_ptrace(void)
- {
-+	void *stack;
- 	int pid, syscall, n, status;
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-m32r/fcntl.h linus-fcntl.4/include/asm-m32r/fcntl.h
+--- linus-fcntl.3/include/asm-m32r/fcntl.h	2005-07-26 16:12:42.000000000 +1000
++++ linus-fcntl.4/include/asm-m32r/fcntl.h	2005-07-26 16:50:39.000000000 +1000
+@@ -5,31 +5,10 @@
  
- 	printk("Checking that ptrace can change system call numbers...");
--	pid = start_ptraced_child();
-+	pid = start_ptraced_child(&stack);
+ /* orig : i386 2.4.18 */
  
- 	if (ptrace(PTRACE_OLDSETOPTIONS, pid, 0, (void *)PTRACE_O_TRACESYSGOOD) < 0)
- 		panic("check_ptrace: PTRACE_SETOPTIONS failed, errno = %d", errno);
-@@ -331,7 +340,7 @@ void __init check_ptrace(void)
- 			break;
- 		}
- 	}
--	stop_ptraced_child(pid, 0, 1);
-+	stop_ptraced_child(pid, stack, 0, 1);
- 	printk("OK\n");
- 	check_sysemu();
- }
-@@ -368,10 +377,11 @@ extern void *__syscall_stub_start, __sys
- static inline void check_skas3_ptrace_support(void)
- {
- 	struct ptrace_faultinfo fi;
-+	void *stack;
- 	int pid, n;
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
  
- 	printf("Checking for the skas3 patch in the host...");
--	pid = start_ptraced_child();
-+	pid = start_ptraced_child(&stack);
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-m68k/fcntl.h linus-fcntl.4/include/asm-m68k/fcntl.h
+--- linus-fcntl.3/include/asm-m68k/fcntl.h	2005-07-26 16:13:29.000000000 +1000
++++ linus-fcntl.4/include/asm-m68k/fcntl.h	2005-07-26 16:51:08.000000000 +1000
+@@ -6,31 +6,10 @@
+ #define O_DIRECT	0200000	/* direct disk access hint - currently ignored */
+ #define O_LARGEFILE	0400000
  
- 	n = ptrace(PTRACE_FAULTINFO, pid, 0, &fi);
- 	if (n < 0) {
-@@ -387,7 +397,7 @@ static inline void check_skas3_ptrace_su
- 	}
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
  
- 	init_registers(pid);
--	stop_ptraced_child(pid, 1, 1);
-+	stop_ptraced_child(pid, stack, 1, 1);
- }
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-mips/fcntl.h linus-fcntl.4/include/asm-mips/fcntl.h
+--- linus-fcntl.3/include/asm-mips/fcntl.h	2005-07-26 16:16:50.000000000 +1000
++++ linus-fcntl.4/include/asm-mips/fcntl.h	2005-07-26 16:52:09.000000000 +1000
+@@ -33,18 +33,6 @@
+ #define F_SETLKW64	35
+ #endif
  
- int can_do_skas(void)
-_
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ /*
+  * The flavours of struct flock.  "struct flock" is the ABI compliant
+  * variant.  Finally struct flock64 is the LFS variant of struct flock.  As
+diff -ruNp linus-fcntl.3/include/asm-parisc/fcntl.h linus-fcntl.4/include/asm-parisc/fcntl.h
+--- linus-fcntl.3/include/asm-parisc/fcntl.h	2005-07-26 16:18:04.000000000 +1000
++++ linus-fcntl.4/include/asm-parisc/fcntl.h	2005-07-26 16:53:18.000000000 +1000
+@@ -19,9 +19,6 @@
+ #define O_NOFOLLOW	00000200 /* don't follow links */
+ #define O_INVISIBLE	04000000 /* invisible I/O, for DMAPI/XDSM */
+ 
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+ #define F_GETLK64	8
+ #define F_SETLK64	9
+ #define F_SETLKW64	10
+@@ -36,13 +33,6 @@
+ #define F_WRLCK		02
+ #define F_UNLCK		03
+ 
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-ppc/fcntl.h linus-fcntl.4/include/asm-ppc/fcntl.h
+--- linus-fcntl.3/include/asm-ppc/fcntl.h	2005-07-26 16:19:00.000000000 +1000
++++ linus-fcntl.4/include/asm-ppc/fcntl.h	2005-07-26 16:53:47.000000000 +1000
+@@ -8,33 +8,12 @@
+ #define O_LARGEFILE     0200000
+ #define O_DIRECT	0400000	/* direct disk access hint */
+ 
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #ifndef CONFIG_64BIT
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
+ #endif
+ 
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-s390/fcntl.h linus-fcntl.4/include/asm-s390/fcntl.h
+--- linus-fcntl.3/include/asm-s390/fcntl.h	2005-07-26 16:19:51.000000000 +1000
++++ linus-fcntl.4/include/asm-s390/fcntl.h	2005-07-26 16:54:10.000000000 +1000
+@@ -8,33 +8,12 @@
+ #ifndef _S390_FCNTL_H
+ #define _S390_FCNTL_H
+ 
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #ifndef __s390x__
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
+ #endif /* ! __s390x__ */
+ 
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-sh/fcntl.h linus-fcntl.4/include/asm-sh/fcntl.h
+--- linus-fcntl.3/include/asm-sh/fcntl.h	2005-07-26 16:20:35.000000000 +1000
++++ linus-fcntl.4/include/asm-sh/fcntl.h	2005-07-26 16:54:41.000000000 +1000
+@@ -1,31 +1,10 @@
+ #ifndef __ASM_SH_FCNTL_H
+ #define __ASM_SH_FCNTL_H
+ 
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
+ 
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-sparc/fcntl.h linus-fcntl.4/include/asm-sparc/fcntl.h
+--- linus-fcntl.3/include/asm-sparc/fcntl.h	2005-07-26 16:23:08.000000000 +1000
++++ linus-fcntl.4/include/asm-sparc/fcntl.h	2005-07-26 16:55:19.000000000 +1000
+@@ -22,8 +22,6 @@
+ #define F_GETLK		7
+ #define F_SETLK		8
+ #define F_SETLKW	9
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+ 
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+@@ -34,13 +32,6 @@
+ #define F_WRLCK		2
+ #define F_UNLCK		3
+ 
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-sparc64/fcntl.h linus-fcntl.4/include/asm-sparc64/fcntl.h
+--- linus-fcntl.3/include/asm-sparc64/fcntl.h	2005-07-26 16:25:22.000000000 +1000
++++ linus-fcntl.4/include/asm-sparc64/fcntl.h	2005-07-26 16:55:34.000000000 +1000
+@@ -23,21 +23,12 @@
+ #define F_GETLK		7
+ #define F_SETLK		8
+ #define F_SETLKW	9
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+ 
+ /* for posix fcntl() and lockf() */
+ #define F_RDLCK		1
+ #define F_WRLCK		2
+ #define F_UNLCK		3
+ 
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-v850/fcntl.h linus-fcntl.4/include/asm-v850/fcntl.h
+--- linus-fcntl.3/include/asm-v850/fcntl.h	2005-07-26 16:26:06.000000000 +1000
++++ linus-fcntl.4/include/asm-v850/fcntl.h	2005-07-26 16:55:58.000000000 +1000
+@@ -6,31 +6,10 @@
+ #define O_DIRECT       0200000	/* direct disk access hint - currently ignored */
+ #define O_LARGEFILE    0400000
+ 
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+ #define F_GETLK64	12	/*  using 'struct flock64' */
+ #define F_SETLK64	13
+ #define F_SETLKW64	14
+ 
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short l_type;
+ 	short l_whence;
+diff -ruNp linus-fcntl.3/include/asm-x86_64/fcntl.h linus-fcntl.4/include/asm-x86_64/fcntl.h
+--- linus-fcntl.3/include/asm-x86_64/fcntl.h	2005-07-26 16:26:44.000000000 +1000
++++ linus-fcntl.4/include/asm-x86_64/fcntl.h	2005-07-26 16:56:26.000000000 +1000
+@@ -1,27 +1,6 @@
+ #ifndef _X86_64_FCNTL_H
+ #define _X86_64_FCNTL_H
+ 
+-#define F_GETLK		5
+-#define F_SETLK		6
+-#define F_SETLKW	7
+-
+-#define F_SETOWN	8	/*  for sockets. */
+-#define F_GETOWN	9	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+-
+ struct flock {
+ 	short  l_type;
+ 	short  l_whence;
+diff -ruNp linus-fcntl.3/include/asm-xtensa/fcntl.h linus-fcntl.4/include/asm-xtensa/fcntl.h
+--- linus-fcntl.3/include/asm-xtensa/fcntl.h	2005-07-26 16:29:34.000000000 +1000
++++ linus-fcntl.4/include/asm-xtensa/fcntl.h	2005-07-26 16:57:07.000000000 +1000
+@@ -34,20 +34,6 @@
+ 
+ #define F_SETOWN	24	/*  for sockets. */
+ #define F_GETOWN	23	/*  for sockets. */
+-#define F_SETSIG	10	/*  for sockets. */
+-#define F_GETSIG	11	/*  for sockets. */
+-
+-/* for posix fcntl() and lockf() */
+-#define F_RDLCK		0
+-#define F_WRLCK		1
+-#define F_UNLCK		2
+-
+-/* for old implementation of bsd flock () */
+-#define F_EXLCK		4	/* or 3 */
+-#define F_SHLCK		8	/* or 4 */
+-
+-/* for leases */
+-#define F_INPROGRESS	16
+ 
+ typedef struct flock {
+ 	short l_type;

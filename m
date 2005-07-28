@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVG1IjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVG1IlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVG1IjB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 04:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVG1Ii4
+	id S261358AbVG1IlL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 04:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVG1Iis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 04:38:56 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:62148 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261358AbVG1Igi (ORCPT
+	Thu, 28 Jul 2005 04:38:48 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:44247 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S261370AbVG1IiQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 04:36:38 -0400
-Date: Thu, 28 Jul 2005 10:35:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
-       Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Add prefetch switch stack hook in scheduler function
-Message-ID: <20050728083544.GA22740@elte.hu>
-References: <10613.1122538148@kao2.melbourne.sgi.com> <42E897FD.6060506@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Jul 2005 04:38:16 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: [ACPI] Re: [Alsa-devel] [PATCH] 2.6.13-rc3-git5: fix Bug #4416 (1/2)
+Date: Thu, 28 Jul 2005 10:43:13 +0200
+User-Agent: KMail/1.8.1
+Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, alsa-devel@alsa-project.org
+References: <200507261247.05684.rjw@sisk.pl> <20050727205249.GA708@openzaurus.ucw.cz> <s5hr7djtkvo.wl%tiwai@suse.de>
+In-Reply-To: <s5hr7djtkvo.wl%tiwai@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <42E897FD.6060506@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200507281043.14697.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> >No, they can be up to 30K apart.  See include/asm-ia64/ptrace.h.
-> >thread_info is at ~0xda0, depending on the config.  The switch_stack
-> >can be as high as 0x7bd0 in the kernel stack, depending on why the task
-> >is sleeping.
-> >
+On Thursday, 28 of July 2005 10:06, Takashi Iwai wrote:
+> At Wed, 27 Jul 2005 22:52:49 +0200,
+> Pavel Machek wrote:
+> > 
+> > Hi!
+> > 
+> > > > The following patch adds free_irq() and request_irq() to the suspend and
+> > > > resume, respectively, routines in the snd_intel8x0 driver.
+> > > 
+> > > The patch looks OK to me although I have some concerns.
+> > > 
+> > > - The error in resume can't be handled properly.
+> > > 
+> > >   What should we do for the error of request_irq()?
+> > > 
+> > > - Adding this to all drivers seem too much.
+> > 
+> > There's probably no other way. Talk to Len Brown.
+> > 
+> > >   We just need to stop the irq processing until resume, so something
+> > >   like suspend_irq(irq, dev_id) and resume_irq(irq, dev_id) would be
+> > >   more uesful?
+> > 
+> > Its more complex than that. Irq numbers may change during resume.
 > 
-> Just a minor point, I agree with David: I'd like it to be called 
-> prefetch_task(), because some architecture may want to prefetch other 
-> memory.
+> Hmm, then the patch looks wrong.  It assumes that the irq number is
+> as same as before suspend.
 
-such as?
+Well, that''s the theory, but frankly I don't see a practical reason.  I have never
+seen this happening.  Practically, for this to happen, you'll have to reconfigure
+the BIOS accross suspend/resume which is dangerous anyway.
 
-	Ingo
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

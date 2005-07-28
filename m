@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVG1G5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVG1G7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVG1G5i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 02:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVG1G5i
+	id S261313AbVG1G7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 02:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVG1G7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 02:57:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31151 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261310AbVG1G5c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 02:57:32 -0400
-Date: Wed, 27 Jul 2005 23:56:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Florian Engelhardt <flo@dotbox.org>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: system freezes for 0.2 to 0.5 seconds when reading
- /proc/acpi/thermal_zone/THRM/temperature
-Message-Id: <20050727235625.028b7728.akpm@osdl.org>
-In-Reply-To: <20050728084938.480b46d1@localhost>
-References: <20050728002244.5163ac4a@localhost>
-	<20050727161605.5711fcf7.akpm@osdl.org>
-	<20050728084938.480b46d1@localhost>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 28 Jul 2005 02:59:15 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:10052 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261313AbVG1G7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 02:59:10 -0400
+Date: Wed, 27 Jul 2005 23:58:47 -0700
+From: Greg KH <gregkh@suse.de>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       mj@ucw.cz, openib-general@openib.org
+Subject: Re: [PATCH] arch/xx/pci: remap_pfn_range -> io_remap_pfn_range
+Message-ID: <20050728065847.GA18003@suse.de>
+References: <20050725223200.GA1545@mellanox.co.il> <20050728042607.GA12799@suse.de> <20050728064859.GA11644@mellanox.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050728064859.GA11644@mellanox.co.il>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Engelhardt <flo@dotbox.org> wrote:
->
-> Hello,
-> 
-> On Wed, 27 Jul 2005 16:16:05 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > Florian Engelhardt <flo@dotbox.org> wrote:
-> > >
-> > > Hello,
-> > > 
-> > > first of all, sorry for the long headline.
-> > > second:
-> > > Every time, i try to do the following:
-> > > cat /proc/acpi/thermal_zone/THRM/temperature
-> > > the whole system looks up for a short period of time (something
-> > > about 0.5s). realy everything, video and audio encoding, mouse and
-> > > keyboard input, firefox playing a flash animation, ...
-> > > I am also getting the following:
-> > > Losing some ticks... checking if CPU frequency changed.
-> > > 
-> > > maybe these two things are belonging to each other.
-> > > 
-> > > I am using a 2.6.12-rc3-mm1 kernel on a amd64 with a nvidia nforce4
-> > > mainboard.
+On Thu, Jul 28, 2005 at 09:48:59AM +0300, Michael S. Tsirkin wrote:
+> Quoting r. Greg KH <gregkh@suse.de>:
+> > Subject: Re: [PATCH] arch/xx/pci: remap_pfn_range -> io_remap_pfn_range
 > > 
-> > It might help if you were to generate a kernel profile:
+> > On Tue, Jul 26, 2005 at 01:32:00AM +0300, Michael S. Tsirkin wrote:
+> > > Greg, Martin, does the following make sense?
+> > > If it does, should other architectures be updated as well?
+> > > 
+> > Hm, you do realize that io_remap_pfn_range() is the same thing as
+> > remap_pfn_range() on i386, right?
 > > 
-> > readprofile -r
+> > So, why would this patch change anything?
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> returns:
-> /proc/profile: No such file or directory
-> 
-> do i have to activate something special during kernel configuration?
+> It doesnt change any behaviour.
+> Its a style issue I'm trying to fix: even in arch specific code, isnt it better
+> to use a generic io_remap_pfn_range to map PCI memory?
 
-Set CONFIG_PROFILING=y
+As I said above, it's the same thing on i386.
+But, if you are getting picky, you should fix all of the other arches
+too, right?
 
-> btw: i saw that mm2 is available. Are there any changes in it, which
-> could solve this problem?
+Anyway, why change this, I don't really see the need.
 
-Well there's a huge ACPI patch in there, but I cannot say whether it
-addresses this problem.
+thanks,
 
+greg k-h

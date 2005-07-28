@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVG1G7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVG1HB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVG1G7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 02:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVG1G7P
+	id S261311AbVG1HB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 03:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVG1HBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 02:59:15 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:10052 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261313AbVG1G7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 02:59:10 -0400
-Date: Wed, 27 Jul 2005 23:58:47 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       mj@ucw.cz, openib-general@openib.org
-Subject: Re: [PATCH] arch/xx/pci: remap_pfn_range -> io_remap_pfn_range
-Message-ID: <20050728065847.GA18003@suse.de>
-References: <20050725223200.GA1545@mellanox.co.il> <20050728042607.GA12799@suse.de> <20050728064859.GA11644@mellanox.co.il>
+	Thu, 28 Jul 2005 03:01:25 -0400
+Received: from gaz.sfgoth.com ([69.36.241.230]:24294 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S261323AbVG1G7d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 02:59:33 -0400
+Date: Thu, 28 Jul 2005 00:04:55 -0700
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Greg KH <greg@kroah.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, dtor_core@ameritech.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] driver core: Add the ability to unbind drivers to devices from userspace
+Message-ID: <20050728070455.GF9985@gaz.sfgoth.com>
+References: <20050726003018.GA24089@kroah.com> <9e47339105072517561f53b2f9@mail.gmail.com> <20050726015401.GA25015@kroah.com> <9e473391050725201553f3e8be@mail.gmail.com> <9e47339105072719057c833e62@mail.gmail.com> <20050728034610.GA12123@kroah.com> <9e473391050727205971b0aee@mail.gmail.com> <20050728040544.GA12476@kroah.com> <9e47339105072721495d3788a8@mail.gmail.com> <20050728054914.GA13904@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050728064859.GA11644@mellanox.co.il>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050728054914.GA13904@kroah.com>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Thu, 28 Jul 2005 00:04:55 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2005 at 09:48:59AM +0300, Michael S. Tsirkin wrote:
-> Quoting r. Greg KH <gregkh@suse.de>:
-> > Subject: Re: [PATCH] arch/xx/pci: remap_pfn_range -> io_remap_pfn_range
-> > 
-> > On Tue, Jul 26, 2005 at 01:32:00AM +0300, Michael S. Tsirkin wrote:
-> > > Greg, Martin, does the following make sense?
-> > > If it does, should other architectures be updated as well?
-> > > 
-> > Hm, you do realize that io_remap_pfn_range() is the same thing as
-> > remap_pfn_range() on i386, right?
-> > 
-> > So, why would this patch change anything?
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
+Greg KH wrote:
+> > +	/* locate trailng white space */
+> > +	z = y = x;
+> > +	while (y - buffer->page < count) {
+> > +		y++;
+> > +		z = y;
+> > +		while (isspace(*y) && (y - buffer->page < count)) {
+> > +			y++;
+> > +		}
+> > +	}
+> > +	count = z - x;
 > 
-> It doesnt change any behaviour.
-> Its a style issue I'm trying to fix: even in arch specific code, isnt it better
-> to use a generic io_remap_pfn_range to map PCI memory?
+> Hm, I _think_ this works, but I need someone else to verify this...
+> Anyone else?
 
-As I said above, it's the same thing on i386.
-But, if you are getting picky, you should fix all of the other arches
-too, right?
+It looks sane-ish to me, but also more complicated than need be.  Why can't
+you just do something like:
 
-Anyway, why change this, I don't really see the need.
+	while (count > 0 && isspace(x[count - 1]))
+		count--;
 
-thanks,
-
-greg k-h
+-Mitch

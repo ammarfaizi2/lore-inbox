@@ -1,86 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVG1MGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVG1MKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVG1MGd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 08:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVG1MGd
+	id S261415AbVG1MKd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 08:10:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVG1MKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 08:06:33 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:55713 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261415AbVG1MGa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 08:06:30 -0400
-In-Reply-To: <e93921519c29efda5b7a304d019dcc94@helenandmark.org>
-References: <e93921519c29efda5b7a304d019dcc94@helenandmark.org>
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <b7628665a1ab5a48aa9bed28256a6dfc@helenandmark.org>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Mark Burton <mark@helenandmark.org>
-Subject: Re: tx queue start entry x dirty entry y (was 8139too PCI IRQ issues)
-Date: Thu, 28 Jul 2005 14:06:08 +0200
-To: Mark Burton <mark@helenandmark.org>
-X-Mailer: Apple Mail (2.622)
-X-Spam-Virus: No
+	Thu, 28 Jul 2005 08:10:33 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:21326 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261415AbVG1MKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 08:10:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:Content-Type;
+  b=i72aZDNYHuUxzSn/ysIc4+FTCPed0g0NQcQq4IEfWM1mEr5Rjrho77IlMc0gKoNqop5MCIA8uiQE2btMDh7ym92IQSNrBA3OGi9IP8mv4gJuXdC+91WYPhLUwh3jC10u+AUqIqmDcgGv4jnlhc7bZKlrcYyw4ZzHUDtinpwWMa4=  ;
+Message-ID: <42E8CB27.4010100@yahoo.com.au>
+Date: Thu, 28 Jul 2005 22:10:15 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>, "Brown, Len" <len.brown@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: VIA PCI routing problem
+Content-Type: multipart/mixed;
+ boundary="------------090103020300040301070105"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For reference,
-Thanks to Ogawa Hirofumi,
-the solution was to use noapic on the boot line, as my machine is too 
-old to handle APIC well.
+This is a multi-part message in MIME format.
+--------------090103020300040301070105
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Cheers
+Hi,
 
-Mark.
+Sorry in taking so long to track this down. I just got motivated
+today.
 
-On 19 Jul 2005, at 18:00, Mark Burton wrote:
+I have a VIA SMP system and somewhere between 2.6.12-rc3 and 2.6.12
+the USB mouse started moving around really slowly. Anyway, it turns
+out that the attached patch (against 2.6.13-rc3-git8) fixes the problem.
 
-> Hi,
-> I'm getting similar results to Nick Warne, in that when my ethernet is 
-> stressed at all (for instance by NFS), I end up with
-> nfs: server..... not responding, still trying
-> nfs: server .... OK
->
-> With a realtec card, I get errors in /var/spool/messages along the 
-> lines of:
-> Jul  3 14:31:13 localhost kernel: eth1: Transmit timeout, status 0c 
-> 0005 c07f media 00.
-> Jul  3 14:31:13 localhost kernel: eth1: Tx queue start entry 1160  
-> dirty entry 1156.
-> Jul  3 14:31:13 localhost kernel: eth1:  Tx descriptor 0 is 0008a03c. 
-> (queue head)
->
-> I have no TPM (as far as I can find)
->
-> Hence I dont think this is the same problem, but it's manifestation is 
-> identical.
->
-> I was using a realtec card, using the 8139too driver, hence I first 
-> suspected that. As a test, I have an even older 3com509B, using that 
-> gives exactly the same results (though it doens't seem to be kind 
-> enough to output anything to /var/log/debug, so all you get are the 
-> "server not responding" messages under heavy NFS load.
-> lsmod however, shows both modules loaded....
->
-> I'm running debian, and recently got a recent kernel image
-> /proc/version gives:
-> Linux version 2.6.11-1-386 (dannf@firetheft) (gcc version 3.3.6 
-> (Debian 1:3.3.6-6)) #1 Mon Jun 20 20:53:17 MDT 2005
->
-> Im not a kernel expert at all, any help sorting this problem would be 
-> appreciated, but Its only worth fixing if it's a general problem -- 
-> if' I'm on my own, I'll fix it with a band-aid :-)
->
-> Cheers
->
-> Mark.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Let me know if any info is needed or if you would like me to test a
+patch.
 
+This is a regression versus 2.6.11 so it would be good to have a fix in
+2.6.13.
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+
+--------------090103020300040301070105
+Content-Type: text/plain;
+ name="via-irq-revert.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="via-irq-revert.patch"
+
+Index: linux-2.6/arch/i386/pci/irq.c
+===================================================================
+--- linux-2.6.orig/arch/i386/pci/irq.c	2005-07-28 19:03:48.000000000 +1000
++++ linux-2.6/arch/i386/pci/irq.c	2005-07-28 21:58:52.000000000 +1000
+@@ -1132,6 +1132,7 @@ static int pirq_enable_irq(struct pci_de
+ 		printk(KERN_WARNING "PCI: No IRQ known for interrupt pin %c of device %s.%s\n",
+ 		       'A' + pin, pci_name(dev), msg);
+ 	}
++	pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq & 15);
+ 	return 0;
+ }
+ 
+Index: linux-2.6/drivers/pci/quirks.c
+===================================================================
+--- linux-2.6.orig/drivers/pci/quirks.c	2005-07-28 21:41:56.000000000 +1000
++++ linux-2.6/drivers/pci/quirks.c	2005-07-28 21:59:35.000000000 +1000
+@@ -499,6 +499,7 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_V
+  */
+ static void quirk_via_irq(struct pci_dev *dev)
+ {
++#if 0
+ 	u8 irq, new_irq;
+ 
+ 	new_irq = dev->irq & 0xf;
+@@ -509,6 +510,7 @@ static void quirk_via_irq(struct pci_dev
+ 		udelay(15);	/* unknown if delay really needed */
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
++#endif
+ }
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
+ 
+Index: linux-2.6/drivers/acpi/pci_irq.c
+===================================================================
+--- linux-2.6.orig/drivers/acpi/pci_irq.c	2005-07-28 19:04:00.000000000 +1000
++++ linux-2.6/drivers/acpi/pci_irq.c	2005-07-28 21:58:14.000000000 +1000
+@@ -444,6 +444,8 @@ acpi_pci_irq_enable (
+ 		}
+  	}
+ 
++	pci_write_config_byte(dev, PCI_INTERRUPT_LINE, irq & 15);
++
+ 	dev->irq = acpi_register_gsi(irq, edge_level, active_high_low);
+ 
+ 	printk(KERN_INFO PREFIX "PCI Interrupt %s[%c] -> ",
+
+--------------090103020300040301070105--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVG1AEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVG1Amx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbVG1AEr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 20:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVG1AEr
+	id S261457AbVG1Amx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 20:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVG1Amx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 20:04:47 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:51123 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S261175AbVG1AEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 20:04:46 -0400
-From: Grant Coady <lkml@dodo.com.au>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: "Clayton Weaver" <cgweav@fastmail.fm>, <linux-kernel@vger.kernel.org>
-Subject: Re: xor as a lazy comparison
-Date: Thu, 28 Jul 2005 10:04:40 +1000
-Organization: www.scatter.mine.nu
-Reply-To: lkml@dodo.com.au
-Message-ID: <k28ge1dg9mlad9mbp09oqshnspmijhf6hb@4ax.com>
-References: <1122488682.7051.239374398@webmail.messagingengine.com> <Pine.LNX.4.61.0507271547580.7346@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0507271547580.7346@chaos.analogic.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Wed, 27 Jul 2005 20:42:53 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:11978 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S261457AbVG1Amx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 20:42:53 -0400
+Date: Wed, 27 Jul 2005 17:42:41 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, shai@scalex86.org
+Subject: [patch] mm: Ensure proper alignment for node_remap_start_pfn
+Message-ID: <20050728004241.GA16073@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Jul 2005 15:58:48 -0400, "linux-os \(Dick Johnson\)" <linux-os@analogic.com> wrote:
->
->I think the XOR thread was started by somebody as a ruse or
->a joke. XOR will always destroy the value of an operand. 
+While reserving KVA for lmem_maps of node, we have to make sure that
+node_remap_start_pfn[] is aligned to a proper pmd boundary.
+(node_remap_start_pfn[] gets its value from node_end_pfn[])
 
-You missed the part where somebody checked assembler output and
-found compiler optimised xor to cmp as nothing referenced the result.
+Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+Signed-off-by: Shai Fultheim <shai@scalex86.org>
 
-Grant.
-
+Index: linux-2.6.13-rc3/arch/i386/mm/discontig.c
+===================================================================
+--- linux-2.6.13-rc3.orig/arch/i386/mm/discontig.c	2005-07-26 15:10:25.000000000 -0700
++++ linux-2.6.13-rc3/arch/i386/mm/discontig.c	2005-07-26 16:27:43.000000000 -0700
+@@ -243,6 +243,14 @@
+ 		/* now the roundup is correct, convert to PAGE_SIZE pages */
+ 		size = size * PTRS_PER_PTE;
+ 
++		if (node_end_pfn[nid] & (PTRS_PER_PTE-1)) {
++			/* 
++			 * Adjust size if node_end_pfn is not on a proper 
++			 * pmd boundary. remap_numa_kva will barf otherwise.
++			 */
++			size +=  node_end_pfn[nid] & (PTRS_PER_PTE-1);
++		}
++
+ 		/*
+ 		 * Validate the region we are allocating only contains valid
+ 		 * pages.

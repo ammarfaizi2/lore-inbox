@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVG1Qs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVG1QtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbVG1Qs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 12:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVG1QrP
+	id S261695AbVG1QtA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 12:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVG1QrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 12:47:15 -0400
-Received: from hera.kernel.org ([209.128.68.125]:18342 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261703AbVG1QpF (ORCPT
+	Thu, 28 Jul 2005 12:47:07 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:37898 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261695AbVG1Qpv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 12:45:05 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: driver for Marvell 88E8053 PCI Express Gigabit LAN
-Date: Thu, 28 Jul 2005 09:45:14 -0700
-Organization: OSDL
-Message-ID: <20050728094514.6ed25d12@localhost.localdomain>
-References: <dc9252$tgr$1@sea.gmane.org>
-	<dc94v3$40c$1@sea.gmane.org>
-	<42E8CD48.7090008@gentoo.org>
+	Thu, 28 Jul 2005 12:45:51 -0400
+Date: Thu, 28 Jul 2005 12:45:35 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space (updated)
+Message-ID: <20050728164532.GD9110@tuxdriver.com>
+Mail-Followup-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+	"Michael S. Tsirkin" <mst@mellanox.co.il>,
+	linux-kernel@vger.kernel.org
+References: <20050728145353.GL11644@mellanox.co.il> <Pine.LNX.4.61.0507281148250.17921@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1122569095 31981 10.8.0.74 (28 Jul 2005 16:44:55 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Thu, 28 Jul 2005 16:44:55 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 1.9.11 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0507281148250.17921@chaos.analogic.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2005 13:19:20 +0100
-Daniel Drake <dsd@gentoo.org> wrote:
+On Thu, Jul 28, 2005 at 11:52:25AM -0400, linux-os (Dick Johnson) wrote:
+> 
+> On Thu, 28 Jul 2005, Michael S. Tsirkin wrote:
+> 
+> >
+> > 7. Comments
+> > 	Don't use C99 // comments.
+> 
+> I don't think this is correct. In fact, I remember a discussion
+> where // was preferred for new code.
 
-> Hi Alexander,
-> 
-> Alexander Fieroch wrote:
-> > Alexander Fieroch wrote:
-> > 
-> >> http://dlsvr01.asus.com/pub/ASUS/lan/marvell/8053/8053_others2.zip
-> > 
-> > 
-> > Oh, that driver is very old. Here is the latest one which is
-> > working with the current kernel:
-> > 
-> > http://www.syskonnect.de/syskonnect/support/driver/htm/sk9elin.htm
-> > 
-> > Could you please integrate it to the kernel?
-> 
-> Syskonnect's latest changes to the sk98lin driver do not adhere to
-> Linux coding standards -- they have basically crammed two drivers
-> into one in an ugly fashion. It won't be included in the mainline
-> kernel in this form.
-> 
-> Part of sk98lin has been rewritten as skge (this supports the Yukon-
-> based PCI adapters) which will be included in 2.6.13.
-> 
-> In order to support the newer Yukon-II (PCI express) adapters in an
-> acceptable fashion, a new driver will need to be written, skge-style.
-> I don't think this is in development just yet. Perhaps you could try
-> contacting Syskonnect/Marvell yourself to get them to help out
-> developing a driver fit for inclusion.
-> 
-I am working on a sky2 driver modeled on skge.  It is taking baby steps
-now.
+Ick...I hope not...
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

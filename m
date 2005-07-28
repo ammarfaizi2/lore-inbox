@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVG1Qoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVG1Qs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbVG1Qoh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 12:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVG1Qm0
+	id S261714AbVG1Qs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 12:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVG1QrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 12:42:26 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:23958 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261699AbVG1Qkn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 12:40:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=d/kWkk2mlm/eZuIeluyHSaK4BYHO3FEjuI2OjSWmacmsUMnRInSIaTF7k5O3dbdJEXaYuTHm8Y3wRON3YOwV2LrcxkX5256oFxnkv0lkJGpsMveJTCp4WWJ3T/P81WKOGBypQe8TuJiO81DUsHUJo6g8ZTiiV8XWvng4LWepBs0=
-Message-ID: <d120d50005072809407a179d7e@mail.gmail.com>
-Date: Thu, 28 Jul 2005 11:40:42 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Subject: Re: kernel guide to space (updated)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050728145353.GL11644@mellanox.co.il>
+	Thu, 28 Jul 2005 12:47:15 -0400
+Received: from hera.kernel.org ([209.128.68.125]:18342 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261703AbVG1QpF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 12:45:05 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: driver for Marvell 88E8053 PCI Express Gigabit LAN
+Date: Thu, 28 Jul 2005 09:45:14 -0700
+Organization: OSDL
+Message-ID: <20050728094514.6ed25d12@localhost.localdomain>
+References: <dc9252$tgr$1@sea.gmane.org>
+	<dc94v3$40c$1@sea.gmane.org>
+	<42E8CD48.7090008@gentoo.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050728145353.GL11644@mellanox.co.il>
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1122569095 31981 10.8.0.74 (28 Jul 2005 16:44:55 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Thu, 28 Jul 2005 16:44:55 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.11 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/28/05, Michael S. Tsirkin <mst@mellanox.co.il> wrote:
+On Thu, 28 Jul 2005 13:19:20 +0100
+Daniel Drake <dsd@gentoo.org> wrote:
+
+> Hi Alexander,
 > 
-> 9. The following is helpful with VIM
->        set cinoptions=(0:0
+> Alexander Fieroch wrote:
+> > Alexander Fieroch wrote:
+> > 
+> >> http://dlsvr01.asus.com/pub/ASUS/lan/marvell/8053/8053_others2.zip
+> > 
+> > 
+> > Oh, that driver is very old. Here is the latest one which is
+> > working with the current kernel:
+> > 
+> > http://www.syskonnect.de/syskonnect/support/driver/htm/sk9elin.htm
+> > 
+> > Could you please integrate it to the kernel?
 > 
-
-And this will highlight whitespace damage:
-
-highlight RedundantSpaces ctermbg=red guibg=red 
-match RedundantSpaces /\s\+$\| \+\ze\t/
-
--- 
-Dmitry
+> Syskonnect's latest changes to the sk98lin driver do not adhere to
+> Linux coding standards -- they have basically crammed two drivers
+> into one in an ugly fashion. It won't be included in the mainline
+> kernel in this form.
+> 
+> Part of sk98lin has been rewritten as skge (this supports the Yukon-
+> based PCI adapters) which will be included in 2.6.13.
+> 
+> In order to support the newer Yukon-II (PCI express) adapters in an
+> acceptable fashion, a new driver will need to be written, skge-style.
+> I don't think this is in development just yet. Perhaps you could try
+> contacting Syskonnect/Marvell yourself to get them to help out
+> developing a driver fit for inclusion.
+> 
+I am working on a sky2 driver modeled on skge.  It is taking baby steps
+now.

@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVG1RM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVG1RM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVG1RM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 13:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVG1Qgz
+	id S261659AbVG1RM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 13:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVG1Qgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 12:36:55 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:49165 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261210AbVG1Qe4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 12:34:56 -0400
-Message-Id: <200507281626.j6SGQicv009476@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Subject: [PATCH 2/7] UML - Fix skas0 stub return
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 28 Jul 2005 12:26:44 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Thu, 28 Jul 2005 12:36:50 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:30349 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S261661AbVG1Qfe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 12:35:34 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Rahul Tank <rahul5311@yahoo.co.in>
+Subject: Re: serial device driver
+Date: Thu, 28 Jul 2005 10:35:31 -0600
+User-Agent: KMail/1.8.1
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050727111225.3662.qmail@web8410.mail.in.yahoo.com>
+In-Reply-To: <20050727111225.3662.qmail@web8410.mail.in.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507281035.31128.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+On Wednesday 27 July 2005 5:12 am, Rahul Tank wrote:
+>    i am writing a serial device driver. After going
+> thru few linux journals i have understood that serial
+> ports get mapped at standard addrerss.We need to take
+> these regions, register driver and talk to them
+> (read,write).
 
-It's wrong to pop a fixed number of words from stack before
-calling sigreturn, as the number depends on what code is generated
-by the compiler for the start of stub_segv_handler().
-What we need is esp containing the address of sigcontext. So we
-explicitly load that pointer into esp.
-
-Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
-
-Index: linux-2.6.12-rc3-mm2/arch/um/sys-i386/stub_segv.c
-===================================================================
---- linux-2.6.12-rc3-mm2.orig/arch/um/sys-i386/stub_segv.c	2005-07-27 17:22:18.000000000 -0400
-+++ linux-2.6.12-rc3-mm2/arch/um/sys-i386/stub_segv.c	2005-07-28 10:35:18.000000000 -0400
-@@ -21,10 +21,10 @@
- 	__asm__("movl %0, %%eax ; int $0x80": : "g" (__NR_getpid));
- 	__asm__("movl %%eax, %%ebx ; movl %0, %%eax ; movl %1, %%ecx ;"
- 		"int $0x80": : "g" (__NR_kill), "g" (SIGUSR1));
--	/* Pop the frame pointer and return address since we need to leave
-+	/* Load pointer to sigcontext into esp, since we need to leave
- 	 * the stack in its original form when we do the sigreturn here, by
- 	 * hand.
- 	 */
--	__asm__("popl %%eax ; popl %%eax ; popl %%eax ; movl %0, %%eax ; "
--		"int $0x80" : : "g" (__NR_sigreturn));
-+	__asm__("mov %0,%%esp ; movl %1, %%eax ; "
-+		"int $0x80" : : "a" (sc), "g" (__NR_sigreturn));
- }
-
+If your device is 8250/16550/etc compatible, you should
+be able to use the existing 8250.c serial driver.  If
+your device is attached via PCI, look at 8250_pci.c for
+examples of how to claim it.  I think if your device
+claims to be PCI_CLASS_COMMUNICATION_SERIAL, 8250_pci.c
+will claim it automatically with no code changes at all.

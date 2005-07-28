@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVG1Oc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVG1Oc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbVG1Oc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 10:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVG1OcR
+	id S261509AbVG1Oc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 10:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVG1OVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 10:32:17 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8197 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261510AbVG1OcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 10:32:07 -0400
-Date: Thu, 28 Jul 2005 16:32:03 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] New include file for marking old style api files
-Message-ID: <20050728143203.GJ3528@stusta.de>
-References: <42E8E0C2.5010302@gmail.com> <20050728140230.GG3528@stusta.de> <42E8E6BD.90807@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42E8E6BD.90807@gmail.com>
-User-Agent: Mutt/1.5.9i
+	Thu, 28 Jul 2005 10:21:33 -0400
+Received: from reserv5.univ-lille1.fr ([193.49.225.19]:11183 "EHLO
+	reserv5.univ-lille1.fr") by vger.kernel.org with ESMTP
+	id S261509AbVG1OVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 10:21:14 -0400
+Message-ID: <42E8E9D1.4070705@lifl.fr>
+Date: Thu, 28 Jul 2005 16:21:05 +0200
+From: Eric Piel <Eric.Piel@lifl.fr>
+User-Agent: Mozilla Thunderbird 1.0.6-1mdk (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gabri <metadistros@yahoo.es>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Help Me Please
+References: <001701c5937b$ca708780$0801a8c0@SEBAS>
+In-Reply-To: <001701c5937b$ca708780$0801a8c0@SEBAS>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-USTL-MailScanner-Information: Please contact the ISP for more information
+X-USTL-MailScanner: Found to be clean
+X-MailScanner-From: eric.piel@lifl.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2005 at 04:07:57PM +0200, Jiri Slaby wrote:
-> Adrian Bunk napsal(a):
+07/28/2005 03:53 PM, gabri wrote/a écrit:
+> I have a laptop. Is amd mobile SEMPRON but when I
+> ejecute cpufreq say this:
 > 
-> >On Thu, Jul 28, 2005 at 03:42:26PM +0200, Jiri Slaby wrote:
-> > 
-> >
-> >>Hi.
-> >>Do you think, that this would be useful in the kernel tree?
-> >>I have an idea to mark old drivers, which should I or somebody rewrite.
-> >>For example drivers/isdn/hisax/gazel.c.
-> >>...
-> >>--- /dev/null
-> >>+++ b/include/linux/oldapi.h
-> >>@@ -0,0 +1,2 @@
-> >>+#warning This driver uses old style API and needs to be rewritten or 
-> >>removed \
-> >>+	from kernel
-> >>   
-> >>
-> >
-> >What's wrong with __deprecated ?
-> > 
-> >
-> Nothing, but this marks entire driver, not a function, that it uses.
-> I.e. gazel doesn't emit any warning or so, I think; so for these cases.
+> analyzing CPU 0:
+>   no or unknown cpufreq driver is active on this CPU
+> 
+> I remcompiled a lot of kernel" 2.6.12.3 2.6.8 etc"
+> witch support for cpu scaling but when i am triying
+> load a module powernow-k8 say this error:
+> powernow-k8: Found 1 AMD Athlon 64 / Opteron
+> processors (version 1.00.09b)
+> powernow-k8: BIOS error: maxvid exceeded with pstate
+> 0
+> 
+> and with powernow-k7: powernow: This module only
+> works
+> with AMD K7 CPUs
+> mi claptop isn't overcloked and i don't know how fix
+> the problem.
 
-Why do you require a header file for this?
-Simply put the #warning in gazel.c .
+Hello,
 
-If the API is scheduled for removal, you should put the #warning in the 
-header file for the API.
+According to the message, it's clear that powernow-k8 fits your CPU. I 
+don't know the meaning of the error message, though.
 
-If the API is old but is expected to stay for a longer time, simply do 
-nothing. Artificially increasing the warnings during kernel compilation 
-only makes it harder to find important warnings.
+First, have you upgraded your BIOS to the latest available version?
 
-cu
-Adrian
+Also, you might have better feedback if you contact the cpufreq 
+mailing-list: cpufreq@lists.linux.org.uk
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Eric

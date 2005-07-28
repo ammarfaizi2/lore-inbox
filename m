@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVG1Mf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVG1MjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbVG1Mf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 08:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVG1Mf4
+	id S261433AbVG1MjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 08:39:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVG1MjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 08:35:56 -0400
-Received: from web25601.mail.ukl.yahoo.com ([217.12.10.160]:62805 "HELO
-	web25601.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261394AbVG1Mfy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 08:35:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.es;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=3j9Wv04biQg37VgwBYbVyMORJZ1rKo9UEDrULQtxOv93re7dOimI8O/BZHLj/6ZDLvRkNO/WHNqoESDveRmcKTWX4lC+6raIlmFdDHzpHy4sN9doxfJs3aSclqKmNqA9/MMnefVDv9fZ9iprojClIdEYLXeH65D/lE5qQyRbg8Y=  ;
-Message-ID: <20050728123553.70204.qmail@web25601.mail.ukl.yahoo.com>
-Date: Thu, 28 Jul 2005 14:35:53 +0200 (CEST)
-From: gabriel metadistros <metadistros@yahoo.es>
-Subject: Amd Mobile Sempron Problem
-To: linux-kernel@vger.kernel.org
+	Thu, 28 Jul 2005 08:39:16 -0400
+Received: from khc.piap.pl ([195.187.100.11]:7428 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S261433AbVG1MjP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 08:39:15 -0400
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Raise required gcc version to 3.2 ?
+References: <20050728120012.GB3528@stusta.de>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 28 Jul 2005 14:39:12 +0200
+In-Reply-To: <20050728120012.GB3528@stusta.de> (Adrian Bunk's message of
+ "Thu, 28 Jul 2005 14:00:12 +0200")
+Message-ID: <m3hdefxfyn.fsf@defiant.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all , error when i try up the module powernow-k8
+Adrian Bunk <bunk@stusta.de> writes:
 
-Jul 28 16:25:26 debian kernel: powernow-k8: Found 1
-AMD Athlon 64 / Opteron processors (version 1.00.09b)
-Jul 28 16:25:26 debian kernel: powernow-k8: BIOS
-error: maxvid exceeded with pstate 0
+> Is there any good reason why we should not drop support for older 
+> compilers?
 
-what can do it?
+Compilation speed? Don't know, using 3 (4?) years old Athlon 2000
+it's not a problem unless I need full build 30 times a day.
 
-
-		
-______________________________________________ 
-Renovamos el Correo Yahoo! 
-Nuevos servicios, más seguridad 
-http://correo.yahoo.es
+But people on 266 MHz ARM5 may notice.
+-- 
+Krzysztof Halasa

@@ -1,67 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVG1KHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVG1KKC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVG1KHR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 06:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVG1KEl
+	id S261360AbVG1KKC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 06:10:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVG1KHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 06:04:41 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:46003 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261394AbVG1KCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 06:02:51 -0400
-Message-ID: <42E8AD47.6010501@grupopie.com>
-Date: Thu, 28 Jul 2005 11:02:47 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] signed char fixes for scripts
-References: <1121465068l.13352l.0l@werewolf.able.es>	<1121465683l.13352l.5l@werewolf.able.es>	<20050727202757.GB31180@mars.ravnborg.org> <1122507398l.19829l.0l@werewolf.able.es>
-In-Reply-To: <1122507398l.19829l.0l@werewolf.able.es>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Jul 2005 06:07:33 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:57805 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261353AbVG1KFp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 06:05:45 -0400
+Date: Thu, 28 Jul 2005 12:04:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
+       Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Add prefetch switch stack hook in scheduler function
+Message-ID: <20050728100429.GA27030@elte.hu>
+References: <10613.1122538148@kao2.melbourne.sgi.com> <42E897FD.6060506@yahoo.com.au> <20050728083544.GA22740@elte.hu> <42E89BE6.6040304@yahoo.com.au> <20050728091638.GA25846@elte.hu> <42E8A688.7070802@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42E8A688.7070802@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> On 07.27, Sam Ravnborg wrote:
+
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+> >i'm not sure what you mean by prefetching next->timestamp, it's an 
+> >inline field to 'next', in the first cacheline of it, which we've 
+> >already used so it's present. (If you mean the value of next->timestamp, 
+> >that has no address meaning at all so would lead to unpredictable 
+> >results on some arches.)
+> >
 > 
->>On Fri, Jul 15, 2005 at 10:14:43PM +0000, J.A. Magallon wrote:
->>
->>>On 07.16, J.A. Magallon wrote:
->>>
->>>>On 07.15, Andrew Morton wrote:
->>>>
->>>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6.13-rc3-mm1/
->>>
->>>This time I did not break anything... and they shut up gcc4 ;)
->>
->>I have applied it to my tree. There still is a lot left when I compile
->>with -Wsign-compare.
+> No, I meant the cacheline holding the field of course. I guess I could 
+> have looked for a field further down, but even so, ->timestamp might 
+> be 96 bytes into the structure on a 64-bit arch, which may or may not 
+> be the first cacheline... but you get the idea.
+
+i'd rather wait with that one. A prefetch can generate a prefetch of the 
+next cacheline too, so it might or might not make sense to prefetch both 
+cachelines explicitly.
+
+Also, explicity prefetching &next->timestamp is ugly because it includes 
+a number of bad assumptions. If multi-cacheline prefetching becomes 
+necessary then this needs to be implemented via a generic extension to 
+prefetch.h:
+
+	prefetch_area(void *first_addr, void *last_addr)
+
+(or as addr,len)
+
+This way an architecture can decide how it prefetches continuous 
+cachelines _without knowing anything about the structure being 
+prefetched_.
+
+Also, the generic code using the prefetches could this way designate 
+'cache-hot' areas without having to know about cacheline size or 
+prefetching tactics of the architecture. (prefetch_area() could be done 
+compile-time so it would be equivalent to a single-cacheline prefetch on 
+arches with larger cachelines.)
+
+> > i'd like to keep generic bits in generic code, and only move things 
+> > to per-arch include files if absolutely necessary. next->mm is 
+> > generic.
 > 
-> All the problems are born here:
-> 
-> struct sym_entry {
->     unsigned long long addr;
->     unsigned int len;
->     unsigned char *sym;
-> };
+> Yeah, then a specific field _within_ next->mm or thread_info may want 
+> to be fetched. In short, I don't see any argument why we shouldn't 
+> call the function prefetch_task().
 
-What are you guys talking about?
+it's a fundamental thing: we _dont_ want to push generic code into 
+architectures, and there's nothing per-arch about next->mm.
 
-I've just compiled the current version in -mm with -Wsign-compare and it 
-doesn't give me a single warning.
+thread_info is really small on most arches, and even if they are not, 
+the most important data is always grouped to the top of a structure.  
+(this is a pretty fundamental concept throughout the kernel)
 
-Is my compiler version the problem (3.3.2), or are you testing with the 
-old version of kallsyms?
+> Secondly, I don't really like your prefetch(kernel_stack()) function 
+> because it doesn't really give architectures enough control over 
+> exactly what cachelines they get in memory.
 
--- 
-Paulo Marques - www.grupopie.com
+my point is, it comes down to concrete examples, it may or may not make 
+sense to do things per-arch.
 
-It is a mistake to think you can solve any major problems
-just with potatoes.
-Douglas Adams
+If this was per-arch most arches wouldnt get this benefit, and the 
+propagation of any improvements would likely stick in whatever arch did 
+that. We've seen that happen too many times to not repeat this mistake 
+again. We've got 24 architectures (and counting), so any code 'left to 
+the architecture to control' will propagate to other architectures only 
+very slowly.
+
+try to look at it from another angle: probably only because i insisted 
+on doing this in the generic code and not per-arch did we end up 
+discovering the potential generic need to prefetch next->thread_info and 
+next->mm.
+
+> prefetching and memory access patterns of all this stuff are fairly 
+> architecture specific.
+
+true of course, but from this it does not follow at all that we should 
+move all task-switch related prefetching into a prefetch_task() call!
+
+> [...] I see nothing wrong with having a prefetch_task() call.  
+> (Although I agree things like thread_info->flags and next->mm can be 
+> done in generic code).
+
+great that we now agree wrt. thread_info and next->mm. My remaining 
+point is, once we prefetch ->thread_info, ->mm and the kernel stack, 
+nothing else significant remains! (It's still very much possible that 
+something needs to be prefetched per-arch, but i'd like to see a robust 
+case be made for it, instead of your global 'it might happen' argument.)
+
+	Ingo

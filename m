@@ -1,68 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVG1QAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVG1Psz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbVG1QAW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 12:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVG1P74
+	id S261494AbVG1Psz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 11:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVG1Psp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 11:59:56 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:46311 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261593AbVG1P7p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 11:59:45 -0400
-Date: Thu, 28 Jul 2005 17:59:15 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: colormap fixes
-In-Reply-To: <42E8F0CD.6070500@gmail.com>
-Message-ID: <Pine.LNX.4.62.0507281758080.24391@numbat.sonytel.be>
-References: <200507280031.j6S0V3L3016861@hera.kernel.org>
- <Pine.LNX.4.62.0507280952140.24391@numbat.sonytel.be>
- <9e473391050728060741040424@mail.gmail.com> <42E8F0CD.6070500@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Jul 2005 11:48:45 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:50924 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261579AbVG1Prr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 11:47:47 -0400
+Subject: [PATCH 4/5] Add support for POSIX LIO_WAIT
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: "linux-aio kvack.org" <linux-aio@kvack.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Thu, 28 Jul 2005 17:46:37 +0200
+Message-Id: <1122565597.2019.83.camel@frecb000686>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 28/07/2005 17:59:52,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 28/07/2005 17:59:53
+Content-Type: multipart/mixed; boundary="=-8guM4VgqR4eUIaTCgRvJ"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2005, Antonino A. Daplas wrote:
-> Jon Smirl wrote:
-> > On 7/28/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > > On Wed, 27 Jul 2005, Linux Kernel Mailing List wrote:
-> > 
-> > There are a couple of ways to fix this. 
-> > 1) Add a check to limit use of the sysfs attributes to 256 entries. If
-> > you want more you have to use /dev/fb0 and the ioctl. More is an
-> > uncommon case.
-> > 2) Switch this to a binary parameter. Now you have to use tools like
-> > hexdump instead of cat to work with the data. It was nice to be able
-> > to use cat to see the current map.
-> > 
-> > Does anyone have preferences for which way to fix it?
-> 
-> Or...
-> 
->  3) Add another file in sysfs which specifies at what index and how many
-> entries will be read or written from or to the cmap. With this additional
-> sysfs file, it should be able to handle any reasonable cmap length, but
-> it will take more than one reading of the color_map file. Another
-> advantage is that the entire color map need not be read or written if
-> only one field needs to be changed.
-> 
-> I've attached a test patch.  Let me know what you think.
 
-I like it! ... But, a disadvantages is that it needs to store state between two
-non-atomic operations. E.g. imagine two processes doing this at the same time.
+--=-8guM4VgqR4eUIaTCgRvJ
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-Gr{oetje,eeting}s,
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+--=-8guM4VgqR4eUIaTCgRvJ
+Content-Disposition: attachment; filename=liowait
+Content-Type: application/octet-stream; name=liowait
+Content-Transfer-Encoding: base64
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+bGlvd2FpdDoKCiBUaGlzIHBhdGNoIGFkZHMgc3VwcG9ydCBmb3IgdGhlIFBPU0lYIGxpc3RpbyBM
+SU9fV0FJVCBtZWNoYW5pc20uIFRoaXMgd29ya3MKYnkgYWRkaW5nIGFuIElPQ0JfQ01EX0NIRUNL
+UE9JTlQgY29tbWFuZC4KCiAgQXMgcGFydCBvZiBsaXN0aW8gc3VibWlzc2lvbiwgdGhlIHVzZXIg
+bWF5IGNob29zZSB0byBwcmVwZW5kIGFuIGVtcHR5IGlvY2IKdG8gdGhlIGxpc3Qgd2l0aCBhbiBh
+aW9fbGlvX29wY29kZSBvZiBJT0NCX0NNRF9DSEVDS1BPSU5ULiBBbGwgaW9jYnMgZm9sbG93aW5n
+CnRoaXMgcGFydGljdWxhciBDSEVDS1BPSU5UIGlvY2IgYXJlIGluIHRoZSBzYW1lIGdyb3VwIGFu
+ZCBzeXNfaW9fc3VibWl0IHdpbGwKYmxvY2sgdW50aWwgYWxsIGlvY2JzIHN1Ym1pdHRlZCBpbiB0
+aGUgZ3JvdXAgaGF2ZSBjb21wbGV0ZWQuCgogTWFrZWZpbGUgICAgICAgICAgICAgICAgfCAgICAy
+IC0KIGZzL2Fpby5jICAgICAgICAgICAgICAgIHwgICA5NCArKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKystLS0KIGluY2x1ZGUvbGludXgvYWlvX2FiaS5oIHwgICAg
+MQogMyBmaWxlcyBjaGFuZ2VkLCA5MSBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQoKU2ln
+bmVkLW9mZi1ieTogU+liYXN0aWVuIER1Z3XpIDxzZWJhc3RpZW4uZHVndWVAYnVsbC5uZXQ+CgpJ
+bmRleDogbGludXgtMi42LjEyL2ZzL2Fpby5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxpbnV4LTIuNi4xMi5v
+cmlnL2ZzL2Fpby5jCTIwMDUtMDctMjEgMTE6MzA6NTcuMDAwMDAwMDAwICswMjAwCisrKyBsaW51
+eC0yLjYuMTIvZnMvYWlvLmMJMjAwNS0wNy0yMSAxMTozNTowMy4wMDAwMDAwMDAgKzAyMDAKQEAg
+LTk1NCw4ICs5NTQsMjQgQEAKIAlyZWFkX3VubG9jaygmdGFza2xpc3RfbG9jayk7CiB9CiAKK3N0
+YXRpYyB2b2lkIHdhaXRfZm9yX2xpbyhzdHJ1Y3Qga2lvY3R4ICpjdHgsIHN0cnVjdCBsaW9fZXZl
+bnQgKmxpbykKK3sKKwlzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzayA9IGN1cnJlbnQ7CisJREVDTEFS
+RV9XQUlUUVVFVUUod2FpdCwgdHNrKTsKKworCWFkZF93YWl0X3F1ZXVlKCZjdHgtPndhaXQsICZ3
+YWl0KTsKKwlzZXRfdGFza19zdGF0ZSh0c2ssIFRBU0tfVU5JTlRFUlJVUFRJQkxFKTsKKworCXdo
+aWxlICggYXRvbWljX3JlYWQoJmxpby0+bGlvX3VzZXJzKSApIHsKKwkJc2NoZWR1bGUoKTsKKwkJ
+c2V0X3Rhc2tfc3RhdGUodHNrLCBUQVNLX1VOSU5URVJSVVBUSUJMRSk7CisJfQorCV9fc2V0X3Rh
+c2tfc3RhdGUodHNrLCBUQVNLX1JVTk5JTkcpOworCXJlbW92ZV93YWl0X3F1ZXVlKCZjdHgtPndh
+aXQsICZ3YWl0KTsKK30KKwogc3RhdGljIGlubGluZSB2b2lkIGNoZWNrX2xpbyhzdHJ1Y3Qga2lv
+Y3R4ICpjdHgsIAotCQkJICAgICBzdHJ1Y3QgbGlvX2V2ZW50ICpsaW8pCisJCQkgICAgIHN0cnVj
+dCBsaW9fZXZlbnQgKmxpbywgaW50IHdhaXQpCiB7CiAJaW50IHJldDsKIApAQCAtOTc5LDcgKzk5
+NSw1MiBAQAogCQkJa2ZyZWUobGlvKTsKIAkJfQogCisJfSBlbHNlIGlmICh3YWl0KSB7CisKKwkJ
+LyogaWYgbmVlZGVkLCB3YWl0IGVuZCBvZiBhbGwgQUlPIG9mIHRoaXMgbGlzdCAqLworCisJCXdh
+aXRfZm9yX2xpbyhjdHgsIGxpbyk7CisKKwkJLyogZnJlZSBtZW1vcnkgKi8KKworCQlrZnJlZShs
+aW8pOworCX0KK30KKworc3RhdGljIGludCBjcmVhdGVfbGlvX3dhaXQoc3RydWN0IGtpb2N0eCAq
+Y3R4LCBzdHJ1Y3QgbGlvX2V2ZW50ICoqbGlvLAorCQkJICAgIGludCBlbmFibGUpCit7CisJaWYg
+KCpsaW8gIT0gTlVMTCkgeworCisJCS8qIHdlIGJyZWFrIGFuIGV4aXN0aW5nIHNlcXVlbmNlIChs
+aW8gZXhpc3RzKQorCQkgKiBjbG9zZSB0aGUgc2VxdWVuY2UKKwkJICovCisKKwkJY2hlY2tfbGlv
+KGN0eCwgKmxpbywgMSk7CisJCSpsaW8gPSBOVUxMOworCX0KKworCWlmICghZW5hYmxlKSB7CisK
+KwkJLyogaXQgbWVhbnMgd2UgZG9uJ3Qgd2FudCB0byBtb25pdG9yIGZvbGxvd2luZyBjb21tYW5k
+cworCQkgKiB1c2VmdWxsIHRvIGJyZWFrIGN1cnJlbnQgc2VxdWVuY2UKKwkJICovCisKKwkJcmV0
+dXJuIDA7CiAJfQorCisKKwkqbGlvID0ga21hbGxvYyhzaXplb2YoKmxpbyksIEdGUF9LRVJORUwp
+OworCWlmICghKmxpbykKKwkJcmV0dXJuIC1FQUdBSU47CisKKwlhdG9taWNfc2V0KCYoKCpsaW8p
+LT5saW9fdXNlcnMpLCAxKTsKKwkoKmxpbyktPmxpb19waWQgPSAwOworCSgqbGlvKS0+bGlvX3Np
+Z25vID0gMDsKKwkoKmxpbyktPmxpb19ub3RpZnkgPSAwOworCSgqbGlvKS0+bGlvX3ZhbHVlID0g
+MDsKKworCXJldHVybiAwOwogfQogCiBzdGF0aWMgaW50IGNyZWF0ZV9saW9fZXZlbnQoc3RydWN0
+IGtpb2N0eCAqY3R4LHN0cnVjdCBsaW9fZXZlbnQgKipsaW8sCkBAIC0xMDIzLDcgKzEwODQsNyBA
+QAogCSAqIGNsb3NlIHRoZSBzZXF1ZW5jZQogCSAqLwogCi0JY2hlY2tfbGlvKGN0eCwgKmxpbyk7
+CisJY2hlY2tfbGlvKGN0eCwgKmxpbywgMSk7CiAKIAlpZiAoc2lnbm8gPT0gMCkgewogCkBAIC0x
+MTUzLDcgKzEyMTQsNyBAQAogCQlfX2Fpb19zZW5kX3NpZ25hbChpb2NiLT5raV9waWQsIGlvY2It
+PmtpX3NpZ25vLCBpb2NiLT5raV9ub3RpZnksCiAJCQkJICAodm9pZCopKHVuc2lnbmVkIGxvbmcp
+aW9jYi0+a2lfdmFsdWUpOwogCi0JY2hlY2tfbGlvKGN0eCwgaW9jYi0+a2lfbGlvX2V2ZW50KTsK
+KwljaGVja19saW8oY3R4LCBpb2NiLT5raV9saW9fZXZlbnQsIDApOwogCiAJcHJfZGVidWcoIiVs
+ZCByZXRyaWVzOiAlZCBvZiAlZFxuIiwgaW9jYi0+a2lfcmV0cmllZCwKIAkJaW9jYi0+a2lfbmJ5
+dGVzIC0gaW9jYi0+a2lfbGVmdCwgaW9jYi0+a2lfbmJ5dGVzKTsKQEAgLTE4ODIsNyArMTk0Mywz
+MCBAQAogCQkJfQogCQl9CiAKLQkJaWYgKHRtcC5haW9fbGlvX29wY29kZSA9PSBJT0NCX0NNRF9F
+VkVOVCkgeworCQlpZiAodG1wLmFpb19saW9fb3Bjb2RlID09IElPQ0JfQ01EX0NIRUNLUE9JTlQp
+IHsKKwkJCS8qIHRoaXMgY29tbWFuZCBtZWFucyB0aGF0IGFsbCBmb2xsb3dpbmcgSU8gY29tbWFu
+ZHMKKwkJCSAqIGFyZSBpbiB0aGUgc2FtZSBncm91cC4KKwkJCSAqIGlvX3N1Ym1pdCgpIHdpbGwg
+d2FpdCBhbGwgY29tbWFuZHMgb2YgdGhlIGdyb3VwCisJCQkgKiBoYXZlIGJlZW4gcHJvY2Vzc2Vk
+IGJlZm9yZSBleGl0aW5nLgorCQkJICovCisKKwkJCWlmIChhaW9fcGlkKSB7CisJCQkJcmV0ID0g
+LUVJTlZBTDsKKwkJCQlicmVhazsKKwkJCX0KKworCQkJaWYgKCAoYWlvX3NpZ25vICE9IDApICYm
+IChhaW9fc2lnbm8gIT0gMSkgKSB7CisJCQkJcmV0ID0gLUVJTlZBTDsKKwkJCQlicmVhazsKKwkJ
+CX0KKworCQkJcmV0ID0gY3JlYXRlX2xpb193YWl0KGN0eCwgJmxpbywgYWlvX3NpZ25vKTsKKwkJ
+CWlmIChyZXQpCisJCQkJYnJlYWs7CisKKwkJCWNvbnRpbnVlOworCisJCX0gZWxzZSBpZiAodG1w
+LmFpb19saW9fb3Bjb2RlID09IElPQ0JfQ01EX0VWRU5UKSB7CiAKIAkJCS8qIHRoaXMgY29tbWFu
+ZCBtZWFucyB0aGF0IGFsbCBmb2xsb3dpbmcgSU8gY29tbWFuZHMKIAkJCSAqIGFyZSBpbiB0aGUg
+c2FtZSBncm91cCBhbmQgd2hlbiB0aGUgZ3JvdXAgYmVjb21lcwpAQCAtMTkyMSw3ICsyMDA1LDcg
+QEAKIAkJCQlicmVhazsKIAkJfQogCX0KLQljaGVja19saW8oY3R4LCBsaW8pOworCWNoZWNrX2xp
+byhjdHgsIGxpbywgMSk7CiAKIAlwdXRfaW9jdHgoY3R4KTsKIAlyZXR1cm4gaSA/IGkgOiByZXQ7
+CkluZGV4OiBsaW51eC0yLjYuMTIvaW5jbHVkZS9saW51eC9haW9fYWJpLmgKPT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQot
+LS0gbGludXgtMi42LjEyLm9yaWcvaW5jbHVkZS9saW51eC9haW9fYWJpLmgJMjAwNS0wNy0yMSAx
+MTozMDowMy4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xMi9pbmNsdWRlL2xpbnV4L2Fp
+b19hYmkuaAkyMDA1LTA3LTIxIDExOjM1OjAzLjAwMDAwMDAwMCArMDIwMApAQCAtNDIsNiArNDIs
+NyBAQAogCSAqLwogCUlPQ0JfQ01EX05PT1AgPSA2LAogCUlPQ0JfQ01EX0VWRU5UID0gNywKKwlJ
+T0NCX0NNRF9DSEVDS1BPSU5UID0gOCwKIH07CiAKIC8qIHJlYWQoKSBmcm9tIC9kZXYvYWlvIHJl
+dHVybnMgdGhlc2Ugc3RydWN0dXJlcy4gKi8KSW5kZXg6IGxpbnV4LTIuNi4xMi9NYWtlZmlsZQo9
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMTIub3JpZy9NYWtlZmlsZQkyMDA1LTA3LTIxIDExOjMw
+OjAzLjAwMDAwMDAwMCArMDIwMAorKysgbGludXgtMi42LjEyL01ha2VmaWxlCTIwMDUtMDctMjEg
+MTE6MzU6MDMuMDAwMDAwMDAwICswMjAwCkBAIC0xLDcgKzEsNyBAQAogVkVSU0lPTiA9IDIKIFBB
+VENITEVWRUwgPSA2CiBTVUJMRVZFTCA9IDEyCi1FWFRSQVZFUlNJT04gPSAuUEFJTy1saW9ldmVu
+dAorRVhUUkFWRVJTSU9OID0gLlBBSU8tbGlvd2FpdAogTkFNRT1Xb296eSBOdW1iYXQKIAogIyAq
+RE9DVU1FTlRBVElPTioK
+
+--=-8guM4VgqR4eUIaTCgRvJ--
+

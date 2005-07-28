@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVG1OMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVG1ORO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVG1OMb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 10:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVG1OKO
+	id S261458AbVG1ORO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 10:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbVG1ORI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 10:10:14 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:29062 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261460AbVG1OKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 10:10:03 -0400
-Message-ID: <42E8E6BD.90807@gmail.com>
-Date: Thu, 28 Jul 2005 16:07:57 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] New include file for marking old style api files
-References: <42E8E0C2.5010302@gmail.com> <20050728140230.GG3528@stusta.de>
-In-Reply-To: <20050728140230.GG3528@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Jul 2005 10:17:08 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:42634 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261468AbVG1ORA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 10:17:00 -0400
+Date: Thu, 28 Jul 2005 15:16:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] compat_sys_read/write
+Message-ID: <20050728141653.GA22173@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Stephen Rothwell <sfr@canb.auug.org.au>,
+	LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <20050728234341.3303d5fe.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050728234341.3303d5fe.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk napsal(a):
+On Thu, Jul 28, 2005 at 11:43:41PM +1000, Stephen Rothwell wrote:
+> Hi all,
+> 
+> Someone mentioned the mess in evdev.c that is caused by the fact that the
+> structures that are passed to/from user mode via read/write require
+> conversion when this API is used from 32 bit tasks on 64 bit kernels. 
+> Some "discussion" followed during which I suggested an idea originally
+> from Matthew Wilcox of an arch-specific is_compat_task() function so that
+> these places could be identified.  However it was considered better to
+> instead implement compat_sys_read/write.
 
->On Thu, Jul 28, 2005 at 03:42:26PM +0200, Jiri Slaby wrote:
->  
->
->>Hi.
->>Do you think, that this would be useful in the kernel tree?
->>I have an idea to mark old drivers, which should I or somebody rewrite.
->>For example drivers/isdn/hisax/gazel.c.
->>...
->>--- /dev/null
->>+++ b/include/linux/oldapi.h
->>@@ -0,0 +1,2 @@
->>+#warning This driver uses old style API and needs to be rewritten or removed \
->>+	from kernel
->>    
->>
->
->What's wrong with __deprecated ?
->  
->
-Nothing, but this marks entire driver, not a function, that it uses.
-I.e. gazel doesn't emit any warning or so, I think; so for these cases.
-
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+This looks totally horrible, especially as we'd need readv/writev and
+pread/pwrite aswell.  I don't think anyone but Andi actually liked this
+approach when discussed earlier.
 

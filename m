@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVG1Neo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVG1Nlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbVG1Neo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 09:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVG1Neo
+	id S261391AbVG1Nlw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 09:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVG1Nlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 09:34:44 -0400
-Received: from zorg.st.net.au ([203.16.233.9]:14212 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S261378AbVG1Nem (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 09:34:42 -0400
-Message-ID: <42E8DF06.50201@torque.net>
-Date: Thu, 28 Jul 2005 23:35:02 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] sdparm 0.94
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 28 Jul 2005 09:41:52 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:33925 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261391AbVG1Nlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 09:41:50 -0400
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "John W. Linville" <linville@tuxdriver.com>, Adrian Bunk <bunk@stusta.de>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
+       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
+       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
+       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
+       zaitcev@yahoo.com
+In-Reply-To: <42E7F1F9.2050105@pobox.com>
+References: <20050726150837.GT3160@stusta.de>
+	 <1122393073.18884.29.camel@mindpipe> <42E65D50.3040808@pobox.com>
+	 <20050727182427.GH3160@stusta.de> <20050727203150.GF22686@tuxdriver.com>
+	 <42E7F1F9.2050105@pobox.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 28 Jul 2005 15:00:08 +0100
+Message-Id: <1122559208.32126.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sdparm is a command line utility designed to get and set
-SCSI device parameters (cf hdparm for ATA disks). Apart
-from SCSI devices (e.g. disks, tapes and enclosures) sdparm
-can be used on any device that uses a SCSI command set.
-Virtually all CD/DVD drives use the SCSI MMC set irrespective
-of the transport. sdparm also can list VPD pages including
-the device identification page. sdparm can be used in both
-the lk 2.4 and 2.6 series.
+On Mer, 2005-07-27 at 16:43 -0400, Jeff Garzik wrote:
+> ISTR Alan saying there was some ALi hardware that either wasn't in ALSA, 
+> or most likely didn't work in ALSA.  If Alan says I'm smoking crack, 
+> then you all can ignore me :)
 
-The major addition in version 0.94 is a set of commands
-mainly for devices with removable media: eject, load,
-ready, start, stop and unlock.
+The only big thing I know that still needed OSS (and may still do so) is
+the support for AC97 wired touchscreens and the like. Has that been
+ported to ALSA ?
 
-For more information and downloads see:
-http://www.torque.net/sg/sdparm.html
-
-ChangeLog for sdparm-0.94 [20050728]
-   - add CD/DVD (MM) capabilities and mechanical status mode page
-   - add Background medium scan (SBC-2 pending) mode subpage
-   - add '--command=<cmd>' option with these <cmd>s:
-       ready, start, stop, load, eject and unlock
-   - add decoding for SCSI Ports VPD page
-   - updated to automake version 1.9.5
-   - copy of sdparm.html placed in doc directory
-
-
-Doug Gilbert

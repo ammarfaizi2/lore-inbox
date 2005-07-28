@@ -1,51 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVG1Dvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVG1Dxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVG1Dvy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 23:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVG1Dvy
+	id S261283AbVG1Dxd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 23:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVG1Dxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 23:51:54 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:62635 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261286AbVG1Dvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 23:51:48 -0400
+	Wed, 27 Jul 2005 23:53:33 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:39821 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261283AbVG1Dv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 23:51:57 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=J/U1lHb1d+V7dLqCFEiLaB6fmPAbYXB6dhOuDvr7RY73utH8jJkiW9JRAcV/UVVeuEyas/v98g+95LRbyWdWbcYWLXW74ZyTqQ5CG3pzzQxO82g33NS/XmVncraKaBgu7ZJRwtUrxS/I4vJ+6Oat8tK81co6O1TxnN0S/kJkDsU=  ;
-Message-ID: <42E8564B.9070407@yahoo.com.au>
-Date: Thu, 28 Jul 2005 13:51:39 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
+  s=s1024; d=yahoo.com.br;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:X-Enigmail-Version:X-Enigmail-Supports:Content-Type:Content-Transfer-Encoding;
+  b=4PBUeSPLpFiGJvbh2gSrgd77T/A+Rq5YJghysAhhZl8DSeYgruPl/a2g3MCII4P2oOjGRjt+5TLiYMRHGs9UxYpv/F9ov26SO7xq7X3CsTvDrIc9jax1b8cAWA8vg7MfwYmDngNyf/QQONAy0MUWKcpZa2dM1iVaTupHwnHmMgM=  ;
+Message-ID: <42E85E6E.2020105@yahoo.com.br>
+Date: Thu, 28 Jul 2005 01:26:22 -0300
+From: "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Daniel Walker <dwalker@mvista.com>, LKML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
-References: <1122473595.29823.60.camel@localhost.localdomain>	 <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>	 <1122513928.29823.150.camel@localhost.localdomain>	 <1122519999.29823.165.camel@localhost.localdomain>	 <1122521538.29823.177.camel@localhost.localdomain> <1122522328.29823.186.camel@localhost.localdomain>
-In-Reply-To: <1122522328.29823.186.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: "seeing minute plus hangs during boot" - 2.6.12 and 2.6.13
+References: <20050722182848.8028.qmail@web60715.mail.yahoo.com>	<105c793f05072507426fb6d4c9@mail.gmail.com>	<42E59E0E.5030306@yahoo.com.br>	<20050726003322.1bfe17ee.akpm@osdl.org>	<42E7A153.6060307@yahoo.com.br> <20050727105005.30768fe3.akpm@osdl.org>
+In-Reply-To: <20050727105005.30768fe3.akpm@osdl.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->OK, still looks like the generic ffb can be changed.  Unless I'm missing
->something, this shows that I probably should be sending in a patch now
->to replace the find_first_bit.  Ingo's sched_find_first_bit is still the
->winner, but that is customed to the scheduler, until we need a
->configurable priority.
->
->What do you think?
->
->  
->
+Andrew Morton wrote:
+>>>
+>>
+>>
+>>Hi Andrew.
+>>I was not able to get anything when I press this key sequence.
+>>
+>>I checked my sysrq key with showkey -s as this doc
+>>(http://snafu.freedom.org/linux2.2/docs/sysrq.txt) says and I could
+>>confirm that alt+sysrq is sending 0x54.
+>>
+>>I also noted that many said that this option has to be compiled in
+>>kernel, but I couldn't find this option.
+>>
+>>Can you give me some tips?
+>>
+> 
+> 
+> (Please leave the cc list unchanged - always do reply-to-all)
+> 
+> hm, maybe do alt-sysrq-7 to make sure that the loglevel is appropriately set.
+> 
+> Or do alt-sysrq-B to test that the whole sysrq thing is working.  If it is,
+> that will reboot the machine.
+> 
+> 
 
-Sure, if it is correct and faster.
-Just don't mark the (*b) test as unlikely.
+
+Ok, nevermind. I just found that I didn't add the sysrq support when
+compiling my kernel :(
+
+I will recompile it and send you stack trace.
+
+Sorry for wasting your time, Andrew.
 
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+- --
+Regards,
+
+Francisco Figueiredo Jr.
+Npgsql Lead Developer
+http://gborg.postgresql.org/project/npgsql
+MonoBrasil Project Founder Member
+http://monobrasil.softwarelivre.org
+
+
+- -------------
+"Science without religion is lame;
+religion without science is blind."
+
+                  ~ Albert Einstein
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQEVAwUBQuhebv7iFmsNzeXfAQKovAf+IytBAXybpV102ATXL6lDrNKCwy9QsmWH
+ntUv9+JLeIKbuzKJFn2gu3ftLW5dwiXq2fL0aRg5NGk9K32pCGcE43LEyZ+dglG9
+FWBNV47iB4NxOLh7YfKrOf7wT3eRs4Qwfm9TZn5segJn0MExd9kHuYgJ1hO/ZUzF
+OksF5hAusjTM7dLA2LwX7mUOMs8VFPqRuEufCQ/TOCiPhxzoZJ6XFbkJ3ZHwqJ9m
+jZwfHihz2n0NiBWu0vNGBS2EjS3U2URphV0fhCAt/pILAk1kQvEAsXBo0vgFwsfg
+dYSjubVnPffACPFZZsNvjUBFf6tQ32+t1vVFDHD1ym2wq/4z87+5pw==
+=nG/V
+-----END PGP SIGNATURE-----
+
+	
+	
+		
+_______________________________________________________ 
+Yahoo! Acesso Grátis - Internet rápida e grátis. 
+Instale o discador agora! http://br.acesso.yahoo.com/

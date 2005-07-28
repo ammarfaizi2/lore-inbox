@@ -1,77 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVG1JT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVG1JXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbVG1JT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 05:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVG1JT2
+	id S261393AbVG1JXX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 05:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVG1JXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 05:19:28 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:41929 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261397AbVG1JTZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 05:19:25 -0400
-Date: Thu, 28 Jul 2005 11:19:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
-       Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Add prefetch switch stack hook in scheduler function
-Message-ID: <20050728091901.GA26419@elte.hu>
-References: <10613.1122538148@kao2.melbourne.sgi.com> <42E897FD.6060506@yahoo.com.au> <20050728083544.GA22740@elte.hu> <42E89BE6.6040304@yahoo.com.au> <20050728091638.GA25846@elte.hu>
+	Thu, 28 Jul 2005 05:23:23 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:64722 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261393AbVG1JXV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 05:23:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aTHaWnp2gsbXiaBHTuEv1+VWGmi7Mv5O3kQ9mCmx3ATDBrblCFtg2L2IHNcvvYGe+YJD6ZY7wfSgcNE/2ZsdJI1mi3dyw4Ud4SNgk0unLmwSmAxwi78cRskexUA/ANmh8+aBknFDEsXfAJwJh97UkG0nfByxEb/lWhXZiczzhN4=
+Message-ID: <c0140e7605072802236f4c3b26@mail.gmail.com>
+Date: Thu, 28 Jul 2005 11:23:21 +0200
+From: cengizkirli <cengizkirli@gmail.com>
+Reply-To: cengizkirli <cengizkirli@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Mouse Freezes in Xorg on ASUS P4C800 Deluxe
+In-Reply-To: <c0140e7605072312377b348743@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050728091638.GA25846@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <c0140e76050723082730836e7b@mail.gmail.com>
+	 <9a8748490507230836584948c6@mail.gmail.com>
+	 <c0140e7605072308424eb60d57@mail.gmail.com>
+	 <c0140e7605072312377b348743@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> next->mm we might want to prefetch, but it's probably not worth it 
-> because we are referencing it too soon, in context_switch(). (while 
-> the kernel stack itself wont be referenced until the full 
-> context-switch is done) But might be worth trying - but even then, it 
-> should be done from the generic code, like the thread_info and 
-> kernel-stack prefetching.
-
-the patch below adds next->mm prefetching too, ontop of the previous 
-patch.
-
-	Ingo
-
-------
-
-cache-prefetch next->mm too.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- kernel/sched.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c
-+++ linux/kernel/sched.c
-@@ -2866,10 +2866,11 @@ go_idle:
- 
- 	/*
- 	 * Cache-prefetch crutial memory areas of the next task,
--	 * its thread_info and its kernel stack:
-+	 * its thread_info, its kernel stack and mm:
- 	 */
- 	prefetch(next->thread_info);
- 	prefetch(kernel_stack(next));
-+	prefetch(next->mm);
- 
- 	if (!rt_task(next) && next->activated > 0) {
- 		unsigned long long delta = now - next->timestamp;
+It seems to work after comparing my .config with Andreas Baer's and also
+setting USB Support to "built-in" and not "module". Somehow the modules
+are unloaded or whatever. It seems to work now. Hopefully it will last...

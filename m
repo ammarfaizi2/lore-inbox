@@ -1,53 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVG1BNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVG1BPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVG1BNP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Jul 2005 21:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVG1BNP
+	id S261463AbVG1BPb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Jul 2005 21:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVG1BPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Jul 2005 21:13:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13211 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261246AbVG1BNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Jul 2005 21:13:13 -0400
-To: ncunningham@cyclades.com
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: [PATCH 1/23] Add missing device_suspsend(PMSG_FREEZE) calls.
-References: <m1mzo9eb8q.fsf@ebiederm.dsl.xmission.com>
-	<m1iryxeb4t.fsf@ebiederm.dsl.xmission.com>
-	<1122400462.4382.13.camel@localhost>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 27 Jul 2005 19:12:30 -0600
-In-Reply-To: <1122400462.4382.13.camel@localhost> (Nigel Cunningham's
- message of "Wed, 27 Jul 2005 03:54:23 +1000")
-Message-ID: <m1k6jb7myp.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 27 Jul 2005 21:15:31 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:57259 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S261463AbVG1BP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Jul 2005 21:15:28 -0400
+Date: Wed, 27 Jul 2005 18:15:40 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: [patch] x86_64: fix cpu_to_node setup for sparse apic_ids
+Message-ID: <20050728011540.GA23923@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@cyclades.com> writes:
+While booting with SMT disabled in bios, when using acpi srat to setup
+cpu_to_node[],  sparse apic_ids create problems.  Here's a fix for that.
 
-> Hi.
->
-> Could you please send PMSG_* related patches to linux-pm at
-> lists.osdl.org as well?
+Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+Signed-off-by: Shai Fultheim <shai@scalex86.org>
 
-I'll try.  My goal was not to add or change not functionality but to
-make what the kernel was already doing be consistent.
-
-It turns out the device_suspend(PMSG_FREEZE) is a major pain
-sitting in the reboot path and I will be submitting a patch to
-remove it from the reboot path in 2.6.13 completely.
-
-At the very least the ide driver breaks, and the e1000 driver
-is affected.
-
-And there is of course the puzzle of why there exists simultaneously
-driver shutdown() and suspend(PMSG_FREEZE) methods as I believed they
-are defined to do exactly the same thing.
-
-Eric
-
+Index: linux-2.6.13-rc3/arch/x86_64/mm/srat.c
+===================================================================
+--- linux-2.6.13-rc3.orig/arch/x86_64/mm/srat.c	2005-06-17 12:48:29.000000000 -0700
++++ linux-2.6.13-rc3/arch/x86_64/mm/srat.c	2005-07-27 15:36:23.000000000 -0700
+@@ -20,6 +20,9 @@
+ 
+ static struct acpi_table_slit *acpi_slit;
+ 
++/* Internal processor count */
++static unsigned int __initdata num_processors = 0;
++
+ static nodemask_t nodes_parsed __initdata;
+ static nodemask_t nodes_found __initdata;
+ static struct node nodes[MAX_NUMNODES] __initdata;
+@@ -101,16 +104,18 @@
+ 		bad_srat();
+ 		return;
+ 	}
+-	if (pa->apic_id >= NR_CPUS) {
+-		printk(KERN_ERR "SRAT: lapic %u too large.\n",
+-		       pa->apic_id);
++	if (num_processors >= NR_CPUS) {
++		printk(KERN_ERR "SRAT: Processor #%d (lapic %u) INVALID. (Max ID: %d).\n",
++			num_processors, pa->apic_id, NR_CPUS);
+ 		bad_srat();
+ 		return;
+ 	}
+-	cpu_to_node[pa->apic_id] = node;
++	cpu_to_node[num_processors] = node;
+ 	acpi_numa = 1;
+-	printk(KERN_INFO "SRAT: PXM %u -> APIC %u -> Node %u\n",
+-	       pxm, pa->apic_id, node);
++	printk(KERN_INFO "SRAT: PXM %u -> APIC %u -> CPU %u -> Node %u\n",
++	       pxm, pa->apic_id, num_processors, node);
++
++	num_processors++;
+ }
+ 
+ /* Callback for parsing of the Proximity Domain <-> Memory Area mappings */

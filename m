@@ -1,117 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVG1PvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVG1PvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVG1PvC (ORCPT <rfc822;willy@w.ods.org>);
+	id S261355AbVG1PvC (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 28 Jul 2005 11:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVG1PtV
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVG1PtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 11:49:21 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:47852 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261572AbVG1Prk
+	Thu, 28 Jul 2005 11:49:24 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:46572 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261570AbVG1Pri convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 11:47:40 -0400
-Subject: [PATCH 1/5] Add AIO event ring size tunable
+	Thu, 28 Jul 2005 11:47:38 -0400
+Subject: [PATCH 0/5] Add kernel AIO support for POSIX AIO
 From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
 To: "linux-aio kvack.org" <linux-aio@kvack.org>,
        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Thu, 28 Jul 2005 17:46:30 +0200
-Message-Id: <1122565590.2019.80.camel@frecb000686>
+Date: Thu, 28 Jul 2005 17:46:28 +0200
+Message-Id: <1122565588.2019.79.camel@frecb000686>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 28/07/2005 17:59:45,
+ 28/07/2005 17:59:42,
 	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 28/07/2005 17:59:46
-Content-Type: multipart/mixed; boundary="=-50Sxo43JR9fVRpNuu9GZ"
+ 28/07/2005 17:59:44,
+	Serialize complete at 28/07/2005 17:59:44
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This set of patches adds functionality to the kernel AIO 
+infrastructure to be used by user level libraries aiming at implementing
+a POSIX compliant API on top of this kernel support.
 
---=-50Sxo43JR9fVRpNuu9GZ
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+  This patchset is comprised of 5 patches, each implementing a specific
+functionality:
 
+	- aiomaxevents: adds a sysctl variable for setting the default 
+	  AIO context event ring size at runtime. This tunable is 
+	  accessible via /proc/sys/fs/posix-aio-default-max-nr.
 
+	- aioevent: adds support for request completion notification.
 
---=-50Sxo43JR9fVRpNuu9GZ
-Content-Disposition: attachment; filename=aiomaxevents
-Content-Type: application/octet-stream; name=aiomaxevents
-Content-Transfer-Encoding: base64
+	- lioevent: adds support for list of requests completion 
+	  notification.
 
-CmFpb21heGV2ZW50cyA6CgogVGhpcyBwYXRjaCBhZGRzIGEgcG9zaXhfYWlvX2RlZmF1bHRfbWF4
-ZXZlbnRzIHN5c2N0bCB2YXJpYWJsZSBmb3IgY29uZmlndXJpbmcgdGhlCmRlZmF1bHQgQUlPIGNv
-bnRleHQgZXZlbnQgcmluZyBzaXplIGF0IHJ1bnRpbWUuIFRoaXMgd2F5LCBjYWxsaW5nIHN5c19p
-b19zZXR1cCB3aXRoCm5yX2V2ZW50cz0wLCB3aWxsIHJlc3VsdCBpbiB0aGUga2VybmVsIHVzaW5n
-IHRoZSBkZWZhdWx0IHN5c3RlbSB2YWx1ZS4KCiBUaGlzIHR1bmFibGUgaXMgYWNjZXNzaWJsZSB2
-aWEgL3Byb2Mvc3lzL2ZzL3Bvc2l4LWFpby1kZWZhdWx0LW1heC1uci4KCiBNYWtlZmlsZSAgICAg
-ICAgICAgICAgIHwgICAgMiArLQogZnMvS2NvbmZpZyAgICAgICAgICAgICB8ICAgIDggKysrKysr
-KysKIGZzL2Fpby5jICAgICAgICAgICAgICAgfCAgICA4ICsrKysrKysrCiBpbmNsdWRlL2xpbnV4
-L2Fpby5oICAgIHwgICAgMyArKysKIGluY2x1ZGUvbGludXgvc3lzY3RsLmggfCAgICAzICsrKwog
-a2VybmVsL3N5c2N0bC5jICAgICAgICB8ICAgMTAgKysrKysrKysrKwogNiBmaWxlcyBjaGFuZ2Vk
-LCAzMyBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCgpTaWduZWQtb2ZmLWJ5OiBT6WJhc3Rp
-ZW4gRHVndekgPHNlYmFzdGllbi5kdWd1ZUBidWxsLm5ldD4KCkluZGV4OiBsaW51eC0yLjYuMTIv
-ZnMvYWlvLmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PQotLS0gbGludXgtMi42LjEyLm9yaWcvZnMvYWlvLmMJMjAwNS0w
-Ni0yMyAxMzo1ODowMy4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xMi9mcy9haW8uYwky
-MDA1LTA2LTIzIDEzOjU5OjA4LjAwMDAwMDAwMCArMDIwMApAQCAtNDMsNiArNDMsOSBAQAogLyot
-LS0tLS0gc3lzY3RsIHZhcmlhYmxlcy0tLS0qLwogYXRvbWljX3QgYWlvX25yID0gQVRPTUlDX0lO
-SVQoMCk7CS8qIGN1cnJlbnQgc3lzdGVtIHdpZGUgbnVtYmVyIG9mIGFpbyByZXF1ZXN0cyAqLwog
-dW5zaWduZWQgYWlvX21heF9uciA9IDB4MTAwMDA7CS8qIHN5c3RlbSB3aWRlIG1heGltdW0gbnVt
-YmVyIG9mIGFpbyByZXF1ZXN0cyAqLworI2lmIGRlZmluZWQoQ09ORklHX1BPU0lYX0FJTykKK3Vu
-c2lnbmVkIHBvc2l4X2Fpb19kZWZhdWx0X21heGV2ZW50cyA9IDEwMjQ7IC8qIEZJWE1FOiBkZWZh
-dWx0IHZhbHVlIGZvciBQT1NJWCBBSU8gKi8KKyNlbmRpZiAvKiBDT05GSUdfUE9TSVhfQUlPICov
-CiAvKi0tLS1lbmQgc3lzY3RsIHZhcmlhYmxlcy0tLSovCiAKIHN0YXRpYyBrbWVtX2NhY2hlX3QJ
-Kmtpb2NiX2NhY2hlcDsKQEAgLTEyNDQsNiArMTI0NywxMSBAQAogCXVuc2lnbmVkIGxvbmcgY3R4
-OwogCWxvbmcgcmV0OwogCisjaWYgZGVmaW5lZChDT05GSUdfUE9TSVhfQUlPKQorCWlmIChucl9l
-dmVudHMgPT0gMCkKKwkJbnJfZXZlbnRzID0gcG9zaXhfYWlvX2RlZmF1bHRfbWF4ZXZlbnRzOwor
-I2VuZGlmCisKIAlyZXQgPSBnZXRfdXNlcihjdHgsIGN0eHApOwogCWlmICh1bmxpa2VseShyZXQp
-KQogCQlnb3RvIG91dDsKSW5kZXg6IGxpbnV4LTIuNi4xMi9mcy9LY29uZmlnCj09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K
-LS0tIGxpbnV4LTIuNi4xMi5vcmlnL2ZzL0tjb25maWcJMjAwNS0wNi0yMyAxMzo1ODowMy4wMDAw
-MDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xMi9mcy9LY29uZmlnCTIwMDUtMDYtMjMgMTM6NTk6
-MDguMDAwMDAwMDAwICswMjAwCkBAIC00LDYgKzQsMTQgQEAKIAogbWVudSAiRmlsZSBzeXN0ZW1z
-IgogCitjb25maWcgUE9TSVhfQUlPCisJYm9vbCAiUE9TSVggQUlPIFN1cHBvcnQiCisJaGVscAor
-CSAgRW5hYmxlIFBPU0lYIEFzeW5jaHJvbm91cyBJTworCisJICBJZiB1bnN1cmUsIHNheSBOLgor
-CisKIGNvbmZpZyBFWFQyX0ZTCiAJdHJpc3RhdGUgIlNlY29uZCBleHRlbmRlZCBmcyBzdXBwb3J0
-IgogCWhlbHAKSW5kZXg6IGxpbnV4LTIuNi4xMi9pbmNsdWRlL2xpbnV4L2Fpby5oCj09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT0KLS0tIGxpbnV4LTIuNi4xMi5vcmlnL2luY2x1ZGUvbGludXgvYWlvLmgJMjAwNS0wNi0yMyAx
-Mzo1ODowMy4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xMi9pbmNsdWRlL2xpbnV4L2Fp
-by5oCTIwMDUtMDYtMjMgMTM6NTk6MDguMDAwMDAwMDAwICswMjAwCkBAIC0xNTMsNiArMTUzLDkg
-QEAKIAogLyogcHJvdG90eXBlcyAqLwogZXh0ZXJuIHVuc2lnbmVkIGFpb19tYXhfc2l6ZTsKKyNp
-ZiBkZWZpbmVkKENPTkZJR19QT1NJWF9BSU8pCitleHRlcm4gdW5zaWduZWQgcG9zaXhfYWlvX2Rl
-ZmF1bHRfbWF4ZXZlbnRzOworI2VuZGlmIC8qIENPTkZJR19QT1NJWF9BSU8gKi8KIAogZXh0ZXJu
-IHNzaXplX3QgRkFTVENBTEwod2FpdF9vbl9zeW5jX2tpb2NiKHN0cnVjdCBraW9jYiAqaW9jYikp
-OwogZXh0ZXJuIGludCBGQVNUQ0FMTChhaW9fcHV0X3JlcShzdHJ1Y3Qga2lvY2IgKmlvY2IpKTsK
-SW5kZXg6IGxpbnV4LTIuNi4xMi9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oCj09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0t
-IGxpbnV4LTIuNi4xMi5vcmlnL2luY2x1ZGUvbGludXgvc3lzY3RsLmgJMjAwNS0wNi0yMyAxMzo1
-ODowMy4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xMi9pbmNsdWRlL2xpbnV4L3N5c2N0
-bC5oCTIwMDUtMDYtMjMgMTM6NTk6MDguMDAwMDAwMDAwICswMjAwCkBAIC02ODAsNiArNjgwLDkg
-QEAKIAlGU19YRlM9MTcsCS8qIHN0cnVjdDogY29udHJvbCB4ZnMgcGFyYW1ldGVycyAqLwogCUZT
-X0FJT19OUj0xOCwJLyogY3VycmVudCBzeXN0ZW0td2lkZSBudW1iZXIgb2YgYWlvIHJlcXVlc3Rz
-ICovCiAJRlNfQUlPX01BWF9OUj0xOSwJLyogc3lzdGVtLXdpZGUgbWF4aW11bSBudW1iZXIgb2Yg
-YWlvIHJlcXVlc3RzICovCisjaWYgZGVmaW5lZChDT05GSUdfUE9TSVhfQUlPKQorCUZTX1BPU0lY
-X0FJT19NQVhfTlI9MjAsCS8qIGRlZmF1bHQgdmFsdWUgZm9yIFBPU0lYIEFJTyBtYXggcmVxdWVz
-dCAqLworI2VuZGlmIC8qIENPTkZJR19QT1NJWF9BSU8gKi8KIH07CiAKIC8qIC9wcm9jL3N5cy9m
-cy9xdW90YS8gKi8KSW5kZXg6IGxpbnV4LTIuNi4xMi9rZXJuZWwvc3lzY3RsLmMKPT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PQotLS0gbGludXgtMi42LjEyLm9yaWcva2VybmVsL3N5c2N0bC5jCTIwMDUtMDYtMjMgMTM6NTg6
-MDMuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYuMTIva2VybmVsL3N5c2N0bC5jCTIwMDUt
-MDYtMjMgMTM6NTk6MDguMDAwMDAwMDAwICswMjAwCkBAIC05NDksNiArOTQ5LDE2IEBACiAJCS5t
-b2RlCQk9IDA2NDQsCiAJCS5wcm9jX2hhbmRsZXIJPSAmcHJvY19kb2ludHZlYywKIAl9LAorI2lm
-IGRlZmluZWQoQ09ORklHX1BPU0lYX0FJTykKKwl7CisJCS5jdGxfbmFtZQk9IEZTX1BPU0lYX0FJ
-T19NQVhfTlIsCisJCS5wcm9jbmFtZQk9ICJwb3NpeC1haW8tZGVmYXVsdC1tYXgtbnIiLAorCQku
-ZGF0YQkJPSAmcG9zaXhfYWlvX2RlZmF1bHRfbWF4ZXZlbnRzLAorCQkubWF4bGVuCQk9IHNpemVv
-Zihwb3NpeF9haW9fZGVmYXVsdF9tYXhldmVudHMpLAorCQkubW9kZQkJPSAwNjQ0LAorCQkucHJv
-Y19oYW5kbGVyCT0gJnByb2NfZG9pbnR2ZWMsCisJfSwKKyNlbmRpZiAvKiBDT05GSUdfUE9TSVhf
-QUlPICovCiAjZW5kaWYKIAl7IC5jdGxfbmFtZSA9IDAgfQogfTsKSW5kZXg6IGxpbnV4LTIuNi4x
-Mi9NYWtlZmlsZQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMTIub3JpZy9NYWtlZmlsZQkyMDA1
-LTA2LTIzIDEzOjU4OjAzLjAwMDAwMDAwMCArMDIwMAorKysgbGludXgtMi42LjEyL01ha2VmaWxl
-CTIwMDUtMDYtMjMgMTM6NTk6MDguMDAwMDAwMDAwICswMjAwCkBAIC0xLDcgKzEsNyBAQAogVkVS
-U0lPTiA9IDIKIFBBVENITEVWRUwgPSA2CiBTVUJMRVZFTCA9IDEyCi1FWFRSQVZFUlNJT04gPQor
-RVhUUkFWRVJTSU9OID0gLlBBSU8tYWlvbWF4ZXZlbnRzCiBOQU1FPVdvb3p5IE51bWJhdAogCiAj
-ICpET0NVTUVOVEFUSU9OKgo=
+	- liowait: adds support for the POSIX listio LIO_WAIT mechanism.
 
---=-50Sxo43JR9fVRpNuu9GZ--
+	- cancelfd: adds support for cancellation against a file 
+	  descriptor.
+
+ These patches apply cleanly on a vanilla 2.6.12 kernel tree and should 
+be applied in the order shown before.
+
+-- 
+------------------------------------------------------
+
+  Sébastien Dugué                BULL/FREC:B1-247
+  phone: (+33) 476 29 77 70      Bullcom: 229-7770
+
+  mailto:sebastien.dugue@bull.net
+
+  Linux POSIX AIO: http://www.bullopensource.org/posix
+  
+------------------------------------------------------
 

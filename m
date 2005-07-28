@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVG1Nlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVG1NnC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVG1Nlw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 09:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVG1Nlw
+	id S261395AbVG1NnC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 09:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVG1NnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 09:41:52 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:33925 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261391AbVG1Nlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 09:41:50 -0400
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "John W. Linville" <linville@tuxdriver.com>, Adrian Bunk <bunk@stusta.de>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       perex@suse.cz, alsa-devel@alsa-project.org, James@superbug.demon.co.uk,
-       sailer@ife.ee.ethz.ch, linux-sound@vger.kernel.org, zab@zabbo.net,
-       kyle@parisc-linux.org, parisc-linux@lists.parisc-linux.org,
-       Thorsten Knabe <linux@thorsten-knabe.de>, zwane@commfireservices.com,
-       zaitcev@yahoo.com
-In-Reply-To: <42E7F1F9.2050105@pobox.com>
-References: <20050726150837.GT3160@stusta.de>
-	 <1122393073.18884.29.camel@mindpipe> <42E65D50.3040808@pobox.com>
-	 <20050727182427.GH3160@stusta.de> <20050727203150.GF22686@tuxdriver.com>
-	 <42E7F1F9.2050105@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 28 Jul 2005 15:00:08 +0100
-Message-Id: <1122559208.32126.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Thu, 28 Jul 2005 09:43:01 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:38340 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261395AbVG1Nl4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 09:41:56 -0400
+Date: Thu, 28 Jul 2005 15:40:43 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] fbdev: colormap fixes
+In-Reply-To: <9e473391050728060741040424@mail.gmail.com>
+Message-ID: <Pine.LNX.4.62.0507281540210.24391@numbat.sonytel.be>
+References: <200507280031.j6S0V3L3016861@hera.kernel.org> 
+ <Pine.LNX.4.62.0507280952140.24391@numbat.sonytel.be>
+ <9e473391050728060741040424@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-07-27 at 16:43 -0400, Jeff Garzik wrote:
-> ISTR Alan saying there was some ALi hardware that either wasn't in ALSA, 
-> or most likely didn't work in ALSA.  If Alan says I'm smoking crack, 
-> then you all can ignore me :)
+On Thu, 28 Jul 2005, Jon Smirl wrote:
+> On 7/28/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> > On Wed, 27 Jul 2005, Linux Kernel Mailing List wrote:
+> 
+> There are a couple of ways to fix this. 
+> 
+> 1) Add a check to limit use of the sysfs attributes to 256 entries. If
+> you want more you have to use /dev/fb0 and the ioctl. More is an
+> uncommon case.
+> 2) Switch this to a binary parameter. Now you have to use tools like
+> hexdump instead of cat to work with the data. It was nice to be able
+> to use cat to see the current map.
+> 
+> Does anyone have preferences for which way to fix it?
 
-The only big thing I know that still needed OSS (and may still do so) is
-the support for AC97 wired touchscreens and the like. Has that been
-ported to ALSA ?
+I prefer the first way.
 
+> Thanks for catching the problems. I'm posting these patches to fbdev
+> for review first so it is best to catch bugs there.
+
+Sorry, sometimes I miss a few things...
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

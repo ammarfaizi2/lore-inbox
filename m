@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVG1SQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVG1STN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbVG1SQh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 14:16:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVG1SOI
+	id S261870AbVG1STN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 14:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVG1SQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 14:14:08 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:62948 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S261889AbVG1SOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 14:14:01 -0400
-Date: Thu, 28 Jul 2005 11:14:21 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, shai@scalex86.org
-Subject: Re: [patch] mm: Ensure proper alignment for node_remap_start_pfn
-Message-ID: <20050728181421.GA3842@localhost.localdomain>
-References: <20050728004241.GA16073@localhost.localdomain> <20050727181724.36bd28ed.akpm@osdl.org> <20050728013134.GB23923@localhost.localdomain> <1122571226.23386.44.camel@localhost>
+	Thu, 28 Jul 2005 14:16:40 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:20727 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261874AbVG1SOj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 14:14:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Xqp2iBBEFQ9u5PtDekZgG0k0J/4o2AFRmEiS1jPHDOtrELjOSjAsKt8Pyv0JPA+ctfAVQR1uDgdyZR8i4eXFedNYo+QUyp5yBmgovJ/L6y2kxsH8FAaZHayd4wN4yRzaWLG6YUkGkU5O++KbhNy4O/5ywie0Td6/YnZlUMvHkIQ=
+Message-ID: <a4e6962a0507281114378a8d63@mail.gmail.com>
+Date: Thu, 28 Jul 2005 13:14:38 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: "Ronald G. Minnich" <rminnich@lanl.gov>
+Subject: Re: [V9fs-developer] Re: [PATCH 2.6.13-rc3-mm2] v9fs: add fd based transport
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       v9fs-developer@lists.sourceforge.net, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0507280819210.12285@enigma.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1122571226.23386.44.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+References: <200507281358.j6SDwBRZ026263@ms-smtp-03-eri0.texas.rr.com>
+	 <20050728141749.GB22173@infradead.org>
+	 <Pine.LNX.4.58.0507280819210.12285@enigma.lanl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2005 at 10:20:26AM -0700, Dave Hansen wrote:
-> On Wed, 2005-07-27 at 18:31 -0700, Ravikiran G Thirumalai wrote:
-> > On Wed, Jul 27, 2005 at 06:17:24PM -0700, Andrew Morton wrote:
-> > > Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> > > >
-> > Yes, it does cause a crash.
+On 7/28/05, Ronald G. Minnich <rminnich@lanl.gov> wrote:
 > 
-> I don't know of any NUMA x86 sub-arches that have nodes which are
-> aligned on any less than 2MB.  Is this an architecture that's supported
-> in the tree, today?
+> 
+> On Thu, 28 Jul 2005, Christoph Hellwig wrote:
+> 
+> > Couldn't the two other transports be implemented ontop of this one using
+> > a mount helper doing the pipe or tcp setup?
+> 
+> that's how we did it in the version we did for 2.4. I don't see why not.
+> 
 
-SRAT need not guarantee any alignment at all in the memory affinity 
-structure (the address in 64-bit byte address).   And yes, there are x86-numa
-machines that run the latest kernel tree and face this problem.
+I strayed away from doing it this way originally for two reasons -
+perhaps both are not really valid:
 
-Thanks,
-Kiran
+a) I really disliked requiring a helper application to mount a file
+system.  I really wanted to be able to boot a diskless system with no
+initrd and have just 9P serving root.  I figured if I could enable
+people to use 9P without having a helper app, it would be used by more
+folks -- of course the need for things like DNS resolution, etc. that
+helper apps tend to provide sort of invalidates this piece of things.
+
+b) I was concerned with additional copy overhead - one of the other
+transports which isn't published yet uses shared memory (to
+virtualized partitions) and it just seemed easier to deal with that in
+the kernel rather than punting to a user-level application -- so in
+short, I figured keeping the transport modules in the kernel made
+sense.  Of course, that doesn't have anything to do with the socket
+interfaces being in the kernel -- I don't think there is any
+additional copy overhead when using an fd versus a sock.
+
+That being said, many things may be much easier with a user-level
+helper - have user level security modules for instance.
+
+I guess I'm not opposed to removing the TCP and named-pipe transports
+if folks think that's a reasonable thing to do -- but I'd like to keep
+the modular transport infrastructure to support things like the shared
+memory transport.  Of course we also need to get our act in gear and
+make a reasonable mount-helper application available -- we've got
+three versions right now and two of them rely on the Plan 9 from User
+Space packages.
+
+Anybody against taking this path?
+
+         -eric

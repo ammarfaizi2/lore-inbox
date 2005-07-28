@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVG1MLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVG1MN5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVG1MLz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 08:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVG1MLy
+	id S261420AbVG1MN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 08:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVG1MN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 08:11:54 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:21005 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S261417AbVG1MLO convert rfc822-to-8bit
+	Thu, 28 Jul 2005 08:13:57 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:59917 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S261426AbVG1MNk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 08:11:14 -0400
+	Thu, 28 Jul 2005 08:13:40 -0400
+Message-ID: <42E8CE48.5090301@snapgear.com>
+Date: Thu, 28 Jul 2005 22:23:36 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20050728115242.60695.qmail@web40710.mail.yahoo.com>
-References: <20050728115242.60695.qmail@web40710.mail.yahoo.com>
-X-OriginalArrivalTime: 28 Jul 2005 12:11:13.0177 (UTC) FILETIME=[72820890:01C5936D]
-Content-class: urn:content-classes:message
-Subject: Re: core file not generated when kernel is crashed with Sysrq key
-Date: Thu, 28 Jul 2005 08:11:07 -0400
-Message-ID: <Pine.LNX.4.61.0507280809420.14439@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: core file not generated when kernel is crashed with Sysrq key
-thread-index: AcWTbXKo67BTjv/jTFCwukqmL2uHxQ==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "dipankar das" <dipankar_dd@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Miles Bader <miles@gnu.org>
+CC: Jan Dittmer <jdittmer@ppp0.net>, linux-kernel@vger.kernel.org
+Subject: Re: v850, which gcc and binutils version?
+References: <42E78474.8070300@ppp0.net>	<buo64uvit4p.fsf@mctpc71.ucom.lsi.nec.co.jp>	<42E896EC.7030503@ppp0.net> <buoek9jgvxh.fsf@mctpc71.ucom.lsi.nec.co.jp>
+In-Reply-To: <buoek9jgvxh.fsf@mctpc71.ucom.lsi.nec.co.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Miles,
 
-On Thu, 28 Jul 2005, dipankar das wrote:
+Miles Bader wrote:
+> Jan Dittmer <jdittmer@ppp0.net> writes:
+> 
+>>>"v850e-elf".
+>>
+>>Thanks, that got me much further, compilation aborts now with
+> 
+> 
+> Hmmm, what sources are you compiling exactly?
+> 
+> I last tested with 2.6.12 + 2.6.12-uc0 (uClinux) patches + the v850 patches
+> I sent to the LKML recently (from which I presume you got the defconfigs);
+> the v850 patches should now be merged into Linus's tree, but I dunno about
+> the uClinux patches (and of course there may already be v850 breakage in
+> Linus's current tree; I usually only test real releases).
+> 
+> If you care to try applying the uClinux patches, they should be available
+> from (fill in "$ver" with "2.6.12-uc0" and "$maj_ver" with "2.6"):
+> 
+>     http://www.uclinux.org/pub/uClinux/uClinux-$maj_ver.x/linux-$ver.patch.gz
+> 
+> Greg, do you have any status on merging the current uClinux patch set?
 
-> Hi,
-> core file is not generated when kernel is crashed with
-> Sysrq key ?
->
-> What could be the reason for this ?
->
->  Br,
->   Dipankar.
+I sent a bunch of the 2.6.12-uc0 changes to Linus earlier this week
+(the critical fixes), but according to his GIT log he didn't merge them.
+I am going to resend tomorrow.
 
-It's not supposed to write any 'core' file. A 'core' file is
-a dump of users' virtual memory. It has nothing to do with
-the kernel.
+Regards
+Greg
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

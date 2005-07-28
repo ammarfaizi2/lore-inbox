@@ -1,92 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVG1WVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVG1WX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVG1WVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 18:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVG1WVZ
+	id S261724AbVG1WX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 18:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVG1WXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 18:21:25 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:54199 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S261582AbVG1WUK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 18:20:10 -0400
-Message-ID: <42E95A0B.4060509@blue-labs.org>
-Date: Thu, 28 Jul 2005 18:19:55 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8b2) Gecko/20050509 Mnenhy/0.7.2.0
-MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: quick question; did usb hid change from .12 to .13-rc3 on x86_64?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Jul 2005 18:23:55 -0400
+Received: from hostmaster.org ([212.186.110.32]:57287 "EHLO hostmaster.org")
+	by vger.kernel.org with ESMTP id S261724AbVG1WWp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 18:22:45 -0400
+Subject: Re: 2.6.12: no sound on SPDIF with emu10k1
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: Avuton Olrich <avuton@gmail.com>
+Cc: fedora-list@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3aa654a4050728031376bb7a9b@mail.gmail.com>
+References: <1122493585.3137.14.camel@hostmaster.org>
+	 <3aa654a4050728031376bb7a9b@mail.gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NK7RGC2eh2i8FbVW8dKw"
+Date: Fri, 29 Jul 2005 00:22:44 +0200
+Message-Id: <1122589364.2649.6.camel@hostmaster.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-1.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've a quick question before I start digging through patches between .12 
-and .13-rc3, /dev/input/mice (usb mice) stopped yielding data.  dmesg 
-indicates removal/re-insertion of the device but no driver registers and 
-nothing comes from /dev/input/mice.
 
-I have rc-3 on other machines and the mouse is working fine, so it's got 
-to be something specific to this machine.  It's an AMD64 machine.
+--=-NK7RGC2eh2i8FbVW8dKw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-1.1 Controller (rev 81) (prog-if 00 [UHCI])
-        Subsystem: ASUSTeK Computer Inc. A7V600 motherboard
-        Flags: bus master, medium devsel, latency 64, IRQ 201
-        I/O ports at b400 [size=32]
-        Capabilities: [80] Power Management version 2
+On Thu, 2005-07-28 at 03:13 -0700, Avuton Olrich wrote:
+> After upgrading to 1.0.9, I thought my emu10k1 board was broken until
+> I toggled 'IEC958 Optical Raw' to Off.
 
-0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-1.1 Controller (rev 81) (prog-if 00 [UHCI])
-        Subsystem: ASUSTeK Computer Inc. A7V600 motherboard
-        Flags: bus master, medium devsel, latency 64, IRQ 201
-        I/O ports at b800 [size=32]
-        Capabilities: [80] Power Management version 2
+Many thanks, that did the trick! I have now tried to only load the
+emu10k1 driver modules and found that 2.6.12's ALSA is VERY different
+from all previous versions in that it does not mute all channels by
+default any more.
 
-0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-1.1 Controller (rev 81) (prog-if 00 [UHCI])
-        Subsystem: ASUSTeK Computer Inc. A7V600 motherboard
-        Flags: bus master, medium devsel, latency 64, IRQ 201
-        I/O ports at c000 [size=32]
-        Capabilities: [80] Power Management version 2
+Tom
 
-0000:00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-1.1 Controller (rev 81) (prog-if 00 [UHCI])
-        Subsystem: ASUSTeK Computer Inc. A7V600 motherboard
-        Flags: bus master, medium devsel, latency 64, IRQ 201
-        I/O ports at c400 [size=32]
-        Capabilities: [80] Power Management version 2
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+      finger thomasz@hostmaster.org for key
 
-0000:00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86) 
-(prog-if 20 [EHCI])
-        Subsystem: ASUSTeK Computer Inc. A7V600 motherboard
-        Flags: bus master, medium devsel, latency 64, IRQ 201
-        Memory at fdf00000 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [80] Power Management version 2
+-----BEGIN GEEK CODE BLOCK-----
+GS/IT d-- s: a-- C++++ UL++++ P+>$ L++>$ E--- W+ N+ o? !K w++$ O M-
+V? PS+++ PE++ Y+ PGP+++ t+ 5 X R- tv b- DI(+) D+ G>++ e h! !r y+
+------END GEEK CODE BLOCK------
 
 
-Scott ~ # zcat /proc/config.gz|egrep -i "^CON.*(_hid|mouse)"
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_USB_IDMOUSE=y
 
-2.6.12:
-usb 3-2: USB disconnect, address 2
-usb 3-2: new low speed USB device using uhci_hcd and address 3
-midi: probe of 3-2:1.0 failed with error -5
-input: USB HID v1.10 Mouse [Logitech USB Receiver] on usb-0000:00:10.1-2
 
-2.6.13-rc3
-usb 3-2: USB disconnect, address 2
-usb 3-2: new low speed USB device using uhci_hcd and address 3
-midi: probe of 3-2:1.0 failed with error -5
+--=-NK7RGC2eh2i8FbVW8dKw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-david
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iQEVAwUAQulatGD1OYqW/8uJAQJ+kwgAhqMzB+Id7b8ML+Xi03zBADGei7bhrm3o
+D1WwaUOLOODGpTKftkMfZMGpgi4bKgaGnfqiSJHnkMeBFqsM9C2RGDgwFbTP/e9n
+pYenxo7It7ztGrVK+T5GxABaVS8ZrpUvblHfzIMP1VdkkpQJ0IjYeI3jPLFlquyJ
+jKefqnPNtV4vMec2E79HUTw9o3lDXEfw+L8h773WLHKWKI/SeS/5P9ue6HpUaU7C
+Fmibw8sXoWF06j21aiSYAmKp8Frdm94dCq4tTP565KjlnAYUrS0bbozcPA8afzse
+IUTcSAJfElpIhAm7UwPHLr1vfXrrtK57Bdihc+JkNa77cNsRa0rP+A==
+=UxY0
+-----END PGP SIGNATURE-----
+
+--=-NK7RGC2eh2i8FbVW8dKw--
 

@@ -1,292 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVG1UYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVG1UYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbVG1UYb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 16:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVG1UY2
+	id S262185AbVG1UYV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 16:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVG1UW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 16:24:28 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:12783 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S262179AbVG1UXq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 16:23:46 -0400
-Date: Thu, 28 Jul 2005 22:26:01 +0200
-From: Frank Pavlic <pavlic@de.ibm.com>
-To: jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 1/1] s390: use klist in qeth driver
-Message-ID: <20050728202601.GA6589@de.ibm.com>
+	Thu, 28 Jul 2005 16:22:26 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:25234 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261721AbVG1UUj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 16:20:39 -0400
+Subject: [patch] selinux: Fix address length checks in connect hook
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@redhat.com>,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Thu, 28 Jul 2005 16:18:45 -0400
+Message-Id: <1122581925.6573.54.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 1/1] s390: use klist in qeth driver.
+This patch fixes the address length checks in the selinux_socket_connect
+hook to be no more restrictive than the underlying ipv4 and ipv6 code;
+otherwise, this hook can reject valid connect calls.  This patch is in
+response to a bug report where an application was calling connect on an
+INET6 socket with an address that didn't include the optional scope id
+and failing due to these checks.  Please apply.  To 2.6.13, if possible.
 
-From: Cornelia Huck <cohuck@de.ibm.com>
-From: Martin Schwidesky <schwidefsky@de.ibm.com>
- 
- Convert qeth to the new klist interface and make it compiling again. 
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by:  James Morris <jmorris@redhat.com>
 
-Signed-off-by: Frank Pavlic <pavlic@de.ibm.com>
+---
 
-diffstat:
- qeth_main.c |   24 ++++++-----
- qeth_proc.c |  126 ++++++++++++++++++++++++++++++++----------------------------
- 2 files changed, 82 insertions(+), 68 deletions(-)
+ security/selinux/hooks.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_main.c linux-2.6-patched/drivers/s390/net/qeth_main.c
---- linux-2.6-orig/drivers/s390/net/qeth_main.c	2005-07-28 11:06:56.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/qeth_main.c	2005-07-28 11:31:55.000000000 +0200
-@@ -8120,20 +8120,22 @@ static struct notifier_block qeth_ip6_no
- #endif
+diff -rup linux-2.6.13-rc3-mm3/security/selinux/hooks.c linux-2.6.13-rc3-mm3-fix/security/selinux/hooks.c
+--- linux-2.6.13-rc3-mm3/security/selinux/hooks.c	2005-07-28 14:59:58.000000000 -0400
++++ linux-2.6.13-rc3-mm3-fix/security/selinux/hooks.c	2005-07-28 14:56:58.000000000 -0400
+@@ -3073,12 +3073,12 @@ static int selinux_socket_connect(struct
  
- static int
--qeth_reboot_event(struct notifier_block *this, unsigned long event, void *ptr)
-+__qeth_reboot_event_card(struct device *dev, void *data)
- {
--
--	struct device *entry;
- 	struct qeth_card *card;
- 
--	down_read(&qeth_ccwgroup_driver.driver.bus->subsys.rwsem);
--	       list_for_each_entry(entry, &qeth_ccwgroup_driver.driver.devices,
--			           driver_list) {
--	               card = (struct qeth_card *) entry->driver_data;
--		       qeth_clear_ip_list(card, 0, 0);
--		       qeth_qdio_clear_card(card, 0);
--	       }
--	up_read(&qeth_ccwgroup_driver.driver.bus->subsys.rwsem);
-+	card = (struct qeth_card *) dev->driver_data;
-+	qeth_clear_ip_list(card, 0, 0);
-+	qeth_qdio_clear_card(card, 0);
-+	return 0;
-+}
-+
-+static int
-+qeth_reboot_event(struct notifier_block *this, unsigned long event, void *ptr)
-+{
-+
-+	driver_for_each_device(&qeth_ccwgroup_driver.driver, NULL, NULL,
-+			       __qeth_reboot_event_card);
- 	return NOTIFY_DONE;
- }
- 
-diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_proc.c linux-2.6-patched/drivers/s390/net/qeth_proc.c
---- linux-2.6-orig/drivers/s390/net/qeth_proc.c	2005-07-28 11:06:56.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/qeth_proc.c	2005-07-28 11:32:02.000000000 +0200
-@@ -27,23 +27,33 @@ const char *VERSION_QETH_PROC_C = "$Revi
- #define QETH_PROCFILE_NAME "qeth"
- static struct proc_dir_entry *qeth_procfile;
- 
-+static int
-+qeth_procfile_seq_match(struct device *dev, void *data)
-+{
-+	return 1;
-+}
-+
- static void *
- qeth_procfile_seq_start(struct seq_file *s, loff_t *offset)
- {
--	struct list_head *next_card = NULL;
--	int i = 0;
-+	struct device *dev;
-+	loff_t nr;
- 
- 	down_read(&qeth_ccwgroup_driver.driver.bus->subsys.rwsem);
- 
--	if (*offset == 0)
-+	nr = *offset;
-+	if (nr == 0)
- 		return SEQ_START_TOKEN;
- 
--	/* get card at pos *offset */
--	list_for_each(next_card, &qeth_ccwgroup_driver.driver.devices)
--		if (++i == *offset)
--			return next_card;
-+	dev = driver_find_device(&qeth_ccwgroup_driver.driver, NULL,
-+				 NULL, qeth_procfile_seq_match);
- 
--	return NULL;
-+	/* get card at pos *offset */
-+	nr = *offset;
-+	while (nr-- > 1 && dev)
-+		dev = driver_find_device(&qeth_ccwgroup_driver.driver, dev,
-+					 NULL, qeth_procfile_seq_match);
-+	return (void *) dev;
- }
- 
- static void
-@@ -55,23 +65,21 @@ qeth_procfile_seq_stop(struct seq_file *
- static void *
- qeth_procfile_seq_next(struct seq_file *s, void *it, loff_t *offset)
- {
--	struct list_head *next_card = NULL;
--	struct list_head *current_card;
-+	struct device *prev, *next;
- 
- 	if (it == SEQ_START_TOKEN) {
--		next_card = qeth_ccwgroup_driver.driver.devices.next;
--		if (next_card->next == next_card) /* list empty */
--			return NULL;
--		(*offset)++;
--	} else {
--		current_card = (struct list_head *)it;
--		if (current_card->next == &qeth_ccwgroup_driver.driver.devices)
--			return NULL; /* end of list reached */
--		next_card = current_card->next;
--		(*offset)++;
-+		next = driver_find_device(&qeth_ccwgroup_driver.driver,
-+					  NULL, NULL, qeth_procfile_seq_match);
-+		if (next)
-+			(*offset)++;
-+		return (void *) next;
- 	}
--
--	return next_card;
-+	prev = (struct device *) it;
-+	next = driver_find_device(&qeth_ccwgroup_driver.driver,
-+				  prev, NULL, qeth_procfile_seq_match);
-+	if (next)
-+		(*offset)++;
-+	return (void *) next;
- }
- 
- static inline const char *
-@@ -126,7 +134,7 @@ qeth_procfile_seq_show(struct seq_file *
- 			      "-------------- ---- ------ ---------- ---- "
- 			      "---- ----- -----\n");
- 	} else {
--		device = list_entry(it, struct device, driver_list);
-+		device = (struct device *) it;
- 		card = device->driver_data;
- 		seq_printf(s, "%s/%s/%s x%02X   %-10s %-14s %-4i ",
- 				CARD_RDEV_ID(card),
-@@ -180,17 +188,20 @@ static struct proc_dir_entry *qeth_perf_
- static void *
- qeth_perf_procfile_seq_start(struct seq_file *s, loff_t *offset)
- {
--	struct list_head *next_card = NULL;
--	int i = 0;
-+	struct device *dev = NULL;
-+	int nr;
- 
- 	down_read(&qeth_ccwgroup_driver.driver.bus->subsys.rwsem);
- 	/* get card at pos *offset */
--	list_for_each(next_card, &qeth_ccwgroup_driver.driver.devices){
--		if (i == *offset)
--			return next_card;
--		i++;
--	}
--	return NULL;
-+	dev = driver_find_device(&qeth_ccwgroup_driver.driver, NULL, NULL,
-+				 qeth_procfile_seq_match);
-+
-+	/* get card at pos *offset */
-+	nr = *offset;
-+	while (nr-- > 1 && dev)
-+		dev = driver_find_device(&qeth_ccwgroup_driver.driver, dev,
-+					 NULL, qeth_procfile_seq_match);
-+	return (void *) dev;
- }
- 
- static void
-@@ -202,12 +213,14 @@ qeth_perf_procfile_seq_stop(struct seq_f
- static void *
- qeth_perf_procfile_seq_next(struct seq_file *s, void *it, loff_t *offset)
- {
--	struct list_head *current_card = (struct list_head *)it;
-+	struct device *prev, *next;
- 
--	if (current_card->next == &qeth_ccwgroup_driver.driver.devices)
--		return NULL; /* end of list reached */
--	(*offset)++;
--	return current_card->next;
-+	prev = (struct device *) it;
-+	next = driver_find_device(&qeth_ccwgroup_driver.driver, prev,
-+				  NULL, qeth_procfile_seq_match);
-+	if (next)
-+		(*offset)++;
-+	return (void *) next;
- }
- 
- static int
-@@ -216,7 +229,7 @@ qeth_perf_procfile_seq_show(struct seq_f
- 	struct device *device;
- 	struct qeth_card *card;
- 
--	device = list_entry(it, struct device, driver_list);
-+	device = (struct device *) it;
- 	card = device->driver_data;
- 	seq_printf(s, "For card with devnos %s/%s/%s (%s):\n",
- 			CARD_RDEV_ID(card),
-@@ -318,8 +331,8 @@ static struct proc_dir_entry *qeth_ipato
- static void *
- qeth_ipato_procfile_seq_start(struct seq_file *s, loff_t *offset)
- {
--	struct list_head *next_card = NULL;
--	int i = 0;
-+	struct device *dev;
-+	loff_t nr;
- 
- 	down_read(&qeth_ccwgroup_driver.driver.bus->subsys.rwsem);
- 	/* TODO: finish this */
-@@ -328,13 +341,16 @@ qeth_ipato_procfile_seq_start(struct seq
- 	 * output driver settings then;
- 	 * else output setting for respective card
- 	 */
-+
-+	dev = driver_find_device(&qeth_ccwgroup_driver.driver, NULL, NULL,
-+				 qeth_procfile_seq_match);
-+
- 	/* get card at pos *offset */
--	list_for_each(next_card, &qeth_ccwgroup_driver.driver.devices){
--		if (i == *offset)
--			return next_card;
--		i++;
--	}
--	return NULL;
-+	nr = *offset;
-+	while (nr-- > 1 && dev)
-+		dev = driver_find_device(&qeth_ccwgroup_driver.driver, dev,
-+					 NULL, qeth_procfile_seq_match);
-+	return (void *) dev;
- }
- 
- static void
-@@ -346,18 +362,14 @@ qeth_ipato_procfile_seq_stop(struct seq_
- static void *
- qeth_ipato_procfile_seq_next(struct seq_file *s, void *it, loff_t *offset)
- {
--	struct list_head *current_card = (struct list_head *)it;
-+	struct device *prev, *next;
- 
--	/* TODO: finish this */
--	/*
--	 * maybe SEQ_SATRT_TOKEN can be returned for offset 0
--	 * output driver settings then;
--	 * else output setting for respective card
--	 */
--	if (current_card->next == &qeth_ccwgroup_driver.driver.devices)
--		return NULL; /* end of list reached */
--	(*offset)++;
--	return current_card->next;
-+	prev = (struct device *) it;
-+	next = driver_find_device(&qeth_ccwgroup_driver.driver, prev,
-+				  NULL, qeth_procfile_seq_match);
-+	if (next)
-+		(*offset)++;
-+	return (void *) next;
- }
- 
- static int
-@@ -372,7 +384,7 @@ qeth_ipato_procfile_seq_show(struct seq_
- 	 * output driver settings then;
- 	 * else output setting for respective card
- 	 */
--	device = list_entry(it, struct device, driver_list);
-+	device = (struct device *) it;
- 	card = device->driver_data;
- 
- 	return 0;
+ 		if (sk->sk_family == PF_INET) {
+ 			addr4 = (struct sockaddr_in *)address;
+-			if (addrlen != sizeof(struct sockaddr_in))
++			if (addrlen < sizeof(struct sockaddr_in))
+ 				return -EINVAL;
+ 			snum = ntohs(addr4->sin_port);
+ 		} else {
+ 			addr6 = (struct sockaddr_in6 *)address;
+-			if (addrlen != sizeof(struct sockaddr_in6))
++			if (addrlen < SIN6_LEN_RFC2133)
+ 				return -EINVAL;
+ 			snum = ntohs(addr6->sin6_port);
+ 		}
+  
+-- 
+Stephen Smalley
+National Security Agency
+

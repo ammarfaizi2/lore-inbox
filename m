@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVG1LyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVG1L54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVG1LyY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 07:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVG1LyY
+	id S261280AbVG1L54 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 07:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbVG1L54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 07:54:24 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:18657 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261404AbVG1LyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 07:54:20 -0400
-Subject: Re: [RFC][PATCH] Make MAX_RT_PRIO and MAX_USER_RT_PRIO configurable
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Esben Nielsen <simlo@phys.au.dk>, "K.R. Foley" <kr@cybsft.com>,
-       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050728072210.GA20055@elte.hu>
-References: <Pine.OSF.4.05.10507271852030.3210-100000@da410.phys.au.dk>
-	 <1122485137.29823.109.camel@localhost.localdomain>
-	 <20050728072210.GA20055@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 28 Jul 2005 07:53:56 -0400
-Message-Id: <1122551636.29823.209.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Jul 2005 07:57:56 -0400
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:63930 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261280AbVG1L5z convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 07:57:55 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [openib-general] Re: [PATCH] arch/xx/pci: remap_pfn_range -> io_remap_pfn_range
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Date: Thu, 28 Jul 2005 12:57:51 +0100
+Message-ID: <A95E2296287EAD4EB592B5DEEFCE0E9D282808@liverpoolst.ad.cl.cam.ac.uk>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [openib-general] Re: [PATCH] arch/xx/pci: remap_pfn_range -> io_remap_pfn_range
+Thread-Index: AcWTMDewY2dTu7otSUWTtO3ohLzguwAOtd3Q
+From: "Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk>
+To: "Greg KH" <gregkh@suse.de>, "Roland Dreier" <rolandd@cisco.com>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       <linux-pci@atrey.karlin.mff.cuni.cz>, <openib-general@openib.org>,
+       <linux-kernel@vger.kernel.org>, <mj@ucw.cz>, <ian.pratt@cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-28 at 09:22 +0200, Ingo Molnar wrote:
-
-> nitpicking: i guess the answer also depends on what the precise 
-> requirement is. If the requirement is 'run for 4 seconds every 10 
-> seconds, uninterrupted, else the power plant melts down', i'd sure not 
-> make the washing machine process the higher priority one ;-)
+> >     Greg> Hm, you do realize that io_remap_pfn_range() is the same
+> >     Greg> thing as remap_pfn_range() on i386, right?
+> > 
+> >     Greg> So, why would this patch change anything?
+> > 
+> > It's not the same thing under Xen.  I think this patch 
+> fixes userspace 
+> > access to PCI memory for XenLinux.
 > 
-> (also, i'd give the power plant process higher priority even if the 
-> requirement is not as strict, just from a risk POV: what if the washing 
-> machine control program is buggy and got into an infinite loop 
-> somewhere.)
+> But Xen is a separate arch, and hence, will get different pci 
+> arch specific functions, right?
+> 
+> In short, what is this patch trying to fix?  What is the 
+> problem anyone is seeing with the existing code?
 
-Doug also said that you're an idiot if you run a washing machine from
-the same computer you run a nuclear power plant from :-) 
+As I understand it, remap_pfn_range should be used for mapping pages
+that are backed by memory, and io_remap_pfn_range should be used for
+mapping MMIO regions.
+There's a distinciton between the two for architectures like Sparc and
+xen/x86. 
 
-The point that he was making though is that if you want a system that
-runs without flaws, you don't always prioritize the same way the real
-world would prioritize.  You need to do it with math.
+For example, drivers/char/mem.c uses io_remap_pfn_range for mmap'ing
+/dev/mem
 
--- Steve
-
-
+Ian

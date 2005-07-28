@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVG1S6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVG1TBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262089AbVG1S6z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 14:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVG1S6r
+	id S261589AbVG1TBV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 15:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVG1TBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 14:58:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19692 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261497AbVG1S5G (ORCPT
+	Thu, 28 Jul 2005 15:01:14 -0400
+Received: from pat.qlogic.com ([198.70.193.2]:9615 "EHLO avexch01.qlogic.com")
+	by vger.kernel.org with ESMTP id S262080AbVG1S7C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 14:57:06 -0400
-Date: Thu, 28 Jul 2005 11:56:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Mitchell Blank Jr <mitch@sfgoth.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [PATCH] speed up on find_first_bit for i386 (let compiler do
- the work)
-In-Reply-To: <1122575140.29823.258.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0507281146290.3307@g5.osdl.org>
-References: <1122473595.29823.60.camel@localhost.localdomain> 
- <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
- <1122513928.29823.150.camel@localhost.localdomain> 
- <1122519999.29823.165.camel@localhost.localdomain> 
- <1122521538.29823.177.camel@localhost.localdomain> 
- <1122522328.29823.186.camel@localhost.localdomain>  <42E8564B.9070407@yahoo.com.au>
-  <1122551014.29823.205.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0507280823210.3227@g5.osdl.org>  <1122565640.29823.242.camel@localhost.localdomain>
-  <Pine.LNX.4.61L.0507281725010.31805@blysk.ds.pg.gda.pl>
- <1122575140.29823.258.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Jul 2005 14:59:02 -0400
+Date: Thu, 28 Jul 2005 11:58:59 -0700
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux-SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up qla2xxx configuration bogosity
+Message-ID: <20050728185859.GC567@plap.qlogic.org>
+References: <20050728051058.GA567@plap.qlogic.org> <1122558828.5132.8.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1122558828.5132.8.camel@mulgrave>
+Organization: QLogic Corporation
+User-Agent: Mutt/1.5.9i
+X-OriginalArrivalTime: 28 Jul 2005 18:58:59.0509 (UTC) FILETIME=[69940650:01C593A6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 28 Jul 2005, James Bottomley wrote:
 
-
-On Thu, 28 Jul 2005, Steven Rostedt wrote:
+> On Wed, 2005-07-27 at 22:10 -0700, Andrew Vasquez wrote:
+> > Would you also apply the attached patch which adds the appropriate
+> > FW_LOADER pre-requisite and a separate entry for ISP24xx support.
 > 
-> OK, I guess when I get some time, I'll start testing all the i386 bitop
-> functions, comparing the asm with the gcc versions.  Now could someone
-> explain to me what's wrong with testing hot cache code. Can one
-> instruction retrieve from memory better than others?
+> That's what I see reading the code; however, it looks like it's *only*
+> the 24xx that needs it (qla24xx_load_risc_hotplug).  The patch below
+> pulls in the FW loader for every qlogic fibre driver, not just the
+> qla24xx; is there a reason for doing this?
 
-There's a few issues:
+Yes, I've been working on a set of patches which add this
+functionality across the board with supported ISP types (21xx, 22xx,
+23xx).  I should have some patches for submission in next week's
+time-frame.  So rather than a adding #if code around the relevant 24xx
+specific codes in qla2xxx, I chose the fw_loader path for all types.
 
- - trivially: code/data size. Being smaller automatically means faster if
-   you're cold-cache. If you do cycle tweaking of something that is 
-   possibly commonly in the L2 cache or further away, you migt as well
-   consider one byte of code-space to be equivalent to one cycle (a L1 I$ 
-   miss can easily take 50+ cycles - the L1 fill cost may be just a small 
-   part of that, but the pipeline problem it causes can be deadly).
-
- - branch prediction: cold-cache is _different_ from hot-cache. hit-cache 
-   predicts the stuff dynamically, cold-cache has different rules (and it 
-   is _usually_ "forward predicts not-taken, backwards predicts taken", 
-   although you can add static hints if you want to on most architectures).
-
-   So hot-cache may look very different indeed - the "normal" case might 
-   be that you mispredict all the time because the static prediction is 
-   wrong, but then a hot-cache benchmark will predict perfectly.
-
- - access patterns. This only matters if you look at algorithmic changes. 
-   Hashes have atrocious locality, but on the other hand, if you know that 
-   the access pattern is cold, a hash will often have a minimum number of 
-   accesses. 
-
-but no, you don't have "some instructions are better at reading from 
-memory" for regular integer code (FP often has other issues, like reading 
-directly from L2 without polluting L1, and then there are obviously 
-prefetch hints).
-
-Now, in the case of your "rep scas" conversion, the reason I applied it
-was that it was obviously a clear win (rep scas is known bad, and has
-register allocation issues too), so I'm _not_ claiming that the above
-issues were true in that case. I just wanted to say that in general it's 
-nice (but often quite hard) if you can give cold-cache numbers too (for 
-example, using the cycle counter and being clever can actually give that).
-
-		Linus
+-- 
+Andrew Vasquez

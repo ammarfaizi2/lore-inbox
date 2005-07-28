@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVG1IMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVG1IT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVG1IMv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 04:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVG1IMc
+	id S261326AbVG1IT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 04:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVG1ISJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 04:12:32 -0400
-Received: from mx1.suse.de ([195.135.220.2]:35043 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261358AbVG1IJX (ORCPT
+	Thu, 28 Jul 2005 04:18:09 -0400
+Received: from mail.suse.de ([195.135.220.2]:34532 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261360AbVG1IP3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 04:09:23 -0400
-Date: Thu, 28 Jul 2005 10:09:19 +0200
-Message-ID: <s5hpst3tkr4.wl%tiwai@suse.de>
+	Thu, 28 Jul 2005 04:15:29 -0400
+Date: Thu, 28 Jul 2005 10:15:18 +0200
+Message-ID: <s5hoe8ntkh5.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: Zoran Dzelajlija <jelly+news@srk.fer.hr>
-Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-In-Reply-To: <20050726233837.459A.3.NOFFLE@islands.iskon.hr>
-References: <20050726150837.GT3160@stusta.de>
-	<42E6645B.30206@zabbo.net>
-	<20050726233837.459A.3.NOFFLE@islands.iskon.hr>
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, fedora-list@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12: no sound on SPDIF with emu10k1
+In-Reply-To: <1122513715.13792.22.camel@hostmaster.org>
+References: <1122493585.3137.14.camel@hostmaster.org>
+	<1122497052.22844.5.camel@mindpipe>
+	<1122513715.13792.22.camel@hostmaster.org>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta18)
  (chestnut) (+CVS-20041021) (i386-suse-linux)
@@ -27,32 +28,31 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Wed, 27 Jul 2005 01:38:37 +0200,
-Zoran Dzelajlija wrote:
+At Thu, 28 Jul 2005 03:21:55 +0200,
+Thomas Zehetbauer wrote:
 > 
-> Zach Brown <zab@zabbo.net> wrote:
-> > Adrian Bunk wrote:
-> > > This patch schedules obsolete OSS drivers (with ALSA drivers that 
-> > > support the same hardware) for removal.
+> [1  <text/plain (quoted-printable)>]
+> On Wed, 2005-07-27 at 16:44 -0400, Lee Revell wrote:
+> > On Wed, 2005-07-27 at 21:46 +0200, Thomas Zehetbauer wrote:
+> > > I cannot get my SB Live! 5.1's SPDIF (digital) output to work with
+> > > kernel > 2.6.12. I have not changed my mixer configuration and it is
+> > > still working when I boot 2.6.11.12 or earlier. I am using FC4 with
+> > > alsa-lib-1.0.9rf-2.FC4 installed.
+> > 
+> > FC4 shipped a buggy ALSA version, I can't believe there are no updated
+> > RPMs yet.
+> > 
+> > You need a newer ALSA.
 > 
-> > > I've Cc'ed the people listed in MAINTAINERS as being responsible for one 
-> > > or more of these drivers, and I've also Cc'ed the ALSA people.
+> alsa-lib-1.0.9rf-2 is the latest update available:
+> http://download.fedora.redhat.com/pub/fedora/linux/core/updates/4/x86_64/alsa-lib-1.0.9rf-2.FC4.x86_64.rpm
 > 
-> > I haven't touched the maestro drivers in so long (for near-total lack of
-> > docs, etc.) that I can't be considered authoritative for approving it's
-> > removal. If people are relying on it I certainly don't know who they
-> > are.  In better news, Takashi should now have the pile of maestro
-> > hardware that I used in the first pass to help him maintain the ALSA
-> > driver..
-> 
-> The OSS maestro driver works better on my old Armada E500 laptop.  I tried
-> ALSA after switching to 2.6, but the computer hung with 2.6.8.1 or 2.6.10 if
-> I touched the volume buttons.  With OSS they just work.  The four separate
-> dsp devices also look kind of more useful.
+> If FC4's ALSA was really broken, I wonder why it is working fine with
+> kernel 2.6.11.12 and earlier?
 
-The bug around h/w volume control should have been fixed in the recent
-version of ALSA drivers.  Hopefully everything will get merged into
-2.6.13...
+The recent emu10k1 driver detects the board model more precisely, but
+a couple of minor models were missing in the table, and consequently,
+some functionalities were missing.
 
 
 Takashi

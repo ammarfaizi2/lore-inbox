@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVG1Vhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVG1VkI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbVG1Vhx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 17:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVG1Vhu
+	id S261449AbVG1VkI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 17:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVG1Vh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 17:37:50 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4788 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261507AbVG1Vgx (ORCPT
+	Thu, 28 Jul 2005 17:37:58 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:43905 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S261449AbVG1Vf7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 17:36:53 -0400
-Date: Thu, 28 Jul 2005 23:36:50 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3: swsusp works (TP 600X)
-Message-ID: <20050728213650.GA1872@elf.ucw.cz>
-References: <20050723003544.GC1988@elf.ucw.cz> <E1DyEok-0000pa-SX@approximate.corpus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Jul 2005 17:35:59 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.13-rc3-mm3
+Date: Thu, 28 Jul 2005 23:40:57 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, ak@suse.de
+References: <20050728025840.0596b9cb.akpm@osdl.org> <200507282111.32970.rjw@sisk.pl> <20050728121656.66845f70.akpm@osdl.org>
+In-Reply-To: <20050728121656.66845f70.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E1DyEok-0000pa-SX@approximate.corpus.cam.ac.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200507282340.57905.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thursday, 28 of July 2005 21:16, Andrew Morton wrote:
+> 
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> > There are two problems with the compilation of arch/x86_64/kernel/nmi.c.
+> 
+> Thanks.
+> 
+> > --- linux-2.6.13-rc3-mm3/arch/x86_64/kernel/nmi.c	2005-07-28 21:05:53.000000000 +0200
+> >  +++ patched/arch/x86_64/kernel/nmi.c	2005-07-28 18:58:02.000000000 +0200
+> >  @@ -152,8 +152,10 @@ int __init check_nmi_watchdog (void)
+> >   
+> >   	printk(KERN_INFO "testing NMI watchdog ... ");
+> >   
+> >  +#ifdef CONFIG_SMP
+> >   	if (nmi_watchdog == NMI_LOCAL_APIC)
+> >   		smp_call_function(nmi_cpu_busy, (void *)&endflag, 0, 0);
+> >  +#endif
+> >   
+> >   	for (cpu = 0; cpu < NR_CPUS; cpu++)
+> >   		counts[cpu] = cpu_pda[cpu].__nmi_count; 
+> 
+> This bit is no longer needed, since
+> alpha-fix-statement-with-no-effect-warnings.patch got dropped.
 
-> >>If I don't eject the pcmcia card (usually a prism54 wireless card),
-> >>swsusp begins the process of hibernation, but never gets to the
-> >>writing pages part.
-> 
-> > Well, it really may be the firmware loading. Add some printks to
-> > confirm it, then fix it.
-> 
-> I did more tests, this time with 2.6.13-rc3-mm2 (machine is a TP 600X),
-> and I don't think the problem is related to firmware loading.  If I
-> first physically eject the card (an Intersil wireless card), swsusp
-> prints
-> 
-...
-> 
-> then it writes pages to swap and all is well.  Well, almost 100%; the
-> one glitch is that sometimes X comes back blank and I have to
-> ctrl-alt-F7 to bring back the display; or X comes back with the keyboard
-> acting strange (<ENTER> shifts the display left by a few hundred
-> pixels), and again ctrl-alt-F7 fixes it.  This is with XFree86
-> 4.3.0.dfsg.1-14, and maybe after I upgrade (?) to the xorg server, that
-> glitch will go away.  Anyway, it's easy to work around.
+OK
 
-So, in short, problem is that if you leave prism54 card in, even with
-module removed, swsusp hangs, right?
+BTW, -mm3 works fine for me on two AMD64 boxes except for one thing:
+On Asus L5D, if I resume the box from disk on battery power (ie the box is started
+on battery power and resumes from disk), it hangs solid right after copying
+the image (100% of the time).  If it is resumed on AC power, everything is fine.
 
-Okay then, start looking into pcmcia layer ;-).
-								Pavel
+Well, -mm1[1-2] did the same thing so I think I'll create a Bugzilla entry and
+start a binary search. :-(  The -git[5-9] kernels are not affected by this issue.
+
+Greets,
+Rafael
+
+PS
+Could you please tell me how I can figure out the order in which the individual
+patches in -mm have been applied?
+
 
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

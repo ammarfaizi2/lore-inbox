@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVG1KMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVG1KPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVG1KMs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 06:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVG1KKQ
+	id S261354AbVG1KPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 06:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVG1KMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 06:10:16 -0400
-Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:27547 "EHLO
-	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
-	id S261399AbVG1KHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 06:07:39 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: deepak jose <deepakpjose@gmail.com>
-Subject: Re: any one knows device driver programming
-Date: Thu, 28 Jul 2005 12:07:45 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <77dc1b2205072800311f72527d@mail.gmail.com>
-In-Reply-To: <77dc1b2205072800311f72527d@mail.gmail.com>
+	Thu, 28 Jul 2005 06:12:54 -0400
+Received: from dslsmtp.struer.net ([62.242.36.21]:34576 "EHLO
+	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S261354AbVG1KMC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 06:12:02 -0400
+Message-ID: <1770.80.166.175.197.1122545518.squirrel@80.166.175.197>
+In-Reply-To: <20050728095724.GA32691@gamma.logic.tuwien.ac.at>
+References: <20050728095724.GA32691@gamma.logic.tuwien.ac.at>
+Date: Thu, 28 Jul 2005 12:11:58 +0200 (CEST)
+Subject: Re: build system changed? cannot build any module
+From: "Sam Ravnborg" <sam@ravnborg.org>
+To: "Norbert Preining" <preining@logic.at>
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507281207.45289.petkov@uni-muenster.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 July 2005 09:31, deepak jose wrote:
-> hello,
+> Hi Andrew!
 >
-> is ther anyone capable me to help in writing device driver programming?
-> if so i'll be very greatful to you.
+> I cannot build any external module (acerhk, pwc), in all the cases it
+> the make run looks similar:
+> make -C /lib/modules/`uname -r`/build SUBDIRS=/src/hotkey/acerhk-0.5.25
+> modules
+> make[1]: Entering directory `/usr/src/linux-2.6.13-rc3-mm2'
+> scripts/Makefile.build:14:
+> /usr/src/linux-2.6.13-rc3-mm2//src/hotkey/acerhk-0.5.25/Makefile: No such
+> file or directory
+> make[2]: *** No rule to make target
+> `/usr/src/linux-2.6.13-rc3-mm2//src/hotkey/acerhk-0.5.25/Makefile'.  Stop.
 >
-> waiting 4 a +ve reply.
-> deepak
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Has something fundamentally changed in the way external modules should
+> be build?
 
-http://lwn.net/Kernel/LDD3/
+A bug that I introduced.
+I already posted a fix yesterday - please check
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112249231830476&w=2
 
--- 
-Regards,
-Borislav Petkov.
+   Sam
+
+

@@ -1,53 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262833AbVG3A2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262774AbVG3AWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262833AbVG3A2z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 20:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbVG3A0s
+	id S262774AbVG3AWW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 20:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbVG2TTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 20:26:48 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63372 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262761AbVG3A0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 20:26:12 -0400
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386: vmlinux.lds.S Distinguish absolute symbols
-References: <m1u0id1k47.fsf@ebiederm.dsl.xmission.com>
-	<20050729211954.GA8263@mars.ravnborg.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 29 Jul 2005 18:25:58 -0600
-In-Reply-To: <20050729211954.GA8263@mars.ravnborg.org> (Sam Ravnborg's
- message of "Fri, 29 Jul 2005 23:19:54 +0200")
-Message-ID: <m13bpxgmw9.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 29 Jul 2005 15:19:10 -0400
+Received: from mail.kroah.org ([69.55.234.183]:64430 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262699AbVG2TQX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 15:16:23 -0400
+Date: Fri, 29 Jul 2005 12:15:33 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, khali@linux-fr.org
+Subject: [patch 11/29] I2C: 24RF08 corruption prevention (again)
+Message-ID: <20050729191533.GM5095@kroah.com>
+References: <20050729184950.014589000@press.kroah.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729191255.GA5095@kroah.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> writes:
+From: Jean Delvare <khali@linux-fr.org>
 
-> On Fri, Jul 29, 2005 at 01:35:04PM -0600, Eric W. Biederman wrote:
->> Currently in the linker script we have several labels
->> marking the beginning and ending of sections that
->> are outside of sections, making them absolute symbols.
->
-> They are outside the sections for a very specific reason.
-> If moved inside the section they sometimes got unexpected values due to
-> the alignment that ld impose on the section itself.
->
-> I recall that when Kai Germaschewski long time ago started the
-> unification of the vmlinux.lds files some people had boot problems
-> exactly because the label was defined inside the section and therefore
-> ld caused it to have another value as if it was placed outside the
-> section.
+The 24RF08 corruption prevention in the eeprom and max6875 drivers wasn't
+complete. For one thing, the additional quick write should happen as soon
+as possible and unconditionally, while both drivers had error paths before.
+For another, when a given chip is forced, the core does not emit a quick
+write, so a second quick write would cause the corruption rather than
+prevent it.
 
-I remember seeing something like that.  I don't know if those problems
-apply to a modern ld, but it is certainly worth looking into.
+I plan to move the corruption prevention in the core in the long run, so
+that individual drivers don't have to care anymore. But I need to merge
+i2c_probe and i2c_detect before I do (work in progress).
 
-> I no longer recall the precise details of what happened.
-> Google may help you...
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Thanks.
+---
+ drivers/i2c/chips/eeprom.c  |    8 +++++---
+ drivers/i2c/chips/max6875.c |    8 +++++---
+ 2 files changed, 10 insertions(+), 6 deletions(-)
 
-Eric
+--- gregkh-2.6.orig/drivers/i2c/chips/eeprom.c	2005-07-29 11:36:14.000000000 -0700
++++ gregkh-2.6/drivers/i2c/chips/eeprom.c	2005-07-29 11:36:18.000000000 -0700
+@@ -163,6 +163,11 @@
+ 	struct eeprom_data *data;
+ 	int err = 0;
+ 
++	/* prevent 24RF08 corruption */
++	if (kind < 0)
++		i2c_smbus_xfer(adapter, address, 0, 0, 0,
++			       I2C_SMBUS_QUICK, NULL);
++
+ 	/* There are three ways we can read the EEPROM data:
+ 	   (1) I2C block reads (faster, but unsupported by most adapters)
+ 	   (2) Consecutive byte reads (100% overhead)
+@@ -187,9 +192,6 @@
+ 	new_client->driver = &eeprom_driver;
+ 	new_client->flags = 0;
+ 
+-	/* prevent 24RF08 corruption */
+-	i2c_smbus_write_quick(new_client, 0);
+-
+ 	/* Fill in the remaining client fields */
+ 	strlcpy(new_client->name, "eeprom", I2C_NAME_SIZE);
+ 	data->valid = 0;
+--- gregkh-2.6.orig/drivers/i2c/chips/max6875.c	2005-07-29 11:36:14.000000000 -0700
++++ gregkh-2.6/drivers/i2c/chips/max6875.c	2005-07-29 11:36:18.000000000 -0700
+@@ -343,6 +343,11 @@
+ 	struct max6875_data *data;
+ 	int err = 0;
+ 
++	/* Prevent 24RF08 corruption (in case of user error) */
++	if (kind < 0)
++		i2c_smbus_xfer(adapter, address, 0, 0, 0,
++			       I2C_SMBUS_QUICK, NULL);
++
+ 	/* There are three ways we can read the EEPROM data:
+ 	   (1) I2C block reads (faster, but unsupported by most adapters)
+ 	   (2) Consecutive byte reads (100% overhead)
+@@ -370,9 +375,6 @@
+ 	new_client->driver = &max6875_driver;
+ 	new_client->flags = 0;
+ 
+-	/* Prevent 24RF08 corruption */
+-	i2c_smbus_write_quick(new_client, 0);
+-
+ 	/* Setup the user section */
+ 	data->blocks[max6875_eeprom_user].type    = max6875_eeprom_user;
+ 	data->blocks[max6875_eeprom_user].slices  = USER_EEPROM_SLICES;
+
+--

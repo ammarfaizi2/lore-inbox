@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262545AbVG2JDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVG2JFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262545AbVG2JDa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 05:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVG2JDZ
+	id S262521AbVG2JFd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 05:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVG2JFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 05:03:25 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46347 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262540AbVG2JDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 05:03:09 -0400
-Date: Fri, 29 Jul 2005 10:02:57 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: Add prefetch switch stack hook in scheduler function
-Message-ID: <20050729100257.A10345@flint.arm.linux.org.uk>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-ia64@vger.kernel.org
-References: <20050729070447.GA3032@elte.hu> <200507290722.j6T7Mig07477@unix-os.sc.intel.com> <20050729082826.GA6144@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050729082826.GA6144@elte.hu>; from mingo@elte.hu on Fri, Jul 29, 2005 at 10:28:26AM +0200
+	Fri, 29 Jul 2005 05:05:33 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:27875 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262521AbVG2JFR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 05:05:17 -0400
+Message-ID: <42E9F145.7040302@cosmosbay.com>
+Date: Fri, 29 Jul 2005 11:05:09 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: [PATCH] mm/slab.c : prefetchw the start of new allocated objects
+References: <42E6C8DB.4090608@earthlink.net>	<s5hr7dklko4.wl%tiwai@suse.de>	<42E7A8D8.1030809@earthlink.net> <20050729014150.6e97dfd2.akpm@osdl.org>
+In-Reply-To: <20050729014150.6e97dfd2.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------040401010805070800010300"
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 29 Jul 2005 11:05:10 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 29, 2005 at 10:28:26AM +0200, Ingo Molnar wrote:
-> @@ -2872,10 +2878,10 @@ go_idle:
->  	/*
->  	 * Prefetch (at least) a cacheline below the current
->  	 * kernel stack (in expectation of any new task touching
-> -	 * the stack at least minimally), and a cacheline above
-> -	 * the stack:
-> +	 * the stack at least minimally), and at least a cacheline
-> +	 * above the stack:
->  	 */
-> -	prefetch_range(kernel_stack(next) - MIN_KERNEL_STACK_FOOTPRINT,
-> +	prefetch_range(kernel_stack(next) - L1_CACHE_BYTES,
->  		       MIN_KERNEL_STACK_FOOTPRINT + L1_CACHE_BYTES);
+This is a multi-part message in MIME format.
+--------------040401010805070800010300
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This needs to ensure that we don't prefetch outside the page of the
-kernel stack - otherwise we risk weird problems on architectures
-which support prefetching but not DMA cache coherency.
+[MM] slab.c : prefetchw the start of new allocated objects
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Most of objects returned by __cache_alloc() will be written by the caller,
+(but not all callers want to write all the object, but just at the begining)
+prefetchw() tells the modern CPU to think about the future writes, ie start
+some memory transactions in advance.
+
+Some CPU lacks a prefetchw() and currently do nothing, so I ask this question :
+Should'nt make prefetchw() do at least a prefetch() ? A read hint is better than nothing.
+
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+
+--------------040401010805070800010300
+Content-Type: text/plain;
+ name="slab.prefetchw"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="slab.prefetchw"
+
+diff -Nru linux-2.6.13-rc4/mm/slab.c linux-2.6.13-rc4-ed/mm/slab.c
+--- linux-2.6.13-rc4/mm/slab.c	2005-07-29 00:44:44.000000000 +0200
++++ linux-2.6.13-rc4-ed/mm/slab.c	2005-07-29 10:48:45.000000000 +0200
+@@ -2166,6 +2166,7 @@
+ 	}
+ 	local_irq_restore(save_flags);
+ 	objp = cache_alloc_debugcheck_after(cachep, flags, objp, __builtin_return_address(0));
++	prefetchw(objp);
+ 	return objp;
+ }
+ 
+
+--------------040401010805070800010300--

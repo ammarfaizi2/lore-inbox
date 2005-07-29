@@ -1,167 +1,681 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262922AbVG2XVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262895AbVG2XIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262922AbVG2XVb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 19:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbVG2XQf
+	id S262895AbVG2XIg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 19:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbVG2VXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 19:16:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13287 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262884AbVG2XP4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 19:15:56 -0400
-Date: Fri, 29 Jul 2005 16:17:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Khalid Aziz <khalid_aziz@hp.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       linux-acpi@intel.com
-Subject: Re: 2.6.13-rc3-mm3
-Message-Id: <20050729161751.34705ac6.akpm@osdl.org>
-In-Reply-To: <1122678354.20867.48.camel@lyra.fc.hp.com>
-References: <20050728025840.0596b9cb.akpm@osdl.org>
-	<1122678354.20867.48.camel@lyra.fc.hp.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Jul 2005 17:23:31 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:6580 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S262853AbVG2VUn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 17:20:43 -0400
+Subject: [patch 10/15] Basic support for PowerPC64
+Date: Fri, 29 Jul 2005 14:20:42 -0700
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+       frowand@mvista.com, paulus@samba.org
+From: Tom Rini <trini@kernel.crashing.org>
+Message-Id: <resend.10.2972005.trini@kernel.crashing.org>
+In-Reply-To: <resend.9.2972005.trini@kernel.crashing.org>
+References: <resend.9.2972005.trini@kernel.crashing.org> <1.2972005.trini@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Khalid Aziz <khalid_aziz@hp.com> wrote:
->
-> Serial console is broken on ia64 on an HP rx2600 machine on
-> 2.6.13-rc3-mm3. When kernel is booted up with "console=ttyS,...", no
-> output ever appears on the console and system is hung. So I booted the
-> kernel with "console=uart,mmio,0xff5e0000" to enable early console and
-> here is how far the kernel got before hanging:
 
-(cc the ia64 and acpi lists)
+CC: Frank Rowand <frowand@mvista.com>, Paul Mackerras <paulus@samba.org>
+This adds basic KGDB support to ppc64, and support for kgdb8250 on the 'Maple'
+board.  All of this was done by Frank Rowand (who is on vacation right now,
+but I'll try and answer for him).  This should work on any ppc64 board via
+kgdboe, so long as there is an eth driver that supports netpoll.  At the
+moment this is mutually exclusive with XMON.  It is probably possible to allow
+them to be chained, but that sounds dangerous to me.  This is similar to
+ppc32, but ppc32 does not explicitly test.
 
-OK, thanks.  There have been a few serial driver changes recently, but
-there's also a tremendous ACPI patch in -mm.  I'm wondering about those
-ACPI error messages:
+---
 
-> -------
-> Linux version 2.6.13-rc3-mm3 (root@mars) (gcc version 3.3.5 (Debian 1:3.3.5-12)) #4 SMP Fri Jul 29 16:30:41 MDT 2005
-> EFI v1.10 by HP: SALsystab=0x3fb38000 ACPI 2.0=0x3fb2e000 SMBIOS=0x3fb3a000 HCDP=0x3fb2c000
-> booting generic kernel on platform hpzx1
-> PCDP: v0 at 0x3fb2c000
-> Explicit "console="; ignoring PCDP
-> Early serial console at MMIO 0xff5e0000 (options '115200')
-> efi.trim_top: ignoring 4KB of memory at 0x0 due to granule hole at 0x0
-> efi.trim_top: ignoring 636KB of memory at 0x1000 due to granule hole at 0x0
-> efi.trim_bottom: ignoring 15360KB of memory at 0x100000 due to granule hole at 0x0
-> SAL 3.1: HP version 2.31
-> SAL Platform features: None
-> SAL: AP wakeup using external interrupt vector 0xff
-> No logical to physical processor mapping available
-> ACPI: Local APIC address c0000000fee00000
-> GSI 36 (level, low) -> CPU 0 (0x0000) vector 48
-> 2 CPUs available, 2 CPUs total
-> MCA related initialization done
-> Virtual mem_map starts at 0xa0007fffc7200000
-> Built 1 zonelists
-> Kernel command line: BOOT_IMAGE=scsi1:/EFI/debian/boot/vmlinuz-2.6.13-rc3-mm3 root=/dev/sdb2 console=uart,mmio,0xff5e0000  ro
-> PID hash table entries: 4096 (order: 12, 131072 bytes)
-> Console: colour VGA+ 80x25
-> Memory: 12439136k/12542128k available (7051k code, 116240k reserved, 3406k data, 352k init)
-> Leaving McKinley Errata 9 workaround enabled
-> Dentry cache hash table entries: 2097152 (order: 10, 16777216 bytes)
-> Inode-cache hash table entries: 1048576 (order: 9, 8388608 bytes)
-> Mount-cache hash table entries: 1024
-> Boot processor id 0x0/0x0
-> CPU 1: synchronized ITC with CPU 0 (last diff -5 cycles, maxerr 433 cycles)
-> Brought up 2 CPUs
-> Total of 2 processors activated (2695.16 BogoMIPS).
-> -> [0][1][ 786432]   0.5 [  0.5] (0): (  500513   250256)
-> -> [0][1][ 827823]   0.5 [  0.5] (0): (  529015   139379)
-> -> [0][1][ 871392]   0.5 [  0.5] (0): (  557119    83741)
-> -> [0][1][ 917254]   0.5 [  0.5] (0): (  585481    56051)
-> -> [0][1][ 965530]   0.6 [  0.6] (0): (  615654    43112)
-> -> [0][1][1016347]   0.6 [  0.6] (0): (  653296    40377)
-> -> [0][1][1069838]   0.6 [  0.6] (0): (  681359    34220)
-> -> [0][1][1126145]   0.7 [  0.7] (0): (  706209    29535)
-> -> [0][1][1185415]   0.7 [  0.7] (0): (  754788    39057)
-> -> [0][1][1247805]   0.7 [  0.7] (0): (  788675    36472)
-> -> [0][1][1313478]   0.8 [  0.8] (0): (  840102    43949)
-> -> [0][1][1382608]   0.7 [  0.8] (0): (  742042    71004)
-> -> [0][1][1455376]   0.6 [  0.8] (0): (  653934    79556)
-> -> [0][1][1531974]   0.7 [  0.8] (0): (  766991    96306)
-> -> [0][1][1612604]   0.7 [  0.8] (0): (  779253    54284)
-> -> [0][1][1697477]   0.5 [  0.8] (0): (  534912   149312)
-> -> [0][1][1786817]   0.5 [  0.8] (0): (  503106    90559)
-> -> found max.
-> [0][1] working set size found: 1313478, cost: 840102
-> ---------------------
-> | migration cost matrix (max_cache_size: 1572864, cpu: -1 MHz):
-> ---------------------
->           [00]    [01]
-> [00]:     -     1.6(0)
-> [01]:   1.6(0)    -   
-> --------------------------------
-> | cacheflush times [1]: 1.6 (1680204)
-> | calibration delay: 1 seconds
-> --------------------------------
-> NET: Registered protocol family 16
-> ACPI: bus type pci registered
-> ACPI: Subsystem revision 20050708
->     ACPI-0509: *** Error: Method execution failed [\PARS.GFIT] (Node e0000002ffff8a00), AE_BAD_PARAMETER
->     ACPI-0509: *** Error: Method execution failed [\_SB_.SBA0._INI] (Node e0000002ffffa780), AE_BAD_PARAMETER
-> ACPI: Interpreter enabled
-> ACPI: Using IOSAPIC for interrupt routing
+ linux-2.6.13-rc3-trini/arch/ppc64/Kconfig.debug        |   14 
+ linux-2.6.13-rc3-trini/arch/ppc64/kernel/Makefile      |    3 
+ linux-2.6.13-rc3-trini/arch/ppc64/kernel/kgdb.c        |  422 +++++++++++++++++
+ linux-2.6.13-rc3-trini/arch/ppc64/kernel/maple_setup.c |    5 
+ linux-2.6.13-rc3-trini/arch/ppc64/kernel/setup.c       |   14 
+ linux-2.6.13-rc3-trini/arch/ppc64/mm/fault.c           |    8 
+ linux-2.6.13-rc3-trini/include/asm-ppc64/kgdb.h        |   55 ++
+ linux-2.6.13-rc3-trini/lib/Kconfig.debug               |    2 
+ 8 files changed, 513 insertions(+), 10 deletions(-)
 
-Does the above happen on 2.6.13-rc3 or 2.6.13-rc4?
-
-> SCSI subsystem initialized
-> perfmon: version 2.0 IRQ 238
-> perfmon: Itanium 2 PMU detected, 16 PMCs, 18 PMDs, 4 counters (47 bits)
-> PAL Information Facility v0.5
-> perfmon: added sampling format default_format
-> perfmon_default_smpl: default_format v2.0 registered
-> Total HugeTLB memory allocated, 0
-> SGI XFS with large block/inode numbers, no debug enabled
-> Initializing Cryptographic API
-> EFI Time Services Driver v0.4
-> i8042.c: No controller found.
-> Serial: 8250/16550 driver $Revision: 1.90 $ 6 ports, IRQ sharing enabled
-> mice: PS/2 mouse device common for all mice
-> io scheduler noop registered
-> io scheduler anticipatory registered
-> io scheduler deadline registered
-> io scheduler cfq registered
-> RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-> Intel(R) PRO/1000 Network Driver - version 6.0.60-k2
-> Copyright (c) 1999-2005 Intel Corporation.
-> e100: Intel(R) PRO/100 Network Driver, 3.4.10-k2-NAPI
-> e100: Copyright(c) 1999-2005 Intel Corporation
-> netconsole: not configured, aborting
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> ide: Assuming 50MHz system bus speed for PIO modes; override with idebus=xx
-> ide-floppy driver 0.99.newide
-> Fusion MPT base driver 3.03.02
-> Copyright (c) 1999-2005 LSI Logic Corporation
-> Fusion MPT SPI Host driver 3.03.02
-> EFI Variables Facility v0.08 2004-May-17
-> NET: Registered protocol family 2
-> IP route cache hash table entries: 2097152 (order: 10, 16777216 bytes)
-> TCP established hash table entries: 8388608 (order: 13, 134217728 bytes)
-> TCP bind hash table entries: 65536 (order: 6, 1048576 bytes)
-> TCP: Hash tables configured (established 8388608 bind 65536)
-> TCP reno registered
-> TCP bic registered
-> NET: Registered protocol family 1
-> NET: Registered protocol family 17
-> No ttyS device at MMIO 0xff5e0000 for console
-> -------
-> 
-> Serial driver failed to find any serial ports. I am using defconfig. A
-> 2.6.13-rc3 kernel (no mm3 patch) compiled with defconfig boots up fine
-> and finds all serial ports.
-
-Well it did claim to find an 8250 controller.
-
-If you have time, it would be useful if you could obtain the 2.6.13-rc3 dmesg
-output and do
-
-	diff -u dmesg-2.6.13-rc3 dmesg-2.6.13-rc3-mm3
-
-and send it, thanks.
+diff -puN arch/ppc64/Kconfig.debug~ppc64-lite arch/ppc64/Kconfig.debug
+--- linux-2.6.13-rc3/arch/ppc64/Kconfig.debug~ppc64-lite	2005-07-29 11:55:33.000000000 -0700
++++ linux-2.6.13-rc3-trini/arch/ppc64/Kconfig.debug	2005-07-29 11:55:33.000000000 -0700
+@@ -28,16 +28,9 @@ config DEBUG_STACK_USAGE
+ 
+ 	  This option will slow down process creation somewhat.
+ 
+-config DEBUGGER
+-	bool "Enable debugger hooks"
+-	depends on DEBUG_KERNEL
+-	help
+-	  Include in-kernel hooks for kernel debuggers. Unless you are
+-	  intending to debug the kernel, say N here.
+-
+ config XMON
+ 	bool "Include xmon kernel debugger"
+-	depends on DEBUGGER && !PPC_ISERIES
++	depends on DEBUG_KERNEL && !PPC_ISERIES
+ 	help
+ 	  Include in-kernel hooks for the xmon kernel monitor/debugger.
+ 	  Unless you are intending to debug the kernel, say N here.
+@@ -46,6 +39,11 @@ config XMON_DEFAULT
+ 	bool "Enable xmon by default"
+ 	depends on XMON
+ 
++config DEBUGGER
++	bool
++	depends on KGDB || XMON
++	default y
++
+ config PPCDBG
+ 	bool "Include PPCDBG realtime debugging"
+ 	depends on DEBUG_KERNEL
+diff -puN /dev/null arch/ppc64/kernel/kgdb.c
+--- /dev/null	2005-07-25 10:57:32.312383000 -0700
++++ linux-2.6.13-rc3-trini/arch/ppc64/kernel/kgdb.c	2005-07-29 11:55:33.000000000 -0700
+@@ -0,0 +1,422 @@
++/*
++ * arch/ppc64/kernel/kgdb.c
++ *
++ * PowerPC64 backend to the KGDB stub.
++ *
++ * Maintainer: Tom Rini <trini@kernel.crashing.org>
++ *
++ * Copied from arch/ppc/kernel/kgdb.c, updated for ppc64
++ *
++ * Copyright (C) 1996 Paul Mackerras (setjmp/longjmp)
++ * 1998 (c) Michael AK Tesch (tesch@cs.wisc.edu)
++ * Copyright (C) 2003 Timesys Corporation.
++ * 2004 (c) MontaVista Software, Inc.
++ * 2005 (c) MontaVista Software, Inc.
++ * PPC64 Mods (C) 2005 Frank Rowand (frowand@mvista.com)
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2. This program as licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/kgdb.h>
++#include <linux/smp.h>
++#include <linux/signal.h>
++#include <linux/ptrace.h>
++#include <asm/current.h>
++#include <asm/ptrace.h>
++#include <asm/processor.h>
++#include <asm/machdep.h>
++
++/*
++ * This table contains the mapping between PowerPC64 hardware trap types, and
++ * signals, which are primarily what GDB understands.  GDB and the kernel
++ * don't always agree on values, so we use constants taken from gdb-6.2.
++ */
++static struct hard_trap_info
++{
++	unsigned int tt;		/* Trap type code for powerpc */
++	unsigned char signo;		/* Signal that we map this trap into */
++} hard_trap_info[] = {
++	{ 0x0100, 0x02 /* SIGINT */  },		/* system reset */
++	{ 0x0200, 0x0b /* SIGSEGV */ },		/* machine check */
++	{ 0x0300, 0x0b /* SIGSEGV */ },		/* data access */
++	{ 0x0400, 0x0a /* SIGBUS */  },		/* instruction access */
++	{ 0x0480, 0x0a /* SIGBUS */  },		/* instruction segment */
++	{ 0x0500, 0x02 /* SIGINT */  },		/* interrupt */
++	{ 0x0600, 0x0a /* SIGBUS */  },		/* alignment */
++	{ 0x0700, 0x04 /* SIGILL */  },		/* program */
++	{ 0x0800, 0x08 /* SIGFPE */  },		/* fpu unavailable */
++	{ 0x0900, 0x0e /* SIGALRM */  },	/* decrementer */
++	{ 0x0a00, 0x04 /* SIGILL */  },		/* reserved */
++	{ 0x0b00, 0x04 /* SIGILL */  },		/* reserved */
++	{ 0x0c00, 0x14 /* SIGCHLD */ },		/* syscall */
++	{ 0x0d00, 0x05 /* SIGTRAP */  },	/* single step */
++	{ 0x0e00, 0x04 /* SIGILL */  },		/* reserved */
++	{ 0x0f00, 0x04 /* SIGILL */  },		/* performance monitor */
++	{ 0x0f20, 0x08 /* SIGFPE */  },		/* altivec unavailable */
++	{ 0x1300, 0x05 /* SIGTRAP */  },	/* instruction address break */
++	{ 0x1500, 0x04 /* SIGILL */  },		/* soft patch */
++	{ 0x1600, 0x04 /* SIGILL */  },		/* maintenance */
++	{ 0x1700, 0x04 /* SIGILL */  },		/* altivec assist */
++	{ 0x1800, 0x04 /* SIGILL */  },		/* thermal */
++	{ 0x2002, 0x05 /* SIGTRAP */},		/* debug */
++	{ 0x0000, 0x000 }			/* Must be last */
++};
++
++extern atomic_t cpu_doing_single_step;
++
++static int computeSignal(unsigned int tt)
++{
++	struct hard_trap_info *ht;
++
++	for (ht = hard_trap_info; ht->tt && ht->signo; ht++)
++		if (ht->tt == tt)
++			return ht->signo;
++
++	return SIGHUP;		/* default for things we don't know about */
++}
++
++void kgdb_call_nmi_hook(void *ignored)
++{
++	kgdb_nmihook(smp_processor_id(), (void *)0);
++}
++
++void kgdb_roundup_cpus(unsigned long flags)
++{
++	local_irq_restore(flags);
++	smp_call_function(kgdb_call_nmi_hook, 0, 0, 0);
++	local_irq_save(flags);
++}
++
++/* KGDB functions to use existing PowerPC64 hooks. */
++static int kgdb_debugger(struct pt_regs *regs)
++{
++	return kgdb_handle_exception(0, computeSignal(regs->trap), 0, regs);
++}
++
++static int kgdb_breakpoint(struct pt_regs *regs)
++{
++	if (user_mode(regs))
++		return 0;
++
++	kgdb_handle_exception(0, SIGTRAP, 0, regs);
++
++	if (*(u32 *) (regs->nip) == *(u32 *) (&arch_kgdb_ops.gdb_bpt_instr))
++		regs->nip += 4;
++
++	return 1;
++}
++
++static int kgdb_singlestep(struct pt_regs *regs)
++{
++	if (user_mode(regs))
++		return 0;
++
++	kgdb_handle_exception(0, SIGTRAP, 0, regs);
++	return 1;
++}
++
++int kgdb_iabr_match(struct pt_regs *regs)
++{
++	if (user_mode(regs))
++		return 0;
++
++	kgdb_handle_exception(0, computeSignal(regs->trap), 0, regs);
++	return 1;
++}
++
++int kgdb_dabr_match(struct pt_regs *regs)
++{
++	if (user_mode(regs))
++		return 0;
++
++	kgdb_handle_exception(0, computeSignal(regs->trap), 0, regs);
++	return 1;
++}
++
++#define PACK64(ptr,src) do { *(ptr++) = (src); } while(0)
++
++#define PACK32(ptr,src) do {          \
++	u32 *ptr32;                   \
++	ptr32 = (u32 *)ptr;           \
++	*(ptr32++) = (src);           \
++	ptr = (unsigned long *)ptr32; \
++	} while(0)
++
++void regs_to_gdb_regs(unsigned long *gdb_regs, struct pt_regs *regs)
++{
++	int reg;
++	unsigned long *ptr = gdb_regs;
++
++	memset(gdb_regs, 0, NUMREGBYTES);
++
++	for (reg = 0; reg < 32; reg++)
++		PACK64(ptr, regs->gpr[reg]);
++
++	/* fp registers not used by kernel, leave zero */
++	ptr += 32;
++
++	PACK64(ptr, regs->nip);
++	PACK64(ptr, regs->msr);
++	PACK32(ptr, regs->ccr);
++	PACK64(ptr, regs->link);
++	PACK64(ptr, regs->ctr);
++	PACK32(ptr, regs->xer);
++
++#if 0
++	Following are in struct thread_struct, not struct pt_regs,
++	ignoring for now since kernel does not use them.  Would it
++	make sense to get them from the thread that kgdb is set to?
++
++	If this code is enabled, update the definition of NUMREGBYTES to
++	include the vector registers and vector state registers.
++
++	PACK32(ptr, p->thread->fpscr);
++
++	/* vr registers not used by kernel, leave zero */
++	ptr += 64;
++
++	PACK32(ptr, p->thread->vscr);
++	PACK32(ptr, p->thread->vrsave);
++#else
++	/* fpscr not used by kernel, leave zero */
++	PACK32(ptr, 0);
++#endif
++
++	BUG_ON((unsigned long)ptr >
++	       (unsigned long)(((void *)gdb_regs) + NUMREGBYTES));
++}
++
++void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct task_struct *p)
++{
++	struct pt_regs *regs = (struct pt_regs *)(p->thread.ksp +
++						  STACK_FRAME_OVERHEAD);
++	int reg;
++	unsigned long *ptr = gdb_regs;
++
++	memset(gdb_regs, 0, NUMREGBYTES);
++
++	/* Regs GPR0-2 */
++	for (reg = 0; reg < 3; reg++)
++		PACK64(ptr, regs->gpr[reg]);
++
++	/* Regs GPR3-13 are caller saved, not in regs->gpr[] */
++	for (reg = 3; reg < 14; reg++)
++		PACK64(ptr, 0);
++
++	/* Regs GPR14-31 */
++	for (reg = 14; reg < 32; reg++)
++		PACK64(ptr, regs->gpr[reg]);
++
++	/* fp registers not used by kernel, leave zero */
++	ptr += 32;
++
++	PACK64(ptr, regs->nip);
++	PACK64(ptr, regs->msr);
++	PACK32(ptr, regs->ccr);
++	PACK64(ptr, regs->link);
++	PACK64(ptr, regs->ctr);
++	PACK32(ptr, regs->xer);
++
++#if 0
++	Following are in struct thread_struct, not struct pt_regs,
++	ignoring for now since kernel does not use them.  Would it
++	make sense to get them from the thread that kgdb is set to?
++
++	If this code is enabled, update the definition of NUMREGBYTES to
++	include the vector registers and vector state registers.
++
++	PACK32(ptr, p->thread->fpscr);
++
++	/* vr registers not used by kernel, leave zero */
++	ptr += 64;
++
++	PACK32(ptr, p->thread->vscr);
++	PACK32(ptr, p->thread->vrsave);
++#else
++	/* fpscr not used by kernel, leave zero */
++	PACK32(ptr, 0);
++#endif
++
++	BUG_ON((unsigned long)ptr >
++	       (unsigned long)(((void *)gdb_regs) + NUMREGBYTES));
++}
++
++#define UNPACK64(dest,ptr) do { dest = *(ptr++); } while(0)
++
++#define UNPACK32(dest,ptr) do {       \
++	u32 *ptr32;                   \
++	ptr32 = (u32 *)ptr;           \
++	dest = *(ptr32++);            \
++	ptr = (unsigned long *)ptr32; \
++	} while(0)
++
++void gdb_regs_to_regs(unsigned long *gdb_regs, struct pt_regs *regs)
++{
++	int reg;
++	unsigned long *ptr = gdb_regs;
++
++	for (reg = 0; reg < 32; reg++)
++		UNPACK64(regs->gpr[reg], ptr);
++
++	/* fp registers not used by kernel, leave zero */
++	ptr += 32;
++
++	UNPACK64(regs->nip, ptr);
++	UNPACK64(regs->msr, ptr);
++	UNPACK32(regs->ccr, ptr);
++	UNPACK64(regs->link, ptr);
++	UNPACK64(regs->ctr, ptr);
++	UNPACK32(regs->xer, ptr);
++
++#if 0
++	Following are in struct thread_struct, not struct pt_regs,
++	ignoring for now since kernel does not use them.  Would it
++	make sense to get them from the thread that kgdb is set to?
++
++	If this code is enabled, update the definition of NUMREGBYTES to
++	include the vector registers and vector state registers.
++
++	/* fpscr, vscr, vrsave not used by kernel, leave unchanged */
++
++	UNPACK32(p->thread->fpscr, ptr);
++
++	/* vr registers not used by kernel, leave zero */
++	ptr += 64;
++
++	UNPACK32(p->thread->vscr, ptr);
++	UNPACK32(p->thread->vrsave, ptr);
++#endif
++
++	BUG_ON((unsigned long)ptr >
++	       (unsigned long)(((void *)gdb_regs) + NUMREGBYTES));
++}
++
++/*
++ * This function does PowerPC64 specific procesing for interfacing to gdb.
++ */
++int kgdb_arch_handle_exception(int vector, int signo, int err_code,
++			       char *remcom_in_buffer, char *remcom_out_buffer,
++			       struct pt_regs *linux_regs)
++{
++	char *ptr = &remcom_in_buffer[1];
++	unsigned long addr;
++
++	switch (remcom_in_buffer[0]) {
++		/*
++		 * sAA..AA   Step one instruction from AA..AA
++		 * This will return an error to gdb ..
++		 */
++	case 's':
++	case 'c':
++		/* handle the optional parameter */
++		if (kgdb_hex2long(&ptr, &addr))
++			linux_regs->nip = addr;
++
++		atomic_set(&cpu_doing_single_step, -1);
++		/* set the trace bit if we're stepping */
++		if (remcom_in_buffer[0] == 's') {
++			linux_regs->msr |= MSR_SE;
++			debugger_step = 1;
++			if (kgdb_contthread)
++				atomic_set(&cpu_doing_single_step,
++					   smp_processor_id());
++		}
++		return 0;
++	}
++
++	return -1;
++}
++
++int kgdb_fault_setjmp(unsigned long *curr_context)
++{
++	__asm__ __volatile__("mflr 0; std 0,0(%0)\n\
++			      std	1,8(%0)\n\
++			      std	2,16(%0)\n\
++			      mfcr 0; std 0,24(%0)\n\
++			      std	13,32(%0)\n\
++			      std	14,40(%0)\n\
++			      std	15,48(%0)\n\
++			      std	16,56(%0)\n\
++			      std	17,64(%0)\n\
++			      std	18,72(%0)\n\
++			      std	19,80(%0)\n\
++			      std	20,88(%0)\n\
++			      std	21,96(%0)\n\
++			      std	22,104(%0)\n\
++			      std	23,112(%0)\n\
++			      std	24,120(%0)\n\
++			      std	25,128(%0)\n\
++			      std	26,136(%0)\n\
++			      std	27,144(%0)\n\
++			      std	28,152(%0)\n\
++			      std	29,160(%0)\n\
++			      std	30,168(%0)\n\
++			      std	31,176(%0)\n" : : "r" (curr_context));
++	return 0;
++}
++
++void kgdb_fault_longjmp(unsigned long *curr_context)
++{
++	__asm__ __volatile__("ld	13,32(%0)\n\
++	 		      ld	14,40(%0)\n\
++			      ld	15,48(%0)\n\
++			      ld	16,56(%0)\n\
++			      ld	17,64(%0)\n\
++			      ld	18,72(%0)\n\
++			      ld	19,80(%0)\n\
++			      ld	20,88(%0)\n\
++			      ld	21,96(%0)\n\
++			      ld	22,104(%0)\n\
++			      ld	23,112(%0)\n\
++			      ld	24,120(%0)\n\
++			      ld	25,128(%0)\n\
++			      ld	26,136(%0)\n\
++			      ld	27,144(%0)\n\
++			      ld	28,152(%0)\n\
++			      ld	29,160(%0)\n\
++			      ld	30,168(%0)\n\
++			      ld	31,176(%0)\n\
++			      ld	0,24(%0)\n\
++			      mtcrf	0x38,0\n\
++			      ld	0,0(%0)\n\
++			      ld	1,8(%0)\n\
++			      ld	2,16(%0)\n\
++			      mtlr	0\n\
++			      mr	3,1\n" : : "r" (curr_context));
++}
++
++/*
++ * Global data
++ */
++struct kgdb_arch arch_kgdb_ops = {
++	.gdb_bpt_instr = {0x7d, 0x82, 0x10, 0x08},
++};
++
++int kgdb_not_implemented(struct pt_regs *regs)
++{
++	return 0;
++}
++
++int kgdb_arch_init(void)
++{
++#ifdef CONFIG_XMON
++#error Both XMON and KGDB selected in .config.  Unselect one of them.
++#endif
++
++	__debugger_ipi = kgdb_not_implemented;
++	__debugger = kgdb_debugger;
++	__debugger_bpt = kgdb_breakpoint;
++	__debugger_sstep = kgdb_singlestep;
++	__debugger_iabr_match = kgdb_iabr_match;
++	__debugger_dabr_match = kgdb_dabr_match;
++	__debugger_fault_handler = kgdb_not_implemented;
++
++	return 0;
++}
++
++arch_initcall(kgdb_arch_init);
+diff -puN arch/ppc64/kernel/Makefile~ppc64-lite arch/ppc64/kernel/Makefile
+--- linux-2.6.13-rc3/arch/ppc64/kernel/Makefile~ppc64-lite	2005-07-29 11:55:33.000000000 -0700
++++ linux-2.6.13-rc3-trini/arch/ppc64/kernel/Makefile	2005-07-29 11:55:33.000000000 -0700
+@@ -2,7 +2,7 @@
+ # Makefile for the linux ppc64 kernel.
+ #
+ 
+-EXTRA_CFLAGS	+= -mno-minimal-toc
++#EXTRA_CFLAGS	+= -mno-minimal-toc
+ extra-y		:= head.o vmlinux.lds
+ 
+ obj-y               :=	setup.o entry.o traps.o irq.o idle.o dma.o \
+@@ -53,6 +53,7 @@ obj-$(CONFIG_HVCS)		+= hvcserver.o
+ obj-$(CONFIG_IBMVIO)		+= vio.o
+ obj-$(CONFIG_XICS)		+= xics.o
+ obj-$(CONFIG_MPIC)		+= mpic.o
++obj-$(CONFIG_KGDB)		+= kgdb.o
+ 
+ obj-$(CONFIG_PPC_PMAC)		+= pmac_setup.o pmac_feature.o pmac_pci.o \
+ 				   pmac_time.o pmac_nvram.o pmac_low_i2c.o
+diff -puN arch/ppc64/kernel/maple_setup.c~ppc64-lite arch/ppc64/kernel/maple_setup.c
+--- linux-2.6.13-rc3/arch/ppc64/kernel/maple_setup.c~ppc64-lite	2005-07-29 11:55:33.000000000 -0700
++++ linux-2.6.13-rc3-trini/arch/ppc64/kernel/maple_setup.c	2005-07-29 11:55:33.000000000 -0700
+@@ -77,6 +77,7 @@ extern void maple_pcibios_fixup(void);
+ extern int maple_pci_get_legacy_ide_irq(struct pci_dev *dev, int channel);
+ extern void generic_find_legacy_serial_ports(u64 *physport,
+ 		unsigned int *default_speed);
++extern void add_kgdb_port(void);
+ 
+ static void maple_restart(char *cmd)
+ {
+@@ -213,6 +214,10 @@ static void __init maple_init_early(void
+ 		DBG("Hello World !\n");
+ 	}
+ 
++#ifdef CONFIG_KGDB_8250
++	add_kgdb_port();
++#endif
++
+ 	/* Setup interrupt mapping options */
+ 	ppc64_interrupt_controller = IC_OPEN_PIC;
+ 
+diff -puN arch/ppc64/kernel/setup.c~ppc64-lite arch/ppc64/kernel/setup.c
+--- linux-2.6.13-rc3/arch/ppc64/kernel/setup.c~ppc64-lite	2005-07-29 11:55:33.000000000 -0700
++++ linux-2.6.13-rc3-trini/arch/ppc64/kernel/setup.c	2005-07-29 11:55:33.000000000 -0700
+@@ -33,6 +33,7 @@
+ #include <linux/unistd.h>
+ #include <linux/serial.h>
+ #include <linux/serial_8250.h>
++#include <linux/kgdb.h>
+ #include <asm/io.h>
+ #include <asm/prom.h>
+ #include <asm/processor.h>
+@@ -1259,6 +1260,7 @@ void __init generic_find_legacy_serial_p
+ 		serial_ports[index].iobase = reg->address;
+ 		serial_ports[index].irq = interrupts ? interrupts[0] : 0;
+ 		serial_ports[index].flags = ASYNC_BOOT_AUTOCONF;
++		serial_ports[index].line = index;
+ 
+ 		DBG("Added legacy port, index: %d, port: %x, irq: %d, clk: %d\n",
+ 		    index,
+@@ -1312,6 +1314,18 @@ void __init generic_find_legacy_serial_p
+ 	DBG(" <- generic_find_legacy_serial_port()\n");
+ }
+ 
++
++#ifdef CONFIG_KGDB_8250
++void add_kgdb_port(void)
++{
++	int ttyS;
++
++	ttyS = kgdb8250_get_ttyS();
++	if (ttyS < old_serial_count)
++		kgdb8250_add_platform_port(ttyS, &serial_ports[ttyS]);
++}
++#endif
++
+ static struct platform_device serial_device = {
+ 	.name	= "serial8250",
+ 	.id	= 0,
+diff -puN arch/ppc64/mm/fault.c~ppc64-lite arch/ppc64/mm/fault.c
+--- linux-2.6.13-rc3/arch/ppc64/mm/fault.c~ppc64-lite	2005-07-29 11:55:33.000000000 -0700
++++ linux-2.6.13-rc3-trini/arch/ppc64/mm/fault.c	2005-07-29 11:55:33.000000000 -0700
+@@ -29,6 +29,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/smp_lock.h>
+ #include <linux/module.h>
++#include <linux/kgdb.h>
+ 
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+@@ -306,6 +307,13 @@ void bad_page_fault(struct pt_regs *regs
+ 		regs->nip = entry->fixup;
+ 		return;
+ 	}
++#ifdef CONFIG_KGDB
++	if (atomic_read(&debugger_active) && kgdb_may_fault) {
++		/* Restore our previous state. */
++		kgdb_fault_longjmp(kgdb_fault_jmp_regs);
++		/* Not reached. */
++	}
++#endif
+ 
+ 	/* kernel has accessed a bad area */
+ 	die("Kernel access of bad area", regs, sig);
+diff -puN /dev/null include/asm-ppc64/kgdb.h
+--- /dev/null	2005-07-25 10:57:32.312383000 -0700
++++ linux-2.6.13-rc3-trini/include/asm-ppc64/kgdb.h	2005-07-29 11:55:33.000000000 -0700
+@@ -0,0 +1,55 @@
++/*
++ * kgdb.h: Defines and declarations for serial line source level
++ *         remote debugging of the Linux kernel using gdb.
++ *
++ * copied from include/asm-ppc, modified for ppc64
++ *
++ * PPC64 Mods (C) 2005 Frank Rowand (frowand@mvista.com)
++ * PPC Mods (C) 2004 Tom Rini (trini@mvista.com)
++ * PPC Mods (C) 2003 John Whitney (john.whitney@timesys.com)
++ * PPC Mods (C) 1998 Michael Tesch (tesch@cs.wisc.edu)
++ *
++ * Copyright (C) 1995 David S. Miller (davem@caip.rutgers.edu)
++ */
++#ifdef __KERNEL__
++#ifndef _PPC64_KGDB_H
++#define _PPC64_KGDB_H
++
++#ifndef __ASSEMBLY__
++
++#define BREAK_INSTR_SIZE	4
++#if 1
++/*
++ * Does not include vector registers and vector state registers.
++ *
++ * 64 bit (8 byte) registers:
++ *   32 gpr, 32 fpr, nip, msr, link, ctr
++ * 32 bit (4 byte) registers:
++ *   ccr, xer, fpscr
++ */
++#define NUMREGBYTES		((68 * 8) + (3 * 4))
++#else
++/*
++ * Includes vector registers and vector state registers.
++ *
++ * 128 bit (16 byte) registers:
++ *   32 vr
++ * 64 bit (8 byte) registers:
++ *   32 gpr, 32 fpr, nip, msr, link, ctr
++ * 32 bit (4 byte) registers:
++ *   ccr, xer, fpscr, vscr, vrsave
++ */
++#define NUMREGBYTES		((128 * 16) + (68 * 8) + (5 * 4))
++#endif
++#define NUMCRITREGBYTES		184
++#define BUFMAX			((NUMREGBYTES * 2) + 512)
++#define OUTBUFMAX		((NUMREGBYTES * 2) + 512)
++#define BREAKPOINT()		asm(".long 0x7d821008"); /* twge r2, r2 */
++#define CHECK_EXCEPTION_STACK()	1
++#define CACHE_FLUSH_IS_SAFE	1
++
++#endif /* !(__ASSEMBLY__) */
++
++#endif /* !(_PPC64_KGDB_H) */
++
++#endif /* __KERNEL__ */
+diff -puN lib/Kconfig.debug~ppc64-lite lib/Kconfig.debug
+--- linux-2.6.13-rc3/lib/Kconfig.debug~ppc64-lite	2005-07-29 11:55:33.000000000 -0700
++++ linux-2.6.13-rc3-trini/lib/Kconfig.debug	2005-07-29 12:49:24.000000000 -0700
+@@ -163,7 +163,7 @@ config FRAME_POINTER
+ 
+ config KGDB
+ 	bool "KGDB: kernel debugging with remote gdb"
+-	depends on DEBUG_KERNEL && (ARM || X86 || MIPS32 || (SUPERH && !SUPERH64) || IA64 || X86_64 || ((!SMP || BROKEN) && PPC32))
++	depends on DEBUG_KERNEL && (ARM || X86 || MIPS32 || PPC64 || (SUPERH && !SUPERH64) || IA64 || X86_64 || ((!SMP || BROKEN) && PPC32))
+ 	help
+ 	  If you say Y here, it will be possible to remotely debug the
+ 	  kernel using gdb. It is strongly suggested that you enable
+_

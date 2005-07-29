@@ -1,1061 +1,766 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262898AbVG2WnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVG2VZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbVG2WnM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 18:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVG2Wlt
+	id S262848AbVG2VZP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVG2VY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 18:41:49 -0400
-Received: from main.gmane.org ([80.91.229.2]:30943 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262898AbVG2Wit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 18:38:49 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alexander Fieroch <fieroch@web.de>
-Subject: Re: PROBLEM: "drive appears confused" and "irq 18: nobody cared!"
-Date: Sat, 30 Jul 2005 00:38:12 +0200
-Message-ID: <42EAAFD4.4010303@web.de>
-References: <d6gf8j$jnb$1@sea.gmane.org>	 <20050527171613.5f949683.akpm@osdl.org> <429A2397.6090609@web.de>	 <58cb370e05061401041a67cfa7@mail.gmail.com> <42B091EE.4020802@web.de>	 <20050615143039.24132251.akpm@osdl.org>	 <1118960606.24646.58.camel@localhost.localdomain>	 <42B2AACC.7070908@web.de>	 <1119011887.24646.84.camel@localhost.localdomain>	 <42B302C2.9030009@web.de> <9a874849050617101712b80b15@mail.gmail.com> <42CBAFC6.6040608@web.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------000204020703000108040509"
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       bzolnier@gmail.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alexey Dobriyan <adobriyan@gmail.com>, Natalie.Protasevich@UNISYS.com,
-       Andrew Morton <akpm@osdl.org>
-X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
-X-Accept-Language: de-de, en-us, en
-In-Reply-To: <42CBAFC6.6040608@web.de>
+	Fri, 29 Jul 2005 17:24:26 -0400
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:59888 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S262216AbVG2VUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 17:20:07 -0400
+Subject: [patch 07/15] Basic x86_64 support
+Date: Fri, 29 Jul 2005 14:20:02 -0700
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org, ak@suse.de,
+       amitkale@linsyssoft.com
+From: Tom Rini <trini@kernel.crashing.org>
+Message-Id: <resend.7.2972005.trini@kernel.crashing.org>
+In-Reply-To: <resend.6.2972005.trini@kernel.crashing.org>
+References: <resend.6.2972005.trini@kernel.crashing.org> <1.2972005.trini@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000204020703000108040509
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Andrew Morton wrote:
-  > Is 2.6.13-rc4 running OK? If not, please cc linux-kernel on the 
-reply and
-  > re-summarise the problem, thanks.
+CC: Andi Kleen <ak@suse.de>, Amit S Kale <amitkale@linsyssoft.com>
+This adds support for the x86_64 architecture.  In addition to what was noted
+in the core-lite patch about stuff outside of new files, we add -g0 to
+compiling of syscalls.o as otherwise we run into problems when debugging
+modules, and like i386 annotate switch_to().
 
-Same problems as before occur in kernel 2.6.13rc4, too.
+---
 
-I've attached the syslog with kernel parameters "acpi=debug pci=routeirq
-apic=debug".
+ linux-2.6.13-rc3-trini/arch/x86_64/Kconfig.debug     |    3 
+ linux-2.6.13-rc3-trini/arch/x86_64/kernel/Makefile   |    2 
+ linux-2.6.13-rc3-trini/arch/x86_64/kernel/kgdb-jmp.S |   65 ++
+ linux-2.6.13-rc3-trini/arch/x86_64/kernel/kgdb.c     |  462 +++++++++++++++++++
+ linux-2.6.13-rc3-trini/arch/x86_64/kernel/traps.c    |    9 
+ linux-2.6.13-rc3-trini/include/asm-x86_64/hw_irq.h   |    1 
+ linux-2.6.13-rc3-trini/include/asm-x86_64/ipi.h      |   12 
+ linux-2.6.13-rc3-trini/include/asm-x86_64/kgdb.h     |   50 ++
+ linux-2.6.13-rc3-trini/include/asm-x86_64/system.h   |    6 
+ linux-2.6.13-rc3-trini/lib/Kconfig.debug             |    2 
+ 10 files changed, 607 insertions(+), 5 deletions(-)
 
-Regards,
-Alexander
-
-
---------------000204020703000108040509
-Content-Type: text/plain;
- name="interrupts"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="interrupts"
-
-           CPU0       CPU1       
-  0:      56856          0    IO-APIC-edge  timer
-  1:        147          0    IO-APIC-edge  i8042
-  7:          0          0    IO-APIC-edge  parport0
-  8:          0          0    IO-APIC-edge  rtc
-  9:          0          0   IO-APIC-level  acpi
- 10:          0          0    IO-APIC-edge  MPU401 UART
-169:        497          0   IO-APIC-level  skge, uhci_hcd:usb5, HDA Intel
-177:          0          0   IO-APIC-level  Ensoniq AudioPCI
-185:        274          0   IO-APIC-level  ide2, ide3, ehci_hcd:usb1, uhci_hcd:usb2
-193:       3920          0   IO-APIC-level  libata, uhci_hcd:usb3
-201:     900000          0   IO-APIC-level  ide0, uhci_hcd:usb4
-209:          5          0   IO-APIC-level  bttv0, ohci1394
-NMI:         52          1 
-LOC:      55103      55092 
-ERR:          1
-MIS:          0
-
-
---------------000204020703000108040509
-Content-Type: text/plain;
- name="syslog2613rc4"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline;
- filename="syslog2613rc4"
-
-Jul 29 12:41:31 orclex syslog-ng[4266]: syslog-ng version 1.6.8 starting
-Jul 29 12:41:31 orclex syslog-ng[4266]: Changing permissions on special file /dev/xconsole
-Jul 29 12:41:31 orclex kernel: Bootdata ok (command line is root=/dev/sda3 ro vga=792 acpi=debug pci=routeirq apic=debug)
-Jul 29 12:41:31 orclex kernel: Linux version 2.6.13-rc4 (root@orclex) (gcc version 3.3.6 (Debian 1:3.3.6-7)) #1 SMP Fri Jul 29 12:32:37 CEST 2005
-Jul 29 12:41:31 orclex kernel: BIOS-provided physical RAM map:
-Jul 29 12:41:31 orclex kernel: BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-Jul 29 12:41:31 orclex kernel: BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-Jul 29 12:41:31 orclex kernel: BIOS-e820: 00000000000e4000 - 0000000000100000 (reserved)
-Jul 29 12:41:31 orclex kernel: BIOS-e820: 0000000000100000 - 000000003ffb0000 (usable)
-Jul 29 12:41:31 orclex kernel: BIOS-e820: 000000003ffb0000 - 000000003ffbe000 (ACPI data)
-Jul 29 12:41:31 orclex kernel: BIOS-e820: 000000003ffbe000 - 000000003fff0000 (ACPI NVS)
-Jul 29 12:41:31 orclex kernel: BIOS-e820: 000000003fff0000 - 0000000040000000 (reserved)
-Jul 29 12:41:31 orclex kernel: BIOS-e820: 00000000ffb00000 - 0000000100000000 (reserved)
-Jul 29 12:41:31 orclex kernel: ACPI: RSDP (v002 ACPIAM                                ) @ 0x00000000000fb040
-Jul 29 12:41:31 orclex kernel: ACPI: XSDT (v001 A M I  OEMXSDT  0x05000529 MSFT 0x00000097) @ 0x000000003ffb0100
-Jul 29 12:41:31 orclex kernel: ACPI: FADT (v003 A M I  OEMFACP  0x05000529 MSFT 0x00000097) @ 0x000000003ffb0290
-Jul 29 12:41:31 orclex kernel: ACPI: MADT (v001 A M I  OEMAPIC  0x05000529 MSFT 0x00000097) @ 0x000000003ffb0390
-Jul 29 12:41:31 orclex kernel: ACPI: OEMB (v001 A M I  AMI_OEM  0x05000529 MSFT 0x00000097) @ 0x000000003ffbe040
-Jul 29 12:41:31 orclex kernel: ACPI: MCFG (v001 A M I  OEMMCFG  0x05000529 MSFT 0x00000097) @ 0x000000003ffb6c80
-Jul 29 12:41:31 orclex kernel: ACPI: DSDT (v001  A0086 A0086003 0x00000003 INTL 0x02002026) @ 0x0000000000000000
-Jul 29 12:41:31 orclex kernel: On node 0 totalpages: 262064
-Jul 29 12:41:31 orclex kernel: DMA zone: 4096 pages, LIFO batch:1
-Jul 29 12:41:31 orclex kernel: Normal zone: 257968 pages, LIFO batch:31
-Jul 29 12:41:31 orclex kernel: HighMem zone: 0 pages, LIFO batch:1
-Jul 29 12:41:31 orclex kernel: ACPI: PM-Timer IO Port: 0x808
-Jul 29 12:41:31 orclex kernel: ACPI: Local APIC address 0xfee00000
-Jul 29 12:41:31 orclex kernel: ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-Jul 29 12:41:31 orclex kernel: Processor #0 15:4 APIC version 16
-Jul 29 12:41:31 orclex kernel: ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
-Jul 29 12:41:31 orclex kernel: Processor #1 15:4 APIC version 16
-Jul 29 12:41:31 orclex kernel: ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
-Jul 29 12:41:31 orclex kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-Jul 29 12:41:31 orclex kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
-Jul 29 12:41:31 orclex udev[4275]: removing device node '/dev/vcsa1'
-Jul 29 12:41:31 orclex kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-Jul 29 12:41:31 orclex kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
-Jul 29 12:41:31 orclex kernel: ACPI: IRQ0 used by override.
-Jul 29 12:41:31 orclex kernel: ACPI: IRQ2 used by override.
-Jul 29 12:41:31 orclex kernel: ACPI: IRQ9 used by override.
-Jul 29 12:41:31 orclex kernel: Setting APIC routing to flat
-Jul 29 12:41:31 orclex kernel: Using ACPI (MADT) for SMP configuration information
-Jul 29 12:41:31 orclex kernel: Allocating PCI resources starting at 40000000 (gap: 40000000:bfb00000)
-Jul 29 12:41:31 orclex kernel: Built 1 zonelists
-Jul 29 12:41:31 orclex kernel: Kernel command line: root=/dev/sda3 ro vga=792 acpi=debug pci=routeirq apic=debug
-Jul 29 12:41:31 orclex kernel: Initializing CPU#0
-Jul 29 12:41:31 orclex kernel: PID hash table entries: 4096 (order: 12, 131072 bytes)
-Jul 29 12:41:31 orclex kernel: time.c: Using 3.579545 MHz PM timer.
-Jul 29 12:41:31 orclex kernel: time.c: Detected 3010.847 MHz processor.
-Jul 29 12:41:31 orclex kernel: Console: colour dummy device 80x25
-Jul 29 12:41:31 orclex kernel: Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
-Jul 29 12:41:31 orclex kernel: Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
-Jul 29 12:41:31 orclex kernel: Memory: 1023708k/1048256k available (3374k kernel code, 23860k reserved, 1786k data, 232k init)
-Jul 29 12:41:31 orclex kernel: Calibrating delay using timer specific routine.. 6030.86 BogoMIPS (lpj=12061722)
-Jul 29 12:41:31 orclex kernel: Security Framework v1.0.0 initialized
-Jul 29 12:41:31 orclex kernel: Capability LSM initialized
-Jul 29 12:41:31 orclex kernel: Mount-cache hash table entries: 256
-Jul 29 12:41:31 orclex kernel: CPU: Trace cache: 12K uops, L1 D cache: 16K
-Jul 29 12:41:31 orclex kernel: CPU: L2 cache: 2048K
-Jul 29 12:41:31 orclex kernel: using mwait in idle threads.
-Jul 29 12:41:31 orclex kernel: CPU: Physical Processor ID: 0
-Jul 29 12:41:31 orclex kernel: CPU0: Thermal monitoring enabled (TM1)
-Jul 29 12:41:31 orclex kernel: mtrr: v2.0 (20020519)
-Jul 29 12:41:31 orclex kernel: ACPI-0498: *** Warning: Encountered executable code at module level, [AE_NOT_CONFIGURED]
-Jul 29 12:41:31 orclex kernel: ACPI-0498: *** Warning: Encountered executable code at module level, [AE_NOT_CONFIGURED]
-Jul 29 12:41:31 orclex kernel: ACPI-0498: *** Warning: Encountered executable code at module level, [AE_NOT_CONFIGURED]
-Jul 29 12:41:31 orclex kernel: ACPI-0498: *** Warning: Encountered executable code at module level, [AE_NOT_CONFIGURED]
-Jul 29 12:41:31 orclex kernel: enabled ExtINT on CPU#0
-Jul 29 12:41:31 orclex kernel: ENABLING IO-APIC IRQs
-Jul 29 12:41:31 orclex kernel: init IO_APIC IRQs
-Jul 29 12:41:31 orclex kernel: IO-APIC (apicid-pin) 2-0, 2-16, 2-17, 2-18, 2-19, 2-20, 2-21, 2-22, 2-23 not connected.
-Jul 29 12:41:31 orclex kernel: ..TIMER: vector=0x31 pin1=2 pin2=-1
-Jul 29 12:41:31 orclex kernel: Using local APIC timer interrupts.
-Jul 29 12:41:31 orclex kernel: Detected 12.545 MHz APIC timer.
-Jul 29 12:41:31 orclex kernel: Booting processor 1/1 rip 6000 rsp ffff810002191f58
-Jul 29 12:41:31 orclex udev[4283]: creating device node '/dev/vcsa1'
-Jul 29 12:41:31 orclex kernel: Initializing CPU#1
-Jul 29 12:41:31 orclex kernel: masked ExtINT on CPU#1
-Jul 29 12:41:31 orclex kernel: Calibrating delay using timer specific routine.. 6021.75 BogoMIPS (lpj=12043514)
-Jul 29 12:41:31 orclex kernel: CPU: Trace cache: 12K uops, L1 D cache: 16K
-Jul 29 12:41:31 orclex kernel: CPU: L2 cache: 2048K
-Jul 29 12:41:31 orclex kernel: CPU: Physical Processor ID: 0
-Jul 29 12:41:31 orclex kernel: CPU1: Thermal monitoring enabled (TM1)
-Jul 29 12:41:31 orclex kernel: Intel(R) Pentium(R) 4 CPU 3.00GHz stepping 03
-Jul 29 12:41:31 orclex kernel: APIC error on CPU1: 00(40)
-Jul 29 12:41:31 orclex kernel: CPU 1: Syncing TSC to CPU 0.
-Jul 29 12:41:31 orclex kernel: CPU 1: synchronized TSC with CPU 0 (last diff -4 cycles, maxerr 795 cycles)
-Jul 29 12:41:31 orclex kernel: Brought up 2 CPUs
-Jul 29 12:41:31 orclex kernel: time.c: Using PIT/TSC based timekeeping.
-Jul 29 12:41:31 orclex kernel: testing NMI watchdog ... CPU#1: NMI appears to be stuck (1->1)!
-Jul 29 12:41:31 orclex kernel: NET: Registered protocol family 16
-Jul 29 12:41:31 orclex kernel: ACPI: bus type pci registered
-Jul 29 12:41:31 orclex kernel: PCI: Using configuration type 1
-Jul 29 12:41:31 orclex kernel: PCI: Using MMCONFIG at e0000000
-Jul 29 12:41:31 orclex kernel: ACPI: Subsystem revision 20050408
-Jul 29 12:41:31 orclex kernel: ACPI: Interpreter enabled
-Jul 29 12:41:31 orclex kernel: ACPI: Using IOAPIC for interrupt routing
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Root Bridge [PCI0] (0000:00)
-Jul 29 12:41:31 orclex kernel: PCI: Probing PCI hardware (bus 00)
-Jul 29 12:41:31 orclex kernel: ACPI: Assume root bridge [\_SB_.PCI0] segment is 0
-Jul 29 12:41:31 orclex kernel: Boot video device is 0000:04:00.0
-Jul 29 12:41:31 orclex kernel: PCI: Transparent bridge - 0000:00:1e.0
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P1._PRT]
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P3._PRT]
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P4._PRT]
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P5._PRT]
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 *5 6 7 10 11 12 14 15)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 10 11 12 *14 15)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Link [LNKD] (IRQs *3 4 5 6 7 10 11 12 14 15)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 *5 6 7 10 11 12 14 15)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 7 10 11 12 14 *15)
-Jul 29 12:41:31 orclex kernel: Linux Plug and Play Support v0.97 (c) Adam Belay
-Jul 29 12:41:31 orclex kernel: pnp: PnP ACPI init
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-8 -> 0x69 -> IRQ 8 Mode:0 Active:0)
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-13 -> 0x91 -> IRQ 13 Mode:0 Active:0)
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-6 -> 0x59 -> IRQ 6 Mode:0 Active:0)
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-7 -> 0x61 -> IRQ 7 Mode:0 Active:0)
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-1 -> 0x39 -> IRQ 1 Mode:0 Active:0)
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-10 -> 0x79 -> IRQ 10 Mode:0 Active:0)
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-4 -> 0x49 -> IRQ 4 Mode:0 Active:0)
-Jul 29 12:41:31 orclex kernel: pnp: PnP ACPI: found 19 devices
-Jul 29 12:41:31 orclex kernel: SCSI subsystem initialized
-Jul 29 12:41:31 orclex kernel: usbcore: registered new driver usbfs
-Jul 29 12:41:31 orclex kernel: usbcore: registered new driver hub
-Jul 29 12:41:31 orclex kernel: PCI: Using ACPI for IRQ routing
-Jul 29 12:41:31 orclex kernel: PCI: Routing PCI interrupts for all devices because "pci=routeirq" specified
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-16 -> 0xa9 -> IRQ 16 Mode:1 Active:1)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:01.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1b.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1c.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-17 -> 0xb1 -> IRQ 17 Mode:1 Active:1)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1c.1[B] -> GSI 17 (level, low) -> IRQ 177
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-23 -> 0xb9 -> IRQ 18 Mode:1 Active:1)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1d.0[A] -> GSI 23 (level, low) -> IRQ 185
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-19 -> 0xc1 -> IRQ 19 Mode:1 Active:1)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1d.1[B] -> GSI 19 (level, low) -> IRQ 193
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-18 -> 0xc9 -> IRQ 20 Mode:1 Active:1)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1d.2[C] -> GSI 18 (level, low) -> IRQ 201
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1d.3[D] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1d.7[A] -> GSI 23 (level, low) -> IRQ 185
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 201
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 193
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1f.3[B] -> GSI 19 (level, low) -> IRQ 193
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:04:00.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 17 (level, low) -> IRQ 177
-Jul 29 12:41:31 orclex kernel: IOAPIC[0]: Set PCI routing entry (2-21 -> 0xd1 -> IRQ 21 Mode:1 Active:1)
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:03.0[A] -> GSI 21 (level, low) -> IRQ 209
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:04.0[A] -> GSI 23 (level, low) -> IRQ 185
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:06.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:09.0[A] -> GSI 17 (level, low) -> IRQ 177
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:0a.0[A] -> GSI 21 (level, low) -> IRQ 209
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:0a.1[A] -> GSI 21 (level, low) -> IRQ 209
-Jul 29 12:41:31 orclex kernel: number of MP IRQ sources: 17.
-Jul 29 12:41:31 orclex kernel: number of IO-APIC #2 registers: 24.
-Jul 29 12:41:31 orclex kernel: testing the IO APIC.......................
-Jul 29 12:41:31 orclex kernel: 
-Jul 29 12:41:31 orclex kernel: IO APIC #2......
-Jul 29 12:41:31 orclex kernel: .... register #00: 02000000
-Jul 29 12:41:31 orclex kernel: .......    : physical APIC id: 02
-Jul 29 12:41:31 orclex kernel: .... register #01: 00170020
-Jul 29 12:41:31 orclex kernel: .......     : max redirection entries: 0017
-Jul 29 12:41:31 orclex kernel: .......     : PRQ implemented: 0
-Jul 29 12:41:31 orclex kernel: .......     : IO APIC version: 0020
-Jul 29 12:41:31 orclex kernel: .... register #02: 00170020
-Jul 29 12:41:31 orclex kernel: .......     : arbitration: 00
-Jul 29 12:41:31 orclex kernel: .... IRQ redirection table:
-Jul 29 12:41:31 orclex kernel: NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
-Jul 29 12:41:31 orclex kernel: 00 000 00  1    0    0   0   0    0    0    00
-Jul 29 12:41:31 orclex kernel: 01 003 03  1    0    0   0   0    1    1    39
-Jul 29 12:41:31 orclex kernel: 02 003 03  0    0    0   0   0    1    1    31
-Jul 29 12:41:31 orclex kernel: 03 003 03  0    0    0   0   0    1    1    41
-Jul 29 12:41:31 orclex kernel: 04 003 03  1    0    0   0   0    1    1    49
-Jul 29 12:41:31 orclex kernel: 05 003 03  0    0    0   0   0    1    1    51
-Jul 29 12:41:31 orclex kernel: 06 003 03  1    0    0   0   0    1    1    59
-Jul 29 12:41:31 orclex kernel: 07 003 03  1    0    0   0   0    1    1    61
-Jul 29 12:41:31 orclex kernel: 08 003 03  1    0    0   0   0    1    1    69
-Jul 29 12:41:31 orclex kernel: 09 003 03  0    1    0   0   0    1    1    71
-Jul 29 12:41:31 orclex kernel: 0a 003 03  1    0    0   0   0    1    1    79
-Jul 29 12:41:31 orclex kernel: 0b 003 03  0    0    0   0   0    1    1    81
-Jul 29 12:41:31 orclex kernel: 0c 003 03  0    0    0   0   0    1    1    89
-Jul 29 12:41:31 orclex kernel: 0d 003 03  1    0    0   0   0    1    1    91
-Jul 29 12:41:31 orclex kernel: 0e 003 03  0    0    0   0   0    1    1    99
-Jul 29 12:41:31 orclex kernel: 0f 003 03  0    0    0   0   0    1    1    A1
-Jul 29 12:41:31 orclex kernel: 10 003 03  1    1    0   1   0    1    1    A9
-Jul 29 12:41:31 orclex kernel: 11 003 03  1    1    0   1   0    1    1    B1
-Jul 29 12:41:31 orclex kernel: 12 003 03  1    1    0   1   0    1    1    C9
-Jul 29 12:41:31 orclex kernel: 13 003 03  1    1    0   1   0    1    1    C1
-Jul 29 12:41:31 orclex kernel: 14 000 00  1    0    0   0   0    0    0    00
-Jul 29 12:41:31 orclex kernel: 15 003 03  1    1    0   1   0    1    1    D1
-Jul 29 12:41:31 orclex kernel: 16 000 00  1    0    0   0   0    0    0    00
-Jul 29 12:41:31 orclex kernel: 17 003 03  1    1    0   1   0    1    1    B9
-Jul 29 12:41:31 orclex kernel: Using vector-based indexing
-Jul 29 12:41:31 orclex kernel: IRQ to pin mappings:
-Jul 29 12:41:31 orclex kernel: IRQ0 -> 0:2
-Jul 29 12:41:31 orclex kernel: IRQ1 -> 0:1
-Jul 29 12:41:31 orclex kernel: IRQ3 -> 0:3
-Jul 29 12:41:31 orclex kernel: IRQ4 -> 0:4
-Jul 29 12:41:31 orclex kernel: IRQ5 -> 0:5
-Jul 29 12:41:31 orclex kernel: IRQ6 -> 0:6
-Jul 29 12:41:31 orclex kernel: IRQ7 -> 0:7
-Jul 29 12:41:31 orclex kernel: IRQ8 -> 0:8
-Jul 29 12:41:31 orclex kernel: IRQ9 -> 0:9
-Jul 29 12:41:31 orclex kernel: IRQ10 -> 0:10
-Jul 29 12:41:31 orclex kernel: IRQ11 -> 0:11
-Jul 29 12:41:31 orclex kernel: IRQ12 -> 0:12
-Jul 29 12:41:31 orclex kernel: IRQ13 -> 0:13
-Jul 29 12:41:31 orclex kernel: IRQ14 -> 0:14
-Jul 29 12:41:31 orclex kernel: IRQ15 -> 0:15
-Jul 29 12:41:31 orclex kernel: IRQ169 -> 0:16
-Jul 29 12:41:31 orclex kernel: IRQ177 -> 0:17
-Jul 29 12:41:31 orclex kernel: IRQ185 -> 0:23
-Jul 29 12:41:31 orclex kernel: IRQ193 -> 0:19
-Jul 29 12:41:31 orclex kernel: IRQ201 -> 0:18
-Jul 29 12:41:31 orclex kernel: IRQ209 -> 0:21
-Jul 29 12:41:31 orclex kernel: .................................... done.
-Jul 29 12:41:31 orclex kernel: PCI: Bridge: 0000:00:01.0
-Jul 29 12:41:31 orclex kernel: IO window: e000-efff
-Jul 29 12:41:31 orclex kernel: MEM window: d0000000-d6ffffff
-Jul 29 12:41:31 orclex kernel: PREFETCH window: d8000000-dfffffff
-Jul 29 12:41:31 orclex kernel: PCI: Bridge: 0000:00:1c.0
-Jul 29 12:41:31 orclex kernel: IO window: d000-dfff
-Jul 29 12:41:31 orclex kernel: MEM window: disabled.
-Jul 29 12:41:31 orclex kernel: PREFETCH window: disabled.
-Jul 29 12:41:31 orclex kernel: PCI: Bridge: 0000:00:1c.1
-Jul 29 12:41:31 orclex kernel: IO window: c000-cfff
-Jul 29 12:41:31 orclex kernel: MEM window: cff00000-cfffffff
-Jul 29 12:41:31 orclex kernel: PREFETCH window: 40000000-400fffff
-Jul 29 12:41:31 orclex kernel: PCI: Bridge: 0000:00:1e.0
-Jul 29 12:41:31 orclex kernel: IO window: 9000-bfff
-Jul 29 12:41:31 orclex kernel: MEM window: cfe00000-cfefffff
-Jul 29 12:41:31 orclex kernel: PREFETCH window: d7f00000-d7ffffff
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:01.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:01.0 to 64
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1c.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1c.0 to 64
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1c.1[B] -> GSI 17 (level, low) -> IRQ 177
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1c.1 to 64
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1e.0 to 64
-Jul 29 12:41:31 orclex kernel: TC classifier action (bugs to netdev@vger.kernel.org cc hadi@cyberus.ca)
-Jul 29 12:41:31 orclex kernel: pnp: 00:07: ioport range 0x290-0x297 has been reserved
-Jul 29 12:41:31 orclex kernel: pnp: 00:09: ioport range 0x3f6-0x3f6 has been reserved
-Jul 29 12:41:31 orclex kernel: IA-32 Microcode Update Driver: v1.14 <tigran@veritas.com>
-Jul 29 12:41:31 orclex kernel: IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
-Jul 29 12:41:31 orclex kernel: NTFS driver 2.1.23 [Flags: R/O].
-Jul 29 12:41:31 orclex kernel: Initializing Cryptographic API
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:01.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:01.0 to 64
-Jul 29 12:41:31 orclex kernel: assign_interrupt_mode Found MSI capability
-Jul 29 12:41:31 orclex kernel: Allocate Port Service[pcie00]
-Jul 29 12:41:31 orclex kernel: Allocate Port Service[pcie03]
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1c.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1c.0 to 64
-Jul 29 12:41:31 orclex kernel: assign_interrupt_mode Found MSI capability
-Jul 29 12:41:31 orclex kernel: Allocate Port Service[pcie00]
-Jul 29 12:41:31 orclex kernel: Allocate Port Service[pcie02]
-Jul 29 12:41:31 orclex kernel: Allocate Port Service[pcie03]
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1c.1[B] -> GSI 17 (level, low) -> IRQ 177
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1c.1 to 64
-Jul 29 12:41:31 orclex kernel: assign_interrupt_mode Found MSI capability
-Jul 29 12:41:31 orclex kernel: Allocate Port Service[pcie00]
-Jul 29 12:41:31 orclex kernel: Allocate Port Service[pcie02]
-Jul 29 12:41:31 orclex kernel: Allocate Port Service[pcie03]
-Jul 29 12:41:31 orclex kernel: vesafb: framebuffer at 0xd8000000, mapped to 0xffffc20010100000, using 6144k, total 131072k
-Jul 29 12:41:31 orclex kernel: vesafb: mode is 1024x768x32, linelength=4096, pages=1
-Jul 29 12:41:31 orclex kernel: vesafb: scrolling: redraw
-Jul 29 12:41:31 orclex kernel: vesafb: Truecolor: size=8:8:8:8, shift=24:16:8:0
-Jul 29 12:41:31 orclex kernel: Console: switching to colour frame buffer device 128x48
-Jul 29 12:41:31 orclex kernel: fb0: VESA VGA frame buffer device
-Jul 29 12:41:31 orclex kernel: vga16fb: initializing
-Jul 29 12:41:31 orclex kernel: vga16fb: mapped to 0xffff8100000a0000
-Jul 29 12:41:31 orclex kernel: fb1: VGA16 VGA frame buffer device
-Jul 29 12:41:31 orclex kernel: ACPI: Power Button (FF) [PWRF]
-Jul 29 12:41:31 orclex kernel: ACPI: Power Button (CM) [PWRB]
-Jul 29 12:41:31 orclex kernel: ACPI: CPU0 (power states: C1[C1])
-Jul 29 12:41:31 orclex kernel: ACPI: Processor [CPU1] (supports 8 throttling states)
-Jul 29 12:41:31 orclex kernel: ACPI: CPU1 (power states: C1[C1])
-Jul 29 12:41:31 orclex kernel: Real Time Clock Driver v1.12
-Jul 29 12:41:31 orclex kernel: Linux agpgart interface v0.101 (c) Dave Jones
-Jul 29 12:41:31 orclex kernel: [drm] Initialized drm 1.0.0 20040925
-Jul 29 12:41:31 orclex kernel: Hangcheck: starting hangcheck timer 0.9.0 (tick is 180 seconds, margin is 60 seconds).
-Jul 29 12:41:31 orclex kernel: Hangcheck: Using monotonic_clock().
-Jul 29 12:41:31 orclex kernel: PNP: PS/2 controller doesn't have AUX irq; using default 0xc
-Jul 29 12:41:31 orclex kernel: PNP: PS/2 Controller [PNP0303:PS2K] at 0x60,0x64 irq 112
-Jul 29 12:41:31 orclex kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-Jul 29 12:41:31 orclex kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
-Jul 29 12:41:31 orclex kernel: io scheduler noop registered
-Jul 29 12:41:31 orclex kernel: io scheduler anticipatory registered
-Jul 29 12:41:31 orclex kernel: io scheduler deadline registered
-Jul 29 12:41:31 orclex kernel: io scheduler cfq registered
-Jul 29 12:41:31 orclex kernel: Floppy drive(s): fd0 is 1.44M
-Jul 29 12:41:31 orclex kernel: FDC 0 is a post-1991 82077
-Jul 29 12:41:31 orclex kernel: RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-Jul 29 12:41:31 orclex kernel: loop: loaded (max 8 devices)
-Jul 29 12:41:31 orclex kernel: pktcdvd: v0.2.0a 2004-07-14 Jens Axboe (axboe@suse.de) and petero2@telia.com
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:06.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: skge addr 0xcfefc000 irq 169 chip Yukon-Lite rev 7
-Jul 29 12:41:31 orclex kernel: skge eth0: addr 00:11:2f:1c:f0:91
-Jul 29 12:41:31 orclex kernel: PPP generic driver version 2.4.2
-Jul 29 12:41:31 orclex kernel: PPP Deflate Compression module registered
-Jul 29 12:41:31 orclex kernel: NET: Registered protocol family 24
-Jul 29 12:41:31 orclex kernel: dmfe: Davicom DM9xxx net driver, version 1.36.4 (2002-01-17)
-Jul 29 12:41:31 orclex kernel: netconsole: not configured, aborting
-Jul 29 12:41:31 orclex kernel: Linux video capture interface: v1.00
-Jul 29 12:41:31 orclex kernel: bttv: driver version 0.9.15 loaded
-Jul 29 12:41:31 orclex kernel: bttv: using 8 buffers with 2080k (520 pages) each for capture
-Jul 29 12:41:31 orclex kernel: bttv: Bt8xx card found (0).
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:0a.0[A] -> GSI 21 (level, low) -> IRQ 209
-Jul 29 12:41:31 orclex kernel: bttv0: Bt878 (rev 2) at 0000:01:0a.0, irq: 209, latency: 64, mmio: 0xd7ffe000
-Jul 29 12:41:31 orclex kernel: bttv0: detected: Hauppauge WinTV [card=10], PCI subsystem ID is 0070:13eb
-Jul 29 12:41:31 orclex kernel: bttv0: using: Hauppauge (bt878) [card=10,autodetected]
-Jul 29 12:41:31 orclex kernel: bttv0: gpio: en=00000000, out=00000000 in=00ffffdb [init]
-Jul 29 12:41:31 orclex kernel: bttv0: Hauppauge/Voodoo msp34xx: reset line init [5]
-Jul 29 12:41:31 orclex kernel: tveeprom: Hauppauge: model = 61334, rev = B   , serial# = 3026517
-Jul 29 12:41:31 orclex kernel: tveeprom: tuner = Philips FM1216 (idx = 21, type = 5)
-Jul 29 12:41:31 orclex kernel: tveeprom: tuner fmt = PAL(B/G) (eeprom = 0x04, v4l2 = 0x00000007)
-Jul 29 12:41:31 orclex kernel: tveeprom: audio_processor = MSP3415 (type = 6)
-Jul 29 12:41:31 orclex kernel: bttv0: using tuner=5
-Jul 29 12:41:31 orclex kernel: bttv0: registered device video0
-Jul 29 12:41:31 orclex kernel: bttv0: registered device vbi0
-Jul 29 12:41:31 orclex kernel: bttv0: registered device radio0
-Jul 29 12:41:31 orclex kernel: bttv0: PLL: 28636363 => 35468950 .. ok
-Jul 29 12:41:31 orclex kernel: msp34xx: init: chip=MSP3410D-B4 +nicam +simple mode=simple
-Jul 29 12:41:31 orclex kernel: msp3410: daemon started
-Jul 29 12:41:31 orclex kernel: tvaudio: TV audio decoder + audio/video mux driver
-Jul 29 12:41:31 orclex kernel: tvaudio: known chips: tda9840,tda9873h,tda9874h/a,tda9850,tda9855,tea6300,tea6320,tea6420,tda8425,pic16c54 (PV951),ta8874z
-Jul 29 12:41:31 orclex kernel: SAA5246A (or compatible) Teletext decoder driver version 1.8
-Jul 29 12:41:31 orclex kernel: SAA5249 driver (SAA5249 interface) for VideoText version 1.8
-Jul 29 12:41:31 orclex kernel: : chip found @ 0xc2 (bt878 #0 [sw])
-Jul 29 12:41:31 orclex kernel: tuner 0-0061: type set to 5 (Philips PAL_BG (FI1216 and compatibles))
-Jul 29 12:41:31 orclex kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-Jul 29 12:41:31 orclex kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-Jul 29 12:41:31 orclex kernel: ICH6: IDE controller at PCI slot 0000:00:1f.1
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 201
-Jul 29 12:41:31 orclex kernel: ICH6: chipset revision 3
-Jul 29 12:41:31 orclex kernel: ICH6: 100% native mode on irq 201
-Jul 29 12:41:31 orclex kernel: ide0: BM-DMA at 0x5800-0x5807, BIOS settings: hda:DMA, hdb:DMA
-Jul 29 12:41:31 orclex kernel: ide1: BM-DMA at 0x5808-0x580f, BIOS settings: hdc:pio, hdd:pio
-Jul 29 12:41:31 orclex kernel: Probing IDE interface ide0...
-Jul 29 12:41:31 orclex kernel: hda: IC35L060AVV207-0, ATA DISK drive
-Jul 29 12:41:31 orclex kernel: hdb: SONY CD-RW CRX210E1, ATAPI CD/DVD-ROM drive
-Jul 29 12:41:31 orclex kernel: ide0 at 0x7000-0x7007,0x6802 on irq 201
-Jul 29 12:41:31 orclex kernel: Probing IDE interface ide1...
-Jul 29 12:41:31 orclex kernel: IT8212: IDE controller at PCI slot 0000:01:04.0
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:04.0[A] -> GSI 23 (level, low) -> IRQ 185
-Jul 29 12:41:31 orclex kernel: IT8212: chipset revision 19
-Jul 29 12:41:31 orclex kernel: it821x: controller in pass through mode.
-Jul 29 12:41:31 orclex kernel: IT8212: 100% native mode on irq 185
-Jul 29 12:41:31 orclex kernel: ide2: BM-DMA at 0x9800-0x9807, BIOS settings: hde:pio, hdf:pio
-Jul 29 12:41:31 orclex kernel: ide3: BM-DMA at 0x9808-0x980f, BIOS settings: hdg:pio, hdh:pio
-Jul 29 12:41:31 orclex kernel: Probing IDE interface ide2...
-Jul 29 12:41:31 orclex kernel: hde: Pioneer DVD-ROM ATAPIModel DVD-104S 012, ATAPI CD/DVD-ROM drive
-Jul 29 12:41:31 orclex kernel: ide2 at 0xb000-0xb007,0xa802 on irq 185
-Jul 29 12:41:31 orclex kernel: Probing IDE interface ide3...
-Jul 29 12:41:31 orclex kernel: hdh: WDC WD307AA, ATA DISK drive
-Jul 29 12:41:31 orclex kernel: ide3 at 0xa400-0xa407,0xa002 on irq 185
-Jul 29 12:41:31 orclex kernel: Probing IDE interface ide1...
-Jul 29 12:41:31 orclex kernel: hda: max request size: 1024KiB
-Jul 29 12:41:31 orclex kernel: hda: 120103200 sectors (61492 MB) w/1821KiB Cache, CHS=16383/255/63, UDMA(100)
-Jul 29 12:41:31 orclex kernel: hda: cache flushes supported
-Jul 29 12:41:31 orclex kernel: hda: hda1 hda2
-Jul 29 12:41:31 orclex kernel: hdh: max request size: 128KiB
-Jul 29 12:41:31 orclex kernel: hdh: 60074784 sectors (30758 MB) w/2048KiB Cache, CHS=59598/16/63, UDMA(66)
-Jul 29 12:41:31 orclex kernel: hdh: cache flushes not supported
-Jul 29 12:41:31 orclex kernel: hdh: hdh1 hdh2
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: Uniform CD-ROM driver Revision: 3.20
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:31 orclex kernel: hde: ATAPI DVD-ROM drive, 512kB Cache
-Jul 29 12:41:31 orclex kernel: libata version 1.11 loaded.
-Jul 29 12:41:31 orclex kernel: ahci version 1.01
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 19 (level, low) -> IRQ 193
-Jul 29 12:41:31 orclex kernel: irq 201: nobody cared (try booting with the "irqpoll" option)
-Jul 29 12:41:31 orclex kernel: 
-Jul 29 12:41:31 orclex kernel: Call Trace: <IRQ> <ffffffff80156e67>{__report_bad_irq+48} <ffffffff80156f60>{note_interrupt+144}
-Jul 29 12:41:31 orclex kernel: <ffffffff8015678b>{__do_IRQ+237} <ffffffff80110715>{do_IRQ+67}
-Jul 29 12:41:31 orclex kernel: <ffffffff8010e051>{ret_from_intr+0}  <EOI> <ffffffff8010e181>{retint_kernel+38}
-Jul 29 12:41:31 orclex kernel: <ffffffff8010bcf4>{mwait_idle+94} <ffffffff80281762>{acpi_processor_idle+316}
-Jul 29 12:41:31 orclex kernel: <ffffffff8010bc78>{cpu_idle+79} <ffffffff806a0876>{start_kernel+445}
-Jul 29 12:41:31 orclex kernel: <ffffffff806a022c>{x86_64_start_kernel+320} 
-Jul 29 12:41:31 orclex kernel: handlers:
-Jul 29 12:41:31 orclex kernel: [<ffffffff8031c835>] (ide_intr+0x0/0x17a)
-Jul 29 12:41:31 orclex kernel: Disabling IRQ #201
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1f.2 to 64
-Jul 29 12:41:31 orclex kernel: ahci(0000:00:1f.2) AHCI 0001.0000 32 slots 4 ports 1.5 Gbps 0xf impl IDE mode
-
-Jul 29 12:41:31 orclex kernel: ahci(0000:00:1f.2) flags: 64bit ncq pm led slum part 
-Jul 29 12:41:31 orclex kernel: ata1: SATA max UDMA/133 cmd 0xFFFFC20000026D00 ctl 0x0 bmdma 0x0 irq 193
-Jul 29 12:41:31 orclex kernel: ata2: SATA max UDMA/133 cmd 0xFFFFC20000026D80 ctl 0x0 bmdma 0x0 irq 193
-Jul 29 12:41:31 orclex kernel: ata3: SATA max UDMA/133 cmd 0xFFFFC20000026E00 ctl 0x0 bmdma 0x0 irq 193
-Jul 29 12:41:31 orclex kernel: ata4: SATA max UDMA/133 cmd 0xFFFFC20000026E80 ctl 0x0 bmdma 0x0 irq 193
-Jul 29 12:41:31 orclex kernel: ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4023 85:3469 86:3c01 87:4023 88:207f
-Jul 29 12:41:31 orclex kernel: ata1: dev 0 ATA, max UDMA/133, 488397168 sectors: lba48
-Jul 29 12:41:31 orclex kernel: ata1: dev 0 configured for UDMA/133
-Jul 29 12:41:31 orclex kernel: scsi0 : ahci
-Jul 29 12:41:31 orclex kernel: ata2: no device found (phy stat 00000000)
-Jul 29 12:41:31 orclex kernel: scsi1 : ahci
-Jul 29 12:41:31 orclex kernel: ata3: no device found (phy stat 00000000)
-Jul 29 12:41:31 orclex kernel: scsi2 : ahci
-Jul 29 12:41:31 orclex kernel: ata4: no device found (phy stat 00000000)
-Jul 29 12:41:31 orclex kernel: scsi3 : ahci
-Jul 29 12:41:31 orclex kernel: Vendor: ATA       Model: ST3250823AS       Rev: 3.02
-Jul 29 12:41:31 orclex kernel: Type:   Direct-Access                      ANSI SCSI revision: 05
-Jul 29 12:41:31 orclex kernel: SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
-Jul 29 12:41:31 orclex kernel: SCSI device sda: drive cache: write back
-Jul 29 12:41:31 orclex kernel: SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
-Jul 29 12:41:31 orclex kernel: SCSI device sda: drive cache: write back
-Jul 29 12:41:31 orclex kernel: sda: sda1 sda2 < sda5 > sda3
-Jul 29 12:41:31 orclex kernel: Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Jul 29 12:41:31 orclex kernel: Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-Jul 29 12:41:31 orclex kernel: ohci1394: $Rev: 1299 $ Ben Collins <bcollins@debian.org>
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:03.0[A] -> GSI 21 (level, low) -> IRQ 209
-Jul 29 12:41:31 orclex kernel: ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[209]  MMIO=[cfefb800-cfefbfff]  Max Packet=[4096]
-Jul 29 12:41:31 orclex kernel: ieee1394: raw1394: /dev/raw1394 device initialized
-Jul 29 12:41:31 orclex kernel: usbmon: debugs is not available
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1d.7[A] -> GSI 23 (level, low) -> IRQ 185
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1d.7 to 64
-Jul 29 12:41:31 orclex kernel: ehci_hcd 0000:00:1d.7: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB2 EHCI Controller
-Jul 29 12:41:31 orclex kernel: ehci_hcd 0000:00:1d.7: debug port 1
-Jul 29 12:41:31 orclex kernel: ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-Jul 29 12:41:31 orclex kernel: ehci_hcd 0000:00:1d.7: irq 185, io mem 0xcfdff800
-Jul 29 12:41:31 orclex kernel: PCI: cache line size of 128 is not supported by device 0000:00:1d.7
-Jul 29 12:41:31 orclex kernel: ehci_hcd 0000:00:1d.7: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
-Jul 29 12:41:31 orclex kernel: hub 1-0:1.0: USB hub found
-Jul 29 12:41:31 orclex kernel: hub 1-0:1.0: 8 ports detected
-Jul 29 12:41:31 orclex kernel: ohci_hcd: 2005 April 22 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-Jul 29 12:41:31 orclex kernel: USB Universal Host Controller Interface driver v2.3
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1d.0[A] -> GSI 23 (level, low) -> IRQ 185
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1d.0 to 64
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.0: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #1
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.0: irq 185, io base 0x00004400
-Jul 29 12:41:31 orclex kernel: hub 2-0:1.0: USB hub found
-Jul 29 12:41:31 orclex kernel: hub 2-0:1.0: 2 ports detected
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1d.1[B] -> GSI 19 (level, low) -> IRQ 193
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1d.1 to 64
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.1: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #2
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.1: irq 193, io base 0x00004800
-Jul 29 12:41:31 orclex kernel: hub 3-0:1.0: USB hub found
-Jul 29 12:41:31 orclex kernel: hub 3-0:1.0: 2 ports detected
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1d.2[C] -> GSI 18 (level, low) -> IRQ 201
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1d.2 to 64
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.2: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #3
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.2: irq 201, io base 0x00005000
-Jul 29 12:41:31 orclex kernel: hub 4-0:1.0: USB hub found
-Jul 29 12:41:31 orclex kernel: hub 4-0:1.0: 2 ports detected
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1d.3[D] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1d.3 to 64
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.3: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #4
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.3: new USB bus registered, assigned bus number 5
-Jul 29 12:41:31 orclex kernel: uhci_hcd 0000:00:1d.3: irq 169, io base 0x00005400
-Jul 29 12:41:31 orclex kernel: hub 5-0:1.0: USB hub found
-Jul 29 12:41:31 orclex kernel: hub 5-0:1.0: 2 ports detected
-Jul 29 12:41:31 orclex kernel: Initializing USB Mass Storage driver...
-Jul 29 12:41:31 orclex kernel: usbcore: registered new driver usb-storage
-Jul 29 12:41:31 orclex kernel: USB Mass Storage support registered.
-Jul 29 12:41:31 orclex kernel: usb 2-1: new low speed USB device using uhci_hcd and address 2
-Jul 29 12:41:31 orclex kernel: usbcore: registered new driver hiddev
-Jul 29 12:41:31 orclex kernel: usb 3-1: new low speed USB device using uhci_hcd and address 2
-Jul 29 12:41:31 orclex kernel: input: USB HID v1.00 Joystick [Microsoft Microsoft SideWinder game controller] on usb-0000:00:1d.0-1
-Jul 29 12:41:31 orclex kernel: input: USB HID v1.00 Mouse [Microsoft Microsoft Wheel Mouse Optical®] on usb-0000:00:1d.1-1
-Jul 29 12:41:31 orclex kernel: usbcore: registered new driver usbhid
-Jul 29 12:41:31 orclex kernel: drivers/usb/input/hid-core.c: v2.01:USB HID core driver
-Jul 29 12:41:31 orclex kernel: mice: PS/2 mouse device common for all mice
-Jul 29 12:41:31 orclex kernel: input: PC Speaker
-Jul 29 12:41:31 orclex kernel: md: md driver 0.90.2 MAX_MD_DEVS=256, MD_SB_DISKS=27
-Jul 29 12:41:31 orclex kernel: md: bitmap version 3.38
-Jul 29 12:41:31 orclex kernel: device-mapper: 4.4.0-ioctl (2005-01-12) initialised: dm-devel@redhat.com
-Jul 29 12:41:31 orclex kernel: GACT probability on
-Jul 29 12:41:31 orclex kernel: Mirror/redirect action on
-Jul 29 12:41:31 orclex kernel: u32 classifier
-Jul 29 12:41:31 orclex kernel: Perfomance counters on
-Jul 29 12:41:31 orclex kernel: input device check on 
-Jul 29 12:41:31 orclex kernel: Actions configured 
-Jul 29 12:41:31 orclex kernel: NET: Registered protocol family 2
-Jul 29 12:41:31 orclex kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
-Jul 29 12:41:31 orclex kernel: IP route cache hash table entries: 65536 (order: 7, 524288 bytes)
-Jul 29 12:41:31 orclex kernel: TCP established hash table entries: 262144 (order: 10, 4194304 bytes)
-Jul 29 12:41:31 orclex kernel: TCP bind hash table entries: 65536 (order: 8, 1048576 bytes)
-Jul 29 12:41:31 orclex kernel: TCP: Hash tables configured (established 262144 bind 65536)
-Jul 29 12:41:31 orclex kernel: TCP reno registered
-Jul 29 12:41:31 orclex kernel: IPv4 over IPv4 tunneling driver
-Jul 29 12:41:31 orclex kernel: ip_conntrack version 2.1 (4094 buckets, 32752 max) - 296 bytes per conntrack
-Jul 29 12:41:31 orclex kernel: ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00e01800007ef52b]
-Jul 29 12:41:31 orclex kernel: ip_tables: (C) 2000-2002 Netfilter core team
-Jul 29 12:41:31 orclex kernel: ipt_recent v0.3.1: Stephen Frost <sfrost@snowman.net>.  http://snowman.net/projects/ipt_recent/
-Jul 29 12:41:31 orclex kernel: TCP bic registered
-Jul 29 12:41:31 orclex kernel: Initializing IPsec netlink socket
-Jul 29 12:41:31 orclex kernel: NET: Registered protocol family 1
-Jul 29 12:41:31 orclex kernel: NET: Registered protocol family 17
-Jul 29 12:41:31 orclex kernel: NET: Registered protocol family 15
-Jul 29 12:41:31 orclex kernel: Using IPI Shortcut mode
-Jul 29 12:41:31 orclex kernel: swsusp: Suspend partition has wrong signature?
-Jul 29 12:41:31 orclex kernel: md: Autodetecting RAID arrays.
-Jul 29 12:41:31 orclex kernel: md: autorun ...
-Jul 29 12:41:31 orclex kernel: md: ... autorun DONE.
-Jul 29 12:41:31 orclex kernel: kjournald starting.  Commit interval 5 seconds
-Jul 29 12:41:31 orclex kernel: EXT3-fs: mounted filesystem with ordered data mode.
-Jul 29 12:41:31 orclex kernel: VFS: Mounted root (ext3 filesystem) readonly.
-Jul 29 12:41:31 orclex kernel: Freeing unused kernel memory: 232k freed
-Jul 29 12:41:31 orclex kernel: Adding 2658716k swap on /dev/sda5.  Priority:-1 extents:1
-Jul 29 12:41:31 orclex kernel: EXT3 FS on sda3, internal journal
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:01:09.0[A] -> GSI 17 (level, low) -> IRQ 177
-Jul 29 12:41:31 orclex kernel: hda: dma_timer_expiry: dma status == 0x64
-Jul 29 12:41:31 orclex kernel: hda: DMA interrupt recovery
-Jul 29 12:41:31 orclex kernel: hda: lost interrupt
-Jul 29 12:41:31 orclex kernel: kjournald starting.  Commit interval 5 seconds
-Jul 29 12:41:31 orclex kernel: EXT3 FS on sda1, internal journal
-Jul 29 12:41:31 orclex kernel: EXT3-fs: mounted filesystem with ordered data mode.
-Jul 29 12:41:31 orclex kernel: ACPI: PCI Interrupt 0000:00:1b.0[A] -> GSI 16 (level, low) -> IRQ 169
-Jul 29 12:41:31 orclex kernel: PCI: Setting latency timer of device 0000:00:1b.0 to 64
-Jul 29 12:41:31 orclex kernel: parport: PnPBIOS parport detected.
-Jul 29 12:41:31 orclex kernel: parport0: PC-style at 0x378 (0x778), irq 7, dma 3 [PCSPP,TRISTATE,COMPAT,EPP,ECP,DMA]
-Jul 29 12:41:31 orclex kernel: Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
-Jul 29 12:41:31 orclex kernel: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-Jul 29 12:41:31 orclex kernel: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-Jul 29 12:41:31 orclex kernel: skge eth0: enabling interface
-Jul 29 12:41:31 orclex kernel: skge eth0: Link is up at 100 Mbps, full duplex, flow control none
-Jul 29 12:41:33 orclex cpufreqd: libsys_init() - no batteries found, not a laptop?
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:41:35 orclex kernel: lp0: using parport0 (interrupt-driven).
-Jul 29 12:41:35 orclex udev[4417]: creating device node '/dev/lp0'
-Jul 29 12:41:36 orclex kernel: irq 201: nobody cared (try booting with the "irqpoll" option)
-Jul 29 12:41:36 orclex kernel: 
-Jul 29 12:41:36 orclex kernel: Call Trace: <IRQ> <ffffffff80156e67>{__report_bad_irq+48} <ffffffff80156f60>{note_interrupt+144}
-Jul 29 12:41:36 orclex kernel: <ffffffff8015678b>{__do_IRQ+237} <ffffffff80110715>{do_IRQ+67}
-Jul 29 12:41:36 orclex kernel: <ffffffff8010e051>{ret_from_intr+0}  <EOI> <ffffffff8018fc5e>{__d_lookup+299}
-Jul 29 12:41:36 orclex kernel: <ffffffff801851f6>{__link_path_walk+409} <ffffffff801851c9>{__link_path_walk+364}
-Jul 29 12:41:36 orclex kernel: <ffffffff80186001>{link_path_walk+87} <ffffffff8016089f>{kmem_cache_free+69}
-Jul 29 12:41:36 orclex kernel: <ffffffff801864cc>{path_lookup+448} <ffffffff80186671>{__user_walk+62}
-Jul 29 12:41:36 orclex kernel: <ffffffff8018057d>{vfs_lstat+38} <ffffffff8018096f>{sys_newlstat+31}
-Jul 29 12:41:36 orclex kernel: <ffffffff8010daae>{system_call+126} 
-Jul 29 12:41:36 orclex kernel: handlers:
-Jul 29 12:41:36 orclex kernel: [<ffffffff8031c835>] (ide_intr+0x0/0x17a)
-Jul 29 12:41:36 orclex kernel: [<ffffffff803615f5>] (usb_hcd_irq+0x0/0x68)
-Jul 29 12:41:36 orclex kernel: Disabling IRQ #201
-Jul 29 12:41:37 orclex /usr/sbin/gpm[4474]: Detected EXPS/2 protocol mouse.
-Jul 29 12:42:36 orclex kernel: hdb: lost interrupt
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:36 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:37 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:37 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:37 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:37 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:37 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:37 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:37 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:37 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:37 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:37 orclex kernel: irq 201: nobody cared (try booting with the "irqpoll" option)
-Jul 29 12:42:37 orclex kernel: 
-Jul 29 12:42:37 orclex kernel: Call Trace: <IRQ> <ffffffff80156e67>{__report_bad_irq+48} <ffffffff80156f60>{note_interrupt+144}
-Jul 29 12:42:37 orclex kernel: <ffffffff8015678b>{__do_IRQ+237} <ffffffff80110715>{do_IRQ+67}
-Jul 29 12:42:37 orclex kernel: <ffffffff8010e051>{ret_from_intr+0}  <EOI> <ffffffff8016ac7f>{find_vma+22}
-Jul 29 12:42:37 orclex kernel: <ffffffff8011ecfe>{do_page_fault+409} <ffffffff801389c6>{do_wait+830}
-Jul 29 12:42:37 orclex kernel: <ffffffff801300a5>{default_wake_function+0} <ffffffff8010e4dd>{error_exit+0}
-Jul 29 12:42:37 orclex kernel: 
-Jul 29 12:42:37 orclex kernel: handlers:
-Jul 29 12:42:37 orclex kernel: [<ffffffff8031c835>] (ide_intr+0x0/0x17a)
-Jul 29 12:42:37 orclex kernel: [<ffffffff803615f5>] (usb_hcd_irq+0x0/0x68)
-Jul 29 12:42:37 orclex kernel: Disabling IRQ #201
-Jul 29 12:42:37 orclex kernel: scsi: unknown opcode 0x85
-Jul 29 12:42:37 orclex lpd[4513]: restarted
-Jul 29 12:42:38 orclex nmbd[4523]: [2005/07/29 12:42:38, 0, pid=4523] nmbd/asyncdns.c:start_async_dns(149)
-Jul 29 12:42:38 orclex nmbd[4523]:   started asyncdns process 4524
-Jul 29 12:42:38 orclex smartd[4530]: smartd version 5.32 Copyright (C) 2002-4 Bruce Allen
-Jul 29 12:42:38 orclex smartd[4530]: Home page is http://smartmontools.sourceforge.net/
-Jul 29 12:42:38 orclex smartd[4530]: Opened configuration file /etc/smartd.conf
-Jul 29 12:42:38 orclex smartd[4530]: Drive: DEVICESCAN, implied '-a' Directive on line 23 of file /etc/smartd.conf
-Jul 29 12:42:38 orclex smartd[4530]: Configuration file /etc/smartd.conf was parsed, found DEVICESCAN, scanning devices
-Jul 29 12:42:38 orclex smartd[4530]: Device: /dev/hda, opened
-Jul 29 12:42:47 orclex kernel: hda: lost interrupt
-Jul 29 12:42:47 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:47 orclex smartd[4530]: Device: /dev/hda, found in smartd database.
-Jul 29 12:42:48 orclex hddtemp[4508]: /dev/hda: IC35L060AVV207-0: 36 C
-Jul 29 12:42:48 orclex kernel: irq 201: nobody cared (try booting with the "irqpoll" option)
-Jul 29 12:42:48 orclex kernel: 
-Jul 29 12:42:48 orclex kernel: Call Trace: <IRQ> <ffffffff80156e67>{__report_bad_irq+48} <ffffffff80156f60>{note_interrupt+144}
-Jul 29 12:42:48 orclex kernel: <ffffffff8015678b>{__do_IRQ+237} <ffffffff80110715>{do_IRQ+67}
-Jul 29 12:42:48 orclex kernel: <ffffffff8010e051>{ret_from_intr+0}  <EOI> <ffffffff8010daae>{system_call+126}
-Jul 29 12:42:48 orclex kernel: 
-Jul 29 12:42:48 orclex kernel: handlers:
-Jul 29 12:42:48 orclex kernel: [<ffffffff8031c835>] (ide_intr+0x0/0x17a)
-Jul 29 12:42:48 orclex kernel: [<ffffffff803615f5>] (usb_hcd_irq+0x0/0x68)
-Jul 29 12:42:48 orclex kernel: Disabling IRQ #201
-Jul 29 12:42:58 orclex kernel: hda: lost interrupt
-Jul 29 12:42:58 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex smartd[4530]: Device: /dev/hda, is SMART capable. Adding to "monitor" list.
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:42:59 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex smartd[4530]: Device: /dev/hdb, opened
-Jul 29 12:43:00 orclex smartd[4530]: Device: /dev/hdb, packet devices [this device CD/DVD] not SMART capable
-Jul 29 12:43:00 orclex kernel: hdb: packet command error: status=0xd0 { Busy }
-Jul 29 12:43:00 orclex kernel: ide: failed opcode was: unknown
-Jul 29 12:43:00 orclex smartd[4530]: Unable to register ATA device /dev/hdb at line 23 of file /etc/smartd.conf
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex smartd[4530]: Device: /dev/hde, opened
-Jul 29 12:43:00 orclex smartd[4530]: Device: /dev/hde, packet devices [this device CD/DVD] not SMART capable
-Jul 29 12:43:00 orclex smartd[4530]: Unable to register ATA device /dev/hde at line 23 of file /etc/smartd.conf
-Jul 29 12:43:00 orclex smartd[4530]: Device: /dev/hdh, opened
-Jul 29 12:43:00 orclex smartd[4530]: Device: /dev/hdh, found in smartd database.
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:00 orclex kernel: irq 201: nobody cared (try booting with the "irqpoll" option)
-Jul 29 12:43:00 orclex kernel: 
-Jul 29 12:43:00 orclex kernel: Call Trace: <IRQ> <ffffffff80156e67>{__report_bad_irq+48} <ffffffff80156f60>{note_interrupt+144}
-Jul 29 12:43:00 orclex kernel: <ffffffff8015678b>{__do_IRQ+237} <ffffffff80110715>{do_IRQ+67}
-Jul 29 12:43:00 orclex kernel: <ffffffff8010e051>{ret_from_intr+0}  <EOI> <ffffffff80447321>{thread_return+88}
-Jul 29 12:43:00 orclex kernel: <ffffffff8010e181>{retint_kernel+38} <ffffffff8010bcf4>{mwait_idle+94}
-Jul 29 12:43:00 orclex kernel: <ffffffff80281762>{acpi_processor_idle+316} <ffffffff8010bc78>{cpu_idle+79}
-Jul 29 12:43:00 orclex kernel: <ffffffff806a0876>{start_kernel+445} <ffffffff806a022c>{x86_64_start_kernel+320}
-Jul 29 12:43:00 orclex kernel: 
-Jul 29 12:43:00 orclex kernel: handlers:
-Jul 29 12:43:00 orclex kernel: [<ffffffff8031c835>] (ide_intr+0x0/0x17a)
-Jul 29 12:43:00 orclex kernel: [<ffffffff803615f5>] (usb_hcd_irq+0x0/0x68)
-Jul 29 12:43:00 orclex kernel: Disabling IRQ #201
-Jul 29 12:43:01 orclex smartd[4530]: Device: /dev/hdh, is SMART capable. Adding to "monitor" list.
-Jul 29 12:43:01 orclex kernel: program smartd is using a deprecated SCSI ioctl, please convert it to SG_IO
-Jul 29 12:43:01 orclex smartd[4530]: Device: /dev/sda, opened
-Jul 29 12:43:01 orclex kernel: program smartd is using a deprecated SCSI ioctl, please convert it to SG_IO
-Jul 29 12:43:01 orclex smartd[4530]: Device: /dev/sda, IE (SMART) not enabled, skip device Try 'smartctl -s on /dev/sda' to turn on SMART features
-Jul 29 12:43:01 orclex smartd[4530]: Unable to register SCSI device /dev/sda at line 23 of file /etc/smartd.conf
-Jul 29 12:43:01 orclex smartd[4530]: Monitoring 2 ATA and 0 SCSI devices
-Jul 29 12:43:11 orclex kernel: hda: lost interrupt
-Jul 29 12:43:11 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:12 orclex kernel: hdb: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Jul 29 12:43:13 orclex smartd[4530]: Device: /dev/hdh, 1 Currently unreadable (pending) sectors
-Jul 29 12:43:13 orclex smartd[4530]: Device: /dev/hdh, 1 Offline uncorrectable sectors
-Jul 29 12:43:14 orclex smartd[4533]: smartd has fork()ed into background mode. New PID=4533.
-Jul 29 12:43:14 orclex smartd[4533]: file /var/run/smartd.pid written containing PID 4533
-Jul 29 12:43:14 orclex kernel: irq 201: nobody cared (try booting with the "irqpoll" option)
-Jul 29 12:43:14 orclex kernel: 
-Jul 29 12:43:14 orclex kernel: Call Trace: <IRQ> <ffffffff80156e67>{__report_bad_irq+48} <ffffffff80156f60>{note_interrupt+144}
-Jul 29 12:43:14 orclex kernel: <ffffffff8015678b>{__do_IRQ+237} <ffffffff80110715>{do_IRQ+67}
-Jul 29 12:43:14 orclex kernel: <ffffffff8010e051>{ret_from_intr+0}  <EOI> <ffffffff80447321>{thread_return+88}
-Jul 29 12:43:14 orclex kernel: <ffffffff8010e181>{retint_kernel+38} <ffffffff8010bcf4>{mwait_idle+94}
-Jul 29 12:43:14 orclex kernel: <ffffffff80281762>{acpi_processor_idle+316} <ffffffff8010bc78>{cpu_idle+79}
-Jul 29 12:43:14 orclex kernel: <ffffffff806a0876>{start_kernel+445} <ffffffff806a022c>{x86_64_start_kernel+320}
-Jul 29 12:43:14 orclex kernel: 
-Jul 29 12:43:14 orclex kernel: handlers:
-Jul 29 12:43:14 orclex kernel: [<ffffffff8031c835>] (ide_intr+0x0/0x17a)
-Jul 29 12:43:14 orclex kernel: [<ffffffff803615f5>] (usb_hcd_irq+0x0/0x68)
-Jul 29 12:43:14 orclex kernel: Disabling IRQ #201
-Jul 29 12:43:14 orclex xinetd[4548]: Reading included configuration file: /etc/xinetd.d/chargen [file=/etc/xinetd.conf] [line=11]
-Jul 29 12:43:14 orclex xinetd[4548]: Reading included configuration file: /etc/xinetd.d/daytime [file=/etc/xinetd.d/daytime] [line=28]
-Jul 29 12:43:14 orclex xinetd[4548]: Reading included configuration file: /etc/xinetd.d/echo [file=/etc/xinetd.d/echo] [line=26]
-Jul 29 12:43:14 orclex xinetd[4548]: Reading included configuration file: /etc/xinetd.d/time [file=/etc/xinetd.d/time] [line=26]
-Jul 29 12:43:14 orclex xinetd[4548]: removing chargen
-Jul 29 12:43:14 orclex xinetd[4548]: removing chargen
-Jul 29 12:43:14 orclex xinetd[4548]: removing daytime
-Jul 29 12:43:14 orclex xinetd[4548]: removing daytime
-Jul 29 12:43:14 orclex xinetd[4548]: removing echo
-Jul 29 12:43:14 orclex xinetd[4548]: removing echo
-Jul 29 12:43:14 orclex xinetd[4548]: removing time
-Jul 29 12:43:14 orclex xinetd[4548]: removing time
-Jul 29 12:43:14 orclex xinetd[4548]: xinetd Version 2.3.13 started with libwrap loadavg options compiled in.
-Jul 29 12:43:14 orclex xinetd[4548]: Started working: 0 available services
-Jul 29 12:43:16 orclex Xprt_64: No matching visual for __GLcontextMode with visual class = 0 (32775), nplanes = 8
-Jul 29 12:43:16 orclex rpc.statd[4661]: Version 1.0.7 Starting
-Jul 29 12:43:16 orclex rpc.statd[4661]: statd running as root. chown /var/lib/nfs/sm to choose different user
-Jul 29 12:43:16 orclex ntpd[4667]: ntpd 4.2.0a@1:4.2.0a+stable-8-r Mon Mar 21 03:16:19 CET 2005 (1)
-Jul 29 12:43:16 orclex ntpd[4667]: signal_no_reset: signal 13 had flags 4000000
-Jul 29 12:43:16 orclex ntpd[4667]: precision = 1.000 usec
-Jul 29 12:43:16 orclex ntpd[4667]: Listening on interface wildcard, 0.0.0.0#123
-Jul 29 12:43:16 orclex ntpd[4667]: Listening on interface eth0, 10.6.11.37#123
-Jul 29 12:43:16 orclex ntpd[4667]: Listening on interface lo, 127.0.0.1#123
-Jul 29 12:43:16 orclex ntpd[4667]: kernel time sync status 0040
-Jul 29 12:43:16 orclex ntpd[4667]: frequency initialized -2.439 PPM from /var/lib/ntp/ntp.drift
-Jul 29 12:43:16 orclex anacron[4675]: Anacron 2.3 started on 2005-07-29
-Jul 29 12:43:17 orclex anacron[4675]: Normal exit (0 jobs run)
-Jul 29 12:43:17 orclex /usr/sbin/cron[4680]: (CRON) INFO (pidfile fd = 3)
-Jul 29 12:43:17 orclex /usr/sbin/cron[4681]: (CRON) STARTUP (fork ok)
-Jul 29 12:43:17 orclex /usr/sbin/cron[4681]: (CRON) INFO (Running @reboot jobs)
-Jul 29 12:43:18 orclex udev[4707]: creating device node '/dev/vcs2'
-Jul 29 12:43:18 orclex udev[4709]: creating device node '/dev/vcsa2'
-Jul 29 12:43:18 orclex udev[4725]: creating device node '/dev/vcs3'
-Jul 29 12:43:18 orclex udev[4726]: creating device node '/dev/vcsa3'
-Jul 29 12:43:18 orclex udev[4736]: creating device node '/dev/vcs4'
-Jul 29 12:43:18 orclex udev[4741]: creating device node '/dev/vcs5'
-Jul 29 12:43:18 orclex udev[4775]: creating device node '/dev/vcs7'
-Jul 29 12:43:19 orclex udev[4778]: creating device node '/dev/vcsa7'
-Jul 29 12:43:19 orclex udev[4787]: removing device node '/dev/vcsa3'
-Jul 29 12:43:19 orclex udev[4788]: removing device node '/dev/vcs2'
-Jul 29 12:43:19 orclex udev[4798]: removing device node '/dev/vcsa2'
-Jul 29 12:43:19 orclex udev[4797]: removing device node '/dev/vcs3'
-Jul 29 12:43:19 orclex udev[4800]: removing device node '/dev/vcs4'
-Jul 29 12:43:19 orclex udev[4773]: creating device node '/dev/vcs6'
-Jul 29 12:43:19 orclex udev[4774]: creating device node '/dev/vcsa6'
-Jul 29 12:43:19 orclex udev[4742]: creating device node '/dev/vcsa5'
-Jul 29 12:43:20 orclex gdm[4699]: gdm_slave_xioerror_handler: Schwerwiegender X-Fehler - :0 wird neu gestartet
-Jul 29 12:43:24 orclex gdm[4825]: gdm_slave_xioerror_handler: Schwerwiegender X-Fehler - :0 wird neu gestartet
-Jul 29 12:43:29 orclex gdm[4837]: gdm_slave_xioerror_handler: Schwerwiegender X-Fehler - :0 wird neu gestartet
-Jul 29 12:43:29 orclex gdm[4698]: deal_with_x_crashes: Das Skript XKeepsCrashing wird gestartet
-Jul 29 12:43:35 orclex gdm[4698]: X-Server konnte nicht in kurzen Zeitabständen gestartet werden; Anzeige :0 wird deaktiviert
-
-
---------------000204020703000108040509--
-
+diff -puN arch/x86_64/Kconfig.debug~x86_64-lite arch/x86_64/Kconfig.debug
+--- linux-2.6.13-rc3/arch/x86_64/Kconfig.debug~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
++++ linux-2.6.13-rc3-trini/arch/x86_64/Kconfig.debug	2005-07-29 13:19:10.000000000 -0700
+@@ -51,7 +51,4 @@ config IOMMU_LEAK
+          Add a simple leak tracer to the IOMMU code. This is useful when you
+ 	 are debugging a buggy device driver that leaks IOMMU mappings.
+ 
+-#config X86_REMOTE_DEBUG
+-#       bool "kgdb debugging stub"
+-
+ endmenu
+diff -puN /dev/null arch/x86_64/kernel/kgdb.c
+--- /dev/null	2005-07-25 10:57:32.312383000 -0700
++++ linux-2.6.13-rc3-trini/arch/x86_64/kernel/kgdb.c	2005-07-29 13:19:10.000000000 -0700
+@@ -0,0 +1,462 @@
++/*
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2, or (at your option) any
++ * later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ */
++
++/*
++ * Copyright (C) 2004 Amit S. Kale <amitkale@linsyssoft.com>
++ * Copyright (C) 2000-2001 VERITAS Software Corporation.
++ * Copyright (C) 2002 Andi Kleen, SuSE Labs
++ * Copyright (C) 2004 LinSysSoft Technologies Pvt. Ltd.
++ */
++/****************************************************************************
++ *  Contributor:     Lake Stevens Instrument Division$
++ *  Written by:      Glenn Engel $
++ *  Updated by:	     Amit Kale<akale@veritas.com>
++ *  Modified for 386 by Jim Kingdon, Cygnus Support.
++ *  Origianl kgdb, compatibility with 2.1.xx kernel by
++ *  David Grothe <dave@gcom.com>
++ *  Integrated into 2.2.5 kernel by Tigran Aivazian <tigran@sco.com>
++ *  X86_64 changes from Andi Kleen's patch merged by Jim Houston
++ */
++
++#include <linux/string.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/smp.h>
++#include <linux/spinlock.h>
++#include <linux/delay.h>
++#include <asm/system.h>
++#include <asm/ptrace.h>		/* for linux pt_regs struct */
++#include <linux/kgdb.h>
++#include <linux/init.h>
++#include <asm/apicdef.h>
++#include <asm/mach_apic.h>
++#include <asm/kdebug.h>
++#include <asm/debugreg.h>
++
++/* Put the error code here just in case the user cares.  */
++int gdb_x86_64errcode;
++/* Likewise, the vector number here (since GDB only gets the signal
++   number through the usual means, and that's not very specific).  */
++int gdb_x86_64vector = -1;
++
++extern atomic_t cpu_doing_single_step;
++
++void regs_to_gdb_regs(unsigned long *gdb_regs, struct pt_regs *regs)
++{
++	gdb_regs[_RAX] = regs->rax;
++	gdb_regs[_RBX] = regs->rbx;
++	gdb_regs[_RCX] = regs->rcx;
++	gdb_regs[_RDX] = regs->rdx;
++	gdb_regs[_RSI] = regs->rsi;
++	gdb_regs[_RDI] = regs->rdi;
++	gdb_regs[_RBP] = regs->rbp;
++	gdb_regs[_PS] = regs->eflags;
++	gdb_regs[_PC] = regs->rip;
++	gdb_regs[_R8] = regs->r8;
++	gdb_regs[_R9] = regs->r9;
++	gdb_regs[_R10] = regs->r10;
++	gdb_regs[_R11] = regs->r11;
++	gdb_regs[_R12] = regs->r12;
++	gdb_regs[_R13] = regs->r13;
++	gdb_regs[_R14] = regs->r14;
++	gdb_regs[_R15] = regs->r15;
++	gdb_regs[_RSP] = regs->rsp;
++}
++
++extern void thread_return(void);
++void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct task_struct *p)
++{
++	gdb_regs[_RAX] = 0;
++	gdb_regs[_RBX] = 0;
++	gdb_regs[_RCX] = 0;
++	gdb_regs[_RDX] = 0;
++	gdb_regs[_RSI] = 0;
++	gdb_regs[_RDI] = 0;
++	gdb_regs[_RBP] = *(unsigned long *)p->thread.rsp;
++	gdb_regs[_PS] = *(unsigned long *)(p->thread.rsp + 8);
++	gdb_regs[_PC] = (unsigned long)&thread_return;
++	gdb_regs[_R8] = 0;
++	gdb_regs[_R9] = 0;
++	gdb_regs[_R10] = 0;
++	gdb_regs[_R11] = 0;
++	gdb_regs[_R12] = 0;
++	gdb_regs[_R13] = 0;
++	gdb_regs[_R14] = 0;
++	gdb_regs[_R15] = 0;
++	gdb_regs[_RSP] = p->thread.rsp;
++}
++
++void gdb_regs_to_regs(unsigned long *gdb_regs, struct pt_regs *regs)
++{
++	regs->rax = gdb_regs[_RAX];
++	regs->rbx = gdb_regs[_RBX];
++	regs->rcx = gdb_regs[_RCX];
++	regs->rdx = gdb_regs[_RDX];
++	regs->rsi = gdb_regs[_RSI];
++	regs->rdi = gdb_regs[_RDI];
++	regs->rbp = gdb_regs[_RBP];
++	regs->eflags = gdb_regs[_PS];
++	regs->rip = gdb_regs[_PC];
++	regs->r8 = gdb_regs[_R8];
++	regs->r9 = gdb_regs[_R9];
++	regs->r10 = gdb_regs[_R10];
++	regs->r11 = gdb_regs[_R11];
++	regs->r12 = gdb_regs[_R12];
++	regs->r13 = gdb_regs[_R13];
++	regs->r14 = gdb_regs[_R14];
++	regs->r15 = gdb_regs[_R15];
++#if 0				/* can't change these */
++	regs->rsp = gdb_regs[_RSP];
++	regs->ss = gdb_regs[_SS];
++	regs->fs = gdb_regs[_FS];
++	regs->gs = gdb_regs[_GS];
++#endif
++
++}				/* gdb_regs_to_regs */
++
++struct hw_breakpoint {
++	unsigned enabled;
++	unsigned type;
++	unsigned len;
++	unsigned long addr;
++} breakinfo[4] = { {
++enabled:0}, {
++enabled:0}, {
++enabled:0}, {
++enabled:0}};
++
++void kgdb_correct_hw_break(void)
++{
++	int breakno;
++	int correctit;
++	int breakbit;
++	unsigned long dr7;
++
++	asm volatile ("movq %%db7, %0\n":"=r" (dr7):);
++	do {
++		unsigned long addr0, addr1, addr2, addr3;
++		asm volatile ("movq %%db0, %0\n"
++			      "movq %%db1, %1\n"
++			      "movq %%db2, %2\n"
++			      "movq %%db3, %3\n":"=r" (addr0), "=r"(addr1),
++			      "=r"(addr2), "=r"(addr3):);
++	} while (0);
++	correctit = 0;
++	for (breakno = 0; breakno < 3; breakno++) {
++		breakbit = 2 << (breakno << 1);
++		if (!(dr7 & breakbit) && breakinfo[breakno].enabled) {
++			correctit = 1;
++			dr7 |= breakbit;
++			dr7 &= ~(0xf0000 << (breakno << 2));
++			dr7 |= (((breakinfo[breakno].len << 2) |
++				 breakinfo[breakno].type) << 16) <<
++			    (breakno << 2);
++			switch (breakno) {
++			case 0:
++				asm volatile ("movq %0, %%dr0\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
++
++			case 1:
++				asm volatile ("movq %0, %%dr1\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
++
++			case 2:
++				asm volatile ("movq %0, %%dr2\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
++
++			case 3:
++				asm volatile ("movq %0, %%dr3\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
++			}
++		} else if ((dr7 & breakbit) && !breakinfo[breakno].enabled) {
++			correctit = 1;
++			dr7 &= ~breakbit;
++			dr7 &= ~(0xf0000 << (breakno << 2));
++		}
++	}
++	if (correctit) {
++		asm volatile ("movq %0, %%db7\n"::"r" (dr7));
++	}
++}
++
++int kgdb_remove_hw_break(unsigned long addr)
++{
++	int i, idx = -1;
++	for (i = 0; i < 4; i++) {
++		if (breakinfo[i].addr == addr && breakinfo[i].enabled) {
++			idx = i;
++			break;
++		}
++	}
++	if (idx == -1)
++		return -1;
++
++	breakinfo[idx].enabled = 0;
++	return 0;
++}
++
++int kgdb_set_hw_break(unsigned long addr)
++{
++	int i, idx = -1;
++	for (i = 0; i < 4; i++) {
++		if (!breakinfo[i].enabled) {
++			idx = i;
++			break;
++		}
++	}
++	if (idx == -1)
++		return -1;
++
++	breakinfo[idx].enabled = 1;
++	breakinfo[idx].type = 1;
++	breakinfo[idx].len = 1;
++	breakinfo[idx].addr = addr;
++	return 0;
++}
++
++int remove_hw_break(unsigned breakno)
++{
++	if (!breakinfo[breakno].enabled) {
++		return -1;
++	}
++	breakinfo[breakno].enabled = 0;
++	return 0;
++}
++
++int set_hw_break(unsigned breakno, unsigned type, unsigned len, unsigned addr)
++{
++	if (breakinfo[breakno].enabled) {
++		return -1;
++	}
++	breakinfo[breakno].enabled = 1;
++	breakinfo[breakno].type = type;
++	breakinfo[breakno].len = len;
++	breakinfo[breakno].addr = addr;
++	return 0;
++}
++
++void kgdb_disable_hw_debug(struct pt_regs *regs)
++{
++	/* Disable hardware debugging while we are in kgdb */
++	asm volatile ("movq %0,%%db7": /* no output */ :"r" (0UL));
++}
++
++void kgdb_post_master_code(struct pt_regs *regs, int e_vector, int err_code)
++{
++	/* Master processor is completely in the debugger */
++	gdb_x86_64vector = e_vector;
++	gdb_x86_64errcode = err_code;
++	send_IPI_allbutself(KGDB_VECTOR);
++}
++
++void kgdb_roundup_cpus(unsigned long flags)
++{
++	send_IPI_allbutself(APIC_DM_NMI);
++}
++
++int kgdb_arch_handle_exception(int e_vector, int signo, int err_code,
++			       char *remcomInBuffer, char *remcomOutBuffer,
++			       struct pt_regs *linux_regs)
++{
++	unsigned long addr, length;
++	unsigned long breakno, breaktype;
++	char *ptr;
++	int newPC;
++	unsigned long dr6;
++
++	switch (remcomInBuffer[0]) {
++	case 'c':
++	case 's':
++		/* try to read optional parameter, pc unchanged if no parm */
++		ptr = &remcomInBuffer[1];
++		if (kgdb_hex2long(&ptr, &addr))
++			linux_regs->rip = addr;
++		newPC = linux_regs->rip;
++
++		/* clear the trace bit */
++		linux_regs->eflags &= ~TF_MASK;
++
++		atomic_set(&cpu_doing_single_step, -1);
++		/* set the trace bit if we're stepping */
++		if (remcomInBuffer[0] == 's') {
++			linux_regs->eflags |= TF_MASK;
++			debugger_step = 1;
++			if (kgdb_contthread)
++				atomic_set(&cpu_doing_single_step,
++					   smp_processor_id());
++
++		}
++
++		asm volatile ("movq %%db6, %0\n":"=r" (dr6));
++		if (!(dr6 & 0x4000)) {
++			for (breakno = 0; breakno < 4; ++breakno) {
++				if (dr6 & (1 << breakno)) {
++					if (breakinfo[breakno].type == 0) {
++						/* Set restore flag */
++						linux_regs->eflags |=
++						    X86_EFLAGS_RF;
++						break;
++					}
++				}
++			}
++		}
++		kgdb_correct_hw_break();
++		asm volatile ("movq %0, %%db6\n"::"r" (0UL));
++
++		return (0);
++
++	case 'Y':
++		ptr = &remcomInBuffer[1];
++		kgdb_hex2long(&ptr, &breakno);
++		ptr++;
++		kgdb_hex2long(&ptr, &breaktype);
++		ptr++;
++		kgdb_hex2long(&ptr, &length);
++		ptr++;
++		kgdb_hex2long(&ptr, &addr);
++		if (set_hw_break(breakno & 0x3, breaktype & 0x3,
++				 length & 0x3, addr) == 0)
++			strcpy(remcomOutBuffer, "OK");
++		else
++			strcpy(remcomOutBuffer, "ERROR");
++		break;
++
++		/* Remove hardware breakpoint */
++	case 'y':
++		ptr = &remcomInBuffer[1];
++		kgdb_hex2long(&ptr, &breakno);
++		if (remove_hw_break(breakno & 0x3) == 0)
++			strcpy(remcomOutBuffer, "OK");
++		else
++			strcpy(remcomOutBuffer, "ERROR");
++		break;
++
++	}			/* switch */
++	return -1;
++}
++
++static struct pt_regs *in_interrupt_stack(unsigned long rsp, int cpu)
++{
++	struct pt_regs *regs;
++	unsigned long end = (unsigned long)cpu_pda[cpu].irqstackptr;
++	if (rsp <= end && rsp >= end - IRQSTACKSIZE + 8) {
++		regs = *(((struct pt_regs **)end) - 1);
++		return regs;
++	}
++	return NULL;
++}
++
++static struct pt_regs *in_exception_stack(unsigned long rsp, int cpu)
++{
++	int i;
++	struct tss_struct *init_tss = &__get_cpu_var(init_tss);
++	for (i = 0; i < N_EXCEPTION_STACKS; i++)
++		if (rsp >= init_tss[cpu].ist[i] &&
++		    rsp <= init_tss[cpu].ist[i] + EXCEPTION_STKSZ) {
++			struct pt_regs *r =
++			    (void *)init_tss[cpu].ist[i] + EXCEPTION_STKSZ;
++			return r - 1;
++		}
++	return NULL;
++}
++
++void kgdb_shadowinfo(struct pt_regs *regs, char *buffer, unsigned threadid)
++{
++	static char intr_desc[] = "Stack at interrupt entrypoint";
++	static char exc_desc[] = "Stack at exception entrypoint";
++	struct pt_regs *stregs;
++	int cpu = hard_smp_processor_id();
++
++	if ((stregs = in_interrupt_stack(regs->rsp, cpu))) {
++		kgdb_mem2hex(intr_desc, buffer, strlen(intr_desc));
++	} else if ((stregs = in_exception_stack(regs->rsp, cpu))) {
++		kgdb_mem2hex(exc_desc, buffer, strlen(exc_desc));
++	}
++}
++
++struct task_struct *kgdb_get_shadow_thread(struct pt_regs *regs, int threadid)
++{
++	struct pt_regs *stregs;
++	int cpu = hard_smp_processor_id();
++
++	if ((stregs = in_interrupt_stack(regs->rsp, cpu)))
++		return current;
++	else if ((stregs = in_exception_stack(regs->rsp, cpu)))
++		return current;
++
++	return NULL;
++}
++
++struct pt_regs *kgdb_shadow_regs(struct pt_regs *regs, int threadid)
++{
++	struct pt_regs *stregs;
++	int cpu = hard_smp_processor_id();
++
++	if ((stregs = in_interrupt_stack(regs->rsp, cpu)))
++		return stregs;
++	else if ((stregs = in_exception_stack(regs->rsp, cpu)))
++		return stregs;
++
++	return NULL;
++}
++
++/* Register KGDB with the die_chain so that we hook into all of the right
++ * spots. */
++static int kgdb_notify(struct notifier_block *self, unsigned long cmd,
++		       void *ptr)
++{
++	struct die_args *args = ptr;
++	struct pt_regs *regs = args->regs;
++
++	if (cmd == DIE_PAGE_FAULT && strcmp(args->str, "no context") == 0 &&
++	    atomic_read(&debugger_active) && kgdb_may_fault) {
++		kgdb_fault_longjmp(kgdb_fault_jmp_regs);
++		return NOTIFY_STOP;
++	/* CPU roundup? */
++	} else if (atomic_read(&debugger_active) && cmd == DIE_NMI_IPI) {
++		kgdb_nmihook(smp_processor_id(), regs);
++		return NOTIFY_STOP;
++		/* See if KGDB is interested. */
++	} else if (cmd == DIE_PAGE_FAULT || user_mode(regs) ||
++		   cmd == DIE_NMI_IPI || (cmd == DIE_DEBUG &&
++					  atomic_read(&debugger_active)))
++		/* Userpace events, normal watchdog event, or spurious
++		 * debug exception.  Ignore. */
++		return NOTIFY_DONE;
++
++	kgdb_handle_exception(args->trapnr, args->signr, args->err, regs);
++
++	return NOTIFY_STOP;
++}
++
++static struct notifier_block kgdb_notifier = {
++	.notifier_call = kgdb_notify,
++	.priority = 0x7fffffff,	/* we need to notified first */
++};
++
++int kgdb_arch_init(void)
++{
++	notifier_chain_register(&die_chain, &kgdb_notifier);
++	return 0;
++}
++
++struct kgdb_arch arch_kgdb_ops = {
++	.gdb_bpt_instr = {0xcc},
++	.flags = KGDB_HW_BREAKPOINT,
++	.shadowth = 1,
++};
+diff -puN /dev/null arch/x86_64/kernel/kgdb-jmp.S
+--- /dev/null	2005-07-25 10:57:32.312383000 -0700
++++ linux-2.6.13-rc3-trini/arch/x86_64/kernel/kgdb-jmp.S	2005-07-29 13:19:10.000000000 -0700
+@@ -0,0 +1,65 @@
++/*
++ * arch/x86_64/kernel/kgdb-jmp.S
++ *
++ * Save and restore system registers so that within a limited frame we
++ * may have a fault and "jump back" to a known safe location.
++ *
++ * Author: Tom Rini <trini@kernel.crashing.org>
++ *
++ * Cribbed from glibc, which carries the following:
++ * Copyright (C) 2001, 2003, 2004 Free Software Foundation, Inc.
++ * Copyright (C) 2005 by MontaVista Software.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2. This program as licensed "as is" without any warranty of
++ * any kind, whether express or implied.
++ */
++
++#include <linux/linkage.h>
++
++#define JB_RBX		0
++#define JB_RBP		1
++#define JB_R12		2
++#define JB_R13		3
++#define JB_R14		4
++#define JB_R15		5
++#define JB_RSP		6
++#define JB_PC		7
++
++	.code64
++
++/* This must be called prior to kgdb_fault_longjmp and
++ * kgdb_fault_longjmp must not be called outside of the context of the
++ * last call to kgdb_fault_setjmp.
++ */
++ENTRY(kgdb_fault_setjmp)
++	/* Save registers. */
++	movq %rbx, (JB_RBX*8)(%rdi)
++	movq %rbp, (JB_RBP*8)(%rdi)
++	movq %r12, (JB_R12*8)(%rdi)
++	movq %r13, (JB_R13*8)(%rdi)
++	movq %r14, (JB_R14*8)(%rdi)
++	movq %r15, (JB_R15*8)(%rdi)
++	leaq 8(%rsp), %rdx	/* Save SP as it will be after we return. */
++	movq %rdx, (JB_RSP*8)(%rdi)
++	movq (%rsp), %rax	/* Save PC we are returning to now. */
++	movq %rax, (JB_PC*8)(%rdi)
++	/* Set return value for setjmp. */
++	mov $0,%eax
++	movq (JB_PC*8)(%rdi),%rdx
++	movq (JB_RSP*8)(%rdi),%rsp
++	jmpq *%rdx
++
++ENTRY(kgdb_fault_longjmp)
++	/* Restore registers. */
++	movq (JB_RBX*8)(%rdi),%rbx
++	movq (JB_RBP*8)(%rdi),%rbp
++	movq (JB_R12*8)(%rdi),%r12
++	movq (JB_R13*8)(%rdi),%r13
++	movq (JB_R14*8)(%rdi),%r14
++	movq (JB_R15*8)(%rdi),%r15
++	/* Set return value for setjmp. */
++	movq (JB_PC*8)(%rdi),%rdx
++	movq (JB_RSP*8)(%rdi),%rsp
++	mov $1,%eax
++	jmpq *%rdx
+diff -puN arch/x86_64/kernel/Makefile~x86_64-lite arch/x86_64/kernel/Makefile
+--- linux-2.6.13-rc3/arch/x86_64/kernel/Makefile~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
++++ linux-2.6.13-rc3-trini/arch/x86_64/kernel/Makefile	2005-07-29 13:19:10.000000000 -0700
+@@ -4,6 +4,7 @@
+ 
+ extra-y 	:= head.o head64.o init_task.o vmlinux.lds
+ EXTRA_AFLAGS	:= -traditional
++CFLAGS_vsyscall.o := -g0
+ obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
+ 		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_x86_64.o \
+ 		x8664_ksyms.o i387.o syscall.o vsyscall.o \
+@@ -29,6 +30,7 @@ obj-$(CONFIG_GART_IOMMU)	+= pci-gart.o a
+ obj-$(CONFIG_DUMMY_IOMMU)	+= pci-nommu.o pci-dma.o
+ obj-$(CONFIG_SWIOTLB)		+= swiotlb.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
++obj-$(CONFIG_KGDB)		+= kgdb.o kgdb-jmp.o
+ obj-$(CONFIG_X86_PM_TIMER)	+= pmtimer.o
+ 
+ obj-$(CONFIG_MODULES)		+= module.o
+diff -puN arch/x86_64/kernel/traps.c~x86_64-lite arch/x86_64/kernel/traps.c
+--- linux-2.6.13-rc3/arch/x86_64/kernel/traps.c~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
++++ linux-2.6.13-rc3-trini/arch/x86_64/kernel/traps.c	2005-07-29 13:19:10.000000000 -0700
+@@ -29,6 +29,7 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/nmi.h>
++#include <linux/kgdb.h>
+ 
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -940,6 +941,14 @@ void __init trap_init(void)
+ 	 * Should be a barrier for any external CPU state.
+ 	 */
+ 	cpu_init();
++
++#ifdef CONFIG_KGDB
++	/*
++	 * Has KGDB been told to break as soon as possible?
++	 */
++	if (kgdb_initialized == -1)
++		tasklet_schedule(&kgdb_tasklet_breakpoint);
++#endif
+ }
+ 
+ 
+diff -puN arch/x86_64/mm/extable.c~x86_64-lite arch/x86_64/mm/extable.c
+diff -puN include/asm-x86_64/hw_irq.h~x86_64-lite include/asm-x86_64/hw_irq.h
+--- linux-2.6.13-rc3/include/asm-x86_64/hw_irq.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
++++ linux-2.6.13-rc3-trini/include/asm-x86_64/hw_irq.h	2005-07-29 13:19:10.000000000 -0700
+@@ -55,6 +55,7 @@ struct hw_interrupt_type;
+ #define TASK_MIGRATION_VECTOR	0xfb
+ #define CALL_FUNCTION_VECTOR	0xfa
+ #define KDB_VECTOR	0xf9
++#define KGDB_VECTOR	0xf8
+ 
+ #define THERMAL_APIC_VECTOR	0xf0
+ 
+diff -puN include/asm-x86_64/ipi.h~x86_64-lite include/asm-x86_64/ipi.h
+--- linux-2.6.13-rc3/include/asm-x86_64/ipi.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
++++ linux-2.6.13-rc3-trini/include/asm-x86_64/ipi.h	2005-07-29 13:19:10.000000000 -0700
+@@ -62,6 +62,12 @@ static inline void __send_IPI_shortcut(u
+ 	 * No need to touch the target chip field
+ 	 */
+ 	cfg = __prepare_ICR(shortcut, vector, dest);
++        if (vector == KGDB_VECTOR) {
++                 /*
++                  * KGDB IPI is to be delivered as a NMI
++                  */
++                 cfg = (cfg&~APIC_VECTOR_MASK)|APIC_DM_NMI;
++         }
+ 
+ 	/*
+ 	 * Send the IPI. The write to APIC_ICR fires this off.
+@@ -100,6 +106,12 @@ static inline void send_IPI_mask_sequenc
+ 			 * program the ICR
+ 			 */
+ 			cfg = __prepare_ICR(0, vector, APIC_DEST_PHYSICAL);
++		        if (vector == KGDB_VECTOR) {
++	                	 /*
++        		          * KGDB IPI is to be delivered as a NMI
++		                  */
++                		 cfg = (cfg&~APIC_VECTOR_MASK)|APIC_DM_NMI;
++		         }
+ 
+ 			/*
+ 			 * Send the IPI. The write to APIC_ICR fires this off.
+diff -puN /dev/null include/asm-x86_64/kgdb.h
+--- /dev/null	2005-07-25 10:57:32.312383000 -0700
++++ linux-2.6.13-rc3-trini/include/asm-x86_64/kgdb.h	2005-07-29 13:19:10.000000000 -0700
+@@ -0,0 +1,50 @@
++#ifdef __KERNEL__
++#ifndef _ASM_KGDB_H_
++#define _ASM_KGDB_H_
++
++/*
++ * Copyright (C) 2001-2004 Amit S. Kale
++ */
++
++/*
++ *  Note that this register image is in a different order than
++ *  the register image that Linux produces at interrupt time.
++ *
++ *  Linux's register image is defined by struct pt_regs in ptrace.h.
++ *  Just why GDB uses a different order is a historical mystery.
++ */
++#define _RAX	0
++#define _RDX	1
++#define _RCX	2
++#define _RBX	3
++#define _RSI	4
++#define _RDI	5
++#define _RBP	6
++#define _RSP	7
++#define _R8	8
++#define _R9	9
++#define _R10	10
++#define _R11	11
++#define _R12	12
++#define _R13	13
++#define _R14	14
++#define _R15	15
++#define _PC	16
++#define _PS	17
++
++/* Number of bytes of registers.  */
++#define NUMREGBYTES		((_PS+1)*8)
++#define NUMCRITREGBYTES		(8 * 8)		/* 8 registers. */
++
++#ifndef __ASSEMBLY__
++/* BUFMAX defines the maximum number of characters in inbound/outbound
++ * buffers at least NUMREGBYTES*2 are needed for register packets, and
++ * a longer buffer is needed to list all threads. */
++#define BUFMAX			1024
++#define BREAKPOINT()		asm("   int $3");
++#define BREAK_INSTR_SIZE	1
++#define CHECK_EXCEPTION_STACK() ((&__get_cpu_var(init_tss))[0].ist[0])
++#define CACHE_FLUSH_IS_SAFE	1
++#endif				/* !__ASSEMBLY__ */
++#endif				/* _ASM_KGDB_H_ */
++#endif				/* __KERNEL__ */
+diff -puN include/asm-x86_64/system.h~x86_64-lite include/asm-x86_64/system.h
+--- linux-2.6.13-rc3/include/asm-x86_64/system.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
++++ linux-2.6.13-rc3-trini/include/asm-x86_64/system.h	2005-07-29 13:19:10.000000000 -0700
+@@ -27,7 +27,9 @@
+ 	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
+ 
+ #define switch_to(prev,next,last) \
+-	asm volatile(SAVE_CONTEXT						    \
++       asm volatile(".globl __switch_to_begin\n\t"				    \
++		     "__switch_to_begin:\n\t"					  \
++		     SAVE_CONTEXT						  \
+ 		     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP */	  \
+ 		     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore RSP */	  \
+ 		     "call __switch_to\n\t"					  \
+@@ -39,6 +41,8 @@
+ 		     "movq %%rax,%%rdi\n\t" 					  \
+ 		     "jc   ret_from_fork\n\t"					  \
+ 		     RESTORE_CONTEXT						    \
++		     ".globl __switch_to_end\n\t"				  \
++		     "__switch_to_end:\n\t"					  \
+ 		     : "=a" (last)					  	  \
+ 		     : [next] "S" (next), [prev] "D" (prev),			  \
+ 		       [threadrsp] "i" (offsetof(struct task_struct, thread.rsp)), \
+diff -puN lib/Kconfig.debug~x86_64-lite lib/Kconfig.debug
+--- linux-2.6.13-rc3/lib/Kconfig.debug~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
++++ linux-2.6.13-rc3-trini/lib/Kconfig.debug	2005-07-29 13:19:10.000000000 -0700
+@@ -163,7 +163,7 @@ config FRAME_POINTER
+ 
+ config KGDB
+ 	bool "KGDB: kernel debugging with remote gdb"
+-	depends on DEBUG_KERNEL && (X86 || MIPS32 || IA64 || ((!SMP || BROKEN) && PPC32))
++	depends on DEBUG_KERNEL && (X86 || MIPS32 || IA64 || X86_64 || ((!SMP || BROKEN) && PPC32))
+ 	help
+ 	  If you say Y here, it will be possible to remotely debug the
+ 	  kernel using gdb. It is strongly suggested that you enable
+_

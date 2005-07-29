@@ -1,160 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262921AbVG2WML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbVG2WMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262921AbVG2WML (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 18:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbVG2WJp
+	id S262914AbVG2WMM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 18:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbVG2WJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 18:09:45 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:45218 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262913AbVG2WHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 18:07:04 -0400
-Date: Fri, 29 Jul 2005 15:06:58 -0700
-Message-Id: <200507292206.j6TM6w4k004594@agluck-lia64.sc.intel.com>
-From: tony.luck@intel.com
-To: linux-kernel@vger.kernel.org
-Cc: alex.williamson@hp.com
-Cc: clameter@engr.sgi.com
-Subject: long delays (possibly infinite) in time_interpolator_get_counter
+	Fri, 29 Jul 2005 18:09:40 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:34346 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262922AbVG2WIt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 18:08:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k66PZIjnk7kMozSgpOH5ux+4FIObx0lWv4EwuUPxM3iEZYymddfOYtiDxxFpm/JPcAcjdAivzgBQB0MNqNk+Nce5bmRaVUTW0oIIPOWUAahGbbqW7jJb4RA+6ggRmaey/rkAWQ9XbL8BOT5Oe6MxPWZhXfWE1qARNr6yX4Cy4Ak=
+Message-ID: <cb755df905072915085552895b@mail.gmail.com>
+Date: Fri, 29 Jul 2005 22:08:47 +0000
+From: Erior <lars.vahlenberg@gmail.com>
+To: romieu@fr.zoreil.com
+Subject: Re: sis190 driver
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <cb755df905072914452912d82b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <095433EB6AB9634BB9524203BF7E303C99AA06@EXGBGMB02.europe.cellnetwork.com>
+	 <cb755df905072914244ebbe55b@mail.gmail.com>
+	 <cb755df905072914452912d82b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This loop in time_interpolator_get_counter():
+Hi
 
-		do {
-			lcycle = time_interpolator->last_cycle;
-			now = time_interpolator_get_cycles(src);
-			if (lcycle && time_after(lcycle, now))
-				return lcycle;
-			/* Keep track of the last timer value returned. The use of cmpxchg here
-			 * will cause contention in an SMP environment.
-			 */
-		} while (unlikely(cmpxchg(&time_interpolator->last_cycle, lcycle, now) != lcycle));
+I can change the speed with my changes however there is something wrong with
+taking care of failures.
 
-is causing problems.  Alex has managed to get systems to hang in here when
-one cpu 'X' is trying to update the time, so owns the write_seqlock on xtime_lock
-and two other cpus 'Y' and 'Z' began a gettimeofday *after* X obtained that lock.
-X gets stuck in the above loop since one of Y or Z manages to update the value
-of time_interpolator->last_cycle every time before it gets to the cmpxchg. Y
-and Z are doomed to keep looping in:
+If we are sending something for example have a ping command running and change
+the speed with mii-tool or disconnect the cable and connect it again, the count
+on ifconfig says that we are sending packages though I don't know what because
+nothing arrives to the destination machine..hmm.. I can try to dump
+the the network traffic
+on my 10Mbit hub if needed but I don't think we are sending anything
+that makes sense.
 
-	do {
-		seq = read_seqbegin(&xtime_lock);
-		offset = time_interpolator_get_offset();
-		sec = xtime.tv_sec;
-		nsec = xtime.tv_nsec;
-	} while (unlikely(read_seqretry(&xtime_lock, seq)));
+Is there any kind of test or information I can provid to help you fixing this ?
 
-because X has a write lock on xtime_lock.  All this analysis by Alex, I've
-just been following along until here.
+/Lars
 
-Alex seems to be a "lucky" guy here, because noone else can reproduce the
-hang ... though it is easy to see that it is theoretically possible.
+On 7/29/05, Erior <lars.vahlenberg@gmail.com> wrote:
+> This will get the driver to aknowledge mii-tool reported mode,
+> without this the drivers always says "100BaseTx-FD" while my switch
+> shows 10BaseT-HD as the selected mode.
+> 
+> /Lars
+> --- sis190.new  2005-07-29 23:26:39.000000000 +0000
+> +++ sis190.c    2005-07-29 23:38:39.000000000 +0000
+> @@ -956,7 +956,8 @@ static void sis190_phy_task(void * data)
+>                 val = mdio_read(ioaddr, phy_id, 0x1f);
+>                 net_link(tp, KERN_INFO "%s: mii ext = %04x.\n", dev->name,
+> val);
+> 
+> -               val = mdio_read(ioaddr, phy_id, MII_LPA);
+> +               val = mdio_read(ioaddr, phy_id, MII_LPA)
+> +                   & mdio_read(ioaddr, phy_id, MII_ADVERTISE );
+>                 net_link(tp, KERN_INFO "%s: mii lpa = %04x.\n", dev->name,
+> val);
+> 
+>                 for (p = reg31; p->ctl; p++) {
+> 
+> 
+> On 7/29/05, Erior <lars.vahlenberg@gmail.com> wrote:
+> > Hi
+> > 
+> > Added PHY identifier for the Asus K8S-MX motherboard.
+> > 
+> > --- sis190.old  2005-07-29 23:16:07.000000000 +0000
+> > +++ sis190.c    2005-07-29 23:15:37.000000000 +0000
+> > @@ -325,6 +325,7 @@ static struct mii_chip_info {
+> >         { "Broadcom PHY BCM5461", { 0x0020, 0x60c0 }, LAN },
+> >         { "Agere PHY ET1101B",    { 0x0282, 0xf010 }, LAN },
+> >         { "Marvell PHY 88E1111",  { 0x0141, 0x0cc0 }, LAN },
+> > +       { "Realtek PHY RTL8201CL",{ 0x0000, 0x8200 }, LAN },
+> >         { NULL, }
+> >  };
+> > 
+> > /Lars
+> > 
+> > On 7/29/05, Lars Vahlenberg <lars.vahlenberg@mandator.com> wrote:
+> > > 
+> > > 
+> > > 
+> > > -----Original Message-----
+> > > From: Francois Romieu [mailto:romieu@fr.zoreil.com]
+> > > Sent: Fri 2005-07-29 00:11
+> > > To: linux-kernel@vger.kernel.org
+> > > Cc: pascal.chapperon@wanadoo.fr; Lars Vahlenberg; Alexey Dobriyan;
+> > > jgarzik@pobox.com
+> > > Subject: [patch 2.6.13-rc3] sis190 driver
+> > >  
+> > > Single file patch:
+> > >
+> >
+> http://www.zoreil.com/~romieu/sis190/20050728-2.6.13-rc3-sis190-test.patch
+> > > 
+> > > Patch-kit:
+> > > http://www.zoreil.com/~romieu/sis190/20050728-2.6.13-rc3/patches
+> > > 
+> > > Tarball:
+> > > http://www.zoreil.com/~romieu/sis190/20050728-2.6.13-rc3.tar.bz2
+> > > 
+> > > Changes from previous version (20050722)
+> > > o Add endian annotations (Alexey Dobriyan).
+> > > 
+> > > o Hopefully fixed the build of the patch.
+> > > 
+> > > o Minor round of mii/phy related changes. May crash.
+> > > 
+> > > Testing reports/review/patches are always appreciated.
+> > > 
+> > > Ok, now back to washing.
+> > > 
+> > > --
+> > > Ueimor
+> > > 
+> > > 
+> > > 
+> > > 
+> > 
+> > 
+> > -- 
+> > There is nothing that cannot be solved through sufficient application
+> > of brute force and ignorance.
+> > 
+> 
+> 
+> -- 
+> There is nothing that cannot be solved through sufficient application
+> of brute force and ignorance.
+> 
 
-I did throw some instrumentation into time_interpolator_get_counter() to see
-how long we spent looping ... and on a 4-way ia64 box saw times as high as
-34.7ms (yes, milli-seconds).  The distribution is odd ... the huge majority
-of attempts get out of the loop in 0.1 to 100usec.  There is a second, very small
-peak centered around 1ms (77 calls out of 5.6 billion), and then a tiny set of
-outliers (8 calls) up around 30ms.  These high outliers only show up on cpu3,
-max time on cpu0..cpu2 are all around 250us.
 
-The patch below makes things less bad by not letting Y & Z do the cmpxchg if
-they are going to fail the read_seqretry() test anyway.  But it is very ugly
-to do this extra test on xtime_lock ... so I'm hoping that someone can come
-up with something better.
-
-Signed-off-by: Tony Luck <tony.luck@intel.com> // but I hope someone has a better fix :-)
-
-diff --git a/include/linux/timex.h b/include/linux/timex.h
---- a/include/linux/timex.h
-+++ b/include/linux/timex.h
-@@ -304,7 +304,7 @@ struct time_interpolator {
- extern void register_time_interpolator(struct time_interpolator *);
- extern void unregister_time_interpolator(struct time_interpolator *);
- extern void time_interpolator_reset(void);
--extern unsigned long time_interpolator_get_offset(void);
-+extern unsigned long time_interpolator_get_offset(long);
- 
- #else /* !CONFIG_TIME_INTERPOLATION */
- 
-diff --git a/kernel/time.c b/kernel/time.c
---- a/kernel/time.c
-+++ b/kernel/time.c
-@@ -494,7 +494,7 @@ void getnstimeofday (struct timespec *tv
- 	do {
- 		seq = read_seqbegin(&xtime_lock);
- 		sec = xtime.tv_sec;
--		nsec = xtime.tv_nsec+time_interpolator_get_offset();
-+		nsec = xtime.tv_nsec+time_interpolator_get_offset(seq);
- 	} while (unlikely(read_seqretry(&xtime_lock, seq)));
- 
- 	while (unlikely(nsec >= NSEC_PER_SEC)) {
-@@ -538,7 +538,7 @@ void do_gettimeofday (struct timeval *tv
- 	unsigned long seq, nsec, usec, sec, offset;
- 	do {
- 		seq = read_seqbegin(&xtime_lock);
--		offset = time_interpolator_get_offset();
-+		offset = time_interpolator_get_offset(seq);
- 		sec = xtime.tv_sec;
- 		nsec = xtime.tv_nsec;
- 	} while (unlikely(read_seqretry(&xtime_lock, seq)));
-diff --git a/kernel/timer.c b/kernel/timer.c
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -1428,7 +1428,7 @@ static inline u64 time_interpolator_get_
- 	}
- }
- 
--static inline u64 time_interpolator_get_counter(void)
-+static inline u64 time_interpolator_get_counter(long seq)
- {
- 	unsigned int src = time_interpolator->source;
- 
-@@ -1442,6 +1442,14 @@ static inline u64 time_interpolator_get_
- 			now = time_interpolator_get_cycles(src);
- 			if (lcycle && time_after(lcycle, now))
- 				return lcycle;
-+
-+			/*
-+			 * If our caller is going to ignore us and retry, then
-+			 * don't burn up the bus with the cmpxchg
-+			 */
-+			if (seq && unlikely(read_seqretry(&xtime_lock, seq)))
-+				return now;
-+
- 			/* Keep track of the last timer value returned. The use of cmpxchg here
- 			 * will cause contention in an SMP environment.
- 			 */
-@@ -1455,19 +1463,19 @@ static inline u64 time_interpolator_get_
- void time_interpolator_reset(void)
- {
- 	time_interpolator->offset = 0;
--	time_interpolator->last_counter = time_interpolator_get_counter();
-+	time_interpolator->last_counter = time_interpolator_get_counter(0);
- }
- 
- #define GET_TI_NSECS(count,i) (((((count) - i->last_counter) & (i)->mask) * (i)->nsec_per_cyc) >> (i)->shift)
- 
--unsigned long time_interpolator_get_offset(void)
-+unsigned long time_interpolator_get_offset(long seq)
- {
- 	/* If we do not have a time interpolator set up then just return zero */
- 	if (!time_interpolator)
- 		return 0;
- 
- 	return time_interpolator->offset +
--		GET_TI_NSECS(time_interpolator_get_counter(), time_interpolator);
-+		GET_TI_NSECS(time_interpolator_get_counter(seq), time_interpolator);
- }
- 
- #define INTERPOLATOR_ADJUST 65536
-@@ -1490,7 +1498,7 @@ static void time_interpolator_update(lon
- 	 * and the tuning logic insures that.
-          */
- 
--	counter = time_interpolator_get_counter();
-+	counter = time_interpolator_get_counter(0);
- 	offset = time_interpolator->offset + GET_TI_NSECS(counter, time_interpolator);
- 
- 	if (delta_nsec < 0 || (unsigned long) delta_nsec < offset)
+-- 
+There is nothing that cannot be solved through sufficient application
+of brute force and ignorance.

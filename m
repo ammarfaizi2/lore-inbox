@@ -1,90 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbVG2UVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbVG2UXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262801AbVG2UVf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 16:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVG2UTT
+	id S262763AbVG2UXm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 16:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVG2UVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 16:19:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30906 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262808AbVG2UTB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 16:19:01 -0400
-Date: Fri, 29 Jul 2005 13:18:36 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Michael Kerrisk <mtk-manpages@gmx.net>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net, akpm@osdl.org,
-       chrisw@osdl.org
-Subject: Re: Broke nice range for RLIMIT NICE
-Message-ID: <20050729201836.GH19052@shell0.pdx.osdl.net>
-References: <32710.1122563064@www32.gmx.net> <20050729061318.GD7425@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050729061318.GD7425@waste.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 29 Jul 2005 16:21:40 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:13698 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262763AbVG2UUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 16:20:39 -0400
+Date: Fri, 29 Jul 2005 21:20:21 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       "Antonino A. Daplas" <adaplas@gmail.com>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: colormap fixes
+In-Reply-To: <9e47339105072814505b6fe4f8@mail.gmail.com>
+Message-ID: <Pine.LNX.4.56.0507292119340.17988@pentafluge.infradead.org>
+References: <200507280031.j6S0V3L3016861@hera.kernel.org>  <42E8F0CD.6070500@gmail.com>
+  <Pine.LNX.4.62.0507281758080.24391@numbat.sonytel.be> 
+ <9e473391050728092936794718@mail.gmail.com>  <9e47339105072811183ac0f008@mail.gmail.com>
+  <Pine.LNX.4.62.0507282202450.29876@numbat.sonytel.be> 
+ <9e4733910507281315419c3c12@mail.gmail.com>  <9e47339105072813213db7cee4@mail.gmail.com>
+  <9e47339105072813507c00687e@mail.gmail.com>  <Pine.LNX.4.62.0507282337410.29876@numbat.sonytel.be>
+ <9e47339105072814505b6fe4f8@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Matt Mackall (mpm@selenic.com) wrote:
-> On Thu, Jul 28, 2005 at 05:04:24PM +0200, Michael Kerrisk wrote:
-> > In other words, there is an off-by-one mismatch between 
-> > these two interfaces: RLIMIT_NICE is expecting to deal 
-> > with values in the range 39..0, while [gs]etpriority() 
-> > works with the range 40..1.
-> > 
-> > I suppose that glibc could paper over the cracks here in
-> > a wrapper for getrlimit(), but it seems more sensible 
-> > to make RLIMIT_NICE consistent with [gs]etpriority() --
-> > i.e., change the RLIMIT_NICE interface in 2.6.13 before it 
-> > sees wide use in userland.  What do you think?
+
+> > No, bits_per_pixel can be (much) larger than the color map size. E.g. a simple
+> > ARGB8888 directcolor mode has bits_per_pixel = 32 and color map size = 256.
 > 
-> Well, it's easy enough to do, but some thought has to be given to the
-> corner cases. Specifically, does this do the right thing when the
-> rlimit is set to zero? I think it does, as the nice range is nicely
-> bound here:
+> So I have the bits_per_pixel attribute wrong in sysfs. It needs to be
+> bits_per_color and then let the driver sort it out.  Otherwise there
+> is no way to set ARGB8888 versus ARGB2101010. With bits per color you
+> would set 8 or 10.
 
-Agreed, it should be fine.  The default rlimit of zero is just as
-effective with the adjust by one semantics.
+You would need bits_per_read, bit_per_green. This doesn't event count the 
+other color spaces avaliable like YUV.
 
->         nice = PRIO_TO_NICE(current->static_prio) + increment;
->         if (nice < -20)
->                 nice = -20;
->         if (nice > 19)
->                 nice = 19;
-> 
->         if (increment < 0 && !can_nice(current, nice))
->                 return -EPERM;
-> 
-> And we allow task to do negative increment. Chris?
-
-Yes, if the rlimit is permissive enough.  So, for example with default,
-there's no chance for any negative increment.  With rlimit of 1 (or 2
-with adjust-by-one) you could nice down to 19, then nice back up to a
-max of 18.
-
-> The other downside is, this obviously changes any existing configs
-> actually using this by one nice level..
-
-Yes, this requires updated pam patch.  Otherwise,
-
-ACK
-
-thanks,
--chris
-
-> Index: l/kernel/sched.c
-> ===================================================================
-> --- l.orig/kernel/sched.c	2005-06-22 17:55:14.000000000 -0700
-> +++ l/kernel/sched.c	2005-07-28 22:55:54.000000000 -0700
-> @@ -3231,8 +3231,8 @@ EXPORT_SYMBOL(set_user_nice);
->   */
->  int can_nice(const task_t *p, const int nice)
->  {
-> -	/* convert nice value [19,-20] to rlimit style value [0,39] */
-> -	int nice_rlim = 19 - nice;
-> +	/* convert nice value [19,-20] to rlimit style value [1,40] */
-> +	int nice_rlim = 20 - nice;
->  	return (nice_rlim <= p->signal->rlim[RLIMIT_NICE].rlim_cur ||
->  		capable(CAP_SYS_NICE));
->  }

@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbVG2RD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbVG2RGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbVG2RD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 13:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbVG2RD4
+	id S262266AbVG2RGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 13:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbVG2REC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 13:03:56 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:16065 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262666AbVG2RDk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 13:03:40 -0400
-Date: Fri, 29 Jul 2005 19:03:14 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Matt Porter <mporter@kernel.crashing.org>
-Cc: Michael Richardson <mcr@sandelman.ottawa.on.ca>,
-       Kumar Gala <galak@freescale.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
-Subject: Re: [PATCH 00/14] ppc32: Remove board ports that are no longer
- maintained
-In-Reply-To: <20050727101502.B1114@cox.net>
-Message-Id: <Pine.OSF.4.05.10507291900320.26224-100000@da410.phys.au.dk>
+	Fri, 29 Jul 2005 13:04:02 -0400
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:50915 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S262667AbVG2RCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 13:02:31 -0400
+Date: Fri, 29 Jul 2005 10:02:18 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Kumar Gala <kumar.gala@freescale.com>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: RFC: 64-bit resources and changes to pci, ioremap, ...
+Message-ID: <20050729170218.GA30600@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <D72313E7-E2EC-4066-AD2A-02DAFE66B7E6@freescale.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D72313E7-E2EC-4066-AD2A-02DAFE66B7E6@freescale.com>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Jul 29 2005, at 10:53, Kumar Gala was caught saying:
+> The main issue that I'm starting to see is that the concept of a  
+> physical address from the processors point of view needs to be  
+> consistent throughout all subsystems of the kernel.  Currently the  
+> major usage of struct resource is with the PCI subsystem and PCI  
+> drivers.  The following are some questions that I was hoping to get  
+> answers to and discussion around:
+>
+> * How many 32-bit systems support larger than 32-bit physical  
+> addresses (I know newer PPCs do)?
 
+Intel's new XSC3 ARM core supports up to 36-bit addressing and 
+they have several CPUs based on this that are already out or will
+be released in the next year. I can currently get around 64-bit
+resources by playing ugly tricks with the memory map and trapping
+ioremap() calls to a certain unused 32-bit physical range and fixing 
+it up to 64-bit (like PPC440?? does) but that may not work on future
+CPUs that don't have holes in the memmap.
 
-On Wed, 27 Jul 2005, Matt Porter wrote:
+> * How many 32-bit systems support a 64-bit PCI address space?
 
-> On Wed, Jul 27, 2005 at 09:27:41AM -0700, Eugene Surovegin wrote:
-> > On Wed, Jul 27, 2005 at 12:13:23PM -0400, Michael Richardson wrote:
-> > > Kumar, I thought that we had some volunteers to take care of some of
-> > > those. I know that I still care about ep405, and I'm willing to maintain
-> > > the code.
-> > 
-> > Well, it has been almost two months since Kumar asked about maintenance 
-> > for this board. Nothing happened since then.
-> > 
-> > Why is it not fixed yet? Please, send a patch which fixes it. This is 
-> > the _best_ way to keep this board in the tree, not some empty 
-> > maintenance _promises_.
-> 
-> When we recover our history from the linuxppc-2.4/2.5 trees we can
-> show exactly how long it's been since anybody touched ep405.
-> 
-> Quick googling shows that it's been almost 2 years since the last
-> mention of ep405 (exluding removal discussions) on linuxppc-embedded.
-> Last ep405-related commits are more than 2 years ago.
-> 
-I don't follow that reasoning. Even broken drivers(board support files,
-whateever) are better than non.
+This is a fairly common thing on some of the Intel XScale I/O and
+network processors. Some of the Intel CPUs provide a window in 
+32-bit CPU that translates to 64-bit PCI space.
 
-Take ArcNet support forinstance. Clearly it hadn't been used in any 2.6
-kernel up until around 2.6.10. It was highly broken (call to
-uninitialized function pointer). But I needed it. I fixed it and send the
-patch so it works from 2.6.11 and up.  If the driver had been dropped in
-the 2.6 series because nobody actively maintained it, I  wouldn't have got
-around to fix it at all and was probably forced to use another OS for my
-perpose.  
+> * Should ioremap and variants start taking 64-bit physical addresses?
 
-But because the driver was still in there and somebody had made sure it
-was updated along the changes to the API in the 2.6 kernel, it was easy
-for me to fix it although I didn't know so much about the kernel internals
-at that time.
+If we are to use 64 bit resources, then yes. Or pfns...
 
-Esben
+Do a google for my real opinion on this. I think ioremap() should take 
+a device and resource describing the address of the resources in the
+address space of the device (the bus it is one). The whole resource 
+and I/O subwystem currently assumes that physical and PCI bus address 
+spaces are one and the same, but I have HW that breaks this assumption 
+by allowing up to 2 GB of RAM and 3GB of PCI devices. Whenever this
+has been brought up though, Linus has shot it down. What we need is
+a real concept of per-bus address spaces and resources. But that is
+far more complicated change.
 
+> * Do we make this an arch option and wrap start and end in a typedef  
+> similar to pte_t and provide accessor macros to ensure proper use?
 
+Probably the best thing to do b/c on really small systems that 
+don't have 64-bit needs, we'll just be wasting memory with the
+extra data structure size. We need to scale down to PCI systems
+with just 8MB of RAM.
 
+~Deepak
 
+-- 
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
 
+Even a stopped clock gives the right time twice a day.

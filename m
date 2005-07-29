@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVG2IDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbVG2IFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbVG2IDL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 04:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVG2IDL
+	id S262499AbVG2IFo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 04:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVG2IFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 04:03:11 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:43935 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262492AbVG2IDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 04:03:08 -0400
-Message-Id: <200507290802.j6T82hg08064@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Keith Owens'" <kaos@ocs.com.au>
-Cc: "'Ingo Molnar'" <mingo@elte.hu>, <David.Mosberger@acm.org>,
-       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-Subject: RE: Add prefetch switch stack hook in scheduler function 
-Date: Fri, 29 Jul 2005 01:02:42 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcWUEYvmW+w973ZzQYm1Cmso5RtSzgAAZ44w
-In-Reply-To: <10766.1122623142@kao2.melbourne.sgi.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Fri, 29 Jul 2005 04:05:44 -0400
+Received: from blackhole.adamant.net ([212.26.128.69]:15395 "EHLO
+	blackhole.adamant.ua") by vger.kernel.org with ESMTP
+	id S262499AbVG2IFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 04:05:41 -0400
+Date: Fri, 29 Jul 2005 11:05:40 +0300
+From: Alexander Trotsai <mage@adamant.ua>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: routing/shaping vs smp
+Message-ID: <20050729080540.GG3990@blackhole.adamant.ua>
+References: <20050728161317.GE3990@blackhole.adamant.ua> <Pine.LNX.4.61.0507290941330.26861@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0507290941330.26861@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote on Friday, July 29, 2005 12:46 AM
-> On Fri, 29 Jul 2005 00:22:43 -0700, 
-> "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
-> >On ia64, we have two kernel stacks, one for outgoing task, and one for
-> >incoming task.  for outgoing task, we haven't called switch_to() yet.
-> >So the switch stack structure for 'current' will be allocated immediately
-> >below current 'sp' pointer. For the incoming task, it was fully ctx'ed out
-> >previously, so switch stack structure is immediate above kernel_stack(next).
-> >It Would be beneficial to prefetch both stacks.
-> 
-> struct switch_stack for current is all write data, no reading is done.
-> Is it worth doing prefetchw() for current?
+I'm have one gigabit nic with static IRQ (2,000/s)
+I have very high CPU load from HTB shaping I think
+Now I have near 80Mbit traffic going throw my shaper (IMQ,
+two interfaces) and 50-70% CPU in system (now P4 3.0GHz)
+So I can't install really powerfull cpu (I don't know which
+cpu is really more powerfull)
+So I think about SMP
+2.4 can't use second (and other proccessors) for
+routing/shaping
+Is 2.6 do?
 
-Oh yes, very much so.  L2 is an out of order cache and it can only queue
-limited amount of store operations.  With the number of stores for switch
-stack structure, it will easily exceed that hardware limit.
+On Fri, Jul 29, 2005 at 09:42:50AM +0200, Jan Engelhardt wrote:
+JE> >Hi
+JE> >
+JE> >Is that possible use power of 2 or more CPU (smp) for
+JE> >routing/shaping/accounting (iptables rules) with 2.4.x or
+JE> >may be 2.6.x linux kernel?
 
-> IOW, is there any measurable performance gain?
-
-I don't have exact breakdown to how much contribute from prefetch the outgoing
-process versus incoming process.  But I believe both contributes to perf.
-gain.
-
-- Ken
+JE> Incoming packets are handled in an interrupt. So if you can manage to 
+JE> distribute IRQs between CPUs, you can at least split the routing work
+JE> per NIC, e.g. cpu0 for eth0, cpu1 for eth1.
 
 
+JE> Jan Engelhardt
+JE> -- 
+
+-- 
+Best regard, Aleksander Trotsai aka MAGE-RIPE aka MAGE-UANIC
+My PGP key at ftp://blackhole.adamant.ua/pgp/trotsai.key[.asc]
+Big trouble - Insert coin for new game

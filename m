@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262555AbVG2LdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVG2Loh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbVG2LdO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 07:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVG2Laq
+	id S262506AbVG2Loh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 07:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVG2Loh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 07:30:46 -0400
-Received: from mail.gmx.de ([213.165.64.20]:42624 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262506AbVG2L3a (ORCPT
+	Fri, 29 Jul 2005 07:44:37 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:52268 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S262506AbVG2Log (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 07:29:30 -0400
-Date: Fri, 29 Jul 2005 13:29:29 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+	Fri, 29 Jul 2005 07:44:36 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net, torvalds@osdl.org
+Subject: Re: Syncing single filesystem (slow USB writing)
+Date: Fri, 29 Jul 2005 15:44:19 +0400
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <200507290731.32694.arvidjaar@mail.ru> <200507291428.06903.arvidjaar@mail.ru> <20050729042000.48c40272.akpm@osdl.org>
+In-Reply-To: <20050729042000.48c40272.akpm@osdl.org>
 MIME-Version: 1.0
-References: <20050728104316.02c7aba5.akpm@osdl.org>
-Subject: =?ISO-8859-1?Q?[PATCH]_MAINTAINERS_record_--_MAN-PAGES?=
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <12914.1122636569@www71.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed;
+  boundary="nextPart1495364.8tolr6haND";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200507291544.23545.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+--nextPart1495364.8tolr6haND
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-[Was: Re: Broke nice range for RLIMIT NICE]
+On Friday 29 July 2005 15:20, Andrew Morton wrote:
+> Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+> > On Friday 29 July 2005 07:50, Andrew Morton wrote:
+> > > > One idea how to improve situation - continue to mount with dsync
+> > > > (having basically old case) and do frequent sync of filesystem (this
+> > > > culd be started as HAL callout or whatever). Unfortunately, I could
+> > > > not find a way to request a sync (flush) of single mount point or
+> > > > block device. Have I missed something?
+> > >
+> > > It's trivial to do in-kernel but no, I'm afraid there isn't a userspa=
+ce
+> > > interface for this.
+> >
+> > apparently one should not ask such a question at 7 am. Any reason why
+> > BLKFLSBUF does not suite?
+>
+> That'll only write back data associated with /dev/hdXX (ie: filesystem
+> metadata) and not the data associated with all the files in the filesystem
+> which is mounted on /dev/hdXX.
 
-> > (A passing note to all kernel developers: when 
-> >  making changes that affect userland-kernel interfaces, please 
-> >  send me a man-pages patch, or at least a notification of the 
-> >  change, so that some information makes its way into the manual 
-> >  pages).
-> 
-> Could I suggest that you send in a MAINTANERS record?  That might help a
-> bit.
+I am confused. BKLFLSBUF boils down to sync_inodes_sb for mounted device, a=
+nd=20
+that appears to write out direty inode pages?
 
-Thanks for the idea.  Hopefully the following (against the
-2.6.12 MAINTAINERS file) suffices...
+What should be used for in-kernel implementation then? I was going to use t=
+he=20
+same frankly speaking :)
 
-Cheers,
+--nextPart1495364.8tolr6haND
+Content-Type: application/pgp-signature
 
-Michael
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
---- MAINTAINERS 2005-06-20 14:37:59.000000000 +0200
-+++ MAINTAINERS.new     2005-07-29 13:34:46.000000000 +0200
-@@ -1478,6 +1478,12 @@
- M:     zab@zabbo.net
- S:     Odd Fixes
+iD8DBQBC6haXR6LMutpd94wRAjIxAKCBqIjHa4KEV9YQE15eCHi+3vV9oQCbB1gC
+8WVDOjX+L3rotVlD34Ls6Co=
+=ATYb
+-----END PGP SIGNATURE-----
 
-+MAN-PAGES: MANUAL PAGES FOR LINUX -- Sections 2, 3, 4, 5, and 7
-+P: Michael Kerrisk
-+M: mtk-manpages@gmx.net
-+W: ftp://ftp.kernel.org/pub/linux/docs/manpages
-+S: Maintained
-+
- MARVELL MV64340 ETHERNET DRIVER
- P:     Manish Lachwani
- M:     Manish_Lachwani@pmc-sierra.com
-
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  Grab the latest
-tarball at ftp://ftp.win.tue.nl/pub/linux-local/manpages/
-and grep the source files for 'FIXME'.
+--nextPart1495364.8tolr6haND--

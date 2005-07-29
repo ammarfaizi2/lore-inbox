@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVG2Rxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbVG2R5C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbVG2Rxf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 13:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbVG2Rxe
+	id S262684AbVG2R5C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 13:57:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbVG2R5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 13:53:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30863 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262683AbVG2Rx2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 13:53:28 -0400
-Date: Fri, 29 Jul 2005 10:52:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Syncing single filesystem (slow USB writing)
-Message-Id: <20050729105220.4004e794.akpm@osdl.org>
-In-Reply-To: <200507291544.23545.arvidjaar@mail.ru>
-References: <200507290731.32694.arvidjaar@mail.ru>
-	<200507291428.06903.arvidjaar@mail.ru>
-	<20050729042000.48c40272.akpm@osdl.org>
-	<200507291544.23545.arvidjaar@mail.ru>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 29 Jul 2005 13:57:01 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:54208 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262684AbVG2R46 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 13:56:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fL5u0VXA8iI5IibtOYydE0L+SnFApF72aaxgiMP7vnsUerMSW75rtongrocRbYlJBp2d8brkY3RmTI+YElvsJYTNVk8THP+HNdeGoQantOWmjE0Qck9jYxMtHlke87xMnDBPthe0+LigdeurF9yjOc7Mghhd8SC/ywz/IM/9jtI=
+Message-ID: <5c49b0ed05072910563bcce840@mail.gmail.com>
+Date: Fri, 29 Jul 2005 10:56:55 -0700
+From: Nate Diller <nate.diller@gmail.com>
+Reply-To: Nate Diller <nate.diller@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: io scheduler silly question perhaps..
+Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050729072749.GD22569@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.58.0507290130000.1030@skynet>
+	 <5c49b0ed0507281752b9485@mail.gmail.com>
+	 <20050729072749.GD22569@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov <arvidjaar@mail.ru> wrote:
->
-> On Friday 29 July 2005 15:20, Andrew Morton wrote:
-> > Andrey Borzenkov <arvidjaar@mail.ru> wrote:
-> > > On Friday 29 July 2005 07:50, Andrew Morton wrote:
-> > > > > One idea how to improve situation - continue to mount with dsync
-> > > > > (having basically old case) and do frequent sync of filesystem (this
-> > > > > culd be started as HAL callout or whatever). Unfortunately, I could
-> > > > > not find a way to request a sync (flush) of single mount point or
-> > > > > block device. Have I missed something?
-> > > >
-> > > > It's trivial to do in-kernel but no, I'm afraid there isn't a userspace
-> > > > interface for this.
-> > >
-> > > apparently one should not ask such a question at 7 am. Any reason why
-> > > BLKFLSBUF does not suite?
+On 7/29/05, Jens Axboe <axboe@suse.de> wrote:
+> On Thu, Jul 28 2005, Nate Diller wrote:
+> > Try benchmarking Anticipatory or Deadline against Noop, preferably
+> > with your actual workload.  Noop is probably what you want, since
+> > there is not much use in avoiding large "seeks".  It could be though
+> > that request merging, which the non-noop schedulers all perform, willl
+> > cause Noop to lose.  I haven't tried any I/O scheduler benchmarks with
+> > flash, but perhaps we need a simple "merge only" scheduler for this
+> > sort of thing.
 > >
-> > That'll only write back data associated with /dev/hdXX (ie: filesystem
-> > metadata) and not the data associated with all the files in the filesystem
-> > which is mounted on /dev/hdXX.
+> > Let me know what the results are.
 > 
-> I am confused. BKLFLSBUF boils down to sync_inodes_sb for mounted device, and 
-> that appears to write out direty inode pages?
+> deadline is the appropriate choice, you could still have read starvation
+> issues with noop. anticipatory doesn't make any sense, as the device has
+> no seek penalty.
 
-Oh, you're right.  How cunning.  Yes, `blockdev --flushbufs /dev/hda1'
-would indeed appear to sync all data associated with that device.
+I'm not sure I understand your concern with noop.  even if there were
+writes in the queue (he said there were none/few) i don't see how read
+starvation could occur with a FIFO.  also, I have read that for large
+flash devices, there is a (small) seek penalty, but that it's
+relatively constant for large vs. small seeks.  can someone elaborate
+on that?
 
+so dave, try deadline vs noop and let us know what you get.  also, are
+you concerned with CPU use?
+
+> 
+> and hey, don't top post! now we lost daves original mail.
+
+yeah, you're right, so much for gmail "quick reply"
+
+NATE
+> 
+> --
+> Jens Axboe
+> 
+>

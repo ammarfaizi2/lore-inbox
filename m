@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262675AbVG2RQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVG2Raw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262675AbVG2RQl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 13:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbVG2ROf
+	id S262571AbVG2Raw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 13:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbVG2Rau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 13:14:35 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:63641 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S262620AbVG2RMZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 13:12:25 -0400
-Date: Fri, 29 Jul 2005 19:12:23 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 3/4] s390: device recognition.
-Message-ID: <20050729171223.GA5720@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Fri, 29 Jul 2005 13:30:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51330 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262571AbVG2RaB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 13:30:01 -0400
+Date: Fri, 29 Jul 2005 10:29:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Cal Peake <cp@absolutedigital.net>
+cc: Andrew Morton <akpm@osdl.org>, perex@suse.cz,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, rostedt@goodmis.org
+Subject: Re: Linux 2.6.13-rc4 (snd-cs46xx)
+In-Reply-To: <Pine.LNX.4.61.0507291315010.869@lancer.cnet.absolutedigital.net>
+Message-ID: <Pine.LNX.4.58.0507291022500.3307@g5.osdl.org>
+References: <Pine.LNX.4.58.0507281625270.3307@g5.osdl.org>
+ <Pine.LNX.4.61.0507282328520.966@lancer.cnet.absolutedigital.net>
+ <20050728213543.6264ca60.akpm@osdl.org> <Pine.LNX.4.61.0507291315010.869@lancer.cnet.absolutedigital.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cohuck@de.ibm.com>
 
-Close a small window where a device may be not operational again after
-senseid finished and the "same device" check fails due to dev=0000 by
-checking for dnv after stsch() by then setting the device to not
-operational. (No need to check for dnv in ccw_device_handle_oper() again
-since we don't do stsch() into the subchannel's schib in the meantime
-and will get a crw anyway if the device becomes not oper again).
 
-Signed-off-by: Cornelia Huck <cohuck@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+On Fri, 29 Jul 2005, Cal Peake wrote:
+> 
+> Thanks Andrew! Indeed your suspicions are correct. Adding in all the 
+> debugging moved the problem around, it now shows itself when probing 
+> parport. Upon further investigation reverting the commit below seems to 
+> have nixed the problem.
 
-diffstat:
- drivers/s390/cio/device_fsm.c |    3 +++
- 1 files changed, 3 insertions(+)
+Thanks. Just out of interest, does this patch fix it instead?
 
-diff -urpN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-patched/drivers/s390/cio/device_fsm.c
---- linux-2.6/drivers/s390/cio/device_fsm.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/cio/device_fsm.c	2005-07-29 18:43:39.000000000 +0200
-@@ -235,6 +235,9 @@ ccw_device_recog_done(struct ccw_device 
- 		sch->schib.pmcw.pam &
- 		sch->schib.pmcw.pom &
- 		sch->opm;
-+	/* Check since device may again have become not operational. */
-+	if (!sch->schib.pmcw.dnv)
-+		state = DEV_STATE_NOT_OPER;
- 	if (cdev->private->state == DEV_STATE_DISCONNECTED_SENSE_ID)
- 		/* Force reprobe on all chpids. */
- 		old_lpm = 0;
+		Linus
+
+----
+diff --git a/include/asm-i386/bitops.h b/include/asm-i386/bitops.h
+--- a/include/asm-i386/bitops.h
++++ b/include/asm-i386/bitops.h
+@@ -335,14 +335,13 @@ static inline unsigned long __ffs(unsign
+ static inline int find_first_bit(const unsigned long *addr, unsigned size)
+ {
+ 	int x = 0;
+-	do {
+-		if (*addr)
+-			return __ffs(*addr) + x;
+-		addr++;
+-		if (x >= size)
+-			break;
++
++	while (x < size) {
++		unsigned long val = *addr++;
++		if (val)
++			return __ffs(val) + x;
+ 		x += (sizeof(*addr)<<3);
+-	} while (1);
++	}
+ 	return x;
+ }
+ 

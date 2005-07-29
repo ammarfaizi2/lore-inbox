@@ -1,79 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVG2DIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262307AbVG2DJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbVG2DIB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 23:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVG2DIA
+	id S262307AbVG2DJW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 23:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVG2DJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 23:08:00 -0400
-Received: from nproxy.gmail.com ([64.233.182.197]:28039 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262126AbVG2DH3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 23:07:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TSBlrJD0wzw8Z+TsykbZ4inuCQsOLqZr8GaGY0ZgjILDKgCxU3M2AqNTWXdu0dIlrp6BNiB1JZYcy/lIFPDaMWH7JJov/UTDPr2FYdHuqqA+72L2PV4RcsC0DJlf4g57K+MCWmKhEJH+/cysiPVWL4LKCQSaNX0/Audo0fw9Ogw=
-Message-ID: <2cd57c9005072820073091864@mail.gmail.com>
-Date: Fri, 29 Jul 2005 11:07:27 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: include-linux-blkdevh-extern-inline-static-inline.patch added to -mm tree
-Cc: bunk@stusta.de, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200507290229.j6T2T6MP003818@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200507290229.j6T2T6MP003818@shell0.pdx.osdl.net>
+	Thu, 28 Jul 2005 23:09:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11392 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262307AbVG2DJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 23:09:15 -0400
+To: yhlu <yhlu.kernel@gmail.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64: sync_tsc fix the race (so we can boot)
+References: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com>
+	<86802c44050728092275e28a9a@mail.gmail.com>
+	<86802c4405072810352d564fd3@mail.gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 28 Jul 2005 21:08:40 -0600
+In-Reply-To: <86802c4405072810352d564fd3@mail.gmail.com> (yhlu.kernel@gmail.com's
+ message of "Thu, 28 Jul 2005 10:35:41 -0700")
+Message-ID: <m1ll3q5mx3.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/29/05, akpm@osdl.org <akpm@osdl.org> wrote:
-> 
-> The patch titled
-> 
->      include/linux/blkdev.h: "extern inline" -> "static inline"
-> 
-> has been added to the -mm tree.  Its filename is
-> 
->      include-linux-blkdevh-extern-inline-static-inline.patch
-> 
+yhlu <yhlu.kernel@gmail.com> writes:
 
-...
+> I have some problem with this patch.
+>
+> YH
+>
+> On 7/28/05, yhlu <yhlu.kernel@gmail.com> wrote:
+>> Do you mean solve the timing problem for 2 way dual core or 4 way
+>> single core above?
 
-> 
-> 
-> From: Adrian Bunk <bunk@stusta.de>
-> 
-> "extern inline" doesn't make much sense.
+As best as I can determine the problem is possible any time
+you have more than 2 cpus (from the kernels perspective),
+but you have ti hit a fairly narrow window in cpu start up.
 
-"extern inline" does make sense, and it does make sense here. please
-backout this patch. Hint: the address of block_size() is referenced.
+What problem do you have with this patch.
 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  include/linux/blkdev.h |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff -puN include/linux/blkdev.h~include-linux-blkdevh-extern-inline-static-inline include/linux/blkdev.h
-> --- devel/include/linux/blkdev.h~include-linux-blkdevh-extern-inline-static-inline      2005-07-28 19:28:05.000000000 -0700
-> +++ devel-akpm/include/linux/blkdev.h   2005-07-28 19:28:05.000000000 -0700
-> @@ -727,7 +727,7 @@ static inline unsigned int blksize_bits(
->         return bits;
->  }
-> 
-> -extern inline unsigned int block_size(struct block_device *bdev)
-> +static inline unsigned int block_size(struct block_device *bdev)
->  {
->         return bdev->bd_block_size;
->  }
-
-
-
--- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+Eric

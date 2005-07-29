@@ -1,201 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVG2Ipu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVG2Ipj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262538AbVG2Ipu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 04:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVG2Ipr
+	id S262536AbVG2Ipj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 04:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVG2InK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 04:45:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:56517 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262514AbVG2Ipg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 04:45:36 -0400
-Date: Fri, 29 Jul 2005 10:44:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: Add prefetch switch stack hook in scheduler function
-Message-ID: <20050729084444.GC7302@elte.hu>
-References: <20050728090948.GA24222@elte.hu> <200507281914.j6SJErg31398@unix-os.sc.intel.com> <20050729070447.GA3032@elte.hu> <20050729070702.GA3327@elte.hu> <42E9E91B.9050403@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42E9E91B.9050403@cosmosbay.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
-	UPPERCASE_25_50 0.00
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 29 Jul 2005 04:43:10 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:48001 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262517AbVG2IlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 04:41:11 -0400
+Message-Id: <200507290839.j6T8dqg08486@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: "Keith Owens" <kaos@ocs.com.au>, <David.Mosberger@acm.org>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>
+Subject: RE: Add prefetch switch stack hook in scheduler function
+Date: Fri, 29 Jul 2005 01:39:51 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcWUGJrxF6usCxT7Q/ej2UgrCO46wwAAB5gg
+In-Reply-To: <20050729083558.GA7302@elte.hu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote on Friday, July 29, 2005 1:36 AM
+> * Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
+> > It generate slight different code because previous patch asks for a little
+> > over 5 cache lines worth of bytes and it always go to the for loop.
+> 
+> ok - fix below. But i'm not that sure we want to unroll a 6-instruction 
+> loop, and it's getting a bit ugly.
 
-* Eric Dumazet <dada1@cosmosbay.com> wrote:
+Yeah, I agree. We probably won't see a difference whether the loop is unrolled
+or not.
 
-> Please test that len is a constant, or else the inlining is too large 
-> for the non constant case.
-
-yeah. fix below.
-
-	Ingo
-
------
-noticed by Eric Dumazet: unrolling should be dependent on a constant
-length, otherwise inlining gets too large.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- include/linux/prefetch.h |  128 ++++++++++++++++++++++++-----------------------
- 1 files changed, 66 insertions(+), 62 deletions(-)
-
-Index: linux-prefetch-task/include/linux/prefetch.h
-===================================================================
---- linux-prefetch-task.orig/include/linux/prefetch.h
-+++ linux-prefetch-task/include/linux/prefetch.h
-@@ -64,37 +64,39 @@ static inline void prefetch_range(void *
- 	/*
- 	 * Unroll agressively:
- 	 */
--	if (len <= PREFETCH_STRIDE)
--		prefetch(cp);
--	else if (len <= 2*PREFETCH_STRIDE) {
--		prefetch(cp);
--		prefetch(cp + PREFETCH_STRIDE);
--	}
--	else if (len <= 3*PREFETCH_STRIDE) {
--		prefetch(cp);
--		prefetch(cp + PREFETCH_STRIDE);
--		prefetch(cp + 2*PREFETCH_STRIDE);
--	}
--	else if (len <= 4*PREFETCH_STRIDE) {
--		prefetch(cp);
--		prefetch(cp + PREFETCH_STRIDE);
--		prefetch(cp + 2*PREFETCH_STRIDE);
--		prefetch(cp + 3*PREFETCH_STRIDE);
--	}
--	else if (len <= 5*PREFETCH_STRIDE) {
--		prefetch(cp);
--		prefetch(cp + PREFETCH_STRIDE);
--		prefetch(cp + 2*PREFETCH_STRIDE);
--		prefetch(cp + 3*PREFETCH_STRIDE);
--		prefetch(cp + 4*PREFETCH_STRIDE);
--	}
--	else if (len <= 6*PREFETCH_STRIDE) {
--		prefetch(cp);
--		prefetch(cp + PREFETCH_STRIDE);
--		prefetch(cp + 2*PREFETCH_STRIDE);
--		prefetch(cp + 3*PREFETCH_STRIDE);
--		prefetch(cp + 4*PREFETCH_STRIDE);
--		prefetch(cp + 5*PREFETCH_STRIDE);
-+	if (__builtin_constant_p(len) && (len <= 6*PREFETCH_STRIDE)) {
-+		if (len <= PREFETCH_STRIDE)
-+			prefetch(cp);
-+		else if (len <= 2*PREFETCH_STRIDE) {
-+			prefetch(cp);
-+			prefetch(cp + PREFETCH_STRIDE);
-+		}
-+		else if (len <= 3*PREFETCH_STRIDE) {
-+			prefetch(cp);
-+			prefetch(cp + PREFETCH_STRIDE);
-+			prefetch(cp + 2*PREFETCH_STRIDE);
-+		}
-+		else if (len <= 4*PREFETCH_STRIDE) {
-+			prefetch(cp);
-+			prefetch(cp + PREFETCH_STRIDE);
-+			prefetch(cp + 2*PREFETCH_STRIDE);
-+			prefetch(cp + 3*PREFETCH_STRIDE);
-+		}
-+		else if (len <= 5*PREFETCH_STRIDE) {
-+			prefetch(cp);
-+			prefetch(cp + PREFETCH_STRIDE);
-+			prefetch(cp + 2*PREFETCH_STRIDE);
-+			prefetch(cp + 3*PREFETCH_STRIDE);
-+			prefetch(cp + 4*PREFETCH_STRIDE);
-+		}
-+		else if (len <= 6*PREFETCH_STRIDE) {
-+			prefetch(cp);
-+			prefetch(cp + PREFETCH_STRIDE);
-+			prefetch(cp + 2*PREFETCH_STRIDE);
-+			prefetch(cp + 3*PREFETCH_STRIDE);
-+			prefetch(cp + 4*PREFETCH_STRIDE);
-+			prefetch(cp + 5*PREFETCH_STRIDE);
-+		}
- 	} else
- 		for (; cp < end; cp += PREFETCH_STRIDE)
- 			prefetch(cp);
-@@ -110,37 +112,39 @@ static inline void prefetchw_range(void 
- 	/*
- 	 * Unroll agressively:
- 	 */
--	if (len <= PREFETCH_STRIDE)
--		prefetchw(cp);
--	else if (len <= 2*PREFETCH_STRIDE) {
--		prefetchw(cp);
--		prefetchw(cp + PREFETCH_STRIDE);
--	}
--	else if (len <= 3*PREFETCH_STRIDE) {
--		prefetchw(cp);
--		prefetchw(cp + PREFETCH_STRIDE);
--		prefetchw(cp + 2*PREFETCH_STRIDE);
--	}
--	else if (len <= 4*PREFETCH_STRIDE) {
--		prefetchw(cp);
--		prefetchw(cp + PREFETCH_STRIDE);
--		prefetchw(cp + 2*PREFETCH_STRIDE);
--		prefetchw(cp + 3*PREFETCH_STRIDE);
--	}
--	else if (len <= 5*PREFETCH_STRIDE) {
--		prefetchw(cp);
--		prefetchw(cp + PREFETCH_STRIDE);
--		prefetchw(cp + 2*PREFETCH_STRIDE);
--		prefetchw(cp + 3*PREFETCH_STRIDE);
--		prefetchw(cp + 4*PREFETCH_STRIDE);
--	}
--	else if (len <= 6*PREFETCH_STRIDE) {
--		prefetchw(cp);
--		prefetchw(cp + PREFETCH_STRIDE);
--		prefetchw(cp + 2*PREFETCH_STRIDE);
--		prefetchw(cp + 3*PREFETCH_STRIDE);
--		prefetchw(cp + 4*PREFETCH_STRIDE);
--		prefetchw(cp + 5*PREFETCH_STRIDE);
-+	if (__builtin_constant_p(len) && (len <= 6*PREFETCH_STRIDE)) {
-+		if (len <= PREFETCH_STRIDE)
-+			prefetchw(cp);
-+		else if (len <= 2*PREFETCH_STRIDE) {
-+			prefetchw(cp);
-+			prefetchw(cp + PREFETCH_STRIDE);
-+		}
-+		else if (len <= 3*PREFETCH_STRIDE) {
-+			prefetchw(cp);
-+			prefetchw(cp + PREFETCH_STRIDE);
-+			prefetchw(cp + 2*PREFETCH_STRIDE);
-+		}
-+		else if (len <= 4*PREFETCH_STRIDE) {
-+			prefetchw(cp);
-+			prefetchw(cp + PREFETCH_STRIDE);
-+			prefetchw(cp + 2*PREFETCH_STRIDE);
-+			prefetchw(cp + 3*PREFETCH_STRIDE);
-+		}
-+		else if (len <= 5*PREFETCH_STRIDE) {
-+			prefetchw(cp);
-+			prefetchw(cp + PREFETCH_STRIDE);
-+			prefetchw(cp + 2*PREFETCH_STRIDE);
-+			prefetchw(cp + 3*PREFETCH_STRIDE);
-+			prefetchw(cp + 4*PREFETCH_STRIDE);
-+		}
-+		else if (len <= 6*PREFETCH_STRIDE) {
-+			prefetchw(cp);
-+			prefetchw(cp + PREFETCH_STRIDE);
-+			prefetchw(cp + 2*PREFETCH_STRIDE);
-+			prefetchw(cp + 3*PREFETCH_STRIDE);
-+			prefetchw(cp + 4*PREFETCH_STRIDE);
-+			prefetchw(cp + 5*PREFETCH_STRIDE);
-+		}
- 	} else
- 		for (; cp < end; cp += PREFETCH_STRIDE)
- 			prefetchw(cp);

@@ -1,67 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVG2JFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVG2JIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262521AbVG2JFd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 05:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVG2JFd
+	id S262532AbVG2JIX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 05:08:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVG2JIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 05:05:33 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:27875 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262521AbVG2JFR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 05:05:17 -0400
-Message-ID: <42E9F145.7040302@cosmosbay.com>
-Date: Fri, 29 Jul 2005 11:05:09 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: [PATCH] mm/slab.c : prefetchw the start of new allocated objects
-References: <42E6C8DB.4090608@earthlink.net>	<s5hr7dklko4.wl%tiwai@suse.de>	<42E7A8D8.1030809@earthlink.net> <20050729014150.6e97dfd2.akpm@osdl.org>
-In-Reply-To: <20050729014150.6e97dfd2.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------040401010805070800010300"
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 29 Jul 2005 11:05:10 +0200 (CEST)
+	Fri, 29 Jul 2005 05:08:22 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:52680 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262541AbVG2JII (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 05:08:08 -0400
+Date: Fri, 29 Jul 2005 11:07:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: Delete scheduler SD_WAKE_AFFINE and SD_WAKE_BALANCE flags
+Message-ID: <20050729090742.GA8438@elte.hu>
+References: <200507290627.j6T6Rrg06842@unix-os.sc.intel.com> <42E9ED47.1030003@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42E9ED47.1030003@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040401010805070800010300
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-[MM] slab.c : prefetchw the start of new allocated objects
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-Most of objects returned by __cache_alloc() will be written by the caller,
-(but not all callers want to write all the object, but just at the begining)
-prefetchw() tells the modern CPU to think about the future writes, ie start
-some memory transactions in advance.
+> Well, you can easily see suboptimal scheduling decisions on many 
+> programs with lots of interprocess communication. For example, tbench 
+> on a dual Xeon:
+> 
+> processes    1               2               3              4
+> 
+> 2.6.13-rc4:  187, 183, 179   260, 259, 256   340, 320, 349  504, 496, 500
+> no wake-bal: 180, 180, 177   254, 254, 253   268, 270, 348  345, 290, 500
+> 
+> Numbers are MB/s, higher is better.
 
-Some CPU lacks a prefetchw() and currently do nothing, so I ask this question :
-Should'nt make prefetchw() do at least a prefetch() ? A read hint is better than nothing.
+i cannot see any difference with/without wake-balancing in this 
+workload, on a dual Xeon. Could you try the quick hack below and do:
 
+	echo 1 > /proc/sys/kernel/panic # turn on wake-balancing
+	echo 0 > /proc/sys/kernel/panic # turn off wake-balancing
 
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+does the runtime switching show any effects on the throughput numbers 
+tbench is showing? I'm using dbench-3.03. (i only checked the status 
+numbers, didnt do full runs)
 
+(did you have SCHED_SMT enabled?)
 
---------------040401010805070800010300
-Content-Type: text/plain;
- name="slab.prefetchw"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="slab.prefetchw"
+	Ingo
 
-diff -Nru linux-2.6.13-rc4/mm/slab.c linux-2.6.13-rc4-ed/mm/slab.c
---- linux-2.6.13-rc4/mm/slab.c	2005-07-29 00:44:44.000000000 +0200
-+++ linux-2.6.13-rc4-ed/mm/slab.c	2005-07-29 10:48:45.000000000 +0200
-@@ -2166,6 +2166,7 @@
- 	}
- 	local_irq_restore(save_flags);
- 	objp = cache_alloc_debugcheck_after(cachep, flags, objp, __builtin_return_address(0));
-+	prefetchw(objp);
- 	return objp;
- }
+ kernel/sched.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+Index: linux-prefetch-task/kernel/sched.c
+===================================================================
+--- linux-prefetch-task.orig/kernel/sched.c
++++ linux-prefetch-task/kernel/sched.c
+@@ -1155,6 +1155,8 @@ static int try_to_wake_up(task_t * p, un
+ 		goto out_activate;
  
-
---------------040401010805070800010300--
+ 	new_cpu = cpu;
++	if (!panic_timeout)
++		goto out_set_cpu;
+ 
+ 	schedstat_inc(rq, ttwu_cnt);
+ 	if (cpu == this_cpu) {

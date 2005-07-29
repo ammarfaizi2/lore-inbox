@@ -1,88 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVG2EMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVG2ESv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVG2EMt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 00:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVG2EMt
+	id S262251AbVG2ESv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 00:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVG2ESv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 00:12:49 -0400
-Received: from mx3.mail.ru ([194.67.23.149]:32359 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id S261552AbVG2EMp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 00:12:45 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Syncing single filesystem (slow USB writing)
-Date: Fri, 29 Jul 2005 08:12:23 +0400
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200507290731.32694.arvidjaar@mail.ru> <20050728205016.1bdf7288.akpm@osdl.org>
-In-Reply-To: <20050728205016.1bdf7288.akpm@osdl.org>
+	Fri, 29 Jul 2005 00:18:51 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:7151 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262251AbVG2ESu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 00:18:50 -0400
+Message-ID: <42E9ADB8.1010501@mvista.com>
+Date: Thu, 28 Jul 2005 21:16:56 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart112267880.GVirQ4N2jW";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Keith Owens <kaos@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] NMI watch dog notify patch
+References: <4162.1122601822@kao2.melbourne.sgi.com>
+In-Reply-To: <4162.1122601822@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200507290812.25976.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart112267880.GVirQ4N2jW
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Keith Owens wrote:
+> On Thu, 28 Jul 2005 13:31:58 -0700, 
+> George Anzinger <george@mvista.com> wrote:
+> 
+>>I have been doing some work on kgdb to pull a few of it "fingers" out of 
+>>various places in the kernel.  This is the final location where we have 
+>>a kgdb intercept not covered by a notify.
+> 
+> 
+> I like the idea, but the hook should be in die_nmi(), not in the
+> watchdog, using the reason that is already passed into die_nmi.
+> die_nmi() is also called for a real NMI.
+> 
+I had though that too, but it does not allow recovery (i.e. lets reset 
+the watchdog and try again).
 
-On Friday 29 July 2005 07:50, Andrew Morton wrote:
-> Andrey Borzenkov <arvidjaar@mail.ru> wrote:
-> > Mandrake always mounted USB sticks with sync option; it was effectively
-> > noop except for a patch that implemented limited dsync semantic.
-> >
-> > Now, when full sync support for FATis in kernel, moutning with sync
-> > became real pain. Writing speed dropped from 3MB/s to 30KB/s in my case
-> > (and I am not alone).
->
-> Unfortunately I think we're just going to have to live with that.  It is
-> right that fatfs behaves as it does, and unfortunate that some distros wi=
-ll
-> operate slowly.
->
+Hmm.. just looked at traps.c.  Seems die_nmi is NOT called from the nmi 
+trap, only from the watchdog.  Also, there is a notify in the path to 
+the other nmi stuff.
 
-Well, I was not going to suggest killing sync support in FAT :)
-
-> For reference: how does mandrake implement this?  Just in /etc/fstab?  How
-> should we tell other people to fix this?
->
-
-Yes, just fstab option. It has been "fixed" a couple of days ago by removin=
-g=20
-sync but I am going to test effect of dsync; it should behave more or less =
-as=20
-before and provide at least some level of fs consistency.
-
-> > One idea how to improve situation - continue to mount with dsync (having
-> > basically old case) and do frequent sync of filesystem (this culd be
-> > started as HAL callout or whatever). Unfortunately, I could not find a
-> > way to request a sync (flush) of single mount point or block device. Ha=
-ve
-> > I missed something?
->
-> It's trivial to do in-kernel but no, I'm afraid there isn't a userspace
-> interface for this.
-
-Oh well, let's do it in kernel to check if it is worth hassle.
-
-Thanks
-
---nextPart112267880.GVirQ4N2jW
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBC6aypR6LMutpd94wRAhiYAKDOTFlwZOCtUTp+YohcvSY6/gENjACcCB3A
-T6FBtoG9nmJ3pU6aKlvCwNs=
-=5jCc
------END PGP SIGNATURE-----
-
---nextPart112267880.GVirQ4N2jW--
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

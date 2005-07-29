@@ -1,89 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262554AbVG2KSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbVG2KRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262554AbVG2KSz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 06:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbVG2KRH
+	id S262561AbVG2KRB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 06:17:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbVG2KOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 06:17:07 -0400
-Received: from zerg.cluj.astral.ro ([193.230.240.30]:62347 "EHLO
-	zerg.astral.ro") by vger.kernel.org with ESMTP id S262557AbVG2KOm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 06:14:42 -0400
-Message-Id: <200507291020.j6TAKkc28044@zerg.astral.ro>
-From: Grt Great <grtgrt@clujnapoca.ro>
-To: Grt Great <grtgrt@clujnapoca.ro>
-Reply-To: wk_70@kaixo.com
-Subject: Great Respecto - Please Read From Wu Kwon
-Date: Fri, 29 Jul 2005 13:20:46 +0300
+	Fri, 29 Jul 2005 06:14:35 -0400
+Received: from i254135.upc-i.chello.nl ([62.195.254.135]:15117 "EHLO
+	lab.d20.nl") by vger.kernel.org with ESMTP id S262557AbVG2KNV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 06:13:21 -0400
+Message-ID: <42EA0137.8040707@d20.nl>
+Date: Fri, 29 Jul 2005 12:13:11 +0200
+From: Joost Remijn <remijnj@d20.nl>
+User-Agent: Mozilla Thunderbird 1.0.5 (X11/20050711)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Originating-IP: [207.248.240.118]
-X-Mailer: freemail 0.9.8
-X-User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
-X-Organization: ASTRAL FreeMail
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space (updated)
+References: <20050728145353.GL11644@mellanox.co.il> <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms020108060306040202050402"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a cryptographically signed message in MIME format.
 
+--------------ms020108060306040202050402
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-My name is Mr Wu kwon from Korea and I would like 
-you to guide me through the most viable 
-investment opportunities in your Country. 
-Alternatively, I can invest in your line of 
-business if you are interested and if your line 
-of business is viable.
+Jan Engelhardt wrote:
 
-I am one of the defectors from the north and I am 
-currently residing in South Korea. I have been in 
-this Country for sometime now. Before defecting 
-from the North, I was into currency exchange
-business and I was always travelling to other 
-parts of Asia and Europe and during that period, 
-I was able to move out my funds and deposit
-it in a bank in EUROPE.
+>>3e. sizeof
+>>	space after the operator
+>>	no space if the operand is in barces
+>>    
+>>
+>
+>braces
+>
+>  
+>
+>>3f. Braces etc
+>>	() [] -> .
+>>    
+>>
+>
+>() parentheses (short form: parens)
+>[] square brackets
+>{} braces
+><> dunno their name :p
+>
+angle brackets, it's all nicely explained at
+http://en.wikipedia.org/wiki/Bracket
 
-I want to invest this funds in your Country with 
-your help and advice because we are being treated 
-as foreigners here. A lot of defectors now go on 
-to Canada or the United States and some parts of 
-Europe to live.
-
-For more details, please see the following 
-websites;
-http://www.detnews.com/2003/nation/0310/09/a19e-
-292811.htm
-www.washingtonpost.com/ac2/wp-dyn/A41966-2003Oct3?
-language=printer
-http://www.iht.com/articles/531755.html
-http://www.freerepublic.com/focus/f-
-news/1181380/posts
-
-I want you to send me a complete breakdown of the 
-investment opportunities in your Country and also 
-let me know What exactly I need to do to enable 
-you invest the funds for me in your Country.
-
-If interested, you will have to provide an 
-account for receiving the investment funds. I 
-will then come over to your Country after you
-receive the funds and work out the investment 
-plans with you.
-
-After I hear from you and find out the best 
-investment business you can introduce to me, I 
-will tell you how much is involved.
-
-I will expect your response together with your 
-contact details, preferably your private 
-telephone number so that I can discuss further 
-and additional details.
-
-Reply through my private email address.
-Regards and God Bless
-Mr Wu kwon
+--
+Joost
 
 
 
-______________________________________________
-http://www.sentimente.ro
-Singur? Peste 180.000 utilizatori pentru tine!
+--------------ms020108060306040202050402
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
+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
+NkVFNjAwMDAwMDAyRTFFNEFBNDE0MEVCQ0NCMj8wDQYJKoZIhvcNAQEEBQADgYEAmShkPb7Y
+nqUqZYNPSwT8jrNguzW6fIBzn1zGl0jT6YkO+g8R4tEEsxQQIgIyFUKi0sdjicT2gUx3p8xR
++LOTnBfcgoCMJK0zb9whSOBwW6bWPo2zdtM16O8lIxFXFuK2GGQKEGVF2awzJaFuEAAPC9ko
+2/xhWRNs7lxPPIjx7xwxggR0MIIEcAIBATCBzzCBvDELMAkGA1UEBhMCREUxEDAOBgNVBAgT
+B0hhbWJ1cmcxEDAOBgNVBAcTB0hhbWJ1cmcxOjA4BgNVBAoTMVRDIFRydXN0Q2VudGVyIGZv
+ciBTZWN1cml0eSBpbiBEYXRhIE5ldHdvcmtzIEdtYkgxIjAgBgNVBAsTGVRDIFRydXN0Q2Vu
+dGVyIENsYXNzIDEgQ0ExKTAnBgkqhkiG9w0BCQEWGmNlcnRpZmljYXRlQHRydXN0Y2VudGVy
+LmRlAg5u5gAAAALh5KpBQOvMsjAJBgUrDgMCGgUAoIICeTAYBgkqhkiG9w0BCQMxCwYJKoZI
+hvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wNTA3MjkxMDEzMTFaMCMGCSqGSIb3DQEJBDEWBBQx
+FMLLFJ5ZLwqQjuTc+djO+FEKGTBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqG
+SIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCB4AYJ
+KwYBBAGCNxAEMYHSMIHPMIG8MQswCQYDVQQGEwJERTEQMA4GA1UECBMHSGFtYnVyZzEQMA4G
+A1UEBxMHSGFtYnVyZzE6MDgGA1UEChMxVEMgVHJ1c3RDZW50ZXIgZm9yIFNlY3VyaXR5IGlu
+IERhdGEgTmV0d29ya3MgR21iSDEiMCAGA1UECxMZVEMgVHJ1c3RDZW50ZXIgQ2xhc3MgMSBD
+QTEpMCcGCSqGSIb3DQEJARYaY2VydGlmaWNhdGVAdHJ1c3RjZW50ZXIuZGUCDm7mAAAAAuHk
+qkFA68yyMIHiBgsqhkiG9w0BCRACCzGB0qCBzzCBvDELMAkGA1UEBhMCREUxEDAOBgNVBAgT
+B0hhbWJ1cmcxEDAOBgNVBAcTB0hhbWJ1cmcxOjA4BgNVBAoTMVRDIFRydXN0Q2VudGVyIGZv
+ciBTZWN1cml0eSBpbiBEYXRhIE5ldHdvcmtzIEdtYkgxIjAgBgNVBAsTGVRDIFRydXN0Q2Vu
+dGVyIENsYXNzIDEgQ0ExKTAnBgkqhkiG9w0BCQEWGmNlcnRpZmljYXRlQHRydXN0Y2VudGVy
+LmRlAg5u5gAAAALh5KpBQOvMsjANBgkqhkiG9w0BAQEFAASCAQAIrq4Q0M0CKd4EWY2BKCug
+9lF4yu/alofy70CoNscXGzJsKrldEVUpn7ZkZKZ0oajz+Mlng2pta9yHAdHyQj95WvMhiS//
+/lzWQNxxxQGrW1ghzGNwO8MZVeiGUziNCThO7pZsOvaHIiQbJ0mI7vXlXF1OmMiA78NGMqY1
+J5gH3e2Hj7m//ShWn7KujslazmJ/WGsB2/w7GZnB4zdgC4YetmavUqfkB2uPxQJZyNPXHYjp
+/XFMO6YGAM02OrAKKnf0BIdQdOeTrFpa8Scq+bsP327BfQyTKD2d0RnKKJs5aREGEUJO07PB
+2QDBjVeffwD7N11SOdpkL7I1m5MFdfIZAAAAAAAA
+--------------ms020108060306040202050402--

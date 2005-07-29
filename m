@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbVG2Vkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVG2VnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262841AbVG2Vkj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 17:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262899AbVG2Vkd
+	id S261769AbVG2VnN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:43:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVG2VnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 17:40:33 -0400
-Received: from opersys.com ([64.40.108.71]:18698 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262841AbVG2Vis (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 17:38:48 -0400
-Message-ID: <42EAA05F.4000704@opersys.com>
-Date: Fri, 29 Jul 2005 17:32:15 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Fri, 29 Jul 2005 17:43:08 -0400
+Received: from smtp2.brturbo.com.br ([200.199.201.158]:31453 "EHLO
+	smtp2.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S262900AbVG2Vky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 17:40:54 -0400
+Message-ID: <42EAA25E.5020006@brturbo.com.br>
+Date: Fri, 29 Jul 2005 18:40:46 -0300
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+User-Agent: Mozilla Thunderbird 1.0.6-1mdk (X11/20050322)
+X-Accept-Language: pt-br, pt, es, en-us, en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Average instruction length in x86-built kernel?
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Vojtech Pavlik <vojtech@suse.cz>, Jiri Slaby <lnx4us@gmail.com>,
+       Jiri Slaby <jirislaby@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+Subject: Re: Obsolete files in 2.6 tree
+References: <42DED9F3.4040300@gmail.com> <42DF6F34.4080804@gmail.com>	 <20050726120727.GA2134@ucw.cz> <1122421245.2542.35.camel@localhost.localdomain>
+In-Reply-To: <1122421245.2542.35.camel@localhost.localdomain>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 
+>>>drivers/media/video/zr36120.c
+>>>drivers/media/video/zr36120_i2c.c
+>>>drivers/media/video/zr36120_mem.c
+> 
+> 
+> Being discussed on the V4L list
+	It seems that nobody are interested on maintaining it. No answer from
+V4L list subscribers.
 
-I'm wondering if anyone's ever done an analysis on the average length
-of instructions in an x86-built kernel.
+	I think it may be removed.
 
-Googling around, I can find references claiming that the average
-instruction length on x86 is anywhere from 2.7 to 3.5 bytes, but I
-can't find anything studying Linux specifically.
-
-Just curious,
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Mauro.

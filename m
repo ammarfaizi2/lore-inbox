@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVG2VnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbVG2VnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbVG2VnN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 17:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVG2VnI
+	id S262905AbVG2VnX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVG2VnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 17:43:08 -0400
-Received: from smtp2.brturbo.com.br ([200.199.201.158]:31453 "EHLO
-	smtp2.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S262900AbVG2Vky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 17:40:54 -0400
-Message-ID: <42EAA25E.5020006@brturbo.com.br>
-Date: Fri, 29 Jul 2005 18:40:46 -0300
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.6-1mdk (X11/20050322)
-X-Accept-Language: pt-br, pt, es, en-us, en
+	Fri, 29 Jul 2005 17:43:19 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:48761 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S262905AbVG2Vh5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 17:37:57 -0400
+X-IronPort-AV: i="3.95,154,1120453200"; 
+   d="scan'208"; a="292324298:sNHT874248680"
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Vojtech Pavlik <vojtech@suse.cz>, Jiri Slaby <lnx4us@gmail.com>,
-       Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>
-Subject: Re: Obsolete files in 2.6 tree
-References: <42DED9F3.4040300@gmail.com> <42DF6F34.4080804@gmail.com>	 <20050726120727.GA2134@ucw.cz> <1122421245.2542.35.camel@localhost.localdomain>
-In-Reply-To: <1122421245.2542.35.camel@localhost.localdomain>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 2.6.12-rc3] modified firmware_class.c to support no hotplug
+Date: Fri, 29 Jul 2005 16:37:56 -0500
+Message-ID: <B37DF8F3777DDC4285FA831D366EB9E2073110@ausx3mps302.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.12-rc3] modified firmware_class.c to support no hotplug
+Thread-Index: AcWRnSGDF+C/PkOSS36SQuNgVq33fwC6GBSQ
+From: <Abhay_Salunke@Dell.com>
+To: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Cc: <greg@kroah.com>
+X-OriginalArrivalTime: 29 Jul 2005 21:37:56.0733 (UTC) FILETIME=[C89EAAD0:01C59485]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> -----Original Message-----
+> From: Andrew Morton [mailto:akpm@osdl.org]
+> Sent: Monday, July 25, 2005 11:47 PM
+> To: Salunke, Abhay
+> Cc: Greg KH
+> Subject: Re: [patch 2.6.12-rc3] modified firmware_class.c to support
+no
+> hotplug
 > 
->>>drivers/media/video/zr36120.c
->>>drivers/media/video/zr36120_i2c.c
->>>drivers/media/video/zr36120_mem.c
+> Abhay Salunke <Abhay_Salunke@dell.com> wrote:
+> >
+> > Andrew, could you please add this patch to the -mm tree.
 > 
+> -mm is based on Linus's post-2.6.13-rc3 tree, not on 2.6.11.x!
 > 
-> Being discussed on the V4L list
-	It seems that nobody are interested on maintaining it. No answer from
-V4L list subscribers.
+> Please redo and retest the patches against a current development
+kernel,
+> then resend.
 
-	I think it may be removed.
+I tried building the 2.6..13-rc4 kernel by applying the 2.6..13-rc4
+patch to 2.6.12 kernel source. The build goes fine but booting to the
+new kernel fails giving the following errors 
+Insmod error inserting /lib/sd_mod.ko' :-1 Unknown symbol in module
+Error: /bin/insmod exited abnormally!
+I am getting the same errors for mptscsih.ko , ext3.ko and dm-mirror.ko
+modules. 
+Not sure if this is a known issue...
 
-Mauro.
+Thanks
+Abhay

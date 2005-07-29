@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbVG2Tli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262693AbVG2ToJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262756AbVG2Tli (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 15:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVG2TjJ
+	id S262693AbVG2ToJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 15:44:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262780AbVG2ToE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 15:39:09 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:29130
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262775AbVG2TiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 15:38:05 -0400
-Date: Fri, 29 Jul 2005 12:37:44 -0700 (PDT)
-Message-Id: <20050729.123744.41648141.davem@davemloft.net>
-To: vda@ilport.com.ua
-Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       coreteam@netfilter.org, laforge@netfilter.org, jmorris@redhat.com
-Subject: Re: iptables redirect is broken on bridged setup
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200507291209.37247.vda@ilport.com.ua>
-References: <200507291209.37247.vda@ilport.com.ua>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Jul 2005 15:44:04 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:52097 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262763AbVG2TnS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 15:43:18 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [ACPI] Re: 2.6.13-rc3-mm3
+Date: Fri, 29 Jul 2005 12:42:58 -0700
+Message-ID: <971FCB6690CD0E4898387DBF7552B90E023F8527@orsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] Re: 2.6.13-rc3-mm3
+thread-index: AcWUdK47NjHWd8npTUOhoC/MWhUkFgAALQfw
+From: "Moore, Robert" <robert.moore@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Michael Thonke" <tk-shockwave@web.de>
+Cc: <iogl64nx@gmail.com>, <linux-kernel@vger.kernel.org>,
+       <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 29 Jul 2005 19:43:00.0045 (UTC) FILETIME=[B9DF97D0:01C59475]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Denis Vlasenko <vda@ilport.com.ua>
-Date: Fri, 29 Jul 2005 12:11:52 +0300
++    ACPI-0287: *** Error: Region SystemMemory(0) has no handler
++    ACPI-0127: *** Error: acpi_load_tables: Could not load namespace:
+AE_NOT_EXIST
++    ACPI-0136: *** Error: acpi_load_tables: Could not load tables:
 
-> Linux 2.6.12
-> 
-> Was running for months with this simple iptables rule:
- ...
-> But now I need to bridge together two eth cards in this machine, and
-> suddenly redirect is no longer works.
+This looks like a nasty case where some executable code in the table is
+attempting to access a SystemMemory operation region before any OpRegion
+handlers are initialized.
 
-I think this is the regression we fixed up in 2.6.12.x, can
-you try the latest 2.6.12.x stable release and see if it
-clears up this behavioral change?
+We certainly want to see the output of acpidump to attempt to diagnose
+and/or reproduce the problem.
+
+Bob
+

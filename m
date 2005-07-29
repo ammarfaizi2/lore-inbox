@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262693AbVG2ToJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262778AbVG2Tlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262693AbVG2ToJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 15:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262780AbVG2ToE
+	id S262778AbVG2Tlh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 15:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262779AbVG2TjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 15:44:04 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:52097 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262763AbVG2TnS convert rfc822-to-8bit (ORCPT
+	Fri, 29 Jul 2005 15:39:14 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:26322 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262693AbVG2Thm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 15:43:18 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 29 Jul 2005 15:37:42 -0400
+Message-ID: <42EA857B.5080608@pobox.com>
+Date: Fri, 29 Jul 2005 15:37:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [ACPI] Re: 2.6.13-rc3-mm3
-Date: Fri, 29 Jul 2005 12:42:58 -0700
-Message-ID: <971FCB6690CD0E4898387DBF7552B90E023F8527@orsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] Re: 2.6.13-rc3-mm3
-thread-index: AcWUdK47NjHWd8npTUOhoC/MWhUkFgAALQfw
-From: "Moore, Robert" <robert.moore@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Michael Thonke" <tk-shockwave@web.de>
-Cc: <iogl64nx@gmail.com>, <linux-kernel@vger.kernel.org>,
-       <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 29 Jul 2005 19:43:00.0045 (UTC) FILETIME=[B9DF97D0:01C59475]
+To: Peer.Chen@uli.com.tw
+CC: alan@redhat.com, Clear.Zhang@uli.com.tw, linux-kernel@vger.kernel.org,
+       Emily.Jiang@uli.com.tw, Netdev List <netdev@vger.kernel.org>
+Subject: Re: [patch] net/tulip: LAN driver for ULI M5261/M5263
+References: <OF9922119A.7A6623CD-ON4825704D.0040B00E@uli.com.tw>
+In-Reply-To: <OF9922119A.7A6623CD-ON4825704D.0040B00E@uli.com.tw>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-+    ACPI-0287: *** Error: Region SystemMemory(0) has no handler
-+    ACPI-0127: *** Error: acpi_load_tables: Could not load namespace:
-AE_NOT_EXIST
-+    ACPI-0136: *** Error: acpi_load_tables: Could not load tables:
+Peer.Chen@uli.com.tw wrote:
+> We want to extract our LAN card driver from tulip core driver and make a
+> new file uli526x.c at tulip folder,
+> because we have added some ethtool interface support and non-eprom support
+> in our driver and may be other change
+> in the futher. If our controllers support are still contained in the tulip
+> core driver, I think it'll increase the
+> complexity of maintenance,
 
-This looks like a nasty case where some executable code in the table is
-attempting to access a SystemMemory operation region before any OpRegion
-handlers are initialized.
 
-We certainly want to see the output of acpidump to attempt to diagnose
-and/or reproduce the problem.
+After some thought, I agree with this assessment.
 
-Bob
+It has been my goal for a long time to separate out the various chips 
+from the tulip driver, for easier maintenance.  One of the reasons I 
+have not applied a "fix tulip for ULi" patch is that it changes PHY 
+details that I am not sure are OK for the myriad tulip clones.  A 
+separate driver eliminates this objection.
+
+I have applied your patch to the new 'uli-tulip' branch of git 
+repository 
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+
+Please now do the following tasks:
+
+1) Submit an incremental patch addressing Alexey Dobriyan's minor complaints
+
+2) Submit a patch removing all ULi support from the 'tulip' driver
+
+
+I will then conduct a final review, and probably request another patch, 
+with more updates.
+
+After that, your driver will be sent upstream, to be included in the 
+official 2.6.x kernel.
+
+Thanks and regards,
+
+	Jeff
+
 

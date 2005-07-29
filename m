@@ -1,87 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVG2Vwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262809AbVG2V4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVG2Vwg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 17:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbVG2VuL
+	id S262809AbVG2V4w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbVG2V4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 17:50:11 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:23969 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S262809AbVG2Vsm (ORCPT
+	Fri, 29 Jul 2005 17:56:48 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:2233 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262809AbVG2Vz5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 17:48:42 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [linux-pm] [PATCH] swsusp: simpler calculation of number of pages in PBE list
-Date: Fri, 29 Jul 2005 23:53:38 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-pm@lists.osdl.org, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-References: <42EA87A0.908@stud.feec.vutbr.cz> <200507292243.28276.rjw@sisk.pl> <42EA9C38.90905@stud.feec.vutbr.cz>
-In-Reply-To: <42EA9C38.90905@stud.feec.vutbr.cz>
+	Fri, 29 Jul 2005 17:55:57 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507292353.39282.rjw@sisk.pl>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
+Date: Fri, 29 Jul 2005 14:55:36 -0700
+Message-ID: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
+thread-index: AcWUh2KmoV/7j2ozQIqz4kosHSv4HgAAEYCQ
+From: "Gaston, Jason D" <jason.d.gaston@intel.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <mj@ucw.cz>, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 29 Jul 2005 21:55:38.0213 (UTC) FILETIME=[414FA950:01C59488]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 29 of July 2005 23:14, Michal Schmidt wrote:
-> Rafael J. Wysocki wrote:
-> > On Friday, 29 of July 2005 21:46, Michal Schmidt wrote:
-> > 
-> >>The function calc_nr uses an iterative algorithm to calculate the number 
-> >>of pages needed for the image and the pagedir. Exactly the same result 
-> >>can be obtained with a one-line expression.
-> > 
-> > 
-> > Could you please post the proof?
-> > 
-> > Rafael
-> 
-> OK, attached is a proof-by-brute-force program. It compares the results 
-> of the original function and the simplified one.
-> 
-> This is its output:
-> 
-> $ ./calc_nr2
-> checked 0 ...
-> checked 100000000 ...
-> checked 200000000 ...
-> checked 300000000 ...
-> checked 400000000 ...
-> checked 500000000 ...
-> checked 600000000 ...
-> checked 700000000 ...
-> checked 800000000 ...
-> checked 900000000 ...
-> checked 1000000000 ...
-> checked 1100000000 ...
-> checked 1200000000 ...
-> checked 1300000000 ...
-> checked 1400000000 ...
-> checked 1500000000 ...
-> checked 1600000000 ...
-> checked 1700000000 ...
-> checked 1800000000 ...
-> checked 1900000000 ...
-> checked 2000000000 ...
-> checked 2100000000 ...
-> First difference at 2130706433:  -2147483646 x -2147483647
-> 
-> It means that the two functions give the same results for sensible 
-> values of the input argument.
-> They results only differ when they overflow into negative values. At 
-> this point both of the results are useless.
+This define is not actually used anywhere that I know of.  I just wanted
+to be consistent and correct, following what was previously done.  I
+have been wondering if I should be adding devices to the pci_ids.h file
+that are not being currently used.  It seems like most drivers are not
+using these defines and are just using the DID's directly.  In the
+future, should I only be add devices that are actually using the defines
+somewhere?
 
-Thanks, fine. :-)
+Thanks,
 
-Greets,
-Rafael
+Jason
 
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+
+>-----Original Message-----
+>From: Jeff Garzik [mailto:jgarzik@pobox.com]
+>Sent: Friday, July 29, 2005 2:49 PM
+>To: Gaston, Jason D
+>Cc: mj@ucw.cz; akpm@osdl.org; linux-kernel@vger.kernel.org
+>Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
+>
+>Jason Gaston wrote:
+>> Hello,
+>>
+>> This patch adds the Intel ICH7R SATA RAID DID to the pci_ids.h file.
+>This patch was built against the 2.6.13-rc4 kernel.
+>> If acceptable, please apply.
+>>
+>> Thanks,
+>>
+>> Jason Gaston
+>>
+>> Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
+>>
+>> --- linux-2.6.13-rc4/include/linux/pci_ids.h.orig	2005-07-29
+>09:06:03.841520568 -0700
+>> +++ linux-2.6.13-rc4/include/linux/pci_ids.h	2005-07-29
+>09:06:42.256680576 -0700
+>> @@ -2454,6 +2454,7 @@
+>>  #define PCI_DEVICE_ID_INTEL_ICH7_3	0x27c1
+>>  #define PCI_DEVICE_ID_INTEL_ICH7_30	0x27b0
+>>  #define PCI_DEVICE_ID_INTEL_ICH7_31	0x27bd
+>> +#define PCI_DEVICE_ID_INTEL_ICH7_4	0x27c3
+>>  #define PCI_DEVICE_ID_INTEL_ICH7_5	0x27c4
+>>  #define PCI_DEVICE_ID_INTEL_ICH7_6	0x27c5
+>>  #define PCI_DEVICE_ID_INTEL_ICH7_7	0x27c8
+>
+>Where is this actually used?
+>
+>I purposefully do not use PCI_DEVICE_ID_xxx in my drivers, because I
+>feel that linux/pci_ids.h is constantly patched for little value.
+>
+>Device ids, unlike vendor ids, are largely single-use constants.
+>
+>	Jeff
+>
+>
+

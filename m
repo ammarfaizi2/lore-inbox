@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVG2HYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVG2H0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262466AbVG2HYx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 03:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVG2HYx
+	id S262362AbVG2H0p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 03:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbVG2H0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 03:24:53 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:1176 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262362AbVG2HYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 03:24:52 -0400
-Message-Id: <200507290722.j6T7Mig07477@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Ingo Molnar'" <mingo@elte.hu>
-Cc: "Keith Owens" <kaos@ocs.com.au>, <David.Mosberger@acm.org>,
-       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-Subject: RE: Add prefetch switch stack hook in scheduler function
-Date: Fri, 29 Jul 2005 00:22:43 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcWUC+R3gYlvfTtNRByanjtDGKz6eQAAJerA
-In-Reply-To: <20050729070447.GA3032@elte.hu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Fri, 29 Jul 2005 03:26:42 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:57806 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262362AbVG2HZv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 03:25:51 -0400
+Date: Fri, 29 Jul 2005 09:27:49 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Nate Diller <nate.diller@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
+Subject: Re: io scheduler silly question perhaps..
+Message-ID: <20050729072749.GD22569@suse.de>
+References: <Pine.LNX.4.58.0507290130000.1030@skynet> <5c49b0ed0507281752b9485@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5c49b0ed0507281752b9485@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote on Friday, July 29, 2005 12:05 AM
-> --- linux.orig/kernel/sched.c
-> +++ linux/kernel/sched.c
-> @@ -2869,7 +2869,14 @@ go_idle:
->  	 * its thread_info, its kernel stack and mm:
->  	 */
->  	prefetch(next->thread_info);
-> -	prefetch(kernel_stack(next));
-> +	/*
-> +	 * Prefetch (at least) a cacheline below the current
-> +	 * kernel stack (in expectation of any new task touching
-> +	 * the stack at least minimally), and a cacheline above
-> +	 * the stack:
-> +	 */
-> +	prefetch_range(kernel_stack(next) - MIN_KERNEL_STACK_FOOTPRINT,
-> +		       MIN_KERNEL_STACK_FOOTPRINT + L1_CACHE_BYTES);
->  	prefetch(next->mm);
+On Thu, Jul 28 2005, Nate Diller wrote:
+> Try benchmarking Anticipatory or Deadline against Noop, preferably
+> with your actual workload.  Noop is probably what you want, since
+> there is not much use in avoiding large "seeks".  It could be though
+> that request merging, which the non-noop schedulers all perform, willl
+> cause Noop to lose.  I haven't tried any I/O scheduler benchmarks with
+> flash, but perhaps we need a simple "merge only" scheduler for this
+> sort of thing.
+> 
+> Let me know what the results are.
 
+deadline is the appropriate choice, you could still have read starvation
+issues with noop. anticipatory doesn't make any sense, as the device has
+no seek penalty.
 
-Doctor, it still hurts :-(
+and hey, don't top post! now we lost daves original mail.
 
-On ia64, we have two kernel stacks, one for outgoing task, and one for
-incoming task.  for outgoing task, we haven't called switch_to() yet.
-So the switch stack structure for 'current' will be allocated immediately
-below current 'sp' pointer. For the incoming task, it was fully ctx'ed out
-previously, so switch stack structure is immediate above kernel_stack(next).
-It Would be beneficial to prefetch both stacks.
+-- 
+Jens Axboe
 

@@ -1,78 +1,394 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262830AbVG3ABL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVG2UkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262830AbVG3ABL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 20:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbVG2X6x
+	id S262820AbVG2UkX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 16:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbVG2UiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 19:58:53 -0400
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:8592 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S262827AbVG2X4m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 19:56:42 -0400
-Date: Sat, 30 Jul 2005 01:56:32 +0200 (CEST)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Andrew Morton <akpm@osdl.org>
-cc: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, linux-kernel@vger.kernel.org,
-       markh@osdl.org
-Subject: Re: AACRAID failure with 2.6.13-rc1
-In-Reply-To: <20050729125928.18d41cf7.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.60.0507300141090.21995@kepler.fjfi.cvut.cz>
-References: <60807403EABEB443939A5A7AA8A7458B017927DC@otce2k01.adaptec.com>
- <20050729125928.18d41cf7.akpm@osdl.org>
+	Fri, 29 Jul 2005 16:38:25 -0400
+Received: from graphe.net ([209.204.138.32]:16352 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262800AbVG2Ufz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 16:35:55 -0400
+Date: Fri, 29 Jul 2005 13:35:51 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Pavel Machek <pavel@ucw.cz>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH 4/4] Task notifier against mm: s/try_to_freeze/try_todo_list
+ in some driver
+In-Reply-To: <Pine.LNX.4.62.0507291333410.5304@graphe.net>
+Message-ID: <Pine.LNX.4.62.0507291334510.5304@graphe.net>
+References: <Pine.LNX.4.62.0507291328170.5304@graphe.net>
+ <Pine.LNX.4.62.0507291332100.5304@graphe.net> <Pine.LNX.4.62.0507291333410.5304@graphe.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patch to replace try_to_freeze with try_todo_list 
 
+Replaces:
 
-On Fri, 29 Jul 2005, Andrew Morton wrote:
+try_to_freeze -> try_todo_list
+freezing -> todo_listactive
+refrigerator -> run_todo_list
 
-> "Salyzyn, Mark" <mark_salyzyn@adaptec.com> wrote:
-> >
-> > Martin may be overplaying the performance angle.
-> > 
-> > A previous patch took the adapter from 64K to 4MB transaction sizes
-> > across the board. This caused Martin's adapter and drive combination to
-> > tip-over. We had to scale back to 128KB sized transactions to get
-> > stability on his system. All systems handled the 4MB I/O size in our
-> > tests, but the tests that were done some time ago were not performed
-> > with the latest kernel, which contributed to a change in testing
-> > corners.
-> 
-> Confused.  The above appears to indicate that we should put the workaround
-> into 2.6.13, yes?
+This patch is incomplete. Drivers may continue using try_to_freeze, freezing
+and refrigerators since the above mapping is also provided by macros in
+include/linux/sched.h.
 
-Yes. The thing is, that to make the 2.6.13-rc4 work here, I have to either 
-use this:
+At some point--when all drivers have been changed--the macros in include/linux/sched.h
+may be removed.
 
----------------
-diff -Napur a/driver/scsi/aacraid/aacraid.h b/driver/scsi/aacraid/aacraid.h
---- a/driver/scsi/aacraid/aacraid.h     2005-07-30 01:09:27.000000000 +0200
-+++ b/driver/scsi/aacraid/aacraid.h     2005-07-30 01:44:02.000000000 +0200
-@@ -19,7 +19,7 @@
-  *  max_sectors is an unsigned short, otherwise limit is 0x100000000 / 512
-  * Linux has starvation problems if we permit larger than 4MB I/O ...
-  */
--#define AAC_MAX_32BIT_SGBCOUNT ((unsigned short)8192)
-+#define AAC_MAX_32BIT_SGBCOUNT ((unsigned short)512)
+Signed-off-by: Christoph Lameter <christoph@lameter.com>
 
- /*
-  * These macros convert from physical channels to virtual channels
-----------------
-
-or the new Adaptec aacraid driver that uses the new comm. Since the latter 
-is unlikely to make it into mainline before 2.6.13, the above patch 
-should.
-
-However I may add, that the 512 value was found to be the maximum 
-acceptable for my configuration only (AAC 2410SA + 3xWD1200JD + 
-1xWD1600SD). If there is anyone else out there having similar problems it 
-would be nice if they tested the value. Perhaps for some other 
-configurations the value would have to be even lower. (??)
-
-So, from my POV the value should be set to at most 512 for the 2.6.13 and 
-after 2.6.13 is out, the new driver should be pushed in before the next 
-freeze.
-
-Martin
+Index: linux-2.6.13-rc3-mm3/drivers/block/pktcdvd.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/block/pktcdvd.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/block/pktcdvd.c	2005-07-29 12:38:02.000000000 -0700
+@@ -1250,8 +1250,7 @@
+ 			residue = schedule_timeout(min_sleep_time);
+ 			VPRINTK("kcdrwd: wake up\n");
+ 
+-			/* make swsusp happy with our thread */
+-			try_to_freeze();
++			try_todo_list();
+ 
+ 			list_for_each_entry(pkt, &pd->cdrw.pkt_active_list, list) {
+ 				if (!pkt->sleep_time)
+Index: linux-2.6.13-rc3-mm3/drivers/ieee1394/ieee1394_core.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/ieee1394/ieee1394_core.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/ieee1394/ieee1394_core.c	2005-07-29 12:38:03.000000000 -0700
+@@ -1044,7 +1044,7 @@
+ 
+ 	while (1) {
+ 		if (down_interruptible(&khpsbpkt_sig)) {
+-			if (try_to_freeze())
++			if (try_todo_list())
+ 				continue;
+ 			printk("khpsbpkt: received unexpected signal?!\n" );
+ 			break;
+Index: linux-2.6.13-rc3-mm3/drivers/ieee1394/nodemgr.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/ieee1394/nodemgr.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/ieee1394/nodemgr.c	2005-07-29 12:38:03.000000000 -0700
+@@ -1510,7 +1510,7 @@
+ 
+ 		if (down_interruptible(&hi->reset_sem) ||
+ 		    down_interruptible(&nodemgr_serialize)) {
+-			if (try_to_freeze())
++			if (try_todo_list())
+ 				continue;
+ 			printk("NodeMgr: received unexpected signal?!\n" );
+ 			break;
+Index: linux-2.6.13-rc3-mm3/drivers/input/gameport/gameport.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/input/gameport/gameport.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/input/gameport/gameport.c	2005-07-29 12:38:03.000000000 -0700
+@@ -435,7 +435,7 @@
+ 		gameport_handle_events();
+ 		wait_event_interruptible(gameport_wait,
+ 			kthread_should_stop() || !list_empty(&gameport_event_list));
+-		try_to_freeze();
++		try_todo_list();
+ 	} while (!kthread_should_stop());
+ 
+ 	printk(KERN_DEBUG "gameport: kgameportd exiting\n");
+Index: linux-2.6.13-rc3-mm3/drivers/input/serio/serio.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/input/serio/serio.c	2005-07-29 12:32:06.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/input/serio/serio.c	2005-07-29 12:38:03.000000000 -0700
+@@ -371,7 +371,7 @@
+ 		serio_handle_events();
+ 		wait_event_interruptible(serio_wait,
+ 			kthread_should_stop() || !list_empty(&serio_event_list));
+-		try_to_freeze();
++		try_todo_list();
+ 	} while (!kthread_should_stop());
+ 
+ 	printk(KERN_DEBUG "serio: kseriod exiting\n");
+Index: linux-2.6.13-rc3-mm3/drivers/media/dvb/dvb-core/dvb_frontend.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/media/dvb/dvb-core/dvb_frontend.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/media/dvb/dvb-core/dvb_frontend.c	2005-07-29 12:38:03.000000000 -0700
+@@ -394,7 +394,7 @@
+ 			break;
+ 		}
+ 
+-		try_to_freeze();
++		try_todo_list();
+ 
+ 		if (down_interruptible(&fepriv->sem))
+ 			break;
+Index: linux-2.6.13-rc3-mm3/drivers/net/irda/stir4200.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/net/irda/stir4200.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/net/irda/stir4200.c	2005-07-29 12:38:03.000000000 -0700
+@@ -763,7 +763,7 @@
+ 	{
+ #ifdef CONFIG_PM
+ 		/* if suspending, then power off and wait */
+-		if (unlikely(freezing(current))) {
++		if (unlikely(todo_list_active())) {
+ 			if (stir->receiving)
+ 				receive_stop(stir);
+ 			else
+@@ -771,7 +771,7 @@
+ 
+ 			write_reg(stir, REG_CTRL1, CTRL1_TXPWD|CTRL1_RXPWD);
+ 
+-			refrigerator();
++			run_todo_list();
+ 
+ 			if (change_speed(stir, stir->speed))
+ 				break;
+Index: linux-2.6.13-rc3-mm3/drivers/pcmcia/cs.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/pcmcia/cs.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/pcmcia/cs.c	2005-07-29 12:38:03.000000000 -0700
+@@ -683,7 +683,7 @@
+ 		}
+ 
+ 		schedule();
+-		try_to_freeze();
++		try_todo_list();
+ 
+ 		if (!skt->thread)
+ 			break;
+Index: linux-2.6.13-rc3-mm3/drivers/usb/core/hub.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/usb/core/hub.c	2005-07-29 12:32:11.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/usb/core/hub.c	2005-07-29 12:38:03.000000000 -0700
+@@ -2812,7 +2812,7 @@
+ 		wait_event_interruptible(khubd_wait,
+ 				!list_empty(&hub_event_list) ||
+ 				kthread_should_stop());
+-		try_to_freeze();
++		try_todo_list();
+ 	} while (!kthread_should_stop() || !list_empty(&hub_event_list));
+ 
+ 	pr_debug("%s: khubd exiting\n", usbcore_name);
+Index: linux-2.6.13-rc3-mm3/drivers/usb/storage/usb.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/usb/storage/usb.c	2005-07-29 12:32:07.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/usb/storage/usb.c	2005-07-29 12:38:03.000000000 -0700
+@@ -891,7 +891,7 @@
+ 		wait_event_interruptible_timeout(us->delay_wait,
+ 				test_bit(US_FLIDX_DISCONNECTING, &us->flags),
+ 				delay_use * HZ);
+-		if (try_to_freeze())
++		if (try_todo_list())
+ 			goto retry;
+ 	}
+ 
+Index: linux-2.6.13-rc3-mm3/fs/afs/kafsasyncd.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/fs/afs/kafsasyncd.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/fs/afs/kafsasyncd.c	2005-07-29 12:38:03.000000000 -0700
+@@ -116,7 +116,7 @@
+ 		remove_wait_queue(&kafsasyncd_sleepq, &myself);
+ 		set_current_state(TASK_RUNNING);
+ 
+-		try_to_freeze();
++		try_todo_list();
+ 
+ 		/* discard pending signals */
+ 		afs_discard_my_signals();
+Index: linux-2.6.13-rc3-mm3/fs/afs/kafstimod.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/fs/afs/kafstimod.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/fs/afs/kafstimod.c	2005-07-29 12:38:03.000000000 -0700
+@@ -91,7 +91,7 @@
+ 			complete_and_exit(&kafstimod_dead, 0);
+ 		}
+ 
+-		try_to_freeze();
++		try_todo_list();
+ 
+ 		/* discard pending signals */
+ 		afs_discard_my_signals();
+Index: linux-2.6.13-rc3-mm3/fs/jbd/journal.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/fs/jbd/journal.c	2005-07-29 12:32:17.000000000 -0700
++++ linux-2.6.13-rc3-mm3/fs/jbd/journal.c	2005-07-29 12:38:03.000000000 -0700
+@@ -153,7 +153,7 @@
+ 	}
+ 
+ 	wake_up(&journal->j_wait_done_commit);
+-	if (freezing(current)) {
++	if (todo_list_active()) {
+ 		/*
+ 		 * The simpler the better. Flushing journal isn't a
+ 		 * good idea, because that depends on threads that may
+@@ -161,7 +161,7 @@
+ 		 */
+ 		jbd_debug(1, "Now suspending kjournald\n");
+ 		spin_unlock(&journal->j_state_lock);
+-		refrigerator();
++		run_todo_list();
+ 		spin_lock(&journal->j_state_lock);
+ 	} else {
+ 		/*
+Index: linux-2.6.13-rc3-mm3/fs/jfs/jfs_logmgr.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/fs/jfs/jfs_logmgr.c	2005-07-29 12:32:01.000000000 -0700
++++ linux-2.6.13-rc3-mm3/fs/jfs/jfs_logmgr.c	2005-07-29 12:38:03.000000000 -0700
+@@ -2360,9 +2360,9 @@
+ 			lbmStartIO(bp);
+ 			spin_lock_irq(&log_redrive_lock);
+ 		}
+-		if (freezing(current)) {
++		if (todo_list_active()) {
+ 			spin_unlock_irq(&log_redrive_lock);
+-			refrigerator();
++			run_todo_list();
+ 		} else {
+ 			add_wait_queue(&jfs_IO_thread_wait, &wq);
+ 			set_current_state(TASK_INTERRUPTIBLE);
+Index: linux-2.6.13-rc3-mm3/fs/lockd/clntproc.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/fs/lockd/clntproc.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/fs/lockd/clntproc.c	2005-07-29 12:38:03.000000000 -0700
+@@ -313,7 +313,7 @@
+ 	prepare_to_wait(queue, &wait, TASK_INTERRUPTIBLE);
+ 	if (!signalled ()) {
+ 		schedule_timeout(NLMCLNT_GRACE_WAIT);
+-		try_to_freeze();
++		try_todo_list();
+ 		if (!signalled ())
+ 			status = 0;
+ 	}
+Index: linux-2.6.13-rc3-mm3/fs/xfs/linux-2.6/xfs_buf.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/fs/xfs/linux-2.6/xfs_buf.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/fs/xfs/linux-2.6/xfs_buf.c	2005-07-29 12:38:03.000000000 -0700
+@@ -1771,9 +1771,9 @@
+ 
+ 	INIT_LIST_HEAD(&tmp);
+ 	do {
+-		if (unlikely(freezing(current))) {
++		if (unlikely(todo_list_active())) {
+ 			xfsbufd_force_sleep = 1;
+-			refrigerator();
++			run_todo_list();
+ 		} else {
+ 			xfsbufd_force_sleep = 0;
+ 		}
+Index: linux-2.6.13-rc3-mm3/fs/xfs/linux-2.6/xfs_super.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/fs/xfs/linux-2.6/xfs_super.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/fs/xfs/linux-2.6/xfs_super.c	2005-07-29 12:38:03.000000000 -0700
+@@ -482,8 +482,8 @@
+ 	for (;;) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		timeleft = schedule_timeout(timeleft);
+-		/* swsusp */
+-		try_to_freeze();
++
++		try_todo_list();
+ 		if (vfsp->vfs_flag & VFS_UMOUNT)
+ 			break;
+ 
+Index: linux-2.6.13-rc3-mm3/kernel/sched.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/kernel/sched.c	2005-07-29 12:32:23.000000000 -0700
++++ linux-2.6.13-rc3-mm3/kernel/sched.c	2005-07-29 12:38:03.000000000 -0700
+@@ -4524,7 +4524,7 @@
+ 		struct list_head *head;
+ 		migration_req_t *req;
+ 
+-		try_to_freeze();
++		try_todo_list();
+ 
+ 		spin_lock_irq(&rq->lock);
+ 
+Index: linux-2.6.13-rc3-mm3/mm/pdflush.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/mm/pdflush.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/mm/pdflush.c	2005-07-29 12:38:03.000000000 -0700
+@@ -105,7 +105,7 @@
+ 		spin_unlock_irq(&pdflush_lock);
+ 
+ 		schedule();
+-		if (try_to_freeze()) {
++		if (try_todo_list()) {
+ 			spin_lock_irq(&pdflush_lock);
+ 			continue;
+ 		}
+Index: linux-2.6.13-rc3-mm3/mm/vmscan.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/mm/vmscan.c	2005-07-29 12:32:18.000000000 -0700
++++ linux-2.6.13-rc3-mm3/mm/vmscan.c	2005-07-29 12:38:03.000000000 -0700
+@@ -1222,7 +1222,7 @@
+ 	for ( ; ; ) {
+ 		unsigned long new_order;
+ 
+-		try_to_freeze();
++		try_todo_list();
+ 
+ 		prepare_to_wait(&pgdat->kswapd_wait, &wait, TASK_INTERRUPTIBLE);
+ 		new_order = pgdat->kswapd_max_order;
+Index: linux-2.6.13-rc3-mm3/net/rxrpc/krxiod.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/net/rxrpc/krxiod.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/net/rxrpc/krxiod.c	2005-07-29 12:38:03.000000000 -0700
+@@ -138,7 +138,7 @@
+ 
+ 		_debug("### End Work");
+ 
+-		try_to_freeze();
++		try_todo_list();
+ 
+                 /* discard pending signals */
+ 		rxrpc_discard_my_signals();
+Index: linux-2.6.13-rc3-mm3/net/rxrpc/krxtimod.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/net/rxrpc/krxtimod.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/net/rxrpc/krxtimod.c	2005-07-29 12:38:03.000000000 -0700
+@@ -90,7 +90,7 @@
+ 			complete_and_exit(&krxtimod_dead, 0);
+ 		}
+ 
+-		try_to_freeze();
++		try_todo_list();
+ 
+ 		/* discard pending signals */
+ 		rxrpc_discard_my_signals();
+Index: linux-2.6.13-rc3-mm3/net/sunrpc/svcsock.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/net/sunrpc/svcsock.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/net/sunrpc/svcsock.c	2005-07-29 12:38:03.000000000 -0700
+@@ -1186,7 +1186,7 @@
+ 	arg->len = (pages-1)*PAGE_SIZE;
+ 	arg->tail[0].iov_len = 0;
+ 
+-	try_to_freeze();
++	try_todo_list();
+ 	if (signalled())
+ 		return -EINTR;
+ 
+@@ -1227,7 +1227,7 @@
+ 
+ 		schedule_timeout(timeout);
+ 
+-		try_to_freeze();
++		try_todo_list();
+ 
+ 		spin_lock_bh(&serv->sv_lock);
+ 		remove_wait_queue(&rqstp->rq_wait, &wait);
+Index: linux-2.6.13-rc3-mm3/drivers/net/8139too.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/drivers/net/8139too.c	2005-07-29 12:32:00.000000000 -0700
++++ linux-2.6.13-rc3-mm3/drivers/net/8139too.c	2005-07-29 12:38:03.000000000 -0700
+@@ -1605,8 +1605,7 @@
+ 		timeout = next_tick;
+ 		do {
+ 			timeout = interruptible_sleep_on_timeout (&tp->thr_wait, timeout);
+-			/* make swsusp happy with our thread */
+-			try_to_freeze();
++			try_todo_list();
+ 		} while (!signal_pending (current) && (timeout > 0));
+ 
+ 		if (signal_pending (current)) {

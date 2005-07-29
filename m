@@ -1,83 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbVG2RGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVG2RJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbVG2RGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 13:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbVG2REC
+	id S262667AbVG2RJk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 13:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVG2RJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 13:04:02 -0400
-Received: from sccrmhc14.comcast.net ([204.127.202.59]:50915 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S262667AbVG2RCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 13:02:31 -0400
-Date: Fri, 29 Jul 2005 10:02:18 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Kumar Gala <kumar.gala@freescale.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: RFC: 64-bit resources and changes to pci, ioremap, ...
-Message-ID: <20050729170218.GA30600@plexity.net>
-Reply-To: dsaxena@plexity.net
-References: <D72313E7-E2EC-4066-AD2A-02DAFE66B7E6@freescale.com>
+	Fri, 29 Jul 2005 13:09:36 -0400
+Received: from moraine.clusterfs.com ([66.96.26.190]:49285 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S262667AbVG2RGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 13:06:44 -0400
+Date: Fri, 29 Jul 2005 11:06:41 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
+Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] OOM problems still left in 2.6.13-rc3
+Message-ID: <20050729170641.GH6126@schatzie.adilger.int>
+Mail-Followup-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>,
+	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <018101c5943a$1a07a5d0$4168010a@bsd.tnes.nec.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <D72313E7-E2EC-4066-AD2A-02DAFE66B7E6@freescale.com>
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <018101c5943a$1a07a5d0$4168010a@bsd.tnes.nec.co.jp>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 29 2005, at 10:53, Kumar Gala was caught saying:
-> The main issue that I'm starting to see is that the concept of a  
-> physical address from the processors point of view needs to be  
-> consistent throughout all subsystems of the kernel.  Currently the  
-> major usage of struct resource is with the PCI subsystem and PCI  
-> drivers.  The following are some questions that I was hoping to get  
-> answers to and discussion around:
+On Jul 29, 2005  21:36 +0900, Takashi Sato wrote:
+> The buffers connected to t_sync_datalist can't simply be removed like
+> the buffers connected to t_locked_list, since we don't know if the
+> I/O against the buffers are complete.
+> 
+> So we should wait until the committing transaction becomes complete
+> if there are any buffers connected to the transaction's
+> t_sync_datalist.
+> 
+> b) If journal_unmap_buffer() returns -1 on journal_invalidatepages(),
+>   call log_wait_commit() to wait for the completion of the
+>   transaction, and retry to call journal_unmap_buffer() again.
 >
-> * How many 32-bit systems support larger than 32-bit physical  
-> addresses (I know newer PPCs do)?
+> @@ -1899,8 +1896,19 @@ int journal_invalidatepage(journal_t *jo
+> 
+>   if (offset <= curr_off) {
+>     /* This block is wholly outside the truncation point */
+> +retry:
+>    lock_buffer(bh);
+> -   may_free &= journal_unmap_buffer(journal, bh);
+> +   ret = journal_unmap_buffer(journal, bh, &wait_tid);
+> +   /* When this buffer is in transaction of
+> +    * t_sync_datalist, truncate must wait for
+> +    * that transaction.
+> +    */
+> +   if (ret < 0) {
+> +    unlock_buffer(bh);
+> +    log_wait_commit(journal, wait_tid);
+> +    goto retry;
+> +   }
+> +   may_free &= ret;
 
-Intel's new XSC3 ARM core supports up to 36-bit addressing and 
-they have several CPUs based on this that are already out or will
-be released in the next year. I can currently get around 64-bit
-resources by playing ugly tricks with the memory map and trapping
-ioremap() calls to a certain unused 32-bit physical range and fixing 
-it up to 64-bit (like PPC440?? does) but that may not work on future
-CPUs that don't have holes in the memmap.
+What kind of effect does this have on filesystem performance?
+This would apparently make truncate be synchronous with journal commit due to
+truncate_{partial,complete}_page->do_invalidatepage->journal_invalidatepage().
 
-> * How many 32-bit systems support a 64-bit PCI address space?
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
-This is a fairly common thing on some of the Intel XScale I/O and
-network processors. Some of the Intel CPUs provide a window in 
-32-bit CPU that translates to 64-bit PCI space.
-
-> * Should ioremap and variants start taking 64-bit physical addresses?
-
-If we are to use 64 bit resources, then yes. Or pfns...
-
-Do a google for my real opinion on this. I think ioremap() should take 
-a device and resource describing the address of the resources in the
-address space of the device (the bus it is one). The whole resource 
-and I/O subwystem currently assumes that physical and PCI bus address 
-spaces are one and the same, but I have HW that breaks this assumption 
-by allowing up to 2 GB of RAM and 3GB of PCI devices. Whenever this
-has been brought up though, Linus has shot it down. What we need is
-a real concept of per-bus address spaces and resources. But that is
-far more complicated change.
-
-> * Do we make this an arch option and wrap start and end in a typedef  
-> similar to pte_t and provide accessor macros to ensure proper use?
-
-Probably the best thing to do b/c on really small systems that 
-don't have 64-bit needs, we'll just be wasting memory with the
-extra data structure size. We need to scale down to PCI systems
-with just 8MB of RAM.
-
-~Deepak
-
--- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-Even a stopped clock gives the right time twice a day.

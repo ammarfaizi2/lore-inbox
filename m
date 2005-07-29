@@ -1,77 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262688AbVG2SIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbVG2SKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262688AbVG2SIT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 14:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbVG2SIS
+	id S262689AbVG2SKA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 14:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVG2SJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 14:08:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30615 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262688AbVG2SHf (ORCPT
+	Fri, 29 Jul 2005 14:09:59 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:36367 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S262689AbVG2SJY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 14:07:35 -0400
-Date: Fri, 29 Jul 2005 11:06:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Drab <drab@kepler.fjfi.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, mark_salyzyn@adaptec.com, markh@osdl.org
-Subject: Re: AACRAID failure with 2.6.13-rc1
-Message-Id: <20050729110631.189fcc3b.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.60.0507291343350.19795@kepler.fjfi.cvut.cz>
-References: <Pine.LNX.4.60.0507052356230.1410@kepler.fjfi.cvut.cz>
-	<20050728232312.063bcc14.akpm@osdl.org>
-	<Pine.LNX.4.60.0507291343350.19795@kepler.fjfi.cvut.cz>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Fri, 29 Jul 2005 14:09:24 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <Pine.LNX.4.61.0507291404400.15592@chaos.analogic.com>
+References: <C349E772C72290419567CFD84C26E017042058@mail.esn.co.in> <Pine.LNX.4.61.0507291404400.15592@chaos.analogic.com>
+X-OriginalArrivalTime: 29 Jul 2005 18:09:22.0116 (UTC) FILETIME=[A553A840:01C59468]
+Content-class: urn:content-classes:message
+Subject: RE: Unable to mount the SD card formatted using the DIGITAL CAMREA on Linux box
+Date: Fri, 29 Jul 2005 14:09:11 -0400
+Message-ID: <Pine.LNX.4.61.0507291408290.15592@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Unable to mount the SD card formatted using the DIGITAL CAMREA on Linux box
+thread-index: AcWUaKVdGxOJK5y0QqG8d5NqQeDIAQ==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Mukund JB." <mukundjb@esntechnologies.co.in>
+Cc: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>,
+       "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Drab <drab@kepler.fjfi.cvut.cz> wrote:
+
+On Fri, 29 Jul 2005, linux-os (Dick Johnson) wrote:
+
 >
->  > > [  278.732829] scsi0 (0:0): rejecting I/O to offline device
->  > > [  278.735954] Buffer I/O error on device sda2, logical block 491840
->  > > [  278.739147] lost page write due to I/O error on sda2
->  > > [  278.742389] scsi0 (0:0): rejecting I/O to offline device
->  > > [  278.745618] Buffer I/O error on device sda2, logical block 950284
->  > > [  278.748911] lost page write due to I/O error on sda2
->  > > [  278.752238] Buffer I/O error on device sda2, logical block 950285
->  > > [  278.755614] lost page write due to I/O error on sda2
->  > > [  278.759009] scsi0 (0:0): rejecting I/O to offline device
->  > > [  278.762408] Buffer I/O error on device sda2, logical block 950287
->  > > [  278.765855] lost page write due to I/O error on sda2
->  > > [  278.769318] scsi0 (0:0): rejecting I/O to offline device
->  > > ... last message repeats about 45-times ...
->  > > [  347.564676] EXT3-fs error (device sda2): ext3_find_entry: reading directory #544057 offset 0
->  > > ... here the log ends, nothing else happens then, since nothing is working when / is inaccessible ... :(
->  > 
->  > Martin, is this problem still present in 2.6.13-rc4?
->  > 
->  > If so, please cc linux-kernel on the reply, thanks.
->  > 
->  > It would also be useful if you could try reverting that aacraid patch, see
->  > if that helps.
-> 
->  Hi, Andrew!
-> 
->  The thing is still not fixed in 2.6.13-rc4. I had a long discussion about 
->  this with Mark Salyczyn and Mark Haverkamp. We came out with a temporary 
->  workaround, which was to set the AAC_MAX_32BIT_SGBCOUNT in aacraid.h to 
->  512 instead of 8192. The patch for this was presented 8.7.2005 on 
->  linux-scsi list by Mark Haverkamp. However this constant solution may (?) 
->  have some performance impact on the configurations which are capable of 
->  delivering a better performance (with respect to this constant at hand).
-> 
->  IMHO the real solution to this problem is the new Adaptec variant of 
->  aacraid driver which uses the 'new comm' technology to negotiate all these 
->  essential parameters directly with the hardware instead of relying on some 
->  preset constants. Mark Salyzyn has the patches prepared in his patch 
->  queue, and I vote for pushing it into the mainline ASAP.
+>
+> camera formatted info
+> ----------------------
+> Disk /dev/tfa0: 448 cylinders, 2 heads, 32 sectors/track
+> Units = cylinders of 32768 bytes, blocks of 1024 bytes, counting from 0
+>
+>    Device Boot Start     End   #cyls    #blocks   Id  System
+> /dev/tfa0p1   *      0+    449     450-     14371+   1  FAT12
+> /dev/tfa0p2          0       -       0          0    0  Empty
+> /dev/tfa0p3          0       -       0          0    0  Empty
+> /dev/tfa0p4          0       -       0          0    0  Empty
+> Warning: partition 1 extends past end of disk
+>
+> If it's 488 cylinders, then it should start at 0 and end at 447,
+> not 449.
+>
 
-ah, thanks.
+Sorry typo, 487, not 447.
 
-A temporary workaround which might affct performance sounds better than a
-dead box though.
 
-Mark, do you think that many systems are likely to be affected this way? 
-Do you think we should do something temporary for 2.6.13?
+> It looks like some kind of driver error to begin with. The
+> fact that it sometimes works should be overlooked until the
+> driver returns the correct number of cylinders (the same
+> number that the formatting utility gets). Check to see if
+> your driver could return a different disk size under different
+> conditions.
+>
+> On Fri, 29 Jul 2005, Mukund JB. wrote:
+>
+>>
+>> Dear Lennart, Dick Johnson, Erik Mouw & All,
+>>
+>> Thanks for all ur precious support.
+>>
+>> The cannon camera (other devices too) formatted SD is indeed a partition
+>> FAT12. When I said
+>> sfdisk -l, it showed the fs ID as 1. 1 is indeed the FAT12 fs ID.
+>>
+>> Attached are the logs for win and camera device sfdisk -Vl /dev/tfa0.
+>>
+>> The SD card formatted in camera is partitioned FAT12 disk.
+>> Also, the SD card formatted in windows is partitioned FAT12 disk.
+>> (see the attachment)
+>>
+>> on ur suggestion I verified whether camera partition device has a valid
+>> FS ID. I verified. It is FAT12. It is the same for windows
+>> formatted device. The FS ID of both the formats is 1. i.e. FAT12.
+>>
+>> I has notion that my driver is not supporting partition devices. This
+>> makes this clean that my driver is supporting the partition devices
+>> (windows formatted SD). If both are partitioned where is the difference?
+>>
+>>
+>> So, can someone please help me telling what else could be missing that
+>> is creating this problem?
+>>
+>> Regards,
+>> Mukund Jampala
+>>
+>>
+>>> -----Original Message-----
+>>> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+>>> owner@vger.kernel.org] On Behalf Of Lennart Sorensen
+>>> Sent: Friday, July 29, 2005 7:08 PM
+>>> To: linux-os (Dick Johnson)
+>>> Cc: Srinivas G.; linux-kernel-Mailing-list
+>>> Subject: Re: Unable to mount the SD card formatted using the DIGITAL
+>> CAMREA
+>>> on Linux box
+>>>
+>>> On Fri, Jul 29, 2005 at 08:02:14AM -0400, linux-os (Dick Johnson)
+>> wrote:
+>>>> Execute linux `fdisk` on the device. You may find that the
+>>>> ID byte is wrong.
+>>>>
+>>>> Also, why do you need a special block device driver? The SanDisk
+>>>> and CompacFlash devices should look like IDE drives.
+>>>
+>>> SD usually is secure digital (MMC compatible somewhat I believe).  It
+>>> does not provide IDE unlike CompactFlash.  SD uses a serial interface
+>> if
+>>> I remember correctly.
+>>>
+>>> Len Sorensen
+>>> -
+>>> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+>> in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+> Warning : 98.36% of all statistics are fiction.
+> .
+> I apologize for the following. I tried to kill it with the above dot :
+>
+> ****************************************************************
+> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+>
+> Thank you.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

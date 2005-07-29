@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262789AbVG2URQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262795AbVG2URR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262789AbVG2URQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 16:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVG2UOu
+	id S262795AbVG2URR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 16:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbVG2UOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 16:14:50 -0400
-Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:34006 "EHLO
-	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
-	id S262735AbVG2UNh convert rfc822-to-8bit (ORCPT
+	Fri, 29 Jul 2005 16:14:45 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:51450 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S262804AbVG2UNs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 16:13:37 -0400
-X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [Patch] Trival - Add warning to init/main.c
-Date: Fri, 29 Jul 2005 16:13:33 -0400
-Message-ID: <6B003D25ADBDE347B5542AFE6A55B42E06EA4FD7@tayexc13.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch] Trival - Add warning to init/main.c
-thread-index: AcWUaWngKv5UIg0XSOCv0ydXcHWuKAADnyLA
-From: "Avery, Brian" <b.avery@hp.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 29 Jul 2005 20:13:34.0179 (UTC) FILETIME=[FF1A3B30:01C59479]
+	Fri, 29 Jul 2005 16:13:48 -0400
+Date: Fri, 29 Jul 2005 22:13:44 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space (updated)
+Message-ID: <20050729201344.GF9841@khan.acc.umu.se>
+Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	"Michael S. Tsirkin" <mst@mellanox.co.il>,
+	linux-kernel@vger.kernel.org
+References: <20050728145353.GL11644@mellanox.co.il> <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr> <20050729175714.GE9841@khan.acc.umu.se> <Pine.LNX.4.61.0507292151220.17105@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0507292151220.17105@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I passed init=/mylinuxrc to the kernel on the command line.  The kernel
-silently dropped down to exec /sbin/init.  It turned out that /mylinuxrc
-had improper permissions.  Without any warning message from the kernel
-that something was wrong it took awhile to find the issue.  The patch
-below adds a warning.
+On Fri, Jul 29, 2005 at 09:52:01PM +0200, Jan Engelhardt wrote:
+> 
+> >I'd definitely call that a joe-bug.  Adding extra space for no good
+> >reason is just silly; for consistency we'd have to add a space for the
+> >case <foo>: labels also...
+> 
+> No, the word "case" never starts at column 1 (counting from 1), but at least 
+> in column <minimalIndent>, where minimalIndent is the default indent for that 
+> particular piece of code.
 
-Regards,
-Brian Avery
+Ehrm, yes, I'm perfectly aware of that.  Note the "for consistency" in
+that sentence.  If we add an extra space in front of the labels that
+have an indentation level of 0, we'd better do it with the labels that
+have an indentation level > 0 too.
 
 
---- init/main.c.orig    2005-07-29 13:27:18.666231288 -0400
-+++ init/main.c   2005-07-29 13:01:08.000000000 -0400
-@@ -701,9 +701,10 @@ static int init(void * unused)
-       * trying to recover a really broken machine.
-       */
- 
--     if (execute_command)
--           run_init_process(execute_command);
--
-+     if (execute_command){
-+                run_init_process(execute_command);
-+                printk(KERN_WARNING "Failed to execute %s.  Attempting
-defaults...\n",execute_command);
-+        }        
-      run_init_process("/sbin/init");
-      run_init_process("/etc/init");
-      run_init_process("/bin/init");
- 
+Regards: David
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

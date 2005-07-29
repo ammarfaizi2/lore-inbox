@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262867AbVG3AxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVG3Auj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262867AbVG3AxW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 20:53:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbVG3Aur
+	id S262740AbVG3Auj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 20:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVG2TSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 20:50:47 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7088 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262759AbVG2TS4 (ORCPT
+	Fri, 29 Jul 2005 15:18:32 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19119 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262757AbVG2TRB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 15:18:56 -0400
-Date: Fri, 29 Jul 2005 12:18:34 -0700
+	Fri, 29 Jul 2005 15:17:01 -0400
+Date: Fri, 29 Jul 2005 12:16:27 -0700
 From: Greg KH <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: [patch 29/29] USB: hidinput_hid_event() oops fix
-Message-ID: <20050729191834.GE5095@kroah.com>
+Cc: linux-kernel@vger.kernel.org, galak@freescale.com
+Subject: [patch 16/29] PCI: fix up errors after dma bursting patch and CONFIG_PCI=n -- bug?
+Message-ID: <20050729191627.GR5095@kroah.com>
 References: <20050729184950.014589000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="usb-hidinput_hid_event-oops-fix.patch"
+Content-Disposition: inline
 In-Reply-To: <20050729191255.GA5095@kroah.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pete Zaitcev <zaitcev@redhat.com>
+From: Kumar Gala <galak@freescale.com>
 
-It seems that I see a bug in hidinput_hid_event.  The check for NULL can never
-work, becaue &hidinput->input is nonzero at all times.
+In the patch from:
 
-Cc: <vojtech@suse.cz>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0506.3/0985.html
+
+Is the the following line suppose inside the if CONFIG_PCI=n
+
+  #define pci_dma_burst_advice(pdev, strat, strategy_parameter) do { } while (0)
+
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/usb/input/hid-input.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ include/linux/pci.h |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
---- gregkh-2.6.orig/drivers/usb/input/hid-input.c	2005-07-29 11:29:47.000000000 -0700
-+++ gregkh-2.6/drivers/usb/input/hid-input.c	2005-07-29 11:36:35.000000000 -0700
-@@ -397,11 +397,12 @@
+--- gregkh-2.6.orig/include/linux/pci.h	2005-07-29 11:29:50.000000000 -0700
++++ gregkh-2.6/include/linux/pci.h	2005-07-29 11:36:24.000000000 -0700
+@@ -971,6 +971,8 @@
  
- void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, struct pt_regs *regs)
- {
--	struct input_dev *input = &field->hidinput->input;
-+	struct input_dev *input;
- 	int *quirks = &hid->quirks;
+ #define	isa_bridge	((struct pci_dev *)NULL)
  
--	if (!input)
-+	if (!field->hidinput)
- 		return;
-+	input = &field->hidinput->input;
++#define pci_dma_burst_advice(pdev, strat, strategy_parameter) do { } while (0)
++
+ #else
  
- 	input_regs(input, regs);
+ /*
+@@ -985,9 +987,6 @@
+ 	return 0;
+ }
+ #endif
+-
+-#define pci_dma_burst_advice(pdev, strat, strategy_parameter) do { } while (0)
+-
+ #endif /* !CONFIG_PCI */
  
+ /* these helpers provide future and backwards compatibility
 
 --

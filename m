@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262630AbVG2PxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVG2PzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262630AbVG2PxO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 11:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVG2PxC
+	id S262637AbVG2PzI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 11:55:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVG2PzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 11:53:02 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42375 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262630AbVG2Pwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 11:52:49 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64: sync_tsc fix the race (so we can boot)
-References: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com>
-	<20050729074419.GB3726@bragg.suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 29 Jul 2005 09:52:40 -0600
-In-Reply-To: <20050729074419.GB3726@bragg.suse.de> (Andi Kleen's message of
- "Fri, 29 Jul 2005 09:44:19 +0200")
-Message-ID: <m1wtn94njr.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 29 Jul 2005 11:55:07 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:15033 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S262637AbVG2PxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 11:53:23 -0400
+Mime-Version: 1.0 (Apple Message framework v733)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <D72313E7-E2EC-4066-AD2A-02DAFE66B7E6@freescale.com>
+Cc: linux-kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: RFC: 64-bit resources and changes to pci, ioremap, ...
+Date: Fri, 29 Jul 2005 10:53:14 -0500
+To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+X-Mailer: Apple Mail (2.733)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+As I started to update the existing patches to make struct resource  
+have 64-bit start and end values I started to see all the places that  
+this effects and was hoping to get some discussion on what direction  
+we want to take.
 
-> There are some style problems, but that can be fixed later.
->
-> How did you track that nasty it down? 
+One of the main reasons to make this change is to handle processors  
+that have larger physical address space than effective.  A number of  
+higher-end embedded processors are starting to support larger  
+physical address space while still having a 32-bit effective  
+address.  I was wondering if any x86 variants support this type of  
+feature?
 
-I had a consistent reproducer.  
+The main issue that I'm starting to see is that the concept of a  
+physical address from the processors point of view needs to be  
+consistent throughout all subsystems of the kernel.  Currently the  
+major usage of struct resource is with the PCI subsystem and PCI  
+drivers.  The following are some questions that I was hoping to get  
+answers to and discussion around:
 
-I ruled out hangs in the tsc sync code itself,
-  by implementing timeouts in all of the loops.
+* How many 32-bit systems support larger than 32-bit physical  
+addresses (I know newer PPCs do)?
+* How many 32-bit systems support a 64-bit PCI address space?
+* Should ioremap and variants start taking 64-bit physical addresses?
+* Do we make this an arch option and wrap start and end in a typedef  
+similar to pte_t and provide accessor macros to ensure proper use?
 
-I looked for differences with the ia64 code.
+Andrew has also asked me to post size comparisons of drivers/*/*.o  
+building allmodconfig with 32-bit resources and 64-bit resources to  
+see what the size growth is.  I'll post logs for people to take a  
+look at in a followup email.
 
-I noticed that sometimes the machine would reboot
-and not just hang.
-
-I implemented smp_call_function_single since that was what the ia64
-code did.  It worked and all of my pieces of evidence just fell
-together.
-
-Eric
+- Kumar

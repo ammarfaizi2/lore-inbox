@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVG2H4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVG2IDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262495AbVG2H4q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 03:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbVG2Hqs
+	id S262508AbVG2IDL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 04:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVG2IDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 03:46:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:39313 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262493AbVG2Hp4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 03:45:56 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-cc: "'Ingo Molnar'" <mingo@elte.hu>, David.Mosberger@acm.org,
-       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: Add prefetch switch stack hook in scheduler function 
-In-reply-to: Your message of "Fri, 29 Jul 2005 00:22:43 MST."
-             <200507290722.j6T7Mig07477@unix-os.sc.intel.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 29 Jul 2005 17:45:42 +1000
-Message-ID: <10766.1122623142@kao2.melbourne.sgi.com>
+	Fri, 29 Jul 2005 04:03:11 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:43935 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262492AbVG2IDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 04:03:08 -0400
+Message-Id: <200507290802.j6T82hg08064@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Keith Owens'" <kaos@ocs.com.au>
+Cc: "'Ingo Molnar'" <mingo@elte.hu>, <David.Mosberger@acm.org>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>
+Subject: RE: Add prefetch switch stack hook in scheduler function 
+Date: Fri, 29 Jul 2005 01:02:42 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcWUEYvmW+w973ZzQYm1Cmso5RtSzgAAZ44w
+In-Reply-To: <10766.1122623142@kao2.melbourne.sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jul 2005 00:22:43 -0700, 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
->On ia64, we have two kernel stacks, one for outgoing task, and one for
->incoming task.  for outgoing task, we haven't called switch_to() yet.
->So the switch stack structure for 'current' will be allocated immediately
->below current 'sp' pointer. For the incoming task, it was fully ctx'ed out
->previously, so switch stack structure is immediate above kernel_stack(next).
->It Would be beneficial to prefetch both stacks.
+Keith Owens wrote on Friday, July 29, 2005 12:46 AM
+> On Fri, 29 Jul 2005 00:22:43 -0700, 
+> "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+> >On ia64, we have two kernel stacks, one for outgoing task, and one for
+> >incoming task.  for outgoing task, we haven't called switch_to() yet.
+> >So the switch stack structure for 'current' will be allocated immediately
+> >below current 'sp' pointer. For the incoming task, it was fully ctx'ed out
+> >previously, so switch stack structure is immediate above kernel_stack(next).
+> >It Would be beneficial to prefetch both stacks.
+> 
+> struct switch_stack for current is all write data, no reading is done.
+> Is it worth doing prefetchw() for current?
 
-struct switch_stack for current is all write data, no reading is done.
-Is it worth doing prefetchw() for current?  IOW, is there any
-measurable performance gain?
+Oh yes, very much so.  L2 is an out of order cache and it can only queue
+limited amount of store operations.  With the number of stores for switch
+stack structure, it will easily exceed that hardware limit.
+
+> IOW, is there any measurable performance gain?
+
+I don't have exact breakdown to how much contribute from prefetch the outgoing
+process versus incoming process.  But I believe both contributes to perf.
+gain.
+
+- Ken
+
 

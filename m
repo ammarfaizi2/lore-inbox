@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVG2NNn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbVG2NP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbVG2NNn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 09:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVG2NNm
+	id S262463AbVG2NP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 09:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVG2NP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 09:13:42 -0400
-Received: from ip51cfe451.direct-adsl.nl ([81.207.228.81]:43582 "EHLO
-	mailserver.thepool.com") by vger.kernel.org with ESMTP
-	id S261950AbVG2NNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 09:13:42 -0400
-From: Norbert van Nobelen <norbert@edusupport.nl>
-Organization: EduSupport BV
-To: "Srinivas G." <srinivasg@esntechnologies.co.in>
-Subject: Re: Unable to mount the SD card formatted using the DIGITAL CAMREA on Linux box
-Date: Fri, 29 Jul 2005 15:11:02 +0200
-User-Agent: KMail/1.5.1
-References: <C349E772C72290419567CFD84C26E01704201D@mail.esn.co.in>
-In-Reply-To: <C349E772C72290419567CFD84C26E01704201D@mail.esn.co.in>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 29 Jul 2005 09:15:57 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:9949 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262055AbVG2NPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 09:15:53 -0400
+Subject: Re: [RFC][PATCH] libata ATAPI alignment
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+In-Reply-To: <20050729050654.GA10413@havoc.gtf.org>
+References: <20050729050654.GA10413@havoc.gtf.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507291511.02212.norbert@edusupport.nl>
+Date: Fri, 29 Jul 2005 14:38:54 +0100
+Message-Id: <1122644334.13581.42.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What camera is this?
+On Gwe, 2005-07-29 at 01:06 -0400, Jeff Garzik wrote:
+> So, one thing that's terribly ugly about SATA ATAPI is that we need to
+> pad DMA transfers to the next 32-bit boundary, if the length is not
+> evenly divisible by 4.
 
-On Friday 29 July 2005 13:23, Srinivas G. wrote:
-> Dear All,
->
-> We have developed a Block Device Driver to handle the flash media
-> devices in Linux 2.6.x kernel. It is working fine. We are able to mount
-> the SD cards that are formatted on Windows systems, but we unable mount
-> the cards that are formatted using the DIGITAL CAMERA.
->
-> We have found one thing that the Windows and Digital Camera both are
-> formatting the SD cards in FAT12 only. But why we are not able to mount
-> the SD cards on Linux Box that are formatted using the Digital Camera.
->
-> Could any one explain the problem? It is great help to us.
-> Thanks in advance and we are looking forward a POSITIVE reply.
->
-> Thanks and Regards,
-> Srinivas G
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Looks good and avoids the special case leaking into the core code.
 
+> Complicating matters, we currently must support two methods of data
+> buffer submission:  a single kernel virtual address, or a struct
+> scatterlist.
+
+For the moment - also you turn the single buffer into a one entry sglist
+so its not to bad.
+
+> Review is requested by any and all parties, as well as suggestions for
+> a prettier approach.
+
+I'd pull the code into seperate functions but thats my only real
+comment.

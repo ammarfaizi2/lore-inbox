@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVG2OOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVG2OY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262599AbVG2OOW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 10:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVG2OOV
+	id S262583AbVG2OY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 10:24:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbVG2OY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 10:14:21 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:9953 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262583AbVG2OOP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 10:14:15 -0400
-Date: Fri, 29 Jul 2005 16:13:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [sched, patch] better wake-balancing
-Message-ID: <20050729141311.GA4154@elte.hu>
-References: <42E98DEA.9090606@yahoo.com.au> <200507290627.j6T6Rrg06842@unix-os.sc.intel.com> <20050729114822.GA25249@elte.hu>
+	Fri, 29 Jul 2005 10:24:57 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:39255 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262583AbVG2OY5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 10:24:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k/TcATekqkepF7/XOKMpS2xgjN0CK4RCSq+C0oZ6jg35357cEqiLIByiapK76vir+JZq+sRyeB1g3sI9CGTHUWSSqkOFco6cSL6KuTa8uwJwU8l6b4hIQXyr8DN3JjjDM9utvPpzwwpXEXldGelvb5iN0qnstUoegYGK6FI1WGM=
+Message-ID: <a5a7ef330507290724339135d2@mail.gmail.com>
+Date: Fri, 29 Jul 2005 11:24:56 -0300
+From: Vitor Curado <curado.vitor@gmail.com>
+Reply-To: Vitor Curado <curado.vitor@gmail.com>
+To: Wes Felter <wesley@felter.org>, Stephen Pollei <stephen.pollei@gmail.com>
+Subject: Re: QoS scheduler
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42E94F24.6030002@felter.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050729114822.GA25249@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <a5a7ef3305072804283f196f79@mail.gmail.com>
+	 <42E94F24.6030002@felter.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You assumed right, Stephen: I'm interested in QoS process scheduling,
+sorry for not specifying it...
 
-another approach would be the patch below, to do wakeup-balancing only 
-if the wakeup CPU or the task CPU is idle.
+I'm taking a deeper look at the qlinux, ckrm and the plugsched
+schedulers, if you have any more links, please send them to me...
 
-I've measured half-loaded tbench and unless total wakeup-balancing 
-removal it does not degrade with this patch applied, while fully loaded 
-tbench and other workloads clearly improve.
+Thanks!
 
-Ken, could you give this one a try? (It's against the current scheduler 
-queue in -mm, but also applies fine to current Linus trees.)
 
-	Ingo
-
----
-
-do wakeup-balancing only if the wakeup-CPU or the task-CPU is idle.
-
-this prevents excessive wakeup-balancing while the system is highly
-loaded, but helps spread out the workload on partly idle systems.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- kernel/sched.c |    6 ++++++
- 1 files changed, 6 insertions(+)
-
-Index: linux-sched-curr/kernel/sched.c
-===================================================================
---- linux-sched-curr.orig/kernel/sched.c
-+++ linux-sched-curr/kernel/sched.c
-@@ -1252,7 +1252,13 @@ static int try_to_wake_up(task_t *p, uns
- 	if (unlikely(task_running(rq, p)))
- 		goto out_activate;
- 
-+	/*
-+	 * If neither this CPU, nor the previous CPU the task was
-+	 * running on is idle then skip wakeup-balancing:
-+	 */
- 	new_cpu = cpu;
-+	if (!idle_cpu(this_cpu) && !idle_cpu(cpu))
-+		goto out_set_cpu;
- 
- 	schedstat_inc(rq, ttwu_cnt);
- 	if (cpu == this_cpu) {
+On 7/28/05, Wes Felter <wesley@felter.org> wrote:
+> Vitor Curado wrote:
+> > I'm working on a research about QoS schedulers for Linux clusters.
+> > Moreover, the ideal would be that the scheduler is implemented
+> > altering the native kernel scheduler. I'm kind of having trouble to
+> > find such schedulers, can anybody help me out?
+> 
+> http://lass.cs.umass.edu/software/qlinux/
+> http://ckrm.sourceforge.net/
+> 
+>

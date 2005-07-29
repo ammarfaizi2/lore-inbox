@@ -1,172 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262792AbVG2UtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262783AbVG2UwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbVG2UtU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 16:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVG2Urb
+	id S262783AbVG2UwD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 16:52:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbVG2UtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 16:47:31 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:56374 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262792AbVG2Uq7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 16:46:59 -0400
+	Fri, 29 Jul 2005 16:49:23 -0400
+Received: from web31704.mail.mud.yahoo.com ([68.142.201.184]:58500 "HELO
+	web31704.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S262841AbVG2Usp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 16:48:45 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bJ+Px+0peV8WNsLn6yYMv+6/XWsO5cQWPWMF8YxRYdsZ8QtfNmC7fWXm9qOatPjOiqa4IWYUSkmKtnSZkOaxnLKzY/Ef4rKONBiDIHjQB1p9V0BN5Vfaf+cvkZk6qmBBUml3cRhdCJjWbUDJropKd0N7aOuFwwsqOA9/p/QpTJ0=
-Message-ID: <86802c4405072913464705ecec@mail.gmail.com>
-Date: Fri, 29 Jul 2005 13:46:16 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] x86_64 io_apic.c: Memorize at bootup where the i8259 is connected
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-In-Reply-To: <m164ut2yx0.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=C6MjsJC16PxCQ91JNkpgXUK4lIHVrPkjih2lNUoheUC8x34fTxxa/K+rMP6Jd5WqhCJWqO8YpC9krCXjjTPiafHfxrPpA9UobGYOAjnwUFDhm/UrpeLTOJCRs1Y4YG25sje+C4FbmugEHcgBuXW2J4ROKLADthyrDJBgpVDUmMc=  ;
+Message-ID: <20050729204845.84212.qmail@web31704.mail.mud.yahoo.com>
+Date: Fri, 29 Jul 2005 13:48:44 -0700 (PDT)
+From: Doug Reiland <d_reiland@yahoo.com>
+Subject: Re: RFC: 64-bit resources and changes to pci, ioremap, ...
+To: Kumar Gala <kumar.gala@freescale.com>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <D72313E7-E2EC-4066-AD2A-02DAFE66B7E6@freescale.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <m164ut2yx0.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is that for Nvidia CK804 stuff?
+current pentium4 have this problem as well. Shouldn't
+need to use the emt64 (x86_64) mode. It takes i/o
+bridges and MCH to support it, but the latest Intel
+ones do. However, I am pretty sure BIOSes wouldn't
+assign the pci/pci-e addresses > 4GIG so most are not
+impacted.
 
-Actually in LinuxBIOS I swap the irq 0 and 2 entries in mptable to
-solve the problem. and it could work well with current code.
 
-YH
+--- Kumar Gala <kumar.gala@freescale.com> wrote:
 
-On 7/29/05, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> As I started to update the existing patches to make
+> struct resource  
+> have 64-bit start and end values I started to see
+> all the places that  
+> this effects and was hoping to get some discussion
+> on what direction  
+> we want to take.
 > 
-> Currently we attempt to restore virtual wire mode on reboot, which
-> only works if we can figure out where the i8259 is connected.  This
-> is very useful when we kexec another kernel and likely helpful
-> when dealing with a BIOS that make assumptions about how the system is setup.
+> One of the main reasons to make this change is to
+> handle processors  
+> that have larger physical address space than
+> effective.  A number of  
+> higher-end embedded processors are starting to
+> support larger  
+> physical address space while still having a 32-bit
+> effective  
+> address.  I was wondering if any x86 variants
+> support this type of  
+> feature?
 > 
-> Since the acpi MADT table does not provide the location where the i8259
-> is connected we have to look at the hardware to figure it out.
+> The main issue that I'm starting to see is that the
+> concept of a  
+> physical address from the processors point of view
+> needs to be  
+> consistent throughout all subsystems of the kernel. 
+> Currently the  
+> major usage of struct resource is with the PCI
+> subsystem and PCI  
+> drivers.  The following are some questions that I
+> was hoping to get  
+> answers to and discussion around:
 > 
-> Most systems have the i8259 connected to the local apic of the cpu so
-> won't be affected but people running on Opteron and some serverworks chipsets
-> should be able to use kexec now.
+> * How many 32-bit systems support larger than 32-bit
+> physical  
+> addresses (I know newer PPCs do)?
+> * How many 32-bit systems support a 64-bit PCI
+> address space?
+> * Should ioremap and variants start taking 64-bit
+> physical addresses?
+> * Do we make this an arch option and wrap start and
+> end in a typedef  
+> similar to pte_t and provide accessor macros to
+> ensure proper use?
 > 
-> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-> ---
+> Andrew has also asked me to post size comparisons of
+> drivers/*/*.o  
+> building allmodconfig with 32-bit resources and
+> 64-bit resources to  
+> see what the size growth is.  I'll post logs for
+> people to take a  
+> look at in a followup email.
 > 
->  arch/x86_64/kernel/io_apic.c |   52 ++++++++++++++++++++++++++++++++++++++----
->  1 files changed, 47 insertions(+), 5 deletions(-)
+> - Kumar
 > 
-> 96c59dd871b00735ef159ddf0d68f338958387fc
-> diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
-> --- a/arch/x86_64/kernel/io_apic.c
-> +++ b/arch/x86_64/kernel/io_apic.c
-> @@ -45,6 +45,9 @@ int sis_apic_bug; /* not actually suppor
-> 
->  static int no_timer_check;
-> 
-> +/* Where if anywhere is the i8259 connect in external int mode */
-> +static int ioapic_i8259_pin = -1;
-> +
->  static DEFINE_SPINLOCK(ioapic_lock);
-> 
->  /*
-> @@ -330,7 +333,7 @@ static int find_irq_entry(int apic, int
->  /*
->   * Find the pin to which IRQ[irq] (ISA) is connected
->   */
-> -static int find_isa_irq_pin(int irq, int type)
-> +static int __init find_isa_irq_pin(int irq, int type)
->  {
->         int i;
-> 
-> @@ -1096,6 +1099,44 @@ void __apicdebuginit print_PIC(void)
-> 
->  #endif  /*  0  */
-> 
-> +static void __init find_i8259_pin(void)
-> +{
-> +       struct IO_APIC_route_entry entry;
-> +       unsigned long flags;
-> +       int pin, pins;
-> +
-> +       ioapic_i8259_pin = -1;
-> +
-> +       /* Find the number of pins on the primary ioapic */
-> +       spin_lock_irqsave(&ioapic_lock, flags);
-> +       pins = ((io_apic_read(0, 0x01) >> 16) & 0xff) + 1;
-> +       spin_unlock_irqrestore(&ioapic_lock, flags);
-> +
-> +       /* See if any of the pins is in ExtINT mode */
-> +       for(pin = 0; pin < pins; pin++) {
-> +               spin_lock_irqsave(&ioapic_lock, flags);
-> +               *(((int *)&entry) + 0) = io_apic_read(0, 0x10 + 2 * pin);
-> +               *(((int *)&entry) + 1) = io_apic_read(0, 0x11 + 2 * pin);
-> +               spin_unlock_irqrestore(&ioapic_lock, flags);
-> +
-> +               /* If the interrupt line is enabled and in ExtInt mode
-> +                * I have found the pin where the i8259 is connected.
-> +                */
-> +               if ((entry.mask == 0) && (entry.delivery_mode == dest_ExtINT)) {
-> +                       ioapic_i8259_pin = pin;
-> +                       break;
-> +               }
-> +       }
-> +
-> +       /* If we could not find an appropriate pin by looking at the ioapic
-> +        * the i8259 probably isn't connected to the ioapic but give
-> +        * the mptable a chance anyway.
-> +        */
-> +       if (ioapic_i8259_pin == -1) {
-> +               ioapic_i8259_pin = find_isa_irq_pin(0, mp_ExtINT);
-> +       }
-> +}
-> +
->  static void __init enable_IO_APIC(void)
->  {
->         union IO_APIC_reg_01 reg_01;
-> @@ -1138,11 +1179,11 @@ void disable_IO_APIC(void)
->         clear_IO_APIC();
-> 
->         /*
-> -        * If the i82559 is routed through an IOAPIC
-> +        * If the i8259 is routed through an IOAPIC
->          * Put that IOAPIC in virtual wire mode
->          * so legacy interrups can be delivered.
->          */
-> -       pin = find_isa_irq_pin(0, mp_ExtINT);
-> +       pin = ioapic_i8259_pin;
->         if (pin != -1) {
->                 struct IO_APIC_route_entry entry;
->                 unsigned long flags;
-> @@ -1154,7 +1195,7 @@ void disable_IO_APIC(void)
->                 entry.polarity        = 0; /* High */
->                 entry.delivery_status = 0;
->                 entry.dest_mode       = 0; /* Physical */
-> -               entry.delivery_mode   = 7; /* ExtInt */
-> +               entry.delivery_mode   = dest_ExtINT; /* ExtInt */
->                 entry.vector          = 0;
->                 entry.dest.physical.physical_dest = 0;
-> 
-> @@ -1626,7 +1667,7 @@ static inline void check_timer(void)
->         enable_8259A_irq(0);
-> 
->         pin1 = find_isa_irq_pin(0, mp_INT);
-> -       pin2 = find_isa_irq_pin(0, mp_ExtINT);
-> +       pin2 = ioapic_i8259_pin;
-> 
->         apic_printk(APIC_VERBOSE,KERN_INFO "..TIMER: vector=0x%02X pin1=%d pin2=%d\n", vector, pin1, pin2);
-> 
-> @@ -1723,6 +1764,7 @@ __setup("no_timer_check", notimercheck);
-> 
->  void __init setup_IO_APIC(void)
->  {
-> +       find_i8259_pin();
->         enable_IO_APIC();
-> 
->         if (acpi_ioapic)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+
+
+		
+____________________________________________________
+Start your day with Yahoo! - make it your home page 
+http://www.yahoo.com/r/hs 
+ 

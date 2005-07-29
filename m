@@ -1,91 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVG2Ari@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbVG2Auq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbVG2Ari (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 20:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVG2Arc
+	id S262255AbVG2Auq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 20:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVG2Auq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 20:47:32 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:30713 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262255AbVG2ArV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 20:47:21 -0400
-Message-ID: <42E97C7D.9040804@mvista.com>
-Date: Thu, 28 Jul 2005 17:46:53 -0700
-From: Mark Bellon <mbellon@mvista.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  disk quotas fail when /etc/mtab is symlinked to /proc/mounts
-References: <42E97236.6080404@mvista.com> <20050728172302.1b04511a.akpm@osdl.org> <42E9787D.2020700@mvista.com>
-In-Reply-To: <42E9787D.2020700@mvista.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 28 Jul 2005 20:50:46 -0400
+Received: from goliat.kalisz.mm.pl ([217.96.42.226]:3032 "EHLO kalisz.mm.pl")
+	by vger.kernel.org with ESMTP id S262255AbVG2Aun (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 20:50:43 -0400
+Date: Fri, 29 Jul 2005 02:50:34 +0200
+From: Radoslaw "AstralStorm" Szkodzinski <astralstorm@gorzow.mm.pl>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3 question
+Message-Id: <20050729025034.2b58d34e.astralstorm@gorzow.mm.pl>
+In-Reply-To: <20050728204238.GC4790@stusta.de>
+References: <20050728194334.4f5b3f22.astralstorm@gorzow.mm.pl>
+	<20050728105551.57f3183c.akpm@osdl.org>
+	<20050728203133.0a03dbda.astralstorm@gorzow.mm.pl>
+	<20050728204238.GC4790@stusta.de>
+X-Mailer: Sylpheed version 2.0.0beta3 (GTK+ 2.6.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__29_Jul_2005_02_50_34_+0200_U_i_uS76D68QoEoq"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Bellon wrote:
+--Signature=_Fri__29_Jul_2005_02_50_34_+0200_U_i_uS76D68QoEoq
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Andrew Morton wrote:
->
->> Mark Bellon <mbellon@mvista.com> wrote:
->>  
->>
->>> If /etc/mtab is a regular file all of the mount options (of a file 
->>> system) are written to /etc/mtab by the mount command. The quota 
->>> tools look there for the quota strings for their operation. If, 
->>> however, /etc/mtab is a symlink to /proc/mounts (a "good thing" in 
->>> some environments)  the tools don't write anything - they assume the 
->>> kernel will take care of things.
->>>
->>> While the quota options are sent down to the kernel via the mount 
->>> system call and the file system codes handle them properly 
->>> unfortunately there is no code to echo the quota strings into 
->>> /proc/mounts and the quota tools fail in the symlink case.
->>>   
->>
->>
->> hm.  Perhaps others with operational experience in that area can 
->> comment.
->>  
->>
-> OK.
->
->>  
->>
->>> The attached patchs modify the EXT[2|3] and [X|J]FS codes to add the 
->>> necessary hooks. The show_options function of each file system in 
->>> these patches currently deal with only those things that seemed 
->>> related to quotas; especially in the EXT3 case more can be done 
->>> (later?).
->>>   
->>
->>
->> It seems sad to do it in each filesystem.  Is there no way in which 
->> we can
->> do this for all filesystems, in a single place in the VFS?
->>  
->>
-> Each file system must be able to echo it's own FS specific options, 
-> hence the show_options hook (XFS is a good example). EXT3 has it's own 
-> form of journalled quota file options, hence the need for the specific 
-> hook.
->
-> The "older style" (e.g. "usrquota", "grpquota", "quota") could be done 
-> generically but a FS might want any number of quota options. The few 
-> lines of code in each file system didn't seem so bad especially if the 
-> show_function start echoing more.
+On Thu, 28 Jul 2005 22:42:38 +0200
+Adrian Bunk <bunk@stusta.de> wrote:
 
-Followup comment/through...
 
-If we want /proc/mounts to really replace /etc/mtab in the general case, 
-always using it as a symlink, the file system codes will all need the 
-show_options hook - they will need to echo all of their private options 
-duplicating, as closely as possible, what would have been written to the 
-/etc/mtab regular file.
+> I'm surprised that you are that much concerned about compile errors when=
+=20
+> using a kernel that might regularly exchange the contents of /dev/hda=20
+> and /dev/null .
+>=20
+These bugs don't happen too often in reality.
+Just please don't be malicious and add this kind of code deliberately. :)
 
-mark
+Every build breaker wastes my precious time to fix it.=20
+That's compulsive/obsessive in some way. ;)
 
-mark
+On the contrary, my "just break it" desktop is destined to have
+it's HDD contents overwritten once in a time.
+That's what these spare disks/computers are for, aren't they?
+All the data on that computer is volatile, all (not too frequent) backup is
+mostly made through the network and checked from the stable computer.
 
+If I really needed it very stable, I wouldn't test Reiser4 on it, less so
+a development kernel. That's why my stable machine uses latest release kern=
+el,
+and only after it's broken in by at least a week.
+
+--=20
+AstralStorm
+
+GPG Key ID =3D 0xD1F10BA2
+GPG Key fingerprint =3D 96E2 304A B9C4 949A 10A0  9105 9543 0453 D1F1 0BA2
+Please encrypt if you can.
+
+--Signature=_Fri__29_Jul_2005_02_50_34_+0200_U_i_uS76D68QoEoq
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
+
+iD8DBQFC6X1glUMEU9HxC6IRAsSxAKCmsA5nKHftrFJKUG+esb+IKiEwkACbBNtx
+GedRBrZzyhjRQDwnEcuectI=
+=lXKl
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__29_Jul_2005_02_50_34_+0200_U_i_uS76D68QoEoq--

@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262698AbVG2SYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbVG2ScB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262698AbVG2SYu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 14:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262699AbVG2SYi
+	id S262720AbVG2ScB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 14:32:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbVG2Sb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 14:24:38 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:37760 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S262698AbVG2SYb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 14:24:31 -0400
-content-class: urn:content-classes:message
+	Fri, 29 Jul 2005 14:31:59 -0400
+Received: from dvhart.com ([64.146.134.43]:26042 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S262711AbVG2Sb5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 14:31:57 -0400
+Date: Fri, 29 Jul 2005 11:31:50 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, colpatch@us.ibm.com
+Subject: [PATCH] Fix NUMA node sizing in nr_free_zone_pages
+Message-ID: <240970000.1122661910@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: AACRAID failure with 2.6.13-rc1
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Date: Fri, 29 Jul 2005 14:22:37 -0400
-Message-ID: <60807403EABEB443939A5A7AA8A7458B017927DC@otce2k01.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: AACRAID failure with 2.6.13-rc1
-Thread-Index: AcWUaCXAf+fkdol/QG69hdyZNNdTWAAAKLeQ
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Martin Drab" <drab@kepler.fjfi.cvut.cz>
-Cc: <linux-kernel@vger.kernel.org>, <markh@osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin may be overplaying the performance angle.
+We are iterating over all nodes in nr_free_zone_pages(). Because the 
+fallback zonelists contain all nodes in the system, and we walk all
+the zonelists, we're counting memory multiple times (once for each
+node). This caused us to make a size estimate of 32GB for an 8GB
+AMD64 box, which makes all the dirty ratio calculations, etc incorrect.
 
-A previous patch took the adapter from 64K to 4MB transaction sizes
-across the board. This caused Martin's adapter and drive combination to
-tip-over. We had to scale back to 128KB sized transactions to get
-stability on his system. All systems handled the 4MB I/O size in our
-tests, but the tests that were done some time ago were not performed
-with the latest kernel, which contributed to a change in testing
-corners.
+There's still a further bug to fix from e820 holes causing overestimation
+as well, but this fix is separate, and good as is, and fixes one class
+of problems. Problem found by Badari, and tested by Ram Pai - thanks!
 
-Future patches associated with the 'new comm' interface will be able to
-get finer grained performance tuning based on the adapter model rather
-than the coarse method that currently resides in the more stable
-kernels.
+Signed-off-by:  Martin J. Bligh <mbligh@mbligh.org> 
+Signed-off-by:  Matt Dobson <colpatch@us.ibm.com>
 
-Sincerely -- Mark Salyzyn
+diff -purN -X /home/mbligh/.diff.exclude linux-2.6.12/mm/page_alloc.c 2.6.12-nr_free_zone_pages/mm/page_alloc.c
+--- linux-2.6.12/mm/page_alloc.c	2005-06-17 17:21:43.000000000 -0700
++++ 2.6.12-nr_free_zone_pages/mm/page_alloc.c	2005-07-28 16:54:03.000000000 -0700
+@@ -1006,20 +1006,19 @@ unsigned int nr_free_pages_pgdat(pg_data
+ 
+ static unsigned int nr_free_zone_pages(int offset)
+ {
+-	pg_data_t *pgdat;
++	/* Just pick one node, since fallback list is circular */
++	pg_data_t *pgdat = NODE_DATA(numa_node_id());
+ 	unsigned int sum = 0;
+ 
+-	for_each_pgdat(pgdat) {
+-		struct zonelist *zonelist = pgdat->node_zonelists + offset;
+-		struct zone **zonep = zonelist->zones;
+-		struct zone *zone;
++	struct zonelist *zonelist = pgdat->node_zonelists + offset;
++	struct zone **zonep = zonelist->zones;
++	struct zone *zone;
+ 
+-		for (zone = *zonep++; zone; zone = *zonep++) {
+-			unsigned long size = zone->present_pages;
+-			unsigned long high = zone->pages_high;
+-			if (size > high)
+-				sum += size - high;
+-		}
++	for (zone = *zonep++; zone; zone = *zonep++) {
++		unsigned long size = zone->present_pages;
++		unsigned long high = zone->pages_high;
++		if (size > high)
++			sum += size - high;
+ 	}
+ 
+ 	return sum;
 
------Original Message-----
-From: Andrew Morton [mailto:akpm@osdl.org] 
-Sent: Friday, July 29, 2005 2:07 PM
-To: Martin Drab
-Cc: linux-kernel@vger.kernel.org; Salyzyn, Mark; markh@osdl.org
-Subject: Re: AACRAID failure with 2.6.13-rc1
-
-. . .
-
-ah, thanks.
-
-A temporary workaround which might affct performance sounds better than
-a
-dead box though.
-
-Mark, do you think that many systems are likely to be affected this way?
-
-Do you think we should do something temporary for 2.6.13?
 

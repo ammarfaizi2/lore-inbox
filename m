@@ -1,117 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262925AbVG2VsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVG2Vwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbVG2VsK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 17:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbVG2Vrb
+	id S261452AbVG2Vwg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbVG2VuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 17:47:31 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:25740 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261452AbVG2Vq1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 17:46:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RohMtUpHMTSH1wp+KI+nQhdf3AKkgn0qUlRjJNVkPa+5wl5TlCRzSUdUuCUAmA4y+CxfQn4oQXN9/kjtkDRKCTEQzDWWdS0uGLgfcj5QyawYxaQxBgldMcOjOfD0p769exZZuaXgwpUKHpTnXPhNv6Zem8sN/A0A85H4lJieyRo=
-Message-ID: <cb755df905072914452912d82b@mail.gmail.com>
-Date: Fri, 29 Jul 2005 21:45:45 +0000
-From: Erior <lars.vahlenberg@gmail.com>
-To: romieu@fr.zoreil.com
-Subject: Re: sis190 driver
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <cb755df905072914244ebbe55b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 29 Jul 2005 17:50:11 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:23969 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S262809AbVG2Vsm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 17:48:42 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [linux-pm] [PATCH] swsusp: simpler calculation of number of pages in PBE list
+Date: Fri, 29 Jul 2005 23:53:38 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-pm@lists.osdl.org, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+References: <42EA87A0.908@stud.feec.vutbr.cz> <200507292243.28276.rjw@sisk.pl> <42EA9C38.90905@stud.feec.vutbr.cz>
+In-Reply-To: <42EA9C38.90905@stud.feec.vutbr.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <095433EB6AB9634BB9524203BF7E303C99AA06@EXGBGMB02.europe.cellnetwork.com>
-	 <cb755df905072914244ebbe55b@mail.gmail.com>
+Message-Id: <200507292353.39282.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This will get the driver to aknowledge mii-tool reported mode,
-without this the drivers always says "100BaseTx-FD" while my switch
-shows 10BaseT-HD as the selected mode.
+On Friday, 29 of July 2005 23:14, Michal Schmidt wrote:
+> Rafael J. Wysocki wrote:
+> > On Friday, 29 of July 2005 21:46, Michal Schmidt wrote:
+> > 
+> >>The function calc_nr uses an iterative algorithm to calculate the number 
+> >>of pages needed for the image and the pagedir. Exactly the same result 
+> >>can be obtained with a one-line expression.
+> > 
+> > 
+> > Could you please post the proof?
+> > 
+> > Rafael
+> 
+> OK, attached is a proof-by-brute-force program. It compares the results 
+> of the original function and the simplified one.
+> 
+> This is its output:
+> 
+> $ ./calc_nr2
+> checked 0 ...
+> checked 100000000 ...
+> checked 200000000 ...
+> checked 300000000 ...
+> checked 400000000 ...
+> checked 500000000 ...
+> checked 600000000 ...
+> checked 700000000 ...
+> checked 800000000 ...
+> checked 900000000 ...
+> checked 1000000000 ...
+> checked 1100000000 ...
+> checked 1200000000 ...
+> checked 1300000000 ...
+> checked 1400000000 ...
+> checked 1500000000 ...
+> checked 1600000000 ...
+> checked 1700000000 ...
+> checked 1800000000 ...
+> checked 1900000000 ...
+> checked 2000000000 ...
+> checked 2100000000 ...
+> First difference at 2130706433:  -2147483646 x -2147483647
+> 
+> It means that the two functions give the same results for sensible 
+> values of the input argument.
+> They results only differ when they overflow into negative values. At 
+> this point both of the results are useless.
 
-/Lars
---- sis190.new  2005-07-29 23:26:39.000000000 +0000
-+++ sis190.c    2005-07-29 23:38:39.000000000 +0000
-@@ -956,7 +956,8 @@ static void sis190_phy_task(void * data)
-                val = mdio_read(ioaddr, phy_id, 0x1f);
-                net_link(tp, KERN_INFO "%s: mii ext = %04x.\n", dev->name, val);
+Thanks, fine. :-)
 
--               val = mdio_read(ioaddr, phy_id, MII_LPA);
-+               val = mdio_read(ioaddr, phy_id, MII_LPA)
-+                   & mdio_read(ioaddr, phy_id, MII_ADVERTISE );
-                net_link(tp, KERN_INFO "%s: mii lpa = %04x.\n", dev->name, val);
-
-                for (p = reg31; p->ctl; p++) {
-
-
-On 7/29/05, Erior <lars.vahlenberg@gmail.com> wrote:
-> Hi
-> 
-> Added PHY identifier for the Asus K8S-MX motherboard.
-> 
-> --- sis190.old  2005-07-29 23:16:07.000000000 +0000
-> +++ sis190.c    2005-07-29 23:15:37.000000000 +0000
-> @@ -325,6 +325,7 @@ static struct mii_chip_info {
->         { "Broadcom PHY BCM5461", { 0x0020, 0x60c0 }, LAN },
->         { "Agere PHY ET1101B",    { 0x0282, 0xf010 }, LAN },
->         { "Marvell PHY 88E1111",  { 0x0141, 0x0cc0 }, LAN },
-> +       { "Realtek PHY RTL8201CL",{ 0x0000, 0x8200 }, LAN },
->         { NULL, }
->  };
-> 
-> /Lars
-> 
-> On 7/29/05, Lars Vahlenberg <lars.vahlenberg@mandator.com> wrote:
-> > 
-> > 
-> > 
-> > -----Original Message-----
-> > From: Francois Romieu [mailto:romieu@fr.zoreil.com]
-> > Sent: Fri 2005-07-29 00:11
-> > To: linux-kernel@vger.kernel.org
-> > Cc: pascal.chapperon@wanadoo.fr; Lars Vahlenberg; Alexey Dobriyan;
-> > jgarzik@pobox.com
-> > Subject: [patch 2.6.13-rc3] sis190 driver
-> >  
-> > Single file patch:
-> >
-> http://www.zoreil.com/~romieu/sis190/20050728-2.6.13-rc3-sis190-test.patch
-> > 
-> > Patch-kit:
-> > http://www.zoreil.com/~romieu/sis190/20050728-2.6.13-rc3/patches
-> > 
-> > Tarball:
-> > http://www.zoreil.com/~romieu/sis190/20050728-2.6.13-rc3.tar.bz2
-> > 
-> > Changes from previous version (20050722)
-> > o Add endian annotations (Alexey Dobriyan).
-> > 
-> > o Hopefully fixed the build of the patch.
-> > 
-> > o Minor round of mii/phy related changes. May crash.
-> > 
-> > Testing reports/review/patches are always appreciated.
-> > 
-> > Ok, now back to washing.
-> > 
-> > --
-> > Ueimor
-> > 
-> > 
-> > 
-> > 
-> 
-> 
-> -- 
-> There is nothing that cannot be solved through sufficient application
-> of brute force and ignorance.
-> 
+Greets,
+Rafael
 
 
 -- 
-There is nothing that cannot be solved through sufficient application
-of brute force and ignorance.
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

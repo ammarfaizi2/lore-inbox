@@ -1,87 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262812AbVG2UwC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbVG2VDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262812AbVG2UwC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 16:52:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVG2Uta
+	id S262838AbVG2VDV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbVG2VBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 16:49:30 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62090 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262840AbVG2Usi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 16:48:38 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 io_apic.c: Memorize at bootup where the i8259 is
- connected
-References: <m11x5h2yv8.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.58.0507291302360.3307@g5.osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 29 Jul 2005 14:48:22 -0600
-In-Reply-To: <Pine.LNX.4.58.0507291302360.3307@g5.osdl.org> (Linus
- Torvalds's message of "Fri, 29 Jul 2005 13:08:49 -0700 (PDT)")
-Message-ID: <m1mzo51gq1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 29 Jul 2005 17:01:06 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:57431 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262557AbVG2VAU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 17:00:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VnrNK0lFvSnLpwAYreqjMJMKQeTknP4kFcZWbeEQzL8ELEBiojUq3ui+buAjAVFj3F128hHVB8/6p25sQaFjxmnD4cQIrLS338QO28gSn6Ylo17nFdy4IjsbHTmu/oloZzmDTPAUWYbdSWaTSDIR1qrBMi/0ks3spK2Zy5gj91I=
+Message-ID: <4ae3c140507291400230ca65c@mail.gmail.com>
+Date: Fri, 29 Jul 2005 17:00:20 -0400
+From: Xin Zhao <uszhaoxin@gmail.com>
+Reply-To: Xin Zhao <uszhaoxin@gmail.com>
+To: bert hubert <bert.hubert@netherlabs.nl>, Xin Zhao <uszhaoxin@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why dump_stack results different so much?
+In-Reply-To: <20050729203403.GA30603@outpost.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4ae3c140507291327143a9d83@mail.gmail.com>
+	 <20050729203403.GA30603@outpost.ds9a.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Thanks for your reply.
 
-> On Fri, 29 Jul 2005, Eric W. Biederman wrote:
->> 
->> Since the acpi MADT table does not provide the location where the i8259
->> is connected we have to look at the hardware to figure it out.
+Below is the code that print the kernel calling trace:
+
+/**********************************************************************************/
+void show_trace(struct task_struct *task, unsigned long * stack)
+{
+	unsigned long ebp;
+
+	if (!task)
+		task = current;
+
+	if (task == current) {
+		/* Grab ebp right from our regs */
+		asm ("movl %%ebp, %0" : "=r" (ebp) : );
+	} else {
+		/* ebp is the last reg pushed by switch_to */
+		ebp = *(unsigned long *) task->thread.esp;
+	}
+
+	while (1) {
+		struct thread_info *context;
+		context = (struct thread_info *)
+			((unsigned long)stack & (~(THREAD_SIZE - 1)));
+		ebp = print_context_stack(context, stack, ebp);
+		stack = (unsigned long*)context->previous_esp;
+		if (!stack)
+			break;
+		printk(" =======================\n");
+	}
+}
+/**********************************************************************************/
+
+>From this code, I can see that the show_trace does not scan and guess
+the pointers. Instead, it use "previous_esp" to extract the esp and
+thus the returning eip. Am I right?
+
+Cheers,
+xin
+
+
+
+
+On 7/29/05, bert hubert <bert.hubert@netherlabs.nl> wrote:
+> On Fri, Jul 29, 2005 at 04:27:16PM -0400, Xin Zhao wrote:
+> > I supprisely noticed that the dump_stack results are quite different!
+> > Why did I get the calling traces below our_ssy_open() and above
+> > syscall_call()?  Any thought on this? Many thanks!
+> 
+> This might depend on compiling with frame pointers, or not. I recall that at
+> one point, the kernel did a basic scan of addresses that looked like likely
+> candidates to have been pointers, and printed those.
+> 
+> Frame pointers are hailed as improving backtraces. They are in the 'kernel
+> hacking' section of the kernel configuration.
+> 
+> Sorry that I can't be more precise, but try turning on frame pointers.
+> 
+> Good luck!
+> 
+> --
+> http://www.PowerDNS.com      Open source, database driven DNS Software
+> http://netherlabs.nl              Open and Closed source services
 >
-> I'm not really happy with this.
->
-> First off, it kind of assumes that extINT is always the 8259. Maybe that's
-> true, maybe it's not. Maybe there is hardware out there that has a
-> specialty interrupt controller that also uses extInt? 
-
-I believe the definition of extInt is that it is an external
-interrupt controller that sends interrupts like an 8259.
-
-So it might be possible but it would be an extreme hardware.
-And it would be an old hardware configuration because acpi
-doesn't even allow you to setup that kind of thing.
-
-> Secondly, why always just on IO-APIC 0? 
-
-Good question the assumption was already in the code, but
-it isn't hard to lift.
-
-> This would make a lot more sense to do inside the
-> loop-over-apics in enable_IO_APIC, no?
-
-Probably.  It has to come before the call to clear_IO_APIC().
-I was just be extra careful about that.
-
-> Especially since that one already calculates the number of entries, and
-> does it a lot more nicely than you do.. (ie no shifting and masking with
-> magic constants).
-
-:)
-
-> Finally, the third issue I have is that _if_ the MP table is correct,
-> we'll never know. Wouldn't it be better to query the MP table regardless,
-> and see if it agrees with what we found, and if it doesn't, at least print
-> a message so that it is easier to debug things if sh*t happens?
-
-The reason I generated the patch is because reading the acpi
-tables is the default no one is even using the MP table anymore.
-The acpi MADT table can't represent the notion of an a pin
-in ExtInt mode.  Even in the MP table has the information is pretty
-much advisory as the OS doesn't use it except on very old systems.
-
-The practical question is which is the better route.  Save
-off all of the entries in the apic and ioapic and restore
-them on reboot, or simply save off which pin the i8259 is
-talking through and restore one pin in ExtInt mode.  I like
-the latter because we have enough information that we can
-and if there is a weird system we can specify it with a command
-line parameter.  But the save/restore approach may be more general,
-and less prone to coder error.
-
-Eric
-

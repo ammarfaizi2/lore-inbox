@@ -1,123 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVG2GNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbVG2GP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbVG2GNe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 02:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVG2GNd
+	id S262454AbVG2GP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 02:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVG2GP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 02:13:33 -0400
-Received: from waste.org ([216.27.176.166]:1259 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262435AbVG2GN2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 02:13:28 -0400
-Date: Thu, 28 Jul 2005 23:13:18 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Michael Kerrisk <mtk-manpages@gmx.net>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
-       akpm@osdl.org, chrisw@osdl.org
-Subject: Re: Broke nice range for RLIMIT NICE
-Message-ID: <20050729061318.GD7425@waste.org>
-References: <32710.1122563064@www32.gmx.net>
+	Fri, 29 Jul 2005 02:15:26 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:47773 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S262445AbVG2GPU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 02:15:20 -0400
+Date: Fri, 29 Jul 2005 02:15:18 -0400
+From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.6.8 -> 2.6.11 (+ata-dev patch) -- HDD is always on
+Message-ID: <20050729061518.GB6655@washoe.onerussian.com>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Jeff Garzik <jgarzik@pobox.com>
+References: <20050729041031.GU16285@washoe.onerussian.com> <42E9AFC6.9010805@pobox.com> <20050729055820.GX16285@washoe.onerussian.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <32710.1122563064@www32.gmx.net>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050729055820.GX16285@washoe.onerussian.com>
+X-URL: http://www.onerussian.com
+X-Image-Url: http://www.onerussian.com/img/yoh.png
+X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
+X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 28, 2005 at 05:04:24PM +0200, Michael Kerrisk wrote:
-> Hello Ingo,
->
-> I'm guessing that it was you that added the RLIMIT_NICE resource 
-> limit in 2.6.12.
+Damn me - sorry for the misinformation... I've compiled the kernel
+without Debian-loved initrd image... 
 
-The original patch was from Chris Wright, but I did most of the
-cheerleading for it.
+so I've booted 2.6.12.3 -- LED light is on - so I bet no blame on libata
+patch, although I've mentioned few patches from that patch migrated into
+the mainstream kernel.   
 
-> (A passing note to all kernel developers: when 
-> making changes that affect userland-kernel interfaces, please 
-> send me a man-pages patch, or at least a notification of the 
-> change, so that some information makes its way into the manual 
-> pages).
+Any ideas on which next step to take? 2.6.13-rc4? or vanilla 2.6.11?
 
-You might want to make an effort to make yourself more visible around
-here. Most of us have no idea that anyone's actually trying to
-maintain the manpages or who that might be.
 
-> I started documenting RLIMIT_NICE and then noticed an 
-> inconsistency between the use of this limit and the nice
-> value as manipulated by [sg]etpriority().
-> 
-> This is the documentation I've drafted for RLIMIT_NICE
-> in getrlimit.2:
-> 
->    RLIMIT_NICE(since kernel 2.6.12)
->       Specifies  a  ceiling  to  which  the process nice
->       value  can  be  raised  using  setpriority(2)   or
->       nice(2).  The actual ceiling for the nice value is
->       calculated as  19 - rlim_cur.
->                      ^^^^^^^^^^^^^
-> 
-> And recently I've redrafted the discussion of the nice value
-> in getpriority.2 and it now reads:
-> 
->       Since kernel 1.3.43 Linux has  the  range  -20..19.
->       Within  the kernel, nice values are actually repre-
->       sented using the corresponding range  40..1  (since
->       negative numbers are error codes) and these are the
->       values employed by the setpriority and  getpriority
->       system  calls.   The  glibc  wrapper  functions for
->       these system calls handle the translations  between
->       the  user-land  and  kernel  representations of the
->       nice    value    according    to    the     formula
->       user_nice = 20 - kernel_nice.
->       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 
-> In other words, there is an off-by-one mismatch between 
-> these two interfaces: RLIMIT_NICE is expecting to deal 
-> with values in the range 39..0, while [gs]etpriority() 
-> works with the range 40..1.
-> 
-> I suppose that glibc could paper over the cracks here in
-> a wrapper for getrlimit(), but it seems more sensible 
-> to make RLIMIT_NICE consistent with [gs]etpriority() --
-> i.e., change the RLIMIT_NICE interface in 2.6.13 before it 
-> sees wide use in userland.  What do you think?
+On Fri, Jul 29, 2005 at 01:58:20AM -0400, Yaroslav Halchenko wrote:
+> On Fri, Jul 29, 2005 at 12:25:42AM -0400, Jeff Garzik wrote:
+> > Does this happen in unpatched 2.6.12.3 or 2.6.13-rc4?
+> just tried unpatched 2.6.12.3.
+> The Box stalls booting with 
+> "Uncompressing Linux... Ok, booting the kernel.
+> _"
 
-Well, it's easy enough to do, but some thought has to be given to the
-corner cases. Specifically, does this do the right thing when the
-rlimit is set to zero? I think it does, as the nice range is nicely
-bound here:
+> interesting though that led hdd light is off at first, blinks few
+> times, and 1-2 secs after it stalls with above message - it gets its
+> steady green light on.
 
-        nice = PRIO_TO_NICE(current->static_prio) + increment;
-        if (nice < -20)
-                nice = -20;
-        if (nice > 19)
-                nice = 19;
+> Could I screw up some NEW kernel configuration parameters when pulling
+> config from 2.6.8 from Debian? I don't know :-/
 
-        if (increment < 0 && !can_nice(current, nice))
-                return -EPERM;
-
-And we allow task to do negative increment. Chris?
-
-The other downside is, this obviously changes any existing configs
-actually using this by one nice level..
-
-Index: l/kernel/sched.c
-===================================================================
---- l.orig/kernel/sched.c	2005-06-22 17:55:14.000000000 -0700
-+++ l/kernel/sched.c	2005-07-28 22:55:54.000000000 -0700
-@@ -3231,8 +3231,8 @@ EXPORT_SYMBOL(set_user_nice);
-  */
- int can_nice(const task_t *p, const int nice)
- {
--	/* convert nice value [19,-20] to rlimit style value [0,39] */
--	int nice_rlim = 19 - nice;
-+	/* convert nice value [19,-20] to rlimit style value [1,40] */
-+	int nice_rlim = 20 - nice;
- 	return (nice_rlim <= p->signal->rlim[RLIMIT_NICE].rlim_cur ||
- 		capable(CAP_SYS_NICE));
- }
-
+> I will try 2.6.13-rc4 now... heh heh
 -- 
-Mathematics is the supreme nostalgia of our time.
+Yaroslav Halchenko
+Research Assistant, Psychology Department, Rutgers-Newark
+Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
+        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07105
+Student  Ph.D. @ CS Dept. NJIT

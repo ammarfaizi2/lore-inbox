@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVG2PCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVG2PEB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262612AbVG2PCu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 11:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVG2PCt
+	id S262611AbVG2PEB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 11:04:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262607AbVG2PEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 11:02:49 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:23524 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262610AbVG2PCq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 11:02:46 -0400
-Date: Fri, 29 Jul 2005 17:02:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [sched, patch] better wake-balancing, #2
-Message-ID: <20050729150207.GA6332@elte.hu>
-References: <42E98DEA.9090606@yahoo.com.au> <200507290627.j6T6Rrg06842@unix-os.sc.intel.com> <20050729114822.GA25249@elte.hu> <20050729141311.GA4154@elte.hu>
+	Fri, 29 Jul 2005 11:04:01 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:16663 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262611AbVG2PCz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 11:02:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=b0VIcmasoks6rDAXpr1NvjVkeAkWueqTQSYqONWQ6eMRkn5mBh6b/43ctQaLxWLHfp4aCps/kZ+iI2Qz7rW7iMiHinstCpGzUl338Ra3njKlOk4i/46DXyzT/UcWv8ZNV7e0F5OsOFuJXJFtkSbf9PfwRcl5zNyeA/xneUNxLGw=
+Message-ID: <615cd8d10507290802690dd50f@mail.gmail.com>
+Date: Fri, 29 Jul 2005 23:02:53 +0800
+From: =?BIG5?B?vFi50w==?= <brianhsu.hsu@gmail.com>
+Reply-To: =?BIG5?B?vFi50w==?= <brianhsu.hsu@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to get dentry from inode number?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050729141311.GA4154@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, every body.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+How can I get a full pathname from an inode number ? (Our data
+structure only keep track inode number instead of pathname in
+order to keep thin, so don't have any information but inode
+number.)
 
-> another approach would be the patch below, to do wakeup-balancing only 
-> if the wakeup CPU or the task CPU is idle.
+I used iget_locked() to get a struct inode * from an inode number,
+and use d_find_alias() to get a dentry, finally use d_path() to get
+a absoulte path to the file.
 
-there's an even simpler way: only do wakeup-balancing if this_cpu is 
-idle. (tbench results are still OK, and other workloads improved.)
+But it only works when I opened the target file before I run
+my program, or the d_find_alias() will return NULL.
 
-	Ingo
+I also tried d_alloc_anno() and d_splice_alias(), but it crashed
+in the d_splice_alias().
 
---------
-do wakeup-balancing only if the wakeup-CPU is idle.
-
-this prevents excessive wakeup-balancing while the system is highly
-loaded, but helps spread out the workload on partly idle systems.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- kernel/sched.c |    6 ++++++
- 1 files changed, 6 insertions(+)
-
-Index: linux-sched-curr/kernel/sched.c
-===================================================================
---- linux-sched-curr.orig/kernel/sched.c
-+++ linux-sched-curr/kernel/sched.c
-@@ -1253,7 +1253,13 @@ static int try_to_wake_up(task_t *p, uns
- 	if (unlikely(task_running(rq, p)))
- 		goto out_activate;
- 
-+	/*
-+	 * Only do wakeup-balancing (== potentially migrate the task)
-+	 * if this CPU is idle:
-+	 */
- 	new_cpu = cpu;
-+	if (!idle_cpu(this_cpu))
-+		goto out_set_cpu;
- 
- 	schedstat_inc(rq, ttwu_cnt);
- 	if (cpu == this_cpu) {
+So, which function should I check to find the answer?

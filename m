@@ -1,766 +1,445 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVG2VZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbVG2WxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262848AbVG2VZP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 17:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVG2VY0
+	id S262882AbVG2WxE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 18:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbVG2Wuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 17:24:26 -0400
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:59888 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S262216AbVG2VUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 17:20:07 -0400
-Subject: [patch 07/15] Basic x86_64 support
-Date: Fri, 29 Jul 2005 14:20:02 -0700
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org, ak@suse.de,
-       amitkale@linsyssoft.com
-From: Tom Rini <trini@kernel.crashing.org>
-Message-Id: <resend.7.2972005.trini@kernel.crashing.org>
-In-Reply-To: <resend.6.2972005.trini@kernel.crashing.org>
-References: <resend.6.2972005.trini@kernel.crashing.org> <1.2972005.trini@kernel.crashing.org>
+	Fri, 29 Jul 2005 18:50:35 -0400
+Received: from imap.gmx.net ([213.165.64.20]:2247 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262886AbVG2WuJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 18:50:09 -0400
+X-Authenticated: #1725425
+Date: Sat, 30 Jul 2005 00:49:24 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Power consumption HZ100, HZ250, HZ1000: new numbers
+Message-Id: <20050730004924.087a7630.Ballarin.Marc@gmx.de>
+X-Mailer: Sylpheed version 2.0.0rc (GTK+ 2.6.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Sat__30_Jul_2005_00_49_24_+0200_h93RhWIfZvesaLc5"
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-CC: Andi Kleen <ak@suse.de>, Amit S Kale <amitkale@linsyssoft.com>
-This adds support for the x86_64 architecture.  In addition to what was noted
-in the core-lite patch about stuff outside of new files, we add -g0 to
-compiling of syscalls.o as otherwise we run into problems when debugging
-modules, and like i386 annotate switch_to().
+--Multipart=_Sat__30_Jul_2005_00_49_24_+0200_h93RhWIfZvesaLc5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
----
+Hi,
+I was finally able to get C3 state working. It seems that my BIOS is
+leaving USB controllers in an active state(?). Without any USB drivers
+loaded, C3 is not possible. With drivers loaded, but no device plugged
+in C3 works fine. Kernel is 2.6.13-rc3-mm3 + acpi-sbs.
 
- linux-2.6.13-rc3-trini/arch/x86_64/Kconfig.debug     |    3 
- linux-2.6.13-rc3-trini/arch/x86_64/kernel/Makefile   |    2 
- linux-2.6.13-rc3-trini/arch/x86_64/kernel/kgdb-jmp.S |   65 ++
- linux-2.6.13-rc3-trini/arch/x86_64/kernel/kgdb.c     |  462 +++++++++++++++++++
- linux-2.6.13-rc3-trini/arch/x86_64/kernel/traps.c    |    9 
- linux-2.6.13-rc3-trini/include/asm-x86_64/hw_irq.h   |    1 
- linux-2.6.13-rc3-trini/include/asm-x86_64/ipi.h      |   12 
- linux-2.6.13-rc3-trini/include/asm-x86_64/kgdb.h     |   50 ++
- linux-2.6.13-rc3-trini/include/asm-x86_64/system.h   |    6 
- linux-2.6.13-rc3-trini/lib/Kconfig.debug             |    2 
- 10 files changed, 607 insertions(+), 5 deletions(-)
+With working C3 there are indeed differences:
 
-diff -puN arch/x86_64/Kconfig.debug~x86_64-lite arch/x86_64/Kconfig.debug
---- linux-2.6.13-rc3/arch/x86_64/Kconfig.debug~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
-+++ linux-2.6.13-rc3-trini/arch/x86_64/Kconfig.debug	2005-07-29 13:19:10.000000000 -0700
-@@ -51,7 +51,4 @@ config IOMMU_LEAK
-          Add a simple leak tracer to the IOMMU code. This is useful when you
- 	 are debugging a buggy device driver that leaks IOMMU mappings.
- 
--#config X86_REMOTE_DEBUG
--#       bool "kgdb debugging stub"
--
- endmenu
-diff -puN /dev/null arch/x86_64/kernel/kgdb.c
---- /dev/null	2005-07-25 10:57:32.312383000 -0700
-+++ linux-2.6.13-rc3-trini/arch/x86_64/kernel/kgdb.c	2005-07-29 13:19:10.000000000 -0700
-@@ -0,0 +1,462 @@
-+/*
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; either version 2, or (at your option) any
-+ * later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ */
-+
-+/*
-+ * Copyright (C) 2004 Amit S. Kale <amitkale@linsyssoft.com>
-+ * Copyright (C) 2000-2001 VERITAS Software Corporation.
-+ * Copyright (C) 2002 Andi Kleen, SuSE Labs
-+ * Copyright (C) 2004 LinSysSoft Technologies Pvt. Ltd.
-+ */
-+/****************************************************************************
-+ *  Contributor:     Lake Stevens Instrument Division$
-+ *  Written by:      Glenn Engel $
-+ *  Updated by:	     Amit Kale<akale@veritas.com>
-+ *  Modified for 386 by Jim Kingdon, Cygnus Support.
-+ *  Origianl kgdb, compatibility with 2.1.xx kernel by
-+ *  David Grothe <dave@gcom.com>
-+ *  Integrated into 2.2.5 kernel by Tigran Aivazian <tigran@sco.com>
-+ *  X86_64 changes from Andi Kleen's patch merged by Jim Houston
-+ */
-+
-+#include <linux/string.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/smp.h>
-+#include <linux/spinlock.h>
-+#include <linux/delay.h>
-+#include <asm/system.h>
-+#include <asm/ptrace.h>		/* for linux pt_regs struct */
-+#include <linux/kgdb.h>
-+#include <linux/init.h>
-+#include <asm/apicdef.h>
-+#include <asm/mach_apic.h>
-+#include <asm/kdebug.h>
-+#include <asm/debugreg.h>
-+
-+/* Put the error code here just in case the user cares.  */
-+int gdb_x86_64errcode;
-+/* Likewise, the vector number here (since GDB only gets the signal
-+   number through the usual means, and that's not very specific).  */
-+int gdb_x86_64vector = -1;
-+
-+extern atomic_t cpu_doing_single_step;
-+
-+void regs_to_gdb_regs(unsigned long *gdb_regs, struct pt_regs *regs)
-+{
-+	gdb_regs[_RAX] = regs->rax;
-+	gdb_regs[_RBX] = regs->rbx;
-+	gdb_regs[_RCX] = regs->rcx;
-+	gdb_regs[_RDX] = regs->rdx;
-+	gdb_regs[_RSI] = regs->rsi;
-+	gdb_regs[_RDI] = regs->rdi;
-+	gdb_regs[_RBP] = regs->rbp;
-+	gdb_regs[_PS] = regs->eflags;
-+	gdb_regs[_PC] = regs->rip;
-+	gdb_regs[_R8] = regs->r8;
-+	gdb_regs[_R9] = regs->r9;
-+	gdb_regs[_R10] = regs->r10;
-+	gdb_regs[_R11] = regs->r11;
-+	gdb_regs[_R12] = regs->r12;
-+	gdb_regs[_R13] = regs->r13;
-+	gdb_regs[_R14] = regs->r14;
-+	gdb_regs[_R15] = regs->r15;
-+	gdb_regs[_RSP] = regs->rsp;
-+}
-+
-+extern void thread_return(void);
-+void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct task_struct *p)
-+{
-+	gdb_regs[_RAX] = 0;
-+	gdb_regs[_RBX] = 0;
-+	gdb_regs[_RCX] = 0;
-+	gdb_regs[_RDX] = 0;
-+	gdb_regs[_RSI] = 0;
-+	gdb_regs[_RDI] = 0;
-+	gdb_regs[_RBP] = *(unsigned long *)p->thread.rsp;
-+	gdb_regs[_PS] = *(unsigned long *)(p->thread.rsp + 8);
-+	gdb_regs[_PC] = (unsigned long)&thread_return;
-+	gdb_regs[_R8] = 0;
-+	gdb_regs[_R9] = 0;
-+	gdb_regs[_R10] = 0;
-+	gdb_regs[_R11] = 0;
-+	gdb_regs[_R12] = 0;
-+	gdb_regs[_R13] = 0;
-+	gdb_regs[_R14] = 0;
-+	gdb_regs[_R15] = 0;
-+	gdb_regs[_RSP] = p->thread.rsp;
-+}
-+
-+void gdb_regs_to_regs(unsigned long *gdb_regs, struct pt_regs *regs)
-+{
-+	regs->rax = gdb_regs[_RAX];
-+	regs->rbx = gdb_regs[_RBX];
-+	regs->rcx = gdb_regs[_RCX];
-+	regs->rdx = gdb_regs[_RDX];
-+	regs->rsi = gdb_regs[_RSI];
-+	regs->rdi = gdb_regs[_RDI];
-+	regs->rbp = gdb_regs[_RBP];
-+	regs->eflags = gdb_regs[_PS];
-+	regs->rip = gdb_regs[_PC];
-+	regs->r8 = gdb_regs[_R8];
-+	regs->r9 = gdb_regs[_R9];
-+	regs->r10 = gdb_regs[_R10];
-+	regs->r11 = gdb_regs[_R11];
-+	regs->r12 = gdb_regs[_R12];
-+	regs->r13 = gdb_regs[_R13];
-+	regs->r14 = gdb_regs[_R14];
-+	regs->r15 = gdb_regs[_R15];
-+#if 0				/* can't change these */
-+	regs->rsp = gdb_regs[_RSP];
-+	regs->ss = gdb_regs[_SS];
-+	regs->fs = gdb_regs[_FS];
-+	regs->gs = gdb_regs[_GS];
-+#endif
-+
-+}				/* gdb_regs_to_regs */
-+
-+struct hw_breakpoint {
-+	unsigned enabled;
-+	unsigned type;
-+	unsigned len;
-+	unsigned long addr;
-+} breakinfo[4] = { {
-+enabled:0}, {
-+enabled:0}, {
-+enabled:0}, {
-+enabled:0}};
-+
-+void kgdb_correct_hw_break(void)
-+{
-+	int breakno;
-+	int correctit;
-+	int breakbit;
-+	unsigned long dr7;
-+
-+	asm volatile ("movq %%db7, %0\n":"=r" (dr7):);
-+	do {
-+		unsigned long addr0, addr1, addr2, addr3;
-+		asm volatile ("movq %%db0, %0\n"
-+			      "movq %%db1, %1\n"
-+			      "movq %%db2, %2\n"
-+			      "movq %%db3, %3\n":"=r" (addr0), "=r"(addr1),
-+			      "=r"(addr2), "=r"(addr3):);
-+	} while (0);
-+	correctit = 0;
-+	for (breakno = 0; breakno < 3; breakno++) {
-+		breakbit = 2 << (breakno << 1);
-+		if (!(dr7 & breakbit) && breakinfo[breakno].enabled) {
-+			correctit = 1;
-+			dr7 |= breakbit;
-+			dr7 &= ~(0xf0000 << (breakno << 2));
-+			dr7 |= (((breakinfo[breakno].len << 2) |
-+				 breakinfo[breakno].type) << 16) <<
-+			    (breakno << 2);
-+			switch (breakno) {
-+			case 0:
-+				asm volatile ("movq %0, %%dr0\n"::"r"
-+					      (breakinfo[breakno].addr));
-+				break;
-+
-+			case 1:
-+				asm volatile ("movq %0, %%dr1\n"::"r"
-+					      (breakinfo[breakno].addr));
-+				break;
-+
-+			case 2:
-+				asm volatile ("movq %0, %%dr2\n"::"r"
-+					      (breakinfo[breakno].addr));
-+				break;
-+
-+			case 3:
-+				asm volatile ("movq %0, %%dr3\n"::"r"
-+					      (breakinfo[breakno].addr));
-+				break;
-+			}
-+		} else if ((dr7 & breakbit) && !breakinfo[breakno].enabled) {
-+			correctit = 1;
-+			dr7 &= ~breakbit;
-+			dr7 &= ~(0xf0000 << (breakno << 2));
-+		}
-+	}
-+	if (correctit) {
-+		asm volatile ("movq %0, %%db7\n"::"r" (dr7));
-+	}
-+}
-+
-+int kgdb_remove_hw_break(unsigned long addr)
-+{
-+	int i, idx = -1;
-+	for (i = 0; i < 4; i++) {
-+		if (breakinfo[i].addr == addr && breakinfo[i].enabled) {
-+			idx = i;
-+			break;
-+		}
-+	}
-+	if (idx == -1)
-+		return -1;
-+
-+	breakinfo[idx].enabled = 0;
-+	return 0;
-+}
-+
-+int kgdb_set_hw_break(unsigned long addr)
-+{
-+	int i, idx = -1;
-+	for (i = 0; i < 4; i++) {
-+		if (!breakinfo[i].enabled) {
-+			idx = i;
-+			break;
-+		}
-+	}
-+	if (idx == -1)
-+		return -1;
-+
-+	breakinfo[idx].enabled = 1;
-+	breakinfo[idx].type = 1;
-+	breakinfo[idx].len = 1;
-+	breakinfo[idx].addr = addr;
-+	return 0;
-+}
-+
-+int remove_hw_break(unsigned breakno)
-+{
-+	if (!breakinfo[breakno].enabled) {
-+		return -1;
-+	}
-+	breakinfo[breakno].enabled = 0;
-+	return 0;
-+}
-+
-+int set_hw_break(unsigned breakno, unsigned type, unsigned len, unsigned addr)
-+{
-+	if (breakinfo[breakno].enabled) {
-+		return -1;
-+	}
-+	breakinfo[breakno].enabled = 1;
-+	breakinfo[breakno].type = type;
-+	breakinfo[breakno].len = len;
-+	breakinfo[breakno].addr = addr;
-+	return 0;
-+}
-+
-+void kgdb_disable_hw_debug(struct pt_regs *regs)
-+{
-+	/* Disable hardware debugging while we are in kgdb */
-+	asm volatile ("movq %0,%%db7": /* no output */ :"r" (0UL));
-+}
-+
-+void kgdb_post_master_code(struct pt_regs *regs, int e_vector, int err_code)
-+{
-+	/* Master processor is completely in the debugger */
-+	gdb_x86_64vector = e_vector;
-+	gdb_x86_64errcode = err_code;
-+	send_IPI_allbutself(KGDB_VECTOR);
-+}
-+
-+void kgdb_roundup_cpus(unsigned long flags)
-+{
-+	send_IPI_allbutself(APIC_DM_NMI);
-+}
-+
-+int kgdb_arch_handle_exception(int e_vector, int signo, int err_code,
-+			       char *remcomInBuffer, char *remcomOutBuffer,
-+			       struct pt_regs *linux_regs)
-+{
-+	unsigned long addr, length;
-+	unsigned long breakno, breaktype;
-+	char *ptr;
-+	int newPC;
-+	unsigned long dr6;
-+
-+	switch (remcomInBuffer[0]) {
-+	case 'c':
-+	case 's':
-+		/* try to read optional parameter, pc unchanged if no parm */
-+		ptr = &remcomInBuffer[1];
-+		if (kgdb_hex2long(&ptr, &addr))
-+			linux_regs->rip = addr;
-+		newPC = linux_regs->rip;
-+
-+		/* clear the trace bit */
-+		linux_regs->eflags &= ~TF_MASK;
-+
-+		atomic_set(&cpu_doing_single_step, -1);
-+		/* set the trace bit if we're stepping */
-+		if (remcomInBuffer[0] == 's') {
-+			linux_regs->eflags |= TF_MASK;
-+			debugger_step = 1;
-+			if (kgdb_contthread)
-+				atomic_set(&cpu_doing_single_step,
-+					   smp_processor_id());
-+
-+		}
-+
-+		asm volatile ("movq %%db6, %0\n":"=r" (dr6));
-+		if (!(dr6 & 0x4000)) {
-+			for (breakno = 0; breakno < 4; ++breakno) {
-+				if (dr6 & (1 << breakno)) {
-+					if (breakinfo[breakno].type == 0) {
-+						/* Set restore flag */
-+						linux_regs->eflags |=
-+						    X86_EFLAGS_RF;
-+						break;
-+					}
-+				}
-+			}
-+		}
-+		kgdb_correct_hw_break();
-+		asm volatile ("movq %0, %%db6\n"::"r" (0UL));
-+
-+		return (0);
-+
-+	case 'Y':
-+		ptr = &remcomInBuffer[1];
-+		kgdb_hex2long(&ptr, &breakno);
-+		ptr++;
-+		kgdb_hex2long(&ptr, &breaktype);
-+		ptr++;
-+		kgdb_hex2long(&ptr, &length);
-+		ptr++;
-+		kgdb_hex2long(&ptr, &addr);
-+		if (set_hw_break(breakno & 0x3, breaktype & 0x3,
-+				 length & 0x3, addr) == 0)
-+			strcpy(remcomOutBuffer, "OK");
-+		else
-+			strcpy(remcomOutBuffer, "ERROR");
-+		break;
-+
-+		/* Remove hardware breakpoint */
-+	case 'y':
-+		ptr = &remcomInBuffer[1];
-+		kgdb_hex2long(&ptr, &breakno);
-+		if (remove_hw_break(breakno & 0x3) == 0)
-+			strcpy(remcomOutBuffer, "OK");
-+		else
-+			strcpy(remcomOutBuffer, "ERROR");
-+		break;
-+
-+	}			/* switch */
-+	return -1;
-+}
-+
-+static struct pt_regs *in_interrupt_stack(unsigned long rsp, int cpu)
-+{
-+	struct pt_regs *regs;
-+	unsigned long end = (unsigned long)cpu_pda[cpu].irqstackptr;
-+	if (rsp <= end && rsp >= end - IRQSTACKSIZE + 8) {
-+		regs = *(((struct pt_regs **)end) - 1);
-+		return regs;
-+	}
-+	return NULL;
-+}
-+
-+static struct pt_regs *in_exception_stack(unsigned long rsp, int cpu)
-+{
-+	int i;
-+	struct tss_struct *init_tss = &__get_cpu_var(init_tss);
-+	for (i = 0; i < N_EXCEPTION_STACKS; i++)
-+		if (rsp >= init_tss[cpu].ist[i] &&
-+		    rsp <= init_tss[cpu].ist[i] + EXCEPTION_STKSZ) {
-+			struct pt_regs *r =
-+			    (void *)init_tss[cpu].ist[i] + EXCEPTION_STKSZ;
-+			return r - 1;
-+		}
-+	return NULL;
-+}
-+
-+void kgdb_shadowinfo(struct pt_regs *regs, char *buffer, unsigned threadid)
-+{
-+	static char intr_desc[] = "Stack at interrupt entrypoint";
-+	static char exc_desc[] = "Stack at exception entrypoint";
-+	struct pt_regs *stregs;
-+	int cpu = hard_smp_processor_id();
-+
-+	if ((stregs = in_interrupt_stack(regs->rsp, cpu))) {
-+		kgdb_mem2hex(intr_desc, buffer, strlen(intr_desc));
-+	} else if ((stregs = in_exception_stack(regs->rsp, cpu))) {
-+		kgdb_mem2hex(exc_desc, buffer, strlen(exc_desc));
-+	}
-+}
-+
-+struct task_struct *kgdb_get_shadow_thread(struct pt_regs *regs, int threadid)
-+{
-+	struct pt_regs *stregs;
-+	int cpu = hard_smp_processor_id();
-+
-+	if ((stregs = in_interrupt_stack(regs->rsp, cpu)))
-+		return current;
-+	else if ((stregs = in_exception_stack(regs->rsp, cpu)))
-+		return current;
-+
-+	return NULL;
-+}
-+
-+struct pt_regs *kgdb_shadow_regs(struct pt_regs *regs, int threadid)
-+{
-+	struct pt_regs *stregs;
-+	int cpu = hard_smp_processor_id();
-+
-+	if ((stregs = in_interrupt_stack(regs->rsp, cpu)))
-+		return stregs;
-+	else if ((stregs = in_exception_stack(regs->rsp, cpu)))
-+		return stregs;
-+
-+	return NULL;
-+}
-+
-+/* Register KGDB with the die_chain so that we hook into all of the right
-+ * spots. */
-+static int kgdb_notify(struct notifier_block *self, unsigned long cmd,
-+		       void *ptr)
-+{
-+	struct die_args *args = ptr;
-+	struct pt_regs *regs = args->regs;
-+
-+	if (cmd == DIE_PAGE_FAULT && strcmp(args->str, "no context") == 0 &&
-+	    atomic_read(&debugger_active) && kgdb_may_fault) {
-+		kgdb_fault_longjmp(kgdb_fault_jmp_regs);
-+		return NOTIFY_STOP;
-+	/* CPU roundup? */
-+	} else if (atomic_read(&debugger_active) && cmd == DIE_NMI_IPI) {
-+		kgdb_nmihook(smp_processor_id(), regs);
-+		return NOTIFY_STOP;
-+		/* See if KGDB is interested. */
-+	} else if (cmd == DIE_PAGE_FAULT || user_mode(regs) ||
-+		   cmd == DIE_NMI_IPI || (cmd == DIE_DEBUG &&
-+					  atomic_read(&debugger_active)))
-+		/* Userpace events, normal watchdog event, or spurious
-+		 * debug exception.  Ignore. */
-+		return NOTIFY_DONE;
-+
-+	kgdb_handle_exception(args->trapnr, args->signr, args->err, regs);
-+
-+	return NOTIFY_STOP;
-+}
-+
-+static struct notifier_block kgdb_notifier = {
-+	.notifier_call = kgdb_notify,
-+	.priority = 0x7fffffff,	/* we need to notified first */
-+};
-+
-+int kgdb_arch_init(void)
-+{
-+	notifier_chain_register(&die_chain, &kgdb_notifier);
-+	return 0;
-+}
-+
-+struct kgdb_arch arch_kgdb_ops = {
-+	.gdb_bpt_instr = {0xcc},
-+	.flags = KGDB_HW_BREAKPOINT,
-+	.shadowth = 1,
-+};
-diff -puN /dev/null arch/x86_64/kernel/kgdb-jmp.S
---- /dev/null	2005-07-25 10:57:32.312383000 -0700
-+++ linux-2.6.13-rc3-trini/arch/x86_64/kernel/kgdb-jmp.S	2005-07-29 13:19:10.000000000 -0700
-@@ -0,0 +1,65 @@
-+/*
-+ * arch/x86_64/kernel/kgdb-jmp.S
-+ *
-+ * Save and restore system registers so that within a limited frame we
-+ * may have a fault and "jump back" to a known safe location.
-+ *
-+ * Author: Tom Rini <trini@kernel.crashing.org>
-+ *
-+ * Cribbed from glibc, which carries the following:
-+ * Copyright (C) 2001, 2003, 2004 Free Software Foundation, Inc.
-+ * Copyright (C) 2005 by MontaVista Software.
-+ *
-+ * This file is licensed under the terms of the GNU General Public License
-+ * version 2. This program as licensed "as is" without any warranty of
-+ * any kind, whether express or implied.
-+ */
-+
-+#include <linux/linkage.h>
-+
-+#define JB_RBX		0
-+#define JB_RBP		1
-+#define JB_R12		2
-+#define JB_R13		3
-+#define JB_R14		4
-+#define JB_R15		5
-+#define JB_RSP		6
-+#define JB_PC		7
-+
-+	.code64
-+
-+/* This must be called prior to kgdb_fault_longjmp and
-+ * kgdb_fault_longjmp must not be called outside of the context of the
-+ * last call to kgdb_fault_setjmp.
-+ */
-+ENTRY(kgdb_fault_setjmp)
-+	/* Save registers. */
-+	movq %rbx, (JB_RBX*8)(%rdi)
-+	movq %rbp, (JB_RBP*8)(%rdi)
-+	movq %r12, (JB_R12*8)(%rdi)
-+	movq %r13, (JB_R13*8)(%rdi)
-+	movq %r14, (JB_R14*8)(%rdi)
-+	movq %r15, (JB_R15*8)(%rdi)
-+	leaq 8(%rsp), %rdx	/* Save SP as it will be after we return. */
-+	movq %rdx, (JB_RSP*8)(%rdi)
-+	movq (%rsp), %rax	/* Save PC we are returning to now. */
-+	movq %rax, (JB_PC*8)(%rdi)
-+	/* Set return value for setjmp. */
-+	mov $0,%eax
-+	movq (JB_PC*8)(%rdi),%rdx
-+	movq (JB_RSP*8)(%rdi),%rsp
-+	jmpq *%rdx
-+
-+ENTRY(kgdb_fault_longjmp)
-+	/* Restore registers. */
-+	movq (JB_RBX*8)(%rdi),%rbx
-+	movq (JB_RBP*8)(%rdi),%rbp
-+	movq (JB_R12*8)(%rdi),%r12
-+	movq (JB_R13*8)(%rdi),%r13
-+	movq (JB_R14*8)(%rdi),%r14
-+	movq (JB_R15*8)(%rdi),%r15
-+	/* Set return value for setjmp. */
-+	movq (JB_PC*8)(%rdi),%rdx
-+	movq (JB_RSP*8)(%rdi),%rsp
-+	mov $1,%eax
-+	jmpq *%rdx
-diff -puN arch/x86_64/kernel/Makefile~x86_64-lite arch/x86_64/kernel/Makefile
---- linux-2.6.13-rc3/arch/x86_64/kernel/Makefile~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
-+++ linux-2.6.13-rc3-trini/arch/x86_64/kernel/Makefile	2005-07-29 13:19:10.000000000 -0700
-@@ -4,6 +4,7 @@
- 
- extra-y 	:= head.o head64.o init_task.o vmlinux.lds
- EXTRA_AFLAGS	:= -traditional
-+CFLAGS_vsyscall.o := -g0
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
- 		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_x86_64.o \
- 		x8664_ksyms.o i387.o syscall.o vsyscall.o \
-@@ -29,6 +30,7 @@ obj-$(CONFIG_GART_IOMMU)	+= pci-gart.o a
- obj-$(CONFIG_DUMMY_IOMMU)	+= pci-nommu.o pci-dma.o
- obj-$(CONFIG_SWIOTLB)		+= swiotlb.o
- obj-$(CONFIG_KPROBES)		+= kprobes.o
-+obj-$(CONFIG_KGDB)		+= kgdb.o kgdb-jmp.o
- obj-$(CONFIG_X86_PM_TIMER)	+= pmtimer.o
- 
- obj-$(CONFIG_MODULES)		+= module.o
-diff -puN arch/x86_64/kernel/traps.c~x86_64-lite arch/x86_64/kernel/traps.c
---- linux-2.6.13-rc3/arch/x86_64/kernel/traps.c~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
-+++ linux-2.6.13-rc3-trini/arch/x86_64/kernel/traps.c	2005-07-29 13:19:10.000000000 -0700
-@@ -29,6 +29,7 @@
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/nmi.h>
-+#include <linux/kgdb.h>
- 
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -940,6 +941,14 @@ void __init trap_init(void)
- 	 * Should be a barrier for any external CPU state.
- 	 */
- 	cpu_init();
-+
-+#ifdef CONFIG_KGDB
-+	/*
-+	 * Has KGDB been told to break as soon as possible?
-+	 */
-+	if (kgdb_initialized == -1)
-+		tasklet_schedule(&kgdb_tasklet_breakpoint);
-+#endif
- }
- 
- 
-diff -puN arch/x86_64/mm/extable.c~x86_64-lite arch/x86_64/mm/extable.c
-diff -puN include/asm-x86_64/hw_irq.h~x86_64-lite include/asm-x86_64/hw_irq.h
---- linux-2.6.13-rc3/include/asm-x86_64/hw_irq.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
-+++ linux-2.6.13-rc3-trini/include/asm-x86_64/hw_irq.h	2005-07-29 13:19:10.000000000 -0700
-@@ -55,6 +55,7 @@ struct hw_interrupt_type;
- #define TASK_MIGRATION_VECTOR	0xfb
- #define CALL_FUNCTION_VECTOR	0xfa
- #define KDB_VECTOR	0xf9
-+#define KGDB_VECTOR	0xf8
- 
- #define THERMAL_APIC_VECTOR	0xf0
- 
-diff -puN include/asm-x86_64/ipi.h~x86_64-lite include/asm-x86_64/ipi.h
---- linux-2.6.13-rc3/include/asm-x86_64/ipi.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
-+++ linux-2.6.13-rc3-trini/include/asm-x86_64/ipi.h	2005-07-29 13:19:10.000000000 -0700
-@@ -62,6 +62,12 @@ static inline void __send_IPI_shortcut(u
- 	 * No need to touch the target chip field
- 	 */
- 	cfg = __prepare_ICR(shortcut, vector, dest);
-+        if (vector == KGDB_VECTOR) {
-+                 /*
-+                  * KGDB IPI is to be delivered as a NMI
-+                  */
-+                 cfg = (cfg&~APIC_VECTOR_MASK)|APIC_DM_NMI;
-+         }
- 
- 	/*
- 	 * Send the IPI. The write to APIC_ICR fires this off.
-@@ -100,6 +106,12 @@ static inline void send_IPI_mask_sequenc
- 			 * program the ICR
- 			 */
- 			cfg = __prepare_ICR(0, vector, APIC_DEST_PHYSICAL);
-+		        if (vector == KGDB_VECTOR) {
-+	                	 /*
-+        		          * KGDB IPI is to be delivered as a NMI
-+		                  */
-+                		 cfg = (cfg&~APIC_VECTOR_MASK)|APIC_DM_NMI;
-+		         }
- 
- 			/*
- 			 * Send the IPI. The write to APIC_ICR fires this off.
-diff -puN /dev/null include/asm-x86_64/kgdb.h
---- /dev/null	2005-07-25 10:57:32.312383000 -0700
-+++ linux-2.6.13-rc3-trini/include/asm-x86_64/kgdb.h	2005-07-29 13:19:10.000000000 -0700
-@@ -0,0 +1,50 @@
-+#ifdef __KERNEL__
-+#ifndef _ASM_KGDB_H_
-+#define _ASM_KGDB_H_
-+
-+/*
-+ * Copyright (C) 2001-2004 Amit S. Kale
-+ */
-+
-+/*
-+ *  Note that this register image is in a different order than
-+ *  the register image that Linux produces at interrupt time.
-+ *
-+ *  Linux's register image is defined by struct pt_regs in ptrace.h.
-+ *  Just why GDB uses a different order is a historical mystery.
-+ */
-+#define _RAX	0
-+#define _RDX	1
-+#define _RCX	2
-+#define _RBX	3
-+#define _RSI	4
-+#define _RDI	5
-+#define _RBP	6
-+#define _RSP	7
-+#define _R8	8
-+#define _R9	9
-+#define _R10	10
-+#define _R11	11
-+#define _R12	12
-+#define _R13	13
-+#define _R14	14
-+#define _R15	15
-+#define _PC	16
-+#define _PS	17
-+
-+/* Number of bytes of registers.  */
-+#define NUMREGBYTES		((_PS+1)*8)
-+#define NUMCRITREGBYTES		(8 * 8)		/* 8 registers. */
-+
-+#ifndef __ASSEMBLY__
-+/* BUFMAX defines the maximum number of characters in inbound/outbound
-+ * buffers at least NUMREGBYTES*2 are needed for register packets, and
-+ * a longer buffer is needed to list all threads. */
-+#define BUFMAX			1024
-+#define BREAKPOINT()		asm("   int $3");
-+#define BREAK_INSTR_SIZE	1
-+#define CHECK_EXCEPTION_STACK() ((&__get_cpu_var(init_tss))[0].ist[0])
-+#define CACHE_FLUSH_IS_SAFE	1
-+#endif				/* !__ASSEMBLY__ */
-+#endif				/* _ASM_KGDB_H_ */
-+#endif				/* __KERNEL__ */
-diff -puN include/asm-x86_64/system.h~x86_64-lite include/asm-x86_64/system.h
---- linux-2.6.13-rc3/include/asm-x86_64/system.h~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
-+++ linux-2.6.13-rc3-trini/include/asm-x86_64/system.h	2005-07-29 13:19:10.000000000 -0700
-@@ -27,7 +27,9 @@
- 	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
- 
- #define switch_to(prev,next,last) \
--	asm volatile(SAVE_CONTEXT						    \
-+       asm volatile(".globl __switch_to_begin\n\t"				    \
-+		     "__switch_to_begin:\n\t"					  \
-+		     SAVE_CONTEXT						  \
- 		     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP */	  \
- 		     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore RSP */	  \
- 		     "call __switch_to\n\t"					  \
-@@ -39,6 +41,8 @@
- 		     "movq %%rax,%%rdi\n\t" 					  \
- 		     "jc   ret_from_fork\n\t"					  \
- 		     RESTORE_CONTEXT						    \
-+		     ".globl __switch_to_end\n\t"				  \
-+		     "__switch_to_end:\n\t"					  \
- 		     : "=a" (last)					  	  \
- 		     : [next] "S" (next), [prev] "D" (prev),			  \
- 		       [threadrsp] "i" (offsetof(struct task_struct, thread.rsp)), \
-diff -puN lib/Kconfig.debug~x86_64-lite lib/Kconfig.debug
---- linux-2.6.13-rc3/lib/Kconfig.debug~x86_64-lite	2005-07-29 13:19:10.000000000 -0700
-+++ linux-2.6.13-rc3-trini/lib/Kconfig.debug	2005-07-29 13:19:10.000000000 -0700
-@@ -163,7 +163,7 @@ config FRAME_POINTER
- 
- config KGDB
- 	bool "KGDB: kernel debugging with remote gdb"
--	depends on DEBUG_KERNEL && (X86 || MIPS32 || IA64 || ((!SMP || BROKEN) && PPC32))
-+	depends on DEBUG_KERNEL && (X86 || MIPS32 || IA64 || X86_64 || ((!SMP || BROKEN) && PPC32))
- 	help
- 	  If you say Y here, it will be possible to remotely debug the
- 	  kernel using gdb. It is strongly suggested that you enable
-_
+Voltage is 16.5 V
+
+HZ=100:  ~460 mA => 7.59 W
+HZ=250:  ~468 mA => 7.72 W
+HZ=1000: ~494 mA => 8.15 W
+
+Results are quite stable.
+
+Test environment:
+- Pentium M 1.60GHz, model 13, stepping 6
+- ondemand governor with acpi-cpufreq (idle at 600MHz)
+- no daemons running
+- no external devices attached, except display
+- WLAN disabled via kill switch
+- internal display disabled
+- hard disk in sleep mode (hdparm -Y), data dumped to ramfs
+- kernel configuration attached
+
+Regards
+
+--Multipart=_Sat__30_Jul_2005_00_49_24_+0200_h93RhWIfZvesaLc5
+Content-Type: application/octet-stream;
+ name="config"
+Content-Disposition: attachment;
+ filename="config"
+Content-Transfer-Encoding: base64
+
+IwojIEF1dG9tYXRpY2FsbHkgZ2VuZXJhdGVkIG1ha2UgY29uZmlnOiBkb24ndCBlZGl0CiMgTGlu
+dXgga2VybmVsIHZlcnNpb246IDIuNi4xMy1yYzMtbW0zCiMgRnJpIEp1bCAyOSAyMzozNTo1NyAy
+MDA1CiMKQ09ORklHX1g4Nj15CkNPTkZJR19TRU1BUEhPUkVfU0xFRVBFUlM9eQpDT05GSUdfTU1V
+PXkKQ09ORklHX1VJRDE2PXkKQ09ORklHX0dFTkVSSUNfSVNBX0RNQT15CkNPTkZJR19HRU5FUklD
+X0lPTUFQPXkKCiMKIyBDb2RlIG1hdHVyaXR5IGxldmVsIG9wdGlvbnMKIwpDT05GSUdfRVhQRVJJ
+TUVOVEFMPXkKQ09ORklHX0NMRUFOX0NPTVBJTEU9eQpDT05GSUdfQlJPS0VOX09OX1NNUD15CkNP
+TkZJR19JTklUX0VOVl9BUkdfTElNSVQ9MzIKCiMKIyBHZW5lcmFsIHNldHVwCiMKQ09ORklHX0xP
+Q0FMVkVSU0lPTj0iLWh6dGVzdCIKQ09ORklHX1NXQVA9eQpDT05GSUdfU1lTVklQQz15CiMgQ09O
+RklHX1BPU0lYX01RVUVVRSBpcyBub3Qgc2V0CiMgQ09ORklHX0JTRF9QUk9DRVNTX0FDQ1QgaXMg
+bm90IHNldAoKIwojIENsYXNzIEJhc2VkIEtlcm5lbCBSZXNvdXJjZSBNYW5hZ2VtZW50CiMKIyBD
+T05GSUdfQ0tSTSBpcyBub3Qgc2V0CkNPTkZJR19TWVNDVEw9eQojIENPTkZJR19BVURJVCBpcyBu
+b3Qgc2V0CiMgQ09ORklHX0hPVFBMVUcgaXMgbm90IHNldAojIENPTkZJR19LT0JKRUNUX1VFVkVO
+VCBpcyBub3Qgc2V0CkNPTkZJR19JS0NPTkZJRz15CkNPTkZJR19JS0NPTkZJR19QUk9DPXkKIyBD
+T05GSUdfRU1CRURERUQgaXMgbm90IHNldAojIENPTkZJR19ERUxBWV9BQ0NUIGlzIG5vdCBzZXQK
+Q09ORklHX0tBTExTWU1TPXkKIyBDT05GSUdfS0FMTFNZTVNfRVhUUkFfUEFTUyBpcyBub3Qgc2V0
+CkNPTkZJR19QUklOVEs9eQpDT05GSUdfQlVHPXkKQ09ORklHX0JBU0VfRlVMTD15CkNPTkZJR19G
+VVRFWD15CkNPTkZJR19FUE9MTD15CkNPTkZJR19TSE1FTT15CkNPTkZJR19DQ19BTElHTl9GVU5D
+VElPTlM9MApDT05GSUdfQ0NfQUxJR05fTEFCRUxTPTAKQ09ORklHX0NDX0FMSUdOX0xPT1BTPTAK
+Q09ORklHX0NDX0FMSUdOX0pVTVBTPTAKIyBDT05GSUdfVElOWV9TSE1FTSBpcyBub3Qgc2V0CkNP
+TkZJR19CQVNFX1NNQUxMPTAKCiMKIyBMb2FkYWJsZSBtb2R1bGUgc3VwcG9ydAojCkNPTkZJR19N
+T0RVTEVTPXkKIyBDT05GSUdfTU9EVUxFX1VOTE9BRCBpcyBub3Qgc2V0CkNPTkZJR19PQlNPTEVU
+RV9NT0RQQVJNPXkKIyBDT05GSUdfTU9EVkVSU0lPTlMgaXMgbm90IHNldAojIENPTkZJR19NT0RV
+TEVfU1JDVkVSU0lPTl9BTEwgaXMgbm90IHNldAojIENPTkZJR19LTU9EIGlzIG5vdCBzZXQKCiMK
+IyBQcm9jZXNzb3IgdHlwZSBhbmQgZmVhdHVyZXMKIwpDT05GSUdfWDg2X1BDPXkKIyBDT05GSUdf
+WDg2X0VMQU4gaXMgbm90IHNldAojIENPTkZJR19YODZfVk9ZQUdFUiBpcyBub3Qgc2V0CiMgQ09O
+RklHX1g4Nl9OVU1BUSBpcyBub3Qgc2V0CiMgQ09ORklHX1g4Nl9TVU1NSVQgaXMgbm90IHNldAoj
+IENPTkZJR19YODZfQklHU01QIGlzIG5vdCBzZXQKIyBDT05GSUdfWDg2X1ZJU1dTIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfWDg2X0dFTkVSSUNBUkNIIGlzIG5vdCBzZXQKIyBDT05GSUdfWDg2X0VTNzAw
+MCBpcyBub3Qgc2V0CiMgQ09ORklHX00zODYgaXMgbm90IHNldAojIENPTkZJR19NNDg2IGlzIG5v
+dCBzZXQKIyBDT05GSUdfTTU4NiBpcyBub3Qgc2V0CiMgQ09ORklHX001ODZUU0MgaXMgbm90IHNl
+dAojIENPTkZJR19NNTg2TU1YIGlzIG5vdCBzZXQKIyBDT05GSUdfTTY4NiBpcyBub3Qgc2V0CiMg
+Q09ORklHX01QRU5USVVNSUkgaXMgbm90IHNldAojIENPTkZJR19NUEVOVElVTUlJSSBpcyBub3Qg
+c2V0CkNPTkZJR19NUEVOVElVTU09eQojIENPTkZJR19NUEVOVElVTTQgaXMgbm90IHNldAojIENP
+TkZJR19NSzYgaXMgbm90IHNldAojIENPTkZJR19NSzcgaXMgbm90IHNldAojIENPTkZJR19NSzgg
+aXMgbm90IHNldAojIENPTkZJR19NQ1JVU09FIGlzIG5vdCBzZXQKIyBDT05GSUdfTUVGRklDRU9O
+IGlzIG5vdCBzZXQKIyBDT05GSUdfTVdJTkNISVBDNiBpcyBub3Qgc2V0CiMgQ09ORklHX01XSU5D
+SElQMiBpcyBub3Qgc2V0CiMgQ09ORklHX01XSU5DSElQM0QgaXMgbm90IHNldAojIENPTkZJR19N
+R0VPREVHWDEgaXMgbm90IHNldAojIENPTkZJR19NQ1lSSVhJSUkgaXMgbm90IHNldAojIENPTkZJ
+R19NVklBQzNfMiBpcyBub3Qgc2V0CiMgQ09ORklHX1g4Nl9HRU5FUklDIGlzIG5vdCBzZXQKQ09O
+RklHX1g4Nl9DTVBYQ0hHPXkKQ09ORklHX1g4Nl9YQUREPXkKQ09ORklHX1g4Nl9MMV9DQUNIRV9T
+SElGVD02CkNPTkZJR19SV1NFTV9YQ0hHQUREX0FMR09SSVRITT15CkNPTkZJR19HRU5FUklDX0NB
+TElCUkFURV9ERUxBWT15CkNPTkZJR19YODZfV1BfV09SS1NfT0s9eQpDT05GSUdfWDg2X0lOVkxQ
+Rz15CkNPTkZJR19YODZfQlNXQVA9eQpDT05GSUdfWDg2X1BPUEFEX09LPXkKQ09ORklHX1g4Nl9H
+T09EX0FQSUM9eQpDT05GSUdfWDg2X0lOVEVMX1VTRVJDT1BZPXkKQ09ORklHX1g4Nl9VU0VfUFBS
+T19DSEVDS1NVTT15CkNPTkZJR19IUEVUX1RJTUVSPXkKIyBDT05GSUdfU01QIGlzIG5vdCBzZXQK
+Q09ORklHX1BSRUVNUFRfTk9ORT15CiMgQ09ORklHX1BSRUVNUFRfVk9MVU5UQVJZIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfUFJFRU1QVCBpcyBub3Qgc2V0CkNPTkZJR19YODZfVVBfQVBJQz15CkNPTkZJ
+R19YODZfVVBfSU9BUElDPXkKQ09ORklHX1g4Nl9MT0NBTF9BUElDPXkKQ09ORklHX1g4Nl9JT19B
+UElDPXkKQ09ORklHX1g4Nl9UU0M9eQojIENPTkZJR19YODZfTUNFIGlzIG5vdCBzZXQKIyBDT05G
+SUdfVE9TSElCQSBpcyBub3Qgc2V0CiMgQ09ORklHX0k4SyBpcyBub3Qgc2V0CiMgQ09ORklHX1g4
+Nl9SRUJPT1RGSVhVUFMgaXMgbm90IHNldAojIENPTkZJR19NSUNST0NPREUgaXMgbm90IHNldAoj
+IENPTkZJR19YODZfTVNSIGlzIG5vdCBzZXQKIyBDT05GSUdfWDg2X0NQVUlEIGlzIG5vdCBzZXQK
+CiMKIyBGaXJtd2FyZSBEcml2ZXJzCiMKQ09ORklHX0VERD15CkNPTkZJR19OT0hJR0hNRU09eQoj
+IENPTkZJR19ISUdITUVNNEcgaXMgbm90IHNldAojIENPTkZJR19ISUdITUVNNjRHIGlzIG5vdCBz
+ZXQKQ09ORklHX1NFTEVDVF9NRU1PUllfTU9ERUw9eQpDT05GSUdfRkxBVE1FTV9NQU5VQUw9eQoj
+IENPTkZJR19ESVNDT05USUdNRU1fTUFOVUFMIGlzIG5vdCBzZXQKIyBDT05GSUdfU1BBUlNFTUVN
+X01BTlVBTCBpcyBub3Qgc2V0CkNPTkZJR19GTEFUTUVNPXkKQ09ORklHX0ZMQVRfTk9ERV9NRU1f
+TUFQPXkKIyBDT05GSUdfTUFUSF9FTVVMQVRJT04gaXMgbm90IHNldApDT05GSUdfTVRSUj15CiMg
+Q09ORklHX0VGSSBpcyBub3Qgc2V0CkNPTkZJR19SRUdQQVJNPXkKIyBDT05GSUdfU0VDQ09NUCBp
+cyBub3Qgc2V0CiMgQ09ORklHX0haXzEwMCBpcyBub3Qgc2V0CiMgQ09ORklHX0haXzI1MCBpcyBu
+b3Qgc2V0CkNPTkZJR19IWl8xMDAwPXkKQ09ORklHX0haPTEwMDAKQ09ORklHX1BIWVNJQ0FMX1NU
+QVJUPTB4MTAwMDAwCiMgQ09ORklHX0tFWEVDIGlzIG5vdCBzZXQKCiMKIyBQb3dlciBtYW5hZ2Vt
+ZW50IG9wdGlvbnMgKEFDUEksIEFQTSkKIwpDT05GSUdfUE09eQojIENPTkZJR19QTV9ERUJVRyBp
+cyBub3Qgc2V0CiMgQ09ORklHX1NPRlRXQVJFX1NVU1BFTkQgaXMgbm90IHNldAoKIwojIEFDUEkg
+KEFkdmFuY2VkIENvbmZpZ3VyYXRpb24gYW5kIFBvd2VyIEludGVyZmFjZSkgU3VwcG9ydAojCkNP
+TkZJR19BQ1BJPXkKQ09ORklHX0FDUElfQk9PVD15CkNPTkZJR19BQ1BJX0lOVEVSUFJFVEVSPXkK
+IyBDT05GSUdfQUNQSV9TTEVFUCBpcyBub3Qgc2V0CiMgQ09ORklHX0FDUElfQUMgaXMgbm90IHNl
+dAojIENPTkZJR19BQ1BJX0JBVFRFUlkgaXMgbm90IHNldApDT05GSUdfQUNQSV9CVVRUT049eQpD
+T05GSUdfQUNQSV9WSURFTz15CkNPTkZJR19BQ1BJX0hPVEtFWT15CkNPTkZJR19BQ1BJX0ZBTj15
+CkNPTkZJR19BQ1BJX1BST0NFU1NPUj15CkNPTkZJR19BQ1BJX1RIRVJNQUw9eQojIENPTkZJR19B
+Q1BJX0FTVVMgaXMgbm90IHNldAojIENPTkZJR19BQ1BJX0lCTSBpcyBub3Qgc2V0CiMgQ09ORklH
+X0FDUElfVE9TSElCQSBpcyBub3Qgc2V0CkNPTkZJR19BQ1BJX0JMQUNLTElTVF9ZRUFSPTAKIyBD
+T05GSUdfQUNQSV9ERUJVRyBpcyBub3Qgc2V0CkNPTkZJR19BQ1BJX0JVUz15CkNPTkZJR19BQ1BJ
+X0VDPXkKQ09ORklHX0FDUElfUE9XRVI9eQpDT05GSUdfQUNQSV9QQ0k9eQpDT05GSUdfQUNQSV9T
+WVNURU09eQpDT05GSUdfWDg2X1BNX1RJTUVSPXkKIyBDT05GSUdfQUNQSV9DT05UQUlORVIgaXMg
+bm90IHNldAoKIwojIEFQTSAoQWR2YW5jZWQgUG93ZXIgTWFuYWdlbWVudCkgQklPUyBTdXBwb3J0
+CiMKIyBDT05GSUdfQVBNIGlzIG5vdCBzZXQKCiMKIyBQZXJmb3JtYW5jZS1tb25pdG9yaW5nIGNv
+dW50ZXJzIHN1cHBvcnQKIwpDT05GSUdfUEVSRkNUUj15CiMgQ09ORklHX1BFUkZDVFJfSU5JVF9U
+RVNUUyBpcyBub3Qgc2V0CkNPTkZJR19QRVJGQ1RSX1ZJUlRVQUw9eQpDT05GSUdfUEVSRkNUUl9J
+TlRFUlJVUFRfU1VQUE9SVD15CgojCiMgQ1BVIEZyZXF1ZW5jeSBzY2FsaW5nCiMKQ09ORklHX0NQ
+VV9GUkVRPXkKQ09ORklHX0NQVV9GUkVRX1RBQkxFPXkKIyBDT05GSUdfQ1BVX0ZSRVFfREVCVUcg
+aXMgbm90IHNldApDT05GSUdfQ1BVX0ZSRVFfU1RBVD15CkNPTkZJR19DUFVfRlJFUV9TVEFUX0RF
+VEFJTFM9eQpDT05GSUdfQ1BVX0ZSRVFfREVGQVVMVF9HT1ZfUEVSRk9STUFOQ0U9eQojIENPTkZJ
+R19DUFVfRlJFUV9ERUZBVUxUX0dPVl9VU0VSU1BBQ0UgaXMgbm90IHNldApDT05GSUdfQ1BVX0ZS
+RVFfR09WX1BFUkZPUk1BTkNFPXkKQ09ORklHX0NQVV9GUkVRX0dPVl9QT1dFUlNBVkU9eQojIENP
+TkZJR19DUFVfRlJFUV9HT1ZfVVNFUlNQQUNFIGlzIG5vdCBzZXQKQ09ORklHX0NQVV9GUkVRX0dP
+Vl9PTkRFTUFORD15CkNPTkZJR19DUFVfRlJFUV9HT1ZfQ09OU0VSVkFUSVZFPXkKCiMKIyBDUFVG
+cmVxIHByb2Nlc3NvciBkcml2ZXJzCiMKQ09ORklHX1g4Nl9BQ1BJX0NQVUZSRVE9bQojIENPTkZJ
+R19YODZfUE9XRVJOT1dfSzYgaXMgbm90IHNldAojIENPTkZJR19YODZfUE9XRVJOT1dfSzcgaXMg
+bm90IHNldAojIENPTkZJR19YODZfUE9XRVJOT1dfSzggaXMgbm90IHNldAojIENPTkZJR19YODZf
+R1hfU1VTUE1PRCBpcyBub3Qgc2V0CkNPTkZJR19YODZfU1BFRURTVEVQX0NFTlRSSU5PPW0KQ09O
+RklHX1g4Nl9TUEVFRFNURVBfQ0VOVFJJTk9fQUNQST15CiMgQ09ORklHX1g4Nl9TUEVFRFNURVBf
+Q0VOVFJJTk9fVEFCTEUgaXMgbm90IHNldAojIENPTkZJR19YODZfU1BFRURTVEVQX0lDSCBpcyBu
+b3Qgc2V0CiMgQ09ORklHX1g4Nl9TUEVFRFNURVBfU01JIGlzIG5vdCBzZXQKIyBDT05GSUdfWDg2
+X1A0X0NMT0NLTU9EIGlzIG5vdCBzZXQKIyBDT05GSUdfWDg2X0NQVUZSRVFfTkZPUkNFMiBpcyBu
+b3Qgc2V0CiMgQ09ORklHX1g4Nl9MT05HUlVOIGlzIG5vdCBzZXQKIyBDT05GSUdfWDg2X0xPTkdI
+QVVMIGlzIG5vdCBzZXQKCiMKIyBzaGFyZWQgb3B0aW9ucwojCiMgQ09ORklHX1g4Nl9BQ1BJX0NQ
+VUZSRVFfUFJPQ19JTlRGIGlzIG5vdCBzZXQKIyBDT05GSUdfWDg2X1NQRUVEU1RFUF9MSUIgaXMg
+bm90IHNldAoKIwojIEJ1cyBvcHRpb25zIChQQ0ksIFBDTUNJQSwgRUlTQSwgTUNBLCBJU0EpCiMK
+Q09ORklHX1BDST15CiMgQ09ORklHX1BDSV9HT0JJT1MgaXMgbm90IHNldAojIENPTkZJR19QQ0lf
+R09NTUNPTkZJRyBpcyBub3Qgc2V0CiMgQ09ORklHX1BDSV9HT0RJUkVDVCBpcyBub3Qgc2V0CkNP
+TkZJR19QQ0lfR09BTlk9eQpDT05GSUdfUENJX0JJT1M9eQpDT05GSUdfUENJX0RJUkVDVD15CkNP
+TkZJR19QQ0lfTU1DT05GSUc9eQojIENPTkZJR19QQ0lFUE9SVEJVUyBpcyBub3Qgc2V0CiMgQ09O
+RklHX1BDSV9NU0kgaXMgbm90IHNldAojIENPTkZJR19QQ0lfTEVHQUNZX1BST0MgaXMgbm90IHNl
+dApDT05GSUdfSVNBX0RNQV9BUEk9eQpDT05GSUdfSVNBPXkKIyBDT05GSUdfRUlTQSBpcyBub3Qg
+c2V0CiMgQ09ORklHX01DQSBpcyBub3Qgc2V0CiMgQ09ORklHX1NDeDIwMCBpcyBub3Qgc2V0Cgoj
+CiMgUENDQVJEIChQQ01DSUEvQ2FyZEJ1cykgc3VwcG9ydAojCiMgQ09ORklHX1BDQ0FSRCBpcyBu
+b3Qgc2V0CgojCiMgUENJIEhvdHBsdWcgU3VwcG9ydAojCiMgQ09ORklHX0hPVFBMVUdfUENJIGlz
+IG5vdCBzZXQKCiMKIyBFeGVjdXRhYmxlIGZpbGUgZm9ybWF0cwojCkNPTkZJR19CSU5GTVRfRUxG
+PXkKIyBDT05GSUdfQklORk1UX0FPVVQgaXMgbm90IHNldApDT05GSUdfQklORk1UX01JU0M9eQoK
+IwojIE5ldHdvcmtpbmcKIwpDT05GSUdfTkVUPXkKCiMKIyBOZXR3b3JraW5nIG9wdGlvbnMKIwpD
+T05GSUdfUEFDS0VUPXkKIyBDT05GSUdfUEFDS0VUX01NQVAgaXMgbm90IHNldApDT05GSUdfVU5J
+WD15CiMgQ09ORklHX05FVF9LRVkgaXMgbm90IHNldApDT05GSUdfSU5FVD15CkNPTkZJR19JUF9N
+VUxUSUNBU1Q9eQojIENPTkZJR19JUF9BRFZBTkNFRF9ST1VURVIgaXMgbm90IHNldApDT05GSUdf
+SVBfRklCX0hBU0g9eQojIENPTkZJR19JUF9QTlAgaXMgbm90IHNldAojIENPTkZJR19ORVRfSVBJ
+UCBpcyBub3Qgc2V0CiMgQ09ORklHX05FVF9JUEdSRSBpcyBub3Qgc2V0CiMgQ09ORklHX0lQX01S
+T1VURSBpcyBub3Qgc2V0CiMgQ09ORklHX0FSUEQgaXMgbm90IHNldApDT05GSUdfU1lOX0NPT0tJ
+RVM9eQojIENPTkZJR19JTkVUX0FIIGlzIG5vdCBzZXQKIyBDT05GSUdfSU5FVF9FU1AgaXMgbm90
+IHNldAojIENPTkZJR19JTkVUX0lQQ09NUCBpcyBub3Qgc2V0CiMgQ09ORklHX0lORVRfVFVOTkVM
+IGlzIG5vdCBzZXQKQ09ORklHX0lQX1RDUERJQUc9eQojIENPTkZJR19JUF9UQ1BESUFHX0lQVjYg
+aXMgbm90IHNldAojIENPTkZJR19UQ1BfQ09OR19BRFZBTkNFRCBpcyBub3Qgc2V0CkNPTkZJR19U
+Q1BfQ09OR19CSUM9eQojIENPTkZJR19JUFY2IGlzIG5vdCBzZXQKIyBDT05GSUdfTkVURklMVEVS
+IGlzIG5vdCBzZXQKCiMKIyBTQ1RQIENvbmZpZ3VyYXRpb24gKEVYUEVSSU1FTlRBTCkKIwojIENP
+TkZJR19JUF9TQ1RQIGlzIG5vdCBzZXQKIyBDT05GSUdfQVRNIGlzIG5vdCBzZXQKIyBDT05GSUdf
+QlJJREdFIGlzIG5vdCBzZXQKIyBDT05GSUdfVkxBTl84MDIxUSBpcyBub3Qgc2V0CiMgQ09ORklH
+X0RFQ05FVCBpcyBub3Qgc2V0CiMgQ09ORklHX0xMQzIgaXMgbm90IHNldAojIENPTkZJR19JUFgg
+aXMgbm90IHNldAojIENPTkZJR19BVEFMSyBpcyBub3Qgc2V0CiMgQ09ORklHX1gyNSBpcyBub3Qg
+c2V0CiMgQ09ORklHX0xBUEIgaXMgbm90IHNldAojIENPTkZJR19ORVRfRElWRVJUIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfRUNPTkVUIGlzIG5vdCBzZXQKIyBDT05GSUdfV0FOX1JPVVRFUiBpcyBub3Qg
+c2V0CiMgQ09ORklHX05FVF9TQ0hFRCBpcyBub3Qgc2V0CiMgQ09ORklHX05FVF9DTFNfUk9VVEUg
+aXMgbm90IHNldAoKIwojIE5ldHdvcmsgdGVzdGluZwojCiMgQ09ORklHX05FVF9QS1RHRU4gaXMg
+bm90IHNldAojIENPTkZJR19IQU1SQURJTyBpcyBub3Qgc2V0CiMgQ09ORklHX0lSREEgaXMgbm90
+IHNldAojIENPTkZJR19CVCBpcyBub3Qgc2V0CgojCiMgRGV2aWNlIERyaXZlcnMKIwoKIwojIEdl
+bmVyaWMgRHJpdmVyIE9wdGlvbnMKIwpDT05GSUdfU1RBTkRBTE9ORT15CkNPTkZJR19QUkVWRU5U
+X0ZJUk1XQVJFX0JVSUxEPXkKIyBDT05GSUdfRldfTE9BREVSIGlzIG5vdCBzZXQKCiMKIyBDb25u
+ZWN0b3IgLSB1bmlmaWVkIHVzZXJzcGFjZSA8LT4ga2VybmVsc3BhY2UgbGlua2VyCiMKIyBDT05G
+SUdfQ09OTkVDVE9SIGlzIG5vdCBzZXQKIyBDT05GSUdfRVhJVF9DT05ORUNUT1IgaXMgbm90IHNl
+dAojIENPTkZJR19GT1JLX0NPTk5FQ1RPUiBpcyBub3Qgc2V0CgojCiMgTWVtb3J5IFRlY2hub2xv
+Z3kgRGV2aWNlcyAoTVREKQojCiMgQ09ORklHX01URCBpcyBub3Qgc2V0CgojCiMgUGFyYWxsZWwg
+cG9ydCBzdXBwb3J0CiMKIyBDT05GSUdfUEFSUE9SVCBpcyBub3Qgc2V0CgojCiMgUGx1ZyBhbmQg
+UGxheSBzdXBwb3J0CiMKIyBDT05GSUdfUE5QIGlzIG5vdCBzZXQKCiMKIyBCbG9jayBkZXZpY2Vz
+CiMKIyBDT05GSUdfQkxLX0RFVl9GRCBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfWEQgaXMg
+bm90IHNldAojIENPTkZJR19CTEtfQ1BRX0RBIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0NQUV9D
+SVNTX0RBIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9EQUM5NjAgaXMgbm90IHNldAojIENP
+TkZJR19CTEtfREVWX1VNRU0gaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0NPV19DT01NT04g
+aXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0xPT1AgaXMgbm90IHNldAojIENPTkZJR19CTEtf
+REVWX05CRCBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfU1g4IGlzIG5vdCBzZXQKIyBDT05G
+SUdfQkxLX0RFVl9VQiBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfUkFNIGlzIG5vdCBzZXQK
+Q09ORklHX0JMS19ERVZfUkFNX0NPVU5UPTE2CkNPTkZJR19JTklUUkFNRlNfU09VUkNFPSIiCiMg
+Q09ORklHX0xCRCBpcyBub3Qgc2V0CiMgQ09ORklHX0NEUk9NX1BLVENEVkQgaXMgbm90IHNldAoK
+IwojIElPIFNjaGVkdWxlcnMKIwpDT05GSUdfSU9TQ0hFRF9OT09QPXkKQ09ORklHX0lPU0NIRURf
+QVM9eQpDT05GSUdfSU9TQ0hFRF9ERUFETElORT15CkNPTkZJR19JT1NDSEVEX0NGUT15CiMgQ09O
+RklHX0FUQV9PVkVSX0VUSCBpcyBub3Qgc2V0CgojCiMgQVRBL0FUQVBJL01GTS9STEwgc3VwcG9y
+dAojCkNPTkZJR19JREU9eQpDT05GSUdfQkxLX0RFVl9JREU9eQoKIwojIFBsZWFzZSBzZWUgRG9j
+dW1lbnRhdGlvbi9pZGUudHh0IGZvciBoZWxwL2luZm8gb24gSURFIGRyaXZlcwojCiMgQ09ORklH
+X0JMS19ERVZfSURFX1NBVEEgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0hEX0lERSBpcyBu
+b3Qgc2V0CkNPTkZJR19CTEtfREVWX0lERURJU0s9eQpDT05GSUdfSURFRElTS19NVUxUSV9NT0RF
+PXkKQ09ORklHX0JMS19ERVZfSURFQ0Q9eQojIENPTkZJR19CTEtfREVWX0lERVRBUEUgaXMgbm90
+IHNldAojIENPTkZJR19CTEtfREVWX0lERUZMT1BQWSBpcyBub3Qgc2V0CiMgQ09ORklHX0lERV9U
+QVNLX0lPQ1RMIGlzIG5vdCBzZXQKCiMKIyBJREUgY2hpcHNldCBzdXBwb3J0L2J1Z2ZpeGVzCiMK
+Q09ORklHX0lERV9HRU5FUklDPXkKIyBDT05GSUdfQkxLX0RFVl9DTUQ2NDAgaXMgbm90IHNldApD
+T05GSUdfQkxLX0RFVl9JREVQQ0k9eQpDT05GSUdfSURFUENJX1NIQVJFX0lSUT15CiMgQ09ORklH
+X0JMS19ERVZfT0ZGQk9BUkQgaXMgbm90IHNldApDT05GSUdfQkxLX0RFVl9HRU5FUklDPXkKIyBD
+T05GSUdfQkxLX0RFVl9PUFRJNjIxIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9SWjEwMDAg
+aXMgbm90IHNldApDT05GSUdfQkxLX0RFVl9JREVETUFfUENJPXkKIyBDT05GSUdfQkxLX0RFVl9J
+REVETUFfRk9SQ0VEIGlzIG5vdCBzZXQKQ09ORklHX0lERURNQV9QQ0lfQVVUTz15CiMgQ09ORklH
+X0lERURNQV9PTkxZRElTSyBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfQUVDNjJYWCBpcyBu
+b3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfQUxJMTVYMyBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19E
+RVZfQU1ENzRYWCBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfQVRJSVhQIGlzIG5vdCBzZXQK
+IyBDT05GSUdfQkxLX0RFVl9DTUQ2NFggaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX1RSSUZM
+RVggaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0NZODJDNjkzIGlzIG5vdCBzZXQKIyBDT05G
+SUdfQkxLX0RFVl9DUzU1MjAgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0NTNTUzMCBpcyBu
+b3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfSFBUMzRYIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RF
+Vl9IUFQzNjYgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX1NDMTIwMCBpcyBub3Qgc2V0CkNP
+TkZJR19CTEtfREVWX1BJSVg9eQojIENPTkZJR19CTEtfREVWX0lUODIxWCBpcyBub3Qgc2V0CiMg
+Q09ORklHX0JMS19ERVZfTlM4NzQxNSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfUERDMjAy
+WFhfT0xEIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9QREMyMDJYWF9ORVcgaXMgbm90IHNl
+dAojIENPTkZJR19CTEtfREVWX1NWV0tTIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9TSUlN
+QUdFIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9TSVM1NTEzIGlzIG5vdCBzZXQKIyBDT05G
+SUdfQkxLX0RFVl9TTEM5MEU2NiBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfVFJNMjkwIGlz
+IG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9WSUE4MkNYWFggaXMgbm90IHNldAojIENPTkZJR19J
+REVfQVJNIGlzIG5vdCBzZXQKIyBDT05GSUdfSURFX0NISVBTRVRTIGlzIG5vdCBzZXQKQ09ORklH
+X0JMS19ERVZfSURFRE1BPXkKIyBDT05GSUdfSURFRE1BX0lWQiBpcyBub3Qgc2V0CkNPTkZJR19J
+REVETUFfQVVUTz15CiMgQ09ORklHX0JMS19ERVZfSEQgaXMgbm90IHNldAoKIwojIFNDU0kgZGV2
+aWNlIHN1cHBvcnQKIwojIENPTkZJR19TQ1NJIGlzIG5vdCBzZXQKCiMKIyBPbGQgQ0QtUk9NIGRy
+aXZlcnMgKG5vdCBTQ1NJLCBub3QgSURFKQojCiMgQ09ORklHX0NEX05PX0lERVNDU0kgaXMgbm90
+IHNldAoKIwojIE11bHRpLWRldmljZSBzdXBwb3J0IChSQUlEIGFuZCBMVk0pCiMKIyBDT05GSUdf
+TUQgaXMgbm90IHNldAoKIwojIEZ1c2lvbiBNUFQgZGV2aWNlIHN1cHBvcnQKIwojIENPTkZJR19G
+VVNJT04gaXMgbm90IHNldAoKIwojIElFRUUgMTM5NCAoRmlyZVdpcmUpIHN1cHBvcnQKIwojIENP
+TkZJR19JRUVFMTM5NCBpcyBub3Qgc2V0CgojCiMgSTJPIGRldmljZSBzdXBwb3J0CiMKIyBDT05G
+SUdfSTJPIGlzIG5vdCBzZXQKCiMKIyBOZXR3b3JrIGRldmljZSBzdXBwb3J0CiMKIyBDT05GSUdf
+TkVUREVWSUNFUyBpcyBub3Qgc2V0CiMgQ09ORklHX0tHREJPRSBpcyBub3Qgc2V0CiMgQ09ORklH
+X05FVFBPTEwgaXMgbm90IHNldAojIENPTkZJR19ORVRQT0xMX1JYIGlzIG5vdCBzZXQKIyBDT05G
+SUdfTkVUUE9MTF9UUkFQIGlzIG5vdCBzZXQKIyBDT05GSUdfTkVUX1BPTExfQ09OVFJPTExFUiBp
+cyBub3Qgc2V0CgojCiMgSVNETiBzdWJzeXN0ZW0KIwojIENPTkZJR19JU0ROIGlzIG5vdCBzZXQK
+CiMKIyBUZWxlcGhvbnkgU3VwcG9ydAojCiMgQ09ORklHX1BIT05FIGlzIG5vdCBzZXQKCiMKIyBJ
+bnB1dCBkZXZpY2Ugc3VwcG9ydAojCkNPTkZJR19JTlBVVD15CgojCiMgVXNlcmxhbmQgaW50ZXJm
+YWNlcwojCkNPTkZJR19JTlBVVF9NT1VTRURFVj15CiMgQ09ORklHX0lOUFVUX01PVVNFREVWX1BT
+QVVYIGlzIG5vdCBzZXQKQ09ORklHX0lOUFVUX01PVVNFREVWX1NDUkVFTl9YPTEyODAKQ09ORklH
+X0lOUFVUX01PVVNFREVWX1NDUkVFTl9ZPTgwMAojIENPTkZJR19JTlBVVF9KT1lERVYgaXMgbm90
+IHNldAojIENPTkZJR19JTlBVVF9UU0RFViBpcyBub3Qgc2V0CiMgQ09ORklHX0lOUFVUX0VWREVW
+IGlzIG5vdCBzZXQKIyBDT05GSUdfSU5QVVRfRVZCVUcgaXMgbm90IHNldAoKIwojIElucHV0IERl
+dmljZSBEcml2ZXJzCiMKQ09ORklHX0lOUFVUX0tFWUJPQVJEPXkKQ09ORklHX0tFWUJPQVJEX0FU
+S0JEPXkKIyBDT05GSUdfS0VZQk9BUkRfU1VOS0JEIGlzIG5vdCBzZXQKIyBDT05GSUdfS0VZQk9B
+UkRfTEtLQkQgaXMgbm90IHNldAojIENPTkZJR19LRVlCT0FSRF9YVEtCRCBpcyBub3Qgc2V0CiMg
+Q09ORklHX0tFWUJPQVJEX05FV1RPTiBpcyBub3Qgc2V0CiMgQ09ORklHX0lOUFVUX01PVVNFIGlz
+IG5vdCBzZXQKIyBDT05GSUdfSU5QVVRfSk9ZU1RJQ0sgaXMgbm90IHNldAojIENPTkZJR19JTlBV
+VF9UT1VDSFNDUkVFTiBpcyBub3Qgc2V0CiMgQ09ORklHX0lOUFVUX01JU0MgaXMgbm90IHNldAoK
+IwojIEhhcmR3YXJlIEkvTyBwb3J0cwojCkNPTkZJR19TRVJJTz15CkNPTkZJR19TRVJJT19JODA0
+Mj15CiMgQ09ORklHX1NFUklPX1NFUlBPUlQgaXMgbm90IHNldAojIENPTkZJR19TRVJJT19DVDgy
+QzcxMCBpcyBub3Qgc2V0CiMgQ09ORklHX1NFUklPX1BDSVBTMiBpcyBub3Qgc2V0CkNPTkZJR19T
+RVJJT19MSUJQUzI9eQojIENPTkZJR19TRVJJT19SQVcgaXMgbm90IHNldAojIENPTkZJR19HQU1F
+UE9SVCBpcyBub3Qgc2V0CgojCiMgQ2hhcmFjdGVyIGRldmljZXMKIwpDT05GSUdfVlQ9eQpDT05G
+SUdfVlRfQ09OU09MRT15CkNPTkZJR19IV19DT05TT0xFPXkKIyBDT05GSUdfU0VSSUFMX05PTlNU
+QU5EQVJEIGlzIG5vdCBzZXQKCiMKIyBTZXJpYWwgZHJpdmVycwojCiMgQ09ORklHX1NFUklBTF84
+MjUwIGlzIG5vdCBzZXQKCiMKIyBOb24tODI1MCBzZXJpYWwgcG9ydCBzdXBwb3J0CiMKIyBDT05G
+SUdfU0VSSUFMX0pTTSBpcyBub3Qgc2V0CkNPTkZJR19VTklYOThfUFRZUz15CiMgQ09ORklHX0xF
+R0FDWV9QVFlTIGlzIG5vdCBzZXQKCiMKIyBJUE1JCiMKIyBDT05GSUdfSVBNSV9IQU5ETEVSIGlz
+IG5vdCBzZXQKCiMKIyBXYXRjaGRvZyBDYXJkcwojCiMgQ09ORklHX1dBVENIRE9HIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfSFdfUkFORE9NIGlzIG5vdCBzZXQKIyBDT05GSUdfTlZSQU0gaXMgbm90IHNl
+dAojIENPTkZJR19SVEMgaXMgbm90IHNldAojIENPTkZJR19HRU5fUlRDIGlzIG5vdCBzZXQKIyBD
+T05GSUdfRFRMSyBpcyBub3Qgc2V0CiMgQ09ORklHX1IzOTY0IGlzIG5vdCBzZXQKIyBDT05GSUdf
+QVBQTElDT00gaXMgbm90IHNldAojIENPTkZJR19TT05ZUEkgaXMgbm90IHNldAoKIwojIEZ0YXBl
+LCB0aGUgZmxvcHB5IHRhcGUgZGV2aWNlIGRyaXZlcgojCiMgQ09ORklHX0ZUQVBFIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfQUdQIGlzIG5vdCBzZXQKIyBDT05GSUdfRFJNIGlzIG5vdCBzZXQKIyBDT05G
+SUdfTVdBVkUgaXMgbm90IHNldAojIENPTkZJR19SQVdfRFJJVkVSIGlzIG5vdCBzZXQKIyBDT05G
+SUdfSFBFVCBpcyBub3Qgc2V0CiMgQ09ORklHX0hBTkdDSEVDS19USU1FUiBpcyBub3Qgc2V0Cgoj
+CiMgVFBNIGRldmljZXMKIwojIENPTkZJR19UQ0dfVFBNIGlzIG5vdCBzZXQKCiMKIyBJMkMgc3Vw
+cG9ydAojCkNPTkZJR19JMkM9eQpDT05GSUdfSTJDX0NIQVJERVY9bQoKIwojIEkyQyBBbGdvcml0
+aG1zCiMKQ09ORklHX0kyQ19BTEdPQklUPXkKIyBDT05GSUdfSTJDX0FMR09QQ0YgaXMgbm90IHNl
+dAojIENPTkZJR19JMkNfQUxHT1BDQSBpcyBub3Qgc2V0CgojCiMgSTJDIEhhcmR3YXJlIEJ1cyBz
+dXBwb3J0CiMKIyBDT05GSUdfSTJDX0FMSTE1MzUgaXMgbm90IHNldAojIENPTkZJR19JMkNfQUxJ
+MTU2MyBpcyBub3Qgc2V0CiMgQ09ORklHX0kyQ19BTEkxNVgzIGlzIG5vdCBzZXQKIyBDT05GSUdf
+STJDX0FNRDc1NiBpcyBub3Qgc2V0CiMgQ09ORklHX0kyQ19BTUQ4MTExIGlzIG5vdCBzZXQKIyBD
+T05GSUdfSTJDX0VMRUtUT1IgaXMgbm90IHNldAojIENPTkZJR19JMkNfSTgwMSBpcyBub3Qgc2V0
+CkNPTkZJR19JMkNfSTgxMD1tCiMgQ09ORklHX0kyQ19QSUlYNCBpcyBub3Qgc2V0CiMgQ09ORklH
+X0kyQ19ORk9SQ0UyIGlzIG5vdCBzZXQKIyBDT05GSUdfSTJDX1BBUlBPUlRfTElHSFQgaXMgbm90
+IHNldAojIENPTkZJR19JMkNfUFJPU0FWQUdFIGlzIG5vdCBzZXQKIyBDT05GSUdfSTJDX1NBVkFH
+RTQgaXMgbm90IHNldAojIENPTkZJR19TQ3gyMDBfQUNCIGlzIG5vdCBzZXQKIyBDT05GSUdfSTJD
+X1NJUzU1OTUgaXMgbm90IHNldAojIENPTkZJR19JMkNfU0lTNjMwIGlzIG5vdCBzZXQKIyBDT05G
+SUdfSTJDX1NJUzk2WCBpcyBub3Qgc2V0CiMgQ09ORklHX0kyQ19TVFVCIGlzIG5vdCBzZXQKIyBD
+T05GSUdfSTJDX1ZJQSBpcyBub3Qgc2V0CiMgQ09ORklHX0kyQ19WSUFQUk8gaXMgbm90IHNldAoj
+IENPTkZJR19JMkNfVk9PRE9PMyBpcyBub3Qgc2V0CiMgQ09ORklHX0kyQ19QQ0FfSVNBIGlzIG5v
+dCBzZXQKIyBDT05GSUdfSTJDX1NFTlNPUiBpcyBub3Qgc2V0CgojCiMgTWlzY2VsbGFuZW91cyBJ
+MkMgQ2hpcCBzdXBwb3J0CiMKIyBDT05GSUdfU0VOU09SU19EUzEzMzcgaXMgbm90IHNldAojIENP
+TkZJR19TRU5TT1JTX0RTMTM3NCBpcyBub3Qgc2V0CiMgQ09ORklHX1NFTlNPUlNfRUVQUk9NIGlz
+IG5vdCBzZXQKIyBDT05GSUdfU0VOU09SU19QQ0Y4NTc0IGlzIG5vdCBzZXQKIyBDT05GSUdfU0VO
+U09SU19QQ0E5NTM5IGlzIG5vdCBzZXQKIyBDT05GSUdfU0VOU09SU19QQ0Y4NTkxIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfU0VOU09SU19SVEM4NTY0IGlzIG5vdCBzZXQKIyBDT05GSUdfU0VOU09SU19N
+QVg2ODc1IGlzIG5vdCBzZXQKIyBDT05GSUdfSTJDX0RFQlVHX0NPUkUgaXMgbm90IHNldAojIENP
+TkZJR19JMkNfREVCVUdfQUxHTyBpcyBub3Qgc2V0CiMgQ09ORklHX0kyQ19ERUJVR19CVVMgaXMg
+bm90IHNldAojIENPTkZJR19JMkNfREVCVUdfQ0hJUCBpcyBub3Qgc2V0CgojCiMgRGFsbGFzJ3Mg
+MS13aXJlIGJ1cwojCiMgQ09ORklHX1cxIGlzIG5vdCBzZXQKCiMKIyBIYXJkd2FyZSBNb25pdG9y
+aW5nIHN1cHBvcnQKIwojIENPTkZJR19IV01PTiBpcyBub3Qgc2V0CgojCiMgTWlzYyBkZXZpY2Vz
+CiMKIyBDT05GSUdfSUJNX0FTTSBpcyBub3Qgc2V0CgojCiMgTXVsdGltZWRpYSBkZXZpY2VzCiMK
+IyBDT05GSUdfVklERU9fREVWIGlzIG5vdCBzZXQKCiMKIyBEaWdpdGFsIFZpZGVvIEJyb2FkY2Fz
+dGluZyBEZXZpY2VzCiMKIyBDT05GSUdfRFZCIGlzIG5vdCBzZXQKCiMKIyBHcmFwaGljcyBzdXBw
+b3J0CiMKIyBDT05GSUdfRkIgaXMgbm90IHNldApDT05GSUdfVklERU9fU0VMRUNUPXkKCiMKIyBD
+b25zb2xlIGRpc3BsYXkgZHJpdmVyIHN1cHBvcnQKIwpDT05GSUdfVkdBX0NPTlNPTEU9eQojIENP
+TkZJR19NREFfQ09OU09MRSBpcyBub3Qgc2V0CkNPTkZJR19EVU1NWV9DT05TT0xFPXkKCiMKIyBT
+cGVha3VwIGNvbnNvbGUgc3BlZWNoCiMKIyBDT05GSUdfU1BFQUtVUCBpcyBub3Qgc2V0CgojCiMg
+U291bmQKIwojIENPTkZJR19TT1VORCBpcyBub3Qgc2V0CgojCiMgVVNCIHN1cHBvcnQKIwpDT05G
+SUdfVVNCX0FSQ0hfSEFTX0hDRD15CkNPTkZJR19VU0JfQVJDSF9IQVNfT0hDST15CkNPTkZJR19V
+U0I9eQojIENPTkZJR19VU0JfREVCVUcgaXMgbm90IHNldAoKIwojIE1pc2NlbGxhbmVvdXMgVVNC
+IG9wdGlvbnMKIwojIENPTkZJR19VU0JfREVWSUNFRlMgaXMgbm90IHNldAojIENPTkZJR19VU0Jf
+QkFORFdJRFRIIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX0RZTkFNSUNfTUlOT1JTIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfVVNCX1NVU1BFTkQgaXMgbm90IHNldAojIENPTkZJR19VU0JfT1RHIGlzIG5v
+dCBzZXQKCiMKIyBVU0IgSG9zdCBDb250cm9sbGVyIERyaXZlcnMKIwpDT05GSUdfVVNCX0VIQ0lf
+SENEPXkKIyBDT05GSUdfVVNCX0VIQ0lfU1BMSVRfSVNPIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNC
+X0VIQ0lfUk9PVF9IVUJfVFQgaXMgbm90IHNldAojIENPTkZJR19VU0JfSVNQMTE2WF9IQ0QgaXMg
+bm90IHNldAojIENPTkZJR19VU0JfT0hDSV9IQ0QgaXMgbm90IHNldApDT05GSUdfVVNCX1VIQ0lf
+SENEPXkKIyBDT05GSUdfVVNCX1NMODExX0hDRCBpcyBub3Qgc2V0CgojCiMgVVNCIERldmljZSBD
+bGFzcyBkcml2ZXJzCiMKIyBDT05GSUdfVVNCX0JMVUVUT09USF9UVFkgaXMgbm90IHNldAojIENP
+TkZJR19VU0JfQUNNIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX1BSSU5URVIgaXMgbm90IHNldAoK
+IwojIE5PVEU6IFVTQl9TVE9SQUdFIGVuYWJsZXMgU0NTSSwgYW5kICdTQ1NJIGRpc2sgc3VwcG9y
+dCcgbWF5IGFsc28gYmUgbmVlZGVkOyBzZWUgVVNCX1NUT1JBR0UgSGVscCBmb3IgbW9yZSBpbmZv
+cm1hdGlvbgojCiMgQ09ORklHX1VTQl9TVE9SQUdFIGlzIG5vdCBzZXQKCiMKIyBVU0IgSW5wdXQg
+RGV2aWNlcwojCiMgQ09ORklHX1VTQl9ISUQgaXMgbm90IHNldAoKIwojIFVTQiBISUQgQm9vdCBQ
+cm90b2NvbCBkcml2ZXJzCiMKIyBDT05GSUdfVVNCX0tCRCBpcyBub3Qgc2V0CiMgQ09ORklHX1VT
+Ql9NT1VTRSBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9BSVBURUsgaXMgbm90IHNldAojIENPTkZJ
+R19VU0JfV0FDT00gaXMgbm90IHNldAojIENPTkZJR19VU0JfQUNFQ0FEIGlzIG5vdCBzZXQKIyBD
+T05GSUdfVVNCX0tCVEFCIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX1BPV0VSTUFURSBpcyBub3Qg
+c2V0CiMgQ09ORklHX1VTQl9NVE9VQ0ggaXMgbm90IHNldAojIENPTkZJR19VU0JfSVRNVE9VQ0gg
+aXMgbm90IHNldAojIENPTkZJR19VU0JfRUdBTEFYIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX1lF
+QUxJTksgaXMgbm90IHNldAojIENPTkZJR19VU0JfWFBBRCBpcyBub3Qgc2V0CiMgQ09ORklHX1VT
+Ql9BVElfUkVNT1RFIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX0tFWVNQQU5fUkVNT1RFIGlzIG5v
+dCBzZXQKIyBDT05GSUdfVVNCX0FQUExFVE9VQ0ggaXMgbm90IHNldAoKIwojIFVTQiBJbWFnaW5n
+IGRldmljZXMKIwojIENPTkZJR19VU0JfTURDODAwIGlzIG5vdCBzZXQKCiMKIyBVU0IgTXVsdGlt
+ZWRpYSBkZXZpY2VzCiMKIyBDT05GSUdfVVNCX0RBQlVTQiBpcyBub3Qgc2V0CgojCiMgVmlkZW80
+TGludXggc3VwcG9ydCBpcyBuZWVkZWQgZm9yIFVTQiBNdWx0aW1lZGlhIGRldmljZSBzdXBwb3J0
+CiMKCiMKIyBVU0IgTmV0d29yayBBZGFwdGVycwojCiMgQ09ORklHX1VTQl9DQVRDIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfVVNCX0tBV0VUSCBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9QRUdBU1VTIGlz
+IG5vdCBzZXQKIyBDT05GSUdfVVNCX1JUTDgxNTAgaXMgbm90IHNldAojIENPTkZJR19VU0JfVVNC
+TkVUIGlzIG5vdCBzZXQKQ09ORklHX1VTQl9NT049eQoKIwojIFVTQiBwb3J0IGRyaXZlcnMKIwoK
+IwojIFVTQiBTZXJpYWwgQ29udmVydGVyIHN1cHBvcnQKIwojIENPTkZJR19VU0JfU0VSSUFMIGlz
+IG5vdCBzZXQKCiMKIyBVU0IgTWlzY2VsbGFuZW91cyBkcml2ZXJzCiMKIyBDT05GSUdfVVNCX0VN
+STYyIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX0VNSTI2IGlzIG5vdCBzZXQKIyBDT05GSUdfVVNC
+X0FVRVJTV0FMRCBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9SSU81MDAgaXMgbm90IHNldAojIENP
+TkZJR19VU0JfTEVHT1RPV0VSIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX0xDRCBpcyBub3Qgc2V0
+CiMgQ09ORklHX1VTQl9MRUQgaXMgbm90IHNldAojIENPTkZJR19VU0JfQ1lUSEVSTSBpcyBub3Qg
+c2V0CiMgQ09ORklHX1VTQl9HT1RFTVAgaXMgbm90IHNldAojIENPTkZJR19VU0JfUEhJREdFVEtJ
+VCBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9QSElER0VUU0VSVk8gaXMgbm90IHNldAojIENPTkZJ
+R19VU0JfSURNT1VTRSBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9TSVNVU0JWR0EgaXMgbm90IHNl
+dAojIENPTkZJR19VU0JfTEQgaXMgbm90IHNldAoKIwojIFVTQiBEU0wgbW9kZW0gc3VwcG9ydAoj
+CgojCiMgVVNCIEdhZGdldCBTdXBwb3J0CiMKIyBDT05GSUdfVVNCX0dBREdFVCBpcyBub3Qgc2V0
+CgojCiMgTU1DL1NEIENhcmQgc3VwcG9ydAojCiMgQ09ORklHX01NQyBpcyBub3Qgc2V0CgojCiMg
+SW5maW5pQmFuZCBzdXBwb3J0CiMKIyBDT05GSUdfSU5GSU5JQkFORCBpcyBub3Qgc2V0CgojCiMg
+U04gRGV2aWNlcwojCgojCiMgRGlzdHJpYnV0ZWQgTG9jayBNYW5hZ2VyCiMKIyBDT05GSUdfRExN
+IGlzIG5vdCBzZXQKCiMKIyBGaWxlIHN5c3RlbXMKIwojIENPTkZJR19FWFQyX0ZTIGlzIG5vdCBz
+ZXQKQ09ORklHX0VYVDNfRlM9eQpDT05GSUdfRVhUM19GU19YQVRUUj15CkNPTkZJR19FWFQzX0ZT
+X1BPU0lYX0FDTD15CkNPTkZJR19FWFQzX0ZTX1NFQ1VSSVRZPXkKQ09ORklHX0pCRD15CiMgQ09O
+RklHX0pCRF9ERUJVRyBpcyBub3Qgc2V0CkNPTkZJR19GU19NQkNBQ0hFPXkKIyBDT05GSUdfUkVJ
+U0VSNF9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1JFSVNFUkZTX0ZTIGlzIG5vdCBzZXQKIyBDT05G
+SUdfSkZTX0ZTIGlzIG5vdCBzZXQKQ09ORklHX0ZTX1BPU0lYX0FDTD15CgojCiMgWEZTIHN1cHBv
+cnQKIwojIENPTkZJR19YRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19PQ0ZTMl9GUyBpcyBub3Qg
+c2V0CiMgQ09ORklHX01JTklYX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfUk9NRlNfRlMgaXMgbm90
+IHNldAojIENPTkZJR19JTk9USUZZIGlzIG5vdCBzZXQKIyBDT05GSUdfUVVPVEEgaXMgbm90IHNl
+dApDT05GSUdfRE5PVElGWT15CiMgQ09ORklHX0FVVE9GU19GUyBpcyBub3Qgc2V0CiMgQ09ORklH
+X0FVVE9GUzRfRlMgaXMgbm90IHNldAoKIwojIENhY2hlcwojCiMgQ09ORklHX0ZTQ0FDSEUgaXMg
+bm90IHNldAojIENPTkZJR19GVVNFX0ZTIGlzIG5vdCBzZXQKCiMKIyBDRC1ST00vRFZEIEZpbGVz
+eXN0ZW1zCiMKIyBDT05GSUdfSVNPOTY2MF9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1VERl9GUyBp
+cyBub3Qgc2V0CgojCiMgRE9TL0ZBVC9OVCBGaWxlc3lzdGVtcwojCiMgQ09ORklHX01TRE9TX0ZT
+IGlzIG5vdCBzZXQKIyBDT05GSUdfVkZBVF9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX05URlNfRlMg
+aXMgbm90IHNldAoKIwojIFBzZXVkbyBmaWxlc3lzdGVtcwojCkNPTkZJR19QUk9DX0ZTPXkKQ09O
+RklHX1BST0NfS0NPUkU9eQpDT05GSUdfU1lTRlM9eQpDT05GSUdfREVWUFRTX0ZTX1hBVFRSPXkK
+Q09ORklHX0RFVlBUU19GU19TRUNVUklUWT15CkNPTkZJR19UTVBGUz15CiMgQ09ORklHX1RNUEZT
+X1hBVFRSIGlzIG5vdCBzZXQKIyBDT05GSUdfSFVHRVRMQkZTIGlzIG5vdCBzZXQKIyBDT05GSUdf
+SFVHRVRMQl9QQUdFIGlzIG5vdCBzZXQKQ09ORklHX1JBTUZTPXkKIyBDT05GSUdfQ09ORklHRlNf
+RlMgaXMgbm90IHNldAojIENPTkZJR19SRUxBWUZTX0ZTIGlzIG5vdCBzZXQKCiMKIyBNaXNjZWxs
+YW5lb3VzIGZpbGVzeXN0ZW1zCiMKIyBDT05GSUdfQURGU19GUyBpcyBub3Qgc2V0CiMgQ09ORklH
+X0FGRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19BU0ZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdf
+SEZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfSEZTUExVU19GUyBpcyBub3Qgc2V0CiMgQ09ORklH
+X0JFRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19CRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19F
+RlNfRlMgaXMgbm90IHNldAojIENPTkZJR19DUkFNRlMgaXMgbm90IHNldAojIENPTkZJR19WWEZT
+X0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfSFBGU19GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1FOWDRG
+U19GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1NZU1ZfRlMgaXMgbm90IHNldAojIENPTkZJR19VRlNf
+RlMgaXMgbm90IHNldAoKIwojIE5ldHdvcmsgRmlsZSBTeXN0ZW1zCiMKIyBDT05GSUdfTkZTX0ZT
+IGlzIG5vdCBzZXQKIyBDT05GSUdfTkZTRCBpcyBub3Qgc2V0CiMgQ09ORklHX1NNQl9GUyBpcyBu
+b3Qgc2V0CiMgQ09ORklHX0NJRlMgaXMgbm90IHNldAojIENPTkZJR19OQ1BfRlMgaXMgbm90IHNl
+dAojIENPTkZJR19DT0RBX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfQUZTX0ZTIGlzIG5vdCBzZXQK
+IyBDT05GSUdfOVBfRlMgaXMgbm90IHNldAoKIwojIFBhcnRpdGlvbiBUeXBlcwojCiMgQ09ORklH
+X1BBUlRJVElPTl9BRFZBTkNFRCBpcyBub3Qgc2V0CkNPTkZJR19NU0RPU19QQVJUSVRJT049eQoK
+IwojIE5hdGl2ZSBMYW5ndWFnZSBTdXBwb3J0CiMKQ09ORklHX05MUz15CkNPTkZJR19OTFNfREVG
+QVVMVD0iaXNvODg1OS0xIgpDT05GSUdfTkxTX0NPREVQQUdFXzQzNz15CiMgQ09ORklHX05MU19D
+T0RFUEFHRV83MzcgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfNzc1IGlzIG5vdCBz
+ZXQKQ09ORklHX05MU19DT0RFUEFHRV84NTA9eQojIENPTkZJR19OTFNfQ09ERVBBR0VfODUyIGlz
+IG5vdCBzZXQKIyBDT05GSUdfTkxTX0NPREVQQUdFXzg1NSBpcyBub3Qgc2V0CiMgQ09ORklHX05M
+U19DT0RFUEFHRV84NTcgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODYwIGlzIG5v
+dCBzZXQKIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2MSBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19D
+T0RFUEFHRV84NjIgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODYzIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2NCBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RF
+UEFHRV84NjUgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODY2IGlzIG5vdCBzZXQK
+IyBDT05GSUdfTkxTX0NPREVQQUdFXzg2OSBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFH
+RV85MzYgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfOTUwIGlzIG5vdCBzZXQKIyBD
+T05GSUdfTkxTX0NPREVQQUdFXzkzMiBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFHRV85
+NDkgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODc0IGlzIG5vdCBzZXQKIyBDT05G
+SUdfTkxTX0lTTzg4NTlfOCBpcyBub3Qgc2V0CkNPTkZJR19OTFNfQ09ERVBBR0VfMTI1MD15CiMg
+Q09ORklHX05MU19DT0RFUEFHRV8xMjUxIGlzIG5vdCBzZXQKQ09ORklHX05MU19BU0NJST15CkNP
+TkZJR19OTFNfSVNPODg1OV8xPXkKIyBDT05GSUdfTkxTX0lTTzg4NTlfMiBpcyBub3Qgc2V0CiMg
+Q09ORklHX05MU19JU084ODU5XzMgaXMgbm90IHNldAojIENPTkZJR19OTFNfSVNPODg1OV80IGlz
+IG5vdCBzZXQKIyBDT05GSUdfTkxTX0lTTzg4NTlfNSBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19J
+U084ODU5XzYgaXMgbm90IHNldAojIENPTkZJR19OTFNfSVNPODg1OV83IGlzIG5vdCBzZXQKIyBD
+T05GSUdfTkxTX0lTTzg4NTlfOSBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19JU084ODU5XzEzIGlz
+IG5vdCBzZXQKIyBDT05GSUdfTkxTX0lTTzg4NTlfMTQgaXMgbm90IHNldApDT05GSUdfTkxTX0lT
+Tzg4NTlfMTU9eQojIENPTkZJR19OTFNfS09JOF9SIGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0tP
+SThfVSBpcyBub3Qgc2V0CkNPTkZJR19OTFNfVVRGOD15CgojCiMgUHJvZmlsaW5nIHN1cHBvcnQK
+IwojIENPTkZJR19QUk9GSUxJTkcgaXMgbm90IHNldAoKIwojIEtlcm5lbCBoYWNraW5nCiMKIyBD
+T05GSUdfUFJJTlRLX1RJTUUgaXMgbm90IHNldAojIENPTkZJR19ERUJVR19LRVJORUwgaXMgbm90
+IHNldApDT05GSUdfTE9HX0JVRl9TSElGVD0xNApDT05GSUdfREVCVUdfQlVHVkVSQk9TRT15CkNP
+TkZJR19FQVJMWV9QUklOVEs9eQpDT05GSUdfWDg2X0ZJTkRfU01QX0NPTkZJRz15CkNPTkZJR19Y
+ODZfTVBQQVJTRT15CgojCiMgU2VjdXJpdHkgb3B0aW9ucwojCiMgQ09ORklHX0tFWVMgaXMgbm90
+IHNldAojIENPTkZJR19TRUNVUklUWSBpcyBub3Qgc2V0CgojCiMgQ3J5cHRvZ3JhcGhpYyBvcHRp
+b25zCiMKIyBDT05GSUdfQ1JZUFRPIGlzIG5vdCBzZXQKCiMKIyBIYXJkd2FyZSBjcnlwdG8gZGV2
+aWNlcwojCgojCiMgTGlicmFyeSByb3V0aW5lcwojCiMgQ09ORklHX0NSQ19DQ0lUVCBpcyBub3Qg
+c2V0CkNPTkZJR19DUkMzMj1tCiMgQ09ORklHX0xJQkNSQzMyQyBpcyBub3Qgc2V0CkNPTkZJR19H
+RU5FUklDX0hBUkRJUlFTPXkKQ09ORklHX0dFTkVSSUNfSVJRX1BST0JFPXkKQ09ORklHX1g4Nl9C
+SU9TX1JFQk9PVD15CkNPTkZJR19QQz15Cg==
+
+--Multipart=_Sat__30_Jul_2005_00_49_24_+0200_h93RhWIfZvesaLc5--

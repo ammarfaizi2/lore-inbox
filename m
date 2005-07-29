@@ -1,205 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbVG2Nqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262350AbVG2OMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262573AbVG2Nqu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 09:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVG2Nqu
+	id S262350AbVG2OMw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 10:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVG2OMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 09:46:50 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27620 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262573AbVG2Nqu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 09:46:50 -0400
-Date: Fri, 29 Jul 2005 15:46:43 +0200
-From: Jan Kara <jack@suse.cz>
-To: Mark Bellon <mbellon@mvista.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH]  disk quotas fail when /etc/mtab is symlinked to /proc/mounts
-Message-ID: <20050729134643.GB3718@atrey.karlin.mff.cuni.cz>
-References: <42E97236.6080404@mvista.com>
+	Fri, 29 Jul 2005 10:12:52 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:21637 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S262350AbVG2OMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 10:12:52 -0400
+Date: Fri, 29 Jul 2005 16:12:28 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Regression hunting with git (was: Re: 2.6.13-rc3-mm3)
+Message-ID: <20050729141228.GK5680@kiste.smurf.noris.de>
+References: <20050728025840.0596b9cb.akpm@osdl.org> <200507282111.32970.rjw@sisk.pl> <20050728121656.66845f70.akpm@osdl.org> <200507282340.57905.rjw@sisk.pl> <pan.2005.07.29.07.05.58.992113@smurf.noris.de> <20050729022735.0602ee76.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZMT28BdW279F9lxY"
 Content-Disposition: inline
-In-Reply-To: <42E97236.6080404@mvista.com>
+In-Reply-To: <20050729022735.0602ee76.akpm@osdl.org>
 User-Agent: Mutt/1.5.6+20040907i
+From: Matthias Urlichs <smurf@smurf.noris.de>
+X-Smurf-Spam-Score: -2.5 (--)
+X-Smurf-Whitelist: +relay_from_hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
 
-> If /etc/mtab is a regular file all of the mount options (of a file 
-> system) are written to /etc/mtab by the mount command. The quota tools 
-> look there for the quota strings for their operation. If, however, 
-> /etc/mtab is a symlink to /proc/mounts (a "good thing" in some 
-> environments)  the tools don't write anything - they assume the kernel 
-> will take care of things.
-> 
-> While the quota options are sent down to the kernel via the mount system 
-> call and the file system codes handle them properly unfortunately there 
-> is no code to echo the quota strings into /proc/mounts and the quota 
-> tools fail in the symlink case.
-  Yes, I agree that it's a good think to have quota options in
-/proc/mounts. Doing it per filesystem is not nice but I don't know a
-nice way of doing it a VFS level either...
+--ZMT28BdW279F9lxY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> The attached patchs modify the EXT[2|3] and [X|J]FS codes to add the 
-> necessary hooks. The show_options function of each file system in these 
-> patches currently deal with only those things that seemed related to 
-> quotas; especially in the EXT3 case more can be done (later?).
-> 
-> The EXT3 has added error checking and has two minor changes:
->    The "quota" option is considered part of the older style quotas
->    Journalled quotas and older style quotas are mutually exclusive.
->    - both discussable topics
-  Ack.
+Hi,
 
-> mark
-> 
-> Signed-off-by: Mark Bellon <mbellon@mvista.com>
-> 
-  Thanks for the patch - I have some comments below...
+Andrew Morton:
+> >  Note that if you work from my git import, git has a nice tree bisection
+> >  option.
+>=20
+> Is that documented anywhere?
 
-  <snip>
->  #ifdef CONFIG_QUOTA
-> +static int ext3_show_options(struct seq_file *seq, struct vfsmount *vfs)
-> +{
-> +	struct ext3_sb_info *sbi = EXT3_SB(vfs->mnt_sb);
-> +
-> +	if (sbi->s_mount_opt & EXT3_MOUNT_JOURNAL_DATA)
-> +		seq_puts(seq, ",data=journal");
-> +
-> +	if (sbi->s_mount_opt & EXT3_MOUNT_ORDERED_DATA)
-> +		seq_puts(seq, ",data=ordered");
-> +
-> +	if (sbi->s_mount_opt & EXT3_MOUNT_WRITEBACK_DATA)
-> +		seq_puts(seq, ",data=writeback");
-  Showing 'data' option only when quota is compile is ugly... Please move
-CONFIG_QUOTA inside only around quota specific stuff.
+http://lkml.org/lkml/2005/6/24/234
 
-> +
-> +	if (sbi->s_jquota_fmt)
-> +		seq_printf(seq, ",jqfmt=%s",
-> +		(sbi->s_jquota_fmt == QFMT_VFS_OLD) ? "vfsold": "vfsv0");
-> +
-> +	if (sbi->s_qf_names[USRQUOTA])
-> +		seq_printf(seq, ",usrjquota=%s", sbi->s_qf_names[USRQUOTA]);
-> +
-> +	if (sbi->s_qf_names[GRPQUOTA])
-> +		seq_printf(seq, ",grpjquota=%s", sbi->s_qf_names[GRPQUOTA]);
-> +
-> +	if (sbi->s_mount_opt & EXT3_MOUNT_USRQUOTA)
-> +		seq_puts(seq, ",usrquota");
-> +
-> +	if (sbi->s_mount_opt & EXT3_MOUNT_GRPQUOTA)
-> +		seq_puts(seq, ",grpquota");
-> +
-> +	return 0;
-> +}
->  
->  #define QTYPE2NAME(t) ((t)==USRQUOTA?"user":"group")
->  #define QTYPE2MOPT(on, t) ((t)==USRQUOTA?((on)##USRJQUOTA):((on)##GRPJQUOTA))
-> @@ -572,6 +604,7 @@
->  #ifdef CONFIG_QUOTA
->  	.quota_read	= ext3_quota_read,
->  	.quota_write	= ext3_quota_write,
-> +	.show_options	= ext3_show_options,
-  Probably set this function everytime...
 
-<snip>
+Basically, you do this:
 
-> +		case Opt_quota:
-> +		case Opt_usrquota:
-> +		case Opt_grpquota:
->  		case Opt_usrjquota:
->  		case Opt_grpjquota:
->  		case Opt_offusrjquota:
-> @@ -924,7 +973,6 @@
->  				"EXT3-fs: journalled quota options not "
->  				"supported.\n");
->  			break;
-> -		case Opt_quota:
->  		case Opt_noquota:
->  			break;
-  I'm not sure with the above change.. Previously if you mounted a
-filesystem with 'usrquota' option without a kernel quota support the mount
-succeeded. With your patch it will fail. I agree that that makes more
-sense but I'm not sure it's correct to change a behaviour so suddently.
-Maybe just issue a warning but let the mount succeed.
+$ set -o noclobber
+$ git-rev-tree --bisect ^good1 ^good2 bad > .git/refs/heads/tryN
+$ git checkout tryN
 
->  #endif
-> @@ -962,11 +1010,36 @@
->  		}
->  	}
->  #ifdef CONFIG_QUOTA
-> -	if (!sbi->s_jquota_fmt && (sbi->s_qf_names[USRQUOTA] ||
-> -	    sbi->s_qf_names[GRPQUOTA])) {
-> -		printk(KERN_ERR
-> +	if (sbi->s_qf_names[USRQUOTA] || sbi->s_qf_names[GRPQUOTA]) {
-> +		if ((sbi->s_mount_opt & EXT3_MOUNT_USRQUOTA) || 
-> +		    (sbi->s_mount_opt & EXT3_MOUNT_GRPQUOTA)) {
-> +			printk(KERN_ERR
-> +			"EXT3-fs: only one type of quotas allowed.\n");
-> +
-> +			return 0;
-> +		}
-> +
-> +		if (!sbi->s_jquota_fmt) {
-> +			printk(KERN_ERR
->  			"EXT3-fs: journalled quota format not specified.\n");
-> -		return 0;
-> +
-> +			return 0;
-> +		}
-> +
-> +		if ((sbi->s_mount_opt & EXT3_MOUNT_JOURNAL_DATA) == 0) {
-  This test does not make sense - journaled quota in recent kernels
-works with arbitrary journaling data mode.
+(Initially, "good" is v2.6.12 or whatever version last worked for you;
+ "bad" is "master", thus:
+ $ git-rev-tree --bisect ^v2.6.12 master > .git/refs/heads/tryN
+)
 
-> +			printk(KERN_ERR
-> +	"EXT3-fs: journalled quota specified when data journalling is not.\n");
-> +
-> +			return 0;
-> +		}
-> +	}
-> +	else {
-> +		if (sbi->s_jquota_fmt) {
-> +			printk(KERN_ERR
-> +"EXT3-fs: journalled quota format specified with no journalling enabled.\n");
-> +
-> +			return 0;
-> +		}
->  	}
->  #endif
->  
-> +#if defined(CONFIG_QUOTA)
-> +		case Opt_usrquota:
-> +			set_opt(sbi->s_mount_opt, USRQUOTA);
-> +			break;
-> +
-> +		case Opt_grpquota:
-> +			set_opt(sbi->s_mount_opt, GRPQUOTA);
-> +			break;
-> +
-> +		case Opt_quota:
-> +			set_opt(sbi->s_mount_opt, GRPQUOTA);
-> +			set_opt(sbi->s_mount_opt, USRQUOTA);
-> +			break;
-  The old 'quota' option means the same as 'usrquota' - at least tools
-consider it like that.
+Build kernel, test. If good, add tryN to the list of good kernels, above;
+if bad, replace "bad" with "tryN". N +=3D 1. Repeat.
 
-> +#else
-> +		case Opt_quota:
-> +		case Opt_usrquota:
-> +		case Opt_grpquota:
-> +			printk(KERN_ERR
-> +				"EXT2-fs: quota operations not supported.\n");
-> +
-> +			break;
-> +#endif
-  The same as with ext3 - I don't like this change...
+--=20
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+IT'S HERE AT LAST: Rush job; nobody knew it was coming
 
-  <snip>
+--ZMT28BdW279F9lxY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC6jlM8+hUANcKr/kRAqrDAJ47kDDMGPV1FJeH6YKPvImFeP7qIwCeKB0j
+CnFiWtaJ1dS8hhY3EhM+vhY=
+=3K1p
+-----END PGP SIGNATURE-----
+
+--ZMT28BdW279F9lxY--

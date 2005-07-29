@@ -1,38 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVG2Dai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVG2DcB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbVG2Dai (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 23:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVG2Da0
+	id S262125AbVG2DcB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 23:32:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVG2DcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 23:30:26 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:52937
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261552AbVG2DaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 23:30:24 -0400
-Date: Thu, 28 Jul 2005 20:30:21 -0700 (PDT)
-Message-Id: <20050728.203021.35467760.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, baruch@ev-en.org
-Subject: Re: [2.6 patch] net: Spelling mistakes threshoulds -> thresholds
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050728220410.GG4790@stusta.de>
-References: <20050728220410.GG4790@stusta.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 28 Jul 2005 23:32:01 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:18468 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S262125AbVG2Dbz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 23:31:55 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Syncing single filesystem (slow USB writing)
+Date: Fri, 29 Jul 2005 07:31:20 +0400
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart13697186.CQvKZ53aWo";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200507290731.32694.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Fri, 29 Jul 2005 00:04:10 +0200
+--nextPart13697186.CQvKZ53aWo
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Just simple spelling mistake fixes.
-> 
-> From: aruch Even <baruch@ev-en.org>
-> 
-> Signed-Off-By: Baruch Even <baruch@ev-en.org>
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Mandrake always mounted USB sticks with sync option; it was effectively noo=
+p=20
+except for a patch that implemented limited dsync semantic.
 
-The include/net/tcp.h part of this patch no longer
-applies cleanly.
+Now, when full sync support for FATis in kernel, moutning with sync became=
+=20
+real pain. Writing speed dropped from 3MB/s to 30KB/s in my case (and I am=
+=20
+not alone).
+
+One idea how to improve situation - continue to mount with dsync (having=20
+basically old case) and do frequent sync of filesystem (this culd be starte=
+d=20
+as HAL callout or whatever). Unfortunately, I could not find a way to reque=
+st=20
+a sync (flush) of single mount point or block device. Have I missed=20
+something?
+
+TIA
+
+=2Dandrey
+
+--nextPart13697186.CQvKZ53aWo
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBC6aMTR6LMutpd94wRAkXJAJ9+C/iWQKwFLJpniSgUNQuPCdNIdQCcDS+t
+7bfKCJVAO4J3JZOhMA00n4c=
+=nkPh
+-----END PGP SIGNATURE-----
+
+--nextPart13697186.CQvKZ53aWo--

@@ -1,371 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262524AbVG2Msl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbVG2M6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbVG2Msl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 08:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVG2Msl
+	id S262593AbVG2M6l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 08:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVG2M6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 08:48:41 -0400
-Received: from coderock.org ([193.77.147.115]:51660 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262524AbVG2Msj (ORCPT
+	Fri, 29 Jul 2005 08:58:40 -0400
+Received: from gw.alcove.fr ([81.80.245.157]:27535 "EHLO smtp.fr.alcove.com")
+	by vger.kernel.org with ESMTP id S262593AbVG2M6k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 08:48:39 -0400
-Date: Fri, 29 Jul 2005 14:48:20 +0200
-From: Domen Puncer <domen@coderock.org>
-To: kj <kernel-janitors@lists.osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.6.13-rc4-kj
-Message-ID: <20050729124820.GB25129@homer.coderock.org>
+	Fri, 29 Jul 2005 08:58:40 -0400
+Subject: [PATCH] Input quirk for the Fn key on Powerbooks with an USB
+	keyboard
+From: Stelian Pop <stelian@popies.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Johannes Berg <johannes@sipsolutions.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 29 Jul 2005 14:55:48 +0200
+Message-Id: <1122641749.4521.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A new release from kernel janitors (http://janitor.kernelnewbies.org/).
+Hi,
 
+On newer Apple Powerbooks (post February 2005 ones at least) the ADB
+keyboard has been replaced with an USB one conforming to the HID spec.
 
-Patchset is at http://coderock.org/kj/2.6.13-rc4-kj/
+The 'Fn' modifier key on this keyboard is a soft key reported using an
+application specific hid code. This key should act as a modifier in
+order to make Home/End/Page Up/Page Down etc. work.
 
+The attached patch makes the Fn key report a modifier keycode
+(KEY_RIGHTCTRL) to the input layer by adding a quirk to the USB HID
+input driver. Johannes Berg <johannes@sipsolutions.net> should be
+credited for the original version of this patch.
 
-new in this release:
---------------------
-time_after-drivers_net_eth16i
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/net/eth16i.c : Use of the time_after() macro
+'Right control' is not the best choice for this key, especially since it
+is physically placed on the keyboard on the left bottom corner. However,
+this laptop already has left shift, control, alt and meta (apple) keys,
+and right meta and shift keys. The only modifiers left are 'right
+control' and 'right alt' and the first one was chosen. Choosing an
+already defined modifier key eases the handling of this key especially
+in X (where it can be mapped to SuperL or whatever).
 
-time_after-drivers_net_arcnet_arcnet
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/net/arcnet/arcnet.c : Use of the time_after() macro
+Comments welcomed.
 
-time_after-drivers_net_3c59x
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/net/3c59x.c : Use of the time_after() macro
+Thanks,
 
-time_after-drivers_net_shaper
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/net/shaper.c : Use of the time_before() and time_after() macros
+Stelian.
 
-time_after-drivers_net_seeq8005
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/net/seeq8005.c : Use of the time_before() macro
+Signed-off-by: Stelian Pop <stelian@popies.net>
 
-time_after-drivers_net_ppp_async
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/net/ppp_async.c : Use of the time_after_eq() macro
+ hid-core.c  |    7 +++++++
+ hid-input.c |    8 ++++++++
+ hid.h       |    1 +
+ 3 files changed, 16 insertions(+)
 
-time_after-drivers_net_oaknet
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/net/oaknet.c : Use of the time_after() macro
+Index: linux-2.6.git/drivers/usb/input/hid-core.c
+===================================================================
+--- linux-2.6.git.orig/drivers/usb/input/hid-core.c	2005-07-28 09:35:52.000000000 +0200
++++ linux-2.6.git/drivers/usb/input/hid-core.c	2005-07-28 12:22:31.000000000 +0200
+@@ -1446,6 +1446,10 @@
+  * Alphabetically sorted blacklist by quirk type.
+  */
+ 
++#define USB_VENDOR_ID_APPLE		0x05AC
++#define USB_DEVICE_ID_POWERBOOK_KB_US	0x020E
++#define USB_DEVICE_ID_POWERBOOK_KB_UK	0x020F
++
+ static struct hid_blacklist {
+ 	__u16 idVendor;
+ 	__u16 idProduct;
+@@ -1557,6 +1561,9 @@
+ 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
+ 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
+ 
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_POWERBOOK_KB_US, HID_QUIRK_POWERBOOK_FN_BUTTON },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_POWERBOOK_KB_UK, HID_QUIRK_POWERBOOK_FN_BUTTON },
++
+ 	{ 0, 0 }
+ };
+ 
+Index: linux-2.6.git/drivers/usb/input/hid-input.c
+===================================================================
+--- linux-2.6.git.orig/drivers/usb/input/hid-input.c	2005-07-28 09:35:52.000000000 +0200
++++ linux-2.6.git/drivers/usb/input/hid-input.c	2005-07-28 12:23:14.000000000 +0200
+@@ -106,6 +106,10 @@
+ 			} else
+ 				map_key(KEY_UNKNOWN);
+ 
++			if ((device->quirks & HID_QUIRK_POWERBOOK_FN_BUTTON) &&
++			    (hid_keyboard[usage->hid & HID_USAGE] == KEY_RIGHTCTRL))
++				map_key(KEY_UNKNOWN);
++
+ 			break;
+ 
+ 		case HID_UP_BUTTON:
+@@ -324,6 +328,10 @@
+ 
+ 		default:
+ 		unknown:
++			if ((device->quirks & HID_QUIRK_POWERBOOK_FN_BUTTON) && (usage->hid == 0x00ff0003)) {
++				map_key_clear(KEY_RIGHTCTRL);
++				break;
++			}
+ 			if (field->report_size == 1) {
+ 				if (field->report->type == HID_OUTPUT_REPORT) {
+ 					map_led(LED_MISC);
+Index: linux-2.6.git/drivers/usb/input/hid.h
+===================================================================
+--- linux-2.6.git.orig/drivers/usb/input/hid.h	2005-07-28 09:35:52.000000000 +0200
++++ linux-2.6.git/drivers/usb/input/hid.h	2005-07-28 12:22:31.000000000 +0200
+@@ -242,6 +242,7 @@
+ #define HID_QUIRK_2WHEEL_MOUSE_HACK_7		0x080
+ #define HID_QUIRK_2WHEEL_MOUSE_HACK_5		0x100
+ #define HID_QUIRK_2WHEEL_MOUSE_HACK_ON		0x200
++#define HID_QUIRK_POWERBOOK_FN_BUTTON		0x400
+ 
+ /*
+  * This is the global environment of the parser. This information is
 
-time_after-drivers_media_dvb_ttusb-budget_dvb-ttusb-budget
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c : Use of the time_after_eq() macro
+-- 
+Stelian Pop <stelian@popies.net>
 
-time_after-drivers_char_lp
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/char/lp.c : Use of the time_after() macro
-
-time_after-drivers_char_agp_nvidia-agp
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/char/agp/nvidia-agp.c : Use of the time_before_eq() macro
-
-time_after-drivers_block_floppy
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/block/floppy.c : Use of the time_after() and time_before() macros
-
-time_after-drivers_block_DAC960
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/block/DAC960.c : Use of time_after(), time_after_eq() and time_before() macros
-
-time_after-drivers_scsi_qlogicfc
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Subject: [KJ] [PATCH] drivers/scsi/qlogicfc.c : Use of the time_after() macro
-
-spelling-REPORTING-BUGS
-From: Tobias Klauser <tklauser@nuerscht.ch>
-Subject: [KJ] [TRIVIAL PATCH] Spelling and whitespace fixes for REPORTING-BUGS
-
-fixup-Documentation_filesystems_sysfs.txt
-From: Jan Veldeman <jan@mind.be>
-Subject: [KJ] [PATCH] Driver core: Documentation: use snprintf and strnlen
-
-fixup2-Documentation_filesystems_sysfs.txt
-From: Jan Veldeman <jan@mind.be>
-Subject: [KJ] [PATCH] Driver core: Documentation: fix whitespace between parameters
-
-fixup3-Documentation_filesystems_sysfs.txt
-From: Jan Veldeman <jan@mind.be>
-Subject: [KJ] [PATCH] Driver core: Documentation: use S_IRUSR | ... in stead of 0644
-
-kj_tag
-
-
-
-merged:
--------
-msleep_interruptible-drivers_sbus_char_aurora.patch
-vfree-drivers_scsi_qla2xxx_qla_os.patch
-msleep_interruptible-drivers_sbus_char_envctrl.patch
-ssleep-drivers_scsi_qla1280.patch
-sleep_on-drivers_sbus_char_vfc_i2c.patch
-time_after-drivers_atm_idt77252
-time_after-drivers_net_wan_
-time_after-drivers_net_pcmcia_smc91c92_cs
-sparse-sound_core_memalloc
-sparse-net_netlink_af_netlink
-sparse-include_linux_skbuff.h
-sparse-drivers_atm_firestream
-sparse-drivers_atm_ambassador
-return_code-net_sctp_objcnt
-int_sleep_on-arch_cris_arch-v10_drivers_eeprom.patch
-
-
-dropped:
---------
-remove-pci-find-device-drivers_net_e1000_e1000_main.patch - code changed/gone
-
-
-all patches:
-------------
-min-max-ide_ide-timing.h.patch
-list-for-each-entry-drivers_net_ppp_generic.patch
-list-for-each-entry-fs_jffs_intrep.patch
-list-for-each-entry-fs_namespace.patch
-list-for-each-fs_dcache.patch
-msleep-drivers_ide_ide-tape.patch
-pr_debug-drivers_block_umem.patch
-list-for-each-drivers_net_tulip_de4x5.patch
-min-max-arch_sh_boards_bigsur_io.patch
-min-max-arch_sh_cchips_hd6446x_hd64465_io.patch
-msleep-drivers_block_xd.patch
-msleep-drivers_ide_ide-cs.patch
-for-each-pci-dev-arch_i386_pci_acpi.patch
-function-string-arch-mips.patch
-msleep-drivers_net_wireless_prism54_islpci_dev.patch
-msleep_interruptible-drivers_parport_ieee1284_ops.patch
-msleep_interruptible-drivers_parport_parport_pc.patch
-msleep+msleep_interruptible-drivers_net_tokenring_ibmtr.patch
-pci_dev_present-drivers_ide_pci_alim15x3.patch
-remove-pci-find-device-drivers_net_gt96100eth.patch
-set_current_state-drivers_net_irda_stir4200.patch
-set_current_state-drivers_net_tokenring_tms380tr.patch
-lib-parser-fs_devpts_inode.patch
-comment-drivers_block_floppy.c.patch
-remove_file-arch_arm26_boot_compressed_hw_bse.c.patch
-remove_file-arch_mips_arc_salone.c.patch
-remove_file-arch_mips_pmc_sierra_yosemite_ht_irq.c.patch
-remove_file-arch_ppc_syslib_ppc4xx_pm.c.patch
-remove_file-drivers_parport_parport_arc.c.patch
-remove_file-fs_jffs2_histo.h.patch
-remove_file-include_asm_arm_hardware_linkup_l1110.h.patch
-remove_file-include_asm_mips_gfx.h.patch
-remove_file-include_asm_mips_mach_au1x00_au1100_mmc.h.patch
-remove_file-include_asm_mips_mipsprom.h.patch
-remove_file-include_asm_mips_riscos_syscall.h.patch
-remove_file-include_linux_netfilter_ipv4_ip_logging.h.patch
-remove_file-include_linux_netfilter_ipv6_ip6_logging.h.patch
-vfree-drivers_char_agp_backend.patch
-vfree-fs_reiserfs_super.patch
-msleep-drivers_block_cciss.patch
-msleep-drivers_block_paride_pf.patch
-msleep-drivers_cdrom_sonycd535.patch
-msleep-fs_smbfs_proc.patch
-msleep-net_sunrpc_svcsock.patch
-msleep_interruptible-drivers_block_swim3.patch
-msleep_interruptible-fs_lockd_clntproc.patch
-msleep_ssleep-drivers_block_paride_pcd.patch
-msleep_ssleep-drivers_block_paride_pt.patch
-return_code-drivers_ide_pci_cs5520.patch
-wait_event-drivers_block_ps2esdi.patch
-int_sleep_on-drivers_isdn_capi_capi.patch
-int_sleep_on-drivers_isdn_i4l_isdn_common.patch
-int_sleep_on-drivers_net_tokenring_lanstreamer.patch
-lindent-arch_ppc_4xx_io_serial_sicc.patch
-printk-drivers_acorn_block_fd1772.patch
-printk-drivers_acorn_block_mfmhd.patch
-sleep_on-drivers_block_xd.patch
-sleep_on-drivers_cdrom_sjcd.patch
-wait_event_int-drivers_block_acsi_slm.patch
-wait_event_int_timeout-drivers_block_DAC960.patch
-int_sleep_on-arch_mips_sibyte_sb1250_bcm1250_tbprof.patch
-int_sleep_on-drivers_net_8139too.patch
-int_sleep_on-drivers_net_tokenring_ibmtr.patch
-int_sleep_on-fs_lockd_svc.patch
-pci_register_driver-drivers_ide.patch
-pci_register_driver-drivers_net.patch
-pci_register_driver-drivers_net_arcnet.patch
-pci_register_driver-drivers_net_irda.patch
-pci_register_driver-drivers_net_skfp.patch
-pci_register_driver-drivers_net_tokenring.patch
-pci_register_driver-drivers_net_tulip.patch
-pci_register_driver-drivers_net_wan.patch
-pci_register_driver-drivers_net_wan_lmc.patch
-pci_register_driver-drivers_net_wireless.patch
-pci_register_driver-drivers_parport.patch
-return_code-drivers_ide.patch
-return_code-drivers_isdn_hisax.patch
-return_code-drivers_isdn_i4l.patch
-return_code-drivers_isdn_pcbit.patch
-sleep_on-net_sunrpc_clnt.patch
-int_sleep_on-drivers_cdrom_mcdx.patch
-unused_define-drivers_block_floppy.patch
-printk-drivers_video.patch
-msleep-arch_m68k_atari_time.patch
-msleep-drivers_acpi_osl.patch
-msleep-drivers_block_paride_pg.patch
-msleep-drivers_block_swim_iop.patch
-sparse-fs_cifs_cifssmb.patch
-sparse-fs_affs_super.patch
-sparse-fs_befs_endian.h.patch
-sparse-fs_cifs_cifssmb-2.patch
-sparse-fs_cifs_netmisc.patch
-sparse-fs_ext3_resize.patch
-sparse-fs_hpfs_inode.patch
-sparse-include_linux_smb_fs.h.patch
-printk-drivers_char_watchdog_wdt285.patch
-dma_mask-drivers_media_video_meye.patch
-list_for_each-drivers_macintosh_via-pmu.patch
-dma_mask-drivers_block_cpqarray.patch
-dma_mask-drivers_net.patch
-dma_mask-drivers_scsi.patch
-jiffies_to_msecs-drivers_input_joydev.patch
-printk-drivers_acpi_container.patch
-printk-drivers_acpi_pci_link.patch
-printk-drivers_block_DAC960.patch
-printk-drivers_block_cciss.patch
-printk-drivers_block_paride.patch
-time_after-drivers_net_ne2
-time_after-drivers_net_wireless_strip
-time_after-drivers_net_ne-h8300
-dma_mask-drivers_net_ioc3-eth
-time_after-drivers_net_arm_etherh
-time_after-drivers_net_apne
-time_after-drivers_net_ne
-time_after-drivers_net_zorro8390
-sti_cli-drivers_net_irda_ep7211_ir
-ssleep-arch_ppc_8260_io_fcc_enet
-set_current_state-drivers_char_ip2_i2lib
-set_current_state-drivers_cdrom_sbpcd
-set_current_state-drivers_acpi_osl
-msleep_interruptible-drivers_parport_ieee1284
-warning-fs_eventpoll.c
-warning-fs_devfs_base.c
-warning-fs_cifs_asn1.c
-warning-drivers_isdn_hisax_hisax_fcpcipnp
-warning-drivers_isdn_hisax_diva.c
-return_code-drivers_net_tokenring_olympic
-printk-drivers_net_hp100
-string-arch_cris_arch-v10_drivers_axisflashmap
-size-drivers_isdn_sc_ioctl
-gcc4-fs_ext3_acl.c
-gcc4-fs_ext2_acl.c
-typo-Documentation_early-userspace_README
-typedef-sound_isa_sb_sb16_csp
-sizeof-arch_arm_common_sa1111
-set_current_state-fs_reiserfs_journal
-return_code-drivers_char_applicom
-return-drivers_misc_hdpuftrs_hdpu_cpustate
-return-drivers_input_misc_hp_sdc_rtc
-return-drivers_char_lcd
-remove_macros-sound_isa_sb_sb16_csp
-printk-drivers_block_pktcdvd
-msleep_interruptible-drivers_net_wan_cycx_drv
-msleep_interruptible-drivers_net_ixgb_ixgb_ethtool
-module_param-drivers_net_pci-skeleton
-cleanup-drivers_usb_serial_cypress_m8
-cleanup-drivers_net_wireless_atmel
-bss-drivers_net_bonding_bond_main
-sparse-kernel_audit
-sparse-include_net_bluetooth_bluetooth.h
-sparse-fs_reiserfs_fix_node
-sparse-drivers_char_n_tty
-sparse-drivers_bluetooth_hci_usb
-sparse-drivers_bluetooth_bpa10x
-sparse-drivers_block_ll_rw_blk
-sparse-drivers_block_deadline-iosched
-sparse-drivers_block_cfq-iosched
-sparse-drivers_block_as-iosched
-set_current_state-kernel_module.c
-indent-drivers_char_Makefile
-casts-drivers_usb_serial_usb-serial
-flashpoint_01-remove_unused_things
-flashpoint_02-remove_trivial_wrappers
-flashpoint_03-remove_UCHAR
-flashpoint_04-remove_USHORT
-flashpoint_05-remove_UINT
-flashpoint_06-remove_ULONG
-flashpoint_07-remove_ushort_ptr
-flashpoint_08-use_standart_types
-flashpoint_09-untypedef_SCCB
-flashpoint_10-untypedef_SCCBMgr_info
-flashpoint_11-untypedef_SCCBMgr_tar_info
-flashpoint_12-untypedef_NVRAMInfo
-flashpoint_13-untypedef_SCCBcard
-flashpoint_14-lindent
-flashpoint_15-return_parenthesis
-wait_event-drivers_char_drm_i830_irq
-time_after-drivers_usb_input_ati_remote
-time_after-drivers_scsi_
-time_after-drivers_net_tulip_pnic
-time_after-drivers_net_tokenring_olympic
-time_after-drivers_net_tokenring_lanstreamer
-time_after-drivers_net_pcmcia_3c589_cs
-time_after-drivers_net_ns83820
-time_after-drivers_net_hp100
-time_after-drivers_net_hamradio_mkiss
-time_after-drivers_net_hamradio_baycom_epp
-time_after-drivers_net_3c523
-time_after-drivers_ieee1394_hosts
-time_after-drivers_ide_ide-tape
-spelling-Documentation_
-sparse-mm_swap_state
-sparse-include_linux_radix-tree.h
-sparse-fs_xfs_linux-2.6_kmem
-sparse-drivers_net_sungem.h
-sparse-drivers_net_ns83820
-sparse-drivers_net_bonding_bond_main
-sparse-drivers_md_dm-crypt
-sparse-drivers_base_dmapool
-return_code-drivers_net_wireless_atmel
-return_code-drivers_mca_mca-proc
-return_code-drivers_block_cpqarray
-return_code-drivers_block_cciss
-return_code-arch_sparc_kernel_ioport
-return_code-arch_sh_
-return_code-arch_sh64_
-return_code-arch_parisc_kernel_pci-dma
-return_code-arch_arm_
-return_code-arch_arm26_kernel_ecard
-remove_brackets-drivers_acpi_system
-printk-arch_um_
-pci_dma_supported-drivers_media_video_bttv-driver
-msleep-drivers_telephony_ixj
-msleep-drivers_scsi_qla2xxx_qla_os
-msleep-drivers_scsi_osst
-msleep-drivers_scsi_lpfc_lpfc_scsi
-msleep-drivers_block_cciss
-msleep-arch_x86_64_kernel_smpboot
-msleep-arch_i386_kernel_smpboot
-gcc4-include_asm-x86_64_bitops.h
-gcc4-drivers_net_wireless_wavelan_cs.c
-dma_mask-drivers_block_umem
-cli-drivers_net_fec
-time_after-drivers_net_eth16i
-time_after-drivers_net_arcnet_arcnet
-time_after-drivers_net_3c59x
-time_after-drivers_net_shaper
-time_after-drivers_net_seeq8005
-time_after-drivers_net_ppp_async
-time_after-drivers_net_oaknet
-time_after-drivers_media_dvb_ttusb-budget_dvb-ttusb-budget
-time_after-drivers_char_lp
-time_after-drivers_char_agp_nvidia-agp
-time_after-drivers_block_floppy
-time_after-drivers_block_DAC960
-time_after-drivers_scsi_qlogicfc
-spelling-REPORTING-BUGS
-fixup-Documentation_filesystems_sysfs.txt
-fixup2-Documentation_filesystems_sysfs.txt
-fixup3-Documentation_filesystems_sysfs.txt
-kj_tag

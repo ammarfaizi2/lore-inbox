@@ -1,102 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262783AbVG2UwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbVG2UyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262783AbVG2UwD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 16:52:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbVG2UtX
+	id S262839AbVG2UyG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 16:54:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVG2UwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 16:49:23 -0400
-Received: from web31704.mail.mud.yahoo.com ([68.142.201.184]:58500 "HELO
-	web31704.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S262841AbVG2Usp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 16:48:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=C6MjsJC16PxCQ91JNkpgXUK4lIHVrPkjih2lNUoheUC8x34fTxxa/K+rMP6Jd5WqhCJWqO8YpC9krCXjjTPiafHfxrPpA9UobGYOAjnwUFDhm/UrpeLTOJCRs1Y4YG25sje+C4FbmugEHcgBuXW2J4ROKLADthyrDJBgpVDUmMc=  ;
-Message-ID: <20050729204845.84212.qmail@web31704.mail.mud.yahoo.com>
-Date: Fri, 29 Jul 2005 13:48:44 -0700 (PDT)
-From: Doug Reiland <d_reiland@yahoo.com>
-Subject: Re: RFC: 64-bit resources and changes to pci, ioremap, ...
-To: Kumar Gala <kumar.gala@freescale.com>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <D72313E7-E2EC-4066-AD2A-02DAFE66B7E6@freescale.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 29 Jul 2005 16:52:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57283 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262839AbVG2Uv3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 16:51:29 -0400
+Date: Fri, 29 Jul 2005 13:51:20 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Matt Mackall <mpm@selenic.com>, Michael Kerrisk <mtk-manpages@gmx.net>,
+       mingo@elte.hu, linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
+       akpm@osdl.org
+Subject: Re: Broke nice range for RLIMIT NICE
+Message-ID: <20050729205120.GJ19052@shell0.pdx.osdl.net>
+References: <32710.1122563064@www32.gmx.net> <20050729061318.GD7425@waste.org> <20050729201836.GH19052@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729201836.GH19052@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-current pentium4 have this problem as well. Shouldn't
-need to use the emt64 (x86_64) mode. It takes i/o
-bridges and MCH to support it, but the latest Intel
-ones do. However, I am pretty sure BIOSes wouldn't
-assign the pci/pci-e addresses > 4GIG so most are not
-impacted.
+* Chris Wright (chrisw@osdl.org) wrote:
+> Yes, this requires updated pam patch.
 
+Here's the updated pam patch.  I left the lower end at 0 rather than 1,
+since it's no harm.
 
---- Kumar Gala <kumar.gala@freescale.com> wrote:
-
-> As I started to update the existing patches to make
-> struct resource  
-> have 64-bit start and end values I started to see
-> all the places that  
-> this effects and was hoping to get some discussion
-> on what direction  
-> we want to take.
-> 
-> One of the main reasons to make this change is to
-> handle processors  
-> that have larger physical address space than
-> effective.  A number of  
-> higher-end embedded processors are starting to
-> support larger  
-> physical address space while still having a 32-bit
-> effective  
-> address.  I was wondering if any x86 variants
-> support this type of  
-> feature?
-> 
-> The main issue that I'm starting to see is that the
-> concept of a  
-> physical address from the processors point of view
-> needs to be  
-> consistent throughout all subsystems of the kernel. 
-> Currently the  
-> major usage of struct resource is with the PCI
-> subsystem and PCI  
-> drivers.  The following are some questions that I
-> was hoping to get  
-> answers to and discussion around:
-> 
-> * How many 32-bit systems support larger than 32-bit
-> physical  
-> addresses (I know newer PPCs do)?
-> * How many 32-bit systems support a 64-bit PCI
-> address space?
-> * Should ioremap and variants start taking 64-bit
-> physical addresses?
-> * Do we make this an arch option and wrap start and
-> end in a typedef  
-> similar to pte_t and provide accessor macros to
-> ensure proper use?
-> 
-> Andrew has also asked me to post size comparisons of
-> drivers/*/*.o  
-> building allmodconfig with 32-bit resources and
-> 64-bit resources to  
-> see what the size growth is.  I'll post logs for
-> people to take a  
-> look at in a followup email.
-> 
-> - Kumar
-> 
-
-
-
-		
-____________________________________________________
-Start your day with Yahoo! - make it your home page 
-http://www.yahoo.com/r/hs 
+--- Linux-PAM-0.77/modules/pam_limits/pam_limits.c.prio	2005-01-14 10:47:03.000000000 -0800
++++ Linux-PAM-0.77/modules/pam_limits/pam_limits.c	2005-01-14 10:55:13.000000000 -0800
+@@ -39,6 +39,11 @@
+ #include <grp.h>
+ #include <pwd.h>
  
++/* Hack to test new rlimit values */
++#define RLIMIT_NICE	13
++#define RLIMIT_RTPRIO	14
++#define RLIM_NLIMITS	15
++
+ /* Module defines */
+ #define LINE_LENGTH 1024
+ 
+@@ -293,6 +298,10 @@ static void process_limit(int source, co
+     else if (strcmp(lim_item, "locks") == 0)
+ 	limit_item = RLIMIT_LOCKS;
+ #endif
++    else if (strcmp(lim_item, "rt_priority") == 0)
++	limit_item = RLIMIT_RTPRIO;
++    else if (strcmp(lim_item, "nice") == 0)
++	limit_item = RLIMIT_NICE;
+     else if (strcmp(lim_item, "maxlogins") == 0) {
+ 	limit_item = LIMIT_LOGIN;
+ 	pl->flag_numsyslogins = 0;
+@@ -360,6 +369,19 @@ static void process_limit(int source, co
+         case RLIMIT_AS:
+             limit_value *= 1024;
+             break;
++        case RLIMIT_NICE:
++            limit_value = 20 - limit_value;
++            if (limit_value > 40)
++		limit_value = 40;
++	    if (limit_value < 0)
++		limit_value = 0;
++            break;
++        case RLIMIT_RTPRIO:
++            if (limit_value > 99)
++		limit_value = 99;
++	    if (limit_value < 0)
++		limit_value = 0;
++            break;
+     }
+ 
+     if ( (limit_item != LIMIT_LOGIN)

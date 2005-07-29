@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262923AbVG2WYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262880AbVG2WYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262923AbVG2WYV (ORCPT <rfc822;willy@w.ods.org>);
+	id S262880AbVG2WYV (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 29 Jul 2005 18:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbVG2WVi
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVG2WVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 18:21:38 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:58578 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262904AbVG2WVT (ORCPT
+	Fri, 29 Jul 2005 18:21:48 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:42392 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262902AbVG2WU5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 18:21:19 -0400
-Message-ID: <42EAABD1.8050903@pobox.com>
-Date: Fri, 29 Jul 2005 18:21:05 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Gaston, Jason D" <jason.d.gaston@intel.com>
-CC: mj@ucw.cz, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410>
-In-Reply-To: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 29 Jul 2005 18:20:57 -0400
+Date: Fri, 29 Jul 2005 15:20:49 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] String conversions for memory policy
+Message-Id: <20050729152049.4b172d78.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
+References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.6.4; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gaston, Jason D wrote:
-> This define is not actually used anywhere that I know of.  I just wanted
-> to be consistent and correct, following what was previously done.  I
-> have been wondering if I should be adding devices to the pci_ids.h file
-> that are not being currently used.  It seems like most drivers are not
-> using these defines and are just using the DID's directly.  In the
-> future, should I only be add devices that are actually using the defines
-> somewhere?
+Hmmm ... my previous reaction to this conversion code, when you posted
+an ancestor of this patch on linux-mm, got buried in the crypically
+terse term 'complex API', and that thread went on to discuss matters
+of greater substance, such as whether one thread could or should
+manipulate the memory policies of another.
 
-There's no clear policy, but that is my general recommendation:  Just 
-add IDs to pci.ids at sourceforge.net as soon as their public, and then, 
-add constants to include/linux/pci_ids.h as they are required in the code.
+I guess it's time I dealt directly with this code ...
 
-I would -prefer- that this be kernel policy, but I can only speak for 
-IDs used [or not] in my drivers.  It just seems silly to add constants 
-that are never used, though.
+My first suspicion on reading it is that it might partially duplicate
+some string conversion code and syntax that is already present in
+the kernel for other purposes.  For example the nodelists might
+replicate the lists of numbers supported by bitmap_scnlistprintf
+and bitmap_parselist.
 
-[speaking to the audience]  I wouldn't mind if someone did a pass 
-through pci_ids.h and removed all the constants that are not being used. 
-  If constants are not being used, it's IMHO more appropriate to store 
-that info in pci.ids.
+However, since no documentation is presented to describe this new
+micro-micro-language for describing memory policies, it is difficult to
+know what the syntax is, without reverse engineering it from the code.
 
-	Jeff
+So ... how about documenting this string format, then we can discuss
+both the syntax and its implementation.
 
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVG2Gzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVG2G5B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVG2Gzl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 02:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVG2Gzk
+	id S261941AbVG2G5B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 02:57:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbVG2G5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 02:55:40 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:63643 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261642AbVG2Gzh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 02:55:37 -0400
-Subject: Re: [PATCH 0/5] Add kernel AIO support for POSIX AIO
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: "linux-aio kvack.org" <linux-aio@kvack.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1122565588.2019.79.camel@frecb000686>
-References: <1122565588.2019.79.camel@frecb000686>
-Date: Fri, 29 Jul 2005 08:54:25 +0200
-Message-Id: <1122620065.2019.90.camel@frecb000686>
+	Fri, 29 Jul 2005 02:57:01 -0400
+Received: from main.gmane.org ([80.91.229.2]:62944 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261941AbVG2Gzx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 02:55:53 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: 2.6.13-rc3-mm3 question
+Date: Fri, 29 Jul 2005 08:55:22 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2005.07.29.06.55.19.942111@smurf.noris.de>
+References: <20050728194334.4f5b3f22.astralstorm@gorzow.mm.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/07/2005 09:07:41,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/07/2005 09:07:43,
-	Serialize complete at 29/07/2005 09:07:43
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-28 at 17:46 +0200, Sébastien Dugué wrote:
-> infrastructure to be used by user level libraries aiming at implementing
-> a POSIX compliant API on top of this kernel support.
-> 
->   This patchset is comprised of 5 patches, each implementing a specific
-> functionality:
-> 
-> 	- aiomaxevents: adds a sysctl variable for setting the default 
-> 	  AIO context event ring size at runtime. This tunable is 
-> 	  accessible via /proc/sys/fs/posix-aio-default-max-nr.
-> 
-> 	- aioevent: adds support for request completion notification.
-> 
-> 	- lioevent: adds support for list of requests completion 
-> 	  notification.
-> 
-> 	- liowait: adds support for the POSIX listio LIO_WAIT mechanism.
-> 
-> 	- cancelfd: adds support for cancellation against a file 
-> 	  descriptor.
-> 
->  These patches apply cleanly on a vanilla 2.6.12 kernel tree and should 
-> be applied in the order shown before.
-> 
+Hi, Radoslaw "AstralStorm" Szkodzinski wrote:
 
+> I wonder which git version is linus.patch updating to
 
-  Sorry forgot to credit Laurent Vivier as the main author of these
-patches.
+Note, if you want -mm as a nice shiny parent-linked git tree, just pull
+from http://www.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git
+(the whichever-mm-release-you-want branch).
 
-  Sébastien.
+I can import other patchsets that way; just ping me.
 
 -- 
-------------------------------------------------------
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+Nature is the chart of God, mapping out all His attributes; art is the
+shadow of His wisdom, and copieth His resources.
+					-- Tupper
 
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
-
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-  
-------------------------------------------------------
 

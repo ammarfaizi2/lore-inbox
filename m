@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262880AbVG2WYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262901AbVG2W3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262880AbVG2WYV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 18:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVG2WVs
+	id S262901AbVG2W3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 18:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbVG2W0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 18:21:48 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:42392 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262902AbVG2WU5 (ORCPT
+	Fri, 29 Jul 2005 18:26:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2269 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262902AbVG2WZC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 18:20:57 -0400
-Date: Fri, 29 Jul 2005 15:20:49 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] String conversions for memory policy
-Message-Id: <20050729152049.4b172d78.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
-References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.6.4; i686-pc-linux-gnu)
+	Fri, 29 Jul 2005 18:25:02 -0400
+Date: Fri, 29 Jul 2005 15:26:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: jason.d.gaston@intel.com, mj@ucw.cz, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
+Message-Id: <20050729152648.2c2fe390.akpm@osdl.org>
+In-Reply-To: <42EAABD1.8050903@pobox.com>
+References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410>
+	<42EAABD1.8050903@pobox.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm ... my previous reaction to this conversion code, when you posted
-an ancestor of this patch on linux-mm, got buried in the crypically
-terse term 'complex API', and that thread went on to discuss matters
-of greater substance, such as whether one thread could or should
-manipulate the memory policies of another.
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> [speaking to the audience]  I wouldn't mind if someone did a pass 
+> through pci_ids.h and removed all the constants that are not being used. 
+>   If constants are not being used, it's IMHO more appropriate to store 
+> that info in pci.ids.
 
-I guess it's time I dealt directly with this code ...
+It looks like Greg is planning on nuking pci.ids.
 
-My first suspicion on reading it is that it might partially duplicate
-some string conversion code and syntax that is already present in
-the kernel for other purposes.  For example the nodelists might
-replicate the lists of numbers supported by bitmap_scnlistprintf
-and bitmap_parselist.
 
-However, since no documentation is presented to describe this new
-micro-micro-language for describing memory policies, it is difficult to
-know what the syntax is, without reverse engineering it from the code.
+>From owner-linux-pci@atrey.karlin.mff.cuni.cz Sat Jul 16 21:07:30 2005
+Date: Sun, 17 Jul 2005 04:22:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: mj@ucw.cz
+Subject: PCI: remove CONFIG_PCI_NAMES
+Message-ID: <20050717022220.GC3613@stusta.de>
 
-So ... how about documenting this string format, then we can discuss
-both the syntax and its implementation.
+This patch removes CONFIG_PCI_NAMES.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ Documentation/feature-removal-schedule.txt |    9 
+ MAINTAINERS                                |    7 
+ arch/alpha/kernel/sys_marvel.c             |    5 
+ arch/ppc64/kernel/eeh.c                    |   31 
+ arch/ppc64/kernel/iSeries_VpdInfo.c        |    5 
+ arch/ppc64/kernel/pci.c                    |    1 
+ drivers/char/drm/drmP.h                    |    4 
+ drivers/infiniband/hw/mthca/mthca_main.c   |    8 
+ drivers/infiniband/hw/mthca/mthca_reset.c  |    8 
+ drivers/net/irda/vlsi_ir.h                 |    6 
+ drivers/pci/Kconfig                        |   17 
+ drivers/pci/Makefile                       |   18 
+ drivers/pci/gen-devlist.c                  |  132 
+ drivers/pci/names.c                        |  137 
+ drivers/pci/pci.ids                        |10180 -----------------------------
+ drivers/pci/probe.c                        |    2 
+ drivers/pci/proc.c                         |   12 
+ drivers/usb/core/hcd-pci.c                 |    4 
+ drivers/video/nvidia/nvidia.c              |    4 
+ drivers/video/riva/fbdev.c                 |    4 
+ include/linux/pci.h                        |   14 
+ 21 files changed, 32 insertions(+), 10576 deletions(-)
+

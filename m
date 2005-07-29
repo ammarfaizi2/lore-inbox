@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVG1Gs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVG1GxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVG1Gs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 02:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVG1Gs7
+	id S261298AbVG1GxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 02:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVG1GxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 02:48:59 -0400
-Received: from [194.90.237.34] ([194.90.237.34]:64228 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261291AbVG1Gs5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 02:48:57 -0400
-Date: Thu, 28 Jul 2005 09:48:59 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       mj@ucw.cz, openib-general@openib.org
-Subject: Re: [PATCH] arch/xx/pci: remap_pfn_range -> io_remap_pfn_range
-Message-ID: <20050728064859.GA11644@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20050725223200.GA1545@mellanox.co.il> <20050728042607.GA12799@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050728042607.GA12799@suse.de>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 28 Jul 2005 02:53:25 -0400
+Received: from [218.81.174.150] ([218.81.174.150]:26377 "HELO shinyfeet.com")
+	by vger.kernel.org with SMTP id S261298AbVG1GxY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 02:53:24 -0400
+Message-ID: <289301c593c3$67276cf0$e59f1956@atwork>
+From: <atwork@shinyfeet.com>
+To: "Webmaster" <linux-kernel@vger.kernel.org>
+Subject: Awsome site - check this out 
+Date: Thu, 28 Jul 2005 22:26:30 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1158
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Greg KH <gregkh@suse.de>:
-> Subject: Re: [PATCH] arch/xx/pci: remap_pfn_range -> io_remap_pfn_range
-> 
-> On Tue, Jul 26, 2005 at 01:32:00AM +0300, Michael S. Tsirkin wrote:
-> > Greg, Martin, does the following make sense?
-> > If it does, should other architectures be updated as well?
-> > 
-> Hm, you do realize that io_remap_pfn_range() is the same thing as
-> remap_pfn_range() on i386, right?
-> 
-> So, why would this patch change anything?
-> 
-> thanks,
-> 
-> greg k-h
-> 
+hello,
 
-It doesnt change any behaviour.
-Its a style issue I'm trying to fix: even in arch specific code, isnt it better
-to use a generic io_remap_pfn_range to map PCI memory?
+Get unlimited downloads of your favorite movies, 
+music, games and software for f.ree
 
--- 
-MST
+There is a great new site on the net that provides 
+you with the software and a detailed how to guide 
+for getting unlimited downloads of all your 
+favorite movies, music, software and more!
+
+Start downloading now visit the link below for 
+more information:
+
+http://www.expandingyourbrand.com/php/ct.php?c=4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================================
+Kindly note: This is a commercial solicitation, if 
+you wish to be excluded from future notifications 
+visit the link below for exclusion:
+http://www.expandingyourbrand.com/unsubscribe.htm
+
+Respire Marketing BP 2371 C/15 Av Rwakadingi Kinshasa
+===========================================	
+

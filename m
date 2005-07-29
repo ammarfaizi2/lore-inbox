@@ -1,151 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVG2Td4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262776AbVG2TjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbVG2Td4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 15:33:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbVG2Tdk
+	id S262776AbVG2TjE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 15:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVG2Tgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 15:33:40 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:394 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262741AbVG2TbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 15:31:19 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i386 io_apic.c: Memorize at bootup where the i8259 is
- connected
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 29 Jul 2005 13:31:07 -0600
-Message-ID: <m11x5h2yv8.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 29 Jul 2005 15:36:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9133 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262693AbVG2Tem (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 15:34:42 -0400
+Date: Fri, 29 Jul 2005 12:33:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Thonke <tk-shockwave@web.de>
+Cc: iogl64nx@gmail.com, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: 2.6.13-rc3-mm3
+Message-Id: <20050729123330.2fcfb751.akpm@osdl.org>
+In-Reply-To: <42EA4FCC.7030600@web.de>
+References: <20050728025840.0596b9cb.akpm@osdl.org>
+	<42E96A42.7060405@gmail.com>
+	<20050728164640.062286fe.akpm@osdl.org>
+	<42EA4FCC.7030600@web.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Thonke <tk-shockwave@web.de> wrote:
+>
+> Andrew Morton schrieb:
+> > Michael Thonke <iogl64nx@gmail.com> wrote:
+> >> here again I have two problems. With 2.6.13-rc3-mm3 I have problems 
+> >>  using my SATA drives on Intel ICH6.
+> >>  The kernel can't route there IRQs or can't discover them. the option 
+> >>  irqpoll got them to work now.
+> >>  The problem is new because 2.6.13-rc3[-mm1,mm2] work without any problems.
+> > 
+> > OK.  Please generate the full dmesg output for -mm2 and for -mm3 and run
+> > `diff -u dmesg.mm2 dmesg.mm3' and send it?  And keep those files because we
+> > may end up needing to add them to an acpi bugzilla entry ;)
+> 
+> Well I did a little mistake..it only worked correctly up to
+> 2.6.13-rc3-mm1 but this dmesg output I have.
+> 
+> Well as I save mm[2,3] are unable to setup the correct IRQs for the
+> devices..and please note that 2.6.13-rc3-mm3 only booted with irqpoll so
+> its in the dmesg output "dmesg.mm3"
+> Normaly the IRQ routed to something about 1xx now they are 1-21?! Caused
+> by irqpoll?
+> 
 
-Currently we attempt to restore virtual wire mode on reboot, which
-only works if we can figure out where the i8259 is connected.  This
-is very useful when we kexec another kernel and likely helpful
-when dealing with a BIOS that make assumptions about how the system is setup.
+Are these problems only present in -mm kernels?  Does 2.6.13-rc4 work OK?
 
-Since the acpi MADT table does not provide the location where the i8259
-is connected we have to look at the hardware to figure it out.
+> > Odd trace.  Do you have CONFIG_KALLSYMS enabled?  If not, please turn it on.
+> 
+> Mh I tried but my system freezes on boot then. And screen leaves blank.
+> > 
 
-Most systems have the i8259 connected the local apic of the cpu so
-won't be affected but people running Opteron and some serverworks chipsets
-should be able to use kexec now.
+Oh geeze.
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
+@@ -53,10 +23,18 @@
+ Enabling fast FPU save and restore... done.
+ Enabling unmasked SIMD FPU exception support... done.
+ Checking 'hlt' instruction... OK.
++    ACPI-0287: *** Error: Region SystemMemory(0) has no handler
++    ACPI-0127: *** Error: acpi_load_tables: Could not load namespace: AE_NOT_EXIST
++    ACPI-0136: *** Error: acpi_load_tables: Could not load tables: AE_NOT_EXIST
++ACPI: Unable to load the System Description Tables
+ ENABLING IO-APIC IRQs
+-..TIMER: vector=0x31 pin1=2 pin2=0
++..TIMER: vector=0x31 pin1=2 pin2=-1
+ NET: Registered protocol family 16
+ PCI: Using configuration type 1
++ACPI: Subsystem revision 20050708
++ACPI: Interpreter disabled.
 
- arch/i386/kernel/io_apic.c |   52 ++++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 47 insertions(+), 5 deletions(-)
+Well it looks like ACPI committed suicide, so there's probably not much
+point looking at the other things until that gets addressed.
 
-17388b65d11d4e9db0a1f716895f15a5fa0ec2b0
-diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
---- a/arch/i386/kernel/io_apic.c
-+++ b/arch/i386/kernel/io_apic.c
-@@ -46,6 +46,9 @@
- int (*ioapic_renumber_irq)(int ioapic, int irq);
- atomic_t irq_mis_count;
- 
-+/* Where if anywhere is the i8259 connect in external int mode */
-+static int ioapic_i8259_pin = -1;
-+
- static DEFINE_SPINLOCK(ioapic_lock);
- 
- /*
-@@ -748,7 +751,7 @@ static int find_irq_entry(int apic, int 
- /*
-  * Find the pin to which IRQ[irq] (ISA) is connected
-  */
--static int find_isa_irq_pin(int irq, int type)
-+static int __init find_isa_irq_pin(int irq, int type)
- {
- 	int i;
- 
-@@ -1599,6 +1602,44 @@ void /*__init*/ print_PIC(void)
- 
- #endif  /*  0  */
- 
-+static void __init find_i8259_pin(void)
-+{
-+	struct IO_APIC_route_entry entry;
-+	unsigned long flags;
-+	int pin, pins;
-+
-+	ioapic_i8259_pin = -1;
-+
-+	/* Find the number of pins on the primary ioapic */
-+	spin_lock_irqsave(&ioapic_lock, flags);
-+	pins = ((io_apic_read(0, 0x01) >> 16) & 0xff) + 1;
-+	spin_unlock_irqrestore(&ioapic_lock, flags);
-+
-+	/* See if any of the pins is in ExtINT mode */
-+	for(pin = 0; pin < pins; pin++) {
-+		spin_lock_irqsave(&ioapic_lock, flags);
-+		*(((int *)&entry) + 0) = io_apic_read(0, 0x10 + 2 * pin);
-+		*(((int *)&entry) + 1) = io_apic_read(0, 0x11 + 2 * pin);
-+		spin_unlock_irqrestore(&ioapic_lock, flags);
-+
-+		/* If the interrupt line is enabled and in ExtInt mode 
-+		 * I have found the pin where the i8259 is connected.
-+		 */
-+		if ((entry.mask == 0) && (entry.delivery_mode == dest_ExtINT)) {
-+			ioapic_i8259_pin = pin;
-+			break;
-+		}
-+	}
-+
-+	/* If we could not find an appropriate pin by looking at the ioapic
-+	 * the i8259 probably isn't connected to the ioapic but give
-+	 * the mptable a chance anyway.
-+	 */
-+	if (ioapic_i8259_pin == -1) {
-+		ioapic_i8259_pin = find_isa_irq_pin(0, mp_ExtINT);
-+	}
-+}
-+
- static void __init enable_IO_APIC(void)
- {
- 	union IO_APIC_reg_01 reg_01;
-@@ -1641,11 +1682,11 @@ void disable_IO_APIC(void)
- 	clear_IO_APIC();
- 
- 	/*
--	 * If the i82559 is routed through an IOAPIC
-+	 * If the i8259 is routed through an IOAPIC
- 	 * Put that IOAPIC in virtual wire mode
- 	 * so legacy interrups can be delivered.
- 	 */
--	pin = find_isa_irq_pin(0, mp_ExtINT);
-+	pin = ioapic_i8259_pin;
- 	if (pin != -1) {
- 		struct IO_APIC_route_entry entry;
- 		unsigned long flags;
-@@ -1657,7 +1698,7 @@ void disable_IO_APIC(void)
- 		entry.polarity        = 0; /* High */
- 		entry.delivery_status = 0;
- 		entry.dest_mode       = 0; /* Physical */
--		entry.delivery_mode   = 7; /* ExtInt */
-+		entry.delivery_mode   = dest_ExtINT; /* ExtInt */
- 		entry.vector          = 0;
- 		entry.dest.physical.physical_dest = 0;
- 
-@@ -2195,7 +2236,7 @@ static inline void check_timer(void)
- 	enable_8259A_irq(0);
- 
- 	pin1 = find_isa_irq_pin(0, mp_INT);
--	pin2 = find_isa_irq_pin(0, mp_ExtINT);
-+	pin2 = ioapic_i8259_pin;
- 
- 	printk(KERN_INFO "..TIMER: vector=0x%02X pin1=%d pin2=%d\n", vector, pin1, pin2);
- 
-@@ -2289,6 +2330,7 @@ static inline void check_timer(void)
- 
- void __init setup_IO_APIC(void)
- {
-+	find_i8259_pin();
- 	enable_IO_APIC();
- 
- 	if (acpi_ioapic)
+Would you have time to raise a kernel bugzilla entry for this?  Raise it
+against the ACPI AML interpreter, version 20050708 and mention the above
+failure.  The output of acpidump (from
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/pmtools-20050727.tar.gz)
+will probably be asked for.
+
+Thanks.

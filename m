@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262487AbVG2Hs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbVG2HtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262487AbVG2Hs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 03:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVG2Hq7
+	id S262501AbVG2HtF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 03:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbVG2HtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 03:46:59 -0400
-Received: from ns1.suse.de ([195.135.220.2]:3810 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262487AbVG2HoV (ORCPT
+	Fri, 29 Jul 2005 03:49:00 -0400
+Received: from ns2.suse.de ([195.135.220.15]:16791 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262482AbVG2Hqx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 03:44:21 -0400
-Date: Fri, 29 Jul 2005 09:44:19 +0200
+	Fri, 29 Jul 2005 03:46:53 -0400
+Date: Fri, 29 Jul 2005 09:46:47 +0200
 From: Andi Kleen <ak@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64: sync_tsc fix the race (so we can boot)
-Message-ID: <20050729074419.GB3726@bragg.suse.de>
-References: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, akpm@zip.com.au, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] x86_64: fix cpu_to_node setup for sparse apic_ids
+Message-ID: <20050729074647.GC3726@bragg.suse.de>
+References: <20050728011540.GA23923@localhost.localdomain> <20050727182445.52be6000.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <20050727182445.52be6000.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 27, 2005 at 10:03:04PM -0600, Eric W. Biederman wrote:
-> I believe this patch suffers from apicid versus logical cpu number confusion.
-> I copied the basic logic from smp_send_reschedule and I can't find where
-> that translates from the logical cpuid to apicid.  So it isn't quite
-> correct yet.  It should be close enough that it shouldn't be too hard
-> to finish it up.
+On Wed, Jul 27, 2005 at 06:24:45PM -0700, Andrew Morton wrote:
+> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+> >
+> > While booting with SMT disabled in bios, when using acpi srat to setup
+> > cpu_to_node[],  sparse apic_ids create problems.  Here's a fix for that.
+> > 
 > 
-> More bug fixes after I have slept but I figured I needed to get this
-> one out for review.
+> Again, I don't have enough info here to judge the urgency of this patch.
 
-Thanks looks good. This should fix the unexplained
-hang for various people. Logical<->apicid  is actually ok, the low
-level _mask function takes care of that (it differs depending on the 
-APIC mode anyways) 
+The patch is broken, don't apply please.
 
-There are some style problems, but that can be fixed later.
-
-How did you track that nasty it down? 
+Ravi, there is no reason the order of CPUs in SRAT has anything to do
+with the order CPUs are brought up.
 
 -Andi
-

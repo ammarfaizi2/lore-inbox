@@ -1,76 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbVG2QWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVG2QYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbVG2QWM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 12:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbVG2QWB
+	id S262652AbVG2QYP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 12:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbVG2QWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 12:22:01 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:52866 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262648AbVG2QVl (ORCPT
+	Fri, 29 Jul 2005 12:22:12 -0400
+Received: from L8R.net ([216.58.41.32]:52701 "EHLO l8r.net")
+	by vger.kernel.org with ESMTP id S262639AbVG2QUO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 12:21:41 -0400
-Date: Fri, 29 Jul 2005 18:21:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [sched, patch] better wake-balancing, #3
-Message-ID: <20050729162108.GA10243@elte.hu>
-References: <42E98DEA.9090606@yahoo.com.au> <200507290627.j6T6Rrg06842@unix-os.sc.intel.com> <20050729114822.GA25249@elte.hu> <20050729141311.GA4154@elte.hu> <20050729150207.GA6332@elte.hu>
+	Fri, 29 Jul 2005 12:20:14 -0400
+Date: Fri, 29 Jul 2005 12:20:15 -0400
+From: Brad Barnett <bahb@L8R.net>
+To: linux-kernel@vger.kernel.org
+Subject: Acer Aspire 1691WCLi no boot problem
+Message-ID: <20050729122015.73165b54@be.back.l8r.net>
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050729150207.GA6332@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
 
-> there's an even simpler way: only do wakeup-balancing if this_cpu is 
-> idle. (tbench results are still OK, and other workloads improved.)
 
-here's an updated patch. It handles one more detail: on SCHED_SMT we 
-should check the idleness of siblings too. Benchmark numbers still look 
-good.
+Hey, 
 
-	Ingo
+I have a very odd problem with an Acer Aspire 1691WCLi.  This laptop will
+simply not boot with any Debian precompiled kernel, with the exception of
+Debian's 2.4.27-2 initrd kernel.  I have compiled my own kernels, using a
+vast array of options, 2.6.11, 2.6.12, 2.6.12.3, 2.6.13-rc4 and 2.4.27,
+they also all fail in exactly the same way.  I have tried with and without
+initrd, acpi, 386 or other processor options, as well as very lean,
+stripped down kernels.  I have tried with both lilo and grub, but both
+result in the same hang.
 
-----
-do wakeup-balancing only if the wakeup-CPU (or any of its siblings)
-is idle.
+Lilo or grub boots the kernel, and I see the classic:
 
-this prevents excessive wakeup-balancing while the system is highly
-loaded, but helps spread out the workload on partly idle systems.
+boot: vmlinuz
+Loading vmlinuz.................................................
+BIOS data check successful
+Uncompressiong Linux... Ok. booting the kernel.
+_
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
- kernel/sched.c |    6 ++++++
- 1 files changed, 6 insertions(+)
+That's it.  A screencap can be had here, although it does not tell much else:
 
-Index: linux-sched-curr/kernel/sched.c
-===================================================================
---- linux-sched-curr.orig/kernel/sched.c
-+++ linux-sched-curr/kernel/sched.c
-@@ -1253,7 +1253,13 @@ static int try_to_wake_up(task_t *p, uns
- 	if (unlikely(task_running(rq, p)))
- 		goto out_activate;
- 
-+	/*
-+	 * Only do wakeup-balancing (== potentially migrate the task)
-+	 * if this CPU (or any SMT sibling) is idle:
-+	 */
- 	new_cpu = cpu;
-+	if (!idle_cpu(this_cpu) && this_cpu == wake_idle(this_cpu, p))
-+		goto out_set_cpu;
- 
- 	schedstat_inc(rq, ttwu_cnt);
- 	if (cpu == this_cpu) {
+http://be.back.l8r.net:8000/no_boot.jpg
+
+Debian's 2.4.27-2 boots fine, and this is what really annoys me.  I took
+Debian's 2.4.27-2 initrd config from /boot, ran make oldconfig on a fresh
+2.4.27 tree (some minor options were different due to Debian's
+backpatching).  This image _still_ would not boot.
+
+Does anyone have any suggestions?  If needed, I could compile a few more
+kernels, change GCC versions (if anyone thinks that would help) and so on.
+ However, my goal here is to get 2.6 working in order to support various
+bits of hardware on this laptop. 
+
+There are very few bios options to change. :/
+
+Pentium M 725, 512M ram.
+
+LSPCI shows:
+
+0000:00:00.0 Host bridge: Intel Corporation Mobile 915GM/PM/GMS/910GML Express Processor to DRAM Controller (rev 03)
+0000:00:02.0 VGA compatible controller: Intel Corporation Mobile 915GM/GMS/910GML ExpressGraphics Controller (rev 03)
+0000:00:02.1 Display controller: Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller (rev 03)
+0000:00:1c.0 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 1 (rev 04)
+0000:00:1c.1 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 2 (rev 04)
+0000:00:1c.2 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 3 (rev 04)
+0000:00:1d.0 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #1 (rev 04)
+0000:00:1d.1 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #2 (rev 04)
+0000:00:1d.2 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #3 (rev 04)
+0000:00:1d.3 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #4 (rev 04)
+0000:00:1d.7 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB2 EHCI Controller (rev 04)
+0000:00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev d4)
+0000:00:1e.2 Multimedia audio controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) AC'97 Audio Controller (rev 04)
+0000:00:1e.3 Modem: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) AC'97 Modem Controller (rev 04)
+0000:00:1f.0 ISA bridge: Intel Corporation 82801FBM (ICH6M) LPC Interface Bridge (rev 04)
+0000:00:1f.1 IDE interface: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) IDE Controller (rev 04)
+0000:00:1f.3 SMBus: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) SMBus Controller (rev 04)
+0000:06:01.0 CardBus bridge: Texas Instruments Texas Instruments PCIxx21/x515 Cardbus Controller
+0000:06:01.2 FireWire (IEEE 1394): Texas Instruments Texas Instruments OHCI Compliant IEEE 1394 Host Controller
+0000:06:01.3 Unknown mass storage controller: Texas Instruments Texas Instruments PCIxx21Integrated FlashMedia Controller
+0000:06:03.0 Network controller: Intel Corporation PRO/Wireless 2200BG (rev 05)
+0000:06:08.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5788 Gigabit Ethernet(rev 03)

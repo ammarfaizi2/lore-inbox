@@ -1,128 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbVG2M6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVG2NNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262593AbVG2M6l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 08:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVG2M6k
+	id S261950AbVG2NNn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 09:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVG2NNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 08:58:40 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:27535 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S262593AbVG2M6k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 08:58:40 -0400
-Subject: [PATCH] Input quirk for the Fn key on Powerbooks with an USB
-	keyboard
-From: Stelian Pop <stelian@popies.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Johannes Berg <johannes@sipsolutions.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 29 Jul 2005 14:55:48 +0200
-Message-Id: <1122641749.4521.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Fri, 29 Jul 2005 09:13:42 -0400
+Received: from ip51cfe451.direct-adsl.nl ([81.207.228.81]:43582 "EHLO
+	mailserver.thepool.com") by vger.kernel.org with ESMTP
+	id S261950AbVG2NNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 09:13:42 -0400
+From: Norbert van Nobelen <norbert@edusupport.nl>
+Organization: EduSupport BV
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>
+Subject: Re: Unable to mount the SD card formatted using the DIGITAL CAMREA on Linux box
+Date: Fri, 29 Jul 2005 15:11:02 +0200
+User-Agent: KMail/1.5.1
+References: <C349E772C72290419567CFD84C26E01704201D@mail.esn.co.in>
+In-Reply-To: <C349E772C72290419567CFD84C26E01704201D@mail.esn.co.in>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507291511.02212.norbert@edusupport.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+What camera is this?
 
-On newer Apple Powerbooks (post February 2005 ones at least) the ADB
-keyboard has been replaced with an USB one conforming to the HID spec.
-
-The 'Fn' modifier key on this keyboard is a soft key reported using an
-application specific hid code. This key should act as a modifier in
-order to make Home/End/Page Up/Page Down etc. work.
-
-The attached patch makes the Fn key report a modifier keycode
-(KEY_RIGHTCTRL) to the input layer by adding a quirk to the USB HID
-input driver. Johannes Berg <johannes@sipsolutions.net> should be
-credited for the original version of this patch.
-
-'Right control' is not the best choice for this key, especially since it
-is physically placed on the keyboard on the left bottom corner. However,
-this laptop already has left shift, control, alt and meta (apple) keys,
-and right meta and shift keys. The only modifiers left are 'right
-control' and 'right alt' and the first one was chosen. Choosing an
-already defined modifier key eases the handling of this key especially
-in X (where it can be mapped to SuperL or whatever).
-
-Comments welcomed.
-
-Thanks,
-
-Stelian.
-
-Signed-off-by: Stelian Pop <stelian@popies.net>
-
- hid-core.c  |    7 +++++++
- hid-input.c |    8 ++++++++
- hid.h       |    1 +
- 3 files changed, 16 insertions(+)
-
-Index: linux-2.6.git/drivers/usb/input/hid-core.c
-===================================================================
---- linux-2.6.git.orig/drivers/usb/input/hid-core.c	2005-07-28 09:35:52.000000000 +0200
-+++ linux-2.6.git/drivers/usb/input/hid-core.c	2005-07-28 12:22:31.000000000 +0200
-@@ -1446,6 +1446,10 @@
-  * Alphabetically sorted blacklist by quirk type.
-  */
- 
-+#define USB_VENDOR_ID_APPLE		0x05AC
-+#define USB_DEVICE_ID_POWERBOOK_KB_US	0x020E
-+#define USB_DEVICE_ID_POWERBOOK_KB_UK	0x020F
-+
- static struct hid_blacklist {
- 	__u16 idVendor;
- 	__u16 idProduct;
-@@ -1557,6 +1561,9 @@
- 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
- 
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_POWERBOOK_KB_US, HID_QUIRK_POWERBOOK_FN_BUTTON },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_POWERBOOK_KB_UK, HID_QUIRK_POWERBOOK_FN_BUTTON },
-+
- 	{ 0, 0 }
- };
- 
-Index: linux-2.6.git/drivers/usb/input/hid-input.c
-===================================================================
---- linux-2.6.git.orig/drivers/usb/input/hid-input.c	2005-07-28 09:35:52.000000000 +0200
-+++ linux-2.6.git/drivers/usb/input/hid-input.c	2005-07-28 12:23:14.000000000 +0200
-@@ -106,6 +106,10 @@
- 			} else
- 				map_key(KEY_UNKNOWN);
- 
-+			if ((device->quirks & HID_QUIRK_POWERBOOK_FN_BUTTON) &&
-+			    (hid_keyboard[usage->hid & HID_USAGE] == KEY_RIGHTCTRL))
-+				map_key(KEY_UNKNOWN);
-+
- 			break;
- 
- 		case HID_UP_BUTTON:
-@@ -324,6 +328,10 @@
- 
- 		default:
- 		unknown:
-+			if ((device->quirks & HID_QUIRK_POWERBOOK_FN_BUTTON) && (usage->hid == 0x00ff0003)) {
-+				map_key_clear(KEY_RIGHTCTRL);
-+				break;
-+			}
- 			if (field->report_size == 1) {
- 				if (field->report->type == HID_OUTPUT_REPORT) {
- 					map_led(LED_MISC);
-Index: linux-2.6.git/drivers/usb/input/hid.h
-===================================================================
---- linux-2.6.git.orig/drivers/usb/input/hid.h	2005-07-28 09:35:52.000000000 +0200
-+++ linux-2.6.git/drivers/usb/input/hid.h	2005-07-28 12:22:31.000000000 +0200
-@@ -242,6 +242,7 @@
- #define HID_QUIRK_2WHEEL_MOUSE_HACK_7		0x080
- #define HID_QUIRK_2WHEEL_MOUSE_HACK_5		0x100
- #define HID_QUIRK_2WHEEL_MOUSE_HACK_ON		0x200
-+#define HID_QUIRK_POWERBOOK_FN_BUTTON		0x400
- 
- /*
-  * This is the global environment of the parser. This information is
-
--- 
-Stelian Pop <stelian@popies.net>
+On Friday 29 July 2005 13:23, Srinivas G. wrote:
+> Dear All,
+>
+> We have developed a Block Device Driver to handle the flash media
+> devices in Linux 2.6.x kernel. It is working fine. We are able to mount
+> the SD cards that are formatted on Windows systems, but we unable mount
+> the cards that are formatted using the DIGITAL CAMERA.
+>
+> We have found one thing that the Windows and Digital Camera both are
+> formatting the SD cards in FAT12 only. But why we are not able to mount
+> the SD cards on Linux Box that are formatted using the Digital Camera.
+>
+> Could any one explain the problem? It is great help to us.
+> Thanks in advance and we are looking forward a POSITIVE reply.
+>
+> Thanks and Regards,
+> Srinivas G
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

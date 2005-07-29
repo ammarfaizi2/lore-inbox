@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbVG2GP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbVG2G17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbVG2GP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 02:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVG2GP0
+	id S262474AbVG2G17 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 02:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVG2G16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 02:15:26 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:47773 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S262445AbVG2GPU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 02:15:20 -0400
-Date: Fri, 29 Jul 2005 02:15:18 -0400
-From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.8 -> 2.6.11 (+ata-dev patch) -- HDD is always on
-Message-ID: <20050729061518.GB6655@washoe.onerussian.com>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Jeff Garzik <jgarzik@pobox.com>
-References: <20050729041031.GU16285@washoe.onerussian.com> <42E9AFC6.9010805@pobox.com> <20050729055820.GX16285@washoe.onerussian.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050729055820.GX16285@washoe.onerussian.com>
-X-URL: http://www.onerussian.com
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
-X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-User-Agent: mutt-ng devel-20050619 (Debian)
+	Fri, 29 Jul 2005 02:27:58 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:30646 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262462AbVG2G15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 02:27:57 -0400
+Message-Id: <200507290627.j6T6Rrg06842@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>
+Subject: RE: Delete scheduler SD_WAKE_AFFINE and SD_WAKE_BALANCE flags
+Date: Thu, 28 Jul 2005 23:27:52 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcWT4WnYrq021CGOREqulHpDwY9eTwAI0ZfA
+In-Reply-To: <42E98DEA.9090606@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Damn me - sorry for the misinformation... I've compiled the kernel
-without Debian-loved initrd image... 
+Nick Piggin wrote on Thursday, July 28, 2005 7:01 PM
+> Chen, Kenneth W wrote:
+> >Well, that's exactly what I'm trying to do: make them not aggressive
+> >at all by not performing any load balance :-)  The workload gets maximum
+> >benefit with zero aggressiveness.
+> 
+> Unfortunately we can't forget about other workloads, and we're
+> trying to stay away from runtime tunables in the scheduler.
 
-so I've booted 2.6.12.3 -- LED light is on - so I bet no blame on libata
-patch, although I've mentioned few patches from that patch migrated into
-the mainstream kernel.   
 
-Any ideas on which next step to take? 2.6.13-rc4? or vanilla 2.6.11?
+This clearly outlines an issue with the implementation.  Optimize for one
+type of workload has detrimental effect on another workload and vice versa.
 
 
-On Fri, Jul 29, 2005 at 01:58:20AM -0400, Yaroslav Halchenko wrote:
-> On Fri, Jul 29, 2005 at 12:25:42AM -0400, Jeff Garzik wrote:
-> > Does this happen in unpatched 2.6.12.3 or 2.6.13-rc4?
-> just tried unpatched 2.6.12.3.
-> The Box stalls booting with 
-> "Uncompressing Linux... Ok, booting the kernel.
-> _"
+> If we can get performance to within a couple of tenths of a percent
+> of the zero balancing case, then that would be preferable I think.
 
-> interesting though that led hdd light is off at first, blinks few
-> times, and 1-2 secs after it stalls with above message - it gets its
-> steady green light on.
+I won't try to compromise between the two.  If you do so, we would end up
+with two half baked raw turkey.  Making less aggressive load balance in the
+wake up path would probably reduce performance for the type of workload you
+quoted earlier and for db workload, we don't want any of them at all, not
+even the code to determine whether it should be balanced or not.
 
-> Could I screw up some NEW kernel configuration parameters when pulling
-> config from 2.6.8 from Debian? I don't know :-/
+Do you have an example workload you mentioned earlier that depends on
+SD_WAKE_BALANCE?  I would like to experiment with it so we can move this
+forward instead of paper talk.
 
-> I will try 2.6.13-rc4 now... heh heh
--- 
-Yaroslav Halchenko
-Research Assistant, Psychology Department, Rutgers-Newark
-Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
-        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07105
-Student  Ph.D. @ CS Dept. NJIT
+- Ken
+

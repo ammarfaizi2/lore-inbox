@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVG2Fzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbVG2F6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbVG2Fzm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 01:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbVG2Fzl
+	id S262387AbVG2F6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 01:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbVG2F6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 01:55:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5798 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262385AbVG2Fzj (ORCPT
+	Fri, 29 Jul 2005 01:58:24 -0400
+Received: from dvhart.com ([64.146.134.43]:15290 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S262392AbVG2F6X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 01:55:39 -0400
-Date: Thu, 28 Jul 2005 22:54:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: mkrufky@m1k.net
-Cc: frank.peters@comcast.net, vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
-Message-Id: <20050728225433.6dbfecbe.akpm@osdl.org>
-In-Reply-To: <42E9C245.6050205@m1k.net>
-References: <20050624113404.198d254c.frank.peters@comcast.net>
-	<42BC306A.1030904@m1k.net>
-	<20050624125957.238204a4.frank.peters@comcast.net>
-	<42BC3EFE.5090302@m1k.net>
-	<20050728222838.64517cc9.akpm@osdl.org>
-	<42E9C245.6050205@m1k.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Jul 2005 01:58:23 -0400
+Date: Thu, 28 Jul 2005 22:58:29 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3
+Message-ID: <159600000.1122616708@[10.10.2.4]>
+In-Reply-To: <20050728025840.0596b9cb.akpm@osdl.org>
+References: <20050728025840.0596b9cb.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Krufky <mkrufky@m1k.net> wrote:
->
->  Sadly, I must report that yes, the problem still intermittently occurs 
->  in 2.6.13-rc4 :-(  I'm the one that tested on the Shuttle FT61 
->  Motherboard.  Never has a problem in windows and never in 2.6.11 and 
->  earlier.
-> 
->  I first noticed this problem sometime during 2.6.12-rc series.
 
-Sigh.  I think it would help if you could generate a new report, please.
+> - There's a pretty large x86_64 update here which naughty maintainer wants
+>   in 2.6.13.  Extra testing, please.
 
-We need a super-easy way for people to do bisection searching.
+Is still regressed as of 2.6.12 for me, at least. Crashes in TSC sync.
+Talked to Andi about it at OLS, but then drank too much to remember the
+conclusion ... however, it's still broken ;-)
+
+Matrix is here (see left hand column).
+
+http://test.kernel.org/
+
+Example boot log is here:
+
+http://test.kernel.org/9447/debug/console.log

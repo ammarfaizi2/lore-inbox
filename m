@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262603AbVG2Ol5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262606AbVG2OvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbVG2Ol5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 10:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbVG2Ol4
+	id S262606AbVG2OvP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 10:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262607AbVG2OvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 10:41:56 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:47111 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262603AbVG2Olu
+	Fri, 29 Jul 2005 10:51:15 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:39940 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S262606AbVG2OvN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 10:41:50 -0400
-Date: Fri, 29 Jul 2005 15:41:55 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [PATCH] speed up on find_first_bit for i386 (let compiler do
- the work)
-In-Reply-To: <1122631385.8317.26.camel@baythorne.infradead.org>
-Message-ID: <Pine.LNX.4.61L.0507291540260.21257@blysk.ds.pg.gda.pl>
-References: <1122473595.29823.60.camel@localhost.localdomain> 
- <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
- <1122513928.29823.150.camel@localhost.localdomain> 
- <1122519999.29823.165.camel@localhost.localdomain> 
- <1122521538.29823.177.camel@localhost.localdomain> 
- <1122522328.29823.186.camel@localhost.localdomain>  <42E8564B.9070407@yahoo.com.au>
-  <1122551014.29823.205.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0507280823210.3227@g5.osdl.org>  <1122565640.29823.242.camel@localhost.localdomain>
-  <Pine.LNX.4.61L.0507281725010.31805@blysk.ds.pg.gda.pl> 
- <1122569848.29823.248.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0507281018170.3227@g5.osdl.org> <1122631385.8317.26.camel@baythorne.infradead.org>
+	Fri, 29 Jul 2005 10:51:13 -0400
+To: "Michael Kerrisk" <mtk-manpages@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, mpm@selenic.com, linux-kernel@vger.kernel.org,
+       michael.kerrisk@gmx.net, akpm@osdl.org, chrisw@osdl.org
+Subject: Re: Broke nice range for RLIMIT NICE
+References: <20050729083850.GB7302@elte.hu> <5482.1122633728@www71.gmx.net>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: you'll understand when you're older, dear.
+Date: Fri, 29 Jul 2005 15:50:13 +0100
+In-Reply-To: <5482.1122633728@www71.gmx.net> (Michael Kerrisk's message of
+ "29 Jul 2005 11:44:30 +0100")
+Message-ID: <87u0idhdju.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jul 2005, David Woodhouse wrote:
+On 29 Jul 2005, Michael Kerrisk stated:
+> Yes, as noted in my earlier message -- at the moment RLIMIT_NICE 
+> still isn't in the current glibc snapshot...
 
-> Builtins are more portable and their implementation will improve to
-> match developments in the target CPU. Inline assembly, as we have seen,
-> remains the same for years while the technology moves on.
-> 
-> Although it's often the case that inline assembly _is_ better,
-> especially in code which is arch-specific in the first place, I wouldn't
-> necessarily assume that it's always the case.
+According to traffic on libc-hacker, Ulrich committed it on Jun 20
+(along with RLIMIT_RTPRIO support).
 
- Well, if some inline assembly is found to be better, then perhaps it 
-should be contributed (not necessarily as is, but as a concept) to GCC for 
-improvement.
-
-  Maciej
+-- 
+`Tor employs several thousand editors who they keep in dank
+ subterranean editing facilities not unlike Moria' -- James Nicoll 

@@ -1,227 +1,267 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262816AbVG2UiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262824AbVG2UiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262816AbVG2UiL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 16:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVG2Uf4
+	id S262824AbVG2UiK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 16:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262816AbVG2UgC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 16:35:56 -0400
-Received: from graphe.net ([209.204.138.32]:13024 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262792AbVG2Uer (ORCPT
+	Fri, 29 Jul 2005 16:36:02 -0400
+Received: from graphe.net ([209.204.138.32]:13782 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262781AbVG2Udj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 16:34:47 -0400
-Date: Fri, 29 Jul 2005 13:34:45 -0700 (PDT)
+	Fri, 29 Jul 2005 16:33:39 -0400
+Date: Fri, 29 Jul 2005 13:33:36 -0700 (PDT)
 From: Christoph Lameter <christoph@lameter.com>
 X-X-Sender: christoph@graphe.net
 To: Pavel Machek <pavel@ucw.cz>
 cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH 3/4] Task notifier against mm: Make suspend code SMP safe
- using todo list
-In-Reply-To: <Pine.LNX.4.62.0507291332100.5304@graphe.net>
-Message-ID: <Pine.LNX.4.62.0507291333410.5304@graphe.net>
+Subject: [PATCH 2/4] Task notifier against mm: Implement todo list in
+ task_struct
+In-Reply-To: <Pine.LNX.4.62.0507291328170.5304@graphe.net>
+Message-ID: <Pine.LNX.4.62.0507291332100.5304@graphe.net>
 References: <Pine.LNX.4.62.0507291328170.5304@graphe.net>
- <Pine.LNX.4.62.0507291332100.5304@graphe.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make the suspend code use the todo list in the task_struct
-
-This patch makes the suspend code SMP clean by removing PF_FREEZE and PF_FROZEN. Instead
-it relies on the new notification handler in the task_struct, a completion handler and an
-atomic counter for the number of processes frozen. All the logic is local to the
-suspend code and no longer requires changes to other kernel components.
+Introduce a todo notifier in the task_struct so that a task can be told to do
+certain things. Abuse the suspend hooks try_to_freeze, freezing and refrigerator
+to establish checkpoints where the todo list is processed. This will break software
+suspend (next patch fixes and cleans up software suspend).
 
 Signed-off-by: Christoph Lameter <christoph@lameter.com>
 
 Index: linux-2.6.13-rc3-mm3/include/linux/sched.h
 ===================================================================
---- linux-2.6.13-rc3-mm3.orig/include/linux/sched.h	2005-07-29 12:37:44.000000000 -0700
-+++ linux-2.6.13-rc3-mm3/include/linux/sched.h	2005-07-29 12:37:59.000000000 -0700
-@@ -890,9 +890,7 @@
- #define PF_MEMALLOC	0x00000800	/* Allocating memory */
- #define PF_FLUSHER	0x00001000	/* responsible for disk writeback */
- #define PF_USED_MATH	0x00002000	/* if unset the fpu must be initialized before use */
--#define PF_FREEZE	0x00004000	/* this task is being frozen for suspend now */
- #define PF_NOFREEZE	0x00008000	/* this thread should not be frozen */
--#define PF_FROZEN	0x00010000	/* frozen for system suspend */
- #define PF_FSTRANS	0x00020000	/* inside a filesystem transaction */
- #define PF_KSWAPD	0x00040000	/* I am kswapd */
- #define PF_SWAPOFF	0x00080000	/* I am in swapoff */
-Index: linux-2.6.13-rc3-mm3/kernel/power/process.c
-===================================================================
---- linux-2.6.13-rc3-mm3.orig/kernel/power/process.c	2005-07-12 21:46:46.000000000 -0700
-+++ linux-2.6.13-rc3-mm3/kernel/power/process.c	2005-07-29 12:37:59.000000000 -0700
-@@ -18,6 +18,8 @@
-  */
- #define TIMEOUT	(6 * HZ)
+--- linux-2.6.13-rc3-mm3.orig/include/linux/sched.h	2005-07-29 12:32:17.000000000 -0700
++++ linux-2.6.13-rc3-mm3/include/linux/sched.h	2005-07-29 12:37:44.000000000 -0700
+@@ -35,6 +35,7 @@
+ #include <linux/topology.h>
+ #include <linux/seccomp.h>
+ #include <linux/taskdelays.h>
++#include <linux/notifier.h>
  
-+DECLARE_COMPLETION(thaw);
-+static atomic_t nr_frozen;
+ #include <linux/auxvec.h>	/* For AT_VECTOR_SIZE */
  
- static inline int freezeable(struct task_struct * p)
- {
-@@ -31,26 +33,36 @@
- 	return 1;
- }
- 
--/* Refrigerator is place where frozen processes are stored :-). */
--void refrigerator(void)
-+static int freeze_process(struct notifier_block *nl, unsigned long x, void *v)
- {
- 	/* Hmm, should we be allowed to suspend when there are realtime
- 	   processes around? */
- 	long save;
- 	save = current->state;
--	current->state = TASK_UNINTERRUPTIBLE;
--	pr_debug("%s entered refrigerator\n", current->comm);
-+	pr_debug("%s frozen\n", current->comm);
- 	printk("=");
- 
--	frozen_process(current);
- 	spin_lock_irq(&current->sighand->siglock);
- 	recalc_sigpending(); /* We sent fake signal, clean it up */
-+	atomic_inc(&nr_frozen);
- 	spin_unlock_irq(&current->sighand->siglock);
- 
--	while (frozen(current))
--		schedule();
--	pr_debug("%s left refrigerator\n", current->comm);
-+	wait_for_completion(&thaw);
-+	atomic_dec(&nr_frozen);
-+	notifier_chain_unregister(&current->todo, nl);
-+	kfree(nl);
-+	pr_debug("%s thawed\n", current->comm);
- 	current->state = save;
-+	return 0;
-+}
+@@ -783,7 +784,10 @@
+ 	int (*notifier)(void *priv);
+ 	void *notifier_data;
+ 	sigset_t *notifier_mask;
+-	
 +
-+void thaw_processes(void)
-+{
-+	printk( "Restarting tasks..." );
-+	complete_all(&thaw);
-+	while (atomic_read(&nr_frozen) > 0)
-+		schedule();
-+	printk( " done\n" );
- }
- 
- /* 0 = success, else # of processes that we failed to stop */
-@@ -61,19 +73,32 @@
- 	struct task_struct *g, *p;
- 	unsigned long flags;
- 
-+	atomic_set(&nr_frozen, 0);
-+	INIT_COMPLETION(thaw);
++	/* todo list to be executed in the context of this thread */
++	struct notifier_block *todo;
 +
- 	printk( "Stopping tasks: " );
- 	start_time = jiffies;
- 	do {
- 		todo = 0;
- 		read_lock(&tasklist_lock);
- 		do_each_thread(g, p) {
-+			struct notifier_block *n;
-+
- 			if (!freezeable(p))
- 				continue;
--			if (frozen(p))
--				continue;
+ 	void *security;
+ 	struct audit_context *audit_context;
+ 	seccomp_t seccomp;
+@@ -1353,79 +1357,36 @@
  
--			freeze(p);
-+			/* If there is nothing on the todo list then get the process to freeze itself */
-+			if (!todo_list_active()) {
-+				n = kmalloc(sizeof(struct notifier_block), GFP_ATOMIC);
-+				if (n) {
-+					n->notifier_call = freeze_process;
-+					n->priority = 0;
-+					notifier_chain_register(&g->todo, n);
-+				}
-+		 	}
-+			/* Make the process work on its todo list */
- 			spin_lock_irqsave(&p->sighand->siglock, flags);
-+			recalc_sigpending();
- 			signal_wake_up(p, 0);
- 			spin_unlock_irqrestore(&p->sighand->siglock, flags);
- 			todo++;
-@@ -83,31 +108,13 @@
- 		if (time_after(jiffies, start_time + TIMEOUT)) {
- 			printk( "\n" );
- 			printk(KERN_ERR " stopping tasks failed (%d tasks remaining)\n", todo );
-+			thaw_processes();
- 			return todo;
- 		}
--	} while(todo);
-+	} while(todo < atomic_read(&nr_frozen));
+ #endif
  
- 	printk( "|\n" );
- 	BUG_ON(in_atomic());
- 	return 0;
- }
- 
--void thaw_processes(void)
+-#ifdef CONFIG_PM
+-/*
+- * Check if a process has been frozen
+- */
+-static inline int frozen(struct task_struct *p)
 -{
--	struct task_struct *g, *p;
--
--	printk( "Restarting tasks..." );
--	read_lock(&tasklist_lock);
--	do_each_thread(g, p) {
--		if (!freezeable(p))
--			continue;
--		if (!thaw_process(p))
--			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
--	} while_each_thread(g, p);
--
--	read_unlock(&tasklist_lock);
--	schedule();
--	printk( " done\n" );
+-	return p->flags & PF_FROZEN;
 -}
 -
--EXPORT_SYMBOL(refrigerator);
-Index: linux-2.6.13-rc3-mm3/Documentation/power/kernel_threads.txt
+-/*
+- * Check if there is a request to freeze a process
+- */
+-static inline int freezing(struct task_struct *p)
+-{
+-	return p->flags & PF_FREEZE;
+-}
+-
+-/*
+- * Request that a process be frozen
+- * FIXME: SMP problem. We may not modify other process' flags!
+- */
+-static inline void freeze(struct task_struct *p)
+-{
+-	p->flags |= PF_FREEZE;
+-}
+-
+ /*
+- * Wake up a frozen process
++ * Check if there is a todo list request
+  */
+-static inline int thaw_process(struct task_struct *p)
++static inline int todo_list_active(void)
+ {
+-	if (frozen(p)) {
+-		p->flags &= ~PF_FROZEN;
+-		wake_up_process(p);
+-		return 1;
+-	}
+-	return 0;
++	return current->todo != NULL;
+ }
+ 
+-/*
+- * freezing is complete, mark process as frozen
+- */
+-static inline void frozen_process(struct task_struct *p)
++static inline void run_todo_list(void)
+ {
+-	p->flags = (p->flags & ~PF_FREEZE) | PF_FROZEN;
++	notifier_call_chain(&current->todo, 0, current);
+ }
+ 
+-extern void refrigerator(void);
+-extern int freeze_processes(void);
+-extern void thaw_processes(void);
+-
+-static inline int try_to_freeze(void)
++static inline int try_todo_list(void)
+ {
+-	if (freezing(current)) {
+-		refrigerator();
++	if (todo_list_active()) {
++        	run_todo_list();
+ 		return 1;
+ 	} else
+ 		return 0;
+ }
+-#else
+-static inline int frozen(struct task_struct *p) { return 0; }
+-static inline int freezing(struct task_struct *p) { return 0; }
+-static inline void freeze(struct task_struct *p) { BUG(); }
+-static inline int thaw_process(struct task_struct *p) { return 1; }
+-static inline void frozen_process(struct task_struct *p) { BUG(); }
+-
+-static inline void refrigerator(void) {}
+-static inline int freeze_processes(void) { BUG(); return 0; }
+-static inline void thaw_processes(void) {}
+-
+-static inline int try_to_freeze(void) { return 0; }
+ 
+-#endif /* CONFIG_PM */
++/*
++ * Compatibility definitions to use the suspend checkpoints for the task todo list.
++ * These may be removed once all uses of try_to_free,  refrigerator and freezing
++ * have been removed.
++ */
++#define try_to_freeze try_todo_list
++#define refrigerator run_todo_list
++#define freezing(p) todo_list_active()
+ 
+ /* API for registering delay info */
+ #ifdef CONFIG_DELAY_ACCT
+Index: linux-2.6.13-rc3-mm3/kernel/signal.c
 ===================================================================
---- linux-2.6.13-rc3-mm3.orig/Documentation/power/kernel_threads.txt	2005-07-12 21:46:46.000000000 -0700
-+++ linux-2.6.13-rc3-mm3/Documentation/power/kernel_threads.txt	2005-07-29 12:37:59.000000000 -0700
-@@ -4,15 +4,15 @@
- Freezer
+--- linux-2.6.13-rc3-mm3.orig/kernel/signal.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/kernel/signal.c	2005-07-29 12:32:32.000000000 -0700
+@@ -213,7 +213,7 @@
+ fastcall void recalc_sigpending_tsk(struct task_struct *t)
+ {
+ 	if (t->signal->group_stop_count > 0 ||
+-	    (freezing(t)) ||
++	    (t->todo) ||
+ 	    PENDING(&t->pending, &t->blocked) ||
+ 	    PENDING(&t->signal->shared_pending, &t->blocked))
+ 		set_tsk_thread_flag(t, TIF_SIGPENDING);
+@@ -2231,7 +2231,7 @@
+ 			current->state = TASK_INTERRUPTIBLE;
+ 			timeout = schedule_timeout(timeout);
  
- Upon entering a suspended state the system will freeze all
--tasks. This is done by delivering pseudosignals. This affects
--kernel threads, too. To successfully freeze a kernel thread
--the thread has to check for the pseudosignal and enter the
--refrigerator. Code to do this looks like this:
-+tasks. This is done by making all processes execute a notifier.
-+This affects kernel threads, too. To successfully freeze a kernel thread
-+the thread has to check for the notifications and call the notifier
-+chain for the process. Code to do this looks like this:
+-			try_to_freeze();
++			try_todo_list();
+ 			spin_lock_irq(&current->sighand->siglock);
+ 			sig = dequeue_signal(current, &these, &info);
+ 			current->blocked = current->real_blocked;
+Index: linux-2.6.13-rc3-mm3/arch/frv/kernel/signal.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/arch/frv/kernel/signal.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/arch/frv/kernel/signal.c	2005-07-29 12:32:32.000000000 -0700
+@@ -536,7 +536,7 @@
+ 	if (!user_mode(regs))
+ 		return 1;
  
- 	do {
- 		hub_events();
- 		wait_event_interruptible(khubd_wait, !list_empty(&hub_event_list));
+-	if (try_to_freeze())
++	if (try_todo_list())
+ 		goto no_signal;
+ 
+ 	if (!oldset)
+Index: linux-2.6.13-rc3-mm3/arch/h8300/kernel/signal.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/arch/h8300/kernel/signal.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/arch/h8300/kernel/signal.c	2005-07-29 12:32:32.000000000 -0700
+@@ -517,7 +517,7 @@
+ 	if ((regs->ccr & 0x10))
+ 		return 1;
+ 
+-	if (try_to_freeze())
++	if (try_todo_list())
+ 		goto no_signal;
+ 
+ 	current->thread.esp0 = (unsigned long) regs;
+Index: linux-2.6.13-rc3-mm3/arch/i386/kernel/io_apic.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/arch/i386/kernel/io_apic.c	2005-07-29 12:32:11.000000000 -0700
++++ linux-2.6.13-rc3-mm3/arch/i386/kernel/io_apic.c	2005-07-29 12:32:32.000000000 -0700
+@@ -575,7 +575,7 @@
+ 	for ( ; ; ) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		time_remaining = schedule_timeout(time_remaining);
 -		try_to_freeze();
 +		try_todo_list();
- 	} while (!signal_pending(current));
- 
- from drivers/usb/core/hub.c::hub_thread()
-Index: linux-2.6.13-rc3-mm3/Documentation/power/swsusp.txt
+ 		if (time_after(jiffies,
+ 				prev_balance_time+balanced_irq_interval)) {
+ 			preempt_disable();
+Index: linux-2.6.13-rc3-mm3/arch/i386/kernel/signal.c
 ===================================================================
---- linux-2.6.13-rc3-mm3.orig/Documentation/power/swsusp.txt	2005-07-29 12:32:11.000000000 -0700
-+++ linux-2.6.13-rc3-mm3/Documentation/power/swsusp.txt	2005-07-29 12:37:59.000000000 -0700
-@@ -155,7 +155,8 @@
- website, and not to the Linux Kernel Mailing List. We are working
- toward merging suspend2 into the mainline kernel.
+--- linux-2.6.13-rc3-mm3.orig/arch/i386/kernel/signal.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/arch/i386/kernel/signal.c	2005-07-29 12:32:32.000000000 -0700
+@@ -608,7 +608,7 @@
+ 	if (!user_mode(regs))
+ 		return 1;
  
--Q: A kernel thread must voluntarily freeze itself (call 'refrigerator').
-+Q: A kernel thread must work on the todo list (call 'run_todo_list')
-+to enter the refrigerator.
- I found some kernel threads that don't do it, and they don't freeze
- so the system can't sleep. Is this a known behavior?
+-	if (try_to_freeze())
++	if (try_todo_list())
+ 		goto no_signal;
  
-@@ -164,7 +165,7 @@
- should be held at that point and it must be safe to sleep there), and
- add:
+ 	if (!oldset)
+Index: linux-2.6.13-rc3-mm3/arch/m32r/kernel/signal.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/arch/m32r/kernel/signal.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/arch/m32r/kernel/signal.c	2005-07-29 12:32:32.000000000 -0700
+@@ -371,7 +371,7 @@
+ 	if (!user_mode(regs))
+ 		return 1;
  
--       try_to_freeze();
-+       try_todo_list();
+-	if (try_to_freeze()) 
++	if (try_todo_list())
+ 		goto no_signal;
  
- If the thread is needed for writing the image to storage, you should
- instead set the PF_NOFREEZE process flag when creating the thread (and
+ 	if (!oldset)
+Index: linux-2.6.13-rc3-mm3/arch/ppc/kernel/signal.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/arch/ppc/kernel/signal.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/arch/ppc/kernel/signal.c	2005-07-29 12:32:32.000000000 -0700
+@@ -705,7 +705,7 @@
+ 	unsigned long frame, newsp;
+ 	int signr, ret;
+ 
+-	if (try_to_freeze()) {
++	if (try_todo_list()) {
+ 		signr = 0;
+ 		if (!signal_pending(current))
+ 			goto no_signal;
+Index: linux-2.6.13-rc3-mm3/arch/x86_64/kernel/signal.c
+===================================================================
+--- linux-2.6.13-rc3-mm3.orig/arch/x86_64/kernel/signal.c	2005-07-12 21:46:46.000000000 -0700
++++ linux-2.6.13-rc3-mm3/arch/x86_64/kernel/signal.c	2005-07-29 12:32:32.000000000 -0700
+@@ -425,7 +425,7 @@
+ 	if (!user_mode(regs))
+ 		return 1;
+ 
+-	if (try_to_freeze())
++	if (try_todo_list())
+ 		goto no_signal;
+ 
+ 	if (!oldset)

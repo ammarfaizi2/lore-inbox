@@ -1,97 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVG2PTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbVG2PTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbVG2PTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 11:19:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbVG2PTG
+	id S262623AbVG2PTD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 11:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVG2PQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 11:19:06 -0400
-Received: from science.horizon.com ([192.35.100.1]:13368 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S262618AbVG2PSE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 11:18:04 -0400
-Date: 29 Jul 2005 11:18:04 -0400
-Message-ID: <20050729151804.28355.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Add prefetch switch stack hook in scheduler function
-Cc: mingo@elte.hu
+	Fri, 29 Jul 2005 11:16:53 -0400
+Received: from pop.gmx.de ([213.165.64.20]:27798 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262618AbVG2POs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 11:14:48 -0400
+Date: Fri, 29 Jul 2005 17:14:44 +0200 (MEST)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: Nix <nix@esperi.org.uk>
+Cc: mingo@elte.hu, mpm@selenic.com, linux-kernel@vger.kernel.org,
+       michael.kerrisk@gmx.net, akpm@osdl.org, chrisw@osdl.org
+MIME-Version: 1.0
+References: <87u0idhdju.fsf@amaterasu.srvr.nix>
+Subject: =?ISO-8859-1?Q?Re:_Broke_nice_range_for_RLIMIT_NICE?=
+X-Priority: 3 (Normal)
+X-Authenticated: #24879014
+Message-ID: <12213.1122650084@www71.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  include/asm-alpha/mmu_context.h     |    6 ++++++
->  include/asm-arm/mmu_context.h       |    6 ++++++
->  include/asm-arm26/mmu_context.h     |    6 ++++++
->  include/asm-cris/mmu_context.h      |    6 ++++++
->  include/asm-frv/mmu_context.h       |    6 ++++++
->  include/asm-h8300/mmu_context.h     |    6 ++++++
->  include/asm-i386/mmu_context.h      |    6 ++++++
->  include/asm-ia64/mmu_context.h      |    6 ++++++
->  include/asm-m32r/mmu_context.h      |    6 ++++++
->  include/asm-m68k/mmu_context.h      |    6 ++++++
->  include/asm-m68knommu/mmu_context.h |    6 ++++++
->  include/asm-mips/mmu_context.h      |    6 ++++++
->  include/asm-parisc/mmu_context.h    |    6 ++++++
->  include/asm-ppc/mmu_context.h       |    6 ++++++
->  include/asm-ppc64/mmu_context.h     |    6 ++++++
->  include/asm-s390/mmu_context.h      |    6 ++++++
->  include/asm-sh/mmu_context.h        |    6 ++++++
->  include/asm-sh64/mmu_context.h      |    6 ++++++
->  include/asm-sparc/mmu_context.h     |    6 ++++++
->  include/asm-sparc64/mmu_context.h   |    6 ++++++
->  include/asm-um/mmu_context.h        |    6 ++++++
->  include/asm-v850/mmu_context.h      |    6 ++++++
->  include/asm-x86_64/mmu_context.h    |    5 +++++
->  include/asm-xtensa/mmu_context.h    |    6 ++++++
->  kernel/sched.c                      |    9 ++++++++-
->  25 files changed, 151 insertions(+), 1 deletion(-)
+> On 29 Jul 2005, Michael Kerrisk stated:
+> > Yes, as noted in my earlier message -- at the moment RLIMIT_NICE 
+> > still isn't in the current glibc snapshot...
+> 
+> According to traffic on libc-hacker, Ulrich committed it on Jun 20
+> (along with RLIMIT_RTPRIO support).
 
-I think this pretty clearly points out the need for some arch-generic
-infrastructure in Linux.  An awful lot of arch hooks are for one
-or two architectures with some peculiarities, and the other 90% of
-the implementations are identical.
+I (now) see the message that you mean on libc-hacker, nevertheless,
+looking at the glibc-2.3-20050725 snapshot, these two constants do 
+not appear anywhere.  (Strange!)
 
-For example, this is 22 repetitions of
-#define MIN_KERNEL_STACK_FOOTPRINT L1_CACHE_BYTES
+Cheers,
 
-with one different case.
+Michael
 
-It would be awfully nice if there was a standard way to provide a default
-implementation that was automatically picked up by any architecture that
-didn't explicitly override it.
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
 
-One possibility is to use #ifndef:
-
-/* asm-$PLATFORM/foo.h */
-#define MIN_KERNEL_STACK_FOOTPRINT IA64_SWITCH_STACK_SIZE
-inline void
-prefetch_task(struct task_struct const *task)
-{
-	...
-}
-#define prefetch_task prefetch_task
-
-
-/* asm-generic/foo.h */
-#include <asm/foo.h>
-
-#ifndef MIN_KERNEL_STACK_FOOTPRINT
-#define MIN_KERNEL_STACK_FOOTPRINT L1_CACHE_BYTES
-#endif
-
-#ifndef prefetch_task
-inline void prefetch_task(struct task_struct const *task) { }
-/* The #define is OPTIONAL... */
-#define prefetch_task prefetch_task
-#endif
-
-
-But both understanding and maintaining the arch code could be
-much easier if the shared parts were collapsed.  A comment in the
-generic versions can explain what the assumptions are.
-
-
-If there are cases where there is more than one implementation with
-multiple users, it can be stuffed into a third category of headers.
-E.g. <asm-generic/noiommu/foo.h> and <asm-generic/iommu/foo.h> or some
-such, using the same duplicate-suppression technique and #included at
-the end of <asm-$PLATFORM/foo.h>
+Want to help with man page maintenance?  Grab the latest
+tarball at ftp://ftp.win.tue.nl/pub/linux-local/manpages/
+and grep the source files for 'FIXME'.

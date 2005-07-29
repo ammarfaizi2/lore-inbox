@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262935AbVG2Xsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbVG2XvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262935AbVG2Xsy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 19:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbVG2XrC
+	id S262873AbVG2XvR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 19:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbVG2Xs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 19:47:02 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59117 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262936AbVG2XqL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 19:46:11 -0400
-Date: Fri, 29 Jul 2005 16:48:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Takashi Sato" <sho@bsd.tnes.nec.co.jp>
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: OOM problems still left in 2.6.13-rc3
-Message-Id: <20050729164806.32ecd152.akpm@osdl.org>
-In-Reply-To: <018101c5943a$1a07a5d0$4168010a@bsd.tnes.nec.co.jp>
-References: <018101c5943a$1a07a5d0$4168010a@bsd.tnes.nec.co.jp>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Jul 2005 19:48:58 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:59152 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S262936AbVG2Xsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 19:48:43 -0400
+Message-ID: <42EAC06A.5080807@gentoo.org>
+Date: Sat, 30 Jul 2005 00:48:58 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: zaitcev@redhat.com, rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: percpu_modalloc oops when loading netfilter modules
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Takashi Sato" <sho@bsd.tnes.nec.co.jp> wrote:
->
-> Below is the comparison of the memory leak rate before and after this
-> fix.  We counted them from (Active+Inactive)-(Cached+Buffers+SwapCached
-> +Mapped), which are in /proc/meminfo.
-> ---------------------------------------------------------------------
-> Linux 2.6.13-rc3 (including Andrew's patch):
->   leaked-rate   = 4869 KB/h
->   (leaked memory = 53564 KB, 11 hours)
->   
-> My patch applied:
->   leaked-rate   = 213 KB/h
->   (leaked memory = 1492 KB, 7 hours) 
-> ---------------------------------------------------------------------
+Pete, Rusty,
 
-What workload are you using here?
+I found a snippet of a previous discussion of yours here:
 
-Be aware that due to truncate-vs-commit activity, ext3 can leave anonymous,
-zero-refcount, unused pages on the page LRU.  They will appear to have
-leaked, but the VM can trivially reclaim them so they're not really leaked
-at all.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0408.3/2901.html
+http://www.ussg.iu.edu/hypermail/linux/kernel/0409.0/0768.html
 
-At least that's the way it's _supposed_ to work.  It might of course be
-broken.  But it's not possible to say that the system has really leaked
-pages unless you first put a lot of memory reclaim pressure on the machine
-to try to reclaim those oddball pages.
+Did anything become of this issue?
+
+A Gentoo user has reported what appears to be the same problem on 2.6.12:
+http://bugs.gentoo.org/show_bug.cgi?id=97006
+
+Thanks,
+Daniel

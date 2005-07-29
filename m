@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262526AbVG2LZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVG2L2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262526AbVG2LZc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 07:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVG2LZb
+	id S262509AbVG2L2X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 07:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVG2L2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 07:25:31 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:22468 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262496AbVG2LYR (ORCPT
+	Fri, 29 Jul 2005 07:28:15 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:29082 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S262509AbVG2L0l convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 07:24:17 -0400
-Date: Fri, 29 Jul 2005 13:23:17 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Denis Vlasenko <vda@ilport.com.ua>
-cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       coreteam@netfilter.org, Harald Welte <laforge@netfilter.org>,
-       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>
-Subject: Re: iptables redirect is broken on bridged setup
-In-Reply-To: <200507291209.37247.vda@ilport.com.ua>
-Message-ID: <Pine.LNX.4.61.0507291316140.10775@yvahk01.tjqt.qr>
-References: <200507291209.37247.vda@ilport.com.ua>
+	Fri, 29 Jul 2005 07:26:41 -0400
+Content-class: urn:content-classes:message
+Subject: Unable to mount the SD card formatted using the DIGITAL CAMREA on Linux box
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Date: Fri, 29 Jul 2005 16:53:33 +0530
+Message-ID: <C349E772C72290419567CFD84C26E01704201D@mail.esn.co.in>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Unable to mount the SD card formatted using the DIGITAL CAMREA on Linux box
+thread-index: AcWUL/Ryp27UFNX+QTC/kzKnF6zCxw==
+From: "Srinivas G." <srinivasg@esntechnologies.co.in>
+To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear All,
 
->iptables -t nat -A PREROUTING -s 172.17.6.44 -d 172.16.42.201 -p tcp --dport 
->9100 -j REDIRECT --to 9123
->
->Chain PREROUTING (policy ACCEPT 0 packets, 0 bytes)
->       0        0 REDIRECT   tcp  --  *      *       172.17.6.44          172.16.42.201      tcp dpt:9100 redir ports 9123
->
->But now I need to bridge together two eth cards in this machine, and
->suddenly redirect is no longer works.
+We have developed a Block Device Driver to handle the flash media
+devices in Linux 2.6.x kernel. It is working fine. We are able to mount
+the SD cards that are formatted on Windows systems, but we unable mount
+the cards that are formatted using the DIGITAL CAMERA. 
 
-I somehow have to say this is expected behavior. 
+We have found one thing that the Windows and Digital Camera both are
+formatting the SD cards in FAT12 only. But why we are not able to mount
+the SD cards on Linux Box that are formatted using the Digital Camera.
 
->tcpdump on real interface:
->
->10:44:37.964087 172.17.6.44.1385 > 172.16.42.201.9100: S 4092145578:4092145578(0) win 65535 <mss 1460,nop,nop,sackOK> (DF)
->10:44:37.964365 172.17.0.1.9123 > 172.17.6.44.1385: S 520564491:520564491(0) ack 4092145579 win 5840 <mss 1460,nop,nop,sackOK> (DF)
->	reply from wrong address! should be simulated as from 172.16.42.201
+Could any one explain the problem? It is great help to us.
+Thanks in advance and we are looking forward a POSITIVE reply.
 
-Not at all. The interface has more than one addresses, so it is free to choose 
-which source address to use - Linux usually takes the first, unless you have 
-some routing rules in the route tables.
-Your "ip a" output shows 17.0.1 as the first address.
-
->10:44:37.964493 172.17.6.44.1385 > 172.17.0.1.9123: R 4092145579:4092145579(0) win 0
->	peer didn't understand that
-
-This seems all normal to me, and looks like the port on 17.6.44 is just 
-closed.
-
-
-You also say that the [source or destination?] address should be 16.42.201, 
-but why? After all, you are using REDIRECT, not SNAT/DNAT.
-
->same packets on bridge interface:
->
->10:44:37.964087 172.17.6.44.1385 > 172.17.0.1.9123: S 4092145578:4092145578(0) win 65535 <mss 1460,nop,nop,sackOK> (DF)
->	looks like redirect was done before bridging - dst addr is already changed
-
-redirect, and in fact, the whole iptables-nat table, _is_ done before 
-bridging, see http://ebtables.sourceforge.net/br_fw_ia/PacketFlow.png
-
-
-
-Jan Engelhardt
--- 
+Thanks and Regards,
+Srinivas G

@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVG2PzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbVG2P6C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262637AbVG2PzI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 11:55:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVG2PzH
+	id S262647AbVG2P6C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 11:58:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVG2P6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 11:55:07 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:15033 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S262637AbVG2PxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 11:53:23 -0400
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <D72313E7-E2EC-4066-AD2A-02DAFE66B7E6@freescale.com>
-Cc: linux-kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: RFC: 64-bit resources and changes to pci, ioremap, ...
-Date: Fri, 29 Jul 2005 10:53:14 -0500
-To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.733)
+	Fri, 29 Jul 2005 11:58:02 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34067 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262643AbVG2P4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 11:56:32 -0400
+Date: Fri, 29 Jul 2005 17:56:30 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: RFC: Raise required gcc version to 3.2 ?
+Message-ID: <20050729155630.GF3563@stusta.de>
+References: <200507281648.j6SGmnf0023871@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507281648.j6SGmnf0023871@harpo.it.uu.se>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As I started to update the existing patches to make struct resource  
-have 64-bit start and end values I started to see all the places that  
-this effects and was hoping to get some discussion on what direction  
-we want to take.
+On Thu, Jul 28, 2005 at 06:48:49PM +0200, Mikael Pettersson wrote:
+> On Thu, 28 Jul 2005 14:00:12 +0200, Adrian Bunk wrote:
+> >What is the oldest gcc we want to support in kernel 2.6?
+> >
+> >Currently, it's 2.95 .
+> >
+> >I'd suggest raising this to 3.2 which should AFAIK not be a problem for 
+> >any distribution supporting kernel 2.6 .
+> >
+> >Is there any good reason why we should not drop support for older 
+> >compilers?
+> 
+> You're asking the wrong question. The right question would be:
+> "Is there any good reason to drop support for older compilers?"
+> 
+> At least on i386, gcc-2.95.3 still works and has the advantage
+> of being much faster compile-time wise on older machines with
+> limited memory (like my 486 test box). And I'm not the only
+> one with that POV -- akpm also uses 2.95.
+> 
+> Of course, if keeping 2.95.3 support would somehow hinder the
+> kernel's development, then it should be removed. But so far I
+> haven't seen any real(*) evidence that this is the case.
+>...
 
-One of the main reasons to make this change is to handle processors  
-that have larger physical address space than effective.  A number of  
-higher-end embedded processors are starting to support larger  
-physical address space while still having a 32-bit effective  
-address.  I was wondering if any x86 variants support this type of  
-feature?
+The advantages are:
+- reducing the number of supported gcc versions from 8 to 4 [1]
+  allows the removal of several #ifdef's and workarounds
+- my impression is that the older compilers are only rarely
+  used, so miscompilations of a driver with an old gcc might
+  not be detected for a longer amount of time
 
-The main issue that I'm starting to see is that the concept of a  
-physical address from the processors point of view needs to be  
-consistent throughout all subsystems of the kernel.  Currently the  
-major usage of struct resource is with the PCI subsystem and PCI  
-drivers.  The following are some questions that I was hoping to get  
-answers to and discussion around:
+My personal opinion about the time and space a compilation requires is 
+that this is no longer that much of a problem for modern hardware, and 
+in the worst case you can compile the kernels for older machines on more 
+recent machines.
 
-* How many 32-bit systems support larger than 32-bit physical  
-addresses (I know newer PPCs do)?
-* How many 32-bit systems support a 64-bit PCI address space?
-* Should ioremap and variants start taking 64-bit physical addresses?
-* Do we make this an arch option and wrap start and end in a typedef  
-similar to pte_t and provide accessor macros to ensure proper use?
+> /Mikael
 
-Andrew has also asked me to post size comparisons of drivers/*/*.o  
-building allmodconfig with 32-bit resources and 64-bit resources to  
-see what the size growth is.  I'll post logs for people to take a  
-look at in a followup email.
+cu
+Adrian
 
-- Kumar
+[1] support removed: 2.95, 2.96, 3.0, 3.1
+    still supported: 3.2, 3.3, 3.4, 4.0
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

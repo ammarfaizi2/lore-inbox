@@ -1,42 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVG2XN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262919AbVG2XTB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbVG2XN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 19:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVG2XL3
+	id S262919AbVG2XTB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 19:19:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbVG2XQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 19:11:29 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:49588 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262879AbVG2XJE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 19:09:04 -0400
-Date: Sat, 30 Jul 2005 01:06:30 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Erior <lars.vahlenberg@gmail.com>
+	Fri, 29 Jul 2005 19:16:41 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:31879 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262853AbVG2XPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 19:15:45 -0400
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+From: Lee Revell <rlrevell@joe-job.com>
+To: Marc Ballarin <Ballarin.Marc@gmx.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: sis190 driver
-Message-ID: <20050729230630.GB10300@electric-eye.fr.zoreil.com>
-References: <095433EB6AB9634BB9524203BF7E303C99AA06@EXGBGMB02.europe.cellnetwork.com> <cb755df905072914244ebbe55b@mail.gmail.com> <cb755df905072914452912d82b@mail.gmail.com> <cb755df905072915085552895b@mail.gmail.com>
+In-Reply-To: <20050730004924.087a7630.Ballarin.Marc@gmx.de>
+References: <20050730004924.087a7630.Ballarin.Marc@gmx.de>
+Content-Type: text/plain
+Date: Fri, 29 Jul 2005 19:15:42 -0400
+Message-Id: <1122678943.9381.44.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cb755df905072915085552895b@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erior <lars.vahlenberg@gmail.com> :
-[...]
-> Is there any kind of test or information I can provid to help you fixing
-> this ?
+On Sat, 2005-07-30 at 00:49 +0200, Marc Ballarin wrote:
+> - no daemons running
 
-It could help to know if the device reports a link event interrupt or such.
-(ethtool allow to modify the log level of the driver if required). Don't
-hesitate to publish a complete dmesg somewhere.
+What kind of results do you get with a more realistic setup, like
+running KDE or Gnome OOTB?
 
-A generous amount of mii/phy related code remains to be merged from SiS
-driver and the 8201 is labelled as requiring extra quirks in sis900.c.
-It is not hopeless :o)
+Lee
 
---
-Ueimor

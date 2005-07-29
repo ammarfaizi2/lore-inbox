@@ -1,63 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVG2EKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVG2EMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbVG2EKn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 00:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVG2EKm
+	id S261552AbVG2EMt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 00:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVG2EMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 00:10:42 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:50076 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S262304AbVG2EKk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 00:10:40 -0400
-Date: Fri, 29 Jul 2005 00:10:32 -0400
-From: Yaroslav Halchenko <kernel@onerussian.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.8 -> 2.6.11 (+ata-dev patch) -- HDD is always on
-Message-ID: <20050729041031.GU16285@washoe.onerussian.com>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-URL: http://www.onerussian.com
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
-X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-User-Agent: mutt-ng devel-20050619 (Debian)
+	Fri, 29 Jul 2005 00:12:49 -0400
+Received: from mx3.mail.ru ([194.67.23.149]:32359 "EHLO mx3.mail.ru")
+	by vger.kernel.org with ESMTP id S261552AbVG2EMp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 00:12:45 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Syncing single filesystem (slow USB writing)
+Date: Fri, 29 Jul 2005 08:12:23 +0400
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <200507290731.32694.arvidjaar@mail.ru> <20050728205016.1bdf7288.akpm@osdl.org>
+In-Reply-To: <20050728205016.1bdf7288.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart112267880.GVirQ4N2jW";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507290812.25976.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been running debian stable with 2.6.8 kernel but due to recent
-failure of the SATA harddrive I've decided to upgrade to 2.6.11 + libata
-patch (2.6.11-libata-dev1.patch.gz) and recent smartmontools
+--nextPart112267880.GVirQ4N2jW
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-After everything worked out and I decided to rest in piece but I've
-found that HDD LED light nomater what. It seems to turn off during BIOS
-checks and then kicks in 1-2 secs after kernel starts booting. No
-prominent harddrive activity noise can be heard but this drive is
-quite silent so it is hard to say.
+On Friday 29 July 2005 07:50, Andrew Morton wrote:
+> Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+> > Mandrake always mounted USB sticks with sync option; it was effectively
+> > noop except for a patch that implemented limited dsync semantic.
+> >
+> > Now, when full sync support for FATis in kernel, moutning with sync
+> > became real pain. Writing speed dropped from 3MB/s to 30KB/s in my case
+> > (and I am not alone).
+>
+> Unfortunately I think we're just going to have to live with that.  It is
+> right that fatfs behaves as it does, and unfortunate that some distros wi=
+ll
+> operate slowly.
+>
 
-SATA drivers were compiled in the kernel to don't mess with initrd.
+Well, I was not going to suggest killing sync support in FAT :)
 
-QUESTION: 
+> For reference: how does mandrake implement this?  Just in /etc/fstab?  How
+> should we tell other people to fix this?
+>
 
-LED constantly ON - does it signal about a problem or may be just
-that some status bit is hanging? Should I worry and try differen kernel
-version?
+Yes, just fstab option. It has been "fixed" a couple of days ago by removin=
+g=20
+sync but I am going to test effect of dsync; it should behave more or less =
+as=20
+before and provide at least some level of fs consistency.
 
-YIKES: ran hddtemp /dev/sda and whole box hanged... SysRq keys - no
-effect... heh heh... reboot -> nothing in logs
+> > One idea how to improve situation - continue to mount with dsync (having
+> > basically old case) and do frequent sync of filesystem (this culd be
+> > started as HAL callout or whatever). Unfortunately, I could not find a
+> > way to request a sync (flush) of single mount point or block device. Ha=
+ve
+> > I missed something?
+>
+> It's trivial to do in-kernel but no, I'm afraid there isn't a userspace
+> interface for this.
 
-Detailed information on the system and drives (outputs of smartctl -a)
-can be found
+Oh well, let's do it in kernel to check if it is worth hassle.
 
-http://www.onerussian.com/Linux/bugs/ata/
+Thanks
 
-Thank you in advance for ideas
+--nextPart112267880.GVirQ4N2jW
+Content-Type: application/pgp-signature
 
-P.S. was ata-dev patch incorporated in recent kernel versions so I could
-use SMART with vanilla kernel?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
--- 
-Yaroslav Halchenko
-  Graduate Student  CS Dept. UNM,  ABQ
-        Linux User  175555
+iD8DBQBC6aypR6LMutpd94wRAhiYAKDOTFlwZOCtUTp+YohcvSY6/gENjACcCB3A
+T6FBtoG9nmJ3pU6aKlvCwNs=
+=5jCc
+-----END PGP SIGNATURE-----
+
+--nextPart112267880.GVirQ4N2jW--

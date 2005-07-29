@@ -1,62 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVG2VuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262925AbVG2VsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbVG2VuI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 17:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbVG2VuC
+	id S262925AbVG2VsK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbVG2Vrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 17:50:02 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:51922 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262753AbVG2VtX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 17:49:23 -0400
-Message-ID: <42EAA458.2010004@pobox.com>
-Date: Fri, 29 Jul 2005 17:49:12 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jason Gaston <jason.d.gaston@intel.com>
-CC: mj@ucw.cz, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-References: <200507290924.40952.jason.d.gaston@intel.com>
-In-Reply-To: <200507290924.40952.jason.d.gaston@intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Fri, 29 Jul 2005 17:47:31 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:25740 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261452AbVG2Vq1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 17:46:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RohMtUpHMTSH1wp+KI+nQhdf3AKkgn0qUlRjJNVkPa+5wl5TlCRzSUdUuCUAmA4y+CxfQn4oQXN9/kjtkDRKCTEQzDWWdS0uGLgfcj5QyawYxaQxBgldMcOjOfD0p769exZZuaXgwpUKHpTnXPhNv6Zem8sN/A0A85H4lJieyRo=
+Message-ID: <cb755df905072914452912d82b@mail.gmail.com>
+Date: Fri, 29 Jul 2005 21:45:45 +0000
+From: Erior <lars.vahlenberg@gmail.com>
+To: romieu@fr.zoreil.com
+Subject: Re: sis190 driver
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <cb755df905072914244ebbe55b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <095433EB6AB9634BB9524203BF7E303C99AA06@EXGBGMB02.europe.cellnetwork.com>
+	 <cb755df905072914244ebbe55b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Gaston wrote:
-> Hello,
+This will get the driver to aknowledge mii-tool reported mode,
+without this the drivers always says "100BaseTx-FD" while my switch
+shows 10BaseT-HD as the selected mode.
+
+/Lars
+--- sis190.new  2005-07-29 23:26:39.000000000 +0000
++++ sis190.c    2005-07-29 23:38:39.000000000 +0000
+@@ -956,7 +956,8 @@ static void sis190_phy_task(void * data)
+                val = mdio_read(ioaddr, phy_id, 0x1f);
+                net_link(tp, KERN_INFO "%s: mii ext = %04x.\n", dev->name, val);
+
+-               val = mdio_read(ioaddr, phy_id, MII_LPA);
++               val = mdio_read(ioaddr, phy_id, MII_LPA)
++                   & mdio_read(ioaddr, phy_id, MII_ADVERTISE );
+                net_link(tp, KERN_INFO "%s: mii lpa = %04x.\n", dev->name, val);
+
+                for (p = reg31; p->ctl; p++) {
+
+
+On 7/29/05, Erior <lars.vahlenberg@gmail.com> wrote:
+> Hi
 > 
-> This patch adds the Intel ICH7R SATA RAID DID to the pci_ids.h file.  This patch was built against the 2.6.13-rc4 kernel.  
-> If acceptable, please apply. 
+> Added PHY identifier for the Asus K8S-MX motherboard.
 > 
-> Thanks,
+> --- sis190.old  2005-07-29 23:16:07.000000000 +0000
+> +++ sis190.c    2005-07-29 23:15:37.000000000 +0000
+> @@ -325,6 +325,7 @@ static struct mii_chip_info {
+>         { "Broadcom PHY BCM5461", { 0x0020, 0x60c0 }, LAN },
+>         { "Agere PHY ET1101B",    { 0x0282, 0xf010 }, LAN },
+>         { "Marvell PHY 88E1111",  { 0x0141, 0x0cc0 }, LAN },
+> +       { "Realtek PHY RTL8201CL",{ 0x0000, 0x8200 }, LAN },
+>         { NULL, }
+>  };
 > 
-> Jason Gaston
+> /Lars
 > 
-> Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
+> On 7/29/05, Lars Vahlenberg <lars.vahlenberg@mandator.com> wrote:
+> > 
+> > 
+> > 
+> > -----Original Message-----
+> > From: Francois Romieu [mailto:romieu@fr.zoreil.com]
+> > Sent: Fri 2005-07-29 00:11
+> > To: linux-kernel@vger.kernel.org
+> > Cc: pascal.chapperon@wanadoo.fr; Lars Vahlenberg; Alexey Dobriyan;
+> > jgarzik@pobox.com
+> > Subject: [patch 2.6.13-rc3] sis190 driver
+> >  
+> > Single file patch:
+> >
+> http://www.zoreil.com/~romieu/sis190/20050728-2.6.13-rc3-sis190-test.patch
+> > 
+> > Patch-kit:
+> > http://www.zoreil.com/~romieu/sis190/20050728-2.6.13-rc3/patches
+> > 
+> > Tarball:
+> > http://www.zoreil.com/~romieu/sis190/20050728-2.6.13-rc3.tar.bz2
+> > 
+> > Changes from previous version (20050722)
+> > o Add endian annotations (Alexey Dobriyan).
+> > 
+> > o Hopefully fixed the build of the patch.
+> > 
+> > o Minor round of mii/phy related changes. May crash.
+> > 
+> > Testing reports/review/patches are always appreciated.
+> > 
+> > Ok, now back to washing.
+> > 
+> > --
+> > Ueimor
+> > 
+> > 
+> > 
+> > 
 > 
-> --- linux-2.6.13-rc4/include/linux/pci_ids.h.orig	2005-07-29 09:06:03.841520568 -0700
-> +++ linux-2.6.13-rc4/include/linux/pci_ids.h	2005-07-29 09:06:42.256680576 -0700
-> @@ -2454,6 +2454,7 @@
->  #define PCI_DEVICE_ID_INTEL_ICH7_3	0x27c1
->  #define PCI_DEVICE_ID_INTEL_ICH7_30	0x27b0
->  #define PCI_DEVICE_ID_INTEL_ICH7_31	0x27bd
-> +#define PCI_DEVICE_ID_INTEL_ICH7_4	0x27c3
->  #define PCI_DEVICE_ID_INTEL_ICH7_5	0x27c4
->  #define PCI_DEVICE_ID_INTEL_ICH7_6	0x27c5
->  #define PCI_DEVICE_ID_INTEL_ICH7_7	0x27c8
-
-Where is this actually used?
-
-I purposefully do not use PCI_DEVICE_ID_xxx in my drivers, because I 
-feel that linux/pci_ids.h is constantly patched for little value.
-
-Device ids, unlike vendor ids, are largely single-use constants.
-
-	Jeff
+> 
+> -- 
+> There is nothing that cannot be solved through sufficient application
+> of brute force and ignorance.
+> 
 
 
-
+-- 
+There is nothing that cannot be solved through sufficient application
+of brute force and ignorance.

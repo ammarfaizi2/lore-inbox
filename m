@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVG2Ajg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVG2AlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbVG2Ajg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 20:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVG2Ajc
+	id S262248AbVG2AlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 20:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVG2AlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 20:39:32 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:49352 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S262248AbVG2Aj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 20:39:28 -0400
-From: Grant Coady <lkml@dodo.com.au>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: Linux 2.4.32-pre2
-Date: Fri, 29 Jul 2005 10:39:19 +1000
-Organization: www.scatter.mine.nu
-Reply-To: lkml@dodo.com.au
-Message-ID: <3buie15rb5r68jcgsh8e47dk8ifl8jmqvg@4ax.com>
-References: <20050727080512.GD7368@dmt.cnet> <2i7he1lgg2237n66ec5p3e007tdsjos531@4ax.com> <20050728102225.GA7661@dmt.cnet>
-In-Reply-To: <20050728102225.GA7661@dmt.cnet>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Jul 2005 20:41:25 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:9239 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262248AbVG2AlN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 20:41:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qFsZpIgPWQcqGzMsPbxiOzr6evincEg8CdLxhdFZRXtpw0d2H5Pjizs6hxNl9WHFiOXul/OdYORr030NqzGX2BvNMjWn4/wwNTLqMqEMMzReLJpM0WG7H/cbKy0SPBncLKXdFfiv9M8zTQxy95x0uGWIsgr95hRlZJ3nIsFaqSw=
+Message-ID: <21d7e9970507281741fb51c98@mail.gmail.com>
+Date: Fri, 29 Jul 2005 10:41:10 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: 2.6.13-rc3-mm2/mm1 breaks DRI
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200507282037.52292.tomlins@cam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050727024330.78ee32c2.akpm@osdl.org>
+	 <200507271758.52466.tomlins@cam.org>
+	 <200507282037.52292.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2005 07:22:25 -0300, Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->> 
->> Breaks Toshiba laptop: hard lockup --> what is on screen is same as 
->> working dmesg up to point: "host/uhci.c: detected 2 port"
->> 
->> Same .config as for 2.4.31-hf3 or 2.4.32-pre1
->> http://scatter.mine.nu/test/linux-2.4/tosh/
->
->Please try to revert the attached? 
+> > >
+> > >Hmm no idea what could have broken it, I'm at OLS and don't have any
+> > >DRI capable machine here yet.. so it'll be a while before I get to
+> > >take a look at it .. I wouldn't be terribly surprised if some of the
+> > >new mapping code might have some issues..
+> >
+> > Still happens with mm2.
+> 
+> And mm3 too.  Please let me know if there is anything you would like me to try.
 
-Yes, that fixed it :o) a USB mouse works.
+Hi Ed,
 
-dmesg:
-...
-host/uhci.c: detected 2 ports         <<== previous lockup after this
-usb.c: kmalloc IF c12f36e0, numif 1
-usb.c: new device strings: Mfr=0, Product=2, SerialNumber=1
-usb.c: USB device number 1 default language ID 0x0
-Product: USB UHCI-alt Root Hub
-SerialNumber: ff80
-...
+Is this all on a 64-bit system, is it a pure 64-bit or are you running
+a 32-bit userspace or something like that... I don't have any 64-bit
+systems so tracking the issues on them is a nightmare...
 
-And the other USB driver (usb-uhci) didn't lockup.
+I've got a patch from Egbert Eich that I need to drop into -mm that
+might fix it but I'm snowed under with real work at the moment (taking
+a week off for OLS didn't help :-)
 
-Thanks,
-Grant.
-
+Dave.

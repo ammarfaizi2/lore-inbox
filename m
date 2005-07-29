@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVG2Ufo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVG2UiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbVG2Ufo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 16:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262786AbVG2UdX
+	id S262819AbVG2UiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 16:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262786AbVG2Ufs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 16:33:23 -0400
-Received: from graphe.net ([209.204.138.32]:10454 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262788AbVG2UcE (ORCPT
+	Fri, 29 Jul 2005 16:35:48 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:27794 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S262800AbVG2Ufe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 16:32:04 -0400
-Date: Fri, 29 Jul 2005 13:32:01 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Pavel Machek <pavel@ucw.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] Task notifier against mm: Allow notifier to remove itself
-Message-ID: <Pine.LNX.4.62.0507291328170.5304@graphe.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Fri, 29 Jul 2005 16:35:34 -0400
+Date: Fri, 29 Jul 2005 22:34:04 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why dump_stack results different so much?
+Message-ID: <20050729203403.GA30603@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
+References: <4ae3c140507291327143a9d83@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ae3c140507291327143a9d83@mail.gmail.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch for Pavel against 2.6.13-rc3-mm3 (after removal of the TIF_FREEZE 
-patch). The same patch was posted yesterday against 2.6.13-rc3. I verified
-again that this patch works fine on i386.
+On Fri, Jul 29, 2005 at 04:27:16PM -0400, Xin Zhao wrote:
+> I supprisely noticed that the dump_stack results are quite different!
+> Why did I get the calling traces below our_ssy_open() and above
+> syscall_call()?  Any thought on this? Many thanks!
 
----
+This might depend on compiling with frame pointers, or not. I recall that at
+one point, the kernel did a basic scan of addresses that looked like likely
+candidates to have been pointers, and printed those.
 
-Allow notifier to remove itself.
-This is done by retrieving the pointer to the next notifier from the list before the
-notifier call. 
+Frame pointers are hailed as improving backtraces. They are in the 'kernel
+hacking' section of the kernel configuration.
 
-Signed-off-by: Christoph Lameter <christoph@lameter.com>
+Sorry that I can't be more precise, but try turning on frame pointers.
 
-Index: linux-2.6.13-rc3-mm3/kernel/sys.c
-===================================================================
---- linux-2.6.13-rc3-mm3.orig/kernel/sys.c	2005-07-29 10:38:39.000000000 -0700
-+++ linux-2.6.13-rc3-mm3/kernel/sys.c	2005-07-29 12:29:18.000000000 -0700
-@@ -172,15 +172,18 @@
- {
- 	int ret=NOTIFY_DONE;
- 	struct notifier_block *nb = *n;
-+	struct notifier_block *next;
- 
- 	while(nb)
- 	{
--		ret=nb->notifier_call(nb,val,v);
-+		/* Determining next here allows the notifier to unregister itself */
-+		next = nb->next;
-+		ret = nb->notifier_call(nb,val,v);
- 		if(ret&NOTIFY_STOP_MASK)
- 		{
- 			return ret;
- 		}
--		nb=nb->next;
-+		nb = next;
- 	}
- 	return ret;
- }
+Good luck!
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

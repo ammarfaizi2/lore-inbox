@@ -1,82 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbVG2Jkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262553AbVG2JqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262514AbVG2Jkh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 05:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbVG2Jkg
+	id S262553AbVG2JqK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 05:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbVG2JqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 05:40:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39386 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262514AbVG2Jke (ORCPT
+	Fri, 29 Jul 2005 05:46:10 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:12490 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262542AbVG2JqJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 05:40:34 -0400
-Date: Fri, 29 Jul 2005 02:39:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tero Roponen <teanropo@cc.jyu.fi>
-Cc: jonsmirl@gmail.com, ink@jurassic.park.msu.ru, gregkh@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4: dma_timer_expiry [was 2.6.13-rc2 hangs at boot]
-Message-Id: <20050729023921.0950968f.akpm@osdl.org>
-In-Reply-To: <Pine.GSO.4.58.0507291132130.13321@tukki.cc.jyu.fi>
-References: <Pine.GSO.4.58.0507061638380.13297@tukki.cc.jyu.fi>
-	<9e47339105070618273dfb6ff8@mail.gmail.com>
-	<20050728233408.550939d4.akpm@osdl.org>
-	<Pine.GSO.4.58.0507291105480.12940@tukki.cc.jyu.fi>
-	<20050729012452.16ee2a31.akpm@osdl.org>
-	<Pine.GSO.4.58.0507291132130.13321@tukki.cc.jyu.fi>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 29 Jul 2005 05:46:09 -0400
+Date: Fri, 29 Jul 2005 11:45:19 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: Add prefetch switch stack hook in scheduler function
+Message-ID: <20050729094519.GA12975@elte.hu>
+References: <20050729070447.GA3032@elte.hu> <200507290722.j6T7Mig07477@unix-os.sc.intel.com> <20050729082826.GA6144@elte.hu> <20050729100257.A10345@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729100257.A10345@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tero Roponen <teanropo@cc.jyu.fi> wrote:
->
-> On Fri, 29 Jul 2005, Andrew Morton wrote:
-> 
-> > Tero Roponen <teanropo@cc.jyu.fi> wrote:
-> > >
-> > > Hi,
-> > >
-> > > I just tested 2.6.13-rc4. At boot it prints:
-> > > "dma_timer_expiry: dma status == 0x61" many times.
-> > > That's the same problem as in 2.6.13-rc2.
-> > >
-> > > If I apply the following patch, everything seems to be fine.
-> > > I'm not sure if this is the right thing to do, but it works for me.
-> > >
-> > > -
-> > > Tero Roponen
-> > >
-> > >
-> > > --- 2.6.13-rc2/drivers/pci/setup-bus.c	Thu Jul  7 01:32:43 2005
-> > > +++ linux/drivers/pci/setup-bus.c	Fri Jul  8 10:25:20 2005
-> > > @@ -40,8 +40,8 @@
-> > >   * FIXME: IO should be max 256 bytes.  However, since we may
-> > >   * have a P2P bridge below a cardbus bridge, we need 4K.
-> > >   */
-> > > -#define CARDBUS_IO_SIZE		(4096)
-> > > -#define CARDBUS_MEM_SIZE	(32*1024*1024)
-> > > +#define CARDBUS_IO_SIZE		(256)
-> > > +#define CARDBUS_MEM_SIZE	(32*1024*1024)
-> > >
-> >
-> > hm, how did you come up with that fix?  Those numbers have been like that
-> > since forever.
-> >
-> > What's the latest 2.6 kernel which worked OK?
-> >
-> > Would it be possible for you to generate the `dmesg -s 100000' output for
-> > both good and bad kernels, see what the differences are?
-> >
-> > Thanks.
-> 
-> Hi,
-> 
-> that patch was from Ivan Kokshaysky (http://lkml.org/lkml/2005/7/8/25)
 
-OK.
+* Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-> My original report is here: http://lkml.org/lkml/2005/7/6/174
+> On Fri, Jul 29, 2005 at 10:28:26AM +0200, Ingo Molnar wrote:
+> > @@ -2872,10 +2878,10 @@ go_idle:
+> >  	/*
+> >  	 * Prefetch (at least) a cacheline below the current
+> >  	 * kernel stack (in expectation of any new task touching
+> > -	 * the stack at least minimally), and a cacheline above
+> > -	 * the stack:
+> > +	 * the stack at least minimally), and at least a cacheline
+> > +	 * above the stack:
+> >  	 */
+> > -	prefetch_range(kernel_stack(next) - MIN_KERNEL_STACK_FOOTPRINT,
+> > +	prefetch_range(kernel_stack(next) - L1_CACHE_BYTES,
+> >  		       MIN_KERNEL_STACK_FOOTPRINT + L1_CACHE_BYTES);
+> 
+> This needs to ensure that we don't prefetch outside the page of the 
+> kernel stack - otherwise we risk weird problems on architectures which 
+> support prefetching but not DMA cache coherency.
 
-I see.  Ivan, do we know what's going on here?
+ok, agreed. Since kernel_stack(next) defaults to 'next', we go below 
+that structure which has unknown coherency attributes. I guess the 
+easiest solution would be to default kernel_stack(next) to '(void *)next 
++ L1_CACHE_BYTES'? That way the default prefetching would happen for the 
+[next...next+2*L1_BYTES] range.
+
+	Ingo

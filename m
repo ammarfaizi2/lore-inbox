@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVG2HJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVG2HMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbVG2HJx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 03:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVG2HJx
+	id S262464AbVG2HMe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 03:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVG2HMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 03:09:53 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:11166 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S262351AbVG2HJW
+	Fri, 29 Jul 2005 03:12:30 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:38047 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262464AbVG2HMC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 03:09:22 -0400
-Date: Fri, 29 Jul 2005 03:09:15 -0400
-From: Yaroslav Halchenko <kernel@onerussian.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.8 -> 2.6.11 (+ata-dev patch) -- HDD is always on
-Message-ID: <20050729070915.GC6655@washoe.onerussian.com>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Jeff Garzik <jgarzik@pobox.com>
-References: <20050729041031.GU16285@washoe.onerussian.com> <42E9AFC6.9010805@pobox.com> <20050729055820.GX16285@washoe.onerussian.com> <20050729061518.GB6655@washoe.onerussian.com>
+	Fri, 29 Jul 2005 03:12:02 -0400
+Subject: Re: [PATCH 1/5] Add AIO event ring size tunable
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: "linux-aio kvack.org" <linux-aio@kvack.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1122569567.8278.12.camel@lade.trondhjem.org>
+References: <1122565590.2019.80.camel@frecb000686>
+	 <1122569567.8278.12.camel@lade.trondhjem.org>
+Date: Fri, 29 Jul 2005 09:10:49 +0200
+Message-Id: <1122621049.1989.99.camel@frecb000686>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050729061518.GB6655@washoe.onerussian.com>
-X-URL: http://www.onerussian.com
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
-X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-User-Agent: mutt-ng devel-20050619 (Debian)
+X-Mailer: Evolution 2.0.3 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 29/07/2005 09:24:05,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 29/07/2005 09:24:09,
+	Serialize complete at 29/07/2005 09:24:09
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Does this happen in unpatched 2.6.12.3 or 2.6.13-rc4?
-tried clear 2.6.11 ( with no libata patch -- light is on :-( )
+On Thu, 2005-07-28 at 12:52 -0400, Trond Myklebust wrote:
+> to den 28.07.2005 Klokka 17:46 (+0200) skreiv Sébastien Dugué:
+> > 
+> > 
+> > 
+> > 
+> > 
+> > 
+> > 
+> > ukjent vedlegg
+> > (aiomaxevents)
+> 
+> Please don't post these patches as base-64 encoded anonymous
+> attachments. It makes them very annoying to review.
+> 
+> In you must use attachments, use inlined ascii. Better still, don't use
+> attachments at all, but just include the patch in the body of your
+> email.
+> 
+> Cheers,
+>   Trond
+> 
 
-/booted 2.6.8 Debian kernel -- everything is fine, but no libata-dev
-patch for SATA makes me wonder if you should try 2.6.13-rc4/
+  Argh, I usually use sylpheed to post patches, but forgot this
+time. If someone wants me to resend, just ask.
 
-once again -- details of the system can be found
-http://www.onerussian.com/Linux/bugs/ata/
+  Sébastien.
 
 -- 
-Yaroslav Halchenko
-Research Assistant, Psychology Department, Rutgers-Newark
-Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
-        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07105
-Student  Ph.D. @ CS Dept. NJIT
+------------------------------------------------------
+
+  Sébastien Dugué                BULL/FREC:B1-247
+  phone: (+33) 476 29 77 70      Bullcom: 229-7770
+
+  mailto:sebastien.dugue@bull.net
+
+  Linux POSIX AIO: http://www.bullopensource.org/posix
+  
+------------------------------------------------------
+

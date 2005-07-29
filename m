@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVG2RJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVG2RMC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262667AbVG2RJk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 13:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVG2RJg
+	id S262670AbVG2RMC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 13:12:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVG2RMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 13:09:36 -0400
-Received: from moraine.clusterfs.com ([66.96.26.190]:49285 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S262667AbVG2RGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 13:06:44 -0400
-Date: Fri, 29 Jul 2005 11:06:41 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] OOM problems still left in 2.6.13-rc3
-Message-ID: <20050729170641.GH6126@schatzie.adilger.int>
-Mail-Followup-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>,
-	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <018101c5943a$1a07a5d0$4168010a@bsd.tnes.nec.co.jp>
+	Fri, 29 Jul 2005 13:12:01 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:39065 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S262671AbVG2RLn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 13:11:43 -0400
+Date: Fri, 29 Jul 2005 19:11:39 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [patch 2/4] s390: check for interrupt before waiting.
+Message-ID: <20050729171139.GB5663@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <018101c5943a$1a07a5d0$4168010a@bsd.tnes.nec.co.jp>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 29, 2005  21:36 +0900, Takashi Sato wrote:
-> The buffers connected to t_sync_datalist can't simply be removed like
-> the buffers connected to t_locked_list, since we don't know if the
-> I/O against the buffers are complete.
-> 
-> So we should wait until the committing transaction becomes complete
-> if there are any buffers connected to the transaction's
-> t_sync_datalist.
-> 
-> b) If journal_unmap_buffer() returns -1 on journal_invalidatepages(),
->   call log_wait_commit() to wait for the completion of the
->   transaction, and retry to call journal_unmap_buffer() again.
->
-> @@ -1899,8 +1896,19 @@ int journal_invalidatepage(journal_t *jo
-> 
->   if (offset <= curr_off) {
->     /* This block is wholly outside the truncation point */
-> +retry:
->    lock_buffer(bh);
-> -   may_free &= journal_unmap_buffer(journal, bh);
-> +   ret = journal_unmap_buffer(journal, bh, &wait_tid);
-> +   /* When this buffer is in transaction of
-> +    * t_sync_datalist, truncate must wait for
-> +    * that transaction.
-> +    */
-> +   if (ret < 0) {
-> +    unlock_buffer(bh);
-> +    log_wait_commit(journal, wait_tid);
-> +    goto retry;
-> +   }
-> +   may_free &= ret;
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-What kind of effect does this have on filesystem performance?
-This would apparently make truncate be synchronous with journal commit due to
-truncate_{partial,complete}_page->do_invalidatepage->journal_invalidatepage().
+The patch that introduced waiting for interrupts after resetting
+the reader can cause the boot to fail because the system is waiting
+for an interrupt that will never arrive. Add code to check if an
+interrupt is supposed to arrive before waiting endlessly.
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
+diffstat:
+ arch/s390/kernel/head.S   |    7 +++++++
+ arch/s390/kernel/head64.S |    7 +++++++
+ 2 files changed, 14 insertions(+)
+
+diff -urpN linux-2.6/arch/s390/kernel/head64.S linux-2.6-patched/arch/s390/kernel/head64.S
+--- linux-2.6/arch/s390/kernel/head64.S	2005-07-29 18:43:05.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/head64.S	2005-07-29 18:43:38.000000000 +0200
+@@ -345,6 +345,13 @@ iplstart:
+         la    %r2,.Lreset              
+         lhi   %r3,26
+ 	diag  %r2,%r3,8
++	la    %r5,.Lirb
++	stsch 0(%r5)			       # check if irq is pending
++	tm    30(%r5),0x0f		       # by verifying if any of the
++	bnz   .Lwaitforirq		       # activity or status control
++	tm    31(%r5),0xff		       # bits is set in the schib
++	bz    .Lnoreset
++.Lwaitforirq:
+ 	mvc   0x78(8),.Lrdrnewpsw	       # set up IO interrupt psw
+ .Lwaitrdrirq:
+ 	lpsw  .Lrdrwaitpsw
+diff -urpN linux-2.6/arch/s390/kernel/head.S linux-2.6-patched/arch/s390/kernel/head.S
+--- linux-2.6/arch/s390/kernel/head.S	2005-07-29 18:43:05.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/head.S	2005-07-29 18:43:38.000000000 +0200
+@@ -346,6 +346,13 @@ iplstart:
+         la    %r2,.Lreset              
+         lhi   %r3,26
+ 	diag  %r2,%r3,8
++	la    %r5,.Lirb
++	stsch 0(%r5)			       # check if irq is pending
++	tm    30(%r5),0x0f		       # by verifying if any of the
++	bnz   .Lwaitforirq		       # activity or status control
++	tm    31(%r5),0xff		       # bits is set in the schib
++	bz    .Lnoreset
++.Lwaitforirq:
+ 	mvc   0x78(8),.Lrdrnewpsw              # set up IO interrupt psw
+ .Lwaitrdrirq:
+ 	lpsw  .Lrdrwaitpsw

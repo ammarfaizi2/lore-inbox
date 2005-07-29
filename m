@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbVG2VnX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262883AbVG2VdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbVG2VnX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 17:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVG2VnT
+	id S262883AbVG2VdP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbVG2V15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 17:43:19 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:48761 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S262905AbVG2Vh5 convert rfc822-to-8bit (ORCPT
+	Fri, 29 Jul 2005 17:27:57 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:20634 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S262878AbVG2V0p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 17:37:57 -0400
-X-IronPort-AV: i="3.95,154,1120453200"; 
-   d="scan'208"; a="292324298:sNHT874248680"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 2.6.12-rc3] modified firmware_class.c to support no hotplug
-Date: Fri, 29 Jul 2005 16:37:56 -0500
-Message-ID: <B37DF8F3777DDC4285FA831D366EB9E2073110@ausx3mps302.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.12-rc3] modified firmware_class.c to support no hotplug
-Thread-Index: AcWRnSGDF+C/PkOSS36SQuNgVq33fwC6GBSQ
-From: <Abhay_Salunke@Dell.com>
-To: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Cc: <greg@kroah.com>
-X-OriginalArrivalTime: 29 Jul 2005 21:37:56.0733 (UTC) FILETIME=[C89EAAD0:01C59485]
+	Fri, 29 Jul 2005 17:26:45 -0400
+Date: Fri, 29 Jul 2005 23:22:22 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why dump_stack results different so much?
+Message-ID: <20050729212221.GA32570@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
+References: <4ae3c140507291327143a9d83@mail.gmail.com> <20050729203403.GA30603@outpost.ds9a.nl> <4ae3c140507291400230ca65c@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ae3c140507291400230ca65c@mail.gmail.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@osdl.org]
-> Sent: Monday, July 25, 2005 11:47 PM
-> To: Salunke, Abhay
-> Cc: Greg KH
-> Subject: Re: [patch 2.6.12-rc3] modified firmware_class.c to support
-no
-> hotplug
+On Fri, Jul 29, 2005 at 05:00:20PM -0400, Xin Zhao wrote:
+> Thanks for your reply.
 > 
-> Abhay Salunke <Abhay_Salunke@dell.com> wrote:
-> >
-> > Andrew, could you please add this patch to the -mm tree.
-> 
-> -mm is based on Linus's post-2.6.13-rc3 tree, not on 2.6.11.x!
-> 
-> Please redo and retest the patches against a current development
-kernel,
-> then resend.
+> Below is the code that print the kernel calling trace:
 
-I tried building the 2.6..13-rc4 kernel by applying the 2.6..13-rc4
-patch to 2.6.12 kernel source. The build goes fine but booting to the
-new kernel fails giving the following errors 
-Insmod error inserting /lib/sd_mod.ko' :-1 Unknown symbol in module
-Error: /bin/insmod exited abnormally!
-I am getting the same errors for mptscsih.ko , ext3.ko and dm-mirror.ko
-modules. 
-Not sure if this is a known issue...
+Can I suggest just turning on frame pointers like I suggested? 
 
-Thanks
-Abhay
+ If you say Y here the resulting kernel image will be slightly larger
+ and slower, but it will give very useful debugging information. 
+ If you don't debug the kernel, you can say N, but we may not be able
+ to solve problems without frame pointers. 
+
+Good luck!
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

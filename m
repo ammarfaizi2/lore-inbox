@@ -1,35 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVG2LLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVG2LVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVG2LLz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 07:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbVG2LLz
+	id S262483AbVG2LVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 07:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVG2LVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 07:11:55 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:60617 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262453AbVG2LLo (ORCPT
+	Fri, 29 Jul 2005 07:21:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49543 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262483AbVG2LVI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 07:11:44 -0400
-Date: Fri, 29 Jul 2005 13:11:38 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: antoine <antoine@nagafix.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel BUG at "mm/rmap.c":493 OR corrupt swap partition
-In-Reply-To: <1122626872.4018.9.camel@dhcp-192-168-22-217.internal>
-Message-ID: <Pine.LNX.4.61.0507291311050.10775@yvahk01.tjqt.qr>
-References: <1122626872.4018.9.camel@dhcp-192-168-22-217.internal>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Jul 2005 07:21:08 -0400
+Date: Fri, 29 Jul 2005 04:20:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Syncing single filesystem (slow USB writing)
+Message-Id: <20050729042000.48c40272.akpm@osdl.org>
+In-Reply-To: <200507291428.06903.arvidjaar@mail.ru>
+References: <200507290731.32694.arvidjaar@mail.ru>
+	<20050728205016.1bdf7288.akpm@osdl.org>
+	<200507291428.06903.arvidjaar@mail.ru>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Date: Fri, 29 Jul 2005 09:47:52 +0100
->From: antoine <antoine@nagafix.co.uk>
->To: linux-kernel@vger.kernel.org
->Subject: Kernel BUG at "mm/rmap.c":493 OR corrupt swap partition
+Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+>
+> On Friday 29 July 2005 07:50, Andrew Morton wrote:
+> > > One idea how to improve situation - continue to mount with dsync (having
+> > > basically old case) and do frequent sync of filesystem (this culd be
+> > > started as HAL callout or whatever). Unfortunately, I could not find a
+> > > way to request a sync (flush) of single mount point or block device. Have
+> > > I missed something?
+> >
+> > It's trivial to do in-kernel but no, I'm afraid there isn't a userspace
+> > interface for this.
+> 
+> apparently one should not ask such a question at 7 am. Any reason why 
+> BLKFLSBUF does not suite?
 
-If the swap partition is corrupt, rerunning mkswap on it (while being turned 
-off, of course) should at best fix it.
+That'll only write back data associated with /dev/hdXX (ie: filesystem
+metadata) and not the data associated with all the files in the filesystem
+which is mounted on /dev/hdXX.
 
-
-Jan Engelhardt
--- 

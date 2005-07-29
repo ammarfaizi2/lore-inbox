@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbVG2UXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbVG2U0G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbVG2UXm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 16:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVG2UVk
+	id S262804AbVG2U0G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 16:26:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbVG2U0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 16:21:40 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:13698 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262763AbVG2UUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 16:20:39 -0400
-Date: Fri, 29 Jul 2005 21:20:21 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       "Antonino A. Daplas" <adaplas@gmail.com>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: colormap fixes
-In-Reply-To: <9e47339105072814505b6fe4f8@mail.gmail.com>
-Message-ID: <Pine.LNX.4.56.0507292119340.17988@pentafluge.infradead.org>
-References: <200507280031.j6S0V3L3016861@hera.kernel.org>  <42E8F0CD.6070500@gmail.com>
-  <Pine.LNX.4.62.0507281758080.24391@numbat.sonytel.be> 
- <9e473391050728092936794718@mail.gmail.com>  <9e47339105072811183ac0f008@mail.gmail.com>
-  <Pine.LNX.4.62.0507282202450.29876@numbat.sonytel.be> 
- <9e4733910507281315419c3c12@mail.gmail.com>  <9e47339105072813213db7cee4@mail.gmail.com>
-  <9e47339105072813507c00687e@mail.gmail.com>  <Pine.LNX.4.62.0507282337410.29876@numbat.sonytel.be>
- <9e47339105072814505b6fe4f8@mail.gmail.com>
+	Fri, 29 Jul 2005 16:26:05 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:59193 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262814AbVG2UYQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 16:24:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:references:in-reply-to:mime-version:content-type:content-transfer-encoding:message-id;
+        b=Cmq34G3hM/XE5xxIdvqdqNJhGmdCYbkAiquA9jkt19Lal0hWrRzdOQ37qYPGEp4Fl2qoCnEm4A9MWBeeS/2aBoLnx0i0cs6x75nxafrDEVLLIl7HFawSRcJc4BurTcv9v3qC/uqyTMfE9DrNPzMSk9E2QaspNmUvMHrDkYyyAi8=
+From: Rafael =?iso-8859-1?q?=C1vila_de_Esp=EDndola?= 
+	<rafael.espindola@gmail.com>
+To: gentoo-catalyst@gentoo.org, linux-kernel@vger.kernel.org
+Subject: Re: unmounting a filesystem mounted by /init (initramfs)
+Date: Fri, 29 Jul 2005 17:24:33 -0300
+User-Agent: KMail/1.8.1
+References: <564d96fb050728154923ba8663@mail.gmail.com> <200507290834.35504.vda@ilport.com.ua>
+In-Reply-To: <200507290834.35504.vda@ilport.com.ua>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+Content-Type: multipart/signed;
+  boundary="nextPart22472691.TcO0OJfLzY";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507291724.39103.rafael.espindola@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart22472691.TcO0OJfLzY
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> > No, bits_per_pixel can be (much) larger than the color map size. E.g. a simple
-> > ARGB8888 directcolor mode has bits_per_pixel = 32 and color map size = 256.
-> 
-> So I have the bits_per_pixel attribute wrong in sysfs. It needs to be
-> bits_per_color and then let the driver sort it out.  Otherwise there
-> is no way to set ARGB8888 versus ARGB2101010. With bits per color you
-> would set 8 or 10.
+> Use lazy umount (umount -l) while fs is still visible
+This works after all :)
 
-You would need bits_per_read, bit_per_green. This doesn't event count the 
-other color spaces avaliable like YUV.
+I was I bit confused on how to remove the ext2 from the union but manage to=
+ do=20
+it. Then it was a simple matter of implementing lazy unmount in busybox.
 
+Thank you very much,
+Rafael
+
+--nextPart22472691.TcO0OJfLzY
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBC6pCHLlrfGJ8JUHwRApuXAJ90achLwm1NFc38uGxAPTUe+4bCrgCfbewA
+salOLXQ+SXK02dYaaA/YVXg=
+=eD9M
+-----END PGP SIGNATURE-----
+
+--nextPart22472691.TcO0OJfLzY--

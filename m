@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbVG2ScB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVG2Sdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262720AbVG2ScB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 14:32:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbVG2Sb7
+	id S262715AbVG2Sdn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 14:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbVG2Sdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 14:31:59 -0400
-Received: from dvhart.com ([64.146.134.43]:26042 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262711AbVG2Sb5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 14:31:57 -0400
-Date: Fri, 29 Jul 2005 11:31:50 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+	Fri, 29 Jul 2005 14:33:42 -0400
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:49607 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S262723AbVG2SdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 14:33:08 -0400
+Date: Fri, 29 Jul 2005 14:33:20 -0400
+From: Frank Peters <frank.peters@comcast.net>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, colpatch@us.ibm.com
-Subject: [PATCH] Fix NUMA node sizing in nr_free_zone_pages
-Message-ID: <240970000.1122661910@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
+Message-Id: <20050729143320.4d30b10a.frank.peters@comcast.net>
+In-Reply-To: <20050728222838.64517cc9.akpm@osdl.org>
+References: <20050624113404.198d254c.frank.peters@comcast.net>
+	<42BC306A.1030904@m1k.net>
+	<20050624125957.238204a4.frank.peters@comcast.net>
+	<42BC3EFE.5090302@m1k.net>
+	<20050728222838.64517cc9.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are iterating over all nodes in nr_free_zone_pages(). Because the 
-fallback zonelists contain all nodes in the system, and we walk all
-the zonelists, we're counting memory multiple times (once for each
-node). This caused us to make a size estimate of 32GB for an 8GB
-AMD64 box, which makes all the dirty ratio calculations, etc incorrect.
+On Thu, 28 Jul 2005 22:28:38 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-There's still a further bug to fix from e820 holes causing overestimation
-as well, but this fix is separate, and good as is, and fixes one class
-of problems. Problem found by Badari, and tested by Ram Pai - thanks!
+> 
+> Guys, are these problems fixed in 2.6.13-rc4?
+> 
+> If not, please cc linux-kernel on the reply, thanks.
+>
 
-Signed-off-by:  Martin J. Bligh <mbligh@mbligh.org> 
-Signed-off-by:  Matt Dobson <colpatch@us.ibm.com>
+Unfortunately, with 2.6.13-rc4 the problems are still here.
+It takes, on average, about 5-6 reboots before I get a working
+keyboard.
 
-diff -purN -X /home/mbligh/.diff.exclude linux-2.6.12/mm/page_alloc.c 2.6.12-nr_free_zone_pages/mm/page_alloc.c
---- linux-2.6.12/mm/page_alloc.c	2005-06-17 17:21:43.000000000 -0700
-+++ 2.6.12-nr_free_zone_pages/mm/page_alloc.c	2005-07-28 16:54:03.000000000 -0700
-@@ -1006,20 +1006,19 @@ unsigned int nr_free_pages_pgdat(pg_data
- 
- static unsigned int nr_free_zone_pages(int offset)
- {
--	pg_data_t *pgdat;
-+	/* Just pick one node, since fallback list is circular */
-+	pg_data_t *pgdat = NODE_DATA(numa_node_id());
- 	unsigned int sum = 0;
- 
--	for_each_pgdat(pgdat) {
--		struct zonelist *zonelist = pgdat->node_zonelists + offset;
--		struct zone **zonep = zonelist->zones;
--		struct zone *zone;
-+	struct zonelist *zonelist = pgdat->node_zonelists + offset;
-+	struct zone **zonep = zonelist->zones;
-+	struct zone *zone;
- 
--		for (zone = *zonep++; zone; zone = *zonep++) {
--			unsigned long size = zone->present_pages;
--			unsigned long high = zone->pages_high;
--			if (size > high)
--				sum += size - high;
--		}
-+	for (zone = *zonep++; zone; zone = *zonep++) {
-+		unsigned long size = zone->present_pages;
-+		unsigned long high = zone->pages_high;
-+		if (size > high)
-+			sum += size - high;
- 	}
- 
- 	return sum;
+It's a problem I can live with.  Once things get going, the
+system runs without any problems for the rest of the day.
 
+If there is anything I can do to assist, just let me know.
+
+Frank Peters
 

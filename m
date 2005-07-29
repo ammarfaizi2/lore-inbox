@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVG2JrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVG2JtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262556AbVG2JrE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 05:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVG2JrD
+	id S262551AbVG2JtR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 05:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbVG2Jrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 05:47:03 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:65215 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S262556AbVG2Jq6 (ORCPT
+	Fri, 29 Jul 2005 05:47:33 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:704 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S262558AbVG2JrB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 05:46:58 -0400
-Subject: [patch 6/8] w100fb: Rewrite for platform independence
+	Fri, 29 Jul 2005 05:47:01 -0400
+Subject: [patch 0/8] Corgi (Sharp Zaurus SL-c7x0) Driver Updates
 From: Richard Purdie <rpurdie@rpsys.net>
-To: linux-kernel@vger.kernel.org
+To: akpm@osdl.org
+Cc: adaplas@pol.net, linux-fbdev-devel@lists.sourceforge.net, vojtech@suse.cz,
+       linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Fri, 29 Jul 2005 10:46:54 +0100
-Message-Id: <1122630414.7747.95.camel@localhost.localdomain>
+Date: Fri, 29 Jul 2005 10:46:23 +0100
+Message-Id: <1122630383.7747.85.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The code w100fb was based on was horribly Sharp SL-C7x0 specific
-and there was little else that could be done as I had no access to
-anything else with a w100 in it. There is no real documentation 
-about this chipset available.
+This is a series of driver updates for the Sharp Zaurus SL-C7x0. All the
+patches have been seen by the subsystem maintainers at some point. Some
+of the input patches seem to be lost in the system (since March) and
+given the mainline corgi keyboard code doesn't even compile at the
+moment, I'd like to see some of these making mainline sooner rather than
+later. The w100fb patch depends on the corgi touchscreen cleanup patch
+which is why this hasn't been merged as yet. This patch series seems the
+simplest way to resolve things.
 
-Ian Molton has access to other platforms with the w100 (Toshiba
-e-series) and so between us, we've improved w100fb and made it 
-platform independent. Ian Molton also added support for the 
-very similar w3220 and w3200 chipsets.
+Patches 1-7 only affect the Zaurus platform and are being used by Zaurus
+users in preference to mainline kernels so merging makes a lot of sense
+and should be minimal risk for anyone else. They're also all patches
+against code I effectively maintain.
 
-There are a lot of changes here and it nearly amounts to a rewrite 
-of the driver but it has been extensively tested and is being used 
-in preference to the original driver in the Zaurus community. I'd
-therefore like to update the mainline code to reflect this. 
+Patch 8 is the final key to resolving an input key vs. switch issue and
+I'm happy to wait for the input maintainer to merge that if appropriate.
+I've included it for completeness as previous versions that are around
+are suffering bitrot.
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+Hopefully these are all good candidates for -mm and then mainline.
 
-The patch is large so for LKML I'm linking to it:
-http://www.rpsys.net/openzaurus/patches/w100_core-r1.patch
+Richard
+(Corgi Maintainer)
 
 

@@ -1,266 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVG2SjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVG2Slz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbVG2SjI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 14:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262699AbVG2Siw
+	id S262712AbVG2Slz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 14:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbVG2Slt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 14:38:52 -0400
-Received: from graphe.net ([209.204.138.32]:24228 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262705AbVG2Sik (ORCPT
+	Fri, 29 Jul 2005 14:41:49 -0400
+Received: from graphe.net ([209.204.138.32]:40667 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262707AbVG2SlG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 14:38:40 -0400
-Date: Fri, 29 Jul 2005 11:38:35 -0700 (PDT)
+	Fri, 29 Jul 2005 14:41:06 -0400
+Date: Fri, 29 Jul 2005 11:41:04 -0700 (PDT)
 From: Christoph Lameter <christoph@lameter.com>
 X-X-Sender: christoph@graphe.net
 To: linux-kernel@vger.kernel.org
-cc: akpm@osdl.org, pj@sgi.com
-Subject: [PATCH] String conversions for memory policy
-Message-ID: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
+cc: akpm@osdl.org
+Subject: [PATCH] Merge /proc/pid/numa_maps functionality into smaps 
+Message-ID: <Pine.LNX.4.62.0507291139030.3911@graphe.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds two new functions to mm/mempolicy.c that allow the conversion
-of a memorypolicy to a textual representation and vice versa.
-
-The patch provides necessary functions for the merging of numa_maps into 
-smap.
+This patch merges the functionality provided by the numa_maps patch in mm 
+into the /proc/<pid>/smaps facility. The numa_maps patch may then be 
+dropped from mm.
 
 Signed-off-by: Christoph Lameter <christoph@lameter.com>
 
-Index: linux-2.6.13-rc3-mm3/mm/mempolicy.c
+
+Index: linux-2.6.13-rc3-mm3/fs/proc/task_mmu.c
 ===================================================================
---- linux-2.6.13-rc3-mm3.orig/mm/mempolicy.c	2005-07-29 10:37:26.000000000 -0700
-+++ linux-2.6.13-rc3-mm3/mm/mempolicy.c	2005-07-29 11:08:13.000000000 -0700
-@@ -1170,3 +1170,214 @@
+--- linux-2.6.13-rc3-mm3.orig/fs/proc/task_mmu.c	2005-07-29 11:07:50.000000000 -0700
++++ linux-2.6.13-rc3-mm3/fs/proc/task_mmu.c	2005-07-29 11:33:38.000000000 -0700
+@@ -158,6 +158,10 @@
+ 	unsigned long shared_dirty;
+ 	unsigned long private_clean;
+ 	unsigned long private_dirty;
++	unsigned long anon;
++	unsigned long mapped;
++	unsigned long mapcount_max;
++	unsigned long node[MAX_NUMNODES];
+ };
+ 
+ static void smaps_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
+@@ -167,6 +171,7 @@
+ 	pte_t *pte, ptent;
+ 	unsigned long pfn;
+ 	struct page *page;
++	int count;
+ 
+ 	pte = pte_offset_map(pmd, addr);
+ 	do {
+@@ -191,6 +196,15 @@
+ 			else
+ 				mss->private_clean += PAGE_SIZE;
+ 		}
++
++		count = page_mapcount(page);
++		if (count)
++			mss->mapped += PAGE_SIZE;
++		if (count > mss->mapcount_max)
++			mss->mapcount_max = count;
++		if (PageAnon(page))
++			mss->anon += PAGE_SIZE;
++		mss->node[page_to_nid(page)] += PAGE_SIZE;
+ 	} while (pte++, addr += PAGE_SIZE, addr != end);
+ 	pte_unmap(pte - 1);
+ 	cond_resched_lock(&vma->vm_mm->page_table_lock);
+@@ -246,10 +260,15 @@
+ 
+ static int show_smap(struct seq_file *m, void *v)
  {
- 	sys_set_mempolicy(MPOL_DEFAULT, NULL, 0);
++	struct task_struct *task = m->private;
+ 	struct vm_area_struct *vma = v;
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long vma_len = (vma->vm_end - vma->vm_start);
+ 	struct mem_size_stats mss;
++#ifdef CONFIG_NUMA
++	int n;
++	char buffer[50];
++#endif
+ 
+ 	memset(&mss, 0, sizeof mss);
+ 
+@@ -267,13 +286,28 @@
+ 		   "Shared_Clean:  %8lu kB\n"
+ 		   "Shared_Dirty:  %8lu kB\n"
+ 		   "Private_Clean: %8lu kB\n"
+-		   "Private_Dirty: %8lu kB\n",
++		   "Private_Dirty: %8lu kB\n"
++		   "Anonymous:     %8lu kB\n"
++		   "Mapped:        %8lu kB\n"
++		   "MaxMapCount:   %8lu\n",
+ 		   vma_len >> 10,
+ 		   mss.resident >> 10,
+ 		   mss.shared_clean  >> 10,
+ 		   mss.shared_dirty  >> 10,
+ 		   mss.private_clean >> 10,
+-		   mss.private_dirty >> 10);
++		   mss.private_dirty >> 10,
++		   mss.anon >> 10,
++		   mss.mapped >> 10,
++		   mss.mapcount_max);
++#ifdef CONFIG_NUMA
++	for_each_node(n)
++		if (mss.node[n])
++			seq_printf(m, "Node%-4d:      %8lu kB\n",
++					n, mss.node[n]);
++	if (mpol_to_str(buffer, sizeof(buffer),
++			get_vma_policy(task, vma, vma->vm_start)) >=0)
++		seq_printf(m, "Memory_Policy: %s\n", buffer);
++#endif
+ 	return 0;
  }
-+
-+/*
-+ * Convert a mempolicy into a string.
-+ * Returns the number of characters in buffer (if positive)
-+ * or an error (negative)
-+ */
-+int mpol_to_str(char *buffer, int maxlen, struct mempolicy *pol)
-+{
-+	char *p = buffer;
-+	char *e = buffer + maxlen;
-+	int first = 1;
-+	int node;
-+	struct zone **z;
-+
-+	if (!pol || pol->policy == MPOL_DEFAULT) {
-+		strcpy(buffer,"default");
-+		return 7;
-+	}
-+
-+	if (pol->policy == MPOL_PREFERRED) {
-+		if (e < p + 8 /* fixed string size */ + 4 /* max len of node number */)
-+			return -ENOSPC;
-+
-+		sprintf(p, "prefer=%d", pol->v.preferred_node);
-+		return strlen(buffer);
-+
-+	} else if (pol->policy == MPOL_BIND) {
-+
-+		if (e < p + 9 + 4)
-+			return -ENOSPC;
-+
-+		p+= sprintf(p, "bind={");
-+
-+		for (z = pol->v.zonelist->zones; *z ; *z++) {
-+			if (!first)
-+				*p++ = ',';
-+			else
-+				first = 0;
-+			if (e < p + 2 + 4 + strlen((*z)->name))
-+				return -ENOSPC;
-+			p += sprintf(p, "%d/%s", (*z)->zone_pgdat->node_id, (*z)->name);
-+		}
-+
-+		*p++ = '}';
-+		*p++ = 0;
-+		return p-buffer;
-+
-+	} else if (pol->policy == MPOL_INTERLEAVE) {
-+
-+		if (e < p + 14 + 4)
-+			return -ENOSPC;
-+
-+		p += sprintf(p, "interleave={");
-+
-+		for_each_node(node)
-+			if (test_bit(node, pol->v.nodes)) {
-+				if (!first)
-+					*p++ = ',';
-+				else
-+					first = 0;
-+				if (e < p + 2 /* min bytes that follow */ + 4 /* node number */)
-+					return -ENOSPC;
-+				p += sprintf(p, "%d", node);
-+			}
-+
-+		*p++ = '}';
-+		*p++ = 0;
-+		return p-buffer;
-+	}
-+	BUG();
-+	return -EFAULT;
-+}
-+
-+/*
-+ * Convert a representation of a memory policy from text
-+ * form to binary.
-+ *
-+ * Returns either a memory policy or NULL for error.
-+ */
-+struct mempolicy *str_to_mpol(char *buffer, char **end)
-+{
-+	char *p;
-+	struct mempolicy *pol;
-+	int node;
-+	size_t size;
-+
-+	if (strnicmp(buffer, "default", 7) == 0) {
-+
-+		*end = buffer + 7;
-+		return &default_policy;
-+
-+	}
-+
-+	pol = __mpol_copy(&default_policy);
-+	if (IS_ERR(pol))
-+		return NULL;
-+
-+	if (strnicmp(buffer, "prefer=", 7) == 0) {
-+
-+		node = simple_strtoul(buffer + 7, &p, 10);
-+		if (node >= MAX_NUMNODES || !node_online(node))
-+			goto out;
-+
-+		pol->policy = MPOL_PREFERRED;
-+		pol->v.preferred_node = node;
-+
-+	} else if (strnicmp(buffer, "interleave={", 12) == 0) {
-+
-+		pol->policy = MPOL_INTERLEAVE;
-+		p = buffer + 12;
-+		bitmap_zero(pol->v.nodes, MAX_NUMNODES);
-+
-+		do {
-+			node = simple_strtoul(p, &p, 10);
-+
-+			/* Check here for cpuset restrictions on nodes */
-+			if (node >= MAX_NUMNODES || !node_online(node))
-+				goto out;
-+			set_bit(node, pol->v.nodes);
-+
-+		} while (*p++ == ',');
-+
-+		if (p[-1] != '}' || bitmap_empty(pol->v.nodes, MAX_NUMNODES))
-+			goto out;
-+
-+	} else if (strnicmp(buffer, "bind={", 6) == 0) {
-+
-+		struct zonelist *zonelist = kmalloc(sizeof(struct zonelist), GFP_KERNEL);
-+		struct zone **z = zonelist->zones;
-+		struct zonelist *new;
-+
-+		pol->policy = MPOL_BIND;
-+		p = buffer + 6;
-+
-+		do {
-+			pg_data_t *pgdat;
-+			struct zone *zone = NULL;
-+
-+			node = simple_strtoul(p, &p, 10);
-+
-+			/* Try to find the pgdat for the specified node */
-+			for_each_pgdat(pgdat) {
-+				if (pgdat->node_id == node) {
-+					zone = pgdat->node_zones;
-+					break;
-+				}
-+			}
-+			if (!zone || node >= MAX_NUMNODES || !node_online(node))
-+				goto bind_out;
-+
-+			/*
-+			 * If there is no zone specified then take the first
-+			 * zone. Otherwise we need to look for a matching name
-+			 */
-+			if (*p == '/') {
-+				char *start = ++p;
-+				struct zone *q;
-+				struct zone *found = NULL;
-+
-+				/* Find end of the zone name */
-+				while (*p && *p != ',' && *p != '}')
-+					p++;
-+
-+				if (start == p)
-+					goto bind_out;
-+				/*
-+				 * Go through the zones in this node and check
-+				 * if any have the name we are looking for
-+				 */
-+				for(q = zone; q < zone + MAX_NR_ZONES; q++) {
-+					if (strnicmp(q->name, start, p-start) == 0) {
-+						found = q;
-+						break;
-+					}
-+				}
-+				zone = found;
-+			}
-+
-+			if (!zone || z > zonelist->zones + MAX_NUMNODES * MAX_NR_ZONES)
-+				goto bind_out;
-+			*z++ = zone;
-+
-+		} while (*p++ == ',');
-+
-+		if (p[-1] != '}') {
-+bind_out:
-+			kfree(zonelist);
-+			goto out;
-+		}
-+
-+		/* Allocate only the necessary elements */
-+		*z++ = NULL;
-+		size = (z - zonelist->zones) * sizeof(struct zonelist *);
-+		new = kmalloc(size, GFP_KERNEL);
-+		if (!new)
-+			goto out;
-+		memcpy(new, zonelist, size);
-+		kfree(zonelist);
-+
-+		pol->v.zonelist = new;
-+
-+	} else {
-+out:
-+		__mpol_free(pol);
-+		return NULL;
-+	}
-+
-+	*end = p;
-+	return pol;
-+}
-+
-Index: linux-2.6.13-rc3-mm3/include/linux/mempolicy.h
-===================================================================
---- linux-2.6.13-rc3-mm3.orig/include/linux/mempolicy.h	2005-07-29 10:37:26.000000000 -0700
-+++ linux-2.6.13-rc3-mm3/include/linux/mempolicy.h	2005-07-29 11:08:13.000000000 -0700
-@@ -157,6 +157,10 @@
- extern void numa_policy_init(void);
- extern struct mempolicy default_policy;
  
-+/* Conversion functions */
-+int mpol_to_str(char *buffer, int maxlen, struct mempolicy *pol);
-+struct mempolicy *str_to_mpol(char *buffer, char **end);
-+
- #else
- 
- struct mempolicy {};

@@ -1,135 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262825AbVG3B4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbVG2TSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262825AbVG3B4e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 21:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVG3ByO
+	id S262739AbVG2TSS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 15:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbVG2TP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 21:54:14 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:58548 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262913AbVG3Bxq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 21:53:46 -0400
-X-ORBL: [67.125.168.38]
-Message-ID: <42EADDA8.3080604@pacbell.net>
-Date: Fri, 29 Jul 2005 18:53:44 -0700
-From: Mickey Stein <yekkim@pacbell.net>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Cal Peake <cp@absolutedigital.net>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.13-rc4
-References: <42EA1C8D.8080708@pacbell.net> <Pine.LNX.4.61.0507291456550.2566@lancer.cnet.absolutedigital.net>
-In-Reply-To: <Pine.LNX.4.61.0507291456550.2566@lancer.cnet.absolutedigital.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Jul 2005 15:15:56 -0400
+Received: from mail.kroah.org ([69.55.234.183]:33966 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262737AbVG2TPD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 15:15:03 -0400
+Date: Fri, 29 Jul 2005 12:14:40 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, kumar.gala@freescale.com
+Subject: [patch 06/29] I2C-MPC: Restore code removed
+Message-ID: <20050729191440.GH5095@kroah.com>
+References: <20050729184950.014589000@press.kroah.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729191255.GA5095@kroah.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cal Peake wrote:
+From: Kumar Gala <galak@freescale.com>
 
->On Fri, 29 Jul 2005, Mickey Stein wrote:
->
->  
->
->>This is regarding *-rc4 and *-rc4-git1:  I slapped together my favorite config
->>and gave it a test run. It had a bit of a problem and ground to a halt after
->>spewing these into the log.
->>
->>If I can find the time tomorrow morning, I'll leave parport_pc commented out
->>of modprobe.conf and see if something else pops loose. I don't use the
->>parallel port, but I try to keep a fairly robust config for noticing bugs.
->>    
->>
->
->Hi Mick,
->
->Can you please try the patch below from Linus (or -git2 tomorrow) and 
->confirm that it fixes it for you?
->
->thx,
->-cp
->
->--- a/include/asm-i386/bitops.h
->+++ b/include/asm-i386/bitops.h
->@@ -335,14 +335,13 @@ static inline unsigned long __ffs(unsign
-> static inline int find_first_bit(const unsigned long *addr, unsigned size)
-> {
-> 	int x = 0;
->-	do {
->-		if (*addr)
->-			return __ffs(*addr) + x;
->-		addr++;
->-		if (x >= size)
->-			break;
->+
->+	while (x < size) {
->+		unsigned long val = *addr++;
->+		if (val)
->+			return __ffs(val) + x;
-> 		x += (sizeof(*addr)<<3);
->-	} while (1);
->+	}
-> 	return x;
-> }
-> 
->  
->
-Linus Torvalds wrote:
+I2C-MPC: Restore code removed
 
->On Fri, 29 Jul 2005, Mickey Stein wrote:
->  
->
->>I've been quite low on time lately, so perhaps I missed something 
->>obvious in the notes. When I did the "$make xconfig" , there were no 
->>warnings about changes or new config params.
->>    
->>
->
->Does this fix it for you? (Already in the current git tree)
->
->		Linus
->---
->diff --git a/include/asm-i386/bitops.h b/include/asm-i386/bitops.h
->--- a/include/asm-i386/bitops.h
->+++ b/include/asm-i386/bitops.h
->@@ -335,14 +335,13 @@ static inline unsigned long __ffs(unsign
-> static inline int find_first_bit(const unsigned long *addr, unsigned size)
-> {
-> 	int x = 0;
->-	do {
->-		if (*addr)
->-			return __ffs(*addr) + x;
->-		addr++;
->-		if (x >= size)
->-			break;
->+
->+	while (x < size) {
->+		unsigned long val = *addr++;
->+		if (val)
->+			return __ffs(val) + x;
-> 		x += (sizeof(*addr)<<3);
->-	} while (1);
->+	}
-> 	return x;
-> }
-> 
->
->  
->
-I'm running on *-rc4 at the moment, so thanks very much for the patch.
+A previous patch to remove support for the OCP device model was way
+to generious and moved some of the platform device model code, oops.
 
-I think there were ~3 of my modules producing similar output, but after 
-I followed someone's advice about enabling most of the CONFIG_DEBUG_* 
-switches, I experienced quite a bit more trouble getting anything to log 
-(or do anything but freeze). Now, all the modules are loading fine.
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-If I get time I'll probably be asking which of the 9 or 10 CONFIG_DEB* 
-switches are compatible with one another, but actually it may have just 
-been the same bug that would hang me up when they were on. I'll test 
-with the full CONFIG_DEBUG .config later on.
+---
+ drivers/i2c/busses/i2c-mpc.c |   94 +++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 94 insertions(+)
 
-Appreciate it,
+--- gregkh-2.6.orig/drivers/i2c/busses/i2c-mpc.c	2005-07-29 11:30:00.000000000 -0700
++++ gregkh-2.6/drivers/i2c/busses/i2c-mpc.c	2005-07-29 11:34:01.000000000 -0700
+@@ -382,6 +382,100 @@
+ module_init(fsl_i2c_init);
+ module_exit(fsl_i2c_exit);
+ 
++static int fsl_i2c_probe(struct device *device)
++{
++	int result = 0;
++	struct mpc_i2c *i2c;
++	struct platform_device *pdev = to_platform_device(device);
++	struct fsl_i2c_platform_data *pdata;
++	struct resource *r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++
++	pdata = (struct fsl_i2c_platform_data *) pdev->dev.platform_data;
++
++	if (!(i2c = kmalloc(sizeof(*i2c), GFP_KERNEL))) {
++		return -ENOMEM;
++	}
++	memset(i2c, 0, sizeof(*i2c));
++
++	i2c->irq = platform_get_irq(pdev, 0);
++	i2c->flags = pdata->device_flags;
++	init_waitqueue_head(&i2c->queue);
++
++	i2c->base = ioremap((phys_addr_t)r->start, MPC_I2C_REGION);
++
++	if (!i2c->base) {
++		printk(KERN_ERR "i2c-mpc - failed to map controller\n");
++		result = -ENOMEM;
++		goto fail_map;
++	}
++
++	if (i2c->irq != 0)
++		if ((result = request_irq(i2c->irq, mpc_i2c_isr,
++					  SA_SHIRQ, "i2c-mpc", i2c)) < 0) {
++			printk(KERN_ERR
++			       "i2c-mpc - failed to attach interrupt\n");
++			goto fail_irq;
++		}
++
++	mpc_i2c_setclock(i2c);
++	dev_set_drvdata(device, i2c);
++
++	i2c->adap = mpc_ops;
++	i2c_set_adapdata(&i2c->adap, i2c);
++	i2c->adap.dev.parent = &pdev->dev;
++	if ((result = i2c_add_adapter(&i2c->adap)) < 0) {
++		printk(KERN_ERR "i2c-mpc - failed to add adapter\n");
++		goto fail_add;
++	}
++
++	return result;
++
++      fail_add:
++	if (i2c->irq != 0)
++		free_irq(i2c->irq, NULL);
++      fail_irq:
++	iounmap(i2c->base);
++      fail_map:
++	kfree(i2c);
++	return result;
++};
++
++static int fsl_i2c_remove(struct device *device)
++{
++	struct mpc_i2c *i2c = dev_get_drvdata(device);
++
++	i2c_del_adapter(&i2c->adap);
++	dev_set_drvdata(device, NULL);
++
++	if (i2c->irq != 0)
++		free_irq(i2c->irq, i2c);
++
++	iounmap(i2c->base);
++	kfree(i2c);
++	return 0;
++};
++
++/* Structure for a device driver */
++static struct device_driver fsl_i2c_driver = {
++	.name = "fsl-i2c",
++	.bus = &platform_bus_type,
++	.probe = fsl_i2c_probe,
++	.remove = fsl_i2c_remove,
++};
++
++static int __init fsl_i2c_init(void)
++{
++	return driver_register(&fsl_i2c_driver);
++}
++
++static void __exit fsl_i2c_exit(void)
++{
++	driver_unregister(&fsl_i2c_driver);
++}
++
++module_init(fsl_i2c_init);
++module_exit(fsl_i2c_exit);
++
+ MODULE_AUTHOR("Adrian Cox <adrian@humboldt.co.uk>");
+ MODULE_DESCRIPTION
+     ("I2C-Bus adapter for MPC107 bridge and MPC824x/85xx/52xx processors");
 
-Mick
+--

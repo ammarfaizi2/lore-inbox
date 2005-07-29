@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVG2Raw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVG2RdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbVG2Raw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 13:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbVG2Rau
+	id S262682AbVG2RdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 13:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVG2Ram
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 13:30:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51330 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262571AbVG2RaB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 13:30:01 -0400
-Date: Fri, 29 Jul 2005 10:29:43 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Cal Peake <cp@absolutedigital.net>
-cc: Andrew Morton <akpm@osdl.org>, perex@suse.cz,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, rostedt@goodmis.org
-Subject: Re: Linux 2.6.13-rc4 (snd-cs46xx)
-In-Reply-To: <Pine.LNX.4.61.0507291315010.869@lancer.cnet.absolutedigital.net>
-Message-ID: <Pine.LNX.4.58.0507291022500.3307@g5.osdl.org>
-References: <Pine.LNX.4.58.0507281625270.3307@g5.osdl.org>
- <Pine.LNX.4.61.0507282328520.966@lancer.cnet.absolutedigital.net>
- <20050728213543.6264ca60.akpm@osdl.org> <Pine.LNX.4.61.0507291315010.869@lancer.cnet.absolutedigital.net>
+	Fri, 29 Jul 2005 13:30:42 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:25314 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262641AbVG2RaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 13:30:20 -0400
+Message-Id: <200507291730.j6THUCg15426@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, <linux-kernel@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>
+Subject: RE: Delete scheduler SD_WAKE_AFFINE and SD_WAKE_BALANCE flags
+Date: Fri, 29 Jul 2005 10:30:12 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcWUMG5fxrtMbb81SUyodAUzpB3O2gAMZbcQ
+In-Reply-To: <20050729112616.GA24965@elte.hu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 29 Jul 2005, Cal Peake wrote:
+Ingo Molnar wrote on Friday, July 29, 2005 4:26 AM
+> * Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
+> > To demonstrate the problem, we turned off these two flags in the cpu 
+> > sd domain and measured a stunning 2.15% performance gain!  And 
+> > deleting all the code in the try_to_wake_up() pertain to load 
+> > balancing gives us another 0.2% gain.
 > 
-> Thanks Andrew! Indeed your suspicions are correct. Adding in all the 
-> debugging moved the problem around, it now shows itself when probing 
-> parport. Upon further investigation reverting the commit below seems to 
-> have nixed the problem.
+> another thing: do you have a HT-capable ia64 CPU, and do you have 
+> CONFIG_SCHED_SMT turned on? If yes then could you try to turn off 
+> SD_WAKE_IDLE too, i found it to bring further performance improvements 
+> in certain workloads.
 
-Thanks. Just out of interest, does this patch fix it instead?
+The scheduler experiments done so far are on non-SMT CPU (Madison processor).
+We have another db setup with multi-thread capable ia64 cpu (montecito, and to
+be precise, it is SOEMT capable).  We are just about to do scheduler experiments
+on that setup.
 
-		Linus
 
-----
-diff --git a/include/asm-i386/bitops.h b/include/asm-i386/bitops.h
---- a/include/asm-i386/bitops.h
-+++ b/include/asm-i386/bitops.h
-@@ -335,14 +335,13 @@ static inline unsigned long __ffs(unsign
- static inline int find_first_bit(const unsigned long *addr, unsigned size)
- {
- 	int x = 0;
--	do {
--		if (*addr)
--			return __ffs(*addr) + x;
--		addr++;
--		if (x >= size)
--			break;
-+
-+	while (x < size) {
-+		unsigned long val = *addr++;
-+		if (val)
-+			return __ffs(val) + x;
- 		x += (sizeof(*addr)<<3);
--	} while (1);
-+	}
- 	return x;
- }
- 

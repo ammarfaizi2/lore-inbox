@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbVG2QqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262664AbVG2QtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262660AbVG2QqH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 12:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVG2QqF
+	id S262664AbVG2QtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 12:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVG2QtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 12:46:05 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:49616 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S262660AbVG2QoP
+	Fri, 29 Jul 2005 12:49:25 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:44471 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262664AbVG2QtX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 12:44:15 -0400
-Date: Fri, 29 Jul 2005 18:44:14 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4: no hyperthreading and idr_remove() stack traces (2)
-Message-ID: <20050729164414.GA19120@janus>
-References: <20050729162006.GA18866@janus>
+	Fri, 29 Jul 2005 12:49:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PzHbrnjkpZbVh4WjChx8EgnVDx7yVYnr/oRWTUJ0Dj1vR2d6f2/3xeiQNnoLmh7MIfVsiMLroJLQEaatEZBO2jLCexBAee25R5EypyHsAK7ePWfK+4bgZJ37ZevItR4SZXG0Ajc7jjqeXCFtxlV5dd5Ecx2dGCxqzBZR2b2ZB6A=
+Message-ID: <9a87484905072909481cb09291@mail.gmail.com>
+Date: Fri, 29 Jul 2005 18:48:53 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.13-rc4
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0507281625270.3307@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050729162006.GA18866@janus>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+References: <Pine.LNX.4.58.0507281625270.3307@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In addition, /proc/bus/usb got mounted but /proc/bus seems have changed into a file:
+On 7/29/05, Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> Hey everybody,
+> 
+>  as many of you are aware, we were talking (not enough) about the release
+> process at LKS this year.
+> 
+> This ain't it.
+> 
+> This is just the regular old release "process", with some LKS backlog put
+> in for good measure.
+> 
+> But the good news is, that I'll try the new release process after 2.6.13
+> is out, which is hopefully not too far away. Which means that we should
+> try to let people know about the fact that if they want to merge stuff,
+> they should do so in the first two weeks after the 2.6.13 release, and no
+> later (also, no earlier either, by now).
+> 
 
-$ df
-df: `/proc/bus/usb': Not a directory
-   ...
-$ grep usb /proc/mounts
-usbfs /proc/bus/usb usbfs rw 0 0
-$ ls -l /proc/bus
--r--r--r--  1 root root 0 Jul 29 17:54 /proc/bus
-$ cat /proc/bus
-Inter-|   Receive                                                |  Transmit
- face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
-  eth0: 2440261   10169    0    0    0     0          0        97  1287588    4726    0    0    0     0       0          0
-    lo:   34526     173    0    0    0     0          0         0    34526     173    0    0    0     0       0          0
-dummy0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
- tunl0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
-  gre0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+For the bennefit of those of us who were not at LKS, could someone
+elaborate a bit on "the new release process" ?
 
 -- 
-Frank
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

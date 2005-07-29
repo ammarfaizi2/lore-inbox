@@ -1,98 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262733AbVG2TDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbVG3CKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262733AbVG2TDr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 15:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbVG2TBz
+	id S262770AbVG3CKr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 22:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbVG3CI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 15:01:55 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40585 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262730AbVG2TB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 15:01:28 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i386 machine_kexec: Cleanup inline assembly
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 29 Jul 2005 13:01:18 -0600
-Message-ID: <m1r7dh308x.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 29 Jul 2005 22:08:56 -0400
+Received: from mail.kroah.org ([69.55.234.183]:44207 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262766AbVG2TRw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 15:17:52 -0400
+Date: Fri, 29 Jul 2005 12:17:11 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, bunk@stusta.de
+Subject: [patch 21/29] USB: drivers/usb/net/: remove two unused multicast_filter_limit variables
+Message-ID: <20050729191711.GW5095@kroah.com>
+References: <20050729184950.014589000@press.kroah.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729191255.GA5095@kroah.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Adrian Bunk <bunk@stusta.de>
 
-For some reason I was telling my inline assembly that the
-input argument was an output argument.
+The only uses of both variables were recently removed.
 
-Playing in the trampoline code I have seen a couple of
-instances where lgdt get the wrong size (because the
-trampolines run in 16bit mode) so use lgdtl and lidtl to
-be explicit.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Additionally gcc-3.3 and gcc-3.4 want's an lvalue for a
-memory argument and it doesn't think an array of characters
-is an lvalue so use a packed structure instead.
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
+ drivers/usb/net/pegasus.c |    1 -
+ drivers/usb/net/rtl8150.c |    2 --
+ 2 files changed, 3 deletions(-)
 
- arch/i386/kernel/machine_kexec.c |   22 +++++++++++-----------
- 1 files changed, 11 insertions(+), 11 deletions(-)
-
-325a7d01008f3553104879cd64f82b68d00c85cd
-diff --git a/arch/i386/kernel/machine_kexec.c b/arch/i386/kernel/machine_kexec.c
---- a/arch/i386/kernel/machine_kexec.c
-+++ b/arch/i386/kernel/machine_kexec.c
-@@ -16,6 +16,7 @@
- #include <asm/io.h>
- #include <asm/apic.h>
- #include <asm/cpufeature.h>
-+#include <asm/desc.h>
+--- gregkh-2.6.orig/drivers/usb/net/pegasus.c	2005-07-29 11:29:48.000000000 -0700
++++ gregkh-2.6/drivers/usb/net/pegasus.c	2005-07-29 11:36:28.000000000 -0700
+@@ -59,7 +59,6 @@
  
- static inline unsigned long read_cr3(void)
- {
-@@ -90,33 +91,32 @@ static void identity_map_page(unsigned l
- }
- #endif
+ static int loopback = 0;
+ static int mii_mode = 0;
+-static int multicast_filter_limit = 32;
  
+ static struct usb_eth_dev usb_dev_id[] = {
+ #define	PEGASUS_DEV(pn, vid, pid, flags)	\
+--- gregkh-2.6.orig/drivers/usb/net/rtl8150.c	2005-07-29 11:29:48.000000000 -0700
++++ gregkh-2.6/drivers/usb/net/rtl8150.c	2005-07-29 11:36:28.000000000 -0700
+@@ -167,8 +167,6 @@
+ 
+ typedef struct rtl8150 rtl8150_t;
+ 
+-static unsigned long multicast_filter_limit = 32;
 -
- static void set_idt(void *newidt, __u16 limit)
- {
--	unsigned char curidt[6];
-+	struct Xgt_desc_struct curidt;
- 
- 	/* ia32 supports unaliged loads & stores */
--	(*(__u16 *)(curidt)) = limit;
--	(*(__u32 *)(curidt +2)) = (unsigned long)(newidt);
-+	curidt.size    = limit;
-+	curidt.address = (unsigned long)newidt;
- 
- 	__asm__ __volatile__ (
--		"lidt %0\n"
--		: "=m" (curidt)
-+		"lidtl %0\n"
-+		:: "m" (curidt)
- 		);
- };
- 
- 
- static void set_gdt(void *newgdt, __u16 limit)
- {
--	unsigned char curgdt[6];
-+	struct Xgt_desc_struct curgdt;
- 
- 	/* ia32 supports unaligned loads & stores */
--	(*(__u16 *)(curgdt)) = limit;
--	(*(__u32 *)(curgdt +2)) = (unsigned long)(newgdt);
-+	curgdt.size    = limit;
-+	curgdt.address = (unsigned long)newgdt;
- 
- 	__asm__ __volatile__ (
--		"lgdt %0\n"
--		: "=m" (curgdt)
-+		"lgdtl %0\n"
-+		:: "m" (curgdt)
- 		);
- };
- 
+ static void fill_skb_pool(rtl8150_t *);
+ static void free_skb_pool(rtl8150_t *);
+ static inline struct sk_buff *pull_skb(rtl8150_t *);
+
+--

@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262883AbVG2VdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVG2VuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262883AbVG2VdP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 17:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbVG2V15
+	id S262753AbVG2VuI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbVG2VuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 17:27:57 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:20634 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S262878AbVG2V0p (ORCPT
+	Fri, 29 Jul 2005 17:50:02 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:51922 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262753AbVG2VtX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 17:26:45 -0400
-Date: Fri, 29 Jul 2005 23:22:22 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why dump_stack results different so much?
-Message-ID: <20050729212221.GA32570@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
-References: <4ae3c140507291327143a9d83@mail.gmail.com> <20050729203403.GA30603@outpost.ds9a.nl> <4ae3c140507291400230ca65c@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4ae3c140507291400230ca65c@mail.gmail.com>
-User-Agent: Mutt/1.3.28i
+	Fri, 29 Jul 2005 17:49:23 -0400
+Message-ID: <42EAA458.2010004@pobox.com>
+Date: Fri, 29 Jul 2005 17:49:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jason Gaston <jason.d.gaston@intel.com>
+CC: mj@ucw.cz, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
+References: <200507290924.40952.jason.d.gaston@intel.com>
+In-Reply-To: <200507290924.40952.jason.d.gaston@intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 29, 2005 at 05:00:20PM -0400, Xin Zhao wrote:
-> Thanks for your reply.
+Jason Gaston wrote:
+> Hello,
 > 
-> Below is the code that print the kernel calling trace:
+> This patch adds the Intel ICH7R SATA RAID DID to the pci_ids.h file.  This patch was built against the 2.6.13-rc4 kernel.  
+> If acceptable, please apply. 
+> 
+> Thanks,
+> 
+> Jason Gaston
+> 
+> Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
+> 
+> --- linux-2.6.13-rc4/include/linux/pci_ids.h.orig	2005-07-29 09:06:03.841520568 -0700
+> +++ linux-2.6.13-rc4/include/linux/pci_ids.h	2005-07-29 09:06:42.256680576 -0700
+> @@ -2454,6 +2454,7 @@
+>  #define PCI_DEVICE_ID_INTEL_ICH7_3	0x27c1
+>  #define PCI_DEVICE_ID_INTEL_ICH7_30	0x27b0
+>  #define PCI_DEVICE_ID_INTEL_ICH7_31	0x27bd
+> +#define PCI_DEVICE_ID_INTEL_ICH7_4	0x27c3
+>  #define PCI_DEVICE_ID_INTEL_ICH7_5	0x27c4
+>  #define PCI_DEVICE_ID_INTEL_ICH7_6	0x27c5
+>  #define PCI_DEVICE_ID_INTEL_ICH7_7	0x27c8
 
-Can I suggest just turning on frame pointers like I suggested? 
+Where is this actually used?
 
- If you say Y here the resulting kernel image will be slightly larger
- and slower, but it will give very useful debugging information. 
- If you don't debug the kernel, you can say N, but we may not be able
- to solve problems without frame pointers. 
+I purposefully do not use PCI_DEVICE_ID_xxx in my drivers, because I 
+feel that linux/pci_ids.h is constantly patched for little value.
 
-Good luck!
+Device ids, unlike vendor ids, are largely single-use constants.
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+	Jeff
+
+
+

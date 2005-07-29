@@ -1,56 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVG2KxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262589AbVG2K6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262576AbVG2KxF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 06:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbVG2KxE
+	id S262589AbVG2K6i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 06:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVG2K4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 06:53:04 -0400
-Received: from aeimail.aei.ca ([206.123.6.84]:62669 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S262576AbVG2Kwt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 06:52:49 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Dave Airlie <airlied@gmail.com>
-Subject: Re: 2.6.13-rc3-mm2/mm1 breaks DRI
-Date: Fri, 29 Jul 2005 06:52:44 -0400
-User-Agent: KMail/1.8.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050727024330.78ee32c2.akpm@osdl.org> <200507282037.52292.tomlins@cam.org> <21d7e9970507281741fb51c98@mail.gmail.com>
-In-Reply-To: <21d7e9970507281741fb51c98@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507290652.44418.tomlins@cam.org>
+	Fri, 29 Jul 2005 06:56:31 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:47372 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262589AbVG2KzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 06:55:14 -0400
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/5] fuse: don't update file times
+Message-Id: <E1DySW2-0004pl-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 29 Jul 2005 12:54:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 July 2005 20:41, Dave Airlie wrote:
-> > > >
-> > > >Hmm no idea what could have broken it, I'm at OLS and don't have any
-> > > >DRI capable machine here yet.. so it'll be a while before I get to
-> > > >take a look at it .. I wouldn't be terribly surprised if some of the
-> > > >new mapping code might have some issues..
-> > >
-> > > Still happens with mm2.
-> > 
-> > And mm3 too.  Please let me know if there is anything you would like me to try.
-> 
-> Hi Ed,
-> 
-> Is this all on a 64-bit system, is it a pure 64-bit or are you running
-> a 32-bit userspace or something like that... I don't have any 64-bit
-> systems so tracking the issues on them is a nightmare...
+Don't change mtime/ctime/atime to local time on read/write.  Rather
+invalidate file attributes, so next stat() will force a GETATTR call.
+Bug reported by Ben Grimm.
 
-Its all 64bit... 
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-> I've got a patch from Egbert Eich that I need to drop into -mm that
-> might fix it but I'm snowed under with real work at the moment (taking
-> a week off for OLS didn't help :-)
-
-Pass me the patch.  If I can get it to apply I will gladly try it.  Real work is
-always 'fun'...
-
-Ed Tomlinson 
+diff -rup linux-2.6.13-rc3-mm3/fs/fuse/dir.c linux-fuse/fs/fuse/dir.c
+--- linux-2.6.13-rc3-mm3/fs/fuse/dir.c	2005-07-29 10:56:57.000000000 +0200
++++ linux-fuse/fs/fuse/dir.c	2005-07-29 10:36:59.000000000 +0200
+@@ -552,6 +552,7 @@ static int fuse_readdir(struct file *fil
+ 				    filldir);
+ 
+ 	__free_page(page);
++	fuse_invalidate_attr(inode); /* atime changed */
+ 	return err;
+ }
+ 
+@@ -585,6 +586,7 @@ static char *read_link(struct dentry *de
+ 		link[req->out.args[0].size] = '\0';
+  out:
+ 	fuse_put_request(fc, req);
++	fuse_invalidate_attr(inode); /* atime changed */
+ 	return link;
+ }
+ 
+diff -rup linux-2.6.13-rc3-mm3/fs/fuse/file.c linux-fuse/fs/fuse/file.c
+--- linux-2.6.13-rc3-mm3/fs/fuse/file.c	2005-07-29 10:56:57.000000000 +0200
++++ linux-fuse/fs/fuse/file.c	2005-07-29 10:36:59.000000000 +0200
+@@ -240,6 +240,7 @@ static int fuse_readpage(struct file *fi
+ 	fuse_put_request(fc, req);
+ 	if (!err)
+ 		SetPageUptodate(page);
++	fuse_invalidate_attr(inode); /* atime changed */
+  out:
+ 	unlock_page(page);
+ 	return err;
+@@ -308,6 +309,7 @@ static int fuse_readpages(struct file *f
+ 	if (!err && data.req->num_pages)
+ 		err = fuse_send_readpages(data.req, file, inode);
+ 	fuse_put_request(fc, data.req);
++	fuse_invalidate_attr(inode); /* atime changed */
+ 	return err;
+ }
+ 
+@@ -376,8 +378,8 @@ static int fuse_commit_write(struct file
+ 			clear_page_dirty(page);
+ 			SetPageUptodate(page);
+ 		}
+-	} else if (err == -EINTR || err == -EIO)
+-		fuse_invalidate_attr(inode);
++	}
++	fuse_invalidate_attr(inode);
+ 	return err;
+ }
+ 
+@@ -469,8 +471,8 @@ static ssize_t fuse_direct_io(struct fil
+ 		if (write && pos > i_size_read(inode))
+ 			i_size_write(inode, pos);
+ 		*ppos = pos;
+-	} else if (write && (res == -EINTR || res == -EIO))
+-		fuse_invalidate_attr(inode);
++	}
++	fuse_invalidate_attr(inode);
+ 
+ 	return res;
+ }
+diff -rup linux-2.6.13-rc3-mm3/fs/fuse/inode.c linux-fuse/fs/fuse/inode.c
+--- linux-2.6.13-rc3-mm3/fs/fuse/inode.c	2005-07-29 11:01:10.000000000 +0200
++++ linux-fuse/fs/fuse/inode.c	2005-07-29 10:36:59.000000000 +0200
+@@ -169,6 +173,7 @@ struct inode *fuse_iget(struct super_blo
+ 		return NULL;
+ 
+ 	if ((inode->i_state & I_NEW)) {
++		inode->i_flags |= S_NOATIME|S_NOCMTIME;
+ 		inode->i_generation = generation;
+ 		inode->i_data.backing_dev_info = &fc->bdi;
+ 		fuse_init_inode(inode, attr);

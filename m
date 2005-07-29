@@ -1,126 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVG2Gb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVG2Gwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbVG2Gb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 02:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVG2Gb0
+	id S262370AbVG2Gwu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 02:52:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbVG2Gwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 02:31:26 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:52686 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261642AbVG2GbY (ORCPT
+	Fri, 29 Jul 2005 02:52:50 -0400
+Received: from gate.perex.cz ([82.113.61.162]:43697 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S262348AbVG2Gwt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 02:31:24 -0400
-Message-ID: <42E9CD36.4010402@pobox.com>
-Date: Fri, 29 Jul 2005 02:31:18 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Fri, 29 Jul 2005 02:52:49 -0400
+Date: Fri, 29 Jul 2005 08:52:45 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Thorsten Knabe <linux@thorsten-knabe.de>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, linux-sound@vger.kernel.org
+Subject: Re: [Alsa-devel] Re: [2.6 patch] schedule obsolete OSS drivers for
+ removal
+In-Reply-To: <Pine.LNX.4.61.0507281636040.20815@tek01.intern.thorsten-knabe.de>
+Message-ID: <Pine.LNX.4.61.0507290849050.8400@tm8103.perex-int.cz>
+References: <20050726150837.GT3160@stusta.de>
+ <Pine.LNX.4.61.0507281636040.20815@tek01.intern.thorsten-knabe.de>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [git patch] 2.6.x libata fix
-Content-Type: multipart/mixed;
- boundary="------------040109040504080202050103"
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040109040504080202050103
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 28 Jul 2005, Thorsten Knabe wrote:
 
-Please pull from 'upstream' branch of
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+> On Tue, 26 Jul 2005, Adrian Bunk wrote:
+> 
+> > This patch schedules obsolete OSS drivers (with ALSA drivers that
+> > support the same hardware) for removal.
+> 
+> Hello Adrian.
+> 
+> I'm the maintainer of the OSS AD1816 sound driver. I'm aware of two 
+> problems of the ALSA AD1816 driver, that do not show up with the OSS 
+> driver:
+> - According to my own experience and user reports audio is choppy with 
+>   some VoIP Softphones like gnophone at least when used with the ALSA 
+>   OSS emulation layer, whereas the OSS driver is crystal clear.
+> - Users reported, that on some HP Kayak systems the on-board AD1816A was 
+>   not properly detected by the ALSA driver or was detected, but there 
+>   was no audio output. I'm not sure if the problem is still present in 
+>   the current ALSA driver, as I do not own such a system.
+> 
+> Maybe the OSS driver should stay in the kernel, until those problems are 
+> fixed in the ALSA driver.
 
-to obtain the fix described in the attached diffstat/changelog/patch.
+The problem is that nobody reported us mentioned problems. We have no 
+bug-report regarding the AD1816A driver. Perhaps, it would be a good idea 
+to add a notice to the help file and/or driver that the ALSA driver should 
+be tested and bugs reported to the ALSA bug-tracking-system.
 
+					Thanks,
+						Jaroslav
 
---------------040109040504080202050103
-Content-Type: text/plain;
- name="libata-dev.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libata-dev.txt"
-
- drivers/scsi/ata_piix.c |   19 +++++++++++++------
- 1 files changed, 13 insertions(+), 6 deletions(-)
-
-
-commit 7b6dbd6872ca1d0c03dc0e0a7108d79c8dafa793
-Author: Greg Felix <gregfelixlkml@gmail.com>
-Date:   Thu Jul 28 15:54:15 2005 -0400
-
-    libata: Check PCI sub-class code before disabling AHCI
-    
-    This patch adds functionality to check the PCI sub-class code of an
-    AHCI capable device before disabling AHCI.  It fixes a bug where an
-    ICH7 sata controller is being setup by the BIOS as sub-class 1 (ide)
-    and the AHCI control registers weren't being initialized, thus causing
-    an IO error in piix_disable_ahci().
-    
-    Signed-off-by: Gregory Felix <greg.felix@gmail.com>
-
-
-diff --git a/drivers/scsi/ata_piix.c b/drivers/scsi/ata_piix.c
---- a/drivers/scsi/ata_piix.c
-+++ b/drivers/scsi/ata_piix.c
-@@ -38,6 +38,7 @@ enum {
- 	PIIX_IOCFG		= 0x54, /* IDE I/O configuration register */
- 	ICH5_PMR		= 0x90, /* port mapping register */
- 	ICH5_PCS		= 0x92,	/* port control and status */
-+	PIIX_SCC		= 0x0A, /* sub-class code register */
- 
- 	PIIX_FLAG_AHCI		= (1 << 28), /* AHCI possible */
- 	PIIX_FLAG_CHECKINTR	= (1 << 29), /* make sure PCI INTx enabled */
-@@ -62,6 +63,8 @@ enum {
- 	ich6_sata_rm		= 4,
- 	ich7_sata		= 5,
- 	esb2_sata		= 6,
-+
-+	PIIX_AHCI_DEVICE	= 6,
- };
- 
- static int piix_init_one (struct pci_dev *pdev,
-@@ -574,11 +577,11 @@ static int piix_disable_ahci(struct pci_
- 	addr = pci_resource_start(pdev, AHCI_PCI_BAR);
- 	if (!addr || !pci_resource_len(pdev, AHCI_PCI_BAR))
- 		return 0;
--	
-+
- 	mmio = ioremap(addr, 64);
- 	if (!mmio)
- 		return -ENOMEM;
--	
-+
- 	tmp = readl(mmio + AHCI_GLOBAL_CTL);
- 	if (tmp & AHCI_ENABLE) {
- 		tmp &= ~AHCI_ENABLE;
-@@ -588,7 +591,7 @@ static int piix_disable_ahci(struct pci_
- 		if (tmp & AHCI_ENABLE)
- 			rc = -EIO;
- 	}
--	
-+
- 	iounmap(mmio);
- 	return rc;
- }
-@@ -626,9 +629,13 @@ static int piix_init_one (struct pci_dev
- 	port_info[1] = NULL;
- 
- 	if (port_info[0]->host_flags & PIIX_FLAG_AHCI) {
--		int rc = piix_disable_ahci(pdev);
--		if (rc)
--			return rc;
-+               u8 tmp;
-+               pci_read_config_byte(pdev, PIIX_SCC, &tmp);
-+               if (tmp == PIIX_AHCI_DEVICE) {
-+                       int rc = piix_disable_ahci(pdev);
-+                       if (rc)
-+                           return rc;
-+               }
- 	}
- 
- 	if (port_info[0]->host_flags & PIIX_FLAG_COMBINED) {
-
---------------040109040504080202050103--
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

@@ -1,160 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVG2VSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262854AbVG2VTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbVG2VSD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 17:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbVG2VPm
+	id S262854AbVG2VTx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262852AbVG2VSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 17:15:42 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:22547 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S262654AbVG2VPC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 17:15:02 -0400
-Message-ID: <42EA9C38.90905@stud.feec.vutbr.cz>
-Date: Fri, 29 Jul 2005 23:14:32 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
-X-Accept-Language: en-us, en
+	Fri, 29 Jul 2005 17:18:08 -0400
+Received: from mail.gmx.de ([213.165.64.20]:60037 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262807AbVG2VQs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 17:16:48 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc6-mm1
+Date: Fri, 29 Jul 2005 23:19:20 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050607042931.23f8f8e0.akpm@osdl.org> <200507291540.02278.dominik.karall@gmx.net> <20050729112212.62ad0907.akpm@osdl.org>
+In-Reply-To: <20050729112212.62ad0907.akpm@osdl.org>
 MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: linux-pm@lists.osdl.org, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] [PATCH] swsusp: simpler calculation of number of pages
- in PBE list
-References: <42EA87A0.908@stud.feec.vutbr.cz> <200507292243.28276.rjw@sisk.pl>
-In-Reply-To: <200507292243.28276.rjw@sisk.pl>
-Content-Type: multipart/mixed;
- boundary="------------060408070000030101030503"
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  tested this incoming email. See other headers to know if the email
-  has beed identified as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
+Content-Type: multipart/signed;
+  boundary="nextPart1474991.s9AU4f9YKM";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507292319.21167.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060408070000030101030503
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+--nextPart1474991.s9AU4f9YKM
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Rafael J. Wysocki wrote:
-> On Friday, 29 of July 2005 21:46, Michal Schmidt wrote:
-> 
->>The function calc_nr uses an iterative algorithm to calculate the number 
->>of pages needed for the image and the pagedir. Exactly the same result 
->>can be obtained with a one-line expression.
-> 
-> 
-> Could you please post the proof?
-> 
-> Rafael
+On Friday 29 July 2005 20:22, Andrew Morton wrote:
+> Dominik Karall <dominik.karall@gmx.net> wrote:
+> > On Friday 29 July 2005 06:54, Andrew Morton wrote:
+> > > Dominik Karall <dominik.karall@gmx.net> wrote:
+> > > > On Tuesday 07 June 2005 13:29, Andrew Morton wrote:
+> > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6=
+=2E1
+> > > > >2-rc 6/2. 6.12-rc6-mm1/
+> > > >
+> > > > After looking in my dmesg output today, I saw following error with
+> > > > 2.6.12-rc6-mm1, maybe it's usefull to you. I don't know when it
+> > > > exactly happens, cause I never used mono last time, I just did an
+> > > > emerge mono on my gentoo system, maybe this forced the failure.
+> > > >
+> > > > note: mono[26736] exited with preempt_count 1
+> > > > scheduling while atomic: mono/0x10000001/26736
+> > > >
+> > > > Call Trace:<ffffffff803e13ea>{schedule+122}
+> > > > <ffffffff8013197b>{vprintk+635} <ffffffff803e2738>{cond_resched+56}
+> > > > <ffffffff80164de3>{unmap_vmas+1587} <ffffffff8016a560>{exit_mmap+12=
+8}
+> > > > <ffffffff8012e7bf>{mmput+31} <ffffffff80133466>{do_exit+438}
+> > > > <ffffffff8013bf25>{__dequeue_signal+501}
+> > > >        <ffffffff801340c8>{do_group_exit+280}
+> > > > <ffffffff8013e147>{get_signal_to_deliver+1575}
+> > > >        <ffffffff8010de92>{do_signal+162}
+> > > > <ffffffff8012d1e0>{default_wake_function+0}
+> > > >        <ffffffff8010e8e1>{sys_rt_sigreturn+577}
+> > > > <ffffffff8010eb3f>{sysret_signal+28}
+> > > >        <ffffffff8010ee27>{ptregscall_common+103}
+> > >
+> > > A couple of people reported this, but all seems to have gone quiet.  =
+Is
+> > > it fixed in later -mm's?   Is 2.6.13-rc4 running OK?
+> > >
+> > > Thanks.
+> >
+> > hi andrew!
+> >
+> > I'm sorry, but it's not fixed in current 2.6.13-rc3-mm3. I did an emerge
+> > mono right now to test it, and I got this one:
+> > Jul 29 15:26:37 [kernel] note: mono[11138] exited with preempt_count 1
+> > Jul 29 15:26:50 [kernel] file[14627]: segfault at 00002aaaab453000 rip
+> > 00002aaaaaf652cf rsp 00007fffffe43b50 error 4
+> > Jul 29 15:26:50 [kernel] file[14633]: segfault at 00002aaaab453000 rip
+> > 00002aaaaaf652cf rsp 00007fffffcc87a0 error 4
+> > Jul 29 15:26:51 [kernel] file[14669]: segfault at 00002aaaab453000 rip
+> > 00002aaaaaf652cf rsp 00007fffff905f80 error 4
+> >
+> > DEBUG_KERNEL/ PREEMPT/ SPINLOCK are enabled, but I didn't get more info
+> > about the bug. Did I forget any debug option?
+>
+> Gee, I don't know how to find this one.  Do you know if the problem is
+> specific to -mm?
 
-OK, attached is a proof-by-brute-force program. It compares the results 
-of the original function and the simplified one.
+Tested with 2.6.13-rc4 and it seems to work. Didn't get any error.
 
-This is its output:
+So it seems to be -mm related. Do you suspect any patch which could cause t=
+he=20
+error?
 
-$ ./calc_nr2
-checked 0 ...
-checked 100000000 ...
-checked 200000000 ...
-checked 300000000 ...
-checked 400000000 ...
-checked 500000000 ...
-checked 600000000 ...
-checked 700000000 ...
-checked 800000000 ...
-checked 900000000 ...
-checked 1000000000 ...
-checked 1100000000 ...
-checked 1200000000 ...
-checked 1300000000 ...
-checked 1400000000 ...
-checked 1500000000 ...
-checked 1600000000 ...
-checked 1700000000 ...
-checked 1800000000 ...
-checked 1900000000 ...
-checked 2000000000 ...
-checked 2100000000 ...
-First difference at 2130706433:  -2147483646 x -2147483647
+dominik
 
-It means that the two functions give the same results for sensible 
-values of the input argument.
-They results only differ when they overflow into negative values. At 
-this point both of the results are useless.
+--nextPart1474991.s9AU4f9YKM
+Content-Type: application/pgp-signature
 
-Michal
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
 
---------------060408070000030101030503
-Content-Type: text/x-csrc;
- name="calc_nr2.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="calc_nr2.c"
+iQCVAwUAQuqdWQvcoSHvsHMnAQJ+8gQAiKIx8y6xzljoV+nwG5M5cOGoLL8+cCSe
+G+4Ch+8B5rOPItGiySMwgLQxBgvkeY08bGGkE2xFQ49q20wQzIUVHq25IS3lLMeC
+bIOkdlbyAwR9l1cwDByE2Gp6U8x7spprrYwVJXGZyydFJSsuxDy06JewCmPbkB9E
+985nS73byr8=
+=jaBx
+-----END PGP SIGNATURE-----
 
-#include <stdio.h>
-#include <limits.h>
-
-typedef struct {
-	unsigned long val;
-} swp_entry_t;
-
-typedef struct pbe {
-	unsigned long address;
-	unsigned long orig_address;
-	swp_entry_t swap_address;
-	struct pbe *next;
-} suspend_pagedir_t;
-
-#define PAGE_SIZE 4096
-#define PBES_PER_PAGE (PAGE_SIZE/sizeof(struct pbe))
-
-static int calc_nr_orig(int nr_copy)
-{
-        int extra = 0;
-	int mod = !!(nr_copy % PBES_PER_PAGE);
-	int diff = (nr_copy / PBES_PER_PAGE) + mod;
-
-	do {
-		extra += diff;
-		nr_copy += diff;
-		mod = !!(nr_copy % PBES_PER_PAGE);
-		diff = (nr_copy / PBES_PER_PAGE) + mod - extra;
-	} while (diff > 0);
-	
-	return nr_copy;
-}
-
-static int calc_nr(int nr_copy)
-{
-	return nr_copy + (nr_copy+PBES_PER_PAGE-2)/(PBES_PER_PAGE-1);
-}
-
-int main()
-{
-	int i;
-	for (i=0; i>=0; i++) {
-		if (i%100000000 == 0)
-			printf("checked %d ...\n", i);
-		if (calc_nr(i) != calc_nr_orig(i)) {
-			printf("First difference at %d:  %d x %d\n", i, calc_nr(i), calc_nr_orig(i));
-			break;
-		}
-	}
-	return 0;
-}
-
-
---------------060408070000030101030503--
+--nextPart1474991.s9AU4f9YKM--

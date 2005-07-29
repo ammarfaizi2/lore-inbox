@@ -1,214 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262786AbVG2Uoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbVG2Uop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262786AbVG2Uoo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 16:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVG2UnZ
+	id S262800AbVG2Uop (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 16:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbVG2UnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 16:43:25 -0400
-Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:55019 "EHLO
-	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S262800AbVG2Umg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 16:42:36 -0400
-Date: Fri, 29 Jul 2005 16:36:04 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 2.6.13-rc3] i386: semi-lazy i387 context switching
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: linux@horizon.com, Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Message-ID: <200507291639_MC3-1-A5E6-856C@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Fri, 29 Jul 2005 16:43:17 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:10957 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262786AbVG2Ulm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 16:41:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=muhB7M8dV1l1k4FCFIE6DMpeDmXoOAV346ydQUbuRKFpnCXagL9INfF1lXRtW2H6IhNsAc70zqPJ0vEQ36DjjzR/E6FUiZuFLLErB039NaFu7vV/Uny5uRstbQda9EJessTDFpr8omF4nlRBIsEnn2g7bXlyfS+bXgxyxbJzpLI=
+Message-ID: <86802c4405072913415379c5a4@mail.gmail.com>
+Date: Fri, 29 Jul 2005 13:41:06 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] x86_64: sync_tsc fix the race (so we can boot)
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <m1ll3q5mx3.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com>
+	 <86802c44050728092275e28a9a@mail.gmail.com>
+	 <86802c4405072810352d564fd3@mail.gmail.com>
+	 <m1ll3q5mx3.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+if using you patch, the
+"synchronized TSC with CPU" never come out.
 
-This patch is not for inclusion -- I just want to see if the idea
-is sound.  It's based on suggestions from <linux@horizon.com>
+then with your patch, I add back patch that moving set callin_map from
+smp_callin to start_secondary. It told me can not inquire the apic for
+the CPU 1....2....
 
-When saving FP context, the current CPU number is saved in the
-tasks thread structure, and a pointer to that structure is saved
-in a per-cpu data area.
+YH
 
-On loading an FP context, the per-cpu pointer is cleared.  (But
-the CPU number in the task is untouched.)
-
-Upon task switch, the CPU number in the per-task area is compared to
-the current CPU and the per-CPU pointer is checked.  If everything
-matches, loading of the FPU context will be skipped.
-
-To prevent extra overhead when a task does short bursts of FP math
-and then switches to integer, a normal FPU context load will be forced
-after 100 skipped loads.
-
-Problems:
-        - As posted, the code only works on machines with fxsr.
-          GCC internal errors prevent the commented-out code
-          from compiling; I guess a conditional jump is needed.
-
-        - May not be preempt-safe (but AFAICT it is.)
-
-Volanomark profile results are promising:
-
-     Before      After
-      8304        8176          device_not_available
-     11809       12334          math_state_restore
-     -----------------
-     20114       20500
-
-So it seems to be reducing the number of traps but each trap takes
-a bit longer.  This is a good result from a worst-case scenario.
-
-The other worst-case test is for systems not using FP math at all.
-This is untested, and best-case results are still pending as well.
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
-Index: 2.6.13-rc3-mm3/arch/i386/kernel/i387.c
-===================================================================
---- 2.6.13-rc3-mm3.orig/arch/i386/kernel/i387.c	2005-07-29 02:26:39.000000000 -0400
-+++ 2.6.13-rc3-mm3/arch/i386/kernel/i387.c	2005-07-29 14:41:34.000000000 -0400
-@@ -27,6 +27,8 @@
- 
- static unsigned long mxcsr_feature_mask = 0xffffffff;
- 
-+DEFINE_PER_CPU(struct thread_struct *, current_i387_thread);
-+
- void mxcsr_feature_mask_init(void)
- {
- 	unsigned long mask = 0;
-Index: 2.6.13-rc3-mm3/arch/i386/kernel/process.c
-===================================================================
---- 2.6.13-rc3-mm3.orig/arch/i386/kernel/process.c	2005-07-29 02:26:39.000000000 -0400
-+++ 2.6.13-rc3-mm3/arch/i386/kernel/process.c	2005-07-29 14:41:34.000000000 -0400
-@@ -475,6 +475,8 @@
- 
- 	p->thread.eip = (unsigned long) ret_from_fork;
- 
-+	p->thread.current_i387_cpu = -1;
-+
- 	savesegment(fs,p->thread.fs);
- 	savesegment(gs,p->thread.gs);
- 
-@@ -679,8 +681,29 @@
- 
- 	/* never put a printk in __switch_to... printk() calls wake_up*() indirectly */
- 
--	__unlazy_fpu(prev_p);
-+	if (prev_p->thread_info->status & TS_USEDFPU) {
-+		save_init_fpu(prev_p);
-+		goto lazy_load;
-+	}
-+
-+	/* This breaks GCC 3.3 and 4.0.1 (internal compiler error)  */
-+//	alternative_input( /* do lazy restore if fxsr unsupported */
-+//		"jmp %1",
-+//		"",
-+//		X86_FEATURE_FXSR,
-+//		"a" (*&&lazy_load));
-+
-+	if (next->current_i387_cpu == smp_processor_id()
-+	    && next == per_cpu(current_i387_thread, smp_processor_id())) {
-+
-+		if (likely(++next->lazy_i387_switches < 100)) {
-+			next_p->thread_info->status |= TS_USEDFPU;
-+			clts();
-+		} else
-+			next->lazy_i387_switches = 0;
-+	}
- 
-+lazy_load:
- 	/*
- 	 * Reload esp0, LDT and the page table pointer:
- 	 */
-Index: 2.6.13-rc3-mm3/include/asm-i386/i387.h
-===================================================================
---- 2.6.13-rc3-mm3.orig/include/asm-i386/i387.h	2005-07-29 14:32:03.000000000 -0400
-+++ 2.6.13-rc3-mm3/include/asm-i386/i387.h	2005-07-29 14:41:34.000000000 -0400
-@@ -17,6 +17,8 @@
- #include <asm/sigcontext.h>
- #include <asm/user.h>
- 
-+DECLARE_PER_CPU(struct thread_struct *, current_i387_thread);
-+
- extern void mxcsr_feature_mask_init(void);
- extern void init_fpu(struct task_struct *);
- 
-@@ -24,16 +26,31 @@
-  * FPU lazy state save handling...
-  */
- 
--/*
-- * The "nop" is needed to make the instructions the same
-- * length.
-- */
--#define restore_fpu(tsk)			\
--	alternative_input(			\
--		"nop ; frstor %1",		\
--		"fxrstor %1",			\
--		X86_FEATURE_FXSR,		\
--		"m" ((tsk)->thread.i387.fxsave))
-+static inline void restore_fpu( struct task_struct *tsk )
-+{
-+	/*
-+	 * The "nop" is needed to make the instructions the same
-+	 * length.
-+	 */
-+	alternative_input(
-+		"frstor %1 ; nop",
-+		"fxrstor %1",
-+		X86_FEATURE_FXSR,
-+		"m" (tsk->thread.i387.fxsave));
-+
-+	/* This breaks GCC 3.3 and 4.0.1 (internal compiler error)  */
-+//	alternative_input( /* skip ahead if fxsr unsupported */
-+//		"jmp %1",
-+//		"",
-+//		X86_FEATURE_FXSR,
-+//		"a" (*&&no_fxsr));
-+
-+	/* ??? is preempt disabled when this is called? */
-+	per_cpu(current_i387_thread, smp_processor_id()) = 0;
-+no_fxsr:
-+	__attribute__((unused))
-+	return;  /* required to avoid gcc error */
-+}
- 
- extern void kernel_fpu_begin(void);
- #define kernel_fpu_end() do { stts(); preempt_enable(); } while(0)
-@@ -49,6 +66,18 @@
- 		X86_FEATURE_FXSR,
- 		"m" (tsk->thread.i387.fxsave)
- 		:"memory");
-+
-+	/* This breaks GCC 3.3 and 4.0.1 (internal compiler error)  */
-+//	alternative_input( /* skip ahead if fxsr unsupported */
-+//		"jmp %1",
-+//		"",
-+//		X86_FEATURE_FXSR,
-+//		"a" (*&&no_fxsr));
-+
-+	tsk->thread.current_i387_cpu = smp_processor_id();
-+	per_cpu(current_i387_thread, smp_processor_id()) = &tsk->thread;
-+no_fxsr:
-+	__attribute__((unused))
- 	tsk->thread_info->status &= ~TS_USEDFPU;
- }
- 
-Index: 2.6.13-rc3-mm3/include/asm-i386/processor.h
-===================================================================
---- 2.6.13-rc3-mm3.orig/include/asm-i386/processor.h	2005-07-13 16:20:26.000000000 -0400
-+++ 2.6.13-rc3-mm3/include/asm-i386/processor.h	2005-07-29 14:41:34.000000000 -0400
-@@ -447,6 +447,7 @@
- 	unsigned long	cr2, trap_no, error_code;
- /* floating point info */
- 	union i387_union	i387;
-+	int    current_i387_cpu, lazy_i387_switches;
- /* virtual 86 mode info */
- 	struct vm86_struct __user * vm86_info;
- 	unsigned long		screen_bitmap;
-__
-Chuck
+Initializing CPU#1
+masked ExtINT on CPU#1
+Calibrating delay using timer specific routine.. 3600.30 BogoMIPS (lpj=7200601)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 1(2) -> Node 0 -> Core 1
+ stepping 02
+CPU 1: Syncing TSC to CPU 0.
+CPU 1: synchronized TSC with CPU 0 (last diff 0 cycles, maxerr 1415 cycles)
+On 7/28/05, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> yhlu <yhlu.kernel@gmail.com> writes:
+> 
+> > I have some problem with this patch.
+> >
+> > YH
+> >
+> > On 7/28/05, yhlu <yhlu.kernel@gmail.com> wrote:
+> >> Do you mean solve the timing problem for 2 way dual core or 4 way
+> >> single core above?
+> 
+> As best as I can determine the problem is possible any time
+> you have more than 2 cpus (from the kernels perspective),
+> but you have ti hit a fairly narrow window in cpu start up.
+> 
+> What problem do you have with this patch.
+> 
+> Eric
+>

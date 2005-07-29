@@ -1,51 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262685AbVG2R6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbVG2SAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262685AbVG2R6E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 13:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVG2R6E
+	id S262687AbVG2SAk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 14:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVG2SAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 13:58:04 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:51948 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S262685AbVG2R5S (ORCPT
+	Fri, 29 Jul 2005 14:00:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6548 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262687AbVG2SAe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 13:57:18 -0400
-Date: Fri, 29 Jul 2005 19:57:14 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
-Subject: Re: kernel guide to space (updated)
-Message-ID: <20050729175714.GE9841@khan.acc.umu.se>
-Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	"Michael S. Tsirkin" <mst@mellanox.co.il>,
-	linux-kernel@vger.kernel.org
-References: <20050728145353.GL11644@mellanox.co.il> <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr>
+	Fri, 29 Jul 2005 14:00:34 -0400
+Date: Fri, 29 Jul 2005 10:59:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kevin Radloff <radsaq@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: Followup on 2.6.13-rc3 ACPI processor C-state regression
+Message-Id: <20050729105922.3da4b3aa.akpm@osdl.org>
+In-Reply-To: <3b0ffc1f050713150527c7c649@mail.gmail.com>
+References: <3b0ffc1f050713150527c7c649@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 29, 2005 at 09:40:14AM +0200, Jan Engelhardt wrote:
-[snip]
-> Would it be reasonable to say that the first column can be a space?
-> Some editors (e.g. joe) list the function in some status bar and do
-> that based on the fact that all C code in a function is indented, and
-> only the function header is non-indented. Putting a label statement
-> fools the algorithm.  joe-bug or option for freedom?
+Kevin Radloff <radsaq@gmail.com> wrote:
+>
+> Previously, I had said that in 2.6.13-rc3, C2/C3 capabilities were not
+> detected on my Fujitsu Lifebook P7010D. I found that in the merge at:
+> 
+> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff;h=893b074e3d1a48a4390cf84b4c1a10ef6be2460c;hp=c9d671cf7857dbc7101e99d469fa24eed711ac60;hb=5028770a42e7bc4d15791a44c28f0ad539323807;f=drivers/acpi/processor_idle.c
+> 
+> .. in the section at (please forgive my destruction of the formatting) ...
+> 
+> @@ -787,10 +843,7 @@ static int acpi_processor_get_power_info
+>          if ((result) || (acpi_processor_power_verify(pr) < 2)) {
+>              result = acpi_processor_get_power_info_fadt(pr);
+>              if (result)
+> -                return_VALUE(result);
+> -
+> -            if (acpi_processor_power_verify(pr) < 2)
+> -                return_VALUE(-ENODEV);
+> +               result = acpi_processor_get_power_info_default_c1(pr);
+>          }
+> 
+> .. a call to acpi_processor_power_verify() is removed, which breaks
+> detection of C2/C3 capabilities if the above
+> acpi_processor_get_power_info_cst() failed. It it had succeeded (and
+> returned 0), then acpi_processor_power_verify() is called in the
+> conditional statement, which will set the valid flags for C2/C3. But
+> if it fails, like on my laptop, then the valid flags will never be
+> set, despite the fact that the acpi_processor_get_power_info_fadt()
+> function finds the necessary info for a subsequent
+> acpi_processor_power_verify() call to succeed.
+> 
+> I don't know what exactly the proper fix here is (with the
+> introduction of the acpi_processor_get_power_info_default_c1()
+> function, that is), but simply reversing this part of the patch fixes
+> detection of C2/C3 on my laptop.
+> 
 
-I'd definitely call that a joe-bug.  Adding extra space for no good
-reason is just silly; for consistency we'd have to add a space for the
-case <foo>: labels also...
+Len, Kevin confirms that the below patch fixes the above regression for
+him.  Should we merge it now?
 
 
-Regards: David
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+From: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
+
+Re-enable C2/C3 states for systems without CST.  Fixes a regression after
+the patch for C2/C3 support for multiprocessors
+(http://bugme.osdl.org/show_bug.cgi?id=4401), which accidentally removed
+the acpi_processor_power_verify() call.
+
+Signed-off-by: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
+Cc: "Brown, Len" <len.brown@intel.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ drivers/acpi/processor_idle.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN drivers/acpi/processor_idle.c~acpi-re-enable-c2-c3-cpu-states-for-systems-without drivers/acpi/processor_idle.c
+--- devel/drivers/acpi/processor_idle.c~acpi-re-enable-c2-c3-cpu-states-for-systems-without	2005-07-14 15:53:47.000000000 -0700
++++ devel-akpm/drivers/acpi/processor_idle.c	2005-07-14 15:53:47.000000000 -0700
+@@ -881,7 +881,7 @@ static int acpi_processor_get_power_info
+ 	result = acpi_processor_get_power_info_cst(pr);
+ 	if ((result) || (acpi_processor_power_verify(pr) < 2)) {
+ 		result = acpi_processor_get_power_info_fadt(pr);
+-		if (result)
++		if ((result) || acpi_processor_power_verify(pr) < 2)
+ 			result = acpi_processor_get_power_info_default_c1(pr);
+ 	}
+ 
+_
+

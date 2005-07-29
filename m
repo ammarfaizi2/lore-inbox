@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVG2Tde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVG2Td4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbVG2Tde (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 15:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbVG2TbP
+	id S262762AbVG2Td4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 15:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbVG2Tdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 15:31:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64905 "EHLO
+	Fri, 29 Jul 2005 15:33:40 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:394 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262741AbVG2TaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 15:30:18 -0400
+	id S262741AbVG2TbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 15:31:19 -0400
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>
-Subject: [PATCH] x86_64 io_apic.c: Memorize at bootup where the i8259 is
+Cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] i386 io_apic.c: Memorize at bootup where the i8259 is
  connected
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 29 Jul 2005 13:30:03 -0600
-Message-ID: <m164ut2yx0.fsf@ebiederm.dsl.xmission.com>
+Date: Fri, 29 Jul 2005 13:31:07 -0600
+Message-ID: <m11x5h2yv8.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -32,23 +31,23 @@ when dealing with a BIOS that make assumptions about how the system is setup.
 Since the acpi MADT table does not provide the location where the i8259
 is connected we have to look at the hardware to figure it out.
 
-Most systems have the i8259 connected to the local apic of the cpu so
-won't be affected but people running on Opteron and some serverworks chipsets
+Most systems have the i8259 connected the local apic of the cpu so
+won't be affected but people running Opteron and some serverworks chipsets
 should be able to use kexec now.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
 
- arch/x86_64/kernel/io_apic.c |   52 ++++++++++++++++++++++++++++++++++++++----
+ arch/i386/kernel/io_apic.c |   52 ++++++++++++++++++++++++++++++++++++++++----
  1 files changed, 47 insertions(+), 5 deletions(-)
 
-96c59dd871b00735ef159ddf0d68f338958387fc
-diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
---- a/arch/x86_64/kernel/io_apic.c
-+++ b/arch/x86_64/kernel/io_apic.c
-@@ -45,6 +45,9 @@ int sis_apic_bug; /* not actually suppor
- 
- static int no_timer_check;
+17388b65d11d4e9db0a1f716895f15a5fa0ec2b0
+diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
+--- a/arch/i386/kernel/io_apic.c
++++ b/arch/i386/kernel/io_apic.c
+@@ -46,6 +46,9 @@
+ int (*ioapic_renumber_irq)(int ioapic, int irq);
+ atomic_t irq_mis_count;
  
 +/* Where if anywhere is the i8259 connect in external int mode */
 +static int ioapic_i8259_pin = -1;
@@ -56,7 +55,7 @@ diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
  static DEFINE_SPINLOCK(ioapic_lock);
  
  /*
-@@ -330,7 +333,7 @@ static int find_irq_entry(int apic, int 
+@@ -748,7 +751,7 @@ static int find_irq_entry(int apic, int 
  /*
   * Find the pin to which IRQ[irq] (ISA) is connected
   */
@@ -65,7 +64,7 @@ diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
  {
  	int i;
  
-@@ -1096,6 +1099,44 @@ void __apicdebuginit print_PIC(void)
+@@ -1599,6 +1602,44 @@ void /*__init*/ print_PIC(void)
  
  #endif  /*  0  */
  
@@ -110,7 +109,7 @@ diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
  static void __init enable_IO_APIC(void)
  {
  	union IO_APIC_reg_01 reg_01;
-@@ -1138,11 +1179,11 @@ void disable_IO_APIC(void)
+@@ -1641,11 +1682,11 @@ void disable_IO_APIC(void)
  	clear_IO_APIC();
  
  	/*
@@ -124,7 +123,7 @@ diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
  	if (pin != -1) {
  		struct IO_APIC_route_entry entry;
  		unsigned long flags;
-@@ -1154,7 +1195,7 @@ void disable_IO_APIC(void)
+@@ -1657,7 +1698,7 @@ void disable_IO_APIC(void)
  		entry.polarity        = 0; /* High */
  		entry.delivery_status = 0;
  		entry.dest_mode       = 0; /* Physical */
@@ -133,16 +132,16 @@ diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
  		entry.vector          = 0;
  		entry.dest.physical.physical_dest = 0;
  
-@@ -1626,7 +1667,7 @@ static inline void check_timer(void)
+@@ -2195,7 +2236,7 @@ static inline void check_timer(void)
  	enable_8259A_irq(0);
  
  	pin1 = find_isa_irq_pin(0, mp_INT);
 -	pin2 = find_isa_irq_pin(0, mp_ExtINT);
 +	pin2 = ioapic_i8259_pin;
  
- 	apic_printk(APIC_VERBOSE,KERN_INFO "..TIMER: vector=0x%02X pin1=%d pin2=%d\n", vector, pin1, pin2);
+ 	printk(KERN_INFO "..TIMER: vector=0x%02X pin1=%d pin2=%d\n", vector, pin1, pin2);
  
-@@ -1723,6 +1764,7 @@ __setup("no_timer_check", notimercheck);
+@@ -2289,6 +2330,7 @@ static inline void check_timer(void)
  
  void __init setup_IO_APIC(void)
  {

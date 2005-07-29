@@ -1,25 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVG2CJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVG2CRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbVG2CJn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 22:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVG2CJm
+	id S262208AbVG2CRp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 22:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVG2CRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 22:09:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21738 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262133AbVG2CIx (ORCPT
+	Thu, 28 Jul 2005 22:17:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12013 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262208AbVG2CRk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 22:08:53 -0400
-Date: Thu, 28 Jul 2005 19:07:42 -0700
+	Thu, 28 Jul 2005 22:17:40 -0400
+Date: Thu, 28 Jul 2005 19:16:34 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: perex@suse.cz, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       tiwai@suse.de
-Subject: Re: [ALSA PATCH] 1.0.9b+
-Message-Id: <20050728190742.1080a325.akpm@osdl.org>
-In-Reply-To: <200507282334.23910.s0348365@sms.ed.ac.uk>
-References: <Pine.LNX.4.61.0507281546040.8458@tm8103.perex-int.cz>
-	<20050728102525.234e6511.akpm@osdl.org>
-	<200507282334.23910.s0348365@sms.ed.ac.uk>
+To: Florian Engelhardt <dot@dot-matrix.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3 acpi compile problems
+Message-Id: <20050728191634.7ef8dd9e.akpm@osdl.org>
+In-Reply-To: <1122563381.42e8f5359af84@www.domainfactory-webmail.de>
+References: <1122563381.42e8f5359af84@www.domainfactory-webmail.de>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,39 +24,202 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+Florian Engelhardt <dot@dot-matrix.de> wrote:
 >
-> On Thursday 28 Jul 2005 18:25, Andrew Morton wrote:
-> > Jaroslav Kysela <perex@suse.cz> wrote:
-> > > Linus, please do an update from:
-> > >
-> > >    rsync://rsync.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
-> > >
-> > > ...
-> > >   65 files changed, 5059 insertions(+), 1122 deletions(-)
-> >
-> > The git-alsa.patch in -mm which I obtain from
-> > master.kernel.org:/pub/scm/linux/kernel/git/perex/alsa-current.git is
-> > empty.  So we're now wanting to merge 4,000 lines of unreviewed code which
-> > hasn't been tested in -mm at approximately the -rc4 stage.
+> i get this warnings when compiling:
 > 
-> ~2800 lines of which is a new driver.
-> 
-> It'd be nice if ALSA's release schedule for "stable" versus "rc" could match 
-> the kernel's. For example, 2.6.12 shipped with 1.0.9rc2.
-> 
-> Maybe "rc" ALSA should only be accepted in rc1, by rc4 you hope they can wrap 
-> things up and give you a stable version number? Okay, generally in-tree 
-> version numbers don't count for much, but I think ALSA is a big exception 
-> because it's maintained pretty much out of tree.
-> 
-> Not so much of an issue this time around, but I don't think new drivers or 
-> rewrites (even if they are reasonably separate) should be going in a late -rc 
-> kernel.
-> 
+>    CC      drivers/acpi/utilities/utalloc.o
+>  drivers/acpi/utilities/utalloc.c: In function `acpi_ut_create_caches':
+>  drivers/acpi/utilities/utalloc.c:107: warning: passing arg 3 of
+>  `acpi_ut_create_list' from incompatible pointer type
 
-Independent of all that, there remains the problem that I was not obtaining
-all this new code from
-master.kernel.org:/pub/scm/linux/kernel/git/perex/alsa-current.git.
+Something like this?
 
-Is there some different tree which I should be pulling from?
+
+diff -puN drivers/acpi/utilities/utdebug.c~acpi-trace-warning-fixes drivers/acpi/utilities/utdebug.c
+--- devel/drivers/acpi/utilities/utdebug.c~acpi-trace-warning-fixes	2005-07-28 19:14:46.000000000 -0700
++++ devel-akpm/drivers/acpi/utilities/utdebug.c	2005-07-28 19:14:46.000000000 -0700
+@@ -133,7 +133,7 @@ void  ACPI_INTERNAL_VAR_XFACE
+ acpi_ut_debug_print (
+ 	u32                             requested_debug_level,
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	char                            *format,
+@@ -208,7 +208,7 @@ void  ACPI_INTERNAL_VAR_XFACE
+ acpi_ut_debug_print_raw (
+ 	u32                             requested_debug_level,
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	char                            *format,
+@@ -247,7 +247,7 @@ EXPORT_SYMBOL(acpi_ut_debug_print_raw);
+ void
+ acpi_ut_trace (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id)
+ {
+@@ -282,7 +282,7 @@ EXPORT_SYMBOL(acpi_ut_trace);
+ void
+ acpi_ut_trace_ptr (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	void                            *pointer)
+@@ -316,7 +316,7 @@ acpi_ut_trace_ptr (
+ void
+ acpi_ut_trace_str (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	char                            *string)
+@@ -351,7 +351,7 @@ acpi_ut_trace_str (
+ void
+ acpi_ut_trace_u32 (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	u32                             integer)
+@@ -385,7 +385,7 @@ acpi_ut_trace_u32 (
+ void
+ acpi_ut_exit (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id)
+ {
+@@ -419,7 +419,7 @@ EXPORT_SYMBOL(acpi_ut_exit);
+ void
+ acpi_ut_status_exit (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	acpi_status                     status)
+@@ -463,7 +463,7 @@ EXPORT_SYMBOL(acpi_ut_status_exit);
+ void
+ acpi_ut_value_exit (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	acpi_integer                    value)
+@@ -499,7 +499,7 @@ EXPORT_SYMBOL(acpi_ut_value_exit);
+ void
+ acpi_ut_ptr_exit (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	u8                              *ptr)
+diff -puN include/acpi/acmacros.h~acpi-trace-warning-fixes include/acpi/acmacros.h
+diff -puN include/acpi/acutils.h~acpi-trace-warning-fixes include/acpi/acutils.h
+--- devel/include/acpi/acutils.h~acpi-trace-warning-fixes	2005-07-28 19:14:46.000000000 -0700
++++ devel-akpm/include/acpi/acutils.h	2005-07-28 19:14:46.000000000 -0700
+@@ -302,14 +302,14 @@ acpi_ut_track_stack_ptr (
+ void
+ acpi_ut_trace (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id);
+ 
+ void
+ acpi_ut_trace_ptr (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	void                            *pointer);
+@@ -317,7 +317,7 @@ acpi_ut_trace_ptr (
+ void
+ acpi_ut_trace_u32 (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	u32                             integer);
+@@ -325,7 +325,7 @@ acpi_ut_trace_u32 (
+ void
+ acpi_ut_trace_str (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	char                            *string);
+@@ -333,14 +333,14 @@ acpi_ut_trace_str (
+ void
+ acpi_ut_exit (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id);
+ 
+ void
+ acpi_ut_status_exit (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	acpi_status                     status);
+@@ -348,7 +348,7 @@ acpi_ut_status_exit (
+ void
+ acpi_ut_value_exit (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	acpi_integer                    value);
+@@ -356,7 +356,7 @@ acpi_ut_value_exit (
+ void
+ acpi_ut_ptr_exit (
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	u8                              *ptr);
+@@ -390,7 +390,7 @@ void ACPI_INTERNAL_VAR_XFACE
+ acpi_ut_debug_print (
+ 	u32                             requested_debug_level,
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	char                            *format,
+@@ -400,7 +400,7 @@ void ACPI_INTERNAL_VAR_XFACE
+ acpi_ut_debug_print_raw (
+ 	u32                             requested_debug_level,
+ 	u32                             line_number,
+-	char                            *function_name,
++	const char                      *function_name,
+ 	char                            *module_name,
+ 	u32                             component_id,
+ 	char                            *format,
+_
+

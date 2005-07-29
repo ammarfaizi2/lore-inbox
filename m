@@ -1,97 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262589AbVG2K6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVG2LA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbVG2K6i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 06:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVG2K4b
+	id S262579AbVG2LA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 07:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbVG2K6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 06:56:31 -0400
-Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:47372 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262589AbVG2KzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 06:55:14 -0400
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/5] fuse: don't update file times
-Message-Id: <E1DySW2-0004pl-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 29 Jul 2005 12:54:58 +0200
+	Fri, 29 Jul 2005 06:58:42 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8464 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262595AbVG2K5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 06:57:05 -0400
+Date: Fri, 29 Jul 2005 12:57:04 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Radoslaw AstralStorm Szkodzinski <astralstorm@gorzow.mm.pl>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3 question
+Message-ID: <20050729105704.GC3563@stusta.de>
+References: <20050728194334.4f5b3f22.astralstorm@gorzow.mm.pl> <20050728105551.57f3183c.akpm@osdl.org> <20050728203133.0a03dbda.astralstorm@gorzow.mm.pl> <20050728204238.GC4790@stusta.de> <20050729025034.2b58d34e.astralstorm@gorzow.mm.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729025034.2b58d34e.astralstorm@gorzow.mm.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't change mtime/ctime/atime to local time on read/write.  Rather
-invalidate file attributes, so next stat() will force a GETATTR call.
-Bug reported by Ben Grimm.
+On Fri, Jul 29, 2005 at 02:50:34AM +0200, Radoslaw AstralStorm Szkodzinski wrote:
+> On Thu, 28 Jul 2005 22:42:38 +0200
+> Adrian Bunk <bunk@stusta.de> wrote:
+> 
+> 
+> > I'm surprised that you are that much concerned about compile errors when 
+> > using a kernel that might regularly exchange the contents of /dev/hda 
+> > and /dev/null .
+> > 
+> These bugs don't happen too often in reality.
+> Just please don't be malicious and add this kind of code deliberately. :)
+> 
+> Every build breaker wastes my precious time to fix it. 
+> That's compulsive/obsessive in some way. ;)
+>...
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+Someone has to test it.
 
-diff -rup linux-2.6.13-rc3-mm3/fs/fuse/dir.c linux-fuse/fs/fuse/dir.c
---- linux-2.6.13-rc3-mm3/fs/fuse/dir.c	2005-07-29 10:56:57.000000000 +0200
-+++ linux-fuse/fs/fuse/dir.c	2005-07-29 10:36:59.000000000 +0200
-@@ -552,6 +552,7 @@ static int fuse_readdir(struct file *fil
- 				    filldir);
- 
- 	__free_page(page);
-+	fuse_invalidate_attr(inode); /* atime changed */
- 	return err;
- }
- 
-@@ -585,6 +586,7 @@ static char *read_link(struct dentry *de
- 		link[req->out.args[0].size] = '\0';
-  out:
- 	fuse_put_request(fc, req);
-+	fuse_invalidate_attr(inode); /* atime changed */
- 	return link;
- }
- 
-diff -rup linux-2.6.13-rc3-mm3/fs/fuse/file.c linux-fuse/fs/fuse/file.c
---- linux-2.6.13-rc3-mm3/fs/fuse/file.c	2005-07-29 10:56:57.000000000 +0200
-+++ linux-fuse/fs/fuse/file.c	2005-07-29 10:36:59.000000000 +0200
-@@ -240,6 +240,7 @@ static int fuse_readpage(struct file *fi
- 	fuse_put_request(fc, req);
- 	if (!err)
- 		SetPageUptodate(page);
-+	fuse_invalidate_attr(inode); /* atime changed */
-  out:
- 	unlock_page(page);
- 	return err;
-@@ -308,6 +309,7 @@ static int fuse_readpages(struct file *f
- 	if (!err && data.req->num_pages)
- 		err = fuse_send_readpages(data.req, file, inode);
- 	fuse_put_request(fc, data.req);
-+	fuse_invalidate_attr(inode); /* atime changed */
- 	return err;
- }
- 
-@@ -376,8 +378,8 @@ static int fuse_commit_write(struct file
- 			clear_page_dirty(page);
- 			SetPageUptodate(page);
- 		}
--	} else if (err == -EINTR || err == -EIO)
--		fuse_invalidate_attr(inode);
-+	}
-+	fuse_invalidate_attr(inode);
- 	return err;
- }
- 
-@@ -469,8 +471,8 @@ static ssize_t fuse_direct_io(struct fil
- 		if (write && pos > i_size_read(inode))
- 			i_size_write(inode, pos);
- 		*ppos = pos;
--	} else if (write && (res == -EINTR || res == -EIO))
--		fuse_invalidate_attr(inode);
-+	}
-+	fuse_invalidate_attr(inode);
- 
- 	return res;
- }
-diff -rup linux-2.6.13-rc3-mm3/fs/fuse/inode.c linux-fuse/fs/fuse/inode.c
---- linux-2.6.13-rc3-mm3/fs/fuse/inode.c	2005-07-29 11:01:10.000000000 +0200
-+++ linux-fuse/fs/fuse/inode.c	2005-07-29 10:36:59.000000000 +0200
-@@ -169,6 +173,7 @@ struct inode *fuse_iget(struct super_blo
- 		return NULL;
- 
- 	if ((inode->i_state & I_NEW)) {
-+		inode->i_flags |= S_NOATIME|S_NOCMTIME;
- 		inode->i_generation = generation;
- 		inode->i_data.backing_dev_info = &fc->bdi;
- 		fuse_init_inode(inode, attr);
+Andrew already wastes some of his precious time for testing before 
+releasing a -mm kernel, but this doesn't catch every compile error.
+
+If a -mm kernel doesn't compile for you, you can:
+- apply a patch if it is already available
+- fix it yourself
+- wait for the next -mm
+
+One of the purposes of -mm kernels is actually to find compile errors.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

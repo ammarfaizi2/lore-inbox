@@ -1,73 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVG2HMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbVG2HMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbVG2HMe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 03:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVG2HMa
+	id S262475AbVG2HMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 03:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVG2HJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 03:12:30 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:38047 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262464AbVG2HMC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 03:12:02 -0400
-Subject: Re: [PATCH 1/5] Add AIO event ring size tunable
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: "linux-aio kvack.org" <linux-aio@kvack.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1122569567.8278.12.camel@lade.trondhjem.org>
-References: <1122565590.2019.80.camel@frecb000686>
-	 <1122569567.8278.12.camel@lade.trondhjem.org>
-Date: Fri, 29 Jul 2005 09:10:49 +0200
-Message-Id: <1122621049.1989.99.camel@frecb000686>
+	Fri, 29 Jul 2005 03:09:58 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:13757 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262055AbVG2HHV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 03:07:21 -0400
+Date: Fri, 29 Jul 2005 09:07:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: Add prefetch switch stack hook in scheduler function
+Message-ID: <20050729070702.GA3327@elte.hu>
+References: <20050728090948.GA24222@elte.hu> <200507281914.j6SJErg31398@unix-os.sc.intel.com> <20050729070447.GA3032@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/07/2005 09:24:05,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/07/2005 09:24:09,
-	Serialize complete at 29/07/2005 09:24:09
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729070447.GA3032@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-28 at 12:52 -0400, Trond Myklebust wrote:
-> to den 28.07.2005 Klokka 17:46 (+0200) skreiv Sébastien Dugué:
-> > 
-> > 
-> > 
-> > 
-> > 
-> > 
-> > 
-> > ukjent vedlegg
-> > (aiomaxevents)
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> > Sorry, this is not enough.  Switch stack on ia64 is 528 bytes.  We 
+> > need to prefetch 5 lines.  It probably should use prefetch_range().  
 > 
-> Please don't post these patches as base-64 encoded anonymous
-> attachments. It makes them very annoying to review.
-> 
-> In you must use attachments, use inlined ascii. Better still, don't use
-> attachments at all, but just include the patch in the body of your
-> email.
-> 
-> Cheers,
->   Trond
-> 
+> ok, how about the additional patch below? Does this do the trick on 
+> ia64? It makes complete sense on every architecture to prefetch from 
+> below the current kernel stack, in the expectation of the next task 
+> touching the stack. The only difference is that for ia64 the 'expected 
+> minimum stack footprint' is larger, due to the switch_stack.
 
-  Argh, I usually use sylpheed to post patches, but forgot this
-time. If someone wants me to resend, just ask.
+the patch below unrolls the prefetch_range() loop manually, for up to 5 
+cachelines prefetched. This patch, ontop of the 4 previous patches, 
+should generate similar code to the assembly code in your original 
+patch. The full patch-series is:
 
-  Sébastien.
+ patches/prefetch-next.patch
+ patches/prefetch-mm.patch
+ patches/prefetch-kstack-size.patch
+ patches/prefetch-unroll.patch
 
--- 
-------------------------------------------------------
+	Ingo
 
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
+---------
+unroll prefetch_range() loops manually.
 
-  mailto:sebastien.dugue@bull.net
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-  
-------------------------------------------------------
+ include/linux/prefetch.h |   31 +++++++++++++++++++++++++++++--
+ 1 files changed, 29 insertions(+), 2 deletions(-)
 
+Index: linux/include/linux/prefetch.h
+===================================================================
+--- linux.orig/include/linux/prefetch.h
++++ linux/include/linux/prefetch.h
+@@ -58,11 +58,38 @@ static inline void prefetchw(const void 
+ static inline void prefetch_range(void *addr, size_t len)
+ {
+ #ifdef ARCH_HAS_PREFETCH
+-	char *cp;
++	char *cp = addr;
+ 	char *end = addr + len;
+ 
+-	for (cp = addr; cp < end; cp += PREFETCH_STRIDE)
++	/*
++	 * Unroll agressively:
++	 */
++	if (len <= PREFETCH_STRIDE)
+ 		prefetch(cp);
++	else if (len <= 2*PREFETCH_STRIDE) {
++		prefetch(cp);
++		prefetch(cp + PREFETCH_STRIDE);
++	}
++	else if (len <= 3*PREFETCH_STRIDE) {
++		prefetch(cp);
++		prefetch(cp + PREFETCH_STRIDE);
++		prefetch(cp + 2*PREFETCH_STRIDE);
++	}
++	else if (len <= 4*PREFETCH_STRIDE) {
++		prefetch(cp);
++		prefetch(cp + PREFETCH_STRIDE);
++		prefetch(cp + 2*PREFETCH_STRIDE);
++		prefetch(cp + 3*PREFETCH_STRIDE);
++	}
++	else if (len <= 5*PREFETCH_STRIDE) {
++		prefetch(cp);
++		prefetch(cp + PREFETCH_STRIDE);
++		prefetch(cp + 2*PREFETCH_STRIDE);
++		prefetch(cp + 3*PREFETCH_STRIDE);
++		prefetch(cp + 4*PREFETCH_STRIDE);
++	} else
++		for (; cp < end; cp += PREFETCH_STRIDE)
++			prefetch(cp);
+ #endif
+ }
+ 

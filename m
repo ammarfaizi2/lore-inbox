@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262774AbVG3AWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVG3AWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262774AbVG3AWW (ORCPT <rfc822;willy@w.ods.org>);
+	id S262731AbVG3AWW (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 29 Jul 2005 20:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbVG2TTK
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbVG2TTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 15:19:10 -0400
-Received: from mail.kroah.org ([69.55.234.183]:64430 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262699AbVG2TQX (ORCPT
+	Fri, 29 Jul 2005 15:19:15 -0400
+Received: from mail.kroah.org ([69.55.234.183]:64942 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262746AbVG2TQX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 29 Jul 2005 15:16:23 -0400
-Date: Fri, 29 Jul 2005 12:15:33 -0700
+Date: Fri, 29 Jul 2005 12:15:00 -0700
 From: Greg KH <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, khali@linux-fr.org
-Subject: [patch 11/29] I2C: 24RF08 corruption prevention (again)
-Message-ID: <20050729191533.GM5095@kroah.com>
+Cc: linux-kernel@vger.kernel.org, ladis@linux-mips.org
+Subject: [patch 07/29] I2C: ds1337 - fix 12/24 hour mode bug
+Message-ID: <20050729191500.GI5095@kroah.com>
 References: <20050729184950.014589000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,74 +24,44 @@ User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jean Delvare <khali@linux-fr.org>
+From: Ladislav Michl <ladis@linux-mips.org>
 
-The 24RF08 corruption prevention in the eeprom and max6875 drivers wasn't
-complete. For one thing, the additional quick write should happen as soon
-as possible and unconditionally, while both drivers had error paths before.
-For another, when a given chip is forced, the core does not emit a quick
-write, so a second quick write would cause the corruption rather than
-prevent it.
+DS1339 manual, page 6, chapter Date and time operation:
+  The DS1339 can be run in either 12-hour or 24-hour mode. Bit 6 of the
+  hours register is defined as the 12-hour or 24-hour mode-select bit.
+  When high, the 12-hour mode is selected.
+ 
+Patch below makes ds1337 driver work as documented in manual.
 
-I plan to move the corruption prevention in the core in the long run, so
-that individual drivers don't have to care anymore. But I need to merge
-i2c_probe and i2c_detect before I do (work in progress).
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/i2c/chips/eeprom.c  |    8 +++++---
- drivers/i2c/chips/max6875.c |    8 +++++---
- 2 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/i2c/chips/ds1337.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
---- gregkh-2.6.orig/drivers/i2c/chips/eeprom.c	2005-07-29 11:36:14.000000000 -0700
-+++ gregkh-2.6/drivers/i2c/chips/eeprom.c	2005-07-29 11:36:18.000000000 -0700
-@@ -163,6 +163,11 @@
- 	struct eeprom_data *data;
- 	int err = 0;
+--- gregkh-2.6.orig/drivers/i2c/chips/ds1337.c	2005-07-29 11:30:00.000000000 -0700
++++ gregkh-2.6/drivers/i2c/chips/ds1337.c	2005-07-29 11:34:02.000000000 -0700
+@@ -165,7 +165,7 @@
+ 	buf[0] = 0;		/* reg offset */
+ 	buf[1] = BIN2BCD(dt->tm_sec);
+ 	buf[2] = BIN2BCD(dt->tm_min);
+-	buf[3] = BIN2BCD(dt->tm_hour) | (1 << 6);
++	buf[3] = BIN2BCD(dt->tm_hour);
+ 	buf[4] = BIN2BCD(dt->tm_wday) + 1;
+ 	buf[5] = BIN2BCD(dt->tm_mday);
+ 	buf[6] = BIN2BCD(dt->tm_mon) + 1;
+@@ -344,9 +344,9 @@
  
-+	/* prevent 24RF08 corruption */
-+	if (kind < 0)
-+		i2c_smbus_xfer(adapter, address, 0, 0, 0,
-+			       I2C_SMBUS_QUICK, NULL);
-+
- 	/* There are three ways we can read the EEPROM data:
- 	   (1) I2C block reads (faster, but unsupported by most adapters)
- 	   (2) Consecutive byte reads (100% overhead)
-@@ -187,9 +192,6 @@
- 	new_client->driver = &eeprom_driver;
- 	new_client->flags = 0;
+ 	/* Ensure that device is set in 24-hour mode */
+ 	val = i2c_smbus_read_byte_data(client, DS1337_REG_HOUR);
+-	if ((val >= 0) && (val & (1 << 6)) == 0)
++	if ((val >= 0) && (val & (1 << 6)))
+ 		i2c_smbus_write_byte_data(client, DS1337_REG_HOUR,
+-					  val | (1 << 6));
++					  val & 0x3f);
+ }
  
--	/* prevent 24RF08 corruption */
--	i2c_smbus_write_quick(new_client, 0);
--
- 	/* Fill in the remaining client fields */
- 	strlcpy(new_client->name, "eeprom", I2C_NAME_SIZE);
- 	data->valid = 0;
---- gregkh-2.6.orig/drivers/i2c/chips/max6875.c	2005-07-29 11:36:14.000000000 -0700
-+++ gregkh-2.6/drivers/i2c/chips/max6875.c	2005-07-29 11:36:18.000000000 -0700
-@@ -343,6 +343,11 @@
- 	struct max6875_data *data;
- 	int err = 0;
- 
-+	/* Prevent 24RF08 corruption (in case of user error) */
-+	if (kind < 0)
-+		i2c_smbus_xfer(adapter, address, 0, 0, 0,
-+			       I2C_SMBUS_QUICK, NULL);
-+
- 	/* There are three ways we can read the EEPROM data:
- 	   (1) I2C block reads (faster, but unsupported by most adapters)
- 	   (2) Consecutive byte reads (100% overhead)
-@@ -370,9 +375,6 @@
- 	new_client->driver = &max6875_driver;
- 	new_client->flags = 0;
- 
--	/* Prevent 24RF08 corruption */
--	i2c_smbus_write_quick(new_client, 0);
--
- 	/* Setup the user section */
- 	data->blocks[max6875_eeprom_user].type    = max6875_eeprom_user;
- 	data->blocks[max6875_eeprom_user].slices  = USER_EEPROM_SLICES;
+ static int ds1337_detach_client(struct i2c_client *client)
 
 --

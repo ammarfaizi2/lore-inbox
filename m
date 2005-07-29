@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVG2AcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVG2AiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVG2AcI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 20:32:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbVG2AcH
+	id S262217AbVG2AiA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 20:38:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbVG2Ah7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 20:32:07 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:65203 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261579AbVG2AcC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 20:32:02 -0400
-Date: Fri, 29 Jul 2005 01:31:53 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: linux-kernel@vger.kernel.org
-Subject: io scheduler silly question perhaps..
-Message-ID: <Pine.LNX.4.58.0507290130000.1030@skynet>
+	Thu, 28 Jul 2005 20:37:59 -0400
+Received: from aeimail.aei.ca ([206.123.6.84]:35563 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S262217AbVG2Ah5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 20:37:57 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.13-rc3-mm2/mm1 breaks DRI
+Date: Thu, 28 Jul 2005 20:37:52 -0400
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@gmail.com>
+References: <20050727024330.78ee32c2.akpm@osdl.org> <200507271758.52466.tomlins@cam.org>
+In-Reply-To: <200507271758.52466.tomlins@cam.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200507282037.52292.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 27 July 2005 17:58, Ed Tomlinson wrote:
+> >> >>
+> >> >> I also use 2.6.13-rc3-mm1.  Will try with a previous version an report to lkml if
+> >> >> it works.
+> >> >>
+> >> >
+> >> > I just tried 13-rc2-mm1 and dri is working again. Its reported to also work
+> >> > with 13-rc3.
+> >> 
+> >
+> >Hmm no idea what could have broken it, I'm at OLS and don't have any
+> >DRI capable machine here yet.. so it'll be a while before I get to
+> >take a look at it .. I wouldn't be terribly surprised if some of the
+> >new mapping code might have some issues..
+> 
+> Still happens with mm2.
 
-I have an embedded system which has two read-only flash devices (one a
-PIO ATA flash disk, and one MDMA capable flash)
+And mm3 too.  Please let me know if there is anything you would like me to try.
 
-As I'm doing no writing in this system and most of my reads are sequential
-(streaming movies or images) would my choice of io scheduler be very
-important?
-
-Regards,
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
-
+Thanks
+Ed Tomlinson

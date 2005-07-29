@@ -1,116 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbVG3BnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbVG2TSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262899AbVG3BnP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 21:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbVG3BlQ
+	id S262709AbVG2TSU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 15:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbVG2TQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 21:41:16 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:27017 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262808AbVG3BkF (ORCPT
+	Fri, 29 Jul 2005 15:16:14 -0400
+Received: from mail.kroah.org ([69.55.234.183]:31918 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262699AbVG2TPC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 21:40:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=I1G6rkFni4/MiTY48m/OVhcq5SmWqgmPhyZk+Bqv+iTPYa/pWQ6mxU+T3xLPw8B3FVEsRLKnG9tFt+ILc3fs1orMOXEu6+Y8wsY7Mz7Ye7pb9I+4jk/x4oxZXLXHMYzyehSDSkfku889zDHk7lyMsH+hY9BLBg7/Xj78hcTthtc=
-Message-ID: <42EADA76.2050606@pol.net>
-Date: Sat, 30 Jul 2005 09:40:06 +0800
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       adaplas@gmail.com, ak@suse.de
-Subject: Re: vesafb-fix-mtrr-bugs.patch added to -mm tree
-References: <200507291825.j6TIParH012406@shell0.pdx.osdl.net>	<20050729185848.GP17003@redhat.com> <20050729180827.79679ff0.akpm@osdl.org>
-In-Reply-To: <20050729180827.79679ff0.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-From: "Antonino A. Daplas" <adaplas@gmail.com>
+	Fri, 29 Jul 2005 15:15:02 -0400
+Date: Fri, 29 Jul 2005 12:14:34 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 05/29] Add the rules about the -stable kernel releases to the Documentation directory
+Message-ID: <20050729191434.GG5095@kroah.com>
+References: <20050729184950.014589000@press.kroah.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729191255.GA5095@kroah.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Dave Jones <davej@redhat.com> wrote:
->> On Fri, Jul 29, 2005 at 11:24:37AM -0700, Andrew Morton wrote:
->>
->>  > From: "Antonino A. Daplas" <adaplas@gmail.com>
->>  > 
->>  > >> vesafb: mode is 800x600x16, linelength=1600, pages=16
->>  > >> vesafb: scrolling: redraw
->>  > >> vesafb: Truecolor: size=0:5:6:5, shift=0:11:5:0
->>  > >> mtrr: type mismatch for fc000000,1000000 old: write-back new: write-
->>  > >> combining
->>  > 
->>  > Range is already set to write-back, vesafb attempts to add a write-combining
->>  > mtrr (default for vesafb).
->>  > 
->>  > >> mtrr: size and base must be multiples of 4 kiB
->>  > 
->>  > This is a bug, vesafb attempts to add a size < PAGE_SIZE triggering
->>  > the messages below.
->>
->> I fixed this a few weeks back. It's this line which your patch removes..
->>
->> -        while (temp_size > PAGE_SIZE &&
->>
->>  > To eliminate the warning messages, you can add the option mtrr:2 to add a
->>  > write-back mtrr for vesafb.  Or just use nomtrr option.
->>
->> If we need users to pass extra command line args to make warnings go
->> away, we may as well not bother. Because 99% of users will be completely
->> unaware that option even exists.  They'll still see the same message,
->> and still report the same bugs.
->>
->> The pains of MTRR strike again. This stuff is just screaming for
->> a usable PAT implementation. Andi, you were working on that, any news ?
->> Or should I resurrect Terrence's patch again ?
->>
-> 
-> Well something is still awry:
-> 
-> 
-> 
-> 
-> Begin forwarded message:
-> 
-> Date: Fri, 29 Jul 2005 13:40:05 +0200
-> From: Alessandro <alezzandro@gmail.com>
-> To: Andrew Morton <akpm@osdl.org>
-> Subject: Re: "mtrr: type mismatch for e0000000,8000000 old: write-back new: write-combining" on Kernel 2.6.12
-> 
-> 
-> I try the new prepatch for the stable Linux kernel (2.6.13-rc4) but
-> the problem is the same:
-> ...
-> vesafb: framebuffer at 0xe0000000, mapped to 0xe0880000, using 4608k,
-> total 131072k
-> vesafb: mode is 1024x768x24, linelength=3072, pages=55
-> vesafb: protected mode interface info at c000:56cb
-> vesafb: scrolling: redraw
-> vesafb: Truecolor: size=0:8:8:8, shift=0:16:8:0
-> mtrr: type mismatch for e0000000,8000000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,4000000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,2000000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,1000000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,800000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,400000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,200000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,100000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,80000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,40000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,20000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,10000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,8000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,4000 old: write-back new: write-combining
-> mtrr: type mismatch for e0000000,2000 old: write-back new: write-combining
 
-Vesafb defaults to write-combining mtrr.  But the memory range is already
-set to write-back so mtrr_check() spewed the above messages. I don't think it
-has any ill effects, but if you want to eliminate the above messages, tell
-vesafb to also use write-back mtrr by adding the boot option "mtrr:2"
-(or nomtrr).
+This was the last agreed upon set of rules, it's probably time we actually add
+them to the kernel tree to make them "official".
 
-I think I'll submit a documentation patch.
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Tony
+---
+ Documentation/stable_kernel_rules.txt |   58 ++++++++++++++++++++++++++++++++++
+ 1 files changed, 58 insertions(+)
+
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gregkh-2.6/Documentation/stable_kernel_rules.txt	2005-07-29 11:34:01.000000000 -0700
+@@ -0,0 +1,58 @@
++Everything you ever wanted to know about Linux 2.6 -stable releases.
++
++Rules on what kind of patches are accepted, and what ones are not, into
++the "-stable" tree:
++
++ - It must be obviously correct and tested.
++ - It can not bigger than 100 lines, with context.
++ - It must fix only one thing.
++ - It must fix a real bug that bothers people (not a, "This could be a
++   problem..." type thing.)
++ - It must fix a problem that causes a build error (but not for things
++   marked CONFIG_BROKEN), an oops, a hang, data corruption, a real
++   security issue, or some "oh, that's not good" issue.  In short,
++   something critical.
++ - No "theoretical race condition" issues, unless an explanation of how
++   the race can be exploited.
++ - It can not contain any "trivial" fixes in it (spelling changes,
++   whitespace cleanups, etc.)
++ - It must be accepted by the relevant subsystem maintainer.
++ - It must follow Documentation/SubmittingPatches rules.
++
++
++Procedure for submitting patches to the -stable tree:
++
++ - Send the patch, after verifying that it follows the above rules, to
++   stable@kernel.org.
++ - The sender will receive an ack when the patch has been accepted into
++   the queue, or a nak if the patch is rejected.  This response might
++   take a few days, according to the developer's schedules.
++ - If accepted, the patch will be added to the -stable queue, for review
++   by other developers.
++ - Security patches should not be sent to this alias, but instead to the
++   documented security@kernel.org.
++
++
++Review cycle:
++
++ - When the -stable maintainers decide for a review cycle, the patches
++   will be sent to the review committee, and the maintainer of the
++   affected area of the patch (unless the submitter is the maintainer of
++   the area) and CC: to the linux-kernel mailing list.
++ - The review committee has 48 hours in which to ack or nak the patch.
++ - If the patch is rejected by a member of the committee, or linux-kernel
++   members object to the patch, bringing up issues that the maintainers
++   and members did not realize, the patch will be dropped from the
++   queue.
++ - At the end of the review cycle, the acked patches will be added to
++   the latest -stable release, and a new -stable release will happen.
++ - Security patches will be accepted into the -stable tree directly from
++   the security kernel team, and not go through the normal review cycle.
++   Contact the kernel security team for more details on this procedure.
++
++
++Review committe:
++
++ - This will be made up of a number of kernel developers who have
++   volunteered for this task, and a few that haven't.
++
+
+--

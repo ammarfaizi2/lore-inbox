@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVG2FVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbVG2FfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVG2FVa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 01:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVG2FVa
+	id S262361AbVG2FfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 01:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVG2FfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 01:21:30 -0400
-Received: from mxb.rambler.ru ([81.19.66.30]:33802 "EHLO mxb.rambler.ru")
-	by vger.kernel.org with ESMTP id S262350AbVG2FV2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 01:21:28 -0400
-Message-ID: <42EA2DF3.3020801@rambler.ru>
-Date: Fri, 29 Jul 2005 09:24:03 -0400
-From: Pavel Fedin <sonic_amiga@rambler.ru>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Fri, 29 Jul 2005 01:35:09 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:2756 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262361AbVG2FfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 01:35:07 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Rafael =?utf-8?q?Esp=C3=ADndola?= <rafael.espindola@gmail.com>,
+       gentoo-dev@gentoo.org, gentoo-catalyst@gentoo.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: unmounting a filesystem mounted by /init (initramfs)
+Date: Fri, 29 Jul 2005 08:34:35 +0300
+User-Agent: KMail/1.5.4
+References: <564d96fb050728154923ba8663@mail.gmail.com>
+In-Reply-To: <564d96fb050728154923ba8663@mail.gmail.com>
 MIME-Version: 1.0
-To: linux-fsdevel@vger.kernel.org
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: NLS for HFS and "mount" tool.
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-X-Auth-User: sonic_amiga, whoson: (null)
+Content-Disposition: inline
+Message-Id: <200507290834.35504.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I've got no reply so i resend this letter.
-  Roman, i'd like to finish the work and would like to ask you what is 
-wrong with your version of the NLS support for MacHFS. I expected it to 
-appear in v 2.6.12 but there's no it. I would like to proceed basing on 
-it if you insist.
-  Also i would like to ask someone who is responsible for "mount" tool. 
-I'd suggest to modify it in order to support several lines in fstab with 
-the same device and mount points but different filesystems and options.
-  For example:
-/dev/cdrom /mnt/cdrom udf,iso9660 user,noauto,iocharset=koi8-r 0 0
-/dev/cdrom /mnt/cdrom hfsplus user,noauto,nls=koi8-r 0 0
-/dev/cdrom /mnt/cdrom hfs user,noauto,iocharset=koi8-r,codepage=10007 0 0
-  Currently mount will stop at the first line and produce an error if 
-the filesystem is not udf or iso (in the example). It will ignore the 
-following lines.
-  This would greatly improve handling of removable devices. Is there 
-something (standards for example) which could prevent from this 
-implementation?
+On Friday 29 July 2005 01:49, you wrote:
+> I am trying to build a system that uses a unionfs as root. The init
+> script is based on the one used by gentoo and uses initramfs. The
+> problem is how to remount the unionfs constituents read only during
+> halt.
+> 
+> cat /proc/mounts displays /dev/hda1 (ext2) mounted rw in /memory. The
+> problem is that /memory is no longer visible after the init script did
+> a chroot and a
 
--- 
-  Kind regards, Pavel Fedin
+"A chroot"? Better provide exact sequence of mounts, chroots which you
+execute. Otherwise people need to guess.
+ 
+> mount -o remount,ro /dev/hda1
+> 
+> says that /dev/hda1 is not mounted!
+> 
+> does any anyone has an idea?
+
+Use lazy umount (umount -l) while fs is still visible
+--
+vda
 

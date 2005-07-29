@@ -1,97 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262548AbVG2JR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbVG2JTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbVG2JR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 05:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVG2JR5
+	id S262544AbVG2JTW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 05:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVG2JTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 05:17:57 -0400
-Received: from amsfep13-int.chello.nl ([213.46.243.23]:59477 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262540AbVG2JRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 05:17:55 -0400
-Subject: Re: Add prefetch switch stack hook in scheduler function
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-In-Reply-To: <20050729070702.GA3327@elte.hu>
-References: <20050728090948.GA24222@elte.hu>
-	 <200507281914.j6SJErg31398@unix-os.sc.intel.com>
-	 <20050729070447.GA3032@elte.hu>  <20050729070702.GA3327@elte.hu>
-Content-Type: text/plain
-Date: Fri, 29 Jul 2005 11:17:55 +0200
-Message-Id: <1122628675.14892.9.camel@twins>
+	Fri, 29 Jul 2005 05:19:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12246 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262544AbVG2JSf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 05:18:35 -0400
+Date: Fri, 29 Jul 2005 02:17:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm/slab.c : prefetchw the start of new allocated
+ objects
+Message-Id: <20050729021722.2e6903e2.akpm@osdl.org>
+In-Reply-To: <42E9F145.7040302@cosmosbay.com>
+References: <42E6C8DB.4090608@earthlink.net>
+	<s5hr7dklko4.wl%tiwai@suse.de>
+	<42E7A8D8.1030809@earthlink.net>
+	<20050729014150.6e97dfd2.akpm@osdl.org>
+	<42E9F145.7040302@cosmosbay.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric Dumazet <dada1@cosmosbay.com> wrote:
+>
+> Most of objects returned by __cache_alloc() will be written by the caller,
+>  (but not all callers want to write all the object, but just at the begining)
+>  prefetchw() tells the modern CPU to think about the future writes, ie start
+>  some memory transactions in advance.
 
-> ---------
-> unroll prefetch_range() loops manually.
-> 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> 
->  include/linux/prefetch.h |   31 +++++++++++++++++++++++++++++--
->  1 files changed, 29 insertions(+), 2 deletions(-)
-> 
-> Index: linux/include/linux/prefetch.h
-> ===================================================================
-> --- linux.orig/include/linux/prefetch.h
-> +++ linux/include/linux/prefetch.h
-> @@ -58,11 +58,38 @@ static inline void prefetchw(const void 
->  static inline void prefetch_range(void *addr, size_t len)
->  {
->  #ifdef ARCH_HAS_PREFETCH
-> -	char *cp;
-> +	char *cp = addr;
->  	char *end = addr + len;
->  
-> -	for (cp = addr; cp < end; cp += PREFETCH_STRIDE)
-> +	/*
-> +	 * Unroll agressively:
-> +	 */
-> +	if (len <= PREFETCH_STRIDE)
->  		prefetch(cp);
-> +	else if (len <= 2*PREFETCH_STRIDE) {
-> +		prefetch(cp);
-> +		prefetch(cp + PREFETCH_STRIDE);
-> +	}
-> +	else if (len <= 3*PREFETCH_STRIDE) {
-> +		prefetch(cp);
-> +		prefetch(cp + PREFETCH_STRIDE);
-> +		prefetch(cp + 2*PREFETCH_STRIDE);
-> +	}
-> +	else if (len <= 4*PREFETCH_STRIDE) {
-> +		prefetch(cp);
-> +		prefetch(cp + PREFETCH_STRIDE);
-> +		prefetch(cp + 2*PREFETCH_STRIDE);
-> +		prefetch(cp + 3*PREFETCH_STRIDE);
-> +	}
-> +	else if (len <= 5*PREFETCH_STRIDE) {
-> +		prefetch(cp);
-> +		prefetch(cp + PREFETCH_STRIDE);
-> +		prefetch(cp + 2*PREFETCH_STRIDE);
-> +		prefetch(cp + 3*PREFETCH_STRIDE);
-> +		prefetch(cp + 4*PREFETCH_STRIDE);
-> +	} else
-> +		for (; cp < end; cp += PREFETCH_STRIDE)
-> +			prefetch(cp);
->  #endif
->  }
->  
+Sounds sensible enough..  slab does try to make sure it returns the
+most-recently-freed object, so it's probably in cache already.  But in the
+situation where we're allocating and using a lot of objects in succession
+it might help.
 
-code like that always makes me think of duffs-device
-  http://www.lysator.liu.se/c/duffs-device.html
 
-although it might be that the compiler generates better code from the
-current incarnation; just my .02 ;-)
+>  Some CPU lacks a prefetchw() and currently do nothing, so I ask this question :
+>  Should'nt make prefetchw() do at least a prefetch() ? A read hint is better than nothing.
 
-regards,
-
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
-
+Don't think so.  I was once told that if the cacheline is in local cache
+for reading and the CPU decides to write to it, additional work is needed
+for the write so the prefetch-for-read didn't buy you anything.

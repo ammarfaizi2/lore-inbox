@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbVG2VK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbVG2VNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262842AbVG2VK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 17:10:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262841AbVG2VIf
+	id S262847AbVG2VNU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 17:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262841AbVG2VLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 17:08:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53702 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262842AbVG2VIG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 17:08:06 -0400
-Date: Fri, 29 Jul 2005 14:07:56 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       Michael Kerrisk <mtk-manpages@gmx.net>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net, akpm@osdl.org
-Subject: Re: Broke nice range for RLIMIT NICE
-Message-ID: <20050729210756.GK19052@shell0.pdx.osdl.net>
-References: <32710.1122563064@www32.gmx.net> <20050729061318.GD7425@waste.org> <20050729201836.GH19052@shell0.pdx.osdl.net> <20050729205120.GJ19052@shell0.pdx.osdl.net> <1122670930.9381.25.camel@mindpipe>
+	Fri, 29 Jul 2005 17:11:02 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:39115 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262845AbVG2VK4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 17:10:56 -0400
+X-ORBL: [63.202.173.158]
+Date: Fri, 29 Jul 2005 14:10:50 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Syncing single filesystem (slow USB writing)
+Message-ID: <20050729211050.GA24961@taniwha.stupidest.org>
+References: <200507290731.32694.arvidjaar@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1122670930.9381.25.camel@mindpipe>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200507290731.32694.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> On Fri, 2005-07-29 at 13:51 -0700, Chris Wright wrote:
-> > * Chris Wright (chrisw@osdl.org) wrote:
-> > > Yes, this requires updated pam patch.
-> > 
-> > Here's the updated pam patch.  I left the lower end at 0 rather than 1,
-> > since it's no harm.
-> >  
-> > +/* Hack to test new rlimit values */
-> 
-> Does this still apply?  If so what would a better solution look like?
+On Fri, Jul 29, 2005 at 07:31:20AM +0400, Andrey Borzenkov wrote:
 
-The better solution is to make sure you have new enough glibc-kernheaders
-to pick up those values directly from resource.h and drop that hunk.  On
-my systems, it's still needed even with rawhide headers.
+> Mandrake always mounted USB sticks with sync option; it was
+> effectively noop except for a patch that implemented limited dsync
+> semantic.
 
-thanks,
--chris
+fwiw; various people have reported using flash block devices with
+'sync' ruins them as there can be many more (and very frequent)
+updates to the device
+

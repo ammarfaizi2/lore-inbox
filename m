@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbVG2Fsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVG2Fzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbVG2Fsa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 01:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVG2Fsa
+	id S262385AbVG2Fzm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 01:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbVG2Fzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 01:48:30 -0400
-Received: from smtp2.wanadoo.fr ([193.252.22.29]:54152 "EHLO smtp2.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S262377AbVG2Fs3 (ORCPT
+	Fri, 29 Jul 2005 01:55:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5798 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262385AbVG2Fzj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 01:48:29 -0400
-X-ME-UUID: 20050729054827767.BB5051C00217@mwinf0212.wanadoo.fr
-Subject: Re: Time Flies (Twice as Fast)
-From: Olivier Fourdan <fourdan@xfce.org>
-To: Kurt Wall <kwall@kurtwerks.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050729020332.GA12920@kurtwerks.com>
-References: <20050729020332.GA12920@kurtwerks.com>
-Content-Type: text/plain
-Organization: http://www.xfce.org
-Date: Fri, 29 Jul 2005 07:48:32 +0200
-Message-Id: <1122616112.5929.2.camel@shuttle>
+	Fri, 29 Jul 2005 01:55:39 -0400
+Date: Thu, 28 Jul 2005 22:54:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: mkrufky@m1k.net
+Cc: frank.peters@comcast.net, vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
+Message-Id: <20050728225433.6dbfecbe.akpm@osdl.org>
+In-Reply-To: <42E9C245.6050205@m1k.net>
+References: <20050624113404.198d254c.frank.peters@comcast.net>
+	<42BC306A.1030904@m1k.net>
+	<20050624125957.238204a4.frank.peters@comcast.net>
+	<42BC3EFE.5090302@m1k.net>
+	<20050728222838.64517cc9.akpm@osdl.org>
+	<42E9C245.6050205@m1k.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Krufky <mkrufky@m1k.net> wrote:
+>
+>  Sadly, I must report that yes, the problem still intermittently occurs 
+>  in 2.6.13-rc4 :-(  I'm the one that tested on the Shuttle FT61 
+>  Motherboard.  Never has a problem in windows and never in 2.6.11 and 
+>  earlier.
+> 
+>  I first noticed this problem sometime during 2.6.12-rc series.
 
-Kurt
+Sigh.  I think it would help if you could generate a new report, please.
 
-Did you try with the "no_timer_check" boot option?
-
-HTH
-Olivier.
-
-On Thu, 2005-07-28 at 22:03 -0400, Kurt Wall wrote:
-> Hola,
-> 
-> I have an eMachines T6212 Opteron system on which the system clock
-> seems to run at ~twice the speed of the wall clock. The main board
-> is an ASUS K8 of some description with at ATI SB400 southbridge and
-> an ATI RS480 northbridge. Kernel version is 2.6.12.3.
-> 
-> If I disable ACPI, the clock slows down to what seems to be the proper
-> speed, but then my NIC doesn't work, presumably because it shares
-> an interrupt with something else.
-> 
-> I've tried booting with clock=tsc and clock=pit to no effect. Based
-> on my review of the list archives, there appears to be issues with
-> the chipset, but I haven't been able to sort out what the real problem
-> is and the appropriate solution.
-> 
-> There's an ACPI error that seems potentially troublesome:
-> 
-> ACPI: Subsystem revision 20050309
->     ACPI-0352: *** Error: Looking up [\_SB_.PCI0.LPC0.LNK0] in namespace, AE_NOT_FOUND
-> search_node ffff81001fec9440 start_node ffff81001fec9440 return_node 0000000000000000
-> 
-> I also see this message from the PCI subsystem:
-> 
-> PCI: Ignoring BAR0-3 of IDE controller 0000:00:14.1
-> 
-> As a starting point, I've attached lspci output and the boot log. I'm
-> willing to provide more information and try patches and such.
-> 
-> Thanks.
-> 
-> Kurt
-> 
-
-
+We need a super-easy way for people to do bisection searching.

@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVG2Emx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVG2E4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVG2Emx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 00:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbVG2Emx
+	id S262325AbVG2E4D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 00:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVG2E4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 00:42:53 -0400
-Received: from nproxy.gmail.com ([64.233.182.206]:50354 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262345AbVG2Emw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 00:42:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=trR/rES7MDlzpeU7IbjdKeF64pok45EJCwhUMPiJTTUUGY0BKkfbgaPeHgaWpF4w7qti1HtwMKJhduOccxyf3YvyHlxQuaKm3IZiitoapWNqV4y/8D77ReraLjIQkpmkaH4vuYgfDosnbfiwfelRjzGlkii7Gn3fgTylWJY5YrE=
-Message-ID: <2cd57c900507282142137db5ee@mail.gmail.com>
-Date: Fri, 29 Jul 2005 12:42:50 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: include-linux-blkdevh-extern-inline-static-inline.patch added to -mm tree
-Cc: bunk@stusta.de, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <2cd57c9005072820073091864@mail.gmail.com>
+	Fri, 29 Jul 2005 00:56:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47000 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262325AbVG2E4B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 00:56:01 -0400
+Date: Thu, 28 Jul 2005 21:54:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc6-mm1
+Message-Id: <20050728215458.5f8bc27f.akpm@osdl.org>
+In-Reply-To: <200506211520.44645.dominik.karall@gmx.net>
+References: <20050607042931.23f8f8e0.akpm@osdl.org>
+	<200506211520.44645.dominik.karall@gmx.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200507290229.j6T2T6MP003818@shell0.pdx.osdl.net>
-	 <2cd57c9005072820073091864@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/29/05, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
-> On 7/29/05, akpm@osdl.org <akpm@osdl.org> wrote:
-> >
-> > The patch titled
-> >
-> >      include/linux/blkdev.h: "extern inline" -> "static inline"
-> >
-> > has been added to the -mm tree.  Its filename is
-> >
-> >      include-linux-blkdevh-extern-inline-static-inline.patch
-> >
+Dominik Karall <dominik.karall@gmx.net> wrote:
+>
+> On Tuesday 07 June 2005 13:29, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc6/2.
+> >6.12-rc6-mm1/
 > 
-> ...
+> After looking in my dmesg output today, I saw following error with 
+> 2.6.12-rc6-mm1, maybe it's usefull to you. I don't know when it exactly 
+> happens, cause I never used mono last time, I just did an emerge mono on my 
+> gentoo system, maybe this forced the failure.
 > 
-> >
-> >
-> > From: Adrian Bunk <bunk@stusta.de>
-> >
-> > "extern inline" doesn't make much sense.
+> note: mono[26736] exited with preempt_count 1
+> scheduling while atomic: mono/0x10000001/26736
 > 
-> "extern inline" does make sense, and it does make sense here. please
-> backout this patch. Hint: the address of block_size() is referenced.
+> Call Trace:<ffffffff803e13ea>{schedule+122} <ffffffff8013197b>{vprintk+635}
+>        <ffffffff803e2738>{cond_resched+56} <ffffffff80164de3>{unmap_vmas+1587}
+>        <ffffffff8016a560>{exit_mmap+128} <ffffffff8012e7bf>{mmput+31}
+>        <ffffffff80133466>{do_exit+438} 
+> <ffffffff8013bf25>{__dequeue_signal+501}
+>        <ffffffff801340c8>{do_group_exit+280} 
+> <ffffffff8013e147>{get_signal_to_deliver+1575}
+>        <ffffffff8010de92>{do_signal+162} 
+> <ffffffff8012d1e0>{default_wake_function+0}
+>        <ffffffff8010e8e1>{sys_rt_sigreturn+577} 
+> <ffffffff8010eb3f>{sysret_signal+28}
+>        <ffffffff8010ee27>{ptregscall_common+103}
 > 
 
-Sorry, I mistook put_int(arg, block_size(bdev)); as address reference.
+A couple of people reported this, but all seems to have gone quiet.  Is it
+fixed in later -mm's?   Is 2.6.13-rc4 running OK?
 
--- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+Thanks.

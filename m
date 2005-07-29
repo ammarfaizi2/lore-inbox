@@ -1,129 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbVG2KRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262578AbVG2KXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262561AbVG2KRB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 06:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbVG2KOf
+	id S262578AbVG2KXe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 06:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVG2KXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 06:14:35 -0400
-Received: from i254135.upc-i.chello.nl ([62.195.254.135]:15117 "EHLO
-	lab.d20.nl") by vger.kernel.org with ESMTP id S262557AbVG2KNV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 06:13:21 -0400
-Message-ID: <42EA0137.8040707@d20.nl>
-Date: Fri, 29 Jul 2005 12:13:11 +0200
-From: Joost Remijn <remijnj@d20.nl>
-User-Agent: Mozilla Thunderbird 1.0.5 (X11/20050711)
+	Fri, 29 Jul 2005 06:23:33 -0400
+Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:20643
+	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
+	id S262571AbVG2KWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 06:22:05 -0400
+Message-ID: <42EA0346.8070703@ev-en.org>
+Date: Fri, 29 Jul 2005 11:21:58 +0100
+From: Baruch Even <baruch@ev-en.org>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
-Subject: Re: kernel guide to space (updated)
-References: <20050728145353.GL11644@mellanox.co.il> <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms020108060306040202050402"
+To: "David S. Miller" <davem@davemloft.net>
+Cc: bunk@stusta.de, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] net: Spelling mistakes threshoulds -> thresholds
+References: <20050728220410.GG4790@stusta.de> <20050728.203021.35467760.davem@davemloft.net>
+In-Reply-To: <20050728.203021.35467760.davem@davemloft.net>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------040001040802060706010407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
-
---------------ms020108060306040202050402
+This is a multi-part message in MIME format.
+--------------040001040802060706010407
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-Jan Engelhardt wrote:
+Just simple spelling mistake fixes.
 
->>3e. sizeof
->>	space after the operator
->>	no space if the operand is in barces
->>    
->>
->
->braces
->
->  
->
->>3f. Braces etc
->>	() [] -> .
->>    
->>
->
->() parentheses (short form: parens)
->[] square brackets
->{} braces
-><> dunno their name :p
->
-angle brackets, it's all nicely explained at
-http://en.wikipedia.org/wiki/Bracket
-
---
-Joost
+Signed-Off-By: Baruch Even <baruch@ev-en.org>
 
 
+--------------040001040802060706010407
+Content-Type: text/plain;
+ name="threshould.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="threshould.diff"
 
---------------ms020108060306040202050402
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+diff -Nurp 2.6.13-rc4-orig/include/net/tcp.h 2.6.13-rc4/include/net/tcp.h
+--- 2.6.13-rc4-orig/include/net/tcp.h	2005-07-29 11:17:25.000000000 +0100
++++ 2.6.13-rc4/include/net/tcp.h	2005-07-29 11:14:28.000000000 +0100
+@@ -1236,7 +1236,7 @@ static inline void tcp_sync_left_out(str
+ 	tp->left_out = tp->sacked_out + tp->lost_out;
+ }
+ 
+-/* Set slow start threshould and cwnd not falling to slow start */
++/* Set slow start threshold and cwnd not falling to slow start */
+ static inline void __tcp_enter_cwr(struct tcp_sock *tp)
+ {
+ 	tp->undo_marker = 0;
+diff -Nurp 2.6.13-rc4-orig/net/ipv4/ipmr.c 2.6.13-rc4/net/ipv4/ipmr.c
+--- 2.6.13-rc4-orig/net/ipv4/ipmr.c	2005-07-29 11:17:25.000000000 +0100
++++ 2.6.13-rc4/net/ipv4/ipmr.c	2005-07-29 11:14:28.000000000 +0100
+@@ -362,7 +362,7 @@ out:
+ 
+ /* Fill oifs list. It is called under write locked mrt_lock. */
+ 
+-static void ipmr_update_threshoulds(struct mfc_cache *cache, unsigned char *ttls)
++static void ipmr_update_thresholds(struct mfc_cache *cache, unsigned char *ttls)
+ {
+ 	int vifi;
+ 
+@@ -727,7 +727,7 @@ static int ipmr_mfc_add(struct mfcctl *m
+ 	if (c != NULL) {
+ 		write_lock_bh(&mrt_lock);
+ 		c->mfc_parent = mfc->mfcc_parent;
+-		ipmr_update_threshoulds(c, mfc->mfcc_ttls);
++		ipmr_update_thresholds(c, mfc->mfcc_ttls);
+ 		if (!mrtsock)
+ 			c->mfc_flags |= MFC_STATIC;
+ 		write_unlock_bh(&mrt_lock);
+@@ -744,7 +744,7 @@ static int ipmr_mfc_add(struct mfcctl *m
+ 	c->mfc_origin=mfc->mfcc_origin.s_addr;
+ 	c->mfc_mcastgrp=mfc->mfcc_mcastgrp.s_addr;
+ 	c->mfc_parent=mfc->mfcc_parent;
+-	ipmr_update_threshoulds(c, mfc->mfcc_ttls);
++	ipmr_update_thresholds(c, mfc->mfcc_ttls);
+ 	if (!mrtsock)
+ 		c->mfc_flags |= MFC_STATIC;
+ 
 
-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
-NkVFNjAwMDAwMDAyRTFFNEFBNDE0MEVCQ0NCMj8wDQYJKoZIhvcNAQEEBQADgYEAmShkPb7Y
-nqUqZYNPSwT8jrNguzW6fIBzn1zGl0jT6YkO+g8R4tEEsxQQIgIyFUKi0sdjicT2gUx3p8xR
-+LOTnBfcgoCMJK0zb9whSOBwW6bWPo2zdtM16O8lIxFXFuK2GGQKEGVF2awzJaFuEAAPC9ko
-2/xhWRNs7lxPPIjx7xwxggR0MIIEcAIBATCBzzCBvDELMAkGA1UEBhMCREUxEDAOBgNVBAgT
-B0hhbWJ1cmcxEDAOBgNVBAcTB0hhbWJ1cmcxOjA4BgNVBAoTMVRDIFRydXN0Q2VudGVyIGZv
-ciBTZWN1cml0eSBpbiBEYXRhIE5ldHdvcmtzIEdtYkgxIjAgBgNVBAsTGVRDIFRydXN0Q2Vu
-dGVyIENsYXNzIDEgQ0ExKTAnBgkqhkiG9w0BCQEWGmNlcnRpZmljYXRlQHRydXN0Y2VudGVy
-LmRlAg5u5gAAAALh5KpBQOvMsjAJBgUrDgMCGgUAoIICeTAYBgkqhkiG9w0BCQMxCwYJKoZI
-hvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wNTA3MjkxMDEzMTFaMCMGCSqGSIb3DQEJBDEWBBQx
-FMLLFJ5ZLwqQjuTc+djO+FEKGTBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqG
-SIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCB4AYJ
-KwYBBAGCNxAEMYHSMIHPMIG8MQswCQYDVQQGEwJERTEQMA4GA1UECBMHSGFtYnVyZzEQMA4G
-A1UEBxMHSGFtYnVyZzE6MDgGA1UEChMxVEMgVHJ1c3RDZW50ZXIgZm9yIFNlY3VyaXR5IGlu
-IERhdGEgTmV0d29ya3MgR21iSDEiMCAGA1UECxMZVEMgVHJ1c3RDZW50ZXIgQ2xhc3MgMSBD
-QTEpMCcGCSqGSIb3DQEJARYaY2VydGlmaWNhdGVAdHJ1c3RjZW50ZXIuZGUCDm7mAAAAAuHk
-qkFA68yyMIHiBgsqhkiG9w0BCRACCzGB0qCBzzCBvDELMAkGA1UEBhMCREUxEDAOBgNVBAgT
-B0hhbWJ1cmcxEDAOBgNVBAcTB0hhbWJ1cmcxOjA4BgNVBAoTMVRDIFRydXN0Q2VudGVyIGZv
-ciBTZWN1cml0eSBpbiBEYXRhIE5ldHdvcmtzIEdtYkgxIjAgBgNVBAsTGVRDIFRydXN0Q2Vu
-dGVyIENsYXNzIDEgQ0ExKTAnBgkqhkiG9w0BCQEWGmNlcnRpZmljYXRlQHRydXN0Y2VudGVy
-LmRlAg5u5gAAAALh5KpBQOvMsjANBgkqhkiG9w0BAQEFAASCAQAIrq4Q0M0CKd4EWY2BKCug
-9lF4yu/alofy70CoNscXGzJsKrldEVUpn7ZkZKZ0oajz+Mlng2pta9yHAdHyQj95WvMhiS//
-/lzWQNxxxQGrW1ghzGNwO8MZVeiGUziNCThO7pZsOvaHIiQbJ0mI7vXlXF1OmMiA78NGMqY1
-J5gH3e2Hj7m//ShWn7KujslazmJ/WGsB2/w7GZnB4zdgC4YetmavUqfkB2uPxQJZyNPXHYjp
-/XFMO6YGAM02OrAKKnf0BIdQdOeTrFpa8Scq+bsP327BfQyTKD2d0RnKKJs5aREGEUJO07PB
-2QDBjVeffwD7N11SOdpkL7I1m5MFdfIZAAAAAAAA
---------------ms020108060306040202050402--
+--------------040001040802060706010407--

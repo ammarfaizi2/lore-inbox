@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262553AbVG2JqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVG2JrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262553AbVG2JqK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 05:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbVG2JqK
+	id S262556AbVG2JrE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 05:47:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVG2JrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 05:46:10 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:12490 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262542AbVG2JqJ (ORCPT
+	Fri, 29 Jul 2005 05:47:03 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:65215 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S262556AbVG2Jq6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 05:46:09 -0400
-Date: Fri, 29 Jul 2005 11:45:19 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Keith Owens <kaos@ocs.com.au>, David.Mosberger@acm.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: Add prefetch switch stack hook in scheduler function
-Message-ID: <20050729094519.GA12975@elte.hu>
-References: <20050729070447.GA3032@elte.hu> <200507290722.j6T7Mig07477@unix-os.sc.intel.com> <20050729082826.GA6144@elte.hu> <20050729100257.A10345@flint.arm.linux.org.uk>
+	Fri, 29 Jul 2005 05:46:58 -0400
+Subject: [patch 6/8] w100fb: Rewrite for platform independence
+From: Richard Purdie <rpurdie@rpsys.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Fri, 29 Jul 2005 10:46:54 +0100
+Message-Id: <1122630414.7747.95.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050729100257.A10345@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The code w100fb was based on was horribly Sharp SL-C7x0 specific
+and there was little else that could be done as I had no access to
+anything else with a w100 in it. There is no real documentation 
+about this chipset available.
 
-* Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+Ian Molton has access to other platforms with the w100 (Toshiba
+e-series) and so between us, we've improved w100fb and made it 
+platform independent. Ian Molton also added support for the 
+very similar w3220 and w3200 chipsets.
 
-> On Fri, Jul 29, 2005 at 10:28:26AM +0200, Ingo Molnar wrote:
-> > @@ -2872,10 +2878,10 @@ go_idle:
-> >  	/*
-> >  	 * Prefetch (at least) a cacheline below the current
-> >  	 * kernel stack (in expectation of any new task touching
-> > -	 * the stack at least minimally), and a cacheline above
-> > -	 * the stack:
-> > +	 * the stack at least minimally), and at least a cacheline
-> > +	 * above the stack:
-> >  	 */
-> > -	prefetch_range(kernel_stack(next) - MIN_KERNEL_STACK_FOOTPRINT,
-> > +	prefetch_range(kernel_stack(next) - L1_CACHE_BYTES,
-> >  		       MIN_KERNEL_STACK_FOOTPRINT + L1_CACHE_BYTES);
-> 
-> This needs to ensure that we don't prefetch outside the page of the 
-> kernel stack - otherwise we risk weird problems on architectures which 
-> support prefetching but not DMA cache coherency.
+There are a lot of changes here and it nearly amounts to a rewrite 
+of the driver but it has been extensively tested and is being used 
+in preference to the original driver in the Zaurus community. I'd
+therefore like to update the mainline code to reflect this. 
 
-ok, agreed. Since kernel_stack(next) defaults to 'next', we go below 
-that structure which has unknown coherency attributes. I guess the 
-easiest solution would be to default kernel_stack(next) to '(void *)next 
-+ L1_CACHE_BYTES'? That way the default prefetching would happen for the 
-[next...next+2*L1_BYTES] range.
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-	Ingo
+The patch is large so for LKML I'm linking to it:
+http://www.rpsys.net/openzaurus/patches/w100_core-r1.patch
+
+

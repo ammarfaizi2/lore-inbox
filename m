@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262468AbVG2HHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVG2HJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262468AbVG2HHK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 03:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVG2HGz
+	id S262351AbVG2HJx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 03:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVG2HJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 03:06:55 -0400
-Received: from main.gmane.org ([80.91.229.2]:3558 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262468AbVG2HGV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 03:06:21 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: 2.6.13-rc3-mm3
-Date: Fri, 29 Jul 2005 09:06:01 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2005.07.29.07.05.58.992113@smurf.noris.de>
-References: <20050728025840.0596b9cb.akpm@osdl.org> <200507282111.32970.rjw@sisk.pl> <20050728121656.66845f70.akpm@osdl.org> <200507282340.57905.rjw@sisk.pl>
+	Fri, 29 Jul 2005 03:09:53 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:11166 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S262351AbVG2HJW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 03:09:22 -0400
+Date: Fri, 29 Jul 2005 03:09:15 -0400
+From: Yaroslav Halchenko <kernel@onerussian.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.6.8 -> 2.6.11 (+ata-dev patch) -- HDD is always on
+Message-ID: <20050729070915.GC6655@washoe.onerussian.com>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Jeff Garzik <jgarzik@pobox.com>
+References: <20050729041031.GU16285@washoe.onerussian.com> <42E9AFC6.9010805@pobox.com> <20050729055820.GX16285@washoe.onerussian.com> <20050729061518.GB6655@washoe.onerussian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729061518.GB6655@washoe.onerussian.com>
+X-URL: http://www.onerussian.com
+X-Image-Url: http://www.onerussian.com/img/yoh.png
+X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
+X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Rafael J. Wysocki wrote:
+> > > Does this happen in unpatched 2.6.12.3 or 2.6.13-rc4?
+tried clear 2.6.11 ( with no libata patch -- light is on :-( )
 
-> start a binary search
+/booted 2.6.8 Debian kernel -- everything is fine, but no libata-dev
+patch for SATA makes me wonder if you should try 2.6.13-rc4/
 
-Note that if you work from my git import, git has a nice tree bisection
-option.
-
-That tree may be very helpful if the regression is hidden in one of the
-git trees imported into -mm, as it allows you to pinpoint the exact change
- -- as opposed to "it happened somewhere in git-large-foobar-update.patch".
+once again -- details of the system can be found
+http://www.onerussian.com/Linux/bugs/ata/
 
 -- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-British education is probably the best in the world, if you can survive
-it.  If you can't there is nothing left for you but the diplomatic corps.
-		-- Peter Ustinov
-
-
+Yaroslav Halchenko
+Research Assistant, Psychology Department, Rutgers-Newark
+Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
+        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07105
+Student  Ph.D. @ CS Dept. NJIT

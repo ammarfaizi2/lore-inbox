@@ -1,79 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVG2NhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVG2Niz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbVG2NhS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 09:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVG2NhS
+	id S262568AbVG2Niz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 09:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVG2Niy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 09:37:18 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:28876 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261966AbVG2NhP (ORCPT
+	Fri, 29 Jul 2005 09:38:54 -0400
+Received: from mail.gmx.de ([213.165.64.20]:42167 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262601AbVG2Nhb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 09:37:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:message-id;
-        b=ROuyBtcqlmQz1J77Hv2yyUj6GG2icJpFZwTS5en8YzTF3THDmmfAi23fn1s6a3Psv+JAILwvAK/cT3jckIVLaH59FlXhfAW2fQ/bd2RSy0m7L/i5RnOXGVUBJ7HmT5XDh4n00S21Em2n9lfUDKe6SegdpcB/xz15uRzBvQ9GWOQ=
-From: Rafael =?iso-8859-1?q?=C1vila_de_Esp=EDndola?= 
-	<rafael.espindola@gmail.com>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Subject: Re: unmounting a filesystem mounted by /init (initramfs)
-Date: Fri, 29 Jul 2005 10:37:09 -0300
-User-Agent: KMail/1.8.1
-Cc: gentoo-dev@gentoo.org, gentoo-catalyst@gentoo.org,
-       linux-kernel@vger.kernel.org
-References: <564d96fb050728154923ba8663@mail.gmail.com> <200507290834.35504.vda@ilport.com.ua>
-In-Reply-To: <200507290834.35504.vda@ilport.com.ua>
+	Fri, 29 Jul 2005 09:37:31 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc6-mm1
+Date: Fri, 29 Jul 2005 15:39:57 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050607042931.23f8f8e0.akpm@osdl.org> <200506211520.44645.dominik.karall@gmx.net> <20050728215458.5f8bc27f.akpm@osdl.org>
+In-Reply-To: <20050728215458.5f8bc27f.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart1403945.xl5G5DeHFD";
+  boundary="nextPart2413200.IHCMJGv9eS";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200507291037.39453.rafael.espindola@gmail.com>
+Message-Id: <200507291540.02278.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1403945.xl5G5DeHFD
+--nextPart2413200.IHCMJGv9eS
 Content-Type: text/plain;
-  charset="koi8-r"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-On Friday 29 July 2005 02:34, Denis Vlasenko wrote:
-> "A chroot"? Better provide exact sequence of mounts, chroots which you
-> execute. Otherwise people need to guess.
-The relevant commands are:
+On Friday 29 July 2005 06:54, Andrew Morton wrote:
+> Dominik Karall <dominik.karall@gmx.net> wrote:
+> > On Tuesday 07 June 2005 13:29, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-=
+rc
+> > >6/2. 6.12-rc6-mm1/
+> >
+> > After looking in my dmesg output today, I saw following error with
+> > 2.6.12-rc6-mm1, maybe it's usefull to you. I don't know when it exactly
+> > happens, cause I never used mono last time, I just did an emerge mono on
+> > my gentoo system, maybe this forced the failure.
+> >
+> > note: mono[26736] exited with preempt_count 1
+> > scheduling while atomic: mono/0x10000001/26736
+> >
+> > Call Trace:<ffffffff803e13ea>{schedule+122}
+> > <ffffffff8013197b>{vprintk+635} <ffffffff803e2738>{cond_resched+56}
+> > <ffffffff80164de3>{unmap_vmas+1587} <ffffffff8016a560>{exit_mmap+128}
+> > <ffffffff8012e7bf>{mmput+31} <ffffffff80133466>{do_exit+438}
+> > <ffffffff8013bf25>{__dequeue_signal+501}
+> >        <ffffffff801340c8>{do_group_exit+280}
+> > <ffffffff8013e147>{get_signal_to_deliver+1575}
+> >        <ffffffff8010de92>{do_signal+162}
+> > <ffffffff8012d1e0>{default_wake_function+0}
+> >        <ffffffff8010e8e1>{sys_rt_sigreturn+577}
+> > <ffffffff8010eb3f>{sysret_signal+28}
+> >        <ffffffff8010ee27>{ptregscall_common+103}
+>
+> A couple of people reported this, but all seems to have gone quiet.  Is it
+> fixed in later -mm's?   Is 2.6.13-rc4 running OK?
+>
+> Thanks.
 
-mount -t ext2 /dev/hda1 /memory
-mount -t unionfs -o dirs=3D/memory /union
-mount -t squashfs /dev/hda2 /newroot
-unionctl /union --add --after 0 --mode ro /newroot
-chroot /union /sbin/init
+hi andrew!
 
-The most promissing Idea I had till now is to move the ext2 mount and the=20
-unionctl past the point were /sbin/rc runs udevstart. I will try it as soon=
-=20
-as possible.
+I'm sorry, but it's not fixed in current 2.6.13-rc3-mm3. I did an emerge mo=
+no=20
+right now to test it, and I got this one:
+Jul 29 15:26:37 [kernel] note: mono[11138] exited with preempt_count 1
+Jul 29 15:26:50 [kernel] file[14627]: segfault at 00002aaaab453000 rip=20
+00002aaaaaf652cf rsp 00007fffffe43b50 error 4
+Jul 29 15:26:50 [kernel] file[14633]: segfault at 00002aaaab453000 rip=20
+00002aaaaaf652cf rsp 00007fffffcc87a0 error 4
+Jul 29 15:26:51 [kernel] file[14669]: segfault at 00002aaaab453000 rip=20
+00002aaaaaf652cf rsp 00007fffff905f80 error 4
 
-> Use lazy umount (umount -l) while fs is still visible
-The busybox umount doesn't support lazy unmount :(
-Anyway, I don't think that this would work since the unionfs will be using =
-the=20
-ext2 partition to the very end and there won't be a chance to unmount it.
+DEBUG_KERNEL/ PREEMPT/ SPINLOCK are enabled, but I didn't get more info abo=
+ut=20
+the bug. Did I forget any debug option?
 
-> vda
-Thank you very much,
-Rafael
+greets,
+dominik
 
---nextPart1403945.xl5G5DeHFD
+--nextPart2413200.IHCMJGv9eS
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
 
-iD8DBQBC6jEjLlrfGJ8JUHwRAsVAAJ0R1AF3IvANB2zOCErRdn2hMN68lgCgqQCL
-p8sfxZPMqr/YNi+5rbRBW+k=
-=RPk1
+iQCVAwUAQuoxsgvcoSHvsHMnAQJgUQP/dxsGG8HnwwCBLJSHe8qQm3IwLCDKlSx7
+/uHF9M9QKIAglTI//nst2yu9v494TIHEHqUV+DKb1N6N3Ga04Rcg+bypaPEVnb64
+e7L4iZSV0wDl2CK2jk91g1itfSx6T41BV+TOevoGTFn7DYqFBB6IcjPnjJ8MQb7u
+QbaWaTMC11w=
+=5i47
 -----END PGP SIGNATURE-----
 
---nextPart1403945.xl5G5DeHFD--
+--nextPart2413200.IHCMJGv9eS--

@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVG1Wij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVG1Wik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVG1Wij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Jul 2005 18:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVG1Wf6
+	id S261763AbVG1Wik (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Jul 2005 18:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVG1Wfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Jul 2005 18:35:58 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:61873 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261707AbVG1WeX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Jul 2005 18:34:23 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [ALSA PATCH] 1.0.9b+
-Date: Thu, 28 Jul 2005 23:34:23 +0100
-User-Agent: KMail/1.8.1
-Cc: Jaroslav Kysela <perex@suse.cz>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, tiwai@suse.de
-References: <Pine.LNX.4.61.0507281546040.8458@tm8103.perex-int.cz> <20050728102525.234e6511.akpm@osdl.org>
-In-Reply-To: <20050728102525.234e6511.akpm@osdl.org>
+	Thu, 28 Jul 2005 18:35:52 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:25728 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S261934AbVG1Wfe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Jul 2005 18:35:34 -0400
+Message-ID: <5ad101c59416$a4f26eb0$daff8610@atwork>
+Reply-To: <atwork@shinyfeet.com>
+From: <atwork@shinyfeet.com>
+To: "Webmaster" <linux-kernel@vger.kernel.org>
+Subject: F.ree movies, music and more
+Date: Fri, 29 Jul 2005 08:22:22 +0300
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507282334.23910.s0348365@sms.ed.ac.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1123
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 Jul 2005 18:25, Andrew Morton wrote:
-> Jaroslav Kysela <perex@suse.cz> wrote:
-> > Linus, please do an update from:
-> >
-> >    rsync://rsync.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
-> >
-> > ...
-> >   65 files changed, 5059 insertions(+), 1122 deletions(-)
->
-> The git-alsa.patch in -mm which I obtain from
-> master.kernel.org:/pub/scm/linux/kernel/git/perex/alsa-current.git is
-> empty.  So we're now wanting to merge 4,000 lines of unreviewed code which
-> hasn't been tested in -mm at approximately the -rc4 stage.
+Hello
 
-~2800 lines of which is a new driver.
+Get Unlimited downloads - 100% F.ree, 100% Legal 
 
-It'd be nice if ALSA's release schedule for "stable" versus "rc" could match 
-the kernel's. For example, 2.6.12 shipped with 1.0.9rc2.
+Get the #1 download software, with a step by step 
+guide on how to access unlimited free downloads of 
+your favorite music, movies, software, games and more. 
 
-Maybe "rc" ALSA should only be accepted in rc1, by rc4 you hope they can wrap 
-things up and give you a stable version number? Okay, generally in-tree 
-version numbers don't count for much, but I think ALSA is a big exception 
-because it's maintained pretty much out of tree.
+Start Downloading Now, visit the link below:
+http://www.expandingyourbrand.com/php/ct.php?c=1
 
-Not so much of an issue this time around, but I don't think new drivers or 
-rewrites (even if they are reasonably separate) should be going in a late -rc 
-kernel.
 
-Just my two pence.
 
--- 
-Cheers,
-Alistair.
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================================
+Kindly note: This is a commercial solicitation, if 
+you wish to be excluded from future notifications 
+visit the link below for exclusion:
+http://www.expandingyourbrand.com/unsubscribe.htm
+
+Respire Marketing BP 2371 C/15 Av Rwakadingi Kinshasa
+===========================================
+
+

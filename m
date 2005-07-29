@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVG3Btx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbVG2TSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262869AbVG3Btx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 21:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbVG3Bsa
+	id S262743AbVG2TSS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 15:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVG2TQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 21:48:30 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:50835 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262866AbVG3BdB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 21:33:01 -0400
-X-ORBL: [67.125.168.38]
-Message-ID: <42EAD8C8.7030701@pacbell.net>
-Date: Fri, 29 Jul 2005 18:32:56 -0700
-From: Mickey Stein <yekkim@pacbell.net>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Cal Peake <cp@absolutedigital.net>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.13-rc4
-References: <42EA1C8D.8080708@pacbell.net> <Pine.LNX.4.61.0507291456550.2566@lancer.cnet.absolutedigital.net>
-In-Reply-To: <Pine.LNX.4.61.0507291456550.2566@lancer.cnet.absolutedigital.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Jul 2005 15:16:02 -0400
+Received: from mail.kroah.org ([69.55.234.183]:32686 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262709AbVG2TPD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 15:15:03 -0400
+Date: Fri, 29 Jul 2005 12:14:19 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, maneesh@in.ibm.com
+Subject: [patch 03/29] sysfs: fix sysfs_setattr
+Message-ID: <20050729191419.GE5095@kroah.com>
+References: <20050729184950.014589000@press.kroah.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729191255.GA5095@kroah.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cal Peake wrote:
 
->On Fri, 29 Jul 2005, Mickey Stein wrote:
->
->  
->
->>This is regarding *-rc4 and *-rc4-git1:  I slapped together my favorite config
->>and gave it a test run. It had a bit of a problem and ground to a halt after
->>spewing these into the log.
->>
->>If I can find the time tomorrow morning, I'll leave parport_pc commented out
->>of modprobe.conf and see if something else pops loose. I don't use the
->>parallel port, but I try to keep a fairly robust config for noticing bugs.
->>    
->>
->
->Hi Mick,
->
->Can you please try the patch below from Linus (or -git2 tomorrow) and 
->confirm that it fixes it for you?
->
->thx,
->-cp
->
->--- a/include/asm-i386/bitops.h
->+++ b/include/asm-i386/bitops.h
->@@ -335,14 +335,13 @@ static inline unsigned long __ffs(unsign
-> static inline int find_first_bit(const unsigned long *addr, unsigned size)
-> {
-> 	int x = 0;
->-	do {
->-		if (*addr)
->-			return __ffs(*addr) + x;
->-		addr++;
->-		if (x >= size)
->-			break;
->+
->+	while (x < size) {
->+		unsigned long val = *addr++;
->+		if (val)
->+			return __ffs(val) + x;
-> 		x += (sizeof(*addr)<<3);
->-	} while (1);
->+	}
-> 	return x;
-> }
-> 
->  
->
-Hi Cal,
+From: Maneesh Soni <maneesh@in.ibm.com>
 
-I'll give that a go in about 30 minutes and report back, hopefully on 
-*rc4-* ;) . I'm not sure I'll be around in the morning so will apply 
-this to today's and see.
+o sysfs_dirent's s_mode field should also be updated in sysfs_setattr(), else
+  there could be inconsistency in the two fields. s_mode is used while
+  ->readdir so as not to bring in the inode to cache.
 
-Thanks,
+Signed-off-by: Maneesh Soni <maneesh@in.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Mickey
+---
+ fs/sysfs/inode.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- gregkh-2.6.orig/fs/sysfs/inode.c	2005-07-29 11:30:03.000000000 -0700
++++ gregkh-2.6/fs/sysfs/inode.c	2005-07-29 11:33:53.000000000 -0700
+@@ -85,7 +85,7 @@
+ 
+ 		if (!in_group_p(inode->i_gid) && !capable(CAP_FSETID))
+ 			mode &= ~S_ISGID;
+-		sd_iattr->ia_mode = mode;
++		sd_iattr->ia_mode = sd->s_mode = mode;
+ 	}
+ 
+ 	return error;
+
+--

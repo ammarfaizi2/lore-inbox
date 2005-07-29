@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbVG2QbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbVG2Qdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262649AbVG2QbW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 12:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbVG2QbV
+	id S262657AbVG2Qdj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 12:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbVG2Qbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 12:31:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2780 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262649AbVG2QaN (ORCPT
+	Fri, 29 Jul 2005 12:31:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49882 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262654AbVG2QYJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 12:30:13 -0400
-Date: Fri, 29 Jul 2005 09:29:47 -0700 (PDT)
+	Fri, 29 Jul 2005 12:24:09 -0400
+Date: Fri, 29 Jul 2005 09:23:18 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: David Woodhouse <dwmw2@infradead.org>
 cc: Steven Rostedt <rostedt@goodmis.org>,
+       "Maciej W. Rozycki" <macro@linux-mips.org>,
        Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
        Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
        Daniel Walker <dwalker@mvista.com>
 Subject: Re: [PATCH] speed up on find_first_bit for i386 (let compiler do
  the work)
-In-Reply-To: <Pine.LNX.4.61L.0507291456540.21257@blysk.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.58.0507290924140.3307@g5.osdl.org>
+In-Reply-To: <1122631385.8317.26.camel@baythorne.infradead.org>
+Message-ID: <Pine.LNX.4.58.0507290910090.3307@g5.osdl.org>
 References: <1122473595.29823.60.camel@localhost.localdomain> 
  <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net> 
  <1122513928.29823.150.camel@localhost.localdomain> 
@@ -28,9 +29,9 @@ References: <1122473595.29823.60.camel@localhost.localdomain>
  <1122522328.29823.186.camel@localhost.localdomain>  <42E8564B.9070407@yahoo.com.au>
   <1122551014.29823.205.camel@localhost.localdomain> 
  <Pine.LNX.4.58.0507280823210.3227@g5.osdl.org>  <1122565640.29823.242.camel@localhost.localdomain>
-  <Pine.LNX.4.61L.0507281725010.31805@blysk.ds.pg.gda.pl>
- <1122569848.29823.248.camel@localhost.localdomain> <Pine.LNX.4.58.0507281018170.3227@g5.osdl.org>
- <Pine.LNX.4.61L.0507291456540.21257@blysk.ds.pg.gda.pl>
+  <Pine.LNX.4.61L.0507281725010.31805@blysk.ds.pg.gda.pl> 
+ <1122569848.29823.248.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0507281018170.3227@g5.osdl.org> <1122631385.8317.26.camel@baythorne.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -38,49 +39,59 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 29 Jul 2005, Maciej W. Rozycki wrote:
+On Fri, 29 Jul 2005, David Woodhouse wrote:
+>
+> On Thu, 2005-07-28 at 10:25 -0700, Linus Torvalds wrote:
+> > Basic rule: inline assembly is _better_ than random compiler extensions. 
+> > It's better to have _one_ well-documented extension that is very generic 
+> > than it is to have a thousand specialized extensions.
 > 
->  Hmm, that's what's in the GCC info pages for the relevant functions 
-> (I've omitted the "l" and "ll" variants):
-> 
-> "-- Built-in Function: int __builtin_ffs (unsigned int x)
->      Returns one plus the index of the least significant 1-bit of X, or
->      if X is zero, returns zero.
+> Counterexample: FR-V and its __builtin_read8() et al.
 
-This, for example, clashes with the x86 semantics.
+There are arguably always counter-examples, but your arguments really are 
+pretty theoretical.
 
-If X is zero, the bsfl instruction will set the ZF flag, and the result is 
-undefined (on many, but not all, CPU's it will either be zero _or_ 
-unmodified).
+Very seldom does compiler extensions end up being (a) timely enough and 
+(b) semantically close enough to be really useful.
 
-We don't care, since we actually test the input for being zero separately
-_anyway_, but my point is that if the builtin is badly done (and I
-wouldn't be in the least surprised if it was), then it's going to do a
-totally unnecessary conditional jump of cmov.
+> Builtins can also allow the compiler more visibility into what's going
+> on and more opportunity to optimise.
 
-See? __builtin's can generate _worse_ code, exactly because they try to 
-have portable semantics that may not even matter.
+Absolutely. In theory. In practice, not so much. All the opportunity to 
+optimize often ends up being lost in semantic clashes, or just because 
+people can't use the extension because it hasn't been there since day one.
 
-In contrast, just doing it by hand allows us to avoid all that crap.
+The fact is, inline asms are pretty rare even when we are talking about
+every single possible assembly combination. They are even less common when
+we're talking about just _one_ specific case of them (like something like
+__builtin_ffs()).
 
-Doing it by hand as inline assembly also allows us to do dynamic 
-optimizations like instruction rewriting, so inline assembly is a _lot_ 
-more powerful than builtins can reasonably ever be.
+What does this mean? It has two results: (a) instruction-level scheduling 
+and register allocation just isn't _that_ important, and the generic "asm" 
+register scheduling is really plenty good enough. The fact that in theory 
+you might get better results if the compiler knew exactly what was going 
+on is just not relevant: in practice it's simply not _true_. The other 
+result is: (b) the compiler people don't end up seeing something like the 
+esoteric builtins as a primary thing, so it's not like they'd be tweaking 
+and regression-testing everything _anyway_.
 
-> If that's not enough, then what would be?  I'm serious -- if you find it 
-> inadequate, then perhaps it could be improved.
+So I argue very strongly that __builtin_xxx() is _wrong_, unless you have 
+very very strong reasons for it:
 
-It's inadequate because IT IS POINTLESS.
+ - truly generic and _very_ important stuff: __builtin_memcpy() is
+   actually very much worth it, since it's all over, and it's so generic 
+   that the compiler has a lot of choice in how to do it.
 
-The builtin buys you absolutely _nothing_, and the inline asm is simpler, 
-potentially faster, and works with every single version of gcc. 
+ - stuff where the architecture (or the compiler) -really- sucks with
+   inline asms, and has serious problems, and the thing is really 
+   important. Your FR-V example _might_ fall into this category (or it 
+   might not), and ia64 has the problem with instruction packing and
+   scheduling and so __builtin's have a bigger advantage.
 
-USING THE BUILTIN IS A PESSIMISATION!
+Basically, on most normal architectures, there's seldom any reason at
+_all_ to use builtins except for things like memcpy. On x86, I think the
+counter-example might be if you want to schedule MMX code from C - which
+is a special case because it doesn't follow my "rule (a)" above. But we 
+don't do that in the kernel, really, or we just schedule it out-of-line.
 
-It has absolutely _zero_ upsides, and I've named three _major_ downsides.
-
-It has another downside too: it's extra complexity and potential for bugs 
-in the compiler. And if you tell me gcc people never have bugs, I will 
-laugh in your general direction.
-
-		Linus
+			Linus

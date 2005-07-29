@@ -1,75 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVG2KF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVG2J4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261948AbVG2KF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 06:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbVG2KFp
+	id S262492AbVG2J4S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 05:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVG2JrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 06:05:45 -0400
-Received: from baythorne.infradead.org ([81.187.226.107]:26819 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S262555AbVG2KDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 06:03:21 -0400
-Subject: Re: [PATCH] speed up on find_first_bit for i386 (let compiler do
-	the work)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Daniel Walker <dwalker@mvista.com>
-In-Reply-To: <Pine.LNX.4.58.0507281018170.3227@g5.osdl.org>
-References: <1122473595.29823.60.camel@localhost.localdomain>
-	 <1122512420.5014.6.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <1122513928.29823.150.camel@localhost.localdomain>
-	 <1122519999.29823.165.camel@localhost.localdomain>
-	 <1122521538.29823.177.camel@localhost.localdomain>
-	 <1122522328.29823.186.camel@localhost.localdomain>
-	 <42E8564B.9070407@yahoo.com.au>
-	 <1122551014.29823.205.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0507280823210.3227@g5.osdl.org>
-	 <1122565640.29823.242.camel@localhost.localdomain>
-	 <Pine.LNX.4.61L.0507281725010.31805@blysk.ds.pg.gda.pl>
-	 <1122569848.29823.248.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0507281018170.3227@g5.osdl.org>
+	Fri, 29 Jul 2005 05:47:11 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:64703 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S262557AbVG2Jq7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 05:46:59 -0400
+Subject: [patch 3/8] Corgi Keyboard: Code tidying
+From: Richard Purdie <rpurdie@rpsys.net>
+To: akpm@osdl.org
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Fri, 29 Jul 2005 11:03:05 +0100
-Message-Id: <1122631385.8317.26.camel@baythorne.infradead.org>
+Date: Fri, 29 Jul 2005 10:46:42 +0100
+Message-Id: <1122630402.7747.90.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-07-28 at 10:25 -0700, Linus Torvalds wrote:
-> Basic rule: inline assembly is _better_ than random compiler extensions. 
-> It's better to have _one_ well-documented extension that is very generic 
-> than it is to have a thousand specialized extensions.
+The input system handles key state tracking so there's no need for 
+the driver to do so as well. Also tidy up some comment formatting 
+and remove a now unneeded function.
 
-Counterexample: FR-V and its __builtin_read8() et al. For FR-V you have
-to issue a memory barrier before or after certain I/O instructions, but
-in some circumstances you can omit them. The compiler knows this and can
-omit the membar instructions as appropriate -- but doing the same
-optimisations in inline assembly would be fairly much impossible.
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-Builtins can also allow the compiler more visibility into what's going
-on and more opportunity to optimise. They can also set condition
-registers, which you can't do from inline assembly -- if you want to
-perform a test in inline asm, you have to put the result in a register
-and then test the contents of that register. (You can't just branch from
-the inline asm either, although we used to try).
-
-Builtins are more portable and their implementation will improve to
-match developments in the target CPU. Inline assembly, as we have seen,
-remains the same for years while the technology moves on.
-
-Although it's often the case that inline assembly _is_ better,
-especially in code which is arch-specific in the first place, I wouldn't
-necessarily assume that it's always the case.
-
--- 
-dwmw2
+Index: linux-2.6.12/drivers/input/keyboard/corgikbd.c
+===================================================================
+--- linux-2.6.12.orig/drivers/input/keyboard/corgikbd.c	2005-07-28 16:42:54.000000000 +0100
++++ linux-2.6.12/drivers/input/keyboard/corgikbd.c	2005-07-28 16:58:01.000000000 +0100
+@@ -33,7 +33,6 @@
+ /* zero code, 124 scancodes + 3 hinge combinations */
+ #define	NR_SCANCODES		( SCANCODE(KB_ROWS-1,KB_COLS-1) +1 +1 +3 )
+ #define SCAN_INTERVAL		(HZ/10)
+-#define CORGIKBD_PRESSED	1
+ 
+ #define HINGE_SCAN_INTERVAL		(HZ/4)
+ 
+@@ -74,9 +73,7 @@
+ 	struct input_dev input;
+ 	char phys[32];
+ 
+-	unsigned char state[ARRAY_SIZE(corgikbd_keycode)];
+ 	spinlock_t lock;
+-
+ 	struct timer_list timer;
+ 	struct timer_list htimer;
+ 
+@@ -84,22 +81,6 @@
+ 	unsigned long suspend_jiffies;
+ };
+ 
+-static void handle_scancode(unsigned int pressed,unsigned int scancode, struct corgikbd *corgikbd_data)
+-{
+-	if (pressed && !(corgikbd_data->state[scancode] & CORGIKBD_PRESSED)) {
+-		corgikbd_data->state[scancode] |= CORGIKBD_PRESSED;
+-		input_report_key(&corgikbd_data->input, corgikbd_data->keycode[scancode], 1);
+-		if ((corgikbd_data->keycode[scancode] == CORGI_KEY_OFF)
+-				&& time_after(jiffies, corgikbd_data->suspend_jiffies + HZ)) {
+-			input_event(&corgikbd_data->input, EV_PWR, CORGI_KEY_OFF, 1);
+-			corgikbd_data->suspend_jiffies=jiffies;
+-		}
+-	} else if (!pressed && corgikbd_data->state[scancode] & CORGIKBD_PRESSED) {
+-		corgikbd_data->state[scancode] &= ~CORGIKBD_PRESSED;
+-		input_report_key(&corgikbd_data->input, corgikbd_data->keycode[scancode], 0);
+-	}
+-}
+-
+ #define KB_DISCHARGE_DELAY	10
+ #define KB_ACTIVATE_DELAY	10
+ 
+@@ -112,36 +93,36 @@
+  */
+ static inline void corgikbd_discharge_all(void)
+ {
+-	// STROBE All HiZ
++	/* STROBE All HiZ */
+ 	GPCR2  = CORGI_GPIO_ALL_STROBE_BIT;
+ 	GPDR2 &= ~CORGI_GPIO_ALL_STROBE_BIT;
+ }
+ 
+ static inline void corgikbd_activate_all(void)
+ {
+-	// STROBE ALL -> High
++	/* STROBE ALL -> High */
+ 	GPSR2  = CORGI_GPIO_ALL_STROBE_BIT;
+ 	GPDR2 |= CORGI_GPIO_ALL_STROBE_BIT;
+ 
+ 	udelay(KB_DISCHARGE_DELAY);
+ 
+-	// Clear any interrupts we may have triggered when altering the GPIO lines
++	/* Clear any interrupts we may have triggered when altering the GPIO lines */
+ 	GEDR1 = CORGI_GPIO_HIGH_SENSE_BIT;
+ 	GEDR2 = CORGI_GPIO_LOW_SENSE_BIT;
+ }
+ 
+ static inline void corgikbd_activate_col(int col)
+ {
+-	// STROBE col -> High, not col -> HiZ
++	/* STROBE col -> High, not col -> HiZ */
+ 	GPSR2 = CORGI_GPIO_STROBE_BIT(col);
+ 	GPDR2 = (GPDR2 & ~CORGI_GPIO_ALL_STROBE_BIT) | CORGI_GPIO_STROBE_BIT(col);
+ }
+ 
+ static inline void corgikbd_reset_col(int col)
+ {
+-	// STROBE col -> Low
++	/* STROBE col -> Low */
+ 	GPCR2 = CORGI_GPIO_STROBE_BIT(col);
+-	// STROBE col -> out, not col -> HiZ
++	/* STROBE col -> out, not col -> HiZ */
+ 	GPDR2 = (GPDR2 & ~CORGI_GPIO_ALL_STROBE_BIT) | CORGI_GPIO_STROBE_BIT(col);
+ }
+ 
+@@ -156,7 +137,7 @@
+ /* Scan the hardware keyboard and push any changes up through the input layer */
+ static void corgikbd_scankeyboard(struct corgikbd *corgikbd_data, struct pt_regs *regs)
+ {
+-	unsigned int row, col, rowd, scancode;
++	unsigned int row, col, rowd;
+ 	unsigned long flags;
+ 	unsigned int num_pressed;
+ 
+@@ -183,10 +164,21 @@
+ 
+ 		rowd = GET_ROWS_STATUS(col);
+ 		for (row = 0; row < KB_ROWS; row++) {
++			unsigned int scancode, pressed;
++
+ 			scancode = SCANCODE(row, col);
+-			handle_scancode((rowd & KB_ROWMASK(row)), scancode, corgikbd_data);
+-			if (rowd & KB_ROWMASK(row))
++			pressed = rowd & KB_ROWMASK(row);
++
++			input_report_key(&corgikbd_data->input, corgikbd_data->keycode[scancode], pressed);
++
++			if (pressed) 
+ 				num_pressed++;
++
++			if (pressed && (corgikbd_data->keycode[scancode] == CORGI_KEY_OFF)
++					&& time_after(jiffies, corgikbd_data->suspend_jiffies + HZ)) {
++				input_event(&corgikbd_data->input, EV_PWR, CORGI_KEY_OFF, 1);
++				corgikbd_data->suspend_jiffies=jiffies;
++			}
+ 		}
+ 		corgikbd_reset_col(col);
+ 	}
+@@ -231,8 +223,11 @@
+  * The hinge switches generate no interrupt so they need to be
+  * monitored by a timer.
+  *
+- * When we detect changes, we debounce it and then pass the three
+- * positions the system can take as keypresses to the input system.
++ * We debounce the switches and pass them to the input system.
++ *   
++ *  gprr == 0x00 - Keyboard with Landscape Screen
++ *          0x08 - No Keyboard with Portrait Screen
++ *          0x0c - Keyboard and Screen Closed
+  */
+ 
+ #define HINGE_STABLE_COUNT 2
+@@ -254,9 +249,9 @@
+ 		if (hinge_count >= HINGE_STABLE_COUNT) {
+ 			spin_lock_irqsave(&corgikbd_data->lock, flags);
+ 
+-			handle_scancode((sharpsl_hinge_state == 0x00), 125, corgikbd_data); /* Keyboard with Landscape Screen */
+-			handle_scancode((sharpsl_hinge_state == 0x08), 126, corgikbd_data); /* No Keyboard with Portrait Screen */
+-			handle_scancode((sharpsl_hinge_state == 0x0c), 127, corgikbd_data); /* Keyboard and Screen Closed  */
++			input_report_key(&corgikbd_data->input, corgikbd_data->keycode[125], (sharpsl_hinge_state == 0x00));
++			input_report_key(&corgikbd_data->input, corgikbd_data->keycode[126], (sharpsl_hinge_state == 0x08));
++			input_report_key(&corgikbd_data->input, corgikbd_data->keycode[127], (sharpsl_hinge_state == 0x0c));
+ 			input_sync(&corgikbd_data->input);
+ 
+ 			spin_unlock_irqrestore(&corgikbd_data->lock, flags);
 
 

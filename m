@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVG2ESv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbVG2EZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbVG2ESv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 00:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVG2ESv
+	id S262322AbVG2EZt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 00:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVG2EZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 00:18:51 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:7151 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262251AbVG2ESu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 00:18:50 -0400
-Message-ID: <42E9ADB8.1010501@mvista.com>
-Date: Thu, 28 Jul 2005 21:16:56 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+	Fri, 29 Jul 2005 00:25:49 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:20430 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262322AbVG2EZr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 00:25:47 -0400
+Message-ID: <42E9AFC6.9010805@pobox.com>
+Date: Fri, 29 Jul 2005 00:25:42 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Keith Owens <kaos@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] NMI watch dog notify patch
-References: <4162.1122601822@kao2.melbourne.sgi.com>
-In-Reply-To: <4162.1122601822@kao2.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Yaroslav Halchenko <kernel@onerussian.com>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8 -> 2.6.11 (+ata-dev patch) -- HDD is always on
+References: <20050729041031.GU16285@washoe.onerussian.com>
+In-Reply-To: <20050729041031.GU16285@washoe.onerussian.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> On Thu, 28 Jul 2005 13:31:58 -0700, 
-> George Anzinger <george@mvista.com> wrote:
+Yaroslav Halchenko wrote:
+> I've been running debian stable with 2.6.8 kernel but due to recent
+> failure of the SATA harddrive I've decided to upgrade to 2.6.11 + libata
+> patch (2.6.11-libata-dev1.patch.gz) and recent smartmontools
 > 
->>I have been doing some work on kgdb to pull a few of it "fingers" out of 
->>various places in the kernel.  This is the final location where we have 
->>a kgdb intercept not covered by a notify.
-> 
-> 
-> I like the idea, but the hook should be in die_nmi(), not in the
-> watchdog, using the reason that is already passed into die_nmi.
-> die_nmi() is also called for a real NMI.
-> 
-I had though that too, but it does not allow recovery (i.e. lets reset 
-the watchdog and try again).
+> After everything worked out and I decided to rest in piece but I've
+> found that HDD LED light nomater what. It seems to turn off during BIOS
+> checks and then kicks in 1-2 secs after kernel starts booting. No
+> prominent harddrive activity noise can be heard but this drive is
+> quite silent so it is hard to say.
 
-Hmm.. just looked at traps.c.  Seems die_nmi is NOT called from the nmi 
-trap, only from the watchdog.  Also, there is a notify in the path to 
-the other nmi stuff.
+Does this happen in unpatched 2.6.12.3 or 2.6.13-rc4?
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+
+> QUESTION: 
+> 
+> LED constantly ON - does it signal about a problem or may be just
+> that some status bit is hanging? Should I worry and try differen kernel
+> version?
+> 
+> YIKES: ran hddtemp /dev/sda and whole box hanged... SysRq keys - no
+> effect... heh heh... reboot -> nothing in logs
+
+> P.S. was ata-dev patch incorporated in recent kernel versions so I could
+> use SMART with vanilla kernel?
+
+This is one of the reasons why SMART support is not yet in the mainline 
+kernel!
+
+	Jeff
+
+

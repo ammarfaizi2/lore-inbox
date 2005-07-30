@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263142AbVG3UGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263155AbVG3UJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbVG3UGY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 16:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbVG3UEW
+	id S263155AbVG3UJE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 16:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbVG3UGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 16:04:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37136 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261487AbVG3UDP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 16:03:15 -0400
-Date: Sat, 30 Jul 2005 21:03:06 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>, linux-kernel@vger.kernel.org
-Subject: Re: revert yenta free_irq on suspend
-Message-ID: <20050730210306.D26592@flint.arm.linux.org.uk>
-Mail-Followup-To: Hugh Dickins <hugh@veritas.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	Daniel Ritz <daniel.ritz@gmx.ch>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com>
+	Sat, 30 Jul 2005 16:06:38 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:13487 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261487AbVG3UE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 16:04:28 -0400
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+From: Lee Revell <rlrevell@joe-job.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050730195116.GB9188@elf.ucw.cz>
+References: <20050730004924.087a7630.Ballarin.Marc@gmx.de>
+	 <1122678943.9381.44.camel@mindpipe>
+	 <20050730120645.77a33a34.Ballarin.Marc@gmx.de>
+	 <1122746718.14769.4.camel@mindpipe>  <20050730195116.GB9188@elf.ucw.cz>
+Content-Type: text/plain
+Date: Sat, 30 Jul 2005 16:04:24 -0400
+Message-Id: <1122753864.14769.18.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com>; from hugh@veritas.com on Sat, Jul 30, 2005 at 08:10:33PM +0100
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 30, 2005 at 08:10:33PM +0100, Hugh Dickins wrote:
-> Please revert the yenta free_irq on suspend patch (below)
-> which went into 2.6.13-rc4 after 2.6.13-rc3-git9.
+On Sat, 2005-07-30 at 21:51 +0200, Pavel Machek wrote:
+> > I think this is a good argument for leaving HZ at 1000 until some of
+> > these userspace bugs are fixed.
 > 
-> Sorry Daniel, you may have a box on which resume doesn't work without
-> it, but on my laptop APM resume from RAM now fails to work because of
-> it - locks up solid.  The patch sounded rather fishy when it went in,
-> but I've done an unprejudiced bisection and this turns out to be the
-> culprit.  Perhaps it needs something more (I can try further patches),
-> but as it stands it's unsuitable for 2.6.13.
+> WTF? HZ=1000 eats energy like crazy. artsd eats energy like crazy. And
+> you advocate breaking kernel because artsd is broken?!
 
-What this probably means is that we need some way to turn off interrupts
-from devices on suspend, and on resume, keep them off until drivers
-have had a chance to quiesce all devices, turn them back on, and then
-do full resume.
+Maybe I am showing my ignorance as a non-laptop user.  Is 6.67mW a
+really big difference?
 
-The "quiesce" stage needs to take account of whether devices are
-accessible (eg, USB mice and keyboards won't be because the USB host
-controller isn't resumed.)
+Lee
 
-(and no I don't have a patch for this - I think this requires another
-rework of the PM subsystem and drivers.) ;(
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

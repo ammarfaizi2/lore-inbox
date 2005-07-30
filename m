@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVG3Kch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263049AbVG3KeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVG3Kch (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 06:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263050AbVG3Kcg
+	id S263049AbVG3KeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 06:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVG3KeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 06:32:36 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5531 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261189AbVG3KcS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 06:32:18 -0400
-Date: Sat, 30 Jul 2005 12:32:07 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: zach@vmware.com
-Cc: akpm@osdl.org, chrisl@vmware.com, davej@codemonkey.org.uk, hpa@zytor.com,
-       linux-kernel@vger.kernel.org, pratap@vmware.com, Riley@Williams.Name
-Subject: Re: [PATCH] 2/6 i386 serialize-msr
-Message-ID: <20050730103207.GD1942@elf.ucw.cz>
-References: <200507300404.j6U44GSC005922@zach-dev.vmware.com>
-Mime-Version: 1.0
+	Sat, 30 Jul 2005 06:34:25 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:44682 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S263050AbVG3Kcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 06:32:42 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: local_irq_enable() in __do_softirq()?
+From: Peter Osterlund <petero2@telia.com>
+Date: 30 Jul 2005 12:32:30 +0200
+Message-ID: <m3slxwmvnl.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507300404.j6U44GSC005922@zach-dev.vmware.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> i386 arch cleanup.  Introduce the serialize macro to serialize processor state.
-> Why the microcode update needs it I am not quite sure, since wrmsr() is already
-> a serializing instruction, but it is a microcode update, so I will keep the
-> semantic the same, since this could be a timing workaround.  As far as I can
-> tell, this has always been there since the original microcode update
-> source.
+The change "x86_64: Switch to the interrupt stack when running a
+softirq in local_bh ..." (ed6b676ca8b50e0b538e61c283d52fd04f007abf)
+contains this:
 
-Can we get better name, like "serialize_cpu()"?
-									Pavel
+--- a/kernel/softirq.c
++++ b/kernel/softirq.c
+@@ -86,7 +86,7 @@ restart:
+ 	/* Reset the pending bitmask before enabling irqs */
+ 	local_softirq_pending() = 0;
+ 
+-	local_irq_enable();
++	//local_irq_enable();
+ 
+ 	h = softirq_vec;
+ 
+@@ -99,7 +99,7 @@ restart:
+ 		pending >>= 1;
+ 	} while (pending);
+ 
+-	local_irq_disable();
++	//local_irq_disable();
+ 
+ 	pending = local_softirq_pending();
+ 	if (pending && --max_restart)
 
-> Signed-off-by: Zachary Amsden <zach@vmware.com>
-> 
-> Index: linux-2.6.13/arch/i386/kernel/microcode.c
-> ===================================================================
-> --- linux-2.6.13.orig/arch/i386/kernel/microcode.c	2005-07-29 11:14:33.000000000 -0700
-> +++ linux-2.6.13/arch/i386/kernel/microcode.c	2005-07-29 11:16:18.000000000 -0700
-> @@ -164,7 +164,8 @@
->  	}
->  
->  	wrmsr(MSR_IA32_UCODE_REV, 0, 0);
-> -	__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
-> +	/* XXX needed? wrmsr should serialize unless a chip bug */
-> +	serialize(); 
->  	/* get the current revision from MSR 0x8B */
->  	rdmsr(MSR_IA32_UCODE_REV, val[0], uci->rev);
->  	pr_debug("microcode: collect_cpu_info : sig=0x%x, pf=0x%x, rev=0x%x\n",
+Is that intentional? If so, shouldn't the code be removed instead of
+commented out?
 
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

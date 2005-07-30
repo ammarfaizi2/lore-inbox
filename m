@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263177AbVG3Wui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263180AbVG3XEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263177AbVG3Wui (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 18:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbVG3Wui
+	id S263180AbVG3XEK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 19:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbVG3XEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 18:50:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:21890 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263177AbVG3Wug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 18:50:36 -0400
-Date: Sat, 30 Jul 2005 23:49:54 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Display name of fbdev device
-Message-ID: <Pine.LNX.4.56.0507302347330.8398@pentafluge.infradead.org>
+	Sat, 30 Jul 2005 19:04:10 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:37052 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S263180AbVG3XEI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 19:04:08 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: revert yenta free_irq on suspend
+Date: Sun, 31 Jul 2005 01:09:16 +0200
+User-Agent: KMail/1.8.1
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com> <200507310000.10229.rjw@sisk.pl> <Pine.LNX.4.61.0507302318090.5286@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0507302318090.5286@goblin.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507310109.16876.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday, 31 of July 2005 00:24, Hugh Dickins wrote:
+> On Sun, 31 Jul 2005, Rafael J. Wysocki wrote:
+> > On Saturday, 30 of July 2005 23:32, Hugh Dickins wrote:
+> > > On Sat, 30 Jul 2005, Rafael J. Wysocki wrote:
+> > > > 
+> > > > Could you please send the /proc/interrupts from your box?
+> > > 
+> > >  11:      57443          XT-PIC  yenta, yenta, eth0
+> > 
+> > Thanks.  It looks like eth0 gets a yenta's interrupt and goes awry.
+> > Could you please tell me what driver the eth0 is?
+> 
+> CONFIG_VORTEX drivers/net/3c59x.c:
+> 0000:02:00.0: 3Com PCI 3c905C Tornado at 0xec80. Vers LK1.1.19
 
-This patch displays the name of the fbdev driver in sysfs.
-Down the road this will replace the current proc handle we have.
+Thanks again.  From the first look the suspend/resume routines of the driver
+are missing some calls.  In particular, with the IRQ-freeing patch for yenta it is
+likely to get an out-of-order interrupt as I suspected.
+
+Linus has apparently dropped that patch for yenta, but in case it is
+reintroduced in the future you will probably need a patch to make the network
+driver cooperate.  I'll try to prepare one tomorrow, if I can, but I have no hardware
+to test it.
+
+Greets,
+Rafael
 
 
-Signed-off-by: James Simmons <jsimmons@infradead.org>
-
---- linus-2.6/drivers/video/fbsysfs.c	2005-07-29 12:16:08.000000000 -0700
-+++ fbdev-2.6/drivers/video/fbsysfs.c	2005-07-30 12:02:22.000000000 -0700
-@@ -414,6 +414,13 @@
- 			fb_info->var.xoffset);
- }
- 
-+static ssize_t show_name(struct class_device *class_device, char *buf)
-+{
-+	struct fb_info *fb_info = (struct fb_info *)class_get_devdata(class_device);
-+
-+	return snprintf(buf, PAGE_SIZE, "%s\n", fb_info->fix.id);
-+}
-+
- static struct class_device_attribute class_device_attrs[] = {
- 	__ATTR(bits_per_pixel, S_IRUGO|S_IWUSR, show_bpp, store_bpp),
- 	__ATTR(blank, S_IRUGO|S_IWUSR, show_blank, store_blank),
-@@ -424,6 +431,7 @@
- 	__ATTR(modes, S_IRUGO|S_IWUSR, show_modes, store_modes),
- 	__ATTR(pan, S_IRUGO|S_IWUSR, show_pan, store_pan),
- 	__ATTR(virtual_size, S_IRUGO|S_IWUSR, show_virtual, store_virtual),
-+	__ATTR(name, S_IRUGO, show_name, NULL),
- };
- 
- int fb_init_class_device(struct fb_info *fb_info)
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

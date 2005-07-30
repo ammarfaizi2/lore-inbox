@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263114AbVG3TFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263111AbVG3TFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbVG3TFi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 15:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263112AbVG3TDk
+	id S263111AbVG3TFh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 15:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbVG3TDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 15:03:40 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:15782 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S263111AbVG3TDB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 15:03:01 -0400
-Subject: [patch 1/3] uml: add dwarf sections to static link script
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Sat, 30 Jul 2005 21:05:33 +0200
-Message-Id: <20050730190534.6FB5B843@zion.home.lan>
+	Sat, 30 Jul 2005 15:03:47 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:56223 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S263110AbVG3TCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 15:02:54 -0400
+Date: Sat, 30 Jul 2005 14:02:22 -0500
+From: serge@hallyn.com
+To: Tony Jones <tonyj@immunix.com>
+Cc: serue@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Michael Halcrow <mhalcrow@us.ibm.com>
+Subject: Re: [patch 0/15] lsm stacking v0.3: intro
+Message-ID: <20050730190222.GA12473@vino.hallyn.com>
+References: <20050727181732.GA22483@serge.austin.ibm.com> <20050730050701.GA22901@immunix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050730050701.GA22901@immunix.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Tony Jones (tonyj@immunix.com):
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Thanks, Tony.  I'll address each of these in the next patchset.  Just
+two things I wanted to actually converse about:
 
-Inside the linker script, insert the code for DWARF debug info sections. This
-may help GDB'ing a Uml binary. Actually, it seems that ld is able to guess
-what I added correctly, but normal linker scripts include this section so it
-should be correct anyway adding it.
+> 5) /*
+>  * Workarounds for the fact that get and setprocattr are used only by
+>  * selinux.  (Maybe)
+>  */
+> 
+> No complaints on selinux getting to avoid the (module), they are intree.
+> Just a FYI that SubDomain/AppArmor uses these hooks also.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+And is it ok with using the "some_data (apparmor)" convention?
 
- linux-2.6.git-paolo/arch/um/kernel/uml.lds.S |   25 +++++++++++++++++++++++++
- 1 files changed, 25 insertions(+)
+The special handling of selinux is intended to be temporary, due to the
+large base of installed userspace which hasn't yet been updated.  I
+would imagine that at some point that code would go away.
 
-diff -puN arch/um/kernel/uml.lds.S~uml-add-dwarf-sections-to-static-link-script arch/um/kernel/uml.lds.S
---- linux-2.6.git/arch/um/kernel/uml.lds.S~uml-add-dwarf-sections-to-static-link-script	2005-07-30 13:41:40.000000000 +0200
-+++ linux-2.6.git-paolo/arch/um/kernel/uml.lds.S	2005-07-30 13:41:40.000000000 +0200
-@@ -103,4 +103,29 @@ SECTIONS
-   .stab.index 0 : { *(.stab.index) }
-   .stab.indexstr 0 : { *(.stab.indexstr) }
-   .comment 0 : { *(.comment) }
-+  /* DWARF debug sections.
-+     Symbols in the DWARF debugging sections are relative to the beginning
-+     of the section so we begin them at 0.  */
-+  /* DWARF 1 */
-+  .debug          0 : { *(.debug) }
-+  .line           0 : { *(.line) }
-+  /* GNU DWARF 1 extensions */
-+  .debug_srcinfo  0 : { *(.debug_srcinfo) }
-+  .debug_sfnames  0 : { *(.debug_sfnames) }
-+  /* DWARF 1.1 and DWARF 2 */
-+  .debug_aranges  0 : { *(.debug_aranges) }
-+  .debug_pubnames 0 : { *(.debug_pubnames) }
-+  /* DWARF 2 */
-+  .debug_info     0 : { *(.debug_info .gnu.linkonce.wi.*) }
-+  .debug_abbrev   0 : { *(.debug_abbrev) }
-+  .debug_line     0 : { *(.debug_line) }
-+  .debug_frame    0 : { *(.debug_frame) }
-+  .debug_str      0 : { *(.debug_str) }
-+  .debug_loc      0 : { *(.debug_loc) }
-+  .debug_macinfo  0 : { *(.debug_macinfo) }
-+  /* SGI/MIPS DWARF 2 extensions */
-+  .debug_weaknames 0 : { *(.debug_weaknames) }
-+  .debug_funcnames 0 : { *(.debug_funcnames) }
-+  .debug_typenames 0 : { *(.debug_typenames) }
-+  .debug_varnames  0 : { *(.debug_varnames) }
- }
-_
+> I noticed the conditional CONFIG_SECURITY_STACKER code went away, previously
+> it would look at the value chain head only for the !case. But this comment
+> still remains.
+
+Yes, after I added the unlink function, it started to seem that the
+special cases for !CONFIG_SECURITY_STACKER wouldn't be any faster than
+the stacker versions.  They still might be, but I'll have to think about
+it.  If I just ditch those, then I can probably ditch the whole
+security-stack.h file, and move those declarations into security.h.
+They were just in their own file because Stephen had pointed out that
+switching between stacker and non-stacker would cause too much code to
+be recompiled.
+
+thanks,
+-serge

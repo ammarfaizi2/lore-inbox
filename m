@@ -1,192 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbVG3RJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263080AbVG3RLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263079AbVG3RJK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 13:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbVG3RIu
+	id S263080AbVG3RLo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 13:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbVG3RLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 13:08:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20658 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263074AbVG3RI1 (ORCPT
+	Sat, 30 Jul 2005 13:11:43 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:59916 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S263080AbVG3RLe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 13:08:27 -0400
-Date: Sat, 30 Jul 2005 10:08:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alexander Nyberg <alexn@telia.com>
-cc: Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Making it easier to find which change introduced a bug
-In-Reply-To: <20050730122007.GA8364@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0507300919320.29650@g5.osdl.org>
-References: <200507300442_MC3-1-A5F6-A039@compuserve.com>
- <20050730122007.GA8364@localhost.localdomain>
+	Sat, 30 Jul 2005 13:11:34 -0400
+Message-ID: <42EBB4C1.4010500@domdv.de>
+Date: Sat, 30 Jul 2005 19:11:29 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050724)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@ucw.cz>
+CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: [PATCH] swsusp with dm-crypt mini howto
+References: <42E90456.8080901@domdv.de> <20050730092619.GB2013@elf.ucw.cz>
+In-Reply-To: <20050730092619.GB2013@elf.ucw.cz>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/mixed;
+ boundary="------------010503000800040505050501"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------010503000800040505050501
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
+Pavel Machek wrote:
+> It looks good. Perhaps it should go into
+> Documentation/power/swsusp-dmcrypt.txt? Could you write you copyright
+> and GPL in there, sign it off, and cc: it to linux-kernel?
+> 								Pavel
 
-On Sat, 30 Jul 2005, Alexander Nyberg wrote:
-> 
-> Linus, do you think we could have something like
-> patch-2.6.13-rc4-incremental-broken-out.tar.bz2 that could like Andrew's
-> be placed into patches/ in a tree?
+The attached patch contains a mini howto for using dm-crypt together
+with swsusp.
 
-Not really. The thing is, since the git patches really _aren't_ serial, 
-and merging isn't based on patch-merging at all (unlike quilt, that 
-literally merges patches as patches), you can't really linearize a git 
-tree without getting some really strange behaviour.
+Signed-off-by: Andreas Steinmetz <ast@domdv.de>
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
 
-> As it stands today it's easier for us who don't know git to just find
-> out in which mainline kernel it works and which -mm it doesn't work in,
-> get the broken-out and start push/pop. And I know I'm not the only one
-> who has noticed this.
+--------------010503000800040505050501
+Content-Type: text/plain;
+ name="swsusp-dmcrypt-doc.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="swsusp-dmcrypt-doc.patch"
 
-What we can do is try to script the git bisection thing so that it's
-really trivial. It's actually very simple to use, and I think somebody had
-some example scripts around.
-
-Here's a simple starting point for somebody who wants to try.. It's not 
-very well tested, but I've done _some_ testing on it to try to make sure 
-it's at least reasonable. It adds four new git commands:
-
- - "git bisect-start"
-	reset bisect state
-
- - "git bisect-bad"
-	mark some version known-bad (if no arguments, then current HEAD)
-
- - "git bisect-good"
-	mark some version known-good (if no arguments, then current HEAD)
-
- - "git bisect"
-	do a bisection between the known bad and the known good heads, and 
-	check that version out.
-
-Then, the way you use it is:
-
-	git bisect-start
-	git bisect-bad			# Current version is bad
-	git bisect-good v2.6.13-rc2	# v2.6.13-rc2 was the last version tested that was good
-	git bisect
-
-which will say something like
-
-	Bisecting: 675 revisions left to test after this
-
-and check out the state in the middle. Now, compile that kernel, and boot 
-it. Now, let's say that this booted kernel works fine, then just do
-
-	git bisect-good			# this one is good
-	git bisect
-
-which will now say
-
-	Bisecting: 337 revisions left to test after this
-
-and you continue along, compiling that one, testing it, and depending on 
-whether it is good or bad, you say "git-bisect-good" or "git-bisect-bad", 
-and ask for the next bisection.
-
-Until you have no more left, and you'll have been left with the first bad
-kernel rev in "refs/bisect/bad".
-
-Oh, and then after you want to reset to the original head, do a
-
-	git checkout master
-
-to get back to the master branch, instead of being in one of the bisection 
-branches ("git bisect-start" will do that for you too, actually: it will 
-reset the bisection state, and before it does that it checks that you're 
-not using some old bisection branch).
-
-Not really any harder than doing series of "quilt push" and "quilt pop", 
-now is it?
-
-		Linus
-
----
-diff --git a/Makefile b/Makefile
---- a/Makefile
-+++ b/Makefile
-@@ -62,7 +62,9 @@ SCRIPTS=git git-apply-patch-script git-m
- 	git-format-patch-script git-sh-setup-script git-push-script \
- 	git-branch-script git-parse-remote git-verify-tag-script \
- 	git-ls-remote-script git-clone-dumb-http git-rename-script \
--	git-request-pull-script
-+	git-request-pull-script git-bisect-bad-script git-bisect-good-script \
-+	git-bisect-script git-bisect-start-script
+--- linux.orig/Documentation/power/swsusp-dmcrypt.txt	2003-09-24 00:19:32.000000000 +0200
++++ linux/Documentation/power/swsusp-dmcrypt.txt	2005-07-30 19:03:56.000000000 +0200
+@@ -0,0 +1,138 @@
++Author: Andreas Steinmetz <ast@domdv.de>
 +
- 
- PROG=   git-update-cache git-diff-files git-init-db git-write-tree \
- 	git-read-tree git-commit-tree git-cat-file git-fsck-cache \
-diff --git a/git-bisect-bad-script b/git-bisect-bad-script
-new file mode 100755
---- /dev/null
-+++ b/git-bisect-bad-script
-@@ -0,0 +1,4 @@
++
++How to use dm-crypt and swsusp together:
++========================================
++
++Some prerequisites:
++You know how dm-crypt works. If not, visit the following web page:
++http://www.saout.de/misc/dm-crypt/
++You have read Documentation/power/swsusp.txt and understand it.
++You did read Documentation/initrd.txt and know how an initrd works.
++You know how to create or how to modify an initrd.
++
++Now your system is properly set up, your disk is encrypted except for
++the swap device(s) and the boot partition which may contain a mini
++system for crypto setup and/or rescue purposes. You may even have
++an initrd that does your current crypto setup already.
++
++At this point you want to encrypt your swap, too. Still you want to
++be able to suspend using swsusp. This, however, means that you
++have to be able to either enter a passphrase or that you read
++the key(s) from an external device like a pcmcia flash disk
++or an usb stick prior to resume. So you need an initrd, that sets
++up dm-crypt and then asks swsusp to resume from the encrypted
++swap device.
++
++The most important thing is that you set up dm-crypt in such
++a way that the swap device you suspend to/resume from has
++always the same major/minor within the initrd as well as
++within your running system. The easiest way to achieve this is
++to always set up this swap device first with dmsetup, so that
++it will always look like the following:
++
++brw-------  1 root root 254, 0 Jul 28 13:37 /dev/mapper/swap0
++
++Now set up your kernel to use /dev/mapper/swap0 as the default
++resume partition, so your kernel .config contains:
++
++CONFIG_PM_STD_PARTITION="/dev/mapper/swap0"
++
++Prepare your boot loader to use the initrd you will create or
++modify. For lilo the simplest setup looks like the following
++lines:
++
++image=/boot/vmlinuz
++initrd=/boot/initrd.gz
++label=linux
++append="root=/dev/ram0 init=/linuxrc rw"
++
++Finally you need to create or modify your initrd. Lets assume
++you create an initrd that reads the required dm-crypt setup
++from a pcmcia flash disk card. The card is formatted with an ext2
++fs which resides on /dev/hde1 when the card is inserted. The
++card contains at least the encrypted swap setup in a file
++named "swapkey". /etc/fstab of your initrd contains something
++like the following:
++
++/dev/hda1   /mnt    ext3      ro                            0 0
++none        /proc   proc      defaults,noatime,nodiratime   0 0
++none        /sys    sysfs     defaults,noatime,nodiratime   0 0
++
++/dev/hda1 contains an unencrypted mini system that sets up all
++of your crypto devices, again by reading the setup from the
++pcmcia flash disk. What follows now is a /linuxrc for your
++initrd that allows you to resume from encrypted swap and that
++continues boot with your mini system on /dev/hda1 if resume
++does not happen:
++
 +#!/bin/sh
-+. git-sh-setup-script || dir "Not a git archive"
-+rev=$(git-rev-parse --revs-only --verify --default HEAD "$@") || exit
-+echo "$rev" > "$GIT_DIR/refs/bisect/bad"
-diff --git a/git-bisect-good-script b/git-bisect-good-script
-new file mode 100755
---- /dev/null
-+++ b/git-bisect-good-script
-@@ -0,0 +1,4 @@
-+#!/bin/sh
-+. git-sh-setup-script || dir "Not a git archive"
-+rev=$(git-rev-parse --revs-only --verify --default HEAD "$@") || exit
-+echo "$rev" > "$GIT_DIR/refs/bisect/good-$rev"
-diff --git a/git-bisect-script b/git-bisect-script
-new file mode 100755
---- /dev/null
-+++ b/git-bisect-script
-@@ -0,0 +1,15 @@
-+#!/bin/sh
-+. git-sh-setup-script || dir "Not a git archive"
-+bad=$(git-rev-parse --revs-only --verify refs/bisect/bad) || exit
-+good=($(git-rev-parse --revs-only --not $(cd "$GIT_DIR" ; ls refs/bisect/good-*))) || exit
-+rev=$(git-rev-list --bisect $bad ${good[@]}) || exit
-+nr=$(git-rev-list $rev ${good[@]} | wc -l) || exit
-+if [ "$nr" = "0" ]; then
-+	echo "$bad is first bad commit"
-+	git-diff-tree --pretty $bad
-+	exit 0
++PATH=/sbin:/bin:/usr/sbin:/usr/bin
++mount /proc
++mount /sys
++mapped=0
++noresume=`grep -c noresume /proc/cmdline`
++if [ "$*" != "" ]
++then
++  noresume=1
 +fi
-+echo "Bisecting: $nr revisions left to test after this"
-+echo "$rev" > "$GIT_DIR/refs/heads/new-bisect"
-+git checkout new-bisect || exit
-+cd "$GIT_DIR" && mv refs/heads/new-bisect refs/heads/bisect && ln -sf refs/heads/bisect HEAD
-diff --git a/git-bisect-start-script b/git-bisect-start-script
-new file mode 100755
---- /dev/null
-+++ b/git-bisect-start-script
-@@ -0,0 +1,26 @@
-+#!/bin/sh
-+. git-sh-setup-script || die "Not a git archive"
++dmesg -n 1
++/sbin/cardmgr -q
++for i in 1 2 3 4 5 6 7 8 9 0
++do
++  if [ -f /proc/ide/hde/media ]
++  then
++    usleep 500000
++    mount -t ext2 -o ro /dev/hde1 /mnt
++    if [ -f /mnt/swapkey ]
++    then
++      dmsetup create swap0 /mnt/swapkey > /dev/null 2>&1 && mapped=1
++    fi
++    umount /mnt
++    break
++  fi
++  usleep 500000
++done
++killproc /sbin/cardmgr
++dmesg -n 6
++if [ $mapped = 1 ]
++then
++  if [ $noresume != 0 ]
++  then
++    mkswap /dev/mapper/swap0 > /dev/null 2>&1
++  fi
++  echo 254:0 > /sys/power/resume
++  dmsetup remove swap0
++fi
++umount /sys
++mount /mnt
++umount /proc
++cd /mnt
++pivot_root . mnt
++mount /proc
++umount -l /mnt
++umount /proc
++exec chroot . /sbin/init $* < dev/console > dev/console 2>&1
 +
-+#
-+# Verify HEAD. If we were bisecting before this, reset to the
-+# top-of-line master first!
-+#
-+head=$(readlink $GIT_DIR/HEAD) || die "Bad HEAD - I need a symlink"
-+case "$head" in
-+refs/heads/bisect*)
-+	git checkout master || exit
-+	;;
-+refs/heads/*)
-+	;;
-+*)
-+	die "Bad HEAD - strange symlink"
-+	;;
-+esac
++Please don't mind the weird loop above, busybox's msh doesn't know
++the let statement. Now, what is happening in the script?
++First we have to decide if we want to try to resume, or not.
++We will not resume if booting with "noresume" or any parameters
++for init like "single" or "emergency" as boot parameters.
 +
-+#
-+# Get rid of any old bisect state
-+#
-+cd "$GIT_DIR"
-+rm -f "refs/heads/bisect"
-+rm -rf "refs/bisect/"
-+mkdir "refs/bisect"
++Then we need to set up dmcrypt with the setup data from the
++pcmcia flash disk. If this succeeds we need to reset the swap
++device if we don't want to resume. The line "echo 254:0 > /sys/power/resume"
++then attempts to resume from the first device mapper device.
++Note that it is important to set the device in /sys/power/resume,
++regardless if resuming or not, otherwise later suspend will fail.
++If resume starts, script execution terminates here.
++
++Otherwise we just remove the encrypted swap device and leave it to the
++mini system on /dev/hda1 to set the whole crypto up (it is up to
++you to modify this to your taste).
++
++What then follows is the well known process to change the root
++file system and continue booting from there. I prefer to unmount
++the initrd prior to continue booting but it is up to you to modify
++this.
+
+--------------010503000800040505050501--

@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263132AbVG3Tbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263115AbVG3Tdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263132AbVG3Tbe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 15:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbVG3Tbd
+	id S263115AbVG3Tdp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 15:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVG3Tdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 15:31:33 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:13218
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S263132AbVG3Tb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 15:31:28 -0400
-Date: Sat, 30 Jul 2005 12:31:25 -0700 (PDT)
-Message-Id: <20050730.123125.71116248.davem@davemloft.net>
-To: dada1@cosmosbay.com
-Cc: akpm@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm/slab.c : prefetchw the start of new allocated
- objects
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <42E9F145.7040302@cosmosbay.com>
-References: <42E7A8D8.1030809@earthlink.net>
-	<20050729014150.6e97dfd2.akpm@osdl.org>
-	<42E9F145.7040302@cosmosbay.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 30 Jul 2005 15:33:44 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:124 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S263117AbVG3Tdb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 15:33:31 -0400
+Date: Sat, 30 Jul 2005 21:35:32 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: blaisorblade@yahoo.it
+Cc: akpm@osdl.org, jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [patch 1/3] uml: add dwarf sections to static link script
+Message-ID: <20050730193532.GA19768@mars.ravnborg.org>
+References: <20050730190534.6FB5B843@zion.home.lan>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050730190534.6FB5B843@zion.home.lan>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Eric Dumazet <dada1@cosmosbay.com>
-Date: Fri, 29 Jul 2005 11:05:09 +0200
+On Sat, Jul 30, 2005 at 09:05:33PM +0200, blaisorblade@yahoo.it wrote:
+> 
+> From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> 
+> Inside the linker script, insert the code for DWARF debug info sections. This
+> may help GDB'ing a Uml binary. Actually, it seems that ld is able to guess
+> what I added correctly, but normal linker scripts include this section so it
+> should be correct anyway adding it.
 
-> Some CPU lacks a prefetchw() and currently do nothing, so I ask this
-> question : Should'nt make prefetchw() do at least a prefetch() ? A
-> read hint is better than nothing.
+Can we please have this added to include/asm-generic/vmlinux.lds.h so we
+can share the definition.
 
-This is not true, especially on SMP.  If the only prefetch variant
-available does a "prefetch for read", the cpu will only grab the
-cacheline in shared state if other cpus have a dirty copy.
-
-And, as a result, when the write to the cache line occurs yet
-another bus transaction will go out in order to get exclusive
-access to the cache line on the local cpu.  This is extremely
-inefficient.
-
-So it's better in this case to make no prefetch, and thus only
-incur one bus transaction when the memory access occurs.
+	Sam

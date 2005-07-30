@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262771AbVG3VK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVG3VMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262771AbVG3VK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 17:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbVG3VK7
+	id S262766AbVG3VMD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 17:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVG3VMC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 17:10:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23004 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262771AbVG3VK4 (ORCPT
+	Sat, 30 Jul 2005 17:12:02 -0400
+Received: from dani.dds.nl ([213.196.11.18]:56247 "EHLO dani.dds.nl")
+	by vger.kernel.org with ESMTP id S262766AbVG3VLx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 17:10:56 -0400
-Date: Sat, 30 Jul 2005 14:10:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>, linux-kernel@vger.kernel.org
-Subject: Re: revert yenta free_irq on suspend
-In-Reply-To: <20050730215403.J26592@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0507301404240.29650@g5.osdl.org>
-References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com>
- <20050730210306.D26592@flint.arm.linux.org.uk> <Pine.LNX.4.58.0507301335050.29650@g5.osdl.org>
- <20050730215403.J26592@flint.arm.linux.org.uk>
+	Sat, 30 Jul 2005 17:11:53 -0400
+From: Willem de Bruijn <wdb@few.vu.nl>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: status of kernel memory debugging?
+Date: Sat, 30 Jul 2005 23:12:06 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <200507301323.28083.wdb@few.vu.nl> <20050730151432.GA3524@ccure.user-mode-linux.org>
+In-Reply-To: <20050730151432.GA3524@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507302312.09384.wdb@few.vu.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> UML is still too strange for valgrind, despite progress on both sides
+> (valgrind accepting more strange things and UML becoming less
+> strange).
+>
+> I tried grinding UML a month or so ago, and its use of clone was a
+> sticking point.
+>
 
+I think I read your remark, yes. Thanks for the update; I hoped some strides 
+had been made in that direction since then. Personally,  I know to little 
+about the topic to be of any use.
 
-On Sat, 30 Jul 2005, Russell King wrote:
-> 
-> I don't think so - I believe one of the problem cases is where you
-> have a screaming interrupt caused by an improperly setup device.
+I guess the best option is then using slab caches per object type, so that I 
+can at least find obvious memory leaks. 
 
-Not a problem.
+On a sidenote, it'll be interesting to see what valgrind reports once (if?) 
+the kernel gets a good grinding. 
 
-The thing is, this is trivially solved by
- - disable irq controller last on shutdown
- - re-enable irq controller last on resume
-
-Think about it. Even if you have screaming irq's (and thus we'll shut
-things down somewhere during the resume), when we then get to re-enable
-the irq controller thing, we'll have them all back again at that point.
-Problem solved.
-
-You can have variations on this, of course - you can enable the irq
-controller early _and_ late in the resume process. Ie do a minimal "get
-the basics working" early - you might want to make sure that timers etc
-work early on, for example, and then a "fix up the details" thing late.
-
-An interrupt controller is clearly a special case, so it's worth spending 
-some effort on handling it.
-
-In contrast, what is _not_ worth doing is screweing over every single
-driver we have.
-
-		Linus
+Willem

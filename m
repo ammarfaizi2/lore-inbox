@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262764AbVG3CKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262929AbVG3CP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262764AbVG3CKs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 22:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVG3CIm
+	id S262929AbVG3CP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 22:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVG3CPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 22:08:42 -0400
-Received: from mail.kroah.org ([69.55.234.183]:39855 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262764AbVG2TRu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 15:17:50 -0400
-Date: Fri, 29 Jul 2005 12:17:20 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mhund@ld-didactic.de
-Subject: [patch 23/29] USB: ldusb fixes
-Message-ID: <20050729191720.GY5095@kroah.com>
-References: <20050729184950.014589000@press.kroah.org>
+	Fri, 29 Jul 2005 22:15:16 -0400
+Received: from dsl017-059-136.wdc2.dsl.speakeasy.net ([69.17.59.136]:41406
+	"EHLO luther.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S262929AbVG3CN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 22:13:58 -0400
+Date: Fri, 29 Jul 2005 22:15:01 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Olivier Fourdan <fourdan@xfce.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Time Flies (Twice as Fast)
+Message-ID: <20050730021501.GD16202@kurtwerks.com>
+Mail-Followup-To: Olivier Fourdan <fourdan@xfce.org>,
+	linux-kernel@vger.kernel.org
+References: <20050729020332.GA12920@kurtwerks.com> <1122616112.5929.2.camel@shuttle>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="usb-ldusb-fixes.patch"
-In-Reply-To: <20050729191255.GA5095@kroah.com>
-User-Agent: Mutt/1.5.8i
+Content-Disposition: inline
+In-Reply-To: <1122616112.5929.2.camel@shuttle>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.12.3
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael Hund <mhund@ld-didactic.de>
+On Fri, Jul 29, 2005 at 07:48:32AM +0200, Olivier Fourdan took 44 lines to write:
+> 
+> Kurt
+> 
+> Did you try with the "no_timer_check" boot option?
 
-below you will find the forgotten kmalloc check (sorry).
+Just did and it appears to work. Thanks Olivier!
 
-Signed-off-by: Michael Hund <mhund@ld-didactic.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Alas that this chipset seems to have, um, issues.
 
----
- drivers/usb/misc/ldusb.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
-
---- gregkh-2.6.orig/drivers/usb/misc/ldusb.c	2005-07-29 11:29:48.000000000 -0700
-+++ gregkh-2.6/drivers/usb/misc/ldusb.c	2005-07-29 11:36:30.000000000 -0700
-@@ -23,6 +23,7 @@
-  *
-  * V0.1  (mh) Initial version
-  * V0.11 (mh) Added raw support for HID 1.0 devices (no interrupt out endpoint)
-+ * V0.12 (mh) Added kmalloc check for string buffer
-  */
- 
- #include <linux/config.h>
-@@ -84,7 +85,7 @@
- 	{ }					/* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, ld_usb_table);
--MODULE_VERSION("V0.11");
-+MODULE_VERSION("V0.12");
- MODULE_AUTHOR("Michael Hund <mhund@ld-didactic.de>");
- MODULE_DESCRIPTION("LD USB Driver");
- MODULE_LICENSE("GPL");
-@@ -635,6 +636,10 @@
- 	     (le16_to_cpu(udev->descriptor.idProduct) == USB_DEVICE_ID_COM3LAB)) &&
- 	    (le16_to_cpu(udev->descriptor.bcdDevice) <= 0x103)) {
- 		buffer = kmalloc(256, GFP_KERNEL);
-+		if (buffer == NULL) {
-+			dev_err(&intf->dev, "Couldn't allocate string buffer\n");
-+			goto error;
-+		}
- 		/* usb_string makes SETUP+STALL to leave always ControlReadLoop */
- 		usb_string(udev, 255, buffer, 256);
- 		kfree(buffer);
-
---
+Kurt
+-- 
+Baker's First Law of Federal Geometry:
+	A block grant is a solid mass of money surrounded on all sides
+by governors.

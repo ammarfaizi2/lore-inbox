@@ -1,96 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263072AbVG3U0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263141AbVG3U0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263072AbVG3U0m (ORCPT <rfc822;willy@w.ods.org>);
+	id S263141AbVG3U0m (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 30 Jul 2005 16:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbVG3UYO
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbVG3UYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 16:24:14 -0400
-Received: from cerebus.immunix.com ([198.145.28.33]:40916 "EHLO
-	ermintrude.int.immunix.com") by vger.kernel.org with ESMTP
-	id S263072AbVG3UXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 16:23:23 -0400
-Date: Sat, 30 Jul 2005 13:18:52 -0700
-From: Tony Jones <tonyj@suse.de>
-To: serge@hallyn.com
-Cc: serue@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Michael Halcrow <mhalcrow@us.ibm.com>, steve@immunix.com
-Subject: Re: [patch 0/15] lsm stacking v0.3: intro
-Message-ID: <20050730201852.GA8223@immunix.com>
-References: <20050727181732.GA22483@serge.austin.ibm.com> <20050730050701.GA22901@immunix.com> <20050730190222.GA12473@vino.hallyn.com>
+	Sat, 30 Jul 2005 16:24:07 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:20194 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263141AbVG3UX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 16:23:56 -0400
+Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance
+	Initiator
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: itn780@yahoo.com, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@lst.de>
+In-Reply-To: <20050730.125312.78734701.davem@davemloft.net>
+References: <429E15CD.2090202@yahoo.com> <1122744762.5055.10.camel@mulgrave>
+	 <20050730.125312.78734701.davem@davemloft.net>
+Content-Type: text/plain
+Date: Sat, 30 Jul 2005 15:23:20 -0500
+Message-Id: <1122755000.5055.31.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050730190222.GA12473@vino.hallyn.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Serge
-
-> > 5) /*
-> >  * Workarounds for the fact that get and setprocattr are used only by
-> >  * selinux.  (Maybe)
-> >  */
-> > 
-> > No complaints on selinux getting to avoid the (module), they are intree.
-> > Just a FYI that SubDomain/AppArmor uses these hooks also.
+On Sat, 2005-07-30 at 12:53 -0700, David S. Miller wrote:
+> From: James Bottomley <James.Bottomley@SteelEye.com>
+> Date: Sat, 30 Jul 2005 12:32:42 -0500
 > 
-> And is it ok with using the "some_data (apparmor)" convention?
-
-Yes.  Our use of setprocattr is thru a library fn so I just made the change
-there.  We'll have to change our user tools (that read /proc/pid/attr/current
-but thats fine too).
-
-> The special handling of selinux is intended to be temporary, due to the
-> large base of installed userspace which hasn't yet been updated.  I
-> would imagine that at some point that code would go away.
-
-I assumed it was due to this. Doesn't inconvenience us any and it it helps 
-SELinux it's fine w/ me.
-
-
-Of more concern is ps -Z (pstools).
-
-We had to have the pstools maintainer extend the set of characters that it
-considered valid from the getprocattr.    I forget the details but IIRC he 
-wanted to know (for ?documentation?) every character that could be returned 
-by our getprocattr hook (which for us is pretty much any character thats 
-valid in a pathname -- though IIRC we forgot one).
-
-Anyway, I'm guessing (at least with pstools 3.2.5) that '(' is not one of
-the valid characters. IIRC ps gives up when it sees a "non-valid" character.
-
-I wrote a trivial little lsm which just returns 'foobar' for any getprocattr.
-
-# cat /proc/2322/attr/current 
-unconstrained (subdomain)
-foobar (foobar)
-
-# ps -Z -p 2322
-LABEL                             PID TTY          TIME CMD
-unconstrained                    2322 ttyS0    00:00:00 bash
-
-Even if ps did return them all, I think it could create a usability problem.  
-There was another LSM (forget which) which wanted to return a large blob 
-from getprocattr, I recall like a page? in size which obviously caused problems
-for ps -Z both in terms of content and especially length.
-
-> > I noticed the conditional CONFIG_SECURITY_STACKER code went away, previously
-> > it would look at the value chain head only for the !case. But this comment
-> > still remains.
+> > FIB has taken your netlink number, so I changed it to 32
 > 
-> Yes, after I added the unlink function, it started to seem that the
-> special cases for !CONFIG_SECURITY_STACKER wouldn't be any faster than
-> the stacker versions.  They still might be, but I'll have to think about
-> it.  If I just ditch those, then I can probably ditch the whole
+> MAX_LINKS is 32, so there is no way this reassignment would
+> work.
 
-Esp since James' suggestion would impact it. I'd imagine you would always want
-array[0] for this case, no?
+Actually, I saw this and increased MAX_LINKS as well.  I was going to
+query all of this on the net-dev mailing list if we'd managed to get the
+code compileable.
 
-I was just pointing out the legacy comment. Thats all.
+> You have to pick something in the range 0 --> 32, and as is
+> no surprise, there are no numbers available :-)
+> 
+> Since ethertap has been deleted, 16-->31 could be made allocatable
+> once more, but I simply do not want to do that and have the flood
+> gates open up for folks allocating random netlink numbers.
+> 
+> Instead, we need to take one of those netlink numbers, and turn
+> it into a multiplexable layer that can support an arbitrary
+> number of sub-netlink types.  Said protocol would need some
+> shim header that just says the "sub-netlink" protocol number,
+> something as simple as just a "u32", this gets pulled off the
+> front of the netlink packet and then it's passed on down to the
+> real protocol.
 
-Thanks again
+I'll let the iSCSI people try this ...
 
-Tony
+Alternatively, if they don't fancy it, I think the kobject_uevent
+mechanism (which already has a netlink number) looks like it might be
+amenable for use for most of the things they want to do.
+
+James
+
+

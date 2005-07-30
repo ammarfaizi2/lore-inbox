@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVG3AlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262947AbVG3Ag0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbVG3AlL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 20:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbVG3AlG
+	id S262947AbVG3Ag0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 20:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbVG3Adk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 20:41:06 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8845 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261512AbVG3AkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 20:40:13 -0400
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64: sync_tsc fix the race (so we can boot)
-References: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com>
-	<86802c44050728092275e28a9a@mail.gmail.com>
-	<86802c4405072810352d564fd3@mail.gmail.com>
-	<m1ll3q5mx3.fsf@ebiederm.dsl.xmission.com>
-	<86802c4405072913415379c5a4@mail.gmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 29 Jul 2005 18:40:06 -0600
-In-Reply-To: <86802c4405072913415379c5a4@mail.gmail.com> (yhlu.kernel@gmail.com's
- message of "Fri, 29 Jul 2005 13:41:06 -0700")
-Message-ID: <m1oe8lf7o9.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Fri, 29 Jul 2005 20:33:40 -0400
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:16063 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262825AbVG3Aci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 20:32:38 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: i387 floating-point test program/benchmark
+Date: Sat, 30 Jul 2005 10:32:25 +1000
+User-Agent: KMail/1.8.1
+Cc: Puneet Vyas <vyas.puneet@gmail.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>
+References: <200507291639_MC3-1-A5E6-856D@compuserve.com> <42EAC686.5060604@gmail.com>
+In-Reply-To: <42EAC686.5060604@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart1455904.pRnOOKj1SB";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507301032.28253.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yhlu <yhlu.kernel@gmail.com> writes:
+--nextPart1455904.pRnOOKj1SB
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> if using you patch, the
-> "synchronized TSC with CPU" never come out.
+On Sat, 30 Jul 2005 10:15, Puneet Vyas wrote:
+> Chuck Ebbert wrote:
+> >/* fp.c: i387 benchmark/test program */
 >
-> then with your patch, I add back patch that moving set callin_map from
-> smp_callin to start_secondary. It told me can not inquire the apic for
-> the CPU 1....2....
+> [puneet@localhost C]$ cc FPUtest.c -o FPUtest
+>
+> FPUtest.c: In function `main':
+>
+> FPUtest.c:103: warning: passing arg 2 of `sched_setaffinity' makes
+> integer from pointer without a cast
+>
+> FPUtest.c:103: error: too few arguments to function `sched_setaffinity'
 
-Hmm.  You didn't post enough of a boot log for me to see the problem.
-Does it boot and you don't see the message or is it something
-else.
+There are half a dozen different versions of sched_setaffinity in glibc and=
+=20
+they vary in argument type and even argument number across architectures.
 
-> Can we put tsc_sync_wait() back to smp_callin?
-> 
-> So that it will be executed serially and we can get
-> "synchronized TSC with CPU"?
+Cheers,
+Con
 
-Currently that just seems silly.  That code should be async
-safe.
+--nextPart1455904.pRnOOKj1SB
+Content-Type: application/pgp-signature
 
-But it sounds like you have some weird bug I don't understand.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-Eric
+iD8DBQBC6sqcZUg7+tp6mRURAvRSAJ9lA6VY2qnXdz/FIuo37e4o/7t+cACdF3G+
+TvyIPo0BrjwnmoqgnjovUnc=
+=JmsB
+-----END PGP SIGNATURE-----
+
+--nextPart1455904.pRnOOKj1SB--

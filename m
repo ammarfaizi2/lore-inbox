@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262727AbVG3Eyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVG3FDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262727AbVG3Eyb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 00:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVG3Eyb
+	id S262761AbVG3FDw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 01:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVG3FDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 00:54:31 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:26026 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S262727AbVG3Eya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 00:54:30 -0400
-From: Grant Coady <lkml@dodo.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Gaston, Jason D" <jason.d.gaston@intel.com>, mj@ucw.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-Date: Sat, 30 Jul 2005 14:54:17 +1000
-Organization: www.scatter.mine.nu
-Reply-To: lkml@dodo.com.au
-Message-ID: <6f0me1p2q3g9ralg4a2k2mcra21lhpg6ij@4ax.com>
-References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com> <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com> <42EAF987.7020607@pobox.com>
-In-Reply-To: <42EAF987.7020607@pobox.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Jul 2005 01:03:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2733 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262761AbVG3FDv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 01:03:51 -0400
+Date: Fri, 29 Jul 2005 22:02:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: jt <jt@jtholmes.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12 stalls at boot Andrew M. asked for this initcall dump
+Message-Id: <20050729220248.049d0f48.akpm@osdl.org>
+In-Reply-To: <42EAE4CE.7060908@jtholmes.com>
+References: <42EAE4CE.7060908@jtholmes.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jul 2005 23:52:39 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
+jt <jt@jtholmes.com> wrote:
 >
->However you did your search, you did it wrong.  The very first two 
->entries I tried had zero uses:
->
->[jgarzik@pretzel linux-2.6]$ grepsrc ICH7_22
->./include/linux/pci_ids.h:#define PCI_DEVICE_ID_INTEL_ICH7_22   0x27e0
->[jgarzik@pretzel linux-2.6]$ grepsrc ICH7_23
->./include/linux/pci_ids.h:#define PCI_DEVICE_ID_INTEL_ICH7_23   0x27e2
->[jgarzik@pretzel linux-2.6]$
+> In one of his messages Andrew Morton asked for a dump of the stall 
+>  encountered
+>  in 2.6.12  using  ALT + Sys Req + P    and  ALT + Sys Req + T
+> 
+>  I am having the stall problem so here is the dmesg output up and 
+>  including the trace
+>  It is in the attachment
+> 
 
-Sorry Jeff, excluding "include/linux/pci_ids.h" makes a huge difference :o)
+So..  what does it all mean?  Did you hit sysrq-T in the middle of the
+stall?  If so then the kernel seems to be happily running the udev startup
+code.  It's a bit sucky - takes about half a minute here.
 
-Does roughly 1/3 unused:
-
-63065 2005-07-30 14:51 pci_ids-list
-19243 2005-07-30 14:52 pci_ids-not_used
-
-Seem in ballpark?
-
-Thanks,
-Grant.
+If the stall occurred before "VFS: Mounted root (ext2 filesystem)." then I
+suggest you also enable CONFIG_PRINTK_TIME and regenerate the dmesg output
+so we can see exactly which initcall is stalling.  

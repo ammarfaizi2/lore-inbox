@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263178AbVG3U6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbVG3VDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263178AbVG3U6q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 16:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263175AbVG3UzN
+	id S262717AbVG3VDy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 17:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVG3VDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 16:55:13 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:55252 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263173AbVG3UxF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 16:53:05 -0400
-Date: Sat, 30 Jul 2005 22:52:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-Message-ID: <20050730205259.GA24542@elte.hu>
-References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins>
+	Sat, 30 Jul 2005 17:03:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62216 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262717AbVG3VDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 17:03:53 -0400
+Date: Sat, 30 Jul 2005 22:03:40 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>, Arjan Van de Ven <arjanv@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>
+Cc: Mark Underwood <basicmark@yahoo.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] ucb1x00: touchscreen cleanups
+Message-ID: <20050730220340.K26592@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Arjan Van de Ven <arjanv@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Mark Underwood <basicmark@yahoo.com>, rpurdie@rpsys.net,
+	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
+References: <20050730102236.B9652@flint.arm.linux.org.uk> <20050730113350.62722.qmail@web30304.mail.mud.yahoo.com> <20050730212820.G26592@flint.arm.linux.org.uk> <20050730204658.GC9418@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1122756435.29704.2.camel@twins>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050730204658.GC9418@elf.ucw.cz>; from pavel@ucw.cz on Sat, Jul 30, 2005 at 10:46:58PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-
-> Hi Ingo,
+On Sat, Jul 30, 2005 at 10:46:58PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> -02 needs the attached patch to compile with my config.
+> > > > Note that I'm maintaining the code and will be
+> > > > publishing a new set
+> > > > of patches for it based upon Pavel's fixes.
+> > > 
+> > > Thanks. I'll check them out then.
+> > 
+> > Since there appears to be some interest in these, I'll set about
+> > converting the audio bits to ALSA rather than Nico's SA11x0 audio
+> > driver.  I thought no one was using these chips anymore, and the
+> > driver was dead!
+> > 
+> > I've recently edited the mcp structure which may make things less
+> > awkward for others, and I'll continue moving in that direction
+> > with this driver.
+> > 
+> > You can get the updated patches at:
+> > 
+> > 	http://zeniv.linux.org.uk/pub/people/rmk/ucb/
+> 
+> Okay, what's the plan with mainstreaming those? Do they stay in
+> drivers/misc?
 
-thanks, i've released -03 with your fixes.
+Let me put the second question a slightly different way: can anyone
+think of a better way to organise the files which makes more sense
+and doesn't end up with just a couple of files for the core UCB
+and MCP support in some random directory elsewhere?
 
-	Ingo
+Arjan?  hch?  any comments / good ideas?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262990AbVG3Pnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262985AbVG3Psl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262990AbVG3Pnt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 11:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbVG3Pnt
+	id S262985AbVG3Psl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 11:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVG3Psl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 11:43:49 -0400
-Received: from graphe.net ([209.204.138.32]:36285 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262986AbVG3Pnm (ORCPT
+	Sat, 30 Jul 2005 11:48:41 -0400
+Received: from graphe.net ([209.204.138.32]:1964 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262985AbVG3Psk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 11:43:42 -0400
-Date: Sat, 30 Jul 2005 08:43:37 -0700 (PDT)
+	Sat, 30 Jul 2005 11:48:40 -0400
+Date: Sat, 30 Jul 2005 08:48:39 -0700 (PDT)
 From: Christoph Lameter <christoph@lameter.com>
 X-X-Sender: christoph@graphe.net
-To: Pavel Machek <pavel@ucw.cz>
+To: Paul Jackson <pj@sgi.com>
 cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 2/4] Task notifier against mm: Implement todo list in
- task_struct
-In-Reply-To: <20050730112241.GA1830@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.62.0507300843100.24809@graphe.net>
-References: <Pine.LNX.4.62.0507291328170.5304@graphe.net>
- <Pine.LNX.4.62.0507291332100.5304@graphe.net> <20050730112241.GA1830@elf.ucw.cz>
+Subject: Re: [PATCH] String conversions for memory policy
+In-Reply-To: <20050729225432.63b3dfb0.pj@sgi.com>
+Message-ID: <Pine.LNX.4.62.0507300844010.24809@graphe.net>
+References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
+ <20050729152049.4b172d78.pj@sgi.com> <Pine.LNX.4.62.0507291746000.8663@graphe.net>
+ <20050729225432.63b3dfb0.pj@sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Jul 2005, Pavel Machek wrote:
+On Fri, 29 Jul 2005, Paul Jackson wrote:
 
-> No wonder when -mm already contains:
-> 
-> /*
->  * Check if there is a request to freeze a process
->  */
-> static inline int freezing(struct task_struct *p)
-> {
->         return test_ti_thread_flag(p->thread_info, TIF_FREEZE);
-> }
+> Once we have a clear description of this syntax in the record,
+> I anticipate raising as an issue that this syntax does not have a
+> single integer or string token value per file (or at most, an array
+> or list of comparable integer values).
 
-Yes I told you to remove the TIF_FREEZE patch.
+The current patch only outputs the memory policy via
+smaps/emaps. However, this could be construet as a single string
+describing the policy.
 
+>From my earlier post:
+
+default                 -> Reset allocation policy to default
+prefer=<node>           -> Prefer allocation on specified node
+interleave={nodelist}   -> Interleaved allocation on the given nodes
+bind={zonelist}         -> Restrict allocation to the specified zones.
+
+Zones are specified by either only providing the node number or using the
+notation zone/name. I.e. 3/normal 1/high 0/dma etc.

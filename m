@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262944AbVG3F54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262945AbVG3GAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262944AbVG3F54 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 01:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbVG3F54
+	id S262945AbVG3GAo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 02:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbVG3GAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 01:57:56 -0400
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:695 "HELO
-	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262944AbVG3F5n convert rfc822-to-8bit (ORCPT
+	Sat, 30 Jul 2005 02:00:43 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:32700 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262945AbVG3GAl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 01:57:43 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
-Date: Sat, 30 Jul 2005 00:57:36 -0500
-User-Agent: KMail/1.8.1
-Cc: Andrew Morton <akpm@osdl.org>, mkrufky@m1k.net, frank.peters@comcast.net,
-       vojtech@suse.cz
-References: <20050624113404.198d254c.frank.peters@comcast.net> <42EAF885.40008@m1k.net> <20050729213724.01c61c26.akpm@osdl.org>
-In-Reply-To: <20050729213724.01c61c26.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200507300057.36921.dtor_core@ameritech.net>
+	Sat, 30 Jul 2005 02:00:41 -0400
+Date: Fri, 29 Jul 2005 23:00:26 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] String conversions for memory policy
+Message-Id: <20050729230026.1aa27e14.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0507291746000.8663@graphe.net>
+References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
+	<20050729152049.4b172d78.pj@sgi.com>
+	<Pine.LNX.4.62.0507291746000.8663@graphe.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 July 2005 23:37, Andrew Morton wrote:
-> 
-> The diff between 2.6.12-rc4-mm2 and 2.6.12-rc5-mm1 is enormous, but there
-> aren't any significant input driver changes there:
-> http://www.zip.com.au/~akpm/linux/patches/stuff/diffstat-2.6.12-rc4-mm2-2.6.12-rc5-mm1
-> 
+Oh - I should have mentioned this before - if you are displaying and
+parsing node lists (nodemask_t) then there are wrappers for these
+bitmap routines in linux/nodemask.h:
 
->From the original thread it seems that the usual suspects (input and
-ACPI updates) were not causing the failure, at leat not directly:
+ * int nodemask_scnprintf(buf, len, mask) Format nodemask for printing
+ * int nodemask_parse(ubuf, ulen, mask)   Parse ascii string as nodemask
+ * int nodelist_scnprintf(buf, len, mask) Format nodemask as list for printing
+ * int nodelist_parse(buf, map)           Parse ascii string as nodelist
 
-> >>I applied bk-input.patch directly to 2.6.12-rc5, and it did NOT break it 
-> >>this time.  Looks like either a different patch is the culprit, or the 
-> >>combination of this patch and another.
-> >>
-> >>    
-> >>
-> >
-> >Please try adding bk-acpi to the mix.
-> >
-> >  
-> >
-> Combination of both bk-input and bk-acpi applied to 2.6.12-rc5 still 
-> doesn't break it.  What next?
-
-Some other patch must be messing things up somehow...
+See nodemask.h for other such useful routines.
 
 -- 
-Dmitry
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

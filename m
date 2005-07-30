@@ -1,35 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVG3LmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263050AbVG3LxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVG3LmG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 07:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbVG3LmG
+	id S263050AbVG3LxN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 07:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbVG3LxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 07:42:06 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:50392 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261203AbVG3LmF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 07:42:05 -0400
-Date: Sat, 30 Jul 2005 13:41:55 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: David Weinehall <tao@acc.umu.se>
-cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
-Subject: Re: kernel guide to space (updated)
-In-Reply-To: <20050729201344.GF9841@khan.acc.umu.se>
-Message-ID: <Pine.LNX.4.61.0507301326520.5194@yvahk01.tjqt.qr>
-References: <20050728145353.GL11644@mellanox.co.il>
- <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr> <20050729175714.GE9841@khan.acc.umu.se>
- <Pine.LNX.4.61.0507292151220.17105@yvahk01.tjqt.qr> <20050729201344.GF9841@khan.acc.umu.se>
+	Sat, 30 Jul 2005 07:53:13 -0400
+Received: from [195.144.244.147] ([195.144.244.147]:52439 "EHLO
+	amanaus.varma-el.com") by vger.kernel.org with ESMTP
+	id S263050AbVG3LxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 07:53:02 -0400
+Message-ID: <42EB6A12.70100@varma-el.com>
+Date: Sat, 30 Jul 2005 15:52:50 +0400
+From: Andrey Volkov <avolkov@varma-el.com>
+Organization: Varma Electronics Oy
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: gregkh@suse.de, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Where is place of arch independed companion chips?
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Greg,
 
->Ehrm, yes, I'm perfectly aware of that.  Note the "for consistency" in
->that sentence.  If we add an extra space in front of the labels that
->have an indentation level of 0, we'd better do it with the labels that
->have an indentation level > 0 too.
+While I write driver for SM501 CC (which have graphics controller, USB
+MASTER/SLAVE, AC97, UART, SPI  and VIDEO CAPTURE onboard),
+I bumped with next ambiguity:
+Where is a place of this chip's Kconfig/drivers in
+kernel config/drivers tree? May be create new node in drivers subtree?
+Or put it under graphics node (since it's main function of this CC)?
 
-Labels at level > 0???
+AFAIK, this is not one such multifunctional monster in the world, so
+somebody bumped with this problem again in future.
 
-
+-- 
+Regards
+Andrey Volkov

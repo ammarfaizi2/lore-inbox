@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263022AbVG3JSC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263023AbVG3JXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263022AbVG3JSC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 05:18:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbVG3JSC
+	id S263023AbVG3JXI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 05:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbVG3JXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 05:18:02 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36875 "EHLO
+	Sat, 30 Jul 2005 05:23:08 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49418 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263022AbVG3JRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 05:17:50 -0400
-Date: Sat, 30 Jul 2005 10:17:44 +0100
+	id S263023AbVG3JWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 05:22:42 -0400
+Date: Sat, 30 Jul 2005 10:22:36 +0100
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+To: Mark Underwood <basicmark@yahoo.com>
+Cc: Pavel Machek <pavel@ucw.cz>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
        kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] ucb1x00: touchscreen cleanups
-Message-ID: <20050730101744.A9652@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>, rpurdie@rpsys.net,
-	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-References: <20050726074627.GA11975@elf.ucw.cz>
+Message-ID: <20050730102236.B9652@flint.arm.linux.org.uk>
+Mail-Followup-To: Mark Underwood <basicmark@yahoo.com>,
+	Pavel Machek <pavel@ucw.cz>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20050726074627.GA11975@elf.ucw.cz> <20050726080412.5504.qmail@web30313.mail.mud.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050726074627.GA11975@elf.ucw.cz>; from pavel@ucw.cz on Tue, Jul 26, 2005 at 09:46:27AM +0200
+In-Reply-To: <20050726080412.5504.qmail@web30313.mail.mud.yahoo.com>; from basicmark@yahoo.com on Tue, Jul 26, 2005 at 09:04:12AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 26, 2005 at 09:46:27AM +0200, Pavel Machek wrote:
-> @@ -55,20 +54,6 @@ struct ucb1x00_ts {
->  
->  static int adcsync;
->  
-> -static inline void ucb1x00_ts_evt_add(struct ucb1x00_ts *ts, u16 pressure, u16 x, u16 y)
-> -{
-> -	input_report_abs(&ts->idev, ABS_X, x);
-> -	input_report_abs(&ts->idev, ABS_Y, y);
-> -	input_report_abs(&ts->idev, ABS_PRESSURE, pressure);
-> -	input_sync(&ts->idev);
-> -}
-> -
-> -static inline void ucb1x00_ts_event_release(struct ucb1x00_ts *ts)
-> -{
-> -	input_report_abs(&ts->idev, ABS_PRESSURE, 0);
-> -	input_sync(&ts->idev);
-> -}
-> -
+On Tue, Jul 26, 2005 at 09:04:12AM +0100, Mark Underwood wrote:
+> I am in the process of porting Linux 2.6.11.5 to the
+> Helio PDA (MIPS R3912 based) and if I remember
+> correctly it is using a UCB1x00 (or Toshiba clone).
+> Please could you make sure your patches will work
+> across arch.
 
-Only one query: What's the reason for moving these?  I think keeping
-them makes the code more readable.
+Which UCB1x00 version?  There's about three of them - 1200, 1300 and
+1400.  The 1200 and 1300 are non-AC'97 devices, which are targetted
+by this driver.
+
+> Now I have my kernel up and running (well
+> mainly falling :-() my next task is to get write the
+> frame buffer driver and then look at the UCB1x00 as I
+> need it for sound and touch screen. So in a day or two
+> I will start to try to integrate your work into my
+> kernel.
+
+Note that I'm maintaining the code and will be publishing a new set
+of patches for it based upon Pavel's fixes.
 
 -- 
 Russell King

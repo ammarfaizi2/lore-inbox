@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbVG3Kan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVG3Kch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbVG3Kan (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 06:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263048AbVG3Kan
+	id S261189AbVG3Kch (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 06:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263050AbVG3Kcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 06:30:43 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4251 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263040AbVG3Kaj (ORCPT
+	Sat, 30 Jul 2005 06:32:36 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5531 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261189AbVG3KcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 06:30:39 -0400
-Date: Sat, 30 Jul 2005 12:30:34 +0200
+	Sat, 30 Jul 2005 06:32:18 -0400
+Date: Sat, 30 Jul 2005 12:32:07 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] S3 and sigwait (was Re: 2.6.13-rc3: swsusp works (TP 600X))
-Message-ID: <20050730103034.GC1942@elf.ucw.cz>
-References: <20050723003544.GC1988@elf.ucw.cz> <E1DyfYO-0006oI-00@skye.ra.phy.cam.ac.uk>
+To: zach@vmware.com
+Cc: akpm@osdl.org, chrisl@vmware.com, davej@codemonkey.org.uk, hpa@zytor.com,
+       linux-kernel@vger.kernel.org, pratap@vmware.com, Riley@Williams.Name
+Subject: Re: [PATCH] 2/6 i386 serialize-msr
+Message-ID: <20050730103207.GD1942@elf.ucw.cz>
+References: <200507300404.j6U44GSC005922@zach-dev.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1DyfYO-0006oI-00@skye.ra.phy.cam.ac.uk>
+In-Reply-To: <200507300404.j6U44GSC005922@zach-dev.vmware.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,35 +28,32 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >> One other glitch is that pdnsd (a nameserver caching daemon) has crashed
-> >> when the system wakes up from swsusp.  It also happens when waking up
-> >> from S3, which was working with 2.6.11.4 although not with 2.6.13-rc3.
-> >> Many people have said mysql also does not suspend well.  Is their use of
-> >> a named pipe or socket causing the problem?
-> 
-> > No idea, strace?
-> 
-> The upshot of stracing is in tthe Debian BTS <bugs.debian.org>
-> #319572.  Paul Rombouts, an author of pdnsd, reproduced the strace
-> crash and found the problem:
-> 
-> > Apparently strace causes sigwait to return EINTR, which is
-> > inconsistent with the documentation I could find on sigwait.
-> 
-> Which is true.  The sigwait man entry (Debian 'etch') says:
->        The !sigwait! function never returns an error.
-> 
-> His patch (available in the BTS and included below) fixed the problem
-> of strace or S3 sleep crashing pdnsd.
+> i386 arch cleanup.  Introduce the serialize macro to serialize processor state.
+> Why the microcode update needs it I am not quite sure, since wrmsr() is already
+> a serializing instruction, but it is a microcode update, so I will keep the
+> semantic the same, since this could be a timing workaround.  As far as I can
+> tell, this has always been there since the original microcode update
+> source.
 
-If you think it is a linux bug, can you produce small test case doing
-just the sigwait, and post it on l-k with big title "sigwait() breaks
-when straced, and on suspend"?
+Can we get better name, like "serialize_cpu()"?
+									Pavel
 
-That way it is going to get some attetion, and you'll get either
-documentation or kernel fixed.
-								Pavel
-
+> Signed-off-by: Zachary Amsden <zach@vmware.com>
+> 
+> Index: linux-2.6.13/arch/i386/kernel/microcode.c
+> ===================================================================
+> --- linux-2.6.13.orig/arch/i386/kernel/microcode.c	2005-07-29 11:14:33.000000000 -0700
+> +++ linux-2.6.13/arch/i386/kernel/microcode.c	2005-07-29 11:16:18.000000000 -0700
+> @@ -164,7 +164,8 @@
+>  	}
+>  
+>  	wrmsr(MSR_IA32_UCODE_REV, 0, 0);
+> -	__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
+> +	/* XXX needed? wrmsr should serialize unless a chip bug */
+> +	serialize(); 
+>  	/* get the current revision from MSR 0x8B */
+>  	rdmsr(MSR_IA32_UCODE_REV, val[0], uci->rev);
+>  	pr_debug("microcode: collect_cpu_info : sig=0x%x, pf=0x%x, rev=0x%x\n",
 
 -- 
 teflon -- maybe it is a trademark, but it should not be.

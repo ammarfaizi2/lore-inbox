@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbVG3OhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbVG3Oke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbVG3OhY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 10:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbVG3OhY
+	id S262974AbVG3Oke (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 10:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbVG3Okd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 10:37:24 -0400
-Received: from mx1.rowland.org ([192.131.102.7]:26642 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S262972AbVG3OhR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 10:37:17 -0400
-Date: Sat, 30 Jul 2005 10:37:12 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-cc: Pavel Machek <pavel@ucw.cz>, Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       <linux-pm@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [PATCH] swsusp: simpler calculation of number of
- pages in PBE list
-In-Reply-To: <200507301532.59576.rjw@sisk.pl>
-Message-ID: <Pine.LNX.4.44L0.0507301035400.31323-100000@netrider.rowland.org>
+	Sat, 30 Jul 2005 10:40:33 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:25768 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262974AbVG3Ok2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 10:40:28 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: iptables redirect is broken on bridged setup
+Date: Sat, 30 Jul 2005 17:40:13 +0300
+User-Agent: KMail/1.5.4
+Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       coreteam@netfilter.org, laforge@netfilter.org, jmorris@redhat.com
+References: <200507291209.37247.vda@ilport.com.ua> <20050729.123744.41648141.davem@davemloft.net>
+In-Reply-To: <20050729.123744.41648141.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200507301740.13239.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Jul 2005, Rafael J. Wysocki wrote:
-
-> Hi,
+On Friday 29 July 2005 22:37, David S. Miller wrote:
+> From: Denis Vlasenko <vda@ilport.com.ua>
+> Date: Fri, 29 Jul 2005 12:11:52 +0300
 > 
-> On Saturday, 30 of July 2005 15:13, Pavel Machek wrote:
-> > Hi!
+> > Linux 2.6.12
 > > 
-> > > > 	px >= n + x
-> > > > 
-> > > > or
-> > > > 
-> > > > 	(p-1)x >= n
-> > > > 
-> > > > or
-> > > > 
-> > > > 	x >= n / (p-1).
-> > > > 
-> > > > The obvious solution is
-> > > > 
-> > > > 	x = ceiling(n / (p-1)),
-> > > > 
-> > > > so calc_nr should return n + ceiling(n / (p-1)), which is exactly what 
-> > > > Michal's patch computes.
-> > > 
-> > > Nice. :-)
-> > > 
-> > > Could we perhaps add your proof to the Michal's patch as a comment,
-> > > for reference?
-> > 
-> > No, thanks. It only proves that it is equivalent to old code, but says
-> > nothing about quality of code, and we really do not want to keep old
-> > code around.
+> > Was running for months with this simple iptables rule:
+>  ...
+> > But now I need to bridge together two eth cards in this machine, and
+> > suddenly redirect is no longer works.
 > 
-> IMHO it rather says that the formula is OK and would save some time to
-> people reading the code for the _first_ time and trying to understand it,
-> but you decide. :-)
+> I think this is the regression we fixed up in 2.6.12.x, can
+> you try the latest 2.6.12.x stable release and see if it
+> clears up this behavioral change?
 
-It's up to you whether or not to include the proof as a comment -- you 
-have my permission and my sign-off:
+Just tested. 2.6.12.3 does not have this bug.
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
-Alan Stern
+Thanks!
+--
+vda
 

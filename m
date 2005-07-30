@@ -1,197 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262915AbVG3Fok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262940AbVG3FsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262915AbVG3Fok (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 01:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262940AbVG3Fok
+	id S262940AbVG3FsW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 01:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVG3FsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 01:44:40 -0400
-Received: from zorn.worldpath.net ([206.152.180.10]:14225 "EHLO
-	unix.worldpath.net") by vger.kernel.org with ESMTP id S262915AbVG3Fnh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 01:43:37 -0400
-Subject: [GIT PATCH] ACPI patches for 2.6.13
-From: Len Brown <len.brown@intel.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0507141648070.19183@g5.osdl.org>
-References: <d120d50005071312322b5d4bff@mail.gmail.com>
-	 <1121286258.4435.98.camel@mindpipe> <20050713134857.354e697c.akpm@osdl.org>
-	 <20050713211650.GA12127@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131639130.13193@twinlark.arctic.org>
-	 <20050714005106.GA16085@taniwha.stupidest.org>
-	 <Pine.LNX.4.63.0507131810430.13193@twinlark.arctic.org>
-	 <1121304825.4435.126.camel@mindpipe>
-	 <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org>
-	 <1121326938.3967.12.camel@laptopd505.fenrus.org>
-	 <20050714121340.GA1072@ucw.cz>
-	 <Pine.LNX.4.58.0507140933150.19183@g5.osdl.org>
-	 <1121383050.4535.73.camel@mindpipe>
-	 <Pine.LNX.4.58.0507141623490.19183@g5.osdl.org>
-	 <1121384499.4535.82.camel@mindpipe>
-	 <Pine.LNX.4.58.0507141648070.19183@g5.osdl.org>
-Content-Type: text/plain
-Date: Sat, 30 Jul 2005 01:49:20 -0400
-Message-Id: <1122702560.26850.9.camel@toshiba>
+	Sat, 30 Jul 2005 01:48:22 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:48325 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S262940AbVG3FsS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 01:48:18 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.13-rc4 use after free in class_device_attr_show
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 30 Jul 2005 15:47:39 +1000
+Message-ID: <18189.1122702459@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+2.6.13-rc4 + kdb, with lots of CONFIG_DEBUG options.  There is an
+intermittent use after free in class_device_attr_show.  Reboot with no
+changes and the problem does not always recur.
 
-Please pull from:
+Starting SSH daemon                                                   done
+Starting sound driver                                                 done
+Starting cupsd                                                        done
+loading ACPI modules () Starting powersaved                           done
+Try to get initial date and time via NTP from  ntp0                   done
+Starting network time protocol daemon (NTPD)                          done
+Starting kernel based NFS server                                      done
+Starting service automounter                                          done
+udev[21369]: Oops 8813272891392 [1]
 
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/lenb/to-linus/
+udev[21369]: Oops 8813272891392 [1]
+Modules linked in: md5 ipv6 usbcore raid0 md_mod nls_iso8859_1 nls_cp437 dm_mod sg st osst
 
-Sorry to be scrambling so late in the 2.6.13 release cycle --
-we'll do better with 2.6.14.
+Pid: 21369, CPU 0, comm:                 udev
+psr : 00001010081a6018 ifs : 8000000000000308 ip  : [<a0000001005807b0>]    Not tainted
+ip is at class_device_attr_show+0x50/0xa0
+unat: 0000000000000000 pfs : 0000000000000711 rsc : 0000000000000003
+rnat: a000000100abbae0 bsps: 00000000000001fb pr  : 0000000000159659
+ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c0270033f
+csd : 0000000000000000 ssd : 0000000000000000
+b0  : a00000010025def0 b6  : a00000010000e8c0 b7  : a000000100580760
+f6  : 1003e6db6db6db6db6db7 f7  : 1003e0000000000c1d6ca
+f8  : 1003e0000000000c1d6ca f9  : 1003e00000000054cdf86
+f10 : 000000000000000000000 f11 : 000000000000000000000
+r1  : a000000100ddf0a0 r2  : e000003072ab7288 r3  : e00000300301c498
+r8  : 0000000000000000 r9  : a000000100bfb5d0 r10 : e000003075b28000
+r11 : 0000000000c1d6ca r12 : e000003076ce7e20 r13 : e000003076ce0000
+r14 : a000000100580760 r15 : e000003075b28000 r16 : 6db6db6db6db6db7
+r17 : 000000002a66fc30 r18 : a0007fff62138000 r19 : e0000030030102c8
+r20 : e000003003010000 r21 : fffffffffffefcf1 r22 : 0000000000000010
+r23 : a000000100d46c50 r24 : a000000100bfb5d0 r25 : 00000000054cdf86
+r26 : a0000001009968c8 r27 : e000003003015208 r28 : 0000000000000000
+r29 : e000003003010000 r30 : a000000100d46c50 r31 : 0000000000000000
 
-thanks,
--Len
+Call Trace:
+ [<a000000100011f80>] show_stack+0x80/0xa0
+                                sp=e000003076ce79c0 bsp=e000003076ce10d8
+ [<a0000001000127f0>] show_regs+0x850/0x880
+                                sp=e000003076ce7b90 bsp=e000003076ce1078
+ [<a00000010003c000>] die+0x280/0x4a0
+                                sp=e000003076ce7ba0 bsp=e000003076ce1028
+ [<a000000100060ad0>] ia64_do_page_fault+0x650/0xba0
+                                sp=e000003076ce7ba0 bsp=e000003076ce0fb8
+ [<a00000010000b6c0>] ia64_leave_kernel+0x0/0x290
+                                sp=e000003076ce7c50 bsp=e000003076ce0fb8
+ [<a0000001005807b0>] class_device_attr_show+0x50/0xa0
+                                sp=e000003076ce7e20 bsp=e000003076ce0f78
+ [<a00000010025def0>] sysfs_read_file+0x2b0/0x360
+                                sp=e000003076ce7e20 bsp=e000003076ce0f08
+ [<a000000100198a40>] vfs_read+0x1c0/0x360
+                                sp=e000003076ce7e20 bsp=e000003076ce0eb0
+ [<a000000100198d80>] sys_read+0x80/0xe0
+                                sp=e000003076ce7e20 bsp=e000003076ce0e38
+ [<a00000010000b520>] ia64_ret_from_syscall+0x0/0x20
+                                sp=e000003076ce7e30 bsp=e000003076ce0e38
+kdb> id class_device_attr_show
+0xa000000100580760 class_device_attr_show[MII]       alloc r36=ar.pfs,8,6,0
+0xa000000100580766 class_device_attr_show+0x6            mov r8=r0;;
+0xa00000010058076c class_device_attr_show+0xc            adds r2=24,r33
 
-p.s.
-Latest ACPI plain patch, including stuff waiting for 2.6.14 is available
-here:
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.12/
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.12/broken-out/
+0xa000000100580770 class_device_attr_show+0x10[MMI]       mov r37=r1
+0xa000000100580776 class_device_attr_show+0x16            mov r39=r34
+0xa00000010058077c class_device_attr_show+0x1c            adds r38=-16,r32
 
+0xa000000100580780 class_device_attr_show+0x20[MII]       nop.m 0x0
+0xa000000100580786 class_device_attr_show+0x26            mov r35=b0;;
+0xa00000010058078c class_device_attr_show+0x2c            mov.i ar.pfs=r36
 
- arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c |    7 
- arch/i386/pci/acpi.c                        |    1 
- arch/i386/pci/common.c                      |    6 
- arch/i386/pci/irq.c                         |    1 
- arch/i386/pci/pci.h                         |    1 
- drivers/acpi/ec.c                           |  889
-++++++++++++++++++++++------
- drivers/acpi/pci_irq.c                      |   85 +-
- drivers/acpi/pci_link.c                     |  103 ++-
- drivers/acpi/processor_idle.c               |   31 
- drivers/net/sk98lin/skge.c                  |   63 +
- drivers/pcmcia/yenta_socket.c               |    9 
- include/acpi/acpi_drivers.h                 |    3 
- include/linux/acpi.h                        |    4 
- sound/pci/intel8x0.c                        |    6 
- 14 files changed, 978 insertions(+), 231 deletions(-)
+0xa000000100580790 class_device_attr_show+0x30[MII]       ld8 r33=[r2]
+0xa000000100580796 class_device_attr_show+0x36            mov b0=r35;;
+0xa00000010058079c class_device_attr_show+0x3c            cmp.eq p8,p9=0,r33
 
-commit d6ac1a7910d22626bc77e73db091e00b810715f4
-Merge: 577a4f8102d54b504cb22eb021b89e957e8df18f
-87bec66b9691522414862dd8d41e430b063735ef
-Author: Len Brown <len.brown@intel.com>
-Date:   Fri Jul 29 23:31:17 2005 -0400
+0xa0000001005807a0 class_device_attr_show+0x40[MBB]       nop.m 0x0
+0xa0000001005807a6 class_device_attr_show+0x46      (p09) br.cond.dpnt.few 0xa0000001005807b0 class_device_attr_show+0x50
+0xa0000001005807ac class_device_attr_show+0x4c            br.ret.sptk.many b0
 
-    /home/lenb/src/to-linus branch 'acpi-2.6.12'
+0xa0000001005807b0 class_device_attr_show+0x50[MMI]       ld8 r8=[r33],8;;
+0xa0000001005807b6 class_device_attr_show+0x56            ld8 r1=[r33],-8
+0xa0000001005807bc class_device_attr_show+0x5c            mov b7=r8
 
-commit 87bec66b9691522414862dd8d41e430b063735ef
-Author: David Shaohua Li <shaohua.li@intel.com>
-Date:   Wed Jul 27 23:02:00 2005 -0400
+0xa0000001005807c0 class_device_attr_show+0x60[MIB]       nop.m 0x0
+0xa0000001005807c6 class_device_attr_show+0x66            nop.i 0x0
+0xa0000001005807cc class_device_attr_show+0x6c            br.call.sptk.many b0=b7;;
 
-    [ACPI] suspend/resume ACPI PCI Interrupt Links
-    
-    Add reference count and disable ACPI PCI Interrupt Link
-    when no device still uses it.
-    
-    Warn when drivers have not released Link at suspend time.
-    
-    http://bugzilla.kernel.org/show_bug.cgi?id=3469
-    
-    Signed-off-by: David Shaohua Li <shaohua.li@intel.com>
-    Signed-off-by: Len Brown <len.brown@intel.com>
+0xa0000001005807d0 class_device_attr_show+0x70[MII]       mov r1=r37
+0xa0000001005807d6 class_device_attr_show+0x76            mov.i ar.pfs=r36
+0xa0000001005807dc class_device_attr_show+0x7c            mov b0=r35
 
-commit 68ac767686fd72f37a25bb4895fb4ab0080ba755
-Author: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Date:   Mon Apr 25 14:38:00 2005 -0400
-
-    [ACPI] delete boot-time printk()s from processor_idle.c
-    
-    http://bugzilla.kernel.org/show_bug.cgi?id=4401
-    
-    Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-    Signed-off-by: Len Brown <len.brown@intel.com>
-
-commit 90158b83204842c0108d744326868d91cc9c4dfd
-Author: Rafael J. Wysocki <rjwysocki@sisk.pl>
-Date:   Sun Jul 24 14:22:00 2005 -0400
-
-    [ACPI] fix resume issues on Asus L5D
-    
-    http://bugzilla.kernel.org/show_bug.cgi?id=4416
-    
-    Signed-off-by: Rafael J. Wysocki <rjwysocki@sisk.pl>
-    Signed-off-by: Len Brown <len.brown@intel.com>
-
-commit 4b31e77455b868b43e665edceb111c9a330c8e0f
-Author: Dominik Brodowski <linux@dominikbrodowski.net>
-Date:   Wed May 18 13:49:00 2005 -0400
-
-    [ACPI] Always set P-state on initialization
-    
-    Otherwise a platform that supports ACPI based cpufreq
-    and boots up at lowest possible speed could stay there
-    forever.  This because the governor may request max speed,
-    but the code doesn't update if there is no change in
-    speed, and it assumed the initial state of max speed.
-    
-    http://bugzilla.kernel.org/show_bug.cgi?id=4634
-    
-    Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
-    Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-    Signed-off-by: Len Brown <len.brown@intel.com>
-
-commit 45bea1555f5bf0cd5871b208b4b02d188f106861
-Author: Luming Yu <luming.yu@intel.com>
-Date:   Sat Jul 23 04:08:00 2005 -0400
-
-    [ACPI] Add "ec_polling" boot option
-    
-    EC burst mode benefits many machines, some of
-    them significantly.  However, our current
-    implementation fails on some machines such
-    as Rafael's Asus L5D.
-    
-    This patch restores the alternative EC polling code,
-    which can be enabled at boot time via "ec_polling"
-    
-    http://bugzilla.kernel.org/show_bug.cgi?id=4665
-    
-    Signed-off-by: Luming Yu <luming.yu@intel.com>
-    Signed-off-by: Len Brown <len.brown@intel.com>
-
-commit 335f16be5d917334f56ec9ef7ecf983476ac0563
-Author: David Shaohua Li <shaohua.li@intel.com>
-Date:   Wed Jun 22 18:37:00 2005 -0400
-
-    [ACPI] address boot-freeze with updated DMI blacklist for c-states
-    
-    http://bugzilla.kernel.org/show_bug.cgi?id=4763
-    
-    Signed-off-by: David Shaohua Li <shaohua.li@intel.com>
-    Signed-off-by: Len Brown <len.brown@intel.com>
-
-commit 0b6b2f08c24a65535cb18893ca27516389c5fc0f
-Author: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Date:   Fri Jul 29 16:00:13 2005 -0400
-
-    [ACPI] Fix memset arguments in acpi processor_idle.c
-    
-    http://bugzilla.kernel.org/show_bug.cgi?id=4954
-    
-    Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-    Signed-off-by: Len Brown <len.brown@intel.com>
-
-commit 4a7164023959040e687e51663dee67cff4d2b770
-Author: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Date:   Fri Jul 29 15:51:36 2005 -0400
-
-    [ACPI] Fix the regression with c1_default_handler on some systems
-    where C-states come from FADT.
-    
-    Thanks to Kevin Radloff for identifying the issue and
-    isolating it to exact line of code that is causing the issue.
-    
-    Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-    Signed-off-by: Len Brown <len.brown@intel.com>
-
+kdb> r s
+ r32: e00000b4793c37e8  r33: 6b6b6b6b6b6b6b6b  r34: e000003075b28000
+ r35: a00000010025def0  r36: 0000000000000711  r37: a000000100ddf0a0
+ r38: e00000b4793c37d8  r39: e000003075b28000
+kdb> mds 0xe000003072ab7288
+0xe000003072ab7288 6b6b6b6b6b6b6b6b   kkkkkkkk
+0xe000003072ab7290 6b6b6b6b6b6b6b6b   kkkkkkkk
+0xe000003072ab7298 6b6b6b6b6b6b6b6b   kkkkkkkk
+0xe000003072ab72a0 6b6b6b6b6b6b6b6b   kkkkkkkk
+0xe000003072ab72a8 a56b6b6b6b6b6b6b   kkkkkkk.
+0xe000003072ab72b0 5a2cf071   q.,Z....
+0xe000003072ab72b8 a000000100459640 linvfs_follow_link+0x1e0
+0xe000003072ab72c0 5a2cf071   q.,Z....
+[<a000000000010640>] __kernel_syscall_via_break+0x0/
+                                sp=e000003076ce8000 bsp=e000003076ce0e38
 
 

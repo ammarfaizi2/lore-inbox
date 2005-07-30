@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVG3P7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262992AbVG3QBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbVG3P7H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 11:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbVG3P7H
+	id S262992AbVG3QBg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 12:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbVG3QBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 11:59:07 -0400
-Received: from web53901.mail.yahoo.com ([206.190.36.211]:56207 "HELO
-	web53901.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262735AbVG3P7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 11:59:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=iZRvbdHOCcpTHPqWUgSqcWvcwRiixmpCmRI89lWASrEWTjNKwa7XysGwUzjfGFb2vZ40BLhl7eoXniFTquIdu+1388OQBKoy0KBbLk3PpADQmqtXhSan54hy7yv2LzEe5SSHPjY5IipqkeMVD+hstdTJuZvpGO7LLZzC9bRFJy8=  ;
-Message-ID: <20050730155902.54885.qmail@web53901.mail.yahoo.com>
-Date: Sat, 30 Jul 2005 08:59:02 -0700 (PDT)
-From: <gan_xiao_jun@yahoo.com>
-Subject: about "SIGRT_0 (Unknown signal 32)"
-To: linux-kernel@vger.kernel.org
+	Sat, 30 Jul 2005 12:01:35 -0400
+Received: from 69.36.162.216.west-datacenter.net ([69.36.162.216]:35296 "EHLO
+	schau.com") by vger.kernel.org with ESMTP id S262992AbVG3QBd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 12:01:33 -0400
+Message-ID: <42EBA482.2040006@schau.com>
+Date: Sat, 30 Jul 2005 18:02:10 +0200
+From: Brian Schau <brian@schau.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Wireless Security Lock driver.
+References: <42EB940E.5000008@schau.com> <42EB9650.8010305@m1k.net> <42EB99D6.1020907@schau.com> <Pine.LNX.4.61.0507300956340.29844@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.61.0507300956340.29844@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+*Grrr* - it's the mailer (I'm using Mozilla Thunderbird).   I don't
+know why it has chosen to fold those two lines.
 
-I am trace the reason of a segment fault.
-I found it is created by a readdir loop by add fprintf
-before&after it.
-I use strace and get following information:
-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-write(3,
-"\3\0\0\0\0\0\0\0\275\4\0\0\0\0\0\0\f\0\0\0\0\0\0\0\275"...,
-196) = 196
-close(3)                                = 0
-write(15,
-"\300\\\27A\2\0\0\0\0\0\0\0Hx\2@\0\0\0@`\2\0@\0\320\1@\320"...,
-148) = 148
-rt_sigprocmask(SIG_SETMASK, NULL, [32], 8) = 0
-rt_sigsuspend([] <unfinished ...)                   
---- SIGRT_0 (Unknown signal 32) ---
-<... rt_sigsuspend resumed> )           = 32
-sigreturn()                             = -1 EINTR
-(Interrupted system call)
-wait4(355, NULL, __WCLONE, NULL)        = 355
-munmap(0x40a2f000, 4096)                = 0
-_exit(0)                                = ?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-I am not sure if the segment fault related with
-Unknown signal 32. What is the meaning of it?
-What does rt_sigsuspend do in these lines?
+The section looks like:
 
-Thanks for any comment.
-gan
- 
++	struct usb_wsl *wsl=urb->context;
++	int id=0, retval;
++
++	switch (urb->status) {
++	case -ECONNRESET:
 
+/brian
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Zwane Mwaikambo wrote:
+> On Sat, 30 Jul 2005, Brian Schau wrote:
+> 
+> 
+>>Hi Michael (and others),
+>>
+>>
+>>Thanks for the info.   Well, the reason why I didn't inline the patch
+>>was due to the size of it - in terms of lines.   However, here it is:
+> 
+> 
+>>+static void wsl_irq_in(struct urb *urb, struct pt_regs *regs)
+>>+{
+>>+	struct usb_wsl *wsl=urb->context;
+>>+	int id=0, retval;
+>>+	+	switch (urb->status) { <==========
+>>+	case -ECONNRESET:
+> 
+> 
+> There is something wrong with your patch or mailer.
+> 
+> 

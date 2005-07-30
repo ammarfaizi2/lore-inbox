@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263092AbVG3SQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbVG3SSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263092AbVG3SQM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 14:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbVG3SNr
+	id S263100AbVG3SSm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 14:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbVG3SQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 14:13:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11969 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263096AbVG3SNA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 14:13:00 -0400
-Date: Sat, 30 Jul 2005 11:08:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-Message-Id: <20050730110800.0db305f1.akpm@osdl.org>
-In-Reply-To: <20050730165202.GI5590@stusta.de>
-References: <20050730165202.GI5590@stusta.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 30 Jul 2005 14:16:16 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52899 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263096AbVG3SOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 14:14:05 -0400
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+From: Lee Revell <rlrevell@joe-job.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0507301216370.29844@montezuma.fsmlabs.com>
+References: <20050730004924.087a7630.Ballarin.Marc@gmx.de>
+	 <1122678943.9381.44.camel@mindpipe>
+	 <20050730120645.77a33a34.Ballarin.Marc@gmx.de>
+	 <1122746718.14769.4.camel@mindpipe>
+	 <Pine.LNX.4.61.0507301216370.29844@montezuma.fsmlabs.com>
+Content-Type: text/plain
+Date: Sat, 30 Jul 2005 14:14:02 -0400
+Message-Id: <1122747242.14769.8.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
-> Currently, using an undeclared function gives a compile warning, but it 
-> can lead to a link or even a runtime error.
+On Sat, 2005-07-30 at 12:18 -0600, Zwane Mwaikambo wrote:
+> On Sat, 30 Jul 2005, Lee Revell wrote:
 > 
-> With -Werror-implicit-function-declaration, we are getting an immediate 
-> compile error instead.
+> > So it looks like artsd wastes way more power DMAing a bunch of silent
+> > pages to the sound card than HZ=1000.
+> > 
+> > There's nothing the ALSA layer can do about this, it's a KDE bug.
+> > 
+> > I think this is a good argument for leaving HZ at 1000 until some of
+> > these userspace bugs are fixed.
 > 
-> This patch also removes some unneeded spaces between two tabs in the 
-> following line.
+> It's already 'fixed' just set artsd to release the sound device after some 
+> idle time. It's in the "Auto-Suspend" seection of the KDE sound system 
+> control module.
 > 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.13-rc3-mm3-full/Makefile.old	2005-07-30 13:55:32.000000000 +0200
-> +++ linux-2.6.13-rc3-mm3-full/Makefile	2005-07-30 13:55:56.000000000 +0200
-> @@ -351,7 +351,8 @@
->  CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
->  
->  CFLAGS 		:= -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-> -	  	   -fno-strict-aliasing -fno-common \
-> +		   -Werror-implicit-function-declaration \
-> +		   -fno-strict-aliasing -fno-common \
->  		   -ffreestanding
->  AFLAGS		:= -D__ASSEMBLY__
->  
 
-heh.  Nice idea, but if I merge this I'll have tons of monkey work to do
-to get ppc64, ia64 and others compiling :(
+It's useless if not enabled by default.
 
-umm, so what to do?  I'm inclined to just slam it in post-2.6.13 then take
-a week off or something.
+Lee
+

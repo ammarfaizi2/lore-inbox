@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbVG3C3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262718AbVG3Cjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbVG3C3K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 22:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVG3C3K
+	id S262718AbVG3Cjj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 22:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbVG3Cjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 22:29:10 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:14734 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S262714AbVG3C3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 22:29:09 -0400
-From: Grant Coady <lkml@dodo.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Gaston, Jason D" <jason.d.gaston@intel.com>, mj@ucw.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-Date: Sat, 30 Jul 2005 12:28:54 +1000
-Organization: www.scatter.mine.nu
-Reply-To: lkml@dodo.com.au
-Message-ID: <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com>
-References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com>
-In-Reply-To: <42EAABD1.8050903@pobox.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Fri, 29 Jul 2005 22:39:39 -0400
+Received: from fsmlabs.com ([168.103.115.128]:65487 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262718AbVG3Cji (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 22:39:38 -0400
+Date: Fri, 29 Jul 2005 20:44:48 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: mkrufky@m1k.net, frank.peters@comcast.net, vojtech@suse.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
+In-Reply-To: <20050728225433.6dbfecbe.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0507292043210.14714@montezuma.fsmlabs.com>
+References: <20050624113404.198d254c.frank.peters@comcast.net>
+ <42BC306A.1030904@m1k.net> <20050624125957.238204a4.frank.peters@comcast.net>
+ <42BC3EFE.5090302@m1k.net> <20050728222838.64517cc9.akpm@osdl.org>
+ <42E9C245.6050205@m1k.net> <20050728225433.6dbfecbe.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jul 2005 18:21:05 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
->
->[speaking to the audience]  I wouldn't mind if someone did a pass 
->through pci_ids.h and removed all the constants that are not being used. 
+On Thu, 28 Jul 2005, Andrew Morton wrote:
 
-Only these seem not referenced by source:
-PCI_CLASS_SYSTEM_PCI_HOTPLUG
-PCI_DEVICE_ID_CYRIX_PCI_MASTER
-PCI_DEVICE_ID_HP_PCI_LBA
-PCI_DEVICE_ID_NP_PCI_FDDI
-PCI_DEVICE_ID_UPCI_RM3_4PORT
-PCI_DEVICE_ID_UPCI_RM3_8PORT
+> Michael Krufky <mkrufky@m1k.net> wrote:
+> >
+> >  Sadly, I must report that yes, the problem still intermittently occurs 
+> >  in 2.6.13-rc4 :-(  I'm the one that tested on the Shuttle FT61 
+> >  Motherboard.  Never has a problem in windows and never in 2.6.11 and 
+> >  earlier.
+> > 
+> >  I first noticed this problem sometime during 2.6.12-rc series.
+> 
+> Sigh.  I think it would help if you could generate a new report, please.
+> 
+> We need a super-easy way for people to do bisection searching.
 
-Source macros refer to:
-  BROOKTREE	sound/pci/bt87x.c
-  YAMAHA	sound/oss/ymfpci.c
-
-6 from 2329 entries hardly worth it?
-
-Grant.
-
+ketchup is extremely handy for narrowing it down to a release, you then 
+pray that the bug is in the -mm tree first so that it's easier to check 
+all the patches individually ;)

@@ -1,77 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262959AbVG3Nnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262964AbVG3Nti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262959AbVG3Nnr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 09:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbVG3Nnr
+	id S262964AbVG3Nti (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 09:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbVG3Nti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 09:43:47 -0400
-Received: from 213-239-212-8.clients.your-server.de ([213.239.212.8]:7404 "EHLO
-	live1.axiros.com") by vger.kernel.org with ESMTP id S262959AbVG3Nnq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 09:43:46 -0400
-In-Reply-To: <Pine.LNX.4.61.0507290929420.8400@tm8103.perex-int.cz>
-References: <Pine.LNX.4.61.0507281546040.8458@tm8103.perex-int.cz> <20050728102525.234e6511.akpm@osdl.org> <Pine.LNX.4.61.0507290929420.8400@tm8103.perex-int.cz>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-2-542349396"
-Message-Id: <3442015A-4821-45DA-ACD4-16AAD9DC3268@axiros.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Mailing List Kernel linux-kernel 
-	<linux-kernel@vger.kernel.org>,
-       tiwai@suse.de
+	Sat, 30 Jul 2005 09:49:38 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:29409 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S262964AbVG3Nth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 09:49:37 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: karim@opersys.com
+Subject: Re: Average instruction length in x86-built kernel?
+Date: Sat, 30 Jul 2005 15:49:26 +0200
+User-Agent: KMail/1.7.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <42EAA05F.4000704@opersys.com>
+In-Reply-To: <42EAA05F.4000704@opersys.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2132518.cAhaKmWGy9";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-From: Daniel Egger <de@axiros.com>
-Subject: Re: [ALSA PATCH] 1.0.9b+
-Date: Sat, 30 Jul 2005 15:42:33 +0200
-To: Jaroslav Kysela <perex@suse.cz>
-X-Pgp-Agent: GPGMail 1.1.1 (Tiger)
-X-Mailer: Apple Mail (2.733)
+Message-Id: <200507301549.32528.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---Apple-Mail-2-542349396
+--nextPart2132518.cAhaKmWGy9
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Content-Disposition: inline
 
-On 29.07.2005, at 09:39, Jaroslav Kysela wrote:
+Hi Karim,
 
-> Note that most of lines are from new Sparc and ARM drivers. Other  
-> changes
-> are mostly small bugfixes, cleanups and new hardware ID additions.  
-> The all
-> changes goes through all ALSA developers (our CVS server sends us  
-> whole
-> diffs back), so all of them review/verify new code and can fix it  
-> ASAP. It
-> works quite well.
+On Friday 29 July 2005 23:32, Karim Yaghmour wrote:
+> Googling around, I can find references claiming that the average
+> instruction length on x86 is anywhere from 2.7 to 3.5 bytes, but I
+> can't find anything studying Linux specifically.
 
-FWIW the current ALSA patch against 2.6.12 works much better than
-the original version for my Asus W3V with Intel HDA ALC880 in the sense
-that there's a possibility to prevent crashing the kernel when loading
-the module. However apart from the ID fixes this involves disabling the
-autodetection code and hardcoding the correct type in the realtek code.
+This is not that hard to find out yourself:
 
-As it stands the code seems to be really buggy and I'd love to test the
-driver after someone wiser than me in this area reviewed and fixed the
-code.
+Just study the output od objdump -d and average the differences
+of the first hex number in a line printed, which are followed by a ":"
 
-Servus,
-       Daniel
+e.g.
 
 
---Apple-Mail-2-542349396
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
+scripts/kconfig/mconf.o:     file format elf32-i386
+
+Disassembly of section .text:
+
+00000000 <init_wsize>:
+       0:	83 ec 1c             	sub    $0x1c,%esp
+       3:	8d 44 24 10          	lea    0x10(%esp),%eax
+       7:	89 44 24 08          	mov    %eax,0x8(%esp)
+
+so avg(3-7, 3-0) = 2.5
+
+and so on...
+
+
+Happy analyzing!
+
+
+Regards
+
+Ingo Oeser
+
+
+--nextPart2132518.cAhaKmWGy9
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFC64PJchlzsq9KoIYRArktAJ4tjvoHgeMHDfZkuQOTUc5hxSXLNACgrJIP
-SVhHeGkfcldjGUmHObtymNw=
-=goK4
+iD8DBQBC64VsU56oYWuOrkARAiZ+AJ9TQ3UyB4ZB6WysiJmPR3yV4eIm4ACeMFK2
+mSTw/IX/wva5yRQscoMdgcs=
+=oUto
 -----END PGP SIGNATURE-----
 
---Apple-Mail-2-542349396--
+--nextPart2132518.cAhaKmWGy9--

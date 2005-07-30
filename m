@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263141AbVG3U0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263170AbVG3Ubb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263141AbVG3U0m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 16:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbVG3UYH
+	id S263170AbVG3Ubb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 16:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbVG3U2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 16:24:07 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:20194 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263141AbVG3UX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 16:23:56 -0400
-Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance
-	Initiator
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: itn780@yahoo.com, SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@lst.de>
-In-Reply-To: <20050730.125312.78734701.davem@davemloft.net>
-References: <429E15CD.2090202@yahoo.com> <1122744762.5055.10.camel@mulgrave>
-	 <20050730.125312.78734701.davem@davemloft.net>
-Content-Type: text/plain
-Date: Sat, 30 Jul 2005 15:23:20 -0500
-Message-Id: <1122755000.5055.31.camel@mulgrave>
+	Sat, 30 Jul 2005 16:28:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63244 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263161AbVG3U22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 16:28:28 -0400
+Date: Sat, 30 Jul 2005 21:28:20 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Mark Underwood <basicmark@yahoo.com>
+Cc: Pavel Machek <pavel@ucw.cz>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] ucb1x00: touchscreen cleanups
+Message-ID: <20050730212820.G26592@flint.arm.linux.org.uk>
+Mail-Followup-To: Mark Underwood <basicmark@yahoo.com>,
+	Pavel Machek <pavel@ucw.cz>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20050730102236.B9652@flint.arm.linux.org.uk> <20050730113350.62722.qmail@web30304.mail.mud.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050730113350.62722.qmail@web30304.mail.mud.yahoo.com>; from basicmark@yahoo.com on Sat, Jul 30, 2005 at 12:33:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-30 at 12:53 -0700, David S. Miller wrote:
-> From: James Bottomley <James.Bottomley@SteelEye.com>
-> Date: Sat, 30 Jul 2005 12:32:42 -0500
+On Sat, Jul 30, 2005 at 12:33:50PM +0100, Mark Underwood wrote:
+> > > Now I have my kernel up and running (well
+> > > mainly falling :-() my next task is to get write
+> > the
+> > > frame buffer driver and then look at the UCB1x00
+> > as I
+> > > need it for sound and touch screen. So in a day or
+> > two
+> > > I will start to try to integrate your work into my
+> > > kernel.
+> > 
+> > Note that I'm maintaining the code and will be
+> > publishing a new set
+> > of patches for it based upon Pavel's fixes.
 > 
-> > FIB has taken your netlink number, so I changed it to 32
-> 
-> MAX_LINKS is 32, so there is no way this reassignment would
-> work.
+> Thanks. I'll check them out then.
 
-Actually, I saw this and increased MAX_LINKS as well.  I was going to
-query all of this on the net-dev mailing list if we'd managed to get the
-code compileable.
+Since there appears to be some interest in these, I'll set about
+converting the audio bits to ALSA rather than Nico's SA11x0 audio
+driver.  I thought no one was using these chips anymore, and the
+driver was dead!
 
-> You have to pick something in the range 0 --> 32, and as is
-> no surprise, there are no numbers available :-)
-> 
-> Since ethertap has been deleted, 16-->31 could be made allocatable
-> once more, but I simply do not want to do that and have the flood
-> gates open up for folks allocating random netlink numbers.
-> 
-> Instead, we need to take one of those netlink numbers, and turn
-> it into a multiplexable layer that can support an arbitrary
-> number of sub-netlink types.  Said protocol would need some
-> shim header that just says the "sub-netlink" protocol number,
-> something as simple as just a "u32", this gets pulled off the
-> front of the netlink packet and then it's passed on down to the
-> real protocol.
+I've recently edited the mcp structure which may make things less
+awkward for others, and I'll continue moving in that direction
+with this driver.
 
-I'll let the iSCSI people try this ...
+You can get the updated patches at:
 
-Alternatively, if they don't fancy it, I think the kobject_uevent
-mechanism (which already has a netlink number) looks like it might be
-amenable for use for most of the things they want to do.
+	http://zeniv.linux.org.uk/pub/people/rmk/ucb/
 
-James
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,60 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVG3L5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263054AbVG3MDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbVG3L5E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 07:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbVG3L5D
+	id S263054AbVG3MDY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 08:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbVG3MDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 07:57:03 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38846 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263054AbVG3L4e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 07:56:34 -0400
-Subject: Re: Slowdown with randomize_va_space in 2.6.12.2
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, pmarques@grupopie.com, davem@davemloft.net,
-       davej@redhat.com, Eric Lammerts <eric@lammerts.org>
-In-Reply-To: <20050729182029.68748c9f.akpm@osdl.org>
-References: <42CBE97C.2060208@grupopie.com>
-	 <20050706.125719.08321870.davem@davemloft.net>
-	 <20050706205315.GC27630@redhat.com> <20050706181220.3978d7f6.akpm@osdl.org>
-	 <1120718229.3198.8.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.58.0507292040530.1819@vivaldi.madbase.net>
-	 <20050729182029.68748c9f.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rb2aZYEQHJlQqozZkpQM"
-Organization: Red Hat, Inc.
-Date: Sat, 30 Jul 2005 07:55:28 -0400
-Message-Id: <1122724528.3388.12.camel@localhost.localdomain>
+	Sat, 30 Jul 2005 08:03:17 -0400
+Received: from p54AB5B7D.dip.t-dialin.net ([84.171.91.125]:33555 "HELO
+	p54AB5B7D.dip.t-dialin.net") by vger.kernel.org with SMTP
+	id S263060AbVG3MC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 08:02:28 -0400
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+Message-Id: <12063970777.114656127260@p54AB5B7D.dip.t-dialin.net>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Jimmy <hesitatingly@leonhardsen.com>
+Subject: Also available Levitra, Cialis, and Viagra.
+Date: Sat, 30 Jul 2005 14:00:06 +0200
+X-Mailer: cascadable
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-rb2aZYEQHJlQqozZkpQM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Reviving the sex lives or millions
+http://battered.fcke.com/ph/as/
 
 
-> It has the virtue of simplicity.  Arjan, were you planning on anything
-> fancier?
 
-not for 2.6.13; this was the plan
-for later I was going to turn it into a bitmask for the individual
-randomisations=20
 
---=-rb2aZYEQHJlQqozZkpQM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+An ounce of patience is worth a pound of brains.   
+The great aim of education is not knowledge but action.   
+A lady is one who never shows her underwear unintentionally.   
+What a searching preacher of self-command is the varying phenomenon of health. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC62qwpv2rCoFn+CIRAgudAJ0eXEBhLDdkCLBbGb1DFwyBBs+K6wCcDB9+
-P88dBDOaD631lcCAX9FQJUs=
-=cDaV
------END PGP SIGNATURE-----
-
---=-rb2aZYEQHJlQqozZkpQM--
 

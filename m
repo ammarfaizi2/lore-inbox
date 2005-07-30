@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262969AbVG3Of6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbVG3OhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262969AbVG3Of6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 10:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbVG3Of6
+	id S262972AbVG3OhY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 10:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbVG3OhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 10:35:58 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30920 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262969AbVG3Of4 (ORCPT
+	Sat, 30 Jul 2005 10:37:24 -0400
+Received: from mx1.rowland.org ([192.131.102.7]:26642 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S262972AbVG3OhR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 10:35:56 -0400
-Date: Sat, 30 Jul 2005 16:35:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk
-Subject: [patch] fix warning in sa1100fb.c
-Message-ID: <20050730143551.GI1830@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 30 Jul 2005 10:37:17 -0400
+Date: Sat, 30 Jul 2005 10:37:12 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: Pavel Machek <pavel@ucw.cz>, Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       <linux-pm@lists.osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [PATCH] swsusp: simpler calculation of number of
+ pages in PBE list
+In-Reply-To: <200507301532.59576.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.44L0.0507301035400.31323-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix compile-time warning in sa1100fb.c
+On Sat, 30 Jul 2005, Rafael J. Wysocki wrote:
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+> Hi,
+> 
+> On Saturday, 30 of July 2005 15:13, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > 	px >= n + x
+> > > > 
+> > > > or
+> > > > 
+> > > > 	(p-1)x >= n
+> > > > 
+> > > > or
+> > > > 
+> > > > 	x >= n / (p-1).
+> > > > 
+> > > > The obvious solution is
+> > > > 
+> > > > 	x = ceiling(n / (p-1)),
+> > > > 
+> > > > so calc_nr should return n + ceiling(n / (p-1)), which is exactly what 
+> > > > Michal's patch computes.
+> > > 
+> > > Nice. :-)
+> > > 
+> > > Could we perhaps add your proof to the Michal's patch as a comment,
+> > > for reference?
+> > 
+> > No, thanks. It only proves that it is equivalent to old code, but says
+> > nothing about quality of code, and we really do not want to keep old
+> > code around.
+> 
+> IMHO it rather says that the formula is OK and would save some time to
+> people reading the code for the _first_ time and trying to understand it,
+> but you decide. :-)
 
----
-commit 00fe4ed421624db9aae1bdcc80458d831422d9f9
-tree 042157c712919bdc4006b59093181c60c2013af1
-parent 785338d9bb750962ce99e672177f604853a69f97
-author <pavel@amd.(none)> Sat, 30 Jul 2005 16:35:06 +0200
-committer <pavel@amd.(none)> Sat, 30 Jul 2005 16:35:06 +0200
+It's up to you whether or not to include the proof as a comment -- you 
+have my permission and my sign-off:
 
- drivers/video/sa1100fb.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-diff --git a/drivers/video/sa1100fb.c b/drivers/video/sa1100fb.c
---- a/drivers/video/sa1100fb.c
-+++ b/drivers/video/sa1100fb.c
-@@ -592,6 +592,7 @@ sa1100fb_setcolreg(u_int regno, u_int re
- 	return ret;
- }
- 
-+#ifdef CONFIG_CPU_FREQ
- /*
-  *  sa1100fb_display_dma_period()
-  *    Calculate the minimum period (in picoseconds) between two DMA
-@@ -606,6 +607,7 @@ static unsigned int sa1100fb_display_dma
- 	 */
- 	return var->pixclock * 8 * 16 / var->bits_per_pixel;
- }
-+#endif
- 
- /*
-  *  sa1100fb_check_var():
+Alan Stern
 
--- 
-if you have sharp zaurus hardware you don't need... you know my address

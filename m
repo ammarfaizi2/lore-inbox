@@ -1,301 +1,438 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262866AbVG3EIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbVG3ELK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbVG3EIk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 00:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262871AbVG3EGu
+	id S262916AbVG3ELK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 00:11:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVG3EIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 00:06:50 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:42509 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262827AbVG3EGn
+	Sat, 30 Jul 2005 00:08:50 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:2308 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262913AbVG3EGq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 00:06:43 -0400
+	Sat, 30 Jul 2005 00:06:46 -0400
 Date: Fri, 29 Jul 2005 21:04:16 -0700
 From: zach@vmware.com
-Message-Id: <200507300404.j6U44GSM005927@zach-dev.vmware.com>
+Message-Id: <200507300404.j6U44Gvk005919@zach-dev.vmware.com>
 To: akpm@osdl.org, chrisl@vmware.com, davej@codemonkey.org.uk, hpa@zytor.com,
        linux-kernel@vger.kernel.org, pratap@vmware.com, Riley@Williams.Name,
        zach@vmware.com
-Subject: [PATCH] 3/6 i386 dt-inline-cleanup
-X-OriginalArrivalTime: 30 Jul 2005 04:05:16.0328 (UTC) FILETIME=[E47F7280:01C594BB]
+Subject: [PATCH] 1/6 i386 cpu-inline-cleanup
+X-OriginalArrivalTime: 30 Jul 2005 04:05:16.0390 (UTC) FILETIME=[E488E860:01C594BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i386 inline assembler cleanup.
+i386 Inline asm cleanup.  Use cr/dr accessor functions.
 
-This change encapsulates descriptor and task register management.  Also,
-it is possible to improve assembler generation in two cases; savesegment
-may store the value in a register instead of a memory location, which
-allows GCC to optimize stack variables into registers, and MOV MEM, SEG
-is always a 16-bit write to memory, making the casting in math-emu
-unnecessary.
+Also, a potential bugfix.  Also, some CR accessors really should be volatile.
+Reads from CR0 (numeric state may change in an exception handler), writes
+to CR4 (flipping CR4.TSD) and reads from CR2 (page fault) prevent instruction
+re-ordering.  I did not add memory clobber to CR3 / CR4 / CR0 updates, as it
+was not there to begin with, and in no case should kernel memory be clobbered,
+except when doing a TLB flush, which already has memory clobber.
 
-Diffs against: 2.6.13-rc4 + cpu-inline-cleanup
+I noticed that page invalidation does not have a memory clobber.  I can't find
+a bug as a result, but there is definitely a potential for a bug here:
+
+#define __flush_tlb_single(addr) \
+	__asm__ __volatile__("invlpg %0": :"m" (*(char *) addr))
+
+Diffs against: linux-2.6.13-rc4
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.13/arch/i386/kernel/doublefault.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/doublefault.c	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/doublefault.c	2005-07-29 11:49:18.000000000 -0700
-@@ -20,7 +20,7 @@
- 	struct Xgt_desc_struct gdt_desc = {0, 0};
- 	unsigned long gdt, tss;
- 
--	__asm__ __volatile__("sgdt %0": "=m" (gdt_desc): :"memory");
-+	store_gdt(&gdt_desc);
- 	gdt = gdt_desc.address;
- 
- 	printk("double fault, gdt at %08lx [%d bytes]\n", gdt, gdt_desc.size);
-Index: linux-2.6.13/arch/i386/kernel/efi.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/efi.c	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/efi.c	2005-07-29 11:49:18.000000000 -0700
-@@ -104,8 +104,7 @@
- 	local_flush_tlb();
- 
- 	cpu_gdt_descr[0].address = __pa(cpu_gdt_descr[0].address);
--	__asm__ __volatile__("lgdt %0":"=m"
--			    (*(struct Xgt_desc_struct *) __pa(&cpu_gdt_descr[0])));
-+	load_gdt((struct Xgt_desc_struct *) __pa(&cpu_gdt_descr[0]));
- }
- 
- static void efi_call_phys_epilog(void)
-@@ -114,7 +113,7 @@
- 
- 	cpu_gdt_descr[0].address =
- 		(unsigned long) __va(cpu_gdt_descr[0].address);
--	__asm__ __volatile__("lgdt %0":"=m"(cpu_gdt_descr));
-+	load_gdt(&cpu_gdt_descr);
- 	cr4 = read_cr4();
- 
- 	if (cr4 & X86_CR4_PSE) {
-Index: linux-2.6.13/arch/i386/kernel/reboot.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/reboot.c	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/reboot.c	2005-07-29 11:49:18.000000000 -0700
-@@ -13,6 +13,7 @@
- #include <linux/dmi.h>
- #include <asm/uaccess.h>
- #include <asm/apic.h>
-+#include <asm/desc.h>
- #include "mach_reboot.h"
- #include <linux/reboot_fixups.h>
- 
-@@ -242,13 +243,13 @@
- 
- 	/* Set up the IDT for real mode. */
- 
--	__asm__ __volatile__ ("lidt %0" : : "m" (real_mode_idt));
-+	load_idt(&real_mode_idt);
- 
- 	/* Set up a GDT from which we can load segment descriptors for real
- 	   mode.  The GDT is not used in real mode; it is just needed here to
- 	   prepare the descriptors. */
- 
--	__asm__ __volatile__ ("lgdt %0" : : "m" (real_mode_gdt));
-+	load_gdt(&real_mode_gdt);
- 
- 	/* Load the data segment registers, and thus the descriptors ready for
- 	   real mode.  The base address of each segment is 0x100, 16 times the
-@@ -316,7 +317,7 @@
- 	if (!reboot_thru_bios) {
- 		if (efi_enabled) {
- 			efi.reset_system(EFI_RESET_COLD, EFI_SUCCESS, 0, NULL);
--			__asm__ __volatile__("lidt %0": :"m" (no_idt));
-+			load_idt(&no_idt);
- 			__asm__ __volatile__("int3");
- 		}
- 		/* rebooting needs to touch the page at absolute addr 0 */
-@@ -325,7 +326,7 @@
- 			mach_reboot_fixups(); /* for board specific fixups */
- 			mach_reboot();
- 			/* That didn't work - force a triple fault.. */
--			__asm__ __volatile__("lidt %0": :"m" (no_idt));
-+			load_idt(&no_idt);
- 			__asm__ __volatile__("int3");
- 		}
- 	}
-Index: linux-2.6.13/arch/i386/kernel/signal.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/signal.c	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/signal.c	2005-07-29 11:49:18.000000000 -0700
-@@ -278,9 +278,9 @@
- 	int tmp, err = 0;
- 
- 	tmp = 0;
--	__asm__("movl %%gs,%0" : "=r"(tmp): "0"(tmp));
-+	savesegment(gs, tmp);
- 	err |= __put_user(tmp, (unsigned int __user *)&sc->gs);
--	__asm__("movl %%fs,%0" : "=r"(tmp): "0"(tmp));
-+	savesegment(fs, tmp);
- 	err |= __put_user(tmp, (unsigned int __user *)&sc->fs);
- 
- 	err |= __put_user(regs->xes, (unsigned int __user *)&sc->es);
-Index: linux-2.6.13/arch/i386/kernel/traps.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/traps.c	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/traps.c	2005-07-29 11:49:18.000000000 -0700
-@@ -1006,7 +1006,7 @@
- 	 * it uses the read-only mapped virtual address.
- 	 */
- 	idt_descr.address = fix_to_virt(FIX_F00F_IDT);
--	__asm__ __volatile__("lidt %0" : : "m" (idt_descr));
-+	load_idt(&idt_descr);
- }
- #endif
- 
-Index: linux-2.6.13/arch/i386/kernel/vm86.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/vm86.c	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/vm86.c	2005-07-29 11:49:18.000000000 -0700
-@@ -294,8 +294,8 @@
-  */
- 	info->regs32->eax = 0;
- 	tsk->thread.saved_esp0 = tsk->thread.esp0;
--	asm volatile("mov %%fs,%0":"=m" (tsk->thread.saved_fs));
--	asm volatile("mov %%gs,%0":"=m" (tsk->thread.saved_gs));
-+	savesegment(fs, tsk->thread.saved_fs);
-+	savesegment(gs, tsk->thread.saved_gs);
- 
- 	tss = &per_cpu(init_tss, get_cpu());
- 	tsk->thread.esp0 = (unsigned long) &info->VM86_TSS_ESP0;
-Index: linux-2.6.13/arch/i386/kernel/cpu/common.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/cpu/common.c	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/cpu/common.c	2005-07-29 11:49:18.000000000 -0700
-@@ -613,8 +613,8 @@
- 	memcpy(thread->tls_array, &per_cpu(cpu_gdt_table, cpu),
- 		GDT_ENTRY_TLS_ENTRIES * 8);
- 
--	__asm__ __volatile__("lgdt %0" : : "m" (cpu_gdt_descr[cpu]));
--	__asm__ __volatile__("lidt %0" : : "m" (idt_descr));
-+	load_gdt(&cpu_gdt_descr[cpu]);
-+	load_idt(&idt_descr);
- 
- 	/*
- 	 * Delete NT
-Index: linux-2.6.13/arch/i386/math-emu/get_address.c
-===================================================================
---- linux-2.6.13.orig/arch/i386/math-emu/get_address.c	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/arch/i386/math-emu/get_address.c	2005-07-29 11:49:18.000000000 -0700
-@@ -155,7 +155,6 @@
- { 
-   struct desc_struct descriptor;
-   unsigned long base_address, limit, address, seg_top;
--  unsigned short selector;
- 
-   segment--;
- 
-@@ -173,17 +172,11 @@
-       /* fs and gs aren't used by the kernel, so they still have their
- 	 user-space values. */
-     case PREFIX_FS_-1:
--      /* The cast is needed here to get gcc 2.8.0 to use a 16 bit register
--	 in the assembler statement. */
--
--      __asm__("mov %%fs,%0":"=r" (selector));
--      addr->selector = selector;
-+      /* N.B. - movl %seg, mem is a 2 byte write regardless of prefix */
-+      savesegment(fs, addr->selector);
-       break;
-     case PREFIX_GS_-1:
--      /* The cast is needed here to get gcc 2.8.0 to use a 16 bit register
--	 in the assembler statement. */
--      __asm__("mov %%gs,%0":"=r" (selector));
--      addr->selector = selector;
-+      savesegment(gs, addr->selector);
-       break;
-     default:
-       addr->selector = PM_REG_(segment);
 Index: linux-2.6.13/arch/i386/power/cpu.c
 ===================================================================
---- linux-2.6.13.orig/arch/i386/power/cpu.c	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/arch/i386/power/cpu.c	2005-07-29 11:49:18.000000000 -0700
-@@ -42,17 +42,17 @@
- 	/*
- 	 * descriptor tables
- 	 */
--	asm volatile ("sgdt %0" : "=m" (ctxt->gdt_limit));
--	asm volatile ("sidt %0" : "=m" (ctxt->idt_limit));
--	asm volatile ("str %0"  : "=m" (ctxt->tr));
-+ 	store_gdt(&ctxt->gdt_limit);
-+ 	store_idt(&ctxt->idt_limit);
-+ 	store_tr(ctxt->tr);
- 
- 	/*
- 	 * segment registers
- 	 */
--	asm volatile ("movw %%es, %0" : "=m" (ctxt->es));
--	asm volatile ("movw %%fs, %0" : "=m" (ctxt->fs));
--	asm volatile ("movw %%gs, %0" : "=m" (ctxt->gs));
--	asm volatile ("movw %%ss, %0" : "=m" (ctxt->ss));
-+ 	savesegment(es, ctxt->es);
-+ 	savesegment(fs, ctxt->fs);
-+ 	savesegment(gs, ctxt->gs);
-+ 	savesegment(ss, ctxt->ss);
- 
+--- linux-2.6.13.orig/arch/i386/power/cpu.c	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/arch/i386/power/cpu.c	2005-07-29 11:15:36.000000000 -0700
+@@ -57,10 +57,10 @@
  	/*
  	 * control registers 
-@@ -118,16 +118,16 @@
+ 	 */
+-	asm volatile ("movl %%cr0, %0" : "=r" (ctxt->cr0));
+-	asm volatile ("movl %%cr2, %0" : "=r" (ctxt->cr2));
+-	asm volatile ("movl %%cr3, %0" : "=r" (ctxt->cr3));
+-	asm volatile ("movl %%cr4, %0" : "=r" (ctxt->cr4));
++	ctxt->cr0 = read_cr0();
++	ctxt->cr2 = read_cr2();
++	ctxt->cr3 = read_cr3();
++	ctxt->cr4 = read_cr4();
+ }
+ 
+ void save_processor_state(void)
+@@ -109,10 +109,10 @@
+ 	/*
+ 	 * control registers
+ 	 */
+-	asm volatile ("movl %0, %%cr4" :: "r" (ctxt->cr4));
+-	asm volatile ("movl %0, %%cr3" :: "r" (ctxt->cr3));
+-	asm volatile ("movl %0, %%cr2" :: "r" (ctxt->cr2));
+-	asm volatile ("movl %0, %%cr0" :: "r" (ctxt->cr0));
++	write_cr4(ctxt->cr4);
++	write_cr3(ctxt->cr3);
++	write_cr2(ctxt->cr2);
++	write_cr2(ctxt->cr0);
+ 
+ 	/*
  	 * now restore the descriptor tables to their proper values
- 	 * ltr is done i fix_processor_context().
+Index: linux-2.6.13/arch/i386/kernel/efi.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/kernel/efi.c	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/efi.c	2005-07-29 11:15:36.000000000 -0700
+@@ -79,7 +79,7 @@
+ 	 * directory. If I have PSE, I just need to duplicate one entry in
+ 	 * page directory.
  	 */
--	asm volatile ("lgdt %0" :: "m" (ctxt->gdt_limit));
--	asm volatile ("lidt %0" :: "m" (ctxt->idt_limit));
-+ 	load_gdt(&ctxt->gdt_limit);
-+ 	load_idt(&ctxt->idt_limit);
+-	__asm__ __volatile__("movl %%cr4, %0":"=r"(cr4));
++	cr4 = read_cr4();
+ 
+ 	if (cr4 & X86_CR4_PSE) {
+ 		efi_bak_pg_dir_pointer[0].pgd =
+@@ -115,7 +115,7 @@
+ 	cpu_gdt_descr[0].address =
+ 		(unsigned long) __va(cpu_gdt_descr[0].address);
+ 	__asm__ __volatile__("lgdt %0":"=m"(cpu_gdt_descr));
+-	__asm__ __volatile__("movl %%cr4, %0":"=r"(cr4));
++	cr4 = read_cr4();
+ 
+ 	if (cr4 & X86_CR4_PSE) {
+ 		swapper_pg_dir[pgd_index(0)].pgd =
+Index: linux-2.6.13/arch/i386/kernel/process.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/kernel/process.c	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/process.c	2005-07-29 11:15:36.000000000 -0700
+@@ -313,16 +313,12 @@
+ 	printk(" DS: %04x ES: %04x\n",
+ 		0xffff & regs->xds,0xffff & regs->xes);
+ 
+-	__asm__("movl %%cr0, %0": "=r" (cr0));
+-	__asm__("movl %%cr2, %0": "=r" (cr2));
+-	__asm__("movl %%cr3, %0": "=r" (cr3));
+-	/* This could fault if %cr4 does not exist */
+-	__asm__("1: movl %%cr4, %0		\n"
+-		"2:				\n"
+-		".section __ex_table,\"a\"	\n"
+-		".long 1b,2b			\n"
+-		".previous			\n"
+-		: "=r" (cr4): "0" (0));
++	cr0 = read_cr0();
++	cr2 = read_cr2();
++	cr3 = read_cr3();
++	if (current_cpu_data.x86 > 4) {
++		cr4 = read_cr4();
++	}
+ 	printk("CR0: %08lx CR2: %08lx CR3: %08lx CR4: %08lx\n", cr0, cr2, cr3, cr4);
+ 	show_trace(NULL, &regs->esp);
+ }
+Index: linux-2.6.13/arch/i386/kernel/smp.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/kernel/smp.c	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/smp.c	2005-07-29 11:15:36.000000000 -0700
+@@ -576,7 +576,7 @@
+ 	local_irq_disable();
+ 	disable_local_APIC();
+ 	if (cpu_data[smp_processor_id()].hlt_works_ok)
+-		for(;;) __asm__("hlt");
++		for(;;) halt();
+ 	for (;;);
+ }
+ 
+Index: linux-2.6.13/arch/i386/kernel/cpu/common.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/kernel/cpu/common.c	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/cpu/common.c	2005-07-29 11:15:36.000000000 -0700
+@@ -642,12 +642,12 @@
+ 	asm volatile ("xorl %eax, %eax; movl %eax, %fs; movl %eax, %gs");
+ 
+ 	/* Clear all 6 debug registers: */
+-
+-#define CD(register) set_debugreg(0, register)
+-
+-	CD(0); CD(1); CD(2); CD(3); /* no db4 and db5 */; CD(6); CD(7);
+-
+-#undef CD
++	set_debugreg(0, 0);
++	set_debugreg(0, 1);
++	set_debugreg(0, 2);
++	set_debugreg(0, 3);
++	set_debugreg(0, 6);
++	set_debugreg(0, 7);
  
  	/*
- 	 * segment registers
- 	 */
--	asm volatile ("movw %0, %%es" :: "r" (ctxt->es));
--	asm volatile ("movw %0, %%fs" :: "r" (ctxt->fs));
--	asm volatile ("movw %0, %%gs" :: "r" (ctxt->gs));
--	asm volatile ("movw %0, %%ss" :: "r" (ctxt->ss));
-+ 	loadsegment(es, ctxt->es);
-+ 	loadsegment(fs, ctxt->fs);
-+ 	loadsegment(gs, ctxt->gs);
-+ 	loadsegment(ss, ctxt->ss);
+ 	 * Force FPU initialization:
+Index: linux-2.6.13/arch/i386/kernel/cpu/cyrix.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/kernel/cpu/cyrix.c	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/cpu/cyrix.c	2005-07-29 11:15:36.000000000 -0700
+@@ -132,11 +132,7 @@
+ 	setCx86(CX86_CCR2, getCx86(CX86_CCR2) & ~0x04);
+ 	/* set 'Not Write-through' */
+ 	cr0 = 0x20000000;
+-	__asm__("movl %%cr0,%%eax\n\t"
+-		"orl %0,%%eax\n\t"
+-		"movl %%eax,%%cr0\n"
+-		: : "r" (cr0)
+-		:"ax");
++	write_cr0(read_cr0() | cr0);
+ 	/* CCR2 bit 2: lock NW bit and set WT1 */
+ 	setCx86(CX86_CCR2, getCx86(CX86_CCR2) | 0x14 );
+ }
+Index: linux-2.6.13/arch/i386/kernel/cpu/cpufreq/longhaul.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/kernel/cpu/cpufreq/longhaul.c	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/cpu/cpufreq/longhaul.c	2005-07-29 11:15:36.000000000 -0700
+@@ -64,8 +64,6 @@
+ #define dprintk(msg...) cpufreq_debug_printk(CPUFREQ_DEBUG_DRIVER, "longhaul", msg)
  
+ 
+-#define __hlt()     __asm__ __volatile__("hlt": : :"memory")
+-
+ /* Clock ratios multiplied by 10 */
+ static int clock_ratio[32];
+ static int eblcr_table[32];
+@@ -168,11 +166,9 @@
+ 	outb(0xFE,0x21);	/* TMR0 only */
+ 	outb(0xFF,0x80);	/* delay */
+ 
+-	local_irq_enable();
+-
+-	__hlt();
++	safe_halt();
+ 	wrmsrl(MSR_VIA_LONGHAUL, longhaul->val);
+-	__hlt();
++	halt();
+ 
+ 	local_irq_disable();
+ 
+@@ -251,9 +247,7 @@
+ 		bcr2.bits.CLOCKMUL = clock_ratio_index;
+ 		local_irq_disable();
+ 		wrmsrl (MSR_VIA_BCR2, bcr2.val);
+-		local_irq_enable();
+-
+-		__hlt();
++		safe_halt();
+ 
+ 		/* Disable software clock multiplier */
+ 		rdmsrl (MSR_VIA_BCR2, bcr2.val);
+Index: linux-2.6.13/arch/i386/mm/fault.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/mm/fault.c	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/arch/i386/mm/fault.c	2005-07-29 11:15:36.000000000 -0700
+@@ -222,7 +222,7 @@
+ 	siginfo_t info;
+ 
+ 	/* get the address */
+-	__asm__("movl %%cr2,%0":"=r" (address));
++        address = read_cr2();
+ 
+ 	if (notify_die(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
+ 					SIGSEGV) == NOTIFY_STOP)
+@@ -446,7 +446,7 @@
+ 	printk(" at virtual address %08lx\n",address);
+ 	printk(KERN_ALERT " printing eip:\n");
+ 	printk("%08lx\n", regs->eip);
+-	asm("movl %%cr3,%0":"=r" (page));
++	page = read_cr3();
+ 	page = ((unsigned long *) __va(page))[address >> 22];
+ 	printk(KERN_ALERT "*pde = %08lx\n", page);
  	/*
- 	 * sysenter MSRs
+@@ -523,7 +523,7 @@
+ 		pmd_t *pmd, *pmd_k;
+ 		pte_t *pte_k;
+ 
+-		asm("movl %%cr3,%0":"=r" (pgd_paddr));
++		pgd_paddr = read_cr3();
+ 		pgd = index + (pgd_t *)__va(pgd_paddr);
+ 		pgd_k = init_mm.pgd + index;
+ 
+Index: linux-2.6.13/arch/i386/mm/pageattr.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/mm/pageattr.c	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/arch/i386/mm/pageattr.c	2005-07-29 11:15:36.000000000 -0700
+@@ -62,7 +62,7 @@
+ { 
+ 	/* Could use CLFLUSH here if the CPU supports it (Hammer,P4) */
+ 	if (boot_cpu_data.x86_model >= 4) 
+-		asm volatile("wbinvd":::"memory"); 
++		wbinvd();
+ 	/* Flush all to work around Errata in early athlons regarding 
+ 	 * large page flushing. 
+ 	 */
+Index: linux-2.6.13/include/asm-i386/agp.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/agp.h	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/include/asm-i386/agp.h	2005-07-29 11:15:36.000000000 -0700
+@@ -19,7 +19,7 @@
+ /* Could use CLFLUSH here if the cpu supports it. But then it would
+    need to be called for each cacheline of the whole page so it may not be 
+    worth it. Would need a page for it. */
+-#define flush_agp_cache() asm volatile("wbinvd":::"memory")
++#define flush_agp_cache() wbinvd()
+ 
+ /* Convert a physical address to an address suitable for the GART. */
+ #define phys_to_gart(x) (x)
+Index: linux-2.6.13/include/asm-i386/bugs.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/bugs.h	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/include/asm-i386/bugs.h	2005-07-29 11:15:36.000000000 -0700
+@@ -118,7 +118,10 @@
+ 		printk("disabled\n");
+ 		return;
+ 	}
+-	__asm__ __volatile__("hlt ; hlt ; hlt ; hlt");
++	halt();
++	halt();
++	halt();
++	halt();
+ 	printk("OK.\n");
+ }
+ 
+Index: linux-2.6.13/include/asm-i386/processor.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/processor.h	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/include/asm-i386/processor.h	2005-07-29 11:16:10.000000000 -0700
+@@ -203,9 +203,7 @@
+ 	return edx;
+ }
+ 
+-#define load_cr3(pgdir) \
+-	asm volatile("movl %0,%%cr3": :"r" (__pa(pgdir)))
+-
++#define load_cr3(pgdir) write_cr3(__pa(pgdir))
+ 
+ /*
+  * Intel CPU features in CR4
+@@ -232,22 +230,20 @@
+ 
+ static inline void set_in_cr4 (unsigned long mask)
+ {
++	unsigned cr4;
+ 	mmu_cr4_features |= mask;
+-	__asm__("movl %%cr4,%%eax\n\t"
+-		"orl %0,%%eax\n\t"
+-		"movl %%eax,%%cr4\n"
+-		: : "irg" (mask)
+-		:"ax");
++	cr4 = read_cr4();
++	cr4 |= mask;
++	write_cr4(cr4);
+ }
+ 
+ static inline void clear_in_cr4 (unsigned long mask)
+ {
++	unsigned cr4;
+ 	mmu_cr4_features &= ~mask;
+-	__asm__("movl %%cr4,%%eax\n\t"
+-		"andl %0,%%eax\n\t"
+-		"movl %%eax,%%cr4\n"
+-		: : "irg" (~mask)
+-		:"ax");
++	cr4 = read_cr4();
++	cr4 &= ~mask;
++	write_cr4(cr4);
+ }
+ 
+ /*
+Index: linux-2.6.13/include/asm-i386/xor.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/xor.h	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/include/asm-i386/xor.h	2005-07-29 11:15:36.000000000 -0700
+@@ -535,14 +535,14 @@
+ 
+ #define XMMS_SAVE do {				\
+ 	preempt_disable();			\
++	cr0 = read_cr0();			\
++	clts();					\
+ 	__asm__ __volatile__ ( 			\
+-		"movl %%cr0,%0		;\n\t"	\
+-		"clts			;\n\t"	\
+-		"movups %%xmm0,(%1)	;\n\t"	\
+-		"movups %%xmm1,0x10(%1)	;\n\t"	\
+-		"movups %%xmm2,0x20(%1)	;\n\t"	\
+-		"movups %%xmm3,0x30(%1)	;\n\t"	\
+-		: "=&r" (cr0)			\
++		"movups %%xmm0,(%0)	;\n\t"	\
++		"movups %%xmm1,0x10(%0)	;\n\t"	\
++		"movups %%xmm2,0x20(%0)	;\n\t"	\
++		"movups %%xmm3,0x30(%0)	;\n\t"	\
++		:				\
+ 		: "r" (xmm_save) 		\
+ 		: "memory");			\
+ } while(0)
+@@ -550,14 +550,14 @@
+ #define XMMS_RESTORE do {			\
+ 	__asm__ __volatile__ ( 			\
+ 		"sfence			;\n\t"	\
+-		"movups (%1),%%xmm0	;\n\t"	\
+-		"movups 0x10(%1),%%xmm1	;\n\t"	\
+-		"movups 0x20(%1),%%xmm2	;\n\t"	\
+-		"movups 0x30(%1),%%xmm3	;\n\t"	\
+-		"movl 	%0,%%cr0	;\n\t"	\
++		"movups (%0),%%xmm0	;\n\t"	\
++		"movups 0x10(%0),%%xmm1	;\n\t"	\
++		"movups 0x20(%0),%%xmm2	;\n\t"	\
++		"movups 0x30(%0),%%xmm3	;\n\t"	\
+ 		:				\
+-		: "r" (cr0), "r" (xmm_save)	\
++		: "r" (xmm_save)		\
+ 		: "memory");			\
++	write_cr0(cr0);				\
+ 	preempt_enable();			\
+ } while(0)
+ 
 Index: linux-2.6.13/include/asm-i386/system.h
 ===================================================================
---- linux-2.6.13.orig/include/asm-i386/system.h	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/include/asm-i386/system.h	2005-07-29 11:49:18.000000000 -0700
-@@ -93,13 +93,13 @@
- 		".align 4\n\t"			\
- 		".long 1b,3b\n"			\
- 		".previous"			\
--		: :"m" (value))
-+		: :"rm" (value))
- 
- /*
-  * Save a segment register away
-  */
- #define savesegment(seg, value) \
--	asm volatile("mov %%" #seg ",%0":"=m" (value))
-+	asm volatile("mov %%" #seg ",%0":"=rm" (value))
- 
- /*
-  * Clear and set 'TS' bit respectively
-Index: linux-2.6.13/include/asm-i386/desc.h
-===================================================================
---- linux-2.6.13.orig/include/asm-i386/desc.h	2005-07-29 11:49:12.000000000 -0700
-+++ linux-2.6.13/include/asm-i386/desc.h	2005-07-29 11:49:18.000000000 -0700
-@@ -30,6 +30,16 @@
- #define load_TR_desc() __asm__ __volatile__("ltr %%ax"::"a" (GDT_ENTRY_TSS*8))
- #define load_LDT_desc() __asm__ __volatile__("lldt %%ax"::"a" (GDT_ENTRY_LDT*8))
- 
-+#define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
-+#define load_idt(dtr) __asm__ __volatile("lidt %0"::"m" (*dtr))
-+#define load_tr(tr) __asm__ __volatile("ltr %0"::"mr" (tr))
-+#define load_ldt(ldt) __asm__ __volatile("lldt %0"::"mr" (ldt))
+--- linux-2.6.13.orig/include/asm-i386/system.h	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/include/asm-i386/system.h	2005-07-29 11:15:36.000000000 -0700
+@@ -107,13 +107,33 @@
+ #define clts() __asm__ __volatile__ ("clts")
+ #define read_cr0() ({ \
+ 	unsigned int __dummy; \
+-	__asm__( \
++	__asm__ __volatile__( \
+ 		"movl %%cr0,%0\n\t" \
+ 		:"=r" (__dummy)); \
+ 	__dummy; \
+ })
+ #define write_cr0(x) \
+-	__asm__("movl %0,%%cr0": :"r" (x));
++	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
 +
-+#define store_gdt(dtr) __asm__ ("sgdt %0":"=m" (*dtr))
-+#define store_idt(dtr) __asm__ ("sidt %0":"=m" (*dtr))
-+#define store_tr(tr) __asm__ ("str %0":"=mr" (tr))
-+#define store_ldt(ldt) __asm__ ("sldt %0":"=mr" (ldt))
++#define read_cr2() ({ \
++	unsigned int __dummy; \
++	__asm__ __volatile__( \
++		"movl %%cr2,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
++#define write_cr2(x) \
++	__asm__ __volatile__("movl %0,%%cr2": :"r" (x));
 +
- /*
-  * This is the ldt that every process will get unless we need
-  * something other than this.
++#define read_cr3() ({ \
++	unsigned int __dummy; \
++	__asm__ ( \
++		"movl %%cr3,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
++#define write_cr3(x) \
++	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
+ 
+ #define read_cr4() ({ \
+ 	unsigned int __dummy; \
+@@ -123,7 +143,7 @@
+ 	__dummy; \
+ })
+ #define write_cr4(x) \
+-	__asm__("movl %0,%%cr4": :"r" (x));
++	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
+ #define stts() write_cr0(8 | read_cr0())
+ 
+ #endif	/* __KERNEL__ */
+@@ -447,6 +467,8 @@
+ #define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
+ /* used in the idle loop; sti takes one instruction cycle to complete */
+ #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
++/* used when interrupts are already enabled or to shutdown the processor */
++#define halt()			__asm__ __volatile__("hlt": : :"memory")
+ 
+ #define irqs_disabled()			\
+ ({					\

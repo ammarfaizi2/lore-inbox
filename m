@@ -1,99 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVG3AxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262760AbVG3A6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVG3AxX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 20:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVG3AvB
+	id S262760AbVG3A6X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 20:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVG3Ax3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 20:51:01 -0400
-Received: from mail.kroah.org ([69.55.234.183]:6064 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262758AbVG2TSy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 15:18:54 -0400
-Date: Fri, 29 Jul 2005 12:18:28 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ddstreet@ieee.org
-Subject: [patch 28/29] USB: fix in usb_calc_bus_time
-Message-ID: <20050729191828.GD5095@kroah.com>
-References: <20050729184950.014589000@press.kroah.org>
+	Fri, 29 Jul 2005 20:53:29 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:35680 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262760AbVG3AwK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 20:52:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=q4+AoSSbZEteG2czxT1sVuwiPkKBDuKz+VXMNSUaY0A+0ioQM4ys4ZkmkfGt2OjvC44dyhyRQabYY2DsWvmb3OgTiSnrtSj6xEwBgIAcYq5+3sefbweDUTMVUufXU1mWFZBlABavSC8ri6IgoSyztZOxsSaVSUY8EqL4gGtntAw=
+Message-ID: <86802c4405072917525cfacc38@mail.gmail.com>
+Date: Fri, 29 Jul 2005 17:52:10 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+Reply-To: yhlu <yhlu.kernel@gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] x86_64: sync_tsc fix the race (so we can boot)
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <m1oe8lf7o9.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="usb-fix-usb_calc_bus_time.patch"
-In-Reply-To: <20050729191255.GA5095@kroah.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com>
+	 <86802c44050728092275e28a9a@mail.gmail.com>
+	 <86802c4405072810352d564fd3@mail.gmail.com>
+	 <m1ll3q5mx3.fsf@ebiederm.dsl.xmission.com>
+	 <86802c4405072913415379c5a4@mail.gmail.com>
+	 <m1oe8lf7o9.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dan Streetman <ddstreet@ieee.org>
+I will use linus's latest tree to have a try.
 
-This patch does the same swap, i.e. use the ISO macro if (isoc).  
-Additionally, it fixes the return value - the usb_calc_bus_time function 
-returns the time in nanoseconds (I didn't notice that before) while the 
-HS_USECS and HS_USECS_ISO are microseconds.  This fixes the function to 
-return nanoseconds always, and adjusts ehci-q.c (the only high-speed 
-caller of the function) to wrap the call in NS_TO_US().
+YH
 
-Signed-off-by: Dan Streetman <ddstreet@ieee.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-
----
- drivers/usb/core/hcd.c    |    4 ++--
- drivers/usb/core/hcd.h    |    8 +++++---
- drivers/usb/host/ehci-q.c |    4 ++--
- 3 files changed, 9 insertions(+), 7 deletions(-)
-
---- gregkh-2.6.orig/drivers/usb/core/hcd.c	2005-07-29 11:30:03.000000000 -0700
-+++ gregkh-2.6/drivers/usb/core/hcd.c	2005-07-29 11:36:34.000000000 -0700
-@@ -939,9 +939,9 @@
- 	case USB_SPEED_HIGH:	/* ISOC or INTR */
- 		// FIXME adjust for input vs output
- 		if (isoc)
--			tmp = HS_USECS (bytecount);
-+			tmp = HS_NSECS_ISO (bytecount);
- 		else
--			tmp = HS_USECS_ISO (bytecount);
-+			tmp = HS_NSECS (bytecount);
- 		return tmp;
- 	default:
- 		pr_debug ("%s: bogus device speed!\n", usbcore_name);
---- gregkh-2.6.orig/drivers/usb/core/hcd.h	2005-07-29 11:29:47.000000000 -0700
-+++ gregkh-2.6/drivers/usb/core/hcd.h	2005-07-29 11:36:34.000000000 -0700
-@@ -334,17 +334,19 @@
- extern int usb_check_bandwidth (struct usb_device *dev, struct urb *urb);
- 
- /*
-- * Ceiling microseconds (typical) for that many bytes at high speed
-+ * Ceiling [nano/micro]seconds (typical) for that many bytes at high speed
-  * ISO is a bit less, no ACK ... from USB 2.0 spec, 5.11.3 (and needed
-  * to preallocate bandwidth)
-  */
- #define USB2_HOST_DELAY	5	/* nsec, guess */
--#define HS_USECS(bytes) NS_TO_US ( ((55 * 8 * 2083)/1000) \
-+#define HS_NSECS(bytes) ( ((55 * 8 * 2083)/1000) \
- 	+ ((2083UL * (3167 + BitTime (bytes)))/1000) \
- 	+ USB2_HOST_DELAY)
--#define HS_USECS_ISO(bytes) NS_TO_US ( ((38 * 8 * 2083)/1000) \
-+#define HS_NSECS_ISO(bytes) ( ((38 * 8 * 2083)/1000) \
- 	+ ((2083UL * (3167 + BitTime (bytes)))/1000) \
- 	+ USB2_HOST_DELAY)
-+#define HS_USECS(bytes) NS_TO_US (HS_NSECS(bytes))
-+#define HS_USECS_ISO(bytes) NS_TO_US (HS_NSECS_ISO(bytes))
- 
- extern long usb_calc_bus_time (int speed, int is_input,
- 			int isoc, int bytecount);
---- gregkh-2.6.orig/drivers/usb/host/ehci-q.c	2005-07-29 11:29:47.000000000 -0700
-+++ gregkh-2.6/drivers/usb/host/ehci-q.c	2005-07-29 11:36:34.000000000 -0700
-@@ -657,8 +657,8 @@
- 	 * For control/bulk requests, the HC or TT handles these.
- 	 */
- 	if (type == PIPE_INTERRUPT) {
--		qh->usecs = usb_calc_bus_time (USB_SPEED_HIGH, is_input, 0,
--				hb_mult (maxp) * max_packet (maxp));
-+		qh->usecs = NS_TO_US (usb_calc_bus_time (USB_SPEED_HIGH, is_input, 0,
-+				hb_mult (maxp) * max_packet (maxp)));
- 		qh->start = NO_FRAME;
- 
- 		if (urb->dev->speed == USB_SPEED_HIGH) {
-
---
+On 7/29/05, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> yhlu <yhlu.kernel@gmail.com> writes:
+> 
+> > if using you patch, the
+> > "synchronized TSC with CPU" never come out.
+> >
+> > then with your patch, I add back patch that moving set callin_map from
+> > smp_callin to start_secondary. It told me can not inquire the apic for
+> > the CPU 1....2....
+> 
+> Hmm.  You didn't post enough of a boot log for me to see the problem.
+> Does it boot and you don't see the message or is it something
+> else.
+> 
+> > Can we put tsc_sync_wait() back to smp_callin?
+> >
+> > So that it will be executed serially and we can get
+> > "synchronized TSC with CPU"?
+> 
+> Currently that just seems silly.  That code should be async
+> safe.
+> 
+> But it sounds like you have some weird bug I don't understand.
+> 
+> Eric
+>

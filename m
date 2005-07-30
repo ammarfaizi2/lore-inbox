@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263121AbVG3TMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263130AbVG3TSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263121AbVG3TMz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 15:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbVG3TFi
+	id S263130AbVG3TSo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 15:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbVG3TRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 15:05:38 -0400
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:39845 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263110AbVG3TEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 15:04:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=sC+p5OMbMiHZVrAg1xnogYG6j+k43TbZueAkT23fbFhE9tbBRpdea24lMpADf6JiDiUk/aCCWulbxenwGfQGok4luE5Gccf+N/LJRcigyJ4TeBt23Pc9ID3BTSYXSaVJwu+AeCD71M477UpOny+DwDCjsYH0gA8SRaDN4mOp/To=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [patch 1/3] uml: share page bits handling between 2 and 3 level pagetables
-Date: Sat, 30 Jul 2005 20:54:16 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-References: <20050728185655.9C6ADA3@zion.home.lan> <20050730160218.GB4585@ccure.user-mode-linux.org>
-In-Reply-To: <20050730160218.GB4585@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Jul 2005 15:17:36 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65041 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263122AbVG3TPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 15:15:17 -0400
+Date: Sat, 30 Jul 2005 20:15:08 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: -rc4: arm broken?
+Message-ID: <20050730201508.B26592@flint.arm.linux.org.uk>
+Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20050730130406.GA4285@elf.ucw.cz> <1122741937.7650.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200507302054.17118.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1122741937.7650.27.camel@localhost.localdomain>; from rpurdie@rpsys.net on Sat, Jul 30, 2005 at 05:45:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 July 2005 18:02, Jeff Dike wrote:
-> On Thu, Jul 28, 2005 at 08:56:53PM +0200, blaisorblade@yahoo.it wrote:
-> > As obvious, a "core code nice cleanup" is not a "stability-friendly
-> > patch" so usual care applies.
->
-> These look reasonable, as they are what we discussed in Ottawa.
->
-> I'll put them in my tree and see if I see any problems.  I would
-> suggest sending these in early after 2.6.13 if they seem OK.
-Excluding the accessed handling it's ok, for the accessed handling I'm 
-doubtful. Could you check if this was introduced recently (for instance by 
-the introduction of flush_range_common, which IIRC is recent) or if it's old?
+On Sat, Jul 30, 2005 at 05:45:37PM +0100, Richard Purdie wrote:
+> On Sat, 2005-07-30 at 15:04 +0200, Pavel Machek wrote:
+> > I merged -rc4 into my zaurus tree, and now zaurus will not boot. I see
+> > oops-like display, and it seems to be __call_usermodehelper /
+> > do_execve / load_script related. Anyone seen it before?
+> 
+> For the record -rc4 works fine on my Zaurus c760 (which is pxa255 based
+> rather than sa1100).
 
-For instance, in latest 2.4, and/or in 2.6.9. If this is a regression the fix 
-for accessed handling can be merged too.
+It appears to work fine on Intel Assabet.
+
 -- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

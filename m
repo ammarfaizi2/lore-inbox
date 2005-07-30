@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVG3Auj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262835AbVG3BRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbVG3Auj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 20:50:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVG2TSc
+	id S262835AbVG3BRO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 21:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbVG3Auk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 15:18:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:19119 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262757AbVG2TRB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 15:17:01 -0400
-Date: Fri, 29 Jul 2005 12:16:27 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, galak@freescale.com
-Subject: [patch 16/29] PCI: fix up errors after dma bursting patch and CONFIG_PCI=n -- bug?
-Message-ID: <20050729191627.GR5095@kroah.com>
-References: <20050729184950.014589000@press.kroah.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050729191255.GA5095@kroah.com>
-User-Agent: Mutt/1.5.8i
+	Fri, 29 Jul 2005 20:50:40 -0400
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:43394 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261563AbVG3AuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 20:50:23 -0400
+To: Pavel Machek <pavel@ucw.cz>
+cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: S3 and sigwait (was Re: 2.6.13-rc3: swsusp works (TP 600X))
+In-Reply-To: Your message of "Sat, 23 Jul 2005 02:35:44 +0200."
+             <20050723003544.GC1988@elf.ucw.cz> 
+Date: Sat, 30 Jul 2005 01:50:16 +0100
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1DyfYO-0006oI-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kumar Gala <galak@freescale.com>
+>> One other glitch is that pdnsd (a nameserver caching daemon) has crashed
+>> when the system wakes up from swsusp.  It also happens when waking up
+>> from S3, which was working with 2.6.11.4 although not with 2.6.13-rc3.
+>> Many people have said mysql also does not suspend well.  Is their use of
+>> a named pipe or socket causing the problem?
 
-In the patch from:
+> No idea, strace?
 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0506.3/0985.html
+The upshot of stracing is in tthe Debian BTS <bugs.debian.org>
+#319572.  Paul Rombouts, an author of pdnsd, reproduced the strace
+crash and found the problem:
 
-Is the the following line suppose inside the if CONFIG_PCI=n
+> Apparently strace causes sigwait to return EINTR, which is
+> inconsistent with the documentation I could find on sigwait.
 
-  #define pci_dma_burst_advice(pdev, strat, strategy_parameter) do { } while (0)
+Which is true.  The sigwait man entry (Debian 'etch') says:
+       The !sigwait! function never returns an error.
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+His patch (available in the BTS and included below) fixed the problem
+of strace or S3 sleep crashing pdnsd.
 
----
- include/linux/pci.h |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+Shouldn't sleeping and suspension be invisible to user-space processes
+such as pdnsd?  Drivers and other kernel code need rewriting so that
+devices and buses are not abandoned in a weird state, but going to
+sleep should just pull the rug out from under the entire user space.
+Then no user space process would need rewriting to survive a
+sleep/wake, as long as the deep-freeze were cold enough.  Or is there
+a subtlety with threads that I'm missing?
 
---- gregkh-2.6.orig/include/linux/pci.h	2005-07-29 11:29:50.000000000 -0700
-+++ gregkh-2.6/include/linux/pci.h	2005-07-29 11:36:24.000000000 -0700
-@@ -971,6 +971,8 @@
- 
- #define	isa_bridge	((struct pci_dev *)NULL)
- 
-+#define pci_dma_burst_advice(pdev, strat, strategy_parameter) do { } while (0)
-+
- #else
- 
- /*
-@@ -985,9 +987,6 @@
- 	return 0;
- }
+With APM, maybe such transparency was more possible since going to bed
+was arranged by the firmware rather than by the OS, and the firmware
+would pull out the rug from under the entire user and kernel space
+(after maybe a bit of kernel prep).
+
+-Sanjoy
+
+--- src/main.c~	2005-07-08 20:13:14.000000000 +0200
++++ src/main.c	2005-07-29 16:16:12.000000000 +0200
+@@ -659,11 +659,20 @@
+ 	pthread_sigmask(SIG_BLOCK,&sigs_msk,NULL);
+ 	waiting=1;
  #endif
--
--#define pci_dma_burst_advice(pdev, strat, strategy_parameter) do { } while (0)
--
- #endif /* !CONFIG_PCI */
- 
- /* these helpers provide future and backwards compatibility
+-	sigwait(&sigs_msk,&sig);
+-	DEBUG_MSG("Signal %i caught.\n",sig);
++	{
++		int err;
++		while ((err=sigwait(&sigs_msk,&sig))) {
++			if(err!=EINTR) {
++				log_warn("sigwait failed: %s",strerror(err));
++				sig=0;
++				break;
++			}
++		}
++	}
++	if(sig) DEBUG_MSG("Signal %i caught.\n",sig);
+ 	write_disk_cache();
+ 	destroy_cache();
+-	log_warn("Caught signal %i. Exiting.",sig);
++	if(sig) log_warn("Caught signal %i. Exiting.",sig);
+ 	if (sig==SIGSEGV || sig==SIGILL || sig==SIGBUS)
+ 		crash_msg("This is a fatal signal probably triggered by a bug.");
+ 	if (ping_isocket!=-1)
 
---

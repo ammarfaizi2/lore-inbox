@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262913AbVG3V4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVG3VzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbVG3V4p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 17:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbVG3V4p
+	id S261656AbVG3VzK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 17:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbVG3VzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 17:56:45 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8971 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262886AbVG3VzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 17:55:19 -0400
-Date: Sat, 30 Jul 2005 22:55:11 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Richard Purdie <rpurdie@rpsys.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Heads up for distro folks: PCMCIA hotplug differences (Re: -rc4: arm broken?)
-Message-ID: <20050730225511.O26592@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Richard Purdie <rpurdie@rpsys.net>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20050730130406.GA4285@elf.ucw.cz> <1122741937.7650.27.camel@localhost.localdomain> <20050730201508.B26592@flint.arm.linux.org.uk> <20050730223628.M26592@flint.arm.linux.org.uk> <20050730214152.GE9418@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Jul 2005 17:55:09 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:49082 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S261656AbVG3VzH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 17:55:07 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: revert yenta free_irq on suspend
+Date: Sun, 31 Jul 2005 00:00:09 +0200
+User-Agent: KMail/1.8.1
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com> <200507302249.55409.rjw@sisk.pl> <Pine.LNX.4.61.0507302231280.4946@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0507302231280.4946@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050730214152.GE9418@elf.ucw.cz>; from pavel@ucw.cz on Sat, Jul 30, 2005 at 11:41:52PM +0200
+Message-Id: <200507310000.10229.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 30, 2005 at 11:41:52PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > I merged -rc4 into my zaurus tree, and now zaurus will not boot. I see
-> > > > > oops-like display, and it seems to be __call_usermodehelper /
-> > > > > do_execve / load_script related. Anyone seen it before?
-> > > > 
-> > > > For the record -rc4 works fine on my Zaurus c760 (which is pxa255 based
-> > > > rather than sa1100).
-> > > 
-> > > It appears to work fine on Intel Assabet.
+On Saturday, 30 of July 2005 23:32, Hugh Dickins wrote:
+> On Sat, 30 Jul 2005, Rafael J. Wysocki wrote:
 > > 
-> > Let me qualify that, because it's not 100% fine due to the changes in
-> > PCMCIA land.
+> > Well, the patch is needed on other boxes too (eg. mine :-)) due to the recent
+> > changes in ACPI.
 > > 
-> > Since PCMCIA cards are detected and drivers bound at boot time, we no
-> > longer get hotplug events to setup networking for PCMCIA network cards
-> > already inserted.  Consequently, if you are relying on /sbin/hotplug to
-> > setup your PCMCIA network card at boot time, triggered by the cardmgr
-> > startup binding the driver, it won't happen.
+> > Could you please send the /proc/interrupts from your box?
 > 
-> Does that mean that if CF is inserted during bootup, it will simply
-> appear as /dev/hda after bootup, without need to run cardmgr?
+>            CPU0       
+>   0:    2818513          XT-PIC  timer
+>   1:      56790          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   8:          2          XT-PIC  rtc
+>  11:      57443          XT-PIC  yenta, yenta, eth0
+>  12:     110579          XT-PIC  i8042
+>  14:      31332          XT-PIC  ide0
+>  15:     100988          XT-PIC  ide1
+> NMI:          0 
+> LOC:          0 
+> ERR:          0
+> MIS:          0
 
-Yes, which is almost a plus side.  Whether you can use it to boot from
-or not may depend on the timing of the boot up - it looks like it may
-suffer the same problems as trying to boot off your USB hard drive.
-Try it and see.
+Thanks.  It looks like eth0 gets a yenta's interrupt and goes awry.
+Could you please tell me what driver the eth0 is?
+
+Rafael
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

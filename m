@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbVG3SSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbVG3SaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbVG3SSm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 14:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbVG3SQQ
+	id S263093AbVG3SaW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 14:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbVG3SaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 14:16:16 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:52899 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263096AbVG3SOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 14:14:05 -0400
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-From: Lee Revell <rlrevell@joe-job.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0507301216370.29844@montezuma.fsmlabs.com>
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de>
-	 <1122678943.9381.44.camel@mindpipe>
-	 <20050730120645.77a33a34.Ballarin.Marc@gmx.de>
-	 <1122746718.14769.4.camel@mindpipe>
-	 <Pine.LNX.4.61.0507301216370.29844@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Date: Sat, 30 Jul 2005 14:14:02 -0400
-Message-Id: <1122747242.14769.8.camel@mindpipe>
+	Sat, 30 Jul 2005 14:30:22 -0400
+Received: from verein.lst.de ([213.95.11.210]:29060 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S263093AbVG3SaU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 14:30:20 -0400
+Date: Sat, 30 Jul 2005 20:30:10 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: rmk@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] switch fd1772.c from sleep_on to wait_event
+Message-ID: <20050730183010.GB11877@lst.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-30 at 12:18 -0600, Zwane Mwaikambo wrote:
-> On Sat, 30 Jul 2005, Lee Revell wrote:
-> 
-> > So it looks like artsd wastes way more power DMAing a bunch of silent
-> > pages to the sound card than HZ=1000.
-> > 
-> > There's nothing the ALSA layer can do about this, it's a KDE bug.
-> > 
-> > I think this is a good argument for leaving HZ at 1000 until some of
-> > these userspace bugs are fixed.
-> 
-> It's already 'fixed' just set artsd to release the sound device after some 
-> idle time. It's in the "Auto-Suspend" seection of the KDE sound system 
-> control module.
-> 
+doesn't make the local irq disabling around it less buggy, but at least
+we replace the offender with the right kind of primitive.
 
-It's useless if not enabled by default.
 
-Lee
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
+
+Index: linux-2.6/drivers/acorn/block/fd1772.c
+===================================================================
+--- linux-2.6.orig/drivers/acorn/block/fd1772.c	2005-04-30 10:17:13.000000000 +0200
++++ linux-2.6/drivers/acorn/block/fd1772.c	2005-05-27 14:15:43.000000000 +0200
+@@ -1283,8 +1283,7 @@
+ 	if (fdc_busy) return;
+ 	save_flags(flags);
+ 	cli();
+-	while (fdc_busy)
+-		sleep_on(&fdc_wait);
++	wait_event(fdc_wait, !fdc_busy);
+ 	fdc_busy = 1;
+ 	ENABLE_IRQ();
+ 	restore_flags(flags);

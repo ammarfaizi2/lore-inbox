@@ -1,34 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263074AbVG3Ry2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbVG3Rza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263074AbVG3Ry2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 13:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbVG3Ry2
+	id S263088AbVG3Rza (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 13:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbVG3Rza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 13:54:28 -0400
-Received: from fsmlabs.com ([168.103.115.128]:12264 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S263074AbVG3Ry0 (ORCPT
+	Sat, 30 Jul 2005 13:55:30 -0400
+Received: from 69.36.162.216.west-datacenter.net ([69.36.162.216]:32400 "EHLO
+	schau.com") by vger.kernel.org with ESMTP id S263088AbVG3Ryx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 13:54:26 -0400
-Date: Sat, 30 Jul 2005 11:59:40 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Zachary Amsden <zach@vmware.com>
-cc: Pavel Machek <pavel@ucw.cz>, akpm@osdl.org, chrisl@vmware.com,
-       davej@codemonkey.org.uk, hpa@zytor.com, linux-kernel@vger.kernel.org,
-       pratap@vmware.com, Riley@Williams.Name
-Subject: Re: [PATCH] 2/6 i386 serialize-msr
-In-Reply-To: <42EBBC43.3080803@vmware.com>
-Message-ID: <Pine.LNX.4.61.0507301157530.29844@montezuma.fsmlabs.com>
-References: <200507300404.j6U44GSC005922@zach-dev.vmware.com>
- <20050730103207.GD1942@elf.ucw.cz> <42EBBC43.3080803@vmware.com>
+	Sat, 30 Jul 2005 13:54:53 -0400
+Message-ID: <42EBBF17.5010503@schau.com>
+Date: Sat, 30 Jul 2005 19:55:35 +0200
+From: Brian Schau <brian@schau.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.13-rc4] Bug in the wireless code?
+References: <42EB94BC.3030604@schau.com> <200507301802.49019.vda@ilport.com.ua>
+In-Reply-To: <200507301802.49019.vda@ilport.com.ua>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 	wrmsr(MSR_IA32_UCODE_REV, 0, 0);
--	__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
-+	/* see 1.07.  Apprent chip bug */
-+	serialize_cpu(); 
+Hi Denis/All,
 
-1.07 in which document? Also, please just spell 'apparent' correctly, 
-saving 1 byte really just looks lazy.
+
+I see the error in 2.6.12 as well (I just tried it).   My setup ...
+
+Zyxel ZyAir B-100 pcmcia wireless card.
+D-Link AccessPoint.
+
+
+/brian
+
+
+Denis Vlasenko wrote:
+> On Saturday 30 July 2005 17:54, Brian Schau wrote:
+> 
+>>Hello,
+>>
+>>I am sorry to annoy you all.  I have problem in getting the
+>>wireless orinoco driver to work in 2.6.13-rc4.   It works
+>>like a charm in 2.6.11.
+>>Doing a diff between the files for orinoco shows a lot of
+>>differences.
+>>
+>>I'll gladly assist in any way I can.
+> 
+> 
+> Does it work in 2.6.12? 2.6.13-rc1? rc2? rc3?
+> 
+> (Please do not reply just to me, but to lkml)
+> --
+> vda
+> 
+> 

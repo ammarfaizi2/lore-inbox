@@ -1,53 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbVG2TSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262825AbVG3B4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbVG2TSS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 15:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVG2TQC
+	id S262825AbVG3B4e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 21:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVG3ByO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 15:16:02 -0400
-Received: from mail.kroah.org ([69.55.234.183]:32686 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262709AbVG2TPD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 15:15:03 -0400
-Date: Fri, 29 Jul 2005 12:14:19 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, maneesh@in.ibm.com
-Subject: [patch 03/29] sysfs: fix sysfs_setattr
-Message-ID: <20050729191419.GE5095@kroah.com>
-References: <20050729184950.014589000@press.kroah.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050729191255.GA5095@kroah.com>
-User-Agent: Mutt/1.5.8i
+	Fri, 29 Jul 2005 21:54:14 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:58548 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262913AbVG3Bxq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 21:53:46 -0400
+X-ORBL: [67.125.168.38]
+Message-ID: <42EADDA8.3080604@pacbell.net>
+Date: Fri, 29 Jul 2005 18:53:44 -0700
+From: Mickey Stein <yekkim@pacbell.net>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Cal Peake <cp@absolutedigital.net>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.13-rc4
+References: <42EA1C8D.8080708@pacbell.net> <Pine.LNX.4.61.0507291456550.2566@lancer.cnet.absolutedigital.net>
+In-Reply-To: <Pine.LNX.4.61.0507291456550.2566@lancer.cnet.absolutedigital.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Cal Peake wrote:
 
-From: Maneesh Soni <maneesh@in.ibm.com>
+>On Fri, 29 Jul 2005, Mickey Stein wrote:
+>
+>  
+>
+>>This is regarding *-rc4 and *-rc4-git1:  I slapped together my favorite config
+>>and gave it a test run. It had a bit of a problem and ground to a halt after
+>>spewing these into the log.
+>>
+>>If I can find the time tomorrow morning, I'll leave parport_pc commented out
+>>of modprobe.conf and see if something else pops loose. I don't use the
+>>parallel port, but I try to keep a fairly robust config for noticing bugs.
+>>    
+>>
+>
+>Hi Mick,
+>
+>Can you please try the patch below from Linus (or -git2 tomorrow) and 
+>confirm that it fixes it for you?
+>
+>thx,
+>-cp
+>
+>--- a/include/asm-i386/bitops.h
+>+++ b/include/asm-i386/bitops.h
+>@@ -335,14 +335,13 @@ static inline unsigned long __ffs(unsign
+> static inline int find_first_bit(const unsigned long *addr, unsigned size)
+> {
+> 	int x = 0;
+>-	do {
+>-		if (*addr)
+>-			return __ffs(*addr) + x;
+>-		addr++;
+>-		if (x >= size)
+>-			break;
+>+
+>+	while (x < size) {
+>+		unsigned long val = *addr++;
+>+		if (val)
+>+			return __ffs(val) + x;
+> 		x += (sizeof(*addr)<<3);
+>-	} while (1);
+>+	}
+> 	return x;
+> }
+> 
+>  
+>
+Linus Torvalds wrote:
 
-o sysfs_dirent's s_mode field should also be updated in sysfs_setattr(), else
-  there could be inconsistency in the two fields. s_mode is used while
-  ->readdir so as not to bring in the inode to cache.
+>On Fri, 29 Jul 2005, Mickey Stein wrote:
+>  
+>
+>>I've been quite low on time lately, so perhaps I missed something 
+>>obvious in the notes. When I did the "$make xconfig" , there were no 
+>>warnings about changes or new config params.
+>>    
+>>
+>
+>Does this fix it for you? (Already in the current git tree)
+>
+>		Linus
+>---
+>diff --git a/include/asm-i386/bitops.h b/include/asm-i386/bitops.h
+>--- a/include/asm-i386/bitops.h
+>+++ b/include/asm-i386/bitops.h
+>@@ -335,14 +335,13 @@ static inline unsigned long __ffs(unsign
+> static inline int find_first_bit(const unsigned long *addr, unsigned size)
+> {
+> 	int x = 0;
+>-	do {
+>-		if (*addr)
+>-			return __ffs(*addr) + x;
+>-		addr++;
+>-		if (x >= size)
+>-			break;
+>+
+>+	while (x < size) {
+>+		unsigned long val = *addr++;
+>+		if (val)
+>+			return __ffs(val) + x;
+> 		x += (sizeof(*addr)<<3);
+>-	} while (1);
+>+	}
+> 	return x;
+> }
+> 
+>
+>  
+>
+I'm running on *-rc4 at the moment, so thanks very much for the patch.
 
-Signed-off-by: Maneesh Soni <maneesh@in.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+I think there were ~3 of my modules producing similar output, but after 
+I followed someone's advice about enabling most of the CONFIG_DEBUG_* 
+switches, I experienced quite a bit more trouble getting anything to log 
+(or do anything but freeze). Now, all the modules are loading fine.
 
----
- fs/sysfs/inode.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+If I get time I'll probably be asking which of the 9 or 10 CONFIG_DEB* 
+switches are compatible with one another, but actually it may have just 
+been the same bug that would hang me up when they were on. I'll test 
+with the full CONFIG_DEBUG .config later on.
 
---- gregkh-2.6.orig/fs/sysfs/inode.c	2005-07-29 11:30:03.000000000 -0700
-+++ gregkh-2.6/fs/sysfs/inode.c	2005-07-29 11:33:53.000000000 -0700
-@@ -85,7 +85,7 @@
- 
- 		if (!in_group_p(inode->i_gid) && !capable(CAP_FSETID))
- 			mode &= ~S_ISGID;
--		sd_iattr->ia_mode = mode;
-+		sd_iattr->ia_mode = sd->s_mode = mode;
- 	}
- 
- 	return error;
+Appreciate it,
 
---
+Mick

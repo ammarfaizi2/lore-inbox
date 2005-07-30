@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263187AbVG3XaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263190AbVG3XcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263187AbVG3XaB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 19:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263190AbVG3XaB
+	id S263190AbVG3XcR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 19:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbVG3XcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 19:30:01 -0400
-Received: from liaag2ae.mx.compuserve.com ([149.174.40.156]:3819 "EHLO
-	liaag2ae.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S263186AbVG3X37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 19:29:59 -0400
-Date: Sat, 30 Jul 2005 19:26:40 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [sched, patch] better wake-balancing, #2
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ia64 <linux-ia64@vger.kernel.org>
-Message-ID: <200507301929_MC3-1-A601-D4C2@compuserve.com>
-MIME-Version: 1.0
+	Sat, 30 Jul 2005 19:32:11 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:22740 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S263190AbVG3XbS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 19:31:18 -0400
+Subject: Re: Heads up for distro folks: PCMCIA hotplug differences (Re:
+	-rc4: arm broken?)
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Grant Coady <lkml@dodo.com.au>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050730232652.P26592@flint.arm.linux.org.uk>
+References: <20050730130406.GA4285@elf.ucw.cz>
+	 <1122741937.7650.27.camel@localhost.localdomain>
+	 <20050730201508.B26592@flint.arm.linux.org.uk>
+	 <20050730223628.M26592@flint.arm.linux.org.uk>
+	 <7pune19t9m9cgdacv8b5r3djpqvk28nipu@4ax.com>
+	 <20050730232652.P26592@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Sun, 31 Jul 2005 00:31:10 +0100
+Message-Id: <1122766271.7650.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jul 2005 at 17:02:07 +0200, Ingo Molnar wrote:
+On Sat, 2005-07-30 at 23:26 +0100, Russell King wrote:
+> No.  You can still use cardctl (or whatever the pcmciautils version
+> of that is) to eject cards, and you can of course still pull them
+> from the socket.
 
-> do wakeup-balancing only if the wakeup-CPU is idle.
->
-> this prevents excessive wakeup-balancing while the system is highly
-> loaded, but helps spread out the workload on partly idle systems.
+If you pull CF memory cards from the socket, you'll see some interesting
+oops. I've been waiting for things to stabilise a bit before trying to
+investigate and hopefully fix this. Any assistance welcome.
 
-I tested this with Volanomark on dual-processor PII Xeon -- the
-results were very bad:
+Richard
 
-Before: 5863 messages per second
-
-124169 schedule                                  64.1369
- 64663 _spin_unlock_irqrestore                  4041.4375
-  7949 tcp_clean_rtx_queue                        6.5370
-  6787 net_rx_action                             24.9522
- 
-After: 5569 messages per second
-
-139417 schedule                                  72.0129
- 82169 _spin_unlock_irqrestore                  5135.5625
-  9949 tcp_clean_rtx_queue                        8.1817
-  7917 net_rx_action                             29.1066
-
-__
-Chuck

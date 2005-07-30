@@ -1,78 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVG3Wny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263165AbVG3Ws1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbVG3Wny (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 18:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbVG3Wny
+	id S263165AbVG3Ws1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 18:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbVG3Ws1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 18:43:54 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:54443 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261516AbVG3Wnx (ORCPT
+	Sat, 30 Jul 2005 18:48:27 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:52333 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263165AbVG3WsX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 18:43:53 -0400
-Date: Sun, 31 Jul 2005 00:43:52 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Richard Purdie <rpurdie@rpsys.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Heads up for distro folks: PCMCIA hotplug differences (Re: -rc4: arm broken?)
-Message-ID: <20050730224352.GA19916@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Pavel Machek <pavel@ucw.cz>, Richard Purdie <rpurdie@rpsys.net>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20050730130406.GA4285@elf.ucw.cz> <1122741937.7650.27.camel@localhost.localdomain> <20050730201508.B26592@flint.arm.linux.org.uk> <20050730223628.M26592@flint.arm.linux.org.uk> <20050730214152.GE9418@elf.ucw.cz> <20050730225511.O26592@flint.arm.linux.org.uk> <20050730223030.GH9418@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050730223030.GH9418@elf.ucw.cz>
-User-Agent: Mutt/1.5.9i
+	Sat, 30 Jul 2005 18:48:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=r+cuFkZ4tstxC+i6DGiczHjNIXM5/WD90jo8L6m3EFZe8Wj4MT1T4uSntyG4lGus0INXY5Sc/dXsph4laM1ifYh5XtHj0igy1lhHfz/hHjryFoGmurlLUA3WLoYPlFIWdyc0it3Xpy3MwYItL5CuQqXR/G1roncs7NGrHcU/gec=
+Message-ID: <42EC03B5.20805@gmail.com>
+Date: Sun, 31 Jul 2005 01:48:21 +0300
+From: Matan Peled <chaosite@gmail.com>
+Reply-To: chaosite@gmail.com
+Organization: Chaosite Destruction, inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050722 Thunderbird/1.0.6 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Brian Schau <brian@schau.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.13-rc4] Bug in the wireless code?
+References: <42EB94BC.3030604@schau.com> <200507301802.49019.vda@ilport.com.ua> <42EBBF17.5010503@schau.com>
+In-Reply-To: <42EBBF17.5010503@schau.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Sun, Jul 31, 2005 at 12:30:30AM +0200, Pavel Machek wrote:
-> > > > Let me qualify that, because it's not 100% fine due to the changes in
-> > > > PCMCIA land.
-> > > > 
-> > > > Since PCMCIA cards are detected and drivers bound at boot time, we no
-> > > > longer get hotplug events to setup networking for PCMCIA network cards
-> > > > already inserted.  Consequently, if you are relying on /sbin/hotplug to
-> > > > setup your PCMCIA network card at boot time, triggered by the cardmgr
-> > > > startup binding the driver, it won't happen.
-> > > 
-> > > Does that mean that if CF is inserted during bootup, it will simply
-> > > appear as /dev/hda after bootup, without need to run cardmgr?
-> > 
-> > Yes, which is almost a plus side.  Whether you can use it to boot
+Brian Schau wrote:
+> Hi Denis/All,
 > 
-> That's certainly a plus side, because I should be able to use pcmcia
-> cards without setting much userland.
+> 
+> I see the error in 2.6.12 as well (I just tried it).   My setup ...
+> 
+> Zyxel ZyAir B-100 pcmcia wireless card.
+> D-Link AccessPoint.
+> 
+> 
+> /brian
+> 
+> 
+> Denis Vlasenko wrote:
+> 
+>> On Saturday 30 July 2005 17:54, Brian Schau wrote:
+>>
+>>> Hello,
+>>>
+>>> I am sorry to annoy you all.  I have problem in getting the
+>>> wireless orinoco driver to work in 2.6.13-rc4.   It works
+>>> like a charm in 2.6.11.
+>>> Doing a diff between the files for orinoco shows a lot of
+>>> differences.
+>>>
+>>> I'll gladly assist in any way I can.
+>>
+>>
+>>
+>> Does it work in 2.6.12? 2.6.13-rc1? rc2? rc3?
+>>
+>> (Please do not reply just to me, but to lkml)
 
-Let me clarify this a bit, and point all interested parties to
-http://kernel.org/pub/linux/utils/kernel/pcmcia/howto.html
+Whats the error?
+Any sort of output would probably be helpful.
 
-PCMCIA can work without userspace on 2.6.13 if you compile all necessary
-things into the kernel and:
+- --
+[Name      ]   ::  [Matan I. Peled    ]
+[Location  ]   ::  [Israel            ]
+[Public Key]   ::  [0xD6F42CA5        ]
+[Keyserver ]   ::  [keyserver.kjsl.com]
+encrypted/signed  plain text  preferred
 
-a) the socket is smart enough.This is the case for
-	- all sockets which statically map resources 
-	  (hd64465, Au1x00, SA1100, SA1111, PXA2xx, M32R_PCC, M32R_CFC, 
-	   VRC4171, VRC4173)
-	- yenta-socket, pd6729 or i82092 if it 
-		1) resides behind a PCI-PCI bridge [oh, I need to update
-			the howto regarding this point...] or
-		2) resides behind some other bridge limiting the resource
-			space (PPC, PPC64)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-and
-
-b) a Manufactor/Device or Product ID match is known for the device. Matching
-for "Function ID" (quite common for CF cards, unfortunately) is fuzzy and
-therefore can only be enabled if we are sure no (other) driver matches. And
-that's currently done by waiting for userspace telling the kernel that it
-already modprobed all available modules. In the long term, we should try to
-get rid of all "Function ID" matches, and use the more specific Manufactor,
-Device and Product ID matches. So patches adding more IDs are welcome.
-
-Thanks,
-	Dominik
+iD8DBQFC7AO0A7Qvptb0LKURAnDXAJ9zJmw4gK7LN1TkJFL+0JV4vPnhlgCeIGYn
+XHUFp4jfsja+qZWusru8MAA=
+=kEho
+-----END PGP SIGNATURE-----

@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263050AbVG3LxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263057AbVG3LzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263050AbVG3LxN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 07:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbVG3LxN
+	id S263057AbVG3LzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 07:55:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbVG3LzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 07:53:13 -0400
-Received: from [195.144.244.147] ([195.144.244.147]:52439 "EHLO
-	amanaus.varma-el.com") by vger.kernel.org with ESMTP
-	id S263050AbVG3LxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 07:53:02 -0400
-Message-ID: <42EB6A12.70100@varma-el.com>
-Date: Sat, 30 Jul 2005 15:52:50 +0400
-From: Andrey Volkov <avolkov@varma-el.com>
-Organization: Varma Electronics Oy
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gregkh@suse.de, linux-fbdev-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Where is place of arch independed companion chips?
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Jul 2005 07:55:15 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:29375 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S263053AbVG3LzL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 07:55:11 -0400
+Date: Sat, 30 Jul 2005 13:52:04 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why dump_stack results different so much?
+Message-ID: <20050730115204.GA2732@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
+References: <4ae3c140507291327143a9d83@mail.gmail.com> <20050729203403.GA30603@outpost.ds9a.nl> <4ae3c140507291400230ca65c@mail.gmail.com> <20050729212221.GA32570@outpost.ds9a.nl> <4ae3c140507291710489dd9a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ae3c140507291710489dd9a@mail.gmail.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Fri, Jul 29, 2005 at 08:10:32PM -0400, Xin Zhao wrote:
+> Thanks. I will try. The only problem I have right now is I am using
+> Xenolinux instead of standard Linux kernel, I cannot see the option to
+> enable the frame pointer.  But I will figure out how to enable that.
 
-While I write driver for SM501 CC (which have graphics controller, USB
-MASTER/SLAVE, AC97, UART, SPI  and VIDEO CAPTURE onboard),
-I bumped with next ambiguity:
-Where is a place of this chip's Kconfig/drivers in
-kernel config/drivers tree? May be create new node in drivers subtree?
-Or put it under graphics node (since it's main function of this CC)?
-
-AFAIK, this is not one such multifunctional monster in the world, so
-somebody bumped with this problem again in future.
+If you ever report something odd again, remember to inform the readers here
+of any odd patches you are running with; they might be the *cause* of what
+you are seeing!
 
 -- 
-Regards
-Andrey Volkov
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

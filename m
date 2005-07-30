@@ -1,107 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263139AbVG3T6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263151AbVG3UER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263139AbVG3T6V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 15:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbVG3TzW
+	id S263151AbVG3UER (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 16:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbVG3UEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 15:55:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25806 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261487AbVG3Txp (ORCPT
+	Sat, 30 Jul 2005 16:04:16 -0400
+Received: from opersys.com ([64.40.108.71]:42767 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S263151AbVG3UEJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 15:53:45 -0400
-Date: Sat, 30 Jul 2005 12:52:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: jt <jt@jtholmes.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 stalls Andrew M. req this extended dmesg dump
-Message-Id: <20050730125238.327be97c.akpm@osdl.org>
-In-Reply-To: <42EBB9CD.7090706@jtholmes.com>
-References: <42EBB9CD.7090706@jtholmes.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 30 Jul 2005 16:04:09 -0400
+Message-ID: <42EBDBA5.5090008@opersys.com>
+Date: Sat, 30 Jul 2005 15:57:25 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Ingo Oeser <ioe-lkml@rameria.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Average instruction length in x86-built kernel?
+References: <42EAA05F.4000704@opersys.com> <200507301549.32528.ioe-lkml@rameria.de>
+In-Reply-To: <200507301549.32528.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here is the  dmesg extended dump for the  stall you mailed me about earlier
->
-> sequence is
->
-> boot params
->     initcall_debug  log_buf_len=512k
->
-> at stall
->
-> ALT + Sys Req  + P
-> small amout of output (8-9 lines)
->
-> then
->
-> ALT + Sys Req +T
-> about 500+ lines of trace
->
-> wait about 100 Seconds
->
-> boot continues
 
-OK, thanks.
+Hello Ingo,
 
-jt <jt@jtholmes.com> wrote:
->
-> [   31.895942] input: AT Translated Set 2 keyboard on isa0060/serio0
->  [   33.674983] input: PS/2 Generic Mouse on isa0060/serio4
->  [   37.193067] SysRq : Show Regs
->  [   37.197765] 
->  [   40.633539]  [<c0240410>] serio_thread+0x0/0x120
-> ...
->  [   40.641468] linuxrc       S 00000000     0   786      1   795           653 (NOTLB)
+Ingo Oeser wrote:
+> Just study the output od objdump -d and average the differences
+> of the first hex number in a line printed, which are followed by a ":"
 
-So we're now running userspace from your initrd.
+Here's a script that does what I was looking for:
+#!/bin/bash
 
->  [   40.645466] c1651f40 00000086 c0115ff9 00000000 c1601020 08070798 c1601020 00000000 
->  [   40.645659]        c1384e80 c1384520 00000000 0000666c 4411f8ad 00000007 c1601020 c1601a40 
->  [   40.649731]        c1601b64 00000000 00000246 c1601ae8 00000004 fffffe00 c1601a40 c0121343 
->  [   40.653881] Call Trace:
->  [   40.661986]  [<c0115ff9>] do_page_fault+0x1a9/0x57a
->  [   40.666208]  [<c0121343>] do_wait+0x313/0x3a0
->  [   40.670429]  [<c0119940>] default_wake_function+0x0/0x10
->  [   40.674701]  [<c0119940>] default_wake_function+0x0/0x10
->  [   40.678920]  [<c0121479>] sys_wait4+0x29/0x30
->  [   40.683096]  [<c0103f99>] syscall_call+0x7/0xb
->  [   40.687191] udevstart     S 00000000     0   795    786  1443               (NOTLB)
+# Dissassemble
+objdump -d $1 -j .text > $2-dissassembled-kernel
 
-udev is doing stuff.
+# Remove non-instruction lines:
+sed /^[^c].*/d $2-dissassembled-kernel > $2-stage-1
 
->  [   40.691350] c16b1f40 00000082 c0115ff9 00000000 c1601530 bfd67d94 c1601530 00000000 
->  [   40.691544]        c1384e80 c1384520 00000000 0000122d 8cc9bc6a 00000008 c1601530 c1601020 
->  [   40.695744]        c1601144 00000000 00000246 c16010c8 00000004 fffffe00 c1601020 c0121343 
->  [   40.699932] Call Trace:
->  [   40.708026]  [<c0115ff9>] do_page_fault+0x1a9/0x57a
->  [   40.712230]  [<c0121343>] do_wait+0x313/0x3a0
->  [   40.716403]  [<c0119940>] default_wake_function+0x0/0x10
->  [   40.720663]  [<c0119940>] default_wake_function+0x0/0x10
->  [   40.724858]  [<c0121479>] sys_wait4+0x29/0x30
->  [   40.729039]  [<c0103f99>] syscall_call+0x7/0xb
->  [   40.733255] udev          S 00000000     0  1443    795                     (NOTLB)
+# Remove empty lines:
+sed /^'\t'*$/d $2-stage-1 > $2-stage-2
 
-And it's sleeping for some reason.
+# Remove function names:
+sed /^c[0-9,a-f]*' '\<.*\>:$/d $2-stage-2 > $2-stage-3
 
->  [   40.737575] db533f64 00000082 00000000 00000000 00000000 00000000 00001000 00000000 
->  [   40.737766]        42eb7f60 c1384520 00000000 00001a9e 3f629e4a 00000009 c035abc0 c1601530 
->  [   40.742137]        c1601654 00000246 00000000 fffbb44a 000003ea 00000000 fa09bac0 c03075de 
->  [   40.746498] Call Trace:
->  [   40.754791]  [<c03075de>] schedule_timeout+0x5e/0xb0
->  [   40.758975]  [<c0126690>] process_timeout+0x0/0x10
->  [   40.763137]  [<c0126776>] sys_nanosleep+0xc6/0x150
->  [   40.767289]  [<c0103f99>] syscall_call+0x7/0xb
->  [  147.456608] EXT2-fs warning (device hda6): ext2_fill_super: mounting ext3 filesystem as ext2
+# Remove addresses:
+sed s/^c[0-9,a-f]*:'\t'// $2-stage-3 > $2-stage-4
 
-And after nearly two minutes you're off and running.
+# Remove instruction text:
+sed s/'\t'.*// $2-stage-4 > $2-stage-5
 
-So it's not necessarily a kernel problem - udev is simply being verrry
-slooow.
+# Remove trailing whitespace:
+sed s/'\s'*$// $2-stage-5 > $2-stage-6
 
-Are you running the latest version of udev?
+# Separate instructions depending on size:
+egrep "([0-9a-f]{2}[' ']*){5}" $2-stage-6 > $2-more-or-eq-5
+egrep "^([0-9a-f]{2}[' ']*){0,4}$" $2-stage-6 > $2-less-or-eq-4
 
+# Find out how much of each we've got:
+wc -l $2-stage-6
+wc -l $2-more-or-eq-5
+wc -l $2-less-or-eq-4
 
+The last part can easily be changed to iterate through and separate
+those that are 1 byte, 2 bytes, etc. and automatically come up with
+stats, but this was fine for what I was looking for.
+
+I ran it on a 2.4.x and a 2.6.x kernel and about 3/4 of instructions
+are 4 bytes or less.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

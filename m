@@ -1,63 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263111AbVG3TFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263112AbVG3TMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263111AbVG3TFh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 15:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbVG3TDr
+	id S263112AbVG3TMz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 15:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbVG3TKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 15:03:47 -0400
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:56223 "EHLO
-	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S263110AbVG3TCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 15:02:54 -0400
-Date: Sat, 30 Jul 2005 14:02:22 -0500
-From: serge@hallyn.com
-To: Tony Jones <tonyj@immunix.com>
-Cc: serue@us.ibm.com, lkml <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Michael Halcrow <mhalcrow@us.ibm.com>
-Subject: Re: [patch 0/15] lsm stacking v0.3: intro
-Message-ID: <20050730190222.GA12473@vino.hallyn.com>
-References: <20050727181732.GA22483@serge.austin.ibm.com> <20050730050701.GA22901@immunix.com>
+	Sat, 30 Jul 2005 15:10:40 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49331 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263112AbVG3TI5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 15:08:57 -0400
+Date: Sat, 30 Jul 2005 21:08:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch] swsusup with dm-crypt mini howto
+Message-ID: <20050730190847.GB2093@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050730050701.GA22901@immunix.com>
-User-Agent: Mutt/1.5.8i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Tony Jones (tonyj@immunix.com):
+From: Andreas Steinmetz <ast@domdv.de>
 
-Thanks, Tony.  I'll address each of these in the next patchset.  Just
-two things I wanted to actually converse about:
+The attached patch contains a mini howto for using dm-crypt together
+with swsusp.
 
-> 5) /*
->  * Workarounds for the fact that get and setprocattr are used only by
->  * selinux.  (Maybe)
->  */
-> 
-> No complaints on selinux getting to avoid the (module), they are intree.
-> Just a FYI that SubDomain/AppArmor uses these hooks also.
+Signed-off-by: Andreas Steinmetz <ast@domdv.de>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-And is it ok with using the "some_data (apparmor)" convention?
+diff --git a/Documentation/power/swsusp-dmcrypt.txt b/Documentation/power/swsusp-dmcrypt.txt
+new file mode 100644
+--- /dev/null
++++ b/Documentation/power/swsusp-dmcrypt.txt
+@@ -0,0 +1,138 @@
++Author: Andreas Steinmetz <ast@domdv.de>
++
++
++How to use dm-crypt and swsusp together:
++========================================
++
++Some prerequisites:
++You know how dm-crypt works. If not, visit the following web page:
++http://www.saout.de/misc/dm-crypt/
++You have read Documentation/power/swsusp.txt and understand it.
++You did read Documentation/initrd.txt and know how an initrd works.
++You know how to create or how to modify an initrd.
++
++Now your system is properly set up, your disk is encrypted except for
++the swap device(s) and the boot partition which may contain a mini
++system for crypto setup and/or rescue purposes. You may even have
++an initrd that does your current crypto setup already.
++
++At this point you want to encrypt your swap, too. Still you want to
++be able to suspend using swsusp. This, however, means that you
++have to be able to either enter a passphrase or that you read
++the key(s) from an external device like a pcmcia flash disk
++or an usb stick prior to resume. So you need an initrd, that sets
++up dm-crypt and then asks swsusp to resume from the encrypted
++swap device.
++
++The most important thing is that you set up dm-crypt in such
++a way that the swap device you suspend to/resume from has
++always the same major/minor within the initrd as well as
++within your running system. The easiest way to achieve this is
++to always set up this swap device first with dmsetup, so that
++it will always look like the following:
++
++brw-------  1 root root 254, 0 Jul 28 13:37 /dev/mapper/swap0
++
++Now set up your kernel to use /dev/mapper/swap0 as the default
++resume partition, so your kernel .config contains:
++
++CONFIG_PM_STD_PARTITION="/dev/mapper/swap0"
++
++Prepare your boot loader to use the initrd you will create or
++modify. For lilo the simplest setup looks like the following
++lines:
++
++image=/boot/vmlinuz
++initrd=/boot/initrd.gz
++label=linux
++append="root=/dev/ram0 init=/linuxrc rw"
++
++Finally you need to create or modify your initrd. Lets assume
++you create an initrd that reads the required dm-crypt setup
++from a pcmcia flash disk card. The card is formatted with an ext2
++fs which resides on /dev/hde1 when the card is inserted. The
++card contains at least the encrypted swap setup in a file
++named "swapkey". /etc/fstab of your initrd contains something
++like the following:
++
++/dev/hda1   /mnt    ext3      ro                            0 0
++none        /proc   proc      defaults,noatime,nodiratime   0 0
++none        /sys    sysfs     defaults,noatime,nodiratime   0 0
++
++/dev/hda1 contains an unencrypted mini system that sets up all
++of your crypto devices, again by reading the setup from the
++pcmcia flash disk. What follows now is a /linuxrc for your
++initrd that allows you to resume from encrypted swap and that
++continues boot with your mini system on /dev/hda1 if resume
++does not happen:
++
++#!/bin/sh
++PATH=/sbin:/bin:/usr/sbin:/usr/bin
++mount /proc
++mount /sys
++mapped=0
++noresume=`grep -c noresume /proc/cmdline`
++if [ "$*" != "" ]
++then
++  noresume=1
++fi
++dmesg -n 1
++/sbin/cardmgr -q
++for i in 1 2 3 4 5 6 7 8 9 0
++do
++  if [ -f /proc/ide/hde/media ]
++  then
++    usleep 500000
++    mount -t ext2 -o ro /dev/hde1 /mnt
++    if [ -f /mnt/swapkey ]
++    then
++      dmsetup create swap0 /mnt/swapkey > /dev/null 2>&1 && mapped=1
++    fi
++    umount /mnt
++    break
++  fi
++  usleep 500000
++done
++killproc /sbin/cardmgr
++dmesg -n 6
++if [ $mapped = 1 ]
++then
++  if [ $noresume != 0 ]
++  then
++    mkswap /dev/mapper/swap0 > /dev/null 2>&1
++  fi
++  echo 254:0 > /sys/power/resume
++  dmsetup remove swap0
++fi
++umount /sys
++mount /mnt
++umount /proc
++cd /mnt
++pivot_root . mnt
++mount /proc
++umount -l /mnt
++umount /proc
++exec chroot . /sbin/init $* < dev/console > dev/console 2>&1
++
++Please don't mind the weird loop above, busybox's msh doesn't know
++the let statement. Now, what is happening in the script?
++First we have to decide if we want to try to resume, or not.
++We will not resume if booting with "noresume" or any parameters
++for init like "single" or "emergency" as boot parameters.
++
++Then we need to set up dmcrypt with the setup data from the
++pcmcia flash disk. If this succeeds we need to reset the swap
++device if we don't want to resume. The line "echo 254:0 > /sys/power/resume"
++then attempts to resume from the first device mapper device.
++Note that it is important to set the device in /sys/power/resume,
++regardless if resuming or not, otherwise later suspend will fail.
++If resume starts, script execution terminates here.
++
++Otherwise we just remove the encrypted swap device and leave it to the
++mini system on /dev/hda1 to set the whole crypto up (it is up to
++you to modify this to your taste).
++
++What then follows is the well known process to change the root
++file system and continue booting from there. I prefer to unmount
++the initrd prior to continue booting but it is up to you to modify
++this.
 
-The special handling of selinux is intended to be temporary, due to the
-large base of installed userspace which hasn't yet been updated.  I
-would imagine that at some point that code would go away.
-
-> I noticed the conditional CONFIG_SECURITY_STACKER code went away, previously
-> it would look at the value chain head only for the !case. But this comment
-> still remains.
-
-Yes, after I added the unlink function, it started to seem that the
-special cases for !CONFIG_SECURITY_STACKER wouldn't be any faster than
-the stacker versions.  They still might be, but I'll have to think about
-it.  If I just ditch those, then I can probably ditch the whole
-security-stack.h file, and move those declarations into security.h.
-They were just in their own file because Stephen had pointed out that
-switching between stacker and non-stacker would cause too much code to
-be recompiled.
-
-thanks,
--serge
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

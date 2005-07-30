@@ -1,53 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263103AbVG3TCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263113AbVG3TDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263103AbVG3TCe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 15:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbVG3TCe
+	id S263113AbVG3TDa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 15:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbVG3TD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 15:02:34 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18916 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263103AbVG3TCd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 15:02:33 -0400
-Date: Sat, 30 Jul 2005 21:02:29 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk
-Subject: Re: -rc4: arm broken?
-Message-ID: <20050730190229.GA2093@elf.ucw.cz>
-References: <20050730130406.GA4285@elf.ucw.cz> <1122741937.7650.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122741937.7650.27.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 30 Jul 2005 15:03:29 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:52875 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S263113AbVG3TDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 15:03:16 -0400
+Subject: [patch 2/3] uml: workaround GDB problems on debugging
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Sat, 30 Jul 2005 21:05:36 +0200
+Message-Id: <20050730190537.22C771AE9B@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > I merged -rc4 into my zaurus tree, and now zaurus will not boot. I see
-> > oops-like display, and it seems to be __call_usermodehelper /
-> > do_execve / load_script related. Anyone seen it before?
-> 
-> For the record -rc4 works fine on my Zaurus c760 (which is pxa255 based
-> rather than sa1100).
-> 
-> Does there problem look like http://lkml.org/lkml/2005/7/30/46 ?
-> That
-> shouldn't be in -rc4 but it in current git. I've sent a fix for this
-> to
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Yes, I was running -rc4-git, and yes, the problem looks really similar.
+Apparently, GDB gets confused when we do an execvp() on ourselves.
 
-> Linus/Andrew and LKML but it hasn't appeared for some reason. A link to
-> the fix is:
-> http://www.rpsys.net/openzaurus/patches/2.6.13-rc3-mm3_fix-r0.patch
+Since it's simply done to allocate further space for command line arguments
+(which we'll use to allow gathering the startup command line for guest
+processes through the host), allow the user to disable that to get a
+debuggable UML binary.
 
-Hmm, I guess I really should not be running -preempt on zaurus. Thanks!
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-									Pavel
+ linux-2.6.git-paolo/arch/um/Kconfig.debug    |   11 +++++++++++
+ linux-2.6.git-paolo/arch/um/kernel/main.c    |    2 +-
+ linux-2.6.git-paolo/arch/um/kernel/um_arch.c |    6 +++---
+ 3 files changed, 15 insertions(+), 4 deletions(-)
 
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+diff -puN arch/um/Kconfig.debug~uml-fix-host-debug-on-TT-binaries arch/um/Kconfig.debug
+--- linux-2.6.git/arch/um/Kconfig.debug~uml-fix-host-debug-on-TT-binaries	2005-07-30 16:50:53.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/Kconfig.debug	2005-07-30 16:58:52.000000000 +0200
+@@ -2,6 +2,17 @@ menu "Kernel hacking"
+ 
+ source "lib/Kconfig.debug"
+ 
++config CMDLINE_ON_HOST
++	bool "Show command line arguments on the host in TT mode"
++	depends on MODE_TT
++	default !DEBUG_INFO
++	help
++	This controls whether arguments in guest processes should be shown on
++	the host's ps output.
++	Enabling this option hinders debugging on some recent GDB versions
++	(because GDB gets "confused" when we do an execvp()). So probably you
++	should disable it.
++
+ config PT_PROXY
+ 	bool "Enable ptrace proxy"
+ 	depends on XTERM_CHAN && DEBUG_INFO && MODE_TT
+diff -puN arch/um/kernel/main.c~uml-fix-host-debug-on-TT-binaries arch/um/kernel/main.c
+--- linux-2.6.git/arch/um/kernel/main.c~uml-fix-host-debug-on-TT-binaries	2005-07-30 16:50:53.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/kernel/main.c	2005-07-30 16:50:53.000000000 +0200
+@@ -97,7 +97,7 @@ int main(int argc, char **argv, char **e
+ 		exit(1);
+ 	}
+ 
+-#ifdef UML_CONFIG_MODE_TT
++#ifdef UML_CONFIG_CMDLINE_ON_HOST
+ 	/* Allocate memory for thread command lines */
+ 	if(argc < 2 || strlen(argv[1]) < THREAD_NAME_LEN - 1){
+ 
+diff -puN arch/um/kernel/um_arch.c~uml-fix-host-debug-on-TT-binaries arch/um/kernel/um_arch.c
+--- linux-2.6.git/arch/um/kernel/um_arch.c~uml-fix-host-debug-on-TT-binaries	2005-07-30 16:50:53.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/kernel/um_arch.c	2005-07-30 16:50:53.000000000 +0200
+@@ -126,7 +126,7 @@ unsigned long start_vm;
+ unsigned long end_vm;
+ int ncpus = 1;
+ 
+-#ifdef CONFIG_MODE_TT
++#ifdef CONFIG_CMDLINE_ON_HOST
+ /* Pointer set in linux_main, the array itself is private to each thread,
+  * and changed at address space creation time so this poses no concurrency
+  * problems.
+@@ -141,7 +141,7 @@ long physmem_size = 32 * 1024 * 1024;
+ 
+ void set_cmdline(char *cmd)
+ {
+-#ifdef CONFIG_MODE_TT
++#ifdef CONFIG_CMDLINE_ON_HOST
+ 	char *umid, *ptr;
+ 
+ 	if(CHOOSE_MODE(honeypot, 0)) return;
+@@ -385,7 +385,7 @@ int linux_main(int argc, char **argv)
+ 
+ 	setup_machinename(system_utsname.machine);
+ 
+-#ifdef CONFIG_MODE_TT
++#ifdef CONFIG_CMDLINE_ON_HOST
+ 	argv1_begin = argv[1];
+ 	argv1_end = &argv[1][strlen(argv[1])];
+ #endif
+_

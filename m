@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbVG3Nd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262954AbVG3Nic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262956AbVG3Nd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 09:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbVG3Nd5
+	id S262954AbVG3Nic (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 09:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262959AbVG3Nic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 09:33:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16041 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262956AbVG3Nd4 (ORCPT
+	Sat, 30 Jul 2005 09:38:32 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:45768 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S262954AbVG3Nia (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 09:33:56 -0400
-Date: Sat, 30 Jul 2005 15:33:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>, xschmi00@stud.feec.vutbr.cz
-Subject: [PATCH] swsusp: simpler calculation of number of pages in PBE list
-Message-ID: <20050730133348.GA28974@elf.ucw.cz>
+	Sat, 30 Jul 2005 09:38:30 -0400
+Date: Sat, 30 Jul 2005 15:38:27 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space (updated)
+Message-ID: <20050730133827.GH9841@khan.acc.umu.se>
+Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	"Michael S. Tsirkin" <mst@mellanox.co.il>,
+	linux-kernel@vger.kernel.org
+References: <20050728145353.GL11644@mellanox.co.il> <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr> <20050729175714.GE9841@khan.acc.umu.se> <Pine.LNX.4.61.0507292151220.17105@yvahk01.tjqt.qr> <20050729201344.GF9841@khan.acc.umu.se> <Pine.LNX.4.61.0507301326520.5194@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.61.0507301326520.5194@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+On Sat, Jul 30, 2005 at 01:41:55PM +0200, Jan Engelhardt wrote:
+> 
+> >Ehrm, yes, I'm perfectly aware of that.  Note the "for consistency" in
+> >that sentence.  If we add an extra space in front of the labels that
+> >have an indentation level of 0, we'd better do it with the labels that
+> >have an indentation level > 0 too.
+> 
+> Labels at level > 0???
 
-The function calc_nr uses an iterative algorithm to calculate the
-number of pages needed for the image and the pagedir. Exactly the same
-result can be obtained with a one-line expression.
+A case in a switch construct is a label.
 
-Note that this was even proved correct ;-).
 
-Signed-off-by: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
----
-commit 06695555bdbe1a5ac3b7926867abfdc9e560121f
-tree 3be140250bf556a51261ea75b908906e64182ec3
-parent 42b960c2ed61b623d5e84b67f95c7f0ddad0565f
-author <pavel@amd.(none)> Sat, 30 Jul 2005 15:19:56 +0200
-committer <pavel@amd.(none)> Sat, 30 Jul 2005 15:19:56 +0200
-
- kernel/power/swsusp.c |   13 +------------
- 1 files changed, 1 insertions(+), 12 deletions(-)
-
-diff --git a/kernel/power/swsusp.c b/kernel/power/swsusp.c
---- a/kernel/power/swsusp.c
-+++ b/kernel/power/swsusp.c
-@@ -591,18 +591,7 @@ static void copy_data_pages(void)
- 
- static int calc_nr(int nr_copy)
- {
--	int extra = 0;
--	int mod = !!(nr_copy % PBES_PER_PAGE);
--	int diff = (nr_copy / PBES_PER_PAGE) + mod;
--
--	do {
--		extra += diff;
--		nr_copy += diff;
--		mod = !!(nr_copy % PBES_PER_PAGE);
--		diff = (nr_copy / PBES_PER_PAGE) + mod - extra;
--	} while (diff > 0);
--
--	return nr_copy;
-+	return nr_copy + (nr_copy+PBES_PER_PAGE-2)/(PBES_PER_PAGE-1);
- }
- 
- /**
-
+Regards: David Weinehall
 -- 
-teflon -- maybe it is a trademark, but it should not be.
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

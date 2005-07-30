@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbVG3SaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263097AbVG3Scm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263093AbVG3SaW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 14:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbVG3SaW
+	id S263097AbVG3Scm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 14:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbVG3Scm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 14:30:22 -0400
-Received: from verein.lst.de ([213.95.11.210]:29060 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S263093AbVG3SaU (ORCPT
+	Sat, 30 Jul 2005 14:32:42 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:55008 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S263097AbVG3Scj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 14:30:20 -0400
-Date: Sat, 30 Jul 2005 20:30:10 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] switch fd1772.c from sleep_on to wait_event
-Message-ID: <20050730183010.GB11877@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Sat, 30 Jul 2005 14:32:39 -0400
+Date: Sat, 30 Jul 2005 20:32:22 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: David Weinehall <tao@acc.umu.se>
+cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space (updated)
+In-Reply-To: <20050730133827.GH9841@khan.acc.umu.se>
+Message-ID: <Pine.LNX.4.61.0507302030540.22615@yvahk01.tjqt.qr>
+References: <20050728145353.GL11644@mellanox.co.il>
+ <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr> <20050729175714.GE9841@khan.acc.umu.se>
+ <Pine.LNX.4.61.0507292151220.17105@yvahk01.tjqt.qr> <20050729201344.GF9841@khan.acc.umu.se>
+ <Pine.LNX.4.61.0507301326520.5194@yvahk01.tjqt.qr> <20050730133827.GH9841@khan.acc.umu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-doesn't make the local irq disabling around it less buggy, but at least
-we replace the offender with the right kind of primitive.
+>> >Ehrm, yes, I'm perfectly aware of that.  Note the "for consistency" in
+>> >that sentence.  If we add an extra space in front of the labels that
+>> >have an indentation level of 0, we'd better do it with the labels that
+>> >have an indentation level > 0 too.
+>> 
+>> Labels at level > 0???
+>
+>A case in a switch construct is a label.
 
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-
-
-Index: linux-2.6/drivers/acorn/block/fd1772.c
-===================================================================
---- linux-2.6.orig/drivers/acorn/block/fd1772.c	2005-04-30 10:17:13.000000000 +0200
-+++ linux-2.6/drivers/acorn/block/fd1772.c	2005-05-27 14:15:43.000000000 +0200
-@@ -1283,8 +1283,7 @@
- 	if (fdc_busy) return;
- 	save_flags(flags);
- 	cli();
--	while (fdc_busy)
--		sleep_on(&fdc_wait);
-+	wait_event(fdc_wait, !fdc_busy);
- 	fdc_busy = 1;
- 	ENABLE_IRQ();
- 	restore_flags(flags);
+Oh hm. I only meant "goto" labels.

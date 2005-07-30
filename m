@@ -1,179 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263112AbVG3TMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263121AbVG3TMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263112AbVG3TMz (ORCPT <rfc822;willy@w.ods.org>);
+	id S263121AbVG3TMz (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 30 Jul 2005 15:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbVG3TKk
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbVG3TFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 15:10:40 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49331 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263112AbVG3TI5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 15:08:57 -0400
-Date: Sat, 30 Jul 2005 21:08:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch] swsusup with dm-crypt mini howto
-Message-ID: <20050730190847.GB2093@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Jul 2005 15:05:38 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:39845 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263110AbVG3TEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 15:04:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=sC+p5OMbMiHZVrAg1xnogYG6j+k43TbZueAkT23fbFhE9tbBRpdea24lMpADf6JiDiUk/aCCWulbxenwGfQGok4luE5Gccf+N/LJRcigyJ4TeBt23Pc9ID3BTSYXSaVJwu+AeCD71M477UpOny+DwDCjsYH0gA8SRaDN4mOp/To=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [patch 1/3] uml: share page bits handling between 2 and 3 level pagetables
+Date: Sat, 30 Jul 2005 20:54:16 +0200
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+References: <20050728185655.9C6ADA3@zion.home.lan> <20050730160218.GB4585@ccure.user-mode-linux.org>
+In-Reply-To: <20050730160218.GB4585@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200507302054.17118.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andreas Steinmetz <ast@domdv.de>
+On Saturday 30 July 2005 18:02, Jeff Dike wrote:
+> On Thu, Jul 28, 2005 at 08:56:53PM +0200, blaisorblade@yahoo.it wrote:
+> > As obvious, a "core code nice cleanup" is not a "stability-friendly
+> > patch" so usual care applies.
+>
+> These look reasonable, as they are what we discussed in Ottawa.
+>
+> I'll put them in my tree and see if I see any problems.  I would
+> suggest sending these in early after 2.6.13 if they seem OK.
+Excluding the accessed handling it's ok, for the accessed handling I'm 
+doubtful. Could you check if this was introduced recently (for instance by 
+the introduction of flush_range_common, which IIRC is recent) or if it's old?
 
-The attached patch contains a mini howto for using dm-crypt together
-with swsusp.
-
-Signed-off-by: Andreas Steinmetz <ast@domdv.de>
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
-diff --git a/Documentation/power/swsusp-dmcrypt.txt b/Documentation/power/swsusp-dmcrypt.txt
-new file mode 100644
---- /dev/null
-+++ b/Documentation/power/swsusp-dmcrypt.txt
-@@ -0,0 +1,138 @@
-+Author: Andreas Steinmetz <ast@domdv.de>
-+
-+
-+How to use dm-crypt and swsusp together:
-+========================================
-+
-+Some prerequisites:
-+You know how dm-crypt works. If not, visit the following web page:
-+http://www.saout.de/misc/dm-crypt/
-+You have read Documentation/power/swsusp.txt and understand it.
-+You did read Documentation/initrd.txt and know how an initrd works.
-+You know how to create or how to modify an initrd.
-+
-+Now your system is properly set up, your disk is encrypted except for
-+the swap device(s) and the boot partition which may contain a mini
-+system for crypto setup and/or rescue purposes. You may even have
-+an initrd that does your current crypto setup already.
-+
-+At this point you want to encrypt your swap, too. Still you want to
-+be able to suspend using swsusp. This, however, means that you
-+have to be able to either enter a passphrase or that you read
-+the key(s) from an external device like a pcmcia flash disk
-+or an usb stick prior to resume. So you need an initrd, that sets
-+up dm-crypt and then asks swsusp to resume from the encrypted
-+swap device.
-+
-+The most important thing is that you set up dm-crypt in such
-+a way that the swap device you suspend to/resume from has
-+always the same major/minor within the initrd as well as
-+within your running system. The easiest way to achieve this is
-+to always set up this swap device first with dmsetup, so that
-+it will always look like the following:
-+
-+brw-------  1 root root 254, 0 Jul 28 13:37 /dev/mapper/swap0
-+
-+Now set up your kernel to use /dev/mapper/swap0 as the default
-+resume partition, so your kernel .config contains:
-+
-+CONFIG_PM_STD_PARTITION="/dev/mapper/swap0"
-+
-+Prepare your boot loader to use the initrd you will create or
-+modify. For lilo the simplest setup looks like the following
-+lines:
-+
-+image=/boot/vmlinuz
-+initrd=/boot/initrd.gz
-+label=linux
-+append="root=/dev/ram0 init=/linuxrc rw"
-+
-+Finally you need to create or modify your initrd. Lets assume
-+you create an initrd that reads the required dm-crypt setup
-+from a pcmcia flash disk card. The card is formatted with an ext2
-+fs which resides on /dev/hde1 when the card is inserted. The
-+card contains at least the encrypted swap setup in a file
-+named "swapkey". /etc/fstab of your initrd contains something
-+like the following:
-+
-+/dev/hda1   /mnt    ext3      ro                            0 0
-+none        /proc   proc      defaults,noatime,nodiratime   0 0
-+none        /sys    sysfs     defaults,noatime,nodiratime   0 0
-+
-+/dev/hda1 contains an unencrypted mini system that sets up all
-+of your crypto devices, again by reading the setup from the
-+pcmcia flash disk. What follows now is a /linuxrc for your
-+initrd that allows you to resume from encrypted swap and that
-+continues boot with your mini system on /dev/hda1 if resume
-+does not happen:
-+
-+#!/bin/sh
-+PATH=/sbin:/bin:/usr/sbin:/usr/bin
-+mount /proc
-+mount /sys
-+mapped=0
-+noresume=`grep -c noresume /proc/cmdline`
-+if [ "$*" != "" ]
-+then
-+  noresume=1
-+fi
-+dmesg -n 1
-+/sbin/cardmgr -q
-+for i in 1 2 3 4 5 6 7 8 9 0
-+do
-+  if [ -f /proc/ide/hde/media ]
-+  then
-+    usleep 500000
-+    mount -t ext2 -o ro /dev/hde1 /mnt
-+    if [ -f /mnt/swapkey ]
-+    then
-+      dmsetup create swap0 /mnt/swapkey > /dev/null 2>&1 && mapped=1
-+    fi
-+    umount /mnt
-+    break
-+  fi
-+  usleep 500000
-+done
-+killproc /sbin/cardmgr
-+dmesg -n 6
-+if [ $mapped = 1 ]
-+then
-+  if [ $noresume != 0 ]
-+  then
-+    mkswap /dev/mapper/swap0 > /dev/null 2>&1
-+  fi
-+  echo 254:0 > /sys/power/resume
-+  dmsetup remove swap0
-+fi
-+umount /sys
-+mount /mnt
-+umount /proc
-+cd /mnt
-+pivot_root . mnt
-+mount /proc
-+umount -l /mnt
-+umount /proc
-+exec chroot . /sbin/init $* < dev/console > dev/console 2>&1
-+
-+Please don't mind the weird loop above, busybox's msh doesn't know
-+the let statement. Now, what is happening in the script?
-+First we have to decide if we want to try to resume, or not.
-+We will not resume if booting with "noresume" or any parameters
-+for init like "single" or "emergency" as boot parameters.
-+
-+Then we need to set up dmcrypt with the setup data from the
-+pcmcia flash disk. If this succeeds we need to reset the swap
-+device if we don't want to resume. The line "echo 254:0 > /sys/power/resume"
-+then attempts to resume from the first device mapper device.
-+Note that it is important to set the device in /sys/power/resume,
-+regardless if resuming or not, otherwise later suspend will fail.
-+If resume starts, script execution terminates here.
-+
-+Otherwise we just remove the encrypted swap device and leave it to the
-+mini system on /dev/hda1 to set the whole crypto up (it is up to
-+you to modify this to your taste).
-+
-+What then follows is the well known process to change the root
-+file system and continue booting from there. I prefer to unmount
-+the initrd prior to continue booting but it is up to you to modify
-+this.
-
+For instance, in latest 2.4, and/or in 2.6.9. If this is a regression the fix 
+for accessed handling can be merged too.
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

@@ -1,75 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbVG3Bfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262851AbVG3Bfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbVG3Bfo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 21:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVG3Bfd
+	id S262851AbVG3Bfn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 21:35:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbVG3Bfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 21:35:33 -0400
-Received: from mx1.rowland.org ([192.131.102.7]:26897 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S262899AbVG3BfB (ORCPT
+	Fri, 29 Jul 2005 21:35:41 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:54832 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262897AbVG3Ber (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 21:35:01 -0400
-Date: Fri, 29 Jul 2005 21:35:00 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-cc: "Rafael J. Wysocki" <rjw@sisk.pl>, <linux-pm@lists.osdl.org>,
-       <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [linux-pm] [PATCH] swsusp: simpler calculation of number of
- pages in PBE list
-In-Reply-To: <42EA9C38.90905@stud.feec.vutbr.cz>
-Message-ID: <Pine.LNX.4.44L0.0507292126390.16749-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Jul 2005 21:34:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=J1qCHaDABPrSKgx4HB/7THUFn4Vd4CbdprU0lZqjcWLT4g7omhXhm9rrIwpEyr6ETvPH+ZEZKQr1PJZalogkvXztzJHyTGVlM4hQBV9igoGRpuoSMusBqhsUzki2jE/dYz1q4uFlb5jrj2pLa7Xhf1A4GF+/eGDgBtTbwCSVMTc=
+Date: Sat, 30 Jul 2005 05:42:37 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Michael Thonke <iogl64nx@gmail.com>, Alexander Fieroch <fieroch@web.de>,
+       linux-kernel@vger.kernel.org, Jesper Juhl <jesper.juhl@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, bzolnier@gmail.com, axboe@suse.de,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Natalie.Protasevich@unisys.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: PROBLEM: "drive appears confused" and "irq 18: nobody cared!"
+Message-ID: <20050730014237.GA20131@mipter.zuzino.mipt.ru>
+References: <d6gf8j$jnb$1@sea.gmane.org> <42EAAFD4.4010303@web.de> <42EAD086.4010904@gmail.com> <200507291905.37339.kernel-stuff@comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200507291905.37339.kernel-stuff@comcast.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jul 2005, Michal Schmidt wrote:
-
-> Rafael J. Wysocki wrote:
-> > On Friday, 29 of July 2005 21:46, Michal Schmidt wrote:
-> > 
-> >>The function calc_nr uses an iterative algorithm to calculate the number 
-> >>of pages needed for the image and the pagedir. Exactly the same result 
-> >>can be obtained with a one-line expression.
-> > 
-> > 
-> > Could you please post the proof?
-> > 
-> > Rafael
+On Fri, Jul 29, 2005 at 07:05:36PM -0400, Parag Warudkar wrote:
+> On Friday 29 July 2005 20:57, Michael Thonke wrote:
+> > do you run
+> > A.) SATA in Enhanced Mode
+> > B.) SATA+PATA or PATA operation mode?
+> >
+> > This problem I can reproduce when I ?set A.)+B.) in bios I
+> > exactly get the same behavior of confused cd - drives.
 > 
-> OK, attached is a proof-by-brute-force program. It compares the results 
-> of the original function and the simplified one.
+> I have this same problem on my laptop which doesn't have SATA.  In my case I
+> get the problem if I run 2.6.12-gentoo-r6 - Problem doesnt happen with
+> 2.6.12-gentoo-r4 - which just means that tracking the patch causing this
+> problem will be simpler...
 
-Here's a more general proof.
+--- 2.6.12-r4.txt			[1]
++++ 2.6.12-r6.txt			[2]
++1003_linux-2.6.12.3.patch	<-----------------------+
++1370_sparc-modpost_stt_reg.patch			|
+-1900_acpi-irq-0.patch			included in ----+
++2700_irqpoll.patch			[3]
+	From: Alan Cox
+	Subject: [PATCH] irqpoll
++2900_gameport-probe.patch
 
-As I understand it, calc_nr is given nr_copy, the number of data pages
-that need to be written out, and it has to return the number of pages
-needed to hold the image data plus a bunch of PBE pagedir indexes, where
-each page gets one index (and pages containing PBEs need their own indexes
-as well).
-
-For brevity, let n = nr_copy, let p = PBES_PER_PAGE, and let x be the 
-number of pagdir pages needed.  Since each page can hold p PBEs, there 
-will be room to store px PBEs.  The total number of pages is n + x, so 
-the routine needs to find the smallest value of x for which
-
-	px >= n + x
-
-or
-
-	(p-1)x >= n
-
-or
-
-	x >= n / (p-1).
-
-The obvious solution is
-
-	x = ceiling(n / (p-1)),
-
-so calc_nr should return n + ceiling(n / (p-1)), which is exactly what 
-Michal's patch computes.
-
-Alan Stern
+[1] http://dev.gentoo.org/~dsd/genpatches/patches-2.6.12-7.htm
+[2] http://dev.gentoo.org/~dsd/genpatches/patches-2.6.12-10.htm
+[3] http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=200803dfe4ff772740d63db725ab2f1b185ccf92;hp=21fe3471c3aaa5c489c5d3a4d705291eb7511248
 

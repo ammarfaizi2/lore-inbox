@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVG3IeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263016AbVG3Ilp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbVG3IeM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 04:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVG3IeL
+	id S263016AbVG3Ilp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 04:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbVG3Ilp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 04:34:11 -0400
-Received: from mx2.mail.ru ([194.67.23.122]:58207 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S262700AbVG3IeK (ORCPT
+	Sat, 30 Jul 2005 04:41:45 -0400
+Received: from mail1.nwe.de ([195.226.126.83]:40161 "EHLO mail1.nwe.de")
+	by vger.kernel.org with ESMTP id S263016AbVG3Ilo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 04:34:10 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
-Date: Sat, 30 Jul 2005 12:33:38 +0400
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>
+	Sat, 30 Jul 2005 04:41:44 -0400
+Date: Sat, 30 Jul 2005 10:41:07 +0200 (CEST)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@localhost
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6-mm] tms380tr: remove prototypes in Space.c
+Message-ID: <Pine.LNX.4.58.0507301039430.5597@localhost>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart37431379.Mi5hVze8Ng";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200507301233.45901.arvidjaar@mail.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart37431379.Mi5hVze8Ng
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Signed-off-by: Jochen Friedrich <jochen@scram.de>
 
-> >After downloading and compiling the latest version 2.6.12, my
-> >keyboard becomes unresponsive and dead following the boot process.
->=20
+Cleanup: remove two prototypes.
 
-=46WIW I have similar problem with Toshiba Portege 4000. Every second reboo=
-t=20
-keyboard is not there. It is really not there - i.e. I cannot even enter BI=
-OS=20
-setup or boot menu.
+---
+commit 12dd61e649920ddc5164971e36ed2a6aeb300708
+tree 2558f9767b0fa94b31bd6fe8de67cb17cab7e8df
+parent 6407300cd8c7368f6bfcaa476e4dd50ce7421ab2
+author Jochen Friedrich <jochen@scram.de> Fri, 29 Jul 2005 20:39:49 +0200
+committer Jochen Friedrich <jochen@scram.de> Fri, 29 Jul 2005 20:39:49 +0200
 
-This is not limited to Linux - I had exactly the same problem when WinXP wa=
-s=20
-on this system.
+ drivers/net/Space.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-As in other cases, disabling ACPI helps in this particular case but as this=
-=20
-system does not have APM it is not a real option.
+diff --git a/drivers/net/Space.c b/drivers/net/Space.c
+--- a/drivers/net/Space.c
++++ b/drivers/net/Space.c
+@@ -318,8 +318,6 @@ static void __init ethif_probe2(int unit
+ #ifdef CONFIG_TR
+ /* Token-ring device probe */
+ extern int ibmtr_probe_card(struct net_device *);
+-extern struct net_device *sk_isa_probe(int unit);
+-extern struct net_device *proteon_probe(int unit);
+ extern struct net_device *smctr_probe(int unit);
 
-While I am not very bothered by this problem (I just took habit to switch=20
-system off instead of reboot - it takes exactly the same amount of time=20
-because reboot seems to *do* switch off and then on) I am open to any=20
-suggestion how to debug the issue,
+ static struct devprobe2 tr_probes2[] __initdata = {
 
-Adding i8042.nomux did not help BTW.
+-- 
+Bug, n.:
+An aspect of a computer program which exists because the
+programmer was thinking about girls or stock options when he
+wrote the program.
 
-=2Dandrey
-
---nextPart37431379.Mi5hVze8Ng
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBC6ztpR6LMutpd94wRAo9kAJ922MMxZo7u4opV9PxBHrBzTgFGjACg0/7T
-ylhgQqTJ90N4/3rIgyAeuzo=
-=QsZW
------END PGP SIGNATURE-----
-
---nextPart37431379.Mi5hVze8Ng--

@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262815AbVG3Dxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbVG3EDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262815AbVG3Dxm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 23:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVG3Dxl
+	id S262772AbVG3EDx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 00:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVG3EDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 23:53:41 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:54995 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262815AbVG3Dwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 23:52:53 -0400
-Message-ID: <42EAF987.7020607@pobox.com>
-Date: Fri, 29 Jul 2005 23:52:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml@dodo.com.au
-CC: "Gaston, Jason D" <jason.d.gaston@intel.com>, mj@ucw.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com> <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com>
-In-Reply-To: <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.2 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Grant Coady wrote: > On Fri, 29 Jul 2005 18:21:05
-	-0400, Jeff Garzik <jgarzik@pobox.com> wrote: > >>[speaking to the
-	audience] I wouldn't mind if someone did a pass >>through pci_ids.h and
-	removed all the constants that are not being used. > > > Only these
-	seem not referenced by source: > PCI_CLASS_SYSTEM_PCI_HOTPLUG >
-	PCI_DEVICE_ID_CYRIX_PCI_MASTER > PCI_DEVICE_ID_HP_PCI_LBA >
-	PCI_DEVICE_ID_NP_PCI_FDDI > PCI_DEVICE_ID_UPCI_RM3_4PORT >
-	PCI_DEVICE_ID_UPCI_RM3_8PORT > > Source macros refer to: > BROOKTREE
-	sound/pci/bt87x.c > YAMAHA sound/oss/ymfpci.c > > 6 from 2329 entries
-	hardly worth it? [...] 
-	Content analysis details:   (0.2 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.2 UPPERCASE_25_50        message body is 25-50% uppercase
+	Sat, 30 Jul 2005 00:03:53 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:2256 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262772AbVG3EDw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 00:03:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BGF2RyQ3Sn1I2UhZD0Is5PtvnGsXw0HQcMW9/7S58PRsinmPFDmn1V4nYS01m3OM9GFta02Wl9eh6t7xQw1qpuvz8GMPCTLlr5FGCKrymE1bVTk5wjp6INhkaIOWOKQoiPQQhGlTduqXZs5Yo9Kn+UphDYdBF2sP/tg9AWpbGX8=
+Message-ID: <21d7e997050729210379e221c3@mail.gmail.com>
+Date: Sat, 30 Jul 2005 14:03:52 +1000
+From: Dave Airlie <airlied@gmail.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: 2.6.13-rc3-mm2/mm1 breaks DRI
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200507290652.44418.tomlins@cam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050727024330.78ee32c2.akpm@osdl.org>
+	 <200507282037.52292.tomlins@cam.org>
+	 <21d7e9970507281741fb51c98@mail.gmail.com>
+	 <200507290652.44418.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady wrote:
-> On Fri, 29 Jul 2005 18:21:05 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
->>[speaking to the audience]  I wouldn't mind if someone did a pass 
->>through pci_ids.h and removed all the constants that are not being used. 
-> 
-> 
-> Only these seem not referenced by source:
-> PCI_CLASS_SYSTEM_PCI_HOTPLUG
-> PCI_DEVICE_ID_CYRIX_PCI_MASTER
-> PCI_DEVICE_ID_HP_PCI_LBA
-> PCI_DEVICE_ID_NP_PCI_FDDI
-> PCI_DEVICE_ID_UPCI_RM3_4PORT
-> PCI_DEVICE_ID_UPCI_RM3_8PORT
-> 
-> Source macros refer to:
->   BROOKTREE	sound/pci/bt87x.c
->   YAMAHA	sound/oss/ymfpci.c
-> 
-> 6 from 2329 entries hardly worth it?
+Okay I'm still having trouble from reading back these e-mails on what
+is broken and what isn't..
 
-However you did your search, you did it wrong.  The very first two 
-entries I tried had zero uses:
+The most important question is if mainline 2.6.13-rc3 or -rc4 is okay?
 
-[jgarzik@pretzel linux-2.6]$ grepsrc ICH7_22
-./include/linux/pci_ids.h:#define PCI_DEVICE_ID_INTEL_ICH7_22   0x27e0
-[jgarzik@pretzel linux-2.6]$ grepsrc ICH7_23
-./include/linux/pci_ids.h:#define PCI_DEVICE_ID_INTEL_ICH7_23   0x27e2
-[jgarzik@pretzel linux-2.6]$
+If so then it is the -mm only that breaks  it, if -mm only can you 
 
+modprobe drm debug=1
+modprobe radeon
+
+then start X and send me the log... try commenting out the in
+radeon_drv.c line 79,
+.presetup = radeon_presetup
+
+to see if it makes it okay...
+
+I've just booted 32-bit debian-stable and it works okay for me ..
+
+Dave.

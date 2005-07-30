@@ -1,44 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263130AbVG3TSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263120AbVG3TMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263130AbVG3TSo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 15:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbVG3TRg
+	id S263120AbVG3TMz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 15:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263112AbVG3TKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 15:17:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65041 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263122AbVG3TPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 15:15:17 -0400
-Date: Sat, 30 Jul 2005 20:15:08 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: -rc4: arm broken?
-Message-ID: <20050730201508.B26592@flint.arm.linux.org.uk>
-Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
-	Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20050730130406.GA4285@elf.ucw.cz> <1122741937.7650.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1122741937.7650.27.camel@localhost.localdomain>; from rpurdie@rpsys.net on Sat, Jul 30, 2005 at 05:45:37PM +0100
+	Sat, 30 Jul 2005 15:10:48 -0400
+Received: from silver.veritas.com ([143.127.12.111]:56501 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S263115AbVG3TIu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 15:08:50 -0400
+Date: Sat, 30 Jul 2005 20:10:33 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>, linux-kernel@vger.kernel.org
+Subject: revert yenta free_irq on suspend
+Message-ID: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 30 Jul 2005 19:08:49.0800 (UTC) FILETIME=[1E3EC880:01C5953A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 30, 2005 at 05:45:37PM +0100, Richard Purdie wrote:
-> On Sat, 2005-07-30 at 15:04 +0200, Pavel Machek wrote:
-> > I merged -rc4 into my zaurus tree, and now zaurus will not boot. I see
-> > oops-like display, and it seems to be __call_usermodehelper /
-> > do_execve / load_script related. Anyone seen it before?
-> 
-> For the record -rc4 works fine on my Zaurus c760 (which is pxa255 based
-> rather than sa1100).
+Please revert the yenta free_irq on suspend patch (below)
+which went into 2.6.13-rc4 after 2.6.13-rc3-git9.
 
-It appears to work fine on Intel Assabet.
+Sorry Daniel, you may have a box on which resume doesn't work without
+it, but on my laptop APM resume from RAM now fails to work because of
+it - locks up solid.  The patch sounded rather fishy when it went in,
+but I've done an unprejudiced bisection and this turns out to be the
+culprit.  Perhaps it needs something more (I can try further patches),
+but as it stands it's unsuitable for 2.6.13.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Do I recall a worry about shared interrupts?  I indeed have
+PCI: Found IRQ 11 for device 0000:00:1f.1
+PCI: Sharing IRQ 11 with 0000:02:00.0
+PCI: Found IRQ 11 for device 0000:02:00.0
+PCI: Sharing IRQ 11 with 0000:00:1f.1
+PCI: Found IRQ 11 for device 0000:02:01.0
+PCI: Sharing IRQ 11 with 0000:02:01.1
+PCI: Found IRQ 11 for device 0000:02:01.1
+PCI: Sharing IRQ 11 with 0000:02:01.0
+on resume before that patch, and again now I've backed it out.
+
+Thanks,
+Hugh
+
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+
+Resume doesn't seem to work without.
+
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ drivers/pcmcia/yenta_socket.c |    9 +++++++++
+ 1 files changed, 9 insertions(+)
+
+diff -puN drivers/pcmcia/yenta_socket.c~yenta-free_irq-on-suspend drivers/pcmcia/yenta_socket.c
+--- devel/drivers/pcmcia/yenta_socket.c~yenta-free_irq-on-suspend	2005-07-28 01:05:52.000000000 -0700
++++ devel-akpm/drivers/pcmcia/yenta_socket.c	2005-07-28 01:05:52.000000000 -0700
+@@ -1107,6 +1107,8 @@ static int yenta_dev_suspend (struct pci
+ 		pci_read_config_dword(dev, 17*4, &socket->saved_state[1]);
+ 		pci_disable_device(dev);
+ 
++		free_irq(dev->irq, socket);
++
+ 		/*
+ 		 * Some laptops (IBM T22) do not like us putting the Cardbus
+ 		 * bridge into D3.  At a guess, some other laptop will
+@@ -1132,6 +1134,13 @@ static int yenta_dev_resume (struct pci_
+ 		pci_enable_device(dev);
+ 		pci_set_master(dev);
+ 
++		if (socket->cb_irq)
++			if (request_irq(socket->cb_irq, yenta_interrupt,
++			                SA_SHIRQ, "yenta", socket)) {
++				printk(KERN_WARNING "Yenta: request_irq() failed on resume!\n");
++				socket->cb_irq = 0;
++			}
++
+ 		if (socket->type && socket->type->restore_state)
+ 			socket->type->restore_state(socket);
+ 	}

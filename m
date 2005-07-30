@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263190AbVG3XcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263191AbVG3XhB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263190AbVG3XcR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 19:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbVG3XcL
+	id S263191AbVG3XhB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 19:37:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbVG3XhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 19:32:11 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:22740 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S263190AbVG3XbS (ORCPT
+	Sat, 30 Jul 2005 19:37:01 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:29411 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S263191AbVG3XhA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 19:31:18 -0400
-Subject: Re: Heads up for distro folks: PCMCIA hotplug differences (Re:
-	-rc4: arm broken?)
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Grant Coady <lkml@dodo.com.au>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050730232652.P26592@flint.arm.linux.org.uk>
-References: <20050730130406.GA4285@elf.ucw.cz>
-	 <1122741937.7650.27.camel@localhost.localdomain>
-	 <20050730201508.B26592@flint.arm.linux.org.uk>
-	 <20050730223628.M26592@flint.arm.linux.org.uk>
-	 <7pune19t9m9cgdacv8b5r3djpqvk28nipu@4ax.com>
-	 <20050730232652.P26592@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Sun, 31 Jul 2005 00:31:10 +0100
-Message-Id: <1122766271.7650.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Jul 2005 19:37:00 -0400
+Date: Sun, 31 Jul 2005 01:35:35 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       domen@coderock.org, linux-kernel@vger.kernel.org, clucas@rotomalug.org
+Subject: Re: [PATCH] Add schedule_timeout_{interruptible,uninterruptible}{,_msecs}()
+ interfaces
+In-Reply-To: <20050727222914.GB3291@us.ibm.com>
+Message-ID: <Pine.LNX.4.61.0507310046590.3728@scrub.home>
+References: <1122078715.5734.15.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0507231247460.3743@scrub.home> <1122116986.3582.7.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0507231340070.3743@scrub.home> <1122123085.3582.13.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0507231456000.3728@scrub.home> <20050723164310.GD4951@us.ibm.com>
+ <Pine.LNX.4.61.0507231911540.3743@scrub.home> <20050723191004.GB4345@us.ibm.com>
+ <Pine.LNX.4.61.0507232151150.3743@scrub.home> <20050727222914.GB3291@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-30 at 23:26 +0100, Russell King wrote:
-> No.  You can still use cardctl (or whatever the pcmciautils version
-> of that is) to eject cards, and you can of course still pull them
-> from the socket.
+Hi,
 
-If you pull CF memory cards from the socket, you'll see some interesting
-oops. I've been waiting for things to stabilise a bit before trying to
-investigate and hopefully fix this. Any assistance welcome.
+On Wed, 27 Jul 2005, Nishanth Aravamudan wrote:
 
-Richard
+> > > My goal is to distinguish between these cases in sleeping-logic:
+> > > 
+> > > 1) tick-oriented
+> > > 	use schedule_timeout(), add_timer(), etc.
+> > > 
+> > > 2) time-oriented
+> > > 	use schedule_timeout_msecs()
+> > 
+> > There is _no_ difference, the scheduler is based on ticks. Even if we soon 
+> > have different time sources, the scheduler will continue to measure the 
+> > time in ticks and for a simple reason - portability. Jiffies _are_ simple, 
+> > don't throw that away.
+> 
+> I agree that from an internal perspective there is no difference, but
+> from an *interface* perspective they are hugely different, simply on the
+> basis that one uses human-time units and one does not.
+> 
+> I guess we must continue to agree to disagree.
 
+I'm not really sure, what you disagree about.
+1 HZ is about one second, which I don't think is such a difficult concept. 
+I already said wrapper functions are fine and for anything smaller than 
+HZ/2 it's probably a good idea nowadays.
+My main point is to keep the core functionality in jiffies and provide 
+some wrapper functions. What exactly do you disagree here on?
+
+bye, Roman

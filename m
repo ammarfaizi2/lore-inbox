@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263011AbVG3IT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVG3IeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263011AbVG3IT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 04:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbVG3IST
+	id S262700AbVG3IeM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 04:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVG3IeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 04:18:19 -0400
-Received: from bay19-f12.bay19.hotmail.com ([64.4.53.62]:32968 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263011AbVG3IRt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 04:17:49 -0400
-Message-ID: <BAY19-F12E0E449458BCA97C418069CC10@phx.gbl>
-X-Originating-IP: [81.154.215.224]
-X-Originating-Email: [dcb314@hotmail.com]
-From: "d binderman" <dcb314@hotmail.com>
+	Sat, 30 Jul 2005 04:34:11 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:58207 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S262700AbVG3IeK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 04:34:10 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
 To: linux-kernel@vger.kernel.org
-Subject: file kernel/signal.c, 2 * array subscript out of range
-Date: Sat, 30 Jul 2005 08:17:48 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 30 Jul 2005 08:17:48.0961 (UTC) FILETIME=[2C2BC110:01C594DF]
+Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
+Date: Sat, 30 Jul 2005 12:33:38 +0400
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart37431379.Mi5hVze8Ng";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200507301233.45901.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there,
+--nextPart37431379.Mi5hVze8Ng
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I just tried to compile Redhat Fedora package
-kernel-2.6.12-1.1435_FC5 with the Intel C compiler version 8.1
+> >After downloading and compiling the latest version 2.6.12, my
+> >keyboard becomes unresponsive and dead following the boot process.
+>=20
 
-The compiler said
+=46WIW I have similar problem with Toshiba Portege 4000. Every second reboo=
+t=20
+keyboard is not there. It is really not there - i.e. I cannot even enter BI=
+OS=20
+setup or boot menu.
 
-kernel/signal.c(196): warning #175: subscript out of range
+This is not limited to Linux - I had exactly the same problem when WinXP wa=
+s=20
+on this system.
 
-The source code is
+As in other cases, disabling ACPI helps in this particular case but as this=
+=20
+system does not have APM it is not a real option.
 
-        case 4: ready  = signal->sig[3] &~ blocked->sig[3];
+While I am not very bothered by this problem (I just took habit to switch=20
+system off instead of reboot - it takes exactly the same amount of time=20
+because reboot seems to *do* switch off and then on) I am open to any=20
+suggestion how to debug the issue,
 
-Clearly broken code. Array sig has only _NSIG_WORDS elements,
-which is set to two on this architecture.
+Adding i8042.nomux did not help BTW.
 
-Suggest rework code to use _NSIG_WORDS as the upper limit, not
-a fixed constant.
+=2Dandrey
 
-The compiler also said
+--nextPart37431379.Mi5hVze8Ng
+Content-Type: application/pgp-signature
 
-kernel/signal.c(197): warning #175: subscript out of range
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-on the next line of source code.
+iD8DBQBC6ztpR6LMutpd94wRAo9kAJ922MMxZo7u4opV9PxBHrBzTgFGjACg0/7T
+ylhgQqTJ90N4/3rIgyAeuzo=
+=QsZW
+-----END PGP SIGNATURE-----
 
-
-Regards
-
-David Binderman
-
-_________________________________________________________________
-Want to block unwanted pop-ups? Download the free MSN Toolbar now!  
-http://toolbar.msn.co.uk/
-
+--nextPart37431379.Mi5hVze8Ng--

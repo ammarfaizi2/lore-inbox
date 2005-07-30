@@ -1,47 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262965AbVG3Nuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262966AbVG3ONN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262965AbVG3Nuy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 09:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262966AbVG3Nux
+	id S262966AbVG3ONN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 10:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbVG3ONN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 09:50:53 -0400
-Received: from dvhart.com ([64.146.134.43]:37306 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262965AbVG3Ntn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 09:49:43 -0400
-Date: Sat, 30 Jul 2005 06:49:44 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, colpatch@us.ibm.com
-Subject: Re: [PATCH] Fix NUMA node sizing in nr_free_zone_pages
-Message-ID: <259590000.1122731383@[10.10.2.4]>
-In-Reply-To: <20050729224043.7ce56d4e.akpm@osdl.org>
-References: <240970000.1122661910@[10.10.2.4]> <20050729224043.7ce56d4e.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Sat, 30 Jul 2005 10:13:13 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:47373 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262971AbVG3OMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 10:12:53 -0400
+Date: Sat, 30 Jul 2005 16:12:50 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Dave Teigland <teigland@redhat.com>
+Cc: Patrick Caulfield <pcaulfie@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [-mm patch] DLM must depend on IPV6 || IPV6=n
+Message-ID: <20050730141250.GH5590@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> We are iterating over all nodes in nr_free_zone_pages(). Because the 
->>  fallback zonelists contain all nodes in the system, and we walk all
->>  the zonelists, we're counting memory multiple times (once for each
->>  node). This caused us to make a size estimate of 32GB for an 8GB
->>  AMD64 box, which makes all the dirty ratio calculations, etc incorrect.
->> 
->>  There's still a further bug to fix from e820 holes causing overestimation
->>  as well, but this fix is separate, and good as is, and fixes one class
->>  of problems. Problem found by Badari, and tested by Ram Pai - thanks!
-> 
-> Alas my non-NUMA EMT64 box still gets it wrong.
-> 
-> nr_free_pagecache_pages() is still returning 1572864 on a 4G box.
+If you select something, you have to ensure that the dependencies of 
+what you are selecting are fulfilled.
 
-Yeah, it will do - is the e820 bug I mentioned above. Patch is half-written,
-will finish it off ASAP, but I'll be out today ;-(
+This patch fixes the following compile error with CONFIG_DLM=y and 
+CONFIG_IPV6=m:
 
-M.
+<--  snip  -->
+
+...
+  LD      .tmp_vmlinux1
+net/built-in.o: In function `sctp_v6_err':
+ipv6.c:(.text+0x8cb67): undefined reference to `icmpv6_err_convert'
+ipv6.c:(.text+0x8cbad): undefined reference to `in6_dev_finish_destroy'
+ipv6.c:(.text+0x8cc4b): undefined reference to `icmpv6_statistics'
+net/built-in.o: In function `sctp_v6_xmit':
+ipv6.c:(.text+0x8ccfc): undefined reference to `ipv6_addr_type'
+ipv6.c:(.text+0x8cfca): undefined reference to `ip6_xmit'
+net/built-in.o: In function `sctp_v6_get_dst':
+ipv6.c:(.text+0x8d031): undefined reference to `ipv6_addr_type'
+ipv6.c:(.text+0x8d083): undefined reference to `ip6_route_output'
+ipv6.c:(.text+0x8d4a7): undefined reference to `ip6_route_output'
+net/built-in.o: In function `sctp_v6_get_saddr':
+ipv6.c:(.text+0x8d7a1): undefined reference to `ipv6_get_saddr'
+net/built-in.o: In function `sctp_v6_cmp_addr':
+ipv6.c:(.text+0x8ddc0): undefined reference to `ipv6_addr_type'
+ipv6.c:(.text+0x8de0d): undefined reference to `ipv6_addr_type'
+ipv6.c:(.text+0x8de41): undefined reference to `ipv6_addr_type'
+net/built-in.o: In function `sctp_v6_available':
+ipv6.c:(.text+0x8dee8): undefined reference to `ipv6_addr_type'
+net/built-in.o: In function `sctp_v6_addr_valid':
+ipv6.c:(.text+0x8dfa2): undefined reference to `ipv6_addr_type'
+net/built-in.o:ipv6.c:(.text+0x8e014): more undefined references to `ipv6_addr_type' follow
+net/built-in.o: In function `sctp_v6_init':
+: undefined reference to `inet6_add_protocol'
+net/built-in.o: In function `sctp_v6_init':
+: undefined reference to `inet6_register_protosw'
+net/built-in.o: In function `sctp_v6_init':
+: undefined reference to `inet6_register_protosw'
+net/built-in.o: In function `sctp_v6_init':
+: undefined reference to `register_inet6addr_notifier'
+net/built-in.o: In function `sctp_v6_exit':
+: undefined reference to `inet6_del_protocol'
+net/built-in.o: In function `sctp_v6_exit':
+: undefined reference to `inet6_unregister_protosw'
+net/built-in.o: In function `sctp_v6_exit':
+: undefined reference to `inet6_unregister_protosw'
+net/built-in.o: In function `sctp_v6_exit':
+: undefined reference to `unregister_inet6addr_notifier'
+net/built-in.o: In function `sctp_v6_available':
+ipv6.c:(.text+0x8df2a): undefined reference to `ipv6_chk_addr'
+net/built-in.o:(.data+0x5e48): undefined reference to `inet6_release'
+net/built-in.o:(.data+0x5e4c): undefined reference to `inet6_bind'
+net/built-in.o:(.data+0x5e5c): undefined reference to `inet6_getname'
+net/built-in.o:(.data+0x5e64): undefined reference to `inet6_ioctl'
+net/built-in.o:(.data+0x5f04): undefined reference to `ipv6_setsockopt'
+net/built-in.o:(.data+0x5f08): undefined reference to `ipv6_getsockopt'
+make: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.13-rc3-mm3-modular/drivers/dlm/Kconfig.old	2005-07-30 14:07:12.000000000 +0200
++++ linux-2.6.13-rc3-mm3-modular/drivers/dlm/Kconfig	2005-07-30 14:07:41.000000000 +0200
+@@ -3,6 +3,7 @@
+ 
+ config DLM
+ 	tristate "Distributed Lock Manager (DLM)"
++	depends on IPV6 || IPV6=n
+ 	select IP_SCTP
+ 	help
+ 	A general purpose distributed lock manager for kernel or userspace
 

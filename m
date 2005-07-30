@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVG3Ckp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262728AbVG3CoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbVG3Ckp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 22:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbVG3Cko
+	id S262728AbVG3CoR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 22:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbVG3CoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 22:40:44 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5097 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262722AbVG3CkL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 22:40:11 -0400
-Date: Fri, 29 Jul 2005 19:39:52 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: astralstorm@gorzow.mm.pl, mkrufky@m1k.net, linux-kernel@vger.kernel.org
-Subject: Re: MM kernels - how to keep on the bleeding edge?
-Message-Id: <20050729193952.125d1377.pj@sgi.com>
-In-Reply-To: <20050726161149.0c9c36fa.akpm@osdl.org>
-References: <20050726185834.76570153.astralstorm@gorzow.mm.pl>
-	<42E692E4.4070105@m1k.net>
-	<20050726221506.416e6e76.astralstorm@gorzow.mm.pl>
-	<42E69C5B.80109@m1k.net>
-	<20050726144149.0dc7b008.akpm@osdl.org>
-	<20050727004932.1b25fc5d.astralstorm@gorzow.mm.pl>
-	<20050726161149.0c9c36fa.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta4 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Fri, 29 Jul 2005 22:44:16 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:37845 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262724AbVG3CoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Jul 2005 22:44:15 -0400
+Subject: Re: [PATCH 35/82] remove linux/version.h from
+	drivers/scsi/cpqfcTSinit.c
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050710193543.35.MfBvHx3206.2247.olh@nectarine.suse.de>
+References: <20050710193543.35.MfBvHx3206.2247.olh@nectarine.suse.de>
+Content-Type: text/plain
+Date: Fri, 29 Jul 2005 21:43:54 -0500
+Message-Id: <1122691434.5108.30.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> Ho hum.  Adding a "why
-> this was dropped" to the email seemed too tricky.
+On Sun, 2005-07-10 at 19:35 +0000, Olaf Hering wrote:
+> changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+> remove code for obsolete kernels
 
-I can't speak for all the other clue deprived gits out here, but for
-me at least just adding a generic "If this patch was sent on to Linus,
-that might be one possible reason it is now dropped from *-mm." boiler
-plate sentence to the existing notice would have been sufficient to
-calm my nerves and stop me from pestering you with stupid "what what
-why did you kill my patch ?!?" queries.
+I can't seem to get any of these patches to apply:
 
-No need for articial intelligence to condition the message on whether
-the patch actually was sent to Linus, or not.
+Applying 'remove linux/version.h from drivers/scsi/cpqfcTSinit.c'
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+patching file drivers/scsi/cpqfcTSinit.c
+patch: **** malformed patch at line 4: #include <linux/config.h>
+
+I've no idea what patch's problem is ... as far as I can tell there are
+no line breaks or illegal characters in the email.
+
+James
+
+

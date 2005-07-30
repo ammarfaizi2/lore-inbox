@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262985AbVG3Psl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262984AbVG3Pvq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262985AbVG3Psl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 11:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVG3Psl
+	id S262984AbVG3Pvq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 11:51:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVG3Pvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 11:48:41 -0400
-Received: from graphe.net ([209.204.138.32]:1964 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262985AbVG3Psk (ORCPT
+	Sat, 30 Jul 2005 11:51:46 -0400
+Received: from fsmlabs.com ([168.103.115.128]:2020 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262984AbVG3Pvo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 11:48:40 -0400
-Date: Sat, 30 Jul 2005 08:48:39 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Paul Jackson <pj@sgi.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] String conversions for memory policy
-In-Reply-To: <20050729225432.63b3dfb0.pj@sgi.com>
-Message-ID: <Pine.LNX.4.62.0507300844010.24809@graphe.net>
-References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
- <20050729152049.4b172d78.pj@sgi.com> <Pine.LNX.4.62.0507291746000.8663@graphe.net>
- <20050729225432.63b3dfb0.pj@sgi.com>
+	Sat, 30 Jul 2005 11:51:44 -0400
+Date: Sat, 30 Jul 2005 09:57:24 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Brian Schau <brian@schau.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Wireless Security Lock driver.
+In-Reply-To: <42EB99D6.1020907@schau.com>
+Message-ID: <Pine.LNX.4.61.0507300956340.29844@montezuma.fsmlabs.com>
+References: <42EB940E.5000008@schau.com> <42EB9650.8010305@m1k.net>
+ <42EB99D6.1020907@schau.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jul 2005, Paul Jackson wrote:
+On Sat, 30 Jul 2005, Brian Schau wrote:
 
-> Once we have a clear description of this syntax in the record,
-> I anticipate raising as an issue that this syntax does not have a
-> single integer or string token value per file (or at most, an array
-> or list of comparable integer values).
+> Hi Michael (and others),
+> 
+> 
+> Thanks for the info.   Well, the reason why I didn't inline the patch
+> was due to the size of it - in terms of lines.   However, here it is:
 
-The current patch only outputs the memory policy via
-smaps/emaps. However, this could be construet as a single string
-describing the policy.
+> +static void wsl_irq_in(struct urb *urb, struct pt_regs *regs)
+> +{
+> +	struct usb_wsl *wsl=urb->context;
+> +	int id=0, retval;
+> +	+	switch (urb->status) { <==========
+> +	case -ECONNRESET:
 
->From my earlier post:
-
-default                 -> Reset allocation policy to default
-prefer=<node>           -> Prefer allocation on specified node
-interleave={nodelist}   -> Interleaved allocation on the given nodes
-bind={zonelist}         -> Restrict allocation to the specified zones.
-
-Zones are specified by either only providing the node number or using the
-notation zone/name. I.e. 3/normal 1/high 0/dma etc.
+There is something wrong with your patch or mailer.

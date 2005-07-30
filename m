@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbVG3Jm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVG3J6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263027AbVG3Jm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 05:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVG3Jm4
+	id S261705AbVG3J6k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 05:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVG3J6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 05:42:56 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:8346 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S263027AbVG3Jm4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 05:42:56 -0400
-From: Grant Coady <lkml@dodo.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Gaston, Jason D" <jason.d.gaston@intel.com>, mj@ucw.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-Date: Sat, 30 Jul 2005 19:42:44 +1000
-Organization: www.scatter.mine.nu
-Reply-To: lkml@dodo.com.au
-Message-ID: <j9ime15b20eq23q1bnrbh1fnj34gch7lbp@4ax.com>
-References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com>
-In-Reply-To: <42EAABD1.8050903@pobox.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Sat, 30 Jul 2005 05:58:40 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20700 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261705AbVG3J6k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 05:58:40 -0400
+Date: Sat, 30 Jul 2005 11:58:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Len Brown <len.brown@intel.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] [GIT PATCH] ACPI patches for 2.6.13
+Message-ID: <20050730095834.GA1942@elf.ucw.cz>
+References: <1121304825.4435.126.camel@mindpipe> <Pine.LNX.4.58.0507131847000.17536@g5.osdl.org> <1121326938.3967.12.camel@laptopd505.fenrus.org> <20050714121340.GA1072@ucw.cz> <Pine.LNX.4.58.0507140933150.19183@g5.osdl.org> <1121383050.4535.73.camel@mindpipe> <Pine.LNX.4.58.0507141623490.19183@g5.osdl.org> <1121384499.4535.82.camel@mindpipe> <Pine.LNX.4.58.0507141648070.19183@g5.osdl.org> <1122702560.26850.9.camel@toshiba>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1122702560.26850.9.camel@toshiba>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jul 2005 18:21:05 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
->
->[speaking to the audience]  I wouldn't mind if someone did a pass 
->through pci_ids.h and removed all the constants that are not being used. 
->  If constants are not being used, it's IMHO more appropriate to store 
->that info in pci.ids.
+Hi!
 
-For: 
+> Please pull from:
+> 
+> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/lenb/to-linus/
+> 
+> Sorry to be scrambling so late in the 2.6.13 release cycle --
+> we'll do better with 2.6.14.
+> 
+> thanks,
+> -Len
+> 
+> p.s.
+> Latest ACPI plain patch, including stuff waiting for 2.6.14 is available
+> here:
+> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.12/
+> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.12/broken-out/
 
-linux-2.6.13-rc4:
-118 pci_ids-defined_elsewhere-files
-475 pci_ids-defined_elsewhere-items
-7 pci_ids-duplicate-items
-2321 pci_ids-list
-725 pci_ids-not_used
+What happened to those cleanups I sent to you in Ottawa? I never
+received any reply, can't see them below, and can't see them in
+broken-out either (maybe I'm looking wrong way?).
+							Pavel
 
-linux-2.6.13-rc3-mm3:
-119 pci_ids-defined_elsewhere-files
-475 pci_ids-defined_elsewhere-items
-7 pci_ids-duplicate-items
-2325 pci_ids-list
-723 pci_ids-not_used
-
-Should the 'defined elsewhere' items be brought into the one 
-pci_ids.h file?  Testing will take time.  Patch is ~70kB.
-
-Grant.
+-- 
+teflon -- maybe it is a trademark, but it should not be.

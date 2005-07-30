@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbVG3VDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbVG3VGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262717AbVG3VDy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 17:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVG3VDy
+	id S262767AbVG3VGc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 17:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVG3VGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 17:03:54 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62216 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262717AbVG3VDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 17:03:53 -0400
-Date: Sat, 30 Jul 2005 22:03:40 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>, Arjan Van de Ven <arjanv@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>
-Cc: Mark Underwood <basicmark@yahoo.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] ucb1x00: touchscreen cleanups
-Message-ID: <20050730220340.K26592@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Arjan Van de Ven <arjanv@redhat.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Mark Underwood <basicmark@yahoo.com>, rpurdie@rpsys.net,
-	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-References: <20050730102236.B9652@flint.arm.linux.org.uk> <20050730113350.62722.qmail@web30304.mail.mud.yahoo.com> <20050730212820.G26592@flint.arm.linux.org.uk> <20050730204658.GC9418@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Jul 2005 17:06:32 -0400
+Received: from mail.gmx.net ([213.165.64.20]:13464 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262767AbVG3VG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 17:06:29 -0400
+X-Authenticated: #2813124
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: revert yenta free_irq on suspend
+Date: Sat, 30 Jul 2005 23:08:22 +0200
+User-Agent: KMail/1.7.2
+Cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com> <200507302249.55409.rjw@sisk.pl>
+In-Reply-To: <200507302249.55409.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050730204658.GC9418@elf.ucw.cz>; from pavel@ucw.cz on Sat, Jul 30, 2005 at 10:46:58PM +0200
+Message-Id: <200507302308.23934.daniel.ritz@gmx.ch>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 30, 2005 at 10:46:58PM +0200, Pavel Machek wrote:
-> Hi!
+On Saturday 30 July 2005 22.49, Rafael J. Wysocki wrote:
+> On Saturday, 30 of July 2005 21:10, Hugh Dickins wrote:
+> > Please revert the yenta free_irq on suspend patch (below)
+> > which went into 2.6.13-rc4 after 2.6.13-rc3-git9.
+> > 
+> > Sorry Daniel, you may have a box on which resume doesn't work without
+> > it, but on my laptop APM resume from RAM now fails to work because of
+> > it - locks up solid.
 > 
-> > > > Note that I'm maintaining the code and will be
-> > > > publishing a new set
-> > > > of patches for it based upon Pavel's fixes.
-> > > 
-> > > Thanks. I'll check them out then.
-> > 
-> > Since there appears to be some interest in these, I'll set about
-> > converting the audio bits to ALSA rather than Nico's SA11x0 audio
-> > driver.  I thought no one was using these chips anymore, and the
-> > driver was dead!
-> > 
-> > I've recently edited the mcp structure which may make things less
-> > awkward for others, and I'll continue moving in that direction
-> > with this driver.
-> > 
-> > You can get the updated patches at:
-> > 
-> > 	http://zeniv.linux.org.uk/pub/people/rmk/ucb/
+> Well, the patch is needed on other boxes too (eg. mine :-)) due to the recent
+> changes in ACPI.
 > 
-> Okay, what's the plan with mainstreaming those? Do they stay in
-> drivers/misc?
 
-Let me put the second question a slightly different way: can anyone
-think of a better way to organise the files which makes more sense
-and doesn't end up with just a couple of files for the core UCB
-and MCP support in some random directory elsewhere?
+well, i have been told so. but when i asked 'why?' nobody answered something
+else than because of a ACPI change.
 
-Arjan?  hch?  any comments / good ideas?
+the patch already died in the git tree which is good.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+rgds
+-daniel

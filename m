@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVG3VMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262875AbVG3VN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbVG3VMD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 17:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVG3VMC
+	id S262875AbVG3VN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 17:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVG3VN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 17:12:02 -0400
-Received: from dani.dds.nl ([213.196.11.18]:56247 "EHLO dani.dds.nl")
-	by vger.kernel.org with ESMTP id S262766AbVG3VLx (ORCPT
+	Sat, 30 Jul 2005 17:13:58 -0400
+Received: from 69.36.162.216.west-datacenter.net ([69.36.162.216]:42954 "EHLO
+	schau.com") by vger.kernel.org with ESMTP id S262871AbVG3VNo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 17:11:53 -0400
-From: Willem de Bruijn <wdb@few.vu.nl>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: status of kernel memory debugging?
-Date: Sat, 30 Jul 2005 23:12:06 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <200507301323.28083.wdb@few.vu.nl> <20050730151432.GA3524@ccure.user-mode-linux.org>
-In-Reply-To: <20050730151432.GA3524@ccure.user-mode-linux.org>
+	Sat, 30 Jul 2005 17:13:44 -0400
+Message-ID: <42EBEDB1.7020802@schau.com>
+Date: Sat, 30 Jul 2005 23:14:25 +0200
+From: Brian Schau <brian@schau.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Wireless Security Lock driver.
+References: <42EB940E.5000008@schau.com> <20050730194215.GA9188@elf.ucw.cz> <42EBDEA9.60505@schau.com> <20050730203159.GB9418@elf.ucw.cz>
+In-Reply-To: <20050730203159.GB9418@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507302312.09384.wdb@few.vu.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> UML is still too strange for valgrind, despite progress on both sides
-> (valgrind accepting more strange things and UML becoming less
-> strange).
->
-> I tried grinding UML a month or so ago, and its use of clone was a
-> sticking point.
->
+Hi Pavel,
 
-I think I read your remark, yes. Thanks for the update; I hoped some strides 
-had been made in that direction since then. Personally,  I know to little 
-about the topic to be of any use.
 
-I guess the best option is then using slab caches per object type, so that I 
-can at least find obvious memory leaks. 
+I (and others) have tried using combinations of libusb/userland
+stuff - but have failed miserably.
 
-On a sidenote, it'll be interesting to see what valgrind reports once (if?) 
-the kernel gets a good grinding. 
+/brian
 
-Willem

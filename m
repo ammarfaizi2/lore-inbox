@@ -1,69 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262868AbVG3EIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVG3EIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262868AbVG3EIk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 00:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbVG3EG6
+	id S262827AbVG3EIj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 00:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbVG3EG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 00:06:58 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:47373 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262870AbVG3EGp
+	Sat, 30 Jul 2005 00:06:56 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:45837 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262823AbVG3EGo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 00:06:45 -0400
+	Sat, 30 Jul 2005 00:06:44 -0400
 Date: Fri, 29 Jul 2005 21:04:16 -0700
 From: zach@vmware.com
-Message-Id: <200507300404.j6U44Gkb005933@zach-dev.vmware.com>
+Message-Id: <200507300404.j6U44GTn005939@zach-dev.vmware.com>
 To: akpm@osdl.org, chrisl@vmware.com, davej@codemonkey.org.uk, hpa@zytor.com,
        linux-kernel@vger.kernel.org, pratap@vmware.com, Riley@Williams.Name,
        zach@vmware.com
-Subject: [PATCH] 5/6 i386 non-reversible-fs-gs
-X-OriginalArrivalTime: 30 Jul 2005 04:05:16.0421 (UTC) FILETIME=[E48DA350:01C594BB]
+Subject: [PATCH] 6/6 i386 mmu-set-pte
+X-OriginalArrivalTime: 30 Jul 2005 04:05:16.0187 (UTC) FILETIME=[E469EEB0:01C594BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subtle fix:  load_TLS has been moved after saving %fs and %gs segments to
-avoid creating non-reversible segments.  This could conceivably cause a bug
-if the kernel ever needed to save and restore fs/gs from the NMI handler.
-It currently does not, but this is the safest approach to avoiding fs/gs
-corruption.  SMIs are safe, since SMI saves the descriptor hidden state.
+Use set_pte macros in a couple places where they were missing.
 
-Diffs against: patch-2.6.13-rc4 + cpu-inline-cleanup + dt-inline-cleanup
+Also, setting PDPEs in PAE mode does not require atomic operations,
+since the PDPEs are cached by the processor, and only reloaded on
+an explicit or implicit reload of CR3.
+
+Since the four PDPEs must always be present in an active root, and the kernel
+PDPE is never updated, we are safe even from SMIs and interrupts / NMIs using
+task gates (which reload CR3).  Actually, much of this is moot, since the
+user PDPEs are never updated either, and the only usage of task gates is by
+the doublefault handler.  It appears the only place PGDs get updated in PAE
+mode is in init_low_mappings() / zap_low_mapping() for initial page table
+creation and recovery from ACPI sleep state, and these sites are safe by
+inspection.  Getting rid of the cmpxchg8b saves code space and 720 cycles
+in pgd_alloc on P4.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.13/arch/i386/kernel/process.c
+Index: linux-2.6.13/arch/i386/mm/pageattr.c
 ===================================================================
---- linux-2.6.13.orig/arch/i386/kernel/process.c	2005-07-29 11:17:02.000000000 -0700
-+++ linux-2.6.13/arch/i386/kernel/process.c	2005-07-29 11:50:19.000000000 -0700
-@@ -678,21 +678,26 @@
- 	__unlazy_fpu(prev_p);
+--- linux-2.6.13.orig/arch/i386/mm/pageattr.c	2005-07-29 14:06:16.000000000 -0700
++++ linux-2.6.13/arch/i386/mm/pageattr.c	2005-07-29 14:10:42.000000000 -0700
+@@ -12,6 +12,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/processor.h>
+ #include <asm/tlbflush.h>
++#include <asm/pgalloc.h>
  
- 	/*
--	 * Reload esp0, LDT and the page table pointer:
-+	 * Reload esp0.
+ static DEFINE_SPINLOCK(cpa_lock);
+ static struct list_head df_list = LIST_HEAD_INIT(df_list);
+@@ -52,8 +53,8 @@
+ 	addr = address & LARGE_PAGE_MASK; 
+ 	pbase = (pte_t *)page_address(base);
+ 	for (i = 0; i < PTRS_PER_PTE; i++, addr += PAGE_SIZE) {
+-		pbase[i] = pfn_pte(addr >> PAGE_SHIFT, 
+-				   addr == address ? prot : PAGE_KERNEL);
++               set_pte(&pbase[i], pfn_pte(addr >> PAGE_SHIFT, 
++                                          addr == address ? prot : PAGE_KERNEL));
+ 	}
+ 	return base;
+ } 
+Index: linux-2.6.13/arch/i386/mm/init.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/mm/init.c	2005-07-29 11:02:58.000000000 -0700
++++ linux-2.6.13/arch/i386/mm/init.c	2005-07-29 14:37:18.000000000 -0700
+@@ -348,7 +348,7 @@
+ 	 * All user-space mappings are explicitly cleared after
+ 	 * SMP startup.
  	 */
- 	load_esp0(tss, next);
+-	pgd_base[0] = pgd_base[USER_PTRS_PER_PGD];
++	set_pgd(&pgd_base[0], pgd_base[USER_PTRS_PER_PGD]);
+ #endif
+ }
  
- 	/*
--	 * Load the per-thread Thread-Local Storage descriptor.
-+	 * Save away %fs and %gs. No need to save %es and %ds, as
-+	 * those are always kernel segments while inside the kernel.
-+	 * Doing this before setting the new TLS descriptors avoids
-+	 * the situation where we temporarily have non-reloadable
-+	 * segments in %fs and %gs.  This could be an issue if the
-+	 * NMI handler ever used %fs or %gs (it does not today), or
-+	 * if the kernel is running inside of a hypervisor layer.
- 	 */
--	load_TLS(next, cpu);
-+	savesegment(fs, prev->fs);
-+	savesegment(gs, prev->gs);
+Index: linux-2.6.13/include/asm-i386/pgtable-3level.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/pgtable-3level.h	2005-06-17 12:48:29.000000000 -0700
++++ linux-2.6.13/include/asm-i386/pgtable-3level.h	2005-07-29 14:18:57.000000000 -0700
+@@ -64,7 +64,7 @@
+ #define set_pmd(pmdptr,pmdval) \
+ 		set_64bit((unsigned long long *)(pmdptr),pmd_val(pmdval))
+ #define set_pud(pudptr,pudval) \
+-		set_64bit((unsigned long long *)(pudptr),pud_val(pudval))
++		(*(pudptr) = (pudval))
  
- 	/*
--	 * Save away %fs and %gs. No need to save %es and %ds, as
--	 * those are always kernel segments while inside the kernel.
-+	 * Load the per-thread Thread-Local Storage descriptor.
- 	 */
--	asm volatile("mov %%fs,%0":"=m" (prev->fs));
--	asm volatile("mov %%gs,%0":"=m" (prev->gs));
-+	load_TLS(next, cpu);
- 
- 	/*
- 	 * Restore %fs and %gs if needed.
+ /*
+  * Pentium-II erratum A13: in PAE mode we explicitly have to flush

@@ -1,78 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262745AbVG3Bty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVG3Btx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbVG3Bty (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Jul 2005 21:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262825AbVG3BsZ
+	id S262869AbVG3Btx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Jul 2005 21:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbVG3Bsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 21:48:25 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:55197 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262745AbVG3Bpn convert rfc822-to-8bit
+	Fri, 29 Jul 2005 21:48:30 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:50835 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262866AbVG3BdB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 21:45:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YSz6eMMqahqtCZYuiKlh2lusl2ypDngG2P4Lll/YPgdHkdPi2AHHtC/nvvGPM+2wf5icoJyFFFUrPL6SkXd+rX7QKsULDWv+67fJQ2ukFjfwMt1WrJ8CELNwIWchihdAKBjldfcuTE7pTcKgSdYU5wNemH1/j2awlp/0IgH7BFM=
-Message-ID: <86802c4405072918451cd36138@mail.gmail.com>
-Date: Fri, 29 Jul 2005 18:45:41 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-Reply-To: yhlu <yhlu.kernel@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] x86_64: sync_tsc fix the race (so we can boot)
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <86802c4405072917525cfacc38@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <m1slxz1ssn.fsf@ebiederm.dsl.xmission.com>
-	 <86802c44050728092275e28a9a@mail.gmail.com>
-	 <86802c4405072810352d564fd3@mail.gmail.com>
-	 <m1ll3q5mx3.fsf@ebiederm.dsl.xmission.com>
-	 <86802c4405072913415379c5a4@mail.gmail.com>
-	 <m1oe8lf7o9.fsf@ebiederm.dsl.xmission.com>
-	 <86802c4405072917525cfacc38@mail.gmail.com>
+	Fri, 29 Jul 2005 21:33:01 -0400
+X-ORBL: [67.125.168.38]
+Message-ID: <42EAD8C8.7030701@pacbell.net>
+Date: Fri, 29 Jul 2005 18:32:56 -0700
+From: Mickey Stein <yekkim@pacbell.net>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Cal Peake <cp@absolutedigital.net>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.13-rc4
+References: <42EA1C8D.8080708@pacbell.net> <Pine.LNX.4.61.0507291456550.2566@lancer.cnet.absolutedigital.net>
+In-Reply-To: <Pine.LNX.4.61.0507291456550.2566@lancer.cnet.absolutedigital.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric,
+Cal Peake wrote:
 
-Latest tree works.
+>On Fri, 29 Jul 2005, Mickey Stein wrote:
+>
+>  
+>
+>>This is regarding *-rc4 and *-rc4-git1:  I slapped together my favorite config
+>>and gave it a test run. It had a bit of a problem and ground to a halt after
+>>spewing these into the log.
+>>
+>>If I can find the time tomorrow morning, I'll leave parport_pc commented out
+>>of modprobe.conf and see if something else pops loose. I don't use the
+>>parallel port, but I try to keep a fairly robust config for noticing bugs.
+>>    
+>>
+>
+>Hi Mick,
+>
+>Can you please try the patch below from Linus (or -git2 tomorrow) and 
+>confirm that it fixes it for you?
+>
+>thx,
+>-cp
+>
+>--- a/include/asm-i386/bitops.h
+>+++ b/include/asm-i386/bitops.h
+>@@ -335,14 +335,13 @@ static inline unsigned long __ffs(unsign
+> static inline int find_first_bit(const unsigned long *addr, unsigned size)
+> {
+> 	int x = 0;
+>-	do {
+>-		if (*addr)
+>-			return __ffs(*addr) + x;
+>-		addr++;
+>-		if (x >= size)
+>-			break;
+>+
+>+	while (x < size) {
+>+		unsigned long val = *addr++;
+>+		if (val)
+>+			return __ffs(val) + x;
+> 		x += (sizeof(*addr)<<3);
+>-	} while (1);
+>+	}
+> 	return x;
+> }
+> 
+>  
+>
+Hi Cal,
 
-YH
+I'll give that a go in about 30 minutes and report back, hopefully on 
+*rc4-* ;) . I'm not sure I'll be around in the morning so will apply 
+this to today's and see.
 
+Thanks,
 
-Booting processor 1/4 APIC 0x1
-Initializing CPU#1
-masked ExtINT on CPU#1
-Calibrating delay using timer specific routine.. 4000.31 BogoMIPS (lpj=8000624)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 1(1) -> Node 1 -> Core 0
- stepping 0a
-CPU 1: Syncing TSC to CPU 0.
-Booting processor 2/4 APIC 0x2
-Initializing CPU#2
-masked ExtINT on CPU#2
-CPU 1: synchronized TSC with CPU 0 (last diff -4 cycles, maxerr 896 cycles)
-Calibrating delay using timer specific routine.. 4000.28 BogoMIPS (lpj=8000572)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 2(1) -> Node 2 -> Core 0
- stepping 0a
-CPU 2: Syncing TSC to CPU 0.
-Booting processor 3/4 APIC 0x3
-Initializing CPU#3
-masked ExtINT on CPU#3
-CPU 2: synchronized TSC with CPU 0 (last diff -2 cycles, maxerr 909 cycles)
-Calibrating delay using timer specific routine.. 4000.15 BogoMIPS (lpj=8000317)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 3(1) -> Node 3 -> Core 0
- stepping 0a
-CPU 3: Syncing TSC to CPU 0.
-Brought up 4 CPUs
-time.c: Using PIT/TSC based timekeeping.
-testing NMI watchdog ... OK.
-checking if image is initramfs...<6>CPU 3: synchronized TSC with CPU 0
-(last diff -16 cycles, maxerr 1496 cycles)
+Mickey

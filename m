@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263165AbVG3Ws1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263177AbVG3Wui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263165AbVG3Ws1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 18:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbVG3Ws1
+	id S263177AbVG3Wui (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 18:50:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbVG3Wui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 18:48:27 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:52333 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263165AbVG3WsX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 18:48:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=r+cuFkZ4tstxC+i6DGiczHjNIXM5/WD90jo8L6m3EFZe8Wj4MT1T4uSntyG4lGus0INXY5Sc/dXsph4laM1ifYh5XtHj0igy1lhHfz/hHjryFoGmurlLUA3WLoYPlFIWdyc0it3Xpy3MwYItL5CuQqXR/G1roncs7NGrHcU/gec=
-Message-ID: <42EC03B5.20805@gmail.com>
-Date: Sun, 31 Jul 2005 01:48:21 +0300
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050722 Thunderbird/1.0.6 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en
+	Sat, 30 Jul 2005 18:50:38 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:21890 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263177AbVG3Wug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 18:50:36 -0400
+Date: Sat, 30 Jul 2005 23:49:54 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Display name of fbdev device
+Message-ID: <Pine.LNX.4.56.0507302347330.8398@pentafluge.infradead.org>
 MIME-Version: 1.0
-To: Brian Schau <brian@schau.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.13-rc4] Bug in the wireless code?
-References: <42EB94BC.3030604@schau.com> <200507301802.49019.vda@ilport.com.ua> <42EBBF17.5010503@schau.com>
-In-Reply-To: <42EBBF17.5010503@schau.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Brian Schau wrote:
-> Hi Denis/All,
-> 
-> 
-> I see the error in 2.6.12 as well (I just tried it).   My setup ...
-> 
-> Zyxel ZyAir B-100 pcmcia wireless card.
-> D-Link AccessPoint.
-> 
-> 
-> /brian
-> 
-> 
-> Denis Vlasenko wrote:
-> 
->> On Saturday 30 July 2005 17:54, Brian Schau wrote:
->>
->>> Hello,
->>>
->>> I am sorry to annoy you all.  I have problem in getting the
->>> wireless orinoco driver to work in 2.6.13-rc4.   It works
->>> like a charm in 2.6.11.
->>> Doing a diff between the files for orinoco shows a lot of
->>> differences.
->>>
->>> I'll gladly assist in any way I can.
->>
->>
->>
->> Does it work in 2.6.12? 2.6.13-rc1? rc2? rc3?
->>
->> (Please do not reply just to me, but to lkml)
+This patch displays the name of the fbdev driver in sysfs.
+Down the road this will replace the current proc handle we have.
 
-Whats the error?
-Any sort of output would probably be helpful.
 
-- --
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
+Signed-off-by: James Simmons <jsimmons@infradead.org>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFC7AO0A7Qvptb0LKURAnDXAJ9zJmw4gK7LN1TkJFL+0JV4vPnhlgCeIGYn
-XHUFp4jfsja+qZWusru8MAA=
-=kEho
------END PGP SIGNATURE-----
+--- linus-2.6/drivers/video/fbsysfs.c	2005-07-29 12:16:08.000000000 -0700
++++ fbdev-2.6/drivers/video/fbsysfs.c	2005-07-30 12:02:22.000000000 -0700
+@@ -414,6 +414,13 @@
+ 			fb_info->var.xoffset);
+ }
+ 
++static ssize_t show_name(struct class_device *class_device, char *buf)
++{
++	struct fb_info *fb_info = (struct fb_info *)class_get_devdata(class_device);
++
++	return snprintf(buf, PAGE_SIZE, "%s\n", fb_info->fix.id);
++}
++
+ static struct class_device_attribute class_device_attrs[] = {
+ 	__ATTR(bits_per_pixel, S_IRUGO|S_IWUSR, show_bpp, store_bpp),
+ 	__ATTR(blank, S_IRUGO|S_IWUSR, show_blank, store_blank),
+@@ -424,6 +431,7 @@
+ 	__ATTR(modes, S_IRUGO|S_IWUSR, show_modes, store_modes),
+ 	__ATTR(pan, S_IRUGO|S_IWUSR, show_pan, store_pan),
+ 	__ATTR(virtual_size, S_IRUGO|S_IWUSR, show_virtual, store_virtual),
++	__ATTR(name, S_IRUGO, show_name, NULL),
+ };
+ 
+ int fb_init_class_device(struct fb_info *fb_info)

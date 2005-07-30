@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263081AbVG3RNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263076AbVG3Rcr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263081AbVG3RNq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 13:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbVG3RLt
+	id S263076AbVG3Rcr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 13:32:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbVG3Rcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 13:11:49 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:175 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S263076AbVG3RLA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 13:11:00 -0400
-Message-ID: <42EBB4A8.6020807@m1k.net>
-Date: Sat, 30 Jul 2005 13:11:04 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brian Schau <brian@schau.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Wireless Security Lock driver.
-References: <42EB940E.5000008@schau.com> <42EB9650.8010305@m1k.net> <42EB99D6.1020907@schau.com> <Pine.LNX.4.61.0507300956340.29844@montezuma.fsmlabs.com> <42EBA482.2040006@schau.com>
-In-Reply-To: <42EBA482.2040006@schau.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 30 Jul 2005 13:32:47 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:14304 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263069AbVG3Rcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 13:32:46 -0400
+Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance
+	Initiator
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Alex Aizman <itn780@yahoo.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@lst.de>
+In-Reply-To: <429E15CD.2090202@yahoo.com>
+References: <429E15CD.2090202@yahoo.com>
+Content-Type: text/plain
+Date: Sat, 30 Jul 2005 12:32:42 -0500
+Message-Id: <1122744762.5055.10.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Schau wrote:
+On Wed, 2005-06-01 at 13:08 -0700, Alex Aizman wrote:
+> This is open-iscsi/linux-iscsi-5 Initiator. This submission is ready for
+> inclusion into mainline kernel.
 
-> *Grrr* - it's the mailer (I'm using Mozilla Thunderbird).   I don't
-> know why it has chosen to fold those two lines. 
+OK, I tried to put this into scsi-misc.
 
-I use thunderbird too... It does a good job with text file attachments, 
-it inserts them inline correctly... Maybe try again that way?
+FIB has taken your netlink number, so I changed it to 32
 
--- 
-Michael Krufky
+__nlm_put() has had an updated prototype, which I can fix (although I'm
+not sure you're supposed to be using this function...)
+
+I can't fix up the compile errors in iscsi_tcp.c:
+
+  CC [M]  drivers/scsi/iscsi_tcp.o
+drivers/scsi/iscsi_tcp.c: In function `iscsi_hdr_extract':
+drivers/scsi/iscsi_tcp.c:160: warning: implicit declaration of function
+`iscsi_cnx_error'
+drivers/scsi/iscsi_tcp.c:161: error: `ISCSI_ERR_PDU_GATHER_FAILED'
+undeclared (first use in this function)
+drivers/scsi/iscsi_tcp.c:161: error: (Each undeclared identifier is
+reported only once
+drivers/scsi/iscsi_tcp.c:161: error: for each function it appears in.)
+drivers/scsi/iscsi_tcp.c: In function `iscsi_tcp_state_change':
+drivers/scsi/iscsi_tcp.c:1005: error: `ISCSI_ERR_CNX_FAILED' undeclared
+(first use in this function)
+drivers/scsi/iscsi_tcp.c: In function `iscsi_sendhdr':
+drivers/scsi/iscsi_tcp.c:1092: error: `ISCSI_ERR_CNX_FAILED' undeclared
+(first use in this function)
+drivers/scsi/iscsi_tcp.c: In function `iscsi_sendpage':
+drivers/scsi/iscsi_tcp.c:1141: error: `ISCSI_ERR_CNX_FAILED' undeclared
+(first use in this function)
+drivers/scsi/iscsi_tcp.c: In function `iscsi_data_xmit_more':
+drivers/scsi/iscsi_tcp.c:1707: error: `STOP_CNX_RECOVER' undeclared
+(first use in this function)
+drivers/scsi/iscsi_tcp.c: At top level:
+[...]
+
+Do you have an updated driver that will work in the current tree?
+
+Thanks,
+
+James
+
 

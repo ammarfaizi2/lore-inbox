@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263123AbVG3Tks@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263167AbVG3TnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263123AbVG3Tks (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 15:40:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbVG3Tks
+	id S263167AbVG3TnY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 15:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbVG3Tmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 15:40:48 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:39884
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S263123AbVG3Tkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 15:40:45 -0400
-Date: Sat, 30 Jul 2005 12:40:52 -0700 (PDT)
-Message-Id: <20050730.124052.104057695.davem@davemloft.net>
-To: rmk+lkml@arm.linux.org.uk
+	Sat, 30 Jul 2005 15:42:31 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16805 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263133AbVG3TmW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 15:42:22 -0400
+Date: Sat, 30 Jul 2005 21:42:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Brian Schau <brian@schau.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3: cache flush missing from somewhere
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050729161343.A18249@flint.arm.linux.org.uk>
-References: <20050729161343.A18249@flint.arm.linux.org.uk>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Subject: Re: [PATCH] Wireless Security Lock driver.
+Message-ID: <20050730194215.GA9188@elf.ucw.cz>
+References: <42EB940E.5000008@schau.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42EB940E.5000008@schau.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-Date: Fri, 29 Jul 2005 16:13:43 +0100
+Hi!
 
-> My current patch to get this working is below.  The only thing which
-> really seems to fix the issue is the __flush_dcache_page call in
-> read_pages() - if I remove this, I get spurious segfaults and illegal
-> instruction faults.
+> I've attached a gzipped version of my Wireless Security Lock patch
+> for v2.6.13-rc4.
+> A Wireless Security Lock (WSL or weasel :-) is made up of two parts.
+> One part is a receiver which you plug into any available USB port.
+> The other part is a transmitter which at fixed intervals sends
+> "ping packets".
+> A "ping packet" usually consists of an ID and a flag telling if the
+> transmitter has just been turned on.
 
-If one cpu stores, does it get picked up in the other cpu's I-cache?
-If not, you cannot use the lazy dcache flushing method, and in fact
-you must broadcast the flush on all processors.
+Idea is good... but why don't you simply use bluetooth (built into
+many notebooks) and bluetooth-enabled phone?
 
-> If I make flush_dcache_page() non-lazy, this also fixes it, but this
-> is not desirable.  The problem also goes away if I disable the write
-> allocate cache mode.
+Probably could be done in userspace, too :-).
+								Pavel
 
-Strange.
-
-> If I call __flush_dcache_page() from update_mmu_cache() (iow, always
-> ensure that we have I/D coherency when the page is mapped into user
-> space) the effect is the same - I see random faults.
-
-You have to do the flush on the processor that does the store,
-at a minimum.  But if other cpus have no way to "notice" stores
-on other cpus in their I-cache, this alone is not sufficient.
-
-Based upon your report, I strongly suspect that remote I-caches
-do not see cpu local stores when the cache is in write allocate
-mode.  If this is true, it's a horrible design decision for an
-SMP system :(
-
-> To me, it feels like there's a path which results in pages mapped into
-> user space without update_mmu_cache() being called, but I'm unable to
-> find it.  Ideas?
-
-Ptrace can make this occur, but that's obviously not what you're
-seeing here.
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

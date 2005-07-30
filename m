@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbVG3EDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262822AbVG3EGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbVG3EDx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 00:03:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVG3EDx
+	id S262822AbVG3EGq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 00:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262871AbVG3EGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 00:03:53 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:2256 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262772AbVG3EDw convert rfc822-to-8bit
+	Sat, 30 Jul 2005 00:06:46 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:41741 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262822AbVG3EGm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 00:03:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BGF2RyQ3Sn1I2UhZD0Is5PtvnGsXw0HQcMW9/7S58PRsinmPFDmn1V4nYS01m3OM9GFta02Wl9eh6t7xQw1qpuvz8GMPCTLlr5FGCKrymE1bVTk5wjp6INhkaIOWOKQoiPQQhGlTduqXZs5Yo9Kn+UphDYdBF2sP/tg9AWpbGX8=
-Message-ID: <21d7e997050729210379e221c3@mail.gmail.com>
-Date: Sat, 30 Jul 2005 14:03:52 +1000
-From: Dave Airlie <airlied@gmail.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: 2.6.13-rc3-mm2/mm1 breaks DRI
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200507290652.44418.tomlins@cam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050727024330.78ee32c2.akpm@osdl.org>
-	 <200507282037.52292.tomlins@cam.org>
-	 <21d7e9970507281741fb51c98@mail.gmail.com>
-	 <200507290652.44418.tomlins@cam.org>
+	Sat, 30 Jul 2005 00:06:42 -0400
+Date: Fri, 29 Jul 2005 21:04:16 -0700
+From: zach@vmware.com
+Message-Id: <200507300404.j6U44GSC005922@zach-dev.vmware.com>
+To: akpm@osdl.org, chrisl@vmware.com, davej@codemonkey.org.uk, hpa@zytor.com,
+       linux-kernel@vger.kernel.org, pratap@vmware.com, Riley@Williams.Name,
+       zach@vmware.com
+Subject: [PATCH] 2/6 i386 serialize-msr
+X-OriginalArrivalTime: 30 Jul 2005 04:05:16.0265 (UTC) FILETIME=[E475D590:01C594BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay I'm still having trouble from reading back these e-mails on what
-is broken and what isn't..
+i386 arch cleanup.  Introduce the serialize macro to serialize processor state.
+Why the microcode update needs it I am not quite sure, since wrmsr() is already
+a serializing instruction, but it is a microcode update, so I will keep the
+semantic the same, since this could be a timing workaround.  As far as I can
+tell, this has always been there since the original microcode update source.
 
-The most important question is if mainline 2.6.13-rc3 or -rc4 is okay?
+Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-If so then it is the -mm only that breaks  it, if -mm only can you 
-
-modprobe drm debug=1
-modprobe radeon
-
-then start X and send me the log... try commenting out the in
-radeon_drv.c line 79,
-.presetup = radeon_presetup
-
-to see if it makes it okay...
-
-I've just booted 32-bit debian-stable and it works okay for me ..
-
-Dave.
+Index: linux-2.6.13/arch/i386/kernel/microcode.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/kernel/microcode.c	2005-07-29 11:14:33.000000000 -0700
++++ linux-2.6.13/arch/i386/kernel/microcode.c	2005-07-29 11:16:18.000000000 -0700
+@@ -164,7 +164,8 @@
+ 	}
+ 
+ 	wrmsr(MSR_IA32_UCODE_REV, 0, 0);
+-	__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
++	/* XXX needed? wrmsr should serialize unless a chip bug */
++	serialize(); 
+ 	/* get the current revision from MSR 0x8B */
+ 	rdmsr(MSR_IA32_UCODE_REV, val[0], uci->rev);
+ 	pr_debug("microcode: collect_cpu_info : sig=0x%x, pf=0x%x, rev=0x%x\n",
+@@ -377,7 +378,9 @@
+ 		(unsigned long) uci->mc->bits >> 16 >> 16);
+ 	wrmsr(MSR_IA32_UCODE_REV, 0, 0);
+ 
+-	__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
++	/* XXX needed? wrmsr should serialize unless a chip bug */
++	serialize(); 
++
+ 	/* get the current revision from MSR 0x8B */
+ 	rdmsr(MSR_IA32_UCODE_REV, val[0], val[1]);
+ 
+Index: linux-2.6.13/include/asm-i386/processor.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/processor.h	2005-07-29 11:16:10.000000000 -0700
++++ linux-2.6.13/include/asm-i386/processor.h	2005-07-29 11:16:28.000000000 -0700
+@@ -277,6 +277,11 @@
+ 	outb((data), 0x23); \
+ } while (0)
+ 
++static inline void serialize(void)
++{
++	 __asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
++}
++
+ static inline void __monitor(const void *eax, unsigned long ecx,
+ 		unsigned long edx)
+ {

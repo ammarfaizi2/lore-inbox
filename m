@@ -1,66 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263119AbVG3TxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263131AbVG3TzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263119AbVG3TxE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 15:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbVG3TxE
+	id S263131AbVG3TzO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 15:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbVG3TzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 15:53:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44772 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263119AbVG3Tv2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 15:51:28 -0400
-Date: Sat, 30 Jul 2005 21:51:17 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-Message-ID: <20050730195116.GB9188@elf.ucw.cz>
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122678943.9381.44.camel@mindpipe> <20050730120645.77a33a34.Ballarin.Marc@gmx.de> <1122746718.14769.4.camel@mindpipe>
+	Sat, 30 Jul 2005 15:55:13 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22419
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S263125AbVG3Txs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 15:53:48 -0400
+Date: Sat, 30 Jul 2005 12:53:54 -0700 (PDT)
+Message-Id: <20050730.125354.112595635.davem@davemloft.net>
+To: hch@lst.de
+Cc: itn780@yahoo.com, James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance
+ Initiator
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050730183803.GA12081@lst.de>
+References: <1122744762.5055.10.camel@mulgrave>
+	<42EBC8A6.7030403@yahoo.com>
+	<20050730183803.GA12081@lst.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122746718.14769.4.camel@mindpipe>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance Initiator
+Date: Sat, 30 Jul 2005 20:38:03 +0200
 
-> > > What kind of results do you get with a more realistic setup, like
-> > > running KDE or Gnome OOTB?
-> > > 
-> > 
-> > Here are results with KDE running.
-> > 
-> > - no peripherals attached, i.e. truly mobile setup.
-> > - all modules loaded
-> > - klaptopdaemon disabled in order to eliminate competition in polling the
-> >   already slow battery controller
-> > - furthermore, I found that artsd prevents entering C3 and generally
-> >   increases power consumption (ALSA, snd_intel8x0)
-> > - voltage is 16.5V
+> On Sat, Jul 30, 2005 at 11:36:22AM -0700, Alex Aizman wrote:
+> > OK. Hopefully that'll remain.
 > 
-> > HZ=100:                   HZ=1000:      DIFF:
-> > 
-> > 1) averages:
-> > 
-> > backlight off, arstd off:
-> > 637.17                    679.67        42.5
-> 
-> > backlight off, artsd on:
-> > 799.46                    806.13        6.67
-> 
-> So it looks like artsd wastes way more power DMAing a bunch of silent
-> pages to the sound card than HZ=1000.
-> 
-> There's nothing the ALSA layer can do about this, it's a KDE bug.
-> 
-> I think this is a good argument for leaving HZ at 1000 until some of
-> these userspace bugs are fixed.
+> Please ask davem for a netlink number allocation.
 
-WTF? HZ=1000 eats energy like crazy. artsd eats energy like crazy. And
-you advocate breaking kernel because artsd is broken?!
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+There are none to allocate, see my other email as to how we
+have to start handling the issue of many new netlink users
+and the fact that we are out of numbers to give to people.

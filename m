@@ -1,50 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVGaFa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVGaFc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVGaFa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 01:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVGaFa2
+	id S261626AbVGaFc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 01:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVGaFcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 01:30:28 -0400
-Received: from mail.kroah.org ([69.55.234.183]:43408 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261708AbVGaFa0 (ORCPT
+	Sun, 31 Jul 2005 01:32:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61127 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261626AbVGaFcR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 01:30:26 -0400
-Date: Sat, 30 Jul 2005 21:37:11 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jt <jt@jtholmes.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12 stalls Andrew M. req this extended dmesg dump
-Message-ID: <20050731043710.GA18532@kroah.com>
-References: <42EBB9CD.7090706@jtholmes.com> <20050730125238.327be97c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050730125238.327be97c.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+	Sun, 31 Jul 2005 01:32:17 -0400
+Date: Sat, 30 Jul 2005 22:31:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Brown, Len" <len.brown@intel.com>
+cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>
+Subject: RE: revert yenta free_irq on suspend
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.58.0507302216570.29650@g5.osdl.org>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 30, 2005 at 12:52:38PM -0700, Andrew Morton wrote:
-> udev is doing stuff.
+
+
+On Sun, 31 Jul 2005, Brown, Len wrote:
 > 
-> >  [   40.691350] c16b1f40 00000082 c0115ff9 00000000 c1601530 bfd67d94 c1601530 00000000 
-> >  [   40.691544]        c1384e80 c1384520 00000000 0000122d 8cc9bc6a 00000008 c1601530 c1601020 
-> >  [   40.695744]        c1601144 00000000 00000246 c16010c8 00000004 fffffe00 c1601020 c0121343 
-> >  [   40.699932] Call Trace:
-> >  [   40.708026]  [<c0115ff9>] do_page_fault+0x1a9/0x57a
-> >  [   40.712230]  [<c0121343>] do_wait+0x313/0x3a0
-> >  [   40.716403]  [<c0119940>] default_wake_function+0x0/0x10
-> >  [   40.720663]  [<c0119940>] default_wake_function+0x0/0x10
-> >  [   40.724858]  [<c0121479>] sys_wait4+0x29/0x30
-> >  [   40.729039]  [<c0103f99>] syscall_call+0x7/0xb
-> >  [   40.733255] udev          S 00000000     0  1443    795                     (NOTLB)
-> 
-> And it's sleeping for some reason.
+> If one believes that suspend/resume is working on a large number of
+> systems -- working to a level that a distro can acutally support it,
+> then restoring our temporary resume IRQ router hack to make many systems
+> work is clearly the right thing to do.
 
-Yes, older versions of udev (< 058) can work _really slow_ with 2.6.12.
-Please upgrade your version of udev and see if that solves the issue or
-not.
+I don't believe that it works on a huge number of devices as-is, no.
 
-thanks,
+But I'm definitely even less likely to believe in this "two steps forward,
+one step back" dance. Because as far as I can tell, it's equally often
+"one step forward, two steps back", and nobody can tell when we go forware 
+more than we go backwards.
 
-greg k-h
+So I'd rather have "one tenth of a step forward, but if we see even a 
+_hint_ of a step back, we revert immediately".
+
+I realize that sounds damn timid and boring, but the thing is:
+
+ - even _if_ (and quite frankly, judging by the complaints, I find that 
+   unlikely) we're doing more forward progress than backwards progress 
+   ("backwards progress? you moron!"), the "one step back" thing is really 
+   doing a _huge_ amount of psychological damage to the whole thing.
+
+   The thing is, we're better off making very very slow progress that is 
+   _steady_, than having people who _used_ to have things work for them 
+   suddenly break.
+
+   So I believe that if we fix two machines and break one machine, we've 
+   actually regressed. It doesn't matter that we fixed more than we broke: 
+   we _still_ regressed. Because it means that people can't trust the 
+   progress we make!
+
+So this is why I'm a very strong proponent of the fact that if we _ever_
+have anybody complain that a patch broke things, we should immediately
+revert it, unless we can fix it asap.
+
+Btw, this argument is much less true in areas where we can "think" about
+the problems. In non-driver/non-firmware cases.
+
+When we can logically argue from a purely theoretical standpoint for a
+"known correct solution", and expect the theoretical argument to actually
+be reflected in practice, I'm much more open to an argument of "ok, we
+know where we are going, and we'll have to break a few eggs just because
+the changes are extensive".
+
+But when it comes to device drivers and badly documented stuff that
+developers can usually not even reproduce, our #1 strength is the people
+for whom it works, and when something breaks, that's a huge big red flag,
+and then I really think that "revert or fix immediately" is the only
+reasonable alternative. Otherwise we'll just oscillate about a point that
+we don't even know where it is, and have no way to judge if the
+oscillations are getting more violent or are dampening out - we don't have
+a reference point.
+
+But as with everything, there is no total black-and-white case. Things 
+_do_ break occasionally, and clearly we can't guarantee nonbreakage or 
+we'll end up being static.
+
+But this particular thing has clearly caused a _lot_ of noise, with
+second-order breakage from fixes from the first order one. At the very 
+least alternatives should be tried, and I think there _are_ much less 
+intrusive alternatives that are _much_ less likely to have these kinds of 
+negative side effects.
+
+		Linus

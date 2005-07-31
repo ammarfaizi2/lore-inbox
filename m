@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVGaXX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVGaXZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbVGaXX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 19:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVGaXX4
+	id S262041AbVGaXZl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 19:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVGaXZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 19:23:56 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:50580 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261915AbVGaXXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 19:23:55 -0400
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-From: Lee Revell <rlrevell@joe-job.com>
+	Sun, 31 Jul 2005 19:25:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54753 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262041AbVGaXYQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 19:24:16 -0400
+Date: Sun, 31 Jul 2005 16:24:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Pavel Machek <pavel@ucw.cz>
-Cc: James Bruce <bruce@andrew.cmu.edu>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050731224752.GC27580@elf.ucw.cz>
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de>
-	 <1122678943.9381.44.camel@mindpipe>
-	 <20050730120645.77a33a34.Ballarin.Marc@gmx.de>
-	 <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz>
-	 <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz>
-	 <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz>
-	 <42ED4CCF.6020803@andrew.cmu.edu>  <20050731224752.GC27580@elf.ucw.cz>
-Content-Type: text/plain
-Date: Sun, 31 Jul 2005 19:23:54 -0400
-Message-Id: <1122852234.13000.27.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+cc: ambx1@neo.rr.com, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: revert yenta free_irq on suspend
+In-Reply-To: <20050731230507.GE27580@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0507311622510.14342@g5.osdl.org>
+References: <2e00842e116e.2e116e2e0084@columbus.rr.com>
+ <Pine.LNX.4.58.0507311550400.14342@g5.osdl.org> <20050731230507.GE27580@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-01 at 00:47 +0200, Pavel Machek wrote:
-> I'm pretty sure at least one distro will go with HZ<300 real soon now
-> ;-).
+
+
+On Mon, 1 Aug 2005, Pavel Machek wrote:
 > 
+> Ok, so we'll keep adding those free_irq/request_irq pairs
 
-Any idea what their official recommendation for people running apps that
-require the 1ms sleep resolution is?  Something along the lines of "Get
-bent"?
+I would suggest doing so only if you have a case where it can matter.
 
-Lee
+> and re-introduce that ACPI change when we are ready?
 
+Why do it _ever_? There is _zero_ upside to doing it, I don't see why you 
+want to.
+
+Just make ACPI restore the dang thing. It's the right thing to do.
+
+			Linus

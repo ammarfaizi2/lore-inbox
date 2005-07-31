@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVGaMjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVGaMmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVGaMjD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 08:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVGaMjD
+	id S261716AbVGaMmw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 08:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVGaMmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 08:39:03 -0400
-Received: from nproxy.gmail.com ([64.233.182.206]:42588 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261734AbVGaMi3 (ORCPT
+	Sun, 31 Jul 2005 08:42:52 -0400
+Received: from 69.36.162.216.west-datacenter.net ([69.36.162.216]:22253 "EHLO
+	schau.com") by vger.kernel.org with ESMTP id S261716AbVGaMmv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 08:38:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=Z7z/Do241FU7fe/ZrymxlR9mwhQweDU9Ct94+RI7q2vCqsvUOEH7VcjJgy529Mo3IUfU22ofEqqUlIK5vnRngN5Pv1QbEGO5Sn8whs4qZec56xEQH2PTUnoF5El3QuaGAoiio4v8Eqepqy2FDQCtsZ7fcNnZ4i+8WVA95Z8hyOs=
-Message-ID: <42ECE2FE.2090204@gmail.com>
-Date: Sun, 31 Jul 2005 14:41:02 +0000
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050726)
-X-Accept-Language: de-DE, de, en-us, en
+	Sun, 31 Jul 2005 08:42:51 -0400
+Message-ID: <42ECC771.2050607@schau.com>
+Date: Sun, 31 Jul 2005 14:43:29 +0200
+From: Brian Schau <brian@schau.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4-mm1
-References: <20050731020552.72623ad4.akpm@osdl.org> <6f6293f105073103045fd32d61@mail.gmail.com>
-In-Reply-To: <6f6293f105073103045fd32d61@mail.gmail.com>
+To: Pavel Machek <pavel@ucw.cz>
+CC: James Cloos <cloos@jhcloos.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Wireless Security Lock driver.
+References: <42EB940E.5000008@schau.com> <20050730194215.GA9188@elf.ucw.cz> <42EBDEA9.60505@schau.com> <20050730203159.GB9418@elf.ucw.cz> <m3mzo3jriv.fsf@lugabout.cloos.reno.nv.us> <20050731095207.GJ9418@elf.ucw.cz>
+In-Reply-To: <20050731095207.GJ9418@elf.ucw.cz>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana schrieb:
+Yes, the quirk is in the patch :-)
 
->>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc4/2.6.13-rc4-mm1/
->>    
+Pavel Machek wrote:
+> Hi!
+> 
+> 
+>>Pavel> Well, that is if you use /dev/psaux, right? Using event devices
+>>Pavel> you should be able to access it from userland.
 >>
->
->Why was the KERNEL_VERSION(a,b,c) macro removed from
->include/linux/version.h? The removal breaks external drivers like
->NDISWRAPPER or nVidia propietary.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hello Felipe,
-
-I could not regonize a breakage of NVidia (Version 1.0-7667) propietary 
-drivers.
-They work just perfect.
-
-Greets
-       Michael
+>>Would /dev/input/mice not also be affected?
+> 
+> 
+> Yes, /dev/input/mice == /dev/psaux.
+> 
+> 
+>>Until X can hotplug input devices /dev/input/mice rather than evdev
+>>will remain necessary in many cases for a reasonable user experience.
+>>
+>>So at least a quirk/whatever to keep that device from being included
+>>in mice (and psaux) should be added.
+> 
+> 
+> Yes... why not. But that should be close to one liner, right?
+> 								Pavel

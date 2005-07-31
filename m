@@ -1,119 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVGaUeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVGaUn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbVGaUeh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 16:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVGaUeh
+	id S261883AbVGaUn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 16:43:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVGaUn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 16:34:37 -0400
-Received: from ms-smtp-01-smtplb.ohiordc.rr.com ([65.24.5.135]:51185 "EHLO
-	ms-smtp-01-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S261996AbVGaUee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 16:34:34 -0400
-Date: Sun, 31 Jul 2005 16:34:15 -0400
-From: ambx1@neo.rr.com
-Subject: Re: revert yenta free_irq on suspend
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>
-Message-id: <2e00842e116e.2e116e2e0084@columbus.rr.com>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 HotFix 2.04 (built Feb  8 2005)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
+	Sun, 31 Jul 2005 16:43:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60876 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261883AbVGaUnz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 16:43:55 -0400
+Date: Sun, 31 Jul 2005 13:42:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Frank Peters <frank.peters@comcast.net>
+Cc: vojtech@suse.cz, mkrufky@m1k.net, linux-kernel@vger.kernel.org
+Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
+Message-Id: <20050731134245.742b9fc2.akpm@osdl.org>
+In-Reply-To: <20050731152406.200fe1c1.frank.peters@comcast.net>
+References: <20050624113404.198d254c.frank.peters@comcast.net>
+	<42BC306A.1030904@m1k.net>
+	<20050624125957.238204a4.frank.peters@comcast.net>
+	<42BC3EFE.5090302@m1k.net>
+	<20050728222838.64517cc9.akpm@osdl.org>
+	<42E9C245.6050205@m1k.net>
+	<20050728225433.6dbfecbe.akpm@osdl.org>
+	<42EAF885.40008@m1k.net>
+	<20050729213724.01c61c26.akpm@osdl.org>
+	<20050730023453.196a7477.frank.peters@comcast.net>
+	<20050731184532.GA9026@ucw.cz>
+	<20050731152406.200fe1c1.frank.peters@comcast.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: Linus Torvalds <torvalds@osdl.org> 
-Date: Sunday, July 31, 2005 11:53 am 
-Subject: Re: revert yenta free_irq on suspend 
-
+Frank Peters <frank.peters@comcast.net> wrote:
+>
+> On Sun, 31 Jul 2005 20:45:32 +0200
+> Vojtech Pavlik <vojtech@suse.cz> wrote:
 > 
-> 
-> On Sun, 31 Jul 2005, Pavel Machek wrote: 
+> > > 
+> > > During a failed boot, when the keyboard was unresponsive, I managed
+> > > to capture a kernel log of this failure.  Here are the lines that caught
+> > > my attention:
+> > > 
+> > > kernel: i8042.c: Can't read CTR while initializing i8042.
+> > > kernel: Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
+> > > kernel: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> > > kernel: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+> > > kernel: ACPI: PCI Interrupt 0000:02:0a.0[A] -> GSI 22 (level, low) -> IRQ 16
+> > > kernel: ttyS2 at I/O 0xb800 (irq = 16) is a 16550A
+> > > 
+> >  
+> > Please try 'usb-handoff' on the kernel command line. This looks like an
+> > usual symptom on machines that need it.
 > > 
-> > Well, on some machines interrupts can change during suspend (or 
-> so I 
-> > was told). I did not like the ACPI change at one point, but it 
-> is very 
-> > wrong to revert PCMCIA fix without also fixing ACPI interpretter. 
+> > 
+> >
 > 
-> We _are_ going to fix the ACPI interpreter. 
+> It works!  :-)))
 > 
-> As to irq's changing during suspend - I'll believe that when I see 
-> it, not 
-> when some chicken little runs around worrying about it. I doubt 
-> anybody 
-> has ever seen it, and I'm 100% sure that we have serious breakage 
-> right 
-> now on machines where it definitely doesn't happen. 
-> 
-> > And it indeed seems that ACPI interpretter is hard to fix in the 
-> right> way. 
-> 
-> We'll revert to the behaviour that it has traditionally had, and 
-> start 
-> working forwards in a more careful manner. Where we don't break 
-> working 
-> setups. 
-> 
-> Linus 
+> Booting linux-2.6.13-rc4 with the "usb-handoff" option gives me
+> a working keyboard everytime now.
 
-Hi Linus,
-
-In general, I think that calling free_irq is the right behavior.
-Although irqs changing after suspend is rare, there are also some
-more serious issues.  This has been discussed in the past, and a
-summary is as follows:
-
-1.) race conditions:
-Consider the case where several PCI devices are sharing a single PCI
-interrupt.  One device is suspended, but doesn't call free_irq.  Now
-another properly behaving device on the same interrupt line generates
-an interrupt.  Let's say the suspended device had its handler
-registered first, and therefore is called first.  The handler will
-attempt to access registers on the physically-off device to determine
-if it generated the interrupt.  The PCI bus will issue a master abort.
-The driver's interrupt handler will likely interpret the read
-incorrectly.
-
-Every interrupt handler could be modified to check if the device is
-available, but it would be cleaner and more efficient to unregister
-the interrupt.  Either way, every driver has to be changed to support
-PM correctly.
-
-2.) runtime power management:
-We don't want to leave stale interrupt handlers registered when only
-suspending a specific device.  As we move toward supporting runtime
-power management it will be important to ensure every driver calls
-free_irq() in its suspend() (or whatever we're using at that point)
-routine.  This avoids interrupt handler bugs and extra interrupt
-overhead.
-
-
-Also I'd like to point out that this patch broke APM suspend-to-ram,
-not ACPI S3.  IMO, it may not be possible to support both APM and ACPI
-on every system, as their specs are not intended to be compatible.
-Progress toward proper suspend-to-ram support will, in many cases, be
-a small setback for APM.  This really can't be avoided.
-
-There are, however, some things we can do to mitigate the breakage
-toward APM.  Specifically, we should indicate the type of suspend state,
-including if it's an ACPI or APM state, for each driver's ->suspend()
-routine.  This will give drivers the opportunity to act differently
-for APM when necessary.  I'm currenlty working on this issue.
-
-APM is useful for legacy hardware and systems with blacklisted ACPI
-support.  I don't think we should attempt to support APM on any system
-with working ACPI suspend/resume.
-
-Thanks,
-Adam
+But 2.6.12 did not require this workaround, yes?
 

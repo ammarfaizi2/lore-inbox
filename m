@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVGaKT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVGaKgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbVGaKT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 06:19:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263193AbVGaKT3
+	id S261638AbVGaKgN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 06:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVGaKgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 06:19:29 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19461 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261667AbVGaKT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 06:19:27 -0400
-Date: Sun, 31 Jul 2005 12:19:24 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4-mm1
-Message-ID: <20050731101923.GL5590@stusta.de>
-References: <20050731020552.72623ad4.akpm@osdl.org> <6f6293f105073103045fd32d61@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6f6293f105073103045fd32d61@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Sun, 31 Jul 2005 06:36:12 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:19840 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261638AbVGaKgL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 06:36:11 -0400
+Message-ID: <42ECA997.8020908@colorfullife.com>
+Date: Sun, 31 Jul 2005 12:36:07 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.5.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: default values for pci dma_mask and coherent_dma_mask
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 31, 2005 at 12:04:59PM +0200, Felipe Alfaro Solana wrote:
+Hi,
 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc4/2.6.13-rc4-mm1/
-> 
-> Why was the KERNEL_VERSION(a,b,c) macro removed from
-> include/linux/version.h? The removal breaks external drivers like
+ From Documentation/DMA-mapping.txt:
 
-It moved to a different header file.
+> pci_alloc_consistent() by default will return 32-bit DMA addresses.
+> PCI-X specification requires PCI-X devices to support 64-bit
+> addressing (DAC) for all transactions. And at least one platform (SGI
+> SN2) requires 64-bit consistent allocations to operate correctly when
+> the IO bus is in PCI-X mode. Therefore, like with pci_set_dma_mask(),
+> it's good practice to call pci_set_consistent_dma_mask() to set the
+> appropriate mask even if your device only supports 32-bit DMA
+> (default) and especially if it's a PCI-X device.
 
-> NDISWRAPPER or nVidia propietary.
+What does "good practice" mean? Is the default 32-bit on all archs or not?
+Recent nForce nics support 32-bit for the (coherent) ring buffer and 
+40-bit for the rx/tx data buffers. I intend to add these lines to the 
+driver:
 
-That's their problem.
++    if (pci_set_dma_mask(pci_dev, 0x0000007fffffffffULL)) {
++         printk(KERN_INFO "forcedeth: 64-bit DMA failed, using 32-bit 
+addressing for device %s.\n",
++                            pci_name(pci_dev));
++   }
 
-cu
-Adrian
+Is this sufficient, or is it mandatory to add 
+pci_set_dma_mask(,DMA_32BIT_MASK) and pci_set_consistent_dma_mask (with 
+error handling - IMHO 10 useless lines).
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--
+    Manfred
 

@@ -1,104 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVGaUJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVGaUNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbVGaUJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 16:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbVGaUJ5
+	id S261988AbVGaUNY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 16:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVGaUMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 16:09:57 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:1232 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S261960AbVGaUJy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 16:09:54 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: revert yenta free_irq on suspend
-Date: Sun, 31 Jul 2005 22:15:03 +0200
-User-Agent: KMail/1.8.1
-Cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>
-References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com> <Pine.LNX.4.61.0507302318090.5286@goblin.wat.veritas.com> <200507310109.16876.rjw@sisk.pl>
-In-Reply-To: <200507310109.16876.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 31 Jul 2005 16:12:33 -0400
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:56068 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261984AbVGaUMS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 16:12:18 -0400
+Date: Sun, 31 Jul 2005 22:12:09 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>
+Cc: Greg KH <greg@kroah.com>
+Subject: [PATCH 2.6] (11/11) hwmon vs i2c, second round
+Message-Id: <20050731221209.43c7f55d.khali@linux-fr.org>
+In-Reply-To: <20050731205933.2e2a957f.khali@linux-fr.org>
+References: <20050731205933.2e2a957f.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507312215.04494.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 31 of July 2005 01:09, Rafael J. Wysocki wrote:
-> On Sunday, 31 of July 2005 00:24, Hugh Dickins wrote:
-> > On Sun, 31 Jul 2005, Rafael J. Wysocki wrote:
-> > > On Saturday, 30 of July 2005 23:32, Hugh Dickins wrote:
-> > > > On Sat, 30 Jul 2005, Rafael J. Wysocki wrote:
-> > > > > 
-> > > > > Could you please send the /proc/interrupts from your box?
-> > > > 
-> > > >  11:      57443          XT-PIC  yenta, yenta, eth0
-> > > 
-> > > Thanks.  It looks like eth0 gets a yenta's interrupt and goes awry.
-> > > Could you please tell me what driver the eth0 is?
-> > 
-> > CONFIG_VORTEX drivers/net/3c59x.c:
-> > 0000:02:00.0: 3Com PCI 3c905C Tornado at 0xec80. Vers LK1.1.19
-> 
-> Thanks again.  From the first look the suspend/resume routines of the driver
-> are missing some calls.  In particular, with the IRQ-freeing patch for yenta it is
-> likely to get an out-of-order interrupt as I suspected.
-> 
-> Linus has apparently dropped that patch for yenta, but in case it is
-> reintroduced in the future you will probably need a patch to make the network
-> driver cooperate.  I'll try to prepare one tomorrow, if I can, but I have no hardware
-> to test it.
+Use the common vid_from_reg function in lm78 rather than
+reimplementing it.
 
-The patch follows.  It compiles and should work, though I haven't tested it.
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 
-Greets,
-Rafael
+ drivers/hwmon/Kconfig |    1 +
+ drivers/hwmon/lm78.c  |   10 ++--------
+ 2 files changed, 3 insertions(+), 8 deletions(-)
 
-Index: linux-2.6.13-rc4-git3/drivers/net/3c59x.c
-===================================================================
---- linux-2.6.13-rc4-git3.orig/drivers/net/3c59x.c
-+++ linux-2.6.13-rc4-git3/drivers/net/3c59x.c
-@@ -973,6 +973,11 @@ static int vortex_suspend (struct pci_de
- 			netif_device_detach(dev);
- 			vortex_down(dev, 1);
- 		}
-+		pci_save_state(pdev);
-+		pci_enable_wake(pdev, pci_choose_state(pdev, state), 0);
-+		free_irq(dev->irq, dev);
-+		pci_disable_device(pdev);
-+		pci_set_power_state(pdev, pci_choose_state(pdev, state));
- 	}
- 	return 0;
- }
-@@ -980,8 +985,19 @@ static int vortex_suspend (struct pci_de
- static int vortex_resume (struct pci_dev *pdev)
- {
- 	struct net_device *dev = pci_get_drvdata(pdev);
-+	struct vortex_private *vp = netdev_priv(dev);
+--- linux-2.6.13-rc4.orig/drivers/hwmon/lm78.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/lm78.c	2005-07-31 20:55:46.000000000 +0200
+@@ -25,6 +25,7 @@
+ #include <linux/i2c.h>
+ #include <linux/i2c-isa.h>
+ #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
+ #include <linux/err.h>
+ #include <asm/io.h>
  
--	if (dev && dev->priv) {
-+	if (dev && vp) {
-+		pci_set_power_state(pdev, PCI_D0);
-+		pci_restore_state(pdev);
-+		pci_enable_device(pdev);
-+		pci_set_master(pdev);
-+		if (request_irq(dev->irq, vp->full_bus_master_rx ?
-+				&boomerang_interrupt : &vortex_interrupt, SA_SHIRQ, dev->name, dev)) {
-+			printk(KERN_WARNING "%s: Could not reserve IRQ %d\n", dev->name, dev->irq);
-+			pci_disable_device(pdev);
-+			return -EBUSY;
-+		}
- 		if (netif_running(dev)) {
- 			vortex_up(dev);
- 			netif_device_attach(dev);
+@@ -106,13 +107,6 @@
+ 	return val * 1000;
+ }
+ 
+-/* VID: mV
+-   REG: (see doc/vid) */
+-static inline int VID_FROM_REG(u8 val)
+-{
+-	return val==0x1f ? 0 : val>=0x10 ? 5100-val*100 : 2050-val*50;
+-}
+-
+ #define DIV_FROM_REG(val) (1 << (val))
+ 
+ /* There are some complications in a module like this. First off, LM78 chips
+@@ -457,7 +451,7 @@
+ static ssize_t show_vid(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct lm78_data *data = lm78_update_device(dev);
+-	return sprintf(buf, "%d\n", VID_FROM_REG(data->vid));
++	return sprintf(buf, "%d\n", vid_from_reg(82, data->vid));
+ }
+ static DEVICE_ATTR(cpu0_vid, S_IRUGO, show_vid, NULL);
+ 
+--- linux-2.6.13-rc4.orig/drivers/hwmon/Kconfig	2005-07-31 16:59:30.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/Kconfig	2005-07-31 20:55:46.000000000 +0200
+@@ -207,6 +207,7 @@
+ 	tristate "National Semiconductor LM78 and compatibles"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+ 	select I2C_ISA
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM78,
+ 	  LM78-J and LM79.
 
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Jean Delvare

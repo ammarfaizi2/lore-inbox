@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVGaVDT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVGaVKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbVGaVDT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 17:03:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVGaVDT
+	id S261896AbVGaVKt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 17:10:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVGaVKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 17:03:19 -0400
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:45574 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261887AbVGaVDA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 17:03:00 -0400
-Date: Sun, 31 Jul 2005 23:02:59 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <lm-sensors@lm-sensors.org>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6] (10/11) hwmon vs i2c, second round
-Message-Id: <20050731230259.05625a4e.khali@linux-fr.org>
-In-Reply-To: <20050731205650.GA3963@mipter.zuzino.mipt.ru>
-References: <20050731205933.2e2a957f.khali@linux-fr.org>
-	<20050731220224.23136906.khali@linux-fr.org>
-	<20050731205650.GA3963@mipter.zuzino.mipt.ru>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 31 Jul 2005 17:10:49 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17594 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261896AbVGaVKr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 17:10:47 -0400
+Date: Sun, 31 Jul 2005 23:10:20 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: James Bruce <bruce@andrew.cmu.edu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Marc Ballarin <Ballarin.Marc@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+Message-ID: <20050731211020.GB27433@elf.ucw.cz>
+References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122678943.9381.44.camel@mindpipe> <20050730120645.77a33a34.Ballarin.Marc@gmx.de> <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42ED32D3.9070208@andrew.cmu.edu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexey,
+Hi!
 
-> > I see very little reason why vid_from_reg and vid_to_reg are
-> > inlined. The former is not exactly short,
+> >First numbers were 0.5W on idle system; that shows what kind of
+> >powersaving can be done. Powersaving is no longer possible when artsd
+> >is not running, but that should not be used as argument against it.
 > 
-> 1)
-> 				   and their arguments aren't known at
-> compile time,
-> 
-> [Compiler can optimise them away _completely_ if both arguments are
-> known at compile time or significantly of only one is known.]
+> It was an idle system with no display, zero daemons running, and the 
+> hard drive off.  In other words, a machine that nobody could use which 
+> might as well be hibrinating.  While it was an important test to find 
+> out the most one could hope to save, its unrealistic for an actual usage 
+> case.  The later test was more realistic, and not suprisingly showed 
+> quite a bit less power savings.
 
-Good point, I'll try to remember that. It doesn't apply here though
-except for lm78 I think, and maybe lm93 when it gets ported. That's not
-the majority of users though, so I still believe uninlining is the
-correct decision.
+Then the second test was probably flawed, possibly because we have
+some more work to do. No display is irrelevant, HZ=100 will still save
+0.5W with running display. Spinning disk also does not produce CPU
+load (and we *will* want to have disk spinned down). No daemons... if
+some daemon wakes every msec, we want to fix the daemon. 
 
-> > and they are never called in speed critical areas. Uninlining them
-> > should cause little performance loss if any, and saves a signficant
-> > space and compilation time as well.
-> 
-> 2) VID_FROM_REG is asking for removal from lm85.
+> I really like having 250HZ as an _option_, but what I don't see is why 
+> it should be the _default_.  I believe this is Lee's position as
+> Last I checked, ACPI and CPU speed scaling were not enabled by default; 
 
-True, I wrote a patch doing this already:
-http://lists.lm-sensors.org/pipermail/lm-sensors/2005-July/013148.html
+Kernel defaults are irelevant; distros change them anyway. [But we
+probably want to enable ACPI and cpufreq by default, because that
+matches what 99% of users will use.]
 
-Just wait for Greg to pick it and it'll show in -mm.
+> I have a fixed-framerate app that had to busywait in the days of 2.4.x. 
+>  It was nice in 2.6.x to not have to busywait, but with 250HZ that code 
+> will be coming back again.  And unfortunately this app can't be made 
+> variable-framerate, as it is simulating video hardware.  The same goes 
+> for apps playing movies/animations; Sometimes programs just need a 
+> semi-accurate sleep, and can't demand root priveledges to get it.
 
-> 3) vid_to_reg is used only by atxp1.
+I really don't think default HZ in kernel config is such a big
+deal. You'll want to support HZ=100 on 2.6.X, anyway...
 
-That's right. Do you suggest that it should be kept inlined then?
-Similar drivers may be written in the future, causing vid_to_reg to gain
-users and possibly grow larger (to support more VRM/VRD standards), then
-we'll certainly want to uninline it anyway - but I agree that this ain't
-the case at the moment.
+> In a sense I feel this whole thing boils down to the fact that we don't 
+> have something like "make laptop-config" and "make server-config".  I'm 
+> glad we could save 5.2% of the power for a laptop user by changing
+> the 
 
-I'll change that patch to only uninline vid_from_reg and not vid_to_reg
-if a majority prefers me to do so.
-
-Thanks for your comments :)
+defconfig on i386 is Linus' configuration. Maybe server-config and
+laptop-config would be good idea...
+								Pavel
 -- 
-Jean Delvare
+if you have sharp zaurus hardware you don't need... you know my address

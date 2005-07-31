@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263041AbVGaGN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263175AbVGaGSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263041AbVGaGN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 02:13:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263192AbVGaGN2
+	id S263175AbVGaGSc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 02:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263192AbVGaGSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 02:13:28 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:4323 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263041AbVGaGND convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 02:13:03 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [ACPI] [GIT PATCH] ACPI patches for 2.6.13
-Date: Sun, 31 Jul 2005 02:12:44 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3004311E40@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] [GIT PATCH] ACPI patches for 2.6.13
-Thread-Index: AcWU7UlTsYoNFj6CRpCnDxdijWga/AAqN+vw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
-       <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 31 Jul 2005 06:12:47.0260 (UTC) FILETIME=[DF38C5C0:01C59596]
+	Sun, 31 Jul 2005 02:18:32 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:18866
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S263175AbVGaGSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 02:18:32 -0400
+Date: Sat, 30 Jul 2005 23:18:29 -0700 (PDT)
+Message-Id: <20050730.231829.59467939.davem@davemloft.net>
+To: zaitcev@redhat.com
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13 ub 2/3: Fold one line
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050730225145.4b99ecd0.zaitcev@redhat.com>
+References: <20050730225145.4b99ecd0.zaitcev@redhat.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->What happened to those cleanups I sent to you in Ottawa?
+From: Pete Zaitcev <zaitcev@redhat.com>
+Date: Sat, 30 Jul 2005 22:51:45 -0700
 
-Don't worry, they're in my to-akpm quilt series.
-I just haven't committed/exported them yet -- as the 2.6.13
-functional stuff is taking priority over cleanups for 2.6.14.
+> -static ssize_t ub_diag_show(struct device *dev, struct device_attribute *attr, char *page)
+> +static ssize_t ub_diag_show(struct device *dev, struct device_attribute *attr,
+> +    char *page)
 
-thanks,
--Len
+FWIW, I am generally against this kind of thing at least
+for non-static functions.
+
+I used to love this kind of code styling, until I started trying to
+often grep a tree to verify the types of arguments to some function.
+
+With the above kind of construct, you get the first few types, but not
+all of them, in your grep output.

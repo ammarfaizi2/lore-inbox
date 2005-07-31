@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVGaEuj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVGaFFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVGaEuj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 00:50:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbVGaEuj
+	id S261616AbVGaFFl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 01:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVGaFFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 00:50:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3522 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261631AbVGaEui (ORCPT
+	Sun, 31 Jul 2005 01:05:41 -0400
+Received: from fmr15.intel.com ([192.55.52.69]:19927 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261616AbVGaFFi convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 00:50:38 -0400
-Date: Sat, 30 Jul 2005 21:49:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>, Len Brown <len.brown@intel.com>
-Subject: Re: revert yenta free_irq on suspend
-In-Reply-To: <200507310028.20699.rjw@sisk.pl>
-Message-ID: <Pine.LNX.4.58.0507302144290.29650@g5.osdl.org>
-References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com>
- <20050730215403.J26592@flint.arm.linux.org.uk> <Pine.LNX.4.58.0507301404240.29650@g5.osdl.org>
- <200507310028.20699.rjw@sisk.pl>
+	Sun, 31 Jul 2005 01:05:38 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: revert yenta free_irq on suspend
+Date: Sun, 31 Jul 2005 01:03:56 -0400
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: revert yenta free_irq on suspend
+Thread-Index: AcWVi11Bu0JyoJGeT1qyFI91BFLflgAACknw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Linus Torvalds" <torvalds@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: <linux-kernel@vger.kernel.org>, "Russell King" <rmk+lkml@arm.linux.org.uk>,
+       "Hugh Dickins" <hugh@veritas.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Dominik Brodowski" <linux@dominikbrodowski.net>,
+       "Daniel Ritz" <daniel.ritz@gmx.ch>
+X-OriginalArrivalTime: 31 Jul 2005 05:03:58.0130 (UTC) FILETIME=[42118920:01C5958D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>So I guess I'll just have to revert the ACPI change that 
+>caused drivers to do request_irq/free_irq. I'd prefer it
+>if the ACPI people did that revert themselves, though.
 
+If that is what you want, I'll be happy to do it.
 
-On Sun, 31 Jul 2005, Rafael J. Wysocki wrote:
-> 
-> Well, they have _already_ been screwed by the following patch that went
-> to your tree with the ACPI update.  If you drop it, all problems related to
-> freeing/requesting IRQs on suspend/resume will be gone.
+If one believes that suspend/resume is working on a large number of
+systems -- working to a level that a distro can acutally support it,
+then restoring our temporary resume IRQ router hack to make many systems
+work
+is clearly the right thing to do.
 
-Yes. I really think we need to revert that patch, we just can't fix this 
-any other way in the short run - the "request_irq/free_irq()" thing has 
-broken too many setups. And we _need_ an answer for the short run, since I 
-want to be able to release 2.6.13 without having lots of peoples laptop 
-suspends be broken.
+But that believe would be total fantasy -- supsend/resume is not
+working on a large number of machines, and no distro is currently
+able to support it.  (I'm talking about S3 suspend to RAM primarily,
+suspend to disk is less interesting -- though Red Hat doesn't
+even support _that_)
 
-Yes, I realize that it fixed suspend for some people, but the thing is,
-anything that expects lots of drivers to change just is fundamentally
-broken. In a perfect world we might be able to get all drivers to do the
-right thing, but dammit, in a perfect world we wouldn't have ACPI in the
-first place.
+We can got back to the old hack, but it will probably just delay
+the day that suspend/resume is working broadly, and actually
+can be deployed and supported by distros.
 
-So I guess I'll just have to revert the ACPI change that caused drivers to
-do request_irq/free_irq. I'd prefer it if the ACPI people did that revert 
-themselves, though.
-
-		Linus
+-Len

@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263134AbVGaA37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbVGaAdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263134AbVGaA37 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 20:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbVGaA37
+	id S263147AbVGaAdu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 20:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263144AbVGaAdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 20:29:59 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:9025 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263134AbVGaA36 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 20:29:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sMCTctHrBgBUTUFSnu/8Pj3zwhujYqyNDWkf3HUBuDjbDf414anYiNbgboaV+qG18wqWVGtUViaZ5uS3aoezigf/N5FiR+ainp6CXf17bUA21EZKwq5PtWwuyy9tQ8op3SteHTOl8ctdJzkygV+7m9NyRlXdnHCtNxmRl7YtQkQ=
-Message-ID: <21d7e99705073017295ed29c64@mail.gmail.com>
-Date: Sun, 31 Jul 2005 10:29:58 +1000
-From: Dave Airlie <airlied@gmail.com>
-To: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
-Subject: Re: S3 resume and serial console..
-In-Reply-To: <20050730085558.A7770@flint.arm.linux.org.uk>
+	Sat, 30 Jul 2005 20:33:50 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:19893
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S263136AbVGaAds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 20:33:48 -0400
+Date: Sat, 30 Jul 2005 17:33:52 -0700 (PDT)
+Message-Id: <20050730.173352.41656851.davem@davemloft.net>
+To: dmitry_yus@yahoo.com
+Cc: James.Bottomley@SteelEye.com, itn780@yahoo.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@lst.de
+Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance
+ Initiator
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1122758728.13559.4.camel@mylaptop>
+References: <20050730.125312.78734701.davem@davemloft.net>
+	<1122755000.5055.31.camel@mulgrave>
+	<1122758728.13559.4.camel@mylaptop>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.58.0507300301370.13092@skynet>
-	 <20050730085558.A7770@flint.arm.linux.org.uk>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> > I've set up an i865 machine with a serial console, and on-board graphics
-> > (also have radeon/MGA AGP..) and in an effort to try and figure out some
-> > more about suspend /resume to RAM..
-> >
-> > However now the  serial port doesn't come back after resume, I just get
-> > garbage sent out on it ...
-> >
-> > Anyone any ideas?
-> 
-> Not without some information such as the kernel messages right up to
-> the failure point, kernel version and a description of the hardware.
+From: Dmitry Yusupov <dmitry_yus@yahoo.com>
+Date: Sat, 30 Jul 2005 14:25:28 -0700
 
-latest Linus git tree, and it just does the usual entering suspend and
-then when I resume I get crap out of the serial port, nothing at all
-intelliigble...
+> It would be nice to set MAX_LINKS to 64 and close this issue for now,
 
-Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+James and Dmitry, increasing MAX_LINKS does't work, did you actually
+try to open a netlink socket with a protocol number larger than 32?
 
-And as I said its an i865 based motherboard from Intel... nothing
-special on it, do you need to know the super-io chip, i.e. I 'll have
-to open the case to find out...
+It will not work.  Don't you think I'd implement such a simple fix to
+expand the protocol number space if it was that easy? :-)
 
-Dave.
+You can't increase MAX_LINKS past 32 because this is also the value of
+NPROTO.  It is impossible to create a new socket with a protocol value
+larger than NPROTO, and this value is exported into userspace as well.

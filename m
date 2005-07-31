@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263194AbVGaAfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263144AbVGaAkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263194AbVGaAfV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 20:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263188AbVGaAfV
+	id S263144AbVGaAkU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 20:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbVGaAkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 20:35:21 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:21173
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S263149AbVGaAeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 20:34:46 -0400
-Date: Sat, 30 Jul 2005 17:34:53 -0700 (PDT)
-Message-Id: <20050730.173453.130210989.davem@davemloft.net>
-To: James.Bottomley@SteelEye.com
-Cc: itn780@yahoo.com, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       hch@lst.de
-Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance
- Initiator
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1122755000.5055.31.camel@mulgrave>
-References: <1122744762.5055.10.camel@mulgrave>
-	<20050730.125312.78734701.davem@davemloft.net>
-	<1122755000.5055.31.camel@mulgrave>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 30 Jul 2005 20:40:20 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:48825 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263144AbVGaAkS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 20:40:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QusCIuC8v8b99BhJWffQcvZ08IljQigbpMsJfFoZL5RYV4P0MZSXXhYMHx4+E3kZA8P7c1CDsQBULc55mjhaspEWwx2NpuFy7Dsn9+EyLomTKlfjTvgsDINcQGUQcUWUunggX93dM2z0oO0yTX/LJ8r8yGVh5AoeuC6GTnDo2K0=
+Message-ID: <21d7e997050730174034a68f4@mail.gmail.com>
+Date: Sun, 31 Jul 2005 10:40:18 +1000
+From: Dave Airlie <airlied@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Simple question re: oops
+Cc: Alexander Nyberg <alexn@telia.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1122769290.4464.12.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1122767292.4464.1.camel@mindpipe>
+	 <20050731001101.GA6762@localhost.localdomain>
+	 <1122769290.4464.12.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@SteelEye.com>
-Date: Sat, 30 Jul 2005 15:23:20 -0500
+> panic_on_oops has no effect, a bunch of stuff flies past and the last
+> thing I see is "gam_server: scheduling while atomic" then a stack trace
+> of the core dump path then "Aiee, killing interrupt handler".
+> 
+> I am starting to suspect the hard drive, does that sound plausible?
+> It's as if it locks up when it hits a certain disk block.
 
-> Actually, I saw this and increased MAX_LINKS as well.
+run memtest on it... you might have bad RAM..
 
-That does absolutely nothing, you cannot create sockets
-with protocol numbers larger than NPROTOS which like MAX_LINKS
-has the value 32.  And NPROTOS is something we cannot change.
+Dave.

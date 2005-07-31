@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVGaP6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVGaQTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbVGaP6q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 11:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVGaP6p
+	id S261801AbVGaQTK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 12:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVGaQTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 11:58:45 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:58243 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261806AbVGaP5w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 11:57:52 -0400
-Date: Sun, 31 Jul 2005 17:57:49 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [GIT/Cogito question] Access to specific versions of the kernel
-Message-Id: <Pine.OSF.4.05.10507311729460.25186-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 31 Jul 2005 12:19:10 -0400
+Received: from ore.jhcloos.com ([64.240.156.239]:58125 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S261801AbVGaQTJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 12:19:09 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Brian Schau <brian@schau.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Wireless Security Lock driver.
+From: James Cloos <cloos@jhcloos.com>
+In-Reply-To: <20050731095207.GJ9418@elf.ucw.cz> (Pavel Machek's message of "Sun, 31 Jul 2005 11:52:07 +0200")
+References: <42EB940E.5000008@schau.com> <20050730194215.GA9188@elf.ucw.cz>
+	<42EBDEA9.60505@schau.com> <20050730203159.GB9418@elf.ucw.cz>
+	<m3mzo3jriv.fsf@lugabout.cloos.reno.nv.us>
+	<20050731095207.GJ9418@elf.ucw.cz>
+X-Hashcash: 1:21:050731:pavel@ucw.cz::8GtQeR4oWQKQpLGb:000003SYt
+X-Hashcash: 1:21:050731:brian@schau.com::0kuD1vweNhyIt+bU:006cEu
+X-Hashcash: 1:21:050731:linux-kernel@vger.kernel.org::wJgFVpI7qv5xNf1V:0000000000000000000000000000000006r07
+Date: Sun, 31 Jul 2005 12:14:01 -0400
+Message-ID: <m364urj6ly.fsf@lugabout.cloos.reno.nv.us>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I finally succeeded to get cg-clone to work on 
-linux/kernel/git/torvalds/linux-2.6.git
-I can see the 2.6.13-rc4 is in there and can use cg-diff to see the
-difference between the current tree and 2.6.13-rc4. 
+>>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
 
-But how to I extract the 2.6.13-rc4 source from the tree?
+>> Would /dev/input/mice not also be affected?
 
-Or even more complicated: I would like to make a branch based on
-2.6.13-rc4 and work from there. At some point I would like to jump to
-2.6.13-rc5 (or 2.6.13). I do not want to have the in-between changes
-tickle in. I.e. I need something like "cvs rtag -b -r 2.6.13-rc4 mytress"
-and "cvs update -j 2.6.13-rc4 -j 2.6.13-rc5".
+Pavel> Yes, /dev/input/mice == /dev/psaux.
 
-In drawing
+What I get for looking in /dev (c 10 1 vs c 13 63) rather than
+/usr/src/linux. :-/
 
- Linus
-  |
-  + 2.6.13-rc3
-  |
-  + 2.6.13-rc4  My tree
-  |             \
-  | (current)    |
-  |              |
-  + 2.6.13-rc5   |
-  |            \ |
-  |              + merge point
-  |              |
-  + 2.6.13       |
-  |            \ |
-  |              + merge point
-
-How do I do that with cogito or git?
-
-
-Esben
-
+-JimC

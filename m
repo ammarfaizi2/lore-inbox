@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVGaCTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVGaCU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVGaCTO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 22:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVGaCTO
+	id S261537AbVGaCU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 22:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVGaCU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 22:19:14 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8348 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261522AbVGaCTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 22:19:12 -0400
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ALSA, snd_intel8x0m and kexec() don't work together
- (2.6.13-rc3-git4 and 2.6.13-rc3-git3)
-References: <20050721180621.GA25829@charite.de>
-	<20050722062548.GJ25829@charite.de>
-	<200507221614.28096.vda@ilport.com.ua>
-	<20050722131825.GR8528@charite.de> <1122054941.877.6.camel@mindpipe>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sat, 30 Jul 2005 20:19:00 -0600
-In-Reply-To: <1122054941.877.6.camel@mindpipe> (Lee Revell's message of
- "Fri, 22 Jul 2005 13:55:41 -0400")
-Message-ID: <m1fytv1zvv.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sat, 30 Jul 2005 22:20:28 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:33729 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261537AbVGaCT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 22:19:27 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: Average instruction length in x86-built kernel?
+To: karim@opersys.com, Ingo Oeser <ioe-lkml@rameria.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Sun, 31 Jul 2005 04:19:00 +0200
+References: <4vKU4-3sU-21@gated-at.bofh.it> <4w02Q-7e6-21@gated-at.bofh.it> <4w5OQ-6Z9-25@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1Dz3Pp-0000zu-6N@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> writes:
+Karim Yaghmour <karim@opersys.com> wrote:
 
-> On Fri, 2005-07-22 at 15:18 +0200, Ralf Hildebrandt wrote:
->> * Denis Vlasenko <vda@ilport.com.ua>:
->> 
->> > Not happening here on 2.6.12:
->> 
->> 2.6.12 didn't have kexec (unless it's a -mm kernel)
->> So how could you boot using kexec then?
->> 
->
-> Is kexec supposed to be transparent to all the subsystems, or does ALSA
-> have to know how to stop all DMA in order for kexec to work?
+> Here's a script that does what I was looking for:
+<snip>
 
-It is fairly transparent.  device_shutdown on reboot should stop
-DMA but that is not kexec specific.  kexec may be the only way
-the code path is easily tested.
+#!/bin/bash
+for a in "$@"
+do
+        objdump -d "$a" -j .text 
+done | perl -ne'
+BEGIN{%h=();$b=0};
+END{if($b){$h{$b}++};print map("$_: $h{$_}\n", sort(keys(%h)))};
+if(/\tnop    $/){$h{nop}++}
+elsif(/^[\s0-9a-f]{8}:\t([^\t]+) (\t?)/){
+ $b+=split(" ",$1);if($2){$h{$b}++;$b=0}}'
 
-The basic requirement from the kexec side is that the drivers
-be able to bring back the device from the state they left it
-on reboot.
-
-So in essence it is transparent.  But if your driver is not
-robust you can have problems.
-
-The fact the new kernel was coming up indicates that kexec
-worked but the driver did not successfully initialize,
-the hardware from the state it placed it in during shutdown.
-
-Eric
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

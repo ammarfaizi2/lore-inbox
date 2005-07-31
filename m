@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVGaTtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVGaTwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVGaTtX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 15:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVGaTtW
+	id S261956AbVGaTwO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 15:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVGaTwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 15:49:22 -0400
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:10259 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S261973AbVGaTtH
+	Sun, 31 Jul 2005 15:52:14 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:15379 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S261956AbVGaTwE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 15:49:07 -0400
-Date: Sun, 31 Jul 2005 21:49:03 +0200
+	Sun, 31 Jul 2005 15:52:04 -0400
+Date: Sun, 31 Jul 2005 21:52:01 +0200
 From: Jean Delvare <khali@linux-fr.org>
 To: LKML <linux-kernel@vger.kernel.org>,
        LM Sensors <lm-sensors@lm-sensors.org>
 Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH 2.6] (6/11) hwmon vs i2c, second round
-Message-Id: <20050731214903.20146711.khali@linux-fr.org>
+Subject: [PATCH 2.6] (7/11) hwmon vs i2c, second round
+Message-Id: <20050731215201.099ba239.khali@linux-fr.org>
 In-Reply-To: <20050731205933.2e2a957f.khali@linux-fr.org>
 References: <20050731205933.2e2a957f.khali@linux-fr.org>
 X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
@@ -25,860 +25,806 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The only thing left in i2c-sensor.h are module parameter definition
-macros. It's only an extension of what i2c.h offers, and this extension
-is not sensors-specific. As a matter of fact, a few non-sensors drivers
-use them. So we better merge them in i2c.h, and get rid of i2c-sensor.h
-altogether.
+The only part left in i2c-sensor is the VRM/VRD/VID handling code.
+This is in no way related to i2c, so it doesn't belong there. Move
+the code to hwmon, where it belongs.
 
-Signed-off-by: Jean Delvare <khali@linux-fr>
+Note that not all hardware monitoring drivers do VRM/VRD/VID
+operations, so less drivers depend on hwmon-vid than there were
+depending on i2c-sensor.
 
- Documentation/i2c/porting-clients |    8 -
- Documentation/i2c/writing-clients |   68 ++----------
- drivers/hwmon/adm1021.c           |    3 
- drivers/hwmon/adm1025.c           |    3 
- drivers/hwmon/adm1026.c           |    3 
- drivers/hwmon/adm1031.c           |    3 
- drivers/hwmon/adm9240.c           |    3 
- drivers/hwmon/asb100.c            |    3 
- drivers/hwmon/atxp1.c             |    3 
- drivers/hwmon/ds1621.c            |    3 
- drivers/hwmon/fscher.c            |    3 
- drivers/hwmon/fscpos.c            |    3 
- drivers/hwmon/gl518sm.c           |    3 
- drivers/hwmon/gl520sm.c           |    3 
- drivers/hwmon/it87.c              |    3 
- drivers/hwmon/lm63.c              |    3 
- drivers/hwmon/lm75.c              |    3 
- drivers/hwmon/lm77.c              |    3 
- drivers/hwmon/lm78.c              |    3 
- drivers/hwmon/lm80.c              |    3 
- drivers/hwmon/lm83.c              |    3 
- drivers/hwmon/lm85.c              |    3 
- drivers/hwmon/lm87.c              |    3 
- drivers/hwmon/lm90.c              |    3 
- drivers/hwmon/lm92.c              |    3 
- drivers/hwmon/max1619.c           |    3 
- drivers/hwmon/sis5595.c           |    1 
- drivers/hwmon/smsc47m1.c          |    1 
- drivers/hwmon/via686a.c           |    1 
- drivers/hwmon/w83627hf.c          |    1 
- drivers/hwmon/w83781d.c           |    3 
- drivers/hwmon/w83792d.c           |    3 
- drivers/hwmon/w83l785ts.c         |    3 
- drivers/i2c/chips/ds1337.c        |    3 
- drivers/i2c/chips/eeprom.c        |    3 
- drivers/i2c/chips/max6875.c       |    3 
- drivers/i2c/chips/pca9539.c       |    3 
- drivers/i2c/chips/pcf8574.c       |    3 
- drivers/i2c/chips/pcf8591.c       |    3 
- include/linux/i2c-sensor.h        |  203 --------------------------------------
- include/linux/i2c.h               |  148 +++++++++++++++++++++++++--
- 41 files changed, 188 insertions(+), 342 deletions(-)
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 
---- linux-2.6.13-rc4.orig/Documentation/i2c/porting-clients	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/Documentation/i2c/porting-clients	2005-07-31 20:55:54.000000000 +0200
-@@ -1,4 +1,4 @@
--Revision 4, 2004-03-30
-+Revision 5, 2005-07-29
- Jean Delvare <khali@linux-fr.org>
- Greg KH <greg@kroah.com>
- 
-@@ -17,13 +17,12 @@
- 
- Technical changes:
- 
--* [Includes] Get rid of "version.h". Replace <linux/i2c-proc.h> with
--  <linux/i2c-sensor.h>. Includes typically look like that:
-+* [Includes] Get rid of "version.h" and <linux/i2c-proc.h>.
-+  Includes typically look like that:
-   #include <linux/module.h>
+ Documentation/i2c/porting-clients |    4 +
+ drivers/hwmon/Kconfig             |   50 +++++-----------
+ drivers/hwmon/Makefile            |    1 
+ drivers/hwmon/adm1025.c           |    4 -
+ drivers/hwmon/adm1026.c           |    6 +-
+ drivers/hwmon/adm9240.c           |    4 -
+ drivers/hwmon/asb100.c            |    4 -
+ drivers/hwmon/atxp1.c             |    4 -
+ drivers/hwmon/gl520sm.c           |    4 -
+ drivers/hwmon/hwmon-vid.c         |  103 ++++++++++++++++++++++++++++++++++
+ drivers/hwmon/it87.c              |    6 +-
+ drivers/hwmon/lm85.c              |    4 -
+ drivers/hwmon/lm87.c              |    4 -
+ drivers/hwmon/pc87360.c           |    2 
+ drivers/hwmon/w83627hf.c          |    4 -
+ drivers/hwmon/w83781d.c           |    4 -
+ drivers/hwmon/w83792d.c           |    1 
+ drivers/i2c/Makefile              |    4 -
+ drivers/i2c/chips/Kconfig         |   10 ---
+ drivers/i2c/i2c-sensor-vid.c      |  103 ----------------------------------
+ include/linux/hwmon-vid.h         |  112 ++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c-vid.h           |  111 -------------------------------------
+ 22 files changed, 260 insertions(+), 289 deletions(-)
+
+--- linux-2.6.13-rc4.orig/Documentation/i2c/porting-clients	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/Documentation/i2c/porting-clients	2005-07-31 20:55:51.000000000 +0200
+@@ -23,7 +23,9 @@
    #include <linux/init.h>
    #include <linux/slab.h>
    #include <linux/i2c.h>
--  #include <linux/i2c-sensor.h>
-   #include <linux/i2c-vid.h>	/* if you need VRM support */
+-  #include <linux/i2c-vid.h>	/* if you need VRM support */
++  #include <linux/hwmon.h>	/* for hardware monitoring drivers */
++  #include <linux/hwmon-sysfs.h>
++  #include <linux/hwmon-vid.h>	/* if you need VRM support */
    #include <asm/io.h>		/* if you have I/O operations */
    Please respect this inclusion order. Some extra headers may be
-@@ -31,6 +30,7 @@
+   required for a given driver (e.g. "lm75.h").
+--- linux-2.6.13-rc4.orig/drivers/hwmon/Kconfig	2005-07-31 14:25:04.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/Kconfig	2005-07-31 20:55:51.000000000 +0200
+@@ -19,10 +19,13 @@
+ 	  This support can also be built as a module.  If so, the module
+ 	  will be called hwmon.
  
- * [Addresses] SENSORS_I2C_END becomes I2C_CLIENT_END, ISA addresses
-   are no more handled by the i2c core.
-+  SENSORS_INSMOD_<n> becomes I2C_CLIENT_INSMOD_<n>.
- 
- * [Client data] Get rid of sysctl_id. Try using standard names for
-   register values (for example, temp_os becomes temp_max). You're
---- linux-2.6.13-rc4.orig/Documentation/i2c/writing-clients	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/Documentation/i2c/writing-clients	2005-07-31 20:55:54.000000000 +0200
-@@ -155,8 +155,8 @@
- 
- 
- 
--Probing classes (i2c)
-----------------------
-+Probing classes
-+---------------
- 
- All parameters are given as lists of unsigned 16-bit integers. Lists are
- terminated by I2C_CLIENT_END.
-@@ -171,12 +171,18 @@
-    ignore: insmod parameter.
-      A list of pairs. The first value is a bus number (-1 for any I2C bus), 
-      the second is the I2C address. These addresses are never probed. 
--     This parameter overrules 'normal' and 'probe', but not the 'force' lists.
-+     This parameter overrules the 'normal_i2c' list only.
-    force: insmod parameter. 
-      A list of pairs. The first value is a bus number (-1 for any I2C bus),
-      the second is the I2C address. A device is blindly assumed to be on
-      the given address, no probing is done. 
- 
-+Additionally, kind-specific force lists may optionally be defined if
-+the driver supports several chip kinds. They are grouped in a
-+NULL-terminated list of pointers named forces, those first element if the
-+generic force list mentioned above. Each additional list correspond to an
-+insmod parameter of the form force_<kind>.
++config HWMON_VID
++	tristate
++	default n
 +
- Fortunately, as a module writer, you just have to define the `normal_i2c' 
- parameter. The complete declaration could look like this:
+ config SENSORS_ADM1021
+ 	tristate "Analog Devices ADM1021 and compatibles"
+ 	depends on HWMON && I2C
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Analog Devices ADM1021
+ 	  and ADM1023 sensor chips and clones: Maxim MAX1617 and MAX1617A,
+@@ -35,7 +38,7 @@
+ config SENSORS_ADM1025
+ 	tristate "Analog Devices ADM1025 and compatibles"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for Analog Devices ADM1025
+ 	  and Philips NE1619 sensor chips.
+@@ -46,7 +49,7 @@
+ config SENSORS_ADM1026
+ 	tristate "Analog Devices ADM1026 and compatibles"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for Analog Devices ADM1026
+ 	  sensor chip.
+@@ -57,7 +60,6 @@
+ config SENSORS_ADM1031
+ 	tristate "Analog Devices ADM1031 and compatibles"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Analog Devices ADM1031
+ 	  and ADM1030 sensor chips.
+@@ -68,7 +70,7 @@
+ config SENSORS_ADM9240
+ 	tristate "Analog Devices ADM9240 and compatibles"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for Analog Devices ADM9240,
+ 	  Dallas DS1780, National Semiconductor LM81 sensor chips.
+@@ -79,7 +81,7 @@
+ config SENSORS_ASB100
+ 	tristate "Asus ASB100 Bach"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for the ASB100 Bach sensor
+ 	  chip found on some Asus mainboards.
+@@ -90,7 +92,7 @@
+ config SENSORS_ATXP1
+ 	tristate "Attansic ATXP1 VID controller"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for the Attansic ATXP1 VID
+ 	  controller.
+@@ -104,7 +106,6 @@
+ config SENSORS_DS1621
+ 	tristate "Dallas Semiconductor DS1621 and DS1625"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Dallas Semiconductor
+ 	  DS1621 and DS1625 sensor chips.
+@@ -115,7 +116,6 @@
+ config SENSORS_FSCHER
+ 	tristate "FSC Hermes"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Fujitsu Siemens
+ 	  Computers Hermes sensor chips.
+@@ -126,7 +126,6 @@
+ config SENSORS_FSCPOS
+ 	tristate "FSC Poseidon"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Fujitsu Siemens
+ 	  Computers Poseidon sensor chips.
+@@ -137,7 +136,6 @@
+ config SENSORS_GL518SM
+ 	tristate "Genesys Logic GL518SM"
+ 	depends on HWMON && I2C
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Genesys Logic GL518SM
+ 	  sensor chips.
+@@ -148,7 +146,7 @@
+ config SENSORS_GL520SM
+ 	tristate "Genesys Logic GL520SM"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for Genesys Logic GL520SM
+ 	  sensor chips.
+@@ -159,8 +157,8 @@
+ config SENSORS_IT87
+ 	tristate "ITE IT87xx and compatibles"
+ 	depends on HWMON && I2C
+-	select I2C_SENSOR
+ 	select I2C_ISA
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for ITE IT87xx sensor chips
+ 	  and clones: SiS960.
+@@ -171,7 +169,6 @@
+ config SENSORS_LM63
+ 	tristate "National Semiconductor LM63"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for the National Semiconductor
+ 	  LM63 remote diode digital temperature sensor with integrated fan
+@@ -184,7 +181,6 @@
+ config SENSORS_LM75
+ 	tristate "National Semiconductor LM75 and compatibles"
+ 	depends on HWMON && I2C
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM75
+ 	  sensor chips and clones: Dallas Semiconductor DS75 and DS1775 (in
+@@ -200,7 +196,6 @@
+ config SENSORS_LM77
+ 	tristate "National Semiconductor LM77"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM77
+ 	  sensor chips.
+@@ -211,7 +206,6 @@
+ config SENSORS_LM78
+ 	tristate "National Semiconductor LM78 and compatibles"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	select I2C_ISA
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM78,
+@@ -223,7 +217,6 @@
+ config SENSORS_LM80
+ 	tristate "National Semiconductor LM80"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for National Semiconductor
+ 	  LM80 sensor chips.
+@@ -234,7 +227,6 @@
+ config SENSORS_LM83
+ 	tristate "National Semiconductor LM83"
+ 	depends on HWMON && I2C
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for National Semiconductor
+ 	  LM83 sensor chips.
+@@ -245,7 +237,7 @@
+ config SENSORS_LM85
+ 	tristate "National Semiconductor LM85 and compatibles"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM85
+ 	  sensor chips and clones: ADT7463, EMC6D100, EMC6D102 and ADM1027.
+@@ -256,7 +248,7 @@
+ config SENSORS_LM87
+ 	tristate "National Semiconductor LM87"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM87
+ 	  sensor chips.
+@@ -267,7 +259,6 @@
+ config SENSORS_LM90
+ 	tristate "National Semiconductor LM90 and compatibles"
+ 	depends on HWMON && I2C
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM90,
+ 	  LM86, LM89 and LM99, Analog Devices ADM1032 and Maxim MAX6657 and
+@@ -282,7 +273,6 @@
+ config SENSORS_LM92
+ 	tristate "National Semiconductor LM92 and compatibles"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM92
+ 	  and Maxim MAX6635 sensor chips.
+@@ -293,7 +283,6 @@
+ config SENSORS_MAX1619
+ 	tristate "Maxim MAX1619 sensor chip"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for MAX1619 sensor chip.
  
-@@ -186,61 +192,17 @@
+@@ -303,8 +292,8 @@
+ config SENSORS_PC87360
+ 	tristate "National Semiconductor PC87360 family"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	select I2C_ISA
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get access to the hardware monitoring
+ 	  functions of the National Semiconductor PC8736x Super-I/O chips.
+@@ -318,7 +307,6 @@
+ config SENSORS_SIS5595
+ 	tristate "Silicon Integrated Systems Corp. SiS5595"
+ 	depends on HWMON && I2C && PCI && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	select I2C_ISA
+ 	help
+ 	  If you say yes here you get support for the integrated sensors in
+@@ -330,7 +318,6 @@
+ config SENSORS_SMSC47M1
+ 	tristate "SMSC LPC47M10x and compatibles"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	select I2C_ISA
+ 	help
+ 	  If you say yes here you get support for the integrated fan
+@@ -343,7 +330,6 @@
+ config SENSORS_SMSC47B397
+ 	tristate "SMSC LPC47B397-NC"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	select I2C_ISA
+ 	help
+ 	  If you say yes here you get support for the SMSC LPC47B397-NC
+@@ -355,7 +341,6 @@
+ config SENSORS_VIA686A
+ 	tristate "VIA686A"
+ 	depends on HWMON && I2C && PCI
+-	select I2C_SENSOR
+ 	select I2C_ISA
+ 	help
+ 	  If you say yes here you get support for the integrated sensors in
+@@ -367,8 +352,8 @@
+ config SENSORS_W83781D
+ 	tristate "Winbond W83781D, W83782D, W83783S, W83627HF, Asus AS99127F"
+ 	depends on HWMON && I2C
+-	select I2C_SENSOR
+ 	select I2C_ISA
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for the Winbond W8378x series
+ 	  of sensor chips: the W83781D, W83782D, W83783S and W83627HF,
+@@ -380,7 +365,6 @@
+ config SENSORS_W83792D
+ 	tristate "Winbond W83792D"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for the Winbond W83792D chip.
+ 	  
+@@ -390,7 +374,6 @@
+ config SENSORS_W83L785TS
+ 	tristate "Winbond W83L785TS-S"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for the Winbond W83L785TS-S
+ 	  sensor chip, which is used on the Asus A7N8X, among other
+@@ -402,8 +385,8 @@
+ config SENSORS_W83627HF
+ 	tristate "Winbond W83627HF, W83627THF, W83637HF, W83697HF"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	select I2C_ISA
++	select HWMON_VID
+ 	help
+ 	  If you say yes here you get support for the Winbond W836X7 series
+ 	  of sensor chips: the W83627HF, W83627THF, W83637HF, and the W83697HF
+@@ -414,7 +397,6 @@
+ config SENSORS_W83627EHF
+ 	tristate "Winbond W83627EHF"
+ 	depends on HWMON && I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	select I2C_ISA
+ 	help
+ 	  If you say yes here you get preliminary support for the hardware
+--- linux-2.6.13-rc4.orig/drivers/hwmon/Makefile	2005-07-31 14:25:04.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/Makefile	2005-07-31 20:55:51.000000000 +0200
+@@ -3,6 +3,7 @@
+ #
  
-   /* Magic definition of all other variables and things */
-   I2C_CLIENT_INSMOD;
-+  /* Or, if your driver supports, say, 2 kind of devices: */
-+  I2C_CLIENT_INSMOD_2(foo, bar);
-+
-+If you use the multi-kind form, an enum will be defined for you:
-+  enum chips { any_chip, foo, bar, ... }
-+You can then (and certainly should) use it in the driver code.
+ obj-$(CONFIG_HWMON)		+= hwmon.o
++obj-$(CONFIG_HWMON_VID)		+= hwmon-vid.o
  
- Note that you *have* to call the defined variable `normal_i2c',
- without any prefix!
- 
- 
--Probing classes (sensors)
---------------------------
--
--If you write a `sensors' driver, you use a slightly different interface.
--Also, we use a enum of chip types. Don't forget to include `sensors.h'.
--
--The following lists are used internally. They are all lists of integers.
--
--   normal_i2c: filled in by the module writer. Terminated by I2C_CLIENT_END.
--     A list of I2C addresses which should normally be examined.
--   probe: insmod parameter. Initialize this list with I2C_CLIENT_END values.
--     A list of pairs. The first value is a bus number (ANY_I2C_BUS for any
--     I2C bus), the second is the address. These addresses are also probed,
--     as if they were in the 'normal' list.
--   ignore: insmod parameter. Initialize this list with I2C_CLIENT_END values.
--     A list of pairs. The first value is a bus number (ANY_I2C_BUS for any
--     I2C bus), the second is the I2C address. These addresses are never
--     probed. This parameter overrules 'normal' and 'probe', but not the
--     'force' lists.
--
--Also used is a list of pointers to sensors_force_data structures:
--   force_data: insmod parameters. A list, ending with an element of which
--     the force field is NULL.
--     Each element contains the type of chip and a list of pairs.
--     The first value is a bus number (ANY_I2C_BUS for any I2C bus), the
--     second is the address.
--     These are automatically translated to insmod variables of the form
--     force_foo.
--
--So we have a generic insmod variabled `force', and chip-specific variables
--`force_CHIPNAME'.
--
--Fortunately, as a module writer, you just have to define the `normal_i2c' 
--parameter, and define what chip names are used. The complete declaration
--could look like this:
--  /* Scan i2c addresses 0x37, and 0x48 to 0x4f */
--  static unsigned short normal_i2c[] = { 0x37, 0x48, 0x49, 0x4a, 0x4b, 0x4c,
--                                         0x4d, 0x4e, 0x4f, I2C_CLIENT_END };
--
--  /* Define chips foo and bar, as well as all module parameters and things */
--  SENSORS_INSMOD_2(foo,bar);
--
--If you have one chip, you use macro SENSORS_INSMOD_1(chip), if you have 2
--you use macro SENSORS_INSMOD_2(chip1,chip2), etc. If you do not want to
--bother with chip types, you can use SENSORS_INSMOD_0.
--
--A enum is automatically defined as follows:
--  enum chips { any_chip, chip1, chip2, ... }
--
--
- Attaching to an adapter
- -----------------------
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/adm1021.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/adm1021.c	2005-07-31 20:55:54.000000000 +0200
-@@ -24,7 +24,6 @@
+ # asb100, then w83781d go first, as they can override other drivers' addresses.
+ obj-$(CONFIG_SENSORS_ASB100)	+= asb100.o
+--- linux-2.6.13-rc4.orig/drivers/hwmon/adm1025.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/adm1025.c	2005-07-31 20:55:51.000000000 +0200
+@@ -50,8 +50,8 @@
  #include <linux/slab.h>
  #include <linux/jiffies.h>
  #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
+-#include <linux/i2c-vid.h>
  #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
  #include <linux/err.h>
- 
-@@ -36,7 +35,7 @@
- 					I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_8(adm1021, adm1023, max1617, max1617a, thmc10, lm84, gl523sm, mc1066);
-+I2C_CLIENT_INSMOD_8(adm1021, adm1023, max1617, max1617a, thmc10, lm84, gl523sm, mc1066);
- 
- /* adm1021 constants specified below */
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/adm1025.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/adm1025.c	2005-07-31 20:55:54.000000000 +0200
-@@ -50,7 +50,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
-@@ -67,7 +66,7 @@
-  * Insmod parameters
-  */
- 
--SENSORS_INSMOD_2(adm1025, ne1619);
-+I2C_CLIENT_INSMOD_2(adm1025, ne1619);
  
  /*
-  * The ADM1025 registers
---- linux-2.6.13-rc4.orig/drivers/hwmon/adm1026.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/adm1026.c	2005-07-31 20:55:54.000000000 +0200
-@@ -28,7 +28,6 @@
+@@ -473,7 +473,7 @@
+ 	struct adm1025_data *data = i2c_get_clientdata(client);
+ 	int i;
+ 
+-	data->vrm = i2c_which_vrm();
++	data->vrm = vid_which_vrm();
+ 
+ 	/*
+ 	 * Set high limits
+--- linux-2.6.13-rc4.orig/drivers/hwmon/adm1026.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/adm1026.c	2005-07-31 20:55:51.000000000 +0200
+@@ -28,9 +28,9 @@
  #include <linux/slab.h>
  #include <linux/jiffies.h>
  #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
- #include <linux/hwmon-sysfs.h>
+-#include <linux/i2c-vid.h>
+-#include <linux/hwmon-sysfs.h>
  #include <linux/hwmon.h>
-@@ -38,7 +37,7 @@
- static unsigned short normal_i2c[] = { 0x2c, 0x2d, 0x2e, I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(adm1026);
-+I2C_CLIENT_INSMOD_1(adm1026);
- 
- static int gpio_input[17]  = { -1, -1, -1, -1, -1, -1, -1, -1, -1,
- 				-1, -1, -1, -1, -1, -1, -1, -1 }; 
---- linux-2.6.13-rc4.orig/drivers/hwmon/adm1031.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/adm1031.c	2005-07-31 20:55:54.000000000 +0200
-@@ -26,7 +26,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
++#include <linux/hwmon-vid.h>
  #include <linux/err.h>
  
-@@ -63,7 +62,7 @@
- static unsigned short normal_i2c[] = { 0x2c, 0x2d, 0x2e, I2C_CLIENT_END };
+ /* Addresses to scan */
+@@ -1552,7 +1552,7 @@
+ 		goto exitfree;
  
- /* Insmod parameters */
--SENSORS_INSMOD_2(adm1030, adm1031);
-+I2C_CLIENT_INSMOD_2(adm1030, adm1031);
+ 	/* Set the VRM version */
+-	data->vrm = i2c_which_vrm();
++	data->vrm = vid_which_vrm();
  
- typedef u8 auto_chan_table_t[8][2];
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/adm9240.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/adm9240.c	2005-07-31 20:55:54.000000000 +0200
-@@ -45,7 +45,6 @@
+ 	/* Initialize the ADM1026 chip */
+ 	adm1026_init_client(new_client);
+--- linux-2.6.13-rc4.orig/drivers/hwmon/adm9240.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/adm9240.c	2005-07-31 20:55:51.000000000 +0200
+@@ -45,8 +45,8 @@
  #include <linux/module.h>
  #include <linux/slab.h>
  #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
+-#include <linux/i2c-vid.h>
  #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
  #include <linux/err.h>
-@@ -55,7 +54,7 @@
- 					I2C_CLIENT_END };
  
- /* Insmod parameters */
--SENSORS_INSMOD_3(adm9240, ds1780, lm81);
-+I2C_CLIENT_INSMOD_3(adm9240, ds1780, lm81);
+ /* Addresses to scan */
+@@ -657,7 +657,7 @@
+ 	u8 conf = adm9240_read_value(client, ADM9240_REG_CONFIG);
+ 	u8 mode = adm9240_read_value(client, ADM9240_REG_TEMP_CONF) & 3;
  
- /* ADM9240 registers */
- #define ADM9240_REG_MAN_ID		0x3e
---- linux-2.6.13-rc4.orig/drivers/hwmon/asb100.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/asb100.c	2005-07-31 20:55:54.000000000 +0200
-@@ -39,7 +39,6 @@
+-	data->vrm = i2c_which_vrm(); /* need this to report vid as mV */
++	data->vrm = vid_which_vrm(); /* need this to report vid as mV */
+ 
+ 	dev_info(&client->dev, "Using VRM: %d.%d\n", data->vrm / 10,
+ 			data->vrm % 10);
+--- linux-2.6.13-rc4.orig/drivers/hwmon/asb100.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/asb100.c	2005-07-31 20:55:51.000000000 +0200
+@@ -39,8 +39,8 @@
  #include <linux/module.h>
  #include <linux/slab.h>
  #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
+-#include <linux/i2c-vid.h>
  #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
  #include <linux/err.h>
-@@ -57,7 +56,7 @@
- static unsigned short normal_i2c[] = { 0x2d, I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(asb100);
-+I2C_CLIENT_INSMOD_1(asb100);
- I2C_CLIENT_MODULE_PARM(force_subclients, "List of subclient addresses: "
- 	"{bus, clientaddr, subclientaddr1, subclientaddr2}");
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/atxp1.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/atxp1.c	2005-07-31 20:55:54.000000000 +0200
-@@ -23,7 +23,6 @@
- #include <linux/module.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
-@@ -43,7 +42,7 @@
- 
- static unsigned short normal_i2c[] = { 0x37, 0x4e, I2C_CLIENT_END };
- 
--SENSORS_INSMOD_1(atxp1);
-+I2C_CLIENT_INSMOD_1(atxp1);
- 
- static int atxp1_attach_adapter(struct i2c_adapter * adapter);
- static int atxp1_detach_client(struct i2c_client * client);
---- linux-2.6.13-rc4.orig/drivers/hwmon/ds1621.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/ds1621.c	2005-07-31 20:55:54.000000000 +0200
-@@ -26,7 +26,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
- #include "lm75.h"
-@@ -36,7 +35,7 @@
- 					0x4d, 0x4e, 0x4f, I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(ds1621);
-+I2C_CLIENT_INSMOD_1(ds1621);
- static int polarity = -1;
- module_param(polarity, int, 0);
- MODULE_PARM_DESC(polarity, "Output's polarity: 0 = active high, 1 = active low");
---- linux-2.6.13-rc4.orig/drivers/hwmon/fscher.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/fscher.c	2005-07-31 20:55:54.000000000 +0200
-@@ -31,7 +31,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
- 
-@@ -45,7 +44,7 @@
-  * Insmod parameters
-  */
- 
--SENSORS_INSMOD_1(fscher);
-+I2C_CLIENT_INSMOD_1(fscher);
- 
- /*
-  * The FSCHER registers
---- linux-2.6.13-rc4.orig/drivers/hwmon/fscpos.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/fscpos.c	2005-07-31 20:55:54.000000000 +0200
-@@ -34,7 +34,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
  #include <linux/init.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
-@@ -47,7 +46,7 @@
- /*
-  * Insmod parameters
-  */
--SENSORS_INSMOD_1(fscpos);
-+I2C_CLIENT_INSMOD_1(fscpos);
+ #include <linux/jiffies.h>
+@@ -973,7 +973,7 @@
  
- /*
-  * The FSCPOS registers
---- linux-2.6.13-rc4.orig/drivers/hwmon/gl518sm.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/gl518sm.c	2005-07-31 20:55:54.000000000 +0200
-@@ -41,7 +41,6 @@
+ 	vid = asb100_read_value(client, ASB100_REG_VID_FANDIV) & 0x0f;
+ 	vid |= (asb100_read_value(client, ASB100_REG_CHIPID) & 0x01) << 4;
+-	data->vrm = i2c_which_vrm();
++	data->vrm = vid_which_vrm();
+ 	vid = vid_from_reg(vid, data->vrm);
+ 
+ 	/* Start monitoring */
+--- linux-2.6.13-rc4.orig/drivers/hwmon/atxp1.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/atxp1.c	2005-07-31 20:55:51.000000000 +0200
+@@ -23,8 +23,8 @@
+ #include <linux/module.h>
+ #include <linux/jiffies.h>
+ #include <linux/i2c.h>
+-#include <linux/i2c-vid.h>
+ #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
+ #include <linux/err.h>
+ 
+ MODULE_LICENSE("GPL");
+@@ -296,7 +296,7 @@
+ 	}
+ 
+ 	/* Get VRM */
+-	data->vrm = i2c_which_vrm();
++	data->vrm = vid_which_vrm();
+ 
+ 	if ((data->vrm != 90) && (data->vrm != 91)) {
+ 		dev_err(&new_client->dev, "Not supporting VRM %d.%d\n",
+--- linux-2.6.13-rc4.orig/drivers/hwmon/gl520sm.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/gl520sm.c	2005-07-31 20:55:51.000000000 +0200
+@@ -26,8 +26,8 @@
  #include <linux/slab.h>
  #include <linux/jiffies.h>
  #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
+-#include <linux/i2c-vid.h>
  #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
  #include <linux/err.h>
  
-@@ -49,7 +48,7 @@
- static unsigned short normal_i2c[] = { 0x2c, 0x2d, I2C_CLIENT_END };
+ /* Type of the extra sensor */
+@@ -617,7 +617,7 @@
+ 	conf = oldconf = gl520_read_value(client, GL520_REG_CONF);
  
- /* Insmod parameters */
--SENSORS_INSMOD_2(gl518sm_r00, gl518sm_r80);
-+I2C_CLIENT_INSMOD_2(gl518sm_r00, gl518sm_r80);
+ 	data->alarm_mask = 0xff;
+-	data->vrm = i2c_which_vrm();
++	data->vrm = vid_which_vrm();
  
- /* Many GL518 constants specified below */
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/gl520sm.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/gl520sm.c	2005-07-31 20:55:54.000000000 +0200
-@@ -26,7 +26,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
-@@ -40,7 +39,7 @@
- static unsigned short normal_i2c[] = { 0x2c, 0x2d, I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(gl520sm);
-+I2C_CLIENT_INSMOD_1(gl520sm);
- 
- /* Many GL520 constants specified below 
- One of the inputs can be configured as either temp or voltage.
---- linux-2.6.13-rc4.orig/drivers/hwmon/it87.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/it87.c	2005-07-31 20:55:54.000000000 +0200
-@@ -37,7 +37,6 @@
+ 	if (extra_sensor_type == 1)
+ 		conf &= ~0x10;
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.13-rc4/drivers/hwmon/hwmon-vid.c	2005-07-31 20:55:51.000000000 +0200
+@@ -0,0 +1,103 @@
++/*
++    hwmon-vid.c - VID/VRM/VRD voltage conversions
++
++    Copyright (c) 2004 Rudolf Marek <r.marek@sh.cvut.cz>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/hwmon-vid.h>
++
++struct vrm_model {
++	u8 vendor;
++	u8 eff_family;
++	u8 eff_model;
++	int vrm_type;
++};
++
++#define ANY 0xFF
++
++#ifdef CONFIG_X86
++
++static struct vrm_model vrm_models[] = {
++	{X86_VENDOR_AMD, 0x6, ANY, 90},		/* Athlon Duron etc */
++	{X86_VENDOR_AMD, 0xF, ANY, 24},		/* Athlon 64, Opteron */
++	{X86_VENDOR_INTEL, 0x6, 0x9, 85},	/* 0.13um too */
++	{X86_VENDOR_INTEL, 0x6, 0xB, 85},	/* 0xB Tualatin */
++	{X86_VENDOR_INTEL, 0x6, ANY, 82},	/* any P6 */
++	{X86_VENDOR_INTEL, 0x7, ANY, 0},	/* Itanium */
++	{X86_VENDOR_INTEL, 0xF, 0x3, 100},	/* P4 Prescott */
++	{X86_VENDOR_INTEL, 0xF, ANY, 90},	/* P4 before Prescott */
++	{X86_VENDOR_INTEL, 0x10,ANY, 0},	/* Itanium 2 */
++	{X86_VENDOR_UNKNOWN, ANY, ANY, 0}	/* stop here */
++	};
++
++static int find_vrm(u8 eff_family, u8 eff_model, u8 vendor)
++{
++	int i = 0;
++
++	while (vrm_models[i].vendor!=X86_VENDOR_UNKNOWN) {
++		if (vrm_models[i].vendor==vendor)
++			if ((vrm_models[i].eff_family==eff_family)&& \
++			((vrm_models[i].eff_model==eff_model)|| \
++			(vrm_models[i].eff_model==ANY)))
++				return vrm_models[i].vrm_type;
++		i++;
++	}
++
++	return 0;
++}
++
++int vid_which_vrm(void)
++{
++	struct cpuinfo_x86 *c = cpu_data;
++	u32 eax;
++	u8 eff_family, eff_model;
++	int vrm_ret;
++
++	if (c->x86 < 6) return 0;	/* any CPU with familly lower than 6
++				 	dont have VID and/or CPUID */
++	eax = cpuid_eax(1);
++	eff_family = ((eax & 0x00000F00)>>8);
++	eff_model  = ((eax & 0x000000F0)>>4);
++	if (eff_family == 0xF) {	/* use extended model & family */
++		eff_family += ((eax & 0x00F00000)>>20);
++		eff_model += ((eax & 0x000F0000)>>16)<<4;
++	}
++	vrm_ret = find_vrm(eff_family,eff_model,c->x86_vendor);
++	if (vrm_ret == 0)
++		printk(KERN_INFO "hwmon-vid: Unknown VRM version of your"
++		" x86 CPU\n");
++	return vrm_ret;
++}
++
++/* and now for something completely different for Non-x86 world*/
++#else
++int vid_which_vrm(void)
++{
++	printk(KERN_INFO "hwmon-vid: Unknown VRM version of your CPU\n");
++	return 0;
++}
++#endif
++
++EXPORT_SYMBOL(vid_which_vrm);
++
++MODULE_AUTHOR("Rudolf Marek <r.marek@sh.cvut.cz>");
++
++MODULE_DESCRIPTION("hwmon-vid driver");
++MODULE_LICENSE("GPL");
+--- linux-2.6.13-rc4.orig/drivers/hwmon/it87.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/it87.c	2005-07-31 20:55:51.000000000 +0200
+@@ -37,9 +37,9 @@
  #include <linux/jiffies.h>
  #include <linux/i2c.h>
  #include <linux/i2c-isa.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
- #include <linux/hwmon-sysfs.h>
+-#include <linux/i2c-vid.h>
+-#include <linux/hwmon-sysfs.h>
  #include <linux/hwmon.h>
-@@ -51,7 +50,7 @@
- static unsigned short isa_address = 0x290;
- 
- /* Insmod parameters */
--SENSORS_INSMOD_2(it87, it8712);
-+I2C_CLIENT_INSMOD_2(it87, it8712);
- 
- #define	REG	0x2e	/* The register to read/write */
- #define	DEV	0x07	/* Register: Logical device select */
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm63.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm63.c	2005-07-31 20:55:54.000000000 +0200
-@@ -42,7 +42,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon-sysfs.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
-@@ -58,7 +57,7 @@
-  * Insmod parameters
-  */
- 
--SENSORS_INSMOD_1(lm63);
-+I2C_CLIENT_INSMOD_1(lm63);
- 
- /*
-  * The LM63 registers
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm75.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm75.c	2005-07-31 20:55:54.000000000 +0200
-@@ -23,7 +23,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
- #include "lm75.h"
-@@ -34,7 +33,7 @@
- 					0x4d, 0x4e, 0x4f, I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(lm75);
-+I2C_CLIENT_INSMOD_1(lm75);
- 
- /* Many LM75 constants specified below */
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm77.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm77.c	2005-07-31 20:55:54.000000000 +0200
-@@ -30,7 +30,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
- 
-@@ -38,7 +37,7 @@
- static unsigned short normal_i2c[] = { 0x48, 0x49, 0x4a, 0x4b, I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(lm77);
-+I2C_CLIENT_INSMOD_1(lm77);
- 
- /* The LM77 registers */
- #define LM77_REG_TEMP		0x00
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm78.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm78.c	2005-07-31 20:55:54.000000000 +0200
-@@ -24,7 +24,6 @@
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
- #include <linux/i2c-isa.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
++#include <linux/hwmon-vid.h>
  #include <linux/err.h>
  #include <asm/io.h>
-@@ -37,7 +36,7 @@
- static unsigned short isa_address = 0x290;
  
- /* Insmod parameters */
--SENSORS_INSMOD_2(lm78, lm79);
-+I2C_CLIENT_INSMOD_2(lm78, lm79);
+@@ -919,7 +919,7 @@
+ 	}
  
- /* Many LM78 constants specified below */
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm80.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm80.c	2005-07-31 20:55:54.000000000 +0200
-@@ -26,7 +26,6 @@
+ 	if (data->type == it8712) {
+-		data->vrm = i2c_which_vrm();
++		data->vrm = vid_which_vrm();
+ 		device_create_file_vrm(new_client);
+ 		device_create_file_vid(new_client);
+ 	}
+--- linux-2.6.13-rc4.orig/drivers/hwmon/lm85.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/lm85.c	2005-07-31 20:55:51.000000000 +0200
+@@ -28,8 +28,8 @@
  #include <linux/slab.h>
  #include <linux/jiffies.h>
  #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
+-#include <linux/i2c-vid.h>
  #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
  #include <linux/err.h>
  
-@@ -35,7 +34,7 @@
- 					0x2d, 0x2e, 0x2f, I2C_CLIENT_END };
+ /* Addresses to scan */
+@@ -1147,7 +1147,7 @@
+ 		goto ERROR1;
  
- /* Insmod parameters */
--SENSORS_INSMOD_1(lm80);
-+I2C_CLIENT_INSMOD_1(lm80);
+ 	/* Set the VRM version */
+-	data->vrm = i2c_which_vrm();
++	data->vrm = vid_which_vrm();
  
- /* Many LM80 constants specified below */
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm83.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm83.c	2005-07-31 20:55:54.000000000 +0200
-@@ -32,7 +32,6 @@
+ 	/* Initialize the LM85 chip */
+ 	lm85_init_client(new_client);
+--- linux-2.6.13-rc4.orig/drivers/hwmon/lm87.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/lm87.c	2005-07-31 20:55:51.000000000 +0200
+@@ -57,8 +57,8 @@
  #include <linux/slab.h>
  #include <linux/jiffies.h>
  #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon-sysfs.h>
+-#include <linux/i2c-vid.h>
  #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
  #include <linux/err.h>
-@@ -52,7 +51,7 @@
-  * Insmod parameters
-  */
- 
--SENSORS_INSMOD_1(lm83);
-+I2C_CLIENT_INSMOD_1(lm83);
  
  /*
-  * The LM83 registers
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm85.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm85.c	2005-07-31 20:55:54.000000000 +0200
-@@ -28,7 +28,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
-@@ -37,7 +36,7 @@
- static unsigned short normal_i2c[] = { 0x2c, 0x2d, 0x2e, I2C_CLIENT_END };
+@@ -694,7 +694,7 @@
+ 	u8 config;
  
- /* Insmod parameters */
--SENSORS_INSMOD_6(lm85b, lm85c, adm1027, adt7463, emc6d100, emc6d102);
-+I2C_CLIENT_INSMOD_6(lm85b, lm85c, adm1027, adt7463, emc6d100, emc6d102);
+ 	data->channel = lm87_read_value(client, LM87_REG_CHANNEL_MODE);
+-	data->vrm = i2c_which_vrm();
++	data->vrm = vid_which_vrm();
  
- /* The LM85 registers */
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm87.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm87.c	2005-07-31 20:55:54.000000000 +0200
-@@ -57,7 +57,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
-@@ -73,7 +72,7 @@
-  * Insmod parameters
-  */
- 
--SENSORS_INSMOD_1(lm87);
-+I2C_CLIENT_INSMOD_1(lm87);
- 
- /*
-  * The LM87 registers
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm90.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm90.c	2005-07-31 20:55:54.000000000 +0200
-@@ -75,7 +75,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon-sysfs.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
-@@ -96,7 +95,7 @@
-  * Insmod parameters
-  */
- 
--SENSORS_INSMOD_6(lm90, adm1032, lm99, lm86, max6657, adt7461);
-+I2C_CLIENT_INSMOD_6(lm90, adm1032, lm99, lm86, max6657, adt7461);
- 
- /*
-  * The LM90 registers
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm92.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm92.c	2005-07-31 20:55:54.000000000 +0200
-@@ -44,7 +44,6 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
- 
-@@ -54,7 +53,7 @@
- 				       I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(lm92);
-+I2C_CLIENT_INSMOD_1(lm92);
- 
- /* The LM92 registers */
- #define LM92_REG_CONFIG			0x01 /* 8-bit, RW */
---- linux-2.6.13-rc4.orig/drivers/hwmon/max1619.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/max1619.c	2005-07-31 20:55:54.000000000 +0200
-@@ -31,7 +31,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
- 
-@@ -44,7 +43,7 @@
-  * Insmod parameters
-  */
- 
--SENSORS_INSMOD_1(max1619);
-+I2C_CLIENT_INSMOD_1(max1619);
- 
- /*
-  * The MAX1619 registers
---- linux-2.6.13-rc4.orig/drivers/hwmon/sis5595.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/sis5595.c	2005-07-31 20:55:54.000000000 +0200
-@@ -56,7 +56,6 @@
- #include <linux/pci.h>
- #include <linux/i2c.h>
- #include <linux/i2c-isa.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
- #include <linux/init.h>
---- linux-2.6.13-rc4.orig/drivers/hwmon/smsc47m1.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/smsc47m1.c	2005-07-31 20:55:54.000000000 +0200
-@@ -31,7 +31,6 @@
+ 	config = lm87_read_value(client, LM87_REG_CONFIG);
+ 	if (!(config & 0x01)) {
+--- linux-2.6.13-rc4.orig/drivers/hwmon/pc87360.c	2005-07-31 14:25:04.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/pc87360.c	2005-07-31 20:55:51.000000000 +0200
+@@ -39,8 +39,8 @@
  #include <linux/jiffies.h>
  #include <linux/i2c.h>
  #include <linux/i2c-isa.h>
--#include <linux/i2c-sensor.h>
+-#include <linux/i2c-vid.h>
  #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
  #include <linux/err.h>
- #include <linux/init.h>
---- linux-2.6.13-rc4.orig/drivers/hwmon/via686a.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/via686a.c	2005-07-31 20:55:54.000000000 +0200
-@@ -36,7 +36,6 @@
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
- #include <linux/i2c-isa.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
- #include <linux/init.h>
---- linux-2.6.13-rc4.orig/drivers/hwmon/w83627hf.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/w83627hf.c	2005-07-31 20:55:54.000000000 +0200
-@@ -43,7 +43,6 @@
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
- #include <linux/i2c-isa.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
---- linux-2.6.13-rc4.orig/drivers/hwmon/w83781d.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/w83781d.c	2005-07-31 20:55:54.000000000 +0200
-@@ -39,7 +39,6 @@
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
- #include <linux/i2c-isa.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
- #include <linux/hwmon.h>
- #include <linux/err.h>
-@@ -53,7 +52,7 @@
- static unsigned short isa_address = 0x290;
+ #include <asm/io.h>
  
- /* Insmod parameters */
--SENSORS_INSMOD_5(w83781d, w83782d, w83783s, w83627hf, as99127f);
-+I2C_CLIENT_INSMOD_5(w83781d, w83782d, w83783s, w83627hf, as99127f);
- I2C_CLIENT_MODULE_PARM(force_subclients, "List of subclient addresses: "
- 		    "{bus, clientaddr, subclientaddr1, subclientaddr2}");
+--- linux-2.6.13-rc4.orig/drivers/hwmon/w83627hf.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/w83627hf.c	2005-07-31 20:55:51.000000000 +0200
+@@ -43,8 +43,8 @@
+ #include <linux/jiffies.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-isa.h>
+-#include <linux/i2c-vid.h>
+ #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
+ #include <linux/err.h>
+ #include <asm/io.h>
+ #include "lm75.h"
+@@ -1316,7 +1316,7 @@
+ 		data->vrm = (data->vrm_ovt & 0x01) ? 90 : 82;
+ 	} else {
+ 		/* Convert VID to voltage based on default VRM */
+-		data->vrm = i2c_which_vrm();
++		data->vrm = vid_which_vrm();
+ 	}
  
---- linux-2.6.13-rc4.orig/drivers/hwmon/w83792d.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/w83792d.c	2005-07-31 20:55:54.000000000 +0200
+ 	tmp = w83627hf_read_value(client, W83781D_REG_SCFG1);
+--- linux-2.6.13-rc4.orig/drivers/hwmon/w83781d.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/w83781d.c	2005-07-31 20:55:51.000000000 +0200
+@@ -39,8 +39,8 @@
+ #include <linux/jiffies.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-isa.h>
+-#include <linux/i2c-vid.h>
+ #include <linux/hwmon.h>
++#include <linux/hwmon-vid.h>
+ #include <linux/err.h>
+ #include <asm/io.h>
+ #include "lm75.h"
+@@ -1478,7 +1478,7 @@
+ 		w83781d_write_value(client, W83781D_REG_BEEP_INTS2, 0);
+ 	}
+ 
+-	data->vrm = i2c_which_vrm();
++	data->vrm = vid_which_vrm();
+ 
+ 	if ((type != w83781d) && (type != as99127f)) {
+ 		tmp = w83781d_read_value(client, W83781D_REG_SCFG1);
+--- linux-2.6.13-rc4.orig/drivers/hwmon/w83792d.c	2005-07-31 16:59:10.000000000 +0200
++++ linux-2.6.13-rc4/drivers/hwmon/w83792d.c	2005-07-31 20:55:51.000000000 +0200
 @@ -40,7 +40,6 @@
  #include <linux/init.h>
  #include <linux/slab.h>
  #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/i2c-vid.h>
+-#include <linux/i2c-vid.h>
  #include <linux/hwmon.h>
  #include <linux/hwmon-sysfs.h>
-@@ -50,7 +49,7 @@
- static unsigned short normal_i2c[] = { 0x2c, 0x2d, 0x2e, 0x2f, I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(w83792d);
-+I2C_CLIENT_INSMOD_1(w83792d);
- I2C_CLIENT_MODULE_PARM(force_subclients, "List of subclient addresses: "
- 			"{bus, clientaddr, subclientaddr1, subclientaddr2}");
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/w83l785ts.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/w83l785ts.c	2005-07-31 20:55:54.000000000 +0200
-@@ -36,7 +36,6 @@
- #include <linux/slab.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/hwmon.h>
  #include <linux/err.h>
+--- linux-2.6.13-rc4.orig/drivers/i2c/Makefile	2005-07-31 16:10:11.000000000 +0200
++++ linux-2.6.13-rc4/drivers/i2c/Makefile	2005-07-31 20:55:51.000000000 +0200
+@@ -4,12 +4,8 @@
  
-@@ -54,7 +53,7 @@
-  * Insmod parameters
-  */
+ obj-$(CONFIG_I2C)		+= i2c-core.o
+ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
+-obj-$(CONFIG_I2C_SENSOR)	+= i2c-sensor.o
+ obj-y				+= busses/ chips/ algos/
  
--SENSORS_INSMOD_1(w83l785ts);
-+I2C_CLIENT_INSMOD_1(w83l785ts);
+-i2c-sensor-objs := i2c-sensor-vid.o
+-
+-
+ ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
+ EXTRA_CFLAGS += -DDEBUG
+ endif
+--- linux-2.6.13-rc4.orig/drivers/i2c/chips/Kconfig	2005-07-31 14:25:04.000000000 +0200
++++ linux-2.6.13-rc4/drivers/i2c/chips/Kconfig	2005-07-31 20:55:51.000000000 +0200
+@@ -2,17 +2,12 @@
+ # Miscellaneous I2C chip drivers configuration
+ #
  
- /*
-  * The W83L785TS-S registers
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/ds1337.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/ds1337.c	2005-07-31 20:55:54.000000000 +0200
-@@ -17,7 +17,6 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <linux/string.h>
- #include <linux/rtc.h>		/* get the user-level API */
- #include <linux/bcd.h>
-@@ -40,7 +39,7 @@
-  */
- static unsigned short normal_i2c[] = { 0x68, I2C_CLIENT_END };
+-config I2C_SENSOR
+-	tristate
+-	default n
+-
+ menu "Miscellaneous I2C Chip support"
+ 	depends on I2C
  
--SENSORS_INSMOD_1(ds1337);
-+I2C_CLIENT_INSMOD_1(ds1337);
+ config SENSORS_DS1337
+ 	tristate "Dallas Semiconductor DS1337 and DS1339 Real Time Clock"
+ 	depends on I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Dallas Semiconductor
+ 	  DS1337 and DS1339 real-time clock chips.
+@@ -23,7 +18,6 @@
+ config SENSORS_DS1374
+ 	tristate "Maxim/Dallas Semiconductor DS1374 Real Time Clock"
+ 	depends on I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Dallas Semiconductor
+ 	  DS1374 real-time clock chips.
+@@ -34,7 +28,6 @@
+ config SENSORS_EEPROM
+ 	tristate "EEPROM reader"
+ 	depends on I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get read-only access to the EEPROM data
+ 	  available on modern memory DIMMs and Sony Vaio laptops.  Such
+@@ -46,7 +39,6 @@
+ config SENSORS_PCF8574
+ 	tristate "Philips PCF8574 and PCF8574A"
+ 	depends on I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Philips PCF8574 and 
+ 	  PCF8574A chips.
+@@ -67,7 +59,6 @@
+ config SENSORS_PCF8591
+ 	tristate "Philips PCF8591"
+ 	depends on I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for Philips PCF8591 chips.
  
- static int ds1337_attach_adapter(struct i2c_adapter *adapter);
- static int ds1337_detect(struct i2c_adapter *adapter, int address, int kind);
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/eeprom.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/eeprom.c	2005-07-31 20:55:54.000000000 +0200
-@@ -33,14 +33,13 @@
- #include <linux/sched.h>
- #include <linux/jiffies.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
+@@ -77,7 +68,6 @@
+ config SENSORS_RTC8564
+ 	tristate "Epson 8564 RTC chip"
+ 	depends on I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for the Epson 8564 RTC chip.
  
- /* Addresses to scan */
- static unsigned short normal_i2c[] = { 0x50, 0x51, 0x52, 0x53, 0x54,
- 					0x55, 0x56, 0x57, I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(eeprom);
-+I2C_CLIENT_INSMOD_1(eeprom);
- 
- 
- /* Size of EEPROM in bytes */
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/max6875.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/max6875.c	2005-07-31 20:55:54.000000000 +0200
-@@ -31,14 +31,13 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- #include <asm/semaphore.h>
- 
- /* Do not scan - the MAX6875 access method will write to some EEPROM chips */
- static unsigned short normal_i2c[] = {I2C_CLIENT_END};
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(max6875);
-+I2C_CLIENT_INSMOD_1(max6875);
- 
- /* The MAX6875 can only read/write 16 bytes at a time */
- #define SLICE_SIZE			16
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/pca9539.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/pca9539.c	2005-07-31 20:55:54.000000000 +0200
-@@ -13,13 +13,12 @@
- #include <linux/slab.h>
- #include <linux/i2c.h>
- #include <linux/hwmon-sysfs.h>
--#include <linux/i2c-sensor.h>
- 
- /* Addresses to scan */
- static unsigned short normal_i2c[] = {0x74, 0x75, 0x76, 0x77, I2C_CLIENT_END};
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(pca9539);
-+I2C_CLIENT_INSMOD_1(pca9539);
- 
- enum pca9539_cmd
- {
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/pcf8574.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/pcf8574.c	2005-07-31 20:55:54.000000000 +0200
-@@ -39,7 +39,6 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- 
- /* Addresses to scan */
- static unsigned short normal_i2c[] = { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
-@@ -47,7 +46,7 @@
- 					I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_2(pcf8574, pcf8574a);
-+I2C_CLIENT_INSMOD_2(pcf8574, pcf8574a);
- 
- /* Initial values */
- #define PCF8574_INIT 255	/* All outputs on (input mode) */
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/pcf8591.c	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/pcf8591.c	2005-07-31 20:55:54.000000000 +0200
-@@ -24,14 +24,13 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/i2c.h>
--#include <linux/i2c-sensor.h>
- 
- /* Addresses to scan */
- static unsigned short normal_i2c[] = { 0x48, 0x49, 0x4a, 0x4b, 0x4c,
- 					0x4d, 0x4e, 0x4f, I2C_CLIENT_END };
- 
- /* Insmod parameters */
--SENSORS_INSMOD_1(pcf8591);
-+I2C_CLIENT_INSMOD_1(pcf8591);
- 
- static int input_mode;
- module_param(input_mode, int, 0);
---- linux-2.6.13-rc4.orig/include/linux/i2c-sensor.h	2005-07-31 16:50:47.000000000 +0200
+--- linux-2.6.13-rc4.orig/drivers/i2c/i2c-sensor-vid.c	2005-07-31 16:10:11.000000000 +0200
 +++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,203 +0,0 @@
+@@ -1,103 +0,0 @@
 -/*
--    i2c-sensor.h - Part of the i2c package
--    was originally sensors.h - Part of lm_sensors, Linux kernel modules
--                               for hardware monitoring
--    Copyright (c) 1998, 1999  Frodo Looijaard <frodol@dds.nl>
+-    i2c-sensor-vid.c -  Part of lm_sensors, Linux kernel modules for hardware
+-        		monitoring
+-
+-    Copyright (c) 2004 Rudolf Marek <r.marek@sh.cvut.cz>
 -
 -    This program is free software; you can redistribute it and/or modify
 -    it under the terms of the GNU General Public License as published by
@@ -895,351 +841,317 @@ Signed-off-by: Jean Delvare <khali@linux-fr>
 -    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 -*/
 -
--#ifndef _LINUX_I2C_SENSOR_H
--#define _LINUX_I2C_SENSOR_H
+-#include <linux/config.h>
+-#include <linux/module.h>
+-#include <linux/kernel.h>
 -
--#include <linux/i2c.h>
+-struct vrm_model {
+-	u8 vendor;
+-	u8 eff_family;
+-	u8 eff_model;
+-	int vrm_type;
+-};
 -
--#define SENSORS_MODULE_PARM_FORCE(name) \
--  I2C_CLIENT_MODULE_PARM(force_ ## name, \
--                      "List of adapter,address pairs which are unquestionably" \
--                      " assumed to contain a `" # name "' chip")
+-#define ANY 0xFF
 -
+-#ifdef CONFIG_X86
 -
--/* This defines several insmod variables, and the addr_data structure */
--#define SENSORS_INSMOD \
--  I2C_CLIENT_MODULE_PARM(probe, \
--                      "List of adapter,address pairs to scan additionally"); \
--  I2C_CLIENT_MODULE_PARM(ignore, \
--                      "List of adapter,address pairs not to scan"); \
--	static struct i2c_client_address_data addr_data = {		\
--			.normal_i2c =		normal_i2c,		\
--			.probe =		probe,			\
--			.ignore =		ignore,			\
--			.forces =		forces,			\
--		}
+-static struct vrm_model vrm_models[] = {
+-	{X86_VENDOR_AMD, 0x6, ANY, 90},		/* Athlon Duron etc */
+-	{X86_VENDOR_AMD, 0xF, ANY, 24},		/* Athlon 64, Opteron */
+-	{X86_VENDOR_INTEL, 0x6, 0x9, 85},	/* 0.13um too */
+-	{X86_VENDOR_INTEL, 0x6, 0xB, 85},	/* 0xB Tualatin */
+-	{X86_VENDOR_INTEL, 0x6, ANY, 82},	/* any P6 */
+-	{X86_VENDOR_INTEL, 0x7, ANY, 0},	/* Itanium */
+-	{X86_VENDOR_INTEL, 0xF, 0x3, 100},	/* P4 Prescott */
+-	{X86_VENDOR_INTEL, 0xF, ANY, 90},	/* P4 before Prescott */
+-	{X86_VENDOR_INTEL, 0x10,ANY, 0},	/* Itanium 2 */
+-	{X86_VENDOR_UNKNOWN, ANY, ANY, 0}	/* stop here */
+-	};
 -
--/* The following functions create an enum with the chip names as elements. 
--   The first element of the enum is any_chip. These are the only macros
--   a module will want to use. */
+-static int find_vrm(u8 eff_family, u8 eff_model, u8 vendor)
+-{
+-	int i = 0;
 -
--#define SENSORS_INSMOD_0 \
--  enum chips { any_chip }; \
--  I2C_CLIENT_MODULE_PARM(force, \
--                      "List of adapter,address pairs to boldly assume " \
--                      "to be present"); \
--  static unsigned short *forces[] = { force, \
--				      NULL }; \
--  SENSORS_INSMOD
+-	while (vrm_models[i].vendor!=X86_VENDOR_UNKNOWN) {
+-		if (vrm_models[i].vendor==vendor)
+-			if ((vrm_models[i].eff_family==eff_family)&& \
+-			((vrm_models[i].eff_model==eff_model)|| \
+-			(vrm_models[i].eff_model==ANY)))
+-				return vrm_models[i].vrm_type;
+-		i++;
+-	}
 -
--#define SENSORS_INSMOD_1(chip1) \
--  enum chips { any_chip, chip1 }; \
--  I2C_CLIENT_MODULE_PARM(force, \
--                      "List of adapter,address pairs to boldly assume " \
--                      "to be present"); \
--  SENSORS_MODULE_PARM_FORCE(chip1); \
--  static unsigned short *forces[] = { force, \
--				      force_##chip1, \
--				      NULL }; \
--  SENSORS_INSMOD
+-	return 0;
+-}
 -
--#define SENSORS_INSMOD_2(chip1,chip2) \
--  enum chips { any_chip, chip1, chip2 }; \
--  I2C_CLIENT_MODULE_PARM(force, \
--                      "List of adapter,address pairs to boldly assume " \
--                      "to be present"); \
--  SENSORS_MODULE_PARM_FORCE(chip1); \
--  SENSORS_MODULE_PARM_FORCE(chip2); \
--  static unsigned short *forces[] = { force, \
--				      force_##chip1, \
--				      force_##chip2, \
--				      NULL }; \
--  SENSORS_INSMOD
+-int i2c_which_vrm(void)
+-{
+-	struct cpuinfo_x86 *c = cpu_data;
+-	u32 eax;
+-	u8 eff_family, eff_model;
+-	int vrm_ret;
 -
--#define SENSORS_INSMOD_3(chip1,chip2,chip3) \
--  enum chips { any_chip, chip1, chip2, chip3 }; \
--  I2C_CLIENT_MODULE_PARM(force, \
--                      "List of adapter,address pairs to boldly assume " \
--                      "to be present"); \
--  SENSORS_MODULE_PARM_FORCE(chip1); \
--  SENSORS_MODULE_PARM_FORCE(chip2); \
--  SENSORS_MODULE_PARM_FORCE(chip3); \
--  static unsigned short *forces[] = { force, \
--				      force_##chip1, \
--				      force_##chip2, \
--				      force_##chip3, \
--				      NULL }; \
--  SENSORS_INSMOD
+-	if (c->x86 < 6) return 0;	/* any CPU with familly lower than 6
+-				 	dont have VID and/or CPUID */
+-	eax = cpuid_eax(1);
+-	eff_family = ((eax & 0x00000F00)>>8);
+-	eff_model  = ((eax & 0x000000F0)>>4);
+-	if (eff_family == 0xF) {	/* use extended model & family */
+-		eff_family += ((eax & 0x00F00000)>>20);
+-		eff_model += ((eax & 0x000F0000)>>16)<<4;
+-	}
+-	vrm_ret = find_vrm(eff_family,eff_model,c->x86_vendor);
+-	if (vrm_ret == 0)
+-		printk(KERN_INFO "i2c-sensor.o: Unknown VRM version of your"
+-		" x86 CPU\n");
+-	return vrm_ret;
+-}
 -
--#define SENSORS_INSMOD_4(chip1,chip2,chip3,chip4) \
--  enum chips { any_chip, chip1, chip2, chip3, chip4 }; \
--  I2C_CLIENT_MODULE_PARM(force, \
--                      "List of adapter,address pairs to boldly assume " \
--                      "to be present"); \
--  SENSORS_MODULE_PARM_FORCE(chip1); \
--  SENSORS_MODULE_PARM_FORCE(chip2); \
--  SENSORS_MODULE_PARM_FORCE(chip3); \
--  SENSORS_MODULE_PARM_FORCE(chip4); \
--  static unsigned short *forces[] = { force, \
--				      force_##chip1, \
--				      force_##chip2, \
--				      force_##chip3, \
--				      force_##chip4, \
--				      NULL}; \
--  SENSORS_INSMOD
+-/* and now for something completely different for Non-x86 world*/
+-#else
+-int i2c_which_vrm(void)
+-{
+-	printk(KERN_INFO "i2c-sensor.o: Unknown VRM version of your CPU\n");
+-	return 0;
+-}
+-#endif
 -
--#define SENSORS_INSMOD_5(chip1,chip2,chip3,chip4,chip5) \
--  enum chips { any_chip, chip1, chip2, chip3, chip4, chip5 }; \
--  I2C_CLIENT_MODULE_PARM(force, \
--                      "List of adapter,address pairs to boldly assume " \
--                      "to be present"); \
--  SENSORS_MODULE_PARM_FORCE(chip1); \
--  SENSORS_MODULE_PARM_FORCE(chip2); \
--  SENSORS_MODULE_PARM_FORCE(chip3); \
--  SENSORS_MODULE_PARM_FORCE(chip4); \
--  SENSORS_MODULE_PARM_FORCE(chip5); \
--  static unsigned short *forces[] = { force, \
--				      force_##chip1, \
--				      force_##chip2, \
--				      force_##chip3, \
--				      force_##chip4, \
--				      force_##chip5, \
--				      NULL }; \
--  SENSORS_INSMOD
+-EXPORT_SYMBOL(i2c_which_vrm);
 -
--#define SENSORS_INSMOD_6(chip1,chip2,chip3,chip4,chip5,chip6) \
--  enum chips { any_chip, chip1, chip2, chip3, chip4, chip5, chip6 }; \
--  I2C_CLIENT_MODULE_PARM(force, \
--                      "List of adapter,address pairs to boldly assume " \
--                      "to be present"); \
--  SENSORS_MODULE_PARM_FORCE(chip1); \
--  SENSORS_MODULE_PARM_FORCE(chip2); \
--  SENSORS_MODULE_PARM_FORCE(chip3); \
--  SENSORS_MODULE_PARM_FORCE(chip4); \
--  SENSORS_MODULE_PARM_FORCE(chip5); \
--  SENSORS_MODULE_PARM_FORCE(chip6); \
--  static unsigned short *forces[] = { force, \
--				      force_##chip1, \
--				      force_##chip2, \
--				      force_##chip3, \
--				      force_##chip4, \
--				      force_##chip5, \
--				      force_##chip6, \
--				      NULL }; \
--  SENSORS_INSMOD
+-MODULE_AUTHOR("Rudolf Marek <r.marek@sh.cvut.cz>");
 -
--#define SENSORS_INSMOD_7(chip1,chip2,chip3,chip4,chip5,chip6,chip7) \
--  enum chips { any_chip, chip1, chip2, chip3, chip4, chip5, chip6, chip7 }; \
--  I2C_CLIENT_MODULE_PARM(force, \
--                      "List of adapter,address pairs to boldly assume " \
--                      "to be present"); \
--  SENSORS_MODULE_PARM_FORCE(chip1); \
--  SENSORS_MODULE_PARM_FORCE(chip2); \
--  SENSORS_MODULE_PARM_FORCE(chip3); \
--  SENSORS_MODULE_PARM_FORCE(chip4); \
--  SENSORS_MODULE_PARM_FORCE(chip5); \
--  SENSORS_MODULE_PARM_FORCE(chip6); \
--  SENSORS_MODULE_PARM_FORCE(chip7); \
--  static unsigned short *forces[] = { force, \
--				      force_##chip1, \
--				      force_##chip2, \
--				      force_##chip3, \
--				      force_##chip4, \
--				      force_##chip5, \
--				      force_##chip6, \
--				      force_##chip7, \
--				      NULL }; \
--  SENSORS_INSMOD
--
--#define SENSORS_INSMOD_8(chip1,chip2,chip3,chip4,chip5,chip6,chip7,chip8) \
--  enum chips { any_chip, chip1, chip2, chip3, chip4, chip5, chip6, chip7, chip8 }; \
--  I2C_CLIENT_MODULE_PARM(force, \
--                      "List of adapter,address pairs to boldly assume " \
--                      "to be present"); \
--  SENSORS_MODULE_PARM_FORCE(chip1); \
--  SENSORS_MODULE_PARM_FORCE(chip2); \
--  SENSORS_MODULE_PARM_FORCE(chip3); \
--  SENSORS_MODULE_PARM_FORCE(chip4); \
--  SENSORS_MODULE_PARM_FORCE(chip5); \
--  SENSORS_MODULE_PARM_FORCE(chip6); \
--  SENSORS_MODULE_PARM_FORCE(chip7); \
--  SENSORS_MODULE_PARM_FORCE(chip8); \
--  static unsigned short *forces[] = { force, \
--				      force_##chip1, \
--				      force_##chip2, \
--				      force_##chip3, \
--				      force_##chip4, \
--				      force_##chip5, \
--				      force_##chip6, \
--				      force_##chip7, \
--				      force_##chip8, \
--				      NULL }; \
--  SENSORS_INSMOD
--
--#endif				/* def _LINUX_I2C_SENSOR_H */
---- linux-2.6.13-rc4.orig/include/linux/i2c.h	2005-07-31 16:50:47.000000000 +0200
-+++ linux-2.6.13-rc4/include/linux/i2c.h	2005-07-31 20:55:54.000000000 +0200
-@@ -565,24 +565,148 @@
-   module_param_array(var, short, &var##_num, 0); \
-   MODULE_PARM_DESC(var,desc)
- 
--/* This is the one you want to use in your own modules */
-+#define I2C_CLIENT_MODULE_PARM_FORCE(name)				\
-+I2C_CLIENT_MODULE_PARM(force_##name,					\
-+		       "List of adapter,address pairs which are "	\
-+		       "unquestionably assumed to contain a `"		\
-+		       # name "' chip")
+-MODULE_DESCRIPTION("i2c-sensor driver");
+-MODULE_LICENSE("GPL");
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.13-rc4/include/linux/hwmon-vid.h	2005-07-31 20:55:51.000000000 +0200
+@@ -0,0 +1,112 @@
++/*
++    hwmon-vid.h - VID/VRM/VRD voltage conversions
 +
++    Originally part of lm_sensors
++    Copyright (c) 2002 Mark D. Studebaker <mdsxyz123@yahoo.com>
++    With assistance from Trent Piepho <xyzzy@speakeasy.org>
 +
-+#define I2C_CLIENT_INSMOD_COMMON					\
-+I2C_CLIENT_MODULE_PARM(probe, "List of adapter,address pairs to scan "	\
-+		       "additionally");					\
-+I2C_CLIENT_MODULE_PARM(ignore, "List of adapter,address pairs not to "	\
-+		       "scan");						\
-+static struct i2c_client_address_data addr_data = {			\
-+	.normal_i2c	= normal_i2c,					\
-+	.probe		= probe,					\
-+	.ignore		= ignore,					\
-+	.forces		= forces,					\
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/*
++    This file contains common code for decoding VID pins.
++    This file is #included in various chip drivers in this directory.
++    As the user is unlikely to load more than one driver which
++    includes this code we don't worry about the wasted space.
++    Reference: VRM x.y DC-DC Converter Design Guidelines,
++    available at http://developer.intel.com
++*/
++
++/*
++    AMD Opteron processors don't follow the Intel VRM spec.
++    I'm going to "make up" 2.4 as the VRM spec for the Opterons.
++    No good reason just a mnemonic for the 24x Opteron processor
++    series
++
++    Opteron VID encoding is:
++
++       00000  =  1.550 V
++       00001  =  1.525 V
++        . . . .
++       11110  =  0.800 V
++       11111  =  0.000 V (off)
++ */
++
++/*
++    Legal val values 0x00 - 0x1f; except for VRD 10.0, 0x00 - 0x3f.
++    vrm is the Intel VRM document version.
++    Note: vrm version is scaled by 10 and the return value is scaled by 1000
++    to avoid floating point in the kernel.
++*/
++
++int vid_which_vrm(void);
++
++#define DEFAULT_VRM	82
++
++static inline int vid_from_reg(int val, int vrm)
++{
++	int vid;
++
++	switch(vrm) {
++
++	case  0:
++		return 0;
++
++	case 100:               /* VRD 10.0 */
++		if((val & 0x1f) == 0x1f)
++			return 0;
++		if((val & 0x1f) <= 0x09 || val == 0x0a)
++			vid = 10875 - (val & 0x1f) * 250;
++		else
++			vid = 18625 - (val & 0x1f) * 250;
++		if(val & 0x20)
++			vid -= 125;
++		vid /= 10;      /* only return 3 dec. places for now */
++		return vid;
++
++	case 24:                /* Opteron processor */
++		return(val == 0x1f ? 0 : 1550 - val * 25);
++
++	case 91:		/* VRM 9.1 */
++	case 90:		/* VRM 9.0 */
++		return(val == 0x1f ? 0 :
++		                       1850 - val * 25);
++
++	case 85:		/* VRM 8.5 */
++		return((val & 0x10  ? 25 : 0) +
++		       ((val & 0x0f) > 0x04 ? 2050 : 1250) -
++		       ((val & 0x0f) * 50));
++
++	case 84:		/* VRM 8.4 */
++		val &= 0x0f;
++				/* fall through */
++	default:		/* VRM 8.2 */
++		return(val == 0x1f ? 0 :
++		       val & 0x10  ? 5100 - (val) * 100 :
++		                     2050 - (val) * 50);
++	}
 +}
 +
-+/* These are the ones you want to use in your own drivers. Pick the one
-+   which matches the number of devices the driver differenciates between. */
- #define I2C_CLIENT_INSMOD \
--  I2C_CLIENT_MODULE_PARM(probe, \
--                      "List of adapter,address pairs to scan additionally"); \
--  I2C_CLIENT_MODULE_PARM(ignore, \
--                      "List of adapter,address pairs not to scan"); \
-   I2C_CLIENT_MODULE_PARM(force, \
-                       "List of adapter,address pairs to boldly assume " \
-                       "to be present"); \
--	static unsigned short *addr_forces[] = {			\
-+	static unsigned short *forces[] = {				\
- 			force,						\
- 			NULL						\
- 		};							\
--	static struct i2c_client_address_data addr_data = {		\
--			.normal_i2c = 		normal_i2c,		\
--			.probe =		probe,			\
--			.ignore =		ignore,			\
--			.forces =		addr_forces,		\
--		}
-+I2C_CLIENT_INSMOD_COMMON
-+
-+#define I2C_CLIENT_INSMOD_1(chip1)					\
-+enum chips { any_chip, chip1 };						\
-+I2C_CLIENT_MODULE_PARM(force, "List of adapter,address pairs to "	\
-+		       "boldly assume to be present");			\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip1);					\
-+static unsigned short *forces[] = { force, force_##chip1, NULL };	\
-+I2C_CLIENT_INSMOD_COMMON
-+
-+#define I2C_CLIENT_INSMOD_2(chip1, chip2)				\
-+enum chips { any_chip, chip1, chip2 };					\
-+I2C_CLIENT_MODULE_PARM(force, "List of adapter,address pairs to "	\
-+		       "boldly assume to be present");			\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip1);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip2);					\
-+static unsigned short *forces[] = { force, force_##chip1,		\
-+				    force_##chip2, NULL };		\
-+I2C_CLIENT_INSMOD_COMMON
-+
-+#define I2C_CLIENT_INSMOD_3(chip1, chip2, chip3)			\
-+enum chips { any_chip, chip1, chip2, chip3 };				\
-+I2C_CLIENT_MODULE_PARM(force, "List of adapter,address pairs to "	\
-+		       "boldly assume to be present");			\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip1);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip2);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip3);					\
-+static unsigned short *forces[] = { force, force_##chip1,		\
-+				    force_##chip2, force_##chip3,	\
-+				    NULL };				\
-+I2C_CLIENT_INSMOD_COMMON
-+
-+#define I2C_CLIENT_INSMOD_4(chip1, chip2, chip3, chip4)			\
-+enum chips { any_chip, chip1, chip2, chip3, chip4 };			\
-+I2C_CLIENT_MODULE_PARM(force, "List of adapter,address pairs to "	\
-+		       "boldly assume to be present");			\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip1);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip2);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip3);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip4);					\
-+static unsigned short *forces[] = { force, force_##chip1,		\
-+				    force_##chip2, force_##chip3,	\
-+				    force_##chip4, NULL};		\
-+I2C_CLIENT_INSMOD_COMMON
-+
-+#define I2C_CLIENT_INSMOD_5(chip1, chip2, chip3, chip4, chip5)		\
-+enum chips { any_chip, chip1, chip2, chip3, chip4, chip5 };		\
-+I2C_CLIENT_MODULE_PARM(force, "List of adapter,address pairs to "	\
-+		       "boldly assume to be present");			\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip1);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip2);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip3);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip4);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip5);					\
-+static unsigned short *forces[] = { force, force_##chip1,		\
-+				    force_##chip2, force_##chip3,	\
-+				    force_##chip4, force_##chip5,	\
-+				    NULL };				\
-+I2C_CLIENT_INSMOD_COMMON
-+
-+#define I2C_CLIENT_INSMOD_6(chip1, chip2, chip3, chip4, chip5, chip6)	\
-+enum chips { any_chip, chip1, chip2, chip3, chip4, chip5, chip6 };	\
-+I2C_CLIENT_MODULE_PARM(force, "List of adapter,address pairs to "	\
-+		       "boldly assume to be present");			\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip1);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip2);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip3);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip4);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip5);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip6);					\
-+static unsigned short *forces[] = { force, force_##chip1,		\
-+				    force_##chip2, force_##chip3,	\
-+				    force_##chip4, force_##chip5,	\
-+				    force_##chip6, NULL };		\
-+I2C_CLIENT_INSMOD_COMMON
-+
-+#define I2C_CLIENT_INSMOD_7(chip1, chip2, chip3, chip4, chip5, chip6, chip7) \
-+enum chips { any_chip, chip1, chip2, chip3, chip4, chip5, chip6,	\
-+	     chip7 };							\
-+I2C_CLIENT_MODULE_PARM(force, "List of adapter,address pairs to "	\
-+		       "boldly assume to be present");			\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip1);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip2);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip3);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip4);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip5);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip6);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip7);					\
-+static unsigned short *forces[] = { force, force_##chip1,		\
-+				    force_##chip2, force_##chip3,	\
-+				    force_##chip4, force_##chip5,	\
-+				    force_##chip6, force_##chip7,	\
-+				    NULL };				\
-+I2C_CLIENT_INSMOD_COMMON
-+
-+#define I2C_CLIENT_INSMOD_8(chip1, chip2, chip3, chip4, chip5, chip6, chip7, chip8) \
-+enum chips { any_chip, chip1, chip2, chip3, chip4, chip5, chip6,	\
-+	     chip7, chip8 };						\
-+I2C_CLIENT_MODULE_PARM(force, "List of adapter,address pairs to "	\
-+		       "boldly assume to be present");			\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip1);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip2);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip3);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip4);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip5);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip6);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip7);					\
-+I2C_CLIENT_MODULE_PARM_FORCE(chip8);					\
-+static unsigned short *forces[] = { force, force_##chip1,		\
-+				    force_##chip2, force_##chip3,	\
-+				    force_##chip4, force_##chip5,	\
-+				    force_##chip6, force_##chip7,	\
-+				    force_##chip8, NULL };		\
-+I2C_CLIENT_INSMOD_COMMON
- 
- #endif /* _LINUX_I2C_H */
++static inline int vid_to_reg(int val, int vrm)
++{
++	switch (vrm) {
++	case 91:		/* VRM 9.1 */
++	case 90:		/* VRM 9.0 */
++		return ((val >= 1100) && (val <= 1850) ?
++			((18499 - val * 10) / 25 + 5) / 10 : -1);
++	default:
++		return -1;
++	}
++}
+--- linux-2.6.13-rc4.orig/include/linux/i2c-vid.h	2005-07-31 14:25:04.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,111 +0,0 @@
+-/*
+-    i2c-vid.h - Part of lm_sensors, Linux kernel modules for hardware
+-                monitoring
+-    Copyright (c) 2002 Mark D. Studebaker <mdsxyz123@yahoo.com>
+-    With assistance from Trent Piepho <xyzzy@speakeasy.org>
+-
+-    This program is free software; you can redistribute it and/or modify
+-    it under the terms of the GNU General Public License as published by
+-    the Free Software Foundation; either version 2 of the License, or
+-    (at your option) any later version.
+-
+-    This program is distributed in the hope that it will be useful,
+-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-    GNU General Public License for more details.
+-
+-    You should have received a copy of the GNU General Public License
+-    along with this program; if not, write to the Free Software
+-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+-*/
+-
+-/*
+-    This file contains common code for decoding VID pins.
+-    This file is #included in various chip drivers in this directory.
+-    As the user is unlikely to load more than one driver which
+-    includes this code we don't worry about the wasted space.
+-    Reference: VRM x.y DC-DC Converter Design Guidelines,
+-    available at http://developer.intel.com
+-*/
+-
+-/*
+-    AMD Opteron processors don't follow the Intel VRM spec.
+-    I'm going to "make up" 2.4 as the VRM spec for the Opterons.
+-    No good reason just a mnemonic for the 24x Opteron processor
+-    series
+-
+-    Opteron VID encoding is:
+-
+-       00000  =  1.550 V
+-       00001  =  1.525 V
+-        . . . .
+-       11110  =  0.800 V
+-       11111  =  0.000 V (off)
+- */
+-
+-/*
+-    Legal val values 0x00 - 0x1f; except for VRD 10.0, 0x00 - 0x3f.
+-    vrm is the Intel VRM document version.
+-    Note: vrm version is scaled by 10 and the return value is scaled by 1000
+-    to avoid floating point in the kernel.
+-*/
+-
+-int i2c_which_vrm(void);
+-
+-#define DEFAULT_VRM	82
+-
+-static inline int vid_from_reg(int val, int vrm)
+-{
+-	int vid;
+-
+-	switch(vrm) {
+-
+-	case  0:
+-		return 0;
+-
+-	case 100:               /* VRD 10.0 */
+-		if((val & 0x1f) == 0x1f)
+-			return 0;
+-		if((val & 0x1f) <= 0x09 || val == 0x0a)
+-			vid = 10875 - (val & 0x1f) * 250;
+-		else
+-			vid = 18625 - (val & 0x1f) * 250;
+-		if(val & 0x20)
+-			vid -= 125;
+-		vid /= 10;      /* only return 3 dec. places for now */
+-		return vid;
+-
+-	case 24:                /* Opteron processor */
+-		return(val == 0x1f ? 0 : 1550 - val * 25);
+-
+-	case 91:		/* VRM 9.1 */
+-	case 90:		/* VRM 9.0 */
+-		return(val == 0x1f ? 0 :
+-		                       1850 - val * 25);
+-
+-	case 85:		/* VRM 8.5 */
+-		return((val & 0x10  ? 25 : 0) +
+-		       ((val & 0x0f) > 0x04 ? 2050 : 1250) -
+-		       ((val & 0x0f) * 50));
+-
+-	case 84:		/* VRM 8.4 */
+-		val &= 0x0f;
+-				/* fall through */
+-	default:		/* VRM 8.2 */
+-		return(val == 0x1f ? 0 :
+-		       val & 0x10  ? 5100 - (val) * 100 :
+-		                     2050 - (val) * 50);
+-	}
+-}
+-
+-static inline int vid_to_reg(int val, int vrm)
+-{
+-	switch (vrm) {
+-	case 91:		/* VRM 9.1 */
+-	case 90:		/* VRM 9.0 */
+-		return ((val >= 1100) && (val <= 1850) ?
+-			((18499 - val * 10) / 25 + 5) / 10 : -1);
+-	default:
+-		return -1;
+-	}
+-}
 
 
 -- 

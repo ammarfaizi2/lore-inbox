@@ -1,64 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVGaRAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVGaRD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261828AbVGaRAd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 13:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVGaRAd
+	id S261836AbVGaRD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 13:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVGaRDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 13:00:33 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22024 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261828AbVGaRAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 13:00:31 -0400
-Date: Sun, 31 Jul 2005 19:00:29 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: dwmw2@infradead.org
-Cc: jffs-dev@axis.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] jffs/jffs2: remove wrong function prototypes
-Message-ID: <20050731170029.GC3608@stusta.de>
+	Sun, 31 Jul 2005 13:03:25 -0400
+Received: from mailhub.hp.com ([192.151.27.10]:38318 "EHLO mailhub.hp.com")
+	by vger.kernel.org with ESMTP id S261836AbVGaRDN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 13:03:13 -0400
+Subject: Re: long delays (possibly infinite) in
+	time_interpolator_get_counter
+From: Alex Williamson <alex.williamson@hp.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: tony.luck@intel.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0507301105120.25104@schroedinger.engr.sgi.com>
+References: <200507292206.j6TM6w4k004594@agluck-lia64.sc.intel.com>
+	 <Pine.LNX.4.62.0507291625390.19428@schroedinger.engr.sgi.com>
+	 <1122742054.28719.58.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0507301105120.25104@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: OSLO R&D
+Date: Sun, 31 Jul 2005 11:02:59 -0600
+Message-Id: <1122829379.6946.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes prototypes for the generic_file_open and 
-generic_file_llseek functions.
 
-Besides being superfluous because they are already present in fs.h, they 
-were also wrong because the actual functions aren't weak functions.
+   Ok, here's an optimization that should help reduce contention on the
+cmpxchg, has zero impact on the nojitter path, and doesn't require any
+changes to fsys.  When a caller already had the xtime_lock write lock
+there's no need to fight with other CPUs for the cmpxchg.  The other
+"reader" CPUs will have to fetch it again since a seqlock write is in
+progress.  Therefore we can simplify this path as shown below.  The
+write is atomic, and we don't care if another CPU has changed last_cycle
+since it can't return the value until the write lock is released.  This
+has only been compile tested, but I'm interested to hear your opinion.
+Thanks,
+
+	Alex
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- fs/jffs/inode-v23.c |    3 ---
- fs/jffs2/file.c     |    3 ---
- 2 files changed, 6 deletions(-)
-
---- linux-2.6.13-rc4-mm1-full/fs/jffs/inode-v23.c.old	2005-07-31 18:43:46.000000000 +0200
-+++ linux-2.6.13-rc4-mm1-full/fs/jffs/inode-v23.c	2005-07-31 18:44:15.000000000 +0200
-@@ -1629,9 +1629,6 @@
+diff -r cff8d3633e9c kernel/timer.c
+--- a/kernel/timer.c	Fri Jul 29 22:01:15 2005
++++ b/kernel/timer.c	Sun Jul 31 10:25:41 2005
+@@ -1452,10 +1452,34 @@
+ 		return time_interpolator_get_cycles(src);
  }
  
- 
--extern int generic_file_open(struct inode *, struct file *) __attribute__((weak));
--extern loff_t generic_file_llseek(struct file *, loff_t, int) __attribute__((weak));
--
- static struct file_operations jffs_file_operations =
++static inline u64 time_interpolator_get_counter_locked(void)
++{
++	unsigned int src = time_interpolator->source;
++
++	if (time_interpolator->jitter)
++	{
++		u64 lcycle = time_interpolator->last_cycle;
++		u64 now = time_interpolator_get_cycles(src);
++
++		if (lcycle && time_after(lcycle, now))
++			return lcycle;
++
++		/*
++		 * This path is called when holding the xtime write lock.
++		 * This allows us to avoid the contention of the cmpxchg
++		 * in get_counter, and still ensures jitter protection.
++		 */
++		time_interpolator->last_cycle = now;
++		return now;
++	}
++	else
++		return time_interpolator_get_cycles(src);
++}
++
+ void time_interpolator_reset(void)
  {
- 	.open		= generic_file_open,
---- linux-2.6.13-rc4-mm1-full/fs/jffs2/file.c.old	2005-07-31 18:44:31.000000000 +0200
-+++ linux-2.6.13-rc4-mm1-full/fs/jffs2/file.c	2005-07-31 18:44:40.000000000 +0200
-@@ -21,9 +21,6 @@
- #include <linux/jffs2.h>
- #include "nodelist.h"
+ 	time_interpolator->offset = 0;
+-	time_interpolator->last_counter = time_interpolator_get_counter();
++	time_interpolator->last_counter = time_interpolator_get_counter_locked();
+ }
  
--extern int generic_file_open(struct inode *, struct file *) __attribute__((weak));
--extern loff_t generic_file_llseek(struct file *file, loff_t offset, int origin) __attribute__((weak));
--
- static int jffs2_commit_write (struct file *filp, struct page *pg,
- 			       unsigned start, unsigned end);
- static int jffs2_prepare_write (struct file *filp, struct page *pg,
+ #define GET_TI_NSECS(count,i) (((((count) - i->last_counter) & (i)->mask) * (i)->nsec_per_cyc) >> (i)->shift)
+@@ -1490,7 +1514,7 @@
+ 	 * and the tuning logic insures that.
+          */
+ 
+-	counter = time_interpolator_get_counter();
++	counter = time_interpolator_get_counter_locked();
+ 	offset = time_interpolator->offset + GET_TI_NSECS(counter, time_interpolator);
+ 
+ 	if (delta_nsec < 0 || (unsigned long) delta_nsec < offset)
+
 

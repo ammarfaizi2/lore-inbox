@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVGaWfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVGaWik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbVGaWfz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 18:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVGaWdl
+	id S261586AbVGaWik (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 18:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVGaWgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 18:33:41 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28060 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261586AbVGaWcx (ORCPT
+	Sun, 31 Jul 2005 18:36:01 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:64420 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S262022AbVGaWeD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 18:32:53 -0400
-Date: Mon, 1 Aug 2005 00:32:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: James Bruce <bruce@andrew.cmu.edu>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-Message-ID: <20050731223247.GA27580@elf.ucw.cz>
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122678943.9381.44.camel@mindpipe> <20050730120645.77a33a34.Ballarin.Marc@gmx.de> <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz> <1122846092.13000.4.camel@mindpipe>
+	Sun, 31 Jul 2005 18:34:03 -0400
+Subject: Re: [patch] ucb1x00: touchscreen cleanups
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Mark Underwood <basicmark@yahoo.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Pavel Machek <pavel@ucw.cz>,
+       Arjan Van de Ven <arjanv@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050731221152.71074.qmail@web30303.mail.mud.yahoo.com>
+References: <20050731221152.71074.qmail@web30303.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Sun, 31 Jul 2005 23:33:28 +0100
+Message-Id: <1122849209.7626.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122846092.13000.4.camel@mindpipe>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 2005-07-31 at 23:11 +0100, Mark Underwood wrote:
+> As this isn't the only chip of this sort (i.e. a
+> multi-function chip not on the CPU bus) maybe we
+> should store the bus driver in a common place. If
+> needed we could have a very simple bus driver
+> subsystem (this might already be in the kernel, I
+> haven't looked at the bus stuff) in which you register
+> a bus driver and client drivers register with the bus
+> driver. Just an idea :-).
 
-> > [But we
-> > probably want to enable ACPI and cpufreq by default, because that
-> > matches what 99% of users will use.]
-> 
-> Sorry, this is just ridiculous.  You're saying 99% of Linux
-> installations are laptops?  Bullshit.
+This was the idea with the drivers/soc suggestion although I think that
+name is perhaps misleading.
 
-No, I'm saying that 99% users enable ACPI and cpufreq. ACPI is needed
-on new machines, and cpufreq is usefull to keep your desktop cold,
-too.
+How about drivers/mfd where mfd = Multi Functional Devices?
 
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+I think it would be acceptable (and in keeping with the other drivers
+e.g. pcmcia) to seeing the arch and platform specific modules with the
+main driver as long as the naming reflected it (like the existing mcp
+and ucb code does) i.e.:
+
+mcp-core.c
+mcp-sa1100.c
+ucb1x00-code.c
+ucb1x00-assabet.c
+ucb1x00-collie.c
+
+If code can be separated out into subsystems, I'm not so sure where they
+should go though. The existing policy would suggest
+drivers/input/touchscreen and sound/xxx for these...
+
+ucb1x00-ts.c
+ucb1x00-audio.c
+
+Opinions/Comments?
+
+Richard
+

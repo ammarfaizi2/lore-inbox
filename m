@@ -1,96 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVGaFc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVGaFhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbVGaFc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 01:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVGaFcZ
+	id S261718AbVGaFhV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 01:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVGaFhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 01:32:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61127 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261626AbVGaFcR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 01:32:17 -0400
-Date: Sat, 30 Jul 2005 22:31:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Brown, Len" <len.brown@intel.com>
-cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>
-Subject: RE: revert yenta free_irq on suspend
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
-Message-ID: <Pine.LNX.4.58.0507302216570.29650@g5.osdl.org>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
+	Sun, 31 Jul 2005 01:37:20 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:12414 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261718AbVGaFhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 01:37:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.br;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:X-Enigmail-Version:X-Enigmail-Supports:Content-Type:Content-Transfer-Encoding;
+  b=ZSaRVvC/5W2M9ai4QXGKoL9WhfmmChwyVdOqodMOIdgLXB0oBzAa4QqU7yZK61qSylJSV7Iuotg8Qoaub9j82z8JNt0GJV+evZyCEeqQX3OxPKNiJQAhGOogSfLKKa/pzvsBQK75zBfWogBKB03UGnNaLz0AgB0rW0qbemTnRuc=  ;
+Message-ID: <42EC6BAB.5020106@yahoo.com.br>
+Date: Sun, 31 Jul 2005 03:11:55 -0300
+From: "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: "seeing minute plus hangs during boot" - 2.6.12 and 2.6.13
+References: <20050722182848.8028.qmail@web60715.mail.yahoo.com>	<105c793f05072507426fb6d4c9@mail.gmail.com>	<42E59E0E.5030306@yahoo.com.br>	<20050726003322.1bfe17ee.akpm@osdl.org>	<42E7A153.6060307@yahoo.com.br>	<20050727105005.30768fe3.akpm@osdl.org>	<42E85E6E.2020105@yahoo.com.br>	<42EC5451.7010907@yahoo.com.br> <20050730222624.73337021.akpm@osdl.org>
+In-Reply-To: <20050730222624.73337021.akpm@osdl.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-
-On Sun, 31 Jul 2005, Brown, Len wrote:
+Andrew Morton wrote:
+> "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br> wrote:
 > 
-> If one believes that suspend/resume is working on a large number of
-> systems -- working to a level that a distro can acutally support it,
-> then restoring our temporary resume IRQ router hack to make many systems
-> work is clearly the right thing to do.
+>>udev          S 00000002     0  1312      1                1224 (NOTLB)
+>> c1653f4c 00000082 c1653f3c 00000002 00000001 00000040 c1653f64 c1653f0c
+>>        c016611b bfec96a8 c1653f0c 00000040 00000000 00000361 000241ed
+>> c13fb520
+>>        00000001 00001a7e 98f9769f 00000002 c146e520 df5da020 df5da148
+>> c13fbf60
+>> Call Trace:
+>>  [<c016611b>] cp_new_stat+0x15f/0x17a
+>>  [<c0352a74>] schedule_timeout+0x54/0xa2
+>>  [<c01274ce>] process_timeout+0x0/0x9
+>>  [<c01275c4>] sys_nanosleep+0xdd/0x18e
+>>  [<c0102e85>] syscall_call+0x7/0xb
+> 
+> 
+> Well there's your delay: you've started running userspace and udev is
+> running.  Yes, it takes a long time.
+> 
+> What makes you think this isn't normal behaviour?  Do other kernels behave
+> differently with the same userspace setup?
+> 
 
-I don't believe that it works on a huge number of devices as-is, no.
 
-But I'm definitely even less likely to believe in this "two steps forward,
-one step back" dance. Because as far as I can tell, it's equally often
-"one step forward, two steps back", and nobody can tell when we go forware 
-more than we go backwards.
+That's the point. On kernel 2.6.11 on same box I have no delay. It is
+instantaneous. On 2.6.12-rc1 it was instantaneous but I didn't use it
+much because I had drm problems. Later I tried 2.6.12 final and it was
+hanging. I saw the "seeing a minute plugs hangs" on 2.6.13-rc1 release
+notes and thought this could be the problem, but I compiled it and tried
+with no luck :(
 
-So I'd rather have "one tenth of a step forward, but if we see even a 
-_hint_ of a step back, we revert immediately".
+Now, I'm thinking it could be something like the udev hang which
+disapeared with udev update to 058.
 
-I realize that sounds damn timid and boring, but the thing is:
+I don't know what can be happening. I think it is because of some type
+of timeout.
 
- - even _if_ (and quite frankly, judging by the complaints, I find that 
-   unlikely) we're doing more forward progress than backwards progress 
-   ("backwards progress? you moron!"), the "one step back" thing is really 
-   doing a _huge_ amount of psychological damage to the whole thing.
+If you think there is something else I can do, please let me know.
 
-   The thing is, we're better off making very very slow progress that is 
-   _steady_, than having people who _used_ to have things work for them 
-   suddenly break.
+Thanks in advance for your help, Andrew.
 
-   So I believe that if we fix two machines and break one machine, we've 
-   actually regressed. It doesn't matter that we fixed more than we broke: 
-   we _still_ regressed. Because it means that people can't trust the 
-   progress we make!
 
-So this is why I'm a very strong proponent of the fact that if we _ever_
-have anybody complain that a patch broke things, we should immediately
-revert it, unless we can fix it asap.
+- --
+Regards,
 
-Btw, this argument is much less true in areas where we can "think" about
-the problems. In non-driver/non-firmware cases.
+Francisco Figueiredo Jr.
+Npgsql Lead Developer
+http://gborg.postgresql.org/project/npgsql
+MonoBrasil Project Founder Member
+http://monobrasil.softwarelivre.org
 
-When we can logically argue from a purely theoretical standpoint for a
-"known correct solution", and expect the theoretical argument to actually
-be reflected in practice, I'm much more open to an argument of "ok, we
-know where we are going, and we'll have to break a few eggs just because
-the changes are extensive".
 
-But when it comes to device drivers and badly documented stuff that
-developers can usually not even reproduce, our #1 strength is the people
-for whom it works, and when something breaks, that's a huge big red flag,
-and then I really think that "revert or fix immediately" is the only
-reasonable alternative. Otherwise we'll just oscillate about a point that
-we don't even know where it is, and have no way to judge if the
-oscillations are getting more violent or are dampening out - we don't have
-a reference point.
+- -------------
+"Science without religion is lame;
+religion without science is blind."
 
-But as with everything, there is no total black-and-white case. Things 
-_do_ break occasionally, and clearly we can't guarantee nonbreakage or 
-we'll end up being static.
+                  ~ Albert Einstein
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-But this particular thing has clearly caused a _lot_ of noise, with
-second-order breakage from fixes from the first order one. At the very 
-least alternatives should be tried, and I think there _are_ much less 
-intrusive alternatives that are _much_ less likely to have these kinds of 
-negative side effects.
+iQEVAwUBQuxrq/7iFmsNzeXfAQJ3XQf+KN6CJOQ92fU+Yxy0g46OTmJRlIDI6bNi
+U6OkSJ6Prtiynymwj7ztyGNY25oj5JWfJ2hH6hwdV4/HcbHjsnFGufJInd58VubL
+4g/9UTwP06tbgSClznGfSD4lQ/k1z8dEP2o9MIl7K+VSm/xpfZveG3GytUB+vpgE
+vsA/n2pWbTmDts0lPBvhN3XWtNERloixPBcJPw2J9QRDZJbdN2XChEWhdXJApVTM
+yapzN07dX7pqk3MxYWbVYVYJAH/KlY3GwWcy+zeM2XLshepHmx/JmH0QKpzjKrG5
+yYBk3kfMtEir2stC8tXwE2Pkv0BQY4z3zP9P4FjnPUwhOdmQBpzMDQ==
+=vi80
+-----END PGP SIGNATURE-----
 
-		Linus
+	
+	
+		
+_______________________________________________________ 
+Yahoo! Acesso Grátis - Internet rápida e grátis. 
+Instale o discador agora! http://br.acesso.yahoo.com/

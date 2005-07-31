@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVGaEr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVGaEuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVGaEr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 00:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbVGaErX
+	id S261631AbVGaEuj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 00:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbVGaEuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 00:47:23 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:12244 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261641AbVGaErQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 00:47:16 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050730205259.GA24542@elte.hu>
-References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins>
-	 <20050730205259.GA24542@elte.hu>
-Content-Type: text/plain
-Date: Sun, 31 Jul 2005 00:47:13 -0400
-Message-Id: <1122785233.10275.3.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Jul 2005 00:50:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3522 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261631AbVGaEui (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 00:50:38 -0400
+Date: Sat, 30 Jul 2005 21:49:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>, Len Brown <len.brown@intel.com>
+Subject: Re: revert yenta free_irq on suspend
+In-Reply-To: <200507310028.20699.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.58.0507302144290.29650@g5.osdl.org>
+References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com>
+ <20050730215403.J26592@flint.arm.linux.org.uk> <Pine.LNX.4.58.0507301404240.29650@g5.osdl.org>
+ <200507310028.20699.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-30 at 22:52 +0200, Ingo Molnar wrote:
-> * Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+
+
+On Sun, 31 Jul 2005, Rafael J. Wysocki wrote:
 > 
-> > Hi Ingo,
-> > 
-> > -02 needs the attached patch to compile with my config.
-> 
-> thanks, i've released -03 with your fixes.
-> 
+> Well, they have _already_ been screwed by the following patch that went
+> to your tree with the ACPI update.  If you drop it, all problems related to
+> freeing/requesting IRQs on suspend/resume will be gone.
 
-Does not compile with highmem enabled:
+Yes. I really think we need to revert that patch, we just can't fix this 
+any other way in the short run - the "request_irq/free_irq()" thing has 
+broken too many setups. And we _need_ an answer for the short run, since I 
+want to be able to release 2.6.13 without having lots of peoples laptop 
+suspends be broken.
 
-  CC      arch/i386/mm/highmem.o
-arch/i386/mm/highmem.c:102: error: syntax error before '(' token
-arch/i386/mm/highmem.c:107: error: syntax error before numeric constant
-arch/i386/mm/highmem.c:107: warning: type defaults to 'int' in declaration of 'add_preempt_count'
-arch/i386/mm/highmem.c:107: warning: function declaration isn't a prototype
-arch/i386/mm/highmem.c:107: error: conflicting types for 'add_preempt_count'
-include/linux/preempt.h:14: error: previous declaration of 'add_preempt_count' was here
-arch/i386/mm/highmem.c:107: warning: data definition has no type or storage class
-arch/i386/mm/highmem.c:109: warning: type defaults to 'int' in declaration of 'idx'
-arch/i386/mm/highmem.c:109: error: 'type' undeclared here (not in a function)
-arch/i386/mm/highmem.c:109: warning: data definition has no type or storage class
-arch/i386/mm/highmem.c:110: warning: type defaults to 'int' in declaration of 'vaddr'
-arch/i386/mm/highmem.c:110: error: conflicting types for 'vaddr'
-arch/i386/mm/highmem.c:105: error: previous declaration of 'vaddr' was here
-arch/i386/mm/highmem.c:110: error: initializer element is not constant
-arch/i386/mm/highmem.c:110: warning: data definition has no type or storage class
-arch/i386/mm/highmem.c:111: error: syntax error before '-' token
-arch/i386/mm/highmem.c:132: error: 'kmap_atomic' undeclared here (not in a function)
-arch/i386/mm/highmem.c:133: error: 'kunmap_atomic' undeclared here (not in a function)
-arch/i386/mm/highmem.c:134: error: 'kmap_atomic_to_page' undeclared here (not in a function)
-make[1]: *** [arch/i386/mm/highmem.o] Error 1
-make: *** [arch/i386/mm] Error 2
+Yes, I realize that it fixed suspend for some people, but the thing is,
+anything that expects lots of drivers to change just is fundamentally
+broken. In a perfect world we might be able to get all drivers to do the
+right thing, but dammit, in a perfect world we wouldn't have ACPI in the
+first place.
 
-Lee
+So I guess I'll just have to revert the ACPI change that caused drivers to
+do request_irq/free_irq. I'd prefer it if the ACPI people did that revert 
+themselves, though.
 
+		Linus

@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVGaWGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbVGaWIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbVGaWGj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 18:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbVGaWGj
+	id S262004AbVGaWIy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 18:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVGaWIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 18:06:39 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:784 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261986AbVGaWGi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 18:06:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XypDkl/dGYxg+q/fP0kK1/UViNqj/YpVYZeOwg3BXdlQvPsMPdw9vYHMe4z/dVf7HOkTpzjM15bJrm3j9URk1qMy7bnDF9lG21LKFYq02RdKAd1QVEZskjpgC7gAtPek04UdipZ7262suwrJIvaI5hTFVJO9E5VqK44ctw70ZCE=
-Message-ID: <c25b25320507311506258736b7@mail.gmail.com>
-Date: Sun, 31 Jul 2005 22:06:38 +0000
-From: Richard Hubbell <richard.hubbell@gmail.com>
-Reply-To: Richard Hubbell <richard.hubbell@gmail.com>
+	Sun, 31 Jul 2005 18:08:53 -0400
+Received: from atpro.com ([12.161.0.3]:11022 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S262004AbVGaWIs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 18:08:48 -0400
+From: "Jim Crilly" <jim@why.dont.jablowme.net>
+Date: Sun, 31 Jul 2005 18:07:55 -0400
 To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Where's the list of needed hardware for donating?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050730092904.GC2013@elf.ucw.cz>
+Cc: James Bruce <bruce@andrew.cmu.edu>, Lee Revell <rlrevell@joe-job.com>,
+       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+Message-ID: <20050731220754.GE7362@voodoo>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	James Bruce <bruce@andrew.cmu.edu>,
+	Lee Revell <rlrevell@joe-job.com>,
+	Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
+References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122678943.9381.44.camel@mindpipe> <20050730120645.77a33a34.Ballarin.Marc@gmx.de> <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <c25b253205072710481c157e4c@mail.gmail.com>
-	 <20050728230047.GA4385@elf.ucw.cz>
-	 <c25b2532050728190311d6c339@mail.gmail.com>
-	 <20050730092904.GC2013@elf.ucw.cz>
+In-Reply-To: <20050731211020.GB27433@elf.ucw.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/30/05, Pavel Machek <pavel@ucw.cz> wrote:
--snip-snip- 
-> > The hardware I have may outdated/esoteric.   I take it that there is
-> > no such list then?
-> > Maybe it's better not to support esoteric hardware.
+On 07/31/05 11:10:20PM +0200, Pavel Machek wrote:
 > 
-> Post a list somewhere...
+> > I really like having 250HZ as an _option_, but what I don't see is why 
+> > it should be the _default_.  I believe this is Lee's position as
+> > Last I checked, ACPI and CPU speed scaling were not enabled by default; 
+> 
+> Kernel defaults are irelevant; distros change them anyway. [But we
+> probably want to enable ACPI and cpufreq by default, because that
+> matches what 99% of users will use.]
+> 
 
-Ok, here's the list:
+If the kernel defaults are irrelevant, then it would make more sense to
+leave the default HZ as 1000 and not to enable the cpufreq and ACPI in
+order to keep with the principle of least surprise for people who do use
+kernel.org kernels.
 
-Adaptec AHA-1510A
-(ISA, centronix-style external connector with terminator, one internal
-ribbon cable,
-I probably have some centronix-style external cables around too, this
-card doesn't have it's own boot ROM)
-
-Gravis UltraSound a.k.a. GUS
-(ISA, fully loaded with memory, 1megabyte (I think))
-
-Pertec MyTape 800
-(I think this is a QIC tape drive that connects via the floppy interface)
-
-TEAC 1.44  3.5 inch Floppy FDR
-(FD-235HF)
-
-Rocket Port 8-port serial board
-(ISA, 8 - RJ11 jacks, made by Comtrol, brand-new in-box)
+Jim.

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVGaTni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVGaTpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbVGaTni (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 15:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVGaTnh
+	id S261949AbVGaTpt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 15:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVGaTpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 15:43:37 -0400
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:62994 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S261955AbVGaTmD
+	Sun, 31 Jul 2005 15:45:49 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:3347 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S261949AbVGaTpa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 15:42:03 -0400
-Date: Sun, 31 Jul 2005 21:42:02 +0200
+	Sun, 31 Jul 2005 15:45:30 -0400
+Date: Sun, 31 Jul 2005 21:45:27 +0200
 From: Jean Delvare <khali@linux-fr.org>
 To: LKML <linux-kernel@vger.kernel.org>,
        LM Sensors <lm-sensors@lm-sensors.org>
 Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH 2.6] (4/11) hwmon vs i2c, second round
-Message-Id: <20050731214202.478c265f.khali@linux-fr.org>
+Subject: [PATCH 2.6] (5/11) hwmon vs i2c, second round
+Message-Id: <20050731214527.14768669.khali@linux-fr.org>
 In-Reply-To: <20050731205933.2e2a957f.khali@linux-fr.org>
 References: <20050731205933.2e2a957f.khali@linux-fr.org>
 X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
@@ -25,520 +25,180 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i2c_probe and i2c_detect now do the exact same thing and operate on
-the same data structure, so we can have everyone call i2c_probe.
+The i2c_detect function has no more user, delete it.
 
 Signed-off-by: Jean Delvare <khali@linux-fr.org>
 
- Documentation/i2c/porting-clients |    1 +
- Documentation/i2c/writing-clients |   19 +++++--------------
- drivers/hwmon/adm1021.c           |    2 +-
- drivers/hwmon/adm1025.c           |    2 +-
- drivers/hwmon/adm1026.c           |    2 +-
- drivers/hwmon/adm1031.c           |    4 ++--
- drivers/hwmon/adm9240.c           |    2 +-
- drivers/hwmon/asb100.c            |    2 +-
- drivers/hwmon/atxp1.c             |    2 +-
- drivers/hwmon/ds1621.c            |    4 ++--
- drivers/hwmon/fscher.c            |    2 +-
- drivers/hwmon/fscpos.c            |    2 +-
- drivers/hwmon/gl518sm.c           |    2 +-
- drivers/hwmon/gl520sm.c           |    2 +-
- drivers/hwmon/it87.c              |    4 ++--
- drivers/hwmon/lm63.c              |    2 +-
- drivers/hwmon/lm75.c              |    4 ++--
- drivers/hwmon/lm77.c              |    4 ++--
- drivers/hwmon/lm78.c              |    4 ++--
- drivers/hwmon/lm80.c              |    2 +-
- drivers/hwmon/lm83.c              |    2 +-
- drivers/hwmon/lm85.c              |    2 +-
- drivers/hwmon/lm87.c              |    2 +-
- drivers/hwmon/lm90.c              |    2 +-
- drivers/hwmon/lm92.c              |    2 +-
- drivers/hwmon/max1619.c           |    2 +-
- drivers/hwmon/w83781d.c           |    2 +-
- drivers/hwmon/w83792d.c           |    2 +-
- drivers/hwmon/w83l785ts.c         |    2 +-
- drivers/i2c/chips/ds1337.c        |    2 +-
- drivers/i2c/chips/eeprom.c        |    4 ++--
- drivers/i2c/chips/max6875.c       |    4 ++--
- drivers/i2c/chips/pca9539.c       |    4 ++--
- drivers/i2c/chips/pcf8574.c       |    4 ++--
- drivers/i2c/chips/pcf8591.c       |    4 ++--
- 35 files changed, 50 insertions(+), 58 deletions(-)
+ drivers/i2c/Makefile            |    2 
+ drivers/i2c/i2c-sensor-detect.c |  125 ----------------------------------------
+ drivers/i2c/i2c-sensor-vid.c    |    5 +
+ include/linux/i2c-sensor.h      |    7 --
+ 4 files changed, 6 insertions(+), 133 deletions(-)
 
---- linux-2.6.13-rc4.orig/Documentation/i2c/porting-clients	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/Documentation/i2c/porting-clients	2005-07-31 20:55:59.000000000 +0200
-@@ -66,6 +66,7 @@
-   if (!(adapter->class & I2C_CLASS_HWMON))
-           return 0;
-   ISA-only drivers of course don't need this.
-+  Call i2c_probe() instead of i2c_detect().
+--- linux-2.6.13-rc4.orig/drivers/i2c/Makefile	2005-07-31 14:25:05.000000000 +0200
++++ linux-2.6.13-rc4/drivers/i2c/Makefile	2005-07-31 20:55:58.000000000 +0200
+@@ -7,7 +7,7 @@
+ obj-$(CONFIG_I2C_SENSOR)	+= i2c-sensor.o
+ obj-y				+= busses/ chips/ algos/
  
- * [Detect] As mentioned earlier, the flags parameter is gone.
-   The type_name and client_name strings are replaced by a single
---- linux-2.6.13-rc4.orig/Documentation/i2c/writing-clients	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/Documentation/i2c/writing-clients	2005-07-31 20:55:59.000000000 +0200
-@@ -148,7 +148,7 @@
- detection algorithm.
+-i2c-sensor-objs := i2c-sensor-detect.o i2c-sensor-vid.o
++i2c-sensor-objs := i2c-sensor-vid.o
  
- You do not have to use this parameter interface; but don't try to use
--function i2c_probe() (or i2c_detect()) if you don't.
-+function i2c_probe() if you don't.
  
- NOTE: If you want to write a `sensors' driver, the interface is slightly
-       different! See below.
-@@ -259,17 +259,10 @@
-     return i2c_probe(adapter,&addr_data,&foo_detect_client);
-   }
- 
--For `sensors' drivers, use the i2c_detect function instead:
--  
--  int foo_attach_adapter(struct i2c_adapter *adapter)
--  { 
--    return i2c_detect(adapter,&addr_data,&foo_detect_client);
--  }
+ ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
+--- linux-2.6.13-rc4.orig/drivers/i2c/i2c-sensor-detect.c	2005-07-31 16:09:08.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,125 +0,0 @@
+-/*
+-    i2c-sensor-detect.c - Part of lm_sensors, Linux kernel modules for hardware
+-            		  monitoring
+-    Copyright (c) 1998 - 2001 Frodo Looijaard <frodol@dds.nl> and
+-    Mark D. Studebaker <mdsxyz123@yahoo.com>
 -
- Remember, structure `addr_data' is defined by the macros explained above,
- so you do not have to define it yourself.
+-    This program is free software; you can redistribute it and/or modify
+-    it under the terms of the GNU General Public License as published by
+-    the Free Software Foundation; either version 2 of the License, or
+-    (at your option) any later version.
+-
+-    This program is distributed in the hope that it will be useful,
+-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-    GNU General Public License for more details.
+-
+-    You should have received a copy of the GNU General Public License
+-    along with this program; if not, write to the Free Software
+-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+-*/
+-
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/i2c.h>
+-#include <linux/i2c-sensor.h>
+-
+-static unsigned short empty[] = {I2C_CLIENT_END};
+-
+-/* Won't work for 10-bit addresses! */
+-int i2c_detect(struct i2c_adapter *adapter,
+-	       struct i2c_client_address_data *address_data,
+-	       int (*found_proc) (struct i2c_adapter *, int, int))
+-{
+-	int addr, i, found, j, err;
+-	int adapter_id = i2c_adapter_id(adapter);
+-	unsigned short *normal_i2c;
+-	unsigned short *probe;
+-	unsigned short *ignore;
+-
+-	/* Forget it if we can't probe using SMBUS_QUICK */
+-	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_QUICK))
+-		return -1;
+-	
+-	/* Use default "empty" list if the adapter doesn't specify any */
+-	normal_i2c = probe = ignore = empty;
+-	if (address_data->normal_i2c)
+-		normal_i2c = address_data->normal_i2c;
+-	if (address_data->probe)
+-		probe = address_data->probe;
+-	if (address_data->ignore)
+-		ignore = address_data->ignore;
+-
+-	for (addr = 0x00; addr <= 0x7f; addr++) {
+-		if (i2c_check_addr(adapter, addr))
+-			continue;
+-
+-		/* If it is in one of the force entries, we don't do any
+-		   detection at all */
+-		found = 0;
+-		for (i = 0; address_data->forces[i]; i++) {
+-			for (j = 0; !found && (address_data->forces[i][j] != I2C_CLIENT_END); j += 2) {
+-				if ( ((adapter_id == address_data->forces[i][j]) ||
+-				      (address_data->forces[i][j] == ANY_I2C_BUS)) &&
+-				      (addr == address_data->forces[i][j + 1]) ) {
+-					dev_dbg(&adapter->dev, "found force parameter for adapter %d, addr %04x\n", adapter_id, addr);
+-					if ((err = found_proc(adapter, addr, i)))
+-						return err;
+-					found = 1;
+-				}
+-			}
+-		}
+-		if (found)
+-			continue;
+-
+-		/* If this address is in one of the ignores, we can forget about it
+-		   right now */
+-		for (i = 0; !found && (ignore[i] != I2C_CLIENT_END); i += 2) {
+-			if ( ((adapter_id == ignore[i]) ||
+-			      (ignore[i] == ANY_I2C_BUS)) &&
+-			      (addr == ignore[i + 1])) {
+-				dev_dbg(&adapter->dev, "found ignore parameter for adapter %d, addr %04x\n", adapter_id, addr);
+-				found = 1;
+-			}
+-		}
+-		if (found)
+-			continue;
+-
+-		/* Now, we will do a detection, but only if it is in the normal or 
+-		   probe entries */
+-		for (i = 0; !found && (normal_i2c[i] != I2C_CLIENT_END); i += 1) {
+-			if (addr == normal_i2c[i]) {
+-				found = 1;
+-				dev_dbg(&adapter->dev, "found normal i2c entry for adapter %d, addr %02x\n", adapter_id, addr);
+-			}
+-		}
+-
+-		for (i = 0;
+-		     !found && (probe[i] != I2C_CLIENT_END);
+-		     i += 2) {
+-			if (((adapter_id == probe[i]) ||
+-			     (probe[i] == ANY_I2C_BUS))
+-			    && (addr == probe[i + 1])) {
+-				dev_dbg(&adapter->dev, "found probe parameter for adapter %d, addr %04x\n", adapter_id, addr);
+-				found = 1;
+-			}
+-		}
+-		if (!found)
+-			continue;
+-
+-		/* OK, so we really should examine this address. First check
+-		   whether there is some client here at all! */
+-		if (i2c_smbus_xfer(adapter, addr, 0, 0, 0, I2C_SMBUS_QUICK, NULL) >= 0)
+-			if ((err = found_proc(adapter, addr, -1)))
+-				return err;
+-	}
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(i2c_detect);
+-
+-MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>, "
+-	      "Rudolf Marek <r.marek@sh.cvut.cz>");
+-
+-MODULE_DESCRIPTION("i2c-sensor driver");
+-MODULE_LICENSE("GPL");
+--- linux-2.6.13-rc4.orig/drivers/i2c/i2c-sensor-vid.c	2005-07-31 14:25:05.000000000 +0200
++++ linux-2.6.13-rc4/drivers/i2c/i2c-sensor-vid.c	2005-07-31 20:55:58.000000000 +0200
+@@ -96,3 +96,8 @@
+ #endif
  
--The i2c_probe or i2c_detect function will call the foo_detect_client
-+The i2c_probe function will call the foo_detect_client
- function only for those i2c addresses that actually have a device on
- them (unless a `force' parameter was used). In addition, addresses that
- are already in use (by some other registered client) are skipped.
-@@ -278,11 +271,9 @@
- The detect client function
- --------------------------
+ EXPORT_SYMBOL(i2c_which_vrm);
++
++MODULE_AUTHOR("Rudolf Marek <r.marek@sh.cvut.cz>");
++
++MODULE_DESCRIPTION("i2c-sensor driver");
++MODULE_LICENSE("GPL");
+--- linux-2.6.13-rc4.orig/include/linux/i2c-sensor.h	2005-07-31 16:09:08.000000000 +0200
++++ linux-2.6.13-rc4/include/linux/i2c-sensor.h	2005-07-31 20:55:58.000000000 +0200
+@@ -200,11 +200,4 @@
+ 				      NULL }; \
+   SENSORS_INSMOD
  
--The detect client function is called by i2c_probe or i2c_detect.
--The `kind' parameter contains 0 if this call is due to a `force'
--parameter, and -1 otherwise (for i2c_detect, it contains 0 if
--this call is due to the generic `force' parameter, and the chip type
--number if it is due to a specific `force' parameter).
-+The detect client function is called by i2c_probe. The `kind' parameter
-+contains -1 for a probed detection, 0 for a forced detection, or a positive
-+number for a forced detection with a chip type forced.
- 
- Below, some things are only needed if this is a `sensors' driver. Those
- parts are between /* SENSORS ONLY START */ and /* SENSORS ONLY END */
---- linux-2.6.13-rc4.orig/drivers/hwmon/adm1021.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/adm1021.c	2005-07-31 20:55:59.000000000 +0200
-@@ -187,7 +187,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, adm1021_detect);
-+	return i2c_probe(adapter, &addr_data, adm1021_detect);
- }
- 
- static int adm1021_detect(struct i2c_adapter *adapter, int address, int kind)
---- linux-2.6.13-rc4.orig/drivers/hwmon/adm1025.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/adm1025.c	2005-07-31 20:55:59.000000000 +0200
-@@ -314,7 +314,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, adm1025_detect);
-+	return i2c_probe(adapter, &addr_data, adm1025_detect);
- }
- 
- /*
---- linux-2.6.13-rc4.orig/drivers/hwmon/adm1026.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/adm1026.c	2005-07-31 20:55:59.000000000 +0200
-@@ -321,7 +321,7 @@
- 	if (!(adapter->class & I2C_CLASS_HWMON)) {
- 		return 0;
- 	}
--	return i2c_detect(adapter, &addr_data, adm1026_detect);
-+	return i2c_probe(adapter, &addr_data, adm1026_detect);
- }
- 
- int adm1026_detach_client(struct i2c_client *client)
---- linux-2.6.13-rc4.orig/drivers/hwmon/adm1031.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/adm1031.c	2005-07-31 20:55:59.000000000 +0200
-@@ -727,10 +727,10 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, adm1031_detect);
-+	return i2c_probe(adapter, &addr_data, adm1031_detect);
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- static int adm1031_detect(struct i2c_adapter *adapter, int address, int kind)
- {
- 	struct i2c_client *new_client;
---- linux-2.6.13-rc4.orig/drivers/hwmon/adm9240.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/adm9240.c	2005-07-31 20:55:59.000000000 +0200
-@@ -635,7 +635,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, adm9240_detect);
-+	return i2c_probe(adapter, &addr_data, adm9240_detect);
- }
- 
- static int adm9240_detach_client(struct i2c_client *client)
---- linux-2.6.13-rc4.orig/drivers/hwmon/asb100.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/asb100.c	2005-07-31 20:55:59.000000000 +0200
-@@ -621,7 +621,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, asb100_detect);
-+	return i2c_probe(adapter, &addr_data, asb100_detect);
- }
- 
- static int asb100_detect_subclients(struct i2c_adapter *adapter, int address,
---- linux-2.6.13-rc4.orig/drivers/hwmon/atxp1.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/atxp1.c	2005-07-31 20:55:59.000000000 +0200
-@@ -254,7 +254,7 @@
- 
- static int atxp1_attach_adapter(struct i2c_adapter *adapter)
- {
--	return i2c_detect(adapter, &addr_data, &atxp1_detect);
-+	return i2c_probe(adapter, &addr_data, &atxp1_detect);
- };
- 
- static int atxp1_detect(struct i2c_adapter *adapter, int address, int kind)
---- linux-2.6.13-rc4.orig/drivers/hwmon/ds1621.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/ds1621.c	2005-07-31 20:55:59.000000000 +0200
-@@ -181,10 +181,10 @@
- 
- static int ds1621_attach_adapter(struct i2c_adapter *adapter)
- {
--	return i2c_detect(adapter, &addr_data, ds1621_detect);
-+	return i2c_probe(adapter, &addr_data, ds1621_detect);
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- int ds1621_detect(struct i2c_adapter *adapter, int address,
-                   int kind)
- {
---- linux-2.6.13-rc4.orig/drivers/hwmon/fscher.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/fscher.c	2005-07-31 20:55:59.000000000 +0200
-@@ -289,7 +289,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, fscher_detect);
-+	return i2c_probe(adapter, &addr_data, fscher_detect);
- }
- 
- static int fscher_detect(struct i2c_adapter *adapter, int address, int kind)
---- linux-2.6.13-rc4.orig/drivers/hwmon/fscpos.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/fscpos.c	2005-07-31 20:55:59.000000000 +0200
-@@ -436,7 +436,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, fscpos_detect);
-+	return i2c_probe(adapter, &addr_data, fscpos_detect);
- }
- 
- int fscpos_detect(struct i2c_adapter *adapter, int address, int kind)
---- linux-2.6.13-rc4.orig/drivers/hwmon/gl518sm.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/gl518sm.c	2005-07-31 20:55:59.000000000 +0200
-@@ -348,7 +348,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, gl518_detect);
-+	return i2c_probe(adapter, &addr_data, gl518_detect);
- }
- 
- static int gl518_detect(struct i2c_adapter *adapter, int address, int kind)
---- linux-2.6.13-rc4.orig/drivers/hwmon/gl520sm.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/gl520sm.c	2005-07-31 20:55:59.000000000 +0200
-@@ -520,7 +520,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, gl520_detect);
-+	return i2c_probe(adapter, &addr_data, gl520_detect);
- }
- 
- static int gl520_detect(struct i2c_adapter *adapter, int address, int kind)
---- linux-2.6.13-rc4.orig/drivers/hwmon/it87.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/it87.c	2005-07-31 20:55:59.000000000 +0200
-@@ -698,7 +698,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, it87_detect);
-+	return i2c_probe(adapter, &addr_data, it87_detect);
- }
- 
- static int it87_isa_attach_adapter(struct i2c_adapter *adapter)
-@@ -738,7 +738,7 @@
- 	return err;
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- int it87_detect(struct i2c_adapter *adapter, int address, int kind)
- {
- 	int i;
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm63.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm63.c	2005-07-31 20:55:59.000000000 +0200
-@@ -360,7 +360,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, lm63_detect);
-+	return i2c_probe(adapter, &addr_data, lm63_detect);
- }
- 
- /*
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm75.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm75.c	2005-07-31 20:55:59.000000000 +0200
-@@ -109,10 +109,10 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, lm75_detect);
-+	return i2c_probe(adapter, &addr_data, lm75_detect);
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- static int lm75_detect(struct i2c_adapter *adapter, int address, int kind)
- {
- 	int i;
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm77.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm77.c	2005-07-31 20:55:59.000000000 +0200
-@@ -209,10 +209,10 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, lm77_detect);
-+	return i2c_probe(adapter, &addr_data, lm77_detect);
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- static int lm77_detect(struct i2c_adapter *adapter, int address, int kind)
- {
- 	struct i2c_client *new_client;
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm78.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm78.c	2005-07-31 20:55:59.000000000 +0200
-@@ -478,7 +478,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, lm78_detect);
-+	return i2c_probe(adapter, &addr_data, lm78_detect);
- }
- 
- static int lm78_isa_attach_adapter(struct i2c_adapter *adapter)
-@@ -486,7 +486,7 @@
- 	return lm78_detect(adapter, isa_address, -1);
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- int lm78_detect(struct i2c_adapter *adapter, int address, int kind)
- {
- 	int i, err;
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm80.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm80.c	2005-07-31 20:55:59.000000000 +0200
-@@ -391,7 +391,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, lm80_detect);
-+	return i2c_probe(adapter, &addr_data, lm80_detect);
- }
- 
- int lm80_detect(struct i2c_adapter *adapter, int address, int kind)
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm83.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm83.c	2005-07-31 20:55:59.000000000 +0200
-@@ -214,7 +214,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, lm83_detect);
-+	return i2c_probe(adapter, &addr_data, lm83_detect);
- }
- 
- /*
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm85.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm85.c	2005-07-31 20:55:59.000000000 +0200
-@@ -1012,7 +1012,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, lm85_detect);
-+	return i2c_probe(adapter, &addr_data, lm85_detect);
- }
- 
- int lm85_detect(struct i2c_adapter *adapter, int address,
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm87.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm87.c	2005-07-31 20:55:59.000000000 +0200
-@@ -539,7 +539,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, lm87_detect);
-+	return i2c_probe(adapter, &addr_data, lm87_detect);
- }
- 
- /*
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm90.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm90.c	2005-07-31 20:55:59.000000000 +0200
-@@ -354,7 +354,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, lm90_detect);
-+	return i2c_probe(adapter, &addr_data, lm90_detect);
- }
- 
- /*
---- linux-2.6.13-rc4.orig/drivers/hwmon/lm92.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/lm92.c	2005-07-31 20:55:59.000000000 +0200
-@@ -389,7 +389,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, lm92_detect);
-+	return i2c_probe(adapter, &addr_data, lm92_detect);
- }
- 
- static int lm92_detach_client(struct i2c_client *client)
---- linux-2.6.13-rc4.orig/drivers/hwmon/max1619.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/max1619.c	2005-07-31 20:55:59.000000000 +0200
-@@ -180,7 +180,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, max1619_detect);
-+	return i2c_probe(adapter, &addr_data, max1619_detect);
- }
- 
- /*
---- linux-2.6.13-rc4.orig/drivers/hwmon/w83781d.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/w83781d.c	2005-07-31 20:55:59.000000000 +0200
-@@ -869,7 +869,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, w83781d_detect);
-+	return i2c_probe(adapter, &addr_data, w83781d_detect);
- }
- 
- static int
---- linux-2.6.13-rc4.orig/drivers/hwmon/w83792d.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/w83792d.c	2005-07-31 20:55:59.000000000 +0200
-@@ -1076,7 +1076,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, w83792d_detect);
-+	return i2c_probe(adapter, &addr_data, w83792d_detect);
- }
- 
- 
---- linux-2.6.13-rc4.orig/drivers/hwmon/w83l785ts.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/hwmon/w83l785ts.c	2005-07-31 20:55:59.000000000 +0200
-@@ -142,7 +142,7 @@
- {
- 	if (!(adapter->class & I2C_CLASS_HWMON))
- 		return 0;
--	return i2c_detect(adapter, &addr_data, w83l785ts_detect);
-+	return i2c_probe(adapter, &addr_data, w83l785ts_detect);
- }
- 
- /*
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/ds1337.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/ds1337.c	2005-07-31 20:55:59.000000000 +0200
-@@ -226,7 +226,7 @@
- 
- static int ds1337_attach_adapter(struct i2c_adapter *adapter)
- {
--	return i2c_detect(adapter, &addr_data, ds1337_detect);
-+	return i2c_probe(adapter, &addr_data, ds1337_detect);
- }
- 
- /*
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/eeprom.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/eeprom.c	2005-07-31 20:55:59.000000000 +0200
-@@ -152,10 +152,10 @@
- 
- static int eeprom_attach_adapter(struct i2c_adapter *adapter)
- {
--	return i2c_detect(adapter, &addr_data, eeprom_detect);
-+	return i2c_probe(adapter, &addr_data, eeprom_detect);
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- int eeprom_detect(struct i2c_adapter *adapter, int address, int kind)
- {
- 	struct i2c_client *new_client;
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/max6875.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/max6875.c	2005-07-31 20:55:59.000000000 +0200
-@@ -161,10 +161,10 @@
- 
- static int max6875_attach_adapter(struct i2c_adapter *adapter)
- {
--	return i2c_detect(adapter, &addr_data, max6875_detect);
-+	return i2c_probe(adapter, &addr_data, max6875_detect);
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- static int max6875_detect(struct i2c_adapter *adapter, int address, int kind)
- {
- 	struct i2c_client *real_client;
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/pca9539.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/pca9539.c	2005-07-31 20:55:59.000000000 +0200
-@@ -108,10 +108,10 @@
- 
- static int pca9539_attach_adapter(struct i2c_adapter *adapter)
- {
--	return i2c_detect(adapter, &addr_data, pca9539_detect);
-+	return i2c_probe(adapter, &addr_data, pca9539_detect);
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- static int pca9539_detect(struct i2c_adapter *adapter, int address, int kind)
- {
- 	struct i2c_client *new_client;
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/pcf8574.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/pcf8574.c	2005-07-31 20:55:59.000000000 +0200
-@@ -112,10 +112,10 @@
- 
- static int pcf8574_attach_adapter(struct i2c_adapter *adapter)
- {
--	return i2c_detect(adapter, &addr_data, pcf8574_detect);
-+	return i2c_probe(adapter, &addr_data, pcf8574_detect);
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- int pcf8574_detect(struct i2c_adapter *adapter, int address, int kind)
- {
- 	struct i2c_client *new_client;
---- linux-2.6.13-rc4.orig/drivers/i2c/chips/pcf8591.c	2005-07-31 14:25:05.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/chips/pcf8591.c	2005-07-31 20:55:59.000000000 +0200
-@@ -163,10 +163,10 @@
-  */
- static int pcf8591_attach_adapter(struct i2c_adapter *adapter)
- {
--	return i2c_detect(adapter, &addr_data, pcf8591_detect);
-+	return i2c_probe(adapter, &addr_data, pcf8591_detect);
- }
- 
--/* This function is called by i2c_detect */
-+/* This function is called by i2c_probe */
- int pcf8591_detect(struct i2c_adapter *adapter, int address, int kind)
- {
- 	struct i2c_client *new_client;
+-/* Detect function. It iterates over all possible addresses itself. For
+-   SMBus addresses, it will only call found_proc if some client is connected
+-   to the SMBus (unless a 'force' matched). */
+-extern int i2c_detect(struct i2c_adapter *adapter,
+-		      struct i2c_client_address_data *address_data,
+-		      int (*found_proc) (struct i2c_adapter *, int, int));
+-
+ #endif				/* def _LINUX_I2C_SENSOR_H */
 
 
 -- 

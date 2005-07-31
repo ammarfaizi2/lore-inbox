@@ -1,68 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVGaQjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVGaQky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbVGaQjm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 12:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbVGaQjm
+	id S261819AbVGaQky (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 12:40:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVGaQkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 12:39:42 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:50407 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S261817AbVGaQjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 12:39:41 -0400
-In-Reply-To: <20050727125746.54329281.akpm@osdl.org>
-References: <20050727125746.54329281.akpm@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <53E238A9-96C5-444F-9620-F190560D7AF9@freescale.com>
-Cc: "Gala Kumar K.-galak" <galak@freescale.com>,
-       linux-kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc-embedded Linux list <linuxppc-embedded@ozlabs.org>,
-       Michael Richardson <mcr@sandelman.ottawa.on.ca>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [PATCH 00/14] ppc32: Remove board ports that are no longer maintained
-Date: Sun, 31 Jul 2005 11:39:33 -0500
-To: Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.733)
+	Sun, 31 Jul 2005 12:40:53 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:13832 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261819AbVGaQjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 12:39:49 -0400
+Date: Sun, 31 Jul 2005 18:39:48 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: starvik@axis.com
+Cc: dev-etrax@axis.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] arch/cris/Kconfig.debug: use lib/Kconfig.debug
+Message-ID: <20050731163948.GB3608@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+This patch converts arch/cris/Kconfig.debug to using lib/Kconfig.debug.
 
-Can you drop the ep405 removal patch.  We've got someone to take  
-ownership.
+This should fix a compile error in 2.6.13-rc4 caused by a missing 
+CONFIG_LOG_BUF_SHIFT definition.
 
-- kumar
+While I was editing this file, I also converted some spaces to tabs.
 
-On Jul 27, 2005, at 2:57 PM, Andrew Morton wrote:
 
-> Kumar Gala <galak@freescale.com> wrote:
->
->>
->> The following board ports are no longer maintained or have become
->>  obsolete:
->>
->>  adir
->>  ash
->>  beech
->>  cedar
->>  ep405
->>  k2
->>  mcpn765
->>  menf1
->>  oak
->>  pcore
->>  rainier
->>  redwood
->>  sm850
->>  spd823ts
->>
->>  We are there for removing support for them.
->>
->
-> I'll merge all these into -mm for now, but will hold off sending  
-> any of
-> them upstream pending confirmation of which patches we really want to
-> proceed with.
->
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ arch/cris/Kconfig.debug |   31 ++++++++++---------------------
+ 1 files changed, 10 insertions(+), 21 deletions(-)
+
+--- linux-2.6.13-rc4-mm1/arch/cris/Kconfig.debug.old	2005-07-31 18:29:15.000000000 +0200
++++ linux-2.6.13-rc4-mm1/arch/cris/Kconfig.debug	2005-07-31 18:32:15.000000000 +0200
+@@ -5,10 +5,13 @@
+ 	bool "Kernel profiling support"
+ 
+ config SYSTEM_PROFILER
+-        bool "System profiling support"
++	bool "System profiling support"
++
++source "lib/Kconfig.debug"
+ 
+ config ETRAX_KGDB
+ 	bool "Use kernel GDB debugger"
++	depends on DEBUG_KERNEL
+ 	---help---
+ 	  The CRIS version of gdb can be used to remotely debug a running
+ 	  Linux kernel via the serial debug port.  Provided you have gdb-cris
+@@ -22,25 +25,11 @@
+ 	  this option is turned on!
+ 
+ 
+-config DEBUG_INFO
+-        bool "Compile the kernel with debug info"
+-        help
+-          If you say Y here the resulting kernel image will include
+-          debugging info resulting in a larger kernel image.
+-          Say Y here only if you plan to use gdb to debug the kernel.
+-          If you don't debug the kernel, you can say N.
+-
+-config FRAME_POINTER
+-        bool "Compile the kernel with frame pointers"
+-        help
+-          If you say Y here the resulting kernel image will be slightly larger
+-          and slower, but it will give very useful debugging information.
+-          If you don't debug the kernel, you can say N, but we may not be able
+-          to solve problems without frame pointers.
+-
+ config DEBUG_NMI_OOPS
+-       bool "NMI causes oops printout"
+-       help
+-         If the system locks up without any debug information you can say Y
+-         here to make it possible to dump an OOPS with an external NMI.
++	bool "NMI causes oops printout"
++	depends on DEBUG_KERNEL
++	help
++	  If the system locks up without any debug information you can say Y
++	  here to make it possible to dump an OOPS with an external NMI.
++
+ endmenu
 

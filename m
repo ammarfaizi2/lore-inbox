@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262949AbVGaBVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263008AbVGaBX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262949AbVGaBVS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 21:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVGaBVS
+	id S263008AbVGaBX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 21:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbVGaBX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 21:21:18 -0400
-Received: from graphe.net ([209.204.138.32]:61064 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262949AbVGaBVR (ORCPT
+	Sat, 30 Jul 2005 21:23:58 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:37079 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S263008AbVGaBX6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 21:21:17 -0400
-Date: Sat, 30 Jul 2005 18:21:15 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Paul Jackson <pj@sgi.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] String conversions for memory policy
-In-Reply-To: <20050730181418.65caed1f.pj@sgi.com>
-Message-ID: <Pine.LNX.4.62.0507301814540.31359@graphe.net>
-References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
- <20050729152049.4b172d78.pj@sgi.com> <Pine.LNX.4.62.0507291746000.8663@graphe.net>
- <20050729230026.1aa27e14.pj@sgi.com> <Pine.LNX.4.62.0507301042420.26355@graphe.net>
- <20050730181418.65caed1f.pj@sgi.com>
+	Sat, 30 Jul 2005 21:23:58 -0400
+Message-ID: <42EC2829.2080108@pobox.com>
+Date: Sat, 30 Jul 2005 21:23:53 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+To: Yaroslav Halchenko <kernel@onerussian.com>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8 -> 2.6.11 (+ata-dev patch) -- HDD is always on
+References: <20050729041031.GU16285@washoe.onerussian.com> <42E9AFC6.9010805@pobox.com> <20050731001138.GG16285@washoe.onerussian.com>
+In-Reply-To: <20050731001138.GG16285@washoe.onerussian.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Jul 2005, Paul Jackson wrote:
+Yaroslav Halchenko wrote:
+> On Fri, Jul 29, 2005 at 12:25:42AM -0400, Jeff Garzik wrote:
+> 
+>>Does this happen in unpatched 2.6.12.3 or 2.6.13-rc4?
+> 
+> now tested both of them -- light is constantly on in both.
+> 
+> does the HDD LED always signals about hardware activity or it can just
+> be sticky and not reset properly?
 
-> I suspect you should do the same.  I doubt we want to expose
-> zones to user space here.
+As long as the system otherwise functions properly, the LED is the least 
+of our worries...
 
-The problem is how to convert them back for display. Match the zones in 
-groups of three to the zones in a node and then print out the node?
- 
-> I will leave it to Andi to address your questions about memory
-> pressure on lower numbered nodes when using MPOL_BIND.  I suspect
-> that for some of the uses you consider here, such as binding to a
-> set of more than one node, that cpusets will provide capabilities
-> closer to what you have in mind.
-
-This has nothing to do with what is in my mind. The implementation is not 
-conforming to the documentation. This is from "man numa_set_bind":
-
-numa_bind binds the current thread and its children to the
-       nodes  specified  in  nodemask.  They will only run on the
-       CPUs of the specified nodes  and  only  able  to  allocate
-       memory  from them.  This function is equivalent to calling
-       numa_run_on_node_mask and numa_set_membind with  the  same
-       argument.
-
-numa_set_membind sets the  memory  allocation  mask.   The
-       thread  will  only  allocate  memory from the nodes set in
-       nodemask.   Passing  an  argument  of   numa_no_nodes   or
-       numa_all_nodes turns off memory binding to specific nodes.
+	Jeff
 
 
-I do not get from this that memory is allocated always beginning with the 
-lowest node first but that the nodes from which allocations can be done is 
-restricted.
 
-Who else would know details about memory policies?

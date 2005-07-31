@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVGaKnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVGaKyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbVGaKnd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 06:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVGaKnd
+	id S261665AbVGaKyW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 06:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVGaKyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 06:43:33 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:31626 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261629AbVGaKnc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 06:43:32 -0400
-Date: Sun, 31 Jul 2005 12:44:18 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-Message-ID: <20050731104418.GA5318@elte.hu>
-References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins> <20050730205259.GA24542@elte.hu> <1122796996.15033.9.camel@twins>
+	Sun, 31 Jul 2005 06:54:22 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:28830 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S261665AbVGaKyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 06:54:20 -0400
+Date: Sun, 31 Jul 2005 12:42:53 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: iptables redirect is broken on bridged setup
+Message-ID: <20050731104253.GG14874@rama.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	Denis Vlasenko <vda@ilport.com.ua>,
+	netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+References: <200507291209.37247.vda@ilport.com.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="B8ONY/mu/bqBak9m"
 Content-Disposition: inline
-In-Reply-To: <1122796996.15033.9.camel@twins>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <200507291209.37247.vda@ilport.com.ua>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+--B8ONY/mu/bqBak9m
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> because end_buffer_async_read/write use bit_spin_(un)lock and I do not 
-> know how those interact with -RT.
+[removed a number of unneccessarry CC's from list]
 
-bit_spin_lock is preemptible too - but it's not a too nice construct.  
-What seems to have happened in your trace is that local_irq_disable() 
-was used too in combination with bit-spinlocks, and a spinlock was taken 
-from within it. The best fix would be to get rid of bit-spinlocks ...
+On Fri, Jul 29, 2005 at 12:11:52PM +0300, Denis Vlasenko wrote:
+> Linux 2.6.12
 
-	Ingo
+Denis, your bug is not getting fixed faster, no matter how often you
+will post it at how many places and to how many recipients.  We have
+seen it, and we will look at it.=20
+
+bridging and netfilter/iptables is always a very tricky case, and the
+code was developed by separate groups who - as it is my impression -
+don't fully understand each others codebase too well.  Also, many of the
+possible combinations of bridging and netfilter/iptables have apparently
+not been tested (or even used by anyone), so I'm not surprised that you
+see some unexpected behaviour.
+
+Also, the bridging/ebtables maintainer Bart de Schuymer is currently on
+holidays, as I understand.
+
+So please be patient.
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--B8ONY/mu/bqBak9m
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC7KssXaXGVTD0i/8RAh98AJ0ZP1lFIoEi40M2ZCead5Ed5O603ACgqfGW
+69jY3YnTj/ChYeEwgCgB6bg=
+=/1Dh
+-----END PGP SIGNATURE-----
+
+--B8ONY/mu/bqBak9m--

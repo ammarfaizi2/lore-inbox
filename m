@@ -1,77 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVGaJof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVGaJrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbVGaJof (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 05:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVGaJoe
+	id S261650AbVGaJrV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 05:47:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVGaJrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 05:44:34 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:37572 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S261648AbVGaJod (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 05:44:33 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Sun, 31 Jul 2005 05:47:21 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:50647 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261650AbVGaJrU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 05:47:20 -0400
+From: dth@picard.cistron.nl (Danny ter Haar)
+Subject: busy usenet server: only stable kernel is 2.6.12-mm1, rest (including 2.6.13-rc4*) barfs within a few days
+Date: Sun, 31 Jul 2005 09:47:18 +0000 (UTC)
+Organization: Cistron
+Message-ID: <dci6n6$3tn$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1122803238 4023 62.216.30.70 (31 Jul 2005 09:47:18 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@picard.cistron.nl (Danny ter Haar)
 To: linux-kernel@vger.kernel.org
-Subject: Re: revert yenta free_irq on suspend
-Date: Sun, 31 Jul 2005 11:49:38 +0200
-User-Agent: KMail/1.8.1
-Cc: "Brown, Len" <len.brown@intel.com>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "Hugh Dickins" <hugh@veritas.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Dominik Brodowski" <linux@dominikbrodowski.net>,
-       "Daniel Ritz" <daniel.ritz@gmx.ch>, Li Shaohua <shaohua.li@intel.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200507311149.39835.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 31 of July 2005 07:03, Brown, Len wrote:
-> >So I guess I'll just have to revert the ACPI change that 
-> >caused drivers to do request_irq/free_irq. I'd prefer it
-> >if the ACPI people did that revert themselves, though.
-> 
-> If that is what you want, I'll be happy to do it.
-> 
-> If one believes that suspend/resume is working on a large number of
-> systems -- working to a level that a distro can acutally support it,
-> then restoring our temporary resume IRQ router hack to make many systems
-> work
-> is clearly the right thing to do.
-> 
-> But that believe would be total fantasy -- supsend/resume is not
-> working on a large number of machines, and no distro is currently
-> able to support it.  (I'm talking about S3 suspend to RAM primarily,
-> suspend to disk is less interesting -- though Red Hat doesn't
-> even support _that_)
-> 
-> We can got back to the old hack, but it will probably just delay
-> the day that suspend/resume is working broadly, and actually
-> can be deployed and supported by distros.
+I'm going nuts...
+A tyan AMD64 opteron machine functioning as a usenet gateway really
+pumps some traffic a day (http://newsgate.newsserver.nl)
+Incoming traffic comes through a optical gig-E card (acenic)
+and local traffic is fed to our spool boxes through cupper gig-E
+(tigon3). Machine uses adaptec onboard scsi disks.
+At first i thought i had a hardware problem since no kernel would
+survive longer than 30 hours. Ofcourse i ran memtest for a couple
+of days. Than i compiled 2.6.12-mm1 and this kernel surviced 18 days 
+without a problem. But of course you now and then want to try 
+bigger&better(tm) kernels ;-)
 
-May I propose to keep this change in -mm?
+reboot   system boot  2.6.12-mm1       Sun Jul 31 09:47          (01:48)
+reboot   system boot  2.6.13-rc4-git2  Sat Jul 30 18:29          (17:07)
+reboot   system boot  2.6.12-mm1       Sat Jul 30 14:12          (04:14)
+reboot   system boot  2.6.13-rc4       Fri Jul 29 14:16        (1+04:10)
+reboot   system boot  2.6.13-rc3-mm3   Fri Jul 29 12:17          (01:50)
+reboot   system boot  2.6.12-mm1       Thu Jul 28 00:06        (1+12:09)
+reboot   system boot  2.6.13-rc3-mm2   Wed Jul 27 22:27          (01:36)
+reboot   system boot  2.6.13-rc3-mm1   Wed Jul 27 11:22          (12:41)
+reboot   system boot  2.6.12-mm1       Sun Jul 17 15:51        (9+19:29)
 
-This issue has already been discussed on the linux-pm list and the people
-there seem to agree thet the way to go is to convert all PCI drivers to the
-model in which they drop their IRQs on suspend and request them back on
-resume (ref. http://lists.osdl.org/pipermail/linux-pm/2005-May/000955.html).
+Machine dus have serial console (and remote powerboot) but no logging
+posibility (portmaster1). When it crashes i think most of the times it
+has something to do with IRQ.
+2.6.13-rc4-git2 stopped working with the following notice:
 
-There are some drivers that already do it (eg the USB drivers), but there are
-many drivers that don't and in fact the recent problems have been related to
-them.  If the change stays in -mm we will be able to convert the drivers
-gradually and they will hopefully get some testing.  When it's done, it
-will be safe to push the change along with the converted drivers to
-mainline.
+Jul 31 03:28:18 newsgate kernel: hw tcp v4 csum failed
+Jul 31 05:56:59 newsgate kernel: NETDEV WATCHDOG: eth3: transmit timed out
+Jul 31 05:56:59 newsgate kernel: tg3: eth3: transmit timed out, resetting
 
-Greets,
-Rafael
+Serial console kept spitting those messages but it gave no prompt
+anymore. remote powercycle was needed to get it back.
+
+More info/config can be found at: http://newsgate.newsserver.nl/kernel/
+
+Any feedback/suggestions welcome.
+
+Danny
 
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+

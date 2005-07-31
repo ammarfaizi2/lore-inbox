@@ -1,118 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVGaRJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVGaRdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbVGaRJk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 13:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVGaRJk
+	id S261634AbVGaRdK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 13:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVGaRdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 13:09:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60329 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261759AbVGaRJj (ORCPT
+	Sun, 31 Jul 2005 13:33:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23724 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261634AbVGaRdI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 13:09:39 -0400
-Date: Sun, 31 Jul 2005 10:09:27 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: revert yenta free_irq on suspend
-In-Reply-To: <Pine.LNX.4.58.0507310847560.29650@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0507311007240.29650@g5.osdl.org>
-References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com>
- <Pine.LNX.4.58.0507301331260.29650@g5.osdl.org> <20050731132958.GB14550@elf.ucw.cz>
- <Pine.LNX.4.58.0507310847560.29650@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 31 Jul 2005 13:33:08 -0400
+Date: Sun, 31 Jul 2005 10:31:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: cijoml@volny.cz
+Cc: linux-kernel@vger.kernel.org, video4linux-list@redhat.com
+Subject: Re: 2 errors in 2.6.12
+Message-Id: <20050731103156.69536415.akpm@osdl.org>
+In-Reply-To: <200507311351.52631.cijoml@volny.cz>
+References: <200506190958.00267.cijoml@volny.cz>
+	<20050728214851.44877164.akpm@osdl.org>
+	<200507311351.52631.cijoml@volny.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 31 Jul 2005, Linus Torvalds wrote:
+Michal Semler <cijoml@volny.cz> wrote:
+>
+>  I tested both - problem with SB Live! is fixed, but tuning problem in PV951 
+>  still exist :(
 > 
-> We'll revert to the behaviour that it has traditionally had, and start 
-> working forwards in a more careful manner. Where we don't break working 
-> setups.
+> 
+>  This is what I gets into dmesg:
+> 
+> 
+>  Linux video capture interface: v1.00
+>  bttv: driver version 0.9.15 loaded
+>  bttv: using 8 buffers with 2080k (520 pages) each for capture
+>  bttv: Bt8xx card found (0).
+>  ACPI: PCI Interrupt 0000:01:0b.0[A] -> Link [LNKH] -> GSI 9 (level, low) -> 
+>  IRQ 9
+>  bttv0: Bt878 (rev 17) at 0000:01:0b.0, irq: 9, latency: 32, mmio: 0xb69fe000
+>  bttv0: using: ProVideo PV951 [card=42,insmod option]
+>  bttv0: gpio: en=00000000, out=00000000 in=00ffffff [init]
+>  bttv0: using tuner=1
+>  bttv0: i2c: checking for TDA9875 @ 0xb0... not found
+>  bttv0: i2c: checking for TDA7432 @ 0x8a... not found
+>  tvaudio: TV audio decoder + audio/video mux driver
+>  tvaudio: known chips: 
+>  tda9840,tda9873h,tda9874h/a,tda9850,tda9855,tea6300,tea6320,tea6420,tda8425,pic16c54 
+>  (PV951),ta8874z
+>  tvaudio: found pic16c54 (PV951) @ 0x96
+>  bttv0: i2c: checking for TDA9887 @ 0x86... not found
+>  tuner: Unknown parameter `type'
+>  bttv0: registered device video0
+>  bttv0: registered device vbi0
+>  bttv0: registered device radio0
+>  bttv0: PLL: 28636363 => 35468950 .. ok
+>  ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 10
+>  PCI: setting IRQ 10 as level-triggered
+>  ACPI: PCI Interrupt 0000:01:0c.0[A] -> Link [LNKB] -> GSI 10 (level, low) -> 
+>  IRQ 10
 
-Here's a suggested revert (a pure "patch -R" won't work, since there's 
-been other differences since). It works for me, and suspends/resumes from 
-RAM on my EVO with all the irq links getting re-programmed (dmesg is very 
-clear about that ;).
+(cc the v4l list)
 
-It's pretty much the old 2.6.12 code, updated for the refcounting etc.
-
-		Linus
-
-----
-diff --git a/drivers/acpi/pci_link.c b/drivers/acpi/pci_link.c
---- a/drivers/acpi/pci_link.c
-+++ b/drivers/acpi/pci_link.c
-@@ -776,15 +776,25 @@ end:
- }
- 
- static int
--irqrouter_suspend(
--	struct sys_device *dev,
--	u32	state)
-+acpi_pci_link_resume(
-+	struct acpi_pci_link *link)
-+{
-+	ACPI_FUNCTION_TRACE("acpi_pci_link_resume");
-+
-+	if (link->refcnt && link->irq.active && link->irq.initialized)
-+		return_VALUE(acpi_pci_link_set(link, link->irq.active));
-+	else
-+		return_VALUE(0);
-+}
-+
-+static int
-+irqrouter_resume(
-+	struct sys_device *dev)
- {
- 	struct list_head        *node = NULL;
- 	struct acpi_pci_link    *link = NULL;
--	int			ret = 0;
- 
--	ACPI_FUNCTION_TRACE("irqrouter_suspend");
-+	ACPI_FUNCTION_TRACE("irqrouter_resume");
- 
- 	list_for_each(node, &acpi_link.entries) {
- 		link = list_entry(node, struct acpi_pci_link, node);
-@@ -793,24 +803,11 @@ irqrouter_suspend(
- 				"Invalid link context\n"));
- 			continue;
- 		}
--		if (link->irq.initialized && link->refcnt != 0
--			/* We ignore legacy IDE device irq */
--			&& link->irq.active != 14 && link->irq.active !=15) {
--			printk(KERN_WARNING PREFIX
--				"%d drivers with interrupt %d neglected to call"
--				" pci_disable_device at .suspend\n",
--				link->refcnt,
--				link->irq.active);
--			printk(KERN_WARNING PREFIX
--				"Fix the driver, or rmmod before suspend\n");
--			link->refcnt = 0;
--			ret = -EINVAL;
--		}
-+		acpi_pci_link_resume(link);
- 	}
--	return_VALUE(ret);
-+	return_VALUE(0);
- }
- 
--
- static int
- acpi_pci_link_remove (
- 	struct acpi_device	*device,
-@@ -922,7 +919,7 @@ __setup("acpi_irq_balance", acpi_irq_bal
- /* FIXME: we will remove this interface after all drivers call pci_disable_device */
- static struct sysdev_class irqrouter_sysdev_class = {
-         set_kset_name("irqrouter"),
--        .suspend = irqrouter_suspend,
-+        .resume = irqrouter_resume,
- };
- 
- 
+The above is with 2.6.13-rc4.  2.6.11 was OK.

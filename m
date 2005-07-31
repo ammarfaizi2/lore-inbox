@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263206AbVGaCW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVGaC2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263206AbVGaCW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 22:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263200AbVGaCW5
+	id S261538AbVGaC2l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 22:28:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVGaC2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 22:22:57 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11164 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261538AbVGaCUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 22:20:49 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Subject: Re: ALSA, snd_intel8x0m and kexec() don't work together
- (2.6.13-rc3-git4 and 2.6.13-rc3-git3)
-References: <20050721180621.GA25829@charite.de>
-	<20050722062548.GJ25829@charite.de>
-	<200507221614.28096.vda@ilport.com.ua>
-	<20050722131825.GR8528@charite.de> <1122054941.877.6.camel@mindpipe>
-	<20050722180204.GD30517@charite.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sat, 30 Jul 2005 20:20:39 -0600
-In-Reply-To: <20050722180204.GD30517@charite.de> (Ralf Hildebrandt's message
- of "Fri, 22 Jul 2005 20:02:04 +0200")
-Message-ID: <m1br4j1zt4.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 30 Jul 2005 22:28:41 -0400
+Received: from dsl017-049-110.sfo4.dsl.speakeasy.net ([69.17.49.110]:63975
+	"EHLO jm.kir.nu") by vger.kernel.org with ESMTP id S261538AbVGaC2k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 22:28:40 -0400
+Date: Sat, 30 Jul 2005 19:24:22 -0700
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com, hostap@shmoo.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] include/net/ieee80211.h must #include <linux/wireless.h>
+Message-ID: <20050731022422.GH8195@jm.kir.nu>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com, hostap@shmoo.com,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20050727195100.GA29092@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050727195100.GA29092@stusta.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Hildebrandt <Ralf.Hildebrandt@charite.de> writes:
+On Wed, Jul 27, 2005 at 09:51:00PM +0200, Adrian Bunk wrote:
 
-> kexec is a system call that implements the ability to shutdown your
-> current kernel, and to start another kernel.  It is like a reboot but it
-> is indepedent of the system firmware.  And like a reboot you can start
-> any kernel with it, not just Linux.
-> 	  
-> The name comes from the similiarity to the exec system call.
->
-> It is an ongoing process to be certain the hardware in a machine is
-> properly shutdown, so do not be surprised if this code does not initially
-> work for you.  It may help to enable device hotplugging support.  As of
-> this writing the exact hardware interface is strongly in flux, so no good
-> recommendation can be made.
+> gcc found an (although perhaps harmless) bug:
+> 
+>   CC      net/ieee80211/ieee80211_crypt.o
+> In file included from net/ieee80211/ieee80211_crypt.c:21:
+> include/net/ieee80211.h:26:5: warning: "WIRELESS_EXT" is not defined
 
-Hmm.  It looks like the text in Kconfig needs to be updated.
-I don't think that description has been updated in several years.
+> +++ linux-2.6.13-rc3-mm1-full/include/net/ieee80211.h	2005-07-22 18:38:10.000000000 +0200
+> +#include <linux/wireless.h>
 
-Eric
+>  #if WIRELESS_EXT < 17
+>  #define IW_QUAL_QUAL_INVALID   0x10
+
+Wouldn't the proper fix be to just remove this backwards compatibility
+code since WIRELESS_EXT is actually 18 in this tree anyway.. Is there
+valid need to keep this header file compatible with older kernel
+versions?
+
+-- 
+Jouni Malinen                                            PGP id EFC895FA

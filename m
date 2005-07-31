@@ -1,48 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVGaQ3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVGaQdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbVGaQ3E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 12:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVGaQ3E
+	id S261809AbVGaQdP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 12:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVGaQdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 12:29:04 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:5622 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261814AbVGaQ3C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 12:29:02 -0400
-Subject: hashed spinlocks
-From: Daniel Walker <dwalker@mvista.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42E9E91B.9050403@cosmosbay.com>
-References: <20050728090948.GA24222@elte.hu>
-	 <200507281914.j6SJErg31398@unix-os.sc.intel.com>
-	 <20050729070447.GA3032@elte.hu> <20050729070702.GA3327@elte.hu>
-	 <42E9E91B.9050403@cosmosbay.com>
+	Sun, 31 Jul 2005 12:33:15 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:11526 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261809AbVGaQdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 12:33:14 -0400
+Subject: Re: [PATCH] speed up on find_first_bit for i386 (let compiler do
+	the work)
+From: Richard Kennedy <richard@rsk.demon.co.uk>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Sun, 31 Jul 2005 09:27:55 -0700
-Message-Id: <1122827276.18047.26.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Date: Sun, 31 Jul 2005 17:33:12 +0100
+Message-Id: <1122827592.5333.9.camel@castor.rsk.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+FWIW the following routine is consistently slightly faster using
+Steven's test harness , with a big win when no bit set.
 
+static inline int new_find_first_bit(const unsigned long *b, unsigned
+size)
+{
+	int x = 0;
+	do {
+		unsigned long v = *b++;
+	  	if (v)
+			return __ffs(v) + x;
+		if (x >= size)
+			break;
+		x += 32;
+	} while (1);
+	return x;
+}
 
->From 2.6.13-rc4 this hunk
+Tested on P III M 933MHz / gcc 4.0.1
 
-+#else
-+# define rt_hash_lock_addr(slot) NULL
-+# define rt_hash_lock_init()
-+#endif
+clock speed = 00000000:17c56980 398813568 ticks per second
 
-Doesn't work with the following,
+no bit set
+ffb=320  my=320 new=320
+generic ffb: 00000000:02fd6660
+time: 0.125776182us
+my ffb: 00000000:03c314e9
+time: 0.158260714us
+new ffb : 00000000:02d9190b
+time: 0.119810758us
 
-+               spin_unlock(rt_hash_lock_addr(i));
+last bit set
+ffb=319  my=319 new=319 
+generic ffb: 00000000:04e5900c
+time: 0.205994717us
+my ffb: 00000000:0327475d
+time: 0.132658024us
+new ffb: 00000000:02c86938
+time: 0.117068655us
 
+middle bit set
+ffb=159  my=159 new=159
+generic ffb: 00000000:03c2bc56
+time: 0.158203865us
+my ffb: 00000000:01356b8b
+time: 0.050846204us
+new ffb: 00000000:0115f133
+time: 0.045673521us
 
-Cause your spin locking a NULL .. I would give a patch, but I'm not sure
-what should be done in this case..
+first bit set
+ffb=0  my=0 new=0 
+generic ffb: 00000000:02d07460
+time: 0.118390436us
+my ffb: 00000000:005d3079
+time: 0.015313564us
+new ffb: 00000000:005cca07
+time: 0.015247804us
 
-Daniel
+Cheers
+Richard
+Not subscribed please CC -- thanks.
+
 

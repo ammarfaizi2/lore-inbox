@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVGaXx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVGaX7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbVGaXx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 19:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVGaXx6
+	id S262162AbVGaX7m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 19:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVGaX7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 19:53:58 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:54933 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262156AbVGaXx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 19:53:57 -0400
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-From: Lee Revell <rlrevell@joe-job.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: James Bruce <bruce@andrew.cmu.edu>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050731232941.GG27580@elf.ucw.cz>
-References: <20050730120645.77a33a34.Ballarin.Marc@gmx.de>
-	 <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz>
-	 <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz>
-	 <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz>
-	 <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz>
-	 <1122852234.13000.27.camel@mindpipe>  <20050731232941.GG27580@elf.ucw.cz>
-Content-Type: text/plain
-Date: Sun, 31 Jul 2005 19:53:55 -0400
-Message-Id: <1122854036.13000.33.camel@mindpipe>
+	Sun, 31 Jul 2005 19:59:42 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:7851 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262162AbVGaX7l convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 19:59:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dIJEJC/QiF3RwJTXg6GeKiyD9kQFJCzKgO7H3ReQXPBI5TRmQpbah3Ybsp/KBRsgHiyeV4G2mzNCG8W4qPij3lumLfKUW7HMX9iM0dI73ggLH6EiRTKEfhI3VP0kcn1ip3AlIcIeK5EF08L2ywcKJARE/Qn5cixDV7T5JqRCXnI=
+Message-ID: <21d7e9970507311659259e5560@mail.gmail.com>
+Date: Mon, 1 Aug 2005 09:59:37 +1000
+From: Dave Airlie <airlied@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: revert yenta free_irq on suspend
+Cc: Pavel Machek <pavel@ucw.cz>, ambx1@neo.rr.com,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+In-Reply-To: <Pine.LNX.4.58.0507311635360.14342@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <2e00842e116e.2e116e2e0084@columbus.rr.com>
+	 <Pine.LNX.4.58.0507311550400.14342@g5.osdl.org>
+	 <20050731230507.GE27580@elf.ucw.cz>
+	 <Pine.LNX.4.58.0507311622510.14342@g5.osdl.org>
+	 <20050731232735.GF27580@elf.ucw.cz>
+	 <Pine.LNX.4.58.0507311635360.14342@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-01 at 01:29 +0200, Pavel Machek wrote:
-> Hi!
 > 
-> > > I'm pretty sure at least one distro will go with HZ<300 real soon now
-> > > ;-).
-> > > 
-> > 
-> > Any idea what their official recommendation for people running apps that
-> > require the 1ms sleep resolution is?  Something along the lines of "Get
-> > bent"?
+> If an interrupt is screaming due to lack of initialization and gets turned
+> off, just make sure it gets re-enabled when it is being initialized.
 > 
-> So you busy wait for 1msec, big deal.
 
-Which requires changing all those apps.  I thought we tried not to break
-userspace with minor kernel version upgrades.
+That still doesn't handle the case where a device has an interrupt
+handler on a shared IRQ and another device on the chain interrupts it
+after it has suspended its device,
 
-> Some machines can't even keep time properly with HZ=1000.
+we need to either fix *for all drivers* (otherwise people sharing IRQs
+will have breakages that people not sharing them won't see ... )
 
-If your workaround for broken hardware involves screwing over people
-with good hardware, it might be the wrong workaround.
+a) add request/free irq sets
+b) add code to the interrupt handlers to make sure we aren't in a
+powerdown state...
 
->  Official recommendation is likely "help us
-> with CONFIG_NO_IDLE_HZ" or "get over it".
+I don't really mind which is the recommended one I'd just prefer we do
+it the same way everwhere... so I still believe the yenta_irq patch is
+correct if we are doing a, or if not we need to do b....
 
-IOW, "if you don't like it, get another distro, or compile your own
-kernel".
-
-Lee
-
+Dave.

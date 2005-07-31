@@ -1,36 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262907AbVGaAJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263125AbVGaAK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbVGaAJR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 20:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbVGaAJR
+	id S263125AbVGaAK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 20:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263133AbVGaAK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 20:09:17 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:25989
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262907AbVGaAJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 20:09:16 -0400
-Date: Sat, 30 Jul 2005 17:09:23 -0700 (PDT)
-Message-Id: <20050730.170923.74721539.davem@davemloft.net>
-To: rmk+lkml@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3: cache flush missing from somewhere
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050730210807.E26592@flint.arm.linux.org.uk>
-References: <20050729161343.A18249@flint.arm.linux.org.uk>
-	<20050730.124052.104057695.davem@davemloft.net>
-	<20050730210807.E26592@flint.arm.linux.org.uk>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 30 Jul 2005 20:10:27 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:63946 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263125AbVGaAKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 20:10:18 -0400
+Subject: Re: Simple question re: oops
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1122767292.4464.1.camel@mindpipe>
+References: <1122767292.4464.1.camel@mindpipe>
+Content-Type: text/plain
+Date: Sat, 30 Jul 2005 20:10:17 -0400
+Message-Id: <1122768617.4464.3.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-Date: Sat, 30 Jul 2005 21:08:07 +0100
+On Sat, 2005-07-30 at 19:48 -0400, Lee Revell wrote:
+> I have a machine here that oopses reliably when I start X, but the
+> interesting stuff scrolls away too fast, and a bunch more Oopses get
+> printed ending with "Aieee, killing interrupt handler".
+> 
+> How do I get the output to stop after the first Oops?
+> 
 
-> Thanks David.
+Never mind, /proc/sys/kernel/panic_on_oops should do it.
 
-No problem.  An interesting tidbit would be whether the
-system is stable, without your patch you posted, in pure
-uniprocessor mode with these cpus.
+Lee
+
+

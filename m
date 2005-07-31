@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVGaVTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVGaVVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbVGaVTS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 17:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVGaVTS
+	id S261908AbVGaVVk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 17:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVGaVVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 17:19:18 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:27758 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261906AbVGaVTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 17:19:17 -0400
-Date: Sun, 31 Jul 2005 14:19:01 -0700
-From: Greg KH <gregkh@suse.de>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: sysfs abuse in recent i2o changes
-Message-ID: <20050731211901.GC17363@suse.de>
-References: <20050628112102.GA1111@lst.de> <42C16691.3090205@shadowconnect.com> <20050628162125.GA9239@suse.de> <42C19214.6070708@shadowconnect.com> <20050628180719.GA11585@suse.de> <42C25CBF.8000509@shadowconnect.com> <20050708060028.GB5323@suse.de> <20050731140939.GB25958@lst.de> <42ECF0ED.9070007@shadowconnect.com>
+	Sun, 31 Jul 2005 17:21:40 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32897 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261908AbVGaVVh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 17:21:37 -0400
+Date: Sun, 31 Jul 2005 23:20:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: ambx1@neo.rr.com
+Cc: Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: revert yenta free_irq on suspend
+Message-ID: <20050731212058.GC27433@elf.ucw.cz>
+References: <2e00842e116e.2e116e2e0084@columbus.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42ECF0ED.9070007@shadowconnect.com>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <2e00842e116e.2e116e2e0084@columbus.rr.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 31, 2005 at 05:40:29PM +0200, Markus Lidel wrote:
-> Hello,
-> 
-> Christoph Hellwig wrote:
-> >So folks, this is still in 2.6.13-rc4, shouldn't we pull it out so we
-> 
-> Yep, sorry... I'll try to send the patch during next week...
-> 
-> >don't add an interface soon to be removed again to 2.6.13?
-> 
-> The interface will still be available, because IMHO it fits better then 
-> the old ioctl based one... But until the necessary functions for the 
-> interface are available, i'll provide a separate patch, which could be 
-> downloaded at the I2O website...
+Hi!
 
-What "necessary functions for the interface"?  Remember, you are not
-using sysfs properly, so please fix your code to not do that anymore.
+> Also I'd like to point out that this patch broke APM suspend-to-ram,
+> not ACPI S3.  IMO, it may not be possible to support both APM and ACPI
+> on every system, as their specs are not intended to be compatible.
+> Progress toward proper suspend-to-ram support will, in many cases, be
+> a small setback for APM.  This really can't be avoided.
 
-thanks,
-
-greg k-h
+Actually, for APM, OS theoretically does *not* need to FREEZE the
+devices (or do anything else). "Doing nothing" should be easy...
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

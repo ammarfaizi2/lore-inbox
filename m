@@ -1,33 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263209AbVGaL0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263215AbVGaL0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263209AbVGaL0h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 07:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVGaL0c
+	id S263215AbVGaL0p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 07:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVGaL0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 07:26:32 -0400
-Received: from coderock.org ([193.77.147.115]:60612 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261727AbVGaLMT (ORCPT
+	Sun, 31 Jul 2005 07:26:39 -0400
+Received: from coderock.org ([193.77.147.115]:59588 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261723AbVGaLMS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 07:12:19 -0400
-Message-Id: <20050731111218.847895000@homer>
-Date: Sun, 31 Jul 2005 13:12:10 +0200
+	Sun, 31 Jul 2005 07:12:18 -0400
+Message-Id: <20050731111213.636613000@homer>
+Date: Sun, 31 Jul 2005 13:12:08 +0200
 From: domen@coderock.org
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, Jan Veldeman <Jan.Veldeman@advalvas.be>,
        domen@coderock.org
-Subject: [patch 5/5] Driver core: Documentation: use S_IRUSR | ... in stead of 0644
-Content-Disposition: inline; filename=fixup3-Documentation_filesystems_sysfs.txt
+Subject: [patch 3/5] Driver core: Documentation: use snprintf and strnlen
+Content-Disposition: inline; filename=fixup-Documentation_filesystems_sysfs.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Jan Veldeman <jan@mind.be>
 
 
-Change filemode to use defines in stead of 0644,
-based on suggestions by Walter Harms and Domen Puncer.
+
+Documentation should give the good example of using snprintf and
+strnlen in stead of sprintf and strlen.
+
+PAGE_SIZE is used as the maximal length to reflect the behaviour of
+show/store.
+
 
 Signed-off-by: Jan Veldeman <Jan.Veldeman@advalvas.be>
 Signed-off-by: Domen Puncer <domen@coderock.org>
+
 
 ---
  sysfs.txt |    4 ++--
@@ -37,22 +43,21 @@ Index: quilt/Documentation/filesystems/sysfs.txt
 ===================================================================
 --- quilt.orig/Documentation/filesystems/sysfs.txt
 +++ quilt/Documentation/filesystems/sysfs.txt
-@@ -99,14 +99,14 @@ struct device_attribute dev_attr_##_name
+@@ -216,13 +216,13 @@ A very simple (and naive) implementation
  
- For example, declaring
+ static ssize_t show_name(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+-        return sprintf(buf,"%s\n",dev->name);
++        return snprintf(buf,PAGE_SIZE,"%s\n",dev->name);
+ }
  
--static DEVICE_ATTR(foo, 0644, show_foo, store_foo);
-+static DEVICE_ATTR(foo, S_IWUSR | S_IRUGO, show_foo, store_foo);
+ static ssize_t store_name(struct device * dev, const char * buf)
+ {
+ 	sscanf(buf,"%20s",dev->name);
+-	return strlen(buf);
++	return strnlen(buf,PAGE_SIZE);
+ }
  
- is equivalent to doing:
- 
- static struct device_attribute dev_attr_foo = {
-        .attr	= {
- 		.name = "foo",
--		.mode = 0644,
-+		.mode = S_IWUSR | S_IRUGO,
- 	},
- 	.show = show_foo,
- 	.store = store_foo,
+ static DEVICE_ATTR(name,S_IRUGO,show_name,store_name);
 
 --

@@ -1,76 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVGaOCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263230AbVGaOFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261792AbVGaOCA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 10:02:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbVGaOCA
+	id S263230AbVGaOFs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 10:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263231AbVGaOFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 10:02:00 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:23988 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261792AbVGaOB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 10:01:58 -0400
-Date: Sun, 31 Jul 2005 15:01:57 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Thomas Heinz <thomasheinz@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SCSI DVD-RAM partitions
-Message-ID: <20050731140157.GA6173@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Thomas Heinz <thomasheinz@gmx.net>, linux-kernel@vger.kernel.org
-References: <42CFC3EF.2090804@gmx.net> <20050712023757.GG26128@infradead.org> <42D37DF5.6060902@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42D37DF5.6060902@gmx.net>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 31 Jul 2005 10:05:48 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:62326 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S263230AbVGaOFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 10:05:47 -0400
+Message-ID: <42ECDAC1.5050305@m1k.net>
+Date: Sun, 31 Jul 2005 10:05:53 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [HOWTO] set extra_cflags to indicate compilation against -mm
+ kernels
+References: <42EBF131.60507@m1k.net> <20050731084406.GA8588@mars.ravnborg.org>
+In-Reply-To: <20050731084406.GA8588@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 12, 2005 at 10:23:17AM +0200, Thomas Heinz wrote:
-> Hi Christoph
-> 
-> You wrote:
-> >While adding support for partitions on sr is trivial it has a huge
-> >drawback: it's chaning the dev_t space by using up device numbers
-> >for partitions, so /dev/sr0 ff will have different device numbers
-> >with that change applied.  I have an old patch that's supposed to
-> >enable support for partitioned scsi removable devices at
-> >http://rechner.lst.de/~hch/hacks/sr-parts.diff, I'm not sure it
-> >actually ever worked (but you should get the basic idea from it)
-> 
-> Ok, thanks for your valuable input. In fact, I thought about making
-> the device available both as /dev/srX and /dev/sdX at the same time
-> in order to support partitions. In my case it would even suffice to
-> make it available as /dev/sdX instead of /dev/srX.
+Sam Ravnborg wrote:
 
-That doesn't make sense because sd is a very different driver from sd.
-Besides that aliasing different dev_ts to the same underlying blockdevice
-can't work, it's cause all sorts of aliasing problems.
+>On Sat, Jul 30, 2005 at 05:29:21PM -0400, Michael Krufky wrote:
+>  
+>
+>>With the addition of topdir-mm.patch into the -mm tree (since 
+>>2.6.13-rc3-mm2), it is now possible for Makefile to detect whether a cvs 
+>>subtree is being built against -mm or not...  -mm kernels now have a .mm 
+>>file in the top level directory.
+>>
+>>inside Makefile:
+>>
+>>mm-kernel := $(TOPDIR)/.mm
+>>ifneq ($(mm-kernel),)
+>>MM_KERNEL_CFLAGS	:= -DMM_KERNEL=$(shell cat $(mm-kernel) 2> /dev/null)
+>>ifneq ($(MM_KERNEL_CFLAGS),-DMM_KERNEL=)
+>>EXTRA_CFLAGS		+= $(MM_KERNEL_CFLAGS)
+>>endif
+>>endif
+>>    
+>>
+>
+>Hi Michael.
+>The content of the .mm file seems to be insignificant - '1'. The important
+>issue is that the file is present.
+>Also please do not use $(TOPDIR) - it is deprecated.
+>
+>The following is enough:
+>EXTRA_CFLAGS += $(if $(wildcard $(srctree)/.mm), -DMM_KERNEL)
+>
+>If the file exist in the root of the kernel src tree MM_KERNEL will be
+>added to EXTRA_CFLAGS.
+>
+Sam-
 
-> Since I have no expert knowledge about this topic, I would be
-> interested in the general attitude towards "partitions on SCSI
-> DVD-RAM media / SCSI removable devices":
-> - Are partitions intentionally not supported? If so, why?
+Thank you!  I knew there might be a more efficient way to do that, so 
+I'm glad I sent that to LKML for you to see ;-)
 
-Historical coincidence.
+Still, I think it should be added into the documentation somewhere... 
+I'd be happy to submit a patch, I just don't know where it should go.  
+Obviously, this is specific to -mm kernels only.  Do you know?
 
-> - Does it usually work but not with my specific DVD-RAM model?
->   If so, why?
-> - Do you think that this should be fixed?
-
-There's no nice way to fix it unfortunately.
-
-> Please note that personally, I can live with the "losetup hack"
-> since it is easy enough to write a program which encapsulates
-> partition mounting. However, there might be people which would
-> prefer plugging in a (possibly pre-)partitioned medium and
-> having the partitions work out of the box in the expected way.
-
-It would probably be better to use device-mapper than the loop device.
-I think there's already userland partition parsing code for dm, and
-having a simple command line tool to do that, and maybe even automatically
-run through udev and creating /dev/sr<num>p<partition> devices would
-be very nice to have as an almost invisible workaround.
+-- 
+Michael Krufky
 

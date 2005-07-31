@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVGaFFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVGaFOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbVGaFFl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 01:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVGaFFl
+	id S261620AbVGaFOH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 01:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVGaFOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 01:05:41 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:19927 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261616AbVGaFFi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 01:05:38 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: revert yenta free_irq on suspend
-Date: Sun, 31 Jul 2005 01:03:56 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: revert yenta free_irq on suspend
-Thread-Index: AcWVi11Bu0JyoJGeT1qyFI91BFLflgAACknw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Linus Torvalds" <torvalds@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: <linux-kernel@vger.kernel.org>, "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "Hugh Dickins" <hugh@veritas.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Dominik Brodowski" <linux@dominikbrodowski.net>,
-       "Daniel Ritz" <daniel.ritz@gmx.ch>
-X-OriginalArrivalTime: 31 Jul 2005 05:03:58.0130 (UTC) FILETIME=[42118920:01C5958D]
+	Sun, 31 Jul 2005 01:14:07 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:4061 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261620AbVGaFOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 01:14:05 -0400
+Subject: Re: [PATCH] Fix cryptoapi deflate not handling PAGE_SIZE chunks.
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050731034010.GA5564@gondor.apana.org.au>
+References: <1121657195.13487.36.camel@localhost>
+	 <20050731034010.GA5564@gondor.apana.org.au>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1122786842.4351.8.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sun, 31 Jul 2005 15:14:02 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->So I guess I'll just have to revert the ACPI change that 
->caused drivers to do request_irq/free_irq. I'd prefer it
->if the ACPI people did that revert themselves, though.
+Hi.
 
-If that is what you want, I'll be happy to do it.
+On Sun, 2005-07-31 at 13:40, Herbert Xu wrote:
+> On Mon, Jul 18, 2005 at 01:26:35PM +1000, Nigel Cunningham wrote:
+> > 
+> > Here's a resend of a patch I'm using in Suspend2's new cryptoapi
+> > support, which is needed for us to successfully compress pages using
+> > deflate. It's along the lines of the existing fix in the decompression
+> > code.
+> >
+> > diff -ruNp 190-cryptoapi-deflate.patch-old/crypto/deflate.c 190-cryptoapi-deflate.patch-new/crypto/deflate.c
+> > --- 190-cryptoapi-deflate.patch-old/crypto/deflate.c	2005-06-20 11:46:49.000000000 +1000
+> > +++ 190-cryptoapi-deflate.patch-new/crypto/deflate.c	2005-07-04 23:14:20.000000000 +1000
+> > @@ -143,8 +143,15 @@ static int deflate_compress(void *ctx, c
+> >  
+> >  	ret = zlib_deflate(stream, Z_FINISH);
+> >  	if (ret != Z_STREAM_END) {
+> > -		ret = -EINVAL;
+> > -		goto out;
+> > +	    	if (!(ret == Z_OK && !stream->avail_in && !stream->avail_out)) {
+> > +			ret = -EINVAL;
+> > +			goto out;
+> > +		} else {
+> > +			u8 zerostuff = 0;
+> > +			stream->next_out = &zerostuff;
+> > +			stream->avail_out = 1; 
+> > +			ret = zlib_deflate(stream, Z_FINISH);
+> > +		}
+> >  	}
+> >  	ret = 0;
+> >  	*dlen = stream->total_out;
+> 
+> Hi Nigel, I need a bit more information about this patch.
+> Do you have a specific input stream that requires a fix like
+> this?
 
-If one believes that suspend/resume is working on a large number of
-systems -- working to a level that a distro can acutally support it,
-then restoring our temporary resume IRQ router hack to make many systems
-work
-is clearly the right thing to do.
+Yes, Suspend2 if the user selects deflate as their compressor. The
+output data will be PAGE_SIZE chunks, but deflate sometimes thinks it
+has an extra byte to give us back.
 
-But that believe would be total fantasy -- supsend/resume is not
-working on a large number of machines, and no distro is currently
-able to support it.  (I'm talking about S3 suspend to RAM primarily,
-suspend to disk is less interesting -- though Red Hat doesn't
-even support _that_)
+I agree that it's ugly and don't recall using it when I had gzip support
+in an earlier version of Suspend2. Are you thinking there might be a
+better way? If so, I can dig out the old (non crypto api) code.
 
-We can got back to the old hack, but it will probably just delay
-the day that suspend/resume is working broadly, and actually
-can be deployed and supported by distros.
+Regards,
 
--Len
+Nigel
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
+

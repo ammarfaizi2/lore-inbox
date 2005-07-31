@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVGaHzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVGaICT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbVGaHzo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 03:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVGaHzn
+	id S261821AbVGaICT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 04:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVGaICS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 03:55:43 -0400
-Received: from gatekeeper.ncic.ac.cn ([159.226.41.188]:2948 "HELO ncic.ac.cn")
-	by vger.kernel.org with SMTP id S261788AbVGaHzj (ORCPT
+	Sun, 31 Jul 2005 04:02:18 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:32438 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261821AbVGaICQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 03:55:39 -0400
-Subject: [PATCH] Fix PIPE_LEN definition in 2.6.12
-From: =?UTF-8?Q?=E9=9C=8D=E5=BF=97?= =?UTF-8?Q?=E5=88=9A?= 
-	<zghuo@ncic.ac.cn>
-Reply-To: zghuo@ncic.ac.cn
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Content-Type: text/plain
-Organization: NCIC
-Date: Sun, 31 Jul 2005 15:55:13 +0800
-Message-Id: <1122796514.8909.17.camel@mypad>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Jul 2005 04:02:16 -0400
+Date: Sun, 31 Jul 2005 09:02:03 +0100 (IST)
+From: Dave Airlie <airlied@csn.ul.ie>
+X-X-Sender: airlied@skynet
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: S3 resume and PNP (was: Re: S3 resume and serial console..)
+In-Reply-To: <Pine.LNX.4.58.0507310835320.20476@skynet>
+Message-ID: <Pine.LNX.4.58.0507310900180.20476@skynet>
+References: <Pine.LNX.4.58.0507300301370.13092@skynet>
+ <20050730085558.A7770@flint.arm.linux.org.uk> <21d7e99705073017295ed29c64@mail.gmail.com>
+ <20050731080859.A5580@flint.arm.linux.org.uk> <Pine.LNX.4.58.0507310835320.20476@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the introduction of the new "struct pipe_inode_info"in 2.6.11,
-the definition of PIPE_LEN, PIPE_BASE, PIPE_START all become
-obsolete. The new definition of PIPE_LEN is attached.
+> >
+> > The above two messages tells me you're probably using plug'n'play.
+> > Unfortunately, for some unknown reason, the Linux plug'n'play
+> > subsystem does not support suspend/resume.  This is not a serial
+> > problem.
+> >
+>
+> Okay I've disabled PnP in my kernel, now I get nothing back from the
+> serial port on resume... not sure if that is an improvement or not :-)
+>
+> I'll keep messing about with it and see what I can work out...
 
-Signed-off-by: Zhigang Huo <zghuo@ncic.ac.cn>
+Actually I lie.. my resume for some reason delays for quite a while, I've
+gotten a init=/bin/bash serial console resuming now correctly...
 
-================================================
---- pipe_fs_i.h~        2005-07-31 13:45:38.000000000 +0800
-+++ pipe_fs_i.h 2005-07-31 14:41:53.000000000 +0800
-@@ -33,6 +33,25 @@
-        struct fasync_struct *fasync_writers;
- };
+Thanks,
+Dave.
 
-+static inline unsigned int pipe_len(struct inode inode)
-+{
-+  struct pipe_inode_info *info = inode.i_pipe;
-+  int bufs = info->nrbufs;
-+  int curbuf = info->curbuf;
-+  unsigned int ret;
-+
-+  ret = 0;
-+  while(bufs--) {
-+    struct pipe_buffer *buf = info->bufs + curbuf;
-+    size_t chars = buf->len;
-+
-+    ret += chars;
-+    bufs--;
-+    curbuf = (curbuf + 1) & (PIPE_BUFFERS-1);
-+  }
-+  return ret;
-+}
-+
- /* Differs from PIPE_BUF in that PIPE_SIZE is the length of the actual
-    memory allocation, whereas PIPE_BUF makes atomicity guarantees.  */
- #define PIPE_SIZE              PAGE_SIZE
-@@ -41,7 +60,7 @@
- #define PIPE_WAIT(inode)       (&(inode).i_pipe->wait)
- #define PIPE_BASE(inode)       ((inode).i_pipe->base)
- #define PIPE_START(inode)      ((inode).i_pipe->start)
--#define PIPE_LEN(inode)                ((inode).i_pipe->len)
-+#define PIPE_LEN(inode)                pipe_len(inode)
- #define PIPE_READERS(inode)    ((inode).i_pipe->readers)
- #define PIPE_WRITERS(inode)    ((inode).i_pipe->writers)
- #define PIPE_WAITING_WRITERS(inode)
-((inode).i_pipe->waiting_writers)
-
-
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
 

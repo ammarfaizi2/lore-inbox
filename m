@@ -1,73 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVGaUVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVGaUeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbVGaUVv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 16:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVGaUVu
+	id S261996AbVGaUeh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 16:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVGaUeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 16:21:50 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:54410 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261990AbVGaUVu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 16:21:50 -0400
-Message-ID: <42ED32D3.9070208@andrew.cmu.edu>
-Date: Sun, 31 Jul 2005 16:21:39 -0400
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Lee Revell <rlrevell@joe-job.com>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122678943.9381.44.camel@mindpipe> <20050730120645.77a33a34.Ballarin.Marc@gmx.de> <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz>
-In-Reply-To: <20050730201049.GE2093@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Jul 2005 16:34:37 -0400
+Received: from ms-smtp-01-smtplb.ohiordc.rr.com ([65.24.5.135]:51185 "EHLO
+	ms-smtp-01-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S261996AbVGaUee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 16:34:34 -0400
+Date: Sun, 31 Jul 2005 16:34:15 -0400
+From: ambx1@neo.rr.com
+Subject: Re: revert yenta free_irq on suspend
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Message-id: <2e00842e116e.2e116e2e0084@columbus.rr.com>
+MIME-version: 1.0
+X-Mailer: iPlanet Messenger Express 5.2 HotFix 2.04 (built Feb  8 2005)
+Content-type: text/plain; charset=us-ascii
+Content-language: en
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> First numbers were 0.5W on idle system; that shows what kind of
-> powersaving can be done. Powersaving is no longer possible when artsd
-> is not running, but that should not be used as argument against it.
+----- Original Message ----- 
+From: Linus Torvalds <torvalds@osdl.org> 
+Date: Sunday, July 31, 2005 11:53 am 
+Subject: Re: revert yenta free_irq on suspend 
 
-It was an idle system with no display, zero daemons running, and the 
-hard drive off.  In other words, a machine that nobody could use which 
-might as well be hibrinating.  While it was an important test to find 
-out the most one could hope to save, its unrealistic for an actual usage 
-case.  The later test was more realistic, and not suprisingly showed 
-quite a bit less power savings.
+> 
+> 
+> On Sun, 31 Jul 2005, Pavel Machek wrote: 
+> > 
+> > Well, on some machines interrupts can change during suspend (or 
+> so I 
+> > was told). I did not like the ACPI change at one point, but it 
+> is very 
+> > wrong to revert PCMCIA fix without also fixing ACPI interpretter. 
+> 
+> We _are_ going to fix the ACPI interpreter. 
+> 
+> As to irq's changing during suspend - I'll believe that when I see 
+> it, not 
+> when some chicken little runs around worrying about it. I doubt 
+> anybody 
+> has ever seen it, and I'm 100% sure that we have serious breakage 
+> right 
+> now on machines where it definitely doesn't happen. 
+> 
+> > And it indeed seems that ACPI interpretter is hard to fix in the 
+> right> way. 
+> 
+> We'll revert to the behaviour that it has traditionally had, and 
+> start 
+> working forwards in a more careful manner. Where we don't break 
+> working 
+> setups. 
+> 
+> Linus 
 
-I really like having 250HZ as an _option_, but what I don't see is why 
-it should be the _default_.  I believe this is Lee's position as well. 
-Last I checked, ACPI and CPU speed scaling were not enabled by default; 
-If users are willing to change all those other options, why can't we 
-expect them to select 250HZ/100HZ?  Instead, we are quadrupling latency 
-for desktop users (for little or no power savings), just so that laptop 
-users can save enabling one option out of the many they already need to 
-change.
+Hi Linus,
 
-I have a fixed-framerate app that had to busywait in the days of 2.4.x. 
-  It was nice in 2.6.x to not have to busywait, but with 250HZ that code 
-will be coming back again.  And unfortunately this app can't be made 
-variable-framerate, as it is simulating video hardware.  The same goes 
-for apps playing movies/animations; Sometimes programs just need a 
-semi-accurate sleep, and can't demand root priveledges to get it.
+In general, I think that calling free_irq is the right behavior.
+Although irqs changing after suspend is rare, there are also some
+more serious issues.  This has been discussed in the past, and a
+summary is as follows:
 
-I remember that 1000HZ was chosen in part so that fewer people would 
-complain about the need for the Posix highres timers.  Well now that 
-1000HZ is going away, can we have our highres timers or not?  My guess 
-is no.  Thus we've predictably come back out here to complain.  All 
-we're asking is that the default value be left alone until tick-skipping 
-approaches and/or highres timers are given a chance to work.  That way 
-we can see if we can find a solution that truly makes everyone happy.
+1.) race conditions:
+Consider the case where several PCI devices are sharing a single PCI
+interrupt.  One device is suspended, but doesn't call free_irq.  Now
+another properly behaving device on the same interrupt line generates
+an interrupt.  Let's say the suspended device had its handler
+registered first, and therefore is called first.  The handler will
+attempt to access registers on the physically-off device to determine
+if it generated the interrupt.  The PCI bus will issue a master abort.
+The driver's interrupt handler will likely interpret the read
+incorrectly.
 
-In a sense I feel this whole thing boils down to the fact that we don't 
-have something like "make laptop-config" and "make server-config".  I'm 
-glad we could save 5.2% of the power for a laptop user by changing the 
-defaults (as long as you remember to change other options too).  However 
-I'm not sure it should come at the expense of those doing video or audio 
-on a desktop.  Right now with the one-size-fits-all defaults, we end up 
-having to make that tradeoff.
+Every interrupt handler could be modified to check if the device is
+available, but it would be cleaner and more efficient to unregister
+the interrupt.  Either way, every driver has to be changed to support
+PM correctly.
 
-  - Jim Bruce
+2.) runtime power management:
+We don't want to leave stale interrupt handlers registered when only
+suspending a specific device.  As we move toward supporting runtime
+power management it will be important to ensure every driver calls
+free_irq() in its suspend() (or whatever we're using at that point)
+routine.  This avoids interrupt handler bugs and extra interrupt
+overhead.
+
+
+Also I'd like to point out that this patch broke APM suspend-to-ram,
+not ACPI S3.  IMO, it may not be possible to support both APM and ACPI
+on every system, as their specs are not intended to be compatible.
+Progress toward proper suspend-to-ram support will, in many cases, be
+a small setback for APM.  This really can't be avoided.
+
+There are, however, some things we can do to mitigate the breakage
+toward APM.  Specifically, we should indicate the type of suspend state,
+including if it's an ACPI or APM state, for each driver's ->suspend()
+routine.  This will give drivers the opportunity to act differently
+for APM when necessary.  I'm currenlty working on this issue.
+
+APM is useful for legacy hardware and systems with blacklisted ACPI
+support.  I don't think we should attempt to support APM on any system
+with working ACPI suspend/resume.
+
+Thanks,
+Adam
+

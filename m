@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVGaW3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVGaWbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbVGaW3W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 18:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVGaW13
+	id S262016AbVGaWbp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 18:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVGaW31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 18:27:29 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26379 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262012AbVGaW0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 18:26:16 -0400
-Date: Mon, 1 Aug 2005 00:26:15 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] "extern inline" -> "static inline"
-Message-ID: <20050731222615.GP3608@stusta.de>
+	Sun, 31 Jul 2005 18:29:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12979 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261586AbVGaW2b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 18:28:31 -0400
+Date: Sun, 31 Jul 2005 18:27:52 -0400
+From: Dave Jones <davej@redhat.com>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>
+Subject: Re: revert yenta free_irq on suspend
+Message-ID: <20050731222751.GA28907@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Brown, Len" <len.brown@intel.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	"Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	Daniel Ritz <daniel.ritz@gmx.ch>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"extern inline" doesn't make much sense.
+On Sun, Jul 31, 2005 at 01:03:56AM -0400, Brown, Len wrote:
 
+ > But that believe would be total fantasy -- supsend/resume is not
+ > working on a large number of machines, and no distro is currently
+ > able to support it.  (I'm talking about S3 suspend to RAM primarily,
+ > suspend to disk is less interesting -- though Red Hat doesn't
+ > even support _that_)
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+After the 'swsusp works just fine' lovefest at OLS, I spent a little
+while playing with the current in-tree swsusp implementation last week.
 
----
+The outcome: I'm no more enthusiastic about enabling this in Red Hat
+kernels than I ever was before.  It seems to have real issues with LVM
+setups (which is default on Red Hat/Fedora installs these days).
+After convincing it where to suspend/resume from by feeding it
+the major/minor of my swap partition, it did actually seem
+to suspend. And resume (though it did spew lots of 'sleeping whilst
+atomic warnings, but thats trivial compared to whats coming up next).
 
-This patch was already sent on:
-- 26 Jul 2005
+I rebooted, and fsck found all sorts of damage on my / partition.
+After spending 30 minutes pressing 'y', to fix things up, it failed
+to boot after lots of files were missing.
+Why it wrote anything to completely different lv to where I told it
+(and yes, I did get the major:minor right) I have no idea, but
+as it stands, it definitly isn't production-ready.
 
- include/linux/reiserfs_fs.h |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+I'll look into it again sometime soon, but not until after I've
+reinstalled my laptop.  (I'm just thankful I had the sense not to
+try this whilst I was at OLS).
 
---- linux-2.6.13-rc3-mm1-full/include/linux/reiserfs_fs.h.old	2005-07-26 13:42:59.000000000 +0200
-+++ linux-2.6.13-rc3-mm1-full/include/linux/reiserfs_fs.h	2005-07-26 13:43:37.000000000 +0200
-@@ -2097,7 +2097,7 @@
- 			 b_blocknr_t, int for_unformatted);
- int reiserfs_allocate_blocknrs(reiserfs_blocknr_hint_t *, b_blocknr_t *, int,
- 			       int);
--extern inline int reiserfs_new_form_blocknrs(struct tree_balance *tb,
-+static inline int reiserfs_new_form_blocknrs(struct tree_balance *tb,
- 					     b_blocknr_t * new_blocknrs,
- 					     int amount_needed)
- {
-@@ -2113,7 +2113,7 @@
- 					  0);
- }
- 
--extern inline int reiserfs_new_unf_blocknrs(struct reiserfs_transaction_handle
-+static inline int reiserfs_new_unf_blocknrs(struct reiserfs_transaction_handle
- 					    *th, struct inode *inode,
- 					    b_blocknr_t * new_blocknrs,
- 					    struct path *path, long block)
-@@ -2130,7 +2130,7 @@
- }
- 
- #ifdef REISERFS_PREALLOCATE
--extern inline int reiserfs_new_unf_blocknrs2(struct reiserfs_transaction_handle
-+static inline int reiserfs_new_unf_blocknrs2(struct reiserfs_transaction_handle
- 					     *th, struct inode *inode,
- 					     b_blocknr_t * new_blocknrs,
- 					     struct path *path, long block)
+		Dave
 

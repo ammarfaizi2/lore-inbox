@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263199AbVGaJvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVGaJxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263199AbVGaJvc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 05:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263207AbVGaJvb
+	id S261663AbVGaJxo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 05:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVGaJxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 05:51:31 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47834 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263199AbVGaJvZ (ORCPT
+	Sun, 31 Jul 2005 05:53:44 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10130 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261859AbVGaJxn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 05:51:25 -0400
-Date: Sun, 31 Jul 2005 11:50:01 +0200
+	Sun, 31 Jul 2005 05:53:43 -0400
+Date: Sun, 31 Jul 2005 11:52:07 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] [GIT PATCH] ACPI patches for 2.6.13
-Message-ID: <20050731095001.GF9188@elf.ucw.cz>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3004311E40@hdsmsx401.amr.corp.intel.com>
+To: James Cloos <cloos@jhcloos.com>
+Cc: Brian Schau <brian@schau.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Wireless Security Lock driver.
+Message-ID: <20050731095207.GJ9418@elf.ucw.cz>
+References: <42EB940E.5000008@schau.com> <20050730194215.GA9188@elf.ucw.cz> <42EBDEA9.60505@schau.com> <20050730203159.GB9418@elf.ucw.cz> <m3mzo3jriv.fsf@lugabout.cloos.reno.nv.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3004311E40@hdsmsx401.amr.corp.intel.com>
+In-Reply-To: <m3mzo3jriv.fsf@lugabout.cloos.reno.nv.us>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,14 +27,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >What happened to those cleanups I sent to you in Ottawa?
+> Pavel> Well, that is if you use /dev/psaux, right? Using event devices
+> Pavel> you should be able to access it from userland.
 > 
-> Don't worry, they're in my to-akpm quilt series.
-> I just haven't committed/exported them yet -- as the 2.6.13
-> functional stuff is taking priority over cleanups for 2.6.14.
+> Would /dev/input/mice not also be affected?
 
-Okay.... well some kind of "patch applied" notification would be nice.
+Yes, /dev/input/mice == /dev/psaux.
 
+> Until X can hotplug input devices /dev/input/mice rather than evdev
+> will remain necessary in many cases for a reasonable user experience.
+> 
+> So at least a quirk/whatever to keep that device from being included
+> in mice (and psaux) should be added.
+
+Yes... why not. But that should be close to one liner, right?
 								Pavel
 -- 
 if you have sharp zaurus hardware you don't need... you know my address

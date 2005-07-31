@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVGaQy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVGaRAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbVGaQy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 12:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVGaQy5
+	id S261828AbVGaRAd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 13:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVGaRAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 12:54:57 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:17849 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S261815AbVGaQy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 12:54:57 -0400
-From: Grant Coady <lkml@dodo.com.au>
-To: Yani Ioannou <yani.ioannou@gmail.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13 ub 2/3: Fold one line
-Date: Mon, 01 Aug 2005 02:54:43 +1000
-Organization: www.scatter.mine.nu
-Reply-To: lkml@dodo.com.au
-Message-ID: <kc0qe1p9jntplnu3qkr4da3uaulhimcm7i@4ax.com>
-References: <20050730225145.4b99ecd0.zaitcev@redhat.com> <2538186705073106375a8b95cb@mail.gmail.com>
-In-Reply-To: <2538186705073106375a8b95cb@mail.gmail.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Sun, 31 Jul 2005 13:00:33 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:22024 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261828AbVGaRAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 13:00:31 -0400
+Date: Sun, 31 Jul 2005 19:00:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: dwmw2@infradead.org
+Cc: jffs-dev@axis.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] jffs/jffs2: remove wrong function prototypes
+Message-ID: <20050731170029.GC3608@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Jul 2005 09:37:43 -0400, Yani Ioannou <yani.ioannou@gmail.com> wrote:
+This patch removes prototypes for the generic_file_open and 
+generic_file_llseek functions.
 
->On 7/31/05, Pete Zaitcev <zaitcev@redhat.com> wrote:
->> Evidently, Yani Ioannou's display is wider than mine.
->
->1600x1200@15" (Thinkpad) ;-). The changes were done by a script I
->wrote which wasn't checking if the 80 chars limit was surpassed. 
+Besides being superfluous because they are already present in fs.h, they 
+were also wrong because the actual functions aren't weak functions.
 
-And repairing the files you stomped on?  A combination of you stomping 
-coding style plus a maintainer insisting on trailing whitespace was 
-enough for me to give up working in that area.  
 
-Grant.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ fs/jffs/inode-v23.c |    3 ---
+ fs/jffs2/file.c     |    3 ---
+ 2 files changed, 6 deletions(-)
+
+--- linux-2.6.13-rc4-mm1-full/fs/jffs/inode-v23.c.old	2005-07-31 18:43:46.000000000 +0200
++++ linux-2.6.13-rc4-mm1-full/fs/jffs/inode-v23.c	2005-07-31 18:44:15.000000000 +0200
+@@ -1629,9 +1629,6 @@
+ }
+ 
+ 
+-extern int generic_file_open(struct inode *, struct file *) __attribute__((weak));
+-extern loff_t generic_file_llseek(struct file *, loff_t, int) __attribute__((weak));
+-
+ static struct file_operations jffs_file_operations =
+ {
+ 	.open		= generic_file_open,
+--- linux-2.6.13-rc4-mm1-full/fs/jffs2/file.c.old	2005-07-31 18:44:31.000000000 +0200
++++ linux-2.6.13-rc4-mm1-full/fs/jffs2/file.c	2005-07-31 18:44:40.000000000 +0200
+@@ -21,9 +21,6 @@
+ #include <linux/jffs2.h>
+ #include "nodelist.h"
+ 
+-extern int generic_file_open(struct inode *, struct file *) __attribute__((weak));
+-extern loff_t generic_file_llseek(struct file *file, loff_t offset, int origin) __attribute__((weak));
+-
+ static int jffs2_commit_write (struct file *filp, struct page *pg,
+ 			       unsigned start, unsigned end);
+ static int jffs2_prepare_write (struct file *filp, struct page *pg,
 

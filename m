@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVGaJrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVGaJsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVGaJrV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 05:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVGaJrV
+	id S261660AbVGaJsm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 05:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVGaJsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 05:47:21 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:50647 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261650AbVGaJrU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 05:47:20 -0400
-From: dth@picard.cistron.nl (Danny ter Haar)
-Subject: busy usenet server: only stable kernel is 2.6.12-mm1, rest (including 2.6.13-rc4*) barfs within a few days
-Date: Sun, 31 Jul 2005 09:47:18 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dci6n6$3tn$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1122803238 4023 62.216.30.70 (31 Jul 2005 09:47:18 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@picard.cistron.nl (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Sun, 31 Jul 2005 05:48:42 -0400
+Received: from ore.jhcloos.com ([64.240.156.239]:31500 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S261660AbVGaJsA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 05:48:00 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Brian Schau <brian@schau.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Wireless Security Lock driver.
+From: James Cloos <cloos@jhcloos.com>
+In-Reply-To: <20050730203159.GB9418@elf.ucw.cz> (Pavel Machek's message of "Sat, 30 Jul 2005 22:31:59 +0200")
+References: <42EB940E.5000008@schau.com> <20050730194215.GA9188@elf.ucw.cz>
+	<42EBDEA9.60505@schau.com> <20050730203159.GB9418@elf.ucw.cz>
+X-Hashcash: 1:21:050731:pavel@ucw.cz::YkMCDAejjA1A0Mq9:00000LlTF
+X-Hashcash: 1:21:050731:brian@schau.com::fTolTsv8Dat1Yc4Q:009lJN
+X-Hashcash: 1:21:050731:linux-kernel@vger.kernel.org::8NQqz0ueA8CfW6sq:00000000000000000000000000000000031AJ
+Date: Sun, 31 Jul 2005 04:42:16 -0400
+Message-ID: <m3mzo3jriv.fsf@lugabout.cloos.reno.nv.us>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm going nuts...
-A tyan AMD64 opteron machine functioning as a usenet gateway really
-pumps some traffic a day (http://newsgate.newsserver.nl)
-Incoming traffic comes through a optical gig-E card (acenic)
-and local traffic is fed to our spool boxes through cupper gig-E
-(tigon3). Machine uses adaptec onboard scsi disks.
-At first i thought i had a hardware problem since no kernel would
-survive longer than 30 hours. Ofcourse i ran memtest for a couple
-of days. Than i compiled 2.6.12-mm1 and this kernel surviced 18 days 
-without a problem. But of course you now and then want to try 
-bigger&better(tm) kernels ;-)
+>>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
 
-reboot   system boot  2.6.12-mm1       Sun Jul 31 09:47          (01:48)
-reboot   system boot  2.6.13-rc4-git2  Sat Jul 30 18:29          (17:07)
-reboot   system boot  2.6.12-mm1       Sat Jul 30 14:12          (04:14)
-reboot   system boot  2.6.13-rc4       Fri Jul 29 14:16        (1+04:10)
-reboot   system boot  2.6.13-rc3-mm3   Fri Jul 29 12:17          (01:50)
-reboot   system boot  2.6.12-mm1       Thu Jul 28 00:06        (1+12:09)
-reboot   system boot  2.6.13-rc3-mm2   Wed Jul 27 22:27          (01:36)
-reboot   system boot  2.6.13-rc3-mm1   Wed Jul 27 11:22          (12:41)
-reboot   system boot  2.6.12-mm1       Sun Jul 17 15:51        (9+19:29)
+Pavel> Well, that is if you use /dev/psaux, right? Using event devices
+Pavel> you should be able to access it from userland.
 
-Machine dus have serial console (and remote powerboot) but no logging
-posibility (portmaster1). When it crashes i think most of the times it
-has something to do with IRQ.
-2.6.13-rc4-git2 stopped working with the following notice:
+Would /dev/input/mice not also be affected?
 
-Jul 31 03:28:18 newsgate kernel: hw tcp v4 csum failed
-Jul 31 05:56:59 newsgate kernel: NETDEV WATCHDOG: eth3: transmit timed out
-Jul 31 05:56:59 newsgate kernel: tg3: eth3: transmit timed out, resetting
+Until X can hotplug input devices /dev/input/mice rather than evdev
+will remain necessary in many cases for a reasonable user experience.
 
-Serial console kept spitting those messages but it gave no prompt
-anymore. remote powercycle was needed to get it back.
+So at least a quirk/whatever to keep that device from being included
+in mice (and psaux) should be added.
 
-More info/config can be found at: http://newsgate.newsserver.nl/kernel/
-
-Any feedback/suggestions welcome.
-
-Danny
-
-
-
+-JimC
+-- 
+James H. Cloos, Jr. <cloos@jhcloos.com>

@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVGaXHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVGaXJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbVGaXHS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 19:07:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVGaXHR
+	id S262064AbVGaXJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 19:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVGaXJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 19:07:17 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39334 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262027AbVGaXF5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 19:05:57 -0400
-Date: Mon, 1 Aug 2005 01:05:07 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: ambx1@neo.rr.com, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: revert yenta free_irq on suspend
-Message-ID: <20050731230507.GE27580@elf.ucw.cz>
-References: <2e00842e116e.2e116e2e0084@columbus.rr.com> <Pine.LNX.4.58.0507311550400.14342@g5.osdl.org>
+	Sun, 31 Jul 2005 19:09:57 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:54410 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S262083AbVGaXIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 19:08:22 -0400
+Subject: Re: [2.6 patch] remove support for gcc < 3.2
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: "David S. Miller" <davem@davemloft.net>
+Cc: bunk@stusta.de, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050731.153631.70217457.davem@davemloft.net>
+References: <20050731222606.GL3608@stusta.de>
+	 <20050731.153631.70217457.davem@davemloft.net>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1122851299.4351.278.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0507311550400.14342@g5.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 01 Aug 2005 09:08:19 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.
 
-> > In general, I think that calling free_irq is the right behavior.
-> 
-> I DO NOT CARE!
-> 
-> It breaks hundreds of drivers. End of discussion.
-> 
-> You can do the free_irq() and request_irq() changes _without_ breaking 
-> hundreds of drivers by just doing one driver at a time. 
-> 
-> And if ACPI then restores the irq controller state, the drivers that 
-> _don't_ do this will _also_ continue to work.
-> 
-> Let me re-iterate: the ACPI changes provably BROKE REAL PEOPLES SETUPS. 
-> 
-> For absolutely _zero_ gain. Drivers that want to free and re-aquire an 
-> interrupt can do so _regardless_ of whether ACPI restores irq routings 
-> automatically or not.
-> 
-> And that's my argument. We don't do stupid things that break peoples 
-> existing setups in ways that nobody can debug. 
+On Mon, 2005-08-01 at 08:36, David S. Miller wrote:
+> Many people still use 2.95 because it's still the fastest
+> way to get a kernel build done and that's important for
+> many people.
 
-Ok, so we'll keep adding those free_irq/request_irq pairs, and
-re-introduce that ACPI change when we are ready? It would be helpfull
-to keep the "right thing" in -mm, so there's real motivation to add
-free_irq/request_irq.
-								Pavel
+Yes, please don't remove 2.95 support.
+
+Regards,
+
+Nigel
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
+

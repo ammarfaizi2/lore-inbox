@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263060AbVGaANJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263133AbVGaAPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263060AbVGaANJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 20:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbVGaANI
+	id S263133AbVGaAPA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 20:15:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbVGaANP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 20:13:08 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:8884 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S263060AbVGaALm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 20:11:42 -0400
-Date: Sat, 30 Jul 2005 20:11:39 -0400
-From: Yaroslav Halchenko <kernel@onerussian.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8 -> 2.6.11 (+ata-dev patch) -- HDD is always on
-Message-ID: <20050731001138.GG16285@washoe.onerussian.com>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20050729041031.GU16285@washoe.onerussian.com> <42E9AFC6.9010805@pobox.com>
+	Sat, 30 Jul 2005 20:13:15 -0400
+Received: from mailfe01.swip.net ([212.247.154.1]:31156 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S263128AbVGaALL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 20:11:11 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Date: Sun, 31 Jul 2005 02:11:01 +0200
+From: Alexander Nyberg <alexn@telia.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Simple question re: oops
+Message-ID: <20050731001101.GA6762@localhost.localdomain>
+References: <1122767292.4464.1.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42E9AFC6.9010805@pobox.com>
-X-URL: http://www.onerussian.com
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
-X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-User-Agent: mutt-ng devel-20050619 (Debian)
+In-Reply-To: <1122767292.4464.1.camel@mindpipe>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 29, 2005 at 12:25:42AM -0400, Jeff Garzik wrote:
-> Does this happen in unpatched 2.6.12.3 or 2.6.13-rc4?
-now tested both of them -- light is constantly on in both.
+On Sat, Jul 30, 2005 at 07:48:11PM -0400 Lee Revell wrote:
 
-does the HDD LED always signals about hardware activity or it can just
-be sticky and not reset properly?
+> I have a machine here that oopses reliably when I start X, but the
+> interesting stuff scrolls away too fast, and a bunch more Oopses get
+> printed ending with "Aieee, killing interrupt handler".
+> 
+> How do I get the output to stop after the first Oops?
+> 
 
-is there libata-dev patch for 2.6.8 kernel which seems to be running
-fine so I might just patch it to get SATA SMART?
+set /proc/sys/kernel/panic_on_oops to 1
 
-Thank you in advance for the feedback
-
--- 
-Yaroslav Halchenko
-Research Assistant, Psychology Department, Rutgers-Newark
-Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
-        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07105
-Student  Ph.D. @ CS Dept. NJIT
+What version of the kernel is that? It shouldn't do recursive oopses
+(of the same task) any more.

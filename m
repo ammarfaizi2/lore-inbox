@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVGaWys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVGaW5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbVGaWys (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 18:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVGaWxD
+	id S262032AbVGaW5J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 18:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVGaWwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 18:53:03 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:35572 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262032AbVGaWvX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 18:51:23 -0400
-Subject: Re: realtime-preempt-2.6.13-rc4-RT-V0.7.52-07
-From: Daniel Walker <dwalker@mvista.com>
-To: "Shayne O'Connor" <forums@machinehasnoagenda.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42ED4E53.2010508@machinehasnoagenda.com>
-References: <42ED4E53.2010508@machinehasnoagenda.com>
-Content-Type: text/plain
-Date: Sun, 31 Jul 2005 15:51:14 -0700
-Message-Id: <1122850274.29050.0.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	Sun, 31 Jul 2005 18:52:54 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10371 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262022AbVGaWuo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 18:50:44 -0400
+Date: Mon, 1 Aug 2005 00:49:59 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Mark Underwood <basicmark@yahoo.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Arjan Van de Ven <arjanv@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] ucb1x00: touchscreen cleanups
+Message-ID: <20050731224959.GD27580@elf.ucw.cz>
+References: <20050731221152.71074.qmail@web30303.mail.mud.yahoo.com> <1122849209.7626.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1122849209.7626.16.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-You can resolve it if you enable SMP .
+> > As this isn't the only chip of this sort (i.e. a
+> > multi-function chip not on the CPU bus) maybe we
+> > should store the bus driver in a common place. If
+> > needed we could have a very simple bus driver
+> > subsystem (this might already be in the kernel, I
+> > haven't looked at the bus stuff) in which you register
+> > a bus driver and client drivers register with the bus
+> > driver. Just an idea :-).
+> 
+> This was the idea with the drivers/soc suggestion although I think that
+> name is perhaps misleading.
+> 
+> How about drivers/mfd where mfd = Multi Functional Devices?
+> 
+> I think it would be acceptable (and in keeping with the other drivers
+> e.g. pcmcia) to seeing the arch and platform specific modules with the
+> main driver as long as the naming reflected it (like the existing mcp
+> and ucb code does) i.e.:
+> 
+> mcp-core.c
+> mcp-sa1100.c
+> ucb1x00-code.c
+> ucb1x00-assabet.c
+> ucb1x00-collie.c
+> 
+> If code can be separated out into subsystems, I'm not so sure where they
+> should go though. The existing policy would suggest
+> drivers/input/touchscreen and sound/xxx for these...
+> 
+> ucb1x00-ts.c
+> ucb1x00-audio.c
+> 
+> Opinions/Comments?
 
-Daniel
-
-On Mon, 2005-08-01 at 08:18 +1000, Shayne O'Connor wrote:
-> trying to compile 2.6.13.rc4 with ingo's RT patch 
-> (realtime-preempt-2.6.13-rc4-RT-V0.7.52-07) but keep getting this error 
-> near the end of compilation:
-> 
->    GEN     .version
->    CHK     include/linux/compile.h
->    UPD     include/linux/compile.h
->    CC      init/version.o
->    LD      init/built-in.o
->    LD      .tmp_vmlinux1
-> net/built-in.o(.text+0x2220c): In function `rt_check_expire':
-> : undefined reference to `__bad_spinlock_type'
-> net/built-in.o(.text+0x2222e): In function `rt_check_expire':
-> : undefined reference to `__bad_spinlock_type'
-> net/built-in.o(.text+0x22321): In function `rt_run_flush':
-> : undefined reference to `__bad_spinlock_type'
-> net/built-in.o(.text+0x22339): In function `rt_run_flush':
-> : undefined reference to `__bad_spinlock_type'
-> net/built-in.o(.text+0x22593): In function `rt_garbage_collect':
-> : undefined reference to `__bad_spinlock_type'
-> net/built-in.o(.text+0x225c1): more undefined references to 
-> `__bad_spinlock_type' follow
-> make: *** [.tmp_vmlinux1] Error 1
-> [mrmachine@localhost linux-2.6.12]$
-> 
-> 
-> i am trying to compile it with PREEMPT_DESKTOP ....
-> 
-> 
-> (please CC me on any replies!)
-> 
-> 
-> shayne
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+drivers/mfd sounds good, and yes, touchscreen and audio should go
+where they belong.
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

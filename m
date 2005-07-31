@@ -1,92 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVGaTRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVGaTSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261922AbVGaTRM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 15:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVGaTRM
+	id S261920AbVGaTSi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 15:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVGaTRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 15:17:12 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:40880 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S261922AbVGaTRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 15:17:09 -0400
-Date: Sun, 31 Jul 2005 21:16:12 +0200
-From: Sander <sander@humilis.net>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: IO scheduling & filesystem v a few processes writing a lot
-Message-ID: <20050731191607.GA7186@favonius>
-Reply-To: sander@humilis.net
-References: <20050731163933.GB7280@gallifrey>
+	Sun, 31 Jul 2005 15:17:15 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:25336 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261920AbVGaTRH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 15:17:07 -0400
+Subject: Re: hashed spinlocks
+From: Daniel Walker <dwalker@mvista.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: dada1@cosmosbay.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050731.121134.105428216.davem@davemloft.net>
+References: <1122827276.18047.26.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <20050731.114613.119242519.davem@davemloft.net>
+	 <1122836811.28450.4.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	 <20050731.121134.105428216.davem@davemloft.net>
+Content-Type: text/plain
+Date: Sun, 31 Jul 2005 12:16:01 -0700
+Message-Id: <1122837361.28450.12.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050731163933.GB7280@gallifrey>
-X-Uptime: 20:31:05 up 11 days,  9:49, 25 users,  load average: 3.66, 3.11, 2.84
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dr. David Alan Gilbert wrote (ao):
->   I've got a backup system that I'm trying to eek some more performance
-> out of - and I don't understand the right way to get the kernel to
-> do disc writes efficiently - and hence would like some advice.
+On Sun, 2005-07-31 at 12:11 -0700, David S. Miller wrote:
+> From: Daniel Walker <dwalker@mvista.com>
+> Date: Sun, 31 Jul 2005 12:06:47 -0700
 > 
-> I was using rsync, but the problem with rsync is that I have
-> a back up server then filled with lots and lots of small files
-> - I want larger files for spooling to tape.
-> (Other suggestions welcome)
-
-Can't you just tar the small files from the backupserver to tape? (or,
-what is the problem with that?).
-
-> So I'm trying switching to streaming gzip'd tars from each
-> client to backup to the server. I have one server that
-> opens connections to each of the clients and sucks the data
-> using netcat (now netcat6 in ipv4 mode) and writes it to
-> disc, one file per client. Now the downside here
-> relative to rsync is that it is going to transfer and
-> write a lot more data.
-
-You also do incremental backups?
-
-> Now the clients are on 100Mb/s, and the server on GigE,
-> the clients sometime have to think while they gzip their data, so I'd
-> like to suck data from multiple clients at once.  So I run multiple of
-> these netcat's in parallel - currently about 9.
+> > The ifdef that switched between the two rt_hash_lock_addr() switched on
+> > for CONFIG_SMP or CONFIG_DEBUG_SPINLOCK . I was compiling UP , so I
+> > didn't get either.
+> > 
+> > Seems like you'll need to have an rt_hash_lock(slot) that replaces the
+> > spin_lock calls ..
 > 
-> I've benchmarked write performance on the filesystem at
-> 60-70MB/s for a single write process (as shown with iostat)
-> for a simple dd if=/dev/zero of=abigfile bs=1024k
+> spin_lock(x) and spin_unlock(x) are both a nop in this case, so what
+> is the problem passing in a NULL?  The argument is arbitrary and should
+> should just ignored, right?
+
+True.
+
+> If both CONFIG_SMP and CONFIG_DEBUG_SPINLOCK are disabled, we
+> end up with these definitions in linux/spinlock.h
 > 
-> My problem is that with the parallel writes iostat is showing
-> I'm actually getting ~3MB/s write bandwidth - that stinks!
+> #define spin_lock(lock)		_spin_lock(lock)
+> 
+> #define _spin_lock(lock)	\
+> do { \
+> 	preempt_disable(); \
+> 	_raw_spin_lock(lock); \
+> 	__acquire(lock); \
+> } while(0)
+> 
+> #define _raw_spin_lock(lock)	do { (void)(lock); } while(0)
+> 
+> What kind of warning do you get?
 
-How many parallel streams can the system currently handle before the
-write bandwith gets unacceptable?
+It was an RT kernel, which isn't mainline .. Your right it shouldn't be
+a problem .
 
-> The machine is a dual xeon with 1GB of RAM, an intel GigE
-> card and a 2.6.11 kernel, a 3ware-9000 series pci-x controller
-> with a 1.5TB RAID5 partition running Reiser3.
+Daniel
 
-What mount options? And how many disks?
-
-> Reiser3 is used because I couldn't get ext3 stable on a filesystem of
-> this size (-64ZByte free shown in df),
-
-That is not a sign of instability per se AFAIK.
-
-> and xfs didn't seem stable on recovering from an arbitrarily placed
-> reset. The 3ware has write caching (with battery backup).
-
-How is the cache configured in the bios?
-
-> I'm open for all suggestions.
- 
-Would it be possible to test software raid to see if that gives
-different numbers?
-
-	Sander
-
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net

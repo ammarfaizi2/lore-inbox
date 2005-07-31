@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVGaV6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVGaWCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbVGaV6U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 17:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbVGaV5e
+	id S261985AbVGaWCs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 18:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVGaWCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 17:57:34 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:61582 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261962AbVGaV5d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 17:57:33 -0400
-Message-ID: <42ED4949.3080500@andrew.cmu.edu>
-Date: Sun, 31 Jul 2005 17:57:29 -0400
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Pavel Machek <pavel@ucw.cz>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel@vger.kernel.org
+	Sun, 31 Jul 2005 18:02:48 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:28305 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261985AbVGaWCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 18:02:47 -0400
 Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de>	 <1122678943.9381.44.camel@mindpipe>	 <20050730120645.77a33a34.Ballarin.Marc@gmx.de>	 <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz>	 <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz>	 <42ED32D3.9070208@andrew.cmu.edu>  <20050731211020.GB27433@elf.ucw.cz> <1122846092.13000.4.camel@mindpipe>
-In-Reply-To: <1122846092.13000.4.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Lee Revell <rlrevell@joe-job.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: James Bruce <bruce@andrew.cmu.edu>, Marc Ballarin <Ballarin.Marc@gmx.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050731211020.GB27433@elf.ucw.cz>
+References: <20050730004924.087a7630.Ballarin.Marc@gmx.de>
+	 <1122678943.9381.44.camel@mindpipe>
+	 <20050730120645.77a33a34.Ballarin.Marc@gmx.de>
+	 <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz>
+	 <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz>
+	 <42ED32D3.9070208@andrew.cmu.edu>  <20050731211020.GB27433@elf.ucw.cz>
+Content-Type: text/plain
+Date: Sun, 31 Jul 2005 18:02:46 -0400
+Message-Id: <1122847366.13000.15.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
- > On Sun, 2005-07-31 at 23:10 +0200, Pavel Machek wrote:
- >>[But we
- >>probably want to enable ACPI and cpufreq by default, because that
- >>matches what 99% of users will use.]
- >
- > Sorry, this is just ridiculous.  You're saying 99% of Linux
- > installations are laptops?  Bullshit.
+On Sun, 2005-07-31 at 23:10 +0200, Pavel Machek wrote:
+> defconfig on i386 is Linus' configuration. Maybe server-config and
+> laptop-config would be good idea...
 
-I believe he's talking about the future (he did said "will").  All the 
-new AMD64 desktop chips have powersaving now, and Intel chips either 
-have it now or will soon.  With the power that desktop chips draw 
-nowadays (some are 80+ watts at idle), it is an important consideration. 
-  As for uptake, a realistic number would be probably be 90% in three years.
+Um, what about those things called "desktops"?  They're like a laptop
+but with reasonable hard drive speeds and adult-sized keyboards?
 
-Of course regardless of that I'd still like to keep the 1msec sleep 
-resolution...
+Lee
 
-  - Jim

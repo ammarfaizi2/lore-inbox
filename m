@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVGaHQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVGaHoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbVGaHQE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 03:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVGaHQD
+	id S261738AbVGaHoo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 03:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVGaHoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 03:16:03 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:7100 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261737AbVGaHQC (ORCPT
+	Sun, 31 Jul 2005 03:44:44 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:57781 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261738AbVGaHon (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 03:16:02 -0400
-Date: Sun, 31 Jul 2005 00:15:56 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Michael Kerrisk <mtk-manpages@gmx.net>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Message-Id: <20050731071556.19102.2901.sendpatchset@sam.engr.sgi.com>
-Subject: [PATCH] plug MAN-PAGES maintainer in Documentation/SubmittingPatches
+	Sun, 31 Jul 2005 03:44:43 -0400
+Date: Sun, 31 Jul 2005 08:44:34 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: S3 resume and PNP (was: Re: S3 resume and serial console..)
+In-Reply-To: <20050731080859.A5580@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0507310835320.20476@skynet>
+References: <Pine.LNX.4.58.0507300301370.13092@skynet>
+ <20050730085558.A7770@flint.arm.linux.org.uk> <21d7e99705073017295ed29c64@mail.gmail.com>
+ <20050731080859.A5580@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Improve the likelihood that someone submitting a patch will
-notify the MAN-PAGES maintainer.
+> >
+> > And as I said its an i865 based motherboard from Intel... nothing
+> > special on it, do you need to know the super-io chip, i.e. I 'll have
+> > to open the case to find out...
+>
+> The above two messages tells me you're probably using plug'n'play.
+> Unfortunately, for some unknown reason, the Linux plug'n'play
+> subsystem does not support suspend/resume.  This is not a serial
+> problem.
+>
 
-This is a follow-up to comments on the July 29 lkml email
-thread: "Broke nice range for RLIMIT NICE"
+Okay I've disabled PnP in my kernel, now I get nothing back from the
+serial port on resume... not sure if that is an improvement or not :-)
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+I'll keep messing about with it and see what I can work out...
 
-Index: 2.6.12-rc5-mm1/Documentation/SubmittingPatches
-===================================================================
---- 2.6.12-rc5-mm1.orig/Documentation/SubmittingPatches
-+++ 2.6.12-rc5-mm1/Documentation/SubmittingPatches
-@@ -161,6 +161,11 @@ USB, framebuffer devices, the VFS, the S
- MAINTAINERS file for a mailing list that relates specifically to
- your change.
- 
-+If changes affect userland-kernel interfaces, please send
-+the MAN-PAGES maintainer (as listed in the MAINTAINERS file)
-+a man-pages patch, or at least a notification of the change,
-+so that some information makes its way into the manual pages.
-+
- Even if the maintainer did not respond in step #4, make sure to ALWAYS
- copy the maintainer when you change their code.
- 
+Dave.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

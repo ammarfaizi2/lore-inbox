@@ -1,39 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVGaR76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVGaSC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVGaR76 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 13:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVGaR76
+	id S261849AbVGaSC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 14:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVGaSC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 13:59:58 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:64958 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261847AbVGaR75 convert rfc822-to-8bit
+	Sun, 31 Jul 2005 14:02:28 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:21007 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261849AbVGaSCZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 13:59:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=o8cBLb5kxbt4GeaRSD7FD2meox/prOfeb3DgRaepeNsep+T5UiuZiRo4K9C6nUjpzUxZRbHlIqATEOQGlx6rqbPeiGUiSJMg2gKT1yK7k4Bqj64YOK3ulDCtkVQQ0F8SC+IwS3YIgBv9M2fx0Wr06X9hA6uwWUgJh/4CRS2IMvg=
-Message-ID: <a36005b5050731105924a2f1e5@mail.gmail.com>
-Date: Sun, 31 Jul 2005 10:59:57 -0700
-From: Ulrich Drepper <drepper@gmail.com>
-Reply-To: Ulrich Drepper <drepper@gmail.com>
-To: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Subject: Re: sigwait() breaks when straced
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <E1Dz15m-0000sO-Qx@approximate.corpus.cam.ac.uk>
+	Sun, 31 Jul 2005 14:02:25 -0400
+Message-Id: <200507311713.j6VHDfEB027574@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@projects.sourceforge.net
+Subject: [PATCH] UML - Remove debugging code from page fault path
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <E1Dz15m-0000sO-Qx@approximate.corpus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 31 Jul 2005 13:13:41 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/30/05, Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk> wrote:
-> so the return value should not be 4 (or the docs are not right).
+This eliminates the segfault info ring buffer, which added a system call to
+each page fault, and which hadn't been useful for debugging in ages.
 
-This return value simply indicated EINTR (sigwait does not set errno,
-read the docs).
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-The kernel simply doesn't restart the function in case of a signal. 
-It should do this, though.
+Index: linux-2.6.12/arch/um/kernel/trap_kern.c
+===================================================================
+--- linux-2.6.12.orig/arch/um/kernel/trap_kern.c	2005-07-31 12:54:35.000000000 -0400
++++ linux-2.6.12/arch/um/kernel/trap_kern.c	2005-07-31 13:18:40.000000000 -0400
+@@ -200,30 +200,3 @@
+ void trap_init(void)
+ {
+ }
+-
+-DEFINE_SPINLOCK(trap_lock);
+-
+-static int trap_index = 0;
+-
+-int next_trap_index(int limit)
+-{
+-	int ret;
+-
+-	spin_lock(&trap_lock);
+-	ret = trap_index;
+-	if(++trap_index == limit)
+-		trap_index = 0;
+-	spin_unlock(&trap_lock);
+-	return(ret);
+-}
+-
+-/*
+- * Overrides for Emacs so that we follow Linus's tabbing style.
+- * Emacs will notice this stuff at the end of the file and automatically
+- * adjust the settings for this buffer only.  This must remain at the end
+- * of the file.
+- * ---------------------------------------------------------------------------
+- * Local variables:
+- * c-file-style: "linux"
+- * End:
+- */
+Index: linux-2.6.12/arch/um/kernel/trap_user.c
+===================================================================
+--- linux-2.6.12.orig/arch/um/kernel/trap_user.c	2005-07-31 12:54:35.000000000 -0400
++++ linux-2.6.12/arch/um/kernel/trap_user.c	2005-07-31 13:18:02.000000000 -0400
+@@ -40,35 +40,14 @@
+ 	} while(1);
+ }
+ 
+-/* Unlocked - don't care if this is a bit off */
+-int nsegfaults = 0;
+-
+-struct {
+-	unsigned long address;
+-	int is_write;
+-	int pid;
+-	unsigned long sp;
+-	int is_user;
+-} segfault_record[1024];
+-
+ void segv_handler(int sig, union uml_pt_regs *regs)
+ {
+-	int index, max;
+         struct faultinfo * fi = UPT_FAULTINFO(regs);
+ 
+         if(UPT_IS_USER(regs) && !SEGV_IS_FIXABLE(fi)){
+                 bad_segv(*fi, UPT_IP(regs));
+ 		return;
+ 	}
+-	max = sizeof(segfault_record)/sizeof(segfault_record[0]);
+-	index = next_trap_index(max);
+-
+-	nsegfaults++;
+-        segfault_record[index].address = FAULT_ADDRESS(*fi);
+-	segfault_record[index].pid = os_getpid();
+-        segfault_record[index].is_write = FAULT_WRITE(*fi);
+-	segfault_record[index].sp = UPT_SP(regs);
+-	segfault_record[index].is_user = UPT_IS_USER(regs);
+         segv(*fi, UPT_IP(regs), UPT_IS_USER(regs), regs);
+ }
+ 
+

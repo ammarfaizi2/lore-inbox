@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVGaXo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVGaXsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVGaXo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 19:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbVGaXo1
+	id S262122AbVGaXsV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 19:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVGaXsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 19:44:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11492 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261256AbVGaXoZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 19:44:25 -0400
-Date: Sun, 31 Jul 2005 16:44:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: ambx1@neo.rr.com, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: revert yenta free_irq on suspend
-In-Reply-To: <20050731232735.GF27580@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0507311635360.14342@g5.osdl.org>
-References: <2e00842e116e.2e116e2e0084@columbus.rr.com>
- <Pine.LNX.4.58.0507311550400.14342@g5.osdl.org> <20050731230507.GE27580@elf.ucw.cz>
- <Pine.LNX.4.58.0507311622510.14342@g5.osdl.org> <20050731232735.GF27580@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 31 Jul 2005 19:48:21 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:5512 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262131AbVGaXsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 19:48:20 -0400
+Date: Sun, 31 Jul 2005 19:48:33 -0400
+From: Frank Peters <frank.peters@comcast.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: vojtech@suse.cz, mkrufky@m1k.net, linux-kernel@vger.kernel.org
+Subject: Re: isa0060/serio0 problems -WAS- Re: Asus MB and 2.6.12 Problems
+Message-Id: <20050731194833.184b5b11.frank.peters@comcast.net>
+In-Reply-To: <20050731134245.742b9fc2.akpm@osdl.org>
+References: <20050624113404.198d254c.frank.peters@comcast.net>
+	<42BC306A.1030904@m1k.net>
+	<20050624125957.238204a4.frank.peters@comcast.net>
+	<42BC3EFE.5090302@m1k.net>
+	<20050728222838.64517cc9.akpm@osdl.org>
+	<42E9C245.6050205@m1k.net>
+	<20050728225433.6dbfecbe.akpm@osdl.org>
+	<42EAF885.40008@m1k.net>
+	<20050729213724.01c61c26.akpm@osdl.org>
+	<20050730023453.196a7477.frank.peters@comcast.net>
+	<20050731184532.GA9026@ucw.cz>
+	<20050731152406.200fe1c1.frank.peters@comcast.net>
+	<20050731134245.742b9fc2.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 31 Jul 2005 13:42:45 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-
-On Mon, 1 Aug 2005, Pavel Machek wrote:
 > > 
-> > Why do it _ever_? There is _zero_ upside to doing it, I don't see why you 
-> > want to.
+> > Booting linux-2.6.13-rc4 with the "usb-handoff" option gives me
+> > a working keyboard everytime now.
 > 
-> Being able to turn off your soundcard at runtime when you are not
-> using it was one of examples...
-
-I meant the "ACPI restores irq controller state" thing.
-
-Just leave it in. There's never any downside. If all the drivers end up 
-doing free_irq/request_irq(), restoring the irq controller state still 
-won't have any negative effect, and it solves the case where you have 
-drivers that don't do it.
-
-> > Just make ACPI restore the dang thing. It's the right thing to do.
+> But 2.6.12 did not require this workaround, yes?
 > 
-> Requires interpretter running with interrupts disabled => ugly :-(.
 
-I don't see that. What's ugly? I agree that ACPI is ugly, but I do _not_ 
-agree that it's ugly to restore irq controller state with interrupts 
-disabled. It MakesSense(tm) to do so.
+I still have linux-2.6.12.3 on my machine and the "usb-handoff"
+option fixes things for that version also.  Linux-2.6.12.3 does
+need this option with my hardware.
 
-The fact that ACPI was designed by a group of monkeys high on LSD, and is 
-some of the worst designs in the industry obviously makes running it at 
-_any_ point pretty damn ugly. And the fact that MB vendors don't test it 
-with anything else than Windows (and sometimes you wonder whether they do 
-even that) doesn't help. So hell yes, it's ugly, and nasty. But interrupts 
-disabled has nothing to do with any of it.
+Frank Peters
 
-Besides, there's no real reason why you'd even have to do it with 
-interrupts disabled. I personally think that it makes _sense_ to try to 
-restore the irq controller state with irq's off, but as I made clear 
-earlier in this flame-fest, there's no real reason why you couldn't just 
-run with interrupts on.
-
-If an interrupt is screaming due to lack of initialization and gets turned
-off, just make sure it gets re-enabled when it is being initialized.
-
-		Linus

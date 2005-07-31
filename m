@@ -1,52 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVGaPxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVGaPv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbVGaPxm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 11:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVGaPxl
+	id S261794AbVGaPv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 11:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVGaPv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 11:53:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21662 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261826AbVGaPx3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 11:53:29 -0400
-Date: Sun, 31 Jul 2005 08:53:14 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: revert yenta free_irq on suspend
-In-Reply-To: <20050731132958.GB14550@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0507310847560.29650@g5.osdl.org>
-References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com>
- <Pine.LNX.4.58.0507301331260.29650@g5.osdl.org> <20050731132958.GB14550@elf.ucw.cz>
+	Sun, 31 Jul 2005 11:51:57 -0400
+Received: from mbox1.netikka.net ([213.250.81.202]:20117 "EHLO
+	mbox1.netikka.net") by vger.kernel.org with ESMTP id S261794AbVGaPv4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 11:51:56 -0400
+Message-ID: <1406.192.168.0.150.1122825115.squirrel@kone>
+Date: Sun, 31 Jul 2005 18:51:55 +0300 (EEST)
+Subject: Re: [git patches] new wireless stuffs
+From: "Jar" <jar@pcuf.fi>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> One big thing I'm still hoping for is that someone will merge HostAP
+> (where ieee80211 code came from) with the ieee80211 generic code.
 
-On Sun, 31 Jul 2005, Pavel Machek wrote:
-> 
-> Well, on some machines interrupts can change during suspend (or so I
-> was told). I did not like the ACPI change at one point, but it is very
-> wrong to revert PCMCIA fix without also fixing ACPI interpretter.
+After the hostap driver is in, is there any reason to support the same hardware
+(Prism2/2.5/3) via the orinoco driver also? Should the prism support to be removed
+from the orinoco driver?
 
-We _are_ going to fix the ACPI interpreter.
-
-As to irq's changing during suspend - I'll believe that when I see it, not 
-when some chicken little runs around worrying about it. I doubt anybody 
-has ever seen it, and I'm 100% sure that we have serious breakage right 
-now on machines where it definitely doesn't happen.
-
-> And it indeed seems that ACPI interpretter is hard to fix in the right
-> way.
-
-We'll revert to the behaviour that it has traditionally had, and start 
-working forwards in a more careful manner. Where we don't break working 
-setups.
-
-			Linus
+-- 
+Best Regards, Jar

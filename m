@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVGaQpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbVGaQs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVGaQpM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 12:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVGaQpM
+	id S261829AbVGaQs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 12:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVGaQs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 12:45:12 -0400
-Received: from xenotime.net ([66.160.160.81]:30672 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S261826AbVGaQpF (ORCPT
+	Sun, 31 Jul 2005 12:48:26 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:16090 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261828AbVGaQqA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 12:45:05 -0400
-Date: Sun, 31 Jul 2005 09:44:58 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4-mm1
-Message-Id: <20050731094458.72dddfde.rdunlap@xenotime.net>
-In-Reply-To: <20050731020552.72623ad4.akpm@osdl.org>
-References: <20050731020552.72623ad4.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 31 Jul 2005 12:46:00 -0400
+Message-ID: <42ED003B.7070005@pobox.com>
+Date: Sun, 31 Jul 2005 12:45:47 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+Subject: Re: [git patches] new wireless stuffs
+References: <42EC0C3E.7030705@pobox.com> <20050731110736.GA4020@infradead.org>
+In-Reply-To: <20050731110736.GA4020@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Jul 2005 02:05:52 -0700 Andrew Morton wrote:
+Christoph Hellwig wrote:
+> Any chance we can give the hostap driver a better name?  hostap describes
+> the AP mode it can operate on, but it should really be named after the hardware
+> it supports in some way.
 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc4/2.6.13-rc4-mm1/
-> 
 
-> - Dropped the connector patches: turns out that we no longer have a netlink
->   slot available for them anyway.
+If the driver gets rewritten, sure.  Otherwise, users are already 
+familiar with the name.
 
-I don't feel strongly pro or con about the connector patches, but
-DaveM suggested using a netlink multiplexer for iscsi (which also
-needs a netlink slot), so presumably that could work for the
-connector patches also...?
+	Jeff
 
----
-~Randy
+

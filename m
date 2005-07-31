@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263146AbVGaEfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVGaEkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263146AbVGaEfn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 00:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbVGaEfm
+	id S261606AbVGaEkv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 00:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVGaEkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 00:35:42 -0400
-Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:1690 "EHLO
-	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263146AbVGaEfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 00:35:39 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [sched, patch] better wake-balancing, #2
-Date: Sun, 31 Jul 2005 14:35:06 +1000
-User-Agent: KMail/1.8.2
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Ingo Molnar <mingo@elte.hu>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-ia64 <linux-ia64@vger.kernel.org>
-References: <200507301929_MC3-1-A601-D4C2@compuserve.com>
-In-Reply-To: <200507301929_MC3-1-A601-D4C2@compuserve.com>
+	Sun, 31 Jul 2005 00:40:51 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:58647 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261606AbVGaEkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 00:40:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=mIicT+gi0LymN0EPvLYJuDTsHO6aU5Ub1BHS/Q8ncs15/uk7cn5ZM001dJbwcYO+dxChF7RFI2zevmiI5Q7gCkfBEuy18SGnDAyb2YxWwguuN08uUfdHfXTMi/mvimBXV64W14q/fgdW9n08xxJ5fnCvVwMEoPrmiDeGXDly0l0=
+Message-ID: <42EC5659.7010300@gmail.com>
+Date: Sun, 31 Jul 2005 12:40:57 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6421577.OHCWCaKClm";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: linux-fbdev-devel@lists.sourceforge.net
+CC: gregkh@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] Where is place of arch independed companion
+ chips?
+References: <42EB6A12.70100@varma-el.com>
+In-Reply-To: <42EB6A12.70100@varma-el.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200507311435.09225.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6421577.OHCWCaKClm
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Andrey Volkov wrote:
+> Hi Greg,
+> 
+> While I write driver for SM501 CC (which have graphics controller, USB
+> MASTER/SLAVE, AC97, UART, SPI  and VIDEO CAPTURE onboard),
+> I bumped with next ambiguity:
+> Where is a place of this chip's Kconfig/drivers in
+> kernel config/drivers tree? May be create new node in drivers subtree?
+> Or put it under graphics node (since it's main function of this CC)?
 
-On Sun, 31 Jul 2005 09:26, Chuck Ebbert wrote:
-> On Fri, 29 Jul 2005 at 17:02:07 +0200, Ingo Molnar wrote:
-> > do wakeup-balancing only if the wakeup-CPU is idle.
-> >
-> > this prevents excessive wakeup-balancing while the system is highly
-> > loaded, but helps spread out the workload on partly idle systems.
->
-> I tested this with Volanomark on dual-processor PII Xeon -- the
-> results were very bad:
->
-> Before: 5863 messages per second
+You will have to split your driver (graphics under drivers/video, usb
+under drivers/usb, ac97 under sound, video capture under drivers/media,
+etc.
 
-> After: 5569 messages per second
+Tony
 
-Can you check schedstats or otherwise to find if volanomark uses=20
-sched_yield() ? When last this benchmark came up, it appeared that no jvm=20
-used futexes and left locking to yielding. We really should find out if tha=
-t=20
-is the case before trying to optimise for this benchmark.
-
-Cheers,
-Con
-
---nextPart6421577.OHCWCaKClm
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBC7FT9ZUg7+tp6mRURAk7zAJ4vwv1n0picU3J4ODTzTg6IUBT6ogCfaby4
-FN2C76fkrGxucZeWjfMY1FY=
-=sKKn
------END PGP SIGNATURE-----
-
---nextPart6421577.OHCWCaKClm--

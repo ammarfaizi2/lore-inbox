@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVGaMVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVGaMYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbVGaMVS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 08:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVGaMVS
+	id S261690AbVGaMYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 08:24:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVGaMYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 08:21:18 -0400
-Received: from [195.144.244.147] ([195.144.244.147]:5094 "EHLO
-	amanaus.varma-el.com") by vger.kernel.org with ESMTP
-	id S261710AbVGaMVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 08:21:17 -0400
-Message-ID: <42ECC230.7070004@varma-el.com>
-Date: Sun, 31 Jul 2005 16:21:04 +0400
-From: Andrey Volkov <avolkov@varma-el.com>
-Organization: Varma Electronics Oy
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: ru-ru, ru
-MIME-Version: 1.0
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] Where is place of arch independed companion
- chips?
-References: <42EB6A12.70100@varma-el.com> <42EC5659.7010300@gmail.com>
-In-Reply-To: <42EC5659.7010300@gmail.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Jul 2005 08:24:08 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:56268 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261690AbVGaMYH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 08:24:07 -0400
+Date: Sun, 31 Jul 2005 14:20:34 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: apache <apache@ayni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How come that in kernel 2.6.11 a dvd is readable, but not in kernel 2.6.12?
+Message-ID: <20050731122034.GA32232@electric-eye.fr.zoreil.com>
+References: <42ECB294.7040608@ayni.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42ECB294.7040608@ayni.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tony,
+apache <apache@ayni.com> :
+[...]
+> Fact: I can write a DVD on a machine with kernel-2.6.11, but I cannot 
+> read that DVD in a machine with kernel-2.6.12, even worse: the system is 
+> stuck.
+> 
+> please explain
 
-Antonino A. Daplas wrote:
-> Andrey Volkov wrote:
-> 
->> Hi Greg,
->>
->> While I write driver for SM501 CC (which have graphics controller, USB
->> MASTER/SLAVE, AC97, UART, SPI  and VIDEO CAPTURE onboard),
->> I bumped with next ambiguity:
->> Where is a place of this chip's Kconfig/drivers in
->> kernel config/drivers tree? May be create new node in drivers subtree?
->> Or put it under graphics node (since it's main function of this CC)?
-> 
-> 
-> You will have to split your driver (graphics under drivers/video, usb
-> under drivers/usb, ac97 under sound, video capture under drivers/media,
-> etc.
-Yes, it was first what I try, BUT - all these drivers have common
-code (as bus driver, in my case) and some of private headers.
-And problem exactly in this code. This code NOT video/audio....., this
-code is abstract bus driver, and doesn't fall under some exist kernel
-tree node :(.
+I can't explain but we may try to fix it with your help.
 
--- 
-Regards
-Andrey Volkov
+As a general remark, dmesg + .config + lspci -vx/lsmod help figuring the
+hardware environment.
+
+1 - can the regression be reproduced with last -rc (namely 2.6.13-rc4) ?
+2 - if yes, can you isolate a simple operation to trigger the bug: I assume
+    you read the DVD from hell with some nice viewer under X. Can you
+    reproduce the bug in a simple console, without X, through a 'dd'
+    command for instance ?
+3 - if so, did you notice extra messages ? Is led activity available ?
+4 - if you are still stuck, you can start a binary search on the 2.6.12-rc
+    kernels, then on the 2.6.12-rcX-gitY to isolate the trigger (it may not
+    necessarily be the culprit).
+
+--
+Ueimor

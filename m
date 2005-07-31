@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263217AbVGaLS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263212AbVGaLRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263217AbVGaLS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 07:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263070AbVGaLRN
+	id S263212AbVGaLRB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 07:17:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbVGaLM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 07:17:13 -0400
-Received: from coderock.org ([193.77.147.115]:61380 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262902AbVGaLM0 (ORCPT
+	Sun, 31 Jul 2005 07:12:27 -0400
+Received: from coderock.org ([193.77.147.115]:39876 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261671AbVGaLKp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 07:12:26 -0400
-Message-Id: <20050731111207.863350000@homer>
-Date: Sun, 31 Jul 2005 13:12:07 +0200
+	Sun, 31 Jul 2005 07:10:45 -0400
+Message-Id: <20050731111047.915285000@homer>
+Date: Sun, 31 Jul 2005 13:10:48 +0200
 From: domen@coderock.org
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Tobias Klauser <tklauser@nuerscht.ch>,
-       domen@coderock.org
-Subject: [patch 2/5] Spelling and whitespace fixes for REPORTING-BUGS
-Content-Disposition: inline; filename=spelling-REPORTING-BUGS
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Feitoza Parisi <marcelo@feitoza.com.br>, domen@coderock.org
+Subject: [patch 1/1] drivers/block/floppy.c : Use of the time_after() and time_before() macros
+Content-Disposition: inline; filename=time_after-drivers_block_floppy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tobias Klauser <tklauser@nuerscht.ch>
+From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
 
 
-The attached patch fixes some spelling errors in REPORTING-BUGS and also
-removes all trailing whitespaces (I hope this OK with the trivial patch
-monkey).
 
-Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
+Use of the time_after() and time_before()  macros, defined at linux/jiffies.h,
+which deal with wrapping correctly and are nicer to read.
+
+Signed-off-by: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 
 ---
- REPORTING-BUGS |   16 ++++++++--------
- 1 files changed, 8 insertions(+), 8 deletions(-)
+ floppy.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
-Index: quilt/REPORTING-BUGS
+Index: quilt/drivers/block/floppy.c
 ===================================================================
---- quilt.orig/REPORTING-BUGS
-+++ quilt/REPORTING-BUGS
-@@ -9,7 +9,7 @@ screen please read "Documentation/oops-t
- bug report. This explains what you should do with the "Oops" information
- to make it useful to the recipient.
+--- quilt.orig/drivers/block/floppy.c
++++ quilt/drivers/block/floppy.c
+@@ -179,6 +179,7 @@ static int print_unex = 1;
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/device.h>
+ #include <linux/buffer_head.h>	/* for invalidate_buffers() */
++#include <linux/jiffies.h>	/* for time_before() */
  
--      Send the output the maintainer of the kernel area that seems to
-+      Send the output to the maintainer of the kernel area that seems to
- be involved with the problem. Don't worry too much about getting the
- wrong person. If you are unsure send it to the person responsible for the
- code relevant to what you were doing. If it occurs repeatably try and
-@@ -18,15 +18,15 @@ The list of maintainers is in the MAINTA
+ /*
+  * PS/2 floppies have much slower step rates than regular floppies.
+@@ -733,7 +734,7 @@ static int disk_change(int drive)
+ {
+ 	int fdc = FDC(drive);
+ #ifdef FLOPPY_SANITY_CHECK
+-	if (jiffies - UDRS->select_date < UDP->select_delay)
++	if (time_before(jiffies, UDRS->select_date + UDP->select_delay))
+ 		DPRINT("WARNING disk change called early\n");
+ 	if (!(FDCS->dor & (0x10 << UNIT(drive))) ||
+ 	    (FDCS->dor & 3) != UNIT(drive) || fdc != FDC(drive)) {
+@@ -1061,7 +1062,7 @@ static int fd_wait_for_completion(unsign
+ 		return 1;
+ 	}
  
-       If it is a security bug, please copy the Security Contact listed
- in the MAINTAINERS file.  They can help coordinate bugfix and disclosure.
--See Documentation/SecurityBugs for more infomation.
-+See Documentation/SecurityBugs for more information.
- 
-       If you are totally stumped as to whom to send the report, send it to
- linux-kernel@vger.kernel.org. (For more information on the linux-kernel
- mailing list see http://www.tux.org/lkml/).
- 
--This is a suggested format for a bug report sent to the Linux kernel mailing 
--list. Having a standardized bug report form makes it easier  for you not to 
--overlook things, and easier for the developers to find the pieces of 
-+This is a suggested format for a bug report sent to the Linux kernel mailing
-+list. Having a standardized bug report form makes it easier for you not to
-+overlook things, and easier for the developers to find the pieces of
- information they're really interested in. Don't feel you have to follow it.
- 
-       First run the ver_linux script included as scripts/ver_linux, which
-@@ -35,13 +35,13 @@ the command "sh scripts/ver_linux".
- 
- Use that information to fill in all fields of the bug report form, and
- post it to the mailing list with a subject of "PROBLEM: <one line
--summary from [1.]>" for easy identification by the developers    
-+summary from [1.]>" for easy identification by the developers
- 
--[1.] One line summary of the problem:    
-+[1.] One line summary of the problem:
- [2.] Full description of the problem/report:
- [3.] Keywords (i.e., modules, networking, kernel):
- [4.] Kernel version (from /proc/version):
--[5.] Output of Oops.. message (if applicable) with symbolic information 
-+[5.] Output of Oops.. message (if applicable) with symbolic information
-      resolved (see Documentation/oops-tracing.txt)
- [6.] A small shell script or example program which triggers the
-      problem (if possible)
+-	if ((signed)(jiffies - delay) < 0) {
++	if (time_before(jiffies, delay)) {
+ 		del_timer(&fd_timer);
+ 		fd_timer.function = function;
+ 		fd_timer.expires = delay;
+@@ -1521,7 +1522,7 @@ static void setup_rw_floppy(void)
+ 		 * again just before spinup completion. Beware that
+ 		 * after scandrives, we must again wait for selection.
+ 		 */
+-		if ((signed)(ready_date - jiffies) > DP->select_delay) {
++		if (time_after(ready_date, jiffies + DP->select_delay)) {
+ 			ready_date -= DP->select_delay;
+ 			function = (timeout_fn) floppy_start;
+ 		} else
 
 --

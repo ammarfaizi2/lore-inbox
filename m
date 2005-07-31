@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263149AbVGaArF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbVGaAuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263149AbVGaArF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 20:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbVGaArF
+	id S263188AbVGaAuP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 20:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbVGaAuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 20:47:05 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:31694 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263149AbVGaAqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 20:46:19 -0400
-Subject: Re: Simple question re: oops
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Alexander Nyberg <alexn@telia.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <21d7e997050730174034a68f4@mail.gmail.com>
-References: <1122767292.4464.1.camel@mindpipe>
-	 <20050731001101.GA6762@localhost.localdomain>
-	 <1122769290.4464.12.camel@mindpipe>
-	 <21d7e997050730174034a68f4@mail.gmail.com>
-Content-Type: text/plain
-Date: Sat, 30 Jul 2005 20:46:17 -0400
-Message-Id: <1122770777.5473.1.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Jul 2005 20:50:15 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:41443 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S263188AbVGaAuM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 20:50:12 -0400
+Date: Sun, 31 Jul 2005 02:50:03 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFD] kconfig - introduce cond-source
+In-Reply-To: <20050730220100.GA3240@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.61.0507310247410.3728@scrub.home>
+References: <20050730220100.GA3240@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-07-31 at 10:40 +1000, Dave Airlie wrote:
-> > panic_on_oops has no effect, a bunch of stuff flies past and the last
-> > thing I see is "gam_server: scheduling while atomic" then a stack trace
-> > of the core dump path then "Aiee, killing interrupt handler".
-> > 
-> > I am starting to suspect the hard drive, does that sound plausible?
-> > It's as if it locks up when it hits a certain disk block.
-> 
-> run memtest on it... you might have bad RAM..
-> 
+Hi,
 
-Already swapped it out, but I'll try memtest.
+On Sun, 31 Jul 2005, Sam Ravnborg wrote:
 
-Any idea why printk_ratelimit does not work?  I set it to 1000 (per the
-docs this should limit to 1 printk per second) and burst to 1 but I
-still get screenfuls of text flying by.
+> In a couple of cases I have had the need to include a Kconfig file only
+> if present.
+> The current 'source' directive works as one would expect. It bails out
+> if the file is missing.
 
-Lee
+I don't really like it, it's an open invitation to abuse.
+I'd rather like to see the user first, which might need it.
 
-
+bye, Roman

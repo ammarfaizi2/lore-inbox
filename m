@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVGaBuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVGaCBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVGaBuh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 21:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVGaBug
+	id S261279AbVGaCBd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 22:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVGaCBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 21:50:36 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:2488 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261466AbVGaBue (ORCPT
+	Sat, 30 Jul 2005 22:01:33 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:10649 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261279AbVGaCBc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 21:50:34 -0400
-Date: Sat, 30 Jul 2005 18:50:27 -0700
+	Sat, 30 Jul 2005 22:01:32 -0400
+Date: Sat, 30 Jul 2005 19:01:26 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Christoph Lameter <christoph@lameter.com>
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
 Subject: Re: [PATCH] String conversions for memory policy
-Message-Id: <20050730185027.44de1cfd.pj@sgi.com>
+Message-Id: <20050730190126.6bec9186.pj@sgi.com>
 In-Reply-To: <Pine.LNX.4.62.0507301814540.31359@graphe.net>
 References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
 	<20050729152049.4b172d78.pj@sgi.com>
@@ -31,10 +31,12 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Who else would know details about memory policies?
+Christoph wrote:
+> The problem is how to convert them back for display. Match the zones in 
+> groups of three to the zones in a node and then print out the node?
 
-Andi Kleen.  I do not know of anyone else who can
-respond to the points you observe.
+What does get_mempolicy(2) do?  I doubt it assumes groups of three.
+See further the case for MPOL_BIND, in mm/mempolicy.c:get_zonemask().
 
 -- 
                   I won't rest till it's the best ...

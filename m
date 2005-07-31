@@ -1,96 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVGaRD0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVGaRJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVGaRD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 13:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVGaRDZ
+	id S261759AbVGaRJk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 13:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVGaRJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 13:03:25 -0400
-Received: from mailhub.hp.com ([192.151.27.10]:38318 "EHLO mailhub.hp.com")
-	by vger.kernel.org with ESMTP id S261836AbVGaRDN (ORCPT
+	Sun, 31 Jul 2005 13:09:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60329 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261759AbVGaRJj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 13:03:13 -0400
-Subject: Re: long delays (possibly infinite) in
-	time_interpolator_get_counter
-From: Alex Williamson <alex.williamson@hp.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: tony.luck@intel.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0507301105120.25104@schroedinger.engr.sgi.com>
-References: <200507292206.j6TM6w4k004594@agluck-lia64.sc.intel.com>
-	 <Pine.LNX.4.62.0507291625390.19428@schroedinger.engr.sgi.com>
-	 <1122742054.28719.58.camel@localhost.localdomain>
-	 <Pine.LNX.4.62.0507301105120.25104@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Organization: OSLO R&D
-Date: Sun, 31 Jul 2005 11:02:59 -0600
-Message-Id: <1122829379.6946.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Jul 2005 13:09:39 -0400
+Date: Sun, 31 Jul 2005 10:09:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: revert yenta free_irq on suspend
+In-Reply-To: <Pine.LNX.4.58.0507310847560.29650@g5.osdl.org>
+Message-ID: <Pine.LNX.4.58.0507311007240.29650@g5.osdl.org>
+References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com>
+ <Pine.LNX.4.58.0507301331260.29650@g5.osdl.org> <20050731132958.GB14550@elf.ucw.cz>
+ <Pine.LNX.4.58.0507310847560.29650@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-   Ok, here's an optimization that should help reduce contention on the
-cmpxchg, has zero impact on the nojitter path, and doesn't require any
-changes to fsys.  When a caller already had the xtime_lock write lock
-there's no need to fight with other CPUs for the cmpxchg.  The other
-"reader" CPUs will have to fetch it again since a seqlock write is in
-progress.  Therefore we can simplify this path as shown below.  The
-write is atomic, and we don't care if another CPU has changed last_cycle
-since it can't return the value until the write lock is released.  This
-has only been compile tested, but I'm interested to hear your opinion.
-Thanks,
 
-	Alex
+On Sun, 31 Jul 2005, Linus Torvalds wrote:
+> 
+> We'll revert to the behaviour that it has traditionally had, and start 
+> working forwards in a more careful manner. Where we don't break working 
+> setups.
 
+Here's a suggested revert (a pure "patch -R" won't work, since there's 
+been other differences since). It works for me, and suspends/resumes from 
+RAM on my EVO with all the irq links getting re-programmed (dmesg is very 
+clear about that ;).
 
-diff -r cff8d3633e9c kernel/timer.c
---- a/kernel/timer.c	Fri Jul 29 22:01:15 2005
-+++ b/kernel/timer.c	Sun Jul 31 10:25:41 2005
-@@ -1452,10 +1452,34 @@
- 		return time_interpolator_get_cycles(src);
+It's pretty much the old 2.6.12 code, updated for the refcounting etc.
+
+		Linus
+
+----
+diff --git a/drivers/acpi/pci_link.c b/drivers/acpi/pci_link.c
+--- a/drivers/acpi/pci_link.c
++++ b/drivers/acpi/pci_link.c
+@@ -776,15 +776,25 @@ end:
  }
  
-+static inline u64 time_interpolator_get_counter_locked(void)
+ static int
+-irqrouter_suspend(
+-	struct sys_device *dev,
+-	u32	state)
++acpi_pci_link_resume(
++	struct acpi_pci_link *link)
 +{
-+	unsigned int src = time_interpolator->source;
++	ACPI_FUNCTION_TRACE("acpi_pci_link_resume");
 +
-+	if (time_interpolator->jitter)
-+	{
-+		u64 lcycle = time_interpolator->last_cycle;
-+		u64 now = time_interpolator_get_cycles(src);
-+
-+		if (lcycle && time_after(lcycle, now))
-+			return lcycle;
-+
-+		/*
-+		 * This path is called when holding the xtime write lock.
-+		 * This allows us to avoid the contention of the cmpxchg
-+		 * in get_counter, and still ensures jitter protection.
-+		 */
-+		time_interpolator->last_cycle = now;
-+		return now;
-+	}
++	if (link->refcnt && link->irq.active && link->irq.initialized)
++		return_VALUE(acpi_pci_link_set(link, link->irq.active));
 +	else
-+		return time_interpolator_get_cycles(src);
++		return_VALUE(0);
 +}
 +
- void time_interpolator_reset(void)
++static int
++irqrouter_resume(
++	struct sys_device *dev)
  {
- 	time_interpolator->offset = 0;
--	time_interpolator->last_counter = time_interpolator_get_counter();
-+	time_interpolator->last_counter = time_interpolator_get_counter_locked();
+ 	struct list_head        *node = NULL;
+ 	struct acpi_pci_link    *link = NULL;
+-	int			ret = 0;
+ 
+-	ACPI_FUNCTION_TRACE("irqrouter_suspend");
++	ACPI_FUNCTION_TRACE("irqrouter_resume");
+ 
+ 	list_for_each(node, &acpi_link.entries) {
+ 		link = list_entry(node, struct acpi_pci_link, node);
+@@ -793,24 +803,11 @@ irqrouter_suspend(
+ 				"Invalid link context\n"));
+ 			continue;
+ 		}
+-		if (link->irq.initialized && link->refcnt != 0
+-			/* We ignore legacy IDE device irq */
+-			&& link->irq.active != 14 && link->irq.active !=15) {
+-			printk(KERN_WARNING PREFIX
+-				"%d drivers with interrupt %d neglected to call"
+-				" pci_disable_device at .suspend\n",
+-				link->refcnt,
+-				link->irq.active);
+-			printk(KERN_WARNING PREFIX
+-				"Fix the driver, or rmmod before suspend\n");
+-			link->refcnt = 0;
+-			ret = -EINVAL;
+-		}
++		acpi_pci_link_resume(link);
+ 	}
+-	return_VALUE(ret);
++	return_VALUE(0);
  }
  
- #define GET_TI_NSECS(count,i) (((((count) - i->last_counter) & (i)->mask) * (i)->nsec_per_cyc) >> (i)->shift)
-@@ -1490,7 +1514,7 @@
- 	 * and the tuning logic insures that.
-          */
+-
+ static int
+ acpi_pci_link_remove (
+ 	struct acpi_device	*device,
+@@ -922,7 +919,7 @@ __setup("acpi_irq_balance", acpi_irq_bal
+ /* FIXME: we will remove this interface after all drivers call pci_disable_device */
+ static struct sysdev_class irqrouter_sysdev_class = {
+         set_kset_name("irqrouter"),
+-        .suspend = irqrouter_suspend,
++        .resume = irqrouter_resume,
+ };
  
--	counter = time_interpolator_get_counter();
-+	counter = time_interpolator_get_counter_locked();
- 	offset = time_interpolator->offset + GET_TI_NSECS(counter, time_interpolator);
  
- 	if (delta_nsec < 0 || (unsigned long) delta_nsec < offset)
-
-

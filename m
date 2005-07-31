@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVGaCU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263206AbVGaCW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVGaCU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Jul 2005 22:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVGaCU2
+	id S263206AbVGaCW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Jul 2005 22:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263200AbVGaCW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Jul 2005 22:20:28 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:33729 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261537AbVGaCT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Jul 2005 22:19:27 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: Average instruction length in x86-built kernel?
-To: karim@opersys.com, Ingo Oeser <ioe-lkml@rameria.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Reply-To: 7eggert@gmx.de
-Date: Sun, 31 Jul 2005 04:19:00 +0200
-References: <4vKU4-3sU-21@gated-at.bofh.it> <4w02Q-7e6-21@gated-at.bofh.it> <4w5OQ-6Z9-25@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sat, 30 Jul 2005 22:22:57 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11164 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261538AbVGaCUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Jul 2005 22:20:49 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Subject: Re: ALSA, snd_intel8x0m and kexec() don't work together
+ (2.6.13-rc3-git4 and 2.6.13-rc3-git3)
+References: <20050721180621.GA25829@charite.de>
+	<20050722062548.GJ25829@charite.de>
+	<200507221614.28096.vda@ilport.com.ua>
+	<20050722131825.GR8528@charite.de> <1122054941.877.6.camel@mindpipe>
+	<20050722180204.GD30517@charite.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 30 Jul 2005 20:20:39 -0600
+In-Reply-To: <20050722180204.GD30517@charite.de> (Ralf Hildebrandt's message
+ of "Fri, 22 Jul 2005 20:02:04 +0200")
+Message-ID: <m1br4j1zt4.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1Dz3Pp-0000zu-6N@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour <karim@opersys.com> wrote:
+Ralf Hildebrandt <Ralf.Hildebrandt@charite.de> writes:
 
-> Here's a script that does what I was looking for:
-<snip>
+> kexec is a system call that implements the ability to shutdown your
+> current kernel, and to start another kernel.  It is like a reboot but it
+> is indepedent of the system firmware.  And like a reboot you can start
+> any kernel with it, not just Linux.
+> 	  
+> The name comes from the similiarity to the exec system call.
+>
+> It is an ongoing process to be certain the hardware in a machine is
+> properly shutdown, so do not be surprised if this code does not initially
+> work for you.  It may help to enable device hotplugging support.  As of
+> this writing the exact hardware interface is strongly in flux, so no good
+> recommendation can be made.
 
-#!/bin/bash
-for a in "$@"
-do
-        objdump -d "$a" -j .text 
-done | perl -ne'
-BEGIN{%h=();$b=0};
-END{if($b){$h{$b}++};print map("$_: $h{$_}\n", sort(keys(%h)))};
-if(/\tnop    $/){$h{nop}++}
-elsif(/^[\s0-9a-f]{8}:\t([^\t]+) (\t?)/){
- $b+=split(" ",$1);if($2){$h{$b}++;$b=0}}'
+Hmm.  It looks like the text in Kconfig needs to be updated.
+I don't think that description has been updated in several years.
 
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Eric

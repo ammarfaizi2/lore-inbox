@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVGaWuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVGaWys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbVGaWuY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 18:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVGaWuO
+	id S262036AbVGaWys (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 18:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVGaWxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 18:50:14 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8323 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262029AbVGaWsf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 18:48:35 -0400
-Date: Mon, 1 Aug 2005 00:47:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-Message-ID: <20050731224752.GC27580@elf.ucw.cz>
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122678943.9381.44.camel@mindpipe> <20050730120645.77a33a34.Ballarin.Marc@gmx.de> <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz> <42ED4CCF.6020803@andrew.cmu.edu>
+	Sun, 31 Jul 2005 18:53:03 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:35572 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262032AbVGaWvX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 18:51:23 -0400
+Subject: Re: realtime-preempt-2.6.13-rc4-RT-V0.7.52-07
+From: Daniel Walker <dwalker@mvista.com>
+To: "Shayne O'Connor" <forums@machinehasnoagenda.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42ED4E53.2010508@machinehasnoagenda.com>
+References: <42ED4E53.2010508@machinehasnoagenda.com>
+Content-Type: text/plain
+Date: Sun, 31 Jul 2005 15:51:14 -0700
+Message-Id: <1122850274.29050.0.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42ED4CCF.6020803@andrew.cmu.edu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >Then the second test was probably flawed, possibly because we have
-> >some more work to do. No display is irrelevant, HZ=100 will still save
-> >0.5W with running display. Spinning disk also does not produce CPU
-> >load (and we *will* want to have disk spinned down). No daemons... if
-> >some daemon wakes every msec, we want to fix the daemon. 
+You can resolve it if you enable SMP .
+
+Daniel
+
+On Mon, 2005-08-01 at 08:18 +1000, Shayne O'Connor wrote:
+> trying to compile 2.6.13.rc4 with ingo's RT patch 
+> (realtime-preempt-2.6.13-rc4-RT-V0.7.52-07) but keep getting this error 
+> near the end of compilation:
 > 
-> I was talking about percentage saved; That 5.2% easily drops below 2% 
-> once other things start sucking up power.  I was thinking that way since 
-> the percentage saved is what determines the overall battery life 
-> increase.  You're right in that the absolute power draw difference 
-> should stay the same, and that seems to be the case is Marc's tests 
-> (ignoring the brokenness of artsd).
-
-You are right at that, but .5W is still about as much as hard disk
-spinning. And newer CPUs are likely to benefit more from HZ=100.
-
-> >Kernel defaults are irelevant; distros change them anyway. [But we
-> >probably want to enable ACPI and cpufreq by default, because that
-> >matches what 99% of users will use.]
+>    GEN     .version
+>    CHK     include/linux/compile.h
+>    UPD     include/linux/compile.h
+>    CC      init/version.o
+>    LD      init/built-in.o
+>    LD      .tmp_vmlinux1
+> net/built-in.o(.text+0x2220c): In function `rt_check_expire':
+> : undefined reference to `__bad_spinlock_type'
+> net/built-in.o(.text+0x2222e): In function `rt_check_expire':
+> : undefined reference to `__bad_spinlock_type'
+> net/built-in.o(.text+0x22321): In function `rt_run_flush':
+> : undefined reference to `__bad_spinlock_type'
+> net/built-in.o(.text+0x22339): In function `rt_run_flush':
+> : undefined reference to `__bad_spinlock_type'
+> net/built-in.o(.text+0x22593): In function `rt_garbage_collect':
+> : undefined reference to `__bad_spinlock_type'
+> net/built-in.o(.text+0x225c1): more undefined references to 
+> `__bad_spinlock_type' follow
+> make: *** [.tmp_vmlinux1] Error 1
+> [mrmachine@localhost linux-2.6.12]$
 > 
-> True, but I think a lot of distros treat the values as recommendations. 
->  I guess we'll find out what they do with this option soon enough.
+> 
+> i am trying to compile it with PREEMPT_DESKTOP ....
+> 
+> 
+> (please CC me on any replies!)
+> 
+> 
+> shayne
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I'm pretty sure at least one distro will go with HZ<300 real soon now
-;-).
-
-								Pavel
--- 
-if you have sharp zaurus hardware you don't need... you know my address

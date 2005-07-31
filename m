@@ -1,109 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVGaWL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVGaWOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbVGaWL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 18:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVGaWL6
+	id S261991AbVGaWOL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 18:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVGaWOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 18:11:58 -0400
-Received: from web30303.mail.mud.yahoo.com ([68.142.200.96]:11944 "HELO
-	web30303.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261992AbVGaWL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 18:11:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=x3ZNhxOTVpTQ3jJ97zAY966kxFhUyF+A06FkdzmjPQHi/Fjeu+t8Gqut2bED+wNNvp2gBMfjg7a/dwOvLYB+5ftC5ZlHpHhc1EbDWvEGYu9ekT4Gc1VEWPCbv+j2qI5SRCtMuJwnoETrpzVbq9ORkNgAym2Joup/9Tplpuvs+9c=  ;
-Message-ID: <20050731221152.71074.qmail@web30303.mail.mud.yahoo.com>
-Date: Sun, 31 Jul 2005 23:11:52 +0100 (BST)
-From: Mark Underwood <basicmark@yahoo.com>
-Subject: Re: [patch] ucb1x00: touchscreen cleanups
-To: Russell King <rmk+lkml@arm.linux.org.uk>, Pavel Machek <pavel@ucw.cz>,
-       Arjan Van de Ven <arjanv@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>
-Cc: Mark Underwood <basicmark@yahoo.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050730220340.K26592@flint.arm.linux.org.uk>
+	Sun, 31 Jul 2005 18:14:11 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.83]:38031 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261991AbVGaWMg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 18:12:36 -0400
+Message-ID: <42ED4CCF.6020803@andrew.cmu.edu>
+Date: Sun, 31 Jul 2005 18:12:31 -0400
+From: James Bruce <bruce@andrew.cmu.edu>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Pavel Machek <pavel@ucw.cz>
+CC: Lee Revell <rlrevell@joe-job.com>, Marc Ballarin <Ballarin.Marc@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122678943.9381.44.camel@mindpipe> <20050730120645.77a33a34.Ballarin.Marc@gmx.de> <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz>
+In-Reply-To: <20050731211020.GB27433@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
+> Then the second test was probably flawed, possibly because we have
+> some more work to do. No display is irrelevant, HZ=100 will still save
+> 0.5W with running display. Spinning disk also does not produce CPU
+> load (and we *will* want to have disk spinned down). No daemons... if
+> some daemon wakes every msec, we want to fix the daemon. 
 
---- Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+I was talking about percentage saved; That 5.2% easily drops below 2% 
+once other things start sucking up power.  I was thinking that way since 
+the percentage saved is what determines the overall battery life 
+increase.  You're right in that the absolute power draw difference 
+should stay the same, and that seems to be the case is Marc's tests 
+(ignoring the brokenness of artsd).
 
-> On Sat, Jul 30, 2005 at 10:46:58PM +0200, Pavel
-> Machek wrote:
-> > Hi!
-> > 
-> > > > > Note that I'm maintaining the code and will
-> be
-> > > > > publishing a new set
-> > > > > of patches for it based upon Pavel's fixes.
-> > > > 
-> > > > Thanks. I'll check them out then.
-> > > 
-> > > Since there appears to be some interest in
-> these, I'll set about
-> > > converting the audio bits to ALSA rather than
-> Nico's SA11x0 audio
-> > > driver.  I thought no one was using these chips
-> anymore, and the
-> > > driver was dead!
-> > > 
-> > > I've recently edited the mcp structure which may
-> make things less
-> > > awkward for others, and I'll continue moving in
-> that direction
-> > > with this driver.
-> > > 
-> > > You can get the updated patches at:
-> > > 
-> > > 	http://zeniv.linux.org.uk/pub/people/rmk/ucb/
-> > 
-> > Okay, what's the plan with mainstreaming those? Do
-> they stay in
-> > drivers/misc?
+> Kernel defaults are irelevant; distros change them anyway. [But we
+> probably want to enable ACPI and cpufreq by default, because that
+> matches what 99% of users will use.]
+
+True, but I think a lot of distros treat the values as recommendations. 
+  I guess we'll find out what they do with this option soon enough.
+
+>>I have a fixed-framerate app that had to busywait in the days of 2.4.x. 
+>> It was nice in 2.6.x to not have to busywait, but with 250HZ that code 
+>>will be coming back again.  And unfortunately this app can't be made 
+>>variable-framerate, as it is simulating video hardware.  The same goes 
+>>for apps playing movies/animations; Sometimes programs just need a 
+>>semi-accurate sleep, and can't demand root priveledges to get it.
 > 
-> Let me put the second question a slightly different
-> way: can anyone
-> think of a better way to organise the files which
-> makes more sense
-> and doesn't end up with just a couple of files for
-> the core UCB
-> and MCP support in some random directory elsewhere?
-> 
-> Arjan?  hch?  any comments / good ideas?
+> I really don't think default HZ in kernel config is such a big
+> deal. You'll want to support HZ=100 on 2.6.X, anyway...
 
-As this isn't the only chip of this sort (i.e. a
-multi-function chip not on the CPU bus) maybe we
-should store the bus driver in a common place. If
-needed we could have a very simple bus driver
-subsystem (this might already be in the kernel, I
-haven't looked at the bus stuff) in which you register
-a bus driver and client drivers register with the bus
-driver. Just an idea :-).
+Yeah, but if its only the default value for servers and laptops they 
+won't normally be running my app.  I'll be truly happy the day I can 
+delete all the busy-waiting code, as I think its about the ugliest 
+workaround in modern computing.
 
-Mark
+> defconfig on i386 is Linus' configuration. Maybe server-config and
+> laptop-config would be good idea...
 
-> 
-> -- 
-> Russell King
->  Linux kernel    2.6 ARM Linux   -
-> http://www.arm.linux.org.uk/
->  maintainer of:  2.6 Serial core
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Well maybe if we can get enough people who agree then it could happen. 
+I think a "laptop-config" and "server-config" file could fit nicely into 
+the current arch/*/config/ directory structure.  I'm not sure how those 
+defconfig files are kept up to date though.
 
-
-
-		
-___________________________________________________________ 
-How much free photo storage do you get? Store your holiday 
-snaps for FREE with Yahoo! Photos http://uk.photos.yahoo.com
+  - Jim

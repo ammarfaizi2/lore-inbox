@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVGaGih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVGaGjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVGaGih (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 02:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbVGaGih
+	id S261768AbVGaGjb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 02:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVGaGii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 02:38:37 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:52460 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261822AbVGaGiL (ORCPT
+	Sun, 31 Jul 2005 02:38:38 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:62168 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S263202AbVGaGiO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 02:38:11 -0400
-Date: Sun, 31 Jul 2005 08:38:52 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-Message-ID: <20050731063852.GA611@elte.hu>
-References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins> <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122785233.10275.3.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 31 Jul 2005 02:38:14 -0400
+Message-ID: <42EC71CF.3080908@pobox.com>
+Date: Sun, 31 Jul 2005 02:38:07 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: zaitcev@redhat.com, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13 ub 2/3: Fold one line
+References: <20050730225145.4b99ecd0.zaitcev@redhat.com> <20050730.231829.59467939.davem@davemloft.net>
+In-Reply-To: <20050730.231829.59467939.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-u
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Sat, 2005-07-30 at 22:52 +0200, Ingo Molnar wrote:
-> > * Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> > 
-> > > Hi Ingo,
-> > > 
-> > > -02 needs the attached patch to compile with my config.
-> > 
-> > thanks, i've released -03 with your fixes.
-> > 
+David S. Miller wrote:
+> From: Pete Zaitcev <zaitcev@redhat.com>
+> Date: Sat, 30 Jul 2005 22:51:45 -0700
 > 
-> Does not compile with highmem enabled:
+> 
+>>-static ssize_t ub_diag_show(struct device *dev, struct device_attribute *attr, char *page)
+>>+static ssize_t ub_diag_show(struct device *dev, struct device_attribute *attr,
+>>+    char *page)
+> 
+> 
+> FWIW, I am generally against this kind of thing at least
+> for non-static functions.
+> 
+> I used to love this kind of code styling, until I started trying to
+> often grep a tree to verify the types of arguments to some function.
+> 
+> With the above kind of construct, you get the first few types, but not
+> all of them, in your grep output.
 
-ok - i've uploaded the -52-04 patch, does that fix it for you?
+A better solution would be to stop naming_structures_as_complete_sentences.
 
-	Ingo
+IMO there's a happy balance between BSD's squash-everything-into-6-chars 
+style and recent kernel code's tendency to bypass the ancient C 32-char 
+limit.
+
+But ah well ;-)
+
+	Jeff
+
+
+

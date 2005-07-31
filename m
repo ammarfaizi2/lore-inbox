@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263218AbVGaNzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263222AbVGaN7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263218AbVGaNzi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 09:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263222AbVGaNzi
+	id S263222AbVGaN7E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 09:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbVGaN7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 09:55:38 -0400
-Received: from nproxy.gmail.com ([64.233.182.197]:7400 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263218AbVGaNzg convert rfc822-to-8bit
+	Sun, 31 Jul 2005 09:59:04 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:10733 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S263222AbVGaN7C
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 09:55:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n0lL8tvPTifzrWnGJ2Hr0L05VKWLMj6D9bGaXaFUQaAueKX9Faj+O0EpcnaVxO79aAcJmEOus1V4Ei0QC/hcEkytZC9G4s3xhbqk78BnwjBbXEgEC0FfOep1DBEyLyBiujTkVOcW1yojc6kpkEsc0IXKAiWHhs7EyCB0jyz94z8=
-Message-ID: <6f6293f10507310655243e7c4e@mail.gmail.com>
-Date: Sun, 31 Jul 2005 15:55:33 +0200
-From: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-Reply-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-To: Michael Thonke <iogl64nx@gmail.com>
-Subject: Re: 2.6.13-rc4-mm1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <42ECE2FE.2090204@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 31 Jul 2005 09:59:02 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] Wireless Security Lock driver.
+Date: Sun, 31 Jul 2005 14:59:00 +0100
+User-Agent: KMail/1.8.1
+Cc: Brian Schau <brian@schau.com>, linux-kernel@vger.kernel.org
+References: <42EB940E.5000008@schau.com> <20050730194215.GA9188@elf.ucw.cz>
+In-Reply-To: <20050730194215.GA9188@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20050731020552.72623ad4.akpm@osdl.org>
-	 <6f6293f105073103045fd32d61@mail.gmail.com>
-	 <42ECE2FE.2090204@gmail.com>
+Message-Id: <200507311459.00957.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Why was the KERNEL_VERSION(a,b,c) macro removed from
-> >include/linux/version.h? The removal breaks external drivers like
-> >NDISWRAPPER or nVidia propietary.
-> >
-> Hello Felipe,
-> 
-> I could not regonize a breakage of NVidia (Version 1.0-7667) propietary
-> drivers.
-> They work just perfect.
+On Saturday 30 Jul 2005 20:42, Pavel Machek wrote:
+> Hi!
+>
+> > I've attached a gzipped version of my Wireless Security Lock patch
+> > for v2.6.13-rc4.
+> > A Wireless Security Lock (WSL or weasel :-) is made up of two parts.
+> > One part is a receiver which you plug into any available USB port.
+> > The other part is a transmitter which at fixed intervals sends
+> > "ping packets".
+> > A "ping packet" usually consists of an ID and a flag telling if the
+> > transmitter has just been turned on.
+>
+> Idea is good... but why don't you simply use bluetooth (built into
+> many notebooks) and bluetooth-enabled phone?
+>
+> Probably could be done in userspace, too :-).
 
-Indeed they do work perfectly, but I can't compile them (from the
-nVidia package) without adding back the KERNEL_VERSION macro in file
-include/linux/version.h.
+There's a script to this on the gentoo wiki via BlueZ.
+
+http://gentoo-wiki.com/TIP_Bluetooth_Proximity_Monitor
+
+I personally think the problem with this approach is that most phones have 
+bluetooth enabled explicitly as an option, it doesn't run all the time, or 
+default on. Primarily this is because bluetooth can drain your phone's 
+battery (though, I don't know by how much, if you're not actually 
+transferring data over it).
+
+A CR2032 cell, in a specific piece of kit, is going to last for a lot longer 
+than a phone battery.
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,125 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVGaOuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVGaPE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261671AbVGaOuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 10:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVGaOuQ
+	id S261702AbVGaPE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 11:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVGaPE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 10:50:16 -0400
-Received: from nproxy.gmail.com ([64.233.182.192]:7393 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261671AbVGaOuO (ORCPT
+	Sun, 31 Jul 2005 11:04:28 -0400
+Received: from smtp.ifrance.com ([82.196.5.121]:30607 "EHLO smtp.ifrance.com")
+	by vger.kernel.org with ESMTP id S261702AbVGaPE1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 10:50:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=pDFbVLcZ3UIci0ZJ2j3peq8N+i37PW/766dcWBeZYbV04dpf8ePPyWw+rbds54q0wrEqLL35Ij/m8nhrHxf3SuUrMCUzctuS3kaW4QIJvlAlS27rsBPr2OfNdEIA9hFd/XrbTA5I1w6+IWqipq7/rWBDUMNEPzX1UBh3LJCjsKk=
-Message-ID: <42ED01DF.9000906@gmail.com>
-Date: Sun, 31 Jul 2005 16:52:47 +0000
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050731)
-X-Accept-Language: de-DE, de, en-us, en
+	Sun, 31 Jul 2005 11:04:27 -0400
+Message-ID: <42ECE7E9.1040406@winch-hebergement.net>
+Date: Sun, 31 Jul 2005 17:02:01 +0200
+From: Guillaume Pelat <guillaume.pelat@winch-hebergement.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tobias <kernelmail@icht.homelinux.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.3 2.6.11.6 2.6.12  2.6.13rc3 Badness in blk_remove_plug
- at	drivers/block/ll_rw_blk.c:1424
-References: <20050731160704.eopkg4w04ggcg8kc@www.fujitsu.ti>
-In-Reply-To: <20050731160704.eopkg4w04ggcg8kc@www.fujitsu.ti>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: linux-kernel@vger.kernel.org
+Cc: gp@winch-hebergement.net
+Subject: 2.6.13-rc4 - kernel panic - BUG at net/ipv4/tcp_output.c:918
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tobias schrieb:
+Hi,
 
->Hi I tried
->2.6.11.3
->2.6.11.6
->2.6.12
->2.6.13rc3
->
->In all these Kernels syslog reports me every few minutes log-entries like this
->
->Badness in blk_remove_plug at drivers/block/ll_rw_blk.c:1424
-> [<c0249559>] blk_remove_plug+0x69/0x70
-> [<c024957a>] __generic_unplug_device+0x1a/0x30
-> [<c024ac88>] __make_request+0x248/0x5a0
-> [<c0140583>] mempool_alloc+0x33/0x110
-> [<c0131240>] autoremove_wake_function+0x0/0x60
-> [<c024b3ed>] generic_make_request+0x11d/0x210
-> [<c0131240>] autoremove_wake_function+0x0/0x60
-> [<c013cfaf>] find_lock_page+0xaf/0xe0
-> [<c0131240>] autoremove_wake_function+0x0/0x60
-> [<c0140583>] mempool_alloc+0x33/0x110
-> [<d8f315b2>] _pagebuf_lookup_pages+0x1a2/0x2f0 [xfs]
-> [<c024b536>] submit_bio+0x56/0xf0
-> [<c0163ca0>] bio_alloc_bioset+0x130/0x1f0
-> [<c0164244>] bio_add_page+0x34/0x40
-> [<d8f325ef>] _pagebuf_ioapply+0x19f/0x2d0 [xfs]
-> [<c0116cc0>] default_wake_function+0x0/0x20
-> [<c0116cc0>] default_wake_function+0x0/0x20
-> [<d8f32768>] pagebuf_iorequest+0x48/0x1b0 [xfs]
-> [<c0116cc0>] default_wake_function+0x0/0x20
-> [<c0116cc0>] default_wake_function+0x0/0x20
-> [<d8f39268>] xfs_bdstrat_cb+0x38/0x50 [xfs]
-> [<d8f322b6>] pagebuf_iostart+0x46/0xa0 [xfs]
-> [<d8f39230>] xfs_bdstrat_cb+0x0/0x50 [xfs]
-> [<d8f0bbe8>] xfs_iflush+0x2b8/0x4e0 [xfs]
-> [<d8f2c867>] xfs_inode_flush+0x157/0x220 [xfs]
-> [<d8f399f0>] linvfs_write_inode+0x40/0x80 [xfs]
-> [<c0185fa2>] __sync_single_inode+0x132/0x270
-> [<c018611f>] __writeback_single_inode+0x3f/0x180
-> [<c0108b78>] enable_8259A_irq+0x48/0x90
-> [<c013b591>] __do_IRQ+0x111/0x160
-> [<c0186405>] sync_sb_inodes+0x1a5/0x300
-> [<c018664d>] writeback_inodes+0xed/0x130
-> [<c0143806>] wb_kupdate+0xb6/0x140
-> [<c0144400>] pdflush+0x0/0x30
-> [<c01442d8>] __pdflush+0xd8/0x200
-> [<c0144426>] pdflush+0x26/0x30
-> [<c0143750>] wb_kupdate+0x0/0x140
-> [<c0144400>] pdflush+0x0/0x30
-> [<c0130ca9>] kthread+0xa9/0xf0
-> [<c0130c00>] kthread+0x0/0xf0
-> [<c0101395>] kernel_thread_helper+0x5/0x10
->
->
->In bugzilla I found it here to:
->
->http://bugzilla.kernel.org/show_bug.cgi?id=4837
->
->
->First I reportet it here :
->
->http://bugzilla.kernel.org/show_bug.cgi?id=4438
->
->
->----------------------------------------------------------------
->This message was sent using IMP, the Internet Messaging Program.
->( http://www.horde.org )
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hello Tobias,
+I've been trying to upgrade kernel from 2.6.12.3 to 2.6.13-rc4 on a 
+rather loaded http server, but i'm currently having a kernel panic a few 
+minutes only after booting. The bug was reproductible (the crash 
+happened after every reboot, with the same backtrace).
 
-did you read the message at bugzilla? A .config file of the kernel
-would be appropriate to reproduce the failure you've got. Else it
-is like looking for a needle in a haystack, for the developers.
+Here is the error log:
+------------[ cut here ]------------
+kernel BUG at net/ipv4/tcp_output.c:918!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c027dd56>]    Not tainted VLI
+EFLAGS: 00010293   (2.6.13-rc4-endy)
+EIP is at tcp_tso_should_defer+0xd6/0xf0
+eax: 00000007   ebx: f1258080   ecx: 00000007   edx: f297f800
+esi: 00000008   edi: 00000004   ebp: c031fd80   esp: c031fd70
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c031e000 task=c02dbb80)
+Stack: f5f547b8 f1258080 00000008 f297f800 c031fdb8 c027de4b f297f800 
+f297f800
+        f1258080 00000009 f297f800 d039250c 00000000 00000002 00000002 
+f297f800
+        f297f800 00000100 c031fddc c027e192 f297f800 00000218 00000001 
+f5fd4034
+Call Trace:
+  [<c0102e5f>] show_stack+0x7f/0xa0
+  [<c0103002>] show_registers+0x152/0x1c0
+  [<c01031f8>] die+0xc8/0x140
+  [<c0103325>] do_trap+0xb5/0xc0
+  [<c010366c>] do_invalid_op+0xbc/0xd0
+  [<c0102aa3>] error_code+0x4f/0x54
+  [<c027de4b>] tcp_write_xmit+0xdb/0x3f0
+  [<c027e192>] __tcp_push_pending_frames+0x32/0xd0
+  [<c027c04e>] tcp_rcv_state_process+0x2be/0x9c0
+  [<c0283ee9>] tcp_v4_do_rcv+0x99/0x120
+  [<c02844e2>] tcp_v4_rcv+0x572/0x750
+  [<c026a62b>] ip_local_deliver+0xcb/0x1d0
+  [<c026aa52>] ip_rcv+0x322/0x4a0
+  [<c0256a97>] netif_receive_skb+0x137/0x1a0
+  [<c0256b8f>] process_backlog+0x8f/0x110
+  [<c0256c82>] net_rx_action+0x72/0x100
+  [<c01172dc>] __do_softirq+0x8c/0xa0
+  [<c011731a>] do_softirq+0x2a/0x30
+  [<c01173d5>] irq_exit+0x35/0x40
+  [<c01044fc>] do_IRQ+0x3c/0x70
+  [<c0102a46>] common_interrupt+0x1a/0x20
+  [<c0100997>] cpu_idle+0x57/0x60
+  [<c010024b>] _stext+0x2b/0x30
+  [<c0320847>] start_kernel+0x147/0x170
+  [<c0100199>] 0xc0100199
+Code: 89 f8 0f af c2 3b 45 f0 0f 47 45 f0 31 d2 89 45 f0 f7 f3 31 d2 39 
+c1 73 ce ba 01 00 00 00 eb c7 6b c2 03 31 d2 39 c1 77 be eb ee <0f> 0b 
+96 03 ae 54 2d c0 e9 76 ff ff ff 8b ba 78 02 00 00 eb eb
+  <0>Kernel panic - not syncing: Fatal exception in interrupt
 
-<http://dict.leo.org/se?lp=ende&p=/Mn4k.&search=haystack> 
-<http://dict.leo.org/se?lp=ende&p=/Mn4k.&search=haystack>
+Some infos about my system:
 
-Greets &
-Best regards
--- 
-Michael Thonke
-IT-Systemintegrator & Systemanalist
+My network card is an e1000.
 
-"Is it a fault to think we're independent individuals? Is it conceivable that the human race is a computer assisted simulation of higher individuals? Is it normal for the human race to distroy the basis of their own existence - the earth?"
+root # cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 3
+model name      : Intel(R) Pentium(R) 4 CPU 3.00GHz
+stepping        : 3
+cpu MHz         : 2995.045
+cache size      : 1024 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+mca cmov pat pse36 clflush dtsacpi mmx fxsr sse sse2 ss ht tm pbe pni 
+monitor ds_cpl cid
+bogomips        : 5914.62
 
+http00 root # uname -a
+Linux http00 2.6.13-rc4 #1 Thu May 19 14:19:19 CEST 2005 i686 Intel(R) 
+Pentium(R) 4 CPU 3.00GHz GenuineIntel GNU/Linux
+
+You can find dmesg, lspci and config at the following address:
+http://82.196.5.50/20050731/config.txt
+http://82.196.5.50/20050731/dmesg.txt
+http://82.196.5.50/20050731/lspci.txt
+http://82.196.5.50/20050731/sysctl.txt
+
+Best regards,
+
+Guillaume Pelat

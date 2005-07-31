@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVGaT65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVGaUB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261926AbVGaT65 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 15:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVGaT6m
+	id S261967AbVGaUB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 16:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVGaUB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 15:58:42 -0400
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:25875 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S261957AbVGaT5d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 15:57:33 -0400
-Date: Sun, 31 Jul 2005 21:57:33 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <lm-sensors@lm-sensors.org>
-Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH 2.6] (9/11) hwmon vs i2c, second round
-Message-Id: <20050731215733.42657957.khali@linux-fr.org>
-In-Reply-To: <20050731205933.2e2a957f.khali@linux-fr.org>
-References: <20050731205933.2e2a957f.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Jul 2005 16:01:28 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44979 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261967AbVGaUAa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 16:00:30 -0400
+Date: Sun, 31 Jul 2005 13:00:12 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Alex Williamson <alex.williamson@hp.com>
+cc: tony.luck@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: long delays (possibly infinite) in time_interpolator_get_counter
+In-Reply-To: <1122829379.6946.11.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0507311256440.32674@schroedinger.engr.sgi.com>
+References: <200507292206.j6TM6w4k004594@agluck-lia64.sc.intel.com> 
+ <Pine.LNX.4.62.0507291625390.19428@schroedinger.engr.sgi.com> 
+ <1122742054.28719.58.camel@localhost.localdomain> 
+ <Pine.LNX.4.62.0507301105120.25104@schroedinger.engr.sgi.com>
+ <1122829379.6946.11.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Delete DEFAULT_VRM from hwmon-vid.h, it has no more users.
+On Sun, 31 Jul 2005, Alex Williamson wrote:
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+>    Ok, here's an optimization that should help reduce contention on the
+> cmpxchg, has zero impact on the nojitter path, and doesn't require any
+> changes to fsys.  When a caller already had the xtime_lock write lock
+> there's no need to fight with other CPUs for the cmpxchg.  The other
 
- include/linux/hwmon-vid.h |    2 --
- 1 files changed, 2 deletions(-)
+Yup correct.
 
---- linux-2.6.13-rc4.orig/include/linux/hwmon-vid.h	2005-07-31 16:59:30.000000000 +0200
-+++ linux-2.6.13-rc4/include/linux/hwmon-vid.h	2005-07-31 20:55:49.000000000 +0200
-@@ -53,8 +53,6 @@
- 
- int vid_which_vrm(void);
- 
--#define DEFAULT_VRM	82
--
- static inline int vid_from_reg(int val, int vrm)
- {
- 	int vid;
+> "reader" CPUs will have to fetch it again since a seqlock write is in
+> progress.  Therefore we can simplify this path as shown below.  The
+> write is atomic, and we don't care if another CPU has changed last_cycle
+> since it can't return the value until the write lock is released.  This
+> has only been compile tested, but I'm interested to hear your opinion.
 
+time_interpolator_get_counter is static inline. So you may modify the
+existing function and pass a constant parameter without a 
+performance reduction. Two different versions will then be generated for 
+time_interpolator_get_counter at compile time.
 
--- 
-Jean Delvare
+Maybe call the parameter "writelock"?
+

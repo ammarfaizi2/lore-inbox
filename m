@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVGaWOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVGaWQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbVGaWOL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 18:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVGaWOL
+	id S262009AbVGaWQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 18:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVGaWQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 18:14:11 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:38031 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261991AbVGaWMg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 18:12:36 -0400
-Message-ID: <42ED4CCF.6020803@andrew.cmu.edu>
-Date: Sun, 31 Jul 2005 18:12:31 -0400
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Sun, 31 Jul 2005 18:16:53 -0400
+Received: from osten.wh.uni-dortmund.de ([129.217.129.130]:61320 "EHLO
+	osten.wh.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261994AbVGaWPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 18:15:21 -0400
+Message-ID: <42ED4D73.9090903@web.de>
+Date: Mon, 01 Aug 2005 00:15:15 +0200
+From: Alexander Fieroch <fieroch@web.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
+X-Accept-Language: de-de, en-us, en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Lee Revell <rlrevell@joe-job.com>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122678943.9381.44.camel@mindpipe> <20050730120645.77a33a34.Ballarin.Marc@gmx.de> <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz>
-In-Reply-To: <20050731211020.GB27433@elf.ucw.cz>
+To: Michael Thonke <iogl64nx@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Jesper Juhl <jesper.juhl@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, bzolnier@gmail.com, axboe@suse.de,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alexey Dobriyan <adobriyan@gmail.com>, Natalie.Protasevich@UNISYS.com,
+       Andrew Morton <akpm@osdl.org>, Alexander Fieroch <fieroch@web.de>
+Subject: Re: PROBLEM: "drive appears confused" and "irq 18: nobody cared!"
+References: <d6gf8j$jnb$1@sea.gmane.org>	 <20050527171613.5f949683.akpm@osdl.org> <429A2397.6090609@web.de>	 <58cb370e05061401041a67cfa7@mail.gmail.com> <42B091EE.4020802@web.de>	 <20050615143039.24132251.akpm@osdl.org>	 <1118960606.24646.58.camel@localhost.localdomain>	 <42B2AACC.7070908@web.de>	 <1119011887.24646.84.camel@localhost.localdomain>	 <42B302C2.9030009@web.de> <9a874849050617101712b80b15@mail.gmail.com> <42CBAFC6.6040608@web.de> <42EAAFD4.4010303@web.de> <42EAD086.4010904@gmail.com>
+In-Reply-To: <42EAD086.4010904@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Then the second test was probably flawed, possibly because we have
-> some more work to do. No display is irrelevant, HZ=100 will still save
-> 0.5W with running display. Spinning disk also does not produce CPU
-> load (and we *will* want to have disk spinned down). No daemons... if
-> some daemon wakes every msec, we want to fix the daemon. 
-
-I was talking about percentage saved; That 5.2% easily drops below 2% 
-once other things start sucking up power.  I was thinking that way since 
-the percentage saved is what determines the overall battery life 
-increase.  You're right in that the absolute power draw difference 
-should stay the same, and that seems to be the case is Marc's tests 
-(ignoring the brokenness of artsd).
-
-> Kernel defaults are irelevant; distros change them anyway. [But we
-> probably want to enable ACPI and cpufreq by default, because that
-> matches what 99% of users will use.]
-
-True, but I think a lot of distros treat the values as recommendations. 
-  I guess we'll find out what they do with this option soon enough.
-
->>I have a fixed-framerate app that had to busywait in the days of 2.4.x. 
->> It was nice in 2.6.x to not have to busywait, but with 250HZ that code 
->>will be coming back again.  And unfortunately this app can't be made 
->>variable-framerate, as it is simulating video hardware.  The same goes 
->>for apps playing movies/animations; Sometimes programs just need a 
->>semi-accurate sleep, and can't demand root priveledges to get it.
+Michael Thonke wrote:
+> Hello Alexander,
 > 
-> I really don't think default HZ in kernel config is such a big
-> deal. You'll want to support HZ=100 on 2.6.X, anyway...
+> do you run
+> A.) SATA in Enhanced Mode
+> B.) SATA+PATA or PATA operation mode?
+> 
+> This problem I can reproduce when I  set A.)+B.) in bios I
+> exactly get the same behavior of confused cd - drives.
 
-Yeah, but if its only the default value for servers and laptops they 
-won't normally be running my app.  I'll be truly happy the day I can 
-delete all the busy-waiting code, as I think its about the ugliest 
-workaround in modern computing.
+Yes, I'm running SATA in enhanced mode with SATA+PATA operation mode and 
+I have to. Running it in compatibility mode (PATA+SATA) I cannot boot 
+from the SATA drive.
 
-> defconfig on i386 is Linus' configuration. Maybe server-config and
-> laptop-config would be good idea...
-
-Well maybe if we can get enough people who agree then it could happen. 
-I think a "laptop-config" and "server-config" file could fit nicely into 
-the current arch/*/config/ directory structure.  I'm not sure how those 
-defconfig files are kept up to date though.
-
-  - Jim
+Regards,
+Alexander

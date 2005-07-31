@@ -1,82 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVGaNJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVGaNaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVGaNJM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 09:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVGaNJM
+	id S261748AbVGaNaI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 09:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVGaNaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 09:09:12 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:47240 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261405AbVGaNJK (ORCPT
+	Sun, 31 Jul 2005 09:30:08 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3243 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261748AbVGaNaG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 09:09:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=dqdKKnx4Iorpk0TNnrFaL0YGxYul49NyvVmxSrfjuTfWiiH1pS66UPVZBkn07GjzVlokUDw14iJHOKQil+IdNFIPEL9dJnOmkT4JE6sYerViIc0FfTjvg4IKcMGec3SOCMvjCJHh1R21pmIP4/dMaaySjGK5A4/Qn8QxcVZLpBs=
-Message-ID: <42ECEA30.5060204@gmail.com>
-Date: Sun, 31 Jul 2005 15:11:44 +0000
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050726)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4-mm1
-References: <20050731020552.72623ad4.akpm@osdl.org>
-In-Reply-To: <20050731020552.72623ad4.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-From: Michael Thonke <iogl64nx@gmail.com>
+	Sun, 31 Jul 2005 09:30:06 -0400
+Date: Sun, 31 Jul 2005 15:29:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: revert yenta free_irq on suspend
+Message-ID: <20050731132958.GB14550@elf.ucw.cz>
+References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com> <Pine.LNX.4.58.0507301331260.29650@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0507301331260.29650@g5.osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew,
+Hi!
 
-the ACPI bug or the problems with 2.6.13-rc3-mm[2,3] gone.
-The system boots now noiseless, except on problem with USB.
+> > Please revert the yenta free_irq on suspend patch (below)
+> > which went into 2.6.13-rc4 after 2.6.13-rc3-git9.
+> 
+> Ok. Will do.
 
-If my Prolific USB-Serialadapter  plugged in on reboot
-the ehci_hcd driver complains about a Hand-off bug in Bios.
+> And the ACPI people had better stop doing this crazy thing in the first 
+> place. There's really no point at all to freeing and re-requesting the 
+> interrupts, and the IRQ controller should just re-initialize itself 
+> instead.
 
--> snip
+Well, on some machines interrupts can change during suspend (or so I
+was told). I did not like the ACPI change at one point, but it is very
+wrong to revert PCMCIA fix without also fixing ACPI interpretter.
 
-ehci_hcd 0000:00:1d.7: EHCI Host Controller
+And it indeed seems that ACPI interpretter is hard to fix in the right
+way.
 
-ehci_hcd 0000:00:1d.7: debug port 1
-
-ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 01010001)
-
-ehci_hcd 0000:00:1d.7: continuing after BIOS bug...
-
-ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-
-ehci_hcd 0000:00:1d.7: irq 161, io mem 0xd2dffc00
-
--> snip
-
-
-I wonder about this because all other USB devices working without this 
-message on boot.
-
-USB Mouse,Keyboard and USB Storage and all mixed from USB 1.1 and 2.
-
-When I rebooted without plugged Prolific Adapter and plug them in the 
-same port
-the kernel prints this message.
-
-->snip
-
-usb 4-1: new full speed USB device using uhci_hcd and address 2
-
-pl2303 4-1:1.0: PL-2303 converter detected
-
-usb 4-1: PL-2303 converter now attached to ttyUSB0
-
--> snip
-
-
-Any Ideas what could be wrong here?
-
-Greets
-
-Best regards
-          Michael
+								Pavel 
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

@@ -1,106 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVGaTg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVGaTiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVGaTg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 15:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVGaTgZ
+	id S261944AbVGaTiv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 15:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVGaTit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 15:36:25 -0400
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:15379 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261943AbVGaTgY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 15:36:24 -0400
-Date: Sun, 31 Jul 2005 21:36:24 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <lm-sensors@lm-sensors.org>
-Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH 2.6] (3/11) hwmon vs i2c, second round
-Message-Id: <20050731213624.0ebc73d3.khali@linux-fr.org>
-In-Reply-To: <20050731205933.2e2a957f.khali@linux-fr.org>
-References: <20050731205933.2e2a957f.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 31 Jul 2005 15:38:49 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3338 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261944AbVGaTg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 15:36:56 -0400
+Date: Sun, 31 Jul 2005 21:36:54 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Zoran Dzelajlija <jelly+news@srk.fer.hr>
+Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org,
+       Takashi Iwai <tiwai@suse.de>
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20050731193654.GH3608@stusta.de>
+References: <20050726150837.GT3160@stusta.de> <42E6645B.30206@zabbo.net> <20050726233837.459A.3.NOFFLE@islands.iskon.hr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050726233837.459A.3.NOFFLE@islands.iskon.hr>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We now have two identical structures, i2c_address_data in i2c-sensor.h
-and i2c_client_address_data in i2c.h. We can kill one of them, I choose
-to keep the one in i2c.h as it makes more sense (this structure is not
-specific to sensors.)
+On Wed, Jul 27, 2005 at 01:38:37AM +0200, Zoran Dzelajlija wrote:
+> Zach Brown <zab@zabbo.net> wrote:
+> > Adrian Bunk wrote:
+> > > This patch schedules obsolete OSS drivers (with ALSA drivers that 
+> > > support the same hardware) for removal.
+> 
+> > > I've Cc'ed the people listed in MAINTAINERS as being responsible for one 
+> > > or more of these drivers, and I've also Cc'ed the ALSA people.
+> 
+> > I haven't touched the maestro drivers in so long (for near-total lack of
+> > docs, etc.) that I can't be considered authoritative for approving it's
+> > removal. If people are relying on it I certainly don't know who they
+> > are.  In better news, Takashi should now have the pile of maestro
+> > hardware that I used in the first pass to help him maintain the ALSA
+> > driver..
+> 
+> The OSS maestro driver works better on my old Armada E500 laptop.  I tried
+> ALSA after switching to 2.6, but the computer hung with 2.6.8.1 or 2.6.10 if
+> I touched the volume buttons.  With OSS they just work.  The four separate
+> dsp devices also look kind of more useful.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+I've left it on the list of OSS drivers scheduled for removal based on 
+Takashi's comment that the volume button problem should be fixed now.
 
- drivers/i2c/i2c-sensor-detect.c |    2 +-
- include/linux/i2c-sensor.h      |   30 +++---------------------------
- 2 files changed, 4 insertions(+), 28 deletions(-)
+If this problem is still present in 2.6.13-rc4, please open a bug at the 
+ALSA bug tracking system [1] and tell me the bug number so that I can 
+track it.
 
---- linux-2.6.13-rc4.orig/drivers/i2c/i2c-sensor-detect.c	2005-07-31 16:07:56.000000000 +0200
-+++ linux-2.6.13-rc4/drivers/i2c/i2c-sensor-detect.c	2005-07-31 20:56:02.000000000 +0200
-@@ -28,7 +28,7 @@
- 
- /* Won't work for 10-bit addresses! */
- int i2c_detect(struct i2c_adapter *adapter,
--	       struct i2c_address_data *address_data,
-+	       struct i2c_client_address_data *address_data,
- 	       int (*found_proc) (struct i2c_adapter *, int, int))
- {
- 	int addr, i, found, j, err;
---- linux-2.6.13-rc4.orig/include/linux/i2c-sensor.h	2005-07-31 16:07:56.000000000 +0200
-+++ linux-2.6.13-rc4/include/linux/i2c-sensor.h	2005-07-31 20:56:02.000000000 +0200
-@@ -22,31 +22,7 @@
- #ifndef _LINUX_I2C_SENSOR_H
- #define _LINUX_I2C_SENSOR_H
- 
--/* A structure containing the detect information.
--   normal_i2c: filled in by the module writer. Terminated by I2C_CLIENT_END.
--     A list of I2C addresses which should normally be examined.
--   probe: insmod parameter. Initialize this list with I2C_CLIENT_END values.
--     A list of pairs. The first value is a bus number (ANY_I2C_BUS for any
--     I2C bus), the second is the address. These addresses are also probed,
--     as if they were in the 'normal' list.
--   ignore: insmod parameter. Initialize this list with I2C_CLIENT_END values.
--     A list of pairs. The first value is a bus number (ANY_I2C_BUS for any
--     I2C bus), the second is the I2C address. These addresses are never
--     probed. This parameter overrules 'normal' and  probe', but not the
--    'force' lists.
--   forces: insmod parameters. A list, ending with a NULL element.
--     Force variables overrule all other variables; they force a detection on
--     that place. If a specific chip is given, the module blindly assumes this
--     chip type is present; if a general force (kind == 0) is given, the module
--     will still try to figure out what type of chip is present. This is useful
--     if for some reasons the detect for SMBus address space filled fails.
--*/
--struct i2c_address_data {
--	unsigned short *normal_i2c;
--	unsigned short *probe;
--	unsigned short *ignore;
--	unsigned short **forces;
--};
-+#include <linux/i2c.h>
- 
- #define SENSORS_MODULE_PARM_FORCE(name) \
-   I2C_CLIENT_MODULE_PARM(force_ ## name, \
-@@ -60,7 +36,7 @@
-                       "List of adapter,address pairs to scan additionally"); \
-   I2C_CLIENT_MODULE_PARM(ignore, \
-                       "List of adapter,address pairs not to scan"); \
--	static struct i2c_address_data addr_data = {			\
-+	static struct i2c_client_address_data addr_data = {		\
- 			.normal_i2c =		normal_i2c,		\
- 			.probe =		probe,			\
- 			.ignore =		ignore,			\
-@@ -228,7 +204,7 @@
-    SMBus addresses, it will only call found_proc if some client is connected
-    to the SMBus (unless a 'force' matched). */
- extern int i2c_detect(struct i2c_adapter *adapter,
--		      struct i2c_address_data *address_data,
-+		      struct i2c_client_address_data *address_data,
- 		      int (*found_proc) (struct i2c_adapter *, int, int));
- 
- #endif				/* def _LINUX_I2C_SENSOR_H */
+> Zoran
 
+cu
+Adrian
+
+[1] https://bugtrack.alsa-project.org/alsa-bug/
 
 -- 
-Jean Delvare
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

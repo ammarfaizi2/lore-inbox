@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVGaIJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVGaI0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVGaIJd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 04:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVGaIJd
+	id S261852AbVGaI0W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 04:26:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVGaI0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 04:09:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63706 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261834AbVGaIJa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 04:09:30 -0400
-Date: Sun, 31 Jul 2005 01:08:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: zghuo@ncic.ac.cn
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [PATCH] Fix PIPE_LEN definition in 2.6.12
-Message-Id: <20050731010819.7d9404ba.akpm@osdl.org>
-In-Reply-To: <1122796514.8909.17.camel@mypad>
-References: <1122796514.8909.17.camel@mypad>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 31 Jul 2005 04:26:22 -0400
+Received: from 238-071.adsl.pool.ew.hu ([193.226.238.71]:54543 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261840AbVGaI0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 04:26:20 -0400
+To: linuxram@us.ibm.com
+CC: akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk, mathurav@us.ibm.com,
+       mike@waychison.com, janak@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-reply-to: <E1Dz8cx-0003AH-00@dorka.pomaz.szeredi.hu> (message from Miklos
+	Szeredi on Sun, 31 Jul 2005 09:52:55 +0200)
+Subject: Re: [PATCH 1/7] shared subtree
+References: <20050725224417.501066000@localhost>
+	 <20050725225907.007405000@localhost>
+	 <E1DxrzJ-0001uo-00@dorka.pomaz.szeredi.hu>
+	 <1122500344.5037.171.camel@localhost>
+	 <E1Dy58Z-0002qL-00@dorka.pomaz.szeredi.hu>
+	 <1122666893.4715.279.camel@localhost>
+	 <E1Dyk4A-0006IL-00@dorka.pomaz.szeredi.hu> <1122770705.6956.23.camel@localhost> <E1Dz8cx-0003AH-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1Dz98d-0003CS-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sun, 31 Jul 2005 10:25:39 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-_________  <zghuo@ncic.ac.cn> wrote:
->
-> With the introduction of the new "struct pipe_inode_info"in 2.6.11,
->  the definition of PIPE_LEN, PIPE_BASE, PIPE_START all become
->  obsolete. The new definition of PIPE_LEN is attached.
+> > Do you still believe that your idea is simpler? 
+> 
+> Well, you have bundled do_make_slave(), pnode_member_to_slave() and
+> empty_pnode() all into one function.  I think your original split is
+> quite nice.  If you'd split this function up like that, I think you'd
+> agree, that the end result is simpler.
 
-bix:/usr/src/linux-2.6.13-rc4> grep -r PIPE_LEN .
-./include/linux/pipe_fs_i.h:#define PIPE_LEN(inode)             ((inode).i_pipe->len)
-bix:/usr/src/linux-2.6.13-rc4> 
+Also you can still use the pnode concept in naming functions and
+explanations.  For example empty_pnode() is a good function name even
+if there's no 'struct pnode'.  Pnodes still exist, they just don't
+have a corresponding object.  
 
-We can just kill it, can't we?
+Miklos

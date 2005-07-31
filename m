@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263215AbVGaL0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263193AbVGaLMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263215AbVGaL0p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 07:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVGaL0j
+	id S263193AbVGaLMN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 07:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVGaLMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 07:26:39 -0400
-Received: from coderock.org ([193.77.147.115]:59588 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261723AbVGaLMS (ORCPT
+	Sun, 31 Jul 2005 07:12:12 -0400
+Received: from coderock.org ([193.77.147.115]:54212 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S263193AbVGaLMB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 07:12:18 -0400
-Message-Id: <20050731111213.636613000@homer>
-Date: Sun, 31 Jul 2005 13:12:08 +0200
+	Sun, 31 Jul 2005 07:12:01 -0400
+Message-Id: <20050731111205.933793000@homer>
+Date: Sun, 31 Jul 2005 13:12:06 +0200
 From: domen@coderock.org
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Jan Veldeman <Jan.Veldeman@advalvas.be>,
-       domen@coderock.org
-Subject: [patch 3/5] Driver core: Documentation: use snprintf and strnlen
-Content-Disposition: inline; filename=fixup-Documentation_filesystems_sysfs.txt
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Feitoza Parisi <marcelo@feitoza.com.br>, domen@coderock.org
+Subject: [patch 1/5] drivers/char/lp.c : Use of the time_after() macro
+Content-Disposition: inline; filename=time_after-drivers_char_lp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jan Veldeman <jan@mind.be>
+From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
 
 
 
-Documentation should give the good example of using snprintf and
-strnlen in stead of sprintf and strlen.
+Use of the time_after() macro, defined at linux/jiffies.h, which deal
+with wrapping correctly and are nicer to read.
 
-PAGE_SIZE is used as the maximal length to reflect the behaviour of
-show/store.
-
-
-Signed-off-by: Jan Veldeman <Jan.Veldeman@advalvas.be>
+Signed-off-by: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 
-
 ---
- sysfs.txt |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ lp.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-Index: quilt/Documentation/filesystems/sysfs.txt
+Index: quilt/drivers/char/lp.c
 ===================================================================
---- quilt.orig/Documentation/filesystems/sysfs.txt
-+++ quilt/Documentation/filesystems/sysfs.txt
-@@ -216,13 +216,13 @@ A very simple (and naive) implementation
+--- quilt.orig/drivers/char/lp.c
++++ quilt/drivers/char/lp.c
+@@ -128,6 +128,7 @@
+ #include <linux/console.h>
+ #include <linux/device.h>
+ #include <linux/wait.h>
++#include <linux/jiffies.h>
  
- static ssize_t show_name(struct device *dev, struct device_attribute *attr, char *buf)
- {
--        return sprintf(buf,"%s\n",dev->name);
-+        return snprintf(buf,PAGE_SIZE,"%s\n",dev->name);
- }
+ #include <linux/parport.h>
+ #undef LP_STATS
+@@ -307,7 +308,7 @@ static ssize_t lp_write(struct file * fi
+ 			(LP_F(minor) & LP_ABORT));
  
- static ssize_t store_name(struct device * dev, const char * buf)
- {
- 	sscanf(buf,"%20s",dev->name);
--	return strlen(buf);
-+	return strnlen(buf,PAGE_SIZE);
- }
+ #ifdef LP_STATS
+-	if (jiffies-lp_table[minor].lastcall > LP_TIME(minor))
++	if (time_after(jiffies, lp_table[minor].lastcall + LP_TIME(minor)))
+ 		lp_table[minor].runchars = 0;
  
- static DEVICE_ATTR(name,S_IRUGO,show_name,store_name);
+ 	lp_table[minor].lastcall = jiffies;
 
 --

@@ -1,55 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVHAH5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVHAIDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261527AbVHAH5k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 03:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVHAH5k
+	id S261879AbVHAIDi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 04:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVHAIDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 03:57:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40082 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261527AbVHAH5b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 03:57:31 -0400
+	Mon, 1 Aug 2005 04:03:38 -0400
+Received: from web30301.mail.mud.yahoo.com ([68.142.200.94]:35691 "HELO
+	web30301.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S261879AbVHAICz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 04:02:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=RUi+sLmX0tBz79fG77Q7by+cbx56QfJrnT6xpxECGxdDQ9h9RyThdyzWIaBnryazc7w2qNI7EPGh0CxAso+XX5xm9l6uOAXX3vnn+2GCNkAaYQKS/3tPsmcpTJ/n9eFpNjHI1EMxQU/jHRWUTJm3DtzHp45JT0k7dM3FkvL4/Y8=  ;
+Message-ID: <20050801080246.76594.qmail@web30301.mail.mud.yahoo.com>
+Date: Mon, 1 Aug 2005 09:02:46 +0100 (BST)
+From: Mark Underwood <basicmark@yahoo.com>
+Subject: How do we handle multi-function devices? [was Re: [patch] ucb1x00: touchscreen cleanups]
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Pavel Machek <pavel@ucw.cz>,
+       Arjan Van de Ven <arjanv@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1122849209.7626.16.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Ulrich Drepper <drepper@gmail.com>
-X-Fcc: ~/Mail/linus
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Fw: sigwait() breaks when straced
-In-Reply-To: Ulrich Drepper's message of  Monday, 1 August 2005 00:09:53 -0700 <a36005b50508010009453fdfb7@mail.gmail.com>
-X-Zippy-Says: Now that we're in LOVE, you can BUY this GOLDFISH for a 48% DISCOUNT.
-Message-Id: <20050801075704.D5120180EC0@magilla.sf.frob.com>
-Date: Mon,  1 Aug 2005 00:57:04 -0700 (PDT)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But sigwait is not a function specified with an EINTR error number. 
-> As I said before, this does not mean that EINTR cannot be returned. 
-> But it will create havoc among programs and it causes undefined
-> behavior wrt to SA_RESTART.  I think it is best to not have any
-> function for which EINTR is not a defined error to fail this way. 
-> This causes the least amount of surprises and unnecessary loops around
-> the userlevel call sites.
 
-We use the same rt_sigtimedwait system call for sigtimedwait and
-sigwaitinfo, which do list EINTR for the case of a handled signal.
-It's for this scenario that the system call gives EINTR in this case.
-We could have libc's sigwait repeat the system call on EINTR.
+--- Richard Purdie <rpurdie@rpsys.net> wrote:
 
-Unfortunately it is already the case that stop signals cause signal
-interruption of system calls when they should be restarted.
-rt_sigtimedwait is no different from other system calls in this regard.
-It's a general problem.  There is a signal wakeup in order to process the
-stop signal.  The blocking system call wakes up diagnoses this with EINTR.
-In the case of a handled signal, this gets to the handler setup and the
-first thing that does is the SA_RESTART processing.  But when the signal
-instead causes a stop (for job control or ptrace) and a later resumption
-without running a signal handler, no restart happens.  In the case of the
-sleep calls, this causes early wakeups.  In other blocks it produces the
-spurious EINTR returns.
+> On Sun, 2005-07-31 at 23:11 +0100, Mark Underwood
+> wrote:
+> > As this isn't the only chip of this sort (i.e. a
+> > multi-function chip not on the CPU bus) maybe we
+> > should store the bus driver in a common place. If
+> > needed we could have a very simple bus driver
+> > subsystem (this might already be in the kernel, I
+> > haven't looked at the bus stuff) in which you
+> register
+> > a bus driver and client drivers register with the
+> bus
+> > driver. Just an idea :-).
+> 
+> This was the idea with the drivers/soc suggestion
+> although I think that
+> name is perhaps misleading.
+> 
+> How about drivers/mfd where mfd = Multi Functional
+> Devices?
+
+I was thinking of something like driver/bus into which
+we might also be able to put the I2C and LL3 buses.
+The only problem is that this might leave some parts
+of the multi function chip homeless (if they can't
+find a home in other subsystems).
+
+> 
+> I think it would be acceptable (and in keeping with
+> the other drivers
+> e.g. pcmcia) to seeing the arch and platform
+> specific modules with the
+> main driver as long as the naming reflected it (like
+> the existing mcp
+> and ucb code does) i.e.:
+> 
+> mcp-core.c
+> mcp-sa1100.c
+> ucb1x00-code.c
+> ucb1x00-assabet.c
+> ucb1x00-collie.c
+
+Maybe, I haven't looked at pcmcia but the I2C
+subsystem manages to avoid any arch dependent stuff so
+couldn't we? I need to do more homework ;-), but
+surely we only need a bus driver (IP block specific,
+platform and arch independent), a core driver to
+register busses and clients, and client drivers.
+
+> 
+> If code can be separated out into subsystems, I'm
+> not so sure where they
+> should go though. The existing policy would suggest
+> drivers/input/touchscreen and sound/xxx for these...
+> 
+> ucb1x00-ts.c
+> ucb1x00-audio.c
+
+Yes, any function of a multi function device that can
+live in a subsystem should do otherwise imagine the
+mess, for example, with a chip that has a USB master
+on it.
+
+Mark
+
+> 
+> Opinions/Comments?
+> 
+> Richard
+> 
+> 
 
 
 
-Thanks,
-Roland
+	
+	
+		
+___________________________________________________________ 
+Yahoo! Messenger - NEW crystal clear PC to PC calling worldwide with voicemail http://uk.messenger.yahoo.com

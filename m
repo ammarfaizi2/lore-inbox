@@ -1,79 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVHAVdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVHAVfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVHAVdN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 17:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVHAV2g
+	id S261292AbVHAVfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 17:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVHAVdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:28:36 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:2470 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261289AbVHAV2D (ORCPT
+	Mon, 1 Aug 2005 17:33:18 -0400
+Received: from grendel.sisk.pl ([217.67.200.140]:1417 "HELO mail.sisk.pl")
+	by vger.kernel.org with SMTP id S261292AbVHAVc5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:28:03 -0400
-Date: Mon, 1 Aug 2005 23:28:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Luca Falavigna <dktrkranz@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Real-Time Preemption V0.7.52-07: rt_init_MUTEX_LOCKED declaration
-Message-ID: <20050801212833.GA23948@elte.hu>
-References: <42EE4D27.8060500@gmail.com> <1122922658.6759.22.camel@localhost.localdomain> <20050801210324.GA21087@elte.hu> <1122931497.6759.47.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Aug 2005 17:32:57 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: revert yenta free_irq on suspend
+Date: Mon, 1 Aug 2005 23:38:09 +0200
+User-Agent: KMail/1.8.1
+Cc: Shaohua Li <shaohua.li@intel.com>, linux-kernel@vger.kernel.org,
+       ambx1@neo.rr.com, torvalds@osdl.org, pavel@ucw.cz, hugh@veritas.com,
+       linux@dominikbrodowski.net, daniel.ritz@gmx.ch, len.brown@intel.com
+References: <2e00842e116e.2e116e2e0084@columbus.rr.com> <1122861542.2953.8.camel@linux-hp.sh.intel.com> <20050731190645.748f57e9.akpm@osdl.org>
+In-Reply-To: <20050731190645.748f57e9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1122931497.6759.47.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200508012338.10473.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+On Monday, 1 of August 2005 04:06, Andrew Morton wrote:
+> Shaohua Li <shaohua.li@intel.com> wrote:
+> >
+> > Hi,
+> > > In general, I think that calling free_irq is the right behavior.
+> > > Although irqs changing after suspend is rare, there are also some
+> > > more serious issues.  This has been discussed in the past, and a
+> > > summary is as follows:
+> >
+> > irqs actually isn't changed after suspend currently, it's a considering
+> > for future usage like hotplug.
+> > Calling free_irq actually isn't a complete ACPI issue, but ACPI requires
+> > it to solve nasty 'sleep in atomic' warning.
+> 
+> Is that the only problem?  If so, then surely we can make free_irq() run
+> happily with interrupts disabled: unlink the IRQ handler synchronously,
+> defer the /proc teardown or something like that.
+> 
+> > You will find such break
+> > with swsusp without ACPI. Could we revert the ACPI change in Linus's
+> > tree but keep it in -mm tree? So we get a chance to fix drivers.
+> 
+> That depends on the amount of brokenness involved: if it's significant then
+> I'll get a ton of bug reports concerning something which we already know is
+> broken and we'll drive away our long-suffering testers.
 
-> On Mon, 2005-08-01 at 23:03 +0200, Ingo Molnar wrote:
-> > * Steven Rostedt <rostedt@goodmis.org> wrote:
-> > 
-> > > -	struct semaphore stop;
-> > > +	struct compat_semaphore stop;
-> > 
-> > i think it's policy->lock that is the issue here?
-> > 
-> 
-> I was looking at Luca's original message where he showed the bug of 
-> -- drivers/char/watchdog/cpu5wdt.c: "cpu5wdt: Unknown symbol
-> there_is_no_init_MUTEX_LOCKED_for_RT_semaphores") --
-> Looking into this file the only init_MUTEX_LOCKED that I found was 
-> 
-> static int __devinit cpu5wdt_init(void)
-> {
-> 	unsigned int val;
-> 	int err;
-> 
-> [...]
-> 
-> 	/* watchdog reboot? */
-> 	val = inb(port + CPU5WDT_STATUS_REG);
-> 	val = (val >> 2) & 1;
-> 	if ( !val )
-> 		printk(KERN_INFO PFX "sorry, was my fault\n");
-> 
-> 	init_MUTEX_LOCKED(&cpu5wdt_device.stop);
-> 	cpu5wdt_device.queue = 0;
-> 
-> 	clear_bit(0, &cpu5wdt_device.inuse);
-> 
-> 
-> 
-> Here I see that cpu5wdt_device.stop is being initialized with 
-> init_MUTEX_LOCKED, so that is what I went to fix.  I even added the 
-> driver to my config and compiled it before sending it in.  I don't 
-> have the device, but the driver compiled :-)
+Well, IMO there's no such danger.  ;-)  The relevent ACPI change has
+been in -mm since 2.6.12-rc1-mm1 and _nobody_ except for me has reported
+_any_ problems with it. :-)
 
-ok - the fix is in -52-10.
+OTOH, if the change is kept in -mm, we hopefully will be able to identify
+the drivers that need to be converted first, on the basis of the bug reports.
 
-	Ingo
+And the testers need not be driven away if the issues they report are fixed
+in a timely manner, which is quite simple in this particuar case, because we
+know what's potentially broken, we know how to fix it, and the fix is quite not
+that complicated.
+
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

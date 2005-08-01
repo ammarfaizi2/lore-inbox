@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVHAWPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVHAWPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVHAWPY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 18:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVHAWNS
+	id S261315AbVHAWPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 18:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVHAWNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 18:13:18 -0400
-Received: from graphe.net ([209.204.138.32]:60615 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261316AbVHAWCx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 18:02:53 -0400
-Date: Mon, 1 Aug 2005 15:02:49 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Richard Purdie <rpurdie@rpsys.net>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm3
-In-Reply-To: <1122933133.7648.141.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0508011456390.8188@graphe.net>
-References: <20050728025840.0596b9cb.akpm@osdl.org> 
- <1122860603.7626.32.camel@localhost.localdomain>  <Pine.LNX.4.62.0508010908530.3546@graphe.net>
-  <1122926537.7648.105.camel@localhost.localdomain> 
- <Pine.LNX.4.62.0508011335090.7011@graphe.net>  <1122930474.7648.119.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508011414480.7574@graphe.net>  <1122931637.7648.125.camel@localhost.localdomain>
-  <Pine.LNX.4.62.0508011438010.7888@graphe.net> <1122933133.7648.141.camel@localhost.localdomain>
+	Mon, 1 Aug 2005 18:13:14 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:27522 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261315AbVHAWCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 18:02:52 -0400
+Message-ID: <42EE9C0F.30004@gmail.com>
+Date: Tue, 02 Aug 2005 00:02:55 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH rc4-mm1] drivers/char/isicom.c old api rewritten
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Aug 2005, Richard Purdie wrote:
+Hello.
+Could you send me critics and bugs?
+Could somebody test it (but NOT now)?
+Thanks.
 
-> cmpxchg_fail_flag_update 1359210189
-> 
-> That number rapidly increases and so it looks like something is failing
-> and looping...
+ drivers/char/isicom.c  | 1610 
+++++++++++++++++++++++++-------------------------
+ include/linux/isicom.h |    8
+ 2 files changed, 817 insertions(+), 801 deletions(-)
 
-That looks like some trouble with the MMU. The time between pte read and 
-write has been shortened through the page fault scalability patches. 
+Here it is (about 65 KiB):
+http://www.fi.muni.cz/~xslaby/lnx/isi.txt
 
-Does this patch fix it?
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
 
-Index: linux-2.6.13-rc4-mm1/mm/memory.c
-===================================================================
---- linux-2.6.13-rc4-mm1.orig/mm/memory.c	2005-08-01 12:59:49.000000000 -0700
-+++ linux-2.6.13-rc4-mm1/mm/memory.c	2005-08-01 15:02:19.000000000 -0700
-@@ -2105,6 +2105,7 @@
- 		lazy_mmu_prot_update(entry);
- 	} else {
- 		inc_page_state(cmpxchg_fail_flag_update);
-+		set_pte_at(mm, address, pte, new_entry);
- 	}
- 
- 	pte_unmap(pte);

@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVHAWmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVHAVMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbVHAWmg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 18:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVHAWkE
+	id S261268AbVHAVMr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 17:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVHAUew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 18:40:04 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:16860 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261265AbVHAWhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 18:37:50 -0400
-Date: Mon, 1 Aug 2005 15:36:51 -0700
+	Mon, 1 Aug 2005 16:34:52 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:38057 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261230AbVHAUdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 16:33:16 -0400
+Message-Id: <20050801203011.514711000@araj-em64t>
+References: <20050801202017.043754000@araj-em64t>
+Date: Mon, 01 Aug 2005 13:20:23 -0700
 From: Ashok Raj <ashok.raj@intel.com>
-To: akpm@osdl.org
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       zwane@arm.linux.org.uk, ashok.raj@intel.com
-Subject: Re: [patch 1/8] x86_64: Reintroduce clustered_apic_check() for x86_64.
-Message-ID: <20050801153651.A15609@unix-os.sc.intel.com>
-References: <20050801202017.043754000@araj-em64t> <20050801203010.952356000@araj-em64t>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050801203010.952356000@araj-em64t>; from ashok.raj@intel.com on Mon, Aug 01, 2005 at 01:20:18PM -0700
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@muc.de>,
+       zwane@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [patch 6/8] x86_64:Dont use Lowest Priority when using physical mode.
+Content-Disposition: inline; filename=fix-physflat-dmode
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 01:20:18PM -0700, Ashok Raj wrote:
-> Auto selection of bigsmp patch removed this check from a shared common file
-> in arch/i386/kernel/acpi/boot.c. We still need to call this to determine 
-> the right genapic code for x86_64. 
-> 
-
-Thanks venki,
-
-missed the check for lapic and smp_found_config before the call.
-
-Resending patch.
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
-
-Auto selection of bigsmp patch removed this check from a shared common file
-in arch/i386/kernel/acpi/boot.c. We still need to call this to determine 
-the right genapic code for x86_64. 
+Delivery mode should be APIC_DM_FIXED when using physical mode.
 
 Signed-off-by: Ashok Raj <ashok.raj@intel.com>
------------------------------------------------------------
- arch/x86_64/kernel/setup.c |    2 ++
- 1 files changed, 2 insertions(+)
+----------------------------------------------------
+ arch/x86_64/kernel/genapic_flat.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Index: linux-2.6.13-rc4-mm1/arch/x86_64/kernel/setup.c
+Index: linux-2.6.13-rc4-mm1/arch/x86_64/kernel/genapic_flat.c
 ===================================================================
---- linux-2.6.13-rc4-mm1.orig/arch/x86_64/kernel/setup.c
-+++ linux-2.6.13-rc4-mm1/arch/x86_64/kernel/setup.c
-@@ -663,6 +663,8 @@ void __init setup_arch(char **cmdline_p)
- 	 * Read APIC and some other early information from ACPI tables.
- 	 */
- 	acpi_boot_init();
-+	if (acpi_lapic && smp_found_config)
-+		clustered_apic_check();
- #endif
+--- linux-2.6.13-rc4-mm1.orig/arch/x86_64/kernel/genapic_flat.c
++++ linux-2.6.13-rc4-mm1/arch/x86_64/kernel/genapic_flat.c
+@@ -175,9 +175,9 @@ static unsigned int physflat_cpu_mask_to
  
- #ifdef CONFIG_X86_LOCAL_APIC
+ struct genapic apic_physflat =  {
+ 	.name = "physical flat",
+-	.int_delivery_mode = dest_LowestPrio,
++	.int_delivery_mode = dest_Fixed,
+ 	.int_dest_mode = (APIC_DEST_PHYSICAL != 0),
+-	.int_delivery_dest = APIC_DEST_PHYSICAL | APIC_DM_LOWEST,
++	.int_delivery_dest = APIC_DEST_PHYSICAL | APIC_DM_FIXED,
+ 	.target_cpus = physflat_target_cpus,
+ 	.apic_id_registered = flat_apic_id_registered,
+ 	.init_apic_ldr = flat_init_apic_ldr,/*not needed, but shouldn't hurt*/
+
+--
+

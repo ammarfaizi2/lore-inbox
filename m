@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVHAG0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVHAG3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbVHAG0P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 02:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVHAG0O
+	id S262343AbVHAG3c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 02:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVHAG3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 02:26:14 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:14992 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262341AbVHAG0K (ORCPT
+	Mon, 1 Aug 2005 02:29:32 -0400
+Received: from mail.suse.de ([195.135.220.2]:45206 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262343AbVHAG3b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 02:26:10 -0400
-Date: Mon, 1 Aug 2005 08:25:58 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: 7eggert@gmx.de
-cc: karim@opersys.com, Ingo Oeser <ioe-lkml@rameria.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Average instruction length in x86-built kernel?
-In-Reply-To: <E1Dz3Pp-0000zu-6N@be1.lrz>
-Message-ID: <Pine.LNX.4.61.0508010819520.6353@yvahk01.tjqt.qr>
-References: <4vKU4-3sU-21@gated-at.bofh.it> <4w02Q-7e6-21@gated-at.bofh.it>
- <4w5OQ-6Z9-25@gated-at.bofh.it> <E1Dz3Pp-0000zu-6N@be1.lrz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Aug 2005 02:29:31 -0400
+Date: Mon, 1 Aug 2005 08:29:29 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Anton Blanchard <anton@samba.org>,
+       Stephen Rothwell <sfr@canb.auug.org.au>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PPC64] Remove another fixed address constraint
+Message-ID: <20050801062929.GA22102@suse.de>
+References: <20050725061635.GD19817@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20050725061635.GD19817@localhost.localdomain>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Mon, Jul 25, David Gibson wrote:
 
->> Here's a script that does what I was looking for:
-><snip>
+> Presently the LparMap, one of the structures the kernel shares with
+> the legacy iSeries hypervisor has a fixed offset address in head.S.
+> This patch changes this so the LparMap is a normally initialized
+> structure, without fixed address.  This allows us to use macros to
+> compute some of the values in the structure, which wasn't previously
+> possible because the assembler always uses signed-% which gets the
+> wrong answers for the computations in question.
+> 
+> Unfortunately, a gcc bug means that doing this requires another
+> structure (hvReleaseData) to be initialized in asm instead of C, but
+> on the whole the result is cleaner than before.
 
-Mmmmh, perlgolf?
+I think this change caused this compile error in rc4:
 
->#!/bin/bash
->for a in "$@"
->do
->        objdump -d "$a" -j .text 
->done | perl -ne'
->BEGIN{%h=();$b=0};
->END{if($b){$h{$b}++};print map("$_: $h{$_}\n", sort(keys(%h)))};
->if(/\tnop    $/){$h{nop}++}
->elsif(/^[\s0-9a-f]{8}:\t([^\t]+) (\t?)/){
-> $b+=split(" ",$1);if($2){$h{$b}++;$b=0}}'
+{standard input}: Assembler messages:
+{standard input}:254: Error: value of 4000000000002080 too large for field of 4 bytes at 0000000000002108
+make[1]: *** [arch/ppc64/kernel/LparData.o] Error 1
 
-objdump -j .text -d "$@" | perl -ne '
-END{$h{$b}++if$b;print map"$_: $h{$_}\n",sort keys%h};
-if(/\tnop\s*$/){$h{nop}++}    
-elsif(/^.*?:\t([^\t]+) (\t?)/){
- $b+=split/ /,$1;if($2){$h{$b}++;$b=0}}'
+binutils-2.16.91.0.2
+gcc-4.0.2_20050727
 
-
-
-Jan Engelhardt
--- 
-| Alphagate Systems, http://alphagate.hopto.org/

@@ -1,60 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbVHAGsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVHAGvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbVHAGsi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 02:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbVHAGsi
+	id S262358AbVHAGvO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 02:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbVHAGvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 02:48:38 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44304 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262356AbVHAGsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 02:48:37 -0400
-Date: Mon, 1 Aug 2005 07:48:31 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Richard Purdie <rpurdie@rpsys.net>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Heads up for distro folks: PCMCIA hotplug differences (Re: -rc4: arm broken?)
-Message-ID: <20050801074831.A677@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Richard Purdie <rpurdie@rpsys.net>, Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20050730130406.GA4285@elf.ucw.cz> <1122741937.7650.27.camel@localhost.localdomain> <20050730201508.B26592@flint.arm.linux.org.uk> <20050730223628.M26592@flint.arm.linux.org.uk> <1122858068.15622.10.camel@localhost.localdomain>
+	Mon, 1 Aug 2005 02:51:14 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:39055 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262358AbVHAGvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 02:51:11 -0400
+Subject: Re: [ACPI] S3 and sigwait (was Re: 2.6.13-rc3: swsusp works (TP
+	600X))
+From: Shaohua Li <shaohua.li@intel.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+In-Reply-To: <20050730103034.GC1942@elf.ucw.cz>
+References: <20050730103034.GC1942@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 01 Aug 2005 14:51:34 +0800
+Message-Id: <1122879094.3285.2.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1122858068.15622.10.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 01, 2005 at 02:01:07AM +0100
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 02:01:07AM +0100, Alan Cox wrote:
-> On Sad, 2005-07-30 at 22:36 +0100, Russell King wrote:
-> > Since PCMCIA cards are detected and drivers bound at boot time, we no
-> > longer get hotplug events to setup networking for PCMCIA network cards
-> > already inserted.  Consequently, if you are relying on /sbin/hotplug to
-> > setup your PCMCIA network card at boot time, triggered by the cardmgr
-> > startup binding the driver, it won't happen.
+On Sat, 2005-07-30 at 18:30 +0800, Pavel Machek wrote:
+> Hi!
 > 
-> So eth0 now randomly changes between on board and PCMCIA depending upon
-> whether the PCMCIA card was inserted or not, and your disks re-order
-> themselves in the same situation. That'll be funny if anyone does a
-> mkswap to share their swap between Linux and Windows. Gosh look there
-> goes the root partition.
+> > >> One other glitch is that pdnsd (a nameserver caching daemon) has
+> crashed 
+> > >> when the system wakes up from swsusp.  It also happens when
+> waking up 
+> > >> from S3, which was working with 2.6.11.4 although not with
+> 2.6.13-rc3. 
+> > >> Many people have said mysql also does not suspend well.  Is their
+> use of 
+> > >> a named pipe or socket causing the problem? 
+> >  
+> > > No idea, strace? 
+> >  
+> > The upshot of stracing is in tthe Debian BTS <bugs.debian.org> 
+> > #319572.  Paul Rombouts, an author of pdnsd, reproduced the strace 
+> > crash and found the problem: 
+> >  
+> > > Apparently strace causes sigwait to return EINTR, which is 
+> > > inconsistent with the documentation I could find on sigwait. 
+> >  
+> > Which is true.  The sigwait man entry (Debian 'etch') says: 
+> >        The !sigwait! function never returns an error. 
+> >  
+> > His patch (available in the BTS and included below) fixed the
+> problem 
+> > of strace or S3 sleep crashing pdnsd.
 > 
-> I'm hoping thats not what you are implying. Especially for disks,
-> network is much much less of an issue.
+> If you think it is a linux bug, can you produce small test case doing 
+> just the sigwait, and post it on l-k with big title "sigwait() breaks 
+> when straced, and on suspend"?
+> 
+> That way it is going to get some attetion, and you'll get either 
+> documentation or kernel fixed. 
+Looks like a linux bug to me. The refrigerator fake signal waked the
+task up and without restart for the sigwait case. How about below patch:
 
-If you have the socket driver as a module, as some (most?) distros do,
-then of course such cards won't be detected at boot time.  If PCMCIA
-and the socket driver are built-in, along with the card driver, then
-I guess this possibility may well exist - it does for NE2K cards.
 
-Since I don't use CF cards with PCMCIA here, I can't say what the ide-cs
-behaviour actually is.  This is why I'm trying to encourage folk to
-explore the kernels new behaviour.
+Thanks,
+Shaohua
+---
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+ linux-2.6.13-rc4-root/kernel/signal.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletion(-)
+
+diff -puN kernel/signal.c~sigwait-suspend-resume kernel/signal.c
+--- linux-2.6.13-rc4/kernel/signal.c~sigwait-suspend-resume	2005-08-01 14:00:39.089460688 +0800
++++ linux-2.6.13-rc4-root/kernel/signal.c	2005-08-01 14:30:13.821660384 +0800
+@@ -2188,6 +2188,7 @@ sys_rt_sigtimedwait(const sigset_t __use
+ 	struct timespec ts;
+ 	siginfo_t info;
+ 	long timeout = 0;
++	int recover = 0;
+ 
+ 	/* XXX: Don't preclude handling different sized sigset_t's.  */
+ 	if (sigsetsize != sizeof(sigset_t))
+@@ -2225,15 +2226,23 @@ sys_rt_sigtimedwait(const sigset_t __use
+ 			 * be awakened when they arrive.  */
+ 			current->real_blocked = current->blocked;
+ 			sigandsets(&current->blocked, &current->blocked, &these);
++do_recover:
+ 			recalc_sigpending();
+ 			spin_unlock_irq(&current->sighand->siglock);
+ 
+ 			current->state = TASK_INTERRUPTIBLE;
+ 			timeout = schedule_timeout(timeout);
+ 
+-			try_to_freeze();
++			if (try_to_freeze())
++				recover = 1;
+ 			spin_lock_irq(&current->sighand->siglock);
+ 			sig = dequeue_signal(current, &these, &info);
++			if (!sig && recover) {
++				if (timeout == 0)
++					timeout = MAX_SCHEDULE_TIMEOUT;
++				recover = 0;
++				goto do_recover;
++			}
+ 			current->blocked = current->real_blocked;
+ 			siginitset(&current->real_blocked, 0);
+ 			recalc_sigpending();
+_
+
+

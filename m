@@ -1,83 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVHAJKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVHAJQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVHAJKq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 05:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVHAJKq
+	id S262007AbVHAJQP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 05:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVHAJQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 05:10:46 -0400
-Received: from gate.crashing.org ([63.228.1.57]:39831 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261959AbVHAJKp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 05:10:45 -0400
-Subject: Re: revert yenta free_irq on suspend
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0507301404240.29650@g5.osdl.org>
-References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com>
-	 <20050730210306.D26592@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.58.0507301335050.29650@g5.osdl.org>
-	 <20050730215403.J26592@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.58.0507301404240.29650@g5.osdl.org>
-Content-Type: text/plain
-Date: Mon, 01 Aug 2005 11:06:49 +0200
-Message-Id: <1122887210.18835.119.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Aug 2005 05:16:15 -0400
+Received: from nebuchadnezzar.smejdil.cz ([195.122.194.203]:37642 "EHLO
+	nebuchadnezzar.smejdil.cz") by vger.kernel.org with ESMTP
+	id S262007AbVHAJQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 05:16:15 -0400
+Date: Mon, 1 Aug 2005 11:16:09 +0200 (CEST)
+From: CIJOML <cijoml@nebuchadnezzar.smejdil.cz>
+To: Michael Krufky <mkrufky@m1k.net>
+Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2 errors in 2.6.12
+In-Reply-To: <42ED1016.1000804@m1k.net>
+Message-ID: <20050801111414.G59306@nebuchadnezzar.smejdil.cz>
+References: <200506190958.00267.cijoml@volny.cz> <20050728214851.44877164.akpm@osdl.org>
+ <200507311351.52631.cijoml@volny.cz> <20050731103156.69536415.akpm@osdl.org>
+ <42ED1016.1000804@m1k.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-07-30 at 14:10 -0700, Linus Torvalds wrote:
-> 
-> On Sat, 30 Jul 2005, Russell King wrote:
-> > 
-> > I don't think so - I believe one of the problem cases is where you
-> > have a screaming interrupt caused by an improperly setup device.
-> 
-> Not a problem.
-> 
-> The thing is, this is trivially solved by
->  - disable irq controller last on shutdown
->  - re-enable irq controller last on resume
-> 
-> Think about it. Even if you have screaming irq's (and thus we'll shut
-> things down somewhere during the resume), when we then get to re-enable
-> the irq controller thing, we'll have them all back again at that point.
-> Problem solved.
 
-That is nasty. That means every single driver must be careful not to
-ever "wait" for the device interrupt to happen at resume. I'm not
-talking about adding a timeout or such (that should be done anyway to
-deal with hot unplug) but having something like IDE -> queues wakeup
-request and blocks til it's dealt with. That sort of thing. It's
-annoying, it means no driver can rely on IRQs actually working in their
-resume callback. Not nice.
+Hi,
 
-Also, once a driver has woken up, it doesn't really have an idea that
-the rest of the system is not yet fully up (or that it actually is), and
-thus doesn't really know if interrupts are still globally off or not if
-we implement your scheme. That may cause nasty effects too I suppose...
+my card is impossible to be autodetected. Valid sections for it's
+identification are missing.
 
-> You can have variations on this, of course - you can enable the irq
-> controller early _and_ late in the resume process. Ie do a minimal "get
-> the basics working" early - you might want to make sure that timers etc
-> work early on, for example, and then a "fix up the details" thing late.
-> 
-> An interrupt controller is clearly a special case, so it's worth spending 
-> some effort on handling it.
-> 
-> In contrast, what is _not_ worth doing is screweing over every single
-> driver we have.
+I asked for this some time ago. I need to use insmod option.
 
-I'm not fan of the free/request irq on suspend & resume for various
-reasons, and I don't think it actually fixes the problem discussed
-anyway because of shared interrupts, but heh, the problem is real on x86
-it seems (BIOS crap !). Not sure what the best fix is.
+Michal
 
-Ben.
+On Sun, 31 Jul 2005, Michael Krufky wrote:
 
-
+> Andrew Morton wrote:
+>
+> >Michal Semler <cijoml@volny.cz> wrote:
+> >
+> >
+> >> This is what I gets into dmesg:
+> >>
+> >> Linux video capture interface: v1.00
+> >> bttv: driver version 0.9.15 loaded
+> >> bttv: using 8 buffers with 2080k (520 pages) each for capture
+> >> bttv: Bt8xx card found (0).
+> >> ACPI: PCI Interrupt 0000:01:0b.0[A] -> Link [LNKH] -> GSI 9 (level, low) ->
+> >> IRQ 9
+> >> bttv0: Bt878 (rev 17) at 0000:01:0b.0, irq: 9, latency: 32, mmio: 0xb69fe000
+> >> bttv0: using: ProVideo PV951 [card=42,insmod option]
+> >> bttv0: gpio: en=00000000, out=00000000 in=00ffffff [init]
+> >> bttv0: using tuner=1
+> >> bttv0: i2c: checking for TDA9875 @ 0xb0... not found
+> >> bttv0: i2c: checking for TDA7432 @ 0x8a... not found
+> >> tvaudio: TV audio decoder + audio/video mux driver
+> >> tvaudio: known chips:
+> >> tda9840,tda9873h,tda9874h/a,tda9850,tda9855,tea6300,tea6320,tea6420,tda8425,pic16c54
+> >> (PV951),ta8874z
+> >> tvaudio: found pic16c54 (PV951) @ 0x96
+> >> bttv0: i2c: checking for TDA9887 @ 0x86... not found
+> >> tuner: Unknown parameter `type'
+> >> bttv0: registered device video0
+> >> bttv0: registered device vbi0
+> >> bttv0: registered device radio0
+> >> bttv0: PLL: 28636363 => 35468950 .. ok
+> >> ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 10
+> >> PCI: setting IRQ 10 as level-triggered
+> >> ACPI: PCI Interrupt 0000:01:0c.0[A] -> Link [LNKB] -> GSI 10 (level, low) ->
+> >> IRQ 10
+> >>
+> >>
+> >
+> >(cc the v4l list)
+> >
+> >The above is with 2.6.13-rc4.  2.6.11 was OK.
+> >
+> >
+> Michael-
+>
+> Please remove the insmod options:
+>
+> bttv0: using: ProVideo PV951 [card=42,insmod option]
+>
+> ...and show us dmesg output with autodetection.
+>
+> Also, please try CVS and tell us if you still have the problem... Instructions at:
+>
+> http://linuxtv.org/v4lwiki/index.php/How_to_build_from_CVS
+>
+> --
+> Michael Krufky
+>

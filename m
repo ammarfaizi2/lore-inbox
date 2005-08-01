@@ -1,81 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVHAFY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbVHAF1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbVHAFY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 01:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVHAFXW
+	id S262318AbVHAF1E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 01:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbVHAF1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 01:23:22 -0400
-Received: from orb.pobox.com ([207.8.226.5]:26046 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262316AbVHAFWw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 01:22:52 -0400
-Date: Mon, 1 Aug 2005 00:22:44 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, colpatch@us.ibm.com, akpm@osdl.org,
-       paulus@samba.org
-Subject: Re: topology api confusion
-Message-ID: <20050801052244.GA3985@otto>
-References: <20050722213316.GE17865@otto> <20050801050748.GB31199@krispykreme>
+	Mon, 1 Aug 2005 01:27:03 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:6598
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262318AbVHAFZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 01:25:14 -0400
+Date: Sun, 31 Jul 2005 22:25:04 -0700 (PDT)
+Message-Id: <20050731.222504.77057517.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, laforge@gnumonks.org
+Subject: Re: git-net-fixup.patch added to -mm tree
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050731222125.37ab12e8.akpm@osdl.org>
+References: <200508010504.j7154m5B022440@shell0.pdx.osdl.net>
+	<20050731.221246.68159198.davem@davemloft.net>
+	<20050731222125.37ab12e8.akpm@osdl.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050801050748.GB31199@krispykreme>
-User-Agent: Mutt/1.5.9i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
-> 
-> Hi,
-> 
-> > We need some clarity on how asm-generic/topology.h is intended to be
-> > used.  I suspect that it's supposed to be unconditionally included at
-> > the end of the architecture's topology.h so that any elements which
-> > are undefined by the arch have sensible default definitions.  Looking
-> > at 2.6.13-rc3, this is what ppc64, ia64, and x86_64 currently do,
-> > however i386 does not (i386 pulls in the generic version only when
-> > !CONFIG_NUMA).
-> > 
-> > The #ifndef guards around each element of the topology api
-> > cannot serve their apparent intended purpose when the architecture
-> > implements a given bit as a function instead of a macro
-> > (e.g. cpu_to_node in ppc64):
-> 
-> Since it doesnt look like this will be resolved by 2.6.13 and NUMA is
-> currently completely broken on ppc64, how does this patch look?
+From: Andrew Morton <akpm@osdl.org>
+Date: Sun, 31 Jul 2005 22:21:25 -0700
 
-Yes, this change is the least risk for now, thanks.
+> Actually, that patch is just a fixup for a patch reject from the net-2.6.14
+> diff.  I do that sometimes when I get sick of fixing up the same reject
+> each time I pull the various trees.
+> 
+> (I'm not sure _why_ I'm getting a reject applying that diff.  Nothing else
+> touches that file.  git is not quite yet generating the linus->davem diff
+> which I want..)
 
-> 
-> --
-> 
-> Dont include asm-generic/topology.h unconditionally, we end up
-> overriding all the ppc64 specific functions when NUMA is on.
-> 
-> Signed-off-by: Anton Blanchard <anton@samba.org>
-> 
-> Index: linux-2.6.git-work/include/asm-ppc64/topology.h
-> ===================================================================
-> --- linux-2.6.git-work.orig/include/asm-ppc64/topology.h	2005-07-30 23:49:56.000000000 +1000
-> +++ linux-2.6.git-work/include/asm-ppc64/topology.h	2005-08-01 14:43:49.000000000 +1000
-> @@ -33,6 +33,7 @@
->  	return first_cpu(tmp);
->  }
->  
-> +#define pcibus_to_node(node)    (-1)
->  #define pcibus_to_cpumask(bus)	(cpu_online_map)
->  
->  #define nr_cpus_node(node)	(nr_cpus_in_node[node])
-> @@ -59,8 +60,10 @@
->  	.nr_balance_failed	= 0,			\
->  }
->  
-> -#endif /* CONFIG_NUMA */
-> +#else
->  
->  #include <asm-generic/topology.h>
->  
-> +#endif /* CONFIG_NUMA */
-> +
->  #endif /* _ASM_PPC64_TOPOLOGY_H */
+There is a tiny bit of conflicts between linux-2.6 and net-2.6.14,
+because of some bug fixes that went into Linus's tree over the
+past week.
+
+I'll try to rebuild the net-2.6.14 tree if I get a chance before
+heading off to the UK tomorrow.  That should help things out for
+you.

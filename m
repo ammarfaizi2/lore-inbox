@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVHAMSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVHAMVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbVHAMSw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 08:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVHAMSf
+	id S261618AbVHAMVE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 08:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVHAMS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 08:18:35 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:30154 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261877AbVHAMQ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 08:16:56 -0400
-Date: Mon, 1 Aug 2005 14:16:55 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Richard Purdie <rpurdie@rpsys.net>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pcmcia: defer ide-cs initialization after other IDE drivers started up [Was: Re: Heads up for distro folks: PCMCIA hotplug differences (Re: -rc4: arm broken?)]
-Message-ID: <20050801121655.GA3014@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	torvalds@osdl.org, akpm@osdl.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Richard Purdie <rpurdie@rpsys.net>, Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20050730130406.GA4285@elf.ucw.cz> <1122741937.7650.27.camel@localhost.localdomain> <20050730201508.B26592@flint.arm.linux.org.uk> <20050730223628.M26592@flint.arm.linux.org.uk> <1122858068.15622.10.camel@localhost.localdomain> <20050801074831.A677@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050801074831.A677@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+	Mon, 1 Aug 2005 08:18:57 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:26841 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261877AbVHAMSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 08:18:51 -0400
+Message-ID: <42EE1324.10304@grupopie.com>
+Date: Mon, 01 Aug 2005 13:18:44 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, abonilla@linuxwireless.org,
+       linux-kernel@vger.kernel.org,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>, Dave Hansen <dave@sr71.net>
+Subject: Re: IBM HDAPS, I need a tip.
+References: <1122861215.11148.26.camel@localhost.localdomain>  <1122872189.5299.1.camel@localhost.localdomain> <1122873057.15825.26.camel@mindpipe> <Pine.LNX.4.61.0508010844380.6353@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0508010844380.6353@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 07:48:31AM +0100, Russell King wrote:
-> On Mon, Aug 01, 2005 at 02:01:07AM +0100, Alan Cox wrote:
-> > On Sad, 2005-07-30 at 22:36 +0100, Russell King wrote:
-> > > Since PCMCIA cards are detected and drivers bound at boot time, we no
-> > > longer get hotplug events to setup networking for PCMCIA network cards
-> > > already inserted.  Consequently, if you are relying on /sbin/hotplug to
-> > > setup your PCMCIA network card at boot time, triggered by the cardmgr
-> > > startup binding the driver, it won't happen.
-> > 
-> > So eth0 now randomly changes between on board and PCMCIA depending upon
-> > whether the PCMCIA card was inserted or not, and your disks re-order
-> > themselves in the same situation. That'll be funny if anyone does a
-> > mkswap to share their swap between Linux and Windows. Gosh look there
-> > goes the root partition.
-> > 
-> > I'm hoping thats not what you are implying. Especially for disks,
-> > network is much much less of an issue.
+Jan Engelhardt wrote:
+>>So in order to calibrate it you need a readily available source of
+>>constant acceleration, preferably with a known value.
+>>
+>>Hint: -9.8 m/sec^2.
 > 
-> If you have the socket driver as a module, as some (most?) distros do,
-> then of course such cards won't be detected at boot time.  If PCMCIA
-> and the socket driver are built-in, along with the card driver, then
-> I guess this possibility may well exist - it does for NE2K cards.
+> Drop it out of the window? :)
 
-Linus, Andrew,
+No, no. Constant gravity (like having the laptop sitting on the desk) 
+"feels like" constant acceleration.
 
-Please apply this for 2.6.13 - Thanks,
+Dropping it out of the window should measure 0 m/sec^2, because the 
+accelerometer is not working on an inertial referential (I hope this is 
+the correct term in english...). For the accelerometer, this is just 
+like the feeling of free falling inside an elevator: no gravity :)
 
-	Dominik
+-- 
+Paulo Marques - www.grupopie.com
 
-
-Avoid registering PCMCIA CF cards before other IDE stuff. This means the risk
-of /dev/hd* being re-ordered is lessened. The _sane_ thing to assert any
-ordering is to use udev, nameif and so on, of course.
-
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
-
-Index: 2.6.13-rc4-git1/drivers/ide/legacy/ide-cs.c
-===================================================================
---- 2.6.13-rc4-git1.orig/drivers/ide/legacy/ide-cs.c
-+++ 2.6.13-rc4-git1/drivers/ide/legacy/ide-cs.c
-@@ -508,5 +508,5 @@ static void __exit exit_ide_cs(void)
- 	BUG_ON(dev_list != NULL);
- }
- 
--module_init(init_ide_cs);
-+late_initcall(init_ide_cs);
- module_exit(exit_ide_cs);
+It is a mistake to think you can solve any major problems
+just with potatoes.
+Douglas Adams

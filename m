@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVHAMVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVHAMZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVHAMVE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 08:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVHAMS5
+	id S261633AbVHAMZP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 08:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVHAMZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 08:18:57 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:26841 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261877AbVHAMSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 08:18:51 -0400
-Message-ID: <42EE1324.10304@grupopie.com>
-Date: Mon, 01 Aug 2005 13:18:44 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 1 Aug 2005 08:25:14 -0400
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:25754 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S261633AbVHAMZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 08:25:06 -0400
+To: "David S. Miller" <davem@davemloft.net>
+Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3: cache flush missing from somewhere
+References: <20050729161343.A18249@flint.arm.linux.org.uk>
+	<20050730.124052.104057695.davem@davemloft.net>
+From: Catalin Marinas <catalin.marinas@arm.com>
+Date: Mon, 01 Aug 2005 13:24:04 +0100
+Message-ID: <tnxzms1c0bf.fsf@arm.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Lee Revell <rlrevell@joe-job.com>, abonilla@linuxwireless.org,
-       linux-kernel@vger.kernel.org,
-       hdaps devel <hdaps-devel@lists.sourceforge.net>,
-       "'Yani Ioannou'" <yani.ioannou@gmail.com>, Dave Hansen <dave@sr71.net>
-Subject: Re: IBM HDAPS, I need a tip.
-References: <1122861215.11148.26.camel@localhost.localdomain>  <1122872189.5299.1.camel@localhost.localdomain> <1122873057.15825.26.camel@mindpipe> <Pine.LNX.4.61.0508010844380.6353@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0508010844380.6353@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 01 Aug 2005 12:24:39.0784 (UTC) FILETIME=[FCEF7E80:01C59693]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>So in order to calibrate it you need a readily available source of
->>constant acceleration, preferably with a known value.
->>
->>Hint: -9.8 m/sec^2.
-> 
-> Drop it out of the window? :)
+"David S. Miller" <davem@davemloft.net> wrote:
+> From: Russell King <rmk+lkml@arm.linux.org.uk>
+> Date: Fri, 29 Jul 2005 16:13:43 +0100
+>
+>> My current patch to get this working is below.  The only thing which
+>> really seems to fix the issue is the __flush_dcache_page call in
+>> read_pages() - if I remove this, I get spurious segfaults and illegal
+>> instruction faults.
+>
+> If one cpu stores, does it get picked up in the other cpu's I-cache?
 
-No, no. Constant gravity (like having the laptop sitting on the desk) 
-"feels like" constant acceleration.
+It only gets picked up by the other CPU's D-cache (which is fully
+coherent between cores). The I-cache needs to be invalidated on each
+CPU.
 
-Dropping it out of the window should measure 0 m/sec^2, because the 
-accelerometer is not working on an inertial referential (I hope this is 
-the correct term in english...). For the accelerometer, this is just 
-like the feeling of free falling inside an elevator: no gravity :)
+> If not, you cannot use the lazy dcache flushing method, and in fact
+> you must broadcast the flush on all processors.
+
+Why wouldn't the lazy dcache flushing method work? My understanding is
+that if there is no user mapping for a given page, there's no reason
+to flush the dcache and just postpone it until the page is faulted
+in. When the page fault occurs the dcache should be flushed (on one
+CPU is enough) and the icache invalidated on all the CPUs.
 
 -- 
-Paulo Marques - www.grupopie.com
+Catalin
 
-It is a mistake to think you can solve any major problems
-just with potatoes.
-Douglas Adams

@@ -1,36 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVHAEb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVHAEpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbVHAEb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 00:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVHAEbx
+	id S261287AbVHAEpY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 00:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVHAEpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 00:31:53 -0400
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:61437 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S262083AbVHAEbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 00:31:01 -0400
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove support for gcc < 3.2
-References: <20050731222606.GL3608@stusta.de>
-From: Miles Bader <miles@lsi.nec.co.jp>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-Date: Mon, 01 Aug 2005 13:27:17 +0900
-In-Reply-To: <20050731222606.GL3608@stusta.de> (Adrian Bunk's message of "Mon, 1 Aug 2005 00:26:07 +0200")
-Message-Id: <buo1x5ecme2.fsf@mctpc71.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Aug 2005 00:45:24 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:61600 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261287AbVHAEpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 00:45:22 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050731063852.GA611@elte.hu>
+References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins>
+	 <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe>
+	 <20050731063852.GA611@elte.hu>
+Content-Type: text/plain
+Date: Mon, 01 Aug 2005 00:45:20 -0400
+Message-Id: <1122871521.15825.13.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
-> This patch removes support for gcc < 3.2 .
+On Sun, 2005-07-31 at 08:38 +0200, Ingo Molnar wrote:
+> ok - i've uploaded the -52-04 patch, does that fix it for you?
 
-Go away.
+Has anyone found their PS2 keyboard rather sluggish with this kernel?
+I'm not sure whether it's an -RT problem, I'll have to try rc4.
 
--miles
--- 
-"Suppose He doesn't give a shit?  Suppose there is a God but He
-just doesn't give a shit?"  [George Carlin]
+Lee
+

@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVHAXHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVHAXQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbVHAXHX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 19:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVHAXFN
+	id S261318AbVHAXQp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 19:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVHAXQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 19:05:13 -0400
-Received: from smtp1.wanadoo.fr ([193.252.22.30]:45022 "EHLO smtp1.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261273AbVHAXDw (ORCPT
+	Mon, 1 Aug 2005 19:16:44 -0400
+Received: from graphe.net ([209.204.138.32]:28381 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261318AbVHAXQo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 19:03:52 -0400
-X-ME-UUID: 20050801230351623.982171C00CF0@mwinf0108.wanadoo.fr
-Message-ID: <42EEAA53.6020309@ens-lyon.org>
-Date: Tue, 02 Aug 2005 01:03:47 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: fr, en
+	Mon, 1 Aug 2005 19:16:44 -0400
+Date: Mon, 1 Aug 2005 16:16:41 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Richard Purdie <rpurdie@rpsys.net>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3
+In-Reply-To: <1122937261.7648.151.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0508011609140.9237@graphe.net>
+References: <20050728025840.0596b9cb.akpm@osdl.org> 
+ <1122860603.7626.32.camel@localhost.localdomain>  <Pine.LNX.4.62.0508010908530.3546@graphe.net>
+  <1122926537.7648.105.camel@localhost.localdomain> 
+ <Pine.LNX.4.62.0508011335090.7011@graphe.net>  <1122930474.7648.119.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508011414480.7574@graphe.net>  <1122931637.7648.125.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508011438010.7888@graphe.net>  <1122933133.7648.141.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508011517300.8498@graphe.net> <1122937261.7648.151.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [2.6.13-rc4-mm1] Fix smsc_ircc_init return value
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------060702050909050600000207"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060702050909050600000207
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Tue, 2 Aug 2005, Richard Purdie wrote:
 
-Hi Andrew,
+> > +	update_mmu_cache(vma, address, entry);
+> > +	lazy_mmu_prot_update(entry);
+> > +#endif
+> 
+> This locks the system up after the "INIT: version 2.86 booting" message.
+> SysRq still responds but that's about it.
 
-I noticed a strange return value in smsc_ircc_init in
-drivers/net/irda/smsc_ircc2.c in rc4-mm1.
+Hmmm. this should have returned the behavior to normal. Ah. Need to use 
+new_entry instead of entry. Try this (is there any way that I could get 
+access to the sytem? I am on IRC (freenode.net nick o-o) or on skype).
 
-When reaching the line "if (ircc_fir > 0 && ircc_sir > 0)", ret is 0.
-So I don't see the point of setting it to 0 in the "else" case.
->From what I see in 2.6.12 it should probably be set to -ENODEV at
-the begining of the "else" case. The attached patch does this.
-
-Note that I didn't actually see any breakage caused by this.
-
-Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
-
-Regards,
-Brice
-
---------------060702050909050600000207
-Content-Type: text/x-patch;
- name="fix-smsc_ircc2_init-return-value.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix-smsc_ircc2_init-return-value.patch"
-
---- linux-mm/drivers/net/irda/smsc-ircc2.c.old	2005-08-01 14:39:21.000000000 +0200
-+++ linux-mm/drivers/net/irda/smsc-ircc2.c	2005-08-01 14:51:08.000000000 +0200
-@@ -360,6 +360,7 @@ static int __init smsc_ircc_init(void)
- 		if (smsc_ircc_open(ircc_fir, ircc_sir, ircc_dma, ircc_irq))
- 			ret = -ENODEV;
- 	} else {
-+		ret = -ENODEV;
+Index: linux-2.6.13-rc4-mm1/mm/memory.c
+===================================================================
+--- linux-2.6.13-rc4-mm1.orig/mm/memory.c	2005-08-01 16:11:45.000000000 -0700
++++ linux-2.6.13-rc4-mm1/mm/memory.c	2005-08-01 16:15:35.000000000 -0700
+@@ -2094,6 +2094,7 @@
+ 		entry = pte_mkdirty(entry);
+ 	}
  
- 		/* try user provided configuration register base address */
- 		if (ircc_cfg > 0) {
-
---------------060702050909050600000207--
-
++#ifdef CONFIG_ATOMIC_TABLE_OPS
+ 	/*
+ 	 * If the cmpxchg fails then another processor may have done
+ 	 * the changes for us. If not then another fault will bring
+@@ -2106,6 +2107,11 @@
+ 	} else {
+ 		inc_page_state(cmpxchg_fail_flag_update);
+ 	}
++#else
++	ptep_set_access_flags(vma, address, pte, new_entry, write_access);
++	update_mmu_cache(vma, address, new_entry);
++	lazy_mmu_prot_update(new_entry);
++#endif
+ 
+ 	pte_unmap(pte);
+ 	page_table_atomic_stop(mm);

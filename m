@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVHAVtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVHAVtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVHAVtv (ORCPT <rfc822;willy@w.ods.org>);
+	id S261308AbVHAVtv (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 1 Aug 2005 17:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVHAVNA
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVHAVXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:13:00 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:50933 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261252AbVHAVKp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:10:45 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050801205208.GA20731@elte.hu>
-References: <20050730160345.GA3584@elte.hu>
-	 <1122920564.6759.15.camel@localhost.localdomain>
-	 <20050801205208.GA20731@elte.hu>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Mon, 01 Aug 2005 14:09:41 -0700
-Message-Id: <1122930581.4623.10.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Aug 2005 17:23:48 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:29847 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S261220AbVHAVXg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 17:23:36 -0400
+Message-ID: <3059.24.240.41.150.1122931398.squirrel@69.129.69.193>
+In-Reply-To: <1122458769.7773.39.camel@localhost.localdomain>
+References: <20050727092613.GA4713@elf.ucw.cz> 
+    <20050727023754.6846f3a2.akpm@osdl.org> 
+    <20050727095324.GE4270@elf.ucw.cz>
+    <1122458769.7773.39.camel@localhost.localdomain>
+Date: Mon, 1 Aug 2005 16:23:18 -0500 (CDT)
+Subject: Re: [patch] Support powering sharp zaurus sl-5500 LCD up and down
+From: "John Lenz" <lenz@cs.wisc.edu>
+To: "Richard Purdie" <rpurdie@rpsys.net>
+Cc: "Pavel Machek" <pavel@ucw.cz>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-01 at 22:52 +0200, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> > Ingo,
-> > 
-> > What's with the "BUG: possible soft lockup detected on CPU..."? I'm 
-> > getting a bunch of them from the IDE interrupt.  It's not locking up, 
-> > but it does things that probably do take some time.  Is this really 
-> > necessary? Here's an example dump:
-> 
-> doh - it's Daniel not Cc:-ing lkml when sending me patches, so people 
-> dont know what's going on ...
-> 
-> here's the patch below. Could you try to revert it?
+On Wed, July 27, 2005 5:06 am, Richard Purdie said:
+> On Wed, 2005-07-27 at 11:53 +0200, Pavel Machek wrote:
+>> +	/* read comadj */
+>> +#ifdef CONFIG_MACH_POODLE
+>> +	comadj = 118;
+>> +#else
+>> +	comadj = 128;
+>> +#endif
+>
+> Can you go back to the Sharp source and confirm that these values should
+> be hardcoded in both the poodle and collie cases please? I know the
+> sharpsl_param code can provide them but I can't remember exactly which
+> models use which fields. I want to make sure this isn't a quick hack
+> John made before sharpsl_param was written :).
 
-You guys want me to always CC in the future? 
+No, those values were from the original sharp code...  at some point I was
+going to investigate what values the sharpsl param stuff returned and see
+if those worked.  If the sharpsl stuff works, then by all means use it.
 
-Daniel
+John
 

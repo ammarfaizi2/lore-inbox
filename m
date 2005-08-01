@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVHAPWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVHAPTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbVHAPWL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 11:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbVHAPWL
+	id S261288AbVHAPTr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 11:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVHAPTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 11:22:11 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:64979 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262100AbVHAPUA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 11:20:00 -0400
-Date: Mon, 1 Aug 2005 17:19:56 +0200
-From: Olaf Hering <olh@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] properly stop devices before poweroff
-Message-ID: <20050801151956.GA29448@suse.de>
-References: <200506260105.j5Q15eBj021334@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <200506260105.j5Q15eBj021334@hera.kernel.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Mon, 1 Aug 2005 11:19:46 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:25510 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S261288AbVHAPSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 11:18:50 -0400
+Message-ID: <42EE3D56.7050008@f2s.com>
+Date: Mon, 01 Aug 2005 16:18:46 +0100
+From: Bernd Porr <BerndPorr@f2s.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: NZG <ngustavson@emacinc.com>
+CC: comedi@comedi.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6VMM, uClinux, & Comedi
+References: <200508010817.59676.ngustavson@emacinc.com>
+In-Reply-To: <200508010817.59676.ngustavson@emacinc.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Jun 26, Linux Kernel Mailing List wrote:
+Looks quite promising. I would like to run comedi on a blackfin stamp. 
+Please keep me in the loop.
 
-> tree e2de713c76ddb42b091305b88aa7ca4938081789
-> parent 5ce47e59c9688d8480ae41100117d8188c191401
-> author Pavel Machek <pavel@ucw.cz> Sun, 26 Jun 2005 04:55:11 -0700
-> committer Linus Torvalds <torvalds@ppc970.osdl.org> Sun, 26 Jun 2005 06:24:33 -0700
-> 
-> [PATCH] properly stop devices before poweroff
-> 
-> Without this patch, Linux provokes emergency disk shutdowns and
-> similar nastiness. It was in SuSE kernels for some time, IIRC.
-> 
-> Signed-off-by: Pavel Machek <pavel@suse.cz>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> 
->  include/linux/pm.h |   33 +++++++++++++++++++++------------
->  kernel/sys.c       |    3 +++
->  2 files changed, 24 insertions(+), 12 deletions(-)
+/Bernd
 
-> +++ b/kernel/sys.c
-> @@ -405,6 +405,7 @@ asmlinkage long sys_reboot(int magic1, i
->  	case LINUX_REBOOT_CMD_HALT:
->  		notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
->  		system_state = SYSTEM_HALT;
-> +		device_suspend(PMSG_SUSPEND);
->  		device_shutdown();
->  		printk(KERN_EMERG "System halted.\n");
->  		machine_halt();
-> @@ -415,6 +416,7 @@ asmlinkage long sys_reboot(int magic1, i
->  	case LINUX_REBOOT_CMD_POWER_OFF:
->  		notifier_call_chain(&reboot_notifier_list, SYS_POWER_OFF, NULL);
->  		system_state = SYSTEM_POWER_OFF;
-> +		device_suspend(PMSG_SUSPEND);
->  		device_shutdown();
->  		printk(KERN_EMERG "Power down.\n");
->  		machine_power_off();
+www:    http://www.berndporr.me.uk/
+         http://www.linux-usb-daq.co.uk/
+Mobile: +44 (0)7840 340069
+Work:   +44 (0)141 330 5237
+         University of Glasgow
+         Department of Electronics & Electrical Engineering
+         Room 519, Rankine Building, Oakfield Avenue,
+         Glasgow, G12 8LT
 
-This change for 'case LINUX_REBOOT_CMD_POWER_OFF' causes an endless hang
-after 'halt -p' on my Macs with USB keyboard.
-It went into rc1, but the hang in an usb device (1-1.3) shows up only
-with rc3. Why is device_suspend() called anyway if the
-system will go down anyway in a few milliseconds?
+
+NZG wrote:
+> I managed to successfully cross-compile Comedi for the Coldfire uClinux 2.6, 
+> however it has several unresolved symbols when I try to load it.
+> 
+> comedi: Unknown symbol pgd_offset_k
+> comedi: Unknown symbol pmd_none
+> comedi: Unknown symbol remap_page_range
+> comedi: Unknown symbol pte_present
+> comedi: Unknown symbol pte_offset_kernel
+> comedi: Unknown symbol VMALLOC_VMADDR
+> comedi: Unknown symbol pte_page
+> 
+> Apparently uClinux isn't implementing these paged memory functions,which
+> kind of makes sense, but I'm a little fuzzy on what the nommu code is
+> supposed to be doing exactly, and I couldn't find any documentation on what 
+> these functions are doing in the vanilla 2.6 kernel.
+> Has anyone else been down this road before?
+> I found Mel Gorman's Thesis on the 2.4 mm functions, but I couldn't find most 
+> of these symbols in it.
+> It's looking like the 2.6 mm stuff is still pretty undocumented, any links to 
+> documentation (or short text explanations)would be appreciated. 
+> 
+> thx.
+> NZG.
+> 
+> _______________________________________________
+> comedi mailing list
+> comedi@comedi.org
+> https://cvs.comedi.org/cgi-bin/mailman/listinfo/comedi

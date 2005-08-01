@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVHAUEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVHAUG5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbVHAUEY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 16:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVHAUC2
+	id S261205AbVHAUG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 16:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVHAUEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 16:02:28 -0400
-Received: from silver.veritas.com ([143.127.12.111]:29458 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S261205AbVHAUBu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 16:01:50 -0400
-Date: Mon, 1 Aug 2005 21:03:25 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Roland McGrath <roland@redhat.com>, linux-mm@kvack.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
-In-Reply-To: <42EDDB82.1040900@yahoo.com.au>
-Message-ID: <Pine.LNX.4.61.0508012045050.5373@goblin.wat.veritas.com>
-References: <20050801032258.A465C180EC0@magilla.sf.frob.com>
- <42EDDB82.1040900@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 01 Aug 2005 20:01:46.0313 (UTC) FILETIME=[D86BB390:01C596D3]
+	Mon, 1 Aug 2005 16:04:30 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:45528 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S261211AbVHAUCg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 16:02:36 -0400
+Subject: Re: 2.6.13-rc3-mm3
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0508010908530.3546@graphe.net>
+References: <20050728025840.0596b9cb.akpm@osdl.org>
+	 <1122860603.7626.32.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508010908530.3546@graphe.net>
+Content-Type: text/plain
+Date: Mon, 01 Aug 2005 21:02:16 +0100
+Message-Id: <1122926537.7648.105.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Aug 2005, Nick Piggin wrote:
+On Mon, 2005-08-01 at 09:10 -0700, Christoph Lameter wrote:
+> On Mon, 1 Aug 2005, Richard Purdie wrote:
 > 
-> This was tested by Robin and appears to solve the problem. Roland
-> had a quick look and thought the basic idea was sound. I'd like to
-> get a couple more acks before going forward, and in particular
-> Robin was contemplating possible efficiency improvements (although
-> efficiency can wait on correctness).
+> > The system appears to be ok and boots happily to a console but if you
+> > load any graphical UI, the screen will blank and the process stops
+> > working (tested with opie and and xserver+GPE). You can kill -9 the
+> > process but you can't regain the console without a suspend/resume cycle
+> > which performs enough of a reset to get it back. chvt and the console
+> > switching keys don't respond.
+> 
+> Is this related to the size of the process? Can you do a successful kernel 
+> compile w/o X?
 
-I'd much prefer a solution that doesn't invade all the arches, but
-I don't think Linus' pte_dirty method will work on s390 (unless we
-change s390 in a less obvious way than your patch), so it looks
-like we do need something like yours.
+Its an embedded device and lacks development tools to test that. I ran
+some programs which abuse malloc and the process would quite happily hit
+oom so it looks like something more is needed to trigger the bug...
 
-Comments:
+> > I tried the patch mentioned in http://lkml.org/lkml/2005/7/28/304 but it
+> > makes no difference.
+> 
+> Yes that only helps if compilation fails and its alread in rc4-mm1 AFAIK.
 
-There are currently 21 architectures,
-but so far your patch only updates 14 of them?
+I thought that might be the case.
 
-Personally (rather like Robin) I'd have preferred a return code more
-directed to the issue at hand, than your VM_FAULT_RACE.  Not for
-efficiency reasons, I think you're right that's not a real issue,
-but more to document the peculiar case we're addressing.  Perhaps a
-code that says do_wp_page has gone all the way through, even though
-it hasn't set the writable bit.
+Richard
 
-That would require less change in mm/memory.c, but I've no strong
-reason to argue that you change your approach in that way.  Perhaps
-others prefer the race case singled out, to gather statistics on that.
-Assuming we stick with your VM_FAULT_RACE...
-
-Could we define VM_FAULT_RACE as 3 rather than -2?  I think there's 
-some historical reason why VM_FAULT_OOM is -1, but see no cause to
-extend the range in that strange direction.
-
-VM_FAULT_RACE is a particular subcase of VM_FAULT_MINOR: throughout
-the arches I think they should just be adjacent cases of the switch
-statement, both doing the min_flt++.
-
-Your continue in get_user_pages skips page_table_lock as Linus noted.
-
-The do_wp_page call from do_swap_page needs to be adjusted, to return
-VM_FAULT_RACE if that's what it returned.
-
-If VM_FAULT_RACE is really recording races, then the bottom return
-value from handle_pte_fault ought to be VM_FAULT_RACE rather than
-VM_FAULT_MINOR.
-
-Hugh

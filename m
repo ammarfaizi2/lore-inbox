@@ -1,138 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbVHAKSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVHAKSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbVHAKSY (ORCPT <rfc822;willy@w.ods.org>);
+	id S262332AbVHAKSY (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 1 Aug 2005 06:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVHAKQV
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbVHAKQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 06:16:21 -0400
-Received: from dwdmx4.dwd.de ([141.38.3.230]:65222 "EHLO dwdmx4.dwd.de")
-	by vger.kernel.org with ESMTP id S262421AbVHAKQI (ORCPT
+	Mon, 1 Aug 2005 06:16:29 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:42977 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262147AbVHAKPd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 06:16:08 -0400
-Date: Mon, 1 Aug 2005 10:15:34 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@praktifix.dwd.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Moore, Eric Dean" <Eric.Moore@lsil.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: Re: As of 2.6.13-rc1 Fusion-MPT very slow
-In-Reply-To: <20050729175122.7e1e9a2d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0508011006140.17490@praktifix.dwd.de>
-References: <91888D455306F94EBD4D168954A9457C035CB329@nacos172.co.lsil.com>
- <20050729175122.7e1e9a2d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 1 Aug 2005 06:15:33 -0400
+Date: Mon, 1 Aug 2005 12:15:47 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Roland McGrath <roland@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+Message-ID: <20050801101547.GA5016@elte.hu>
+References: <20050801032258.A465C180EC0@magilla.sf.frob.com> <42EDDB82.1040900@yahoo.com.au> <20050801091956.GA3950@elte.hu> <42EDEAFE.1090600@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42EDEAFE.1090600@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jul 2005, Andrew Morton wrote:
 
-> "Moore, Eric Dean" <Eric.Moore@lsil.com> wrote:
->>
->>  Regarding the 1st issue, can you try this patch out.  It maybe in the
->>  -mm branch. Andrew cc'd on this email can confirm.
->>
->>  ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc3/2.6
->>  .13-rc3-mm3/broken-out/mpt-fusion-dv-fixes.patch
->
-> Yes, that's part of 2.6.13-rc3-mm3.
->
-The patch makes no difference. Still get the following results when fusion
-is compiled in:
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-       sdc   74MB/s
-       sdd    2MB/s
-       sde    2MB/s
-       sdf    2MB/s
+> Ingo Molnar wrote:
+> >* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> >>Feedback please, anyone.
+> >
+> >
+> >it looks good to me, but wouldnt it be simpler (in terms of patch and 
+> >architecture impact) to always retry the follow_page() in 
+> >get_user_pages(), in case of a minor fault? The sequence of minor faults 
+> 
+> I believe this can break some things. Hugh posted an example in his 
+> recent post to linux-mm (ptrace setting a breakpoint in read-only 
+> text). I think?
 
-On second channel:
+Hugh's posting said:
 
-       sdg   74MB/s
-       sdh   74MB/s
-       sdi   74MB/s
-       sdj   74MB/s
+ "it's trying to avoid an endless loop of finding the pte not writable 
+  when ptrace is modifying a page which the user is currently protected 
+  against writing to (setting a breakpoint in readonly text, perhaps?)"
 
-The patch was applied to linux-2.6.13-rc4-git3.
+i'm wondering, why should that case generate an infinite fault? The 
+first write access should copy the shared-library page into a private 
+page and map it into the task's MM, writable. If this make-writable 
+operation races with a read access then we return a minor fault and the 
+page is still readonly, but retrying the write should then break up the 
+COW protection and generate a writable page, and a subsequent 
+follow_page() success. If the page cannot be made writable, shouldnt the 
+vma flags reflect this fact by not having the VM_MAYWRITE flag, and 
+hence get_user_pages() should have returned with -EFAULT earlier?
 
-Here part of dmesg output:
+in other words, can a named MAP_PRIVATE vma with VM_MAYWRITE set ever be 
+non-COW-break-able and thus have the potential to induce an infinite 
+loop?
 
-    Fusion MPT base driver 3.03.02
-    Copyright (c) 1999-2005 LSI Logic Corporation
-    Fusion MPT SPI Host driver 3.03.02
-    ACPI: PCI Interrupt 0000:02:04.0[A] -> GSI 24 (level, low) -> IRQ 217
-    mptbase: Initiating ioc0 bringup
-    ioc0: 53C1030: Capabilities={Initiator,Target}
-    scsi4 : ioc0: LSI53C1030, FwRev=01032700h, Ports=1, MaxQ=255, IRQ=217
-      Vendor: FUJITSU   Model: MAS3735NP         Rev: 0104
-      Type:   Direct-Access                      ANSI SCSI revision: 03
-    SCSI device sdc: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdc: drive cache: write back
-    SCSI device sdc: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdc: drive cache: write back
-     sdc: sdc1
-    Attached scsi disk sdc at scsi4, channel 0, id 0, lun 0
-      Vendor: FUJITSU   Model: MAS3735NP         Rev: 0104
-      Type:   Direct-Access                      ANSI SCSI revision: 03
-    SCSI device sdd: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdd: drive cache: write back
-    SCSI device sdd: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdd: drive cache: write back
-     sdd: sdd1
-    Attached scsi disk sdd at scsi4, channel 0, id 1, lun 0
-      Vendor: FUJITSU   Model: MAS3735NP         Rev: 0104
-      Type:   Direct-Access                      ANSI SCSI revision: 03
-    SCSI device sde: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sde: drive cache: write back
-    SCSI device sde: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sde: drive cache: write back
-     sde: sde1
-    Attached scsi disk sde at scsi4, channel 0, id 2, lun 0
-      Vendor: FUJITSU   Model: MAS3735NP         Rev: 0104
-      Type:   Direct-Access                      ANSI SCSI revision: 03
-    SCSI device sdf: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdf: drive cache: write back
-    SCSI device sdf: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdf: drive cache: write back
-     sdf: sdf1
-    Attached scsi disk sdf at scsi4, channel 0, id 3, lun 0
-    ACPI: PCI Interrupt 0000:02:04.1[B] -> GSI 25 (level, low) -> IRQ 225
-    mptbase: Initiating ioc1 bringup
-    ioc1: 53C1030: Capabilities={Initiator,Target}
-    scsi5 : ioc1: LSI53C1030, FwRev=01032700h, Ports=1, MaxQ=255, IRQ=225
-      Vendor: FUJITSU   Model: MAS3735NP         Rev: 0104
-      Type:   Direct-Access                      ANSI SCSI revision: 03
-    SCSI device sdg: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdg: drive cache: write back
-    SCSI device sdg: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdg: drive cache: write back
-     sdg: sdg1
-    Attached scsi disk sdg at scsi5, channel 0, id 0, lun 0
-      Vendor: FUJITSU   Model: MAS3735NP         Rev: 0104
-      Type:   Direct-Access                      ANSI SCSI revision: 03
-    SCSI device sdh: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdh: drive cache: write back
-    SCSI device sdh: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdh: drive cache: write back
-     sdh: sdh1
-    Attached scsi disk sdh at scsi5, channel 0, id 1, lun 0
-      Vendor: FUJITSU   Model: MAS3735NP         Rev: 0104
-      Type:   Direct-Access                      ANSI SCSI revision: 03
-    SCSI device sdi: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdi: drive cache: write back
-    SCSI device sdi: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdi: drive cache: write back
-     sdi: sdi1
-    Attached scsi disk sdi at scsi5, channel 0, id 2, lun 0
-      Vendor: FUJITSU   Model: MAS3735NP         Rev: 0104
-      Type:   Direct-Access                      ANSI SCSI revision: 03
-    SCSI device sdj: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdj: drive cache: write back
-    SCSI device sdj: 143552136 512-byte hdwr sectors (73499 MB)
-    SCSI device sdj: drive cache: write back
-     sdj: sdj1
-    Attached scsi disk sdj at scsi5, channel 0, id 3, lun 0
-
-Anything else I can try or provide?
-
-Holger
-
+	Ingo

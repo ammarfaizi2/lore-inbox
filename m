@@ -1,60 +1,40 @@
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVHAEai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbVG3Cwe (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 29 Jul 2005 22:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVG3Cwe
+	id S262076AbVHAEai (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 00:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVHAEad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Jul 2005 22:52:34 -0400
-Received: from lakermmtao02.cox.net ([68.230.240.37]:50121 "EHLO
-	lakermmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S262726AbVG3Cwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Jul 2005 22:52:33 -0400
-From: "Zen Wyoming" <cbass212@cox.net>
-Subject: www.Lotion4you.com  now links to you
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Date: Fri, 29 Jul 2005 21:52:28 -0500
-Message-Id: <20050730025220.WIPY14195.lakermmtao02.cox.net@c-u1nd3but4pasv>
+	Mon, 1 Aug 2005 00:30:33 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:12285 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262047AbVHAEaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 00:30:30 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Netdev List <netdev@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] net driver fixes
+References: <42ED5F30.2080907@pobox.com>
+	<Pine.LNX.4.58.0507311649460.14342@g5.osdl.org>
+From: Miles Bader <miles@lsi.nec.co.jp>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Mon, 01 Aug 2005 13:30:13 +0900
+In-Reply-To: <Pine.LNX.4.58.0507311649460.14342@g5.osdl.org> (Linus Torvalds's message of "Sun, 31 Jul 2005 16:50:30 -0700 (PDT)")
+Message-Id: <buovf2qb7oq.fsf@mctpc71.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262726AbVG3Cwe@vger.kernel.org>
 
-Dear Linux Kernel,
+Linus Torvalds <torvalds@osdl.org> writes:
+> Ugh. It's not like we want people saying "Hi there" in our changelogs.
 
-I visited your site today and think that the content could be of use to 
-some of my customers. I am looking for reputable websites to send my 
-visitors to, and was wondering if you would like to exchange links with 
-me.Us linking to each other would increase where we stand with the 
-search engines, and in addition it would be benificial because of the 
-traffic we would be sending each other. The best part is that it would 
-be free traffic.
+Well the _occasional_ friendly greeting might be kinda nice...
 
-I am currently looking to expand my catagories to 10 sites. I will do 
-this by adding the first responses I get. If you are interested in 
-trading with me, email me the retorical url where my site is placed. I 
-will then add your url within 24 hours. Please email me any catagory 
-name you want your link to be placed in. If its not already on my site, 
-I will create it for you. Please contact me if you have any other 
-busieness suggestions or ideas on how we could make a partnership 
-between our businesses. 
+-miles
 
-http://www.Lotion4you.com
-
-Indoor Tanning Lotion
-
-Free Shipping. All Indoor Tanning Lotion is 50-75% Under Retail.
-
-Please email me the link once you have linked to my site. 
-
-Best regards, 
-
-Zen Wyoming
-www.Lotion4you.com
-
-
-Phone: (316)516.4642
-
-
-
-
-
-
-
+hi mom!
+-- 
+Ich bin ein Virus. Mach' mit und kopiere mich in Deine .signature. fnord.

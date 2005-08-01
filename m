@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVHAWDC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVHAWEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVHAWDC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 18:03:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVHAWA7
+	id S261309AbVHAWEy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 18:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVHAWDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 18:00:59 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:19338 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S261309AbVHAV7B (ORCPT
+	Mon, 1 Aug 2005 18:03:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27577 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261309AbVHAWBq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:59:01 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [PATCH] 2.6.13-rc4-git3: snd_intel8x0: handle irq_request failure on resume
-Date: Tue, 2 Aug 2005 00:04:12 +0200
-User-Agent: KMail/1.8.1
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200507311243.22375.rjw@sisk.pl> <s5hr7dd97kx.wl%tiwai@suse.de>
-In-Reply-To: <s5hr7dd97kx.wl%tiwai@suse.de>
+	Mon, 1 Aug 2005 18:01:46 -0400
+Date: Mon, 1 Aug 2005 15:01:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Roland McGrath <roland@redhat.com>, linux-mm@kvack.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <Pine.LNX.4.58.0508011438450.3341@g5.osdl.org>
+Message-ID: <Pine.LNX.4.58.0508011455520.3341@g5.osdl.org>
+References: <20050801032258.A465C180EC0@magilla.sf.frob.com>
+ <42EDDB82.1040900@yahoo.com.au> <20050801091956.GA3950@elte.hu>
+ <42EDEAFE.1090600@yahoo.com.au> <20050801101547.GA5016@elte.hu>
+ <42EE0021.3010208@yahoo.com.au> <Pine.LNX.4.61.0508012030050.5373@goblin.wat.veritas.com>
+ <Pine.LNX.4.58.0508011250210.3341@g5.osdl.org>
+ <Pine.LNX.4.61.0508012153570.6323@goblin.wat.veritas.com>
+ <Pine.LNX.4.58.0508011438450.3341@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508020004.12930.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 1 of August 2005 14:15, Takashi Iwai wrote:
-> Hi Rafael,
+
+
+On Mon, 1 Aug 2005, Linus Torvalds wrote:
 > 
-> At Sun, 31 Jul 2005 12:43:21 +0200,
-> Rafael J. Wysocki wrote:
-> > 
-> > Hi,
-> > 
-> > This patch adds the handling of irq_request() failures during resume to
-> > the snd_intel8x0 driver.
-> > 
-> > Please consider for applying,
-> > Rafael
-> 
-> Not directly with the patch but I have a question about your first
-> patch.  I found you changed from the second argument of
-> snd_intel8x0_chip_init() from 0 to 1.  Is it intentional?
+> Of course, if VM_MAYWRITE is not set, you could just convert it silently
+> to a MAP_PRIVATE at the VM level (that's literally what we used to do, 
+> back when we didn't support writable shared mappings at all, all those 
+> years ago), so at least now the COW behaviour would match the vma_flags.
 
-Yes.  My box hangs solid while executing snd_intel8x0_chip_init(0)
-after requesting the IRQ in _resume().
+Heh. I just checked. We still do exactly that:
 
-Greets,
-Rafael
+                        if (!(file->f_mode & FMODE_WRITE))
+                                vm_flags &= ~(VM_MAYWRITE | VM_SHARED);
 
+some code never dies ;)
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+However, we still set the VM_MAYSHARE bit, and thats' the one that
+mm/rmap.c checks for some reason. I don't see quite why - VM_MAYSHARE
+doesn't actually ever do anything else than make sure that we try to
+allocate a mremap() mapping in a cache-coherent space, I think (ie it's a
+total no-op on any sane architecture, and as far as rmap is concerned on
+all of them).
+
+		Linus

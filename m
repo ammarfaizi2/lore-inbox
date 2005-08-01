@@ -1,132 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVHAXAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVHAXDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVHAXAf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 19:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVHAXAf
+	id S261327AbVHAXDI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 19:03:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVHAXDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 19:00:35 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:26614 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261318AbVHAXA2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 19:00:28 -0400
-Message-ID: <42EEA910.5060902@mvista.com>
-Date: Mon, 01 Aug 2005 15:58:24 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI watch dog notify patch
-References: <12270.1122693891@ocs3.ocs.com.au>
-In-Reply-To: <12270.1122693891@ocs3.ocs.com.au>
-Content-Type: multipart/mixed;
- boundary="------------080901070804000000030800"
+	Mon, 1 Aug 2005 19:03:02 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:34208 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S261273AbVHAXBN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 19:01:13 -0400
+Subject: Re: 2.6.13-rc3-mm3
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0508011517300.8498@graphe.net>
+References: <20050728025840.0596b9cb.akpm@osdl.org>
+	 <1122860603.7626.32.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508010908530.3546@graphe.net>
+	 <1122926537.7648.105.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508011335090.7011@graphe.net>
+	 <1122930474.7648.119.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508011414480.7574@graphe.net>
+	 <1122931637.7648.125.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508011438010.7888@graphe.net>
+	 <1122933133.7648.141.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508011517300.8498@graphe.net>
+Content-Type: text/plain
+Date: Tue, 02 Aug 2005 00:01:01 +0100
+Message-Id: <1122937261.7648.151.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This is a multi-part message in MIME format.
---------------080901070804000000030800
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Keith Owens wrote:
-> On Fri, 29 Jul 2005 13:55:23 -0700, 
-> George Anzinger <george@mvista.com> wrote:
+On Mon, 2005-08-01 at 15:19 -0700, Christoph Lameter wrote:
+> On Mon, 1 Aug 2005, Richard Purdie wrote:
+> > That number rapidly increases and so it looks like something is failing
+> > and looping...
 > 
->>	This patch adds a notify to the die_nmi notify that the system
->>	is about to be taken down.  If the notify is handled with a
->>	NOTIFY_STOP return, the system is given a new lease on life.
->>
->>void die_nmi (struct pt_regs *regs, const char *msg)
->>{
->>+	if (notify_die(DIE_NMIWATCHDOG, "nmi_watchdog", regs, 
->>+		       0, 0, SIGINT) == NOTIFY_STOP)
->>+		return;
->>+
->>	spin_lock(&nmi_print_lock);
->>	/*
->>	* We are in trouble anyway, lets at least try
-> 
-> 
-> Minor nitpick.  die_nmi() already gets a message passed in to
-> distinguish between different types of nmi.  Pass that message to
-> notify_die(), on the off chance that the notified routines can use that
-> difference.
+> Maybe we better restore the pte flags changes the way they were if 
+> CONFIG_ATOMIC_TABLE_OPS is not defined. Try this instead. If this works 
+> then we need two different handle_pte_fault functions to get rid of the 
+> macro mess:
+>
+> +#ifdef CONFIG_ATOMIC_TABLE_OPS
+>  	/*
+>  	 * If the cmpxchg fails then another processor may have done
+>  	 * the changes for us. If not then another fault will bring
+> @@ -2106,6 +2107,11 @@
+>  	} else {
+>  		inc_page_state(cmpxchg_fail_flag_update);
+>  	}
+> +#else
+> +	ptep_set_access_flags(vma, address, pte, entry, write_access);
+> +	update_mmu_cache(vma, address, entry);
+> +	lazy_mmu_prot_update(entry);
+> +#endif
 
-Excellent idea!
-> 
-> Also your patch adds a trailing whitespace on the call to notify_die().
-> 
-Fixed.
+This locks the system up after the "INIT: version 2.86 booting" message.
+SysRq still responds but that's about it.
 
-This should do it.
--
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+The system also feels/looks extremely sluggish after this change (more
+looping?).
 
---------------080901070804000000030800
-Content-Type: text/plain;
- name="nmi-notify.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nmi-notify.patch"
+With your previously suggested change:
 
-Source: MontaVista Software, Inc. George Anzinger <george@mvista.com>
-Type: Enhancement 
-Description:
-
-	This patch adds a notify to the die_nmi notify that the system
-	is about to be taken down.  If the notify is handled with a
-	NOTIFY_STOP return, the system is given a new lease on life.
-
-	We also change the nmi watchdog to carry on if die_nmi returns.
-
-	This give debug code a chance to a) catch watchdog timeouts and
-	b) possibly allow the system to continue, realizing that 
-	the time out may be due to debugger activities such as single 
-	stepping which is usually done with "other" cpus held.
-
-Signed-off-by: George Anzinger<george@mvista.com>
-
- nmi.c   |    5 ++++-
- traps.c |    4 ++++
- 2 files changed, 8 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.13-rc/arch/i386/kernel/nmi.c
-===================================================================
---- linux-2.6.13-rc.orig/arch/i386/kernel/nmi.c
-+++ linux-2.6.13-rc/arch/i386/kernel/nmi.c
-@@ -495,8 +495,11 @@ void nmi_watchdog_tick (struct pt_regs *
- 		 */
- 		alert_counter[cpu]++;
- 		if (alert_counter[cpu] == 5*nmi_hz)
-+			/*
-+			 * die_nmi will return ONLY if NOTIFY_STOP happens..
-+			 */
- 			die_nmi(regs, "NMI Watchdog detected LOCKUP");
--	} else {
-+
- 		last_irq_sums[cpu] = sum;
- 		alert_counter[cpu] = 0;
- 	}
-Index: linux-2.6.13-rc/arch/i386/kernel/traps.c
-===================================================================
---- linux-2.6.13-rc.orig/arch/i386/kernel/traps.c
-+++ linux-2.6.13-rc/arch/i386/kernel/traps.c
-@@ -555,6 +555,10 @@ static DEFINE_SPINLOCK(nmi_print_lock);
+        } else {
+                inc_page_state(cmpxchg_fail_flag_update);
++               set_pte_at(mm, address, pte, new_entry);
+        }
  
- void die_nmi (struct pt_regs *regs, const char *msg)
- {
-+	if (notify_die(DIE_NMIWATCHDOG, msg, regs, 0, 0, SIGINT) ==
-+	    NOTIFY_STOP)
-+		return;
-+
- 	spin_lock(&nmi_print_lock);
- 	/*
- 	* We are in trouble anyway, lets at least try
+the system proceeds past INIT and boots normally but X still locks up...
 
---------------080901070804000000030800--
+Richard
+

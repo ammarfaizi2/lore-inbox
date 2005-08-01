@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVHAV0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVHAVai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVHAV0K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 17:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVHAVXy
+	id S261272AbVHAVai (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 17:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVHAV2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:23:54 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:57513 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261252AbVHAVXK (ORCPT
+	Mon, 1 Aug 2005 17:28:43 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:49294 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S261272AbVHAV1a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:23:10 -0400
-Date: Mon, 1 Aug 2005 23:23:53 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-Message-ID: <20050801212353.GA22805@elte.hu>
-References: <20050730160345.GA3584@elte.hu> <1122920564.6759.15.camel@localhost.localdomain> <20050801205208.GA20731@elte.hu> <1122930932.6759.42.camel@localhost.localdomain>
+	Mon, 1 Aug 2005 17:27:30 -0400
+Subject: Re: 2.6.13-rc3-mm3
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0508011414480.7574@graphe.net>
+References: <20050728025840.0596b9cb.akpm@osdl.org>
+	 <1122860603.7626.32.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508010908530.3546@graphe.net>
+	 <1122926537.7648.105.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508011335090.7011@graphe.net>
+	 <1122930474.7648.119.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508011414480.7574@graphe.net>
+Content-Type: text/plain
+Date: Mon, 01 Aug 2005 22:27:17 +0100
+Message-Id: <1122931637.7648.125.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122930932.6759.42.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> > here's the patch below. Could you try to revert it?
+On Mon, 2005-08-01 at 14:16 -0700, Christoph Lameter wrote:
+> On Mon, 1 Aug 2005, Richard Purdie wrote:
+> > I've attached gdb to it and its stuck in memcpy (from glibc). The rest
+> > of the trace is junk as glibc's arm memcpy implementation will have
+> > destroyed the frame pointer. The current instruction is a store to
+> > memory (stmneia r0!, {r3,r4} ) and the instruction pointer isn't
+> > changing...
 > 
-> Thanks Ingo.
-> 
-> If Daniel was trying to detect soft lock ups of lower priority tasks 
-> (tasks that block all tasks lower than itself), I've added a counter 
-> to Daniels patch to keep from showing this for the one time case.  
-> This doesn't spit anything out for me anymore.  But I guess this could 
-> detect a higher priority task blocking lower ones, as long as higher 
-> tasks don't run often (thus reseting the count).
+> IP Not changing? Could it be in a loop doing faults for the same memory 
+> location that you cannot observe with gdb? Or is there some hardware fault 
+> that has stopped the processor?
 
-thanks. In -52-09 i've unapplied the original patch, and i've now 
-uploaded -52-10 with Daniel's original patch plus your patch applied.
+I'm not the worlds most experienced user of gdb but I can't see any
+evidence of a hardware fault and the processor shows all indications of
+running. It seems likely to be looping with memory faults or otherwise
+jammed somehow.
 
-I think 10 seconds is pretty reasonable - if an RT task runs 
-uninterrupted for that long time i think we want to know about it. It's 
-not illegal for an RT task to monopolize the CPU for that long, but it's 
-certainly unusual enough to warn about. (and the warning can be turned 
-off)
+Is there anything I can use in /proc to monitor page faults or anything
+I can do with gdb to help narrow this down?
 
-	Ingo
+Richard
+
+
+

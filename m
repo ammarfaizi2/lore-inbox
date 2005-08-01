@@ -1,54 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVHAIXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVHAIfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbVHAIXd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 04:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbVHAIX3
+	id S261238AbVHAIfq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 04:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVHAIfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 04:23:29 -0400
-Received: from extgw-uk.mips.com ([62.254.210.129]:2823 "EHLO
-	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
-	id S262042AbVHAIWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 04:22:37 -0400
-Date: Sun, 31 Jul 2005 20:36:53 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Greg KH <greg@kroah.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       "David S. Miller" <davem@davemloft.net>, rmk+lkml@arm.linux.org.uk,
-       matthew@wil.cx, grundler@parisc-linux.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org, ambx1@neo.rr.com
-Subject: Re: [patch 2.6.13-rc3] pci: restore BAR values after D3hot->D0 for devices that need it
-Message-ID: <20050731193653.GA4501@linux-mips.org>
-References: <20050708095104.A612@den.park.msu.ru> <20050707.233530.85417983.davem@davemloft.net> <20050708110358.A8491@jurassic.park.msu.ru> <20050708.003333.28789082.davem@davemloft.net> <20050708122043.A8779@jurassic.park.msu.ru> <20050708183452.GB13445@tuxdriver.com> <20050726234934.GA6584@kroah.com> <20050727013601.GA13958@tuxdriver.com> <20050727141202.GA22686@tuxdriver.com> <20050727141942.GB22686@tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050727141942.GB22686@tuxdriver.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 1 Aug 2005 04:35:46 -0400
+Received: from smtp.ifrance.com ([82.196.5.121]:62651 "EHLO smtp.ifrance.com")
+	by vger.kernel.org with ESMTP id S261238AbVHAIfn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 04:35:43 -0400
+Message-ID: <42EDDE50.6050800@winch-hebergement.net>
+Date: Mon, 01 Aug 2005 10:33:20 +0200
+From: Guillaume Pelat <guillaume.pelat@winch-hebergement.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: davem@davemloft.net
+Cc: akpm@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc4 - kernel panic - BUG at net/ipv4/tcp_output.c:918
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 27, 2005 at 10:19:44AM -0400, John W. Linville wrote:
+Hi,
 
-> Some PCI devices (e.g. 3c905B, 3c556B) lose all configuration
-> (including BARs) when transitioning from D3hot->D0.  This leaves such
-> a device in an inaccessible state.  The patch below causes the BARs
-> to be restored when enabling such a device, so that its driver will
-> be able to access it.
-> 
-> The patch also adds pci_restore_bars as a new global symbol, and adds a
-> correpsonding EXPORT_SYMBOL_GPL for that.
-> 
-> Signed-off-by: John W. Linville <linville@tuxdriver.com>
-> ---
-> Some firmware (e.g. Thinkpad T21) leaves devices in D3hot after a
-> (re)boot.  Most drivers call pci_enable_device very early, so devices
-> left in D3hot that lose configuration during the D3hot->D0 transition
-> will be inaccessible to their drivers.
+ > [TCP]: Fix two TSO sizing bugs
+ >
+ > MSS changes can be lost since we preemptively initialize
+ > the tso_segs count for an SKB before we %100 commit
+ > to sending it out.
+ > So, by the time we send it out, the tso_size information
+ > can be stale due to PMTU events.  This mucks up all of the
+ > logic in our send engine, and can even result in the BUG()
+ > triggering in tcp_tso_should_defer().
+ > Another problem we have is that we're storing the tp->mss_cache,
+ > not the SACK block normalized MSS, as the tso_size.  That's wrong
+ > too.
+ >
+ > Signed-off-by: David S. Miller <davem@davemloft.net>
 
-Tested with the 3com 3c556B Hurricane mini-PCI card in the IBM A21P.  Without
-this patch the 3c59x driver has not been able to read the MAC address of
-the card's EEPROM with ACPI enabled, now it works with and without ACPI
-support.  This patch should settle at least some of the issues in
-http://bugzilla.kernel.org/show_bug.cgi?id=1188.
+I just tried the patch attached. :)
 
-  Ralf
+The bug is still here (same symptoms), with a slightly different backtrace :
+------------[ cut here ]------------
+kernel BUG at net/ipv4/tcp_output.c:918!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c027dd66>]    Not tainted VLI
+EFLAGS: 00010297   (2.6.13-rc4-endy)
+EIP is at tcp_tso_should_defer+0xd6/0xf0
+eax: 00000005   ebx: f5032e80   ecx: 00000007   edx: f3b2fc00
+esi: 00000006   edi: 00000006   ebp: c031fd78   esp: c031fd68
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c031e000 task=c02dbb80)
+Stack: f129b2b8 f5032e80 00000006 f3b2fc00 c031fdb0 c027de7b f3b2fc00 
+f3b2fc00
+        f5032e80 0000000b f3b2fc00 b7773884 00000000 00000005 00000002 
+f3b2fc00
+        f3b2fc00 f5a26034 c031fdd4 c027e1b2 f3b2fc00 00000564 00000001 
+f5a26034
+Call Trace:
+  [<c0102e5f>] show_stack+0x7f/0xa0
+  [<c0103002>] show_registers+0x152/0x1c0
+  [<c01031f8>] die+0xc8/0x140
+  [<c0103325>] do_trap+0xb5/0xc0
+  [<c010366c>] do_invalid_op+0xbc/0xd0
+  [<c0102aa3>] error_code+0x4f/0x54
+  [<c027de7b>] tcp_write_xmit+0xfb/0x400
+  [<c027e1b2>] __tcp_push_pending_frames+0x32/0xd0
+  [<c027b1cc>] tcp_rcv_established+0x27c/0x860 (was 
+tcp_rcv_state_process before).
+  [<c0283f8a>] tcp_v4_do_rcv+0x11a/0x120
+  [<c0284502>] tcp_v4_rcv+0x572/0x750
+  [<c026a62b>] ip_local_deliver+0xcb/0x1d0
+  [<c026aa52>] ip_rcv+0x322/0x4a0
+  [<c0256a97>] netif_receive_skb+0x137/0x1a0
+  [<c0256b8f>] process_backlog+0x8f/0x110
+  [<c0256c82>] net_rx_action+0x72/0x100
+  [<c01172dc>] __do_softirq+0x8c/0xa0
+  [<c011731a>] do_softirq+0x2a/0x30
+  [<c01173d5>] irq_exit+0x35/0x40
+  [<c01044fc>] do_IRQ+0x3c/0x70
+  [<c0102a46>] common_interrupt+0x1a/0x20
+  [<c0100997>] cpu_idle+0x57/0x60
+  [<c010024b>] _stext+0x2b/0x30
+  [<c0320847>] start_kernel+0x147/0x170
+  [<c0100199>] 0xc0100199
+Code: 89 f8 0f af c2 3b 45 f0 0f 47 45 f0 31 d2 89 45 f0 f7 f3 31 d2 39 
+c1 73 ce ba 01 00 00 00 eb c7 6b c2 03 31 d239 c1 77 be eb ee <0f> 0b 96 
+03 ce 54 2d c0 e9 76 ff ff ff 8b ba 78 02 00 00 eb eb
+  <0>Kernel panic - not syncing: Fatal exception in interrupt
+
+I guess it's the same bug :)
+
+Just a few more infos about the problem :
+- Turning off TSO with ethtool solves the problem.
+- I tried 2.6.13-rc4 on another server (with the same configuration) and 
+the bug occured too (so i guess it's not due to some weird memory 
+problem :) )
+- The problem dont seems to be present in 2.6.12.3 (but i only tried 
+2.6.12.3 during 2 days).
+
+
+Best Regards,
+
+Guillaume Pelat

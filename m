@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVHAVyB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVHAVtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVHAVyB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 17:54:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVHAVwY
+	id S261281AbVHAVtw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 17:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVHAVMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:52:24 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:2309 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261285AbVHAVuS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:50:18 -0400
-Message-ID: <42EE9A29.7070801@deathstar.prodigy.com>
-Date: Mon, 01 Aug 2005 17:54:49 -0400
-From: Bill Davidsen <davidsen@deathstar.prodigy.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Finding out which SCSI drive is mapped to which device
-References: <1122408090.30584e6dd23e19ddaa14a273d0f13357@teranews> <slrndeff9b.c2q.lgb@aztec.eclipse> <1122574146.ebb81542308f9689a1316bbe86b8e41c@teranews>
-In-Reply-To: <1122574146.ebb81542308f9689a1316bbe86b8e41c@teranews>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Aug 2005 17:12:55 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:3749 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261274AbVHAVLp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 17:11:45 -0400
+Date: Mon, 1 Aug 2005 23:12:27 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
+Message-ID: <20050801211227.GA21566@elte.hu>
+References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins> <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe> <20050731063852.GA611@elte.hu> <1122871521.15825.13.camel@mindpipe> <20050801210829.GB21465@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050801210829.GB21465@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Erasmus wrote:
-> On Wed, 27 Jul 2005 16:58:20 -0000, Chiefy <lgb@non.existent.invalid>
-> wrote:
-> 
-> 
->>26 Jul 2005 20:04 UTC, Anton Erasmus typed:
->>
->>>How can I find out which SCSI ID is mapped to which device ?
->>
->>Have a look at sg3_utils http://sg.torque.net/sg/index.html
-> 
-> 
-> Thanks,
-> 
-> These utilities seem to be for SCSI devices which are not disks, tapes
-> or CD-ROMs. All my SCSI devices are disks. I only need to find out
-> which SCSI ID maps to sda, and which ID to sdb etc.
 
-For human information "cat /proc/scsi/scsi" might do
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > On Sun, 2005-07-31 at 08:38 +0200, Ingo Molnar wrote:
+> > > ok - i've uploaded the -52-04 patch, does that fix it for you?
+> > 
+> > Has anyone found their PS2 keyboard rather sluggish with this kernel? 
+> > I'm not sure whether it's an -RT problem, I'll have to try rc4.
 
--- 
-bill davidsen
-   SBC/Prodigy Yorktown Heights NY data center
-   http://newsgroups.news.prodigy.com
+There was one irq-redirection change done recently, i've undone it in 
+-52-09, does it work any better?
+
+	Ingo

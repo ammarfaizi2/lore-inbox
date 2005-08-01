@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVHAOje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262078AbVHAOoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbVHAOje (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 10:39:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVHAOjU
+	id S262078AbVHAOoN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 10:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVHAOmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 10:39:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64434 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262218AbVHAOia (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 10:38:30 -0400
-Subject: RE: AACRAID failure with 2.6.13-rc1
-From: Mark Haverkamp <markh@osdl.org>
-To: Mark Salyzyn <mark_salyzyn@adaptec.com>
-Cc: Andrew Morton <akpm@osdl.org>, Martin Drab <drab@kepler.fjfi.cvut.cz>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <60807403EABEB443939A5A7AA8A7458B01792901@otce2k01.adaptec.com>
-References: <60807403EABEB443939A5A7AA8A7458B01792901@otce2k01.adaptec.com>
-Content-Type: text/plain
-Date: Mon, 01 Aug 2005 07:38:24 -0700
-Message-Id: <1122907104.24183.8.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 1 Aug 2005 10:42:08 -0400
+Received: from [81.103.221.47] ([81.103.221.47]:549 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S262219AbVHAOl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 10:41:59 -0400
+Message-ID: <42EE3501.7010107@gentoo.org>
+Date: Mon, 01 Aug 2005 15:43:13 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Otto Meier <gf435@gmx.net>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Driver for sata adapter promise sata300 tx4
+References: <42EDE918.9040807@gmx.net>
+In-Reply-To: <42EDE918.9040807@gmx.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-01 at 07:44 -0400, Salyzyn, Mark wrote:
-> Yes, please put the workaround into 2.6.13!
+Otto Meier wrote:
+> This card use the sata chip pdc 40718 (as of my card)
+> the lastest sata_promise kernel with sata promise patch driver doesn't 
+> recognise
+> this card.
+> 
+> I added the following line to static struct pci_device_id 
+> pdc_ata_pci_tbl[]  in sata_promise.c:
+> 
+>        { PCI_VENDOR_ID_PROMISE, 0x3d17, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+>          board_20319 },
+> 
+> and the card was recognised and seam to work without errors so far.
 
-I have re-submitted the patch that I sent a couple weeks ago to James
-and the linus-scsi mailing list.
+Yes, this should be fine (this is a 4-port SATA card right?)
 
-Mark.
-> 
-> Sincerely -- Mark Salyzyn
-> 
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@osdl.org] 
-> Sent: Friday, July 29, 2005 3:59 PM
-> To: Salyzyn, Mark
-> Cc: drab@kepler.fjfi.cvut.cz; linux-kernel@vger.kernel.org;
-> markh@osdl.org
-> Subject: Re: AACRAID failure with 2.6.13-rc1
-> 
-> "Salyzyn, Mark" <mark_salyzyn@adaptec.com> wrote:
-> >
-> > Martin may be overplaying the performance angle.
-> > 
-> > A previous patch took the adapter from 64K to 4MB transaction sizes
-> > across the board. This caused Martin's adapter and drive combination
-> to
-> > tip-over. We had to scale back to 128KB sized transactions to get
-> > stability on his system. All systems handled the 4MB I/O size in our
-> > tests, but the tests that were done some time ago were not performed
-> > with the latest kernel, which contributed to a change in testing
-> > corners.
-> 
-> Confused.  The above appears to indicate that we should put the
-> workaround
-> into 2.6.13, yes?
-> 
--- 
-Mark Haverkamp <markh@osdl.org>
+Are you happy to produce and submit a patch yourself (read 
+Documentation/SubmittingPatches) or should I submit one for you?
 
+Thanks,
+Daniel

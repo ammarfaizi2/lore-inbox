@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVHACIC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVHACQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVHACIC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 22:08:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVHACIC
+	id S261984AbVHACQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 22:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVHACQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 22:08:02 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53136 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261964AbVHACH7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 22:07:59 -0400
-Date: Sun, 31 Jul 2005 19:06:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: linux-kernel@vger.kernel.org, ambx1@neo.rr.com, torvalds@osdl.org,
-       pavel@ucw.cz, hugh@veritas.com, linux@dominikbrodowski.net,
-       daniel.ritz@gmx.ch, len.brown@intel.com
-Subject: Re: revert yenta free_irq on suspend
-Message-Id: <20050731190645.748f57e9.akpm@osdl.org>
-In-Reply-To: <1122861542.2953.8.camel@linux-hp.sh.intel.com>
-References: <2e00842e116e.2e116e2e0084@columbus.rr.com>
-	<1122861542.2953.8.camel@linux-hp.sh.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Jul 2005 22:16:26 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:14833 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261984AbVHACQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 22:16:25 -0400
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org
+Subject: Re: kernel guide to space (updated)
+References: <20050728145353.GL11644@mellanox.co.il>
+	<Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr>
+From: Miles Bader <miles@lsi.nec.co.jp>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Mon, 01 Aug 2005 11:15:55 +0900
+In-Reply-To: <Pine.LNX.4.61.0507290929250.26861@yvahk01.tjqt.qr> (Jan Engelhardt's message of "Fri, 29 Jul 2005 09:40:14 +0200 (MEST)")
+Message-Id: <buo8xzmcsh0.fsf@mctpc71.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaohua Li <shaohua.li@intel.com> wrote:
+Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+>>3i. if/else/do/while/for/switch
+>>	space between if/else/do/while and following/preceeding
+>>	statements/expressions, if any
 >
-> Hi,
-> > In general, I think that calling free_irq is the right behavior.
-> > Although irqs changing after suspend is rare, there are also some
-> > more serious issues.  This has been discussed in the past, and a
-> > summary is as follows:
->
-> irqs actually isn't changed after suspend currently, it's a considering
-> for future usage like hotplug.
-> Calling free_irq actually isn't a complete ACPI issue, but ACPI requires
-> it to solve nasty 'sleep in atomic' warning.
+> Why this? if(a) {} is not any worse than if (a).
 
-Is that the only problem?  If so, then surely we can make free_irq() run
-happily with interrupts disabled: unlink the IRQ handler synchronously,
-defer the /proc teardown or something like that.
+Well it's harder to read (because it makes control constructs look more
+like function calls).  And a bit uglier.
 
-> You will find such break
-> with swsusp without ACPI. Could we revert the ACPI change in Linus's
-> tree but keep it in -mm tree? So we get a chance to fix drivers.
+But anyway, coding styles are rarely about "worse" versus "better",
+they're about keeping things consistent so that it's easier to read
+code.
 
-That depends on the amount of brokenness involved: if it's significant then
-I'll get a ton of bug reports concerning something which we already know is
-broken and we'll drive away our long-suffering testers.
-
+-Miles
+-- 
+Any man who is a triangle, has thee right, when in Cartesian Space, to
+have angles, which when summed, come to know more, nor no less, than
+nine score degrees, should he so wish.  [TEMPLE OV THEE LEMUR]

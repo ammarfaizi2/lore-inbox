@@ -1,92 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVHAO22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVHAOjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbVHAO22 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 10:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVHAO20
+	id S262192AbVHAOjd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 10:39:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbVHAOj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 10:28:26 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:45803 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261842AbVHAO1u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 10:27:50 -0400
-Message-ID: <42EE3169.6070604@trash.net>
-Date: Mon, 01 Aug 2005 16:27:53 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
-X-Accept-Language: en
+	Mon, 1 Aug 2005 10:39:26 -0400
+Received: from osten.wh.uni-dortmund.de ([129.217.129.130]:50386 "EHLO
+	osten.wh.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262225AbVHAOit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 10:38:49 -0400
+Message-ID: <42EE33F6.6040606@web.de>
+Date: Mon, 01 Aug 2005 16:38:46 +0200
+From: Alexander Fieroch <fieroch@web.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050611)
+X-Accept-Language: de-de, en-us, en
 MIME-Version: 1.0
-To: Mattia Dongili <malattia@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: BUG: atomic counter underflow at ip_conntrack_event_cache_init+0x91/0xb0
- (with patch)
-References: <20050801141327.GA3909@inferi.kami.home>
-In-Reply-To: <20050801141327.GA3909@inferi.kami.home>
-Content-Type: multipart/mixed;
- boundary="------------070607080204070300000801"
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Michael Thonke <iogl64nx@gmail.com>, linux-kernel@vger.kernel.org,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, bzolnier@gmail.com, axboe@suse.de,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Natalie.Protasevich@unisys.com, Andrew Morton <akpm@osdl.org>,
+       Parag Warudkar <kaernel-stuff@comcast.net>,
+       Alexander Fieroch <fieroch@web.de>
+Subject: Re: PROBLEM: "drive appears confused" and "irq 18: nobody cared!"
+References: <d6gf8j$jnb$1@sea.gmane.org> <42EAAFD4.4010303@web.de> <42EAD086.4010904@gmail.com> <200507291905.37339.kernel-stuff@comcast.net> <20050730014237.GA20131@mipter.zuzino.mipt.ru>
+In-Reply-To: <20050730014237.GA20131@mipter.zuzino.mipt.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070607080204070300000801
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Alexey Dobriyan wrote:
+> --- 2.6.12-r4.txt			[1]
+> +++ 2.6.12-r6.txt			[2]
+> +1003_linux-2.6.12.3.patch	<-----------------------+
+> +1370_sparc-modpost_stt_reg.patch			|
+> -1900_acpi-irq-0.patch			included in ----+
 
-Mattia Dongili wrote:
-> Hello,
-> 
-> got this one while trying out 2.6.13-rc4-mm1 (not there in -r2-mm1),
-> from a quick look it seems to me that ip_conntrack_{get,put} are not
-> simmetric in updating the use count, thus simply adding this line might
-> help (it does actually, but I'm not aware if there could be any drawback):
-> 
-> --- include/linux/netfilter_ipv4/ip_conntrack.h.clean	2005-08-01 15:09:49.000000000 +0200
-> +++ include/linux/netfilter_ipv4/ip_conntrack.h	2005-08-01 15:08:52.000000000 +0200
-> @@ -298,6 +298,7 @@ static inline struct ip_conntrack *
->  ip_conntrack_get(const struct sk_buff *skb, enum ip_conntrack_info *ctinfo)
->  {
->  	*ctinfo = skb->nfctinfo;
-> +	nf_conntrack_get(skb->nfct);
->  	return (struct ip_conntrack *)skb->nfct;
->  }
+no change with 2.6.12.3
 
-This creates lots of refcnt leaks, which is probably why it makes the
-underflow go away :) Please try this patch instead.
+> +2700_irqpoll.patch			[3]
+> [3] http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=200803dfe4ff772740d63db725ab2f1b185ccf92;hp=21fe3471c3aaa5c489c5d3a4d705291eb7511248
+
+here is the current status with kernel 2.6.13rc4-git4 and kernel 
+parameters "pci=routeirq apic=debug acpi=debug irqpoll".
+
+It's working better - there is only one "nobody cared" message and only 
+a few lines "drive appears confused" for hdb and hde in syslog. Both of 
+them are cdrom drives. I also have hda and hdh, what are harddisk drives 
+and where the error does not occur. Perhaps this could help you?
+A small test copying files from hda/hdh to /tmp is working - so this 
+problem seems to be fixed. Moreover I did not recognize the error...
+
+---------------
+hda: dma_timer_expiry: dma status == 0x64
+hda: DMA interrupt recovery
+hda: lost interrupt
+---------------
+
+...anymore.
+Copying files from cdrom hdb to /tmp I get continually following errors 
+in syslog:
+
+---------------
+hdb: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+hdb: media error (bad sector): error=0x30 { LastFailedSense=0x03 }
+ide: failed opcode was: unknown
+end_request: I/O error, dev hdb, sector 1306960
+Buffer I/O error on device hdb, logical block 326740
+---------------
+
+I get the same errors when I try to copy files from my dvdrom hde to 
+/tmp. There is still something broken.
+
+Regards,
+Alexander
 
 
---------------070607080204070300000801
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
-
-[NETFILTER]: Fix refcnt underflow in ip_conntrack_event_cache_init
-
-Signed-off-by: Patrick McHardy <kaber@trash.net>
-
----
-commit 5d55b8c6bfba6e6e2ffe26c2a2e2561e278428b7
-tree d43366a793d2fa3058c15a752010ef0fd22894cc
-parent df2e0392536ecdd6385f4319f746045fd6fae38f
-author Patrick McHardy <kaber@trash.net> Mon, 01 Aug 2005 16:25:53 +0200
-committer Patrick McHardy <kaber@trash.net> Mon, 01 Aug 2005 16:25:53 +0200
-
- net/ipv4/netfilter/ip_conntrack_core.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/net/ipv4/netfilter/ip_conntrack_core.c b/net/ipv4/netfilter/ip_conntrack_core.c
---- a/net/ipv4/netfilter/ip_conntrack_core.c
-+++ b/net/ipv4/netfilter/ip_conntrack_core.c
-@@ -146,6 +146,7 @@ void ip_conntrack_event_cache_init(const
- 
- 		/* initialize for this conntrack/packet */
- 		ecache->ct = ip_conntrack_get(skb, &ctinfo);
-+		nf_conntrack_get(&ecache->ct->ct_general);
- 		/* ecache->events cleared by __deliver_cached_devents() */
- 	} else {
- 		DEBUGP("ecache: re-entered for conntrack %p.\n", ct);
-
---------------070607080204070300000801--

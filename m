@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVHAVMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVHAVMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVHAVMs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 17:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVHAVKI
+	id S261231AbVHAVMr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 17:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVHAVKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:10:08 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:57764 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261282AbVHAVH6 (ORCPT
+	Mon, 1 Aug 2005 17:10:01 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:59833 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S261286AbVHAVIN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:07:58 -0400
-Date: Mon, 1 Aug 2005 23:08:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-Message-ID: <20050801210829.GB21465@elte.hu>
-References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins> <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe> <20050731063852.GA611@elte.hu> <1122871521.15825.13.camel@mindpipe>
+	Mon, 1 Aug 2005 17:08:13 -0400
+Subject: Re: 2.6.13-rc3-mm3
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0508011335090.7011@graphe.net>
+References: <20050728025840.0596b9cb.akpm@osdl.org>
+	 <1122860603.7626.32.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508010908530.3546@graphe.net>
+	 <1122926537.7648.105.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0508011335090.7011@graphe.net>
+Content-Type: text/plain
+Date: Mon, 01 Aug 2005 22:07:53 +0100
+Message-Id: <1122930474.7648.119.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122871521.15825.13.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-08-01 at 13:36 -0700, Christoph Lameter wrote:
+> Could you get me some more information about the hang? A stacktrace would 
+> be useful.
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+I've attached gdb to it and its stuck in memcpy (from glibc). The rest
+of the trace is junk as glibc's arm memcpy implementation will have
+destroyed the frame pointer. The current instruction is a store to
+memory (stmneia r0!, {r3,r4} ) and the instruction pointer isn't
+changing...
 
-> On Sun, 2005-07-31 at 08:38 +0200, Ingo Molnar wrote:
-> > ok - i've uploaded the -52-04 patch, does that fix it for you?
-> 
-> Has anyone found their PS2 keyboard rather sluggish with this kernel? 
-> I'm not sure whether it's an -RT problem, I'll have to try rc4.
+> Well the device is able to run X so I guess that a slow kernel compile 
+> would work. At least the embedded device that I used to work on was 
+> capable of doing that (but then we had Debian on that thing which made 
+> doing stuff like that very easy).
 
-hm, i've got no other reports about that.
+I agree, it would probably do a slow compile. I have no compiler or
+development tools on it though and only slow vfat disks other than the
+internal flash. There are plenty of options to get such things working
+but it will take me a while to setup.
 
-	Ingo
+Hopefully the memcpy clue will mean something?
+
+Richard
+

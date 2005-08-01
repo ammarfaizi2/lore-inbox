@@ -1,178 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVHAUCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVHAUEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVHAUCV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 16:02:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVHAUCV
+	id S261214AbVHAUEY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 16:04:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVHAUC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 16:02:21 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:33226 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S261206AbVHAUCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 16:02:06 -0400
-Message-ID: <42EE7FBF.1090505@m1k.net>
-Date: Mon, 01 Aug 2005 16:02:07 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Mon, 1 Aug 2005 16:02:28 -0400
+Received: from silver.veritas.com ([143.127.12.111]:29458 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S261205AbVHAUBu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 16:01:50 -0400
+Date: Mon, 1 Aug 2005 21:03:25 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Roland McGrath <roland@redhat.com>, linux-mm@kvack.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <42EDDB82.1040900@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0508012045050.5373@goblin.wat.veritas.com>
+References: <20050801032258.A465C180EC0@magilla.sf.frob.com>
+ <42EDDB82.1040900@yahoo.com.au>
 MIME-Version: 1.0
-To: hermann pitton <hermann.pitton@onlinehome.de>
-CC: video4linux-list@redhat.com, linux-kernel@vger.kernel.org,
-       cijoml@nebuchadnezzar.smejdil.cz, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2 errors in 2.6.12
-References: <200506190958.00267.cijoml@volny.cz>	 <20050728214851.44877164.akpm@osdl.org>	 <200507311351.52631.cijoml@volny.cz>	 <20050731103156.69536415.akpm@osdl.org> <42ED1016.1000804@m1k.net>	 <20050801111414.G59306@nebuchadnezzar.smejdil.cz>	 <1122894516.5340.9.camel@pc08.localdom.local>	 <20050801201017.G77710@nebuchadnezzar.smejdil.cz> <1122926100.5340.38.camel@pc08.localdom.local>
-In-Reply-To: <1122926100.5340.38.camel@pc08.localdom.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 01 Aug 2005 20:01:46.0313 (UTC) FILETIME=[D86BB390:01C596D3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you, Hermann.
+On Mon, 1 Aug 2005, Nick Piggin wrote:
+> 
+> This was tested by Robin and appears to solve the problem. Roland
+> had a quick look and thought the basic idea was sound. I'd like to
+> get a couple more acks before going forward, and in particular
+> Robin was contemplating possible efficiency improvements (although
+> efficiency can wait on correctness).
 
-AKPM (cc re-added) requested that this thread retain cc's to him... so 
-he should see that it has been resolved.......
+I'd much prefer a solution that doesn't invade all the arches, but
+I don't think Linus' pte_dirty method will work on s390 (unless we
+change s390 in a less obvious way than your patch), so it looks
+like we do need something like yours.
 
-hermann pitton wrote:
+Comments:
 
->Hello,
->
->this one is solved.
->
->Guess we will see similar issues more often for a while.
->
->Cheers,
->Hermann
->
->
->Am Montag, den 01.08.2005, 20:11 +0200 schrieb CIJOML:
->  
->
->>On Mon, 1 Aug 2005, hermann pitton wrote:
->>
->>    
->>
->>>Am Montag, den 01.08.2005, 11:16 +0200 schrieb CIJOML:
->>>      
->>>
->>>>Hi,
->>>>
->>>>my card is impossible to be autodetected. Valid sections for it's
->>>>identification are missing.
->>>>
->>>>I asked for this some time ago. I need to use insmod option.
->>>>
->>>>Michal
->>>>        
->>>>
->>>Hi Michal,
->>>
->>>the "tuner type=N" insmod option is gone away.
->>>
->>>There has been a warning that it is deprecated for about 1  1/2 years
->>>in dmesg. Please remove it from /etc/modprobe.conf or where else it is
->>>called and replace it with "options bttv card=N tuner=N", guess you
->>>      
->>>
->>AAAAH!!!! This helped!!! Thanks a lot
->>after options bttv           card=42 radio=1 tuner=1
->>card works! :)
->>
->>Linux video capture interface: v1.00
->>bttv: driver version 0.9.15 loaded
->>bttv: using 8 buffers with 2080k (520 pages) each for capture
->>bttv: Bt8xx card found (0).
->>ACPI: PCI Interrupt 0000:01:0b.0[A] -> Link [LNKH] -> GSI 9 (level, low)
->>-> IRQ 9
->>bttv0: Bt878 (rev 17) at 0000:01:0b.0, irq: 9, latency: 32, mmio:
->>0xb69fe000
->>bttv0: using: ProVideo PV951 [card=42,insmod option]
->>bttv0: gpio: en=00000000, out=00000000 in=00ffffff [init]
->>bttv0: using tuner=1
->>bttv0: i2c: checking for TDA9875 @ 0xb0... not found
->>bttv0: i2c: checking for TDA7432 @ 0x8a... not found
->>tvaudio: TV audio decoder + audio/video mux driver
->>tvaudio: known chips:
->>tda9840,tda9873h,tda9874h/a,tda9850,tda9855,tea6300,tea6320,tea6420,tda8425,pic16c54
->>(PV951),ta8874z
->>tvaudio: found pic16c54 (PV951) @ 0x96
->>bttv0: i2c: checking for TDA9887 @ 0x86... not found
->> : chip found @ 0xc0 (bt878 #0 [sw])
->> : All bytes are equal. It is not a TEA5767
->>tuner 0-0060: type set to 1 (Philips PAL_I (FI1246 and compatibles))
->>bttv0: registered device video0
->>bttv0: registered device vbi0
->>bttv0: registered device radio0
->>bttv0: PLL: 28636363 => 35468950 .. ok
->>
->>Thanks a lot!
->>
->>Michal
->>
->>
->>    
->>
->>>might use tuner=5, and what else you might need and then "depmod -a".
->>>Does this help?
->>>
->>>Greetings,
->>>Hermann
->>>
->>>
->>>      
->>>
->>>>On Sun, 31 Jul 2005, Michael Krufky wrote:
->>>>
->>>>        
->>>>
->>>>>Andrew Morton wrote:
->>>>>
->>>>>          
->>>>>
->>>>>>Michal Semler <cijoml@volny.cz> wrote:
->>>>>>
->>>>>>
->>>>>>            
->>>>>>
->>>>>>>This is what I gets into dmesg:
->>>>>>>
->>>>>>>Linux video capture interface: v1.00
->>>>>>>bttv: driver version 0.9.15 loaded
->>>>>>>bttv: using 8 buffers with 2080k (520 pages) each for capture
->>>>>>>bttv: Bt8xx card found (0).
->>>>>>>ACPI: PCI Interrupt 0000:01:0b.0[A] -> Link [LNKH] -> GSI 9 (level, low) ->
->>>>>>>IRQ 9
->>>>>>>bttv0: Bt878 (rev 17) at 0000:01:0b.0, irq: 9, latency: 32, mmio: 0xb69fe000
->>>>>>>bttv0: using: ProVideo PV951 [card=42,insmod option]
->>>>>>>bttv0: gpio: en=00000000, out=00000000 in=00ffffff [init]
->>>>>>>bttv0: using tuner=1
->>>>>>>bttv0: i2c: checking for TDA9875 @ 0xb0... not found
->>>>>>>bttv0: i2c: checking for TDA7432 @ 0x8a... not found
->>>>>>>tvaudio: TV audio decoder + audio/video mux driver
->>>>>>>tvaudio: known chips:
->>>>>>>tda9840,tda9873h,tda9874h/a,tda9850,tda9855,tea6300,tea6320,tea6420,tda8425,pic16c54
->>>>>>>(PV951),ta8874z
->>>>>>>tvaudio: found pic16c54 (PV951) @ 0x96
->>>>>>>bttv0: i2c: checking for TDA9887 @ 0x86... not found
->>>>>>>tuner: Unknown parameter `type'
->>>>>>>              
->>>>>>>
->>>              ^^^^^^^^^^^^^^^^^^^^^^^^
->>>      
->>>
->[...]
->
->  
->
+There are currently 21 architectures,
+but so far your patch only updates 14 of them?
 
+Personally (rather like Robin) I'd have preferred a return code more
+directed to the issue at hand, than your VM_FAULT_RACE.  Not for
+efficiency reasons, I think you're right that's not a real issue,
+but more to document the peculiar case we're addressing.  Perhaps a
+code that says do_wp_page has gone all the way through, even though
+it hasn't set the writable bit.
 
--- 
-Michael Krufky
+That would require less change in mm/memory.c, but I've no strong
+reason to argue that you change your approach in that way.  Perhaps
+others prefer the race case singled out, to gather statistics on that.
+Assuming we stick with your VM_FAULT_RACE...
 
+Could we define VM_FAULT_RACE as 3 rather than -2?  I think there's 
+some historical reason why VM_FAULT_OOM is -1, but see no cause to
+extend the range in that strange direction.
+
+VM_FAULT_RACE is a particular subcase of VM_FAULT_MINOR: throughout
+the arches I think they should just be adjacent cases of the switch
+statement, both doing the min_flt++.
+
+Your continue in get_user_pages skips page_table_lock as Linus noted.
+
+The do_wp_page call from do_swap_page needs to be adjusted, to return
+VM_FAULT_RACE if that's what it returned.
+
+If VM_FAULT_RACE is really recording races, then the bottom return
+value from handle_pte_fault ought to be VM_FAULT_RACE rather than
+VM_FAULT_MINOR.
+
+Hugh

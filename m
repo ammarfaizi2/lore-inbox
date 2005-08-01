@@ -1,115 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVHAOD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVHAOMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVHAOD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 10:03:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVHAOD4
+	id S262047AbVHAOMv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 10:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVHAOMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 10:03:56 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:32963 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S262033AbVHAODz (ORCPT
+	Mon, 1 Aug 2005 10:12:51 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:40372 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262072AbVHAOMu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 10:03:55 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4 use after free in class_device_attr_show 
-In-reply-to: Your message of "Mon, 01 Aug 2005 22:14:05 +1000."
-             <8551.1122898445@ocs3.ocs.com.au> 
+	Mon, 1 Aug 2005 10:12:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:x-message-flag:x-operating-system:x-editor:x-disclaimer:user-agent;
+        b=A2mIIoWxCWtWshTfkuyKcY7BEBPPiPeHqpXp8dwxbTr4ZY2NrgdIiQY5cVY+zvDDPKPKZWvWHFr1UG/jvkHXp9zuZpHloR0LxstE5um5g2JnF/bW+xI7JKMJUxMVPEChnLfLlyitCl1Q0C3YUyWTvS6goDs22+aIcaXcZsQFr4M=
+Date: Mon, 1 Aug 2005 16:13:27 +0200
+From: Mattia Dongili <malattia@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: BUG: atomic counter underflow at ip_conntrack_event_cache_init+0x91/0xb0 (with patch)
+Message-ID: <20050801141327.GA3909@inferi.kami.home>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 02 Aug 2005 00:03:37 +1000
-Message-ID: <10600.1122905017@ocs3.ocs.com.au>
+Content-Disposition: inline
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.13-rc2-mm1-2 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another (different) manifestation of use after free in sysfs.  It broke
-on module_put(owner) in sysfs_release().  FWIW this ia64 build is
-uni-processor, so there is a lot more context switching than normally
-occurs on udev.
+Hello,
 
-fill_kobj_path: path = '/class/vc/vcs2'
-kobject_hotplug: /sbin/hotplug vc seq=1809 HOME=/ PATH=/sbin:/bin:/usr/sbin:/usr/bin ACTION=add DEVPATH=/class/vc/vcs2 SUBSYSTEM=vc
-kobject vcsa2: registering. parent: vc, set: class_obj
-kobject_hotplug
-fill_kobj_path: path = '/class/vc/vcsa2'
-kobject_hotplug: /sbin/hotplug vc seq=1810 HOME=/ PATH=/sbin:/bin:/usr/sbin:/usr/bin ACTION=add DEVPATH=/class/vc/vcsa2 SUBSYSTEM=vc
-kobject_hotplug
-fill_kobj_path: path = '/class/vc/vcs1'
-kobject_hotplug: /sbin/hotplug vc seq=1811 HOME=/ PATH=/sbin:/bin:/usr/sbin:/usr/bin ACTION=remove DEVPATH=/class/vc/vcs1 SUBSYSTEM=vc
-kobject vcs1: cleaning up
-kobject_hotplug
-fill_kobj_path: path = '/class/vc/vcsa1'
-kobject_hotplug: /sbin/hotplug vc seq=1812 HOME=/ PATH=/sbin:/bin:/usr/sbin:/usr/bin ACTION=remove DEVPATH=/class/vc/vcsa1 SUBSYSTEM=vc
-kobject vcsa1: cleaning up
-kobject vcs16: cleaning up
-Unable to handle kernel paging request at virtual address 6b6b6b6b6b6b6cf3
-udev[24414]: Oops 8821862825984 [1]
-Modules linked in: md5 ipv6 usbcore raid0 md_mod nls_iso8859_1 nls_cp437 dm_mod sg st osst
+got this one while trying out 2.6.13-rc4-mm1 (not there in -r2-mm1),
+from a quick look it seems to me that ip_conntrack_{get,put} are not
+simmetric in updating the use count, thus simply adding this line might
+help (it does actually, but I'm not aware if there could be any drawback):
 
-Pid: 24414, CPU 0, comm:                 udev
-psr : 00001010081a6018 ifs : 8000000000000308 ip  : [<a00000010025c010>]    Not tainted
-ip is at sysfs_release+0xf0/0x1c0
-unat: 0000000000000000 pfs : 0000000000000308 rsc : 0000000000000003
-rnat: 0000000000000000 bsps: 0000000000000000 pr  : 0000000000158659
-ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c8270033f
-csd : 0000000000000000 ssd : 0000000000000000
-b0  : a00000010025bff0 b6  : a00000010000e8c0 b7  : a00000010057ff00
-f6  : 1003e6b6b6b6b6b6b6b6b f7  : 0ffe58bbeff7b80000000
-f8  : 1003e0000000000000578 f9  : 1003e0000000000000005
-f10 : 100019ffffffff803b6e3 f11 : 1003e0000000000000005
-r1  : a000000100ddf690 r2  : 0000000000000001 r3  : e00000b078360da0
-r8  : 0000000000000000 r9  : a000000100be0a40 r10 : 00000000000000f4
-r11 : 0000000000000001 r12 : e00000b078367e30 r13 : e00000b078360000
-r14 : 6b6b6b6b6b6b6cf3 r15 : 0000000000000001 r16 : e00000b078360da0
-r17 : 0000000000000000 r18 : 00000000054cd124 r19 : a0007fff62138000
-r20 : a0007fff8c7a0000 r21 : 0000000000000010 r22 : 0000000000004000
-r23 : 6b6b6b6b6b6b6b6b r24 : 0000000000000000 r25 : e00000347bff0758
-r26 : 0000000000000090 r27 : e0000030752f0728 r28 : e0000030752f0720
-r29 : e0000030752f0738 r30 : 0000000000000000 r31 : 0000000000000001
+--- include/linux/netfilter_ipv4/ip_conntrack.h.clean	2005-08-01 15:09:49.000000000 +0200
++++ include/linux/netfilter_ipv4/ip_conntrack.h	2005-08-01 15:08:52.000000000 +0200
+@@ -298,6 +298,7 @@ static inline struct ip_conntrack *
+ ip_conntrack_get(const struct sk_buff *skb, enum ip_conntrack_info *ctinfo)
+ {
+ 	*ctinfo = skb->nfctinfo;
++	nf_conntrack_get(skb->nfct);
+ 	return (struct ip_conntrack *)skb->nfct;
+ }
+ 
 
-kdb> r s
- r32: e00000b476b32df0  r33: e00000b472417380  r34: 6b6b6b6b6b6b6b6b 
- r35: a00000010019a060  r36: 0000000000000610  r37: 0000000000000610 
- r38: a00000010025bff0  r39: 0000000000000308 
+here's the BUG log:
 
-kdb> bt
-Stack traceback for pid 24414
-0xe00000b078360000    24414    24400  1    0   R  0xe00000b078360300 *udev
-0xa00000010025c010 sysfs_release+0xf0
-        args (0xe00000b476b32df0, 0xe00000b472417380, 0x6b6b6b6b6b6b6b6b, 0xa00000010019a060, 0x610)
-0xa00000010019a060 __fput+0x3c0
-        args (0xe00000301eeae8d0, 0xe00000301eeae8f0, 0xe00000b476b32df0, 0xe00000301eeae8e0, 0xe00000347bc91200)
-0xa00000010019a0c0 fput+0x40
-        args (0xe00000301eeae8d0, 0xa000000100191d60, 0x308, 0xe00000b476b32df0)
-0xa000000100191d60 filp_close+0xc0
-        args (0xe00000301eeae8d0, 0xe00000b4720d5230, 0x0, 0xa0000001001920d0, 0x919)
-0xa0000001001920d0 sys_close+0x2f0
-        args (0x6, 0x6000000000058210, 0x4000, 0x280, 0x0)
-0xa00000010000b520 ia64_ret_from_syscall
-        args (0x6, 0x6000000000058210, 0x4000)
-0xa000000000010640 __kernel_syscall_via_break
-        args (0x6, 0x6000000000058210, 0x4000)
+Aug  1 10:44:01 inferi kernel: BUG: atomic counter underflow at:
+Aug  1 10:44:01 inferi kernel:  [pg0+277500810/1069777920] ip_ct_iterate_cleanup+0xfa/0x100 [ip_conntrack]
+Aug  1 10:44:01 inferi kernel:  [pg0+277541331/1069777920] masq_inet_event+0x33/0x40 [ipt_MASQUERADE]
+Aug  1 10:44:01 inferi kernel:  [pg0+277541344/1069777920] device_cmp+0x0/0x40 [ipt_MASQUERADE]
+Aug  1 10:44:01 inferi kernel:  [notifier_call_chain+45/80] notifier_call_chain+0x2d/0x50
+Aug  1 10:44:01 inferi kernel:  [inet_del_ifa+147/464] inet_del_ifa+0x93/0x1d0
+Aug  1 10:44:01 inferi kernel:  [devinet_ioctl+1199/1440] devinet_ioctl+0x4af/0x5a0
+Aug  1 10:44:01 inferi kernel:  [inet_ioctl+102/176] inet_ioctl+0x66/0xb0
+Aug  1 10:44:01 inferi kernel:  [sock_ioctl+201/560] sock_ioctl+0xc9/0x230
+Aug  1 10:44:01 inferi kernel:  [do_ioctl+142/160] do_ioctl+0x8e/0xa0
+Aug  1 10:44:01 inferi kernel:  [do_page_fault+392/1555] do_page_fault+0x188/0x613
+Aug  1 10:44:01 inferi kernel:  [vfs_ioctl+101/496] vfs_ioctl+0x65/0x1f0
+Aug  1 10:44:01 inferi kernel:  [sys_ioctl+69/112] sys_ioctl+0x45/0x70
+Aug  1 10:44:01 inferi kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Aug  1 10:45:06 inferi kernel: BUG: atomic counter underflow at:
+Aug  1 10:45:06 inferi kernel:  [pg0+277491553/1069777920] ip_conntrack_event_cache_init+0x91/0xb0 [ip_conntrack]
+Aug  1 10:45:06 inferi kernel:  [pg0+277496567/1069777920] ip_conntrack_in+0xd7/0x2f0 [ip_conntrack]
+Aug  1 10:45:06 inferi kernel:  [ip_rcv_finish+0/768] ip_rcv_finish+0x0/0x300
+Aug  1 10:45:06 inferi kernel:  [nf_iterate+120/144] nf_iterate+0x78/0x90
+Aug  1 10:45:06 inferi kernel:  [ip_rcv_finish+0/768] ip_rcv_finish+0x0/0x300
+Aug  1 10:45:06 inferi kernel:  [ip_rcv_finish+0/768] ip_rcv_finish+0x0/0x300
+Aug  1 10:45:06 inferi kernel:  [nf_hook_slow+126/336] nf_hook_slow+0x7e/0x150
+Aug  1 10:45:06 inferi kernel:  [ip_rcv_finish+0/768] ip_rcv_finish+0x0/0x300
+Aug  1 10:45:06 inferi kernel:  [ip_rcv_finish+0/768] ip_rcv_finish+0x0/0x300
+Aug  1 10:45:06 inferi kernel:  [ip_rcv+1186/1424] ip_rcv+0x4a2/0x590
+Aug  1 10:45:06 inferi kernel:  [ip_rcv_finish+0/768] ip_rcv_finish+0x0/0x300
+Aug  1 10:45:06 inferi kernel:  [acpi_ut_value_exit+53/63] acpi_ut_value_exit+0x35/0x3f
+Aug  1 10:45:06 inferi kernel:  [netif_receive_skb+359/544] netif_receive_skb+0x167/0x220
+Aug  1 10:45:06 inferi kernel:  [pg0+277353520/1069777920] e100_poll+0x750/0x800 [e100]
+Aug  1 10:45:06 inferi kernel:  [net_rx_action+116/288] net_rx_action+0x74/0x120
+Aug  1 10:45:06 inferi kernel:  [__do_softirq+123/144] __do_softirq+0x7b/0x90
+Aug  1 10:45:06 inferi kernel:  [do_softirq+38/48] do_softirq+0x26/0x30
+Aug  1 10:45:06 inferi kernel:  [irq_exit+53/64] irq_exit+0x35/0x40
+Aug  1 10:45:06 inferi kernel:  [do_IRQ+30/48] do_IRQ+0x1e/0x30
+Aug  1 10:45:06 inferi kernel:  [common_interrupt+26/32] common_interrupt+0x1a/0x20
+Aug  1 10:45:06 inferi kernel:  [acpi_processor_idle+290/661] acpi_processor_idle+0x122/0x295
+Aug  1 10:45:06 inferi kernel:  [cpu_idle+80/96] cpu_idle+0x50/0x60
+Aug  1 10:45:06 inferi kernel:  [start_kernel+346/384] start_kernel+0x15a/0x180
+Aug  1 10:45:06 inferi kernel:  [unknown_bootoption+0/480] unknown_bootoption+0x0/0x1e0
+Aug  1 10:46:05 inferi kernel: BUG: atomic counter underflow at:
+Aug  1 10:46:05 inferi kernel:  [pg0+277491553/1069777920] ip_conntrack_event_cache_init+0x91/0xb0 [ip_conntrack]
+Aug  1 10:46:05 inferi kernel:  [pg0+277496567/1069777920] ip_conntrack_in+0xd7/0x2f0 [ip_conntrack]
+Aug  1 10:46:05 inferi kernel:  [dst_output+0/48] dst_output+0x0/0x30
+Aug  1 10:46:05 inferi kernel:  [nf_iterate+120/144] nf_iterate+0x78/0x90
+Aug  1 10:46:05 inferi kernel:  [dst_output+0/48] dst_output+0x0/0x30
+Aug  1 10:46:05 inferi kernel:  [dst_output+0/48] dst_output+0x0/0x30
+Aug  1 10:46:05 inferi kernel:  [nf_hook_slow+126/336] nf_hook_slow+0x7e/0x150
+Aug  1 10:46:05 inferi kernel:  [dst_output+0/48] dst_output+0x0/0x30
+Aug  1 10:46:05 inferi kernel:  [dst_output+0/48] dst_output+0x0/0x30
+Aug  1 10:46:05 inferi kernel:  [ip_push_pending_frames+1059/1168] ip_push_pending_frames+0x423/0x490
+Aug  1 10:46:05 inferi kernel:  [dst_output+0/48] dst_output+0x0/0x30
+Aug  1 10:46:05 inferi kernel:  [udp_push_pending_frames+364/688] udp_push_pending_frames+0x16c/0x2b0
+Aug  1 10:46:05 inferi kernel:  [udp_sendmsg+946/1840] udp_sendmsg+0x3b2/0x730
+Aug  1 10:46:05 inferi kernel:  [do_no_page+104/848] do_no_page+0x68/0x350
+Aug  1 10:46:05 inferi kernel:  [handle_mm_fault+252/592] handle_mm_fault+0xfc/0x250
+Aug  1 10:46:05 inferi kernel:  [dput_recursive+30/768] dput_recursive+0x1e/0x300
+Aug  1 10:46:05 inferi kernel:  [do_lookup+80/176] do_lookup+0x50/0xb0
+Aug  1 10:46:05 inferi kernel:  [__do_page_cache_readahead+125/368] __do_page_cache_readahead+0x7d/0x170
+Aug  1 10:46:05 inferi kernel:  [inet_sendmsg+77/96] inet_sendmsg+0x4d/0x60
+Aug  1 10:46:05 inferi kernel:  [sock_sendmsg+221/256] sock_sendmsg+0xdd/0x100
+Aug  1 10:46:05 inferi kernel:  [do_generic_mapping_read+814/1520] do_generic_mapping_read+0x32e/0x5f0
+Aug  1 10:46:05 inferi kernel:  [autoremove_wake_function+0/96] autoremove_wake_function+0x0/0x60
+Aug  1 10:46:05 inferi kernel:  [sys_sendto+220/256] sys_sendto+0xdc/0x100
+Aug  1 10:46:05 inferi kernel:  [sys_connect+143/176] sys_connect+0x8f/0xb0
+Aug  1 10:46:05 inferi kernel:  [handle_mm_fault+252/592] handle_mm_fault+0xfc/0x250
+Aug  1 10:46:05 inferi kernel:  [sys_send+51/64] sys_send+0x33/0x40
+Aug  1 10:46:05 inferi kernel:  [sys_socketcall+323/608] sys_socketcall+0x143/0x260
+Aug  1 10:46:05 inferi kernel:  [do_page_fault+0/1555] do_page_fault+0x0/0x613
+Aug  1 10:46:05 inferi kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
 
-kdb> inode 0xe00000b476b32df0
-struct inode at  0xe00000b476b32df0
- i_ino = 34192 i_count = 1 i_size 16384
- i_mode = 0100444  i_nlink = 0  i_rdev = 0x0
- i_hash.nxt = 0x0000000000000000 i_hash.pprev = 0x0000000000000000
- i_list.nxt = 0xe00000b472084d40 i_list.prv = 0xe00000b476b31c98
- i_dentry.nxt = 0xe00000301d1712a0 i_dentry.prv = 0xe00000301d1712a0
- i_sb = 0xe000003003e5ad58 i_op = 0xa000000100a61488 i_data = 0xe00000b476b32f98 nrpages = 0
- i_fop= 0xa000000100a615c8 i_flock = 0x0000000000000000 i_mapping = 0xe00000b476b32f98
- i_flags 0x0 i_state 0x0 []  fs specific info @ 0xe00000b476b33148
+The BUG is repeated every minute, the full log is available at
+http://oioio.altervista.org/kern.log
+Attached my .config and below my very simple iptables rules:
 
-kdb> dentry 0xe00000301d1712a0
-Dentry at 0xe00000301d1712a0
- d_name.len = 3 d_name.name = 0xe00000301d171384 <dev>
- d_count = 1 d_flags = 0x18 d_inode = 0xe00000b476b32df0
- d_parent = 0xe00000301d171a80
- d_hash.nxt = 0x0000000000000000 d_hash.prv = 0x0000000000200200
- d_lru.nxt = 0xe00000301d1712f8 d_lru.prv = 0xe00000301d1712f8
- d_child.nxt = 0xe00000301d171af8 d_child.prv = 0xe00000301d171af8
- d_subdirs.nxt = 0xe00000301d171318 d_subdirs.prv = 0xe00000301d171318
- d_alias.nxt = 0xe00000b476b32e20 d_alias.prv = 0xe00000b476b32e20
- d_op = 0xa000000100a61870 d_sb = 0xe000003003e5ad58
+Chain INPUT (policy DROP 254 packets, 10012 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+ 2567 1117K ACCEPT     all  --  lo     any     anywhere             anywhere            
+ 5955 6519K ACCEPT     all  --  any    any     anywhere             anywhere            state RELATED,ESTABLISHED 
+    0     0 ACCEPT     tcp  --  any    any     anywhere             anywhere            tcp dpt:ssh 
 
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+
+Chain OUTPUT (policy ACCEPT 6549 packets, 1405K bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+
+Chain PREROUTING (policy ACCEPT 256 packets, 10868 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+
+Chain POSTROUTING (policy ACCEPT 44 packets, 3319 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+   95  7375 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
+
+Chain OUTPUT (policy ACCEPT 139 packets, 10694 bytes)
+ pkts bytes target     prot opt in     out     source               destination 
+
+-- 
+mattia
+:wq!

@@ -1,92 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVHAHJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbVHAHKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbVHAHJd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 03:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbVHAHJd
+	id S262408AbVHAHKa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 03:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbVHAHK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 03:09:33 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57998 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262020AbVHAHJc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 03:09:32 -0400
-Date: Mon, 1 Aug 2005 09:09:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] S3 and sigwait (was Re: 2.6.13-rc3: swsusp works (TP 600X))
-Message-ID: <20050801070926.GI27580@elf.ucw.cz>
-References: <20050730103034.GC1942@elf.ucw.cz> <1122879094.3285.2.camel@linux-hp.sh.intel.com>
+	Mon, 1 Aug 2005 03:10:29 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:61273 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262408AbVHAHJx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 03:09:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jRXqNla7XcDc78l/Gc/rwQKKKtgf/1Mbj8q5Owjn0rGI9xKMORDaDtGj8U1mErzkIaFJ02A+/9B5pdG49Bel/6PodF8LFFNQiKGbinjbvTVbi1vIGH/YL80jMt5biHIjSh9iSnjGY/WzCsXtRpE8t3YTAVpRKFVnBUIUX1Fcbqc=
+Message-ID: <a36005b50508010009453fdfb7@mail.gmail.com>
+Date: Mon, 1 Aug 2005 00:09:53 -0700
+From: Ulrich Drepper <drepper@gmail.com>
+Reply-To: Ulrich Drepper <drepper@gmail.com>
+To: Roland McGrath <roland@redhat.com>
+Subject: Re: Fw: sigwait() breaks when straced
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050801000120.1D00F180EC0@magilla.sf.frob.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1122879094.3285.2.camel@linux-hp.sh.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+References: <20050730170049.6df9e39f.akpm@osdl.org>
+	 <20050801000120.1D00F180EC0@magilla.sf.frob.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 7/31/05, Roland McGrath <roland@redhat.com> wrote:
+> However, there is in fact no bug here.  The test program is just wrong.
+> sigwait returns zero or an error number, as POSIX specifies.
 
-> > If you think it is a linux bug, can you produce small test case doing 
-> > just the sigwait, and post it on l-k with big title "sigwait() breaks 
-> > when straced, and on suspend"?
-> > 
-> > That way it is going to get some attetion, and you'll get either 
-> > documentation or kernel fixed. 
-> Looks like a linux bug to me. The refrigerator fake signal waked the
-> task up and without restart for the sigwait case. How about below
-> patch:
+No question, no error is detected incorrectly.
 
-Is there chance to fix strace case, too? sigwait() is broken in more
-than one way it seems...
-								Pavel
-
-
->  linux-2.6.13-rc4-root/kernel/signal.c |   11 ++++++++++-
->  1 files changed, 10 insertions(+), 1 deletion(-)
-> 
-> diff -puN kernel/signal.c~sigwait-suspend-resume kernel/signal.c
-> --- linux-2.6.13-rc4/kernel/signal.c~sigwait-suspend-resume	2005-08-01 14:00:39.089460688 +0800
-> +++ linux-2.6.13-rc4-root/kernel/signal.c	2005-08-01 14:30:13.821660384 +0800
-> @@ -2188,6 +2188,7 @@ sys_rt_sigtimedwait(const sigset_t __use
->  	struct timespec ts;
->  	siginfo_t info;
->  	long timeout = 0;
-> +	int recover = 0;
->  
->  	/* XXX: Don't preclude handling different sized sigset_t's.  */
->  	if (sigsetsize != sizeof(sigset_t))
-> @@ -2225,15 +2226,23 @@ sys_rt_sigtimedwait(const sigset_t __use
->  			 * be awakened when they arrive.  */
->  			current->real_blocked = current->blocked;
->  			sigandsets(&current->blocked, &current->blocked, &these);
-> +do_recover:
->  			recalc_sigpending();
->  			spin_unlock_irq(&current->sighand->siglock);
->  
->  			current->state = TASK_INTERRUPTIBLE;
->  			timeout = schedule_timeout(timeout);
->  
-> -			try_to_freeze();
-> +			if (try_to_freeze())
-> +				recover = 1;
-
-Can't you just goto do_recover here?
-
->  			spin_lock_irq(&current->sighand->siglock);
->  			sig = dequeue_signal(current, &these, &info);
-> +			if (!sig && recover) {
-> +				if (timeout == 0)
-> +					timeout = MAX_SCHEDULE_TIMEOUT;
-> +				recover = 0;
-> +				goto do_recover;
-> +			}
->  			current->blocked = current->real_blocked;
->  			siginitset(&current->real_blocked, 0);
->  			recalc_sigpending();
-> _
-> 
-
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+But sigwait is not a function specified with an EINTR error number. 
+As I said before, this does not mean that EINTR cannot be returned. 
+But it will create havoc among programs and it causes undefined
+behavior wrt to SA_RESTART.  I think it is best to not have any
+function for which EINTR is not a defined error to fail this way. 
+This causes the least amount of surprises and unnecessary loops around
+the userlevel call sites.

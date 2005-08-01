@@ -1,44 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVHAVSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVHAVSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVHAVSv (ORCPT <rfc822;willy@w.ods.org>);
+	id S261274AbVHAVSv (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 1 Aug 2005 17:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVHAVRD
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVHAVRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:17:03 -0400
-Received: from graphe.net ([209.204.138.32]:3529 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261289AbVHAVQt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:16:49 -0400
-Date: Mon, 1 Aug 2005 14:16:44 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Richard Purdie <rpurdie@rpsys.net>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm3
-In-Reply-To: <1122930474.7648.119.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0508011414480.7574@graphe.net>
-References: <20050728025840.0596b9cb.akpm@osdl.org> 
- <1122860603.7626.32.camel@localhost.localdomain>  <Pine.LNX.4.62.0508010908530.3546@graphe.net>
-  <1122926537.7648.105.camel@localhost.localdomain> 
- <Pine.LNX.4.62.0508011335090.7011@graphe.net> <1122930474.7648.119.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Mon, 1 Aug 2005 17:17:09 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:20732 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261278AbVHAVPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 17:15:50 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com
+In-Reply-To: <20050801205208.GA20731@elte.hu>
+References: <20050730160345.GA3584@elte.hu>
+	 <1122920564.6759.15.camel@localhost.localdomain>
+	 <20050801205208.GA20731@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 01 Aug 2005 17:15:32 -0400
+Message-Id: <1122930932.6759.42.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Aug 2005, Richard Purdie wrote:
-
-> On Mon, 2005-08-01 at 13:36 -0700, Christoph Lameter wrote:
-> > Could you get me some more information about the hang? A stacktrace would 
-> > be useful.
+On Mon, 2005-08-01 at 22:52 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-> I've attached gdb to it and its stuck in memcpy (from glibc). The rest
-> of the trace is junk as glibc's arm memcpy implementation will have
-> destroyed the frame pointer. The current instruction is a store to
-> memory (stmneia r0!, {r3,r4} ) and the instruction pointer isn't
-> changing...
+> > Ingo,
+> > 
+> > What's with the "BUG: possible soft lockup detected on CPU..."? I'm 
+> > getting a bunch of them from the IDE interrupt.  It's not locking up, 
+> > but it does things that probably do take some time.  Is this really 
+> > necessary? Here's an example dump:
+> 
+> doh - it's Daniel not Cc:-ing lkml when sending me patches, so people 
+> dont know what's going on ...
+> 
+> here's the patch below. Could you try to revert it?
 
-IP Not changing? Could it be in a loop doing faults for the same memory 
-location that you cannot observe with gdb? Or is there some hardware fault 
-that has stopped the processor?
+Thanks Ingo.
+
+If Daniel was trying to detect soft lock ups of lower priority tasks
+(tasks that block all tasks lower than itself), I've added a counter to
+Daniels patch to keep from showing this for the one time case.  This
+doesn't spit anything out for me anymore.  But I guess this could detect
+a higher priority task blocking lower ones, as long as higher tasks
+don't run often (thus reseting the count).
+
+-- Steve
+
+Index: linux_realtime_ernie/kernel/softlockup.c
+===================================================================
+--- linux_realtime_ernie/kernel/softlockup.c	(revision 266)
++++ linux_realtime_ernie/kernel/softlockup.c	(working copy)
+@@ -22,6 +22,7 @@
+ static DEFINE_PER_CPU(unsigned long, print_timestamp) = INITIAL_JIFFIES;
+ static DEFINE_PER_CPU(struct task_struct *, prev_task);
+ static DEFINE_PER_CPU(struct task_struct *, watchdog_task);
++static DEFINE_PER_CPU(unsigned long, task_counter);
+ 
+ static int did_panic = 0;
+ static int softlock_panic(struct notifier_block *this, unsigned long event,
+@@ -61,18 +62,21 @@
+ 		if (per_cpu(prev_task, this_cpu) != current || 
+ 			!rt_task(current)) {
+ 			per_cpu(prev_task, this_cpu) = current;
++			per_cpu(task_counter, this_cpu) = 0;
+ 		}
+-		else if (printk_ratelimit()) {
++		else if ((++per_cpu(task_counter, this_cpu) > 10) && printk_ratelimit()) {
+ 
+ 			spin_lock(&print_lock);
+ 			printk(KERN_ERR "BUG: possible soft lockup detected on CPU#%u! %lu-%lu(%lu)\n",
+ 				this_cpu, jiffies, timestamp, timeout);
++			printk("curr=%s:%d\n",current->comm,current->pid);
++			
+ 			dump_stack();
+ #if defined(__i386__) && defined(CONFIG_SMP)
+ 			nmi_show_all_regs();
+ #endif
+ 			spin_unlock(&print_lock);
+-
++			per_cpu(task_counter, this_cpu) = 0;
+ 		}
+ 
+ 		wake_up_process(per_cpu(watchdog_task, this_cpu));
+@@ -97,6 +101,7 @@
+ 		nmi_show_all_regs();
+ #endif
+ 		spin_unlock(&print_lock);
++		per_cpu(task_counter, this_cpu) = 0;
+ 	}
+ }
+ 
+
+

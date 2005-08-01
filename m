@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVHAUmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVHAUmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbVHAUmD (ORCPT <rfc822;willy@w.ods.org>);
+	id S261241AbVHAUmD (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 1 Aug 2005 16:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVHAUjh
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVHAUjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 16:39:37 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:41442 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261244AbVHAUg4 (ORCPT
+	Mon, 1 Aug 2005 16:39:42 -0400
+Received: from graphe.net ([209.204.138.32]:25303 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261241AbVHAUgw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 16:36:56 -0400
-Message-ID: <42EE87DF.1080508@pobox.com>
-Date: Mon, 01 Aug 2005 16:36:47 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Mon, 1 Aug 2005 16:36:52 -0400
+Date: Mon, 1 Aug 2005 13:36:46 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Richard Purdie <rpurdie@rpsys.net>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3
+In-Reply-To: <1122926537.7648.105.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0508011335090.7011@graphe.net>
+References: <20050728025840.0596b9cb.akpm@osdl.org> 
+ <1122860603.7626.32.camel@localhost.localdomain>  <Pine.LNX.4.62.0508010908530.3546@graphe.net>
+ <1122926537.7648.105.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Daniel Drake <dsd@gentoo.org>, Otto Meier <gf435@gmx.net>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: Driver for sata adapter promise sata300 tx4
-References: <42EDE918.9040807@gmx.net> <42EE3501.7010107@gentoo.org> <42EE3FB8.10008@gmx.net> <42EE4ADF.4080502@gentoo.org> <20050801201756.GQ22569@suse.de> <20050801203228.GS22569@suse.de>
-In-Reply-To: <20050801203228.GS22569@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> Oh, and forget TCQ. It's a completely worthless technology inherited
-> from PATA,
+On Mon, 1 Aug 2005, Richard Purdie wrote:
 
-Agreed.
+> > Is this related to the size of the process? Can you do a successful kernel 
+> > compile w/o X?
+> 
+> Its an embedded device and lacks development tools to test that. I ran
+> some programs which abuse malloc and the process would quite happily hit
+> oom so it looks like something more is needed to trigger the bug...
 
-There are a few controllers where we may -eventually- add TCQ support, 
-controllers that do 100% of TCQ in hardware.  But that's so far down the 
-priority list, it's below just about everything else.
+Could you get me some more information about the hang? A stacktrace would 
+be useful.
 
-There may just be little motivation to -ever- support TCQ, even when 
-libata is the 'main' IDE driver, sometime in the future.
-
-I give an outline of queueing stuff at
-
-	http://linux.yyz.us/sata/software-status.html#tcq
-
-Regards,
-
-	Jeff
-
+Well the device is able to run X so I guess that a slow kernel compile 
+would work. At least the embedded device that I used to work on was 
+capable of doing that (but then we had Debian on that thing which made 
+doing stuff like that very easy).
 

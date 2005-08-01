@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVHAQfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVHAQkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbVHAQfu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 12:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVHAQft
+	id S261167AbVHAQkh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 12:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVHAQkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 12:35:49 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:24548 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S261822AbVHAQfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 12:35:42 -0400
-To: "David S. Miller" <davem@davemloft.net>
-Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+	Mon, 1 Aug 2005 12:40:37 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40464 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261167AbVHAQkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 12:40:35 -0400
+Date: Mon, 1 Aug 2005 17:40:30 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.13-rc3: cache flush missing from somewhere
-References: <20050729161343.A18249@flint.arm.linux.org.uk>
-	<20050730.124052.104057695.davem@davemloft.net>
-	<tnxzms1c0bf.fsf@arm.com>
-	<20050801.083505.88343974.davem@davemloft.net>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Mon, 01 Aug 2005 17:34:19 +0100
-In-Reply-To: <20050801.083505.88343974.davem@davemloft.net> (David S.
- Miller's message of "Mon, 01 Aug 2005 08:35:05 -0700 (PDT)")
-Message-ID: <tnxirypboqc.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+Message-ID: <20050801174030.C14401@flint.arm.linux.org.uk>
+Mail-Followup-To: Catalin Marinas <catalin.marinas@arm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org
+References: <20050729161343.A18249@flint.arm.linux.org.uk> <20050730.124052.104057695.davem@davemloft.net> <tnxzms1c0bf.fsf@arm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 01 Aug 2005 16:34:50.0613 (UTC) FILETIME=[F0163A50:01C596B6]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <tnxzms1c0bf.fsf@arm.com>; from catalin.marinas@arm.com on Mon, Aug 01, 2005 at 01:24:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@davemloft.net> wrote:
-> The "lazy dcache flushing" he mentioned only flushes on the
-> processor where the store occurred, not on any other cpus.
->
-> He took the sparc64 code which, at the time of the flush_dcache_page()
-> call, stores the current cpu number in the page->flags and sets a
-> bit indicating a flush is needed.  When some condition occurs
-> requiring the delayed flush to occur, we look at the cpu number
-> in the page and ask that specific cpu to do the flush.
+On Mon, Aug 01, 2005 at 01:24:04PM +0100, Catalin Marinas wrote:
+> "David S. Miller" <davem@davemloft.net> wrote:
+> > From: Russell King <rmk+lkml@arm.linux.org.uk>
+> > Date: Fri, 29 Jul 2005 16:13:43 +0100
+> >
+> >> My current patch to get this working is below.  The only thing which
+> >> really seems to fix the issue is the __flush_dcache_page call in
+> >> read_pages() - if I remove this, I get spurious segfaults and illegal
+> >> instruction faults.
+> >
+> > If one cpu stores, does it get picked up in the other cpu's I-cache?
+> 
+> It only gets picked up by the other CPU's D-cache (which is fully
+> coherent between cores). The I-cache needs to be invalidated on each
+> CPU.
 
-That's a point I missed. The D-cache flushing should take place on the
-CPU that wrote the page, not the one that got the page fault (and the
-I-cache invalidation on all the CPUs). I don't see why this wouldn't
-work.
-
-> I've seen implementations where the I-cache does not snoop local cpu
-> stores, but I've never seen one where other cpus do not snoop such
-> stores.
-
-On this ARM SMP implementation, only the D-cache snoops the other CPUs
-stores, not the I-cache.
-
-> You _HAVE_ to implement handling of I-cache update on L2
-> cache line changes to handle updates from devices doing DMA, so why
-> in the world special case stores done by other cpus?
->
-> It almost sounds impossible to implement this and have the I-cache
-> be coherent wrt. DMA transactions.
-
-Shouldn't flush_dcache_page() be called anyway when a page is modified
-by the kernel (or by a device via DMA)? With the Harvard cache
-architecture in ARM, the I cache should be invalidated even in a
-uniprocessor system. For SMP it is just a matter of invalidating it on
-all the CPUs (done by issuing an inter-processor interrupt).
-
-> Do you have to flush the whole I-cache every time some device DMAs
-> a page into memory, before you can execute instructions out of it?
-
-IMHO, it only needs invalidating the I-cache corresponding to the
-DMA'ed page, not the whole I-cache but, as I said, this should be
-handled by flush_dcache_page, whether lazily or not.
-
-Thanks,
+Are you sure about this requirement?  I see no evidence of it in Harry's
+patch set.
 
 -- 
-Catalin
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

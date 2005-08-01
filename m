@@ -1,139 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVHATpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVHATrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVHATpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 15:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVHATpI
+	id S261195AbVHATrs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 15:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVHATrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 15:45:08 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:10225 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261196AbVHATnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 15:43:47 -0400
-Subject: Re: 2 errors in 2.6.12
-From: hermann pitton <hermann.pitton@onlinehome.de>
-To: mkrufky@m1k.net, video4linux-list@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050801201017.G77710@nebuchadnezzar.smejdil.cz>
-References: <200506190958.00267.cijoml@volny.cz>
-	 <20050728214851.44877164.akpm@osdl.org>
-	 <200507311351.52631.cijoml@volny.cz>
-	 <20050731103156.69536415.akpm@osdl.org> <42ED1016.1000804@m1k.net>
-	 <20050801111414.G59306@nebuchadnezzar.smejdil.cz>
-	 <1122894516.5340.9.camel@pc08.localdom.local>
-	 <20050801201017.G77710@nebuchadnezzar.smejdil.cz>
-Content-Type: text/plain
-Date: Mon, 01 Aug 2005 21:55:00 +0200
-Message-Id: <1122926100.5340.38.camel@pc08.localdom.local>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+	Mon, 1 Aug 2005 15:47:47 -0400
+Received: from pythagoras.zen.co.uk ([212.23.3.140]:42458 "EHLO
+	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
+	id S261195AbVHATqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 15:46:07 -0400
+Message-ID: <42EE7B9F.6030709@dresco.co.uk>
+Date: Mon, 01 Aug 2005 20:44:31 +0100
+From: Jon Escombe <lists@dresco.co.uk>
+Reply-To: lists@dresco.co.uk
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: abonilla@linuxwireless.org
+CC: linux-kernel@vger.kernel.org,
+       "'hdaps devel'" <hdaps-devel@lists.sourceforge.net>,
+       "'Yani Ioannou'" <yani.ioannou@gmail.com>,
+       "'Dave Hansen'" <dave@sr71.net>
+Subject: Re: [Hdaps-devel] Re: IBM HDAPS, I need a tip.
+References: <003801c596c6$574e08b0$a20cc60a@amer.sykes.com>
+In-Reply-To: <003801c596c6$574e08b0$a20cc60a@amer.sykes.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:17498165d1d898a28ef793368f1053bc
+X-Hops: 1
+X-Originating-Pythagoras-IP: [82.68.23.174]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+> hard drive parking was already sorted out. We have a script that does this
+> and works great parking the heads.
 
-this one is solved.
+Would have to disagree with you here. Jens' ATA7 parking code is a great 
+start but we still have a couple of issues to address before it's usable 
+for this purpose. (1) it only works on a subset of the devices that the 
+Windows driver works for, and (2) we need a way to freeze the device for 
+a short period so that the next I/O request doesn't wake it up before it 
+hits the floor...
 
-Guess we will see similar issues more often for a while.
+> The problem here is that we have 10 different models.
+> 
+> One will have 20 as X and the others will have 500 as x. Some will increment
+> in 20 when you move them 45Deg, and some will increment 50.
+> 
+> How can you determine from an shake, to a fall?
 
-Cheers,
-Hermann
+If there really are devices with resting values of 20 then I would agree 
+we have a problem. I've tried on a few different Thinkpads and have 
+always seen resting values of several hundreds. If this is true for all, 
+I would like to think we could estimate a sensible value that works for 
+everyone...
 
+Regards,
+Jon.
 
-Am Montag, den 01.08.2005, 20:11 +0200 schrieb CIJOML:
-> 
-> On Mon, 1 Aug 2005, hermann pitton wrote:
-> 
-> > Am Montag, den 01.08.2005, 11:16 +0200 schrieb CIJOML:
-> > > Hi,
-> > >
-> > > my card is impossible to be autodetected. Valid sections for it's
-> > > identification are missing.
-> > >
-> > > I asked for this some time ago. I need to use insmod option.
-> > >
-> > > Michal
-> >
-> > Hi Michal,
-> >
-> > the "tuner type=N" insmod option is gone away.
-> >
-> > There has been a warning that it is deprecated for about 1  1/2 years
-> > in dmesg. Please remove it from /etc/modprobe.conf or where else it is
-> > called and replace it with "options bttv card=N tuner=N", guess you
-> 
-> AAAAH!!!! This helped!!! Thanks a lot
-> after options bttv           card=42 radio=1 tuner=1
-> card works! :)
-> 
-> Linux video capture interface: v1.00
-> bttv: driver version 0.9.15 loaded
-> bttv: using 8 buffers with 2080k (520 pages) each for capture
-> bttv: Bt8xx card found (0).
-> ACPI: PCI Interrupt 0000:01:0b.0[A] -> Link [LNKH] -> GSI 9 (level, low)
-> -> IRQ 9
-> bttv0: Bt878 (rev 17) at 0000:01:0b.0, irq: 9, latency: 32, mmio:
-> 0xb69fe000
-> bttv0: using: ProVideo PV951 [card=42,insmod option]
-> bttv0: gpio: en=00000000, out=00000000 in=00ffffff [init]
-> bttv0: using tuner=1
-> bttv0: i2c: checking for TDA9875 @ 0xb0... not found
-> bttv0: i2c: checking for TDA7432 @ 0x8a... not found
-> tvaudio: TV audio decoder + audio/video mux driver
-> tvaudio: known chips:
-> tda9840,tda9873h,tda9874h/a,tda9850,tda9855,tea6300,tea6320,tea6420,tda8425,pic16c54
-> (PV951),ta8874z
-> tvaudio: found pic16c54 (PV951) @ 0x96
-> bttv0: i2c: checking for TDA9887 @ 0x86... not found
->  : chip found @ 0xc0 (bt878 #0 [sw])
->  : All bytes are equal. It is not a TEA5767
-> tuner 0-0060: type set to 1 (Philips PAL_I (FI1246 and compatibles))
-> bttv0: registered device video0
-> bttv0: registered device vbi0
-> bttv0: registered device radio0
-> bttv0: PLL: 28636363 => 35468950 .. ok
-> 
-> Thanks a lot!
-> 
-> Michal
-> 
-> 
-> > might use tuner=5, and what else you might need and then "depmod -a".
-> > Does this help?
-> >
-> > Greetings,
-> > Hermann
-> >
-> >
-> > > On Sun, 31 Jul 2005, Michael Krufky wrote:
-> > >
-> > > > Andrew Morton wrote:
-> > > >
-> > > > >Michal Semler <cijoml@volny.cz> wrote:
-> > > > >
-> > > > >
-> > > > >> This is what I gets into dmesg:
-> > > > >>
-> > > > >> Linux video capture interface: v1.00
-> > > > >> bttv: driver version 0.9.15 loaded
-> > > > >> bttv: using 8 buffers with 2080k (520 pages) each for capture
-> > > > >> bttv: Bt8xx card found (0).
-> > > > >> ACPI: PCI Interrupt 0000:01:0b.0[A] -> Link [LNKH] -> GSI 9 (level, low) ->
-> > > > >> IRQ 9
-> > > > >> bttv0: Bt878 (rev 17) at 0000:01:0b.0, irq: 9, latency: 32, mmio: 0xb69fe000
-> > > > >> bttv0: using: ProVideo PV951 [card=42,insmod option]
-> > > > >> bttv0: gpio: en=00000000, out=00000000 in=00ffffff [init]
-> > > > >> bttv0: using tuner=1
-> > > > >> bttv0: i2c: checking for TDA9875 @ 0xb0... not found
-> > > > >> bttv0: i2c: checking for TDA7432 @ 0x8a... not found
-> > > > >> tvaudio: TV audio decoder + audio/video mux driver
-> > > > >> tvaudio: known chips:
-> > > > >> tda9840,tda9873h,tda9874h/a,tda9850,tda9855,tea6300,tea6320,tea6420,tda8425,pic16c54
-> > > > >> (PV951),ta8874z
-> > > > >> tvaudio: found pic16c54 (PV951) @ 0x96
-> > > > >> bttv0: i2c: checking for TDA9887 @ 0x86... not found
-> > > > >> tuner: Unknown parameter `type'
-> >               ^^^^^^^^^^^^^^^^^^^^^^^^
-[...]
-
+______________________________________________________________
+Email via Mailtraq4Free from Enstar (www.mailtraqdirect.co.uk)

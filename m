@@ -1,57 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVHAMaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVHAMg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbVHAMaA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 08:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVHAMaA
+	id S261813AbVHAMg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 08:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVHAMg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 08:30:00 -0400
-Received: from crl-mail-dmz.crl.hpl.hp.com ([192.58.210.9]:10159 "EHLO
-	crl-mailb.crl.dec.com") by vger.kernel.org with ESMTP
-	id S261820AbVHAM37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 08:29:59 -0400
-Message-ID: <42EE15AF.5050902@hp.com>
-Date: Mon, 01 Aug 2005 08:29:35 -0400
-From: Jamey Hicks <jamey.hicks@hp.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 1 Aug 2005 08:36:57 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:5340 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261813AbVHAMg4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 08:36:56 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andrey Volkov <avolkov@varma-el.com>
-CC: gregkh@suse.de, linux-fbdev-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Where is place of arch independed companion chips?
-References: <42EB6A12.70100@varma-el.com>
-In-Reply-To: <42EB6A12.70100@varma-el.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-HPLC-MailScanner-Information: Please contact the ISP for more information
-X-HPLC-MailScanner: Found to be clean
-X-HPLC-MailScanner-SpamCheck: not spam (whitelisted),
-	SpamAssassin (score=-4.9, required 5, BAYES_00 -4.90)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [ACPI] S3 and sigwait (was Re: 2.6.13-rc3: swsusp works (TP 600X))
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Date: Mon, 1 Aug 2005 20:36:36 +0800
+Message-ID: <59D45D057E9702469E5775CBB56411F11308AD@pdsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] S3 and sigwait (was Re: 2.6.13-rc3: swsusp works (TP 600X))
+Thread-Index: AcWWaAODSxvKKurrT42sg10lu83A5wALPAZg
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Cc: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>, <linux-kernel@vger.kernel.org>,
+       <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 01 Aug 2005 12:36:37.0827 (UTC) FILETIME=[A8EC2930:01C59695]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Volkov wrote:
-
->Hi Greg,
+Hi,
+>> > If you think it is a linux bug, can you produce small test case
+doing
+>> > just the sigwait, and post it on l-k with big title "sigwait()
+breaks
+>> > when straced, and on suspend"?
+>> >
+>> > That way it is going to get some attetion, and you'll get either
+>> > documentation or kernel fixed.
+>> Looks like a linux bug to me. The refrigerator fake signal waked the
+>> task up and without restart for the sigwait case. How about below
+>> patch:
 >
->While I write driver for SM501 CC (which have graphics controller, USB
->MASTER/SLAVE, AC97, UART, SPI  and VIDEO CAPTURE onboard),
->I bumped with next ambiguity:
->Where is a place of this chip's Kconfig/drivers in
->kernel config/drivers tree? May be create new node in drivers subtree?
->Or put it under graphics node (since it's main function of this CC)?
->
->AFAIK, this is not one such multifunctional monster in the world, so
->somebody bumped with this problem again in future.
->
->  
->
-Good question.  I was about to submit a patch that created 
-drivers/platform because the toplevel driver for MQ11xx is a 
-platform_device driver.  Any thoughts on this?
+>Is there chance to fix strace case, too? sigwait() is broken in more
+>than one way it seems...
+Not sure about it. strace shows sigwait using sigtimedwait, which
+doesn't say it can't return error.
 
-Jamey
+>>  linux-2.6.13-rc4-root/kernel/signal.c |   11 ++++++++++-
+>>  1 files changed, 10 insertions(+), 1 deletion(-)
+>>
+>> diff -puN kernel/signal.c~sigwait-suspend-resume kernel/signal.c
+>> --- linux-2.6.13-rc4/kernel/signal.c~sigwait-suspend-resume	2005-08-
+>01 14:00:39.089460688 +0800
+>> +++ linux-2.6.13-rc4-root/kernel/signal.c	2005-08-01
+>14:30:13.821660384 +0800
+>> @@ -2188,6 +2188,7 @@ sys_rt_sigtimedwait(const sigset_t __use
+>>  	struct timespec ts;
+>>  	siginfo_t info;
+>>  	long timeout = 0;
+>> +	int recover = 0;
+>>
+>>  	/* XXX: Don't preclude handling different sized sigset_t's.  */
+>>  	if (sigsetsize != sizeof(sigset_t))
+>> @@ -2225,15 +2226,23 @@ sys_rt_sigtimedwait(const sigset_t __use
+>>  			 * be awakened when they arrive.  */
+>>  			current->real_blocked = current->blocked;
+>>  			sigandsets(&current->blocked, &current->blocked,
+&these);
+>> +do_recover:
+>>  			recalc_sigpending();
+>>  			spin_unlock_irq(&current->sighand->siglock);
+>>
+>>  			current->state = TASK_INTERRUPTIBLE;
+>>  			timeout = schedule_timeout(timeout);
+>>
+>> -			try_to_freeze();
+>> +			if (try_to_freeze())
+>> +				recover = 1;
+>
+>Can't you just goto do_recover here?
+Not sure again.
 
-
+Thanks,
+Shaohua

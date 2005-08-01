@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVHATBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVHATC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVHATBW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 15:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVHATBW
+	id S261169AbVHATC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 15:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVHATCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 15:01:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36749 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261165AbVHATBW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 15:01:22 -0400
-Date: Mon, 1 Aug 2005 12:03:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Keith Owens <kaos@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4 use after free in class_device_attr_show
-Message-Id: <20050801120321.230349c5.akpm@osdl.org>
-In-Reply-To: <8551.1122898445@ocs3.ocs.com.au>
-References: <20050730022955.6c7dd2e8.akpm@osdl.org>
-	<8551.1122898445@ocs3.ocs.com.au>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 1 Aug 2005 15:02:55 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:62504 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261169AbVHATCt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 15:02:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sFjshUeR8uIXTGz+j/+Mgs985WXZ31qlwPjJVqGZmAb/xjvY6kly+XDMQc5jn8BnDJqPSYQ+091NvqPvxWqYJRWYkSmJMPLiXr5EeEnrKZeaGotMoLDETtUmTH62aqOmmfyTM2bdq7k/6LarQdVCa9MPnKyJ3dw42EyHDwKRqdk=
+Message-ID: <2538186705080112025ec78daa@mail.gmail.com>
+Date: Mon, 1 Aug 2005 15:02:48 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+Subject: Re: IBM HDAPS, I need a tip.
+Cc: abonilla@linuxwireless.org, Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+In-Reply-To: <1122903488.17231.48.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1122861215.11148.26.camel@localhost.localdomain>
+	 <1122872189.5299.1.camel@localhost.localdomain>
+	 <1122873057.15825.26.camel@mindpipe>
+	 <Pine.LNX.4.61.0508010844380.6353@yvahk01.tjqt.qr>
+	 <25381867050801010710af48d6@mail.gmail.com>
+	 <1122903488.17231.48.camel@localhost>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@sgi.com> wrote:
->
-> On Sat, 30 Jul 2005 02:29:55 -0700,
-> Andrew Morton <akpm@osdl.org> wrote:
-> >Keith Owens <kaos@sgi.com> wrote:
-> >>
-> >> 2.6.13-rc4 + kdb, with lots of CONFIG_DEBUG options.  There is an
-> >>  intermittent use after free in class_device_attr_show.  Reboot with no
-> >>  changes and the problem does not always recur.
-> >> ...
-> >>  ip is at class_device_attr_show+0x50/0xa0
-> >> ...
-> >
-> >It might help to know which file is being read from here.
-> >
-> >The below patch will record the name of the most-recently-opened sysfs
-> >file.  You can print last_sysfs_file[] in the debugger or add the
-> >appropriate printk to the ia64 code?
+On 8/1/05, Dave Hansen <dave@sr71.net> wrote:
+> On Mon, 2005-08-01 at 04:07 -0400, Yani Ioannou wrote:
+> > Well don't forget there is a bios 'calibration' routine that you will
+> > see on start up (especially if you are on a moving vehicle/train).
 > 
-> No need for a patch.  It is /dev/vcsa2.
+> I've never seen that.  Could you please elaborate on what you see, and
+> when?
+> 
 
-You mean /sys/class/vc/vcsa2?
+Sorry it says diagnostics, not calibration, but the way it behaves
+leads me to believe its doing some sort of calibration. If you boot up
+your thinkpad, get rid of your bios splash screen (esc), and tilt the
+thinkpad back and forth you will see something about IBM Active
+Protection diagnostics running and a spinner. If you keep tilting the
+notebook back and forth you can actually prevent the machine from
+booting because this will fail after a while. Normally you won't see
+it, I mainly notice it while in a train or car.
 
-That appears to be using generic code...
-
-Can you please summarise what you curently know about this bug?  What is
-being accessed after free in class_device_attr_show()?  class_dev_attr? 
-cd?
-
+Yani

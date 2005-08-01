@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVHAUeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVHAVN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVHAUeT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 16:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVHAUeL
+	id S261239AbVHAVN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 17:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVHAUet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 16:34:11 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:58025 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261246AbVHAUeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 16:34:00 -0400
-Message-Id: <20050801202017.043754000@araj-em64t>
-Date: Mon, 01 Aug 2005 13:20:17 -0700
+	Mon, 1 Aug 2005 16:34:49 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:5588 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261231AbVHAUdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 16:33:16 -0400
+Message-Id: <20050801203011.403184000@araj-em64t>
+References: <20050801202017.043754000@araj-em64t>
+Date: Mon, 01 Aug 2005 13:20:22 -0700
 From: Ashok Raj <ashok.raj@intel.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk
-Subject: [patch 0/8] Updated patches for x86_64
+       zwane@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [patch 5/8] x86_64:Dont do broadcast IPIs when hotplug is enabled in flat mode.
+Content-Disposition: inline; filename=fix-flat-mode-nobroadcast-again
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+the use of non-shortcut version of routines breaking CPU hotplug. The option
+to select this via cmdline also is deleted with the physflat patch, hence
+directly placing this code under CONFIG_HOTPLUG_CPU.
 
-This patch series contains some misc fixes related to CPU hotplug for X86_64.
+We dont want to use broadcast mode IPI's when hotplug is enabled. This causes
+bad effects in send IPI to a cpu that is offline which can trip when the 
+cpu is in the process of being kicked alive.
 
-Some are new, some are due to regressions from introduction of physflat mode
-genapic schemes. Please consider for -mm. These are on 2.6.13-rc4-mm1
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+-------------------------------------------------------
+ arch/x86_64/kernel/genapic_flat.c |    8 ++++++++
+ 1 files changed, 8 insertions(+)
 
-do_clustered_apic_check
-	Needed for x86_64, removed recently from shared code.
-create-sysfs-onlyfor-present-cpus
-	Create sysfs entries only for present cpus. New cpus will have them
-	created by ACPI code when notification for the same is processed.
-fix-enforce-max-cpu
-	Dont enforce this when CPU hotplug is enabled. This doesnt permit
-	booting with maxcpus=1 and then testing logical hot-add of cpu.
-fix-cluster-allbutself-ipi
-	Cluster mode also needs to prevent preempt when excluding self from
-	online map. Propagating the fix i added for genapic_flat to cluster
-	genapic code as well.
-fix-flat-mode-nobroadcast-again
-	Recent physflat broke this for hotplug. Re-introducing it again.
-fix-physflat-dmode
-	Removed un-necessary code from physflat settings.
-use-common-physflat-cluster
-	Used common code for genapic-physflat and cluster since they share 
-	a lot of code was duplicated instead of sharing them.
-choose-physflat-onlyfor-gt8cpus-amd
-	Choose physflat only when >8 cpus. We could still use flat mode without 
-	broadcast shortcut. The mask version of IPI is still effective and 
-	more performant than the unicast version thats required when we use
-	physical mode.
+Index: linux-2.6.13-rc4-mm1/arch/x86_64/kernel/genapic_flat.c
+===================================================================
+--- linux-2.6.13-rc4-mm1.orig/arch/x86_64/kernel/genapic_flat.c
++++ linux-2.6.13-rc4-mm1/arch/x86_64/kernel/genapic_flat.c
+@@ -78,8 +78,16 @@ static void flat_send_IPI_mask(cpumask_t
+ 
+ static void flat_send_IPI_allbutself(int vector)
+ {
++#ifndef CONFIG_HOTPLUG_CPU
+ 	if (((num_online_cpus()) - 1) >= 1)
+ 		__send_IPI_shortcut(APIC_DEST_ALLBUT, vector,APIC_DEST_LOGICAL);
++#else
++	cpumask_t allbutme = cpu_online_map;
++	int me = get_cpu(); /* Ensure we are not preempted when we clear */
++	cpu_clear(me, allbutme);
++	flat_send_IPI_mask(allbutme, vector);
++	put_cpu();
++#endif
+ }
+ 
+ static void flat_send_IPI_all(int vector)
 
-Cheers,
-ashok
+--
 

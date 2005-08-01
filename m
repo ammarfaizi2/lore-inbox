@@ -1,89 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVHAVwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVHAVyC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbVHAVwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 17:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVHAVt6
+	id S261298AbVHAVyC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 17:54:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVHAVwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:49:58 -0400
-Received: from grendel.sisk.pl ([217.67.200.140]:56713 "HELO mail.sisk.pl")
-	by vger.kernel.org with SMTP id S261293AbVHAVtr (ORCPT
+	Mon, 1 Aug 2005 17:52:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46774 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261305AbVHAVvs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:49:47 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Mon, 1 Aug 2005 17:51:48 -0400
+Date: Mon, 1 Aug 2005 14:51:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: revert yenta free_irq on suspend
-Date: Mon, 1 Aug 2005 23:54:57 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Ritz <daniel.ritz@gmx.ch>
-References: <Pine.LNX.4.61.0507301952350.3319@goblin.wat.veritas.com> <200507312215.04494.rjw@sisk.pl> <Pine.LNX.4.61.0508012117431.6027@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0508012117431.6027@goblin.wat.veritas.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Roland McGrath <roland@redhat.com>, linux-mm@kvack.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <Pine.LNX.4.61.0508012153570.6323@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.58.0508011438450.3341@g5.osdl.org>
+References: <20050801032258.A465C180EC0@magilla.sf.frob.com>
+ <42EDDB82.1040900@yahoo.com.au> <20050801091956.GA3950@elte.hu>
+ <42EDEAFE.1090600@yahoo.com.au> <20050801101547.GA5016@elte.hu>
+ <42EE0021.3010208@yahoo.com.au> <Pine.LNX.4.61.0508012030050.5373@goblin.wat.veritas.com>
+ <Pine.LNX.4.58.0508011250210.3341@g5.osdl.org>
+ <Pine.LNX.4.61.0508012153570.6323@goblin.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508012354.58105.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 1 of August 2005 22:34, Hugh Dickins wrote:
-> On Sun, 31 Jul 2005, Rafael J. Wysocki wrote:
-> > On Sunday, 31 of July 2005 01:09, Rafael J. Wysocki wrote:
-> > > 
-> > > Linus has apparently dropped that patch for yenta, but in case it is
-> > > reintroduced in the future you will probably need a patch to make the network
-> > > driver cooperate.  I'll try to prepare one tomorrow, if I can, but I have no hardware
-> > > to test it.
+
+
+On Mon, 1 Aug 2005, Hugh Dickins wrote:
 > > 
-> > The patch follows.  It compiles and should work, though I haven't tested it.
+> > We have always just done a COW if it's read-only - even if it's shared.
+> > 
+> > The point being that if a process mapped did a read-only mapping, and a 
+> > tracer wants to modify memory, the tracer is always allowed to do so, but 
+> > it's _not_ going to write anything back to the filesystem.  Writing 
+> > something back to an executable just because the user happened to mmap it 
+> > with MAP_SHARED (but read-only) _and_ the user had the right to write to 
+> > that fd is _not_ ok.
 > 
-> Thanks for making the effort, Rafael,
-> but I'm afraid your patch does not solve it.
-> 
-> Prior to -rc4, or in current -git which has the yenta patch reverted,
-> my laptop manages APM resume from RAM with the following 8 messages
-> (I won't complain that it could list even more permutations!)
-> 
-> PCI: Found IRQ 11 for device 0000:00:1f.1
-> PCI: Sharing IRQ 11 with 0000:02:00.0
-> PCI: Found IRQ 11 for device 0000:02:00.0
-> PCI: Sharing IRQ 11 with 0000:00:1f.1
-> PCI: Found IRQ 11 for device 0000:02:01.0
-> PCI: Sharing IRQ 11 with 0000:02:01.1
-> PCI: Found IRQ 11 for device 0000:02:01.1
-> PCI: Sharing IRQ 11 with 0000:02:01.0
-> 
-> Unpatched -rc4 locks up on resume, showing none of those messages.
-> -rc4 with your drivers/net/3c59x.c patch locks up on resume,
-> after showing just the first four of those messages.
+> I'll need to think that through, but not right now.  It's a surprise
+> to me, and it's likely to surprise the current kernel too.
 
-Thanks for testing.  The results you observe mean that the problem is
-in fact more complicated than I thought.  It seems to make up a good
-test case but I wouldn't like to bother you any more. :-)
+Well, even if you did the write-back if VM_MAYWRITE is set, you'd still
+have the case of having MAP_SHARED, PROT_READ _without_ VM_MAYWRITE being
+set, and I'd expect that to actually be the common one (since you'd
+normally use O_RDONLY to open a fd that you only want to map for reading).
 
-> Whatever, I very much share the position Linus has expressed so
-> forcefully: it's foolish suddenly to demand changes in an indeterminate
-> number of drivers (surely yenta and 3c59x aren't the end of it?),
-> especially in the final days leading up to a release.
+And as mentioned, MAP_SHARED+PROT_READ does actually happen in real life.  
+Just do a google search on "MAP_SHARED PROT_READ -PROT_WRITE" and you'll
+get tons of hits. For good reason too - because MAP_PRIVATE isn't actually
+coherent on several old UNIXes.
 
-Fully agreed.
+So you'd still have to convert such a case to a COW mapping, so it's not 
+like you can avoid it.
 
-> I surely would not have asked him to revert the yenta patch, nor would
-> he have done so (thank you, Linus), if my machine were the only problem.
-> It's very easy for me to carry my own patches to get working, but we
-> fear the trouble seen here gives a foretaste of others' trouble if
-> the changes were to remain in the release.
+Of course, if VM_MAYWRITE is not set, you could just convert it silently
+to a MAP_PRIVATE at the VM level (that's literally what we used to do, 
+back when we didn't support writable shared mappings at all, all those 
+years ago), so at least now the COW behaviour would match the vma_flags.
 
-Indeed.
+> I'd prefer to say that if the executable was mapped shared from a writable fd,
+> then the tracer will write back to it; but you're clearly against that.
 
-Greets,
-Rafael
- 
+Absolutely. I can just see somebody mapping an executable MAP_SHARED and
+PROT_READ, and something as simple as doing a breakpoint while debugging
+causing system-wide trouble.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+I really don't think that's acceptable.
+
+And I'm not making it up - add PROT_EXEC to the google search around, and 
+watch it being done exactly that way. Several of the hits mention shared 
+libraries too. 
+
+I strongly suspect that almost all cases will be opened with O_RDONLY, but 
+still..
+
+		Linus

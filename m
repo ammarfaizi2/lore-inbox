@@ -1,411 +1,382 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVHAAYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbVHAA2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbVHAAYz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 20:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVHAAYz
+	id S262199AbVHAA2X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 20:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVHAA2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 20:24:55 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:46944 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262176AbVHAAYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 20:24:53 -0400
+	Sun, 31 Jul 2005 20:28:23 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:12597 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262199AbVHAA2V convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 20:28:21 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.br;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:X-Enigmail-Version:X-Enigmail-Supports:Content-Type:Content-Transfer-Encoding;
-  b=iul0Q/kjBVYfckr4/zR8KfL0xl1qHjQoTxmkr78Qw+HyREatO1C6d3nUQc/W8ZJkcw1A23yqH7HEY0gWF/xDT75M42UUWKPTpVhUCiP9vTyF37yYAPiN8Xv5Vjcq9IKGeupz35dFm0QboYDTtFfBtqkGfJ3Y/mKD0lPCs3w2XJU=  ;
-Message-ID: <42ED73EE.4020208@yahoo.com.br>
-Date: Sun, 31 Jul 2005 21:59:26 -0300
-From: "Francisco Figueiredo Jr." <fxjrlists@yahoo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: "seeing minute plus hangs during boot" - 2.6.12 and 2.6.13
-References: <42E59E0E.5030306@yahoo.com.br> <20050726003322.1bfe17ee.akpm@osdl.org> <42E7A153.6060307@yahoo.com.br> <20050727105005.30768fe3.akpm@osdl.org> <42E85E6E.2020105@yahoo.com.br> <42EC5451.7010907@yahoo.com.br> <20050730222624.73337021.akpm@osdl.org> <42EC6BAB.5020106@yahoo.com.br> <20050730224437.4088ba70.akpm@osdl.org> <42EC73B2.8020400@yahoo.com.br> <20050731063819.GA28899@kroah.com>
-In-Reply-To: <20050731063819.GA28899@kroah.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=mKMWUh82W0UT5UeIN+zMG2uhQ0CvyNwNHhixdk/8HUMqm3+06mDCetBkLpuQwwTDH20KwoEQy+wHoOGNrhacZf3JJltML4M2gy+2bj/yT0OcAMauqU4BJA6jdnDATF5BePEpV8beQuetosqyMO3/KIQcxUgcAuMOsJf6aALkusM=
+Message-ID: <57861437050731172866f84381@mail.gmail.com>
+Date: Sun, 31 Jul 2005 19:28:19 -0500
+From: Jesus Delgado <jdelgado@gmail.com>
+Reply-To: Jesus Delgado <jdelgado@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernels 2.6.13-rc4 and 2.6.13-rc4-mm1 boot hang in laptop emachines M6897
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi all:
 
-Greg KH wrote:
+  Im try test with kernels 2.6.13-rc4 and 2.6.13-rc4-mm1, the problems
+is the boot hang:
+  my test is different combinations the acpi=off , noacpi, pci=noirq,
+etc.etc both have is the same error not boot.
 
->>>>Now, I'm thinking it could be something like the udev hang which
->>>>disapeared with udev update to 058.
->>>>
->>>>I don't know what can be happening. I think it is because of some type
->>>>of timeout.
->>>>
->>>>If you think there is something else I can do, please let me know.
->>>>
->>>
->>>
->>>Greg said in another thread: "older versions of udev (< 058) can work
->>>_really slow_ with 2.6.12.  Please upgrade your version of udev and see if
->>>that solves the issue or not.".
->>>
->>>What version are you running?   Looks like 058, yes?
->>
->>
->>Yeap. It is 058.
-> 
-> 
-> Hm, odd.  Well, as this is a udev issue, care to try 064?  We've fixed a
-> lot of little bugs since 058 that might have caused this.
-> 
-> thanks,
-> 
+ The only information is simple:
 
-Hi Greg.
+......
 
-No luck. I installed 0.64 and I get the same hang on mounting
-filesystems message.
+ Uncompressiong Linux... Ok. booting the kernel.
+_ 
+ 
+ Not more information.
 
-Here is what I get with dmesg with 0.64:
-
-dmesg
- 4 (L-TLB)
-df56bf98 00000046 df56bf88 00000002 00000001 c0476004 df56a000 c012f2dd
-       c03a9380 c03a9480 c13fd020 c13fd04c 00000000 c012335b 00000000
-c13fb520
-       00000001 00000971 2d819d9f 00000000 c146e520 c146a020 c146a148
-00000246
-Call Trace:
- [<c012f2dd>] rcu_process_callbacks+0x5d/0x69
- [<c012335b>] tasklet_action+0x63/0xc2
- [<c01235bd>] ksoftirqd+0xc0/0xc2
- [<c01234fd>] ksoftirqd+0x0/0xc2
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-events/0      R running     0     6      1             7     5 (L-TLB)
-events/1      S 00000002     0     7      1             8     6 (L-TLB)
-df47bf38 00000046 df47bf28 00000002 00000001 c0126abd c13fbf60 c13fd118
-       00000286 00000001 df503a00 000001f5 df503aa4 df503aa0 00000000
-c13fb520
-       00000001 00000ccd 0df51400 00000003 c146e520 df595a20 df595b48
-00000082
-Call Trace:
- [<c0126abd>] __mod_timer+0xa9/0xc3
- [<c012e1c1>] worker_thread+0x15d/0x264
- [<c0146c22>] cache_reap+0x0/0x1e1
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c012e064>] worker_thread+0x0/0x264
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-khelper       S 00000002     0     8      1             9     7 (L-TLB)
-df573f38 00000046 df573f24 00000002 00000001 00000001 c17b7de8 00000001
-       df573f10 ffffffff df301520 c13f3520 df301520 00000000 c13fbe80
-c13fb520
-       00000001 00000204 17a8ee41 00000002 df301520 df6cf520 df6cf648
-00000001
-Call Trace:
- [<c012e1c1>] worker_thread+0x15d/0x264
- [<c012dd84>] __call_usermodehelper+0x0/0x61
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c012e064>] worker_thread+0x0/0x264
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-kthread       S 00000002     0     9      1    12     147     8 (L-TLB)
-df5bdf38 00000046 df5bdf28 00000002 00000001 00000001 df393f40 00000001
-       df5bdf10 c0119b91 df42a020 00000003 df59f824 df59f820 00000000
-c13fb520
-       00000001 0000019f f4136c6b 00000000 c146e520 df595520 df595648
-00000082
-Call Trace:
- [<c0119b91>] __wake_up_common+0x3f/0x5e
- [<c012e1c1>] worker_thread+0x15d/0x264
- [<c0132592>] keventd_create_kthread+0x0/0x71
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c012e064>] worker_thread+0x0/0x264
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-kacpid        S 00000002     0    12      9           101       (L-TLB)
-df5bff38 00000046 df5bff28 00000002 00000002 df507e8c c147cd40 00000000
-       00000000 00000000 df507e80 df473a00 df473a24 df473a20 00000000
-c13f3520
-       00000000 00001003 46a6eae8 00000001 c03a4bc0 df6cf020 df6cf148
-00000082
-Call Trace:
- [<c012e1c1>] worker_thread+0x15d/0x264
- [<c0236bee>] acpi_os_execute_deferred+0x0/0x1b
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c012e064>] worker_thread+0x0/0x264
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-kblockd/0     S 00000002     0   101      9           102    12 (L-TLB)
-c1605f38 00000046 c1605f24 00000002 00000002 052afe93 00000000 00000000
-       00000001 00000000 df69ba20 c13fb520 df69ba20 00000000 c13f3e80
-c13f3520
-       00000000 00000171 052b5d95 00000000 df69ba20 df595020 df595148
-00000002
-Call Trace:
- [<c012e064>] worker_thread+0x0/0x264
- [<c012e1c1>] worker_thread+0x15d/0x264
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c012e064>] worker_thread+0x0/0x264
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-kblockd/1     S 00000002     0   102      9           145   101 (L-TLB)
-c1607f38 00000046 c1607f28 00000002 00000001 052b66d1 00000000 00000000
-       00000001 00000100 00000000 00000000 00000000 00000000 c047fd4c
-c13fb520
-       00000001 00000174 052b992c 00000000 c146e520 df69ba20 df69bb48
-df69be94
-Call Trace:
- [<c012e064>] worker_thread+0x0/0x264
- [<c012e1c1>] worker_thread+0x15d/0x264
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c012e064>] worker_thread+0x0/0x264
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-pdflush       S 00000002     0   145      9           146   102 (L-TLB)
-c1609f78 00000046 c1609f64 00000002 00000002 c13fbe80 00000001 c1609f38
-       df5956e0 00000000 df69b520 c13fb520 df69b520 00000000 c13f3e80
-c13f3520
-       00000000 000000d8 059b4ae7 00000000 df69b520 df5daa20 df5dab48
-00000002
-Call Trace:
- [<c0144711>] pdflush+0x0/0x2c
- [<c01445f6>] __pdflush+0x82/0x19d
- [<c0144739>] pdflush+0x28/0x2c
- [<c0144711>] pdflush+0x0/0x2c
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-pdflush       S 00000002     0   146      9           148   145 (L-TLB)
-c160bf78 00000046 c160bf68 00000002 00000002 c03aabdc fffeeee0 fffeccb2
-       c146e6e0 00000000 00000000 c160bf24 00000400 00000000 00000000
-c13f3520
-       00000000 00000462 3507d618 00000003 c03a4bc0 df69b520 df69b648
-00000093
-Call Trace:
- [<c0144711>] pdflush+0x0/0x2c
- [<c01445f6>] __pdflush+0x82/0x19d
- [<c0144739>] pdflush+0x28/0x2c
- [<c0144711>] pdflush+0x0/0x2c
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-kswapd0       S 00000002     0   147      1           810     9 (L-TLB)
-c160df80 00000046 c160df70 00000002 00000002 c160c000 c012ee27 00000002
-       c012ec86 df69b10c 00000282 c011ab4d 00000000 c011fcd6 c03a9060
-c13f3520
-       00000000 00001e01 059c1c48 00000000 c03a4bc0 df69b020 df69b148
-00000246
-Call Trace:
- [<c012ee27>] detach_pid+0x15/0x5a
- [<c012ec86>] attach_pid+0x26/0xd6
- [<c011ab4d>] set_cpus_allowed+0xc2/0x15b
- [<c011fcd6>] exit_fs+0x3b/0x108
- [<c0149d1e>] kswapd+0x11f/0x138
- [<c0132a02>] autoremove_wake_function+0x0/0x57
- [<c0102d8e>] ret_from_fork+0x6/0x14
- [<c0132a02>] autoremove_wake_function+0x0/0x57
- [<c0149bff>] kswapd+0x0/0x138
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-aio/0         S 00000002     0   148      9           149   146 (L-TLB)
-c160ff38 00000046 c160ff24 00000002 00000002 00000080 00000080 00000000
-       00000001 00000000 df662a20 c13fb520 df662a20 00000000 c13f3e80
-c13f3520
-       00000000 00000176 059c9043 00000000 df662a20 df5da520 df5da648
-00000002
-Call Trace:
- [<c012e064>] worker_thread+0x0/0x264
- [<c012e1c1>] worker_thread+0x15d/0x264
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c012e064>] worker_thread+0x0/0x264
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-aio/1         S 00000002     0   149      9           736   148 (L-TLB)
-c1611f38 00000046 c1611f28 00000002 00000001 059c9d6b 00000000 00000000
-       00000001 00000100 00000080 00000080 00000000 00000000 c047fd4c
-c13fb520
-       00000001 00000162 059ccb3e 00000000 c146e520 df662a20 df662b48
-df662e94
-Call Trace:
- [<c012e064>] worker_thread+0x0/0x264
- [<c012e1c1>] worker_thread+0x15d/0x264
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c012e064>] worker_thread+0x0/0x264
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-kseriod       S 00000002     0   736      9           995   149 (L-TLB)
-c1653f60 00000046 c1653f50 00000002 00000001 ffffffea c0401e48 00000000
-       c0401e48 00000000 c02156f0 c0401e78 c02156c8 c027e2ab c0401e60
-c13fb520
-       00000001 00000f39 d0da3f78 00000000 c146e520 df5da020 df5da148
-00000246
-Call Trace:
- [<c02156f0>] kobject_put+0x1e/0x22
- [<c02156c8>] kobject_release+0x0/0xa
- [<c027e2ab>] driver_create_file+0x4b/0x59
- [<c0272746>] serio_thread+0x7b/0xef
- [<c0132a02>] autoremove_wake_function+0x0/0x57
- [<c0132a02>] autoremove_wake_function+0x0/0x57
- [<c02726cb>] serio_thread+0x0/0xef
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-kirqd         S 00000002     0   810      1          1122   147 (L-TLB)
-c1695f94 00000046 c1695f84 00000002 00000001 c1695fa8 00000046 c1695f98
-       00000002 00000001 df5dda20 df5dda20 c011f39c df5dda20 df5dda20
-c13fb520
-       00000001 00000675 15579db8 00000003 c146e520 df5dda20 df5ddb48
-c13fbf60
-Call Trace:
- [<c011f39c>] release_task+0xc5/0x156
- [<c0352a74>] schedule_timeout+0x54/0xa2
- [<c01274ce>] process_timeout+0x0/0x9
- [<c0114743>] balanced_irq+0x4c/0x81
- [<c01146f7>] balanced_irq+0x0/0x81
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-khubd         S 00000002     0   995      9                 736 (L-TLB)
-df347f64 00000046 df347f54 00000002 00000002 00000282 c02176e9 00000000
-       e0062cac 00000282 c1684880 c1684880 00000005 c02156f0 c16c269c
-c13f3520
-       00000000 000008d3 edaeb33c 00000000 c03a4bc0 c1719020 c1719148
-00000246
-Call Trace:
- [<c02176e9>] rwsem_wake+0x59/0x13a
- [<c02156f0>] kobject_put+0x1e/0x22
- [<e004deec>] hub_thread+0x9e/0xe5 [usbcore]
- [<c0132a02>] autoremove_wake_function+0x0/0x57
- [<c0132a02>] autoremove_wake_function+0x0/0x57
- [<e004de4e>] hub_thread+0x0/0xe5 [usbcore]
- [<c013255c>] kthread+0xba/0xf0
- [<c01324a2>] kthread+0x0/0xf0
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-scsi_eh_0     S 00000002     0  1122      1          1123   810 (L-TLB)
-df38ff68 00000046 df38ff58 00000002 00000001 00000000 00000001 df38ff28
-       00000002 df42aa20 df42ab4c df38ff38 00000000 00000000 df38ff98
-c13fb520
-       00000001 00000d3b edaffec8 00000000 c146e520 df42aa20 df42ab48
-00000001
-Call Trace:
- [<c0351553>] __down_interruptible+0x94/0x119
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0119cf1>] complete+0x48/0x5d
- [<c03515eb>] __down_failed_interruptible+0x7/0xc
- [<c02bacb2>] .text.lock.scsi_error+0x3b/0x41
- [<c02ba703>] scsi_error_handler+0x0/0xd2
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-usb-storage   S C13F3560     0  1123      1          1170  1122 (L-TLB)
-df323f50 00000046 c146aa20 c13f3560 00000002 df323f14 c01178bb 17ac7305
-       00000002 00000001 c146aa20 c13fb520 c146aa20 00000000 c13f3e80
-c13f3520
-       00000000 00000186 17ac74c0 00000002 c146aa20 df301a20 df301b48
-00000002
-Call Trace:
- [<c01178bb>] activate_task+0x93/0xa7
- [<c0351553>] __down_interruptible+0x94/0x119
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0118255>] wake_up_process+0x1e/0x20
- [<c03515eb>] __down_failed_interruptible+0x7/0xc
- [<e0067a8c>] .text.lock.usb+0x17/0x83 [usb_storage]
- [<c0102d8e>] ret_from_fork+0x6/0x14
- [<e0066f27>] usb_stor_control_thread+0x0/0x1d7 [usb_storage]
- [<e0066f27>] usb_stor_control_thread+0x0/0x1d7 [usb_storage]
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-khpsbpkt      S 00000002     0  1170      1          1224  1123 (L-TLB)
-df3d5f8c 00000046 df3d5f7c 00000002 00000002 00000000 00000000 00000000
-       00f89f60 00f81f60 000000b7 c13fb520 00000080 00000000 00000069
-c13f3520
-       00000000 0000013c 3e8fad7c 00000001 c03a4bc0 df300520 df300648
-00000001
-Call Trace:
- [<c0351553>] __down_interruptible+0x94/0x119
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c0119cf1>] complete+0x48/0x5d
- [<c03515eb>] __down_failed_interruptible+0x7/0xc
- [<e008aa86>] .text.lock.ieee1394_core+0x1b/0x21 [ieee1394]
- [<e008a9b3>] hpsbpkt_thread+0x0/0x9c [ieee1394]
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-knodemgrd_0   S 00000002     0  1224      1          1336  1170 (L-TLB)
-df2c3f74 00000046 df2c3f64 00000002 00000001 c16abca0 df3366f0 00000000
-       c01952fe df594a00 000000d0 c16abca0 0000a1ff 00000000 c0195377
-c13fb520
-       00000001 00000505 3e8fe075 00000001 c146e520 df406020 df406148
-df3366f0
-Call Trace:
- [<c01952fe>] sysfs_new_dirent+0x28/0x76
- [<c0195377>] sysfs_make_dirent+0x2b/0x98
- [<c0351553>] __down_interruptible+0x94/0x119
- [<c0119b40>] default_wake_function+0x0/0x12
- [<c03515eb>] __down_failed_interruptible+0x7/0xc
- [<e00913e0>] .text.lock.nodemgr+0x112/0x19e [ieee1394]
- [<e0090e43>] nodemgr_host_thread+0x0/0x178 [ieee1394]
- [<c01010f1>] kernel_thread_helper+0x5/0xb
-udev          S 00000002     0  1336      1                1224 (NOTLB)
-c1713f4c 00000086 c1713f3c 00000002 00000002 00000040 c1713f64 c1713f0c
-       c016611b bfc8a598 c1713f0c 00000040 00000000 00000361 000241ed
-c13f3520
-       00000000 0003e6ae 4b23fc5a 00000003 c03a4bc0 df662520 df662648
-c13f3f60
-Call Trace:
- [<c016611b>] cp_new_stat+0x15f/0x17a
- [<c0352a74>] schedule_timeout+0x54/0xa2
- [<c01274ce>] process_timeout+0x0/0x9
- [<c01275c4>] sys_nanosleep+0xdd/0x18e
- [<c0102e85>] syscall_call+0x7/0xb
+ anex dmesg the kernel 2.6.12-ck3.
 
 
-Thanks for help.
+Linux version 2.6.12-ck3 (root@jes88.com (gcc version 4.0.1 20050720
+(Red Hat 4.0.1-4)) #1 Mon Jul 25 00:14:40 CDT 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
+ BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000d8000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000004fef0000 (usable)
+ BIOS-e820: 000000004fef0000 - 000000004fefb000 (ACPI data)
+ BIOS-e820: 000000004fefb000 - 000000004ff00000 (ACPI NVS)
+ BIOS-e820: 000000004ff00000 - 0000000050000000 (reserved)
+ BIOS-e820: 00000000fffe0000 - 0000000100000000 (reserved)
+382MB HIGHMEM available.
+896MB LOWMEM available.
+On node 0 totalpages: 327408
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 225280 pages, LIFO batch:31
+  HighMem zone: 98032 pages, LIFO batch:31
+DMI 2.3 present.
+ACPI: RSDP (v000 PTLTD                                 ) @ 0x000f8410
+ACPI: RSDT (v001 Arima  161Fh    0x06040000  LTP 0x00000000) @ 0x4fef6b5d
+ACPI: FADT (v001 Arima  161Fh    0x06040000 PTL_ 0x000f4240) @ 0x4fefae66
+ACPI: SSDT (v001 PTLTD  POWERNOW 0x06040000  LTP 0x00000001) @ 0x4fefaeda
+ACPI: MADT (v001 PTLTD           APIC   0x06040000  LTP 0x00000000) @ 0x4fefafb0
+ACPI: DSDT (v001  Arima 161Fh    0x06040000 MSFT 0x0100000e) @ 0x00000000
+ACPI: PM-Timer IO Port: 0x4008
+Allocating PCI resources starting at 50000000 (gap: 50000000:affe0000)
+Built 1 zonelists
+Kernel command line: ro root=LABEL=/ early-login quiet vga=788
+Initializing CPU#0
+CPU 0 irqstacks, hard=c0470000 soft=c046f000
+PID hash table entries: 4096 (order: 12, 65536 bytes)
+Detected 1804.747 MHz processor.
+Using pmtmr for high-res timesource
+Console: colour dummy device 80x25
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 1292408k/1309632k available (2620k kernel code, 16076k
+reserved, 680k data, 188k init, 392128k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay loop... 3571.71 BogoMIPS (lpj=1785856)
+Security Framework v1.0.0 initialized
+SELinux:  Initializing.
+SELinux:  Starting in permissive mode
+selinux_register_security:  Registering secondary module capability
+Capability LSM initialized as secondary
+Mount-cache hash table entries: 512
+CPU: After generic identify, caps: 078bfbff e1d3fbff 00000000 00000000
+00000000 00000000 00000000
+CPU: After vendor identify, caps: 078bfbff e1d3fbff 00000000 00000000
+00000000 00000000 00000000
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU: After all inits, caps: 078bfbff e1d3fbff 00000000 00000010
+00000000 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: AMD Mobile AMD Athlon(tm) 64 Processor 3000+ stepping 08
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+ACPI: setting ELCR to 0400 (from 0e00)
+checking if image is initramfs... it is
+Freeing initrd memory: 1086k freed
+NET: Registered protocol family 16
+PCI: PCI BIOS revision 2.10 entry at 0xfd8cc, last bus=1
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+ACPI: Subsystem revision 20050309
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (0000:00)
+PCI: Probing PCI hardware (bus 00)
+Boot video device is 0000:01:00.0
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Link [ALKA] (IRQs 16 17 18 19 20 21 22 23) *9, disabled.
+ACPI: PCI Interrupt Link [ALKB] (IRQs 23) *11, disabled.
+ACPI: PCI Interrupt Link [ALKC] (IRQs 22) *10, disabled.
+ACPI: PCI Interrupt Link [ALKD] (IRQs 21) *10, disabled.
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 7 *9 12 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 7 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 7 11 12 14 15) *10
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 7 9 *10 11 12 14 15)
+ACPI: Embedded Controller [EC] (gpe 1)
+Linux Plug and Play Support v0.97 (c) Adam Belay
+pnp: PnP ACPI init
+pnp: PnP ACPI: found 8 devices
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+PCI: Using ACPI for IRQ routing
+PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
+pnp: 00:05: ioport range 0x4d0-0x4d1 has been reserved
+pnp: 00:05: ioport range 0xf510-0xf511 could not be reserved
+pnp: 00:05: ioport range 0xf500-0xf500 has been reserved
+pnp: 00:05: ioport range 0x4000-0x407f could not be reserved
+pnp: 00:05: ioport range 0x8100-0x811f has been reserved
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16ac)
+apm: overridden by ACPI.
+audit: initializing netlink socket (disabled)
+audit(1122837729.645:0): initialized
+highmem bounce pool size: 64 pages
+Total HugeTLB memory allocated, 0
+VFS: Disk quotas dquot_6.5.1
+Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
+SELinux:  Registering netfilter hooks
+Initializing Cryptographic API
+pci_hotplug: PCI Hot Plug PCI Core version: 0.5
+vesafb: framebuffer at 0xd8000000, mapped to 0xf8880000, using 1875k,
+total 65536k
+vesafb: mode is 800x600x16, linelength=1600, pages=67
+vesafb: protected mode interface info at c000:564d
+vesafb: scrolling: redraw
+vesafb: Truecolor: size=0:5:6:5, shift=0:11:5:0
+Console: switching to colour frame buffer device 100x37
+fb0: VESA VGA frame buffer device
+ACPI: CPU0 (power states: C1[C1] C2[C2])
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+Real Time Clock Driver v1.12
+Linux agpgart interface v0.101 (c) Dave Jones
+agpgart: Detected AGP bridge 0
+agpgart: AGP aperture is 256M @ 0xe0000000
+PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 76 ports, IRQ sharing enabled
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
+RAMDISK driver initialized: 16 RAM disks of 16384K size 1024 blocksize
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 0000:00:11.1
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
+PCI: setting IRQ 11 as level-triggered
+ACPI: PCI Interrupt 0000:00:11.1[A] -> Link [LNKC] -> GSI 11 (level,
+low) -> IRQ 11
+PCI: Via IRQ fixup for 0000:00:11.1, from 0 to 11
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
+    ide0: BM-DMA at 0x1ce0-0x1ce7, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1ce8-0x1cef, BIOS settings: hdc:DMA, hdd:pio
+Probing IDE interface ide0...
+hda: HTS548060M9AT00, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hdc: PIONEER DVD-RW DVR-K12D, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+Probing IDE interface ide2...
+Probing IDE interface ide3...
+Probing IDE interface ide4...
+Probing IDE interface ide5...
+hda: max request size: 1024KiB
+hda: 117210240 sectors (60011 MB) w/7877KiB Cache, CHS=16383/255/63, UDMA(100)
+hda: cache flushes supported
+ hda: hda1 hda2 hda3 < hda5 hda6 hda7 > hda4
+hdc: ATAPI 24X DVD-ROM DVD-R CD-R/RW drive, 2000kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+ide-floppy driver 0.99.newide
+usbcore: registered new driver hiddev
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.01:USB HID core driver
+mice: PS/2 mouse device common for all mice
+md: md driver 0.90.1 MAX_MD_DEVS=256, MD_SB_DISKS=27
+NET: Registered protocol family 2
+IP: routing cache hash table of 4096 buckets, 128Kbytes
+TCP established hash table entries: 262144 (order: 9, 2097152 bytes)
+TCP bind hash table entries: 65536 (order: 8, 1835008 bytes)
+TCP: Hash tables configured (established 262144 bind 65536)
+Initializing IPsec netlink socket
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+ACPI wakeup devices:
+SLPB  LID PCI0 PS2K USB1 USB2 USB3 Z00A CRD0 NICD
+ACPI: (supports S0 S3 S4 S5)
+Freeing unused kernel memory: 188k freed
+input: AT Translated Set 2 keyboard on isa0060/serio0
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+SELinux:  Disabled at runtime.
+SELinux:  Unregistering netfilter hooks
+Synaptics Touchpad, model: 1, fw: 5.9, id: 0x236eb3, caps: 0x904713/0x10008
+input: SynPS/2 Synaptics TouchPad on isa0060/serio1
+floppy0: no floppy controllers found
+via-rhine.c:v1.10-LK1.2.0-2.6 June-10-2004 Written by Donald Becker
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 11
+ACPI: PCI Interrupt 0000:00:12.0[A] -> Link [LNKB] -> GSI 11 (level,
+low) -> IRQ 11
+PCI: Via IRQ fixup for 0000:00:12.0, from 9 to 11
+eth0: VIA Rhine II at 0xd0002c00, 00:03:25:0d:9e:58, IRQ 11.
+eth0: MII PHY found at address 1, status 0x7869 advertising 05e1 Link 41e1.
+snd_via82xx: Unknown parameter `'
+snd_via82xx: Unknown parameter `'
+snd_via82xx: Unknown parameter `'
+shpchp: shpc_init : shpc_cap_offset == 0
+shpchp: Standard Hot Plug PCI Controller Driver version: 0.4
+ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 9
+PCI: setting IRQ 9 as level-triggered
+ACPI: PCI Interrupt 0000:00:11.6[C] -> Link [LNKA] -> GSI 9 (level,
+low) -> IRQ 9
+PCI: Via IRQ fixup for 0000:00:11.6, from 10 to 9
+PCI: Setting latency timer of device 0000:00:11.6 to 64
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 10
+PCI: setting IRQ 10 as level-triggered
+ACPI: PCI Interrupt 0000:00:10.3[D] -> Link [LNKD] -> GSI 10 (level,
+low) -> IRQ 10
+PCI: Via IRQ fixup for 0000:00:10.3, from 0 to 10
+ehci_hcd 0000:00:10.3: EHCI Host Controller
+ehci_hcd 0000:00:10.3: new USB bus registered, assigned bus number 1
+ehci_hcd 0000:00:10.3: irq 10, io mem 0xd0002800
+ehci_hcd 0000:00:10.3: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 6 ports detected
+USB Universal Host Controller Interface driver v2.2
+ACPI: PCI Interrupt 0000:00:10.0[A] -> Link [LNKA] -> GSI 9 (level,
+low) -> IRQ 9
+PCI: Via IRQ fixup for 0000:00:10.0, from 0 to 9
+uhci_hcd 0000:00:10.0: UHCI Host Controller
+uhci_hcd 0000:00:10.0: new USB bus registered, assigned bus number 2
+uhci_hcd 0000:00:10.0: irq 9, io base 0x00001c80
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+ACPI: PCI Interrupt 0000:00:10.1[B] -> Link [LNKB] -> GSI 11 (level,
+low) -> IRQ 11
+PCI: Via IRQ fixup for 0000:00:10.1, from 0 to 11
+uhci_hcd 0000:00:10.1: UHCI Host Controller
+uhci_hcd 0000:00:10.1: new USB bus registered, assigned bus number 3
+uhci_hcd 0000:00:10.1: irq 11, io base 0x00001ca0
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 2 ports detected
+ACPI: PCI Interrupt 0000:00:10.2[C] -> Link [LNKC] -> GSI 11 (level,
+low) -> IRQ 11
+PCI: Via IRQ fixup for 0000:00:10.2, from 0 to 11
+uhci_hcd 0000:00:10.2: UHCI Host Controller
+uhci_hcd 0000:00:10.2: new USB bus registered, assigned bus number 4
+uhci_hcd 0000:00:10.2: irq 11, io base 0x00001cc0
+hub 4-0:1.0: USB hub found
+hub 4-0:1.0: 2 ports detected
+Linux Kernel Card Services
+  options:  [pci] [cardbus] [pm]
+ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKB] -> GSI 11 (level,
+low) -> IRQ 11
+Yenta: CardBus bridge found at 0000:00:0a.0 [161f:2032]
+Yenta: Enabling burst memory read transactions
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta TI: socket 0000:00:0a.0, mfunc 0x01001002, devctl 0x44
+Yenta: ISA IRQ mask 0x0000, PCI irq 11
+Socket status: 30000006
+ieee1394: Initialized config rom entry `ip1394'
+ohci1394: $Rev: 1250 $ Ben Collins <bcollins@debian.org>
+ACPI: PCI Interrupt 0000:00:13.0[A] -> Link [LNKD] -> GSI 10 (level,
+low) -> IRQ 10
+ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[10] 
+MMIO=[d0002000-d00027ff]  Max Packet=[2048]
+audit(1122855742.998:0): user pid=1260 uid=0 length=52
+loginuid=4294967295 msg='hwclock: op=changing system time id=0
+res=success'
+ACPI: AC Adapter [AC] (on-line)
+ACPI: Battery Slot [BAT0] (battery present)
+ACPI: Power Button (FF) [PWRF]
+ACPI: Sleep Button (CM) [SLPB]
+ACPI: Lid Switch [LID]
+ibm_acpi: ec object not found
+ACPI: Video Device [VGA] (multi-head: yes  rom: no  post: no)
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[0003252129001aa3]
+device-mapper: 4.4.0-ioctl (2005-01-12) initialised: dm-devel@redhat.com
+cdrom: open failed.
+cdrom: open failed.
+EXT3 FS on hda2, internal journal
+ReiserFS: hda5: found reiserfs format "3.6" with standard journal
+ReiserFS: hda5: using ordered data mode
+ReiserFS: hda5: journal params: device hda5, size 8192, journal first
+block 18, max trans len 1024, max batch 900, max commit age 30, max
+trans age 30
+ReiserFS: hda5: checking transaction log (hda5)
+ReiserFS: hda5: Using r5 hash to sort names
+ReiserFS: hda4: found reiserfs format "3.6" with standard journal
+ReiserFS: hda4: using ordered data mode
+ReiserFS: hda4: journal params: device hda4, size 8192, journal first
+block 18, max trans len 1024, max batch 900, max commit age 30, max
+trans age 30
+ReiserFS: hda4: checking transaction log (hda4)
+ReiserFS: hda4: Using r5 hash to sort names
+ReiserFS: hda7: found reiserfs format "3.6" with standard journal
+ReiserFS: hda7: using ordered data mode
+ReiserFS: hda7: journal params: device hda7, size 8192, journal first
+block 18, max trans len 1024, max batch 900, max commit age 30, max
+trans age 30
+ReiserFS: hda7: checking transaction log (hda7)
+ReiserFS: hda7: Using r5 hash to sort names
+ip_tables: (C) 2000-2002 Netfilter core team
+ip_conntrack version 2.1 (8192 buckets, 65536 max) - 272 bytes per conntrack
+audit(1122855757.741:0): user pid=1505 uid=0 length=144
+loginuid=4294967295 msg='PAM bad_ident: user=?
+exe="/usr/bin/gdm-binary" (hostname=?, addr=?, terminal=? result=User
+not known to the underlying authentication module)'
+cs: IO port probe 0xc00-0xcff: clean.
+cs: IO port probe 0x800-0x8ff: clean.
+cs: IO port probe 0x100-0x4ff: clean.
+cs: IO port probe 0xa00-0xaff: clean.
+eth0: link up, 100Mbps, full-duplex, lpa 0x41E1
+fglrx: module license 'Proprietary. (C) 2002 - ATI Technologies,
+Starnberg, GERMANY' taints kernel.
+[fglrx] Maximum main memory to use for locked dma buffers: 1171 MBytes.
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKA] -> GSI 9 (level,
+low) -> IRQ 9
+[fglrx] module loaded - fglrx 8.14.13 [Jun  8 2005] on minor 0
+[fglrx] Kernel AGP support doesn't provide agplock functionality.
+[fglrx] AGP detected, AgpState   = 0x1f000a1b (hardware caps of chipset)
+agpgart: Found an AGP 3.5 compliant device at 0000:00:00.0.
+agpgart: Putting AGP V3 device at 0000:00:00.0 into 8x mode
+agpgart: Putting AGP V3 device at 0000:01:00.0 into 8x mode
+[fglrx] AGP enabled,  AgpCommand = 0x1f000312 (selected caps)
+[fglrx] free  AGP = 256126976
+[fglrx] max   AGP = 256126976
+[fglrx] free  LFB = 52719616
+[fglrx] max   LFB = 52719616
+[fglrx] free  Inv = 0
+[fglrx] max   Inv = 0
+[fglrx] total Inv = 0
+[fglrx] total TIM = 0
+[fglrx] total FB  = 0
+[fglrx] total AGP = 65536
+lp: driver loaded but no devices found
+[fglrx] AGP detected, AgpState   = 0x1f000a1b (hardware caps of chipset)
+agpgart: Found an AGP 3.5 compliant device at 0000:00:00.0.
+agpgart: Putting AGP V3 device at 0000:00:00.0 into 8x mode
+agpgart: Putting AGP V3 device at 0000:01:00.0 into 8x mode
 
-
-- --
-Regards,
-
-Francisco Figueiredo Jr.
-Npgsql Lead Developer
-http://gborg.postgresql.org/project/npgsql
-MonoBrasil Project Founder Member
-http://monobrasil.softwarelivre.org
-
-
-- -------------
-"Science without religion is lame;
-religion without science is blind."
-
-                  ~ Albert Einstein
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQEVAwUBQu1z7v7iFmsNzeXfAQLERwf/SfC3JX51I5EGoETI820LHnmLKutwPHjr
-pHpw1E6h+ats7b1krRAoPWrJb3mFbQXFzcjtgxgrlY1KB1CCEZO9ZbPBvDJKP6de
-vORMk030sNqSGP4BK2R6aVxyQtNT6JTVX1wJ6jryvZh1JIQT1a2zQ699MWQElN8N
-tTJ8PS8FVEUkH8qqqUoYropi+GCkj3xQpYMDorfNWw30gwKNuzA2CQ9Tontbmfnk
-00k87dQnF0lHuHdnnyxSFzFvkhDjSevKwjo9k5Gv/AmRSlMY/TCpTQm/fXTmpX2v
-wDv5W9xKnzyYZmAoCIWZIp30+baL8BzhtbUeIIm6hBpkkut5La+vBw==
-=rXuy
------END PGP SIGNATURE-----
-
-	
-	
-		
-_______________________________________________________ 
-Yahoo! Acesso Grátis - Internet rápida e grátis. 
-Instale o discador agora! http://br.acesso.yahoo.com/
+Any Idea, helpme please.

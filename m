@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVHAXf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVHAXsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVHAXf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 19:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVHAXf1
+	id S261363AbVHAXsy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 19:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVHAXsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 19:35:27 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20657 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261342AbVHAXfV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 19:35:21 -0400
-Date: Mon, 1 Aug 2005 19:35:17 -0400
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de
-Subject: pci cacheline size / latency oddness.
-Message-ID: <20050801233517.GA23172@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, ak@suse.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 1 Aug 2005 19:48:54 -0400
+Received: from digitalimplant.org ([64.62.235.95]:22410 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261364AbVHAXsy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 19:48:54 -0400
+Date: Mon, 1 Aug 2005 16:48:43 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+cc: pavel@ucw.cz, "" <linux-kernel@vger.kernel.org>
+Subject: Re: dpm_runtime_suspend and _resume()
+In-Reply-To: <20050730142502.GA4065@isilmar.linta.de>
+Message-ID: <Pine.LNX.4.50.0508011644390.2764-100000@monsoon.he.net>
+References: <20050730142502.GA4065@isilmar.linta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During boot of todays -git, I noticed this..
 
-PCI: Setting latency timer of device 0000:00:1d.7 to 64
+On Sat, 30 Jul 2005, Dominik Brodowski wrote:
 
-after boot, lspci shows..
+> dpm_runtime_suspend and _resume() would be quite useful for some PCMCIA
+> tasks. However, they are only exported in drivers/base/power/power.h. Any
+> objection to moving it to include/linux/pm.h ? Any plans to break the
+> functionality these functions provide?
 
-00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02) (prog-if 20 [EHCI])
-Subsystem: Dell: Unknown device 0169
-Flags: bus master, medium devsel, latency 0, IRQ 201
-                                          ^^						
+Break them anymore than they currently are?
 
-It also complains about..
+I wouldn't recommend using those functions. We're in the process of
+redeveloping the Runtime PM infrastructure and would hate to break users
+of existing poorly-designed infrastructure in the process.
 
-PCI: cache line size of 128 is not supported by device 0000:00:1d.7
+I'm curious what your usage model would be. After a certain amount of
+time of inactivity, I suspect that you want to power down a PCMCIA slot,
+right? Do you already have patches that do that? Is there any problem with
+calling the necessary functions directly?
 
-x86-64 doesn't have an arch override for pci_cache_line_size, so
-it ends up at L1_CACHE_BYTES >> 2, which is 128 if you build
-x86-64 kernels with CONFIG_GENERIC_CPU or CONFIG_MPSC
-This means we will do the wrong thing on AMD machines which have
-64 byte cachelines.   I saw this problem however on an em64t box.
-Would it make sense to shift >> once more if it fails, and retry
-with a smaller size perhaps ?
+Thanks,
 
-		Dave
 
+	Pat

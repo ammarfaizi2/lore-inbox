@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVHAVEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVHAUeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbVHAVEw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 17:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVHAVDP
+	id S261246AbVHAUeT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 16:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVHAUeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:03:15 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:39076 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261255AbVHAVCl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:02:41 -0400
-Date: Mon, 1 Aug 2005 23:03:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Luca Falavigna <dktrkranz@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Real-Time Preemption V0.7.52-07: rt_init_MUTEX_LOCKED declaration
-Message-ID: <20050801210324.GA21087@elte.hu>
-References: <42EE4D27.8060500@gmail.com> <1122922658.6759.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122922658.6759.22.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 1 Aug 2005 16:34:11 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:58025 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261246AbVHAUeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 16:34:00 -0400
+Message-Id: <20050801202017.043754000@araj-em64t>
+Date: Mon, 01 Aug 2005 13:20:17 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk
+Subject: [patch 0/8] Updated patches for x86_64
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew,
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+This patch series contains some misc fixes related to CPU hotplug for X86_64.
 
-> -	struct semaphore stop;
-> +	struct compat_semaphore stop;
+Some are new, some are due to regressions from introduction of physflat mode
+genapic schemes. Please consider for -mm. These are on 2.6.13-rc4-mm1
 
-i think it's policy->lock that is the issue here?
+do_clustered_apic_check
+	Needed for x86_64, removed recently from shared code.
+create-sysfs-onlyfor-present-cpus
+	Create sysfs entries only for present cpus. New cpus will have them
+	created by ACPI code when notification for the same is processed.
+fix-enforce-max-cpu
+	Dont enforce this when CPU hotplug is enabled. This doesnt permit
+	booting with maxcpus=1 and then testing logical hot-add of cpu.
+fix-cluster-allbutself-ipi
+	Cluster mode also needs to prevent preempt when excluding self from
+	online map. Propagating the fix i added for genapic_flat to cluster
+	genapic code as well.
+fix-flat-mode-nobroadcast-again
+	Recent physflat broke this for hotplug. Re-introducing it again.
+fix-physflat-dmode
+	Removed un-necessary code from physflat settings.
+use-common-physflat-cluster
+	Used common code for genapic-physflat and cluster since they share 
+	a lot of code was duplicated instead of sharing them.
+choose-physflat-onlyfor-gt8cpus-amd
+	Choose physflat only when >8 cpus. We could still use flat mode without 
+	broadcast shortcut. The mask version of IPI is still effective and 
+	more performant than the unicast version thats required when we use
+	physical mode.
 
-	Ingo
+Cheers,
+ashok
+

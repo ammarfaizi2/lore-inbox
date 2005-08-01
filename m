@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVHAMZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVHAMaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261633AbVHAMZP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 08:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVHAMZO
+	id S261820AbVHAMaA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 08:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVHAMaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 08:25:14 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:25754 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S261633AbVHAMZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 08:25:06 -0400
-To: "David S. Miller" <davem@davemloft.net>
-Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3: cache flush missing from somewhere
-References: <20050729161343.A18249@flint.arm.linux.org.uk>
-	<20050730.124052.104057695.davem@davemloft.net>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Mon, 01 Aug 2005 13:24:04 +0100
-Message-ID: <tnxzms1c0bf.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Mon, 1 Aug 2005 08:30:00 -0400
+Received: from crl-mail-dmz.crl.hpl.hp.com ([192.58.210.9]:10159 "EHLO
+	crl-mailb.crl.dec.com") by vger.kernel.org with ESMTP
+	id S261820AbVHAM37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 08:29:59 -0400
+Message-ID: <42EE15AF.5050902@hp.com>
+Date: Mon, 01 Aug 2005 08:29:35 -0400
+From: Jamey Hicks <jamey.hicks@hp.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 01 Aug 2005 12:24:39.0784 (UTC) FILETIME=[FCEF7E80:01C59693]
+To: Andrey Volkov <avolkov@varma-el.com>
+CC: gregkh@suse.de, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Where is place of arch independed companion chips?
+References: <42EB6A12.70100@varma-el.com>
+In-Reply-To: <42EB6A12.70100@varma-el.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-HPLC-MailScanner-Information: Please contact the ISP for more information
+X-HPLC-MailScanner: Found to be clean
+X-HPLC-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=-4.9, required 5, BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@davemloft.net> wrote:
-> From: Russell King <rmk+lkml@arm.linux.org.uk>
-> Date: Fri, 29 Jul 2005 16:13:43 +0100
+Andrey Volkov wrote:
+
+>Hi Greg,
 >
->> My current patch to get this working is below.  The only thing which
->> really seems to fix the issue is the __flush_dcache_page call in
->> read_pages() - if I remove this, I get spurious segfaults and illegal
->> instruction faults.
+>While I write driver for SM501 CC (which have graphics controller, USB
+>MASTER/SLAVE, AC97, UART, SPI  and VIDEO CAPTURE onboard),
+>I bumped with next ambiguity:
+>Where is a place of this chip's Kconfig/drivers in
+>kernel config/drivers tree? May be create new node in drivers subtree?
+>Or put it under graphics node (since it's main function of this CC)?
 >
-> If one cpu stores, does it get picked up in the other cpu's I-cache?
+>AFAIK, this is not one such multifunctional monster in the world, so
+>somebody bumped with this problem again in future.
+>
+>  
+>
+Good question.  I was about to submit a patch that created 
+drivers/platform because the toplevel driver for MQ11xx is a 
+platform_device driver.  Any thoughts on this?
 
-It only gets picked up by the other CPU's D-cache (which is fully
-coherent between cores). The I-cache needs to be invalidated on each
-CPU.
+Jamey
 
-> If not, you cannot use the lazy dcache flushing method, and in fact
-> you must broadcast the flush on all processors.
-
-Why wouldn't the lazy dcache flushing method work? My understanding is
-that if there is no user mapping for a given page, there's no reason
-to flush the dcache and just postpone it until the page is faulted
-in. When the page fault occurs the dcache should be flushed (on one
-CPU is enough) and the icache invalidated on all the CPUs.
-
--- 
-Catalin
 

@@ -1,107 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVHAW6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVHAXAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbVHAW6O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 18:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVHAW6N
+	id S261314AbVHAXAf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 19:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVHAXAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 18:58:13 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:56846 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261283AbVHAW5r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 18:57:47 -0400
-Message-ID: <42EEA8E9.5090107@domdv.de>
-Date: Tue, 02 Aug 2005 00:57:45 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050724)
+	Mon, 1 Aug 2005 19:00:35 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:26614 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261318AbVHAXA2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 19:00:28 -0400
+Message-ID: <42EEA910.5060902@mvista.com>
+Date: Mon, 01 Aug 2005 15:58:24 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: marcel@holtmann.org
-CC: rml@tech9.net, Dominik Brodowski <linux@dominikbrodowski.net>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: 2.6.13-rc4-git4: bluetooth oops on pcmcia shutdown
-X-Enigmail-Version: 0.92.0.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI watch dog notify patch
+References: <12270.1122693891@ocs3.ocs.com.au>
+In-Reply-To: <12270.1122693891@ocs3.ocs.com.au>
 Content-Type: multipart/mixed;
- boundary="------------020201090308040708030208"
+ boundary="------------080901070804000000030800"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 This is a multi-part message in MIME format.
---------------020201090308040708030208
-Content-Type: text/plain; charset=ISO-8859-15
+--------------080901070804000000030800
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-The attached bluetooth oops can be reliably reproduced on my x86_64
-laptop. It happens when hciattach is still running while a sequence of
-"cardctl eject" and then "killproc /sbin/cardmgr" is executed.
-Though this seems to point to preempt I could manage to cause similar
-oopses on non-preemptible kernels a while ago.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Keith Owens wrote:
+> On Fri, 29 Jul 2005 13:55:23 -0700, 
+> George Anzinger <george@mvista.com> wrote:
+> 
+>>	This patch adds a notify to the die_nmi notify that the system
+>>	is about to be taken down.  If the notify is handled with a
+>>	NOTIFY_STOP return, the system is given a new lease on life.
+>>
+>>void die_nmi (struct pt_regs *regs, const char *msg)
+>>{
+>>+	if (notify_die(DIE_NMIWATCHDOG, "nmi_watchdog", regs, 
+>>+		       0, 0, SIGINT) == NOTIFY_STOP)
+>>+		return;
+>>+
+>>	spin_lock(&nmi_print_lock);
+>>	/*
+>>	* We are in trouble anyway, lets at least try
+> 
+> 
+> Minor nitpick.  die_nmi() already gets a message passed in to
+> distinguish between different types of nmi.  Pass that message to
+> notify_die(), on the off chance that the notified routines can use that
+> difference.
 
---------------020201090308040708030208
+Excellent idea!
+> 
+> Also your patch adds a trailing whitespace on the call to notify_die().
+> 
+Fixed.
+
+This should do it.
+-
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+
+--------------080901070804000000030800
 Content-Type: text/plain;
- name="bluez_oops.txt"
+ name="nmi-notify.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="bluez_oops.txt"
+ filename="nmi-notify.patch"
 
-Unable to handle kernel NULL pointer dereference at 0000000000000014 RIP: 
-<ffffffff802cc1fb>{uart_flush_buffer+43}
-PGD 0 
-Oops: 0002 [1] PREEMPT 
-CPU 0 
-Modules linked in: hci_usb serial_cs pcmcia yenta_socket rsrc_nonstatic pcmcia_core ehci_hcd uhci_hcd parport_pc parport snd_via82xx_modem snd_seq_oss snd_seq_midi_event snd_seq snd_pcm_oss snd_mixer_oss hfc_usb ipaq usbhid pl2303 usbserial usb_storage snd_via82xx gameport sd_mod snd_ac97_codec snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device hisax isdn nls_iso8859_15 nls_cp850 ip_conntrack_ftp ipt_state ip_conntrack ipt_ULOG iptable_filter ipt_REJECT ip_tables nfsd exportfs lockd sunrpc autofs4 cifs sbp2
-Pid: 2995, comm: hciattach Not tainted 2.6.13-rc4-git4-gringo
-RIP: 0010:[<ffffffff802cc1fb>] <ffffffff802cc1fb>{uart_flush_buffer+43}
-RSP: 0018:ffff81001c0b9b68  EFLAGS: 00010013
-RAX: 0000000000000000 RBX: ffff810002208c80 RCX: ffff81001e6d3018
-RDX: 0000000000000000 RSI: ffff81001c0b9b58 RDI: 0000000000000001
-RBP: ffff81001e6d3000 R08: ffff81003f01ce98 R09: 0000000000000001
-R10: 00000000ffffffff R11: 0000000000000246 R12: ffff81003d76ba80
-R13: ffffffff8052e6c0 R14: 0000000000000000 R15: 0000000000000000
-FS:  00002aaaaaf3edb0(0000) GS:ffffffff8061c800(0000) knlGS:00000000556d16b0
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 0000000000000014 CR3: 000000001b1a2000 CR4: 00000000000006e0
-Process hciattach (pid: 2995, threadinfo ffff81001c0b8000, task ffff81001f94f4a0)
-Stack: 0000000000000292 ffff81003db82200 ffff81001e6d3000 ffffffff803567ac 
-       0000000000000000 ffff81003db82200 ffff81002614ac00 ffffffff803567e4 
-       ffffffff8052e6c0 ffffffff80356931 
-Call Trace:<ffffffff803567ac>{hci_uart_flush+92} <ffffffff803567e4>{hci_uart_close+20}
-       <ffffffff80356931>{hci_uart_tty_close+49} <ffffffff802b108d>{release_dev+1805}
-       <ffffffff80159a7f>{free_hot_cold_page+239} <ffffffff80163876>{free_pgd_range+1078}
-       <ffffffff802617f6>{_atomic_dec_and_lock+38} <ffffffff8018f863>{dput+35}
-       <ffffffff802b1191>{tty_release+17} <ffffffff80177642>{__fput+178}
-       <ffffffff80175cbe>{filp_close+110} <ffffffff80132813>{put_files_struct+115}
-       <ffffffff801331da>{do_exit+522} <ffffffff8013b745>{__dequeue_signal+501}
-       <ffffffff80133dad>{do_group_exit+269} <ffffffff8013d8eb>{get_signal_to_deliver+1515}
-       <ffffffff8010ce9f>{do_signal+159} <ffffffff80408174>{thread_return+0}
-       <ffffffff80408250>{thread_return+220} <ffffffff80139b31>{lock_timer_base+49}
-       <ffffffff80139be8>{del_timer+104} <ffffffff80408f6c>{schedule_timeout+156}
-       <ffffffff8013a7c0>{process_timeout+0} <ffffffff8010db2f>{sysret_signal+28}
-       <ffffffff8010de17>{ptregscall_common+103} 
+Source: MontaVista Software, Inc. George Anzinger <george@mvista.com>
+Type: Enhancement 
+Description:
 
-Code: c7 40 14 00 00 00 00 c7 40 10 00 00 00 00 ff 34 24 9d bf 01 
-RIP <ffffffff802cc1fb>{uart_flush_buffer+43} RSP <ffff81001c0b9b68>
-CR2: 0000000000000014
- <1>Fixing recursive fault but reboot is needed!
-scheduling while atomic: hciattach/0x00000001/2995
+	This patch adds a notify to the die_nmi notify that the system
+	is about to be taken down.  If the notify is handled with a
+	NOTIFY_STOP return, the system is given a new lease on life.
 
-Call Trace:<ffffffff80407caa>{schedule+122} <ffffffff801330c6>{do_exit+246}
-       <ffffffff802bf5c5>{do_unblank_screen+21} <ffffffff8011d95f>{do_page_fault+1807}
-       <ffffffff8010e399>{error_exit+0} <ffffffff802cc1fb>{uart_flush_buffer+43}
-       <ffffffff802cc1f7>{uart_flush_buffer+39} <ffffffff803567ac>{hci_uart_flush+92}
-       <ffffffff803567e4>{hci_uart_close+20} <ffffffff80356931>{hci_uart_tty_close+49}
-       <ffffffff802b108d>{release_dev+1805} <ffffffff80159a7f>{free_hot_cold_page+239}
-       <ffffffff80163876>{free_pgd_range+1078} <ffffffff802617f6>{_atomic_dec_and_lock+38}
-       <ffffffff8018f863>{dput+35} <ffffffff802b1191>{tty_release+17}
-       <ffffffff80177642>{__fput+178} <ffffffff80175cbe>{filp_close+110}
-       <ffffffff80132813>{put_files_struct+115} <ffffffff801331da>{do_exit+522}
-       <ffffffff8013b745>{__dequeue_signal+501} <ffffffff80133dad>{do_group_exit+269}
-       <ffffffff8013d8eb>{get_signal_to_deliver+1515} <ffffffff8010ce9f>{do_signal+159}
-       <ffffffff80408174>{thread_return+0} <ffffffff80408250>{thread_return+220}
-       <ffffffff80139b31>{lock_timer_base+49} <ffffffff80139be8>{del_timer+104}
-       <ffffffff80408f6c>{schedule_timeout+156} <ffffffff8013a7c0>{process_timeout+0}
-       <ffffffff8010db2f>{sysret_signal+28} <ffffffff8010de17>{ptregscall_common+103}
-       
+	We also change the nmi watchdog to carry on if die_nmi returns.
 
---------------020201090308040708030208--
+	This give debug code a chance to a) catch watchdog timeouts and
+	b) possibly allow the system to continue, realizing that 
+	the time out may be due to debugger activities such as single 
+	stepping which is usually done with "other" cpus held.
+
+Signed-off-by: George Anzinger<george@mvista.com>
+
+ nmi.c   |    5 ++++-
+ traps.c |    4 ++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.13-rc/arch/i386/kernel/nmi.c
+===================================================================
+--- linux-2.6.13-rc.orig/arch/i386/kernel/nmi.c
++++ linux-2.6.13-rc/arch/i386/kernel/nmi.c
+@@ -495,8 +495,11 @@ void nmi_watchdog_tick (struct pt_regs *
+ 		 */
+ 		alert_counter[cpu]++;
+ 		if (alert_counter[cpu] == 5*nmi_hz)
++			/*
++			 * die_nmi will return ONLY if NOTIFY_STOP happens..
++			 */
+ 			die_nmi(regs, "NMI Watchdog detected LOCKUP");
+-	} else {
++
+ 		last_irq_sums[cpu] = sum;
+ 		alert_counter[cpu] = 0;
+ 	}
+Index: linux-2.6.13-rc/arch/i386/kernel/traps.c
+===================================================================
+--- linux-2.6.13-rc.orig/arch/i386/kernel/traps.c
++++ linux-2.6.13-rc/arch/i386/kernel/traps.c
+@@ -555,6 +555,10 @@ static DEFINE_SPINLOCK(nmi_print_lock);
+ 
+ void die_nmi (struct pt_regs *regs, const char *msg)
+ {
++	if (notify_die(DIE_NMIWATCHDOG, msg, regs, 0, 0, SIGINT) ==
++	    NOTIFY_STOP)
++		return;
++
+ 	spin_lock(&nmi_print_lock);
+ 	/*
+ 	* We are in trouble anyway, lets at least try
+
+--------------080901070804000000030800--

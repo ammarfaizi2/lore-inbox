@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVHAT3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVHATbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVHAT3W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 15:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVHAT3V
+	id S261187AbVHATbl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 15:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVHAT3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 15:29:21 -0400
-Received: from nproxy.gmail.com ([64.233.182.202]:60262 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261182AbVHAT2z convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 15:28:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eyRtqfT2aUFNNa6aYeKZe2lskcMkjsdhJONFUfP1Yy4499cVwcysKfX6j6rrpQDu6jlv7/gxeNnv0i8eCRRAYK19QTBnhGH4rYZJtSXMBmB5YcxAYlN2REe04+sfqHtyptSLEfPi6UeFDUeE5Jt3nke6K4wH1JGE6+CQ+idQ2ro=
-Message-ID: <58cb370e050801122831a97873@mail.gmail.com>
-Date: Mon, 1 Aug 2005 21:28:54 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: PROBLEM: "drive appears confused" and "irq 18: nobody cared!"
-Cc: Alexander Fieroch <fieroch@web.de>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Michael Thonke <iogl64nx@gmail.com>, linux-kernel@vger.kernel.org,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, axboe@suse.de,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Natalie.Protasevich@unisys.com, Andrew Morton <akpm@osdl.org>,
-       Parag Warudkar <kaernel-stuff@comcast.net>
-In-Reply-To: <m3oe8h7978.fsf@defiant.localdomain>
+	Mon, 1 Aug 2005 15:29:33 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:56760 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261177AbVHAT1n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 15:27:43 -0400
+Subject: Re: [PATCH] Real-Time Preemption V0.7.52-07: rt_init_MUTEX_LOCKED
+	declaration
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+Cc: Luca Falavigna <dktrkranz@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mingo@elte.hu
+In-Reply-To: <1122923621.3024.55.camel@imap.mvista.com>
+References: <42EE4D27.8060500@gmail.com>
+	 <1122922658.6759.22.camel@localhost.localdomain>
+	 <ff1cadb205080112051847d6eb@mail.gmail.com>
+	 <1122923621.3024.55.camel@imap.mvista.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 01 Aug 2005 15:26:45 -0400
+Message-Id: <1122924405.6759.37.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <d6gf8j$jnb$1@sea.gmane.org> <42EAAFD4.4010303@web.de>
-	 <42EAD086.4010904@gmail.com>
-	 <200507291905.37339.kernel-stuff@comcast.net>
-	 <20050730014237.GA20131@mipter.zuzino.mipt.ru>
-	 <42EE33F6.6040606@web.de> <m3oe8h7978.fsf@defiant.localdomain>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/1/05, Krzysztof Halasa <khc@pm.waw.pl> wrote:
-> Alexander Fieroch <fieroch@web.de> writes:
+On Mon, 2005-08-01 at 12:13 -0700, Sven-Thorsten Dietrich wrote:
+> On Mon, 2005-08-01 at 19:05 +0000, Luca Falavigna wrote:
+> >
+> > 
+> > Another solution could be this (as shown in drivers/cpufreq/cpufreq.c):
+> > -	init_MUTEX_LOCKED(&policy->lock);
+> > +	init_MUTEX(&policy->lock);
+> > +	down(&policy->lock);
+> > -
 > 
-> > hdb: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-> > hdb: media error (bad sector): error=0x30 { LastFailedSense=0x03 }
-> > ide: failed opcode was: unknown
->   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > end_request: I/O error, dev hdb, sector 1306960
-> > Buffer I/O error on device hdb, logical block 326740
+> If the semaphore is being used as a mutex, 
+> then it could be converted to an RT-mutex.
 > 
-> BTW: I believe this used to point to something useful rather than
-> to "unknown opcode". Is it just a bug or does it really not know
-> the opcode?
+> That would nicely side-step the problem.
+> 
+> Note this won't work if you are counting with the sema.
 
-For regular FS requests it really doesn't know ATA opcode...
-(on the TODO)
+Well it's not really a counter.  It's one of these situations where the
+semaphore is locked on init, later someone else ups it on a trigger, and
+then the most horrible, it gets down again on module exit! I'm not
+really sure what it is doing. The only place that an up is called is on
+the watchdog trigger.  I guess it's being used to not let you unload the
+module if the watchdog hasn't gone off yet, or something to that effect.
+
+-- Steve
+
+

@@ -1,46 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVHAQJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbVHAQM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbVHAQJa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 12:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbVHAQJa
+	id S262242AbVHAQM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 12:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVHAQJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 12:09:30 -0400
-Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:59822 "EHLO
-	gw02.mail.saunalahti.fi") by vger.kernel.org with ESMTP
-	id S262249AbVHAQJF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 12:09:05 -0400
-From: Jan Knutar <jk-lkml@sci.fi>
-To: Stefan Seyfried <seife@suse.de>
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-Date: Mon, 1 Aug 2005 19:07:31 +0300
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122852234.13000.27.camel@mindpipe> <dckikj$e8$1@sea.gmane.org>
-In-Reply-To: <dckikj$e8$1@sea.gmane.org>
+	Mon, 1 Aug 2005 12:09:39 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:16334 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262169AbVHAQHI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 12:07:08 -0400
+Date: Mon, 1 Aug 2005 09:06:59 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Alex Williamson <alex.williamson@hp.com>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org, tony.luck@intel.com
+Subject: Re: [PATCH] optimize writer path in time_interpolator_get_counter()
+In-Reply-To: <1122911571.5243.23.camel@tdi>
+Message-ID: <Pine.LNX.4.62.0508010906250.6397@schroedinger.engr.sgi.com>
+References: <1122911571.5243.23.camel@tdi>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508011907.32116.jk-lkml@sci.fi>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 01 August 2005 09:19, Stefan Seyfried wrote:
+Could we remove some code duplication?
 
-> > Any idea what their official recommendation for people running apps that
-> > require the 1ms sleep resolution is?  Something along the lines of "Get
-> > bent"?
-> 
-> MPlayer is using /dev/rtc and was running smooth for me since the good
-> old 2.4 days.
+--
 
-MPlayer cares more about unbroken sound drivers, since the video needs
-to run at the speed of your sound boards oscillator if you don't want sound
-and video to run at different rates.
-Unfortunately people use an almost random mix of alsa, alsa-lib and .asoundrc
-setups, including me, mplayer through dmix is one jitter-fest, mplayer straight
-to the alsa pcm device works better, but of course using the oss emulation
-seems to work best of all :-)
+   When using a time interpolator that is susceptible to jitter there's
+potentially contention over a cmpxchg used to prevent time from going
+backwards.  This is unnecessary when the caller holds the xtime write
+seqlock as all readers will be blocked from returning until the write is
+complete.  We can therefore allow writers to insert a new value and exit
+rather than fight with CPUs who only hold a reader lock.
 
-I never noticed any difference during 2.4 between using rtc and not using rtc.
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6/kernel/timer.c
+===================================================================
+--- linux-2.6.orig/kernel/timer.c	2005-07-27 18:29:24.000000000 -0700
++++ linux-2.6/kernel/timer.c	2005-08-01 09:04:21.000000000 -0700
+@@ -1428,7 +1428,7 @@
+ 	}
+ }
+ 
+-static inline u64 time_interpolator_get_counter(void)
++static inline u64 time_interpolator_get_counter(int writelock)
+ {
+ 	unsigned int src = time_interpolator->source;
+ 
+@@ -1442,6 +1442,15 @@
+ 			now = time_interpolator_get_cycles(src);
+ 			if (lcycle && time_after(lcycle, now))
+ 				return lcycle;
++
++			/* When holding the xtime write lock, there's no need
++			 * to add the overhead of the cmpxchg.  Readers are
++			 * force to retry until the write lock is released.
++			 */
++			if (writelock) {
++				time_interpolator->last_cycle = now;
++				return now;
++			}
+ 			/* Keep track of the last timer value returned. The use of cmpxchg here
+ 			 * will cause contention in an SMP environment.
+ 			 */
+@@ -1455,7 +1464,7 @@
+ void time_interpolator_reset(void)
+ {
+ 	time_interpolator->offset = 0;
+-	time_interpolator->last_counter = time_interpolator_get_counter();
++	time_interpolator->last_counter = time_interpolator_get_counter(1);
+ }
+ 
+ #define GET_TI_NSECS(count,i) (((((count) - i->last_counter) & (i)->mask) * (i)->nsec_per_cyc) >> (i)->shift)
+@@ -1467,7 +1476,7 @@
+ 		return 0;
+ 
+ 	return time_interpolator->offset +
+-		GET_TI_NSECS(time_interpolator_get_counter(), time_interpolator);
++		GET_TI_NSECS(time_interpolator_get_counter(0), time_interpolator);
+ }
+ 
+ #define INTERPOLATOR_ADJUST 65536
+@@ -1490,7 +1499,7 @@
+ 	 * and the tuning logic insures that.
+          */
+ 
+-	counter = time_interpolator_get_counter();
++	counter = time_interpolator_get_counter(1);
+ 	offset = time_interpolator->offset + GET_TI_NSECS(counter, time_interpolator);
+ 
+ 	if (delta_nsec < 0 || (unsigned long) delta_nsec < offset)

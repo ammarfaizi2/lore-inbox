@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVHASQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVHASS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbVHASQM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 14:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVHASQM
+	id S261459AbVHASS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 14:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVHASSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 14:16:12 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:15533 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261571AbVHASOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 14:14:15 -0400
-Date: Mon, 1 Aug 2005 11:13:57 -0700
-From: Greg KH <gregkh@suse.de>
-To: Jamey Hicks <jamey.hicks@hp.com>
-Cc: Andrey Volkov <avolkov@varma-el.com>,
-       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Where is place of arch independed companion chips?
-Message-ID: <20050801181357.GA31144@suse.de>
-References: <42EB6A12.70100@varma-el.com> <42EE15AF.5050902@hp.com>
+	Mon, 1 Aug 2005 14:18:55 -0400
+Received: from atpro.com ([12.161.0.3]:20487 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S261459AbVHASQx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 14:16:53 -0400
+From: "Jim Crilly" <jim@why.dont.jablowme.net>
+Date: Mon, 1 Aug 2005 14:16:27 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: James Bruce <bruce@andrew.cmu.edu>, Lee Revell <rlrevell@joe-job.com>,
+       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+Message-ID: <20050801181627.GA31947@voodoo>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	James Bruce <bruce@andrew.cmu.edu>,
+	Lee Revell <rlrevell@joe-job.com>,
+	Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
+References: <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz> <20050731220754.GE7362@voodoo> <20050731223616.GB27580@elf.ucw.cz> <20050801034940.GC24130@mail> <20050801072600.GM27580@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42EE15AF.5050902@hp.com>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050801072600.GM27580@elf.ucw.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 08:29:35AM -0400, Jamey Hicks wrote:
-> Andrey Volkov wrote:
-> 
-> >Hi Greg,
-> >
-> >While I write driver for SM501 CC (which have graphics controller, USB
-> >MASTER/SLAVE, AC97, UART, SPI  and VIDEO CAPTURE onboard),
-> >I bumped with next ambiguity:
-> >Where is a place of this chip's Kconfig/drivers in
-> >kernel config/drivers tree? May be create new node in drivers subtree?
-> >Or put it under graphics node (since it's main function of this CC)?
-> >
-> >AFAIK, this is not one such multifunctional monster in the world, so
-> >somebody bumped with this problem again in future.
-> >
+On 08/01/05 09:26:00AM +0200, Pavel Machek wrote:
 > > 
-> >
-> Good question.  I was about to submit a patch that created 
-> drivers/platform because the toplevel driver for MQ11xx is a 
-> platform_device driver.  Any thoughts on this?
+> > And there are older machines that won't boot with it enabled. The machine
+> > I'm typing this on has a really shitty ACPI implementation, I don't remember
+> > the details because it's been so long but I know that I have to disable ACPI 
+> > for it to work right.
+> 
+> If it was long ago, you probably want to try again and file a bug
+> report if still broken.
 
-drivers/platform sounds good to me.
+I may do that, but I don't need ACPI on the machine so I've just always
+disabled it and figured it was a BIOS problem that won't be fixed since
+there have been no BIOS updates for this board since '03.
 
-thanks,
+> 								Pavel
 
-greg k-h
+Jim.
+

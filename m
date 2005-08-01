@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVHAGyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVHAHCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVHAGyq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 02:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVHAGw5
+	id S262363AbVHAHCN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 03:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVHAHCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 02:52:57 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:15560 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S262393AbVHAGwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 02:52:34 -0400
-Message-ID: <42EDB89D.30209@ens-lyon.fr>
-Date: Mon, 01 Aug 2005 07:52:29 +0200
-From: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050623)
-X-Accept-Language: en-us, en
+	Mon, 1 Aug 2005 03:02:13 -0400
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:27055 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S262363AbVHAHCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 03:02:11 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Dave Airlie <airlied@gmail.com>, Pavel Machek <pavel@ucw.cz>,
+       ambx1@neo.rr.com, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Daniel Ritz <daniel.ritz@gmx.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: revert yenta free_irq on suspend
+References: <2e00842e116e.2e116e2e0084@columbus.rr.com>
+	<Pine.LNX.4.58.0507311550400.14342@g5.osdl.org>
+	<20050731230507.GE27580@elf.ucw.cz>
+	<Pine.LNX.4.58.0507311622510.14342@g5.osdl.org>
+	<20050731232735.GF27580@elf.ucw.cz>
+	<Pine.LNX.4.58.0507311635360.14342@g5.osdl.org>
+	<21d7e9970507311659259e5560@mail.gmail.com>
+	<21d7e9970507311659259e5560@mail.gmail.com>
+	<Pine.LNX.4.58.0507311709410.14342@g5.osdl.org>
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Date: 01 Aug 2005 08:01:58 +0100
+In-Reply-To: <Pine.LNX.4.58.0507311709410.14342@g5.osdl.org>
+Message-ID: <r67jf69m3d.fsf@skye.ra.phy.cam.ac.uk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc4-mm1
-References: <20050731020552.72623ad4.akpm@osdl.org>
-In-Reply-To: <20050731020552.72623ad4.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+> slow and steady progress
 
-I have this when I enable nfnetlink as a module :
+The oscillations are indeed discouraging.  For S3 sleep/wake on my TP
+600X:
 
-net/built-in.o: In function `ip_ct_port_tuple_to_nfattr':
-: undefined reference to `__nfa_fill'
-net/built-in.o: In function `ip_ct_port_tuple_to_nfattr':
-: undefined reference to `__nfa_fill'
-net/built-in.o: In function `tcp_to_nfattr':
-ip_conntrack_proto_tcp.c:(.text+0x5c557): undefined reference to
-`__nfa_fill'
-net/built-in.o: In function `icmp_tuple_to_nfattr':
-ip_conntrack_proto_icmp.c:(.text+0x5e1e2): undefined reference to
-`__nfa_fill'
-ip_conntrack_proto_icmp.c:(.text+0x5e221): undefined reference to
-`__nfa_fill'
-net/built-in.o:ip_conntrack_proto_icmp.c:(.text+0x5e25c): more undefined
-references to `__nfa_fill' follow
+2.6.11.4        : works well (the console was hosed with jittering text, but
+                  X restores fine), which hugely improved using my laptop.
+2.6.12.3        : ditto
 
-Relevant part of my .config :
+But:
 
-CONFIG_IP_NF_CONNTRACK_NETLINK=m
-CONFIG_NETFILTER_NETLINK=m
-# CONFIG_NETFILTER_NETLINK_QUEUE is not set
+2.6.13-rc3      : goes to sleep but hangs when waking up
+      -rc3-mm2  : same
+      -rc3-mm3  : same
+      -rc4-git3 : same
 
+With those 2.6.13 variants, once it has hung, the power switch will
+turn it off, but to turn it on I first have to unplug the power and
+remove both batteries.
 
-I am sorry, but I don't have time to investigate it further.
+On the good side, swsusp seems to be improving with later kernel
+versions.  No luck with 2.6.11.4; reasonable luck with 2.6.12.3; and
+good results with 2.6.13*.
 
-Regards,
-Alexandre
+-Sanjoy

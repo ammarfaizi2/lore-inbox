@@ -1,96 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVHAVDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVHAVHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVHAVDK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 17:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVHAVAs
+	id S261253AbVHAVHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 17:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVHAVE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:00:48 -0400
-Received: from mail.tmr.com ([64.65.253.246]:45009 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261161AbVHAU7H (ORCPT
+	Mon, 1 Aug 2005 17:04:59 -0400
+Received: from gold.veritas.com ([143.127.12.110]:25708 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S261253AbVHAVEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 16:59:07 -0400
-Message-ID: <42EE8F68.4050107@tmr.com>
-Date: Mon, 01 Aug 2005 17:08:56 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
+	Mon, 1 Aug 2005 17:04:39 -0400
+Date: Mon, 1 Aug 2005 22:06:15 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Roland McGrath <roland@redhat.com>, linux-mm@kvack.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <Pine.LNX.4.58.0508011250210.3341@g5.osdl.org>
+Message-ID: <Pine.LNX.4.61.0508012153570.6323@goblin.wat.veritas.com>
+References: <20050801032258.A465C180EC0@magilla.sf.frob.com>
+ <42EDDB82.1040900@yahoo.com.au> <20050801091956.GA3950@elte.hu>
+ <42EDEAFE.1090600@yahoo.com.au> <20050801101547.GA5016@elte.hu>
+ <42EE0021.3010208@yahoo.com.au> <Pine.LNX.4.61.0508012030050.5373@goblin.wat.veritas.com>
+ <Pine.LNX.4.58.0508011250210.3341@g5.osdl.org>
 MIME-Version: 1.0
-To: lgb@lgb.hu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel cached memory
-References: <003401c58ea2$4dfd76f0$5601010a@ashley> <20050722132523.GJ20995@vega.lgb.hu> <42E517B6.1010704@tmr.com> <20050801103835.GE28346@vega.lgb.hu>
-In-Reply-To: <20050801103835.GE28346@vega.lgb.hu>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 01 Aug 2005 21:04:35.0415 (UTC) FILETIME=[9EFB0670:01C596DC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gábor Lénárt wrote:
+On Mon, 1 Aug 2005, Linus Torvalds wrote:
+> On Mon, 1 Aug 2005, Hugh Dickins wrote:
+> > 
+> > > Aside, that brings up an interesting question - why should readonly
+> > > mappings of writeable files (with VM_MAYWRITE set) disallow ptrace
+> > > write access while readonly mappings of readonly files not? Or am I
+> > > horribly confused?
+> > 
+> > Either you or I.  You'll have to spell that out to me in more detail,
+> > I don't see it that way.
+> 
+> We have always just done a COW if it's read-only - even if it's shared.
+> 
+> The point being that if a process mapped did a read-only mapping, and a 
+> tracer wants to modify memory, the tracer is always allowed to do so, but 
+> it's _not_ going to write anything back to the filesystem.  Writing 
+> something back to an executable just because the user happened to mmap it 
+> with MAP_SHARED (but read-only) _and_ the user had the right to write to 
+> that fd is _not_ ok.
 
->On Mon, Jul 25, 2005 at 12:47:50PM -0400, Bill Davidsen wrote:
->  
->
->>Gábor Lénárt wrote:
->>    
->>
->>>On Fri, Jul 22, 2005 at 05:46:58PM +0800, Ashley wrote:
->>>
->>>      
->>>
->>>> I've a server with 2 Operton 64bit CPU and 12G memory, and this server 
->>>>is used to run  applications which will comsume huge memory,
->>>>the problem is: when this aplications exits,  the free memory of the 
->>>>server is still very low(accroding to the output of "top"), and
->>>>        
->>>>
->>>>from the output of command "free", I can see that many GB memory was 
->>>      
->>>
->>>>cached by kernel. Does anyone know how to free the kernel cached
->>>>memory? thanks in advance.
->>>>        
->>>>
->>>It's a very - very - very old and bad logic (at least nowdays) from the
->>>stone age to free up memory.
->>>      
->>>
->>It's very Microsoft to claim that the OS always knows best, and not let 
->>the user tune the system the way they want it tuned. And if that means 
->>to leave a bunch of free memory for absolute fastest availability, the 
->>admin should have that option.
->>    
->>
->
->Sure, sorry if my comment can be treated in this way ... I mean surprising
->amount of people I've met criticised Linux (well, some years ago when DOS
->was popular) that he/she want to see that 'free memory' field reported eg by
->'top' should be the maximum all the time ... I mean this way: this is the
->behaviour which is quite wrong, I've written about this.
->
->Sure, because of my not too good English, I may have missed the real meaning
->of the mail, sorry about it!
->
-Well, I thought I understood "from the stone age" but I may have taken 
-it slightly too literally. But I really would like to have more control 
-over Linux memory use, because it does cause bad behaviour at times. If 
-I have 4GB of RAM, I'd like to set 200MB or so aside for programs, and 
-never page out the window I'm going to uncover later. Likewise when I 
-write a DVD image, I would like to avoid buffering a few GB without i/o 
-and then driving the disk totally busy while it gets written out (after 
-it has pushed out things I will use again).
+I'll need to think that through, but not right now.  It's a surprise
+to me, and it's likely to surprise the current kernel too.  I'd prefer
+to say that if the executable was mapped shared from a writable fd,
+then the tracer will write back to it; but you're clearly against that.
+We may need to split the vma to handle your semantics correctly.
 
-The old 2.4.x-aa kernels had some tunables to make the kernel aggressive 
-about writing pages to disk quickly, and I haven't been able to match 
-that behaviour without patches in 2.6. I may be missing a tunable, but 
-swappiness doesn't seem to be the one I want. I have a patch I'm playing 
-with, but it's not ready for prime time, and is probably counter to the 
-current philosophy of memory management.
+> Using the dirty flag for a "page is _really_ writable" is admittedly kind
+> of hacky, but it does have the advantage of working even when the -real-
+> write bit isn't set due to "maybe_mkwrite()". If it forces the s390 people 
+> to add some more hacks for their strange VM, so be it..
 
-Thanks for clarifying.
+I'll concentrate on this for now.  s390 used to have the same semantics
+as everyone else, they made a conscious choice to diverge, and keep dirty
+bit in separate array indexed by struct page, and page_test_and_clear_dirty
+macro they use instead of clearing pte_dirty.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+It works all right, and I don't think it will prevent us communicating
+between maybe_mkwrite and get_user_pages by a pte flag that would be
+the usual pte_dirty on every other architecture.  Just need to be
+careful to handle the right one right.
 
+Hugh

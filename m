@@ -1,50 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVHAJBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVHAJHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbVHAJBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 05:01:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVHAJBJ
+	id S261723AbVHAJHf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 05:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVHAJHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 05:01:09 -0400
-Received: from gate.crashing.org ([63.228.1.57]:33431 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261856AbVHAI74 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 04:59:56 -0400
-Subject: Re: revert yenta free_irq on suspend
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Len Brown <len.brown@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Daniel Ritz <daniel.ritz@gmx.ch>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20050731212058.GC27433@elf.ucw.cz>
-References: <2e00842e116e.2e116e2e0084@columbus.rr.com>
-	 <20050731212058.GC27433@elf.ucw.cz>
-Content-Type: text/plain
-Date: Mon, 01 Aug 2005 10:56:14 +0200
-Message-Id: <1122886575.18835.113.camel@gaston>
+	Mon, 1 Aug 2005 05:07:35 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:17643
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S261723AbVHAJHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 05:07:33 -0400
+Date: Mon, 1 Aug 2005 05:06:33 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: vojtech@suse.cz
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: amd74xx (nforce) driver problem ?
+Message-ID: <20050801090633.GA12320@kevlar.burdell.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-07-31 at 23:20 +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > Also I'd like to point out that this patch broke APM suspend-to-ram,
-> > not ACPI S3.  IMO, it may not be possible to support both APM and ACPI
-> > on every system, as their specs are not intended to be compatible.
-> > Progress toward proper suspend-to-ram support will, in many cases, be
-> > a small setback for APM.  This really can't be avoided.
-> 
-> Actually, for APM, OS theoretically does *not* need to FREEZE the
-> devices (or do anything else). "Doing nothing" should be easy...
+Hi,
 
-Bullshit. See what happens if you try to APM suspend while a IDE DMA
-transfer is in progress ... 
+I have a system based on the Nforce2 chipset which uses the amd7xx
+driver for it's IDE support, and I noticed that one of the drives was
+performing very slowly.  I looked into it a bit more and it seems the
+drive was operating as UDMA33 instead of UDMA100 for some reason.
 
-Ben.
+The affected drive was getting about 20-25Mb/sec sequential read (dumb
+hdparm test) while a similar drive on the other channel was getting
+about 45-50 Mb/sec.  The drive on the other channel was operating at
+UDMA100.  Both drives are attached using the proper 80-wire cable.
+
+Kernel is 2.6.13-rc4 
+
+If I go into the bios and twiddle an "IDE Master" setting from the
+"none" to the "auto" setting then the driver operates at the expected
+speed. 
 
 
+I'm confused though why the driver never correctly set up that IDE
+channel?  It claims in the kernel log that it detected the BIOS
+borkage: 
+
+NFORCE2: IDE controller at PCI slot 0000:00:09.0
+NFORCE2: chipset revision 162
+NFORCE2: not 100% native mode: will probe irqs later
+NFORCE2: BIOS didn't set cable bits correctly. Enabling workaround.
+NFORCE2: 0000:00:09.0 (rev a2) UDMA133 controller
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+
+
+Shouldn't the driver set the channel to UDMA100 after it detects the BIOS
+set up the chip improperly, or am I mistaken about this behavior?  Isn't
+that the "workaround" or does that mean something else?
+
+Here is the output of /proc/ide/amd74xx:
+
+----------AMD BusMastering IDE Configuration----------------
+Driver Version:                     2.13
+South Bridge:                       0000:00:09.0
+Revision:                           IDE 0xa2
+Highest DMA rate:                   UDMA133
+BM-DMA base:                        0xf000
+PCI clock:                          33.3MHz
+-----------------------Primary IDE-------Secondary IDE------
+Prefetch Buffer:              yes                 yes
+Post Write Buffer:            yes                 yes
+Enabled:                      yes                 yes
+Simplex only:                  no                  no
+Cable Type:                   40w                 80w
+-------------------drive0----drive1----drive2----drive3-----
+Transfer Mode:       UDMA       DMA      UDMA       DMA
+Address Setup:       30ns      90ns      30ns      90ns
+Cmd Active:          90ns      90ns      90ns      90ns
+Cmd Recovery:        30ns      30ns      30ns      30ns
+Data Active:         90ns     330ns      90ns     330ns
+Data Recovery:       30ns     270ns      30ns     270ns
+Cycle Time:          60ns     600ns      20ns     600ns
+Transfer Rate:   33.3MB/s   3.3MB/s  99.9MB/s   3.3MB/s
+
+If I change all of my BIOS settings to "auto" then the drive operates
+at UDMA100 as expected and /proc/ide/amd74xx reports the 80-wire cable
+correctly and reports the transfer rates for drive0 correctly. 
+
+This isn't a major issue since I can fix it in the BIOS, but I just
+wanted to alert the maintainers.
+
+Thanks in advance,
+
+Sonny

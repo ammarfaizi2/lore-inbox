@@ -1,108 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVHAOsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVHAOvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbVHAOsc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 10:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVHAOsc
+	id S262104AbVHAOvx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 10:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbVHAOvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 10:48:32 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:7858 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S262212AbVHAOsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 10:48:21 -0400
-Date: Mon, 1 Aug 2005 16:48:20 +0200
-From: Sander <sander@humilis.net>
-To: "Dr. David Alan Gilbert" <dave@treblig.org>
-Cc: Sander <sander@humilis.net>,
-       "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: IO scheduling & filesystem v a few processes writing a lot
-Message-ID: <20050801144820.GC7686@favonius>
-Reply-To: sander@humilis.net
-References: <20050731163933.GB7280@gallifrey> <20050731191607.GA7186@favonius> <20050801085426.GA12516@gallifrey>
+	Mon, 1 Aug 2005 10:51:53 -0400
+Received: from styx.suse.cz ([82.119.242.94]:47069 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S262104AbVHAOvw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 10:51:52 -0400
+Date: Mon, 1 Aug 2005 16:51:51 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Paulo Marques <pmarques@grupopie.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Lee Revell <rlrevell@joe-job.com>, abonilla@linuxwireless.org,
+       linux-kernel@vger.kernel.org,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>,
+       Yani Ioannou <yani.ioannou@gmail.com>, Dave Hansen <dave@sr71.net>
+Subject: Re: IBM HDAPS, I need a tip.
+Message-ID: <20050801145151.GA26347@ucw.cz>
+References: <1122861215.11148.26.camel@localhost.localdomain> <1122872189.5299.1.camel@localhost.localdomain> <1122873057.15825.26.camel@mindpipe> <Pine.LNX.4.61.0508010844380.6353@yvahk01.tjqt.qr> <42EE1324.10304@grupopie.com> <Pine.LNX.4.61.0508010836020.30161@chaos.analogic.com> <20050801130902.GA23949@ucw.cz> <Pine.LNX.4.61.0508011002070.30306@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050801085426.GA12516@gallifrey>
-X-Uptime: 15:03:36 up 12 days,  4:22, 22 users,  load average: 1.02, 1.19, 1.61
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.61.0508011002070.30306@chaos.analogic.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dr. David Alan Gilbert wrote (ao):
-> * Sander (sander@humilis.net) wrote:
-> > Dr. David Alan Gilbert wrote (ao):
-> > > I was using rsync, but the problem with rsync is that I have
-> > > a back up server then filled with lots and lots of small files
-> > > - I want larger files for spooling to tape.
-> > > (Other suggestions welcome)
-> > 
-> > Can't you just tar the small files from the backupserver to tape? (or,
-> > what is the problem with that?).
-> 
-> Lots of small files->slow; it is an LTO-2 tape drive that is spec'd
-> at 35MByte/s - it won't get that if I'm feeding it from something
-> seeking all over.
+On Mon, Aug 01, 2005 at 10:22:57AM -0400, linux-os (Dick Johnson) wrote:
 
-ic. Sorry if the question is stupid, but is it bad not to reach
-35MB/sec?
+> Huh?  A laptop on the table is subjected to 1G on earth. If turned over,
+> is still subjected to 1G, although the sensor may show -1G. Unless
+> the correct k (calibration factor) is known, for each load direction,
+> it cannot be derived from +/- 1, the only readings you have, because
+> of the 1G bias of the load-cell itself.
 
-> > > write a lot more data.
-> > 
-> > You also do incremental backups?
-> 
-> I could - but they are a pain at restore time.
+The MEMS accelerometer measures the projection of the
+acceleration/gravity vector in two orthogonal directions.
 
-Well, bare metal restores are rare, and if you need to do one, IMHO one
-full restore and six incrementals (worst case, and with one full backup
-a week) are not that painful. Very IMHO of course. You could lessen the
-pain with incrementals_since_last_full (can't remember the correct term
-ATM).
+If you place the notebook on a horizontal table, the projection of
+gravity to both the directions measured will be zero, because the
+gravity vector is orthogonal to both of the directions.
 
-If you go with weekly fulls, you can almost have a single system per
-day streaming a full backup to your backupserver.
+Thus for each direction you get the value at -1, 0, and +1 G, and that's
+perfectly enough to get a calibration, as long as the accelerometer is
+linear, which MEMSes to a reasonable degree are.
 
-> > What mount options? And how many disks?
-> 
-> 7 active discs, raid5; mounted with noatime, nodiratime
+> A pair of load-cells mounted orthagonally, will show the accelleration
+> in 4 axis. However, you can't assume that if you held the mass at
+> a 45 degree angle, for instance, that both sensors would read
+> 0.707 (cos 45) or that if at 90, one pair would read 0.0
 
-Should perform at least a bit..
+Well, accelerometers are not load cells with a weight mounted to them,
+that's the thing.
 
-> > > Reiser3 is used because I couldn't get ext3 stable on a filesystem of
-> > > this size (-64ZByte free shown in df),
-> > 
-> > That is not a sign of instability per se AFAIK.
-> 
-> When I fsck it fixes it - this to me is an indication something is
-> wrong with the ondisc data; now it might only be the freespace totals
-> - but the fact that the disc contents are wrong makes me worry - I
-> don't like having to fsck a 1.5TB partition.
+> You need to calibrate using real values. With a sping-scale, and
+> some room to swing the device, you can readily obtain some accurate
+> load values.
 
-Yes, I understand.
-
-> > How is the cache configured in the bios?
-> 
-> Write cache is on in the 3ware bios as is the battery backup.
-
-According to the docs it is just 'enable' or 'disable'. I remember raid
-controllers (Intel?) which also have 'write through' or 'write back'.
-That was what I was looking for, but no such thing it seems.
-
-> > > I'm open for all suggestions.
-> >  
-> > Would it be possible to test software raid to see if that gives
-> > different numbers?
-> 
-> Erm I guess I could - but the controller does manage
-> 60/70MB/s write as a raw stream, so as far as I can tell if I can
-> persuade the kernel not to chop my writes into silly small
-> chunks things should be good.
-
-Yes, but if you can lift the performance at some point, it might get
-acceptable. You could for example also try a raid0 stripe across the 7
-disks.
-
-	Kind regards, Sander
+The Earth's gravity is a very well known real value.
 
 -- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Vojtech Pavlik
+SuSE Labs, SuSE CR

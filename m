@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVHAGYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVHAG0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbVHAGYX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 02:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVHAGYX
+	id S262341AbVHAG0P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 02:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVHAG0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 02:24:23 -0400
-Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:11211
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S262339AbVHAGYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 02:24:21 -0400
-Date: Mon, 1 Aug 2005 02:23:22 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: torvalds@osdl.org, akpm@osdl.org, anton@samba.org,
-       Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] POWER 4 fails to boot with NUMA
-Message-ID: <20050801062322.GA32415@kevlar.burdell.org>
-References: <17133.45774.226079.790875@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17133.45774.226079.790875@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 1 Aug 2005 02:26:14 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:14992 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262341AbVHAG0K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 02:26:10 -0400
+Date: Mon, 1 Aug 2005 08:25:58 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: 7eggert@gmx.de
+cc: karim@opersys.com, Ingo Oeser <ioe-lkml@rameria.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Average instruction length in x86-built kernel?
+In-Reply-To: <E1Dz3Pp-0000zu-6N@be1.lrz>
+Message-ID: <Pine.LNX.4.61.0508010819520.6353@yvahk01.tjqt.qr>
+References: <4vKU4-3sU-21@gated-at.bofh.it> <4w02Q-7e6-21@gated-at.bofh.it>
+ <4w5OQ-6Z9-25@gated-at.bofh.it> <E1Dz3Pp-0000zu-6N@be1.lrz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 12:27:42AM -0500, Paul Mackerras wrote:
-> From: Mike Kravetz <kravetz@us.ibm.com>
-> 
-> If CONFIG_NUMA is set, some POWER 4 systems will fail to boot.  This is
-> because of special processing needed to handle invalid node IDs (0xffff)
-> on POWER 4.  My previous patch to handle memory 'holes' within nodes
-> forgot to add this special case for POWER 4 in one place.
-> 
-> In reality, I'm not sure that configuring the kernel for NUMA on POWER 4
-> makes much sense.  Are there POWER 4 based systems with NUMA characteristics
-> that are presented by the firmware?  But, distros want one kernel for all
-> systems so NUMA is on by default in their kernels.  The patch handles those
-> cases.
 
-IIRC, In SMP mode the NUMA topology is exported.  I've tried this on a
-p690 and it worked correctly on older kernels (2.6.10 or 2.6.11) 
+>> Here's a script that does what I was looking for:
+><snip>
 
-I also noticed a nice speedup on a few things compared to LPAR mode :-)
+Mmmmh, perlgolf?
 
-Sonny
+>#!/bin/bash
+>for a in "$@"
+>do
+>        objdump -d "$a" -j .text 
+>done | perl -ne'
+>BEGIN{%h=();$b=0};
+>END{if($b){$h{$b}++};print map("$_: $h{$_}\n", sort(keys(%h)))};
+>if(/\tnop    $/){$h{nop}++}
+>elsif(/^[\s0-9a-f]{8}:\t([^\t]+) (\t?)/){
+> $b+=split(" ",$1);if($2){$h{$b}++;$b=0}}'
+
+objdump -j .text -d "$@" | perl -ne '
+END{$h{$b}++if$b;print map"$_: $h{$_}\n",sort keys%h};
+if(/\tnop\s*$/){$h{nop}++}    
+elsif(/^.*?:\t([^\t]+) (\t?)/){
+ $b+=split/ /,$1;if($2){$h{$b}++;$b=0}}'
+
+
+
+Jan Engelhardt
+-- 
+| Alphagate Systems, http://alphagate.hopto.org/

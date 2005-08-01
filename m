@@ -1,65 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVHAPlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVHAPpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVHAPlf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 11:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVHAPlP
+	id S262120AbVHAPpi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 11:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVHAPnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 11:41:15 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:58358 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S262120AbVHAPjE (ORCPT
+	Mon, 1 Aug 2005 11:43:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64450 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262226AbVHAPmy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 11:39:04 -0400
-Date: Tue, 2 Aug 2005 00:38:15 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] mips: remove obsolete GIU function call for vr41xx
-Message-Id: <20050802003815.27bee9ea.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Aug 2005 11:42:54 -0400
+Date: Mon, 1 Aug 2005 08:42:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Roland McGrath <roland@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-mm@kvack.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <42EDDB82.1040900@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0508010833250.14342@g5.osdl.org>
+References: <20050801032258.A465C180EC0@magilla.sf.frob.com>
+ <42EDDB82.1040900@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This patch has removed obsolete GIU function call for vr41xx.
-This patch already has been applied to mips tree.
-Please apply.
 
-Yoichi
+On Mon, 1 Aug 2005, Nick Piggin wrote:
+> 
+> Not sure if this should be fixed for 2.6.13. It can result in
+> pagecache corruption: so I guess that answers my own question.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Hell no.
 
-diff -urN -X dontdiff rc4-orig/arch/mips/pci/fixup-tb0219.c rc4/arch/mips/pci/fixup-tb0219.c
---- rc4-orig/arch/mips/pci/fixup-tb0219.c	2005-07-29 07:44:44.000000000 +0900
-+++ rc4/arch/mips/pci/fixup-tb0219.c	2005-07-30 01:23:53.000000000 +0900
-@@ -29,27 +29,12 @@
- 
- 	switch (slot) {
- 	case 12:
--		vr41xx_set_irq_trigger(TB0219_PCI_SLOT1_PIN,
--				       TRIGGER_LEVEL,
--				       SIGNAL_THROUGH);
--		vr41xx_set_irq_level(TB0219_PCI_SLOT1_PIN,
--				     LEVEL_LOW);
- 		irq = TB0219_PCI_SLOT1_IRQ;
- 		break;
- 	case 13:
--		vr41xx_set_irq_trigger(TB0219_PCI_SLOT2_PIN,
--				       TRIGGER_LEVEL,
--				       SIGNAL_THROUGH);
--		vr41xx_set_irq_level(TB0219_PCI_SLOT2_PIN,
--				     LEVEL_LOW);
- 		irq = TB0219_PCI_SLOT2_IRQ;
- 		break;
- 	case 14:
--		vr41xx_set_irq_trigger(TB0219_PCI_SLOT3_PIN,
--				       TRIGGER_LEVEL,
--				       SIGNAL_THROUGH);
--		vr41xx_set_irq_level(TB0219_PCI_SLOT3_PIN,
--				     LEVEL_LOW);
- 		irq = TB0219_PCI_SLOT3_IRQ;
- 		break;
- 	default:
+This patch is clearly untested and must _not_ be applied:
+
++                               case VM_FAULT_RACE:
++                                       /*
++                                        * Someone else got there first.
++                                        * Must retry before we can assume
++                                        * that we have actually performed
++                                        * the write fault (below).
++                                        */
++                                       if (write)
++                                               continue;
++                                       break;
+
+that "continue" will continue without the spinlock held, and now do 
+follow_page() will run without page_table_lock, _and_ it will release the 
+spinlock once more afterwards, so if somebody else is racing on this, we 
+might remove the spinlock for them too.
+
+Don't do it.
+
+Instead, I'd suggest changing the logic for "lookup_write". Make it 
+require that the page table entry is _dirty_ (not writable), and then 
+remove the line that says:
+
+	lookup_write = write && !force;
+
+and you're now done. A successful mm fault for write _should_ always have 
+marked the PTE dirty (and yes, part of testing this would be to verify 
+that this is true - but since architectures that don't have HW dirty 
+bits depend on this anyway, I'm pretty sure it _is_ true).
+
+Ie something like the below (which is totally untested, obviously, but I 
+think conceptually is a lot more correct, and obviously a lot simpler).
+
+		Linus
+
+----
+diff --git a/mm/memory.c b/mm/memory.c
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -811,18 +811,15 @@ static struct page *__follow_page(struct
+ 	pte = *ptep;
+ 	pte_unmap(ptep);
+ 	if (pte_present(pte)) {
+-		if (write && !pte_write(pte))
++		if (write && !pte_dirty(pte))
+ 			goto out;
+ 		if (read && !pte_read(pte))
+ 			goto out;
+ 		pfn = pte_pfn(pte);
+ 		if (pfn_valid(pfn)) {
+ 			page = pfn_to_page(pfn);
+-			if (accessed) {
+-				if (write && !pte_dirty(pte) &&!PageDirty(page))
+-					set_page_dirty(page);
++			if (accessed)
+ 				mark_page_accessed(page);
+-			}
+ 			return page;
+ 		}
+ 	}
+@@ -972,14 +969,6 @@ int get_user_pages(struct task_struct *t
+ 				default:
+ 					BUG();
+ 				}
+-				/*
+-				 * Now that we have performed a write fault
+-				 * and surely no longer have a shared page we
+-				 * shouldn't write, we shouldn't ignore an
+-				 * unwritable page in the page table if
+-				 * we are forcing write access.
+-				 */
+-				lookup_write = write && !force;
+ 				spin_lock(&mm->page_table_lock);
+ 			}
+ 			if (pages) {

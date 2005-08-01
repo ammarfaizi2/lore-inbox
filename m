@@ -1,40 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVHATiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVHATlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVHATiv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 15:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVHATiu
+	id S261177AbVHATlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 15:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVHATlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 15:38:50 -0400
-Received: from mx1.suse.de ([195.135.220.2]:59026 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261177AbVHAThN (ORCPT
+	Mon, 1 Aug 2005 15:41:24 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:46278 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S261177AbVHATkI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 15:37:13 -0400
-Date: Mon, 1 Aug 2005 21:37:12 +0200
-From: Olaf Hering <olh@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH] remove device_suspend calls in sys_reboot path
-Message-ID: <20050801193712.GA30605@suse.de>
-References: <200506260105.j5Q15eBj021334@hera.kernel.org> <20050801151956.GA29448@suse.de> <20050801161039.GA29705@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Mon, 1 Aug 2005 15:40:08 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Adam Belay <ambx1@neo.rr.com>
+Subject: [PATCH] PNP: make pnp_dbg conditional directly on CONFIG_PNP_DEBUG
+Date: Mon, 1 Aug 2005 13:39:59 -0600
+User-Agent: KMail/1.8.1
+Cc: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050801161039.GA29705@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Message-Id: <200508011339.59604.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Aug 01, Olaf Hering wrote:
+Seems pointless to require .c files to test CONFIG_PNP_DEBUG and
+conditionally define DEBUG before including <linux/pnp.h>.  Just
+test CONFIG_PNP_DEBUG directly in pnp.h.
 
-> 
-> A recent change for 'case LINUX_REBOOT_CMD_POWER_OFF' causes an endless
-> hang after 'halt -p' on my Macs with USB keyboard.
-> It went into rc1, but the hang in an usb device (1-1.3) shows up only
-> with rc3. Why is device_suspend() called anyway if the
-> system will go down anyway in a few milliseconds?
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-After reading last weeks sys_reboot thread, I'm not sure if this patch
-is correct. But halt -p should work again in 2.6.13, so we need
-something. Perhaps USB is broken now.
+Index: work/drivers/pnp/card.c
+===================================================================
+--- work.orig/drivers/pnp/card.c	2005-08-01 09:53:38.000000000 -0600
++++ work/drivers/pnp/card.c	2005-08-01 10:04:44.000000000 -0600
+@@ -8,13 +8,6 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+-
+-#ifdef CONFIG_PNP_DEBUG
+-	#define DEBUG
+-#else
+-	#undef DEBUG
+-#endif
+-
+ #include <linux/pnp.h>
+ #include "base.h"
+ 
+Index: work/drivers/pnp/driver.c
+===================================================================
+--- work.orig/drivers/pnp/driver.c	2005-08-01 09:53:38.000000000 -0600
++++ work/drivers/pnp/driver.c	2005-08-01 10:04:44.000000000 -0600
+@@ -11,13 +11,6 @@
+ #include <linux/module.h>
+ #include <linux/ctype.h>
+ #include <linux/slab.h>
+-
+-#ifdef CONFIG_PNP_DEBUG
+-	#define DEBUG
+-#else
+-	#undef DEBUG
+-#endif
+-
+ #include <linux/pnp.h>
+ #include "base.h"
+ 
+Index: work/drivers/pnp/manager.c
+===================================================================
+--- work.orig/drivers/pnp/manager.c	2005-08-01 09:53:38.000000000 -0600
++++ work/drivers/pnp/manager.c	2005-08-01 10:04:44.000000000 -0600
+@@ -11,13 +11,6 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+-
+-#ifdef CONFIG_PNP_DEBUG
+-	#define DEBUG
+-#else
+-	#undef DEBUG
+-#endif
+-
+ #include <linux/pnp.h>
+ #include "base.h"
+ 
+Index: work/drivers/pnp/quirks.c
+===================================================================
+--- work.orig/drivers/pnp/quirks.c	2005-08-01 09:53:38.000000000 -0600
++++ work/drivers/pnp/quirks.c	2005-08-01 10:04:44.000000000 -0600
+@@ -16,13 +16,6 @@
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+ #include <linux/slab.h>
+-
+-#ifdef CONFIG_PNP_DEBUG
+-	#define DEBUG
+-#else
+-	#undef DEBUG
+-#endif
+-
+ #include <linux/pnp.h>
+ #include "base.h"
+ 
+Index: work/drivers/pnp/support.c
+===================================================================
+--- work.orig/drivers/pnp/support.c	2005-08-01 09:53:38.000000000 -0600
++++ work/drivers/pnp/support.c	2005-08-01 10:04:44.000000000 -0600
+@@ -8,13 +8,6 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/ctype.h>
+-
+-#ifdef CONFIG_PNP_DEBUG
+-	#define DEBUG
+-#else
+-	#undef DEBUG
+-#endif
+-
+ #include <linux/pnp.h>
+ #include "base.h"
+ 
+Index: work/include/linux/pnp.h
+===================================================================
+--- work.orig/include/linux/pnp.h	2005-08-01 09:53:38.000000000 -0600
++++ work/include/linux/pnp.h	2005-08-01 10:04:44.000000000 -0600
+@@ -443,7 +443,7 @@
+ #define pnp_info(format, arg...) printk(KERN_INFO "pnp: " format "\n" , ## arg)
+ #define pnp_warn(format, arg...) printk(KERN_WARNING "pnp: " format "\n" , ## arg)
+ 
+-#ifdef DEBUG
++#ifdef CONFIG_PNP_DEBUG
+ #define pnp_dbg(format, arg...) printk(KERN_DEBUG "pnp: " format "\n" , ## arg)
+ #else
+ #define pnp_dbg(format, arg...) do {} while (0)
+Index: work/drivers/pnp/pnpacpi/core.c
+===================================================================
+--- work.orig/drivers/pnp/pnpacpi/core.c	2005-08-01 10:04:44.000000000 -0600
++++ work/drivers/pnp/pnpacpi/core.c	2005-08-01 10:16:42.000000000 -0600
+@@ -19,6 +19,7 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ 
++#include <linux/config.h>
+ #include <linux/acpi.h>
+ #include <linux/pnp.h>
+ #include <acpi/acpi_bus.h>

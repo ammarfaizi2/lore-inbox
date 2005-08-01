@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVHAEai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVHAEb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbVHAEai (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 00:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVHAEad
+	id S262083AbVHAEb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 00:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVHAEbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 00:30:33 -0400
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:12285 "EHLO
+	Mon, 1 Aug 2005 00:31:53 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:61437 "EHLO
 	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S262047AbVHAEaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 00:30:30 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Netdev List <netdev@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] net driver fixes
-References: <42ED5F30.2080907@pobox.com>
-	<Pine.LNX.4.58.0507311649460.14342@g5.osdl.org>
+	id S262083AbVHAEbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 00:31:01 -0400
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove support for gcc < 3.2
+References: <20050731222606.GL3608@stusta.de>
 From: Miles Bader <miles@lsi.nec.co.jp>
 Reply-To: Miles Bader <miles@gnu.org>
 System-Type: i686-pc-linux-gnu
 Blat: Foop
-Date: Mon, 01 Aug 2005 13:30:13 +0900
-In-Reply-To: <Pine.LNX.4.58.0507311649460.14342@g5.osdl.org> (Linus Torvalds's message of "Sun, 31 Jul 2005 16:50:30 -0700 (PDT)")
-Message-Id: <buovf2qb7oq.fsf@mctpc71.ucom.lsi.nec.co.jp>
+Date: Mon, 01 Aug 2005 13:27:17 +0900
+In-Reply-To: <20050731222606.GL3608@stusta.de> (Adrian Bunk's message of "Mon, 1 Aug 2005 00:26:07 +0200")
+Message-Id: <buo1x5ecme2.fsf@mctpc71.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
-> Ugh. It's not like we want people saying "Hi there" in our changelogs.
+Adrian Bunk <bunk@stusta.de> writes:
+> This patch removes support for gcc < 3.2 .
 
-Well the _occasional_ friendly greeting might be kinda nice...
+Go away.
 
 -miles
-
-hi mom!
 -- 
-Ich bin ein Virus. Mach' mit und kopiere mich in Deine .signature. fnord.
+"Suppose He doesn't give a shit?  Suppose there is a God but He
+just doesn't give a shit?"  [George Carlin]

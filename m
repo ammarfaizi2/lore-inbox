@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVHAB7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVHACCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbVHAB7t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Jul 2005 21:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVHAB7t
+	id S261893AbVHACCO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Jul 2005 22:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVHACCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Jul 2005 21:59:49 -0400
-Received: from smtpout.mac.com ([17.250.248.72]:4051 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261904AbVHAB7Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Jul 2005 21:59:16 -0400
-In-Reply-To: <20050731223247.GA27580@elf.ucw.cz>
-References: <20050730004924.087a7630.Ballarin.Marc@gmx.de> <1122678943.9381.44.camel@mindpipe> <20050730120645.77a33a34.Ballarin.Marc@gmx.de> <1122746718.14769.4.camel@mindpipe> <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz> <1122846092.13000.4.camel@mindpipe> <20050731223247.GA27580@elf.ucw.cz>
-Mime-Version: 1.0 (Apple Message framework v733)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0189F287-9F45-4E03-B1F3-B76AEA36DDEB@mac.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, James Bruce <bruce@andrew.cmu.edu>,
-       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-Date: Sun, 31 Jul 2005 21:59:03 -0400
-To: Pavel Machek <pavel@ucw.cz>
-X-Mailer: Apple Mail (2.733)
+	Sun, 31 Jul 2005 22:02:14 -0400
+Received: from science.horizon.com ([192.35.100.1]:9522 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S261893AbVHACAJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Jul 2005 22:00:09 -0400
+Date: 31 Jul 2005 22:00:04 -0400
+Message-ID: <20050801020004.6965.qmail@science.horizon.com>
+From: linux@horizon.com
+To: richard@rsk.demon.co.uk
+Subject: Re: [PATCH] speed up on find_first_bit for i386 (let compiler do the work)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 31, 2005, at 18:32:47, Pavel Machek wrote:
+> static inline int new_find_first_bit(const unsigned long *b, unsigned size)
+> {
+> 	int x = 0;
+> 	do {
+> 		unsigned long v = *b++;
+> 		if (v)
+> 			return __ffs(v) + x;
+> 		if (x >= size)
+> 			break;
+> 		x += 32;
+> 	} while (1);
+> 	return x;
+> }
 
-> and cpufreq is usefull to keep your desktop cold, too.
->
+Wait a minute... suppose that size == 32 and the bitmap is one word of all
+zeros.  Dynamic execution will overflow the buffer:
 
-But I don't want my desktop cold!!!  That would ruin its usefulness as a
-400W dorm space-heater!!! :-D
+ 	int x = 0;
+ 		unsigned long v = *b++;	/* Zero */
 
-*starts boinc client running in the background*
+ 		if (v)			/* False, v == 0 */
+ 		if (x >= size)		/* False, 0 < 32 */
+ 		x += 32;
+ 	} while (1);
+ 		unsigned long v = *b++;	/* Buffer overflow */
+ 		if (v)			/* Random value, suppose non-zero */
+			return __ffs(v) + x;	/* >= 32 */
 
+That should be:
+static inline int new_find_first_bit(const unsigned long *b, unsigned size)
+	int x = 0;
+ 	do {
+ 		unsigned long v = *b++;
+ 		if (v)
+ 			return __ffs(v) + x;
+	} while ((x += 32) < size);
+	return size;
+}
 
-Cheers,
-Kyle Moffett
+Note that we assume that the trailing long is padded with zeros.
 
---
-There are two ways of constructing a software design. One way is to  
-make it so
-simple that there are obviously no deficiencies. And the other way is  
-to make
-it so complicated that there are no obvious deficiencies.  The first  
-method is
-far more difficult.
-   -- C.A.R. Hoare
+In truth, it should probably be either
 
+static inline unsigned new_find_first_bit(u32 const *b, unsigned size)
+	int x = 0;
+ 	do {
+ 		u32 v = *b++;
+ 		if (v)
+ 			return __ffs(v) + x;
+	} while ((x += 32) < size);
+	return size;
+}
 
+or
 
+static inline unsigned
+new_find_first_bit(unsigned long const *b, unsigned size)
+	unsigned x = 0;
+ 	do {
+ 		unsigned long v = *b++;
+ 		if (v)
+ 			return __ffs(v) + x;
+	} while ((x += CHAR_BIT * sizeof *b) < size);
+	return size;
+}
+
+Do we actually store bitmaps on 64-bit machines with 32 significant bits
+per ulong?

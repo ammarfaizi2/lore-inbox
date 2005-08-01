@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVHAR4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVHASAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVHAR4c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 13:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVHAR4c
+	id S261322AbVHASAW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 14:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVHASAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 13:56:32 -0400
-Received: from mx3.mail.ru ([194.67.23.149]:46121 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id S261321AbVHAR4b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 13:56:31 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: cpufreq on Toshiba Portege 4000?
-Date: Mon, 1 Aug 2005 21:56:17 +0400
-User-Agent: KMail/1.8.2
+	Mon, 1 Aug 2005 14:00:22 -0400
+Received: from host27-37.discord.birch.net ([65.16.27.37]:12251 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S261329AbVHASAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 14:00:19 -0400
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: ECC Support in Linux
+Date: Mon, 1 Aug 2005 13:03:34 -0500
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5795647.O5IBBJG9Lb";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200508012156.18271.arvidjaar@mail.ru>
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <1122770777.5473.1.camel@mindpipe>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+thread-index: AcWVYScVlFczGOAoSh+wY4AHhffe4wBYWoBw
+Message-ID: <EXCHG2003DbH8J0sca0000007f8@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 01 Aug 2005 16:57:55.0642 (UTC) FILETIME=[29A0E1A0:01C596BA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5795647.O5IBBJG9Lb
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+ 
 
-Toshiba documentation claims it supports speedstep technology. It has Ali=20
-chipset and PIII CPU:
+I have had a fair amount of trouble with the limited support
+for ecc reporting on higher end dual and quad cpu servers as
+the reporting is pretty weak.
 
-{pts/1}% lspci
-00:00.0 Host bridge: ALi Corporation M1644/M1644T Northbridge+Trident (rev =
-01)
-00:01.0 PCI bridge: ALi Corporation PCI to AGP Controller
-00:02.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
-00:04.0 IDE interface: ALi Corporation M5229 IDE (rev c3)
-00:06.0 Multimedia audio controller: ALi Corporation M5451 PCI AC-Link=20
-Controller Audio Device (rev 01)
-00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV]
-00:08.0 Bridge: ALi Corporation M7101 Power Management Controller [PMU]
-=2E..
-{pts/1}% cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 10
-cpu MHz         : 747.738
-cache size      : 256 KB
-=2E..
+On the opterons I can tell which cpu gets errors, but mcelog
+does not isolate things down to the dimm level properly, is
+there a way to do this sort of thing?   I am talking about most
+of the whitebox type motherboards.
 
-Any cnahce to use cpufreq (or compatible) technique here?
+On the newer Intels I have not found any useable ECC support
+is there any in the kernels?
 
-TIA
+I can test a variety of hardware if someone needs it, and can
+probably even come up with some test memory that will generate ecc
+errors.
 
-=2Dandrey
+                     Roger   
 
---nextPart5795647.O5IBBJG9Lb
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBC7mJCR6LMutpd94wRAn4KAJ4gWqn9S8+NV4nf6WRj1o9QOlG1lACfRNkL
-Mf83bfo3N0ME0DRjJGXmK4o=
-=4k9S
------END PGP SIGNATURE-----
-
---nextPart5795647.O5IBBJG9Lb--

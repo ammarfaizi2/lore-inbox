@@ -1,62 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVHARB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVHARDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbVHARB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 13:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVHARBZ
+	id S261303AbVHARDH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 13:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVHARDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 13:01:25 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53258 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261294AbVHARBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 13:01:24 -0400
-Date: Mon, 1 Aug 2005 18:01:20 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3: cache flush missing from somewhere
-Message-ID: <20050801180119.E14401@flint.arm.linux.org.uk>
-Mail-Followup-To: Catalin Marinas <catalin.marinas@arm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org
-References: <20050729161343.A18249@flint.arm.linux.org.uk> <20050730.124052.104057695.davem@davemloft.net> <tnxzms1c0bf.fsf@arm.com> <20050801174030.C14401@flint.arm.linux.org.uk> <tnxzms1a986.fsf@arm.com>
+	Mon, 1 Aug 2005 13:03:07 -0400
+Received: from [81.92.212.1] ([81.92.212.1]:41735 "EHLO zmail.pt")
+	by vger.kernel.org with ESMTP id S261398AbVHARDC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 13:03:02 -0400
+Subject: Re: [BUG] Tulip for ULi M5263: No packets transmitted
+From: Ricardo Bugalho <ricardo.b@zmail.pt>
+To: jbenc@suse.cz
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <1122317171.7713.9.camel@localhost>
+References: <1122146524.7275.22.camel@localhost>
+	 <20050725141644.66ba4021@griffin.suse.cz>
+	 <1122317171.7713.9.camel@localhost>
+Content-Type: text/plain
+Date: Mon, 01 Aug 2005 18:01:37 +0100
+Message-Id: <1122915697.7024.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <tnxzms1a986.fsf@arm.com>; from catalin.marinas@arm.com on Mon, Aug 01, 2005 at 05:54:33PM +0100
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: ricardo.b@zmail.pt
+X-Spam-Processed: smtp.zmail.pt, Mon, 01 Aug 2005 18:01:06 +0100
+	(not processed: spam filter disabled)
+X-Return-Path: ricardo.b@zmail.pt
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: ricardo.b@zmail.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 05:54:33PM +0100, Catalin Marinas wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > On Mon, Aug 01, 2005 at 01:24:04PM +0100, Catalin Marinas wrote:
-> >> "David S. Miller" <davem@davemloft.net> wrote:
-> >> > If one cpu stores, does it get picked up in the other cpu's I-cache?
-> >> 
-> >> It only gets picked up by the other CPU's D-cache (which is fully
-> >> coherent between cores). The I-cache needs to be invalidated on each
-> >> CPU.
-> >
-> > Are you sure about this requirement?  I see no evidence of it in Harry's
-> > patch set.
-> 
-> I asked the people that know more about this architecture than me and
-> they confirmed that this is a requirement. I will double check
-> tomorrow with the people that did the initial Linux support.
-> 
-> I haven't checked the original patch but it might work (by luck)
-> without the I-cache invalidation (and without stressing it too
-> much). This is because you might do a full mm flush when a process
-> exits and the I-cache would be clean for newly allocated pages (only
-> the D-cache needs flushing). If you don't overload memory, you don't
-> get pages swapped-out/removed and the code in a page for a given
-> process might remain unchanged until the process exits.
+Hello again.
+An update: the patch you suggested combined with a bios update have
+fixed the remaining issues. All is peachy now.
+Thanks everyone.
 
-Given that it's sometimes going wrong as early as the first process, I
-doubt this is what's happening.  The i-cache will be clean at this point
-for the userspace programs.
-
+On Mon, 2005-07-25 at 19:46 +0100, Ricardo Bugalho wrote:
+> Hello,
+> yes it does help. Thanks.
+> Still not perfect though, it gives a warning, reports to be working on
+> half-duplex and I can't use mii-tool with it.
+> 
+> Here's the dmesg output (2.6.12.3 + patch):
+> Linux Tulip driver version 1.1.13 (May 11, 2002)
+> ACPI: PCI Interrupt 0000:00:0d.0[A] -> GSI 17 (level, low) -> IRQ 17
+> tulip0:  EEPROM default media type Autosense.
+> tulip0:  Index #0 - Media MII (#11) described by a 21140 MII PHY (1)
+> block.
+> tulip0:  Index #1 - Media 10baseT (#0) described by a <unknown> (128)
+> block.
+> tulip0:  Index #2 - Media 10baseT (#0) described by a 21140 non-MII (0)
+> block.
+> tulip0:  Index #3 - Media 10base2 (#1) described by a 21140 non-MII (0)
+> block.
+> tulip0:  Index #4 - Media 10baseT-FDX (#4) described by a 21140 non-MII
+> (0) block.
+> tulip0:  Index #5 - Media 100baseTx-FDX (#5) described by a 21140
+> non-MII (0) block.
+> tulip0: ***WARNING***: No MII transceiver found!
+> eth0: ULi M5261/M5263 rev 64 at f884cc00, 00:0B:6A:D1:FC:B9, IRQ 17.
+> ...
+> eth0: Setting half-duplex based on MII#1 link partner capability of
+> ffff.
+> ...
+> 
+> When I try to run mii-tool, it yields: 
+> # mii-tool eth0
+> SIOCGMIIPHY on 'eth0' failed: No such device
+> 
+> 
+> On Mon, 2005-07-25 at 14:16 +0200, Jiri Benc wrote:
+> 
+> > Does tulip-fixes-for-uli5261.patch from -mm tree help?
+> > 
+> 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+        Ricardo
+

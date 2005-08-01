@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVHAIuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVHAIvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbVHAIuO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 04:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVHAIuN
+	id S261720AbVHAIvv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 04:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVHAIvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 04:50:13 -0400
-Received: from NAT.office.mind.be ([62.166.230.82]:42142 "EHLO
-	NAT.office.mind.be") by vger.kernel.org with ESMTP id S261666AbVHAIuM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 04:50:12 -0400
-Date: Mon, 1 Aug 2005 10:50:04 +0200
-From: Jan Veldeman <jan.veldeman@advalvas.be>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: domen@coderock.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/5] Driver core: Documentation: use snprintf and strnlen
-Message-ID: <20050801085004.GA25253@eros.intern.mind.be>
-References: <20050731111213.636613000@homer> <200507312025.54600.ioe-lkml@rameria.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200507312025.54600.ioe-lkml@rameria.de>
-User-Agent: Mutt/1.3.28i
+	Mon, 1 Aug 2005 04:51:51 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:31374 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S261720AbVHAIvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 04:51:37 -0400
+To: "Brown, Len" <len.brown@intel.com>
+Cc: <linux-kernel@vger.kernel.org>, "Russell King" <rmk+lkml@arm.linux.org.uk>,
+       "Hugh Dickins" <hugh@veritas.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Dominik Brodowski" <linux@dominikbrodowski.net>,
+       "Daniel Ritz" <daniel.ritz@gmx.ch>, torvalds@osdl.org
+Subject: Re: revert yenta free_irq on suspend
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
+Date: Mon, 1 Aug 2005 09:51:27 +0100
+Message-Id: <E1DzW19-0005hd-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Brown, Len <len.brown@intel.com> wrote:
 
-Ingo Oeser wrote:
+> But that believe would be total fantasy -- supsend/resume is not
+> working on a large number of machines, and no distro is currently
+> able to support it.  (I'm talking about S3 suspend to RAM primarily,
+> suspend to disk is less interesting -- though Red Hat doesn't
+> even support _that_)
 
-> On Sunday 31 July 2005 13:12, domen@coderock.org wrote:
-> > From: Jan Veldeman <jan@mind.be>
-> > Documentation should give the good example of using snprintf and
-> > strnlen in stead of sprintf and strlen.
-> > 
-> > PAGE_SIZE is used as the maximal length to reflect the behaviour of
-> > show/store.
-> 
-> The whole part of the Documentation is obsoleted by the fact,
-> that struct device has no structure member called "name".
-> 
-> People hacking sysfs should also try to hack the docu to match or
-> at least remove the obsolete parts of it.
-> 
-> So you can drop this patch altogether, I think.
-> 
-> 
+It's still failing on a large number of machines, but it's working on a
+larger set. We (Ubuntu) shipped with suspend to RAM support in our
+previous release. Frankly, at this stage the three biggest problems are:
 
-Even though the example doesn't work (the comment below the example even
-indicates it shouldn't be done), I would suggest to still apply this
-patch, as it shows the good usage of snprintf in stead of sprintf:
+a) resuming video (not going to be fixed in the ACPI core)
+b) SATA resume (not going to be fixed in the ACPI core)
+c) Motherboard chipsets that don't seem to be programmed to handle
+memory refresh (not going to be fixed in the ACPI core)
 
-Somebody who looks at the documentation will certainly change the
-contents of the attribute (this is by all means the reason for such an
-example), but will not likely change the way sprintf is used.
-
-Best regards,
-Jan
-
-
+People /do/ use this code, and breaking a large number of working setups
+in order to fix a bug that appears on a small number of setups (and can
+be worked around in a rather less invasive way) isn't sensible.
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

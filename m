@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVHAUgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVHAUmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVHAUgv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 16:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVHAUe5
+	id S261222AbVHAUmE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 16:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVHAUja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 16:34:57 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:37801 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261226AbVHAUdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 16:33:16 -0400
-Message-Id: <20050801203011.290911000@araj-em64t>
-References: <20050801202017.043754000@araj-em64t>
-Date: Mon, 01 Aug 2005 13:20:21 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@muc.de>,
-       zwane@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: [patch 4/8] x86_64:Fix cluster mode send_IPI_allbutself to use get_cpu()/put_cpu()
-Content-Disposition: inline; filename=fix-cluster-allbutself-ipi
+	Mon, 1 Aug 2005 16:39:30 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:32175 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261253AbVHAUiT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 16:38:19 -0400
+Date: Mon, 1 Aug 2005 16:38:18 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       Mirko Lindner <mlindner@syskonnect.de>
+Cc: akpm@osdl.org
+Subject: Re: skge missing ifdefs.
+Message-ID: <20050801203818.GA7497@havoc.gtf.org>
+References: <20050801203442.GD2473@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050801203442.GD2473@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Need to ensure we dont get prempted when we clear ourself from mask when using
-clustered mode genapic code.
+On Mon, Aug 01, 2005 at 04:34:42PM -0400, Dave Jones wrote:
+> with CONFIG_PM undefined, the build breaks due to 
+> undefined symbols.
 
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
----------------------------------------------------------
- arch/x86_64/kernel/genapic_cluster.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletion(-)
+akpm already sent a fix to Linus.
 
-Index: linux-2.6.13-rc4-mm1/arch/x86_64/kernel/genapic_cluster.c
-===================================================================
---- linux-2.6.13-rc4-mm1.orig/arch/x86_64/kernel/genapic_cluster.c
-+++ linux-2.6.13-rc4-mm1/arch/x86_64/kernel/genapic_cluster.c
-@@ -72,10 +72,14 @@ static void cluster_send_IPI_mask(cpumas
- static void cluster_send_IPI_allbutself(int vector)
- {
- 	cpumask_t mask = cpu_online_map;
--	cpu_clear(smp_processor_id(), mask);
-+	int me = get_cpu(); /* Ensure we are not preempted when we clear */
-+
-+	cpu_clear(me, mask);
- 
- 	if (!cpus_empty(mask))
- 		cluster_send_IPI_mask(mask, vector);
-+
-+	put_cpu();
- }
- 
- static void cluster_send_IPI_all(int vector)
+	Jeff
 
---
+
 

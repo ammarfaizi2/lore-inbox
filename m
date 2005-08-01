@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVHAIvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVHAIxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVHAIvv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 04:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVHAIvv
+	id S261770AbVHAIxx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 04:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVHAIxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 04:51:51 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:31374 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S261720AbVHAIvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 04:51:37 -0400
-To: "Brown, Len" <len.brown@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "Hugh Dickins" <hugh@veritas.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Dominik Brodowski" <linux@dominikbrodowski.net>,
-       "Daniel Ritz" <daniel.ritz@gmx.ch>, torvalds@osdl.org
+	Mon, 1 Aug 2005 04:53:53 -0400
+Received: from gate.crashing.org ([63.228.1.57]:27799 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261770AbVHAIxm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 04:53:42 -0400
 Subject: Re: revert yenta free_irq on suspend
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3004311E37@hdsmsx401.amr.corp.intel.com>
-Date: Mon, 1 Aug 2005 09:51:27 +0100
-Message-Id: <E1DzW19-0005hd-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: abelay@novell.com
+Cc: Len Brown <len.brown@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Daniel Ritz <daniel.ritz@gmx.ch>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       Pavel Machek <pavel@ucw.cz>, Dave Airlie <airlied@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <2e55d42e7427.2e74272e55d4@columbus.rr.com>
+References: <2e55d42e7427.2e74272e55d4@columbus.rr.com>
+Content-Type: text/plain
+Date: Mon, 01 Aug 2005 10:49:48 +0200
+Message-Id: <1122886189.18835.109.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brown, Len <len.brown@intel.com> wrote:
+On Sun, 2005-07-31 at 23:03 -0400, ambx1@neo.rr.com wrote:
 
-> But that believe would be total fantasy -- supsend/resume is not
-> working on a large number of machines, and no distro is currently
-> able to support it.  (I'm talking about S3 suspend to RAM primarily,
-> suspend to disk is less interesting -- though Red Hat doesn't
-> even support _that_)
+> Also, as I said earlier, the better we support OSPM initiated power
+> management, the more likely APM will break.  This may be technically
+> unavoidable on some isolated boxes without quirks.  I agree with
+> Pavel that "do nothing" may make sense, but it seems some devices
+> may still need to be disabled by the OS.  As a real world example,
+> we currently can't turn off cardbus bridges because it breaks APM
+> on a couple of older laptops.
 
-It's still failing on a large number of machines, but it's working on a
-larger set. We (Ubuntu) shipped with suspend to RAM support in our
-previous release. Frankly, at this stage the three biggest problems are:
+Won't freeing of IRQs cause problems with things like handhelds that
+actually rely on an interrupt to wake up ?
 
-a) resuming video (not going to be fixed in the ACPI core)
-b) SATA resume (not going to be fixed in the ACPI core)
-c) Motherboard chipsets that don't seem to be programmed to handle
-memory refresh (not going to be fixed in the ACPI core)
+Ben.
 
-People /do/ use this code, and breaking a large number of working setups
-in order to fix a bug that appears on a small number of setups (and can
-be worked around in a rather less invasive way) isn't sensible.
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+

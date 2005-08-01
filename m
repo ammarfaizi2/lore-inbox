@@ -1,147 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVHATlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVHATnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVHATlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 15:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVHATlY
+	id S261192AbVHATnp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 15:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVHATno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 15:41:24 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:46278 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S261177AbVHATkI (ORCPT
+	Mon, 1 Aug 2005 15:43:44 -0400
+Received: from gold.veritas.com ([143.127.12.110]:48738 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S261195AbVHATlv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 15:40:08 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Adam Belay <ambx1@neo.rr.com>
-Subject: [PATCH] PNP: make pnp_dbg conditional directly on CONFIG_PNP_DEBUG
-Date: Mon, 1 Aug 2005 13:39:59 -0600
-User-Agent: KMail/1.8.1
-Cc: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
+	Mon, 1 Aug 2005 15:41:51 -0400
+Date: Mon, 1 Aug 2005 20:43:30 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Ingo Molnar <mingo@elte.hu>, Robin Holt <holt@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Roland McGrath <roland@redhat.com>, linux-mm@kvack.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <42EE0021.3010208@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0508012030050.5373@goblin.wat.veritas.com>
+References: <20050801032258.A465C180EC0@magilla.sf.frob.com>
+ <42EDDB82.1040900@yahoo.com.au> <20050801091956.GA3950@elte.hu>
+ <42EDEAFE.1090600@yahoo.com.au> <20050801101547.GA5016@elte.hu>
+ <42EE0021.3010208@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508011339.59604.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 01 Aug 2005 19:41:49.0703 (UTC) FILETIME=[0F2F8170:01C596D1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems pointless to require .c files to test CONFIG_PNP_DEBUG and
-conditionally define DEBUG before including <linux/pnp.h>.  Just
-test CONFIG_PNP_DEBUG directly in pnp.h.
+On Mon, 1 Aug 2005, Nick Piggin wrote:
+> Ingo Molnar wrote:
+> > Hugh's posting said:
+> > 
+> > "it's trying to avoid an endless loop of finding the pte not writable 
+> > when ptrace is modifying a page which the user is currently protected
+> > against writing to (setting a breakpoint in readonly text, perhaps?)"
+> > 
+> > i'm wondering, why should that case generate an infinite fault? The first
+> > write access should copy the shared-library page into a private page and
+> > map it into the task's MM, writable. If this make-writable 
+> 
+> It will be mapped readonly.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Yes.  Sorry to leave you so long pondering over my words!
 
-Index: work/drivers/pnp/card.c
-===================================================================
---- work.orig/drivers/pnp/card.c	2005-08-01 09:53:38.000000000 -0600
-+++ work/drivers/pnp/card.c	2005-08-01 10:04:44.000000000 -0600
-@@ -8,13 +8,6 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/slab.h>
--
--#ifdef CONFIG_PNP_DEBUG
--	#define DEBUG
--#else
--	#undef DEBUG
--#endif
--
- #include <linux/pnp.h>
- #include "base.h"
- 
-Index: work/drivers/pnp/driver.c
-===================================================================
---- work.orig/drivers/pnp/driver.c	2005-08-01 09:53:38.000000000 -0600
-+++ work/drivers/pnp/driver.c	2005-08-01 10:04:44.000000000 -0600
-@@ -11,13 +11,6 @@
- #include <linux/module.h>
- #include <linux/ctype.h>
- #include <linux/slab.h>
--
--#ifdef CONFIG_PNP_DEBUG
--	#define DEBUG
--#else
--	#undef DEBUG
--#endif
--
- #include <linux/pnp.h>
- #include "base.h"
- 
-Index: work/drivers/pnp/manager.c
-===================================================================
---- work.orig/drivers/pnp/manager.c	2005-08-01 09:53:38.000000000 -0600
-+++ work/drivers/pnp/manager.c	2005-08-01 10:04:44.000000000 -0600
-@@ -11,13 +11,6 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/kernel.h>
--
--#ifdef CONFIG_PNP_DEBUG
--	#define DEBUG
--#else
--	#undef DEBUG
--#endif
--
- #include <linux/pnp.h>
- #include "base.h"
- 
-Index: work/drivers/pnp/quirks.c
-===================================================================
---- work.orig/drivers/pnp/quirks.c	2005-08-01 09:53:38.000000000 -0600
-+++ work/drivers/pnp/quirks.c	2005-08-01 10:04:44.000000000 -0600
-@@ -16,13 +16,6 @@
- #include <linux/kernel.h>
- #include <linux/string.h>
- #include <linux/slab.h>
--
--#ifdef CONFIG_PNP_DEBUG
--	#define DEBUG
--#else
--	#undef DEBUG
--#endif
--
- #include <linux/pnp.h>
- #include "base.h"
- 
-Index: work/drivers/pnp/support.c
-===================================================================
---- work.orig/drivers/pnp/support.c	2005-08-01 09:53:38.000000000 -0600
-+++ work/drivers/pnp/support.c	2005-08-01 10:04:44.000000000 -0600
-@@ -8,13 +8,6 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/ctype.h>
--
--#ifdef CONFIG_PNP_DEBUG
--	#define DEBUG
--#else
--	#undef DEBUG
--#endif
--
- #include <linux/pnp.h>
- #include "base.h"
- 
-Index: work/include/linux/pnp.h
-===================================================================
---- work.orig/include/linux/pnp.h	2005-08-01 09:53:38.000000000 -0600
-+++ work/include/linux/pnp.h	2005-08-01 10:04:44.000000000 -0600
-@@ -443,7 +443,7 @@
- #define pnp_info(format, arg...) printk(KERN_INFO "pnp: " format "\n" , ## arg)
- #define pnp_warn(format, arg...) printk(KERN_WARNING "pnp: " format "\n" , ## arg)
- 
--#ifdef DEBUG
-+#ifdef CONFIG_PNP_DEBUG
- #define pnp_dbg(format, arg...) printk(KERN_DEBUG "pnp: " format "\n" , ## arg)
- #else
- #define pnp_dbg(format, arg...) do {} while (0)
-Index: work/drivers/pnp/pnpacpi/core.c
-===================================================================
---- work.orig/drivers/pnp/pnpacpi/core.c	2005-08-01 10:04:44.000000000 -0600
-+++ work/drivers/pnp/pnpacpi/core.c	2005-08-01 10:16:42.000000000 -0600
-@@ -19,6 +19,7 @@
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
- 
-+#include <linux/config.h>
- #include <linux/acpi.h>
- #include <linux/pnp.h>
- #include <acpi/acpi_bus.h>
+> > operation races with a read access then we return a minor fault and the
+> > page is still readonly, but retrying the write should then break up the
+> > COW protection and generate a writable page, and a subsequent
+> > follow_page() success. If the page cannot be made writable, shouldnt the
+> > vma flags reflect this fact by not having the VM_MAYWRITE flag, and hence
+> > get_user_pages() should have returned with -EFAULT earlier?
+> 
+> If it cannot be written to, then yes. If it can be written to
+> but is mapped readonly then you have the problem.
+
+Yes.  The problem case is the one where "maybe_mkwrite" finds !VM_WRITE
+and so doesn't set writable (but as Linus has observed, dirty is set).
+
+I'm no expert on that case, was just guessing its use, I think Robin
+determined that Roland is the expert on it; but what's very clear is
+that it's intentional, allowing strace to write where the user cannot
+currently write.
+
+> Aside, that brings up an interesting question - why should readonly
+> mappings of writeable files (with VM_MAYWRITE set) disallow ptrace
+> write access while readonly mappings of readonly files not? Or am I
+> horribly confused?
+
+Either you or I.  You'll have to spell that out to me in more detail,
+I don't see it that way.
+
+What I do see and am slightly disturbed by, is that do_wp_page on a
+shared maywrite but not currently writable area, will go the break
+cow route in mainline, and has done so forever; whereas my page_mkwrite
+fixes in -mm inadvertently change that to go the the reuse route.
+
+I think my inadvertent change is correct, and the current behaviour
+(putting anonymous pages into a shared vma) is surprising, and may
+have bad consequences (would at least get the overcommit accounting
+wrong).
+
+Hugh

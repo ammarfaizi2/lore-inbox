@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVHAVtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVHAVtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbVHAVtw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 17:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVHAVMz
+	id S261262AbVHAVtv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 17:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVHAVNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:12:55 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:3749 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261274AbVHAVLp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:11:45 -0400
-Date: Mon, 1 Aug 2005 23:12:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org
+	Mon, 1 Aug 2005 17:13:00 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:50933 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261252AbVHAVKp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 17:10:45 -0400
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-Message-ID: <20050801211227.GA21566@elte.hu>
-References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins> <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe> <20050731063852.GA611@elte.hu> <1122871521.15825.13.camel@mindpipe> <20050801210829.GB21465@elte.hu>
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050801205208.GA20731@elte.hu>
+References: <20050730160345.GA3584@elte.hu>
+	 <1122920564.6759.15.camel@localhost.localdomain>
+	 <20050801205208.GA20731@elte.hu>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Mon, 01 Aug 2005 14:09:41 -0700
+Message-Id: <1122930581.4623.10.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050801210829.GB21465@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> * Lee Revell <rlrevell@joe-job.com> wrote:
+On Mon, 2005-08-01 at 22:52 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-> > On Sun, 2005-07-31 at 08:38 +0200, Ingo Molnar wrote:
-> > > ok - i've uploaded the -52-04 patch, does that fix it for you?
+> > Ingo,
 > > 
-> > Has anyone found their PS2 keyboard rather sluggish with this kernel? 
-> > I'm not sure whether it's an -RT problem, I'll have to try rc4.
+> > What's with the "BUG: possible soft lockup detected on CPU..."? I'm 
+> > getting a bunch of them from the IDE interrupt.  It's not locking up, 
+> > but it does things that probably do take some time.  Is this really 
+> > necessary? Here's an example dump:
+> 
+> doh - it's Daniel not Cc:-ing lkml when sending me patches, so people 
+> dont know what's going on ...
+> 
+> here's the patch below. Could you try to revert it?
 
-There was one irq-redirection change done recently, i've undone it in 
--52-09, does it work any better?
+You guys want me to always CC in the future? 
 
-	Ingo
+Daniel
+

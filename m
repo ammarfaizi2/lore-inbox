@@ -1,112 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVHAIDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVHAIIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbVHAIDi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 04:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVHAIDi
+	id S261979AbVHAIIz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 04:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVHAIIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 04:03:38 -0400
-Received: from web30301.mail.mud.yahoo.com ([68.142.200.94]:35691 "HELO
-	web30301.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261879AbVHAICz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 04:02:55 -0400
+	Mon, 1 Aug 2005 04:08:55 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:11346 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262045AbVHAIHb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 04:07:31 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=RUi+sLmX0tBz79fG77Q7by+cbx56QfJrnT6xpxECGxdDQ9h9RyThdyzWIaBnryazc7w2qNI7EPGh0CxAso+XX5xm9l6uOAXX3vnn+2GCNkAaYQKS/3tPsmcpTJ/n9eFpNjHI1EMxQU/jHRWUTJm3DtzHp45JT0k7dM3FkvL4/Y8=  ;
-Message-ID: <20050801080246.76594.qmail@web30301.mail.mud.yahoo.com>
-Date: Mon, 1 Aug 2005 09:02:46 +0100 (BST)
-From: Mark Underwood <basicmark@yahoo.com>
-Subject: How do we handle multi-function devices? [was Re: [patch] ucb1x00: touchscreen cleanups]
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Pavel Machek <pavel@ucw.cz>,
-       Arjan Van de Ven <arjanv@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1122849209.7626.16.camel@localhost.localdomain>
-MIME-Version: 1.0
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GQzdVwJXOBq7hbDUVCbklbR8VrAsu/GgKIAiAWznqex1UKCNZf9W6MlX9z2QllfFvDstwSRGr1RtohRUWW5XDnkV8763GgWDf0RPUKhqxSdA14R4kQzX45qHimxCatftF4Z39colXVonl/KsBFfx0BTHE9tUAsn7fKhkRFy4f+I=
+Message-ID: <25381867050801010710af48d6@mail.gmail.com>
+Date: Mon, 1 Aug 2005 04:07:29 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+To: abonilla@linuxwireless.org
+Subject: Re: IBM HDAPS, I need a tip.
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       hdaps devel <hdaps-devel@lists.sourceforge.net>,
+       Dave Hansen <dave@sr71.net>, Jan Engelhardt <jengelh@linux01.gwdg.de>
+In-Reply-To: <Pine.LNX.4.61.0508010844380.6353@yvahk01.tjqt.qr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1122861215.11148.26.camel@localhost.localdomain>
+	 <1122872189.5299.1.camel@localhost.localdomain>
+	 <1122873057.15825.26.camel@mindpipe>
+	 <Pine.LNX.4.61.0508010844380.6353@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Well don't forget there is a bios 'calibration' routine that you will
+see on start up (especially if you are on a moving vehicle/train).
+What is this calibration used for, and does it provide calibration
+information to the windows driver? Could we use it somehow to help
+solve this problem?
 
---- Richard Purdie <rpurdie@rpsys.net> wrote:
+Yani
 
-> On Sun, 2005-07-31 at 23:11 +0100, Mark Underwood
-> wrote:
-> > As this isn't the only chip of this sort (i.e. a
-> > multi-function chip not on the CPU bus) maybe we
-> > should store the bus driver in a common place. If
-> > needed we could have a very simple bus driver
-> > subsystem (this might already be in the kernel, I
-> > haven't looked at the bus stuff) in which you
-> register
-> > a bus driver and client drivers register with the
-> bus
-> > driver. Just an idea :-).
+On 8/1/05, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 > 
-> This was the idea with the drivers/soc suggestion
-> although I think that
-> name is perhaps misleading.
+> >So in order to calibrate it you need a readily available source of
+> >constant acceleration, preferably with a known value.
+> >
+> >Hint: -9.8 m/sec^2.
 > 
-> How about drivers/mfd where mfd = Multi Functional
-> Devices?
-
-I was thinking of something like driver/bus into which
-we might also be able to put the I2C and LL3 buses.
-The only problem is that this might leave some parts
-of the multi function chip homeless (if they can't
-find a home in other subsystems).
-
-> 
-> I think it would be acceptable (and in keeping with
-> the other drivers
-> e.g. pcmcia) to seeing the arch and platform
-> specific modules with the
-> main driver as long as the naming reflected it (like
-> the existing mcp
-> and ucb code does) i.e.:
-> 
-> mcp-core.c
-> mcp-sa1100.c
-> ucb1x00-code.c
-> ucb1x00-assabet.c
-> ucb1x00-collie.c
-
-Maybe, I haven't looked at pcmcia but the I2C
-subsystem manages to avoid any arch dependent stuff so
-couldn't we? I need to do more homework ;-), but
-surely we only need a bus driver (IP block specific,
-platform and arch independent), a core driver to
-register busses and clients, and client drivers.
-
-> 
-> If code can be separated out into subsystems, I'm
-> not so sure where they
-> should go though. The existing policy would suggest
-> drivers/input/touchscreen and sound/xxx for these...
-> 
-> ucb1x00-ts.c
-> ucb1x00-audio.c
-
-Yes, any function of a multi function device that can
-live in a subsystem should do otherwise imagine the
-mess, for example, with a chip that has a USB master
-on it.
-
-Mark
-
-> 
-> Opinions/Comments?
-> 
-> Richard
+> Drop it out of the window? :)
 > 
 > 
-
-
-
-	
-	
-		
-___________________________________________________________ 
-Yahoo! Messenger - NEW crystal clear PC to PC calling worldwide with voicemail http://uk.messenger.yahoo.com
+> 
+> Jan Engelhardt
+> --
+>

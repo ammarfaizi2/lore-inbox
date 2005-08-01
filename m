@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVHAXYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVHAXaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVHAXYW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 19:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVHAXYW
+	id S261332AbVHAXaE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 19:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVHAXaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 19:24:22 -0400
-Received: from graphe.net ([209.204.138.32]:20924 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261336AbVHAXYU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 19:24:20 -0400
-Date: Mon, 1 Aug 2005 16:24:19 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Paul Jackson <pj@sgi.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-Subject: Re: [PATCH] String conversions for memory policy
-In-Reply-To: <20050801160351.71ee630a.pj@sgi.com>
-Message-ID: <Pine.LNX.4.62.0508011618120.9351@graphe.net>
-References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
- <20050729152049.4b172d78.pj@sgi.com> <Pine.LNX.4.62.0507291746000.8663@graphe.net>
- <20050729230026.1aa27e14.pj@sgi.com> <Pine.LNX.4.62.0507301042420.26355@graphe.net>
- <20050730181418.65caed1f.pj@sgi.com> <Pine.LNX.4.62.0507301814540.31359@graphe.net>
- <20050730190126.6bec9186.pj@sgi.com> <Pine.LNX.4.62.0507301904420.31882@graphe.net>
- <20050730191228.15b71533.pj@sgi.com> <Pine.LNX.4.62.0508011147030.5541@graphe.net>
- <20050801160351.71ee630a.pj@sgi.com>
+	Mon, 1 Aug 2005 19:30:04 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:44274 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261332AbVHAXaC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 19:30:02 -0400
+Message-ID: <42EEB004.4040601@mvista.com>
+Date: Mon, 01 Aug 2005 16:28:04 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+To: greg <ustrel@free.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Clock resolution / RT preemption
+References: <42EDD473.3010308@free.fr>
+In-Reply-To: <42EDD473.3010308@free.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Aug 2005, Paul Jackson wrote:
+greg wrote:
+> Hi folks,
+> 
+> I'm looking for a timer resolution lower than 1 ms (and monotonic clock 
+> rate) destined to be used with some network code running on x86 
+> platforms. Would you please provide me with informations about how to 
+> get/implement this.
+> 
+> AFAIK, there's a "high resultion timer" patch hanging around, but 
+> there's not much informations with regard to portability (specific 
+> hardware requirements ?), scalability, integration with RT patches.
+> I understand the POSIX 1003.1b Clocks and Timers system calls are not 
+> fully available within the linux kernel (and libc ?), am I right on that ?
 
-> In your related patch, you show how to merge this display of mempolicy
-> into the new /proc/<pid>/smap (rss size of each memory area) file.
-> But this smap file (or, as you renamed it, emap file) is read-only,
-> so far as I can tell.  It enables display of information, but not
-> changing it.  How do you propose to support changing a memory policy?
+On the HRT web site (see signature) there is a CVS repository.  In there 
+is a special version for the RT kernel.  As to porting it to other 
+archs, have a look at the include/linux/hrtimer.h file.  It has (or 
+should have) all you need to know.  Please pass back any port you do.
+> 
+> One more question : I believe Ingo's preemption patch run 
+> timers/interrupt handlers within kernel threads, how should I assign 
+> specific priority to address my goals without compromising system 
+> stability ?
 
-That is not clear yet. We need to discuss that. First I thought of just
-having a patch that creates /proc/<pid>/numa_policy which allows
-to read and write the process policy (write via notifier not directly).
+Carefully :)
 
-> that other half should not also be used to display memory policies,
-> instead of adapting smap aka emap.
-
-e/smap is a generic way to get information about storage use of a vma. 
-Therefore displaying numa node information etc there makes a lot of 
-sense.
-
-> Would it be better to have two files, the first of which has one of
-> the strings:
-
-Yes. I initially had something like that in mind and have a partial 
-implementation but such an approach gets extremely complicated and 
-difficult to handle since you need to create multiple 
-levels of directories in /proc/<pid>/xx. It is easier to obtain the 
-complete memory information from a single file. We already have that in 
-/proc/<pid>/maps.
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

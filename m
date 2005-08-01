@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVHAUmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVHAUvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVHAUmD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 16:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVHAUjm
+	id S261260AbVHAUvT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 16:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVHAUvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 16:39:42 -0400
-Received: from graphe.net ([209.204.138.32]:25303 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261241AbVHAUgw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 16:36:52 -0400
-Date: Mon, 1 Aug 2005 13:36:46 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Richard Purdie <rpurdie@rpsys.net>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rc3-mm3
-In-Reply-To: <1122926537.7648.105.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0508011335090.7011@graphe.net>
-References: <20050728025840.0596b9cb.akpm@osdl.org> 
- <1122860603.7626.32.camel@localhost.localdomain>  <Pine.LNX.4.62.0508010908530.3546@graphe.net>
- <1122926537.7648.105.camel@localhost.localdomain>
+	Mon, 1 Aug 2005 16:51:15 -0400
+Received: from silver.veritas.com ([143.127.12.111]:15384 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S261260AbVHAUuI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 16:50:08 -0400
+Date: Mon, 1 Aug 2005 21:51:48 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: nickpiggin@yahoo.com.au, holt@sgi.com, torvalds@osdl.org, mingo@elte.hu,
+       roland@redhat.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <20050801131240.4e8b1873.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0508012144590.6323@goblin.wat.veritas.com>
+References: <20050801032258.A465C180EC0@magilla.sf.frob.com>
+ <42EDDB82.1040900@yahoo.com.au> <Pine.LNX.4.61.0508012045050.5373@goblin.wat.veritas.com>
+ <20050801131240.4e8b1873.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+X-OriginalArrivalTime: 01 Aug 2005 20:50:07.0603 (UTC) FILETIME=[99B96C30:01C596DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Aug 2005, Richard Purdie wrote:
-
-> > Is this related to the size of the process? Can you do a successful kernel 
-> > compile w/o X?
+On Mon, 1 Aug 2005, Andrew Morton wrote:
+> static inline int handle_mm_fault(...)
+> {
+> 	int ret = __handle_mm_fault(...);
 > 
-> Its an embedded device and lacks development tools to test that. I ran
-> some programs which abuse malloc and the process would quite happily hit
-> oom so it looks like something more is needed to trigger the bug...
+> 	if (unlikely(ret == VM_FAULT_RACE))
+> 		ret = VM_FAULT_MINOR;
+> 	return ret;
+> }
+> because VM_FAULT_RACE is some internal private thing.
+> It does add another test-n-branch to the pagefault path though.
 
-Could you get me some more information about the hang? A stacktrace would 
-be useful.
+Good idea, at least to avoid changing all arches at this moment;
+though I don't think handle_mm_fault itself can be static inline.
 
-Well the device is able to run X so I guess that a slow kernel compile 
-would work. At least the embedded device that I used to work on was 
-capable of doing that (but then we had Debian on that thing which made 
-doing stuff like that very easy).
+But let's set this VM_FAULT_RACE approach aside for now: I think
+we're agreed that the pte_dirty-with-mods-to-s390 route is more
+attractive, so I'll now try to find fault with that approach.
 
+Hugh

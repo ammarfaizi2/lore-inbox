@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVHAVkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVHAVo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbVHAVkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 17:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVHAViQ
+	id S261174AbVHAVo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 17:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVHAVm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 17:38:16 -0400
-Received: from thunk.org ([69.25.196.29]:37587 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261295AbVHAVfg (ORCPT
+	Mon, 1 Aug 2005 17:42:56 -0400
+Received: from graphe.net ([209.204.138.32]:17831 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261296AbVHAVko (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 17:35:36 -0400
-Date: Mon, 1 Aug 2005 16:42:45 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: David Weinehall <tao@acc.umu.se>, Lee Revell <rlrevell@joe-job.com>,
-       Pavel Machek <pavel@ucw.cz>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-Message-ID: <20050801204245.GC17258@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	James Bruce <bruce@andrew.cmu.edu>,
-	David Weinehall <tao@acc.umu.se>, Lee Revell <rlrevell@joe-job.com>,
-	Pavel Machek <pavel@ucw.cz>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz> <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz> <1122852234.13000.27.camel@mindpipe> <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42EE4B4A.80602@andrew.cmu.edu>
-User-Agent: Mutt/1.5.9i
+	Mon, 1 Aug 2005 17:40:44 -0400
+Date: Mon, 1 Aug 2005 14:40:39 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Richard Purdie <rpurdie@rpsys.net>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-rc3-mm3
+In-Reply-To: <1122931637.7648.125.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0508011438010.7888@graphe.net>
+References: <20050728025840.0596b9cb.akpm@osdl.org> 
+ <1122860603.7626.32.camel@localhost.localdomain>  <Pine.LNX.4.62.0508010908530.3546@graphe.net>
+  <1122926537.7648.105.camel@localhost.localdomain> 
+ <Pine.LNX.4.62.0508011335090.7011@graphe.net>  <1122930474.7648.119.camel@localhost.localdomain>
+  <Pine.LNX.4.62.0508011414480.7574@graphe.net> <1122931637.7648.125.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 01, 2005 at 12:18:18PM -0400, James Bruce wrote:
+On Mon, 1 Aug 2005, Richard Purdie wrote:
+
+> > IP Not changing? Could it be in a loop doing faults for the same memory 
+> > location that you cannot observe with gdb? Or is there some hardware fault 
+> > that has stopped the processor?
 > 
-> The tradeoff is a realistic 4.4% power savings vs a 300% increase in the 
-> minimum sleep period.  A user will see zero power savings if they have a 
-> USB mouse (probably 99% of desktops).  On top of that, we can throw in 
-> Con's disturbing AV benchmark results (1).  As a result, some of us 
-> don't think 250HZ is a great tradeoff to make _for_the_default_value_.
+> I'm not the worlds most experienced user of gdb but I can't see any
+> evidence of a hardware fault and the processor shows all indications of
+> running. It seems likely to be looping with memory faults or otherwise
+> jammed somehow.
 
-Most laptops (including mine, a Thinkpad T40) use a PS/2 mouse.  So in
-the places where power consumption savins matters most, it's usually
-quite possible to function without needing any USB devices.  The 90%
-figure isn't at all right; in fact, it may be that over 90% of the
-laptops still use PS/2 mice and keyboards.
+Can you run kgdb on it to figure out what is going on?
 
-						- Ted
+> Is there anything I can use in /proc to monitor page faults or anything
+> I can do with gdb to help narrow this down?
+
+Run kgdb and see what is going on in the fault handler.
+
+There are some variables in /proc/vmstat that may help:
+
+spurious_page_faults 0
+cmpxchg_fail_flag_update 0
+cmpxchg_fail_flag_reuse 0
+cmpxchg_fail_anon_read 0
+cmpxchg_fail_anon_write 0
+
+etc.
+
+

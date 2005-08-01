@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVHAKij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVHAK6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbVHAKij (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 06:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVHAKii
+	id S262114AbVHAK6V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 06:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVHAK6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 06:38:38 -0400
-Received: from b.relay.invitel.net ([62.77.203.4]:461 "EHLO
-	b.relay.invitel.net") by vger.kernel.org with ESMTP id S262085AbVHAKii
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 06:38:38 -0400
-Date: Mon, 1 Aug 2005 12:38:35 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel cached memory
-Message-ID: <20050801103835.GE28346@vega.lgb.hu>
-Reply-To: lgb@lgb.hu
-References: <003401c58ea2$4dfd76f0$5601010a@ashley> <20050722132523.GJ20995@vega.lgb.hu> <42E517B6.1010704@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42E517B6.1010704@tmr.com>
-X-Operating-System: vega Linux 2.6.11.11-grsec-vega i686
-User-Agent: Mutt/1.5.9i
+	Mon, 1 Aug 2005 06:58:20 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:4968 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262114AbVHAK5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Aug 2005 06:57:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=g/ZZwTLGZXQfV7+/0Nzd/ew7GfajSByYpwBffmgnxuLspTZbLpySihQ8Rd2qla/iYZFCvMFFRy0/T79TMZfuf0VMWJcmTX4xdLlAz4c+/S006pHZdMM6VvS+erfOssg8L+sGKtGNOjXXIOlxT5WMkmWfC//LYrR2I0bz83NJ3hQ=  ;
+Message-ID: <42EE0021.3010208@yahoo.com.au>
+Date: Mon, 01 Aug 2005 20:57:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Robin Holt <holt@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Roland McGrath <roland@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+References: <20050801032258.A465C180EC0@magilla.sf.frob.com> <42EDDB82.1040900@yahoo.com.au> <20050801091956.GA3950@elte.hu> <42EDEAFE.1090600@yahoo.com.au> <20050801101547.GA5016@elte.hu>
+In-Reply-To: <20050801101547.GA5016@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 25, 2005 at 12:47:50PM -0400, Bill Davidsen wrote:
-> Gábor Lénárt wrote:
-> >On Fri, Jul 22, 2005 at 05:46:58PM +0800, Ashley wrote:
-> >
-> >>  I've a server with 2 Operton 64bit CPU and 12G memory, and this server 
-> >>is used to run  applications which will comsume huge memory,
-> >>the problem is: when this aplications exits,  the free memory of the 
-> >>server is still very low(accroding to the output of "top"), and
-> >>from the output of command "free", I can see that many GB memory was 
-> >>cached by kernel. Does anyone know how to free the kernel cached
-> >>memory? thanks in advance.
-> >
-> >
-> >It's a very - very - very old and bad logic (at least nowdays) from the
-> >stone age to free up memory.
+Ingo Molnar wrote:
+
 > 
-> It's very Microsoft to claim that the OS always knows best, and not let 
-> the user tune the system the way they want it tuned. And if that means 
-> to leave a bunch of free memory for absolute fastest availability, the 
-> admin should have that option.
+> Hugh's posting said:
+> 
+>  "it's trying to avoid an endless loop of finding the pte not writable 
+>   when ptrace is modifying a page which the user is currently protected 
+>   against writing to (setting a breakpoint in readonly text, perhaps?)"
+> 
+> i'm wondering, why should that case generate an infinite fault? The 
+> first write access should copy the shared-library page into a private 
+> page and map it into the task's MM, writable. If this make-writable 
 
-Sure, sorry if my comment can be treated in this way ... I mean surprising
-amount of people I've met criticised Linux (well, some years ago when DOS
-was popular) that he/she want to see that 'free memory' field reported eg by
-'top' should be the maximum all the time ... I mean this way: this is the
-behaviour which is quite wrong, I've written about this.
+It will be mapped readonly.
 
-Sure, because of my not too good English, I may have missed the real meaning
-of the mail, sorry about it!
+> operation races with a read access then we return a minor fault and the 
+> page is still readonly, but retrying the write should then break up the 
+> COW protection and generate a writable page, and a subsequent 
+> follow_page() success. If the page cannot be made writable, shouldnt the 
+> vma flags reflect this fact by not having the VM_MAYWRITE flag, and 
+> hence get_user_pages() should have returned with -EFAULT earlier?
+> 
+
+If it cannot be written to, then yes. If it can be written to
+but is mapped readonly then you have the problem.
+
+Aside, that brings up an interesting question - why should readonly
+mappings of writeable files (with VM_MAYWRITE set) disallow ptrace
+write access while readonly mappings of readonly files not? Or am I
+horribly confused?
 
 -- 
-- Gábor
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

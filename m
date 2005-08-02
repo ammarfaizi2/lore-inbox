@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVHBP7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVHBQEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbVHBP7c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 11:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVHBPoO
+	id S261489AbVHBQEK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 12:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVHBQCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 11:44:14 -0400
-Received: from styx.suse.cz ([82.119.242.94]:18094 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261588AbVHBPoI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 11:44:08 -0400
-Date: Tue, 2 Aug 2005 17:44:04 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.13-rc3 -> sluggish PS2 keyboard (was Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01)
-Message-ID: <20050802154404.GA13101@ucw.cz>
-References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins> <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe> <20050731063852.GA611@elte.hu> <1122871521.15825.13.camel@mindpipe> <1122991018.1590.2.camel@localhost.localdomain> <1122991531.5490.27.camel@mindpipe> <1122992426.1590.11.camel@localhost.localdomain> <1122997061.11253.3.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122997061.11253.3.camel@mindpipe>
-User-Agent: Mutt/1.5.6i
+	Tue, 2 Aug 2005 12:02:10 -0400
+Received: from silver.veritas.com ([143.127.12.111]:41109 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S261646AbVHBQB1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 12:01:27 -0400
+Date: Tue, 2 Aug 2005 17:03:12 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Robin Holt <holt@sgi.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
+Message-ID: <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com>
+References: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
+ <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 02 Aug 2005 16:01:26.0275 (UTC) FILETIME=[6FD24530:01C5977B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 02, 2005 at 11:37:41AM -0400, Lee Revell wrote:
-> On Tue, 2005-08-02 at 10:20 -0400, Steven Rostedt wrote:
-> > On Tue, 2005-08-02 at 10:05 -0400, Lee Revell wrote:
-> > > On Tue, 2005-08-02 at 09:56 -0400, Steven Rostedt wrote:
-> > > > On Mon, 2005-08-01 at 00:45 -0400, Lee Revell wrote:
-> > > > > On Sun, 2005-07-31 at 08:38 +0200, Ingo Molnar wrote:
-> > > > > > ok - i've uploaded the -52-04 patch, does that fix it for you?
-> > > > > 
-> > > > > Has anyone found their PS2 keyboard rather sluggish with this kernel?
-> > > > > I'm not sure whether it's an -RT problem, I'll have to try rc4.
-> > > > 
-> > > > I've just noticed this now. While I have lots of ssh sessions running,
-> > > > my keyboard does get really sluggish. This hasn't happened before. I'm
-> > > > currently running 2.6.13-rc3 with no RT.  So this may definitely be a
-> > > > mainline issue.
-> > > 
-> > > I'm on a slower machine, and I seem to get this behavior regardless of
-> > > load.  Probably just running X+Gnome on this box is enough.
-> > > 
-> > Also, I don't know if this is a kernel issue or a debian issue since I
-> > updated my kernel at the same time I did a debian upgrade, and I'm using
-> > debian unstable. Since debian unstable is going through some major
-> > changes, this could be caused by that.  I may be able to try some other
-> > machines to see if they are affected, but that might take some time
-> > before I can get to it.
-> > 
+On Tue, 2 Aug 2005, Linus Torvalds wrote:
 > 
-> Same here (s/debian/ubuntu/) but I have the exact same problem at the
-> console, I don't think it could be an X issue unless X was able to wedge
-> the keyboard controller.
-> 
-> It feels like typing over a slow modem link, I can get about one word
-> ahead of the cursor (X or console, regardless of load) but the delay
-> seems to be constant.
- 
-Is your keyboard interrupt (irq #1) working correctly? If not, then the
-keyboard controller is polled at 20Hz to compensate for lost interrupts,
-which would make it work, but if no interrupts work, it would seem like
-typing over a slow link.
+> On the other hand, this being s390, maybe nobody cares?
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+You have a cruel streak.
+
+But have I just realized a non-s390 problem with your pte_dirty
+technique?  The ptep_set_wrprotect in fork's copy_one_pte.
+
+That's specifically write-protecting the pte to force COW, but
+leaving the dirty bit: so now get_user_pages will skip COW-ing it
+(in all write cases, not just the peculiar ptrace force one).
+
+We really do need to COW those in get_user_pages, don't we?
+And although we could handle it by clearing dirty and doing a
+set_page_dirty, it's a path we don't want to clutter further.
+
+(Yes, there's another issue of a fork occurring while the pages
+are already under get_user_pages, which is a significant issue for
+InfiniBand; but I see that as a separate kind of race, which we can
+reasonably disregard in this discussion - though it will need proper
+attention, perhaps through Michael Tsirkin's PROT_DONTCOPY patch.)
+
+The simple answer to Robin's pagetable update race is to say that
+anyone using ptrace should be prepared for a pt race ;)
+
+Hugh

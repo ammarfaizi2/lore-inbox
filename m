@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVHBPX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVHBPa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVHBPX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 11:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVHBPX4
+	id S261543AbVHBPa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 11:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVHBPa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 11:23:56 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:19373 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261573AbVHBPVh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 11:21:37 -0400
-Date: Tue, 2 Aug 2005 17:21:31 +0200 (CEST)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@openx3.frec.bull.fr
-To: linux-kernel@vger.kernel.org
-Cc: Jean-Marc Saffroy <Jean-Marc.Saffroy@ext.bull.net>
-Subject: bug in __vm_enough_memory()
-Message-ID: <Pine.LNX.4.61.0508021656350.22220@openx3.frec.bull.fr>
+	Tue, 2 Aug 2005 11:30:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13272 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261543AbVHBPa5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 11:30:57 -0400
+Date: Tue, 2 Aug 2005 08:30:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
+Message-ID: <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
+References: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 02/08/2005 17:33:44,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 02/08/2005 17:33:45,
-	Serialize complete at 02/08/2005 17:33:45
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi all,
 
-We have found what seems to be a small bug in __vm_enough_memory()
-when sysctl_overcommit_memory is set to OVERCOMMIT_NEVER.
+On Tue, 2 Aug 2005, Martin Schwidefsky wrote:
+> 
+> Why do we require the !pte_dirty(pte) check? I don't get it. If a writeable
+> clean pte is just fine then why do we check the dirty bit at all? Doesn't
+> pte_dirty() imply pte_write()?
 
-When this bug occurs the systems fails to boot, with /sbin/init whining 
-about fork() returning ENOMEM.
+A _non_writable and clean pty is _also_ fine sometimes. But only if we 
+have broken COW and marked it dirty.
 
-We hunted down the problem to this:
+> With the additional !pte_write(pte) check (and if I haven't overlooked
+> something which is not unlikely) s390 should work fine even without the
+> software-dirty bit hack.
 
-The deferred update mecanism used in vm_acct_memory(), on a SMP system, 
-allows the vm_committed_space counter to have a negative value.
+No it won't. It will just loop forever in a tight loop if somebody tries 
+to put a breakpoint on a read-only location.
 
-This should not be a problem since this counter is known to be inaccurate.
+On the other hand, this being s390, maybe nobody cares?
 
-But in __vm_enough_memory() this counter is compared to the `allowed' 
-variable, which is an unsigned long. This comparison is broken since it 
-will consider the negative values of vm_committed_space to be huge 
-positive values, resulting in a memory allocation failure.
-
-A proposed fix is attached below.
-
-Signed-off-by: Jean-Marc.Saffroy@ext.bull.net
-Signed-off-by: Simon.Derr@bull.net
-
-
-Index: linux-2.6.12/mm/mmap.c
-===================================================================
---- linux-2.6.12.orig/mm/mmap.c	2005-08-02 15:45:30.000000000 +0200
-+++ linux-2.6.12/mm/mmap.c	2005-08-02 16:28:48.289575957 +0200
-@@ -144,7 +144,10 @@ int __vm_enough_memory(long pages, int c
- 	   leave 3% of the size of this process for other processes */
- 	allowed -= current->mm->total_vm / 32;
- 
--	if (atomic_read(&vm_committed_space) < allowed)
-+	/* cast `allowed' as a signed long because vm_committed_space 
-+	 * sometimes has a negative value
-+	 */
-+	if (atomic_read(&vm_committed_space) < (long)allowed)
- 		return 0;
- 
- 	vm_unacct_memory(pages);
-Index: linux-2.6.12/mm/nommu.c
-===================================================================
---- linux-2.6.12.orig/mm/nommu.c	2005-06-17 21:48:29.000000000 +0200
-+++ linux-2.6.12/mm/nommu.c	2005-08-02 16:28:46.384302543 +0200
-@@ -1167,7 +1167,10 @@ int __vm_enough_memory(long pages, int c
- 	   leave 3% of the size of this process for other processes */
- 	allowed -= current->mm->total_vm / 32;
- 
--	if (atomic_read(&vm_committed_space) < allowed)
-+	/* cast `allowed' as a signed long because vm_committed_space 
-+	 * sometimes has a negative value
-+	 */
-+	if (atomic_read(&vm_committed_space) < (long)allowed)
- 		return 0;
- 
- 	vm_unacct_memory(pages);
+		Linus

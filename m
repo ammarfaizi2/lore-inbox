@@ -1,48 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVHBQJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVHBP7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVHBQJb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 12:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVHBP7a
+	id S261625AbVHBP7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 11:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVHBP6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 11:59:30 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:56970 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261621AbVHBP6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 11:58:19 -0400
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-From: Lee Revell <rlrevell@joe-job.com>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: sclark46@earthlink.net, linux-kernel@vger.kernel.org
-In-Reply-To: <42EF947E.1070600@andrew.cmu.edu>
-References: <20050730195116.GB9188@elf.ucw.cz>
-	 <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz>
-	 <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz>
-	 <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz>
-	 <1122852234.13000.27.camel@mindpipe>
-	 <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu>
-	 <20050801204245.GC17258@thunk.org> <42EEFB9B.10508@andrew.cmu.edu>
-	 <42EF70BD.7070804@earthlink.net>  <42EF947E.1070600@andrew.cmu.edu>
-Content-Type: text/plain
-Date: Tue, 02 Aug 2005 11:58:15 -0400
-Message-Id: <1122998296.11253.25.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+	Tue, 2 Aug 2005 11:58:07 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:42695 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S261600AbVHBP4E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 11:56:04 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Adam Belay <ambx1@neo.rr.com>
+Subject: [PATCH] PNPACPI: fix types when decoding ACPI resources [resend]
+Date: Tue, 2 Aug 2005 09:55:54 -0600
+User-Agent: KMail/1.8.1
+Cc: Matthieu Castet <castet.matthieu@free.fr>,
+       Li Shaohua <shaohua.li@intel.com>, acpi-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508020955.54844.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-02 at 11:42 -0400, James Bruce wrote:
-> I do like saving power, which is why I run cpu frequency scaling on 
-> every machine I have that supports it.
+Any objections to the patch below?  I posted it last Wednesday,
+but haven't heard anything.  Once we have this fix, 8250_pnp
+should have sufficient functionality that we can get rid of
+8250_acpi.
 
-My Athlon XP desktop doesn't support frequency scaling but has working
-ACPI C-states (at least under Windows) so will run as cool as 31C when
-idle (with the CPUIdle utility).  Most of the heat comes from the hard
-drives anyway, but that's a different story.
 
-This seems pretty cool to me, how much more power does frequency scaling
-save over that, assuming you suspend after 5-10 minutes of inactivity
-anyway?
 
-Lee
+Use types that match the ACPI resource structures.  Previously
+the u64 value from an RSTYPE_ADDRESS64 was passed as an int,
+which corrupts the value.
 
+This is one of the things that prevents 8250_pnp from working
+on HP ia64 boxes.  After 8250_pnp works, we will be able to
+remove 8250_acpi.c.
+
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+Index: work/drivers/pnp/pnpacpi/rsparser.c
+===================================================================
+--- work.orig/drivers/pnp/pnpacpi/rsparser.c	2005-07-25 15:04:26.000000000 -0600
++++ work/drivers/pnp/pnpacpi/rsparser.c	2005-07-27 10:02:19.000000000 -0600
+@@ -73,7 +73,7 @@
+ }
+ 
+ static void
+-pnpacpi_parse_allocated_irqresource(struct pnp_resource_table * res, int irq)
++pnpacpi_parse_allocated_irqresource(struct pnp_resource_table * res, u32 irq)
+ {
+ 	int i = 0;
+ 	while (!(res->irq_resource[i].flags & IORESOURCE_UNSET) &&
+@@ -85,13 +85,13 @@
+ 			res->irq_resource[i].flags |= IORESOURCE_DISABLED;
+ 			return;
+ 		}
+-		res->irq_resource[i].start =(unsigned long) irq;
+-		res->irq_resource[i].end = (unsigned long) irq;
++		res->irq_resource[i].start = irq;
++		res->irq_resource[i].end = irq;
+ 	}
+ }
+ 
+ static void
+-pnpacpi_parse_allocated_dmaresource(struct pnp_resource_table * res, int dma)
++pnpacpi_parse_allocated_dmaresource(struct pnp_resource_table * res, u32 dma)
+ {
+ 	int i = 0;
+ 	while (i < PNP_MAX_DMA &&
+@@ -103,14 +103,14 @@
+ 			res->dma_resource[i].flags |= IORESOURCE_DISABLED;
+ 			return;
+ 		}
+-		res->dma_resource[i].start =(unsigned long) dma;
+-		res->dma_resource[i].end = (unsigned long) dma;
++		res->dma_resource[i].start = dma;
++		res->dma_resource[i].end = dma;
+ 	}
+ }
+ 
+ static void
+ pnpacpi_parse_allocated_ioresource(struct pnp_resource_table * res,
+-	int io, int len)
++	u32 io, u32 len)
+ {
+ 	int i = 0;
+ 	while (!(res->port_resource[i].flags & IORESOURCE_UNSET) &&
+@@ -122,14 +122,14 @@
+ 			res->port_resource[i].flags |= IORESOURCE_DISABLED;
+ 			return;
+ 		}
+-		res->port_resource[i].start = (unsigned long) io;
+-		res->port_resource[i].end = (unsigned long)(io + len - 1);
++		res->port_resource[i].start = io;
++		res->port_resource[i].end = io + len - 1;
+ 	}
+ }
+ 
+ static void
+ pnpacpi_parse_allocated_memresource(struct pnp_resource_table * res,
+-	int mem, int len)
++	u64 mem, u64 len)
+ {
+ 	int i = 0;
+ 	while (!(res->mem_resource[i].flags & IORESOURCE_UNSET) &&
+@@ -141,8 +141,8 @@
+ 			res->mem_resource[i].flags |= IORESOURCE_DISABLED;
+ 			return;
+ 		}
+-		res->mem_resource[i].start = (unsigned long) mem;
+-		res->mem_resource[i].end = (unsigned long)(mem + len - 1);
++		res->mem_resource[i].start = mem;
++		res->mem_resource[i].end = mem + len - 1;
+ 	}
+ }
+ 

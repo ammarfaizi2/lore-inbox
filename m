@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVHBP5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVHBP70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbVHBP5g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 11:57:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVHBPzH
+	id S261568AbVHBP70 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 11:59:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbVHBP5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 11:55:07 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:42473 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261599AbVHBPxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 11:53:51 -0400
-Subject: Re: 2.6.13-rc3 -> sluggish PS2 keyboard (was Re: [patch] Real-Time
-	Preemption, -RT-2.6.13-rc4-V0.7.52-01)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1122997633.11253.14.camel@mindpipe>
-References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins>
-	 <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe>
-	 <20050731063852.GA611@elte.hu> <1122871521.15825.13.camel@mindpipe>
-	 <1122991018.1590.2.camel@localhost.localdomain>
-	 <1122991531.5490.27.camel@mindpipe>
-	 <1122992426.1590.11.camel@localhost.localdomain>
-	 <1122997061.11253.3.camel@mindpipe>  <20050802154404.GA13101@ucw.cz>
-	 <1122997633.11253.14.camel@mindpipe>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 02 Aug 2005 11:53:38 -0400
-Message-Id: <1122998018.1590.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Aug 2005 11:57:52 -0400
+Received: from mail.thorsten-knabe.de ([82.141.44.28]:54025 "EHLO
+	mail.thorsten-knabe.de") by vger.kernel.org with ESMTP
+	id S261568AbVHBPzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 11:55:23 -0400
+Date: Tue, 2 Aug 2005 17:55:12 +0200 (CEST)
+From: Thorsten Knabe <linux@thorsten-knabe.de>
+X-X-Sender: tek@tek01.intern.thorsten-knabe.de
+To: Thorsten Knabe <linux@thorsten-knabe.de>
+cc: Andrew Haninger <ahaning@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, linux-sound@vger.kernel.org
+Subject: Re: [Alsa-devel] Re: [2.6 patch] schedule obsolete OSS drivers for
+ removal
+In-Reply-To: <Pine.LNX.4.61.0508020110050.13611@tek01.intern.thorsten-knabe.de>
+Message-ID: <Pine.LNX.4.61.0508021741260.22453@tek01.intern.thorsten-knabe.de>
+References: <20050726150837.GT3160@stusta.de> 
+ <Pine.LNX.4.61.0507281636040.20815@tek01.intern.thorsten-knabe.de> 
+ <Pine.LNX.4.61.0507290849050.8400@tm8103.perex-int.cz> 
+ <Pine.LNX.4.61.0507291735500.31150@tek01.intern.thorsten-knabe.de> 
+ <20050731193922.GI3608@stusta.de> <105c793f0508010726dc12bc7@mail.gmail.com>
+ <Pine.LNX.4.61.0508020110050.13611@tek01.intern.thorsten-knabe.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Spam-Report: SpamAssassin@thorsten-knabe.de
+	Content analysis details:   (-5.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-02 at 11:47 -0400, Lee Revell wrote:
-> On Tue, 2005-08-02 at 17:44 +0200, Vojtech Pavlik wrote:
-> > Is your keyboard interrupt (irq #1) working correctly? If not, then the
-> > keyboard controller is polled at 20Hz to compensate for lost interrupts,
-> > which would make it work, but if no interrupts work, it would seem like
-> > typing over a slow link.
-> 
-> I am an idiot.  The keyboard was plugged into the mouse port.
-> 
-> I'm impressed this worked at all.
+Hello.
 
-:)
+Here are the bug id's for the various issues from the ALSA bugtracking 
+system:
 
-I guess this also makes the case that my sluggish keyboard is from the X
-updates in debian. I wasn't able  to get it to be sluggish at the
-console, and it was only sluggish under X load.
+On Tue, 2 Aug 2005, Thorsten Knabe wrote:
+> On vanilla Linux 2.6.12.3 and 2.6.13-rc4 modprobe hangs in D-state when 
+> loading the snd-ad1816a module. No messages have been logged to the syslog 
+> and the system is otherwise stable. Of course the sound card is unusable.
 
--- Steve
+#1300: modprobe goes into D-state when inserting snd-ad1816a
 
+> Using OSS emulation with one of the VoIP 
+> phones, playback and recording stop a few seconds after the call is started. 
+> Using the ALSA interface with kphone works, but there is a continuous 
+> clicking approximately 3 times per second. Also audio latency is poor 
+> compared to the OSS driver.
 
+#1301: Kernel OSS emulation stops working after a few seconds when used 
+with VoIP softphones
+
+#1302: Clicking noise when using kphone with the ALSA AD1816A sound driver
+
+> Also the ALSA driver does not have an equivalent for the "ad1816_clockfreq" 
+> option of the OSS driver.
+
+#1303: AD1816A sound driver has no parameter to adjust reference clock 
+frequency
+
+Regards
+Thorsten
+
+-- 
+___
+  |        | /                 E-Mail: linux@thorsten-knabe.de
+  |horsten |/\nabe                WWW: http://linux.thorsten-knabe.de

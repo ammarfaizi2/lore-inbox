@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVHBVbC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVHBVnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVHBVbC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 17:31:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVHBV26
+	id S261803AbVHBVnu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 17:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVHBVnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 17:28:58 -0400
-Received: from kirby.webscope.com ([204.141.84.57]:51088 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S261827AbVHBV16
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 17:27:58 -0400
-Message-ID: <42EFE53D.10203@m1k.net>
-Date: Tue, 02 Aug 2005 17:27:25 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sean Bruno <sean.bruno@dsl-only.net>
-CC: Steven Rostedt <rostedt@goodmis.org>, Lee Revell <rlrevell@joe-job.com>,
-       webmaster@kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Testing RC kernels [KORG]
-References: <1123007589.24010.41.camel@jy.metro1.com>	 <1123007777.12562.11.camel@mindpipe>	 <1123007814.24010.45.camel@jy.metro1.com>	 <1123008881.12562.16.camel@mindpipe>	 <1123010465.1590.34.camel@localhost.localdomain> <1123016741.24010.60.camel@jy.metro1.com>
-In-Reply-To: <1123016741.24010.60.camel@jy.metro1.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Aug 2005 17:43:50 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:10961 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261803AbVHBVMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 17:12:54 -0400
+Date: Tue, 2 Aug 2005 14:12:39 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, mingo@elte.hu,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, steiner@sgi.com
+Subject: Re: [Patch] don't kick ALB in the presence of pinned task
+Message-ID: <20050802141238.A27704@unix-os.sc.intel.com>
+References: <20050801174221.B11610@unix-os.sc.intel.com> <42EF0E0D.8000906@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42EF0E0D.8000906@yahoo.com.au>; from nickpiggin@yahoo.com.au on Tue, Aug 02, 2005 at 04:09:17PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Bruno wrote:
+On Tue, Aug 02, 2005 at 04:09:17PM +1000, Nick Piggin wrote:
+> I have a patch here which I still need to do more testing with,
+> which might help performance on HT systems.
+> 
+> I found that idle siblings could cause SMP and NUMA balancing to
+> be too aggressive in some cases.
+> -- 
+> If an idle sibling of an HT queue encounters a busy sibling, then
+> make higher level load balancing of the non-idle variety.
 
->On Tue, 2005-08-02 at 15:21 -0400, Steven Rostedt wrote:
->
->>I've been complaining about this for some time. Kernel.org really needs
->>to show more information about the rc kernels and how to create them.
->>We want more testers, but I wonder how many people go through the above
->>steps and just give up when things don't work. Luckly Sean was nice
->>enough to email the LKML and ask.
->>
->>My main gripe is that there's no link to 2.6.12 which is what most of
->>the other patches go against.
->>
->I would be more than willing to whip up an html how-to(and maintain it).
->Is there any interest in this?
->
->Sean
->  
->
-That's not the issue... The issue is that there isn't a direct link to 
-download the 2.6.12 source from www.kernel.org homepage... However, the 
--rc patches need to be applied against 2.6.12, so this should *really* 
-be linked to from the kernel.org website, in a place that is easy to see 
-without too much trouble. (perhaps, directly above, or directly below 
-2.6.12.x)
+Makes sense and patch looks good. Please push this minor comment fix along
+with your patch. Thanks.
 
--- 
-Michael Krufky
-
-
+--- linux-2.6.13-rc4/kernel/sched.c~	2005-08-02 13:36:34.804764128 -0700
++++ linux-2.6.13-rc4/kernel/sched.c	2005-08-02 13:38:00.689707632 -0700
+@@ -2316,7 +2316,9 @@
+ 
+ 		if (j - sd->last_balance >= interval) {
+ 			if (load_balance(this_cpu, this_rq, sd, idle)) {
+-				/* We've pulled tasks over so no longer idle */
++				/* We've pulled tasks over so no longer idle
++				 * or one of our SMT sibling is not idle.
++				 */
+ 				idle = NOT_IDLE;
+ 			}
+ 			sd->last_balance += interval;

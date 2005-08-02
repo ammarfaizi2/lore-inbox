@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVHBJ4C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVHBKCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbVHBJ4C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 05:56:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVHBJyO
+	id S261467AbVHBKCb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 06:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVHBJ7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 05:54:14 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10470 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261447AbVHBJxU (ORCPT
+	Tue, 2 Aug 2005 05:59:51 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64916 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261467AbVHBJ64 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 05:53:20 -0400
-Date: Tue, 2 Aug 2005 11:53:12 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, ebiederm@xmission.com
-Subject: Re: Calling suspend() in halt/restart/shutdown -> not a good idea
-Message-ID: <20050802095312.GA1442@elf.ucw.cz>
-References: <1122908972.18835.153.camel@gaston>
+	Tue, 2 Aug 2005 05:58:56 -0400
+Date: Tue, 2 Aug 2005 11:58:36 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Olaf Hering <olh@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] remove device_suspend calls in sys_reboot path
+Message-ID: <20050802095836.GA1312@elf.ucw.cz>
+References: <200506260105.j5Q15eBj021334@hera.kernel.org> <20050801151956.GA29448@suse.de> <20050801161039.GA29705@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1122908972.18835.153.camel@gaston>
+In-Reply-To: <20050801161039.GA29705@suse.de>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,11 +28,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Why are we calling driver suspend routines in these ? This is _not_
+> A recent change for 'case LINUX_REBOOT_CMD_POWER_OFF' causes an endless
+> hang after 'halt -p' on my Macs with USB keyboard.
+> It went into rc1, but the hang in an usb device (1-1.3) shows up only
+> with rc3. Why is device_suspend() called anyway if the
+> system will go down anyway in a few milliseconds?
+> 
+> power down works again with this patch.
 
-Well, reason is that if you remove device_suspend() you'll get
-emergency hard disk park during powerdown. As harddrives can survive
-only limited number of emergency stops, that is not a good idea.
+You are shooting the messenger, and will cause emergency disk
+stops. Bad.
 
 								Pavel
 -- 

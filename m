@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVHBVPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVHBVSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbVHBVPO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 17:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbVHBVNH
+	id S261835AbVHBVSH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 17:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVHBVPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 17:13:07 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:21258 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S261778AbVHBVLU convert rfc822-to-8bit (ORCPT
+	Tue, 2 Aug 2005 17:15:36 -0400
+Received: from mail.emacinc.com ([208.248.202.76]:40081 "EHLO mail.emacinc.com")
+	by vger.kernel.org with ESMTP id S261800AbVHBVNU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 17:11:20 -0400
+	Tue, 2 Aug 2005 17:13:20 -0400
+From: NZG <ngustavson@emacinc.com>
+Organization: EMAC.Inc
+To: comedi@comedi.org
+Date: Tue, 2 Aug 2005 16:12:15 -0500
+User-Agent: KMail/1.7.2
+Cc: Ian Abbott <abbotti@mev.co.uk>, linux-kernel@vger.kernel.org
+References: <200508010817.59676.ngustavson@emacinc.com> <42EF74C1.6020909@mev.co.uk>
+In-Reply-To: <42EF74C1.6020909@mev.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <004f01c5979f$79b311a0$a20cc60a@amer.sykes.com>
-References: <004f01c5979f$79b311a0$a20cc60a@amer.sykes.com>
-X-OriginalArrivalTime: 02 Aug 2005 21:11:19.0142 (UTC) FILETIME=[BA08A060:01C597A6]
-Content-class: urn:content-classes:message
-Subject: Re: Linux, Get the facts?
-Date: Tue, 2 Aug 2005 17:10:51 -0400
-Message-ID: <Pine.LNX.4.61.0508021657070.6160@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux, Get the facts?
-thread-index: AcWXproljVR21rxOSVquXLuXvQxMVQ==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+Message-Id: <200508021612.15183.ngustavson@emacinc.com>
+X-SA-Exim-Connect-IP: 208.248.202.77
+X-SA-Exim-Mail-From: ngustavson@emacinc.com
+Subject: Re: 2.6VMM, uClinux, & Comedi
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Spam-Relay: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm running comedi-0.7.70, but the issue is seems be be coming from the fact 
+that I'm using a nommu arch.
+grepping through my arch and include/asm, these symbols are indeed not 
+defined.
+This makes sense because uClinux has no true virtual memory, vmalloc is just a 
+wrapper for kmalloc.
+The implementation of these functions is probably trivial, but It's taking me 
+a bit since I didn't really understand the VM code before (now I have a small 
+inkling)
+I'll get there, I'm just surprised this hasn't been attempted before.
 
-On Tue, 2 Aug 2005, Alejandro Bonilla wrote:
+NZG.
 
-> Hi Guys/Gals,
+On Tuesday 02 August 2005 08:27, Ian Abbott wrote:
+> On 01/08/05 14:17, NZG wrote:
+> > I managed to successfully cross-compile Comedi for the Coldfire uClinux
+> > 2.6, however it has several unresolved symbols when I try to load it.
+> >
+> > comedi: Unknown symbol pgd_offset_k
+> > comedi: Unknown symbol pmd_none
+> > comedi: Unknown symbol remap_page_range
+> > comedi: Unknown symbol pte_present
+> > comedi: Unknown symbol pte_offset_kernel
+> > comedi: Unknown symbol VMALLOC_VMADDR
+> > comedi: Unknown symbol pte_page
 >
-> 	I watched some commercials and I almost puked when I looked at the
-> Microsoft Get the Facts for Linux vs Windows Server stuff.
->
-> They have a url which is http://www.microsoft.com/getthefacts
->
-> Is this crap any close to real or by any chance "realistic" ? Are these
-> "benchmarks" simple marketing?
->
-> .Alejandro
->
-
-If you look at the stuff published by "Security Innovation, Inc.",
-in the same link, you can see that they don't presume that the report
-will be read by anybody who knows what they are talking about. They take
-the PUBLISHED possible problems with Linux and the PUBLISHED possible
-problems with closed-source Microsoft and compare them as
-"security vulnerabilities".
-
-It's just the usual crap. Oh, they finally changed the software
-in their ftp site so it claims to be Microsoft. For many years
-they forgot about this and used the Sun ftp. At least it doesn't
-respond to WIZ anymore!
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.12 on an i686 machine (5537.79 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+> It's probably coming to grief in Comedi's Linux compatibility headers
+> somewhere, but as this stuff has changed a few times, which version of
+> Comedi and which kernel version are you using exactly?

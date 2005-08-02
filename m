@@ -1,392 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVHBMeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVHBMeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVHBMeS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 08:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVHBMeH
+	id S261486AbVHBMeR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 08:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVHBMeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 08:34:07 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:28607 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S261492AbVHBMcn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 08:32:43 -0400
-Subject: Re: powerbook power-off and 2.6.13-rc[3,4]
-From: Stelian Pop <stelian@popies.net>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>,
-       debian-powerpc@lists.debian.org
-In-Reply-To: <1122982951.4652.14.camel@localhost.localdomain>
-References: <1122904460.6491.41.camel@localhost.localdomain>
-	 <1122905228.6881.9.camel@localhost>
-	 <1122907136.31350.45.camel@localhost.localdomain>
-	 <20050802111754.GC1390@elf.ucw.cz>  <42EF5B4E.6090101@sipsolutions.net>
-	 <1122982951.4652.14.camel@localhost.localdomain>
-Content-Type: multipart/mixed; boundary="=-fVxz7Oa6lNTkWwYllz18"
-Date: Tue, 02 Aug 2005 14:29:52 +0200
-Message-Id: <1122985793.4648.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Tue, 2 Aug 2005 08:34:13 -0400
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:33680 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S261486AbVHBMc2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 08:32:28 -0400
+Date: Tue, 2 Aug 2005 14:31:55 +0200 (CEST)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+cc: Christoph Hellwig <hch@infradead.org>, Mark Haverkamp <markh@osdl.org>,
+       Christoph Hellwig <hch@lst.de>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: Latest Adaptec AACRAID driver doesn't compile on latest kernel
+In-Reply-To: <60807403EABEB443939A5A7AA8A7458B01792C1A@otce2k01.adaptec.com>
+Message-ID: <Pine.LNX.4.60.0508021359050.5060@kepler.fjfi.cvut.cz>
+References: <60807403EABEB443939A5A7AA8A7458B01792C1A@otce2k01.adaptec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> -----Original Message-----
+>> From: Martin Drab [mailto:drab@kepler.fjfi.cvut.cz]
+>> Sent: Monday, August 01, 2005 6:31 PM
+>> To: Salyzyn, Mark
+>> Subject: Latest Adaptec AACRAID driver doesn't compile on latest kernel
+>> 
+>> Hi, Mark,
+>> 
+>> because of the following kernel patch issued in 2.6.13-rc4:
+>> 
+>> -------------
+>> commit 8d115f845a0bd59cd263e791f739964f42b7b0e8
+>> Author: Christoph Hellwig <hch@lst.de>
+>> Date:   Sun Jun 19 13:42:05 2005 +0200
+>> 
+>>     [SCSI] remove scsi_cmnd->state
+>> 
+>>     We never look at it except for the old megaraid driver that abuses it
+>>     for sending internal commands.  That usage can be fixed easily because
+>>     those internal commands are single-threaded by a mutex and we can easily
+>>     use a completion there.
+>> 
+>>     Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+>> 
+>> -------------
+>> 
+>> the Adaptec AACRAID driver 1.1.5-2405 that you sent me is unable to
+>> compile. Attached patch fixes the problem by simply removing the
+>> condition where it is used. It seems to be just some kind of debug info
+>> guard. And since there doesn't seem to be any other way to obtain the
+>> state we would just have to suffice with this, or remove the debug info
+>> printing entirely.
+>> 
+>> Martin
 
---=-fVxz7Oa6lNTkWwYllz18
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+On Tue, 2 Aug 2005, Salyzyn, Mark wrote:
 
-Le mardi 02 ao=C3=BBt 2005 =C3=A0 13:43 +0200, Stelian Pop a =C3=A9crit :
+> Thanks MArtin, I have this change in 1.1.5-2408 wrapped with an ifdef
+> for kernels 2.6.13 and higher to permit compile and pending an
+> investigation to determine a suitable substitute in the 2.6.13+ tree.
 
-> > Pavel Machek wrote:
-> >=20
-> > >Can you try without USB?
-> > >
-> > Not really. The keyboard is USB, and there's no PS/2 connector. I guess=
-=20
-> > I maybe could do it via a timer, unload the modules and then have it=20
-> > shut down afterwards...
->=20
-> I'll build a kernel without USB and drive the laptop over the net and
-> see what happens.
+Is it downloadable somewhere? If not, could you please send it to me?
+ 
+> The check is done because when commands are completed, they still reside
+> on the device queue and this filters out those that are on the road to
+> completion. I am not sure this is still the case in 2.6.13. It is not a
+> debug check; it is a means to determine that all the commands have
+> quiesced to the adapter. We do this because several conditions that
+> cause the tripping of the SCSI bus timeout with this adapter are a
+> result of the adapter performing some RAID recovery, flush or build
+> tasks and stuffing the adapter with commands during these operations
+> only serves to exasperate the situation and cause devices to go offline.
+> I have referred to this condition as Adapter reticence.
+> 
+> The side effect of this change may be that the reset handler will wait
+> the full 60 seconds for commands to complete in the adapter rather than
+> exiting as soon as they have all completed. This will still serve the
+> purpose to alleviate this situation. However, as this code is extending
+> the 60 second SCSI timeout, we get nervous that this change will result
+> in increased number of servers dropping their network connections.
 
-Without CONFIG_USB the poweroff still hangs, and this time the panel
-goes completly white with dark spots appearing all over it (kinda scary
-btw). A 5 seconds press on the power button force it to power off.
+Hmm. I see. So perhaps you may ask someone (James, Christoph, ...?) to 
+revert that patch, because the scsi_cmnd->state is needed here for this 
+purpose. It was removed just because nobody else was using it (at least 
+thats what the patch description says). So, if you explain that it is 
+necessary for this purpose, it could either be reverted, or you may be 
+told of a way to get around it. (That's a result of that the driver didn't 
+yet make it into the mainline. Before it does, mainline may change to a 
+level that it would no longer be possible to apply it. :()
 
-This is on a 2.6.13-rc4, and I'm attaching the .config in case it
-matters.
-
-Stelian.
---=20
-Stelian Pop <stelian@popies.net>
-
---=-fVxz7Oa6lNTkWwYllz18
-Content-Disposition: attachment; filename=config-2.6.12-rc4
-Content-Type: text/plain; name=config-2.6.12-rc4; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-CONFIG_MMU=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PPC=y
-CONFIG_PPC32=y
-CONFIG_GENERIC_NVRAM=y
-CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-CONFIG_LOCALVERSION=""
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_KALLSYMS=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_BASE_SMALL=0
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODVERSIONS=y
-CONFIG_MODULE_SRCVERSION_ALL=y
-CONFIG_KMOD=y
-CONFIG_6xx=y
-CONFIG_PPC_FPU=y
-CONFIG_ALTIVEC=y
-CONFIG_TAU=y
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_TABLE=y
-CONFIG_CPU_FREQ_STAT=y
-CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_POWERSAVE=y
-CONFIG_CPU_FREQ_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_GOV_ONDEMAND=y
-CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
-CONFIG_CPU_FREQ_PMAC=y
-CONFIG_PM=y
-CONFIG_PPC_STD_MMU=y
-CONFIG_PPC_MULTIPLATFORM=y
-CONFIG_PPC_CHRP=y
-CONFIG_PPC_PMAC=y
-CONFIG_PPC_PREP=y
-CONFIG_PPC_OF=y
-CONFIG_PPCBUG_NVRAM=y
-CONFIG_HIGHMEM=y
-CONFIG_HZ_250=y
-CONFIG_HZ=250
-CONFIG_PREEMPT_NONE=y
-CONFIG_SELECT_MEMORY_MODEL=y
-CONFIG_FLATMEM_MANUAL=y
-CONFIG_FLATMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PROC_DEVICETREE=y
-CONFIG_PREP_RESIDUAL=y
-CONFIG_PROC_PREPRESIDUAL=y
-CONFIG_CMDLINE_BOOL=y
-CONFIG_CMDLINE="console=ttyS0,9600 console=tty0 root=/dev/sda2"
-CONFIG_SOFTWARE_SUSPEND=y
-CONFIG_PM_STD_PARTITION=""
-CONFIG_SECCOMP=y
-CONFIG_ISA_DMA_API=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_PCI=y
-CONFIG_PCI_DOMAINS=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCCARD=y
-CONFIG_PCMCIA=y
-CONFIG_PCMCIA_LOAD_CIS=y
-CONFIG_PCMCIA_IOCTL=y
-CONFIG_CARDBUS=y
-CONFIG_YENTA=y
-CONFIG_PCCARD_NONSTATIC=y
-CONFIG_HIGHMEM_START=0xfe000000
-CONFIG_LOWMEM_SIZE=0x30000000
-CONFIG_KERNEL_START=0xc0000000
-CONFIG_TASK_SIZE=0x80000000
-CONFIG_BOOT_LOAD=0x00800000
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_FIB_HASH=y
-CONFIG_TCP_CONG_BIC=y
-CONFIG_NETFILTER=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IRC=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_IPRANGE=y
-CONFIG_IP_NF_MATCH_MAC=y
-CONFIG_IP_NF_MATCH_PKTTYPE=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_TOS=y
-CONFIG_IP_NF_MATCH_RECENT=y
-CONFIG_IP_NF_MATCH_ECN=y
-CONFIG_IP_NF_MATCH_DSCP=y
-CONFIG_IP_NF_MATCH_AH_ESP=y
-CONFIG_IP_NF_MATCH_LENGTH=y
-CONFIG_IP_NF_MATCH_TTL=y
-CONFIG_IP_NF_MATCH_TCPMSS=y
-CONFIG_IP_NF_MATCH_HELPER=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_OWNER=y
-CONFIG_IP_NF_MATCH_ADDRTYPE=y
-CONFIG_IP_NF_MATCH_REALM=y
-CONFIG_IP_NF_MATCH_SCTP=y
-CONFIG_IP_NF_MATCH_COMMENT=y
-CONFIG_IP_NF_MATCH_HASHLIMIT=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_IP_NF_NAT_IRC=y
-CONFIG_IP_NF_NAT_FTP=y
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_ARPTABLES=y
-CONFIG_IP_NF_ARPFILTER=y
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_BT=y
-CONFIG_BT_L2CAP=y
-CONFIG_BT_RFCOMM=y
-CONFIG_BT_RFCOMM_TTY=y
-CONFIG_BT_HIDP=y
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_FW_LOADER=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_BLK_DEV_RAM_SIZE=8192
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_CDROM_PKTCDVD=m
-CONFIG_CDROM_PKTCDVD_BUFFERS=8
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDE_PMAC=y
-CONFIG_BLK_DEV_IDE_PMAC_ATA100FIRST=y
-CONFIG_BLK_DEV_IDEDMA_PMAC=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_FC_ATTRS=y
-CONFIG_SCSI_QLA2XXX=y
-CONFIG_IEEE1394=y
-CONFIG_IEEE1394_OUI_DB=y
-CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
-CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_SBP2=y
-CONFIG_IEEE1394_SBP2_PHYS_DMA=y
-CONFIG_IEEE1394_DV1394=m
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_IEEE1394_CMP=m
-CONFIG_IEEE1394_AMDTP=m
-CONFIG_ADB=y
-CONFIG_ADB_PMU=y
-CONFIG_PMAC_APM_EMU=y
-CONFIG_PMAC_BACKLIGHT=y
-CONFIG_INPUT_ADBHID=y
-CONFIG_MAC_EMUMOUSEBTN=y
-CONFIG_THERM_ADT746X=y
-CONFIG_NETDEVICES=y
-CONFIG_TUN=m
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_SUNGEM=y
-CONFIG_NET_RADIO=y
-CONFIG_NET_WIRELESS=y
-CONFIG_PPP=m
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_NETCONSOLE=m
-CONFIG_NETPOLL=y
-CONFIG_NET_POLL_CONTROLLER=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=m
-CONFIG_SERIAL_8250_CS=m
-CONFIG_SERIAL_8250_NR_UARTS=4
-CONFIG_SERIAL_CORE=m
-CONFIG_UNIX98_PTYS=y
-CONFIG_NVRAM=y
-CONFIG_GEN_RTC=y
-CONFIG_GEN_RTC_X=y
-CONFIG_AGP=y
-CONFIG_AGP_UNINORTH=y
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=y
-CONFIG_I2C_ALGOBIT=y
-CONFIG_I2C_KEYWEST=y
-CONFIG_HWMON=y
-CONFIG_FB=y
-CONFIG_FB_CFB_FILLRECT=y
-CONFIG_FB_CFB_COPYAREA=y
-CONFIG_FB_CFB_IMAGEBLIT=y
-CONFIG_FB_SOFT_CURSOR=y
-CONFIG_FB_MACMODES=y
-CONFIG_FB_MODE_HELPERS=y
-CONFIG_FB_TILEBLITTING=y
-CONFIG_FB_OF=y
-CONFIG_FB_RADEON=y
-CONFIG_FB_RADEON_I2C=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_TIMER=y
-CONFIG_SND_PCM=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_POWERMAC=y
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_MINIX_FS=m
-CONFIG_INOTIFY=y
-CONFIG_DNOTIFY=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_UDF_FS=m
-CONFIG_UDF_NLS=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_TMPFS_XATTR=y
-CONFIG_TMPFS_SECURITY=y
-CONFIG_RAMFS=y
-CONFIG_HFS_FS=m
-CONFIG_HFSPLUS_FS=y
-CONFIG_CRAMFS=y
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_NFS_COMMON=y
-CONFIG_SUNRPC=m
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_MAC_PARTITION=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_UTF8=y
-CONFIG_CRC_CCITT=m
-CONFIG_CRC32=y
-CONFIG_LIBCRC32C=m
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_BOOTX_TEXT=y
-
---=-fVxz7Oa6lNTkWwYllz18--
-
+Martin

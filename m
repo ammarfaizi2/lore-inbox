@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVHBMBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVHBMDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVHBMBc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 08:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVHBMBc
+	id S261458AbVHBMDp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 08:03:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVHBMDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 08:01:32 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:26331 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261456AbVHBMBb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 08:01:31 -0400
-In-Reply-To: <Pine.LNX.4.58.0508011455520.3341@g5.osdl.org>
-Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
-       Hugh Dickins <hugh@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Roland McGrath <roland@redhat.com>
-X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
-Message-ID: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Tue, 2 Aug 2005 14:01:29 +0200
-X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 02/08/2005 14:01:28
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Tue, 2 Aug 2005 08:03:45 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:22674 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261458AbVHBMDo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 08:03:44 -0400
+Date: Tue, 2 Aug 2005 14:03:43 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Paul Mackerras <paulus@samba.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Obvious bugfix for yenta resource allocation
+Message-ID: <20050802120343.GA27763@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Paul Mackerras <paulus@samba.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <17135.24136.268138.511779@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17135.24136.268138.511779@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Any chance you can change the __follow_page test to account for
-> > writeable clean ptes? Something like
-> >
-> >       if (write && !pte_dirty(pte) && !pte_write(pte))
-> >               goto out;
-> >
-> > And then you would re-add the set_page_dirty logic further on.
->
-> Hmm.. That should be possible. I wanted to do the simplest possible code
-> sequence, but yeah, I guess there's nothing wrong with allowing the code
-> to dirty the page.
->
-> Somebody want to send me a proper patch? Also, I haven't actually heard
-> from whoever actually noticed the problem in the first place (Robin?)
-> whether the fix does fix it. It "obviously does", but testing is always
-> good ;)
+On Tue, Aug 02, 2005 at 09:51:36PM +1000, Paul Mackerras wrote:
+> Recent changes (well, dating from 12 July) have broken cardbus on my
+> powerbook: I get 3 messages saying "no resource of type xxx available,
+> trying to continue", and if I plug in my wireless card, it complains
+> that there are no resources allocated to the card.  This all worked in
+> 2.6.12.
+> 
+> Looking at the code in yenta_socket.c, function yenta_allocate_res,
+> it's obvious what is wrong: if we get to line 639 (i.e. there wasn't a
+> usable preassigned resource), we will always flow through to line 668,
+> which is the printk that I was seeing, even if a resource was
+> successfully allocated.  It looks to me as though there should be a
+> return statement after the two config_writel's in each of the 3
+> branches of the if statements, so that the function returns after
+> successfully setting up the resource.
+> 
+> The patch below adds these return statements, and with this patch,
+> cardbus works on my powerbook once again.
+> 
+> Signed-off-by: Paul Mackerras <paulus@samba.org>
+Acked-by: Dominik Brodowski <linux@dominikbrodowski.net>
 
-Why do we require the !pte_dirty(pte) check? I don't get it. If a writeable
-clean pte is just fine then why do we check the dirty bit at all? Doesn't
-pte_dirty() imply pte_write()?
+Sorry for the bug.
 
-With the additional !pte_write(pte) check (and if I haven't overlooked
-something which is not unlikely) s390 should work fine even without the
-software-dirty bit hack.
-
-blue skies,
-   Martin
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-
+	Dominik

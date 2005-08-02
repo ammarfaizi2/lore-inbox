@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVHBHRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVHBHUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbVHBHRq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 03:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVHBHR3
+	id S261414AbVHBHUG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 03:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVHBHUD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 03:17:29 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:40396 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261400AbVHBHRQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 03:17:16 -0400
-X-ORBL: [67.117.73.34]
-Date: Tue, 2 Aug 2005 00:17:03 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-       tuukka.tikkanen@elektrobit.com, ck@vds.kolivas.org
-Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
-Message-ID: <20050802071703.GG15903@atomide.com>
-References: <200508021443.55429.kernel@kolivas.org> <200508021549.48711.kernel@kolivas.org> <1122961928.5490.10.camel@mindpipe> <200508021556.50450.kernel@kolivas.org> <1122963870.5490.17.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Aug 2005 03:20:03 -0400
+Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:53149 "EHLO
+	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261403AbVHBHSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 03:18:52 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Tony Lindgren <tony@atomide.com>
+Subject: Re: dynamic ticks for 2.6.13-rc4 & bad gzip
+Date: Tue, 2 Aug 2005 17:21:21 +1000
+User-Agent: KMail/1.8.1
+Cc: tony@muru.com, linux-kernel@vger.kernel.org
+References: <200508021124.15670.kernel@kolivas.org> <20050802071035.GF15903@atomide.com>
+In-Reply-To: <20050802071035.GF15903@atomide.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1122963870.5490.17.camel@mindpipe>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200508021721.21232.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell <rlrevell@joe-job.com> [050801 23:24]:
-> On Tue, 2005-08-02 at 15:56 +1000, Con Kolivas wrote:
-> > On Tue, 2 Aug 2005 03:52 pm, Lee Revell wrote:
-> > > On Tue, 2005-08-02 at 15:49 +1000, Con Kolivas wrote:
-> > > > As a crude data point of idle system running a full kde desktop
-> > > > environment on
-> > > > powersave with minimal backlight and just chatting on IRC I find it's
-> > > > just
-> > > > under 10% battery life difference.
-> > >
-> > > Have you tried the same test but without artsd, or with it configured to
-> > > release the sound device after some reasonable time, like 1-2s?
-> > 
-> > I have it on release after 1 second already.
-> 
-> Is there any difference in power use between this, and not running artsd
-> at all?
+On Tue, 2 Aug 2005 05:10 pm, Tony Lindgren wrote:
+> * Con Kolivas <kernel@kolivas.org> [050801 18:24]:
+> > Hi Tony, LKML
+> >
+> > Since there appears to be renewed interest of late in dynamic ticks...
+> >
+> > You didn't respond with my last patch for dynamic ticks so I assume
+> > that's because you threw up when you saw what a mess it is. Anyway I'm
+> > sorry for sending you that naive mess the first time around.
+>
+> Hehe, my strategy of lame response and sloppy patches seems to be working
+> then! :)
 
-Please have the pmstats from http://www.muru.com/linux/dyntick running
-in once console with pmstats 5, and then just kill programs to find out
-which ones use lots of timers. CPU monitors etc.
+Yes you must have learnt from akpm :P He's a master of that game. Thanks for 
+replying :)
 
-You should get X running at about 25HZ, (which is the PIT limit usually)
-Higher ticks means means polling somewhere which totally kills any power
-savings.
+> > Here is a full patch for 2.6.13-rc4 pushing code out of common paths and
+> > into dyn-tick.h where possible that builds on any config I can throw on
+> > it so far. I'm having trouble with "bad gzip magic" on boot with this one
+> > so I'm not really sure what's going on. Perhaps someone on the mailing
+> > list can shed some light on it.
+>
+> Thanks a lot, I really appreciate help on getting this thing cleaned up for
+> x86 + PPC. The ARM version is already merged to mainline, but that's did
+> not have all the legacy issues, and ARM has nice sys_timer...
 
-There's still some places in kernel that also do polling as far as I remember:
+You're welcome, but I'm no coding expert and just applying a few styling 
+issues as I see them.
 
-- AT keyboard if no keyboard connected
-- Netfilter code (Unverified)
+> I'll try out your patch today at some point, and will post a merged patches
+> that also integrate the PPC support.
 
-But this you can verify by booting to single user mode and then running
-pmstats 5, and if ticks is not below 25HZ, there's something in the kernel
-polling.
+> I don't understand the "bad gzip magic", that happens while uncompressing
+> before kernel boots, right?
 
-Reagrds,
+Yeah, bzImage has some convoluted way of storing the gunzip code in the header 
+and then it decompresses the image. This error implies something went 
+horribly wrong but I have seen it before occasionally with gcc 4.0.1 - it 
+usually goes away with reconfigure/rebuilding but this one didn't. Probably 
+not important for this code per se.
 
-Tony
+Cheers,
+Con

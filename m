@@ -1,25 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVHBLEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVHBLSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbVHBLEa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 07:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVHBLEa
+	id S261497AbVHBLSG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 07:18:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVHBLSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 07:04:30 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45522 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261491AbVHBLE3 (ORCPT
+	Tue, 2 Aug 2005 07:18:06 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25047 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261497AbVHBLSF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 07:04:29 -0400
-Date: Tue, 2 Aug 2005 13:04:18 +0200
+	Tue, 2 Aug 2005 07:18:05 -0400
+Date: Tue, 2 Aug 2005 13:17:54 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Eugene Pavlovsky <heilong@bluebottle.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RFE: console_blank_hook that calls userspace helper
-Message-ID: <20050802110418.GB1390@elf.ucw.cz>
-References: <1122891737.42edf7d9a402a@www.bluebottle.com>
+To: Stelian Pop <stelian@popies.net>
+Cc: Johannes Berg <johannes@sipsolutions.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>,
+       debian-powerpc@lists.debian.org
+Subject: Re: powerbook power-off and 2.6.13-rc[3,4]
+Message-ID: <20050802111754.GC1390@elf.ucw.cz>
+References: <1122904460.6491.41.camel@localhost.localdomain> <1122905228.6881.9.camel@localhost> <1122907136.31350.45.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1122891737.42edf7d9a402a@www.bluebottle.com>
+In-Reply-To: <1122907136.31350.45.camel@localhost.localdomain>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,39 +30,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> http://bugzilla.kernel.org/show_bug.cgi?id=4767:
+> > On Mon, 2005-08-01 at 15:54 +0200, Antonio-M. Corbi Bellot wrote:
+> > 
+> > > Has anyone observed this behaviour (O.S. halt ok but _no_ power-off at
+> > > the end) with these new '-rc' kernels?
+> > 
+> > Yes. I haven't looked for the cause yet though.
 > 
-> Bugzilla Bug 4767 	RFE: console_blank_hook that can call userspace
-> program
-> Submitter:   	heilong@bluebottle.com (Eugene Pavlovsky)
+> I found that if you comment the 
+> 	device_suspend(PMSG_SUSPEND);
+> line in kernel/sys.c, in the kernel_power_off() function, then it works
+> again, but I haven't had the time to look further.
 > 
-> I think it'd be very good to have a console_blank_hook handler that
-> would call a
-> userspace program/script/generate hotplug event whatever. Currently,
-> the console
-> can only be blanked using APM, so no options exist for people using
-> ACPI. I've
-> got a Radeon graphics chip on my laptop, and the LCD backlight can be
-> controlled
-> (on/off) using radeontool. If there was a userspace callback
-> interface
-> to
-> console blanking, I would just make a callback script that calls
-> "radeontool
-> light off" on blank and "radeontool light on" on unblank - really
-> easy. I think
-> this userspace console_blank_hook handler is very simple to put into
-> kernel, but
-> I'm not a kernel developer myself, so wouldn't risk sending any
-> patches (that
-> call system("some_script")), because I probably won't make things as
-> they should
-> be in the kernel.
+> I've put LKML in CC: in case this rings someone's bell.
 
-Radeonfb should blank console automatically, without userspace
-helper. Send a patch to do that ;-).
+Can you try without USB? With USB but without experimental
+CONFIG_USB_SUSPEND?
 
 								Pavel
-
 -- 
 teflon -- maybe it is a trademark, but it should not be.

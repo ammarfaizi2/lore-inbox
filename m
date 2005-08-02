@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVHBKSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVHBKWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVHBKSo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 06:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVHBKSo
+	id S261454AbVHBKWp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 06:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbVHBKWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 06:18:44 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:57816 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261475AbVHBKSj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 06:18:39 -0400
-Date: Tue, 2 Aug 2005 12:19:20 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: dwalker@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-Message-ID: <20050802101920.GA25759@elte.hu>
-References: <20050730160345.GA3584@elte.hu> <1122920564.6759.15.camel@localhost.localdomain> <1122931238.4623.17.camel@dhcp153.mvista.com> <1122944010.6759.64.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122944010.6759.64.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 2 Aug 2005 06:22:45 -0400
+Received: from kalyani.insilicasemi.com ([203.145.179.171]:29382 "EHLO
+	kalyani.insilicasemi.com") by vger.kernel.org with ESMTP
+	id S261454AbVHBKWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 06:22:21 -0400
+From: "Sudheer" <rsud@insilica.com>
+To: "'Rahul Tank'" <rahul5311@yahoo.co.in>,
+       "'Linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: serial driver + ioctl
+Date: Tue, 2 Aug 2005 15:52:05 +0530
+Message-ID: <002401c5974c$0e143080$2f08a8c0@varuna>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <20050802094654.40456.qmail@web8410.mail.in.yahoo.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Refer any of the serial driver in the kernel source. There will be
+defined register for this, you need to set those bits for your
+requirement.
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+-Sudheer
 
-> In my custom kernel, I have a wchan field of the task that records 
-> where the task calls something that might schedule. This way I can see 
-> where things locked up if I don't have a back trace of the task.  This 
-> field is always zero when it switches to usermode.  Something like 
-> this can also be used to check how long the process is in kernel mode.  
-> If a task is in the kernel for more than 10 seconds without sleeping, 
-> that would definitely be a good indication of something wrong.  I 
-> probably could write something to check for this if people are 
-> interested.  I wont waste my time if nobody would want it.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Rahul Tank
+Sent: Tuesday, August 02, 2005 3:17 PM
+To: ubuntu-users@lists.ubuntu.com; Linux-kernel
+Subject: serial driver + ioctl
 
-this would be a pretty useful extension of the softlockup checker!
+ hello all,
+   i am trying to write an ioctl for my serial driver.
+i am trying to implement a method which works like
+'setserial' however i am unable to understand how to
+set the baud rate .
+  any pointers
 
-	Ingo
+ thanx in advance
+  regards,
+   rahul
+
+
+	
+
+	
+		
+__________________________________________________________
+Free antispam, antivirus and 1GB to save all your messages
+Only in Yahoo! Mail: http://in.mail.yahoo.com
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+

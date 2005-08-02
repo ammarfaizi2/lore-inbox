@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVHBMXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVHBMYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbVHBMXN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 08:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVHBMXN
+	id S261484AbVHBMYe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 08:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVHBMYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 08:23:13 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:52881 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261437AbVHBMXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 08:23:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:Content-Type:Content-Transfer-Encoding;
-  b=WkA56W+7X2ohreO2/sbHlnuCzsP8JLfsfv3yidWe8yR97qWy9iAHr2IIJp+tIWbKOQ38vC7edNB6AIjfyrEsCnxW4wZRquf64IA+R4bMppW2HHN9sfxakR6PehVIh5anTtENj8+sDLf+Ly3vSAqzbXOM9ZVPj5KV1U1/yUcgC0M=  ;
-Message-ID: <42EF65A9.1060408@yahoo.com.au>
-Date: Tue, 02 Aug 2005 22:23:05 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
+	Tue, 2 Aug 2005 08:24:34 -0400
+Received: from gold.veritas.com ([143.127.12.110]:17418 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S261484AbVHBMY0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 08:24:26 -0400
+Date: Tue, 2 Aug 2005 13:26:09 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Robin Holt <holt@sgi.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
+Message-ID: <Pine.LNX.4.61.0508021309470.3005@goblin.wat.veritas.com>
+References: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Jack Steiner <steiner@sgi.com>
-Subject: [patch 0/2] sched: reduce locking
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 02 Aug 2005 12:24:22.0347 (UTC) FILETIME=[1CF491B0:01C5975D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I've had these patches around for a while, and I'd like to
-get rid of them. They could possibly even go in 2.6.13.
+On Tue, 2 Aug 2005, Martin Schwidefsky wrote:
+> 
+> Why do we require the !pte_dirty(pte) check? I don't get it. If a writeable
+> clean pte is just fine then why do we check the dirty bit at all? Doesn't
+> pte_dirty() imply pte_write()?
 
-I haven't really done performance testing because it is
-difficult to get real workloads going that really stress
-these things. There are small improvements on things like
-tbench on bigger systems, but nothing greatly interesting.
+Not quite.  This is all about the peculiar ptrace case, which sets "force"
+to get_user_pages, and ends up handled by the little maybe_mkwrite function:
+we sometimes allow ptrace to modify the page while the user does not have
+have write access to it via the pte.
 
-I think on real workloads, things could get more interesting.
+Robin discovered a race which proves it's unsafe for get_user_pages to
+reset its lookup_write flag (another stage in this peculiar path) after
+a single try, Nick proposed a patch which adds another VM_ return code
+which each arch would need to handle, Linus looked for something simpler
+and hit upon checking pte_dirty rather than pte_write (and removing
+the then unnecessary lookup_write flag).
 
-Actually, it would be interesting to know how these go on the
-_really_ big systems, and whether lock and cacheline contention
-in the scheduler is still a problem for them.
+Linus' changes are in the 2.6.13-rc5 mm/memory.c,
+but that leaves s390 broken at present.
 
--- 
-SUSE Labs, Novell Inc.
+> With the additional !pte_write(pte) check (and if I haven't overlooked
+> something which is not unlikely) s390 should work fine even without the
+> software-dirty bit hack.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+I agree the pte_write check ought to go back in next to the pte_dirty
+check, and that will leave s390 handling most uses of get_user_pages
+correctly, but still failing to handle the peculiar case of strace
+modifying a page to which the user does not currently have write access
+(e.g. setting a breakpoint in readonly text).
+
+Hugh

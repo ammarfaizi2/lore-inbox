@@ -1,82 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVHBUOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVHBUQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbVHBUOe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 16:14:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVHBUOd
+	id S261756AbVHBUQl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 16:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVHBUQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 16:14:33 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:25524 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261739AbVHBUOb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 16:14:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=d5BAfADazAC0avlZgNXcFl6TQrD7wwGtpHKWHMmOkm2dlsWyI+MuPQcalsauGeyhP06Rhi7Bl7pZ4Iuk9Wt4x8l4+DsUd3BTcIljKNMW/UewTP4L/gsVLLCoJW0kORMNsUtFyAzw6e1qGjdqg7EG/ZLPyEJhddOZZD6BLQ807Co=
-Message-ID: <2ac89c700508021314f42da6a@mail.gmail.com>
-Date: Wed, 3 Aug 2005 00:14:29 +0400
-From: Dmitrij Bogush <dmitrij.bogush@gmail.com>
-Reply-To: Dmitrij Bogush <dmitrij.bogush@gmail.com>
-To: dtor_core@ameritech.net
-Subject: Re: Touchpad errors
-Cc: sboyce@blueyonder.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <d120d500050802072256a4d7ee@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42EF633B.6080209@blueyonder.co.uk>
-	 <d120d500050802072256a4d7ee@mail.gmail.com>
+	Tue, 2 Aug 2005 16:16:40 -0400
+Received: from piraten.student.lu.se ([130.235.208.46]:2969 "EHLO
+	piraten.student.lu.se") by vger.kernel.org with ESMTP
+	id S261756AbVHBUOy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 16:14:54 -0400
+Date: Tue, 02 Aug 2005 22:14:53 +0200
+From: Johan Veenhuizen <veenhuizen@users.sf.net>
+Subject: [PATCH 2.6.12.3] Deny chmod in /proc/<pid>/
+To: linux-kernel@vger.kernel.org
+Message-id: <42efd43d.ijkrXtpGJUM7deW2%veenhuizen@users.sf.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+User-Agent: nail 11.24 7/14/05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-I have the same issue on Acer Aspire 1520 notebook. On SuSE 9.3 system
-can not boot with acpi=off.
-In 2.6.13-rc4-git4 this crazy touchpad jumps reports as:
+Hi!
 
-warning: many lost ticks.
-Your time source seems to be instable or some driver is hogging interupts
-rip handler_IRQ_event+0x20/0x60
+This patch tries to fix the strange behaviour in /proc/<pid>/,
+where it is currently possible for the owner of a process to
+temporarily chmod the entries.
 
-and sometimes I can see 
+Since the inodes for these entries are only temporary, the
+permissions will suddenly be reset when the cache is reclaimed.
+This is confusing and ugly.
 
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte N 
+The fix is simple: Deny chmod for all entries in /proc/<pid>/.
+I figured this would be a lot easier than maintaining persistent
+modes.  The patch does also trigger an EPERM when someone tries
+to chown/chgrp an entry (which is currently silently ignored).
 
-This happens when some software check battery state or current cpu
-rate too often.
+Please send comments, corrections and suggestions.
+
+	Johan Veenhuizen
 
 
-
-2005/8/2, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> On 8/2/05, Sid Boyce <sboyce@blueyonder.co.uk> wrote:
-> > New SuSE 9.3 x86_64 install after HD crash. With 2.6.13-rc3 and up to
-> > 2.6.13-rc4-git4. I can't remember seeing these errors for quite a long
-> > time, thought they were fixed, perhaps there is a regression in recent
-> > kernels.
-> > It completely and rapidly fills up dmesg and /var/log/messages so I
-> > can't get other stuff I need to see.
-> > psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> > psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
-> >
-> 
-> Does it work with acpi=off?
-> 
-> --
-> Dmitry
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--- linux-2.6.12.3/fs/proc/base.c	2005-07-15 23:18:57.000000000 +0200
++++ linux-2.6.12.3-jpv/fs/proc/base.c	2005-08-02 20:08:36.000000000 +0200
+@@ -496,6 +496,17 @@
+ 	return proc_check_root(inode);
+ }
+ 
++static int proc_setattr(struct dentry *dentry, struct iattr *attr)
++{
++	unsigned int ia_valid = attr->ia_valid;
++
++	if ((ia_valid & ATTR_MODE) || (ia_valid & ATTR_UID)
++	                           || (ia_valid & ATTR_GID))
++		return -EPERM;
++	else
++		return inode_setattr(dentry->d_inode, attr);
++}
++
+ extern struct seq_operations proc_pid_maps_op;
+ static int maps_open(struct inode *inode, struct file *file)
+ {
+@@ -766,8 +777,13 @@
+ 	.write		= oom_adjust_write,
+ };
+ 
++static struct inode_operations proc_default_inode_operations = {
++	.setattr	= proc_setattr,
++};
++
+ static struct inode_operations proc_mem_inode_operations = {
+ 	.permission	= proc_permission,
++	.setattr	= proc_setattr,
+ };
+ 
+ #ifdef CONFIG_AUDITSYSCALL
+@@ -965,7 +981,8 @@
+ 
+ static struct inode_operations proc_pid_link_inode_operations = {
+ 	.readlink	= proc_pid_readlink,
+-	.follow_link	= proc_pid_follow_link
++	.follow_link	= proc_pid_follow_link,
++	.setattr	= proc_setattr,
+ };
+ 
+ #define NUMBUF 10
+@@ -1133,6 +1150,7 @@
+ 	ei->task = NULL;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 	inode->i_ino = fake_ino(task->pid, ino);
++	inode->i_op = &proc_default_inode_operations;
+ 
+ 	if (!pid_alive(task))
+ 		goto out_unlock;
+@@ -1349,11 +1367,13 @@
+ static struct inode_operations proc_fd_inode_operations = {
+ 	.lookup		= proc_lookupfd,
+ 	.permission	= proc_permission,
++	.setattr	= proc_setattr,
+ };
+ 
+ static struct inode_operations proc_task_inode_operations = {
+ 	.lookup		= proc_task_lookup,
+ 	.permission	= proc_permission,
++	.setattr	= proc_setattr,
+ };
+ 
+ #ifdef CONFIG_SECURITY
+@@ -1627,10 +1647,12 @@
+ 
+ static struct inode_operations proc_tgid_base_inode_operations = {
+ 	.lookup		= proc_tgid_base_lookup,
++	.setattr	= proc_setattr,
+ };
+ 
+ static struct inode_operations proc_tid_base_inode_operations = {
+ 	.lookup		= proc_tid_base_lookup,
++	.setattr	= proc_setattr,
+ };
+ 
+ #ifdef CONFIG_SECURITY
+@@ -1672,10 +1694,12 @@
+ 
+ static struct inode_operations proc_tgid_attr_inode_operations = {
+ 	.lookup		= proc_tgid_attr_lookup,
++	.setattr	= proc_setattr,
+ };
+ 
+ static struct inode_operations proc_tid_attr_inode_operations = {
+ 	.lookup		= proc_tid_attr_lookup,
++	.setattr	= proc_setattr,
+ };
+ #endif
+ 
+@@ -1700,6 +1724,7 @@
+ static struct inode_operations proc_self_inode_operations = {
+ 	.readlink	= proc_self_readlink,
+ 	.follow_link	= proc_self_follow_link,
++	.setattr	= proc_setattr,
+ };
+ 
+ /**

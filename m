@@ -1,39 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVHBJW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVHBJ0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVHBJW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 05:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVHBJW6
+	id S261413AbVHBJ0s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 05:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVHBJ0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 05:22:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:2758 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261375AbVHBJW6 (ORCPT
+	Tue, 2 Aug 2005 05:26:48 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:14541 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261413AbVHBJ0r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 05:22:58 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: vinay hegde <thisismevinay@yahoo.co.in>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Need help regarding kernel threads 
-In-reply-to: Your message of "Tue, 02 Aug 2005 09:57:51 +0100."
-             <20050802085751.55408.qmail@web8407.mail.in.yahoo.com> 
+	Tue, 2 Aug 2005 05:26:47 -0400
+Date: Tue, 2 Aug 2005 11:27:17 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       steiner@sgi.com
+Subject: Re: [Patch] don't kick ALB in the presence of pinned task
+Message-ID: <20050802092717.GB20978@elte.hu>
+References: <20050801174221.B11610@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 02 Aug 2005 19:22:50 +1000
-Message-ID: <11025.1122974570@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <20050801174221.B11610@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Aug 2005 09:57:51 +0100 (BST), 
-vinay hegde <thisismevinay@yahoo.co.in> wrote:
->How to differentiate kernel threads from normal
->processes inside the Linux kernel code? 
 
-The Linux Kernel Debugger (ftp://oss.sgi.com/projects/kdb/download/v4.4)
-distinguishes between idle tasks, sleeping system daemons and the rest
-(typically user tasks).  An idle task has pid 0, a sleeping system
-daemon has a NULL mm field and is in S state, everything else is
-treated as a normal task.
+* Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
 
-Download the latest kdb common patch and look at function
-kdb_task_state_char.
+> Jack Steiner brought this issue at my OLS talk.
+> 
+> Take a scenario where two tasks are pinned to two HT threads in a physical
+> package. Idle packages in the system will keep kicking migration_thread
+> on the busy package with out any success.
+> 
+> We will run into similar scenarios in the presence of CMP/NUMA.
+> 
+> Patch appended.
+> 
+> Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
+nice catch!
+
+fine for -mm, but i dont think we need this fix in 2.6.13, as the effect 
+of the bug is an extra context-switch per 'CPU goes idle' event, in this 
+very specific (and arguably broken) task binding scenario. In a 
+worst-case scenario a CPU going idle can 'spam' that other CPU with 
+migration requests, but it still seems like a pretty artificial workload 
+scenario where the system has significant idle time left. I have tested 
+your fix on a HT box and it solves the problem.
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

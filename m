@@ -1,57 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVHBMyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVHBM6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVHBMyx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 08:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVHBMyx
+	id S261504AbVHBM6F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 08:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVHBM6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 08:54:53 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19369 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261500AbVHBMyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 08:54:52 -0400
-Date: Tue, 2 Aug 2005 14:54:45 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Stelian Pop <stelian@popies.net>
-Cc: Johannes Berg <johannes@sipsolutions.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>,
-       debian-powerpc@lists.debian.org
-Subject: Re: powerbook power-off and 2.6.13-rc[3,4]
-Message-ID: <20050802125445.GA32322@atrey.karlin.mff.cuni.cz>
-References: <1122904460.6491.41.camel@localhost.localdomain> <1122905228.6881.9.camel@localhost> <1122907136.31350.45.camel@localhost.localdomain> <20050802111754.GC1390@elf.ucw.cz> <42EF5B4E.6090101@sipsolutions.net> <1122982951.4652.14.camel@localhost.localdomain> <1122985793.4648.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122985793.4648.4.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 2 Aug 2005 08:58:05 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:35542 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261504AbVHBM6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 08:58:02 -0400
+Message-ID: <42EF6DF7.6030100@punnoor.de>
+Date: Tue, 02 Aug 2005 14:58:31 +0200
+From: Prakash Punnoor <prakash@punnoor.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>, Tony Lindgren <tony@atomide.com>,
+       tuukka.tikkanen@elektrobit.com
+Subject: Re: [PATCH] no-idle-hz aka dynamic ticks
+References: <200508022225.31429.kernel@kolivas.org>
+In-Reply-To: <200508022225.31429.kernel@kolivas.org>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig6417424F107E2E730E2A18E3"
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig6417424F107E2E730E2A18E3
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-> > > Pavel Machek wrote:
-> > > 
-> > > >Can you try without USB?
-> > > >
-> > > Not really. The keyboard is USB, and there's no PS/2 connector. I guess 
-> > > I maybe could do it via a timer, unload the modules and then have it 
-> > > shut down afterwards...
-> > 
-> > I'll build a kernel without USB and drive the laptop over the net and
-> > see what happens.
-> 
-> Without CONFIG_USB the poweroff still hangs, and this time the panel
-> goes completly white with dark spots appearing all over it (kinda scary
-> btw). A 5 seconds press on the power button force it to power off.
+Con Kolivas schrieb:
+> As promised, here is an updated patch for the newly released 2.6.13-rc5. Boots 
+> and runs fine on P4HT (SMP+SMT kernel) built with gcc 4.0.1.
 
-Yep, looks like screen burning, right? So it is different kind of hang
-=> USB has some problem but there's another one, too?
+Doesn't compile for me w/ gcc 3.4.4:
 
-> This is on a 2.6.13-rc4, and I'm attaching the .config in case it
-> matters.
 
-Could you try inserting printks to see where it hangs? Aha, with
-display turned off that is not going to be funny.
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+  CC      arch/i386/kernel/irq.o
+In file included from include/linux/dyn-tick.h:64,
+                 from arch/i386/kernel/irq.c:21:
+include/asm/dyn-tick.h: In function `reprogram_apic_timer':
+include/asm/dyn-tick.h:48: warning: implicit declaration of function
+`apic_write_around'
+include/asm/dyn-tick.h:48: error: `APIC_TMICT' undeclared (first use in this
+function)
+include/asm/dyn-tick.h:48: error: (Each undeclared identifier is reported only
+once
+include/asm/dyn-tick.h:48: error: for each function it appears in.)
+make[1]: *** [arch/i386/kernel/irq.o] Error 1
+
+
+Cheers,
+
+Prakash
+
+--------------enig6417424F107E2E730E2A18E3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFC7233xU2n/+9+t5gRAgEAAKDatagAteg3KUbmNGlHvCrpVGKlmgCg97RU
+EevN2mTs3hJi5QvLJn/YuYw=
+=bPif
+-----END PGP SIGNATURE-----
+
+--------------enig6417424F107E2E730E2A18E3--

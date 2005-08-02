@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVHBFxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVHBFza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVHBFxY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 01:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVHBFxY
+	id S261384AbVHBFza (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 01:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVHBFz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 01:53:24 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:41999 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261383AbVHBFxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 01:53:18 -0400
-Date: Tue, 2 Aug 2005 07:37:39 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove support for gcc < 3.2
-Message-ID: <20050802053739.GA20363@alpha.home.local>
-References: <20050731222606.GL3608@stusta.de> <20050801030145.GE20899@kurtwerks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Aug 2005 01:55:29 -0400
+Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:3214 "EHLO
+	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261384AbVHBFyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 01:54:37 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
+Date: Tue, 2 Aug 2005 15:56:50 +1000
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, tony@atomide.com,
+       tuukka.tikkanen@elektrobit.com, ck@vds.kolivas.org
+References: <200508021443.55429.kernel@kolivas.org> <200508021549.48711.kernel@kolivas.org> <1122961928.5490.10.camel@mindpipe>
+In-Reply-To: <1122961928.5490.10.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050801030145.GE20899@kurtwerks.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200508021556.50450.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 31, 2005 at 11:01:45PM -0400, Kurt Wall wrote:
-> On Mon, Aug 01, 2005 at 12:26:07AM +0200, Adrian Bunk took 109 lines to write:
-> > This patch removes support for gcc < 3.2 .
-> > 
-> > The advantages are:
-> > - reducing the number of supported gcc versions from 8 to 4 [1]
-> >   allows the removal of several #ifdef's and workarounds
-> > - my impression is that the older compilers are only rarely
-> >   used, so miscompilations of a driver with an old gcc might
-> >   not be detected for a longer amount of time
-> > 
-> > My personal opinion about the time and space a compilation requires is 
-> > that this is no longer that much of a problem for modern hardware, and 
-> > in the worst case you can compile the kernels for older machines on more 
-> > recent machines.
-> 
-> Environments that require kernel compilation, often multiple times, 
-> testing, benefit from shorter compile times. It can be the difference
-> between, say, completing a test suite overnight instead of having to
-> wait until tomorrow afternoon. Keeping 2.95, at least, has some value
-> in such environments.
+On Tue, 2 Aug 2005 03:52 pm, Lee Revell wrote:
+> On Tue, 2005-08-02 at 15:49 +1000, Con Kolivas wrote:
+> > As a crude data point of idle system running a full kde desktop
+> > environment on
+> > powersave with minimal backlight and just chatting on IRC I find it's
+> > just
+> > under 10% battery life difference.
+>
+> Have you tried the same test but without artsd, or with it configured to
+> release the sound device after some reasonable time, like 1-2s?
 
-I *do* still use 2.95 a lot, and I'm not alone, judging from people
-around me. 2.95 has been the reference for a very long time, that's
-why it's still so much present. 3.0 and 3.1 (even 3.2) have been
-there for a very short time frame, but 2.95 and 3.3 really seem to
-be references compilers.
-
-So please keep support for 2.95.
+I have it on release after 1 second already.
 
 Cheers,
-Willy
-
+Con

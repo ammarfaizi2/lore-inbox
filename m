@@ -1,58 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVHBLYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVHBL0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVHBLYb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 07:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVHBLYQ
+	id S261502AbVHBL0z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 07:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVHBL0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 07:24:16 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59114 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261499AbVHBLXT (ORCPT
+	Tue, 2 Aug 2005 07:26:55 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4523 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261505AbVHBL0C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 07:23:19 -0400
-Date: Tue, 2 Aug 2005 13:23:04 +0200
+	Tue, 2 Aug 2005 07:26:02 -0400
+Date: Tue, 2 Aug 2005 13:25:51 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: David Weinehall <tao@acc.umu.se>, Lee Revell <rlrevell@joe-job.com>,
-       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-Message-ID: <20050802112304.GA1308@elf.ucw.cz>
-References: <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz> <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz> <1122852234.13000.27.camel@mindpipe> <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>, shaohua.li@intel.com
+Subject: swsusp: add locking to software_resume
+Message-ID: <20050802112551.GA2542@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42EE4B4A.80602@andrew.cmu.edu>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+From: Shaohua Li <shaohua.li@intel.com>
 
-> >Any argument along the lines of the change of a default
-> >value in the defconfig screwing people over equally applies the other
-> >way around; by not changing the defconfig, you're screwing laptop users
-> >(and others that want less power consumption) over.  The world is not
-> >black and white, it's a very boring gray (or a very sadening bloody
-> >red; but I hope we won't come to that point just because of a silly
-> >argument on lkml...)
-> 
-> The tradeoff is a realistic 4.4% power savings vs a 300% increase in the 
-> minimum sleep period.  A user will see zero power savings if they have a 
-> USB mouse (probably 99% of desktops).  On top of that, we can throw in 
-> Con's disturbing AV benchmark results (1).  As a result, some of us 
-> don't think 250HZ is a great tradeoff to make
-> _for_the_default_value_.
+It is trying to protect swsusp_resume_device and software_resume()
+from two users banging it from userspace at the same time.
 
-As I said, I do not care about default value. And you should not care,
-too, since distros are likely to pick their own defaults.
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-> From what I can tell, tick skipping works fine right now, it just needs 
-> some cleanup.  Thus I'd expect something like it will get integrated 
-> into 2.6.14.  If it gets in, the default HZ should go back up to 1000. 
-> In that case why decrease it for exactly one patchlevel?
+---
+commit c1d6e115ea6f797563fe6873de25892cb16a309e
+tree 53b5eead95da859baf820be52a62b2ddab007c29
+parent 86fa9d8a44c633603139b427c160ed1cdd41c6ce
+author <pavel@Elf.(none)> Tue, 02 Aug 2005 13:19:38 +0200
+committer <pavel@Elf.(none)> Tue, 02 Aug 2005 13:19:38 +0200
 
-I am afraid that CONFIG_NO_IDLE_HZ will be ready for 2.6.14...
+ kernel/power/disk.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
 
-								Pavel
+diff --git a/kernel/power/disk.c b/kernel/power/disk.c
+--- a/kernel/power/disk.c
++++ b/kernel/power/disk.c
+@@ -233,9 +233,12 @@ static int software_resume(void)
+ {
+ 	int error;
+ 
++	down(&pm_sem);
+ 	if (!swsusp_resume_device) {
+-		if (!strlen(resume_file))
++		if (!strlen(resume_file)) {
++			up(&pm_sem);
+ 			return -ENOENT;
++		}
+ 		swsusp_resume_device = name_to_dev_t(resume_file);
+ 		pr_debug("swsusp: Resume From Partition %s\n", resume_file);
+ 	} else {
+@@ -248,6 +251,7 @@ static int software_resume(void)
+ 		 * FIXME: If noresume is specified, we need to find the partition
+ 		 * and reset it back to normal swap space.
+ 		 */
++		up(&pm_sem);
+ 		return 0;
+ 	}
+ 
+@@ -284,6 +288,8 @@ static int software_resume(void)
+  Cleanup:
+ 	unprepare_processes();
+  Done:
++	/* For success case, the suspend path will release the lock */
++	up(&pm_sem);
+ 	pr_debug("PM: Resume from disk failed.\n");
+ 	return 0;
+ }
+@@ -390,7 +396,9 @@ static ssize_t resume_store(struct subsy
+ 	if (sscanf(buf, "%u:%u", &maj, &min) == 2) {
+ 		res = MKDEV(maj,min);
+ 		if (maj == MAJOR(res) && min == MINOR(res)) {
++			down(&pm_sem);
+ 			swsusp_resume_device = res;
++			up(&pm_sem);
+ 			printk("Attempting manual resume\n");
+ 			noresume = 0;
+ 			software_resume();
+
 -- 
 teflon -- maybe it is a trademark, but it should not be.

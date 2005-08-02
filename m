@@ -1,75 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVHBHhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVHBHpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbVHBHhF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 03:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVHBHhF
+	id S261411AbVHBHpt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 03:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVHBHpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 03:37:05 -0400
-Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:46264 "EHLO
-	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261400AbVHBHhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 03:37:03 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Tony Lindgren <tony@atomide.com>
-Subject: Re: [patch] i386 dynamic ticks 2.6.13-rc4 (code reordered)
-Date: Tue, 2 Aug 2005 17:39:19 +1000
-User-Agent: KMail/1.8.1
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       tuukka.tikkanen@elektrobit.com, ck@vds.kolivas.org
-References: <200508021443.55429.kernel@kolivas.org> <1122963870.5490.17.camel@mindpipe> <20050802071703.GG15903@atomide.com>
-In-Reply-To: <20050802071703.GG15903@atomide.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 2 Aug 2005 03:45:49 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:65170 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261411AbVHBHpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 03:45:46 -0400
+Subject: Re: [PATCH 00/14] GFS
+From: Arjan van de Ven <arjan@infradead.org>
+To: David Teigland <teigland@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+In-Reply-To: <20050802071828.GA11217@redhat.com>
+References: <20050802071828.GA11217@redhat.com>
+Content-Type: text/plain
+Date: Tue, 02 Aug 2005 09:45:24 +0200
+Message-Id: <1122968724.3247.22.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508021739.20347.kernel@kolivas.org>
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Aug 2005 05:17 pm, Tony Lindgren wrote:
-> * Lee Revell <rlrevell@joe-job.com> [050801 23:24]:
-> > On Tue, 2005-08-02 at 15:56 +1000, Con Kolivas wrote:
-> > > On Tue, 2 Aug 2005 03:52 pm, Lee Revell wrote:
-> > > > On Tue, 2005-08-02 at 15:49 +1000, Con Kolivas wrote:
-> > > > > As a crude data point of idle system running a full kde desktop
-> > > > > environment on
-> > > > > powersave with minimal backlight and just chatting on IRC I find
-> > > > > it's just
-> > > > > under 10% battery life difference.
-> > > >
-> > > > Have you tried the same test but without artsd, or with it configured
-> > > > to release the sound device after some reasonable time, like 1-2s?
-> > >
-> > > I have it on release after 1 second already.
-> >
-> > Is there any difference in power use between this, and not running artsd
-> > at all?
->
-> Please have the pmstats from http://www.muru.com/linux/dyntick running
-> in once console with pmstats 5, and then just kill programs to find out
-> which ones use lots of timers. CPU monitors etc.
->
-> You should get X running at about 25HZ, (which is the PIT limit usually)
-> Higher ticks means means polling somewhere which totally kills any power
-> savings.
+On Tue, 2005-08-02 at 15:18 +0800, David Teigland wrote:
+> Hi, GFS (Global File System) is a cluster file system that we'd like to
+> see added to the kernel.  The 14 patches total about 900K so I won't send
+> them to the list unless that's requested.  Comments and suggestions are
+> welcome.  Thanks
+> 
+> http://redhat.com/~teigland/gfs2/20050801/gfs2-full.patch
+> http://redhat.com/~teigland/gfs2/20050801/broken-out/
 
-Ok I seem to be bottoming out at 130Hz. I can't seem to kill off anything 
-more.
+* The on disk structures are defined in terms of uint32_t and friends,
+which are NOT endian neutral. Why are they not le32/be32 and thus
+endian-defined? Did you run bitwise-sparse on GFS yet ?
 
->
-> There's still some places in kernel that also do polling as far as I
-> remember:
->
-> - AT keyboard if no keyboard connected
-> - Netfilter code (Unverified)
->
-> But this you can verify by booting to single user mode and then running
-> pmstats 5, and if ticks is not below 25HZ, there's something in the kernel
-> polling.
+* None of your on disk structures are packet. Are you sure?
 
-I'm removing modules and they don't seem to do anything so I'm not sure what 
-else to try.
+* 
++#define gfs2_16_to_cpu be16_to_cpu
++#define gfs2_32_to_cpu be32_to_cpu
++#define gfs2_64_to_cpu be64_to_cpu
 
-Cheers,
-Con
+why this pointless abstracting?
+
+* +static const uint32_t crc_32_tab[] = .....
+
+why do you duplicate this? The kernel has a perfectly good set of generic crc32 tables/functions just fine
+
+* Why are you using bufferheads extensively in a new filesystem?
+
+* +	if (create)
++		down_write(&ip->i_rw_mutex);
++	else
++		down_read(&ip->i_rw_mutex);
+
+why do you use a rwsem and not a regular semaphore? You are aware that rwsems are far more expensive than regular ones right?
+How skewed is the read/write ratio?
+
+* Why use your own journalling layer and not say ... jbd ?
+
+* +	while (!kthread_should_stop()) {
++		gfs2_scand_internal(sdp);
++
++		set_current_state(TASK_INTERRUPTIBLE);
++		schedule_timeout(gfs2_tune_get(sdp, gt_scand_secs) * HZ);
++	}
+
+you probably really want to check for signals if you do interruptible sleeps
+(multiple places)
+
+* why not use msleep() and friends instead of schedule_timeout(), you're not using the complex variants anyway
+
+* +++ b/fs/gfs2/fixed_div64.h	2005-08-01 14:13:08.009808200 +0800
+
+ehhhh why?
+
+* int gfs2_copy2user(struct buffer_head *bh, char **buf, unsigned int offset,
++		   unsigned int size)
++{
++	int error;
++
++	if (bh)
++		error = copy_to_user(*buf, bh->b_data + offset, size);
++	else
++		error = clear_user(*buf, size);
+
+that looks to be missing a few kmaps.. whats the guarantee that b_data is actually, like in lowmem?
+
+* [PATCH 08/14] GFS: diaper device
+
+The diaper device is a block device within gfs that gets transparently
+inserted between the real device the and rest of the filesystem.
+
+hmmmm why not use device mapper or something? Is this really needed? Should it live in drivers/block ? Doesn't
+this wrapper just increase the risk for memory deadlocks?
+
+* [PATCH 06/14] GFS: logging and recovery
+
+quoting the ren and stimpy show is nice.. but did the ren ans stimpy authors agree to license their stuff under the GPL?
+
+
+* do_lock_wait
+
+that almost screams for using wait_event and related APIs
+
+
+*
++static inline void gfs2_log_lock(struct gfs2_sbd *sdp)
++{
++	spin_lock(&sdp->sd_log_lock);
++}
+why the abstraction ?
+
+
+

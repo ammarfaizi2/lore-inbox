@@ -1,64 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVHBGqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVHBGrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVHBGqC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 02:46:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVHBGqC
+	id S261401AbVHBGrX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 02:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVHBGrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 02:46:02 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:9958 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261396AbVHBGp6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 02:45:58 -0400
-X-ORBL: [67.117.73.34]
-Date: Mon, 1 Aug 2005 23:45:36 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: David Weinehall <tao@acc.umu.se>, Lee Revell <rlrevell@joe-job.com>,
-       Pavel Machek <pavel@ucw.cz>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-Message-ID: <20050802064535.GC15903@atomide.com>
-References: <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz> <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz> <1122852234.13000.27.camel@mindpipe> <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu>
+	Tue, 2 Aug 2005 02:47:16 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:34458 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261400AbVHBGqc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 02:46:32 -0400
+Date: Tue, 2 Aug 2005 08:48:31 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Daniel Drake <dsd@gentoo.org>, Otto Meier <gf435@gmx.net>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Driver for sata adapter promise sata300 tx4
+Message-ID: <20050802064827.GV22569@suse.de>
+References: <42EDE918.9040807@gmx.net> <42EE3501.7010107@gentoo.org> <42EE3FB8.10008@gmx.net> <42EE4ADF.4080502@gentoo.org> <20050801201756.GQ22569@suse.de> <20050801203228.GS22569@suse.de> <42EE87DF.1080508@pobox.com> <20050801204241.GU22569@suse.de> <42EE8AD5.6080100@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42EE4B4A.80602@andrew.cmu.edu>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <42EE8AD5.6080100@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Bruce <bruce@andrew.cmu.edu> [050801 09:28]:
+On Mon, Aug 01 2005, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> >On Mon, Aug 01 2005, Jeff Garzik wrote:
+> >
+> >>Jens Axboe wrote:
+> >>
+> >>>Oh, and forget TCQ. It's a completely worthless technology inherited
+> >>
+> >>>from PATA,
+> >>
+> >>Agreed.
+> >>
+> >>There are a few controllers where we may -eventually- add TCQ support, 
+> >>controllers that do 100% of TCQ in hardware.  But that's so far down the 
+> >>priority list, it's below just about everything else.
+> >>
+> >>There may just be little motivation to -ever- support TCQ, even when 
+> >>libata is the 'main' IDE driver, sometime in the future.
+> >
+> >
+> >Host supported TCQ only removes the pain from the software side, it
+> >still doesn't make it a fast techology. The only reason you would want
+> >to support that would be "it's easy, why not...". From my POV, I would
+> >refuse to support it just from an ideological standpoint :-)
+> >
+> >Legacy TCQ, hell no, not in a million years.
 > 
-> Finally, as a conspiracy theorist, I wonder if Linus is just playing us 
-> to get more people working on the tick skipping and highres timer 
-> patches.  Someone with the ability to herd cats obviously has to be 
-> sneaky.  As an impressive demonstration of my free will I'm going to go 
-> test dyntick on my VIA Epia board...
+> This is largely a confusion of terminology.  On the SATA page,
+> 
+> "host-based TCQ" == host controller has a hardware queue (DMA ring, or 
+> whatnot)
+> 
+> "legacy TCQ" == making use of READ/WRITE DMA QUEUED commands.
+> 
+> I would only consider accepting the -intersection- of these two feature 
+> sets, where host TCQ and legacy TCQ are -both- present.  As an extremely 
+> low, low priority.  :)
 
-Yeah, I've been running dyntick on my VIA Epia home server for a while now:
+That's what I understand as host supported TCQ, you talk sanely with the
+hardware and that handles the actual TCQ with the device. A controller
+that just has a hardware queue but doesn't actually do queueing at the
+device side is even less interesting, since it buys you very close to
+nothing.
 
-# uname -r
-2.6.12-rc4
+> As a terminology side note, the SATA community refers to "everything 
+> that is not NCQ" as "legacy TCQ".  Legacy TCQ doesn't necessarily imply 
+> use of the standard PCI IDE interface, handling SERV interrupts and all 
+> that nastiness.
 
-# uptime
- 23:39:46 up 76 days,  9:10,  5 users,  load average: 0.00, 0.01, 0.00
+In part I agree with that, since "everything that is not NCQ" is legacy
+in the way that if you have it, perhaps continue to support, but if not
+don't bother since it's not worth it.
 
-# pmstats 5
-Current: 0mA Voltage: 0.00mV Power: 0.00W 0mAh Time: 00:00h Ticks: 0HZ
-Current: 0mA Voltage: 0.00mV Power: 0.00W 0mAh Time: 00:00h Ticks: 33HZ
-Current: 0mA Voltage: 0.00mV Power: 0.00W 0mAh Time: 00:00h Ticks: 32HZ
-Current: 0mA Voltage: 0.00mV Power: 0.00W 0mAh Time: 00:00h Ticks: 34HZ
-Current: 0mA Voltage: 0.00mV Power: 0.00W 0mAh Time: 00:00h Ticks: 35HZ
+> Patches to software-status.html to make this more clear are certainly 
+> welcome, as well :)
 
-My server is mostly idle, and the average HZ is around 35HZ.
+If I update that document, the wording will be stronger :-)
 
-This is still with the max HZ set to 1000. With dyntick, the max HZ
-should be set to something that provides best performance under heavy
-load on the system. Or least latency or whatever.
+-- 
+Jens Axboe
 
-But AFAIK, it does not make any sense to limit the max HZ because of
-power savings. That's just a bad compromise.
-
-Regards,
-
-Tony

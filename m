@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVHBRCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVHBRGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVHBRCi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 13:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVHBRCi
+	id S261661AbVHBRGk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 13:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVHBRGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 13:02:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65157 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261664AbVHBRCe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 13:02:34 -0400
-Date: Tue, 2 Aug 2005 10:02:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Robin Holt <holt@sgi.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
-In-Reply-To: <Pine.LNX.4.58.0508020911480.3341@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0508020942360.3341@g5.osdl.org>
-References: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
- <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
- <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com>
- <Pine.LNX.4.58.0508020911480.3341@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Aug 2005 13:06:40 -0400
+Received: from keetweej.xs4all.nl ([213.84.46.114]:49809 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S261661AbVHBRGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 13:06:39 -0400
+Date: Tue, 2 Aug 2005 19:06:37 +0200
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, sclark46@earthlink.net,
+       James Bruce <bruce@andrew.cmu.edu>, "Theodore Ts'o" <tytso@mit.edu>,
+       David Weinehall <tao@acc.umu.se>, Pavel Machek <pavel@ucw.cz>,
+       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
+Message-ID: <20050802170637.GO10080@vanheusden.com>
+References: <42ED4CCF.6020803@andrew.cmu.edu>
+	<20050731224752.GC27580@elf.ucw.cz>
+	<1122852234.13000.27.camel@mindpipe>
+	<20050801074447.GJ9841@khan.acc.umu.se>
+	<42EE4B4A.80602@andrew.cmu.edu> <20050801204245.GC17258@thunk.org>
+	<42EEFB9B.10508@andrew.cmu.edu> <42EF70BD.7070804@earthlink.net>
+	<1122991380.5490.24.camel@mindpipe> <20050802141240.GG2408@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050802141240.GG2408@suse.de>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Wed Aug  3 14:21:55 CEST 2005
+X-MSMail-Priority: High
+X-Message-Flag: MultiTail - tail on steroids
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 2 Aug 2005, Linus Torvalds wrote:
+> > > Maybe new desktop systems - but what about the tens of millions of old
+> > > systems that don't.
+> > 
+> > Does anyone really give a shit about saving power on the desktop anyway?
+> > This is basically a laptop issue.
 > 
-> In fact, that brings up another race altogether: a thread that does a
-> fork() at the same time [...]
+> Eh yes, very much.
 
-You don't even need that, actually. There's another race by which the 
-write could have gotten lost both with the new code _and_ the old code.
+Indeed. Safe the environment etc.
 
-Since we will have dropped the page table lock when calling
-handle_mm_fault() (which will just re-get the lock and then drop it 
-again) _and_ since we don't actually mark the page dirty if it was 
-writable, it's entirely possible that the VM scanner comes in and just 
-drops the page from the page tables.
 
-Now, that doesn't sound so bad, but what we have then is a page that is
-marked dirty in the "struct page", but hasn't been actually dirtied yet.  
-It could get written out and marked clean (can anybody say "preemptible
-kernel"?) before we ever actually do the write to the page.
+Folkert van Heusden
 
-The thing is, we should always set the dirty bit either atomically with
-the access (normal "CPU sets the dirty bit on write") _or_ we should set
-it after the write (having kept a reference to the page).
-
-Or does anybody see anything that protects us here?
-
-Now, I don't think we can fix that race (which is probably pretty much 
-impossible to hit in practice) in the 2.6.13 timeframe.
-
-Maybe I'll have to just accept the horrid "VM_FAULT_RACE" patch. I don't
-much like it, but.. 
-
-			Linus
+-- 
+Auto te koop, zie: http://www.vanheusden.com/daihatsu.php
+--------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+--------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE

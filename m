@@ -1,34 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVHBQEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVHBP7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVHBQEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 12:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVHBQCP
+	id S261599AbVHBP7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 11:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVHBP57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 12:02:15 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:9403 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S261489AbVHBQAX
+	Tue, 2 Aug 2005 11:57:59 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:16961 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261609AbVHBPz3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 12:00:23 -0400
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: linux-kernel@vger.kernel.org
-Subject: How does umount -a interact with namespaces?
-Date: Tue, 2 Aug 2005 11:00:20 -0500
-User-Agent: KMail/1.8
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Aug 2005 11:55:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YQfpW8fuMaFySDAXQGdAfixHiwvWaoOiQM61RYxenKAzJaYDRXKWQVTqF4atXSYAIMMrvNSdXAvf77LSKs1yKyy9gNWRWhx0lnZaeeIgkKYc6Am0MZgYMmUTthqRma7zj0oFFFvYqvbhQVkP6FVhtFrouKFjietg+d2zUswF/v4=
+Message-ID: <d120d5000508020855797bed03@mail.gmail.com>
+Date: Tue, 2 Aug 2005 10:55:27 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: 2.6.13-rc3 -> sluggish PS2 keyboard (was Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01)
+Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <1122997061.11253.3.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200508021100.20131.rob@landley.net>
+References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins>
+	 <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe>
+	 <20050731063852.GA611@elte.hu> <1122871521.15825.13.camel@mindpipe>
+	 <1122991018.1590.2.camel@localhost.localdomain>
+	 <1122991531.5490.27.camel@mindpipe>
+	 <1122992426.1590.11.camel@localhost.localdomain>
+	 <1122997061.11253.3.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any way for to get a "global" view of all namespaces (even when 
-processes that fork request their own filesystem namespace) that init or 
-umount -a can use while shutting down the system?
+On 8/2/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Tue, 2005-08-02 at 10:20 -0400, Steven Rostedt wrote:
+> > On Tue, 2005-08-02 at 10:05 -0400, Lee Revell wrote:
+> > > On Tue, 2005-08-02 at 09:56 -0400, Steven Rostedt wrote:
+> > > > On Mon, 2005-08-01 at 00:45 -0400, Lee Revell wrote:
+> > > > > On Sun, 2005-07-31 at 08:38 +0200, Ingo Molnar wrote:
+> > > > > > ok - i've uploaded the -52-04 patch, does that fix it for you?
+> > > > >
+> > > > > Has anyone found their PS2 keyboard rather sluggish with this kernel?
+> > > > > I'm not sure whether it's an -RT problem, I'll have to try rc4.
+> > > >
+> > > > I've just noticed this now. While I have lots of ssh sessions running,
+> > > > my keyboard does get really sluggish. This hasn't happened before. I'm
+> > > > currently running 2.6.13-rc3 with no RT.  So this may definitely be a
+> > > > mainline issue.
+> > >
+> > > I'm on a slower machine, and I seem to get this behavior regardless of
+> > > load.  Probably just running X+Gnome on this box is enough.
+> > >
+> > Also, I don't know if this is a kernel issue or a debian issue since I
+> > updated my kernel at the same time I did a debian upgrade, and I'm using
+> > debian unstable. Since debian unstable is going through some major
+> > changes, this could be caused by that.  I may be able to try some other
+> > machines to see if they are affected, but that might take some time
+> > before I can get to it.
+> >
+> 
+> Same here (s/debian/ubuntu/) but I have the exact same problem at the
+> console, I don't think it could be an X issue unless X was able to wedge
+> the keyboard controller.
+> 
+> It feels like typing over a slow modem link, I can get about one word
+> ahead of the cursor (X or console, regardless of load) but the delay
+> seems to be constant.
+> 
 
-I don't know how umount -a is suppose to be implemented here...
+Is this with ACPI? Have you tried playing with ec_polling parameter?
 
-Rob
-
+-- 
+Dmitry

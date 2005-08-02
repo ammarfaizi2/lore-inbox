@@ -1,90 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVHBFSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVHBFdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbVHBFSI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 01:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVHBFSI
+	id S261371AbVHBFdP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 01:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVHBFdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 01:18:08 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:42406 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261368AbVHBFSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 01:18:06 -0400
-Subject: Re: [ACPI] S3 and sigwait (was Re: 2.6.13-rc3: swsusp works (TP
-	600X))
-From: Shaohua Li <shaohua.li@intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-In-Reply-To: <20050801070926.GI27580@elf.ucw.cz>
-References: <20050730103034.GC1942@elf.ucw.cz>
-	 <1122879094.3285.2.camel@linux-hp.sh.intel.com>
-	 <20050801070926.GI27580@elf.ucw.cz>
-Content-Type: text/plain
-Date: Tue, 02 Aug 2005 13:16:17 +0800
-Message-Id: <1122959777.6864.4.camel@linux-hp.sh.intel.com>
+	Tue, 2 Aug 2005 01:33:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:16341 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261371AbVHBFdN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 01:33:13 -0400
+Date: Mon, 1 Aug 2005 22:33:04 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
+Subject: Re: [PATCH] String conversions for memory policy
+Message-Id: <20050801223304.2a8871e8.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0508011713540.9824@graphe.net>
+References: <Pine.LNX.4.62.0507291137240.3864@graphe.net>
+	<20050729152049.4b172d78.pj@sgi.com>
+	<Pine.LNX.4.62.0507291746000.8663@graphe.net>
+	<20050729230026.1aa27e14.pj@sgi.com>
+	<Pine.LNX.4.62.0507301042420.26355@graphe.net>
+	<20050730181418.65caed1f.pj@sgi.com>
+	<Pine.LNX.4.62.0507301814540.31359@graphe.net>
+	<20050730190126.6bec9186.pj@sgi.com>
+	<Pine.LNX.4.62.0507301904420.31882@graphe.net>
+	<20050730191228.15b71533.pj@sgi.com>
+	<Pine.LNX.4.62.0508011147030.5541@graphe.net>
+	<20050801160351.71ee630a.pj@sgi.com>
+	<Pine.LNX.4.62.0508011618120.9351@graphe.net>
+	<20050801165947.36b5da96.pj@sgi.com>
+	<Pine.LNX.4.62.0508011713540.9824@graphe.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-08-01 at 09:09 +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > If you think it is a linux bug, can you produce small test case doing 
-> > > just the sigwait, and post it on l-k with big title "sigwait() breaks 
-> > > when straced, and on suspend"?
-> > > 
-> > > That way it is going to get some attetion, and you'll get either 
-> > > documentation or kernel fixed. 
-> > Looks like a linux bug to me. The refrigerator fake signal waked the
-> > task up and without restart for the sigwait case. How about below
-> > patch:
-> 
-> Is there chance to fix strace case, too? sigwait() is broken in more
-> than one way it seems...
-This patch should fix two cases. Can anybody familiar with signal
-handling look at it?
-The posix standard said for sigtimedwait:
-"If no signal in set is pending at the time of the call, the calling
-thread shall be suspended until one or more signals in set become
-pending or until it is interrupted by an unblocked, caught signal."
-Systemcall might be restarted if it's not interrupted by a caught
-signal.
+Christoph wrote:
+> New version without the magic numbers ...
 
-Thanks,
-Shaohua
+Good.
 
+===
 
+How about replacing:
 
----
+  static const char *policy_types[] = { "default", "prefer", "bind", "interleave" };
 
- linux-2.6.13-rc4-root/kernel/signal.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+with:
 
-diff -puN kernel/signal.c~sigwait-suspend-resume kernel/signal.c
---- linux-2.6.13-rc4/kernel/signal.c~sigwait-suspend-resume	2005-08-02 10:33:16.798179984 +0800
-+++ linux-2.6.13-rc4-root/kernel/signal.c	2005-08-02 12:49:06.688208376 +0800
-@@ -2231,7 +2231,8 @@ sys_rt_sigtimedwait(const sigset_t __use
- 			current->state = TASK_INTERRUPTIBLE;
- 			timeout = schedule_timeout(timeout);
- 
--			try_to_freeze();
-+			if (freezing(current))
-+				return -ERESTARTNOINTR;
- 			spin_lock_irq(&current->sighand->siglock);
- 			sig = dequeue_signal(current, &these, &info);
- 			current->blocked = current->real_blocked;
-@@ -2250,7 +2251,7 @@ sys_rt_sigtimedwait(const sigset_t __use
- 	} else {
- 		ret = -EAGAIN;
- 		if (timeout)
--			ret = -EINTR;
-+			ret = -ERESTARTNOHAND;
- 	}
- 
- 	return ret;
-_
+  static const char *policy_types[] = {
+	[MPOL_DEFAULT]    = "default",
+	[MPOL_PREFERRED]  = "prefer",
+	[MPOL_BIND]       = "bind",
+	[MPOL_INTERLEAVE] = "interleave"
+  };
 
+so that the mapping of the MPOL_* define constants to strings is
+explicit, not implicit.
 
+===
 
+Maybe I need more caffeine, but the following tests seem backwards:
+
++	if (buffer + maxlen > p + l + 1)
++		return -ENOSPC;
+
+and
+
++		if (buffer + maxlen > p + 2)
++			return -ENOSPC;
+
+===
+
+Can the following:
+
++	int l;
++	...
++
++	l = strlen(policy_types[mode]);
++	if (buffer + maxlen > p + l + 1)
++		return -ENOSPC;
++	strcpy(p, policy_types[mode]);
++	p += l;
++
++	if (!nodes_empty(nodes)) {
++
++		if (buffer + maxlen > p + 2)
++			return -ENOSPC;
++
++		*p++ = '=';
++	 	p += nodelist_scnprintf(p, buffer + maxlen - p, nodes);
++	}
+
+be rewritten to:
+
+	char *bufend = buffer + maxlen;
+	...
+
+	p += scnprintf(p, bufend - p, "%s", policy_types[mode]);
+	if (!nodes_empty(nodes)) {
+		p += scnprintf(p, bufend - p, "=");
+		p += nodelist_scnprintf(p, bufend - p, nodes);
+	}
+	if (p >= bufend - 1)
+		return -ENOSPC;
+
+Less code, more consistent code for each buffer addition, fails with
+ENOSPC in the case that the nodelist only partially fits rather than
+truncating it without notice, and fixes any possible problem with the
+above tests being backwards - by removing the tests ;).
+
+This suggested replacement code does have one weakness, in that it
+cannot distinguish the case that the buffer was exactly the right
+size from the case it was too small, and errors with -ENOSPC in
+either case.  I don't think that this case is worth adding extra
+logic to distinguish, in this situation.
+
+===
+
++	for(mode = 0; mode <= MPOL_MAX; mode++) {
+
+Space after 'for'
+
+===
+
+There should probably be comments that these routines must
+execute in the context of the task whose mempolicies are
+being displayed or modified.
+
+==
+
+There should probably be a doc style comment introducing
+the mpol_to_str() and str_to_mpol() routines, as described
+in Documentation/kernel-doc-nano-HOWTO.txt.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

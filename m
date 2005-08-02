@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVHBWGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVHBWJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVHBWGa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 18:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbVHBWGa
+	id S261890AbVHBWJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 18:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVHBWJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 18:06:30 -0400
-Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:59693 "EHLO
-	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261810AbVHBWG3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 18:06:29 -0400
-Message-ID: <42EFEE64.6040103@blueyonder.co.uk>
-Date: Tue, 02 Aug 2005 23:06:28 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Tue, 2 Aug 2005 18:09:27 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:26262 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261890AbVHBWJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 18:09:27 -0400
+Date: Tue, 2 Aug 2005 15:09:15 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+cc: Alex Williamson <alex.williamson@hp.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: RE: [PATCH] optimize writer path in time_interpolator_get_counter()
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F040BF5AD@scsmsx401.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.62.0508021501190.18484@schroedinger.engr.sgi.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F040BF5AD@scsmsx401.amr.corp.intel.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Touchpad errors
-References: <42EF633B.6080209@blueyonder.co.uk> <d120d500050802072256a4d7ee@mail.gmail.com>
-In-Reply-To: <d120d500050802072256a4d7ee@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Aug 2005 22:07:14.0155 (UTC) FILETIME=[89C6FBB0:01C597AE]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On 8/2/05, Sid Boyce <sboyce@blueyonder.co.uk> wrote:
+On Tue, 2 Aug 2005, Luck, Tony wrote:
+
+> Yes this is an SMP system (Intel Tiger4).  Cpu0 is the boot cpu, and is
+> indeed the one that takes the write lock, and thus the fast-return from
+> the get_counter() code.  I'm just very confused as to why I only see these
+> 10X worse outliers on cpu3.  There doesn't seem to be anything special
+> about it (/proc/interrupts shows similar stuff happening on each cpu).
+
+Are you sure that this is not some hardware contingency? I.e. cachelines 
+are prioritized according to cpu number or some such thing? Switch the 
+timer interrupt to a different cpu and see how this affects the 
+situation.
+
+> >We can still switch on the nojitter by default if the ITC's are guaranteed 
+> >to be properly synchronized which will make all this ugliness go away. 
 > 
->>New SuSE 9.3 x86_64 install after HD crash. With 2.6.13-rc3 and up to
->>2.6.13-rc4-git4. I can't remember seeing these errors for quite a long
->>time, thought they were fixed, perhaps there is a regression in recent
->>kernels.
->>It completely and rapidly fills up dmesg and /var/log/messages so I
->>can't get other stuff I need to see.
->>psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
->>psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
->>
-> 
-> 
-> Does it work with acpi=off?
-> 
-It does not boot with SuSE 9.3 default kernel, 2.6.13-rc3 or 
-2.6.13-rc4-git4, locks up after an initial message with a blank screen.
-Acer 1501LCe x86_64 laptop.
-Regards
-Sid.
--- 
-Sid Boyce ... Hamradio License G3VBV, Keen licensed Private Pilot
-Retired IBM Mainframes and Sun Servers Tech Support Specialist
-Microsoft Windows Free Zone - Linux used for all Computing Tasks
+> What do you mean by "properly synchronized"?  We can't get them
+> completely in step ... but we do know that they are very close.
+
+Properly synchronized means completely in step.
+
+> Closer than the microsecond granularity that most users (gettimeofday)
+> are going to pass back to the caller.  But running with "nojitter" will
+> occasionally result in time (as seen on two different processors) sometimes
+> jumping back by a microsecond.  How bad is this in practice?  I can
+> see that a user that simply subtracts two times may sometimes see an
+> answer of minus one micro-second ... but does this hurt?
+
+In practice we have seen the time jump forward to A.D. 2587 which then 
+results in tcp retransmits periods of a few centuries. I'd strongly advise 
+against nojitter unless you know that the ITCs are in step. Isnt the 
+hardware capable of making them run in step? It seems that some i386 
+BIOSes have accomplished just that.
+
+Note that the time subsystem for ia64 is not based on microseconds like 
+i386 but on nanoseconds. clock_gettime will return nanosecond resolution 
+which WILL become negative with devastating consequence if the clock 
+jumps back a microsecond. A single ia64 processor can do multiple calls 
+to retrieve time from user space within a microsecond.
+
+The jitter compensation avoids the problems arising with time for ITC.

@@ -1,96 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVHBHIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVHBHK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVHBHIx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 03:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVHBHIx
+	id S261344AbVHBHK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 03:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVHBHK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 03:08:53 -0400
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:3255 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S261235AbVHBHIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 03:08:52 -0400
-Message-ID: <42EF1C00.7090302@bigpond.net.au>
-Date: Tue, 02 Aug 2005 17:08:48 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 2 Aug 2005 03:10:58 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:61079 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261344AbVHBHKw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 03:10:52 -0400
+X-ORBL: [67.117.73.34]
+Date: Tue, 2 Aug 2005 00:10:36 -0700
+From: Tony Lindgren <tony@atomide.com>
 To: Con Kolivas <kernel@kolivas.org>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>
-Subject: Re: [ANNOUNCE] Interbench v0.24
-References: <200507291310.42203.kernel@kolivas.org>
-In-Reply-To: <200507291310.42203.kernel@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 2 Aug 2005 07:08:48 +0000
+Cc: tony@muru.com, linux-kernel@vger.kernel.org
+Subject: Re: dynamic ticks for 2.6.13-rc4 & bad gzip
+Message-ID: <20050802071035.GF15903@atomide.com>
+References: <200508021124.15670.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508021124.15670.kernel@kolivas.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> Interbench is a Linux Kernel Interactivity Benchmark.
+* Con Kolivas <kernel@kolivas.org> [050801 18:24]:
+> Hi Tony, LKML
 > 
-> Direct download:
-> http://ck.kolivas.org/apps/interbench/interbench-0.24.tar.bz2
-> Web:
-> http://interbench.kolivas.org
+> Since there appears to be renewed interest of late in dynamic ticks...
 > 
-> Changes:
-> 3 new loads were added:
-> 
-> Gaming benchmark:
-> This simulates an unlocked frame rate cpu intensive 3d gaming environment. It 
-> measures the latencies mean/sd/max and desired cpu percentage only. These 
-> should give a marker of frame rate stability (latencies), and maximum frame 
-> rates under different loads (desired cpu percentage). As this simulates an 
-> unlocked frame rate the deadlines met is meaningless. This does not 
-> accurately emulate a 3d game which is gpu bound, only a cpu bound one.
-> 
-> Hackbench:
-> Taken from Rusty's hackbench code as suggested by Ingo Molnar, this will run 
-> 'hackbench 50' repeatedly in the background when benchmarking real time 
-> performance.
-> 
-> Custom:
-> Based on the periodic scheduling used for audio/video, custom will allow you 
-> to specify a cpu percentage and frame rate of a custom workload, and this can 
-> be used to benchmark this workload's performance under normal scheduling, 
-> real time scheduling or it can be used as a background load.
-> 
-> 
-> Bugfixes:
-> Numerous floating point and overflow errors were tracked down and fixed. These 
-> are responsible for results like 'nan' and 4294... which is basically 2^32. 
-> Unfortunately the standard deviation reported in previous versions appears to 
-> have been bogus, but fortunately little value was placed on this result.
-> 
-> Error handling was made _much_ more robust - for example it was found that 
-> contrary to 'man sem_wait' but consistent with SUSv3, sem_wait can return -1 
-> with -EINTR.
-> 
-> Lots of little tweaks.
+> You didn't respond with my last patch for dynamic ticks so I assume that's 
+> because you threw up when you saw what a mess it is. Anyway I'm sorry for 
+> sending you that naive mess the first time around. 
 
-I've just been perusing the code and noticed that there is a bug in 
-calculating the latency standard deviation caused by the fact that the 
-latency that is inserted into the samples array is not necessarily the 
-same as that added to total_latency and could be quite a bit larger.  So 
-either the means are too small or the standard deviations are too large.
+Hehe, my strategy of lame response and sloppy patches seems to be working
+then! :)
 
-BTW, there's a method for calculating variances and means that avoids 
-the need to keep an array of samples.  Basically, in addition to the sum 
-of the samples (sum_x, say) you keep a sum of the squares of the samples 
-(sum_x_sq, say) and the number of samples (n, say).  Then:
+> Here is a full patch for 2.6.13-rc4 pushing code out of common paths and into 
+> dyn-tick.h where possible that builds on any config I can throw on it so far. 
+> I'm having trouble with "bad gzip magic" on boot with this one so I'm not 
+> really sure what's going on. Perhaps someone on the mailing list can shed 
+> some light on it.
 
-mean = sum_x / n
-variance = (sum_x_sq - (mean * mean) / n) / (n - 1)
-standard deviation = sqrt(variance)
+Thanks a lot, I really appreciate help on getting this thing cleaned up for
+x86 + PPC. The ARM version is already merged to mainline, but that's did
+not have all the legacy issues, and ARM has nice sys_timer...
 
-Without the need to keep the array of samples there's no need worry 
-about an arbitrary upper limit on the number of samples.
+I'll try out your patch today at some point, and will post a merged patches
+that also integrate the PPC support.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+I don't understand the "bad gzip magic", that happens while uncompressing
+before kernel boots, right?
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Regards,
+
+Tony

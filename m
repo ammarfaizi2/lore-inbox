@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVHBAEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVHBAHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVHBAEg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Aug 2005 20:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVHBAEg
+	id S261374AbVHBAHN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Aug 2005 20:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVHBAG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Aug 2005 20:04:36 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:61626 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261374AbVHBAD6 (ORCPT
+	Mon, 1 Aug 2005 20:06:59 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:50147 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261374AbVHBAFl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Aug 2005 20:03:58 -0400
-Message-ID: <42EEB86F.1090808@trash.net>
-Date: Tue, 02 Aug 2005 02:03:59 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
-X-Accept-Language: en
+	Mon, 1 Aug 2005 20:05:41 -0400
+Message-ID: <42EEB8CE.3030300@pobox.com>
+Date: Mon, 01 Aug 2005 20:05:34 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-CC: Josip Loncaric <josip@lanl.gov>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] net/sunrpc: fix time conversion error
-References: <42EE9014.7080205@lanl.gov> <20050801225643.GA4285@us.ibm.com>
-In-Reply-To: <20050801225643.GA4285@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+To: Dave Jones <davej@redhat.com>
+CC: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: pci cacheline size / latency oddness.
+References: <20050801233517.GA23172@redhat.com>
+In-Reply-To: <20050801233517.GA23172@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nishanth Aravamudan wrote:
-> On 01.08.2005 [15:11:48 -0600], Josip Loncaric wrote:
+Dave Jones wrote:
+> During boot of todays -git, I noticed this..
 > 
->>Line 589 of linux-2.6.11.10/net/sunrpc/svcsock.c is obviously wrong:
->>
->>                skb->stamp.tv_usec = xtime.tv_nsec * 1000;
->>
->>To convert nsec to usec, one should divide instead of multiplying:
->>
->>                skb->stamp.tv_usec = xtime.tv_nsec / 1000;
->>
->>The same bug could be present in the latest kernels, although I haven't 
->>checked.  This bug makes svc_udp_recvfrom() timestamps incorrect.
+> PCI: Setting latency timer of device 0000:00:1d.7 to 64
 > 
+> after boot, lspci shows..
 > 
-> Agreed, the conversion is wrong. I think the code is buggy period, as it
-> accesses xtime without grabbing the xtime_lock first. Following patch
-> should fix both issues.
-> 
-> Description: This function incorrectly multiplies a nanosecond value by
-> 1000, instead of dividing by 1000, to obtain a corresponding microsecond
-> value. Fix the math. Also, the function incorrectly accesses xtime
-> without using the xtime_lock. Fixed as well. Patch is compile-tested.
+> 00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02) (prog-if 20 [EHCI])
+> Subsystem: Dell: Unknown device 0169
+> Flags: bus master, medium devsel, latency 0, IRQ 201
+>                                           ^^						
 
-Depending on in which release you want this patch included, you might
-want to redo it against Dave's net-2.6.14 tree. It includes a patch that
-changes skb->stamp to an offset against a base timestamp.
+Probably the hardware doesn't want you to set it, similar to what I 
+describe in the following:
 
-Regards
-Patrick
 
-PS: I'll submit the patch to break compilation for unconverted users
-ASAP.
+> It also complains about..
+> 
+> PCI: cache line size of 128 is not supported by device 0000:00:1d.7
+
+This message means that it couldn't set the cacheline size at all.  Most 
+likely it is either zero, or hardcoded in the silicon.  Has very little 
+to do with the platform, and more to do with the device.
+
+
+> x86-64 doesn't have an arch override for pci_cache_line_size, so
+> it ends up at L1_CACHE_BYTES >> 2, which is 128 if you build
+> x86-64 kernels with CONFIG_GENERIC_CPU or CONFIG_MPSC
+> This means we will do the wrong thing on AMD machines which have
+> 64 byte cachelines.   I saw this problem however on an em64t box.
+> Would it make sense to shift >> once more if it fails, and retry
+> with a smaller size perhaps ?
+
+Too big is far better than too small.
+
+	Jeff
+
+
+

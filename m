@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVHBQXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVHBQ0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbVHBQXa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 12:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVHBP5o
+	id S261596AbVHBQ0M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 12:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVHBQZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 11:57:44 -0400
-Received: from styx.suse.cz ([82.119.242.94]:55214 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261599AbVHBPzK (ORCPT
+	Tue, 2 Aug 2005 12:25:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25831 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261588AbVHBQZj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 11:55:10 -0400
-Date: Tue, 2 Aug 2005 17:55:08 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.13-rc3 -> sluggish PS2 keyboard (was Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01)
-Message-ID: <20050802155508.GA13250@ucw.cz>
-References: <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe> <20050731063852.GA611@elte.hu> <1122871521.15825.13.camel@mindpipe> <1122991018.1590.2.camel@localhost.localdomain> <1122991531.5490.27.camel@mindpipe> <1122992426.1590.11.camel@localhost.localdomain> <1122997061.11253.3.camel@mindpipe> <20050802154404.GA13101@ucw.cz> <1122997633.11253.14.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1122997633.11253.14.camel@mindpipe>
-User-Agent: Mutt/1.5.6i
+	Tue, 2 Aug 2005 12:25:39 -0400
+Date: Tue, 2 Aug 2005 09:25:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Robin Holt <holt@sgi.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [patch 2.6.13-rc4] fix get_user_pages bug
+In-Reply-To: <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.58.0508020911480.3341@g5.osdl.org>
+References: <OF3BCB86B7.69087CF8-ON42257051.003DCC6C-42257051.00420E16@de.ibm.com>
+ <Pine.LNX.4.58.0508020829010.3341@g5.osdl.org>
+ <Pine.LNX.4.61.0508021645050.4921@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 02, 2005 at 11:47:13AM -0400, Lee Revell wrote:
 
-> On Tue, 2005-08-02 at 17:44 +0200, Vojtech Pavlik wrote:
-> > Is your keyboard interrupt (irq #1) working correctly? If not, then the
-> > keyboard controller is polled at 20Hz to compensate for lost interrupts,
-> > which would make it work, but if no interrupts work, it would seem like
-> > typing over a slow link.
-> 
-> I am an idiot.  The keyboard was plugged into the mouse port.
-> 
-> I'm impressed this worked at all.
- 
-It would likely even work correctly if irq 12 was available and working
-on the AUX port.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+On Tue, 2 Aug 2005, Hugh Dickins wrote:
+> 
+> But have I just realized a non-s390 problem with your pte_dirty
+> technique?  The ptep_set_wrprotect in fork's copy_one_pte.
+> 
+> That's specifically write-protecting the pte to force COW, but leaving
+> the dirty bit: so now get_user_pages will skip COW-ing it (in all write
+> cases, not just the peculiar ptrace force one).
+
+Damn, you're right. We could obviously move the dirty bit from the page
+tables to the "struct page" in fork() (that may have other advantages:  
+we're scanning the dang thing anyway, after all) to avoid that special
+case, but yes, that's nasty.
+
+One of the reasons I _liked_ the pte_dirty() test is that there's the
+reverse case: a mapping that used to be writable, and got dirtied (and
+COW'ed as necessary), and then was mprotected back, and the new test would
+happily write to it _without_ having to do any extra work. Which in that
+case is correct.
+
+But yeah, fork() does something special.
+
+In fact, that brings up another race altogether: a thread that does a
+fork() at the same time as get_user_pages() will have the exact same
+issues. Even with the old code. Simply because we test the permissions on
+the page long before we actually do the real access (ie it may be dirty
+and writable when we get it, but by the time the write happens, it might
+have become COW-shared).
+
+Now, that's probably not worth worrying about, but it's kind of 
+interesting.
+
+		Linus

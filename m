@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVHBPw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVHBP5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbVHBPw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 11:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVHBPuf
+	id S261635AbVHBP5g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 11:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVHBPzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 11:50:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64732 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261588AbVHBPsn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 11:48:43 -0400
-Date: Tue, 2 Aug 2005 08:48:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Manuel Lauss <mano@roarinelk.homelinux.net>,
-       Stelian Pop <stelian@popies.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Erik Waling <erikw@acc.umu.se>
-Subject: Re: 2.6.13-rc3-mm3
-In-Reply-To: <20050802154022.A15794@jurassic.park.msu.ru>
-Message-ID: <Pine.LNX.4.58.0508020845520.3341@g5.osdl.org>
-References: <20050728025840.0596b9cb.akpm@osdl.org> <42EC9410.8080107@roarinelk.homelinux.net>
- <Pine.LNX.4.58.0507311054320.29650@g5.osdl.org> <Pine.LNX.4.58.0507311125360.29650@g5.osdl.org>
- <1122846072.17880.43.camel@deep-space-9.dsnet> <Pine.LNX.4.58.0507311557020.14342@g5.osdl.org>
- <1122907067.31357.43.camel@localhost.localdomain> <1122976168.4656.3.camel@localhost.localdomain>
- <20050802103226.GA5501@roarinelk.homelinux.net> <20050802154022.A15794@jurassic.park.msu.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Aug 2005 11:55:07 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:42473 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261599AbVHBPxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 11:53:51 -0400
+Subject: Re: 2.6.13-rc3 -> sluggish PS2 keyboard (was Re: [patch] Real-Time
+	Preemption, -RT-2.6.13-rc4-V0.7.52-01)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1122997633.11253.14.camel@mindpipe>
+References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins>
+	 <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe>
+	 <20050731063852.GA611@elte.hu> <1122871521.15825.13.camel@mindpipe>
+	 <1122991018.1590.2.camel@localhost.localdomain>
+	 <1122991531.5490.27.camel@mindpipe>
+	 <1122992426.1590.11.camel@localhost.localdomain>
+	 <1122997061.11253.3.camel@mindpipe>  <20050802154404.GA13101@ucw.cz>
+	 <1122997633.11253.14.camel@mindpipe>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 02 Aug 2005 11:53:38 -0400
+Message-Id: <1122998018.1590.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 2 Aug 2005, Ivan Kokshaysky wrote:
+On Tue, 2005-08-02 at 11:47 -0400, Lee Revell wrote:
+> On Tue, 2005-08-02 at 17:44 +0200, Vojtech Pavlik wrote:
+> > Is your keyboard interrupt (irq #1) working correctly? If not, then the
+> > keyboard controller is polled at 20Hz to compensate for lost interrupts,
+> > which would make it work, but if no interrupts work, it would seem like
+> > typing over a slow link.
 > 
-> Does the patch in appended message fix that?
+> I am an idiot.  The keyboard was plugged into the mouse port.
+> 
+> I'm impressed this worked at all.
 
-The problem with this is that it only papers over the bug. 
+:)
 
-I don't mind trying to allocate at higher addresses per se: we used to
-have the starting point be 0x4000 at some point, and that part is fine.  
-The problem is that this also screws us if somebody has a PCI bridge with
-an IO window that is at a lower address than 0x2000 - now the PCI layer 
-will refuse to try to allocate within it, and you'll replace one bug by 
-another.
+I guess this also makes the case that my sluggish keyboard is from the X
+updates in debian. I wasn't able  to get it to be sluggish at the
+console, and it was only sluggish under X load.
 
-		Linus
+-- Steve
+
+

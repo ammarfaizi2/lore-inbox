@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVHBOMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVHBOSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVHBOMI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 10:12:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVHBOJn
+	id S261539AbVHBOSY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 10:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVHBOQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 10:09:43 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:27113 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261541AbVHBOHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 10:07:15 -0400
+	Tue, 2 Aug 2005 10:16:18 -0400
+Received: from [211.29.132.190] ([211.29.132.190]:17622 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261410AbVHBOQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 10:16:09 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-From: Lee Revell <rlrevell@joe-job.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: James Bruce <bruce@andrew.cmu.edu>, David Weinehall <tao@acc.umu.se>,
-       Marc Ballarin <Ballarin.Marc@gmx.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050802112529.GA7954@elf.ucw.cz>
-References: <20050730195116.GB9188@elf.ucw.cz>
-	 <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz>
-	 <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz>
-	 <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz>
-	 <1122852234.13000.27.camel@mindpipe>
-	 <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu>
-	 <20050802112529.GA7954@elf.ucw.cz>
-Content-Type: text/plain
-Date: Tue, 02 Aug 2005 10:07:11 -0400
-Message-Id: <1122991631.5490.29.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+Date: Wed, 3 Aug 2005 00:15:01 +1000
+User-Agent: KMail/1.8.2
+Cc: Lee Revell <rlrevell@joe-job.com>, sclark46@earthlink.net,
+       James Bruce <bruce@andrew.cmu.edu>, "Theodore Ts'o" <tytso@mit.edu>,
+       David Weinehall <tao@acc.umu.se>, Pavel Machek <pavel@ucw.cz>,
+       Marc Ballarin <Ballarin.Marc@gmx.de>
+References: <20050730195116.GB9188@elf.ucw.cz> <42EF70BD.7070804@earthlink.net> <1122991380.5490.24.camel@mindpipe>
+In-Reply-To: <1122991380.5490.24.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200508030015.02104.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-02 at 13:25 +0200, Pavel Machek wrote:
-> BTW I think many architectures have HZ=100 even in 2.6, so it is not
-> as siple as "go 2.6"...
+On Wed, 3 Aug 2005 00:02, Lee Revell wrote:
+> On Tue, 2005-08-02 at 09:10 -0400, Stephen Clark wrote:
+> > Maybe new desktop systems - but what about the tens of millions of old
+> > systems that don't.
+>
+> Does anyone really give a shit about saving power on the desktop anyway?
+> This is basically a laptop issue.
 
-Does not matter.  An app that only ever worked on 2.6 + x86 will break
-on 2.6.13.
+Heat has become for Prescott, and will be for every upcoming chipset of the 
+future, a major issue. So yes it will be relevant to everyone.
 
-Lee
-
+Cheers,
+Con

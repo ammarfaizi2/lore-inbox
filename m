@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVHBITN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVHBIZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVHBITN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 04:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVHBITM
+	id S261421AbVHBIZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 04:25:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVHBIZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 04:19:12 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:36856 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261430AbVHBISj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 04:18:39 -0400
-Message-ID: <42EF2C56.1040304@gmx.net>
-Date: Tue, 02 Aug 2005 10:18:30 +0200
-From: Otto Meier <gf435@gmx.net>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Jeff Garzik <jgarzik@pobox.com>, Daniel Drake <dsd@gentoo.org>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: Driver for sata adapter promise sata300 tx4
-References: <42EDE918.9040807@gmx.net> <42EE3501.7010107@gentoo.org> <42EE3FB8.10008@gmx.net> <42EE4ADF.4080502@gentoo.org> <20050801201756.GQ22569@suse.de> <42EE866B.5030005@pobox.com> <20050801203540.GT22569@suse.de>
-In-Reply-To: <20050801203540.GT22569@suse.de>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:a9159ed0296f17902404cf1c2ac7671c
+	Tue, 2 Aug 2005 04:25:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:64986 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261421AbVHBIZX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 04:25:23 -0400
+Date: Tue, 2 Aug 2005 10:27:19 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC][PATCH] libata ATAPI alignment
+Message-ID: <20050802082719.GA22569@suse.de>
+References: <20050729050654.GA10413@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050729050654.GA10413@havoc.gtf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Mon, Aug 01 2005, Jeff Garzik wrote:
->   
->> Jens Axboe wrote:
->>     
->>> On Mon, Aug 01 2005, Daniel Drake wrote:
->>>
->>>       
->>>> Otto Meier wrote:
->>>>
->>>>         
->>>>> My question is also are these features (NCQ/TCQ) and the heigher 
->>>>> datarate be supported by this
->>>>> modification? or is only the basic feature set of sata 150 TX4 supported?
->>>>>           
->>>> NCQ support is under development. Search the archives for Jens Axboe's 
->>>> recent patches to support this. I don't know about TCQ.
->>>>         
->>> It's done for ahci, because we have documentation. I have no intention
->>> on working on NCQ for chipset where full documentation is not available.
->>> But the bulk of the code is the libata core support, adding NCQ support
->>> to a sata_* driver should now be fairly trivial (with docs).
->>>       
->> I have docs for the Promise NCQ stuff.  Once NCQ is fully fleshed out (I 
->> haven't wrapped my brain around it in a couple weeks), it shouldn't be 
->> difficult to add NCQ support to sata_promise.
->>     
->
-> Excellent!
->
->   
-Sounds great. If you have implemented NCQ  for sata_promise it would be 
-nice if you
-could forward me the patch, because i'm not  subscribed to the ML's
+On Fri, Jul 29 2005, Jeff Garzik wrote:
+> 
+> So, one thing that's terribly ugly about SATA ATAPI is that we need to
+> pad DMA transfers to the next 32-bit boundary, if the length is not
+> evenly divisible by 4.
+> 
+> Messing with the scatterlist to accomplish this is terribly ugly
+> no matter how you slice it.  One way would be to create my own
+> scatterlist, via memcpy and then manual labor.  Another way would be
+> to special case a pad buffer, appending it onto the end of various
+> scatterlist code.
 
-best regards
-Otto Meier
+It's not pretty, but I think it's the only solution currently.
+
+> Complicating matters, we currently must support two methods of data
+> buffer submission:  a single kernel virtual address, or a struct
+> scatterlist.
+
+Fairly soon the !use_sg case will be gone, at least coming from SCSI. I
+hope we can completely get away from the virtual address + length for
+any remaining cases, just making it a single entry sg list.
+
+> 
+> Review is requested by any and all parties, as well as suggestions for
+> a prettier approach.
+> 
+> This is one of the last steps needed to get ATAPI going.
+> 
+> 
+> 
+> diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
+> --- a/drivers/scsi/ahci.c
+> +++ b/drivers/scsi/ahci.c
+> @@ -44,7 +44,7 @@
+>  
+>  enum {
+>  	AHCI_PCI_BAR		= 5,
+> -	AHCI_MAX_SG		= 168, /* hardware max is 64K */
+> +	AHCI_MAX_SG		= 300, /* hardware max is 64K */
+>  	AHCI_DMA_BOUNDARY	= 0xffffffff,
+>  	AHCI_USE_CLUSTERING	= 0,
+>  	AHCI_CMD_SLOT_SZ	= 32 * 32,
+
+Reasoning? I agree, just wondering... How big is the allocated area now?
+
+-- 
+Jens Axboe
+

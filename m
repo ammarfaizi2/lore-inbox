@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVHBNyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVHBN5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbVHBNyU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 09:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVHBNyU
+	id S261525AbVHBN5J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 09:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVHBN5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 09:54:20 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:29329 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261524AbVHBNyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 09:54:11 -0400
-Date: Tue, 2 Aug 2005 09:54:11 -0400
-To: Richard Hubbell <richard.hubbell@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Where's the list of needed hardware for donating?
-Message-ID: <20050802135411.GF31019@csclub.uwaterloo.ca>
-References: <c25b253205072710481c157e4c@mail.gmail.com> <20050728230047.GA4385@elf.ucw.cz> <c25b2532050728190311d6c339@mail.gmail.com> <20050730092904.GC2013@elf.ucw.cz> <c25b25320507311506258736b7@mail.gmail.com>
+	Tue, 2 Aug 2005 09:57:09 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:24532 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261525AbVHBN5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 09:57:08 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1122871521.15825.13.camel@mindpipe>
+References: <20050730160345.GA3584@elte.hu> <1122756435.29704.2.camel@twins>
+	 <20050730205259.GA24542@elte.hu> <1122785233.10275.3.camel@mindpipe>
+	 <20050731063852.GA611@elte.hu>  <1122871521.15825.13.camel@mindpipe>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 02 Aug 2005 09:56:58 -0400
+Message-Id: <1122991018.1590.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c25b25320507311506258736b7@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 31, 2005 at 10:06:38PM +0000, Richard Hubbell wrote:
-> Ok, here's the list:
+On Mon, 2005-08-01 at 00:45 -0400, Lee Revell wrote:
+> On Sun, 2005-07-31 at 08:38 +0200, Ingo Molnar wrote:
+> > ok - i've uploaded the -52-04 patch, does that fix it for you?
 > 
-> Adaptec AHA-1510A
-> (ISA, centronix-style external connector with terminator, one internal
-> ribbon cable,
-> I probably have some centronix-style external cables around too, this
-> card doesn't have it's own boot ROM)
-> 
-> Gravis UltraSound a.k.a. GUS
-> (ISA, fully loaded with memory, 1megabyte (I think))
+> Has anyone found their PS2 keyboard rather sluggish with this kernel?
+> I'm not sure whether it's an -RT problem, I'll have to try rc4.
 
-Hasn't that been fully supported for years in ALSA?  I remember the guy
-that started ALSA had written an amazing driver for the GUS before
-starting ALSA.
+I've just noticed this now. While I have lots of ssh sessions running,
+my keyboard does get really sluggish. This hasn't happened before. I'm
+currently running 2.6.13-rc3 with no RT.  So this may definitely be a
+mainline issue.
 
-> Pertec MyTape 800
-> (I think this is a QIC tape drive that connects via the floppy interface)
+-- Steve
 
-I thought QIC floppy connected tape drives were supported as well.
 
-> TEAC 1.44  3.5 inch Floppy FDR
-> (FD-235HF)
-
-Standard 3.5" floppy drive?
-
-> Rocket Port 8-port serial board
-> (ISA, 8 - RJ11 jacks, made by Comtrol, brand-new in-box)
-
-I know nothing about the support of the rest of the hardware.
-
-Len Sorensen

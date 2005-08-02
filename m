@@ -1,98 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVHBMqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVHBMyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVHBMqA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 08:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVHBMmC
+	id S261500AbVHBMyx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 08:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVHBMyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 08:42:02 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:40527 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S261504AbVHBMlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 08:41:39 -0400
-Message-ID: <42EF69F7.2020108@m1k.net>
-Date: Tue, 02 Aug 2005 08:41:27 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horms <horms@verge.net.au>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       Chris Wright <chrisw@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>,
-       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] v4l cx88 hue offset fix
-References: <20050802071959.GB22793@verge.net.au>
-In-Reply-To: <20050802071959.GB22793@verge.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 2 Aug 2005 08:54:53 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19369 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261500AbVHBMyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 08:54:52 -0400
+Date: Tue, 2 Aug 2005 14:54:45 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Stelian Pop <stelian@popies.net>
+Cc: Johannes Berg <johannes@sipsolutions.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>,
+       debian-powerpc@lists.debian.org
+Subject: Re: powerbook power-off and 2.6.13-rc[3,4]
+Message-ID: <20050802125445.GA32322@atrey.karlin.mff.cuni.cz>
+References: <1122904460.6491.41.camel@localhost.localdomain> <1122905228.6881.9.camel@localhost> <1122907136.31350.45.camel@localhost.localdomain> <20050802111754.GC1390@elf.ucw.cz> <42EF5B4E.6090101@sipsolutions.net> <1122982951.4652.14.camel@localhost.localdomain> <1122985793.4648.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1122985793.4648.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horms wrote:
+Hi!
 
->Hi Marcelo, 
->
->Another fix from 2.6.12.3 that seems approprite for 2.4.
->Should apply cleanly to your tree.
->  
->
-Horms-
+> > > Pavel Machek wrote:
+> > > 
+> > > >Can you try without USB?
+> > > >
+> > > Not really. The keyboard is USB, and there's no PS/2 connector. I guess 
+> > > I maybe could do it via a timer, unload the modules and then have it 
+> > > shut down afterwards...
+> > 
+> > I'll build a kernel without USB and drive the laptop over the net and
+> > see what happens.
+> 
+> Without CONFIG_USB the poweroff still hangs, and this time the panel
+> goes completly white with dark spots appearing all over it (kinda scary
+> btw). A 5 seconds press on the power button force it to power off.
 
-Thank you for the effort of trying to get this into 2.4, but I don't 
-think there is any support at all for cx88 cards in kernel 2.4 v4l.  I 
-wasn't involved in v4l back then, but I took a look at Marcelo's 
-linux-2.4.git/tree , and /drivers/media/video/cx88* just doesn't exist.  
-There is no cx88-video.c file present for this patch to be applied to!
+Yep, looks like screen burning, right? So it is different kind of hang
+=> USB has some problem but there's another one, too?
 
-This one-line fix does make a very big difference, but unfortunately, it 
-looks like 2.4 doesn't have the cx88 driver for the fixing...
+> This is on a 2.6.13-rc4, and I'm attaching the .config in case it
+> matters.
 
-Good to see that debian has backported it to their 2.6.8 kernel, 
-though.  That really makes me smile.  :-)
-
->Signed-off-by: Horms <horms@verge.net.au>
->
->From: Michael Krufky <mkrufky@m1k.net>
->Date: Thu, 30 Jun 2005 20:06:41 +0000 (-0400)
->Subject: [PATCH] v4l cx88 hue offset fix
->X-Git-Tag: v2.6.12.3
->X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/gregkh/linux-2.6.12.y.git;a=commitdiff;h=aebaaf4060dd0db163694da8e4ab7ba86add57b9
->
->  [PATCH] v4l cx88 hue offset fix
->  
->  Changed hue offset to 128 to correct behavior in cx88 cards.  Previously,
->  setting 0% or 100% hue was required to avoid blue/green people on screen.
->  Now, 50% Hue means no offset, just like bt878 stuff.
->  
->  Signed-off-by: Michael Krufky <mkrufky@m1k.net>
->  Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
->  Signed-off-by: Chris Wright <chrisw@osdl.org>
->  Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
->---
->
->Backported to Debian's kernel-source-2.6.8 by dann frazier <dannf@debian.org>
->
->--- a/drivers/media/video/cx88/cx88-video.c
->+++ b/drivers/media/video/cx88/cx88-video.c
->@@ -261,7 +261,7 @@ static struct cx88_ctrl cx8800_ctls[] = 
-> 			.default_value = 0,
-> 			.type          = V4L2_CTRL_TYPE_INTEGER,
-> 		},
->-		.off                   = 0,
->+		.off                   = 128,
-> 		.reg                   = MO_HUE,
-> 		.mask                  = 0x00ff,
-> 		.shift                 = 0,
->
+Could you try inserting printks to see where it hangs? Aha, with
+display turned off that is not going to be funny.
+								Pavel
 -- 
-Michael Krufky
-
+Boycott Kodak -- for their patent abuse against Java.

@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVHBPqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVHBPqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVHBPqZ (ORCPT <rfc822;willy@w.ods.org>);
+	id S261590AbVHBPqZ (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 2 Aug 2005 11:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVHBPoX
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVHBPoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 11:44:23 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:49092 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261575AbVHBPm4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 11:42:56 -0400
-Message-ID: <42EF947E.1070600@andrew.cmu.edu>
-Date: Tue, 02 Aug 2005 11:42:54 -0400
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Tue, 2 Aug 2005 11:44:19 -0400
+Received: from dvhart.com ([64.146.134.43]:8891 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261587AbVHBPnx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Aug 2005 11:43:53 -0400
+Date: Tue, 02 Aug 2005 08:43:50 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Sonny Rao <sonny@burdell.org>, Paul Mackerras <paulus@samba.org>
+Cc: torvalds@osdl.org, akpm@osdl.org, anton@samba.org,
+       Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] POWER 4 fails to boot with NUMA
+Message-ID: <1980000.1122997430@[10.10.2.4]>
+In-Reply-To: <20050801062322.GA32415@kevlar.burdell.org>
+References: <17133.45774.226079.790875@cargo.ozlabs.ibm.com> <20050801062322.GA32415@kevlar.burdell.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: sclark46@earthlink.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Power consumption HZ100, HZ250, HZ1000: new numbers
-References: <20050730195116.GB9188@elf.ucw.cz> <1122753864.14769.18.camel@mindpipe> <20050730201049.GE2093@elf.ucw.cz> <42ED32D3.9070208@andrew.cmu.edu> <20050731211020.GB27433@elf.ucw.cz> <42ED4CCF.6020803@andrew.cmu.edu> <20050731224752.GC27580@elf.ucw.cz> <1122852234.13000.27.camel@mindpipe> <20050801074447.GJ9841@khan.acc.umu.se> <42EE4B4A.80602@andrew.cmu.edu> <20050801204245.GC17258@thunk.org> <42EEFB9B.10508@andrew.cmu.edu> <42EF70BD.7070804@earthlink.net>
-In-Reply-To: <42EF70BD.7070804@earthlink.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Clark wrote:
-> Maybe new desktop systems - but what about the tens of millions of old 
-> systems that don't.
 
-If it's an old system, it probably doesn't have working ACPI C-states 
-though.  Without that, low HZ does not save you anything.  I should have 
-said: 99% of desktops with the capability to do ACPI sleep have at least 
-one USB device attached (usually a mouse).
 
-I do like saving power, which is why I run cpu frequency scaling on 
-every machine I have that supports it.  I'm happy because it does its 
-savings without negatively impacting latency or high-load performance. 
-By 2.6.14 dyntick should give us the same thing for HZ, which is why I 
-think changing the maximum value now doesn't make sense.
+--Sonny Rao <sonny@burdell.org> wrote (on Monday, August 01, 2005 02:23:22 -0400):
 
-  - Jim Bruce
+> On Mon, Aug 01, 2005 at 12:27:42AM -0500, Paul Mackerras wrote:
+>> From: Mike Kravetz <kravetz@us.ibm.com>
+>> 
+>> If CONFIG_NUMA is set, some POWER 4 systems will fail to boot.  This is
+>> because of special processing needed to handle invalid node IDs (0xffff)
+>> on POWER 4.  My previous patch to handle memory 'holes' within nodes
+>> forgot to add this special case for POWER 4 in one place.
+>> 
+>> In reality, I'm not sure that configuring the kernel for NUMA on POWER 4
+>> makes much sense.  Are there POWER 4 based systems with NUMA characteristics
+>> that are presented by the firmware?  But, distros want one kernel for all
+>> systems so NUMA is on by default in their kernels.  The patch handles those
+>> cases.
+> 
+> IIRC, In SMP mode the NUMA topology is exported.  I've tried this on a
+> p690 and it worked correctly on older kernels (2.6.10 or 2.6.11) 
+> 
+> I also noticed a nice speedup on a few things compared to LPAR mode :-)
+
+Yeah, I have a p650 that's set up similarly .... I thought the auto-test
+stuff was covering that, but it seems NUMA is not turned on for that box
+like I thought it was. will fix ....
+
+M.
+

@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVHBJ4C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVHBJ4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbVHBJ4C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Aug 2005 05:56:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVHBJyI
+	id S261449AbVHBJ4N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Aug 2005 05:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVHBJ4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Aug 2005 05:54:08 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:47549 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S261449AbVHBJxk (ORCPT
+	Tue, 2 Aug 2005 05:56:06 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38564 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261449AbVHBJyN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Aug 2005 05:53:40 -0400
-Subject: [PATCH] meye: use dma-mapping constants
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 02 Aug 2005 11:52:10 +0200
-Message-Id: <1122976330.4656.9.camel@localhost.localdomain>
+	Tue, 2 Aug 2005 05:54:13 -0400
+Date: Tue, 2 Aug 2005 11:54:01 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Calling suspend() in halt/restart/shutdown -> not a good idea
+Message-ID: <20050802095401.GB1442@elf.ucw.cz>
+References: <1122908972.18835.153.camel@gaston> <20050801203728.2012f058.Ballarin.Marc@gmx.de> <1122926885.30257.4.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1122926885.30257.4.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-This patch comes from the janitors and have been in my tree for quite
-some time now. Please apply.
+> > > Why are we calling driver suspend routines in these ? This is _not_ a
+> > > good idea ! On various machines, the mecanisms for shutting down are
+> > > quite different from suspend/resume, and current drivers have too many
+> > > bugs to make that safe. I keep getting all sort of reports of machines
+> > > not shutting down anymore.
+> > 
+> > For example, my Centrino laptop will restart instead of power down with
+> > -mm kernels.
+> > 
+> > To "fix" this I can either:
+> > - unplug power. Shutdown works when on battery power.
+> > - attach an external USB hard disk => power down always works.
+> > - remove device_suspend(PMSG_SUSPEND) => power down always works.-
+> 
+> Yes, this is just one of the gazillion setup that got broken by this
+> change. Drivers already have a shutdown() callback anyway, and if we
+> want to re-use the suspend one, then we need to define some sane
+> parameter, not "fake" a system suspend.
 
-Stelian.
-
-Use the DMA_32BIT_MASK constant from dma-mapping.h when calling
-pci_set_dma_mask() or pci_set_consistent_dma_mask()
-This patch includes dma-mapping.h explicitly because it caused errors
-on some architectures otherwise.
-See http://marc.theaimsgroup.com/?t=108001993000001&r=1&w=2 for details
-
-Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
-Signed-off-by: Stelian Pop <stelian@popies.net>
-
-Index: linux-2.6.git/drivers/media/video/meye.c
-===================================================================
---- linux-2.6.git.orig/drivers/media/video/meye.c	2005-07-08 14:08:17.000000000 +0200
-+++ linux-2.6.git/drivers/media/video/meye.c	2005-08-02 10:22:23.000000000 +0200
-@@ -37,6 +37,7 @@
- #include <linux/delay.h>
- #include <linux/interrupt.h>
- #include <linux/vmalloc.h>
-+#include <linux/dma-mapping.h>
- 
- #include "meye.h"
- #include <linux/meye.h>
-@@ -121,7 +122,7 @@
- 	memset(meye.mchip_ptable, 0, sizeof(meye.mchip_ptable));
- 
- 	/* give only 32 bit DMA addresses */
--	if (dma_set_mask(&meye.mchip_dev->dev, 0xffffffff))
-+	if (dma_set_mask(&meye.mchip_dev->dev, DMA_32BIT_MASK))
- 		return -1;
- 
- 	meye.mchip_ptable_toc = dma_alloc_coherent(&meye.mchip_dev->dev,
+I'd like to get rid of shutdown callback. Having two copies of code
+(one in callback, one in suspend) is ugly.
+								Pavel
 
 -- 
-Stelian Pop <stelian@popies.net>
-
+teflon -- maybe it is a trademark, but it should not be.
